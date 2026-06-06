@@ -51,7 +51,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.header"
+                  "dashboard.tenantAdmin.header"
                 ]
               }
             ]
@@ -63,7 +63,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.kpis"
+                  "dashboard.tenantAdmin.kpis"
                 ]
               }
             ]
@@ -75,8 +75,8 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.readiness",
-                  "dashboard.tenant_admin.alerts"
+                  "dashboard.tenantAdmin.readiness",
+                  "dashboard.tenantAdmin.alerts"
                 ]
               }
             ]
@@ -88,8 +88,8 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.operations",
-                  "dashboard.tenant_admin.commercial"
+                  "dashboard.tenantAdmin.operations",
+                  "dashboard.tenantAdmin.commercial"
                 ]
               }
             ]
@@ -101,7 +101,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.quick_actions"
+                  "dashboard.tenantAdmin.quickActions"
                 ]
               }
             ]
@@ -109,7 +109,7 @@
         ]
       },
       "widgets": {
-        "dashboard.tenant_admin.header": {
+        "dashboard.tenantAdmin.header": {
           "type": "TenantDashboardHeaderWidget",
           "binding": {
             "mode": "dynamic",
@@ -119,7 +119,7 @@
             "titleKey": "dashboard.tenant_admin.header.title"
           }
         },
-        "dashboard.tenant_admin.kpis": {
+        "dashboard.tenantAdmin.kpis": {
           "type": "KpiGridWidget",
           "binding": {
             "mode": "dynamic",
@@ -136,7 +136,7 @@
             "titleKey": "dashboard.tenant_admin.kpis.title"
           }
         },
-        "dashboard.tenant_admin.readiness": {
+        "dashboard.tenantAdmin.readiness": {
           "type": "ReadinessSummaryWidget",
           "binding": {
             "mode": "dynamic",
@@ -147,7 +147,7 @@
             "maxIssues": 4
           }
         },
-        "dashboard.tenant_admin.alerts": {
+        "dashboard.tenantAdmin.alerts": {
           "type": "AlertsWidget",
           "binding": {
             "mode": "dynamic",
@@ -158,7 +158,7 @@
             "titleKey": "dashboard.tenant_admin.alerts.title"
           }
         },
-        "dashboard.tenant_admin.operations": {
+        "dashboard.tenantAdmin.operations": {
           "type": "OperationsSummaryWidget",
           "binding": {
             "mode": "dynamic",
@@ -174,7 +174,7 @@
             "titleKey": "dashboard.tenant_admin.operations.title"
           }
         },
-        "dashboard.tenant_admin.commercial": {
+        "dashboard.tenantAdmin.commercial": {
           "type": "CommercialSummaryWidget",
           "binding": {
             "mode": "dynamic",
@@ -190,7 +190,7 @@
             "titleKey": "dashboard.tenant_admin.commercial.title"
           }
         },
-        "dashboard.tenant_admin.quick_actions": {
+        "dashboard.tenantAdmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
             "mode": "dynamic",

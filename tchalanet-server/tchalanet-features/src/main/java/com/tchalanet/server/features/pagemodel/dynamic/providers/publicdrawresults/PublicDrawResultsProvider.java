@@ -1,13 +1,20 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.publicdrawresults;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicNextResultTimeView;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +27,8 @@ import org.springframework.stereotype.Component;
  * dedicated results page).
  *
  * Supported widget ids:
- *   - home.draws                  → slots only (props.include_history=false)
- *   - public.draw_results.main    → slots + history (props.include_history=true)
+ *   - home.draws                  → slots only (props.includeHistory=false)
+ *   - public.draw_results.main    → slots + history (props.includeHistory=true)
  */
 @Component
 @RequiredArgsConstructor
@@ -49,10 +56,11 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     PublicDrawResultsPayloadAssembler.Spec spec = buildSpec(widgetConfig);
     PublicDrawResultsPayloadAssembler.Payload payload =
         resolutionContext.getOrLoad(spec.memoKey(), () -> assembler.assemble(spec));
+    Map<String, Object> props = widgetConfig == null ? null : widgetConfig.props();
 
     return switch (widgetId == null ? "" : widgetId) {
       case "home.draws" -> Map.of(
-          "slots", payload.slots());
+          "slots", homeSlots(payload.slots(), readInt(props, "maxSlots", Integer.MAX_VALUE)));
       case "public.draw_results.main" -> Map.of(
           "slots", payload.slots(),
           "history", payload.history(),
@@ -69,14 +77,93 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     return SOURCE;
   }
 
-  private static PublicDrawResultsPayloadAssembler.Spec buildSpec(
+  static List<HomeSlot> homeSlots(List<PublicDrawResultSlotView> slots) {
+    return homeSlots(slots, Integer.MAX_VALUE);
+  }
+
+  static List<HomeSlot> homeSlots(List<PublicDrawResultSlotView> slots, int maxSlots) {
+    if (slots == null) {
+      return List.of();
+    }
+    return slots.stream()
+        .filter(Objects::nonNull)
+        .map(PublicDrawResultsProvider::homeSlot)
+        .limit(Math.max(0, maxSlots))
+        .toList();
+  }
+
+  private static HomeSlot homeSlot(PublicDrawResultSlotView slot) {
+    return new HomeSlot(
+        slot.slotKey(),
+        slot.provider(),
+        slot.label(),
+        slot.timezone(),
+        slot.drawTime(),
+        homeNext(slot.next()),
+        homeLatest(slot.latest()));
+  }
+
+  private static HomeNext homeNext(PublicNextResultTimeView next) {
+    return next == null
+        ? null
+        : new HomeNext(next.expectedAt(), next.localTime(), next.status(), next.countdownSeconds());
+  }
+
+  private static HomeLatest homeLatest(PublicDrawResultView latest) {
+    return latest == null
+        ? null
+        : new HomeLatest(
+            latest.resultDate(),
+            latest.occurredAt(),
+            latest.status(),
+            latest.quality(),
+            new HomeHaiti(
+                text(latest, "lot1"),
+                text(latest, "lot2"),
+                text(latest, "lot3"),
+                text(latest, "lot4")));
+  }
+
+  private static String text(PublicDrawResultView latest, String field) {
+    return latest.haiti() == null ? null : latest.haiti().path(field).asString(null);
+  }
+
+  record HomeSlot(
+      String slotKey,
+      String provider,
+      String label,
+      String timezone,
+      LocalTime drawTime,
+      HomeNext next,
+      HomeLatest latest) {}
+
+  record HomeNext(
+      Instant expectedAt,
+      LocalTime localTime,
+      String status,
+      long countdownSeconds) {}
+
+  record HomeLatest(
+      LocalDate resultDate,
+      Instant occurredAt,
+      String status,
+      String quality,
+      HomeHaiti haiti) {}
+
+  record HomeHaiti(
+      String lot1,
+      String lot2,
+      String lot3,
+      String lot4) {}
+
+  static PublicDrawResultsPayloadAssembler.Spec buildSpec(
       PageModelDoc.WidgetConfig config) {
     Map<String, Object> props = config == null ? null : config.props();
     return new PublicDrawResultsPayloadAssembler.Spec(
-        readStringList(props, "slot_keys"),
+        readStringList(props, "slotKeys"),
         readString(props, "provider"),
-        readBoolean(props, "include_history", false),
-        readInt(props, "history_limit", DEFAULT_HISTORY_LIMIT));
+        readBoolean(props, "includeHistory", false),
+        readInt(props, "historyLimit", DEFAULT_HISTORY_LIMIT));
   }
 
   private static String readString(Map<String, Object> props, String key) {

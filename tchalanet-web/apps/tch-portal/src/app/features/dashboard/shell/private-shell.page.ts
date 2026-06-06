@@ -1,10 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { catchError, defer, of } from 'rxjs';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
+import { PageModelApi } from '../../../core/pagemodel';
 import { AppRuntimeStore } from '../../../core/runtime';
+import { NavigationDestination, PrivateShellRuntime } from '../../../shared/types';
 
 @Component({
   imports: [LanguageSwitcherComponent, RouterLink, RouterOutlet, TranslatePipe],
@@ -13,6 +17,9 @@ import { AppRuntimeStore } from '../../../core/runtime';
     <div class="private-shell">
       <header class="top-app-bar">
         <a routerLink="/public" class="brand">Tchalanet</a>
+        @if (titleKey()) {
+          <strong>{{ titleKey() | translate }}</strong>
+        }
         <div class="utilities">
           <tch-language-switcher />
           <button type="button" (click)="logout()">
@@ -23,9 +30,9 @@ import { AppRuntimeStore } from '../../../core/runtime';
 
       <div class="workspace">
         <nav class="side-nav" aria-label="Private navigation">
-          <a routerLink="/app/cashier">{{ 'dashboard.titles.cashier' | translate }}</a>
-          <a routerLink="/app/admin">{{ 'dashboard.titles.admin' | translate }}</a>
-          <a routerLink="/app/platform">{{ 'dashboard.titles.platform' | translate }}</a>
+          @for (item of destinations(); track item.id) {
+            <a [routerLink]="item.destination.value">{{ item.labelKey | translate }}</a>
+          }
         </nav>
 
         <main class="content">
@@ -111,6 +118,26 @@ import { AppRuntimeStore } from '../../../core/runtime';
 export class PrivateShellPage {
   private readonly auth = inject(AuthSessionService);
   private readonly runtime = inject(AppRuntimeStore);
+  private readonly pageModelApi = inject(PageModelApi);
+
+  private readonly pageRuntime = toSignal(
+    defer(() =>
+      this.auth.session().roles.includes('SUPER_ADMIN')
+        ? this.pageModelApi.getPlatformPage()
+        : this.pageModelApi.getTenantPage(),
+    ).pipe(catchError(() => of(undefined))),
+    { initialValue: undefined },
+  );
+
+  readonly shell = computed<PrivateShellRuntime | undefined>(() => {
+    const shell = this.pageRuntime()?.shell;
+    return shell?.type === 'private' ? shell : undefined;
+  });
+  readonly titleKey = computed(() => readTitleKey(this.shell()?.topAppBar));
+  readonly destinations = computed(() => {
+    const resolved = readDestinations(this.shell()?.navigationDrawer);
+    return resolved.length ? resolved : fallbackDestinations(this.auth.session().roles);
+  });
 
   constructor() {
     this.runtime.initPrivateRuntime();
@@ -119,4 +146,66 @@ export class PrivateShellPage {
   logout(): void {
     void this.auth.logout();
   }
+}
+
+interface DrawerDestination {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly destination: NavigationDestination & { readonly kind: 'route' };
+}
+
+function readTitleKey(topAppBar: Readonly<Record<string, unknown>> | undefined): string {
+  const title = recordValue(topAppBar?.['title']);
+  return stringValue(title?.['labelKey']) ?? '';
+}
+
+function readDestinations(drawer: Readonly<Record<string, unknown>> | undefined): readonly DrawerDestination[] {
+  const direct = destinationArray(drawer?.['topDestinations']);
+  const sections = Array.isArray(drawer?.['sections']) ? drawer['sections'] : [];
+  const grouped = sections.flatMap((section) => {
+    const record = recordValue(section);
+    return destinationArray(record?.['destinations']);
+  });
+  const footer = destinationArray(drawer?.['footerDestinations']);
+  return [...direct, ...grouped, ...footer];
+}
+
+function destinationArray(value: unknown): readonly DrawerDestination[] {
+  return Array.isArray(value) ? value.flatMap(readDestination) : [];
+}
+
+function readDestination(value: unknown): readonly DrawerDestination[] {
+  const record = recordValue(value);
+  const destination = recordValue(record?.['destination']);
+  const id = stringValue(record?.['id']);
+  const labelKey = stringValue(record?.['labelKey']);
+  const kind = stringValue(destination?.['kind']);
+  const route = stringValue(destination?.['value']);
+  return id && labelKey && kind === 'route' && route
+    ? [{ id, labelKey, destination: { kind: 'route', value: route } }]
+    : [];
+}
+
+function recordValue(value: unknown): Readonly<Record<string, unknown>> | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Readonly<Record<string, unknown>>
+    : undefined;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function fallbackDestinations(roles: readonly string[]): readonly DrawerDestination[] {
+  const route = roles.includes('SUPER_ADMIN')
+    ? '/app/platform'
+    : roles.includes('TENANT_ADMIN')
+      ? '/app/admin'
+      : '/app/cashier';
+  const labelKey = roles.includes('SUPER_ADMIN')
+    ? 'dashboard.titles.platform'
+    : roles.includes('TENANT_ADMIN')
+      ? 'dashboard.titles.admin'
+      : 'dashboard.titles.cashier';
+  return [{ id: 'dashboard', labelKey, destination: { kind: 'route', value: route } }];
 }

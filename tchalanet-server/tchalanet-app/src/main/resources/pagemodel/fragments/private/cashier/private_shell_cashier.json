@@ -9,7 +9,7 @@
     "context": {},
     "leftActions": [
       {
-        "id": "TOGGLE_NAVIGATION_DRAWER",
+        "id": "toggleNavigationDrawer",
         "type": "action",
         "label_key": "nav.toggle_menu",
         "label": null,
@@ -25,7 +25,7 @@
     ],
     "actions": [
       {
-        "id": "OPEN_NOTIFICATIONS",
+        "id": "openNotifications",
         "type": "action",
         "label_key": "nav.notifications",
         "label": null,
@@ -39,7 +39,7 @@
         "confirm": null
       },
       {
-        "id": "CHANGE_LANGUAGE",
+        "id": "changeLanguage",
         "type": "action",
         "label_key": "nav.language",
         "label": null,
@@ -53,7 +53,7 @@
         "confirm": null
       },
       {
-        "id": "TOGGLE_THEME",
+        "id": "toggleTheme",
         "type": "action",
         "label_key": "nav.theme_toggle",
         "label": null,
@@ -130,7 +130,7 @@
   },
   "navigationDrawer": {
     "brand": {
-      "id": "cashier-brand",
+      "id": "cashierBrand",
       "label_key": "app.name",
       "label": null,
       "subtitle_key": "surface.cashier",
@@ -162,7 +162,7 @@
         "children": []
       },
       {
-        "id": "quick_sale",
+        "id": "quickSale",
         "type": "destination",
         "label_key": "nav.quick_sale",
         "label": null,
@@ -192,7 +192,7 @@
         "children": []
       },
       {
-        "id": "verify_ticket",
+        "id": "verifyTicket",
         "type": "destination",
         "label_key": "nav.verify_ticket",
         "label": null,

@@ -17,7 +17,7 @@ public class PublicContentRefreshScheduler {
 
   @Scheduled(cron = "${tch.news.refresh.cron:0 0 */6 * * *}")
   public void refreshExternalContent() {
-    String cron = props.refresh() != null ? props.refresh().cron() : "default";
+    var cron = props.refresh() != null ? props.refresh().cron() : "default";
     log.info("publiccontent: scheduled external RSS refresh (cron={})", cron);
     externalRssService.refreshExternalSnapshot();
   }

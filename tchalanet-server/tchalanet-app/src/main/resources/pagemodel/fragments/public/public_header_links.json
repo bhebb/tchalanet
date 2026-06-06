@@ -2,7 +2,7 @@
   "fragmentType": "PublicHeader",
   "schemaVersion": 2,
   "brand": {
-    "id": "tchalanet-public",
+    "id": "tchalanetPublic",
     "kind": "link",
     "labelKey": "app.brand",
     "label": null,
@@ -37,7 +37,7 @@
       "children": []
     },
     {
-      "id": "check_ticket",
+      "id": "checkTicket",
       "kind": "link",
       "labelKey": "public.nav.check_ticket",
       "label": null,

@@ -1,22 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PageDynamicPayload, PageModelDoc } from '../../shared/types';
+import { PageContentRuntime, PageDynamicPayload } from '../../shared/types';
 import { PageModelComponent } from './page-model.component';
 
-const pageModel: PageModelDoc = {
-  meta: { id: 'public.home', schema_version: 2 },
-  content: {
-    layout: {
-      component: 'GridLayout',
-      rows: [
-        { id: 'hero', columns: [{ span: 12, widgets: ['home.hero'] }] },
-        { id: 'news', columns: [{ span: 12, widgets: ['home.news'] }] },
-      ],
-    },
-    widgets: {
-      'home.hero': { type: 'HeroWidget' },
-      'home.news': { type: 'NewsTickerWidget' },
-    },
+const content: PageContentRuntime = {
+  layout: {
+    rows: [
+      { id: 'hero', columns: [{ span: 12, widgets: ['home.hero'] }] },
+      { id: 'news', columns: [{ span: 12, widgets: ['home.news'] }] },
+    ],
+  },
+  widgets: {
+    'home.hero': { type: 'HeroWidget' },
+    'home.news': { type: 'NewsTickerWidget' },
   },
 };
 
@@ -28,7 +24,7 @@ const dynamic: PageDynamicPayload = {
 describe('PageModelComponent', () => {
   function setup() {
     const fixture = TestBed.createComponent(PageModelComponent);
-    fixture.componentRef.setInput('pageModel', pageModel);
+    fixture.componentRef.setInput('content', content);
     fixture.componentRef.setInput('dynamic', dynamic);
     return fixture.componentInstance;
   }

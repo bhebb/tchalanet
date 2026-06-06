@@ -10,24 +10,23 @@ PageModel describes page structure. It does not carry i18n bundles, theme defini
 payloads, or authorization rules. Runtime bootstrap loads PageModel alongside settings, i18n, and
 theme as separate concerns.
 
-**Type the real backend contract — do not invent a parallel widget vocabulary.** The web models the
-backend `PageModelDoc` shape directly. Earlier proposals for an abstract normalized widget enum
-(`HERO/ACTION_PANEL/…`) plus a "legacy mapping" registry are rejected: they drift from the backend.
+The web consumes only the resolved `PageRuntimeResponse` owned by `features.pagemodel`. It must not
+mirror the internal catalog/core definition or resolve backend bindings.
 
-## Real backend contract (`PageModelDoc`)
+## Runtime backend contract (`PageRuntimeResponse`)
 
-Source of truth: `core/pagemodel/api/model/PageModelDoc.java` (backend). The web contract type must
-mirror it field-for-field.
+Source of truth: `features/pagemodel/runtime/PageRuntimeResponse.java` (backend).
 
 ```text
-PageModelDoc {
-  meta    { id, scope, slug, context, schema_version, langs[], default_lang }
-  theme   { presetId, mode, density, overrides{} }
-  shell   { header, sidenav, footer }            // each: { component, binding{mode,source}, nav, props }
+PageRuntimeResponse {
+  meta    { logicalId, scope, slug, schemaVersion }
+  theme   { presetId, mode, density }             // optional page hint; ThemeApi is authoritative
+  shell   { type, header/footer OR topAppBar/navigationDrawer }
   content {
-    layout  { component, rows[ { id, label_key, columns[ { span, widgets: string[] } ] } ] }
-    widgets Map<widgetId, { type, binding{mode,source}, props }>
+    layout  { rows[ { id, labelKey, columns[ { span, widgets: string[] } ] } ] }
+    widgets Map<widgetId, { type, props }>
   }
+  dynamic { widgets: Map<widgetId, payload>, errors[] }
 }
 ```
 
@@ -35,13 +34,12 @@ Critical shape facts:
 
 - **Layout references widget *ids*** (strings). The widget definitions live in the separate
   `content.widgets` map, keyed by that id. The renderer joins them.
-- **Dynamic payload is delivered separately** from the page document, in the response envelope:
-  `PublicPageModelResponse { currentLang, langs, pageModel, dynamic }` where
+- **Dynamic payload is delivered separately** from render configuration as
   `dynamic = PageDynamicPayload { widgets: Map<widgetId, payload>, errors: WidgetDynamicError[] }`.
   A widget's runtime data is `dynamic.widgets[widgetId]`; its contained failure (if any) is the
   matching entry in `dynamic.errors`.
-- `binding.mode` is `static | dynamic`; `binding.source` names the provider (`json_file`,
-  `public_home`, `public_draw_results`, …). Static widgets render from `props` alone.
+- Request-level `notices` and `services` belong only to the `ApiResponse` envelope.
+- `binding`, provider sources, `fileKey`, template metadata, and storage details are backend-only.
 - Dashboard responses add `notifications` (`DashboardPageModelResponse`).
 
 ## Widget registry
@@ -78,8 +76,8 @@ runtime. Missing translation → render a stable key-derived fallback, keep the 
 ## Theme — validated tokens only
 
 Widgets style exclusively through the validated `--tch-*` CSS variables (see [`theme.md`](./theme.md)).
-`PageModelDoc.theme.presetId` selects a preset; the theme runtime materializes its tokens. Do not
-hardcode colors and do not import legacy preset palettes.
+The runtime `theme` value is only a page hint/fallback. `ThemeApi` and theme bootstrap remain the
+source of truth that materializes tokens. Do not hardcode colors or import legacy preset palettes.
 
 ## Gating
 

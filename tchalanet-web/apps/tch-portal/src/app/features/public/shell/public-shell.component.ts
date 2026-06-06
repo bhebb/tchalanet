@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { PageShell } from '../../../shared/types';
+import { PublicShellRuntime } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 import { PublicBottomNav } from './public-bottom-nav';
 import { PublicFooter } from './public-footer';
@@ -60,5 +60,5 @@ import { PublicHeader } from './public-header';
   ],
 })
 export class PublicShellComponent {
-  readonly shell = input<PageShell | undefined>();
+  readonly shell = input<PublicShellRuntime | undefined>();
 }

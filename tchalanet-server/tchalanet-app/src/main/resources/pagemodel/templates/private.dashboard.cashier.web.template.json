@@ -88,7 +88,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.cashier.quick_sale"
+                  "dashboard.cashier.quickSale"
                 ]
               }
             ]
@@ -100,7 +100,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.cashier.quick_actions"
+                  "dashboard.cashier.quickActions"
                 ]
               }
             ]
@@ -112,7 +112,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.cashier.recent_tickets"
+                  "dashboard.cashier.recentTickets"
                 ]
               }
             ]
@@ -124,7 +124,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.cashier.next_draws"
+                  "dashboard.cashier.nextDraws"
                 ]
               }
             ]
@@ -185,7 +185,7 @@
             "titleKey": "dashboard.cashier.overview.title"
           }
         },
-        "dashboard.cashier.quick_sale": {
+        "dashboard.cashier.quickSale": {
           "type": "QuickSaleWidget",
           "binding": {
             "mode": "dynamic",
@@ -195,18 +195,18 @@
             "titleKey": "dashboard.cashier.quick_sale.title"
           }
         },
-        "dashboard.cashier.quick_actions": {
+        "dashboard.cashier.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
             "mode": "dynamic",
             "source": "jsonFile"
           },
           "props": {
-            "fileKey": "private_quick_actions_cashier",
+            "fileKey": "private_cashier_quick_actions",
             "titleKey": "dashboard.cashier.quick_actions.title"
           }
         },
-        "dashboard.cashier.recent_tickets": {
+        "dashboard.cashier.recentTickets": {
           "type": "RecentTicketsWidget",
           "binding": {
             "mode": "dynamic",
@@ -217,7 +217,7 @@
             "titleKey": "dashboard.cashier.recent_tickets.title"
           }
         },
-        "dashboard.cashier.next_draws": {
+        "dashboard.cashier.nextDraws": {
           "type": "NextDrawsWidget",
           "binding": {
             "mode": "dynamic",

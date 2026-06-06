@@ -9,15 +9,16 @@
 
 ## Concept central
 
-Un PageModel est un document JSON qui décrit le **layout et les widgets** d'une surface applicative.  
-Le frontend le consomme pour construire dynamiquement l'écran — sans que le backend connaisse le rendu.
+Un PageModel est un document JSON interne qui décrit le **layout et les widgets** d'une surface
+applicative. Le frontend consomme uniquement le `PageRuntimeResponse` résolu par
+`features.pagemodel`.
 
 ```
-Backend : PageModel document (layout + widget bindings + props)
+Backend : PageModel definition (layout + widget bindings + props)
         ↓
-features.pagemodel : résout le document + enrichit les widgets via Dynamic Providers
+features.pagemodel : résout fragments/providers + retire binding/fileKey
         ↓
-Frontend : rendu dynamique (composants Angular, Flutter)
+Frontend : PageRuntimeResponse prêt à rendre
 ```
 
 **Le PageModel est layout/config, pas vérité opérationnelle.**  
@@ -43,13 +44,18 @@ Pour savoir si un seller peut vendre → utiliser le cashier home BFF, pas le Pa
 ## Endpoints
 
 ```http
-GET /public/page-models/{logicalId}     ← page publique (anonymous)
-GET /tenant/page-models                 ← dashboard tenant (résolu par rôle)
-GET /platform/page-models               ← dashboard platform (SUPER_ADMIN)
+GET /public/page                         ← unique page publique (anonymous)
+GET /tenant/dashboard                    ← dashboard tenant (résolu par rôle)
+GET /platform/dashboard                  ← dashboard platform (SUPER_ADMIN)
 ```
 
-La résolution du logicalId privé est faite server-side depuis `TchRequestContext` (rôle de l'acteur).  
-Le client ne fournit pas d'id pour les dashboards privés.
+La résolution du logicalId est faite server-side. Le client ne fournit aucun logicalId runtime.
+
+Le modèle interne peut contenir `binding`, `source` et `fileKey`. Le runtime frontend ne les reçoit
+jamais. Son `meta` contient seulement `logicalId`, `scope`, `slug` et `schemaVersion`.
+Ses payloads volatils sont exposés sous `dynamic.widgets`; les `notices` et `services` restent
+uniquement dans l'enveloppe `ApiResponse`. Le champ `theme` est un hint/fallback de page, tandis que
+le bootstrap `ThemeApi` reste la source de vérité runtime.
 
 ---
 

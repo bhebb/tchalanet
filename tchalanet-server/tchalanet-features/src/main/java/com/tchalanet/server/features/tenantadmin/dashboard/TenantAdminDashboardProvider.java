@@ -16,14 +16,14 @@ import org.springframework.stereotype.Component;
  * and dispatches the relevant slice by widgetId.
  *
  * Supported widget ids:
- *   - dashboard.tenant_admin.header
- *   - dashboard.tenant_admin.kpis
- *   - dashboard.tenant_admin.readiness
- *   - dashboard.tenant_admin.alerts
- *   - dashboard.tenant_admin.operations
- *   - dashboard.tenant_admin.commercial
- *   - dashboard.tenant_admin.public_content
- *   - dashboard.tenant_admin.quick_actions
+ *   - dashboard.tenantAdmin.header
+ *   - dashboard.tenantAdmin.kpis
+ *   - dashboard.tenantAdmin.readiness
+ *   - dashboard.tenantAdmin.alerts
+ *   - dashboard.tenantAdmin.operations
+ *   - dashboard.tenantAdmin.commercial
+ *   - dashboard.tenantAdmin.publicContent
+ *   - dashboard.tenantAdmin.quickActions
  */
 @Component
 @RequiredArgsConstructor
@@ -53,14 +53,14 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
         resolutionContext.getOrLoad(MEMO_KEY, () -> assembler.assemble(ctx));
 
     return switch (widgetId == null ? "" : widgetId) {
-      case "dashboard.tenant_admin.header" -> payload.header();
-      case "dashboard.tenant_admin.kpis" -> payload.kpis();
-      case "dashboard.tenant_admin.readiness" -> payload.readiness();
-      case "dashboard.tenant_admin.alerts" -> payload.alerts();
-      case "dashboard.tenant_admin.operations" -> payload.operations();
-      case "dashboard.tenant_admin.commercial" -> payload.commercial();
-      case "dashboard.tenant_admin.public_content" -> payload.publicContent();
-      case "dashboard.tenant_admin.quick_actions" -> payload.quickActions();
+      case "dashboard.tenantAdmin.header" -> payload.header();
+      case "dashboard.tenantAdmin.kpis" -> payload.kpis();
+      case "dashboard.tenantAdmin.readiness" -> payload.readiness();
+      case "dashboard.tenantAdmin.alerts" -> payload.alerts();
+      case "dashboard.tenantAdmin.operations" -> payload.operations();
+      case "dashboard.tenantAdmin.commercial" -> payload.commercial();
+      case "dashboard.tenantAdmin.publicContent" -> payload.publicContent();
+      case "dashboard.tenantAdmin.quickActions" -> payload.quickActions();
       default -> throw new PageModelDynamicProviderException(
           "TENANT_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);

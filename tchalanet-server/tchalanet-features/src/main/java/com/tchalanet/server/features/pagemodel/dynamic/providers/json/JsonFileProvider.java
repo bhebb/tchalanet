@@ -26,7 +26,7 @@ public class JsonFileProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return SOURCE.equals(source);
+    return SOURCE.equalsIgnoreCase(source);
   }
 
   @Override

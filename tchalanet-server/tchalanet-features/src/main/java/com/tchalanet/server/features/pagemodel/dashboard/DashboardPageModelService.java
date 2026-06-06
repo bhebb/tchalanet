@@ -8,11 +8,10 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.security.PageModelAccessPolicy;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
-import com.tchalanet.server.platform.notification.api.NotificationApi;
-import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
-import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +35,10 @@ public class DashboardPageModelService {
     private final TchContextResolver contextResolver;
     private final LangResolver langResolver;
     private final PageModelDynamicResolver dynamicResolver;
-    private final NotificationApi notificationApi;
     private final PageModelAccessPolicy accessPolicy;
+    private final PageRuntimeAssembler runtimeAssembler;
 
-    public DashboardPageModelResponse resolve(
+    public PageRuntimeResponse resolve(
         String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
         var ctxHolder = contextResolver.currentOrNull();
 
@@ -81,14 +80,7 @@ public class DashboardPageModelService {
         var currentLang = resolveLang(doc, langFromUrl);
         var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
 
-        NotificationSummaryView notifications =
-            notificationApi.getNotificationSummary(
-                new GetNotificationSummaryRequest(
-                    ctxHolder.userId(),
-                    currentRole == null ? null : currentRole.name()));
-
-        var langs = langsOrCurrent(doc, currentLang);
-        return new DashboardPageModelResponse(currentLang, langs, doc, dynamic, notifications);
+        return runtimeAssembler.assemble(doc, dynamic);
     }
 
     private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
@@ -106,11 +98,4 @@ public class DashboardPageModelService {
                 "fr"));
     }
 
-    private List<String> langsOrCurrent(PageModelDoc doc, String currentLang) {
-        boolean hasDocLangs = doc.meta() != null
-            && doc.meta().langs() != null
-            && !doc.meta().langs().isEmpty();
-
-        return hasDocLangs ? doc.meta().langs() : List.of(currentLang);
-    }
 }

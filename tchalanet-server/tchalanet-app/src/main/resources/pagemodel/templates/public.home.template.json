@@ -9,7 +9,6 @@
   "schema": {},
   "isDefault": true,
   "level": "GLOBAL",
-  "tenantId": null,
   "description": "Public home PageModel V2: hero, how it works, news, public draw results, ticket verification, Tchala, features, rules, plans and operator CTA.",
   "model": {
     "meta": {
@@ -35,7 +34,7 @@
         "component": "PublicHeader",
         "binding": {
           "mode": "dynamic",
-          "source": "jsonfile"
+          "source": "jsonFile"
         },
         "props": {
           "fileKey": "public_header_links"
@@ -45,7 +44,7 @@
         "component": "PublicFooter",
         "binding": {
           "mode": "dynamic",
-          "source": "jsonfile"
+          "source": "jsonFile"
         },
         "props": {
           "fileKey": "public_footer_links"
@@ -192,9 +191,7 @@
               "children": []
             },
             "historyLimit": 0,
-            "includeHistory": false,
-            "includeNextBySlot": true,
-            "includeLatestBySlot": true
+            "includeHistory": false
           }
         },
         "home.howItWorks": {

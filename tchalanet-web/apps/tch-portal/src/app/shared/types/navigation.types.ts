@@ -1,4 +1,4 @@
-export type ActionItemKind = 'button' | 'link' | 'externalLink';
+export type ActionItemKind = 'button' | 'link' | 'externalLink' | 'languageSwitcher' | 'themeSwitcher';
 
 export interface ActionItem {
   readonly id: string;

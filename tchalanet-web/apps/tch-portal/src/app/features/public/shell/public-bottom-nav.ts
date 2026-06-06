@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ActionItem, PageShell } from '../../../shared/types';
+import { ActionItem, PublicShellRuntime } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 
 @Component({
@@ -57,8 +57,8 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
   ],
 })
 export class PublicBottomNav {
-  readonly shell = input<PageShell | undefined>();
-  readonly bottomNav = computed(() => this.shell()?.mobile ?? this.shell()?.primary?.slice(0, 3) ?? []);
+  readonly shell = input<PublicShellRuntime | undefined>();
+  readonly bottomNav = computed(() => this.shell()?.header.primary?.slice(0, 3) ?? []);
   readonly actionLabelKey = actionLabelKey;
   readonly actionRoute = actionRoute;
 }

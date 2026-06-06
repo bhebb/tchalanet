@@ -1,16 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ActionItem, PageShell } from '../../../shared/types';
+import { ActionItem, PublicFooterColumn, PublicShellRuntime } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-
-interface PublicFooterColumn {
-    readonly id?: string;
-    readonly titleKey: string;
-    readonly links: readonly ActionItem[];
-}
 
 interface FooterText {
     readonly descriptionKey: string;
@@ -246,9 +240,12 @@ interface FooterText {
     ],
 })
 export class PublicFooter {
-    readonly shell = input<PageShell | undefined>();
+    private readonly iconReg = inject(MatIconRegistry);
+    private readonly sanitizer = inject(DomSanitizer);
 
-    readonly brand = computed(() => readActionItem(this.shell()?.footer?.brand));
+    readonly shell = input<PublicShellRuntime | undefined>();
+
+    readonly brand = computed(() => this.shell()?.footer.brand);
     readonly brandImage = computed(
         () => this.brand()?.image ?? '/assets/brand/tchalanet-logo-inverse.svg',
     );
@@ -262,98 +259,42 @@ export class PublicFooter {
     readonly actionHref = actionHref;
     readonly isExternalAction = isExternalAction;
 
-    constructor(iconReg: MatIconRegistry, sanitizer: DomSanitizer) {
-        iconReg.addSvgIcon('x', sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/x.svg'));
-        iconReg.addSvgIcon(
+    constructor() {
+        this.iconReg.addSvgIcon('x', this.sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/x.svg'));
+        this.iconReg.addSvgIcon(
             'facebook',
-            sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/facebook.svg'),
+            this.sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/facebook.svg'),
         );
-        iconReg.addSvgIcon(
+        this.iconReg.addSvgIcon(
             'youtube',
-            sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/youtube.svg'),
+            this.sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/youtube.svg'),
         );
-        iconReg.addSvgIcon(
+        this.iconReg.addSvgIcon(
             'instagram',
-            sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/instagram.svg'),
+            this.sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/instagram.svg'),
         );
-        iconReg.addSvgIcon(
+        this.iconReg.addSvgIcon(
             'linkedin',
-            sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/linkedin.svg'),
+            this.sanitizer.bypassSecurityTrustResourceUrl('/assets/svg/socials/linkedin.svg'),
         );
 
     }
 }
 
-function publicFooterText(shell: PageShell | undefined): FooterText {
-    const props = shell?.footer?.props;
-
+function publicFooterText(shell: PublicShellRuntime | undefined): FooterText {
     return {
-        descriptionKey: readString(props, 'descriptionKey') ?? '',
-        statusKey: readString(props, 'statusKey') ?? '',
-        copyrightKey: readString(props, 'copyrightKey') ?? '',
+        descriptionKey: shell?.footer.descriptionKey ?? '',
+        statusKey: shell?.footer.statusKey ?? '',
+        copyrightKey: shell?.footer.copyrightKey ?? '',
     };
 }
 
-function publicFooterColumns(shell: PageShell | undefined): readonly PublicFooterColumn[] {
-    const columns = readColumns(shell?.footer?.props);
-    if (columns.length) {
-        return columns;
-    }
-
-    const links = normalizeNavItems([
-        ...(shell?.footer?.nav?.primary ?? []),
-        ...(shell?.footer?.nav?.secondary ?? []),
-    ]);
-
-    return links.length ? [{id: 'fallback', titleKey: '', links}] : [];
+function publicFooterColumns(shell: PublicShellRuntime | undefined): readonly PublicFooterColumn[] {
+    return shell?.footer.columns ?? [];
 }
 
-function publicFooterSocial(shell: PageShell | undefined): readonly ActionItem[] {
-    const props = shell?.footer?.props;
-    if (!props || typeof props !== 'object') {
-        return [];
-    }
-
-    const social = (props as Record<string, unknown>)['social'];
-    return Array.isArray(social) ? social.filter(isActionItem) : [];
-}
-
-function readColumns(source: unknown): readonly PublicFooterColumn[] {
-    if (!source || typeof source !== 'object') {
-        return [];
-    }
-
-    const columns = (source as Record<string, unknown>)['columns'];
-    if (!Array.isArray(columns)) {
-        return [];
-    }
-
-    return columns.flatMap((column) => {
-        if (!column || typeof column !== 'object') {
-            return [];
-        }
-
-        const record = column as Record<string, unknown>;
-        const id = readString(record, 'id');
-        const titleKey = readString(record, 'titleKey');
-        const links = Array.isArray(record['links']) ? record['links'].filter(isActionItem) : [];
-
-        return titleKey ? [{id, titleKey, links}] : [];
-    });
-}
-
-function normalizeNavItems(items: readonly unknown[]): readonly ActionItem[] {
-    return items.filter(isActionItem);
-}
-
-function readActionItem(value: unknown): ActionItem | undefined {
-    return isActionItem(value) ? value : undefined;
-}
-
-function readString(source: unknown, key: string): string | undefined {
-    return source && typeof source === 'object' && typeof (source as Record<string, unknown>)[key] === 'string'
-        ? ((source as Record<string, unknown>)[key] as string)
-        : undefined;
+function publicFooterSocial(shell: PublicShellRuntime | undefined): readonly ActionItem[] {
+    return shell?.footer.social ?? [];
 }
 
 function actionText(item: ActionItem | undefined): string {
@@ -370,8 +311,4 @@ function actionHref(item: ActionItem | undefined): string {
 
 function isExternalAction(item: ActionItem): boolean {
     return item.destination?.kind === 'url';
-}
-
-function isActionItem(value: unknown): value is ActionItem {
-    return !!value && typeof value === 'object' && typeof (value as ActionItem).id === 'string';
 }

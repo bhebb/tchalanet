@@ -66,10 +66,10 @@ class CashierWebDashboardProviderTest {
           .isEqualTo(payload.alerts());
 
       var nextDrawsResult = (CashierWebDashboardProvider.ItemsPayload) provider.load(
-          null, "dashboard.cashier.next_draws", null, "fr", null, new PageModelResolutionContext());
+          null, "dashboard.cashier.nextDraws", null, "fr", null, new PageModelResolutionContext());
       assertThat(nextDrawsResult.items()).isEqualTo(payload.nextDraws());
       var recentTicketsResult = (CashierWebDashboardProvider.ItemsPayload) provider.load(
-          null, "dashboard.cashier.recent_tickets", null, "fr", null, new PageModelResolutionContext());
+          null, "dashboard.cashier.recentTickets", null, "fr", null, new PageModelResolutionContext());
       assertThat(recentTicketsResult.items()).isEqualTo(payload.recentTickets());
     }
 
@@ -78,11 +78,11 @@ class CashierWebDashboardProviderTest {
     void quickSale() {
       when(assembler.assemble(any())).thenReturn(samplePayload());
 
-      Object result = provider.load(null, "dashboard.cashier.quick_sale", null, "fr", null,
+      Object result = provider.load(null, "dashboard.cashier.quickSale", null, "fr", null,
           new PageModelResolutionContext());
 
       assertThat(result).isInstanceOfSatisfying(CashierWebDashboardProvider.QuickSalePayload.class, p -> {
-        assertThat(p.actionId()).isEqualTo("SELL_TICKET");
+        assertThat(p.actionId()).isEqualTo("sellTicket");
         assertThat(p.path()).isEqualTo("/cashier/sell");
       });
     }
@@ -114,8 +114,8 @@ class CashierWebDashboardProviderTest {
       provider.load(null, "dashboard.cashier.overview", null, "fr", null, ctx);
       provider.load(null, "dashboard.cashier.readiness", null, "fr", null, ctx);
       provider.load(null, "dashboard.cashier.alerts", null, "fr", null, ctx);
-      provider.load(null, "dashboard.cashier.next_draws", null, "fr", null, ctx);
-      provider.load(null, "dashboard.cashier.recent_tickets", null, "fr", null, ctx);
+      provider.load(null, "dashboard.cashier.nextDraws", null, "fr", null, ctx);
+      provider.load(null, "dashboard.cashier.recentTickets", null, "fr", null, ctx);
 
       verify(assembler, times(1)).assemble(any());
     }

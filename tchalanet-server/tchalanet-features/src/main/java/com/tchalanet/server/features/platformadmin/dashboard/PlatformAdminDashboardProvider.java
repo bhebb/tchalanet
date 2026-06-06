@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
  *   - dashboard.superadmin.subscriptions
  *   - dashboard.superadmin.onboarding
  *   - dashboard.superadmin.alerts
- *   - dashboard.superadmin.public_content
- *   - dashboard.superadmin.quick_actions
+ *   - dashboard.superadmin.publicContent
+ *   - dashboard.superadmin.quickActions
  */
 @Component
 @RequiredArgsConstructor
@@ -57,8 +57,8 @@ public class PlatformAdminDashboardProvider implements PageModelDynamicProvider 
       case "dashboard.superadmin.subscriptions" -> payload.subscriptions();
       case "dashboard.superadmin.onboarding" -> payload.onboardingAlerts();
       case "dashboard.superadmin.alerts" -> payload.platformAlerts();
-      case "dashboard.superadmin.public_content" -> payload.publicContent();
-      case "dashboard.superadmin.quick_actions" -> payload.quickActions();
+      case "dashboard.superadmin.publicContent" -> payload.publicContent();
+      case "dashboard.superadmin.quickActions" -> payload.quickActions();
       default -> throw new PageModelDynamicProviderException(
           "PLATFORM_ADMIN_DASHBOARD_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);

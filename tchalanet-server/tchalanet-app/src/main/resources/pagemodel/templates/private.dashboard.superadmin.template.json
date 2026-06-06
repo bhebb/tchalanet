@@ -89,7 +89,7 @@
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.superadmin.quick_actions"
+                  "dashboard.superadmin.quickActions"
                 ]
               }
             ]
@@ -149,7 +149,7 @@
             "titleKey": "dashboard.superadmin.alerts.title"
           }
         },
-        "dashboard.superadmin.quick_actions": {
+        "dashboard.superadmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
             "mode": "dynamic",

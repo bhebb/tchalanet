@@ -1,6 +1,6 @@
 # PageModel renderer
 
-Renders the backend `PageModelDoc` contract (mirror in `shared/types/pagemodel.types.ts`).
+Renders the resolved backend `PageRuntimeResponse` contract from `shared/types/pagemodel.types.ts`.
 Engine-only: it walks the layout and delegates each widget to its component. Widgets receive only
 their own config + resolved dynamic payload + id — never the whole page.
 
@@ -13,7 +13,7 @@ their own config + resolved dynamic payload + id — never the whole page.
   `config` / `dynamic` / `widgetId`.
 
 Dynamic payloads come from `dynamic.widgets[id]`; contained provider failures from
-`dynamic.errors[]` (matched by `widgetId`).
+`dynamic.errors[]` (matched by `widgetId`). The web never receives `binding` or `fileKey`.
 
 ## Containment (a widget failure never blanks the page)
 

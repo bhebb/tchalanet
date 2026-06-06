@@ -40,7 +40,7 @@ describe('WidgetHostComponent', () => {
     const cmp = host({
       widgetId: 'home.news',
       config: { type: 'NewsTickerWidget' },
-      errors: [{ widgetId: 'home.news', code: 'BOOM', message: 'failed' }],
+      errors: [{ widgetId: 'home.news', code: 'BOOM' }],
     });
     expect(cmp.state().kind).toBe('error');
   });

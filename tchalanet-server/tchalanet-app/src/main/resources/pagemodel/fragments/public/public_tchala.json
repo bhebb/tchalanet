@@ -12,7 +12,7 @@
     "submit_label_key": "home.tchala.search_submit"
   },
   "by_number_destination": {
-    "id": "tchala_by_number",
+    "id": "tchalaByNumber",
     "label": null,
     "kind": "link",
     "icon": "tag",
@@ -23,13 +23,13 @@
     "labelKey": "home.tchala.by_number_label",
     "destination": {
       "kind": "route",
-      "value": "/tchala?by=number"
+      "value": "/public/tchala?by=number"
     },
     "activeMatch": "prefix",
     "reasonKey": null
   },
   "by_dream_destination": {
-    "id": "tchala_by_dream",
+    "id": "tchalaByDream",
     "label": null,
     "kind": "link",
     "icon": "bedtime",
@@ -40,14 +40,14 @@
     "labelKey": "home.tchala.by_dream_label",
     "destination": {
       "kind": "route",
-      "value": "/tchala?by=dream"
+      "value": "/public/tchala?by=dream"
     },
     "activeMatch": "prefix",
     "reasonKey": null
   },
   "quick_dreams": [
     {
-      "id": "dream_poisson",
+      "id": "dreamPoisson",
       "label": null,
       "kind": "link",
       "icon": "water",
@@ -64,7 +64,7 @@
       "reasonKey": null
     },
     {
-      "id": "dream_serpent",
+      "id": "dreamSerpent",
       "label": null,
       "kind": "link",
       "icon": "pest_control",
@@ -81,7 +81,7 @@
       "reasonKey": null
     },
     {
-      "id": "dream_argent",
+      "id": "dreamArgent",
       "label": null,
       "kind": "link",
       "icon": "payments",
@@ -98,7 +98,7 @@
       "reasonKey": null
     },
     {
-      "id": "dream_mariage",
+      "id": "dreamMariage",
       "label": null,
       "kind": "link",
       "icon": "favorite",

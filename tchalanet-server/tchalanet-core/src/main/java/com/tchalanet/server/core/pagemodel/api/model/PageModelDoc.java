@@ -32,7 +32,10 @@ public record PageModelDoc(
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Shell(@JsonProperty("header") ShellSectionConfig header,
                       @JsonProperty("sidenav") ShellSectionConfig sidenav,
-                      @JsonProperty("footer") ShellSectionConfig footer) {}
+                      @JsonProperty("footer") ShellSectionConfig footer,
+                      @JsonProperty("component") String component,
+                      @JsonProperty("binding") WidgetBinding binding,
+                      @JsonProperty("props") Map<String, Object> props) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record ShellSectionConfig(@JsonProperty("component") String component,

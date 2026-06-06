@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
  * Grouped reads (target ≤ 2 per dashboard-overview-runtime-v1 §12):
  *   1. {@link ListPublicDrawResultSlotsQuery} — systematic, latest + next per slot
  *   2. {@link SearchPublicDrawResultsQuery}  — conditional, bounded history when
- *      the widget props request it ({@code include_history=true}).
+ *      the widget props request it ({@code includeHistory=true}).
  *
  * Memoization is performed in {@link PublicDrawResultsProvider} using a key
- * derived from the props (slotKeys + provider + include_history + history_limit)
+ * derived from the props (slotKeys + provider + includeHistory + historyLimit)
  * so two widgets with different needs in the same request don't collide.
  */
 @Component

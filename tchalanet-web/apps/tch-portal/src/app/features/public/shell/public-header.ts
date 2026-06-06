@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { ActionItem, PageShell } from '../../../shared/types';
+import { ActionItem, PublicShellRuntime } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 
 @Component({
@@ -284,7 +284,7 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
 export class PublicHeader {
   private readonly auth = inject(AuthSessionService);
 
-  readonly shell = input<PageShell | undefined>();
+  readonly shell = input<PublicShellRuntime | undefined>();
   readonly mobileMenuOpen = signal(false);
   readonly brand = computed(() => publicBrand(this.shell()));
   readonly nav = computed(() => publicHeaderNav(this.shell()));
@@ -305,44 +305,20 @@ export class PublicHeader {
   }
 }
 
-function publicBrand(shell: PageShell | undefined): ActionItem | undefined {
-  return normalizeBrand(readUnknown(shell, 'brand'))
-    ?? normalizeBrand(readUnknown(shell?.header?.props, 'brand'));
+function publicBrand(shell: PublicShellRuntime | undefined): ActionItem | undefined {
+  return shell?.header.brand;
 }
 
-function publicHeaderNav(shell: PageShell | undefined): readonly ActionItem[] {
-  const primary = [
-    ...normalizeNavItems(readUnknownArray(shell, 'primary')),
-    ...normalizeNavItems(shell?.header?.nav?.primary),
-  ];
-  return primary;
+function publicHeaderNav(shell: PublicShellRuntime | undefined): readonly ActionItem[] {
+  return shell?.header.primary ?? [];
 }
 
-function publicLoginAction(shell: PageShell | undefined): ActionItem | undefined {
+function publicLoginAction(shell: PublicShellRuntime | undefined): ActionItem | undefined {
   const actions = [
-    ...normalizeNavItems(readUnknownArray(shell, 'actions')),
-    ...normalizeNavItems(shell?.header?.nav?.secondary),
+    ...(shell?.header.actions ?? []),
+    ...(shell?.header.secondary ?? []),
   ];
   return actions.find((item) => item.id === 'login') ?? actions[0];
-}
-
-function normalizeBrand(value: unknown): ActionItem | undefined {
-  return isActionItem(value) ? value : undefined;
-}
-
-function normalizeNavItems(items: readonly unknown[] | undefined): readonly ActionItem[] {
-  return (items ?? []).filter(isActionItem);
-}
-
-function readUnknown(source: unknown, key: string): unknown {
-  return source && typeof source === 'object' && key in source
-    ? (source as Record<string, unknown>)[key]
-    : undefined;
-}
-
-function readUnknownArray(source: unknown, key: string): readonly unknown[] | undefined {
-  const value = readUnknown(source, key);
-  return Array.isArray(value) ? value : undefined;
 }
 
 function actionLabelKey(item: ActionItem): string {
@@ -351,8 +327,4 @@ function actionLabelKey(item: ActionItem): string {
 
 function actionRoute(item: ActionItem): string {
   return item.destination?.value ?? '/public';
-}
-
-function isActionItem(value: unknown): value is ActionItem {
-  return !!value && typeof value === 'object' && typeof (value as ActionItem).id === 'string';
 }

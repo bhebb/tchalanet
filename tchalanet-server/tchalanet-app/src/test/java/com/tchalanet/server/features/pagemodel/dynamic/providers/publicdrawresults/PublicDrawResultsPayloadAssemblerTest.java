@@ -84,7 +84,7 @@ class PublicDrawResultsPayloadAssemblerTest {
   class MemoKey {
 
     @Test
-    @DisplayName("differs when include_history changes")
+    @DisplayName("differs when includeHistory changes")
     void differsOnHistory() {
       var a = new PublicDrawResultsPayloadAssembler.Spec(List.of("k"), "p", false, 10);
       var b = new PublicDrawResultsPayloadAssembler.Spec(List.of("k"), "p", true, 10);

@@ -27,6 +27,7 @@ public class PageModelDynamicResolver {
     if (doc == null) {
       return new PageDynamicPayload(widgets, errors);
     }
+    resolveRootShell(doc, lang, ctx, resolutionContext, widgets, errors);
     resolveShell(doc, "shell.header", doc.shell() == null ? null : doc.shell().header(), lang, ctx, resolutionContext, widgets, errors);
     resolveShell(doc, "shell.sidenav", doc.shell() == null ? null : doc.shell().sidenav(), lang, ctx, resolutionContext, widgets, errors);
     resolveShell(doc, "shell.footer", doc.shell() == null ? null : doc.shell().footer(), lang, ctx, resolutionContext, widgets, errors);
@@ -47,6 +48,31 @@ public class PageModelDynamicResolver {
     });
 
     return new PageDynamicPayload(widgets, errors);
+  }
+
+  private void resolveRootShell(
+      PageModelDoc doc,
+      String lang,
+      TchRequestContext ctx,
+      PageModelResolutionContext resolutionContext,
+      Map<String, Object> widgets,
+      List<WidgetDynamicError> errors) {
+    var shell = doc.shell();
+    if (shell == null || shell.binding() == null) return;
+    if (!"dynamic".equals(shell.binding().mode())) return;
+
+    var config = new PageModelDoc.WidgetConfig(shell.component(), shell.binding(), shell.props());
+    resolveDynamicConfig(
+        doc,
+        "shell.root",
+        shell.component(),
+        config,
+        shell.binding().source(),
+        lang,
+        ctx,
+        resolutionContext,
+        widgets,
+        errors);
   }
 
   private void resolveShell(

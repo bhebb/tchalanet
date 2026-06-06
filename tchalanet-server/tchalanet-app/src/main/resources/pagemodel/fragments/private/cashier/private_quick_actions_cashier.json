@@ -3,7 +3,7 @@
   "schema_version": 2,
   "actions": [
     {
-      "id": "SELL_TICKET",
+      "id": "sellTicket",
       "type": "action",
       "label_key": "cta.sell_ticket",
       "label": null,
@@ -17,7 +17,7 @@
       "confirm": null
     },
     {
-      "id": "VERIFY_TICKET",
+      "id": "verifyTicket",
       "type": "action",
       "label_key": "cta.verify_ticket",
       "label": null,
@@ -31,7 +31,7 @@
       "confirm": null
     },
     {
-      "id": "CLOSE_SESSION",
+      "id": "closeSession",
       "type": "action",
       "label_key": "cta.close_session",
       "label": null,

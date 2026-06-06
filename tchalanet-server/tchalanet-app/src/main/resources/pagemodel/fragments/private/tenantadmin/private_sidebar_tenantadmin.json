@@ -1,6 +1,6 @@
 {
   "brand": {
-    "id": "tenant-admin-brand",
+    "id": "tenantAdminBrand",
     "label_key": null,
     "label": null,
     "subtitle_key": "surface.tenant_admin",
@@ -32,7 +32,7 @@
       "children": []
     },
     {
-      "id": "tenant_overview",
+      "id": "tenantOverview",
       "type": "destination",
       "label_key": "nav.tenant_overview",
       "label": null,
@@ -116,12 +116,12 @@
       ]
     },
     {
-      "id": "games_sales",
+      "id": "gamesSales",
       "label_key": "nav.section.games_sales",
       "label": null,
       "items": [
         {
-          "id": "tickets_sales",
+          "id": "ticketsSales",
           "type": "destination",
           "label_key": "nav.tickets_sales",
           "label": null,
@@ -151,7 +151,7 @@
           "children": []
         },
         {
-          "id": "games_pricing",
+          "id": "gamesPricing",
           "type": "destination",
           "label_key": "nav.games_pricing",
           "label": null,
@@ -168,7 +168,7 @@
       ]
     },
     {
-      "id": "business_rules",
+      "id": "businessRules",
       "label_key": "nav.section.business_rules",
       "label": null,
       "items": [

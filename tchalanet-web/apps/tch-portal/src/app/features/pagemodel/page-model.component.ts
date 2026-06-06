@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-import { PageDynamicPayload, PageModelDoc, WidgetConfig } from '../../shared/types';
+import { PageContentRuntime, PageDynamicPayload, WidgetConfig } from '../../shared/types';
 import { LabelPipe } from './label.pipe';
 import { WidgetHostComponent } from './widget-host.component';
 
 /**
- * Renders a `PageModelDoc` by walking `content.layout.rows[].columns[]` in order and delegating
+ * Renders runtime content by walking `layout.rows[].columns[]` in order and delegating
  * each widget id to a `tch-widget-host`. A 12-column grid maps each column's `span`. The renderer
  * is engine-only: it does not interpret widget payloads, that is each widget's job.
  */
@@ -17,9 +17,9 @@ import { WidgetHostComponent } from './widget-host.component';
     <div class="page-model">
       @for (row of rows(); track row.id ?? $index) {
         <section class="page-model__row" [attr.aria-label]="row.labelKey | tchLabel">
-          @for (column of row.columns ?? []; track $index) {
+          @for (column of row.columns; track $index) {
             <div class="page-model__col" [style.--col-span]="column.span">
-              @for (widgetId of column.widgets ?? []; track widgetId) {
+              @for (widgetId of column.widgets; track widgetId) {
                 <tch-widget-host
                   [widgetId]="widgetId"
                   [config]="widgetConfig(widgetId)"
@@ -61,17 +61,17 @@ import { WidgetHostComponent } from './widget-host.component';
   ],
 })
 export class PageModelComponent {
-  readonly pageModel = input.required<PageModelDoc>();
-  readonly dynamic = input<PageDynamicPayload>();
+  readonly content = input.required<PageContentRuntime>();
+  readonly dynamic = input.required<PageDynamicPayload>();
 
-  readonly rows = computed(() => this.pageModel().content?.layout?.rows ?? []);
-  readonly errors = computed(() => this.dynamic()?.errors ?? []);
+  readonly rows = computed(() => this.content().layout.rows);
+  readonly errors = computed(() => this.dynamic().errors);
 
   widgetConfig(id: string): WidgetConfig | undefined {
-    return this.pageModel().content?.widgets?.[id];
+    return this.content().widgets[id];
   }
 
   widgetDynamic(id: string): unknown {
-    return this.dynamic()?.widgets?.[id];
+    return this.dynamic().widgets[id];
   }
 }

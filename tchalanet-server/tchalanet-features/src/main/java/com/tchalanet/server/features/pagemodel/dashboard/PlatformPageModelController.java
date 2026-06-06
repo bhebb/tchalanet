@@ -2,6 +2,7 @@ package com.tchalanet.server.features.pagemodel.dashboard;
 
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Aucun logicalId arbitraire accepté.
  */
 @RestController
-@RequestMapping("/platform/page-models")
+@RequestMapping("/platform/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Platform • PageModel")
 @PreAuthorize("hasAuthority('SUPER_ADMIN')")
@@ -29,11 +30,10 @@ public class PlatformPageModelController {
 
   @Operation(summary = "Resolve platform (superadmin) page model by role (server-side resolution)")
   @GetMapping
-  public ApiResponse<DashboardPageModelResponse> platformPageModel(
+  public ApiResponse<PageRuntimeResponse> platformPageModel(
       @RequestParam(name = "lang", required = false) String lang) {
     var type = typeResolver.forDashboard(TchRole.SUPER_ADMIN);
     return ApiResponse.success(
         service.resolve(type.logicalId(), Optional.empty(), Optional.ofNullable(lang)));
   }
 }
-

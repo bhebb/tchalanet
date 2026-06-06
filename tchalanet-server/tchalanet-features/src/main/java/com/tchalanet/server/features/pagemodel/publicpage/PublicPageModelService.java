@@ -6,6 +6,8 @@ import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,11 +31,13 @@ public class PublicPageModelService {
     private final TchContextResolver contextResolver;
     private final LangResolver langResolver;
     private final PageModelDynamicResolver dynamicResolver;
+    private final PageRuntimeAssembler runtimeAssembler;
 
-    public PublicPageModelResponse resolve(String logicalId, Optional<String> langFromUrl) {
+    public PageRuntimeResponse resolve(Optional<String> langFromUrl) {
+        String logicalId = "public.home";
         var ctxHolder = contextResolver.currentOrNull();
 
-        PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(Optional.empty(), logicalId));
+        var doc = queryBus.ask(new ResolveEffectivePageModelQuery(Optional.empty(), logicalId));
 
         if (doc == null || doc.meta() == null || !"public".equals(doc.meta().scope())) {
             throw new TchNotFoundException(
@@ -43,9 +47,7 @@ public class PublicPageModelService {
 
         var currentLang = resolveLang(doc, langFromUrl);
         var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
-        var langs = langsOrCurrent(doc, currentLang);
-
-        return new PublicPageModelResponse(currentLang, langs, doc, dynamic);
+        return runtimeAssembler.assemble(doc, dynamic);
     }
 
     private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
@@ -63,11 +65,4 @@ public class PublicPageModelService {
                 "fr"));
     }
 
-    private List<String> langsOrCurrent(PageModelDoc doc, String currentLang) {
-        boolean hasDocLangs = doc.meta() != null
-            && doc.meta().langs() != null
-            && !doc.meta().langs().isEmpty();
-
-        return hasDocLangs ? doc.meta().langs() : List.of(currentLang);
-    }
 }

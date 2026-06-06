@@ -37,11 +37,11 @@ TENANT_ADMIN = {
     "source": "tenant_admin_dashboard",
     "foreign_source": "platform_admin_dashboard",
     "widgets": [
-        "dashboard.tenant_admin.header",
-        "dashboard.tenant_admin.kpis",
-        "dashboard.tenant_admin.readiness",
-        "dashboard.tenant_admin.alerts",
-        "dashboard.tenant_admin.operations",
+        "dashboard.tenantAdmin.header",
+        "dashboard.tenantAdmin.kpis",
+        "dashboard.tenantAdmin.readiness",
+        "dashboard.tenantAdmin.alerts",
+        "dashboard.tenantAdmin.operations",
     ],
 }
 
@@ -132,7 +132,7 @@ def _assert_dashboard_contract(data: dict, expected: dict) -> None:
 @pytest.mark.L1
 @pytest.mark.dashboard
 def test_tenant_admin_resolves_tenant_admin_dashboard(tenant_admin_client: ApiClient) -> None:
-    """TENANT_ADMIN → GET /tenant/page-models → private.dashboard.tenant_admin."""
+    """TENANT_ADMIN → GET /tenant/page-models → private.dashboard.tenantAdmin."""
     resp = tenant_admin_client.get("/tenant/page-models")
     _skip_if_unrouted(resp)
     _assert_dashboard_contract(get_data(resp), TENANT_ADMIN)
