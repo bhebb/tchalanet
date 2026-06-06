@@ -1,7 +1,9 @@
-# shared/ui-shell-material
+# Legacy grid layout reference
 
-This library was generated with [Nx](https://nx.dev).
+Reusable shell and navigation components were migrated to `libs/ui/components` and the active
+public/private shells. Only the legacy grid-layout reference remains here until PageModel layout
+migration is complete.
 
 ## Running unit tests
 
-Run `nx test shared/ui-shell-material` to execute the unit tests.
+Do not add new shell or navigation components here.

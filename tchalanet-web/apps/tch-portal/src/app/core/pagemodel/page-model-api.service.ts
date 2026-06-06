@@ -1,12 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { ApiResponse, unwrapApiResponse } from '@tch/api';
 import { map, Observable } from 'rxjs';
 
-import {
-  ApiResponse,
-  PageRuntimeResponse,
-} from '../../shared/types';
-import { unwrapApiResponse } from '../http';
+import { PageRuntimeResponse } from '../../shared/types';
 
 /**
  * Typed client for the backend PageModel runtime endpoints.

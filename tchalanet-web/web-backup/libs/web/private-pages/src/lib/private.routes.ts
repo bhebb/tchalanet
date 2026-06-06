@@ -5,7 +5,6 @@ import { CashierDashboardPage } from './cashier-dashboard/cashier-dashboard.page
 import { DashboardContainerComponent } from './dashboard-container/dashboard-container.component';
 import { DashboardPage } from './dashboard-page/dashboard.page';
 import { DrawsPage } from './draws-page/draws.page';
-import { PrivateShellComponent } from './private-shell/private-shell.component';
 import { ProfilePage } from './profile-page/profile.page';
 import { ReportsPage } from './reports-page/reports.page';
 import { SuperAdminDashboardPage } from './super-admin-dashboard/super-admin-dashboard.page';
@@ -15,7 +14,6 @@ import { TicketsPage } from './tickets-page/tickets.page';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => Promise.resolve(PrivateShellComponent),
     children: [
       {
         path: '',

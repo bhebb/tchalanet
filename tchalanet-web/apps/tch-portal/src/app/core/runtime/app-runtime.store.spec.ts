@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { ThemeStore } from '@tch/ui/theme';
 
 import { AuthSessionService } from '../auth/auth-session.service';
-import { FeatureFlags } from '../feature';
+import { FeatureFlags } from '@tch/shared-config';
 import { I18nFacade } from '../i18n';
-import { RuntimeSettingsStore } from '../settings';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { AppRuntimeStore } from './app-runtime.store';
 
 describe('AppRuntimeStore', () => {
@@ -140,7 +140,7 @@ describe('AppRuntimeStore', () => {
 
   it('does not let a pending public refresh overwrite an upgraded private bootstrap', async () => {
     let resolvePublicRefresh: (session: typeof anonymousSession) => void = () => undefined;
-    const publicRefresh = new Promise<typeof anonymousSession>((resolve) => {
+    const publicRefresh = new Promise<typeof anonymousSession>(resolve => {
       resolvePublicRefresh = resolve;
     });
     auth.refreshSession

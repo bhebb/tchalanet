@@ -1539,52 +1539,6 @@
         "implicitDependencies": []
       }
     },
-    "shared/ui": {
-      "name": "shared/ui",
-      "type": "lib",
-      "data": {
-        "root": "web-backup/libs/ui/theme",
-        "targets": {
-          "lint": {
-            "executor": "@nx/eslint:lint",
-            "options": {},
-            "configurations": {},
-            "parallelism": true,
-            "cache": true,
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/.eslintrc.json",
-              "{workspaceRoot}/.eslintignore",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*"
-            ]
-          },
-          "test": {
-            "executor": "@nx/vite:test",
-            "outputs": [
-              "{options.reportsDirectory}"
-            ],
-            "options": {
-              "reportsDirectory": "../../../coverage/libs/ui/theme"
-            },
-            "configurations": {},
-            "parallelism": true,
-            "cache": true
-          }
-        },
-        "name": "shared/ui",
-        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-        "sourceRoot": "libs/ui/theme/src",
-        "prefix": "tchl",
-        "projectType": "library",
-        "tags": [
-          "scope:shared",
-          "type:ui"
-        ],
-        "implicitDependencies": []
-      }
-    },
     "tch-portal-e2e": {
       "name": "tch-portal-e2e",
       "type": "e2e",
@@ -1818,11 +1772,60 @@
         "tags": []
       }
     },
-    "theme": {
-      "name": "theme",
+    "shared-config": {
+      "name": "shared-config",
       "type": "lib",
       "data": {
-        "root": "libs/shared/theme",
+        "root": "libs/shared-config",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/shared-config/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "shared-config",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/shared-config/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:config"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "ui-components": {
+      "name": "ui-components",
+      "type": "lib",
+      "data": {
+        "root": "libs/ui/components",
         "targets": {
           "lint": {
             "executor": "@nx/eslint:lint",
@@ -1842,19 +1845,22 @@
           "test": {
             "executor": "nx:run-commands",
             "options": {
-              "command": "vitest run libs/shared/theme/src/**/*.spec.ts"
+              "command": "vitest run libs/ui/components/src"
             },
             "configurations": {},
             "parallelism": true,
             "cache": true
           }
         },
-        "name": "theme",
+        "name": "ui-components",
         "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-        "sourceRoot": "libs/shared/theme/src",
+        "sourceRoot": "libs/ui/components/src",
         "prefix": "tch",
         "projectType": "library",
-        "tags": [],
+        "tags": [
+          "scope:ui",
+          "type:components"
+        ],
         "implicitDependencies": []
       }
     },
@@ -1891,7 +1897,8 @@
               "inlineStyleLanguage": "scss",
               "stylePreprocessorOptions": {
                 "includePaths": [
-                  "libs/shared/theme/src"
+                  "libs/ui/theme/src",
+                  "libs/ui/styles/src/lib"
                 ]
               },
               "assets": [
@@ -1993,11 +2000,68 @@
         "implicitDependencies": []
       }
     },
-    "ui": {
-      "name": "ui",
+    "ui-styles": {
+      "name": "ui-styles",
       "type": "lib",
       "data": {
-        "root": "libs/shared/ui",
+        "root": "libs/ui/styles",
+        "name": "ui-styles",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/ui/styles/src",
+        "projectType": "library",
+        "tags": [
+          "scope:ui",
+          "type:styles"
+        ],
+        "targets": {},
+        "implicitDependencies": []
+      }
+    },
+    "ui-theme": {
+      "name": "ui-theme",
+      "type": "lib",
+      "data": {
+        "root": "libs/ui/theme",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "vitest run libs/ui/theme/src"
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true
+          }
+        },
+        "name": "ui-theme",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/ui/theme/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
+    },
+    "api": {
+      "name": "api",
+      "type": "lib",
+      "data": {
+        "root": "libs/api",
         "targets": {
           "lint": {
             "executor": "@nx/eslint:lint",
@@ -2015,12 +2079,14 @@
             ]
           }
         },
-        "name": "ui",
-        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-        "sourceRoot": "libs/shared/ui/src",
-        "prefix": "tch",
+        "name": "api",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/api/src",
         "projectType": "library",
-        "tags": [],
+        "tags": [
+          "scope:shared",
+          "type:data-access"
+        ],
         "implicitDependencies": []
       }
     },
@@ -2120,7 +2186,7 @@
               "script": "theme:generate"
             },
             "metadata": {
-              "scriptContent": "node libs/shared/theme/tools/generate-theme-registry.mjs",
+              "scriptContent": "node libs/ui/theme/tools/generate-theme-registry.mjs",
               "runCommand": "pnpm run theme:generate"
             },
             "configurations": {},
@@ -2181,7 +2247,6 @@
     "styles": [],
     "web/ui-shell-public": [],
     "plans": [],
-    "shared/ui": [],
     "tch-portal-e2e": [
       {
         "source": "tch-portal-e2e",
@@ -2189,23 +2254,42 @@
         "type": "implicit"
       }
     ],
-    "theme": [],
+    "shared-config": [
+      {
+        "source": "shared-config",
+        "target": "api",
+        "type": "static"
+      }
+    ],
+    "ui-components": [],
     "tch-portal": [
       {
         "source": "tch-portal",
-        "target": "theme",
+        "target": "api",
         "type": "static"
       },
       {
         "source": "tch-portal",
-        "target": "ui",
+        "target": "shared-config",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "ui-theme",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "ui-components",
         "type": "static"
       }
     ],
-    "ui": [],
+    "ui-styles": [],
+    "ui-theme": [],
+    "api": [],
     "tchalanet-web": []
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780740553599
+  "computedAt": 1780769974545
 }

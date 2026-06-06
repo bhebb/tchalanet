@@ -2,7 +2,7 @@
 
 > Status: normative  
 > Scope: Web, Mobile, POS, Landing, Tenant Admin  
-> Version: POS_HOME_REFERENCE_V1
+> Version: WEB_UI_FOUNDATION_V1
 
 Ce dossier définit les règles UI normatives pour Tchalanet.
 
@@ -18,12 +18,17 @@ Ce dossier définit les règles UI normatives pour Tchalanet.
 
 ## Implémentations techniques
 
-Les mappings techniques vivent dans :
+Implémentation active :
 
 ```text
-tchalanet-web/src/styles/
-tchalanet-mobile/lib/design_system/
+tchalanet-web/libs/ui/theme/
+tchalanet-web/libs/ui/styles/
+tchalanet-web/libs/ui/components/
 ```
+
+Le Web est la référence active de cette version. L’alignement Mobile puis POS sera réalisé dans des
+changements dédiés, propriétaires de leurs implémentations Flutter. Les règles et tokens décrits ici
+ne signifient pas que ces surfaces sont déjà migrées.
 
 ## Règle principale
 

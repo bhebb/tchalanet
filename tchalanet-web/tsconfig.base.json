@@ -14,6 +14,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
+      "@tch/api": ["./libs/api/src/index.ts"],
+      "@tch/shared-config": ["./libs/shared-config/src/index.ts"],
       "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],
       "@tch/ui/theme/*": ["./libs/ui/theme/src/*"],
       "@tch/ui/components": ["./libs/ui/components/src/index.ts"]

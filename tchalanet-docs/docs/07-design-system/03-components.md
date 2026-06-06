@@ -14,6 +14,9 @@
 | Text | Low emphasis action. |
 | Destructive | Cancel, void, reject, delete. |
 
+Sur le Web, chaque composant consomme les tokens globaux `--tch-*` et expose ses points
+d’adaptation locaux sous forme de variables `--comp-*` avec fallback vers `--tch-*`.
+
 ## POS ActionCard
 
 POS uses large action cards instead of normal small buttons.
@@ -23,7 +26,7 @@ POS uses large action cards instead of normal small buttons.
 | Variant | Color | Usage |
 | --- | --- | --- |
 | `primary` | `primary` | Vendre ticket. |
-| `secondary` | `secondary` | Vérifier ticket. |
+| `secondary` | `secondaryContainer` | Vérifier ticket. |
 | `financial` | `secondary` or `primary outlined` | Payer gagnant. |
 | `neutral` | `surfaceBright` + outline | Sync available. |
 | `warning` | `warningContainer` | Offline, pending sync. |
@@ -71,7 +74,7 @@ Visual states:
 
 Rules:
 
-- Active item may use secondary/purple.
+- Active item may use the secondary/action accent role.
 - Inactive items use `onSurfaceVariant`.
 - Navigation must not hide primary action.
 - POS bottom nav should remain stable across key screens.

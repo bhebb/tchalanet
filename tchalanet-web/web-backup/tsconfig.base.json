@@ -31,7 +31,6 @@
       "@tchl/ui/layout": ["libs/ui/layout/src/index.ts"],
       "@tchl/ui/plans": ["libs/ui/plans/src/index.ts"],
       "@tchl/ui/styles": ["libs/ui/styles/src/index.ts"],
-      "@tchl/ui/theme": ["libs/ui/theme/src/index.ts"],
       "@tchl/ui/widget-renderer": ["libs/ui/widget-renderer/src/index.ts"],
       "@tchl/utils/constants": ["libs/shared/utils/constants/src/index.ts"],
       "@tchl/utils/i18n": ["libs/shared/utils/i18n/src/index.ts"],

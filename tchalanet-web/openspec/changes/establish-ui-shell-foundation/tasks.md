@@ -22,4 +22,12 @@
 - [x] Add or adapt focused tests for navigation helpers and shell contract behavior.
 - [x] Move `libs/shared/theme` atomically to `libs/ui/theme`; update imports, aliases, SCSS paths,
       scripts, tests, and the theme README without a facade or parallel API.
-- [ ] Run focused Nx lint, test, and build validation.
+- [ ] Run focused Nx lint, test, and build validation. Lint and tests pass; `tch-portal:build`
+      remains blocked by a reproducible esbuild goroutine deadlock.
+
+## 5. Legacy backup cleanup
+
+- [x] Remove theme, shell, and reusable layout sources already recovered from `web-backup`.
+- [x] Keep backup-only widgets, pages, assets, and style primitives that still require migration.
+- [ ] Validate the active Web workspace after cleanup. Lint and tests pass; build is blocked by the
+      same esbuild deadlock recorded above.

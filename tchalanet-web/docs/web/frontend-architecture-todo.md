@@ -10,7 +10,19 @@ Le but est de réduire le nombre de libs, clarifier les responsabilités, évite
 
 ## 2. Décision de base
 
-Démarrer avec un nombre limité de libs stables :
+État actif après la fondation UI :
+
+```text
+libs/
+  api/
+  shared-config/
+  ui/
+    components/
+    styles/
+    theme/
+```
+
+Architecture cible par extraction :
 
 ```text
 libs/
@@ -24,9 +36,8 @@ libs/
   web/
 ```
 
-Ne pas créer une lib pour chaque petit composant, widget ou facade.
-
-Une lib Nx doit exister seulement si elle porte une frontière claire, stable et utile.
+Une lib Nx doit exister seulement si elle porte une frontière claire, stable et utile. Ne jamais
+créer une coquille vide pour faire correspondre le workspace au diagramme cible.
 
 ---
 
@@ -172,19 +183,13 @@ Responsabilité :
 * formulaires
 * status badges
 
-Contenu cible :
+Contenu actif :
 
 ```text
 ui/
   theme/
-  layout/
-  feedback/
-  actions/
-  forms/
-  status/
-  data-display/
-  money/
-  ticket/
+  styles/
+  components/
 ```
 
 Composants prioritaires :
@@ -223,7 +228,7 @@ forms/
 Règle :
 
 * pas de HttpClient.
-* pas de facade/store injecté.
+* pas de store ni de service applicatif injecté.
 * composants présentational/stateless autant que possible.
 * reçoit des inputs, émet des outputs.
 
@@ -236,7 +241,7 @@ Responsabilité :
 * moteur PageModel frontend
 * chargement PageModel
 * state PageModel
-* facade PageModel
+* services et state PageModel
 * rendu layout/widgets
 
 Contenu cible :
@@ -246,7 +251,6 @@ page-model/
   model/
   state/
   services/
-  facade/
   rendering/
     page-renderer.component.ts
     grid-layout.component.ts
@@ -334,7 +338,7 @@ Règle :
 
 * les pages vivent ici.
 * les containers spécifiques à une page/surface vivent ici.
-* pas de clients HTTP directs dans les pages si une facade existe.
+* pas de `HttpClient` direct dans les pages; elles orchestrent des services applicatifs/state dédiés.
 
 ---
 
@@ -352,14 +356,14 @@ Route -> Page -> Container(s) -> Component(s)
 * suffixe `*.page.ts`
 * toutes les routes Angular pointent vers une Page
 * responsable du layout principal d’écran
-* peut injecter facade/store/router si nécessaire
+* peut injecter services applicatifs/store/router si nécessaire
 
 ### Container
 
 * composant interne à une Page
 * suffixe `*.container.ts`
 * jamais routé directement
-* peut injecter facade/store/service/router
+* peut injecter services applicatifs/store/router
 * orchestre une sous-zone logique d’écran
 
 ### Component
@@ -369,7 +373,7 @@ Route -> Page -> Container(s) -> Component(s)
 * reçoit `input()`
 * émet `output()`
 * pas de HttpClient
-* pas de store/facade sauf exception documentée
+* pas de store/service applicatif sauf exception documentée
 * stateless/presentational autant que possible
 
 ### Widget
@@ -404,11 +408,8 @@ libs/shared/auth
 libs/shared/data-access/page
   -> libs/page-model/state
 
-libs/shared/facades/page.facade.ts
-  -> libs/page-model/facade/page.facade.ts
-
-libs/shared/facades/i18n.facade.ts
-  -> libs/shared-i18n
+anciennes abstractions d'orchestration génériques
+  -> décomposer vers les services/state propriétaires; ne pas recréer une couche générique
 
 libs/shared/feature
   -> libs/shared-config/feature-flags
@@ -439,39 +440,36 @@ Migration progressive : ne pas tout déplacer en une seule fois.
 * noter les imports publics actuels
 * vérifier que l’app build avant refonte
 
-### Phase 1 — Stabiliser les contrats
+### Phase 1 — Stabiliser les contrats (terminée pour le transport transverse)
 
-* créer/renforcer `libs/api`
-* y déplacer les contracts transverses
-* y garder les interceptors
+* `libs/api` contient les contrats HTTP transverses, helpers et interceptors communs
+* les clients spécifiques restent avec leur domaine propriétaire
 * éviter `@tchl/types` trop vague
 
 ### Phase 2 — Stabiliser Auth / I18n / Config
 
 * isoler auth dans `shared-auth`
 * isoler i18n dans `shared-i18n`
-* isoler feature flags/settings/env dans `shared-config`
+* feature flags et settings runtime sont isolés dans `shared-config`
+* l'environnement de build reste à extraire lorsqu'un contrat runtime concret le justifie
 
-### Phase 3 — Stabiliser UI
+### Phase 3 — Stabiliser UI (terminée pour la fondation)
 
-* garder une seule lib `ui`
-* renforcer `ui/theme`
-* créer `ui/feedback`
-* créer `ui/actions`
-* créer `ui/status`
-* garder layout dans `ui/layout`
+* `ui/theme` porte le runtime thème et les presets
+* `ui/styles` porte les primitives SCSS
+* `ui/components` porte les composants réutilisables
+* ne pas recréer de libs parallèles `ui/feedback`, `ui/actions` ou `ui/layout`
 
 ### Phase 4 — Stabiliser PageModel
 
-* créer `page-model`
-* déplacer PageFacade
-* déplacer Page state/effects
-* créer PageRenderer / WidgetRenderer
+* créer `page-model` seulement avec le déplacement du renderer, contrats propres et tests
+* déplacer puis décomposer les responsabilités PageModel existantes
+* déplacer `PageModelApi`, le contrat PageModel, `PageModelComponent` et `WidgetHostComponent`
 * clarifier la frontière avec `widgets`
 
 ### Phase 5 — Stabiliser Widgets
 
-* créer `widgets/registry`
+* créer `widgets` seulement avec le déplacement du registry et des widgets concrets
 * déplacer widgets actuels
 * remplacer `TchlLink` par `ActionItem` / `NavigationDestination`
 * garder les widgets petits et props-driven
@@ -480,6 +478,8 @@ Migration progressive : ne pas tout déplacer en une seule fois.
 
 * routes -> pages uniquement
 * regrouper public/private/cashier/admin dans `web`
+* déplacer les dashboards tenant admin, superadmin et cashier dans leurs surfaces `web`
+* déplacer les shells public/private et pages publiques après stabilisation PageModel/widgets
 * éviter les routes vers containers/components
 * garder les pages simples et lisibles
 
@@ -490,10 +490,10 @@ Migration progressive : ne pas tout déplacer en une seule fois.
 * Toutes les routes pointent vers une `Page`.
 * Aucun container n’est routé directement.
 * Les composants UI ne font pas d’appel HTTP.
-* Les composants UI ne dépendent pas de NgRx/facades.
+* Les composants UI ne dépendent pas de NgRx ni de services applicatifs.
 * Les widgets reçoivent des props et sont rendus par PageModel.
 * Les contrats backend/frontend vivent dans `api/contracts`.
-* Les pages consomment des facades, pas directement des clients HTTP.
+* Les pages orchestrent des services applicatifs/state dédiés, sans appeler directement `HttpClient`.
 * Pas de nouvelle lib sans frontière claire.
 
 ---
@@ -504,7 +504,7 @@ La base est considérée propre quand :
 
 * les 8 libs cibles existent ou sont clairement planifiées
 * `api/contracts` contient les modèles transverses
-* auth/i18n/config ne sont plus mélangés avec facades/types génériques
+* auth/i18n/config ne sont plus mélangés avec des abstractions ou types génériques
 * PageModel a sa propre lib
 * widgets a son registry
 * les routes principales pointent vers des pages

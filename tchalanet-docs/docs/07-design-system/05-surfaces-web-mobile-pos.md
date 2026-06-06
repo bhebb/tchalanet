@@ -4,6 +4,12 @@
 
 ## PUBLIC_LANDING
 
+Web shell:
+
+```text
+PublicHeader + main content + PublicFooter
+```
+
 Allowed:
 
 - hero
@@ -64,6 +70,12 @@ Forbidden:
 
 ## TENANT_ADMIN_WEB
 
+Private Web shell:
+
+```text
+PrivateTopAppBar + SidebarNav + main content
+```
+
 Allowed:
 
 - side navigation
@@ -79,3 +91,11 @@ Rules:
 - higher density is allowed;
 - destructive actions require confirmation;
 - tables must be paginated and responsive.
+
+## Shell and PageModel boundary
+
+`PageModel` renders content only: rows, columns, and widgets. Header, footer, top app bar, sidebar,
+theme bootstrap, and runtime file resolution belong outside PageModel.
+
+Mobile/POS visual alignment is planned as a separate Mobile-owned change. This document defines the
+target roles without claiming that Flutter is already migrated.

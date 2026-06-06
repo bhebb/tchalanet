@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
 import { EntitlementsStore } from '../entitlement';
-import { FeatureFlags } from '../feature';
+import { FeatureFlags } from '@tch/shared-config';
 
 /**
  * A single access requirement combining the two orthogonal gating concerns:

@@ -2,8 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { ApiResponse } from '../../shared/types';
-import { unwrapApiResponse } from '../../core/http';
+import { ApiResponse, unwrapApiResponse } from '@tch/api';
 
 export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
 export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
@@ -46,19 +45,17 @@ export class PlatformAdminApi {
 
   previewTenant(request: TenantProvisioningRequest): Observable<TenantProvisioningPreviewView> {
     return this.http
-      .post<ApiResponse<TenantProvisioningPreviewView>>(
-        '/api/v1/platform/tenant-onboarding/preview',
-        request,
-      )
+      .post<
+        ApiResponse<TenantProvisioningPreviewView>
+      >('/api/v1/platform/tenant-onboarding/preview', request)
       .pipe(map(unwrapApiResponse));
   }
 
   provisionTenant(request: TenantProvisioningRequest): Observable<TenantProvisioningResultView> {
     return this.http
-      .post<ApiResponse<TenantProvisioningResultView>>(
-        '/api/v1/platform/tenant-onboarding/provision',
-        request,
-      )
+      .post<
+        ApiResponse<TenantProvisioningResultView>
+      >('/api/v1/platform/tenant-onboarding/provision', request)
       .pipe(map(unwrapApiResponse));
   }
 }

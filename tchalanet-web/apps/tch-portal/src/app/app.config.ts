@@ -1,9 +1,5 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  isDevMode,
-  provideBrowserGlobalErrorListeners,
-} from '@angular/core';
+import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
@@ -11,6 +7,8 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
+import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
+import { FeatureFlags, SettingsFeatureFlags } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
@@ -19,11 +17,6 @@ import {
 } from 'keycloak-angular';
 
 import { appRoutes } from './app.routes';
-import { FeatureFlags, SettingsFeatureFlags } from './core/feature';
-import {
-  correlationRequestInterceptor,
-  problemDetailInterceptor,
-} from './core/http';
 import {
   I18nEffects,
   MERGED_TRANSLATE_LOADER_OPTIONS,

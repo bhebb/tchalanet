@@ -48,10 +48,13 @@ Les couleurs de statut ne doivent pas être remplacées par des couleurs de marq
 Success = vert
 Warning = orange/brun warning
 Error = rouge
-Primary action = bleu
-Secondary support = violet
-Marketing CTA = orange
+Primary / chrome = indigo profond
+Secondary / action accent = jaune
+Marketing / attention = orange
 ```
+
+La palette Web active est la référence courante. Mobile et POS devront adopter les mêmes rôles
+sémantiques dans un changement dédié, sans recopier l’implémentation CSS du Web.
 
 ### 5. Money and ticket codes are first-class typography
 

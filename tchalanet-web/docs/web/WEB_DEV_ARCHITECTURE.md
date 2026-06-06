@@ -50,21 +50,22 @@ Le but est de réduire le nombre de libs, clarifier les responsabilités, évite
 
 ## 2. Décision de base
 
-Démarrer avec un nombre limité de libs stables :
+Les frontières actives sont :
 
 ```text
 libs/
   api/
-  shared-auth/
-  shared-i18n/
   shared-config/
   ui/
-  page-model/
-  widgets/
-  web/
+    components/
+    styles/
+    theme/
 ```
 
-Ne pas créer une lib pour chaque petit composant, widget ou facade.
+Les autres familles (`shared-auth`, `shared-i18n`, `page-model`, `widgets`, `web`) sont des cibles
+d'extraction progressive.
+
+Ne pas créer une lib pour chaque petit composant ou widget, ni créer une lib cible vide.
 Une lib Nx doit exister seulement si elle porte une frontière claire, stable et utile.
 
 ---
@@ -79,8 +80,10 @@ Résumé :
 - `shared-auth` : auth, guards, login, secure storage
 - `shared-i18n` : i18n, loader, switcher
 - `shared-config` : env, feature flags, settings
-- `ui` : design system, composants visuels, layout, feedback, actions, forms, status
-- `page-model` : moteur PageModel, state, rendering, facade
+- `ui/components` : composants visuels réutilisables, navigation et feedback
+- `ui/styles` : primitives SCSS partagées, sans logique de thème runtime
+- `ui/theme` : thème courant, presets Material 3, tokens et synchronisation DOM/overlay
+- `page-model` : moteur PageModel, state, services et rendering
 - `widgets` : registry, widgets dynamiques, public/private/cashier/admin
 - `web` : pages routées, shells, containers, assemblage écran
 
@@ -92,7 +95,8 @@ Résumé :
 Route -> Page -> Container(s) -> Component(s)
 ```
 
-- Page : composant routé, suffixe `*.page.ts`, layout principal, peut injecter facade/store/router
+- Page : composant routé, suffixe `*.page.ts`, layout principal, peut injecter services
+  applicatifs/store/router
 - Container : interne à une Page, suffixe `*.container.ts`, orchestre une sous-zone logique
 - Component : visuel, suffixe `*.component.ts`, reçoit `input()`, émet `output()`, stateless
 - Widget : rendu dynamiquement par PageModel, suffixe `*.widget.ts`, reçoit des props
@@ -103,6 +107,7 @@ Route -> Page -> Container(s) -> Component(s)
 ## 5. Checklist développement
 
 - Ne pas créer de nouvelle lib sans frontière claire et stable
+- Créer une lib cible seulement dans le change qui y déplace réellement son code
 - Placer les pages dans `web/` (public, private, cashier, admin, etc.)
 - Placer les widgets dynamiques dans `widgets/`
 - Placer les composants visuels réutilisables dans `ui/`
