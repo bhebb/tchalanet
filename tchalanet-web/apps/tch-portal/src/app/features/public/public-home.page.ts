@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchErrorPanel, TchLoading } from '@tch/shared/ui';
+import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { catchError, map, of, startWith } from 'rxjs';
 
 import { PageModelApi } from '../../core/pagemodel';

@@ -28,9 +28,9 @@ Dynamic payloads come from `dynamic.widgets[id]`; contained provider failures fr
 
 | Backend `type`            | Component            | Dynamic source        |
 | ------------------------- | ------------------- | --------------------- |
-| `HeroWidget`              | `HeroWidget`        | json_file (props)     |
+| `HeroWidget`              | `HeroWidget`        | resolved payload      |
 | `NewsTickerWidget`        | `NewsTickerWidget`  | `public_home` `{items}` |
-| `FeatureGridWidget`       | `FeatureGridWidget` | json_file `{items}`   |
+| `FeatureGridWidget`       | `FeatureGridWidget` | resolved `{items}`    |
 | `PlansWidget`             | `PlansWidget`       | `public_home` `{plans}` |
 | `PublicDrawResultsWidget` | — (out of scope)    | unsupported fallback  |
 | `CheckTicketWidget`       | — (out of scope)    | unsupported fallback  |

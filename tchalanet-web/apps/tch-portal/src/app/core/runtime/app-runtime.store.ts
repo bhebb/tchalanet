@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { ThemeRuntimeStore } from '@tch/shared/theme/runtime/theme-runtime.store';
+import { ThemeStore } from '@tch/ui/theme';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '../feature';
@@ -15,7 +15,7 @@ export class AppRuntimeStore {
   private readonly i18n = inject(I18nFacade);
   private readonly settings = inject(RuntimeSettingsStore);
   private readonly features = inject(FeatureFlags);
-  private readonly theme = inject(ThemeRuntimeStore);
+  private readonly theme = inject(ThemeStore);
   private readonly bootstrapState = signal<RuntimeBootstrapState>('idle');
   private readonly bootstrapScope = signal<RuntimeBootstrapScope>('none');
   private readonly bootstrapError = signal<unknown | null>(null);

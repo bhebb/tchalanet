@@ -13,14 +13,14 @@ The backend owns the active theme ID. The frontend owns how known preset IDs bec
 ## Placement
 
 ```text
-libs/shared/theme/
+libs/ui/theme/
 ```
 
 Use this area for:
 
 - `ThemeApi` runtime calls;
 - `ThemeRepository` local preset registry;
-- `ThemeRuntimeStore` active preset/mode state;
+- `ThemeStore` active preset/mode state;
 - DOM application of CSS variables and Material token aliases;
 - small theme controls used by shell or dev surfaces.
 - SCSS preset catalogs and runtime token bridges;
@@ -68,7 +68,7 @@ translated to the validated `--tch-*` set before being applied; applying them ve
 declarations like `--color.primary` that the browser silently ignores (backend theming never takes
 effect).
 
-The mapping lives in `libs/shared/theme/src/runtime/theme-token-map.ts`
+The mapping lives in `libs/ui/theme/src/lib/theme-token-map.ts`
 (`mapBackendThemeTokens`), applied in `ThemeApi`:
 
 ```text
@@ -123,15 +123,15 @@ system tokens from the brand seeds, not the other way around.
 Full M3 preset CSS is **generated at build time on the frontend**, not emitted by the backend. Ported
 from `web-backup/libs/ui/theme`:
 
-- `libs/shared/theme/src/scss/_generate-theme.scss` — `tch-generate-theme($id, $primary, $tertiary)` mixin: calls
+- `libs/ui/theme/src/scss/_generate-theme.scss` — `tch-generate-theme($id, $primary, $tertiary)` mixin: calls
   `mat.theme()` and maps brand tokens, for `.tch-theme[data-preset=$id]` (light) and
   `.tch-theme.dark[data-preset=$id]` (dark).
-- `libs/shared/theme/src/scss/theme-presets.scss` — the preset catalog (tchalanet brand + Material palette pairs).
-- `libs/shared/theme/src/scss/tchalanet/_theme-colors.scss` — brand tonal palettes (regenerate via Material schematic; do
+- `libs/ui/theme/src/scss/theme-presets.scss` — the preset catalog (tchalanet brand + Material palette pairs).
+- `libs/ui/theme/src/scss/tchalanet/_theme-colors.scss` — brand tonal palettes (regenerate via Material schematic; do
   not hand-edit).
-- the generator `libs/shared/theme/tools/generate-theme-registry.mjs` (run via `npm run theme:generate`)
+- the generator `libs/ui/theme/tools/generate-theme-registry.mjs` (run via `npm run theme:generate`)
   compiles the catalog with the `sass` CLI, splits per `data-preset`, and writes
-  `libs/shared/theme/src/registry/theme-presets.registry.ts` (`THEME_PRESETS: ThemePreset[]`, committed + reviewable).
+  `libs/ui/theme/src/registry/theme-presets.registry.ts` (`THEME_PRESETS: ThemePreset[]`, committed + reviewable).
   Edit the catalog and regenerate — never hand-edit the registry.
 
 Preset **ids mirror the backend `theme_preset.code`** (V203 seed: `tchalanet`, `m3-blue`, `m3-purple`,
@@ -162,7 +162,7 @@ The backend does **not** generate full M3 token sets. It owns:
   `ThemeRuntimeView.tokens` carries the tenant's customized values for these, applied as **overrides**
   on top of the generated preset — they are not the whole palette.
 
-`libs/shared/theme/src/runtime/theme-token-map.ts` maps those editable backend keys to the CSS
+`libs/ui/theme/src/lib/theme-token-map.ts` maps those editable backend keys to the CSS
 variables the generated preset exposes. Keep it aligned with `editableTokens`; extend with a test
 when the set grows.
 

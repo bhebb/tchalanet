@@ -38,9 +38,9 @@ import { WidgetHostComponent } from './widget-host.component';
       .page-model {
         display: grid;
         gap: 1.5rem;
-        max-width: 1120px;
+        max-width: var(--tch-page-max, 1120px);
         margin: 0 auto;
-        padding: 1.5rem;
+        padding: var(--tch-page-gutter, 1.5rem);
       }
       .page-model__row {
         display: grid;
@@ -52,7 +52,7 @@ import { WidgetHostComponent } from './widget-host.component';
         display: grid;
         gap: 1.5rem;
       }
-      @media (max-width: 720px) {
+      @media (max-width: 767.98px) {
         .page-model__col {
           grid-column: span 12;
         }

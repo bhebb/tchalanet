@@ -14,9 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
-      "@tch/shared/theme": ["./libs/shared/theme/src/index.ts"],
-      "@tch/shared/theme/*": ["./libs/shared/theme/src/*"],
-      "@tch/shared/ui": ["./libs/shared/ui/src/index.ts"]
+      "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],
+      "@tch/ui/theme/*": ["./libs/ui/theme/src/*"],
+      "@tch/ui/components": ["./libs/ui/components/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

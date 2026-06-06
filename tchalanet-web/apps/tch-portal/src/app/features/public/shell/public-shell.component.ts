@@ -26,11 +26,13 @@ import { PublicHeader } from './public-header';
   styles: [
     `
       :host {
+        --comp-shell-bg: var(--tch-color-background);
+        --comp-shell-fg: var(--tch-color-on-background);
         display: grid;
         min-height: 100vh;
         grid-template-rows: auto 1fr auto;
-        background: var(--tch-color-background, var(--mat-sys-background));
-        color: var(--tch-color-foreground, var(--mat-sys-on-background));
+        background: var(--comp-shell-bg);
+        color: var(--comp-shell-fg);
       }
 
       .shell__skip {

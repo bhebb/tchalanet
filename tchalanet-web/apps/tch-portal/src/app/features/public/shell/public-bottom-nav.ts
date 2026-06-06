@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ActionItem, PublicShellRuntime } from '../../../shared/types';
+import { PublicShellRuntime, actionRoute, actionText } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 
 @Component({
@@ -11,7 +11,7 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
   template: `
     <nav class="shell__bottom-nav" aria-label="Public">
       @for (item of bottomNav(); track item.id) {
-        <a [routerLink]="actionRoute(item)">{{ actionLabelKey(item) | tchLabel }}</a>
+        <a [routerLink]="actionRoute(item)">{{ actionText(item) | tchLabel }}</a>
       }
     </nav>
   `,
@@ -59,14 +59,6 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
 export class PublicBottomNav {
   readonly shell = input<PublicShellRuntime | undefined>();
   readonly bottomNav = computed(() => this.shell()?.header.primary?.slice(0, 3) ?? []);
-  readonly actionLabelKey = actionLabelKey;
+  readonly actionText = actionText;
   readonly actionRoute = actionRoute;
-}
-
-function actionLabelKey(item: ActionItem): string {
-  return item.labelKey ?? item.label ?? '';
-}
-
-function actionRoute(item: ActionItem): string {
-  return item.destination?.value ?? '/public';
 }

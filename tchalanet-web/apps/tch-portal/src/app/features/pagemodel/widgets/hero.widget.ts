@@ -20,7 +20,7 @@ interface HeroDynamic {
 
 /**
  * `HeroWidget`: strong hero with a primary action. Title/subtitle/CTA come from the widget props
- * (`*_key`) with an optional dynamic (json_file) override. Styled only via theme tokens.
+ * (`*_key`) with an optional resolved dynamic payload. Styled only via theme tokens.
  */
 @Component({
   selector: 'tch-hero-widget',

@@ -1,4 +1,4 @@
-import { ActionItem } from './navigation.types';
+import { ActionItem, NavigationSection } from './navigation.types';
 
 /** Resolved PageModel BFF contract. It contains no storage bindings or fragment keys. */
 export interface PageRuntimeResponse {
@@ -55,8 +55,21 @@ export interface PublicFooterColumn {
 
 export interface PrivateShellRuntime {
   readonly type: 'private';
-  readonly topAppBar: Readonly<Record<string, unknown>>;
-  readonly navigationDrawer: Readonly<Record<string, unknown>>;
+  readonly topAppBar: PrivateTopAppBarRuntime;
+  readonly navigationDrawer: NavigationDrawerRuntime;
+}
+
+export interface PrivateTopAppBarRuntime {
+  readonly titleKey?: string;
+  readonly utilities?: readonly ActionItem[];
+  readonly actions?: readonly ActionItem[];
+}
+
+export interface NavigationDrawerRuntime {
+  readonly brand?: ActionItem;
+  readonly primary?: readonly ActionItem[];
+  readonly sections?: readonly NavigationSection[];
+  readonly secondary?: readonly ActionItem[];
 }
 
 export interface PageContentRuntime {

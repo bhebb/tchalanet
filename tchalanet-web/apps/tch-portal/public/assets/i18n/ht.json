@@ -33,6 +33,11 @@
     "disabled": "dezaktive",
     "enabled": "aktive",
     "loading": "Ap chaje…",
+    "notFound": {
+      "back": "Retounen akèy",
+      "message": "Nou pa jwenn paj ou mande a.",
+      "title": "Paj pa jwenn"
+    },
     "unknown": "Enkoni"
   },
   "dashboard": {

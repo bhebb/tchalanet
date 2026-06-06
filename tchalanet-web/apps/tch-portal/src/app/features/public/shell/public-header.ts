@@ -1,29 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { ActionItem, PublicShellRuntime } from '../../../shared/types';
+import { ActionItem, PublicShellRuntime, actionText } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
+import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
 
 @Component({
   selector: 'tch-public-header',
-  imports: [RouterLink, LanguageSwitcherComponent, LabelPipe],
+  imports: [LanguageSwitcherComponent, LabelPipe, TchBrand, TchNav, TchOverlayNav],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="public-header">
       <div class="public-header__inner">
-        @if (brand(); as brandItem) {
-          <a class="public-header__brand" [routerLink]="actionRoute(brandItem)" [attr.aria-label]="actionLabelKey(brandItem) | tchLabel">
-            <img src="/assets/brand/tchalanet-logo.svg" alt="Tchalanet"/>
-          </a>
-        }
+        <tch-brand class="public-header__brand" [brand]="brand()" [showName]="false" />
 
         <button
             type="button"
             class="public-header__burger"
             [attr.aria-expanded]="mobileMenuOpen()"
-            aria-controls="public-mobile-menu"
             (click)="toggleMobileMenu()"
         >
           <span aria-hidden="true"></span>
@@ -32,11 +26,7 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
           <span class="public-header__sr">{{ 'public.nav.menu' | tchLabel }}</span>
         </button>
 
-        <nav class="public-header__nav" aria-label="Navigation publique">
-          @for (item of nav(); track item.id) {
-            <a [routerLink]="actionRoute(item)">{{ actionLabelKey(item) | tchLabel }}</a>
-          }
-        </nav>
+        <tch-nav class="public-header__nav" [items]="nav()" ariaLabel="Navigation publique" />
 
         <div class="public-header__actions">
           <div class="public-header__tools" aria-label="Langue">
@@ -44,40 +34,36 @@ import { LabelPipe } from '../../pagemodel/label.pipe';
           </div>
           @if (loginAction(); as loginItem) {
             <button type="button" class="public-header__login" (click)="login()">
-              {{ actionLabelKey(loginItem) | tchLabel }}
+              {{ actionText(loginItem) | tchLabel }}
             </button>
           }
         </div>
       </div>
 
-      <div
-          id="public-mobile-menu"
-          class="public-header__mobile-panel"
-          [class.public-header__mobile-panel--open]="mobileMenuOpen()"
-      >
-        <nav class="public-header__mobile-nav" aria-label="Navigation publique mobile">
-          @for (item of nav(); track item.id) {
-            <a [routerLink]="actionRoute(item)" (click)="closeMobileMenu()">{{ actionLabelKey(item) | tchLabel }}</a>
-          }
-        </nav>
-        <div class="public-header__mobile-tools">
-          <tch-language-switcher/>
-        </div>
-      </div>
+      <tch-overlay-nav
+        [open]="mobileMenuOpen()"
+        [items]="nav()"
+        ariaLabel="Navigation publique mobile"
+        (requestClose)="closeMobileMenu()"
+      />
     </header>
   `,
   styles: [
     `
       .public-header {
+        --comp-header-bg: var(--tch-color-surface-container-lowest);
+        --comp-header-fg: var(--tch-color-on-surface);
+        --comp-header-border: var(--tch-color-outline-variant);
         position: sticky;
         top: 0;
         z-index: 30;
         background: color-mix(
           in oklab,
-          var(--tch-color-surface-container-lowest, #fff) 92%,
+          var(--comp-header-bg) 92%,
           transparent
         );
-        border-bottom: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        color: var(--comp-header-fg);
+        border-bottom: 1px solid var(--comp-header-border);
         backdrop-filter: blur(16px);
       }
 
@@ -289,8 +275,7 @@ export class PublicHeader {
   readonly brand = computed(() => publicBrand(this.shell()));
   readonly nav = computed(() => publicHeaderNav(this.shell()));
   readonly loginAction = computed(() => publicLoginAction(this.shell()));
-  readonly actionLabelKey = actionLabelKey;
-  readonly actionRoute = actionRoute;
+  readonly actionText = actionText;
 
   login(): void {
     void this.auth.login();
@@ -306,7 +291,13 @@ export class PublicHeader {
 }
 
 function publicBrand(shell: PublicShellRuntime | undefined): ActionItem | undefined {
-  return shell?.header.brand;
+  const brand = shell?.header.brand;
+  return {
+    id: brand?.id ?? 'public-brand',
+    ...brand,
+    image: brand?.image ?? '/assets/brand/tchalanet-logo.svg',
+    destination: brand?.destination ?? { kind: 'route', value: '/public' },
+  };
 }
 
 function publicHeaderNav(shell: PublicShellRuntime | undefined): readonly ActionItem[] {
@@ -319,12 +310,4 @@ function publicLoginAction(shell: PublicShellRuntime | undefined): ActionItem | 
     ...(shell?.header.secondary ?? []),
   ];
   return actions.find((item) => item.id === 'login') ?? actions[0];
-}
-
-function actionLabelKey(item: ActionItem): string {
-  return item.labelKey ?? item.label ?? '';
-}
-
-function actionRoute(item: ActionItem): string {
-  return item.destination?.value ?? '/public';
 }

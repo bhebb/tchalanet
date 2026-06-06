@@ -11,7 +11,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
-import { themeRuntimeStoreProvider } from '@tch/shared/theme/runtime/theme-runtime.store';
+import { themeStoreProvider } from '@tch/ui/theme';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   includeBearerTokenInterceptor,
@@ -51,7 +51,7 @@ export const appConfig: ApplicationConfig = {
     provideState(i18nFeature),
     provideEffects([I18nEffects]),
     provideRouterStore(),
-    themeRuntimeStoreProvider,
+    themeStoreProvider,
     // Feature-management isolation seam: call sites depend on FeatureFlags, swapping the backing
     // provider (e.g. to Unleash) only rebinds this token.
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },

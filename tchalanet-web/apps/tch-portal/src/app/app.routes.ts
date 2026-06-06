@@ -12,6 +12,7 @@ import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicResultDetailPage } from './features/public/public-result-detail.page';
 import { PublicResultsPage } from './features/public/public-results.page';
 import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
+import { NotFoundPage } from './core/http/not-found.page';
 
 export const appRoutes: Route[] = [
   {
@@ -107,6 +108,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: 'public',
+    component: NotFoundPage,
   },
 ];

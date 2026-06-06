@@ -33,6 +33,11 @@
     "disabled": "désactivé",
     "enabled": "activé",
     "loading": "Chargement…",
+    "notFound": {
+      "back": "Retour à l'accueil",
+      "message": "La page demandée est introuvable.",
+      "title": "Page introuvable"
+    },
     "unknown": "Inconnu"
   },
   "dashboard": {

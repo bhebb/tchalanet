@@ -15,7 +15,7 @@
         "tsConfig": "apps/tch-portal/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "stylePreprocessorOptions": {
-          "includePaths": ["libs/shared/theme/src"]
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
         },
         "assets": [
           {

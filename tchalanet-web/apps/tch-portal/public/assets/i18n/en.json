@@ -33,6 +33,11 @@
     "disabled": "disabled",
     "enabled": "enabled",
     "loading": "Loading…",
+    "notFound": {
+      "back": "Back to home",
+      "message": "The requested page could not be found.",
+      "title": "Page not found"
+    },
     "unknown": "Unknown"
   },
   "dashboard": {

@@ -9,7 +9,7 @@
     "lint": "nx run tch-portal:lint",
     "format": "prettier --write .",
     "test": "nx run tch-portal:test",
-    "theme:generate": "node libs/shared/theme/tools/generate-theme-registry.mjs"
+    "theme:generate": "node libs/ui/theme/tools/generate-theme-registry.mjs"
   },
   "keywords": [],
   "author": "",

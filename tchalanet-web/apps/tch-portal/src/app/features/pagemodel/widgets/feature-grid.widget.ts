@@ -18,7 +18,7 @@ interface FeatureDynamic {
   readonly features?: readonly FeatureItem[];
 }
 
-/** `FeatureGridWidget`: compact preview grid of product features (json_file dynamic source). */
+/** `FeatureGridWidget`: compact preview grid rendered from its resolved dynamic payload. */
 @Component({
   selector: 'tch-feature-grid-widget',
   imports: [LabelPipe],

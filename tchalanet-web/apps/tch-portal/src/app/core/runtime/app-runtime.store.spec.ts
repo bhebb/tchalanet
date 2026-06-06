@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ThemeRuntimeStore } from '@tch/shared/theme/runtime/theme-runtime.store';
+import { ThemeStore } from '@tch/ui/theme';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '../feature';
@@ -74,7 +74,7 @@ describe('AppRuntimeStore', () => {
           provide: FeatureFlags,
           useValue: { isEnabled: (key: string, fallback = false) => fallback },
         },
-        { provide: ThemeRuntimeStore, useValue: theme },
+        { provide: ThemeStore, useValue: theme },
       ],
     });
   });

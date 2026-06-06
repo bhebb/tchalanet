@@ -1,27 +1,40 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { TchBrand, TchLangThemeGroup, TchSidebarNav } from '@tch/ui/components';
+import { ThemeSwitcherComponent } from '@tch/ui/theme';
 import { catchError, defer, of } from 'rxjs';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
 import { PageModelApi } from '../../../core/pagemodel';
 import { AppRuntimeStore } from '../../../core/runtime';
-import { NavigationDestination, PrivateShellRuntime } from '../../../shared/types';
+import { ActionItem, PrivateShellRuntime } from '../../../shared/types';
 
 @Component({
-  imports: [LanguageSwitcherComponent, RouterLink, RouterOutlet, TranslatePipe],
+  imports: [
+    LanguageSwitcherComponent,
+    RouterOutlet,
+    TchBrand,
+    TchLangThemeGroup,
+    TchSidebarNav,
+    ThemeSwitcherComponent,
+    TranslatePipe,
+  ],
   selector: 'tch-private-shell-page',
   template: `
     <div class="private-shell">
       <header class="top-app-bar">
-        <a routerLink="/public" class="brand">Tchalanet</a>
+        <tch-brand [brand]="shell()?.navigationDrawer?.brand" />
         @if (titleKey()) {
           <strong>{{ titleKey() | translate }}</strong>
         }
         <div class="utilities">
-          <tch-language-switcher />
+          <tch-lang-theme-group>
+            <tch-language-switcher />
+            <tch-theme-switcher />
+          </tch-lang-theme-group>
           <button type="button" (click)="logout()">
             {{ 'dashboard.actions.logout' | translate }}
           </button>
@@ -29,11 +42,11 @@ import { NavigationDestination, PrivateShellRuntime } from '../../../shared/type
       </header>
 
       <div class="workspace">
-        <nav class="side-nav" aria-label="Private navigation">
-          @for (item of destinations(); track item.id) {
-            <a [routerLink]="item.destination.value">{{ item.labelKey | translate }}</a>
-          }
-        </nav>
+        <tch-sidebar-nav
+          [primary]="primary()"
+          [sections]="shell()?.navigationDrawer?.sections ?? []"
+          [secondary]="shell()?.navigationDrawer?.secondary ?? []"
+        />
 
         <main class="content">
           <router-outlet />
@@ -44,22 +57,17 @@ import { NavigationDestination, PrivateShellRuntime } from '../../../shared/type
   styles: [
     `
       .private-shell {
+        --comp-private-border: var(--tch-color-outline-variant);
         min-height: 100vh;
       }
 
       .top-app-bar {
         align-items: center;
-        border-bottom: 1px solid var(--tch-color-border, #d8dee6);
+        border-bottom: 1px solid var(--comp-private-border);
         display: flex;
         justify-content: space-between;
         min-height: 4rem;
         padding: 0 1.5rem;
-      }
-
-      .brand {
-        color: inherit;
-        font-weight: 700;
-        text-decoration: none;
       }
 
       .utilities {
@@ -74,19 +82,6 @@ import { NavigationDestination, PrivateShellRuntime } from '../../../shared/type
         display: grid;
         grid-template-columns: minmax(12rem, 16rem) 1fr;
         min-height: calc(100vh - 4rem);
-      }
-
-      .side-nav {
-        border-right: 1px solid var(--tch-color-border, #d8dee6);
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 1.5rem;
-      }
-
-      .side-nav a {
-        color: inherit;
-        text-decoration: none;
       }
 
       .content {
@@ -105,12 +100,6 @@ import { NavigationDestination, PrivateShellRuntime } from '../../../shared/type
           grid-template-columns: 1fr;
         }
 
-        .side-nav {
-          border-bottom: 1px solid var(--tch-color-border, #d8dee6);
-          border-right: 0;
-          flex-direction: row;
-          flex-wrap: wrap;
-        }
       }
     `,
   ],
@@ -133,9 +122,9 @@ export class PrivateShellPage {
     const shell = this.pageRuntime()?.shell;
     return shell?.type === 'private' ? shell : undefined;
   });
-  readonly titleKey = computed(() => readTitleKey(this.shell()?.topAppBar));
-  readonly destinations = computed(() => {
-    const resolved = readDestinations(this.shell()?.navigationDrawer);
+  readonly titleKey = computed(() => this.shell()?.topAppBar.titleKey ?? '');
+  readonly primary = computed(() => {
+    const resolved = this.shell()?.navigationDrawer.primary ?? [];
     return resolved.length ? resolved : fallbackDestinations(this.auth.session().roles);
   });
 
@@ -148,55 +137,7 @@ export class PrivateShellPage {
   }
 }
 
-interface DrawerDestination {
-  readonly id: string;
-  readonly labelKey: string;
-  readonly destination: NavigationDestination & { readonly kind: 'route' };
-}
-
-function readTitleKey(topAppBar: Readonly<Record<string, unknown>> | undefined): string {
-  const title = recordValue(topAppBar?.['title']);
-  return stringValue(title?.['labelKey']) ?? '';
-}
-
-function readDestinations(drawer: Readonly<Record<string, unknown>> | undefined): readonly DrawerDestination[] {
-  const direct = destinationArray(drawer?.['topDestinations']);
-  const sections = Array.isArray(drawer?.['sections']) ? drawer['sections'] : [];
-  const grouped = sections.flatMap((section) => {
-    const record = recordValue(section);
-    return destinationArray(record?.['destinations']);
-  });
-  const footer = destinationArray(drawer?.['footerDestinations']);
-  return [...direct, ...grouped, ...footer];
-}
-
-function destinationArray(value: unknown): readonly DrawerDestination[] {
-  return Array.isArray(value) ? value.flatMap(readDestination) : [];
-}
-
-function readDestination(value: unknown): readonly DrawerDestination[] {
-  const record = recordValue(value);
-  const destination = recordValue(record?.['destination']);
-  const id = stringValue(record?.['id']);
-  const labelKey = stringValue(record?.['labelKey']);
-  const kind = stringValue(destination?.['kind']);
-  const route = stringValue(destination?.['value']);
-  return id && labelKey && kind === 'route' && route
-    ? [{ id, labelKey, destination: { kind: 'route', value: route } }]
-    : [];
-}
-
-function recordValue(value: unknown): Readonly<Record<string, unknown>> | undefined {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Readonly<Record<string, unknown>>
-    : undefined;
-}
-
-function stringValue(value: unknown): string | undefined {
-  return typeof value === 'string' ? value : undefined;
-}
-
-function fallbackDestinations(roles: readonly string[]): readonly DrawerDestination[] {
+function fallbackDestinations(roles: readonly string[]): readonly ActionItem[] {
   const route = roles.includes('SUPER_ADMIN')
     ? '/app/platform'
     : roles.includes('TENANT_ADMIN')

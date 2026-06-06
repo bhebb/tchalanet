@@ -1,7 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ActionItem, PublicFooterColumn, PublicShellRuntime } from '../../../shared/types';
+import {
+    ActionItem,
+    PublicFooterColumn,
+    PublicShellRuntime,
+    actionHref,
+    actionRoute,
+    actionText,
+    isExternalAction,
+} from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -90,8 +98,11 @@ interface FooterText {
     styles: [
         `
           .public-footer {
-            background: var(--tch-color-primary, var(--mat-sys-primary));
-            color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+            --comp-footer-bg: var(--tch-color-primary);
+            --comp-footer-fg: var(--tch-color-on-primary);
+            --comp-footer-link: var(--tch-color-primary-fixed);
+            background: var(--comp-footer-bg);
+            color: var(--comp-footer-fg);
           }
 
           .public-footer__inner {
@@ -126,14 +137,14 @@ interface FooterText {
           .public-footer__brand p {
             margin: 0;
             max-width: 22rem;
-            color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+            color: var(--comp-footer-link);
           }
 
           .public-footer__status {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+            color: var(--comp-footer-link);
             font-weight: 800;
           }
 
@@ -159,7 +170,7 @@ interface FooterText {
             place-items: center;
             border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
             border-radius: var(--tch-radius-pill, 9999px);
-            color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+            color: var(--comp-footer-link);
             text-decoration: none;
           }
 
@@ -196,7 +207,7 @@ interface FooterText {
           }
 
           .public-footer__column a {
-            color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+            color: var(--comp-footer-link);
             text-decoration: none;
           }
 
@@ -209,7 +220,7 @@ interface FooterText {
             margin: 0 auto;
             padding: 1rem 0;
             border-top: 1px solid color-mix(in oklab, currentColor 18%, transparent);
-            color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+            color: var(--comp-footer-link);
           }
           
           .public-footer__social img {
@@ -295,20 +306,4 @@ function publicFooterColumns(shell: PublicShellRuntime | undefined): readonly Pu
 
 function publicFooterSocial(shell: PublicShellRuntime | undefined): readonly ActionItem[] {
     return shell?.footer.social ?? [];
-}
-
-function actionText(item: ActionItem | undefined): string {
-    return item?.labelKey ?? item?.label ?? '';
-}
-
-function actionRoute(item: ActionItem | undefined): string {
-    return item?.destination?.kind === 'route' ? item.destination.value : '/public';
-}
-
-function actionHref(item: ActionItem | undefined): string {
-    return item?.destination?.value ?? '#';
-}
-
-function isExternalAction(item: ActionItem): boolean {
-    return item.destination?.kind === 'url';
 }
