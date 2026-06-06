@@ -54,12 +54,12 @@ public class StaticPageModelTemplateLoader {
 
     private PageModelTemplateView readTemplate(Resource resource) {
         try (InputStream in = resource.getInputStream()) {
-            String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            JsonNode node = jsonUtils.parse(json);
+            var json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            var node = jsonUtils.parse(json);
 
             return PageModelTemplateView.initFromFile(
                 requiredText(node, "code", resource),
-                requiredText(node, "logical_id", resource),
+                requiredText(node, "logicalId", resource),
                 requiredText(node, "scope", resource),
                 requiredText(node, "slug", resource),
                 requiredText(node, "name", resource),
@@ -98,12 +98,12 @@ public class StaticPageModelTemplateLoader {
     }
 
     private int intOrDefault(JsonNode node) {
-        JsonNode value = node.get("schema_version");
+        JsonNode value = node.get("schemaVersion");
         return value == null || value.isNull() ? 1 : value.asInt();
     }
 
     private boolean boolOrDefault(JsonNode node) {
-        var value = node.get("is_default");
+        var value = node.get("default");
         return value == null || value.isNull() || value.asBoolean();
     }
 

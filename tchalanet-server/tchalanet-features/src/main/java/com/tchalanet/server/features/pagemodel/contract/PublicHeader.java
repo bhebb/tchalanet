@@ -12,7 +12,7 @@ import java.util.List;
  * private routes or admin / superadmin metadata.
  */
 public record PublicHeader(
-    BrandBlock brand,
-    List<NavigationEntry> primary,
-    List<NavigationEntry> secondary,
-    List<NavigationEntry> actions) {}
+    ActionItem brand,
+    List<ActionItem> primary,
+    List<ActionItem> secondary,
+    List<ActionItem> actions) {}

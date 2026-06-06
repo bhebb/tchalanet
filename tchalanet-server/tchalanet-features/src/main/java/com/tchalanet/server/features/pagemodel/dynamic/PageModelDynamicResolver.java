@@ -22,9 +22,11 @@ public class PageModelDynamicResolver {
   public PageDynamicPayload resolve(PageModelDoc doc, String lang, TchRequestContext ctx) {
     Map<String, Object> widgets = new LinkedHashMap<>();
     List<WidgetDynamicError> errors = new ArrayList<>();
-    PageModelResolutionContext resolutionContext = new PageModelResolutionContext();
+    var resolutionContext = new PageModelResolutionContext();
 
-    if (doc == null) return new PageDynamicPayload(widgets, errors);
+    if (doc == null) {
+      return new PageDynamicPayload(widgets, errors);
+    }
     resolveShell(doc, "shell.header", doc.shell() == null ? null : doc.shell().header(), lang, ctx, resolutionContext, widgets, errors);
     resolveShell(doc, "shell.sidenav", doc.shell() == null ? null : doc.shell().sidenav(), lang, ctx, resolutionContext, widgets, errors);
     resolveShell(doc, "shell.footer", doc.shell() == null ? null : doc.shell().footer(), lang, ctx, resolutionContext, widgets, errors);

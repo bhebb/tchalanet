@@ -1,9 +1,12 @@
+import { ActionItem } from './navigation.types';
+
 /**
  * Web mirror of the backend `PageModelDoc` contract
  * (`com.tchalanet.server.core.pagemodel.api.model.PageModelDoc`).
  *
- * Field names follow the backend JSON wire format verbatim (snake_case for keys such as
- * `label_key`, `schema_version`, `default_lang`). The renderer types the real payload directly;
+ * Field names follow the backend JSON wire format. PageModel metadata keeps historical
+ * snake_case keys such as `schema_version` and `default_lang`; UI/action contracts use camelCase.
+ * The renderer types the real payload directly;
  * there is no abstract widget vocabulary or legacy-mapping layer.
  */
 
@@ -32,36 +35,31 @@ export interface PageTheme {
 }
 
 export interface PageShell {
-  readonly brand?: ShellBrand;
-  readonly primary?: readonly NavItem[];
-  readonly actions?: readonly NavItem[];
-  readonly mobile?: readonly NavItem[];
+  readonly brand?: ActionItem;
+  readonly primary?: readonly ActionItem[];
+  readonly actions?: readonly ActionItem[];
+  readonly mobile?: readonly ActionItem[];
   readonly header?: ShellSectionConfig;
   readonly sidenav?: ShellSectionConfig;
   readonly footer?: ShellSectionConfig;
 }
 
-export interface ShellBrand {
-  readonly id?: string;
-  readonly label_key?: string;
-  readonly path?: string;
-}
-
 export interface ShellSectionConfig {
   readonly component?: string;
   readonly binding?: WidgetBinding;
+  readonly brand?: TchBrand;
   readonly nav?: ShellNav;
   readonly props?: Readonly<Record<string, unknown>>;
 }
 
 export interface ShellNav {
-  readonly primary?: readonly NavItem[];
-  readonly secondary?: readonly NavItem[];
+  readonly primary?: readonly ActionItem[];
+  readonly secondary?: readonly ActionItem[];
 }
-
-export interface NavItem {
-  readonly label_key?: string;
-  readonly path?: string;
+export interface TchBrand {
+  readonly image?: string;
+  readonly name?: string;
+  readonly secondary?: readonly ActionItem[];
 }
 
 export interface PageContent {
@@ -76,7 +74,7 @@ export interface PageLayout {
 
 export interface LayoutRow {
   readonly id?: string;
-  readonly label_key?: string;
+  readonly labelKey?: string;
   readonly columns?: readonly LayoutColumn[];
 }
 

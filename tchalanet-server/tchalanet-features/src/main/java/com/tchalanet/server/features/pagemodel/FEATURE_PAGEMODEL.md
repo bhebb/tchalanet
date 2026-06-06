@@ -82,7 +82,8 @@ Fragments live under:
 src/main/resources/pagemodel/fragments/
 ```
 
-Fragments use `label_key` only. Do not put translated labels in fragment JSON.
+Fragments use camelCase API fields such as `labelKey`, `activeMatch`, `reasonKey`, and
+`requiredRoles`. Do not put translated labels in fragment JSON.
 
 ## Current fragment registry
 
@@ -172,7 +173,7 @@ Le tenant reçoit ses propres documents (draft ou published selon profil). Il pe
 
 - PageModel ≠ vérité opérationnelle (POS readiness, session, draw status)
 - Le POS mobile utilise `/tenant/cashier/home`, pas le PageModel
-- Les fragments JSON utilisent `label_key` uniquement — jamais de labels traduits inline
+- Les fragments JSON utilisent des champs API camelCase — jamais de labels traduits inline
 - Chemins raw interdits dans `file_key` — path traversal rejeté avant tout chargement classpath
 - Les providers s'exécutent dans le contexte HTTP existant — ne pas le modifier
 

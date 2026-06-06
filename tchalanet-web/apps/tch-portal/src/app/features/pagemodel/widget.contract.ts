@@ -3,9 +3,8 @@ import { InputSignal } from '@angular/core';
 import { WidgetConfig } from '../../shared/types';
 
 export type NavigationDestination =
-  | { readonly type: 'path'; readonly path: string }
-  | { readonly type: 'external'; readonly url: string }
-  | { readonly type: 'anchor'; readonly id: string };
+  | { readonly kind: 'route'; readonly value: string; readonly requiredRoles?: readonly string[] }
+  | { readonly kind: 'url'; readonly value: string; readonly requiredRoles?: readonly string[] };
 
 export type WidgetState = 'default' | 'loading' | 'empty' | 'error' | 'partial';
 
@@ -30,12 +29,12 @@ export type SimulationStatus =
 
 export interface WidgetAction {
   readonly id?: string;
-  readonly label_key?: string;
+  readonly labelKey?: string;
   readonly label?: string;
   readonly icon?: string;
   readonly destination?: NavigationDestination;
   readonly disabled?: boolean;
-  readonly reason_key?: string | null;
+  readonly reasonKey?: string | null;
   readonly style?: 'primary' | 'secondary' | 'tertiary' | string;
 }
 
@@ -80,21 +79,12 @@ export function mapBackendDestination(value: unknown): NavigationDestination | u
   }
 
   const kind = stringValue(value['kind']);
-  const path = stringValue(value['path']);
-  const url = stringValue(value['url']) ?? path;
-  const anchorId = stringValue(value['anchor_id']) ?? stringValue(value['anchorId']);
-
-  if (kind === 'external' && url) {
-    return { type: 'external', url };
+  const destinationValue = stringValue(value['value']);
+  if (kind === 'url' && destinationValue) {
+    return { kind: 'url', value: destinationValue };
   }
-
-  if ((kind === 'anchor' || stringValue(value['type']) === 'anchor') && (anchorId || path)) {
-    const id = anchorId ?? path;
-    return id ? { type: 'anchor', id: id.replace(/^#/, '') } : undefined;
-  }
-
-  if (path) {
-    return { type: 'path', path: toPublicPath(path) };
+  if (kind === 'route' && destinationValue) {
+    return { kind: 'route', value: toPublicPath(destinationValue) };
   }
 
   return undefined;
@@ -104,13 +94,10 @@ export function destinationHref(destination: NavigationDestination | undefined):
   if (!destination) {
     return '#';
   }
-  if (destination.type === 'external') {
-    return destination.url;
+  if (destination.kind === 'url') {
+    return destination.value;
   }
-  if (destination.type === 'anchor') {
-    return `#${destination.id}`;
-  }
-  return destination.path;
+  return destination.value;
 }
 
 export function toPublicPath(path: string): string {
@@ -155,12 +142,12 @@ function mapBackendAction(value: unknown): WidgetAction | undefined {
 
   return {
     id: stringValue(value['id']),
-    label_key: stringValue(value['label_key']),
+    labelKey: stringValue(value['labelKey']),
     label: stringValue(value['label']),
     icon: stringValue(value['icon']),
-    destination: mapBackendDestination(value),
+    destination: mapBackendDestination(value['destination']),
     disabled: typeof value['disabled'] === 'boolean' ? value['disabled'] : false,
-    reason_key: stringValue(value['reason_key']) ?? null,
+    reasonKey: stringValue(value['reasonKey']) ?? null,
     style: stringValue(value['style']),
   };
 }

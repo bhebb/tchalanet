@@ -1,12 +1,18 @@
-export type ActionItemKind = 'button' | 'link' | 'external-link';
+export type ActionItemKind = 'button' | 'link' | 'externalLink';
 
 export interface ActionItem {
   readonly id: string;
-  readonly kind: ActionItemKind;
-  readonly labelKey: string;
-  readonly icon?: string;
+  readonly kind?: ActionItemKind;
+  readonly labelKey?: string;
+  readonly label?: string | null;
   readonly destination?: NavigationDestination;
+  readonly icon?: string | null;
+  readonly image?: string | null;
+  readonly activeMatch?: 'exact' | 'prefix';
   readonly disabled?: boolean;
+  readonly reasonKey?: string | null;
+  readonly badge?: unknown;
+  readonly children?: readonly ActionItem[];
 }
 
 export type NavigationDestinationKind = 'route' | 'url';

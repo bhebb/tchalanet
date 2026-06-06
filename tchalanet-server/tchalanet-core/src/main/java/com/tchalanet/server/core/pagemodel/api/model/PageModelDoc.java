@@ -19,9 +19,9 @@ public record PageModelDoc(
       @JsonProperty("scope") String scope,
       @JsonProperty("slug") String slug,
       @JsonProperty("context") String context,
-      @JsonProperty("schema_version") int schemaVersion,
+      @JsonProperty("schemaVersion") int schemaVersion,
       @JsonProperty("langs") List<String> langs,
-      @JsonProperty("default_lang") String defaultLang) {}
+      @JsonProperty("defaultLang") String defaultLang) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Theme(@JsonProperty("presetId") String presetId,
@@ -41,12 +41,27 @@ public record PageModelDoc(
                                    @JsonProperty("props") Map<String, Object> props) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  public record ShellNav(@JsonProperty("primary") List<NavItem> primary,
-                         @JsonProperty("secondary") List<NavItem> secondary) {}
+  public record ShellNav(@JsonProperty("primary") List<ActionItem> primary,
+                         @JsonProperty("secondary") List<ActionItem> secondary) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  public record NavItem(@JsonProperty("label_key") String labelKey,
-                        @JsonProperty("path") String path) {}
+  public record ActionItem(@JsonProperty("id") String id,
+                           @JsonProperty("kind") String kind,
+                           @JsonProperty("labelKey") String labelKey,
+                           @JsonProperty("label") String label,
+                           @JsonProperty("destination") NavigationDestination destination,
+                           @JsonProperty("icon") String icon,
+                           @JsonProperty("image") String image,
+                           @JsonProperty("activeMatch") String activeMatch,
+                           @JsonProperty("disabled") Boolean disabled,
+                           @JsonProperty("reasonKey") String reasonKey,
+                           @JsonProperty("badge") Object badge,
+                           @JsonProperty("children") List<ActionItem> children) {}
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public record NavigationDestination(@JsonProperty("kind") String kind,
+                                      @JsonProperty("value") String value,
+                                      @JsonProperty("requiredRoles") List<String> requiredRoles) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Content(@JsonProperty("layout") Layout layout,
@@ -58,7 +73,7 @@ public record PageModelDoc(
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record LayoutRow(@JsonProperty("id") String id,
-                          @JsonProperty("label_key") String labelKey,
+                          @JsonProperty("labelKey") String labelKey,
                           @JsonProperty("columns") List<LayoutColumn> columns) {}
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

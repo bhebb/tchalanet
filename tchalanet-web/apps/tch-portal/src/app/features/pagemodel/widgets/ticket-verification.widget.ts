@@ -132,11 +132,11 @@ export class TicketVerificationWidget {
   readonly widgetId = input<string>('');
 
   readonly titleKey = computed(
-    () => stringProp(this.config(), 'title_key') ?? 'public.ticket.title',
+    () => stringProp(this.config(), 'titleKey') ?? 'public.ticket.title',
   );
   readonly descriptionKey = computed(
-    () => stringProp(this.config(), 'description_key') ?? 'public.ticket.description',
+    () => stringProp(this.config(), 'descriptionKey') ?? 'public.ticket.description',
   );
-  readonly ctaKey = computed(() => stringProp(this.config(), 'cta_key') ?? 'public.ticket.cta');
+  readonly ctaKey = computed(() => stringProp(this.config(), 'ctaKey') ?? 'public.ticket.cta');
   readonly path = computed(() => toPublicPath(stringProp(this.config(), 'path') ?? '/public/check-ticket'));
 }

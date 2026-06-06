@@ -13,94 +13,106 @@
   },
   "by_number_destination": {
     "id": "tchala_by_number",
-    "type": "destination",
-    "label_key": "home.tchala.by_number_label",
     "label": null,
-    "path": "/tchala?by=number",
-    "kind": "internal",
+    "kind": "link",
     "icon": "tag",
     "image": null,
-    "active_match": "prefix",
     "disabled": false,
-    "reason_key": null,
     "badge": null,
-    "children": []
+    "children": [],
+    "labelKey": "home.tchala.by_number_label",
+    "destination": {
+      "kind": "route",
+      "value": "/tchala?by=number"
+    },
+    "activeMatch": "prefix",
+    "reasonKey": null
   },
   "by_dream_destination": {
     "id": "tchala_by_dream",
-    "type": "destination",
-    "label_key": "home.tchala.by_dream_label",
     "label": null,
-    "path": "/tchala?by=dream",
-    "kind": "internal",
+    "kind": "link",
     "icon": "bedtime",
     "image": null,
-    "active_match": "prefix",
     "disabled": false,
-    "reason_key": null,
     "badge": null,
-    "children": []
+    "children": [],
+    "labelKey": "home.tchala.by_dream_label",
+    "destination": {
+      "kind": "route",
+      "value": "/tchala?by=dream"
+    },
+    "activeMatch": "prefix",
+    "reasonKey": null
   },
   "quick_dreams": [
     {
       "id": "dream_poisson",
-      "type": "destination",
-      "label_key": "home.tchala.dream.poisson",
       "label": null,
-      "path": "/public/tchala/by-dream?dream=poisson",
-      "kind": "internal",
+      "kind": "link",
       "icon": "water",
       "image": null,
-      "active_match": "prefix",
       "disabled": false,
-      "reason_key": null,
       "badge": null,
-      "children": []
+      "children": [],
+      "labelKey": "home.tchala.dream.poisson",
+      "destination": {
+        "kind": "route",
+        "value": "/public/tchala/by-dream?dream=poisson"
+      },
+      "activeMatch": "prefix",
+      "reasonKey": null
     },
     {
       "id": "dream_serpent",
-      "type": "destination",
-      "label_key": "home.tchala.dream.serpent",
       "label": null,
-      "path": "/public/tchala/by-dream?dream=serpent",
-      "kind": "internal",
+      "kind": "link",
       "icon": "pest_control",
       "image": null,
-      "active_match": "prefix",
       "disabled": false,
-      "reason_key": null,
       "badge": null,
-      "children": []
+      "children": [],
+      "labelKey": "home.tchala.dream.serpent",
+      "destination": {
+        "kind": "route",
+        "value": "/public/tchala/by-dream?dream=serpent"
+      },
+      "activeMatch": "prefix",
+      "reasonKey": null
     },
     {
       "id": "dream_argent",
-      "type": "destination",
-      "label_key": "home.tchala.dream.argent",
       "label": null,
-      "path": "/public/tchala/by-dream?dream=argent",
-      "kind": "internal",
+      "kind": "link",
       "icon": "payments",
       "image": null,
-      "active_match": "prefix",
       "disabled": false,
-      "reason_key": null,
       "badge": null,
-      "children": []
+      "children": [],
+      "labelKey": "home.tchala.dream.argent",
+      "destination": {
+        "kind": "route",
+        "value": "/public/tchala/by-dream?dream=argent"
+      },
+      "activeMatch": "prefix",
+      "reasonKey": null
     },
     {
       "id": "dream_mariage",
-      "type": "destination",
-      "label_key": "home.tchala.dream.mariage",
       "label": null,
-      "path": "/public/tchala/by-dream?dream=mariage",
-      "kind": "internal",
+      "kind": "link",
       "icon": "favorite",
       "image": null,
-      "active_match": "prefix",
       "disabled": false,
-      "reason_key": null,
       "badge": null,
-      "children": []
+      "children": [],
+      "labelKey": "home.tchala.dream.mariage",
+      "destination": {
+        "kind": "route",
+        "value": "/public/tchala/by-dream?dream=mariage"
+      },
+      "activeMatch": "prefix",
+      "reasonKey": null
     }
   ]
 }

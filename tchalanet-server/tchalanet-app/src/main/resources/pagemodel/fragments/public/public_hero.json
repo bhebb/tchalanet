@@ -1,60 +1,54 @@
 {
-  "fragment_type": "HeroPayload",
-  "schema_version": 2,
-  "title_key": "home.hero.title",
-  "tagline_key": "home.hero.tagline",
-  "subtitle_key": "home.hero.subtitle",
+  "fragmentType": "HeroPayload",
+  "schemaVersion": 2,
+  "titleKey": "home.hero.title",
+  "taglineKey": "home.hero.tagline",
+  "subtitleKey": "home.hero.subtitle",
   "image": {
-    "url": "",
-    "alt_key": "home.hero.image_alt",
-    "title_key": null,
+    "url": "/assets/public/home/hero-ticket.png",
+    "altKey": "home.hero.image_alt",
+    "titleKey": null,
     "width": null,
     "height": null,
-    "aspect_ratio": "16:9",
+    "aspectRatio": "16:9",
     "loading": "eager"
   },
   "actions": [
     {
-      "id": "LOGIN",
-      "type": "action",
-      "label_key": "cta.login",
-      "label": null,
-      "path": "/login",
-      "kind": "internal",
-      "icon": "login",
-      "image": null,
+      "id": "checkTicket",
+      "kind": "button",
       "style": "primary",
-      "disabled": false,
-      "reason_key": null,
-      "confirm": null
-    },
-    {
-      "id": "REQUEST_DEMO",
-      "type": "action",
-      "label_key": "cta.request_demo",
+      "labelKey": "public.nav.check_ticket",
       "label": null,
-      "path": "/demo",
-      "kind": "internal",
-      "icon": "rocket_launch",
-      "image": null,
-      "style": "secondary",
-      "disabled": false,
-      "reason_key": null,
-      "confirm": null
-    },
-    {
-      "id": "CHECK_TICKET",
-      "type": "action",
-      "label_key": "cta.check_ticket",
-      "label": null,
-      "path": "/verifier",
-      "kind": "internal",
+      "destination": {
+        "kind": "route",
+        "value": "/public/check-ticket"
+      },
       "icon": "qr_code_scanner",
       "image": null,
-      "style": "tertiary",
+      "activeMatch": null,
       "disabled": false,
-      "reason_key": null,
-      "confirm": null
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "requestDemo",
+      "kind": "button",
+      "style": "secondary",
+      "labelKey": "public.operator.demo",
+      "label": null,
+      "destination": {
+        "kind": "route",
+        "value": "/public/contact"
+      },
+      "icon": "rocket_launch",
+      "image": null,
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
     }
   ]
 }

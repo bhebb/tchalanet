@@ -27,7 +27,7 @@ public class PageModelJsonFragmentRegistry {
 
   public String resolve(String fileKey) {
     if (fileKey == null || fileKey.isBlank()) {
-      throw new PageModelDynamicProviderException("MISSING_PROP", "props.file_key is required");
+      throw new PageModelDynamicProviderException("MISSING_PROP", "props.fileKey is required");
     }
 
     String resourcePath = FRAGMENTS.get(fileKey);

@@ -18,7 +18,7 @@ import tools.jackson.databind.JsonNode;
 @RequiredArgsConstructor
 public class JsonFileProvider implements PageModelDynamicProvider {
 
-  public static final String SOURCE = "json_file";
+  public static final String SOURCE = "jsonFile";
 
   private final PageModelJsonFragmentRegistry registry;
   private final JsonUtils jsonUtils;
@@ -37,7 +37,7 @@ public class JsonFileProvider implements PageModelDynamicProvider {
       String lang,
       TchRequestContext ctx,
       com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext resolutionContext) {
-    String fileKey = readString(widgetConfig == null ? null : widgetConfig.props(), "file_key");
+    String fileKey = readString(widgetConfig == null ? null : widgetConfig.props(), "fileKey");
     String resourcePath = registry.resolve(fileKey);
     JsonNode cached = cache.computeIfAbsent(fileKey, ignored -> loadJson(fileKey, resourcePath));
     return cached.deepCopy();

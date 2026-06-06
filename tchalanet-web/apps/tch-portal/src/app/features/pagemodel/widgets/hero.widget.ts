@@ -38,13 +38,13 @@ interface HeroDynamic {
         }
         @if (actions().length) {
           <div class="hero__actions">
-            @for (action of actions(); track action.id ?? action.label_key) {
+            @for (action of actions(); track action.id ?? action.labelKey) {
               <a
                 class="hero__cta"
                 [class.hero__cta--secondary]="action.style !== 'primary'"
                 [attr.href]="href(action)"
               >
-                {{ action.label ?? (action.label_key | tchLabel) }}
+                {{ action.label ?? (action.labelKey | tchLabel) }}
               </a>
             }
           </div>
@@ -267,15 +267,15 @@ export class HeroWidget {
 const HOME_HERO_ACTIONS: readonly WidgetAction[] = [
   {
     id: 'public-check-ticket',
-    label_key: 'public.hero.primary_action',
+    labelKey: 'public.hero.primary_action',
     style: 'primary',
-    destination: { type: 'path', path: '/public/check-ticket' },
+    destination: { kind: 'route', value: '/public/check-ticket' },
   },
   {
     id: 'public-results',
-    label_key: 'public.hero.secondary_action',
+    labelKey: 'public.hero.secondary_action',
     style: 'secondary',
-    destination: { type: 'path', path: '/public/results' },
+    destination: { kind: 'route', value: '/public/results' },
   },
 ];
 

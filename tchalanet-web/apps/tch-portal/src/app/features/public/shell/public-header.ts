@@ -3,36 +3,8 @@ import { RouterLink } from '@angular/router';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { PageShell } from '../../../shared/types';
+import { ActionItem, PageShell } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
-import { isRecord, toPublicPath } from '../../pagemodel/widget.contract';
-
-interface PublicNavDestination {
-  readonly id?: string;
-  readonly label_key: string;
-  readonly path: string;
-}
-
-interface PublicBrand {
-  readonly id?: string;
-  readonly label_key: string;
-  readonly path: string;
-}
-
-const PUBLIC_HEADER_FALLBACK = {
-  brand: {
-    id: 'tchalanet-public',
-    label_key: 'app.brand',
-    path: '/public',
-  },
-  primary: [
-    { id: 'results', label_key: 'public.nav.results', path: '/public/results' },
-    { id: 'check_ticket', label_key: 'public.nav.check_ticket', path: '/public/check-ticket' },
-    { id: 'operators', label_key: 'public.nav.operators', path: '/public/contact' },
-    { id: 'help', label_key: 'public.nav.help', path: '/public/help' },
-  ],
-  actions: [{ id: 'login', label_key: 'public.nav.login', path: '/login' }],
-} as const;
 
 @Component({
   selector: 'tch-public-header',
@@ -41,9 +13,11 @@ const PUBLIC_HEADER_FALLBACK = {
   template: `
     <header class="public-header">
       <div class="public-header__inner">
-        <a class="public-header__brand" [routerLink]="brand().path" [attr.aria-label]="brand().label_key | tchLabel">
-          <img src="/assets/brand/tchalanet-logo.svg" alt="Tchalanet"/>
-        </a>
+        @if (brand(); as brandItem) {
+          <a class="public-header__brand" [routerLink]="actionRoute(brandItem)" [attr.aria-label]="actionLabelKey(brandItem) | tchLabel">
+            <img src="/assets/brand/tchalanet-logo.svg" alt="Tchalanet"/>
+          </a>
+        }
 
         <button
             type="button"
@@ -59,8 +33,8 @@ const PUBLIC_HEADER_FALLBACK = {
         </button>
 
         <nav class="public-header__nav" aria-label="Navigation publique">
-          @for (item of nav(); track item.id ?? item.path) {
-            <a [routerLink]="item.path">{{ item.label_key | tchLabel }}</a>
+          @for (item of nav(); track item.id) {
+            <a [routerLink]="actionRoute(item)">{{ actionLabelKey(item) | tchLabel }}</a>
           }
         </nav>
 
@@ -68,9 +42,11 @@ const PUBLIC_HEADER_FALLBACK = {
           <div class="public-header__tools" aria-label="Langue">
             <tch-language-switcher/>
           </div>
-          <button type="button" class="public-header__login" (click)="login()">
-            {{ loginAction().label_key | tchLabel }}
-          </button>
+          @if (loginAction(); as loginItem) {
+            <button type="button" class="public-header__login" (click)="login()">
+              {{ actionLabelKey(loginItem) | tchLabel }}
+            </button>
+          }
         </div>
       </div>
 
@@ -80,8 +56,8 @@ const PUBLIC_HEADER_FALLBACK = {
           [class.public-header__mobile-panel--open]="mobileMenuOpen()"
       >
         <nav class="public-header__mobile-nav" aria-label="Navigation publique mobile">
-          @for (item of nav(); track item.id ?? item.path) {
-            <a [routerLink]="item.path" (click)="closeMobileMenu()">{{ item.label_key | tchLabel }}</a>
+          @for (item of nav(); track item.id) {
+            <a [routerLink]="actionRoute(item)" (click)="closeMobileMenu()">{{ actionLabelKey(item) | tchLabel }}</a>
           }
         </nav>
         <div class="public-header__mobile-tools">
@@ -313,6 +289,8 @@ export class PublicHeader {
   readonly brand = computed(() => publicBrand(this.shell()));
   readonly nav = computed(() => publicHeaderNav(this.shell()));
   readonly loginAction = computed(() => publicLoginAction(this.shell()));
+  readonly actionLabelKey = actionLabelKey;
+  readonly actionRoute = actionRoute;
 
   login(): void {
     void this.auth.login();
@@ -327,94 +305,39 @@ export class PublicHeader {
   }
 }
 
-function publicBrand(shell: PageShell | undefined): PublicBrand {
+function publicBrand(shell: PageShell | undefined): ActionItem | undefined {
   return normalizeBrand(readUnknown(shell, 'brand'))
-    ?? normalizeBrand(readUnknown(shell?.header?.props, 'brand'))
-    ?? PUBLIC_HEADER_FALLBACK.brand;
+    ?? normalizeBrand(readUnknown(shell?.header?.props, 'brand'));
 }
 
-function publicHeaderNav(shell: PageShell | undefined): readonly PublicNavDestination[] {
+function publicHeaderNav(shell: PageShell | undefined): readonly ActionItem[] {
   const primary = [
-    ...normalizeDestinations(readUnknownArray(shell, 'primary')),
-    ...normalizeDestinations(shell?.header?.nav?.primary),
-  ].map(normalizePublicNav);
-  return mergePublicNav(PUBLIC_HEADER_FALLBACK.primary, primary);
+    ...normalizeNavItems(readUnknownArray(shell, 'primary')),
+    ...normalizeNavItems(shell?.header?.nav?.primary),
+  ];
+  return primary;
 }
 
-function publicLoginAction(shell: PageShell | undefined): PublicNavDestination {
+function publicLoginAction(shell: PageShell | undefined): ActionItem | undefined {
   const actions = [
-    ...normalizeDestinations(readUnknownArray(shell, 'actions')),
-    ...normalizeDestinations(shell?.header?.nav?.secondary),
-  ].map(normalizePublicNav);
-  return actions.find((item) => item.id === 'login') ?? PUBLIC_HEADER_FALLBACK.actions[0];
+    ...normalizeNavItems(readUnknownArray(shell, 'actions')),
+    ...normalizeNavItems(shell?.header?.nav?.secondary),
+  ];
+  return actions.find((item) => item.id === 'login') ?? actions[0];
 }
 
-function normalizeBrand(value: unknown): PublicBrand | undefined {
-  if (!isRecord(value)) {
-    return undefined;
-  }
-  const labelKey = stringValue(value['label_key']) ?? stringValue(value['labelKey']);
-  const path = stringValue(value['path']);
-  return labelKey
-    ? { id: stringValue(value['id']), label_key: labelKey, path: path ? toPublicPath(path) : '/public' }
-    : undefined;
+function normalizeBrand(value: unknown): ActionItem | undefined {
+  return isActionItem(value) ? value : undefined;
 }
 
-function normalizeDestinations(items: readonly unknown[] | undefined): readonly PublicNavDestination[] {
-  return (items ?? []).flatMap((item) => {
-    if (!isRecord(item)) {
-      return [];
-    }
-    const path = stringValue(item['path']);
-    const labelKey = stringValue(item['label_key']) ?? stringValue(item['labelKey']);
-    return path && labelKey
-      ? [{ id: stringValue(item['id']), label_key: labelKey, path: toPublicPath(path) }]
-      : [];
-  });
-}
-
-function normalizePublicNav(item: PublicNavDestination): PublicNavDestination {
-  const id = normalizePublicId(item.id);
-  if (id === 'results') {
-    return { ...item, id, label_key: 'public.nav.results', path: '/public/results' };
-  }
-  if (id === 'check_ticket') {
-    return { ...item, id, label_key: 'public.nav.check_ticket', path: '/public/check-ticket' };
-  }
-  if (id === 'operators') {
-    return { ...item, id, label_key: 'public.nav.operators', path: '/public/contact' };
-  }
-  if (id === 'help') {
-    return { ...item, id, label_key: 'public.nav.help', path: '/public/help' };
-  }
-  if (id === 'login') {
-    return { ...item, id, label_key: 'public.nav.login', path: '/login' };
-  }
-  return item;
-}
-
-function normalizePublicId(id: string | undefined): string {
-  if (id === 'draw_results') {
-    return 'results';
-  }
-  if (id === 'support') {
-    return 'help';
-  }
-  if (id === 'contact_demo') {
-    return 'operators';
-  }
-  return id ?? '';
-}
-
-function mergePublicNav(
-  requiredItems: readonly PublicNavDestination[],
-  backendItems: readonly PublicNavDestination[],
-): readonly PublicNavDestination[] {
-  return requiredItems.map((required) => backendItems.find((item) => item.id === required.id) ?? required);
+function normalizeNavItems(items: readonly unknown[] | undefined): readonly ActionItem[] {
+  return (items ?? []).filter(isActionItem);
 }
 
 function readUnknown(source: unknown, key: string): unknown {
-  return isRecord(source) ? source[key] : undefined;
+  return source && typeof source === 'object' && key in source
+    ? (source as Record<string, unknown>)[key]
+    : undefined;
 }
 
 function readUnknownArray(source: unknown, key: string): readonly unknown[] | undefined {
@@ -422,6 +345,14 @@ function readUnknownArray(source: unknown, key: string): readonly unknown[] | un
   return Array.isArray(value) ? value : undefined;
 }
 
-function stringValue(value: unknown): string | undefined {
-  return typeof value === 'string' ? value : undefined;
+function actionLabelKey(item: ActionItem): string {
+  return item.labelKey ?? item.label ?? '';
+}
+
+function actionRoute(item: ActionItem): string {
+  return item.destination?.value ?? '/public';
+}
+
+function isActionItem(value: unknown): value is ActionItem {
+  return !!value && typeof value === 'object' && typeof (value as ActionItem).id === 'string';
 }

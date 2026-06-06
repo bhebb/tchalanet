@@ -2,7 +2,7 @@ import { Route } from '@angular/router';
 
 import { roleGuard } from './core/auth/auth.guard';
 import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboard.page';
-import { ForbiddenPage } from './features/auth/forbidden.page';
+import { ForbiddenPage } from './core/auth/forbidden.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
 import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
 import { PublicCheckTicketPage } from './features/public/public-check-ticket.page';

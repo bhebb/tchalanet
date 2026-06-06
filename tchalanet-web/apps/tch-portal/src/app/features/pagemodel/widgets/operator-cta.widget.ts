@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { WidgetConfig } from '../../../shared/types';
 import { LabelPipe } from '../label.pipe';
+import { actionFrom, destinationHref, stringProp, WidgetAction } from '../widget.contract';
 
 @Component({
   selector: 'tch-operator-cta-widget',
@@ -10,12 +11,16 @@ import { LabelPipe } from '../label.pipe';
   template: `
     <section class="operator">
       <div>
-        <h2>{{ 'public.operator.title' | tchLabel }}</h2>
-        <p>{{ 'public.operator.description' | tchLabel }}</p>
+        <h2>{{ titleKey() | tchLabel }}</h2>
+        <p>{{ descriptionKey() | tchLabel }}</p>
       </div>
       <div class="operator__actions">
-        <a class="operator__primary" href="/public/contact">{{ 'public.operator.demo' | tchLabel }}</a>
-        <a class="operator__secondary" href="/login">{{ 'public.operator.access' | tchLabel }}</a>
+        @if (primaryAction(); as action) {
+          <a class="operator__primary" [attr.href]="href(action)">{{ labelKey(action) | tchLabel }}</a>
+        }
+        @if (secondaryAction(); as action) {
+          <a class="operator__secondary" [attr.href]="href(action)">{{ labelKey(action) | tchLabel }}</a>
+        }
       </div>
     </section>
   `,
@@ -70,7 +75,19 @@ import { LabelPipe } from '../label.pipe';
   ],
 })
 export class OperatorCtaWidget {
-  readonly config = input<WidgetConfig>();
+  readonly config = input.required<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
+  readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? 'public.operator.title');
+  readonly descriptionKey = computed(() => stringProp(this.config(), 'descriptionKey') ?? 'public.operator.description');
+  readonly primaryAction = computed(() => actionFrom(this.config().props?.['primaryAction']));
+  readonly secondaryAction = computed(() => actionFrom(this.config().props?.['secondaryAction']));
+
+  href(action: WidgetAction): string {
+    return destinationHref(action.destination);
+  }
+
+  labelKey(action: WidgetAction): string {
+    return action.labelKey ?? '';
+  }
 }

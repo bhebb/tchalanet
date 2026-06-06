@@ -1,14 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { PageShell } from '../../../shared/types';
+import { ActionItem, PageShell } from '../../../shared/types';
 import { LabelPipe } from '../../pagemodel/label.pipe';
-
-const PUBLIC_BOTTOM_NAV = [
-  { id: 'results', label_key: 'public.nav.results', path: '/public/results' },
-  { id: 'verify', label_key: 'public.nav.verify_short', path: '/public/check-ticket' },
-  { id: 'help', label_key: 'public.nav.help', path: '/public/help' },
-] as const;
 
 @Component({
   selector: 'tch-public-bottom-nav',
@@ -17,7 +11,7 @@ const PUBLIC_BOTTOM_NAV = [
   template: `
     <nav class="shell__bottom-nav" aria-label="Public">
       @for (item of bottomNav(); track item.id) {
-        <a [routerLink]="item.path">{{ item.label_key | tchLabel }}</a>
+        <a [routerLink]="actionRoute(item)">{{ actionLabelKey(item) | tchLabel }}</a>
       }
     </nav>
   `,
@@ -64,5 +58,15 @@ const PUBLIC_BOTTOM_NAV = [
 })
 export class PublicBottomNav {
   readonly shell = input<PageShell | undefined>();
-  readonly bottomNav = computed(() => PUBLIC_BOTTOM_NAV);
+  readonly bottomNav = computed(() => this.shell()?.mobile ?? this.shell()?.primary?.slice(0, 3) ?? []);
+  readonly actionLabelKey = actionLabelKey;
+  readonly actionRoute = actionRoute;
+}
+
+function actionLabelKey(item: ActionItem): string {
+  return item.labelKey ?? item.label ?? '';
+}
+
+function actionRoute(item: ActionItem): string {
+  return item.destination?.value ?? '/public';
 }

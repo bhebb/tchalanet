@@ -96,7 +96,8 @@
       "hero": "Hero",
       "news": "Nouvèl",
       "plans": "Plan",
-      "tchala": "Tchala"
+      "tchala": "Tchala",
+      "rules": "Règ yo"
     }
   },
   "footer": {
@@ -216,7 +217,9 @@
       "operators": "Pou operatè",
       "results": "Rezilta",
       "skip": "Ale nan kontni an",
-      "verify_short": "Verifye"
+      "verify_short": "Verifye",
+      "home": "Akèy",
+      "rules": "Règ yo"
     },
     "operator": {
       "access": "Aksè operatè",

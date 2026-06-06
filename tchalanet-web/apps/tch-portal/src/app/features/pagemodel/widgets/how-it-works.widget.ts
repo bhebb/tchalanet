@@ -1,7 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import { WidgetConfig } from '../../../shared/types';
 import { LabelPipe } from '../label.pipe';
+import { stringProp } from '../widget.contract';
+
+interface HowStep {
+  readonly titleKey: string;
+  readonly textKey: string;
+}
 
 @Component({
   selector: 'tch-how-it-works-widget',
@@ -9,15 +15,15 @@ import { LabelPipe } from '../label.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="how">
-      <h2>{{ 'public.how.title' | tchLabel }}</h2>
-      <p>{{ 'public.how.description' | tchLabel }}</p>
+      <h2>{{ titleKey() | tchLabel }}</h2>
+      <p>{{ descriptionKey() | tchLabel }}</p>
       <ol class="how__steps">
-        @for (step of [1, 2, 3, 4]; track step) {
+        @for (step of steps(); track step.titleKey) {
           <li>
-            <span>{{ step }}</span>
+            <span>{{ $index + 1 }}</span>
             <div>
-              <h3>{{ 'public.how.step' + step + '.title' | tchLabel }}</h3>
-              <p>{{ 'public.how.step' + step + '.text' | tchLabel }}</p>
+              <h3>{{ step.titleKey | tchLabel }}</h3>
+              <p>{{ step.textKey | tchLabel }}</p>
             </div>
           </li>
         }
@@ -70,7 +76,25 @@ import { LabelPipe } from '../label.pipe';
   ],
 })
 export class HowItWorksWidget {
-  readonly config = input<WidgetConfig>();
+  readonly config = input.required<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
+  readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? 'public.how.title');
+  readonly descriptionKey = computed(() => stringProp(this.config(), 'descriptionKey') ?? 'public.how.description');
+  readonly steps = computed(() => readSteps(this.config().props?.['steps']));
+}
+
+function readSteps(value: unknown): readonly HowStep[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.flatMap((step) => {
+    if (!step || typeof step !== 'object') {
+      return [];
+    }
+    const record = step as Record<string, unknown>;
+    return typeof record['titleKey'] === 'string' && typeof record['textKey'] === 'string'
+      ? [{ titleKey: record['titleKey'], textKey: record['textKey'] }]
+      : [];
+  });
 }

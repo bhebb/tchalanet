@@ -96,13 +96,21 @@
       "hero": "Hero",
       "news": "Actualités",
       "plans": "Plans",
-      "tchala": "Tchala"
+      "tchala": "Tchala",
+      "rules": "Règles"
     }
   },
   "footer": {
     "check_ticket": "Vérification de tickets",
     "results": "Résultats",
-    "support": "Aide"
+    "support": "Aide",
+    "social": {
+      "x": "X (ex-Twitter)",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
+    }
   },
   "legal": {
     "privacy": "Confidentialité",
@@ -216,7 +224,9 @@
       "operators": "Pour opérateurs",
       "results": "Résultats",
       "skip": "Aller au contenu",
-      "verify_short": "Vérifier"
+      "verify_short": "Vérifier",
+      "home": "Accueil",
+      "rules": "Règles"
     },
     "operator": {
       "access": "Accès opérateur",

@@ -96,7 +96,8 @@
       "hero": "Hero",
       "news": "News",
       "plans": "Plans",
-      "tchala": "Tchala"
+      "tchala": "Tchala",
+      "rules": "Rules"
     }
   },
   "footer": {
@@ -216,7 +217,9 @@
       "operators": "For operators",
       "results": "Results",
       "skip": "Skip to content",
-      "verify_short": "Verify"
+      "verify_short": "Verify",
+      "home": "Home",
+      "rules": "Rules"
     },
     "operator": {
       "access": "Operator access",

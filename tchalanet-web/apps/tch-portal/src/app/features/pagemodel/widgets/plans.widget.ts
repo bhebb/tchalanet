@@ -8,7 +8,7 @@ interface PlanItem {
   readonly id?: string;
   readonly code?: string;
   readonly name?: string;
-  readonly name_key?: string;
+  readonly nameKey?: string;
   readonly price?: string | number;
   readonly highlighted?: boolean;
 }
@@ -29,7 +29,7 @@ interface PlansDynamic {
         <ul class="plans__grid">
           @for (plan of plans(); track plan.id ?? plan.code ?? $index) {
             <li class="plans__card" [class.plans__card--highlight]="plan.highlighted">
-              <h3 class="plans__name">{{ plan.name || (plan.name_key | tchLabel) || plan.code }}</h3>
+              <h3 class="plans__name">{{ plan.name || (plan.nameKey | tchLabel) || plan.code }}</h3>
               @if (plan.price !== null && plan.price !== undefined) {
                 <span class="plans__price">{{ plan.price }}</span>
               }
@@ -89,7 +89,7 @@ export class PlansWidget {
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
 
-  readonly titleKey = computed(() => stringProp(this.config(), 'title_key') ?? 'home.plans.title');
+  readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? 'home.plans.title');
   readonly plans = computed<readonly PlanItem[]>(
     () => (this.dynamic() as PlansDynamic)?.plans ?? [],
   );

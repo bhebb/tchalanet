@@ -16,7 +16,7 @@ import { WidgetHostComponent } from './widget-host.component';
   template: `
     <div class="page-model">
       @for (row of rows(); track row.id ?? $index) {
-        <section class="page-model__row" [attr.aria-label]="row.label_key | tchLabel">
+        <section class="page-model__row" [attr.aria-label]="row.labelKey | tchLabel">
           @for (column of row.columns ?? []; track $index) {
             <div class="page-model__col" [style.--col-span]="column.span">
               @for (widgetId of column.widgets ?? []; track widgetId) {

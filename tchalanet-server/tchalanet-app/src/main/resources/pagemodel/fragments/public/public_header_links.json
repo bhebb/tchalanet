@@ -1,110 +1,119 @@
 {
-  "fragment_type": "PublicHeader",
-  "schema_version": 2,
+  "fragmentType": "PublicHeader",
+  "schemaVersion": 2,
   "brand": {
     "id": "tchalanet-public",
-    "label_key": "app.name",
+    "kind": "link",
+    "labelKey": "app.brand",
     "label": null,
-    "subtitle_key": null,
-    "path": "/",
-    "image": {
-      "url": "/assets/brand/tchalanet-logo.svg",
-      "alt_key": "brand.logo_alt",
-      "title_key": null,
-      "width": 36,
-      "height": 36,
-      "aspect_ratio": "1:1",
-      "loading": "eager"
-    }
+    "destination": {
+      "kind": "route",
+      "value": "/public"
+    },
+    "icon": null,
+    "image": "/assets/brand/tchalanet-logo.svg",
+    "activeMatch": "exact",
+    "disabled": false,
+    "reasonKey": null,
+    "badge": null,
+    "children": []
   },
   "primary": [
     {
-      "id": "home",
-      "type": "destination",
-      "label_key": "nav.home",
+      "id": "results",
+      "kind": "link",
+      "labelKey": "public.nav.results",
       "label": null,
-      "path": "/",
-      "kind": "internal",
-      "icon": "home",
-      "image": null,
-      "active_match": "exact",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    },
-    {
-      "id": "draw_results",
-      "type": "destination",
-      "label_key": "nav.results",
-      "label": null,
-      "path": "/results",
-      "kind": "internal",
+      "destination": {
+        "kind": "route",
+        "value": "/public/results"
+      },
       "icon": "emoji_events",
       "image": null,
-      "active_match": "prefix",
+      "activeMatch": "prefix",
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
       "badge": null,
       "children": []
     },
     {
       "id": "check_ticket",
-      "type": "destination",
-      "label_key": "nav.check_ticket",
+      "kind": "link",
+      "labelKey": "public.nav.check_ticket",
       "label": null,
-      "path": "/verifier",
-      "kind": "internal",
+      "destination": {
+        "kind": "route",
+        "value": "/public/check-ticket"
+      },
       "icon": "qr_code_scanner",
       "image": null,
-      "active_match": "prefix",
+      "activeMatch": "prefix",
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
       "badge": null,
       "children": []
     },
     {
-      "id": "features",
-      "type": "destination",
-      "label_key": "nav.features",
+      "id": "operators",
+      "kind": "link",
+      "labelKey": "public.nav.operators",
       "label": null,
-      "path": "/features",
-      "kind": "internal",
-      "icon": "widgets",
+      "destination": {
+        "kind": "route",
+        "value": "/public/contact"
+      },
+      "icon": "storefront",
       "image": null,
-      "active_match": "prefix",
+      "activeMatch": "prefix",
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
       "badge": null,
       "children": []
     },
     {
-      "id": "pricing",
-      "type": "destination",
-      "label_key": "nav.pricing",
+      "id": "rules",
+      "kind": "link",
+      "labelKey": "public.nav.rules",
       "label": null,
-      "path": "/pricing",
-      "kind": "internal",
-      "icon": "payments",
+      "destination": {
+        "kind": "route",
+        "value": "/public/rules"
+      },
+      "icon": "calculate",
       "image": null,
-      "active_match": "prefix",
+      "activeMatch": "prefix",
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    }
+  ],
+  "utilities": [
+    {
+      "id": "language",
+      "kind": "languageSwitcher",
+      "labelKey": "public.nav.language",
+      "label": null,
+      "destination": null,
+      "icon": "language",
+      "image": null,
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
       "badge": null,
       "children": []
     },
     {
-      "id": "about",
-      "type": "destination",
-      "label_key": "nav.about",
+      "id": "theme",
+      "kind": "themeSwitcher",
+      "labelKey": "public.nav.theme",
       "label": null,
-      "path": "/about",
-      "kind": "internal",
-      "icon": "info",
+      "destination": null,
+      "icon": "light_mode",
       "image": null,
-      "active_match": "prefix",
+      "activeMatch": null,
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
       "badge": null,
       "children": []
     }
@@ -112,34 +121,20 @@
   "secondary": [
     {
       "id": "login",
-      "type": "destination",
-      "label_key": "cta.login",
+      "kind": "button",
+      "labelKey": "public.nav.login",
       "label": null,
-      "path": "/login",
-      "kind": "internal",
+      "destination": {
+        "kind": "route",
+        "value": "/login"
+      },
       "icon": "login",
       "image": null,
-      "active_match": "none",
+      "activeMatch": null,
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
       "badge": null,
       "children": []
-    }
-  ],
-  "actions": [
-    {
-      "id": "REQUEST_DEMO",
-      "type": "action",
-      "label_key": "cta.request_demo",
-      "label": null,
-      "path": "/demo",
-      "kind": "internal",
-      "icon": "rocket_launch",
-      "image": null,
-      "style": "primary",
-      "disabled": false,
-      "reason_key": null,
-      "confirm": null
     }
   ]
 }
