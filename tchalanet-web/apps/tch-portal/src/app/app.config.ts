@@ -8,7 +8,14 @@ import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
-import { FeatureFlags, SettingsFeatureFlags } from '@tch/shared-config';
+import {
+  APPLICATION_API_URL_PATTERN,
+  AUTH_CONFIG,
+  FeatureFlags,
+  PORTAL_I18N_CONFIG,
+  SettingsFeatureFlags,
+  keycloakUrlForHostname,
+} from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
@@ -23,9 +30,6 @@ import {
   MergedTranslateLoader,
   i18nFeature,
 } from './core/i18n';
-
-const localApiUrlPattern =
-  /^(\/api\/|https?:\/\/(localhost|127\.0\.0\.1):8083\/api\/|https?:\/\/api\.(localtest\.me|tchalanet\.lan)\/api\/)/i;
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -57,8 +61,8 @@ export const appConfig: ApplicationConfig = {
         ]
       : []),
     provideTranslateService({
-      fallbackLang: 'fr',
-      lang: 'fr',
+      fallbackLang: PORTAL_I18N_CONFIG.fallbackLang,
+      lang: PORTAL_I18N_CONFIG.defaultLang,
       loader: {
         provide: TranslateLoader,
         useClass: MergedTranslateLoader,
@@ -67,17 +71,17 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MERGED_TRANSLATE_LOADER_OPTIONS,
       useValue: {
-        assetsPrefix: '/assets/i18n/',
-        assetsSuffix: '.json',
-        backendPath: '/api/v1/public/i18n',
-        surfaces: ['PUBLIC_COMMON', 'PUBLIC_HOME'],
+        assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
+        assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
+        backendPath: PORTAL_I18N_CONFIG.backendPath,
+        surfaces: PORTAL_I18N_CONFIG.surfaces,
       },
     },
     provideKeycloak({
       config: {
-        url: keycloakUrl(),
-        realm: 'tchalanet',
-        clientId: 'tchalanet-web',
+        url: keycloakUrlForHostname(globalThis.location?.hostname ?? ''),
+        realm: AUTH_CONFIG.realm,
+        clientId: AUTH_CONFIG.clientId,
       },
       initOptions: {
         onLoad: 'check-sso',
@@ -88,19 +92,9 @@ export const appConfig: ApplicationConfig = {
       provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
       useValue: [
         {
-          urlPattern: localApiUrlPattern,
+          urlPattern: APPLICATION_API_URL_PATTERN,
         },
       ],
     },
   ],
 };
-
-function keycloakUrl(): string {
-  const hostname = globalThis.location?.hostname ?? '';
-
-  if (hostname.endsWith('tchalanet.lan')) {
-    return 'https://auth.tchalanet.lan';
-  }
-
-  return 'https://auth.localtest.me';
-}

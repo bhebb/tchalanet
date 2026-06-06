@@ -2476,6 +2476,10 @@
       "web-backup/libs/shared/utils/constants/package.json",
       "nx/core/package-json"
     ],
+    "metadata.description": [
+      "web-backup/libs/shared/utils/constants/package.json",
+      "nx/core/package-json"
+    ],
     "metadata.js": [
       "web-backup/libs/shared/utils/constants/package.json",
       "nx/core/package-json"
@@ -2485,6 +2489,10 @@
       "nx/core/package-json"
     ],
     "metadata.js.packageVersion": [
+      "web-backup/libs/shared/utils/constants/package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.packageExports": [
       "web-backup/libs/shared/utils/constants/package.json",
       "nx/core/package-json"
     ],
@@ -3156,6 +3164,10 @@
       "web-backup/libs/web/constants/package.json",
       "nx/core/package-json"
     ],
+    "metadata.description": [
+      "web-backup/libs/web/constants/package.json",
+      "nx/core/package-json"
+    ],
     "metadata.js": [
       "web-backup/libs/web/constants/package.json",
       "nx/core/package-json"
@@ -3165,6 +3177,10 @@
       "nx/core/package-json"
     ],
     "metadata.js.packageVersion": [
+      "web-backup/libs/web/constants/package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.packageExports": [
       "web-backup/libs/web/constants/package.json",
       "nx/core/package-json"
     ],
@@ -3751,6 +3767,10 @@
       "nx/core/package-json"
     ],
     "metadata.js.packageVersion": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.packageExports": [
       "package.json",
       "nx/core/package-json"
     ],

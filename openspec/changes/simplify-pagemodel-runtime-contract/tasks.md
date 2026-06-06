@@ -95,6 +95,8 @@
 
 - [x] Update backend `FEATURE_PAGEMODEL.md` with the internal-definition/runtime-response boundary.
 - [x] Update web PageModel convention with the simplified runtime contract.
+- [x] Document the canonical auth, settings, entitlement, and i18n runtime paths.
+- [x] Centralize stable i18n/auth/settings paths and i18n bootstrap values in `@tch/shared-config`.
 - [ ] Update or supersede canonical PageModel specs that require snake_case or direct PageModelDoc
       runtime serialization.
 - [ ] Reconcile the runtime-shape sections of existing active PageModel OpenSpec changes.
@@ -105,6 +107,8 @@
       isolation, draw projection, camelCase props, and dashboard provider dispatch.
 - [ ] Run focused backend access-control tests.
 - [x] Run focused web PageModel/API/shell/widget tests through Nx.
+- [x] Run `shared-config` tests and lint after centralizing runtime paths and i18n configuration.
+- [x] Run portal TypeScript app/spec checks and portal lint.
 - [x] Validate all PageModel template and fragment JSON files.
 - [x] Validate OpenSpec strictly and run `git diff --check`.
 - [ ] Run a public-home integration check proving one PageModel composition call.

@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { ApiResponse, unwrapApiResponse } from '@tch/api';
 import { map, Observable } from 'rxjs';
 
+import { API_PATHS } from '../runtime/runtime-paths';
 import { RuntimeSettingsSource, toRuntimeSettings } from './settings.mapper';
 
 @Injectable({ providedIn: 'root' })
@@ -13,7 +14,7 @@ export class SettingsApi {
     const params = namespace ? new HttpParams().set('namespace', namespace) : undefined;
 
     return this.http
-      .get<ApiResponse<readonly SettingsApiSetting[]>>('/api/v1/public/settings', { params })
+      .get<ApiResponse<readonly SettingsApiSetting[]>>(API_PATHS.settings.public, { params })
       .pipe(map(response => toRuntimeSettings(unwrapApiResponse(response))));
   }
 
@@ -24,7 +25,7 @@ export class SettingsApi {
     );
 
     return this.http
-      .get<ApiResponse<readonly SettingsApiSetting[]>>('/api/v1/tenant/settings/resolve', {
+      .get<ApiResponse<readonly SettingsApiSetting[]>>(API_PATHS.settings.tenantResolve, {
         params,
       })
       .pipe(map(response => toRuntimeSettings(unwrapApiResponse(response))));

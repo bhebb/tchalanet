@@ -13,7 +13,9 @@ Every setting remains readable through `values`. Only explicit feature namespace
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/settings/
+libs/shared-config/src/lib/settings/                 API, mapping, runtime store
+libs/shared-config/src/lib/runtime/runtime-paths.ts stable endpoint paths
+apps/tch-portal/src/app/core/runtime/                bootstrap orchestration
 ```
 
 Use this area for:
@@ -23,6 +25,18 @@ Use this area for:
 - typed parsing of backend setting values;
 - feature toggle helper methods;
 - fallback behavior.
+
+## Runtime Paths
+
+Settings paths are exported by `API_PATHS.settings` from `@tch/shared-config`:
+
+```http
+GET /api/v1/public/settings
+GET /api/v1/tenant/settings/resolve
+```
+
+The public endpoint is used before authentication. The tenant resolve endpoint is loaded only after
+an authenticated private-session refresh. Feature code never hardcodes or calls these paths.
 
 ## Runtime Shape
 
