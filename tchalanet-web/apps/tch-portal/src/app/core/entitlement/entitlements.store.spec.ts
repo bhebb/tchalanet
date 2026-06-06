@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { RuntimeSettings } from '../../shared/types';
-import { RuntimeSettingsStore } from '../settings';
+import { RuntimeSettings } from '@tch/shared-config';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { EntitlementsStore } from './entitlements.store';
 
 describe('EntitlementsStore', () => {

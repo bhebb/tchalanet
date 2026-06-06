@@ -10,7 +10,8 @@ Auth is a platform capability. Components and feature pages consume session stat
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/auth/
+apps/tch-portal/src/app/core/auth/                  session, commands, guards
+libs/shared-config/src/lib/runtime/runtime-paths.ts stable Keycloak/API configuration
 ```
 
 Use this area for:
@@ -22,6 +23,22 @@ Use this area for:
 - session-facing helpers such as `hasRole`.
 
 Do not put tenant business rules, seller operational validation, or PageModel permissions here.
+
+## Runtime Paths
+
+The composition root configures Keycloak from `AUTH_CONFIG` and `keycloakUrlForHostname()` exported
+by `@tch/shared-config`.
+
+```text
+local browser: https://auth.localtest.me
+LAN browser:   https://auth.tchalanet.lan
+realm:         tchalanet
+client:        tchalanet-web
+```
+
+Application APIs use relative `/api/v1/...` paths. During `nx serve`, `/api` is proxied to the local
+backend target. The bearer interceptor uses `APPLICATION_API_URL_PATTERN`; features must not invent
+their own approved-host regex.
 
 ## Session Contract
 
@@ -50,7 +67,8 @@ Route data declares the required role/surface. The guard reads session state; it
 
 ## HTTP Auth Header
 
-The auth interceptor attaches `Authorization: Bearer <token>` only for application API calls.
+The auth interceptor attaches `Authorization: Bearer <token>` only for application API calls
+matched by the shared application API pattern.
 
 It must not attach tokens to:
 

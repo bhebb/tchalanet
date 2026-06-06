@@ -56,6 +56,25 @@ The existing public endpoint returns:
 The backend decides which widgets exist.
 The web decides how supported widget types render.
 
+The payload should remain ready to render:
+
+- include widget ids and types for every renderable widget;
+- include translation keys directly (`title_key`, `description_key`, `label_key`, etc.);
+- include action descriptors instead of asking frontend to infer workflows from roles;
+- include enough payload for display widgets without forcing per-widget follow-up calls;
+- include schema/contract version metadata when the backend contract changes.
+
+The backend should not execute sensitive actions through PageModel.
+PageModel exposes action descriptors; owning endpoints execute mutations.
+
+## Translation And Theme Contract
+
+- Backend may send keys even when a resolved translation is not available.
+- Missing translation values must not remove the widget from the payload.
+- Backend should keep text fields as keys or explicit fallback labels; the web performs direct translation/fallback rendering.
+- Theme information should be expressed as preset/token references or CSS-token-compatible values, not hard-coded frontend colors.
+- Cache may optimize templates, public content, settings, i18n, and theme presets, but never critical action authorization or mutation results.
+
 ## SUPER_ADMIN actions
 
 The SUPER_ADMIN web flow should use existing backend actions:
@@ -78,3 +97,4 @@ The TENANT_ADMIN web flow should use:
 - Public widget provider failures become widget-local errors.
 - Admin command failures return normal backend error/notice conventions.
 - The frontend should not receive internal provider exception text.
+- Unknown or invalid widget payloads should be testable as contained contract failures, not whole-page failures.

@@ -1,4 +1,4 @@
-const target = process.env.TCH_API_PROXY_TARGET || 'https://api.localtest.me';
+const target = process.env.TCH_API_PROXY_TARGET || 'http://localhost:8083';
 
 module.exports = {
   '/api': {

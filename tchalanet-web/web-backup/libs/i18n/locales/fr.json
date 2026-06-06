@@ -87,6 +87,20 @@
       "legal": "Légal & conformité",
       "resources": "Aide & ressources",
       "partners": "Partenaires"
+    },
+    "resources": {
+      "support": "Aide technique",
+      "docs": "Documentation Tchalanet",
+      "faq": "Foire aux questions",
+      "accessibility": "Accessibilité",
+      "contact": "Contact"
+    },
+    "social": {
+      "x": "X (ex-Twitter)",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
     }
   },
   "info": {
@@ -121,7 +135,7 @@
     "home": "Retour à l’accueil"
   },
   "copyright": {
-    "notice": "© 2025 Tchalanet. Tous droits réservés."
+    "notice": "© 2026 Tchalanet. Tous droits réservés."
   },
   "seo": {
     "default_title": "Tchalanet",

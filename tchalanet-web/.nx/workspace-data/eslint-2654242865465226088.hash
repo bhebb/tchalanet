@@ -1,92 +1,5 @@
 {
-  "16056833745430034662": {
-    "apps/tch-portal": {
-      "targets": {
-        "lint": {
-          "command": "eslint .",
-          "cache": true,
-          "options": {
-            "cwd": "apps/tch-portal"
-          },
-          "inputs": [
-            "default",
-            "^default",
-            "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
-            "{workspaceRoot}/tools/eslint-rules/**/*",
-            {
-              "externalDependencies": [
-                "eslint"
-              ]
-            }
-          ],
-          "outputs": [
-            "{options.outputFile}"
-          ],
-          "metadata": {
-            "technologies": [
-              "eslint"
-            ],
-            "description": "Runs ESLint on project",
-            "help": {
-              "command": "pnpm exec eslint --help",
-              "example": {
-                "options": {
-                  "max-warnings": 0
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "8547942593299601424": {
-    "apps/tch-portal-e2e": {
-      "targets": {
-        "lint": {
-          "command": "eslint .",
-          "cache": true,
-          "options": {
-            "cwd": "apps/tch-portal-e2e"
-          },
-          "inputs": [
-            "default",
-            "^default",
-            "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal-e2e/eslint.config.mjs",
-            "{workspaceRoot}/tools/eslint-rules/**/*",
-            {
-              "externalDependencies": [
-                "eslint"
-              ]
-            }
-          ],
-          "outputs": [
-            "{options.outputFile}"
-          ],
-          "metadata": {
-            "technologies": [
-              "eslint"
-            ],
-            "description": "Runs ESLint on project",
-            "help": {
-              "command": "pnpm exec eslint --help",
-              "example": {
-                "options": {
-                  "max-warnings": 0
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "5277378777856069884": {},
-  "273995030106474237": {},
-  "4186535903346644144": {},
-  "4466077395354090668": {
+  "9088550907441265897": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -170,8 +83,93 @@
       }
     }
   },
-  "808805583384638483": {},
-  "10744434882703593512": {
+  "13503563753690280630": {},
+  "17177560055503410244": {
+    "libs/ui/components": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/ui/components"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
+            "{workspaceRoot}/libs/ui/components/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "12482991054552738576": {
+    "libs/ui/theme": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/ui/theme"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
+            "{workspaceRoot}/libs/ui/theme/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "12822855395461716165": {},
+  "10824493797726091273": {
     "web-backup/apps/tchalanet-portal": {
       "targets": {
         "lint": {
@@ -214,7 +212,7 @@
       }
     }
   },
-  "9359241907581213319": {
+  "11889979379013771455": {
     "web-backup/apps/tchalanet-portal-e2e": {
       "targets": {
         "lint": {
@@ -257,7 +255,7 @@
       }
     }
   },
-  "8639885161647559177": {
+  "11493938425870314571": {
     "web-backup/libs/shared/analytics": {
       "targets": {
         "lint": {
@@ -300,7 +298,7 @@
       }
     }
   },
-  "8781203520390609742": {
+  "14136765992996835781": {
     "web-backup/libs/shared/api": {
       "targets": {
         "lint": {
@@ -343,7 +341,7 @@
       }
     }
   },
-  "13417537207484430523": {
+  "15674599563164322380": {
     "web-backup/libs/shared/auth": {
       "targets": {
         "lint": {
@@ -386,7 +384,7 @@
       }
     }
   },
-  "10603623112131665619": {
+  "11256864550513524880": {
     "web-backup/libs/shared/config": {
       "targets": {
         "lint": {
@@ -429,7 +427,7 @@
       }
     }
   },
-  "5286979991512822019": {
+  "17530216201927954786": {
     "web-backup/libs/shared/data-access/i18n": {
       "targets": {
         "lint": {
@@ -472,7 +470,7 @@
       }
     }
   },
-  "2381462981710333548": {
+  "2833818264477265968": {
     "web-backup/libs/shared/data-access/page": {
       "targets": {
         "lint": {
@@ -515,7 +513,7 @@
       }
     }
   },
-  "6954050585773552830": {
+  "15856860130695012327": {
     "web-backup/libs/shared/data-access/session": {
       "targets": {
         "lint": {
@@ -558,7 +556,7 @@
       }
     }
   },
-  "15983954029754161324": {
+  "8942146379719095348": {
     "web-backup/libs/shared/facades": {
       "targets": {
         "lint": {
@@ -601,7 +599,7 @@
       }
     }
   },
-  "13291081165634662444": {
+  "17777768932392618326": {
     "web-backup/libs/shared/feature": {
       "targets": {
         "lint": {
@@ -644,7 +642,7 @@
       }
     }
   },
-  "80814560083375038": {
+  "13775740835475108736": {
     "web-backup/libs/shared/types": {
       "targets": {
         "lint": {
@@ -687,7 +685,7 @@
       }
     }
   },
-  "15288523795369069054": {
+  "5690019191373854616": {
     "web-backup/libs/shared/utils/constants": {
       "targets": {
         "lint": {
@@ -730,7 +728,7 @@
       }
     }
   },
-  "9334804340480690335": {
+  "5652450597036976591": {
     "web-backup/libs/shared/utils/i18n": {
       "targets": {
         "lint": {
@@ -773,7 +771,7 @@
       }
     }
   },
-  "15258047858644185530": {
+  "3069067584933561978": {
     "web-backup/libs/shared/utils/layout": {
       "targets": {
         "lint": {
@@ -816,7 +814,7 @@
       }
     }
   },
-  "11950092590460015136": {
+  "7361543983166941005": {
     "web-backup/libs/ui/breadcrumb": {
       "targets": {
         "lint": {
@@ -859,7 +857,7 @@
       }
     }
   },
-  "15148974243589331645": {
+  "3787566012753882280": {
     "web-backup/libs/ui/layout": {
       "targets": {
         "lint": {
@@ -902,7 +900,7 @@
       }
     }
   },
-  "5166618583113484652": {
+  "18057133357255450037": {
     "web-backup/libs/ui/plans": {
       "targets": {
         "lint": {
@@ -945,7 +943,7 @@
       }
     }
   },
-  "13714139974973044816": {
+  "2799003230296064428": {
     "web-backup/libs/ui/styles": {
       "targets": {
         "lint": {
@@ -988,50 +986,7 @@
       }
     }
   },
-  "17831914354232096522": {
-    "web-backup/libs/ui/theme": {
-      "targets": {
-        "lint": {
-          "command": "eslint .",
-          "cache": true,
-          "options": {
-            "cwd": "web-backup/libs/ui/theme"
-          },
-          "inputs": [
-            "default",
-            "^default",
-            "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/web-backup/eslint.config.mjs",
-            "{workspaceRoot}/web-backup/tsconfig.base.json",
-            "{workspaceRoot}/tools/eslint-rules/**/*",
-            {
-              "externalDependencies": [
-                "eslint"
-              ]
-            }
-          ],
-          "outputs": [
-            "{options.outputFile}"
-          ],
-          "metadata": {
-            "technologies": [
-              "eslint"
-            ],
-            "description": "Runs ESLint on project",
-            "help": {
-              "command": "pnpm exec eslint --help",
-              "example": {
-                "options": {
-                  "max-warnings": 0
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "13288247967696812981": {
+  "2274906573928326153": {
     "web-backup/libs/ui/widget-renderer": {
       "targets": {
         "lint": {
@@ -1074,7 +1029,7 @@
       }
     }
   },
-  "7208744631313559561": {
+  "8846667849853037186": {
     "web-backup/libs/web/constants": {
       "targets": {
         "lint": {
@@ -1117,7 +1072,7 @@
       }
     }
   },
-  "16811402827009300163": {
+  "7699524683918264092": {
     "web-backup/libs/web/feature-home-private": {
       "targets": {
         "lint": {
@@ -1160,7 +1115,7 @@
       }
     }
   },
-  "9145578894987148699": {
+  "9904851136040711548": {
     "web-backup/libs/web/feature-home-public": {
       "targets": {
         "lint": {
@@ -1203,7 +1158,7 @@
       }
     }
   },
-  "780844213288202608": {
+  "10658887229949034133": {
     "web-backup/libs/web/private-pages": {
       "targets": {
         "lint": {
@@ -1246,7 +1201,7 @@
       }
     }
   },
-  "10041786301074121129": {
+  "9376675658060281196": {
     "web-backup/libs/web/public-pages": {
       "targets": {
         "lint": {
@@ -1289,7 +1244,7 @@
       }
     }
   },
-  "17334600504735195615": {
+  "6208254476421761815": {
     "web-backup/libs/web/shell": {
       "targets": {
         "lint": {
@@ -1332,7 +1287,7 @@
       }
     }
   },
-  "12488990137720063124": {
+  "1978449760568121992": {
     "web-backup/libs/web/widgets": {
       "targets": {
         "lint": {
@@ -1375,7 +1330,10 @@
       }
     }
   },
-  "623997617447139561": {
+  "17957974421751030166": {},
+  "9990890342717640787": {},
+  "1456141134528848283": {},
+  "13218646819810766944": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -1417,21 +1375,20 @@
       }
     }
   },
-  "2472613020899473363": {},
-  "8616477875378608647": {
-    "apps/tch-portal": {
+  "17956100878800961122": {},
+  "17860048499613540628": {
+    "libs/api": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/api"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1460,21 +1417,21 @@
       }
     }
   },
-  "17636468822062333022": {},
-  "12783826534143283020": {
-    "apps/tch-portal": {
+  "790765457690498476": {},
+  "5381810394467391509": {
+    "libs/api": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/api"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/api/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1503,21 +1460,21 @@
       }
     }
   },
-  "5002208733346386144": {},
-  "2421656195144497788": {
-    "apps/tch-portal": {
+  "5438999813359130010": {},
+  "11085343153771402855": {
+    "libs/api": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/api"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/api/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1546,22 +1503,20 @@
       }
     }
   },
-  "18305496106284592836": {},
-  "13998320342739440687": {},
-  "906782656047407278": {
-    "apps/tch-portal": {
+  "5968517887305011313": {},
+  "12216529719735337609": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1590,21 +1545,20 @@
       }
     }
   },
-  "1462452618313289846": {},
-  "18103506732286799028": {
-    "apps/tch-portal": {
+  "7498121272963168473": {},
+  "13782161437675174137": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1633,21 +1587,21 @@
       }
     }
   },
-  "9367934555079112183": {},
-  "8221759495114108786": {
-    "apps/tch-portal": {
+  "17308491567912050640": {},
+  "4516655369587132851": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1676,21 +1630,21 @@
       }
     }
   },
-  "10285876440276442745": {},
-  "10569159654668285588": {
-    "apps/tch-portal": {
+  "13562026974927552530": {},
+  "5608650023076810951": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1719,8 +1673,8 @@
       }
     }
   },
-  "10312753405860228852": {},
-  "11218508192010790603": {
+  "5903885241503956673": {},
+  "12428714168935134880": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -1762,8 +1716,8 @@
       }
     }
   },
-  "4812826129699119353": {},
-  "1357168495163138389": {
+  "3407772569112201764": {},
+  "16916040788473775098": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -1805,8 +1759,8 @@
       }
     }
   },
-  "2551019362604601438": {},
-  "2948718514034750908": {
+  "16087933140688928041": {},
+  "16761788786036190723": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -1848,8 +1802,8 @@
       }
     }
   },
-  "11347809565489781254": {},
-  "17735374481422862690": {
+  "520770471906288368": {},
+  "18021717607655831370": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -1891,21 +1845,20 @@
       }
     }
   },
-  "12478080548429341135": {},
-  "6015274440105964318": {
-    "apps/tch-portal": {
+  "3367363931285194587": {
+    "libs/api": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/api"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/api/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1934,22 +1887,20 @@
       }
     }
   },
-  "5432993452953823655": {},
-  "14265893058711006254": {},
-  "483285436132115072": {
-    "apps/tch-portal": {
+  "15977400216460828128": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -1978,8 +1929,8 @@
       }
     }
   },
-  "9599779717056473279": {},
-  "2403893435393158286": {
+  "7172527399552301776": {},
+  "9561045293105957977": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2021,22 +1972,20 @@
       }
     }
   },
-  "13944318595578335547": {},
-  "13173211403140199131": {},
-  "12482166333104254489": {
-    "apps/tch-portal": {
+  "13578890696310595123": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2065,8 +2014,8 @@
       }
     }
   },
-  "2254464344141562169": {},
-  "4564179378852999564": {
+  "17417258429138578309": {},
+  "10702578821141367545": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2108,9 +2057,8 @@
       }
     }
   },
-  "8067052678755311647": {},
-  "1463523797106109093": {},
-  "8335379267676381729": {
+  "18170831590596703700": {},
+  "10707451024487137033": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2152,8 +2100,8 @@
       }
     }
   },
-  "15584260604517171513": {},
-  "7504331330916314128": {
+  "16159636781003784484": {},
+  "1347439721980995010": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2195,8 +2143,8 @@
       }
     }
   },
-  "3570251100869027445": {},
-  "16171206766621769656": {
+  "6039721449667225962": {},
+  "11262860717444310733": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2238,21 +2186,20 @@
       }
     }
   },
-  "12754842114146766785": {},
-  "16323048604995637167": {
-    "apps/tch-portal": {
+  "16134334712630619155": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2281,21 +2228,21 @@
       }
     }
   },
-  "16431719814494979436": {},
-  "15798186937746347493": {
-    "apps/tch-portal": {
+  "3935209234204166814": {},
+  "17354641362700779198": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2324,22 +2271,21 @@
       }
     }
   },
-  "16735949727705820819": {},
-  "7425077583559758279": {},
-  "11833779095632829062": {
-    "apps/tch-portal": {
+  "12245841186666882848": {},
+  "3401911876349764402": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2368,21 +2314,21 @@
       }
     }
   },
-  "16662940027960330906": {},
-  "4421576125695867840": {
-    "apps/tch-portal": {
+  "1172479518420423174": {},
+  "12960373039053011928": {
+    "libs/api": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/api"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/api/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2411,21 +2357,20 @@
       }
     }
   },
-  "7524139855588324626": {},
-  "735388310870828474": {
-    "apps/tch-portal": {
+  "9816073195968443920": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2454,21 +2399,39 @@
       }
     }
   },
-  "356081240451111553": {},
-  "10550164892423873660": {
-    "apps/tch-portal": {
+  "15286022189323958455": {},
+  "14888894719622341877": {},
+  "4859460989955435900": {},
+  "10750582180335702932": {},
+  "8138448675133330390": {},
+  "15458212502868374770": {},
+  "1671181888477659410": {},
+  "1478815002279817842": {},
+  "10382355467232167259": {},
+  "1208150174468968059": {},
+  "5072877353128788991": {},
+  "1826558779389083393": {},
+  "8685274866612548291": {},
+  "4030595740465892330": {},
+  "13482557987888580329": {},
+  "15577908635681435770": {},
+  "15964124472941311202": {},
+  "5388077944894244366": {},
+  "9659603014342325619": {},
+  "10094302199809692084": {
+    "libs/ui/theme": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/ui/theme"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/ui/theme/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2497,21 +2460,23 @@
       }
     }
   },
-  "7409073471373758366": {},
-  "7891420775255554388": {
-    "apps/tch-portal": {
+  "10750161871817188203": {},
+  "499259724571305679": {},
+  "1188117780938264357": {},
+  "4728514390987101944": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2540,8 +2505,8 @@
       }
     }
   },
-  "5492198580742589622": {},
-  "419289150784974697": {
+  "3951337506570484796": {},
+  "8151543974018382485": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2583,21 +2548,20 @@
       }
     }
   },
-  "9803011723997055017": {},
-  "11158426800708112134": {
-    "apps/tch-portal": {
+  "10834900517675166417": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2626,21 +2590,21 @@
       }
     }
   },
-  "3723631371963602810": {},
-  "17529178841930583937": {
-    "apps/tch-portal": {
+  "17568477552558899512": {},
+  "4432977043618642181": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2669,21 +2633,24 @@
       }
     }
   },
-  "14368415148685591860": {},
-  "17717186418271117846": {
-    "apps/tch-portal": {
+  "5860343622827639232": {},
+  "11375282466600724491": {},
+  "1042992866782394817": {},
+  "11703087760341359572": {},
+  "9633528555145819162": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2712,8 +2679,15 @@
       }
     }
   },
-  "8893887932364493283": {},
-  "2553782850427544888": {
+  "131583509344004028": {},
+  "10854017460678275790": {},
+  "4553883505272392307": {},
+  "4120806671786217559": {},
+  "12974732129528656289": {},
+  "1881199975446747712": {},
+  "4959986670959771490": {},
+  "14129775816635487633": {},
+  "9304185852129024673": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -2755,21 +2729,19 @@
       }
     }
   },
-  "16410044771281667923": {},
-  "7088710950026960966": {
-    "apps/tch-portal": {
+  "7539589001195573016": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2798,21 +2770,20 @@
       }
     }
   },
-  "12227144972006089919": {},
-  "6257939091140679660": {
-    "apps/tch-portal": {
+  "10850532836654505500": {},
+  "16890902627043171732": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2841,21 +2812,20 @@
       }
     }
   },
-  "9183489222523004104": {},
-  "10067855741612209062": {
-    "apps/tch-portal": {
+  "4342720950922536540": {},
+  "6511695119654685854": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2884,21 +2854,20 @@
       }
     }
   },
-  "7221353162402810019": {},
-  "14336984532404124100": {
-    "apps/tch-portal": {
+  "5929421763100446342": {},
+  "14844337216408704741": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2927,21 +2896,20 @@
       }
     }
   },
-  "12251400002112990177": {},
-  "8339818722589335255": {
-    "apps/tch-portal": {
+  "5459452460458183756": {},
+  "7812485165581348224": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -2970,8 +2938,8 @@
       }
     }
   },
-  "1170609266255887401": {},
-  "15382765256812296756": {
+  "10747775780771105514": {},
+  "16714428426401712266": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3013,21 +2981,19 @@
       }
     }
   },
-  "295904425653194758": {},
-  "6025252060145450447": {
-    "apps/tch-portal": {
+  "5099129578310751233": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3056,21 +3022,20 @@
       }
     }
   },
-  "10365107418026910989": {},
-  "13058015624135839499": {
-    "apps/tch-portal": {
+  "11709905175271893422": {},
+  "5855357268148661162": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3099,21 +3064,20 @@
       }
     }
   },
-  "32186309412532367": {},
-  "6304088146199158312": {
-    "apps/tch-portal": {
+  "7352378882949536723": {},
+  "818092804933170548": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3142,8 +3106,8 @@
       }
     }
   },
-  "8001094523605314019": {},
-  "7760924133099715578": {
+  "8134411015571490176": {},
+  "13445629150922890474": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3185,21 +3149,19 @@
       }
     }
   },
-  "13741296377441042112": {},
-  "12966965339837340762": {
-    "apps/tch-portal": {
+  "8574058268330062439": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3228,21 +3190,20 @@
       }
     }
   },
-  "15429800959772992006": {},
-  "1041702733039850059": {
-    "apps/tch-portal": {
+  "10668079971202536803": {},
+  "1614622064935681074": {
+    "libs/page-model": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/page-model"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3271,8 +3232,8 @@
       }
     }
   },
-  "11110066344989079616": {},
-  "6644593272378931101": {
+  "4390287202241203372": {},
+  "14016878509649064097": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3314,21 +3275,19 @@
       }
     }
   },
-  "11085213172537541752": {},
-  "16944705505499122426": {
-    "apps/tch-portal": {
+  "10178664160027492301": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3357,21 +3316,20 @@
       }
     }
   },
-  "2124304044900120995": {},
-  "7839405264386558607": {
-    "apps/tch-portal": {
+  "13262622058721351561": {},
+  "5341681275019168964": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3400,21 +3358,20 @@
       }
     }
   },
-  "11739117939749128592": {},
-  "8957652493210011882": {
-    "apps/tch-portal": {
+  "6744387693743273374": {},
+  "14172656074505717218": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3443,21 +3400,20 @@
       }
     }
   },
-  "12960755709252211958": {},
-  "13186686423425081093": {
-    "apps/tch-portal": {
+  "10780030306897124691": {},
+  "15451052684294432045": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3486,21 +3442,20 @@
       }
     }
   },
-  "10405175251744258147": {},
-  "15788368008056877978": {
-    "apps/tch-portal": {
+  "7773887216565809957": {},
+  "11581910517646023271": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3529,8 +3484,8 @@
       }
     }
   },
-  "16272757611415869805": {},
-  "9498131460418485558": {
+  "11506151274987932175": {},
+  "8227080948149324198": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3572,21 +3527,19 @@
       }
     }
   },
-  "2899228318554661069": {},
-  "2953497348207900909": {
-    "apps/tch-portal": {
+  "17062888815750675593": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3615,8 +3568,8 @@
       }
     }
   },
-  "1291460516260563153": {},
-  "1354646707704360714": {
+  "5520683367964351028": {},
+  "15739244353142894897": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3658,8 +3611,8 @@
       }
     }
   },
-  "1131981392758364783": {},
-  "14196367388325325294": {
+  "11090876490823432262": {},
+  "15485273408645513014": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3701,21 +3654,19 @@
       }
     }
   },
-  "10379418490346021634": {},
-  "3590383159573564531": {
-    "apps/tch-portal": {
+  "11476579990331069257": {
+    "libs/web": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/web"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3744,9 +3695,8 @@
       }
     }
   },
-  "5260391639816466869": {},
-  "2024369013076793437": {},
-  "17012378486725895687": {
+  "15412024182264612164": {},
+  "9703275158770250108": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3788,21 +3738,19 @@
       }
     }
   },
-  "1652497636129465338": {},
-  "1229337865987887923": {
-    "apps/tch-portal": {
+  "1308636066240542951": {
+    "libs/web": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/web"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3831,21 +3779,103 @@
       }
     }
   },
-  "3001276797756545980": {},
-  "18200315489819293869": {
-    "apps/tch-portal": {
+  "12202713181738129243": {
+    "libs/widgets": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "apps/tch-portal"
+            "cwd": "libs/widgets"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "715411700178547358": {},
+  "18238344588411173892": {
+    "libs/web": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/web"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "608060404637030951": {},
+  "1731361609983500660": {
+    "libs/web": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/web"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3874,8 +3904,8 @@
       }
     }
   },
-  "3733521393330047749": {},
-  "8068080362106417088": {
+  "16198712760482961787": {},
+  "12320233650724989273": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3889,6 +3919,131 @@
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
             "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "14800351495848079936": {
+    "libs/web": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/web"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "17746781248428392754": {},
+  "8112475715517212946": {
+    "libs/web": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/web"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "4281329534283391437": {},
+  "4814615839961858855": {
+    "libs/web": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/web"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3917,8 +4072,8 @@
       }
     }
   },
-  "3445637815200926301": {},
-  "10254739318187941010": {
+  "1937798606821181047": {},
+  "4657969546969670849": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -3932,6 +4087,47 @@
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
             "{workspaceRoot}/apps/tch-portal/eslint.config.mjs",
+            "{workspaceRoot}/tools/eslint-rules/**/*",
+            {
+              "externalDependencies": [
+                "eslint"
+              ]
+            }
+          ],
+          "outputs": [
+            "{options.outputFile}"
+          ],
+          "metadata": {
+            "technologies": [
+              "eslint"
+            ],
+            "description": "Runs ESLint on project",
+            "help": {
+              "command": "pnpm exec eslint --help",
+              "example": {
+                "options": {
+                  "max-warnings": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "18236292351549792902": {
+    "libs/page-model": {
+      "targets": {
+        "lint": {
+          "command": "eslint .",
+          "cache": true,
+          "options": {
+            "cwd": "libs/page-model"
+          },
+          "inputs": [
+            "default",
+            "^default",
+            "{workspaceRoot}/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -3960,8 +4156,8 @@
       }
     }
   },
-  "5806550549765950821": {},
-  "17401437670667165546": {
+  "11701066729543008622": {},
+  "17520598776655137791": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4003,8 +4199,8 @@
       }
     }
   },
-  "16072885061872937343": {},
-  "13671233415335419280": {
+  "1016739581856377437": {},
+  "10908764640323104681": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4046,8 +4242,19 @@
       }
     }
   },
-  "13262010720213551951": {},
-  "8428751457464215666": {
+  "17064584581686254241": {},
+  "1600099242588377235": {},
+  "1825267544187013788": {},
+  "14261832300381822870": {},
+  "17602970439922683385": {},
+  "10980653565677625965": {},
+  "7617366537092267527": {},
+  "7366650524469328455": {},
+  "5215734383240184246": {},
+  "6569911898691630020": {},
+  "10436939436949560171": {},
+  "6176021144753847041": {},
+  "16463345705889565980": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4089,8 +4296,8 @@
       }
     }
   },
-  "6387951376723478690": {},
-  "14573974787891434112": {
+  "5500342386551596622": {},
+  "7627344607115419202": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4132,8 +4339,8 @@
       }
     }
   },
-  "1098254931004851394": {},
-  "15723002421080816935": {
+  "14033229350725994402": {},
+  "2539712763572313314": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4175,8 +4382,8 @@
       }
     }
   },
-  "15714764413393039082": {},
-  "5054618515909653204": {
+  "7685581230061436311": {},
+  "2752998329515147124": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4218,8 +4425,8 @@
       }
     }
   },
-  "3955144950125268826": {},
-  "3531826626293856455": {
+  "14785493471837139684": {},
+  "12900395961432881546": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4261,8 +4468,8 @@
       }
     }
   },
-  "13229570898278986639": {},
-  "4545913156968813177": {
+  "1887459778887426001": {},
+  "9036855205306558383": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4304,8 +4511,8 @@
       }
     }
   },
-  "2024837751861249310": {},
-  "11854973770662440768": {
+  "4512707182633765201": {},
+  "3551478049506128837": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4347,8 +4554,8 @@
       }
     }
   },
-  "6659961461421996185": {},
-  "11151306462198513922": {
+  "8974512276798923380": {},
+  "16135704262047236206": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4390,8 +4597,8 @@
       }
     }
   },
-  "9206878299394310790": {},
-  "16163249361072203749": {
+  "14507551881981531012": {},
+  "9757252836413473620": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4433,8 +4640,8 @@
       }
     }
   },
-  "10781572746382313775": {},
-  "10638866518379342269": {
+  "12498090923470596885": {},
+  "10414874928046927435": {
     "apps/tch-portal": {
       "targets": {
         "lint": {
@@ -4476,23 +4683,21 @@
       }
     }
   },
-  "3934037459153692985": {},
-  "16035012935932464982": {},
-  "18336470688189723970": {
-    "web-backup/apps/tchalanet-portal": {
+  "15830872855963255594": {},
+  "7706559881157011425": {
+    "libs/shared-config": {
       "targets": {
         "lint": {
           "command": "eslint .",
           "cache": true,
           "options": {
-            "cwd": "web-backup/apps/tchalanet-portal"
+            "cwd": "libs/shared-config"
           },
           "inputs": [
             "default",
             "^default",
             "{workspaceRoot}/eslint.config.mjs",
-            "{workspaceRoot}/web-backup/eslint.config.mjs",
-            "{workspaceRoot}/web-backup/tsconfig.base.json",
+            "{workspaceRoot}/libs/shared-config/eslint.config.mjs",
             "{workspaceRoot}/tools/eslint-rules/**/*",
             {
               "externalDependencies": [
@@ -4520,5 +4725,6 @@
         }
       }
     }
-  }
+  },
+  "10395359774620813221": {}
 }

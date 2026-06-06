@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
+import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { catchError, map, of, startWith } from 'rxjs';
 
-import { PageModelApi } from '../../core/pagemodel';
-import { PageModelComponent } from '../pagemodel/page-model.component';
-import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { PageModelApi, PageModelComponent, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
+import { PublicShellComponent } from './shell/public-shell.component';
 
 type PublicHomeState =
   | { readonly status: 'loading' }
   | { readonly status: 'error' }
   | {
       readonly status: 'ready';
-      readonly response: import('../../shared/types').PublicPageModelResponse;
+      readonly response: PageRuntimeResponse;
     };
 
 /**
@@ -21,38 +21,32 @@ type PublicHomeState =
  */
 @Component({
   selector: 'tch-public-home-page',
-  imports: [PageShellComponent, PageModelComponent, TranslatePipe],
+  imports: [PublicShellComponent, PageModelComponent, TranslatePipe, TchLoading, TchErrorPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell [shell]="pageModel()?.shell">
-      @switch (state().status) {
-        @case ('loading') {
-          <p class="public-home__status">{{ 'common.loading' | translate }}</p>
-        }
-        @case ('error') {
-          <p class="public-home__status">{{ 'public.home.loadError' | translate }}</p>
-        }
-        @case ('ready') {
-          <tch-page-model [pageModel]="pageModel()!" [dynamic]="dynamic()" />
-        }
-      }
-    </tch-page-shell>
+      <tch-page-shell [shell]="shell()">
+          @switch (state().status) {
+              @case ('loading') {
+                  <tch-loading [label]="'common.loading' | translate"/>
+              }
+              @case ('error') {
+                  <tch-error-panel
+                          [title]="'common.error.title' | translate"
+                          [message]="'public.home.loadError' | translate"
+                  />
+              }
+              @case ('ready') {
+                  <tch-page-model [content]="response()!.content" [dynamic]="response()!.dynamic"/>
+              }
+          }
+      </tch-page-shell>
   `,
-  styles: [
-    `
-      .public-home__status {
-        padding: 2rem;
-        text-align: center;
-        color: var(--tch-color-foreground, var(--mat-sys-on-surface));
-      }
-    `,
-  ],
 })
 export class PublicHomePage {
   private readonly api = inject(PageModelApi);
 
   readonly state = toSignal(
-    this.api.getPublicPage('public.home').pipe(
+    this.api.getPublicPage().pipe(
       map(response => ({ status: 'ready', response }) as PublicHomeState),
       catchError(() => of({ status: 'error' } as PublicHomeState)),
       startWith({ status: 'loading' } as PublicHomeState),
@@ -60,13 +54,13 @@ export class PublicHomePage {
     { initialValue: { status: 'loading' } as PublicHomeState },
   );
 
-  readonly pageModel = computed(() => {
+  readonly response = computed(() => {
     const s = this.state();
-    return s.status === 'ready' ? s.response.pageModel : undefined;
+    return s.status === 'ready' ? s.response : undefined;
   });
 
-  readonly dynamic = computed(() => {
-    const s = this.state();
-    return s.status === 'ready' ? s.response.dynamic : undefined;
+  readonly shell = computed<PublicShellRuntime | undefined>(() => {
+    const shell = this.response()?.shell;
+    return shell?.type === 'public' ? shell : undefined;
   });
 }

@@ -360,7 +360,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -371,7 +372,8 @@
               "cwd": "web-backup/apps/tchalanet-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -418,7 +420,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -447,7 +450,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -1535,52 +1539,6 @@
         "implicitDependencies": []
       }
     },
-    "shared/ui": {
-      "name": "shared/ui",
-      "type": "lib",
-      "data": {
-        "root": "web-backup/libs/ui/theme",
-        "targets": {
-          "lint": {
-            "executor": "@nx/eslint:lint",
-            "options": {},
-            "configurations": {},
-            "parallelism": true,
-            "cache": true,
-            "inputs": [
-              "default",
-              "^default",
-              "{workspaceRoot}/.eslintrc.json",
-              "{workspaceRoot}/.eslintignore",
-              "{workspaceRoot}/eslint.config.mjs",
-              "{workspaceRoot}/tools/eslint-rules/**/*"
-            ]
-          },
-          "test": {
-            "executor": "@nx/vite:test",
-            "outputs": [
-              "{options.reportsDirectory}"
-            ],
-            "options": {
-              "reportsDirectory": "../../../coverage/libs/ui/theme"
-            },
-            "configurations": {},
-            "parallelism": true,
-            "cache": true
-          }
-        },
-        "name": "shared/ui",
-        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-        "sourceRoot": "libs/ui/theme/src",
-        "prefix": "tchl",
-        "projectType": "library",
-        "tags": [
-          "scope:shared",
-          "type:ui"
-        ],
-        "implicitDependencies": []
-      }
-    },
     "tch-portal-e2e": {
       "name": "tch-portal-e2e",
       "type": "e2e",
@@ -1635,7 +1593,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1646,7 +1605,8 @@
               "cwd": "apps/tch-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -1684,7 +1644,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1704,7 +1665,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -1810,6 +1772,147 @@
         "tags": []
       }
     },
+    "shared-config": {
+      "name": "shared-config",
+      "type": "lib",
+      "data": {
+        "root": "libs/shared-config",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/shared-config/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "shared-config",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/shared-config/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:config"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "ui-components": {
+      "name": "ui-components",
+      "type": "lib",
+      "data": {
+        "root": "libs/ui/components",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "vitest run libs/ui/components/src"
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true
+          }
+        },
+        "name": "ui-components",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/ui/components/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:ui",
+          "type:components"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "page-model": {
+      "name": "page-model",
+      "type": "lib",
+      "data": {
+        "root": "libs/page-model",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/page-model/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "page-model",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/page-model/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:feature"
+        ],
+        "implicitDependencies": []
+      }
+    },
     "tch-portal": {
       "name": "tch-portal",
       "type": "app",
@@ -1841,6 +1944,12 @@
               "browser": "apps/tch-portal/src/main.ts",
               "tsConfig": "apps/tch-portal/tsconfig.app.json",
               "inlineStyleLanguage": "scss",
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "libs/ui/theme/src",
+                  "libs/ui/styles/src/lib"
+                ]
+              },
               "assets": [
                 {
                   "glob": "**/*",
@@ -1940,6 +2049,194 @@
         "implicitDependencies": []
       }
     },
+    "ui-styles": {
+      "name": "ui-styles",
+      "type": "lib",
+      "data": {
+        "root": "libs/ui/styles",
+        "name": "ui-styles",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/ui/styles/src",
+        "projectType": "library",
+        "tags": [
+          "scope:ui",
+          "type:styles"
+        ],
+        "targets": {},
+        "implicitDependencies": []
+      }
+    },
+    "ui-theme": {
+      "name": "ui-theme",
+      "type": "lib",
+      "data": {
+        "root": "libs/ui/theme",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "vitest run libs/ui/theme/src"
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true
+          }
+        },
+        "name": "ui-theme",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/ui/theme/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
+    },
+    "widgets": {
+      "name": "widgets",
+      "type": "lib",
+      "data": {
+        "root": "libs/widgets",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/widgets/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "widgets",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/widgets/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:feature"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "api": {
+      "name": "api",
+      "type": "lib",
+      "data": {
+        "root": "libs/api",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          }
+        },
+        "name": "api",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/api/src",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:data-access"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "web": {
+      "name": "web",
+      "type": "lib",
+      "data": {
+        "root": "libs/web",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/web/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "web",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/web/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:web",
+          "type:components"
+        ],
+        "implicitDependencies": []
+      }
+    },
     "tchalanet-web": {
       "name": "tchalanet-web",
       "type": "lib",
@@ -1956,7 +2253,8 @@
               "serve:tch-portal",
               "lint",
               "format",
-              "test"
+              "test",
+              "theme:generate"
             ]
           },
           "description": "",
@@ -2029,6 +2327,18 @@
             "parallelism": true,
             "cache": true
           },
+          "theme:generate": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "theme:generate"
+            },
+            "metadata": {
+              "scriptContent": "node libs/ui/theme/tools/generate-theme-registry.mjs",
+              "runCommand": "pnpm run theme:generate"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
           "nx-release-publish": {
             "executor": "@nx/js:release-publish",
             "dependsOn": [
@@ -2084,7 +2394,6 @@
     "styles": [],
     "web/ui-shell-public": [],
     "plans": [],
-    "shared/ui": [],
     "tch-portal-e2e": [
       {
         "source": "tch-portal-e2e",
@@ -2092,10 +2401,88 @@
         "type": "implicit"
       }
     ],
-    "tch-portal": [],
+    "shared-config": [
+      {
+        "source": "shared-config",
+        "target": "api",
+        "type": "static"
+      }
+    ],
+    "ui-components": [],
+    "page-model": [
+      {
+        "source": "page-model",
+        "target": "api",
+        "type": "static"
+      },
+      {
+        "source": "page-model",
+        "target": "ui-components",
+        "type": "static"
+      }
+    ],
+    "tch-portal": [
+      {
+        "source": "tch-portal",
+        "target": "api",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "shared-config",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "ui-theme",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "widgets",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "ui-components",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "page-model",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "web",
+        "type": "static"
+      }
+    ],
+    "ui-styles": [],
+    "ui-theme": [],
+    "widgets": [
+      {
+        "source": "widgets",
+        "target": "page-model",
+        "type": "static"
+      }
+    ],
+    "api": [],
+    "web": [
+      {
+        "source": "web",
+        "target": "page-model",
+        "type": "static"
+      },
+      {
+        "source": "web",
+        "target": "ui-components",
+        "type": "static"
+      }
+    ],
     "tchalanet-web": []
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780479011704
+  "computedAt": 1780778180815
 }

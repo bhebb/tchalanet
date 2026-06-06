@@ -1,6 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 
-import { RuntimeSettingsStore } from '../settings';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 
 const ENTITLEMENT_PREFIX = 'entitlement.';
 

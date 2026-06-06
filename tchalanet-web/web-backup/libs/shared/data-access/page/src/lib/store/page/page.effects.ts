@@ -10,7 +10,6 @@ import { Store } from '@ngrx/store';
 import { PageApi } from '@tchl/api';
 import { I18nFacade } from '@tchl/facades';
 import { PageModel } from '@tchl/types';
-import { ThemeService } from '@tchl/ui/theme';
 
 import { NavAfterLoadActions } from '../navigation/nav.actions';
 import { selectPendingTarget } from '../navigation/nav.reducer';
@@ -20,7 +19,6 @@ import { PageActions } from './page.actions';
 @Injectable()
 export class PageEffects {
   private readonly http = inject(HttpClient);
-  private readonly theme = inject(ThemeService);
   private  readonly router = inject(Router);
   private readonly actions$ = inject(Actions);
   private readonly pageApi = inject(PageApi);
@@ -60,7 +58,6 @@ export class PageEffects {
           const page = (action as { page: PageModel }).page;
           const currentLang = page.currentLang;
           this.i18nFacade.initFromPage(page.langs, currentLang, page.i18n);
-          this.theme.applyTheme(page.theme);
           if (!target) return;
           this.router.navigateByUrl(target);
           this.store.dispatch(NavAfterLoadActions.clear());

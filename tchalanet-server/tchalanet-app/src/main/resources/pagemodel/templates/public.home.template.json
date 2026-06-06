@@ -1,32 +1,31 @@
 {
   "code": "public.home",
-  "logical_id": "public.home",
+  "logicalId": "public.home",
   "scope": "public",
   "slug": "home",
   "name": "Public home",
   "label": "public home",
-  "schema_version": 2,
+  "schemaVersion": 2,
   "schema": {},
-  "is_default": true,
+  "isDefault": true,
   "level": "GLOBAL",
-  "tenant_id": null,
-  "description": "Public home PageModel V1: hero, news, public draw results, ticket verification, Tchala, features and plans.",
+  "description": "Public home PageModel V2: hero, how it works, news, public draw results, ticket verification, Tchala, features, rules, plans and operator CTA.",
   "model": {
     "meta": {
       "id": "public.home",
       "scope": "public",
       "slug": "home",
       "context": "public_home",
-      "schema_version": 2,
+      "schemaVersion": 2,
       "langs": [
         "fr",
         "en",
         "ht"
       ],
-      "default_lang": "fr"
+      "defaultLang": "fr"
     },
     "theme": {
-      "presetId": "tchalanet_default",
+      "presetId": "tchalanet",
       "mode": "light",
       "density": 0
     },
@@ -35,20 +34,20 @@
         "component": "PublicHeader",
         "binding": {
           "mode": "dynamic",
-          "source": "json_file"
+          "source": "jsonFile"
         },
         "props": {
-          "file_key": "public_header_links"
+          "fileKey": "public_header_links"
         }
       },
       "footer": {
         "component": "PublicFooter",
         "binding": {
           "mode": "dynamic",
-          "source": "json_file"
+          "source": "jsonFile"
         },
         "props": {
-          "file_key": "public_footer_links"
+          "fileKey": "public_footer_links"
         }
       }
     },
@@ -58,7 +57,7 @@
         "rows": [
           {
             "id": "hero",
-            "label_key": "layout.public_home.hero",
+            "labelKey": "layout.public_home.hero",
             "columns": [
               {
                 "span": 12,
@@ -69,8 +68,56 @@
             ]
           },
           {
+            "id": "draws",
+            "labelKey": "layout.public_home.draws",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.draws"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "howItWorks",
+            "labelKey": "layout.public_home.how_it_works",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.howItWorks"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ticketVerification",
+            "labelKey": "layout.public_home.ticket_verification",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.checkTicket"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "operatorCta",
+            "labelKey": "layout.public_home.operator_cta",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.operatorCta"
+                ]
+              }
+            ]
+          },
+          {
             "id": "news",
-            "label_key": "layout.public_home.news",
+            "labelKey": "layout.public_home.news",
             "columns": [
               {
                 "span": 12,
@@ -81,21 +128,8 @@
             ]
           },
           {
-            "id": "draws",
-            "label_key": "layout.public_home.draws",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.draws",
-                  "home.check_ticket"
-                ]
-              }
-            ]
-          },
-          {
             "id": "tchala",
-            "label_key": "layout.public_home.tchala",
+            "labelKey": "layout.public_home.tchala",
             "columns": [
               {
                 "span": 12,
@@ -106,25 +140,13 @@
             ]
           },
           {
-            "id": "features",
-            "label_key": "layout.public_home.features",
+            "id": "rules",
+            "labelKey": "layout.public_home.rules",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "home.features"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "plans",
-            "label_key": "layout.public_home.plans",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.plans"
+                  "home.rules"
                 ]
               }
             ]
@@ -136,10 +158,124 @@
           "type": "HeroWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "json_file"
+            "source": "jsonFile"
           },
           "props": {
-            "file_key": "public_hero"
+            "fileKey": "public_hero"
+          }
+        },
+        "home.draws": {
+          "type": "PublicDrawResultsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_draw_results"
+          },
+          "props": {
+            "maxSlots": 6,
+            "titleKey": "home.draws.title",
+            "moreDestination": {
+              "id": "moreResults",
+              "kind": "link",
+              "labelKey": "public.nav.results",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/results"
+              },
+              "icon": "emoji_events",
+              "image": null,
+              "activeMatch": "prefix",
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            },
+            "historyLimit": 0,
+            "includeHistory": false
+          }
+        },
+        "home.howItWorks": {
+          "type": "HowItWorksWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "titleKey": "public.how.title",
+            "descriptionKey": "public.how.description",
+            "steps": [
+              {
+                "titleKey": "public.how.step1.title",
+                "textKey": "public.how.step1.text"
+              },
+              {
+                "titleKey": "public.how.step2.title",
+                "textKey": "public.how.step2.text"
+              },
+              {
+                "titleKey": "public.how.step3.title",
+                "textKey": "public.how.step3.text"
+              },
+              {
+                "titleKey": "public.how.step4.title",
+                "textKey": "public.how.step4.text"
+              }
+            ]
+          }
+        },
+        "home.checkTicket": {
+          "type": "TicketVerificationWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "path": "/public/check-ticket",
+            "ctaKey": "public.ticket.cta",
+            "titleKey": "home.check_ticket.title",
+            "descriptionKey": "home.check_ticket.description"
+          }
+        },
+        "home.operatorCta": {
+          "type": "OperatorCtaWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "titleKey": "public.operator.title",
+            "descriptionKey": "public.operator.description",
+            "primaryAction": {
+              "id": "requestDemo",
+              "kind": "button",
+              "labelKey": "public.operator.demo",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/contact"
+              },
+              "icon": "rocket_launch",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            },
+            "secondaryAction": {
+              "id": "operatorAccess",
+              "kind": "link",
+              "labelKey": "public.operator.access",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/login"
+              },
+              "icon": "login",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            }
           }
         },
         "home.news": {
@@ -150,98 +286,28 @@
           },
           "props": {
             "limit": 5,
-            "title_key": "home.news.title",
-            "show_dates": true
-          }
-        },
-        "home.draws": {
-          "type": "PublicDrawResultsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "public_draw_results"
-          },
-          "props": {
-            "max_slots": 6,
-            "title_key": "home.draws.title",
-            "moreDestination": {
-              "id": "more_results",
-              "type": "destination",
-              "label_key": "nav.results",
-              "label": null,
-              "path": "/results",
-              "kind": "internal",
-              "icon": "emoji_events",
-              "image": null,
-              "active_match": "prefix",
-              "disabled": false,
-              "reason_key": null,
-              "badge": null,
-              "children": []
-            },
-            "history_limit": 0,
-            "include_history": false,
-            "include_next_by_slot": true,
-            "include_latest_by_slot": true
-          }
-        },
-        "home.plans": {
-          "type": "PlansWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "public_home"
-          },
-          "props": {
-            "items_key": "plans",
-            "title_key": "home.plans.title",
-            "demoDestination": {
-              "id": "request_demo",
-              "type": "destination",
-              "label_key": "cta.request_demo",
-              "label": null,
-              "path": "/demo",
-              "kind": "internal",
-              "icon": "rocket_launch",
-              "image": null,
-              "active_match": "prefix",
-              "disabled": false,
-              "reason_key": null,
-              "badge": null,
-              "children": []
-            },
-            "show_toggle_billing_period": true
+            "titleKey": "home.news.title",
+            "showDates": true
           }
         },
         "home.tchala": {
           "type": "TchalaSearchWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "json_file"
+            "source": "jsonFile"
           },
           "props": {
-            "file_key": "public_tchala"
+            "fileKey": "public_tchala"
           }
         },
-        "home.features": {
-          "type": "FeatureGridWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "json_file"
-          },
-          "props": {
-            "layout": "LMSS",
-            "file_key": "public_features"
-          }
-        },
-        "home.check_ticket": {
-          "type": "CheckTicketWidget",
+        "home.rules": {
+          "type": "RulesWidget",
           "binding": {
             "mode": "static"
           },
           "props": {
-            "path": "/verifier",
-            "cta_key": "cta.check_ticket",
-            "title_key": "home.check_ticket.title",
-            "description_key": "home.check_ticket.description"
+            "titleKey": "public.rules.title",
+            "descriptionKey": "public.rules.subtitle"
           }
         }
       }

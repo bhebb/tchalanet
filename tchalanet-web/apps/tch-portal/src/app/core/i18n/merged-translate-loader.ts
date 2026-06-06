@@ -1,9 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { TranslateLoader } from '@ngx-translate/core';
+import { ApiResponse } from '@tch/api';
 import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 
-import { ApiResponse, TranslationTree } from '../../shared/types';
+import { TranslationTree } from '../../shared/types';
 import { I18nMergerService } from './i18n-merger.service';
 
 export interface I18nBundleResponse {
@@ -23,8 +24,9 @@ export interface MergedTranslateLoaderOptions {
   readonly surfaces: readonly string[];
 }
 
-export const MERGED_TRANSLATE_LOADER_OPTIONS =
-  new InjectionToken<MergedTranslateLoaderOptions>('MERGED_TRANSLATE_LOADER_OPTIONS');
+export const MERGED_TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
+  'MERGED_TRANSLATE_LOADER_OPTIONS',
+);
 
 @Injectable()
 export class MergedTranslateLoader implements TranslateLoader {
@@ -49,17 +51,16 @@ export class MergedTranslateLoader implements TranslateLoader {
 
   private loadBackendOverrides(lang: string): Observable<TranslationTree> {
     let params = new HttpParams().set('locale', lang);
-    this.options.surfaces.forEach((surface) => {
+    this.options.surfaces.forEach(surface => {
       params = params.append('surface', surface);
     });
 
     return this.http
-      .get<ApiResponse<I18nBundleResponse> | I18nBundleResponse | TranslationTree>(
-        this.options.backendPath,
-        { params },
-      )
+      .get<
+        ApiResponse<I18nBundleResponse> | I18nBundleResponse | TranslationTree
+      >(this.options.backendPath, { params })
       .pipe(
-        map((response) => normalizeBackendTranslations(response, this.options.surfaces)),
+        map(response => normalizeBackendTranslations(response, this.options.surfaces)),
         catchError(() => of({})),
       );
   }
@@ -91,7 +92,7 @@ function flattenSurfaceBundle(
 ): TranslationTree {
   const orderedSurfaces =
     surfaceOrder.length > 0
-      ? surfaceOrder.map((surface) => surfaces[surface])
+      ? surfaceOrder.map(surface => surfaces[surface])
       : Object.values(surfaces);
 
   return orderedSurfaces.reduce<TranslationTree>((accumulator, surfaceTranslations) => {

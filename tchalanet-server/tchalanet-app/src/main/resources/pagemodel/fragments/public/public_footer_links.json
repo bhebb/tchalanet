@@ -1,159 +1,315 @@
 {
-  "fragment_type": "PublicFooter",
-  "schema_version": 2,
+  "fragmentType": "PublicFooter",
+  "schemaVersion": 2,
   "brand": {
-    "id": "tchalanet-footer",
-    "label_key": "app.name",
+    "id": "tchalanetFooter",
+    "kind": "link",
+    "labelKey": "app.name",
     "label": null,
-    "subtitle_key": null,
-    "path": "/",
-    "image": {
-      "url": "/assets/brand/tchalanet-logo.svg",
-      "alt_key": "brand.logo_alt",
-      "title_key": null,
-      "width": 36,
-      "height": 36,
-      "aspect_ratio": "1:1",
-      "loading": "eager"
-    }
+    "destination": {
+      "kind": "route",
+      "value": "/public"
+    },
+    "icon": null,
+    "image": "/assets/brand/tchalanet-logo-inverse.svg",
+    "activeMatch": "exact",
+    "disabled": false,
+    "reasonKey": null,
+    "badge": null,
+    "children": []
   },
-  "primary": [
+  "descriptionKey": "public.footer.description",
+  "statusKey": "public.footer.status.operational",
+  "copyrightKey": "app.footer.copyright",
+  "columns": [
     {
-      "id": "results",
-      "type": "destination",
-      "label_key": "footer.results",
-      "label": null,
-      "path": "/results",
-      "kind": "internal",
-      "icon": "emoji_events",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
+      "id": "solutions",
+      "titleKey": "public.footer.solutions.title",
+      "links": [
+        {
+          "id": "operators",
+          "kind": "link",
+          "labelKey": "public.footer.solutions.operators",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/contact"
+          },
+          "icon": "storefront",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "ticketVerification",
+          "kind": "link",
+          "labelKey": "public.footer.solutions.ticket_verification",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/check-ticket"
+          },
+          "icon": "qr_code_scanner",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "posManagement",
+          "kind": "link",
+          "labelKey": "public.footer.solutions.pos_management",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/contact"
+          },
+          "icon": "point_of_sale",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        }
+      ]
     },
-    {
-      "id": "check_ticket",
-      "type": "destination",
-      "label_key": "footer.check_ticket",
-      "label": null,
-      "path": "/verifier",
-      "kind": "internal",
-      "icon": "qr_code_scanner",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    },
-    {
-      "id": "games",
-      "type": "destination",
-      "label_key": "footer.games",
-      "label": null,
-      "path": "/games",
-      "kind": "internal",
-      "icon": "casino",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    },
-    {
-      "id": "contact_demo",
-      "type": "destination",
-      "label_key": "footer.contact_demo",
-      "label": null,
-      "path": "/demo",
-      "kind": "internal",
-      "icon": "rocket_launch",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    }
-  ],
-  "secondary": [
     {
       "id": "support",
-      "type": "destination",
-      "label_key": "footer.support",
-      "label": null,
-      "path": "/support",
-      "kind": "internal",
-      "icon": "support_agent",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
+      "titleKey": "public.footer.support.title",
+      "links": [
+        {
+          "id": "help",
+          "kind": "link",
+          "labelKey": "public.footer.support.help",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/help"
+          },
+          "icon": "support_agent",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "results",
+          "kind": "link",
+          "labelKey": "public.footer.support.results",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/results"
+          },
+          "icon": "emoji_events",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "rules",
+          "kind": "link",
+          "labelKey": "public.footer.support.rules",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/rules"
+          },
+          "icon": "rule",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "systemStatus",
+          "kind": "link",
+          "labelKey": "public.footer.support.system_status",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/contact"
+          },
+          "icon": "monitor_heart",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "contact",
+          "kind": "link",
+          "labelKey": "public.footer.support.contact",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/contact"
+          },
+          "icon": "mail",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        }
+      ]
     },
     {
-      "id": "terms",
-      "type": "destination",
-      "label_key": "legal.terms",
-      "label": null,
-      "path": "/legal",
-      "kind": "internal",
-      "icon": "gavel",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    },
-    {
-      "id": "privacy",
-      "type": "destination",
-      "label_key": "legal.privacy",
-      "label": null,
-      "path": "/privacy",
-      "kind": "internal",
-      "icon": "privacy_tip",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
-    },
-    {
-      "id": "responsible_gaming",
-      "type": "destination",
-      "label_key": "legal.responsible_gaming",
-      "label": null,
-      "path": "/regulation",
-      "kind": "internal",
-      "icon": "verified_user",
-      "image": null,
-      "active_match": "prefix",
-      "disabled": false,
-      "reason_key": null,
-      "badge": null,
-      "children": []
+      "id": "legal",
+      "titleKey": "public.footer.legal.title",
+      "links": [
+        {
+          "id": "privacy",
+          "kind": "link",
+          "labelKey": "public.footer.legal.privacy",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/privacy"
+          },
+          "icon": "privacy_tip",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "terms",
+          "kind": "link",
+          "labelKey": "public.footer.legal.terms",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/terms"
+          },
+          "icon": "gavel",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "compliance",
+          "kind": "link",
+          "labelKey": "public.footer.legal.compliance",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/terms"
+          },
+          "icon": "verified_user",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        }
+      ]
     }
   ],
   "social": [
     {
       "id": "linkedin",
-      "type": "destination",
-      "label_key": "footer.linkedin",
-      "label": null,
-      "path": "https://www.linkedin.com/company/tchalanet",
-      "kind": "external",
-      "icon": "linkedin",
-      "image": null,
-      "active_match": "none",
+      "kind": "link",
+      "labelKey": "public.footer.social.linkedin",
+      "destination": {
+        "kind": "url",
+        "value": "https://www.linkedin.com/company/tchalanet"
+      },
+      "icon": null,
+      "image": "/assets/svg/socials/linkedin.svg",
+      "activeMatch": null,
       "disabled": false,
-      "reason_key": null,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "facebook",
+      "kind": "link",
+      "labelKey": "public.footer.social.facebook",
+      "label": null,
+      "destination": {
+        "kind": "url",
+        "value": "https://www.facebook.com/tchalanet"
+      },
+      "icon": null,
+      "image": "/assets/svg/socials/facebook.svg",
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "instagram",
+      "kind": "link",
+      "labelKey": "public.footer.social.instagram",
+      "label": null,
+      "destination": {
+        "kind": "url",
+        "value": "https://www.instagram.com/tchalanet"
+      },
+      "icon": null,
+      "image": "/assets/svg/socials/instagram.svg",
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "x",
+      "kind": "link",
+      "labelKey": "public.footer.social.x",
+      "label": null,
+      "destination": {
+        "kind": "url",
+        "value": "https://x.com/tchalanet"
+      },
+      "icon": null,
+      "image": "/assets/svg/socials/x.svg",
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "youtube",
+      "kind": "link",
+      "labelKey": "public.footer.social.youtube",
+      "label": null,
+      "destination": {
+        "kind": "url",
+        "value": "https://www.youtube.com/@tchalanet"
+      },
+      "icon": null,
+      "image": "/assets/svg/socials/youtube.svg",
+      "activeMatch": null,
+      "disabled": false,
+      "reasonKey": null,
       "badge": null,
       "children": []
     }

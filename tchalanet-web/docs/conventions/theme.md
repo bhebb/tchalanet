@@ -1,6 +1,6 @@
 # Theme Convention
 
-> Status: DRAFT v0.2
+> Status: ACTIVE v0.3
 > Scope: runtime theme, presets, backend overrides, token mapping
 > Living doc — update in the same commit as any code that changes a rule here.
 
@@ -13,16 +13,27 @@ The backend owns the active theme ID. The frontend owns how known preset IDs bec
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/theme/
+libs/ui/theme/
 ```
 
 Use this area for:
 
 - `ThemeApi` runtime calls;
 - `ThemeRepository` local preset registry;
-- `ThemeRuntimeStore` active preset/mode state;
+- `ThemeStore` active preset/mode state;
 - DOM application of CSS variables and Material token aliases;
 - small theme controls used by shell or dev surfaces.
+- SCSS preset catalogs and runtime token bridges;
+- the theme registry generator.
+
+Boundaries:
+
+- `libs/ui/theme/` owns runtime theme selection, token application, dark mode, presets, and
+  `OverlayContainer` synchronization;
+- `libs/ui/styles/` owns compile-time SCSS primitives and global Material overrides only. It never
+  selects the current theme;
+- `libs/ui/components/` owns reusable components. Components consume global `--tch-*` tokens and
+  expose local `--comp-*` variables with `--tch-*` fallbacks.
 
 ## Runtime Shape
 
@@ -66,21 +77,22 @@ translated to the validated `--tch-*` set before being applied; applying them ve
 declarations like `--color.primary` that the browser silently ignores (backend theming never takes
 effect).
 
-The mapping lives in `core/theme/theme-token-map.ts` (`mapBackendThemeTokens`), applied in
-`ThemeApi`:
+The mapping lives in `libs/ui/theme/src/lib/theme-token-map.ts`
+(`mapBackendThemeTokens`), applied in `ThemeApi`:
 
 ```text
 color.primary    -> --tch-color-primary
 color.secondary  -> --tch-color-secondary
 color.surface    -> --tch-color-surface
-color.onSurface  -> --tch-color-foreground
-shape.radius.md  -> --tch-radius-control
+color.onSurface  -> --tch-color-foreground (compatibility alias)
+shape.radius.md  -> --tch-radius-control (compatibility alias)
 ```
 
 Rules: unmapped backend tokens are dropped (never emit invalid CSS); keys already shaped as `--tch-*`
 pass through; tokens with no backend equivalent (`background`, `outline`, `primary-contrast`,
 `surface-muted`) come from the active preset CSS. Extend the map (with a test) when the backend adds a
-token the web needs.
+token the web needs. New components use the standardized `--tch-color-on-surface` and
+`--tch-radius-md` roles; compatibility aliases must not become new component contracts.
 
 ## CSS Token Rules
 
@@ -88,15 +100,43 @@ Components use CSS variables, not hardcoded colors:
 
 ```text
 --tch-color-background
---tch-color-foreground
+--tch-color-on-background
 --tch-color-primary
---tch-color-primary-contrast
+--tch-color-on-primary
 --tch-color-secondary
 --tch-color-surface
---tch-color-surface-muted
+--tch-color-on-surface
 --tch-color-outline
---tch-radius-control
+--tch-color-error
+--tch-radius-sm
+--tch-radius-md
+--tch-radius-lg
+--tch-radius-pill
+--tch-elevation-1
+--tch-elevation-2
+--tch-focus-ring-width
+--tch-focus-ring-offset
+--tch-page-max
+--tch-page-gutter
+--tch-font-family
 ```
+
+`--tch-*` variables are global theme tokens. `--comp-*` variables are component-local extension
+points and must fall back to `--tch-*`; they are not new global theme roles.
+
+The current Web foundation uses:
+
+```text
+primary             #1A1B4B
+onPrimary           #FFFFFF
+secondaryContainer  #FECB00
+onSecondaryContainer #241A00
+orangeAccent        #F7931E
+fontFamily          Plus Jakarta Sans
+```
+
+This is the current Web reference. Mobile/POS alignment requires a separate Mobile-owned change;
+this convention does not claim that Flutter already implements these values.
 
 ## Material 3 is the theming system
 
@@ -119,17 +159,17 @@ system tokens from the brand seeds, not the other way around.
 ## Preset generation pipeline (frontend-owned)
 
 Full M3 preset CSS is **generated at build time on the frontend**, not emitted by the backend. Ported
-from `web-backup/libs/ui/theme`:
+owned by `libs/ui/theme`:
 
-- `scss/_theme-presets.scss` — `tch-generate-theme($id, $primary, $tertiary)` mixin: calls
+- `libs/ui/theme/src/scss/_generate-theme.scss` — `tch-generate-theme($id, $primary, $tertiary)` mixin: calls
   `mat.theme()` and maps brand tokens, for `.tch-theme[data-preset=$id]` (light) and
   `.tch-theme.dark[data-preset=$id]` (dark).
-- `scss/theme-presets.scss` — the preset catalog (tchalanet brand + Material palette pairs).
-- `scss/tchalanet/_theme-colors.scss` — brand tonal palettes (regenerate via Material schematic; do
+- `libs/ui/theme/src/scss/theme-presets.scss` — the preset catalog (tchalanet brand + Material palette pairs).
+- `libs/ui/theme/src/scss/tchalanet/_theme-colors.scss` — brand tonal palettes (regenerate via Material schematic; do
   not hand-edit).
-- the generator `apps/tch-portal/tools/generate-theme-registry.mjs` (run via `npm run theme:generate`)
+- the generator `libs/ui/theme/tools/generate-theme-registry.mjs` (run via `npm run theme:generate`)
   compiles the catalog with the `sass` CLI, splits per `data-preset`, and writes
-  `core/theme/theme-presets.registry.ts` (`THEME_PRESETS: ThemePreset[]`, committed + reviewable).
+  `libs/ui/theme/src/registry/theme-presets.registry.ts` (`THEME_PRESETS: ThemePreset[]`, committed + reviewable).
   Edit the catalog and regenerate — never hand-edit the registry.
 
 Preset **ids mirror the backend `theme_preset.code`** (V203 seed: `tchalanet`, `m3-blue`, `m3-purple`,
@@ -160,8 +200,9 @@ The backend does **not** generate full M3 token sets. It owns:
   `ThemeRuntimeView.tokens` carries the tenant's customized values for these, applied as **overrides**
   on top of the generated preset — they are not the whole palette.
 
-`core/theme/theme-token-map.ts` maps those editable backend keys to the CSS variables the generated
-preset exposes. Keep it aligned with `editableTokens`; extend with a test when the set grows.
+`libs/ui/theme/src/lib/theme-token-map.ts` maps those editable backend keys to the CSS
+variables the generated preset exposes. Keep it aligned with `editableTokens`; extend with a test
+when the set grows.
 
 ## Anti-Patterns
 

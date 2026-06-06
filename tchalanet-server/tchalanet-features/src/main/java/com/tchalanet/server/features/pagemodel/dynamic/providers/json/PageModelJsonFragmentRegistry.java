@@ -19,7 +19,9 @@ public class PageModelJsonFragmentRegistry {
           // Private shell fragments (v2 typed — topAppBar + navigationDrawer per surface)
           Map.entry("private_shell_cashier", "pagemodel/fragments/private/cashier/private_shell_cashier.json"),
           Map.entry("private_shell_tenantadmin", "pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json"),
+          Map.entry("private_shell_tenant_admin", "pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json"),
           Map.entry("private_shell_superadmin", "pagemodel/fragments/private/superadmin/private_shell_superadmin.json"),
+          Map.entry("private_shell_super_admin", "pagemodel/fragments/private/superadmin/private_shell_superadmin.json"),
           // Private action fragments
           Map.entry(
               "private_cashier_quick_actions",
@@ -27,7 +29,7 @@ public class PageModelJsonFragmentRegistry {
 
   public String resolve(String fileKey) {
     if (fileKey == null || fileKey.isBlank()) {
-      throw new PageModelDynamicProviderException("MISSING_PROP", "props.file_key is required");
+      throw new PageModelDynamicProviderException("MISSING_PROP", "props.fileKey is required");
     }
 
     String resourcePath = FRAGMENTS.get(fileKey);

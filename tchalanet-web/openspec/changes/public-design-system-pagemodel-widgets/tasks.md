@@ -1,0 +1,306 @@
+# Tasks
+
+## 1. Specification
+
+- [x] Capture the public visual direction, semantic tokens, and mobile-first rules.
+- [x] Capture safe wording rules for ticket verification, results, simulations, news, help, and operator CTAs.
+- [x] Define the reusable public widget set and required widget states.
+- [x] Define V1 and V1.5 public routes.
+- [x] Require Material Design 3 theming, dark mode support, stateless Angular components, reusable `--tch-*` tokens, and i18n from the first implementation.
+- [x] Align implementation rules to the existing Web architecture: `Route -> Page -> Container(s) -> Component(s)`, facade/store boundaries, inline templates/styles, and focused specs only where logic exists.
+- [x] Add implementation guardrails for typed widget contracts, typed navigation destinations, shared widget states, domain-specific statuses, anonymous-safe public navigation, simulation no-computation rules, and V1/V1.5 scope split.
+- [x] Add CSS naming and theme-safety guardrails:
+  - scoped BEM-like classes: `block`, `block__element`, `block--modifier`, `is-state`;
+  - no generic unscoped `card`/`button`/`title`/`section` naming in public component CSS;
+  - all themeable values use `--tch-*` variables;
+  - page text uses i18n keys or localized PageModel labels even when temporary;
+  - new public pages are checked in mobile/desktop, light/dark, and alternate Material theme when available.
+
+## 2. Frontend Implementation
+
+- [ ] Update the existing base `tchalanet` theme preset, not a separate one-off public palette:
+  - `apps/tch-portal/src/app/core/theme/scss/tchalanet/_theme-colors.scss` regenerated from brand seeds `primary=#1A1B4B` and accent/action `#FECB00` or the closest M3-compatible tertiary seed.
+  - `apps/tch-portal/src/app/core/theme/scss/theme-presets.scss` keeps preset id `tchalanet`.
+  - `apps/tch-portal/src/app/core/theme/theme-presets.registry.ts` regenerated with the existing theme generator.
+- [x] Preserve and extend Material Design 3 theming:
+  - keep `mat.theme(...)` generation for light and dark variants;
+  - derive public `--tch-*` variables from `--mat-sys-*` in `runtime-vars.scss`;
+  - support `.tch-theme[data-preset='tchalanet']`, `.tch-theme.dark[data-preset='tchalanet']`, and system-mode runtime selection;
+  - verify contrast for primary, secondary/action, surface, outline, error, and status variables in both light and dark mode.
+- [x] Update first-paint/global variables in `apps/tch-portal/src/app/core/theme/scss/runtime-root.scss`:
+  - `--tch-font-family: 'Plus Jakarta Sans, system-ui, sans-serif'`
+  - `--tch-font-family-mono: 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace'`
+  - `--tch-font-size-display-lg: 40px`
+  - `--tch-font-size-headline-lg: 32px`
+  - `--tch-font-size-headline-mobile: 24px`
+  - `--tch-font-size-title-md: 18px`
+  - `--tch-font-size-body-md: 16px`
+  - `--tch-font-size-label-sm: 12px`
+  - `--tch-font-size-receipt-data: 14px`
+  - `--tch-line-height-display-lg: 48px`
+  - `--tch-line-height-headline-lg: 40px`
+  - `--tch-line-height-headline-mobile: 32px`
+  - `--tch-line-height-title-md: 24px`
+  - `--tch-line-height-body-md: 24px`
+  - `--tch-line-height-label-sm: 16px`
+  - `--tch-line-height-receipt-data: 20px`
+  - `--tch-letter-spacing-display-lg: -0.02em`
+  - `--tch-letter-spacing-receipt-data: 0.05em`
+  - `--tch-space-base: 4px`
+  - `--tch-page-gutter: 16px`
+  - `--tch-page-margin-mobile: 16px`
+  - `--tch-page-margin-desktop: 32px`
+  - `--tch-touch-target: 48px`
+  - `--tch-radius-sm: 4px`
+  - `--tch-radius-control: 8px`
+  - `--tch-radius-lg: 12px`
+  - `--tch-radius-xl: 24px`
+  - `--tch-radius-pill: 9999px`
+- [x] Expose public semantic color variables in `runtime-root.scss` and derive them in `runtime-vars.scss`:
+  - `--tch-color-background: #F9F9FC`
+  - `--tch-color-on-background: #1A1C1E`
+  - `--tch-color-surface: #F9F9FC`
+  - `--tch-color-surface-bright: #F9F9FC`
+  - `--tch-color-surface-container-lowest: #FFFFFF`
+  - `--tch-color-surface-container-low: #F3F3F6`
+  - `--tch-color-surface-container: #EDEEF1`
+  - `--tch-color-surface-container-high: #E8E8EB`
+  - `--tch-color-surface-container-highest: #E2E2E5`
+  - `--tch-color-surface-variant: #E2E2E5`
+  - `--tch-color-surface-tonal: #EBEBF5`
+  - `--tch-color-on-surface: #1A1C1E`
+  - `--tch-color-on-surface-variant: #464652`
+  - `--tch-color-outline: #777683`
+  - `--tch-color-outline-variant: #C7C5D4`
+  - `--tch-color-primary: #1A1B4B`
+  - `--tch-color-primary-strong: #15157D`
+  - `--tch-color-on-primary: #FFFFFF`
+  - `--tch-color-primary-container: #2E3192`
+  - `--tch-color-on-primary-container: #E1E0FF`
+  - `--tch-color-primary-fixed: #E1E0FF`
+  - `--tch-color-primary-fixed-dim: #C0C1FF`
+  - `--tch-color-on-primary-fixed: #04006D`
+  - `--tch-color-on-primary-fixed-variant: #373A9B`
+  - `--tch-color-secondary: #745B00`
+  - `--tch-color-on-secondary: #FFFFFF`
+  - `--tch-color-secondary-container: #FECB00`
+  - `--tch-color-on-secondary-container: #241A00`
+  - `--tch-color-secondary-fixed: #FFE08B`
+  - `--tch-color-secondary-fixed-dim: #F1C100`
+  - `--tch-color-orange-accent: #F7931E`
+  - `--tch-color-error: #BA1A1A`
+  - `--tch-color-on-error: #FFFFFF`
+  - `--tch-color-error-container: #FFDAD6`
+  - `--tch-color-on-error-container: #93000A`
+  - `--tch-color-status-ready: #10B981`
+  - `--tch-color-status-warning: #F59E0B`
+  - `--tch-color-status-blocked: #DC2626`
+  - `--tch-color-status-missing: #64748B`
+- [x] Add or update backend/PageModel token mappings in `apps/tch-portal/src/app/core/theme/theme-token-map.ts` for the public semantic set, including dotted keys such as `color.background`, `color.primaryContainer`, `color.secondaryContainer`, `color.surfaceContainerLowest`, `color.onSurfaceVariant`, `color.outlineVariant`, and `color.statusReady`.
+- [x] Add public i18n keys from the start in `apps/tch-portal/public/assets/i18n/fr.json`, `en.json`, and `ht.json`:
+  - `public.nav.*`
+  - `public.home.*`
+  - `public.ticket.*`
+  - `public.results.*`
+  - `public.rules.*`
+  - `public.help.*`
+  - `public.contact.*`
+  - `public.legal.*`
+  - `public.footer.*`
+- [x] Ensure public templates consume i18n keys or localized PageModel labels; no hardcoded public copy in Angular templates.
+- [x] Update public shell navigation for desktop and mobile bottom nav.
+- [x] Split public and private shell behavior:
+  - public shell has no sidenav, no private dashboard/profile/admin/cashier/tenant-admin navigation;
+  - private shell keeps its sidenav/private workspace behavior;
+  - public header supports desktop nav, mobile burger panel, and mobile bottom nav.
+- [x] Adapt backend public shell JSON fragments as the primary source for header/footer and enrich them with a frontend fallback using the same fragment shape:
+  - `dynamic.widgets['shell.header']`
+  - `dynamic.widgets['shell.footer']`
+  - fallback maps current backend ids such as `draw_results`, `check_ticket`, `games`, `support`, `contact_demo`, `responsible_gaming` to public V1 destinations.
+- [x] Add and wire brand assets:
+  - `assets/brand/tchalanet-app-icon.svg`
+  - `assets/brand/tchalanet-logo.svg`
+  - `assets/brand/tchalanet-logo-inverse.svg`
+  - `assets/brand/tchalanet-logo-print.svg`
+  - `assets/brand/tchalanet-points.svg`
+  - app favicon uses the app icon.
+- [x] Add a local public ticket illustration and use it in the public hero:
+  - `assets/public/ticket-verification-preview.svg`
+  - no remote Stitch images/CDNs;
+  - no winner/direct-payout wording.
+- [x] Implement or align `HeroWidget`, `TicketVerificationWidget`, `LatestResultsWidget`, `ResultCardWidget`, `HowItWorksWidget`, `RulesWidget`, `SimulationWidget`, `OperatorCtaWidget`, and `FooterWidget`.
+- [x] Implement new public Angular files as standalone single-file components with inline `template` and inline `styles` unless the existing local pattern requires extraction.
+- [x] Add public routes for V1 pages with PageModel-compatible widget composition: `/public`, `/public/check-ticket`, `/public/results`, `/public/results/:id`, `/public/rules`, `/public/help`, `/public/contact`, `/public/privacy`, `/public/terms`.
+- [x] Do not block V1 public design-system delivery on full rules/simulation data integration or news implementation; ship unavailable/empty states for `/public/rules` if payloads are not ready.
+- [x] Add V1.5 public route placeholders or follow-up tasks for `/public/news`, `/public/news/:slug`, `/public/operators`, `/public/status`, `/public/games`, and full rules/simulation backend-backed behavior if not completed in V1.
+- [x] Ensure public components hide private navigation for anonymous users: no `Profile`, private dashboard links, admin navigation, cashier navigation, or tenant admin actions.
+- [x] Adapt the Stitch-generated layout only as a reference; remove remote images/CDNs, winner/jackpot wording, hardcoded Tailwind colors, unsupported lottery brand examples, and any private/off-scope navigation.
+- [x] Audit new `/public/check-ticket` and `/public/results/:id` page CSS before completion:
+  - class names are scoped and BEM-like;
+  - no hardcoded brand/status hex values in component styles;
+  - no Tailwind/CDN-generated class dependency;
+  - no `::ng-deep`;
+  - no brittle structural selectors.
+
+## 3. Widget Contracts
+
+- [x] Type public widget contracts as contracts, not only Angular components; every public widget defines `type`, `id`, `props`, optional `state`, and typed actions.
+- [x] Add typed action destinations:
+  - `{ type: 'path'; path: string }`
+  - `{ type: 'external'; url: string }`
+  - `{ type: 'anchor'; id: string }`
+- [x] Avoid raw `href` strings inside widget props unless explicitly mapped at the component boundary.
+- [x] Add shared `WidgetState = 'default' | 'loading' | 'empty' | 'error' | 'partial'`.
+- [x] Add explicit verification, result, and simulation status enums:
+  - `VerificationStatus = 'PENDING_RESULT' | 'NOT_PAYABLE' | 'PAYABLE' | 'INVALID_OR_CANCELLED' | 'NOT_FOUND' | 'SERVICE_UNAVAILABLE'`
+  - `ResultStatus = 'CONFIRMED' | 'PENDING' | 'UNAVAILABLE'`
+  - `SimulationStatus = 'NO_GAME_SELECTED' | 'GAME_SELECTED' | 'RULES_UNAVAILABLE' | 'INVALID_SELECTION' | 'INVALID_STAKE' | 'SIMULATION_UNAVAILABLE' | 'CALCULATED'`
+- [ ] Ensure every public widget supports shared widget states plus mobile/desktop layouts.
+  - Done for first V1 visual pass and key unavailable/empty states.
+  - Remaining: formalize `loading`, `empty`, `error`, and `partial` rendering for every registered public widget, with focused specs where branching logic exists.
+- [x] Respect the existing Web architecture boundaries:
+  - route definitions point to `*.page.ts` only;
+  - `*.page.ts` owns the routed layout and may inject facade/store/router;
+  - `*.container.ts` is never routed and orchestrates one logical sub-zone;
+  - `*.component.ts` is stateless/presentational with `input()`/`output()`;
+  - `*.widget.ts` is PageModel-rendered and receives props/state/dynamic payload only;
+  - `*.facade.ts` mediates page/container commands, store selectors, services, navigation, and PageModel loading;
+  - `*.store.ts` owns feature screen state such as loading/error, filters, selected result, verification response, and rules/simulation payload state.
+- [x] Use project state placement rules:
+  - component `signal()` only for UI-local state such as expanded/selected/input draft;
+  - feature `*.store.ts` for screen/API state;
+  - data-access state only for reusable API cache;
+  - core only for global auth/locale/theme/shell state.
+- [x] Keep visual components/widgets free of API clients, facades, NgRx store, feature stores, direct auth inspection, and direct theme mutation.
+- [x] Add shared primitives only when reuse is real: buttons, badges, status chips, result numbers, skeletons, empty states, and error notices.
+- [x] Ensure widgets are reusable across public pages by consuming only props, explicit states, typed actions, and `--tch-*` tokens.
+- [x] Ensure simulations consume backend/API/PageModel/catalog values rather than frontend-hardcoded payouts, odds, multipliers, or game pricing.
+- [x] Ensure `RulesWidget` and `SimulationWidget` render `/public/rules` with title `Règles des jeux et simulation`, badge `Indicatif`, output label `Gain estimé indicatif`, validation errors, unavailable state `La simulation est temporairement indisponible pour ce jeu.`, and the required visible disclaimer.
+
+## 4. Validation
+
+- [x] Add focused specs only for code with logic: facades, stores, containers, widgets/components with branching states, outputs, form validation, state mapping, i18n fallback handling, or unsafe-copy guards.
+- [x] Do not add specs for purely visual stateless components that only render inputs without meaningful logic.
+- [x] Add focused tests for i18n key rendering/fallbacks and absence of hardcoded unsafe public wording where logic or guard code exists.
+- [x] Validate Material Design 3 light and dark mode render paths for public widgets.
+- [x] Validate mobile and desktop public layouts.
+- [x] For every newly completed public page, browser-check:
+  - mobile light;
+  - mobile dark;
+  - desktop light;
+  - desktop dark;
+  - base `tchalanet` Material theme plus one alternate Material preset when available locally.
+- [x] Run focused Nx validation for touched web projects.
+
+## 5. Backend Follow-up Tasks
+
+Backend owner: user/manual backend pass. Add every backend blocker discovered during frontend implementation here before working around it in the frontend.
+
+- [ ] Align public PageModel seed/template routes to public V1 paths:
+  - `/public`
+  - `/public/results`
+  - `/public/check-ticket`
+  - `/public/help`
+  - `/public/contact`
+  - `/public/rules`
+  - `/public/privacy`
+  - `/public/terms`
+- [ ] Replace current public header/footer navigation payload with anonymous-safe labels and destinations:
+  - desktop: `Tchalanet`, `Résultats`, `Vérifier un ticket`, `Aide`, `Pour opérateurs`, `Connexion`
+  - mobile bottom nav payload if backend owns it: `Résultats`, `Vérifier`, `Aide`
+  - no `Profile`, private dashboard, admin, cashier, tenant-admin, `News`, `Draws`, `Results`, `Login`, or `Banque de Borlette`.
+- [ ] Keep `PublicPageModelResponse` shape stable unless there is a strong backend reason to change it:
+  - `currentLang`
+  - `langs`
+  - `pageModel`
+  - `dynamic`
+  - `dynamic.widgets[widgetId]` keyed by PageModel widget id.
+- [ ] Decide whether backend should expose `widget.id` inside each `content.widgets[widgetId]` object or keep the current dictionary-key identity. If it stays dictionary-key based, frontend will derive `id` from the key.
+- [ ] Add/align public V1 widget entries in PageModel seed/template:
+  - `HeroWidget`
+  - `TicketVerificationWidget` or current `CheckTicketWidget` with public-safe props
+  - `LatestResultsWidget` or current `PublicDrawResultsWidget` with public-safe props
+  - `HowItWorksWidget`
+  - `OperatorCtaWidget`
+  - `FooterWidget`/shell footer payload
+  - `RulesWidget` and `SimulationWidget` as empty/unavailable if full data is not ready.
+- [ ] Normalize backend action payloads enough for frontend mapping:
+  - internal destinations include `kind: "internal"` and public V1 `path`
+  - external destinations include `kind: "external"` and full URL
+  - anchor destinations include a stable id or path fragment if backend supports anchors
+  - avoid ambiguous raw href-only props.
+- [ ] Align public theme preset id:
+  - backend currently returns `theme.presetId = "tchalanet_default"`
+  - either change backend seed/runtime to `tchalanet`, or document/keep a frontend mapping from `tchalanet_default` to `tchalanet`.
+- [ ] Provide public-safe PageModel copy keys/payloads:
+  - no winner/gambling/direct-payout wording
+  - no certification/official/guarantee claims
+  - use safe wording such as `Sources prises en charge`, `Résultats confirmés`, `Vérification publique du ticket`, `Ticket vérifiable`.
+- [ ] Decide how backend statuses map to public result statuses:
+  - current draw payload includes statuses such as `PROVISIONAL`, `WAITING`, `FOUND`, `MISSING`, `COMPLETE`, `SUSPECT`
+  - frontend can map them to `CONFIRMED`, `PENDING`, `UNAVAILABLE`, but backend may expose public status directly if preferred.
+- [ ] For simulation/rules, expose only backend/API/PageModel-provided values:
+  - no frontend-hardcoded payouts, odds, multipliers, or pricing
+  - if missing, send or allow UI state `SIMULATION_UNAVAILABLE`
+  - message: `La simulation est temporairement indisponible pour ce jeu.`
+  - disclaimer must remain visible.
+- [ ] Remove or gate current public RSS/news payloads from V1 home if they conflict with safe wording or scope. Full news implementation can remain V1.5.
+- [ ] 2026-06-05 - `GET /api/v1/public/page-models/public.home?lang=fr` - backend may provide external/off-scope RSS items for `home.news`; frontend currently filters `source = EXTERNAL_RSS`, but backend should gate/remove it for V1 or replace it with safe public news payloads.
+- [ ] Add backend follow-up here when implementation finds a backend blocker: `[ ] <date> - <endpoint/payload> - <issue> - <expected backend change>`.
+
+## 6. Public Pages Remaining
+
+Frontend owner: implement as follow-up slices after V1 shell/design system is accepted. These pages should use the same public shell, typed widget contracts, i18n keys, safe wording, and PageModel-friendly composition.
+
+- [x] `/public` home V1 shell + PageModel renderer + public widgets first pass.
+- [x] `/public/check-ticket` V1 placeholder page with ticket verification form and safe wording.
+- [x] `/public/results` V1 placeholder page with empty/latest results state.
+- [x] `/public/results/:id` V1 placeholder route, currently mapped to the generic results page.
+- [x] `/public/rules` V1 placeholder page with simulation unavailable state and mandatory disclaimer.
+- [x] `/public/rules` V1 full public page with rules cards, simulation unavailable state, visible disclaimer, and Tchala references; backend-provided simulation/rules data remains a follow-up.
+- [x] `/public/help` V1 placeholder page with payment responsibility wording.
+- [x] `/public/contact` V1 placeholder page.
+- [x] `/public/privacy` V1 placeholder page.
+- [x] `/public/terms` V1 placeholder page.
+- [ ] Replace generic `PublicInfoPage` placeholders with page-specific PageModel-backed pages/containers where needed:
+  - [x] `PublicCheckTicketPage`
+  - [x] `PublicResultsPage`
+  - [x] `PublicResultDetailPage`
+  - `PublicHelpPage`
+  - `PublicContactPage`
+  - `PublicLegalPage`.
+- [x] Implement `/public/results` as a full mobile-first results page:
+  - card list, filters by source/game/slot if backend provides them;
+  - no dense mobile tables;
+  - confirmed/pending/unavailable status mapping;
+  - detail links to `/public/results/:id`.
+- [x] Implement `/public/results/:id` as a full result detail page:
+  - game/source name;
+  - draw date/time;
+  - status;
+  - numbers;
+  - source prise en charge;
+  - last update;
+  - CTA to verify ticket;
+  - related results if backend provides them.
+- [x] Implement `/public/check-ticket` as a full page/container flow:
+  - code input and QR scan affordance;
+  - explicit `VerificationStatus` result rendering;
+  - loading/error/not-found/service-unavailable states;
+  - no frontend direct payout claims.
+- [ ] Implement `/public/help` as a real FAQ page:
+  - sections: Vérification ticket, Résultats, Paiement, Problèmes courants, Contact;
+  - questions listed in spec;
+  - contact orientation.
+- [ ] Implement `/public/contact` as a real public contact/operator orientation page:
+  - point of sale/operator CTA;
+  - support/contact form or backend-backed contact destination when available;
+  - no private/admin links.
+- [ ] Implement `/public/privacy` and `/public/terms` with real legal content or backend Markdown/PageModel payloads.
+- [ ] Add V1.5 `/public/news` route and `NewsListWidget` once backend provides safe public news payloads.
+- [ ] Add V1.5 `/public/news/:slug` route and `NewsDetailWidget`/`RelatedNewsWidget`.
+- [ ] Add V1.5 `/public/operators` route for operator-focused CTA/demo content.
+- [ ] Add V1.5 `/public/status` route for public system status.
+- [ ] Add V1.5 `/public/games` route or alias strategy with `/public/rules`.
+- [ ] Replace current frontend RSS filtering workaround with backend-gated safe public news.
+- [ ] Add screenshot/browser validation for each completed public route at mobile and desktop breakpoints.

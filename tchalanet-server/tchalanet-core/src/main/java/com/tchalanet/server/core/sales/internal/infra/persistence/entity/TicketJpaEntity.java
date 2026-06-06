@@ -27,6 +27,7 @@ import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -120,10 +121,12 @@ public class TicketJpaEntity extends BaseTenantEntity {
     private UUID drawChannelId;
 
     /** Draw channel human name — resolved via sub-select for list projections. */
+    @NotAudited
     @Formula("(SELECT dc.name FROM draw_channel dc WHERE dc.id = draw_channel_id)")
     private String drawChannelName;
 
     /** Scheduled draw time — resolved via sub-select for list projections. */
+    @NotAudited
     @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")
     private java.time.Instant drawScheduledAt;
 

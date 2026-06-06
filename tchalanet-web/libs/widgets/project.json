@@ -1,0 +1,19 @@
+{
+  "name": "widgets",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/widgets/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:feature"],
+  "targets": {
+    "lint": { "executor": "@nx/eslint:lint" },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "buildTarget": "tch-portal:build:development",
+        "tsConfig": "libs/widgets/tsconfig.spec.json",
+        "watch": false
+      }
+    }
+  }
+}

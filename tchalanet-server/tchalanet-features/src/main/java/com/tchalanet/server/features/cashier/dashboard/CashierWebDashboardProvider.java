@@ -20,13 +20,13 @@ import org.springframework.stereotype.Component;
  *   - dashboard.cashier.identity
  *   - dashboard.cashier.session
  *   - dashboard.cashier.overview
- *   - dashboard.cashier.next_draws
- *   - dashboard.cashier.recent_tickets
- *   - dashboard.cashier.quick_sale
+ *   - dashboard.cashier.nextDraws
+ *   - dashboard.cashier.recentTickets
+ *   - dashboard.cashier.quickSale
  *   - dashboard.cashier.readiness  (operational context : ready, trusted, missing)
  *   - dashboard.cashier.alerts     (operational blockers + warnings)
  *   - dashboard.cashier.stats      (analytics KPIs for today, seller-scoped)
- *   - dashboard.cashier.offline_sync (offline/sync status placeholder)
+ *   - dashboard.cashier.offlineSync (offline/sync status placeholder)
  */
 @Component
 @RequiredArgsConstructor
@@ -59,13 +59,13 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.cashier.identity" -> payload.identity();
       case "dashboard.cashier.session" -> payload.session();
       case "dashboard.cashier.overview" -> payload.overview();
-      case "dashboard.cashier.next_draws" -> new ItemsPayload(payload.nextDraws());
-      case "dashboard.cashier.recent_tickets" -> new ItemsPayload(payload.recentTickets());
-      case "dashboard.cashier.quick_sale" -> QUICK_SALE;
+      case "dashboard.cashier.nextDraws" -> new ItemsPayload(payload.nextDraws());
+      case "dashboard.cashier.recentTickets" -> new ItemsPayload(payload.recentTickets());
+      case "dashboard.cashier.quickSale" -> QUICK_SALE;
       case "dashboard.cashier.readiness"    -> payload.readiness();
       case "dashboard.cashier.alerts"       -> payload.alerts();
       case "dashboard.cashier.stats"        -> payload.stats();
-      case "dashboard.cashier.offline_sync" -> payload.offlineSync();
+      case "dashboard.cashier.offlineSync" -> payload.offlineSync();
       default -> throw new PageModelDynamicProviderException(
           "CASHIER_DASHBOARD_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
@@ -79,7 +79,7 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
 
   /** Static payload for the quick-sale shortcut widget. */
   private static final QuickSalePayload QUICK_SALE =
-      new QuickSalePayload("SELL_TICKET", "cashier.quicksale.label", "/cashier/sell");
+      new QuickSalePayload("sellTicket", "cashier.quicksale.label", "/cashier/sell");
 
   /** Generic list wrapper — avoids raw Map for next_draws / recent_tickets dispatch. */
   record ItemsPayload(List<?> items) {}

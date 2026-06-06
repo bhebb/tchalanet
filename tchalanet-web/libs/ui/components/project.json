@@ -1,0 +1,15 @@
+{
+  "name": "ui-components",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/components/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:ui", "type:components"],
+  "targets": {
+    "lint": { "executor": "@nx/eslint:lint" },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "vitest run libs/ui/components/src" }
+    }
+  }
+}

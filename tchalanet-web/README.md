@@ -3,8 +3,7 @@
 Workspace frontend Nx/Angular de Tchalanet.
 
 La racine frontend est désormais `tchalanet-web/`.
-L’application principale s’appelle `tchalanet-portal` et vit dans
-`apps/tchalanet-portal/`.
+L’application principale s’appelle `tch-portal` et vit dans `apps/tch-portal/`.
 
 ## Commandes principales
 
@@ -12,16 +11,20 @@ Depuis `tchalanet-web/` :
 
 ```bash
 pnpm install
-pnpm nx lint tchalanet-portal
-pnpm nx test tchalanet-portal
-pnpm nx build tchalanet-portal
-pnpm nx serve tchalanet-portal
+pnpm nx lint tch-portal
+pnpm nx test tch-portal
+pnpm nx build tch-portal
+pnpm nx serve tch-portal
 ```
 
 ## Structure
 
-- `apps/tchalanet-portal/` — portail web principal multi-rôle
-- `apps/tchalanet-portal-e2e/` — tests end-to-end
+- `apps/tch-portal/` — portail web principal multi-rôle
+- `libs/api/` — contrats et infrastructure HTTP transverses
+- `libs/shared-config/` — settings runtime et feature flags
+- `libs/ui/theme/` — thème runtime, presets et application des tokens
+- `libs/ui/styles/` — primitives SCSS partagées et overrides globaux
+- `libs/ui/components/` — composants UI réutilisables
 - `libs/` — bibliothèques frontend partagées
 - `openspec/` — OpenSpec projet-local web
 - `docs/web/` — règles d’architecture frontend
@@ -32,6 +35,7 @@ pnpm nx serve tchalanet-portal
 **Important : Avant toute modification, lire :**
 
 - `docs/web/WEB_DEV_ARCHITECTURE.md` — conventions de développement, structure cible, checklist, commande Nx recommandée
+- `docs/ARCHITECTURE.md` — état actif et trajectoire d’extraction des libs
 - `docs/web/WEB_AGENTS.md` — règles pour agents IA (placement, interdits, tags Nx)
 - `docs/web/frontend-architecture-todo.md` — mapping détaillé, migration, rôles des libs
 
@@ -59,5 +63,5 @@ Autres documents :
 Tchalanet Web peut rester dans Nx, mais avec un découpage léger :
 
 - Les blocs transverses réutilisables peuvent être des libs Nx.
-- Les features spécifiques à `tchalanet-portal` peuvent rester dans `apps/tchalanet-portal/src/app/features` au début.
+- Les features spécifiques à `tch-portal` peuvent rester dans `apps/tch-portal/src/app/features` au début.
 - Les features sont extraites en libs Nx seulement quand elles deviennent grosses, partagées ou stratégiques.

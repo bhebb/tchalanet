@@ -30,9 +30,17 @@
     }
   },
   "common": {
+    "error": {
+      "title": "Erè"
+    },
     "disabled": "dezaktive",
     "enabled": "aktive",
     "loading": "Ap chaje…",
+    "notFound": {
+      "back": "Retounen akèy",
+      "message": "Nou pa jwenn paj ou mande a.",
+      "title": "Paj pa jwenn"
+    },
     "unknown": "Enkoni"
   },
   "dashboard": {
@@ -71,9 +79,10 @@
       "title": "Fonksyonalite"
     },
     "hero": {
-      "cta": "Konekte",
-      "subtitle": "Fallback lokal san override backend.",
-      "title": "Tchalanet Web"
+      "cta": "Kòmanse verifikasyon an",
+      "subtitle": "Tchalanet ede operatè yo jere tikè, tiraj, pwen vant ak verifikasyon piblik ak plis lisibilite.",
+      "tagline": "Verifikasyon piblik tikè",
+      "title": "Verifye tikè yo epi gade dènye tiraj yo."
     },
     "nav": {
       "check_ticket": "Tikè",
@@ -95,8 +104,22 @@
       "hero": "Hero",
       "news": "Nouvèl",
       "plans": "Plan",
-      "tchala": "Tchala"
+      "tchala": "Tchala",
+      "rules": "Règ yo"
     }
+  },
+  "footer": {
+    "check_ticket": "Verifikasyon tikè",
+    "results": "Rezilta",
+    "support": "Èd"
+  },
+  "legal": {
+    "privacy": "Konfidansyalite",
+    "terms": "Kondisyon itilizasyon"
+  },
+  "nav": {
+    "check_ticket": "Verifye yon tikè",
+    "results": "Rezilta"
   },
   "platform": {
     "onboarding": {
@@ -118,6 +141,62 @@
     }
   },
   "public": {
+    "footer": {
+      "description": "Enfrastrikti dijital pou jesyon pwofesyonèl tikè, tiraj ak operasyon lotri.",
+      "legal": {
+        "compliance": "Konfòmite",
+        "privacy": "Konfidansyalite",
+        "title": "Legal",
+        "terms": "Kondisyon itilizasyon"
+      },
+      "solutions": {
+        "check_ticket": "Verifikasyon tikè",
+        "operators": "Pou operatè",
+        "pos_management": "Jesyon pwen vant",
+        "title": "Solisyon"
+      },
+      "status": {
+        "operational": "Sistèm yo operasyonèl"
+      },
+      "support": {
+        "contact": "Kontak",
+        "help": "Èd",
+        "results": "Rezilta",
+        "rules": "Règ",
+        "status": "Eta sistèm nan",
+        "title": "Sipò"
+      }
+    },
+    "help": {
+      "payment_answer": "Tchalanet pèmèt ou konsilte estati tikè a. Peman, lè li aplikab, fèt selon enstriksyon pwen vant patisipan an.",
+      "payment_question": "Èske Tchalanet peye dirèkteman?",
+      "subtitle": "Repons sou verifikasyon tikè, rezilta, peman, ak pwoblèm komen.",
+      "title": "Èd"
+    },
+    "hero": {
+      "primary_action": "Kòmanse verifikasyon an",
+      "secondary_action": "Gade dènye tiraj yo"
+    },
+    "how": {
+      "description": "Yon chemen senp pou konsilte estati yon tikè epi swiv rezilta ki disponib.",
+      "step1": {
+        "text": "Resevwa yon tikè ak QR oswa kòd piblik ki soti nan yon pwen vant patisipan.",
+        "title": "Tikè verifyab"
+      },
+      "step2": {
+        "text": "Antre kòd piblik la oswa eskane QR la pou konsilte estati tikè a.",
+        "title": "Verifikasyon anliy"
+      },
+      "step3": {
+        "text": "Konsilte estati tikè a ak rezilta konfime selon sous ki sipòte yo.",
+        "title": "Estati ak rezilta"
+      },
+      "step4": {
+        "text": "Si tikè a peyab, swiv enstriksyon ki parèt yo pou kontakte pwen vant lan.",
+        "title": "Enstriksyon peman"
+      },
+      "title": "Kijan pou verifye yon tikè?"
+    },
     "home": {
       "demoFlag": "Flag demo",
       "loadError": "Pa kapab chaje paj piblik la.",
@@ -128,9 +207,257 @@
         "cashier": "Kesye",
         "platform": "Platfòm"
       },
+      "rules_link": {
+        "cta": "Gade règ ak Tchala",
+        "description": "Konsilte règ yo, estati similasyon an, ak repè Tchala yo sou yon paj dedye.",
+        "eyebrow": "Règ ak similasyon",
+        "title": "Yon paj pou konprann jwèt yo"
+      },
       "settings": "Paramèt",
       "subtitle": "Wout piblik la disponib san koneksyon.",
       "title": "Tchalanet Web"
+    },
+    "nav": {
+      "check_ticket": "Verifye yon tikè",
+      "help": "Èd",
+      "login": "Konekte",
+      "menu": "Louvri meni an",
+      "operators": "Pou operatè",
+      "results": "Rezilta",
+      "skip": "Ale nan kontni an",
+      "verify_short": "Verifye",
+      "home": "Akèy",
+      "rules": "Règ yo"
+    },
+    "operator": {
+      "access": "Aksè operatè",
+      "demo": "Mande yon demo",
+      "description": "Dekouvri kijan Tchalanet ka senplifye jesyon chak jou, swiv lavant yo pi byen, epi otomatize rapò aktivite yo.",
+      "title": "Èske ou jere yon pwen vant oswa yon rezo vandè?"
+    },
+    "check": {
+      "code_hint": "Fòma kòd la parèt anba resi enprime ou.",
+      "help_body": "Kòd piblik la enprime sou resi yon pwen vant patisipan bay. Ou ka antre li manyèlman oswa eskane QR la lè opsyon sa disponib.",
+      "help_title": "Kisa yon kòd piblik ye?",
+      "loading_body": "Konsiltasyon tanporè sèvis verifikasyon piblik la.",
+      "loading_title": "Verifikasyon tikè a ap fèt…",
+      "status": {
+        "INVALID_OR_CANCELLED": {
+          "body": "Tikè sa a pa ka verifye kòm peyab.",
+          "title": "Tikè envalid oswa anile"
+        },
+        "NOT_FOUND": {
+          "body": "Kòd la envalid oswa li pa jwenn. Verifye kòd la epi eseye ankò.",
+          "title": "Tikè pa jwenn"
+        },
+        "NOT_PAYABLE": {
+          "body": "Tikè sa a pa montre yon montan peyab selon rezilta ki disponib yo.",
+          "title": "Tikè pa peyab"
+        },
+        "PAYABLE": {
+          "body": "Si tikè a peyab, swiv enstriksyon ki parèt yo pou kontakte pwen vant lan. Toujou konsève resi orijinal la.",
+          "title": "Tikè peyab"
+        },
+        "PENDING_RESULT": {
+          "body": "Tikè a rekonèt, men rezilta tiraj la poko disponib.",
+          "title": "Tikè an atant rezilta"
+        },
+        "SERVICE_UNAVAILABLE": {
+          "body": "Verifikasyon an pa disponib tanporèman. Eseye ankò nan kèk moman.",
+          "title": "Sèvis tanporèman pa disponib"
+        }
+      },
+      "status_label": "Estati tikè a",
+      "verify_another": "Verifye yon lòt tikè",
+      "visual_badge": "Tikè verifyab"
+    },
+    "pages": {
+      "check-ticket": {
+        "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
+        "eyebrow": "Verifikasyon piblik tikè",
+        "title": "Verifye yon tikè"
+      },
+      "contact": {
+        "body": "Kontakte Tchalanet pou yon demo oswa oryantasyon operatè.",
+        "description": "Yon pwen kontak pou operatè, pwen vant, ak demann sipò piblik.",
+        "eyebrow": "Kontak",
+        "title": "Kontakte Tchalanet"
+      },
+      "help": {
+        "description": "Jwenn repons sou verifikasyon tikè, rezilta, peman, ak pwoblèm komen.",
+        "eyebrow": "Sipò",
+        "title": "Èd"
+      },
+      "privacy": {
+        "body": "Paj sa a ap prezante enfòmasyon konfidansyalite pou espas piblik Tchalanet yo.",
+        "description": "Enfòmasyon konfidansyalite pou sèvis piblik Tchalanet.",
+        "eyebrow": "Legal",
+        "title": "Konfidansyalite"
+      },
+      "results": {
+        "description": "Konsilte rezilta konfime selon sous ki sipòte yo.",
+        "eyebrow": "Rezilta konfime",
+        "title": "Rezilta"
+      },
+      "rules": {
+        "description": "Konsilte règ jwèt yo epi estime yon gain endikatif selon yon miz egzanp.",
+        "eyebrow": "Similasyon endikatif",
+        "title": "Règ jwèt ak similasyon"
+      },
+      "terms": {
+        "body": "Paj sa a ap prezante kondisyon itilizasyon pou espas piblik Tchalanet yo.",
+        "description": "Kondisyon itilizasyon sèvis piblik Tchalanet.",
+        "eyebrow": "Legal",
+        "title": "Kondisyon itilizasyon"
+      }
+    },
+    "results": {
+      "all": "Tout tiraj",
+      "detail": "Gade detay",
+      "detail_eyebrow": "Estati rezilta",
+      "detail_status": {
+        "CONFIRMED": {
+          "body": "Rezilta sa a disponib selon sous ki sipòte yo.",
+          "title": "Rezilta konfime"
+        },
+        "PENDING": {
+          "body": "Estati rezilta a an atant. Retounen pita pou konsilte enfòmasyon ki ajou.",
+          "title": "An atant"
+        },
+        "UNAVAILABLE": {
+          "body": "Rezilta a pa disponib tanporèman pou tiraj sa a.",
+          "title": "Pa disponib"
+        }
+      },
+      "draw_datetime": "Dat ak lè tiraj la",
+      "empty": "Pa gen rezilta disponib pou kounye a.",
+      "fallback": {
+        "draw_date": "20 me 2024",
+        "source": "Sous ki sipòte",
+        "updated_at": "20 me 2024 · 14:42"
+      },
+      "filters": {
+        "all": "Tout",
+        "aria": "Filtè rezilta",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "more": "Plis filtè",
+        "new_york": "New York"
+      },
+      "game": "Jwèt",
+      "latest_title": "Dènye tiraj",
+      "last_update": "Dènye mizajou",
+      "list": {
+        "accent_label": "Referans",
+        "clear_filters": "Efase filtè yo",
+        "empty_body": "Pa gen tiraj ki koresponn ak filtè ou chwazi a.",
+        "empty_title": "Pa gen rezilta jwenn",
+        "history": "Istorik",
+        "numbers_label": "Nimewo",
+        "pending_body": "Estati rezilta a an atant.",
+        "title": "Lis tiraj",
+        "today": "Jodi a",
+        "unavailable_body": "Rezilta tanporèman pa disponib.",
+        "updated": "Mizajou selon sous ki sipòte yo.",
+        "yesterday": "Yè"
+      },
+      "public_reference": "Referans piblik",
+      "receipt_note": "Rezilta afiche pou konsiltasyon piblik.",
+      "receipt_title": "Detay tiraj",
+      "related_title": "Rezilta ki gen rapò",
+      "status": {
+        "CONFIRMED": "Rezilta konfime",
+        "PENDING": "An atant",
+        "UNAVAILABLE": "Pa disponib"
+      },
+      "status_label": "Estati rezilta",
+      "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
+      "supported_source": "Sous ki sipòte",
+      "verify_ticket": "Verifye yon tikè"
+    },
+    "rules": {
+      "badge": "Endikatif",
+      "disclaimer": "Similasyon endikatif. Montan ki peyab la depann de tikè reyèl la, règ pwen vant lan, estati tiraj la, ak rezilta konfime yo. Similasyon sa a pa garanti peman.",
+      "games": {
+        "borlette": {
+          "body": "Chwazi yon nimewo de chif. Estati a depann de rezilta ki disponib pou tiraj konsène a.",
+          "detail1_label": "Premye lo",
+          "detail1_value": "Selon règ pwen vant lan",
+          "detail2_label": "Dezyèm lo",
+          "detail2_value": "Selon tikè reyèl la",
+          "detail3_label": "Twazyèm lo",
+          "detail3_value": "Selon tiraj konfime",
+          "title": "Borlette"
+        },
+        "eyebrow": "Règ piblik",
+        "lotto3": {
+          "body": "Chwazi twa chif. Verifikasyon an depann de tikè a, tiraj la, ak sous ki sipòte yo.",
+          "detail1_label": "Korespondans",
+          "detail1_value": "Règ backend bay",
+          "title": "Lotto 3"
+        },
+        "lotto4": {
+          "body": "Chwazi kat oswa senk chif selon jwèt ki disponib nan pwen vant patisipan an.",
+          "detail1_label": "Disponibilite",
+          "detail1_value": "Selon katalòg piblik",
+          "title": "Lotto 4 & 5"
+        },
+        "mariage": {
+          "body": "Asosye de nimewo. Kondisyon egzak yo dwe soti nan katalòg la oswa règ ki afiche yo.",
+          "detail1_label": "Asosyasyon",
+          "detail1_value": "De nimewo",
+          "detail2_label": "Evalyasyon",
+          "detail2_value": "Selon rezilta konfime",
+          "title": "Maryaj"
+        },
+        "title": "Règ jwèt yo"
+      },
+      "hero_caption": "Apèsi vizyèl piblik, san pwomès rezilta.",
+      "hero_image_alt": "Moun k ap konsilte yon sèvis mobil Tchalanet",
+      "simulation_backend_note": "Kalkil la ap aktive lè sèvis piblik la bay règ, limit, ak katalòg yo.",
+      "simulation_title": "Estimasyon gain endikatif",
+      "simulation_unavailable": "Similasyon an pa disponib tanporèman pou jwèt sa a.",
+      "subtitle": "Konsilte règ jwèt yo epi estime yon gain endikatif selon yon miz egzanp.",
+      "tchala": {
+        "empty": "Pa gen repè ki koresponn ak rechèch sa a.",
+        "entries": {
+          "dog": {
+            "description": "Repè kiltirèl ki lye ak vijilans, kay, ak relasyon pwòch.",
+            "term": "Chen"
+          },
+          "money": {
+            "description": "Repè kiltirèl ki asosye ak echanj, kont, ak resous.",
+            "term": "Lajan"
+          },
+          "travel": {
+            "description": "Repè kiltirèl ki lye ak deplasman, chanjman, ak demach.",
+            "term": "Vwayaj"
+          },
+          "water": {
+            "description": "Repè kiltirèl ki souvan lye ak mouvman, pasaj, ak renouvèlman.",
+            "term": "Dlo"
+          }
+        },
+        "eyebrow": "Tchala",
+        "jump_link": "Gade Tchala",
+        "numbers_label": "Nimewo ki asosye",
+        "search_label": "Chèche yon repè Tchala",
+        "search_placeholder": "Chèche dlo, chen, lajan…",
+        "subtitle": "Yon lis endikatif repè kiltirèl. Asosyasyon sa yo pa garanti okenn rezilta.",
+        "title": "Repè Tchala"
+      },
+      "verify_link": "Verifye yon tikè",
+      "title": "Règ jwèt ak similasyon"
+    },
+    "ticket": {
+      "code_label": "Kòd piblik tikè a",
+      "cta": "Verifye kounye a",
+      "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
+      "eyebrow": "Verifikasyon piblik tikè",
+      "help": "Ki kote pou jwenn kòd piblik la?",
+      "placeholder": "ABC-123-XYZ",
+      "scan_qr": "Eskane QR",
+      "title": "Verifye yon tikè"
     }
   },
   "widget": {

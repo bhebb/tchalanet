@@ -1,0 +1,25 @@
+@use 'sass:map';
+@use 'sass:math';
+@use 'sass:meta';
+
+@function strip-unit($value) {
+  @if meta.type-of($value) == 'number' and not math.is-unitless($value) {
+    @return math.div($value, $value * 0 + 1);
+  }
+  @return $value;
+}
+
+@function rem($value, $base: 16) {
+  @if math.unit($value) == 'rem' {
+    @return $value;
+  }
+  $n: if(math.is-unitless($value), $value, strip-unit($value));
+  @return math.div($n, $base) * 1rem;
+}
+
+@function tok($tokens, $key, $fallback: null) {
+  @if map.has-key($tokens, $key) {
+    @return map.get($tokens, $key);
+  }
+  @return $fallback;
+}

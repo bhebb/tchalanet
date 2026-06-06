@@ -1,0 +1,5 @@
+// Global Material harmonization belongs here. Keep component-specific overrides out.
+.mat-mdc-button-base:focus-visible {
+  outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentcolor;
+  outline-offset: var(--tch-focus-ring-offset, 2px);
+}

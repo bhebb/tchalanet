@@ -9,7 +9,7 @@
     "context": {},
     "leftActions": [
       {
-        "id": "TOGGLE_NAVIGATION_DRAWER",
+        "id": "toggleNavigationDrawer",
         "type": "action",
         "label_key": "nav.toggle_menu",
         "label": null,
@@ -25,7 +25,7 @@
     ],
     "actions": [
       {
-        "id": "OPEN_NOTIFICATIONS",
+        "id": "openNotifications",
         "type": "action",
         "label_key": "nav.notifications",
         "label": null,
@@ -39,7 +39,7 @@
         "confirm": null
       },
       {
-        "id": "CHANGE_LANGUAGE",
+        "id": "changeLanguage",
         "type": "action",
         "label_key": "nav.language",
         "label": null,
@@ -53,7 +53,7 @@
         "confirm": null
       },
       {
-        "id": "TOGGLE_THEME",
+        "id": "toggleTheme",
         "type": "action",
         "label_key": "nav.theme_toggle",
         "label": null,
@@ -130,7 +130,7 @@
   },
   "navigationDrawer": {
     "brand": {
-      "id": "platform-admin-brand",
+      "id": "platformAdminBrand",
       "label_key": "app.name",
       "label": null,
       "subtitle_key": "surface.platform_admin",
@@ -162,7 +162,7 @@
         "children": []
       },
       {
-        "id": "platform_overview",
+        "id": "platformOverview",
         "type": "destination",
         "label_key": "nav.platform_overview",
         "label": null,
@@ -199,7 +199,7 @@
             "children": []
           },
           {
-            "id": "tenant_onboarding",
+            "id": "tenantOnboarding",
             "type": "destination",
             "label_key": "nav.tenant_onboarding",
             "label": null,
@@ -231,12 +231,12 @@
         ]
       },
       {
-        "id": "global_configuration",
+        "id": "globalConfiguration",
         "label_key": "nav.section.global_configuration",
         "label": null,
         "items": [
           {
-            "id": "global_settings",
+            "id": "globalSettings",
             "type": "destination",
             "label_key": "nav.global_settings",
             "label": null,
@@ -251,7 +251,7 @@
             "children": []
           },
           {
-            "id": "global_translations",
+            "id": "globalTranslations",
             "type": "destination",
             "label_key": "nav.global_translations",
             "label": null,
@@ -266,7 +266,7 @@
             "children": []
           },
           {
-            "id": "theme_presets",
+            "id": "themePresets",
             "type": "destination",
             "label_key": "nav.theme_presets",
             "label": null,
@@ -296,7 +296,7 @@
             "children": []
           },
           {
-            "id": "global_draw_channels",
+            "id": "globalDrawChannels",
             "type": "destination",
             "label_key": "nav.global_draw_channels",
             "label": null,
@@ -318,7 +318,7 @@
         "label": null,
         "items": [
           {
-            "id": "platform_health",
+            "id": "platformHealth",
             "type": "destination",
             "label_key": "nav.platform_health",
             "label": null,
@@ -333,7 +333,7 @@
             "children": []
           },
           {
-            "id": "jobs_schedulers",
+            "id": "jobsSchedulers",
             "type": "destination",
             "label_key": "nav.jobs_schedulers",
             "label": null,
@@ -400,7 +400,7 @@
         "label": null,
         "items": [
           {
-            "id": "platform_reports",
+            "id": "platformReports",
             "type": "destination",
             "label_key": "nav.platform_reports",
             "label": null,
@@ -419,7 +419,7 @@
     ],
     "footerDestinations": [
       {
-        "id": "release_notes",
+        "id": "releaseNotes",
         "type": "destination",
         "label_key": "footer.release_notes",
         "label": null,

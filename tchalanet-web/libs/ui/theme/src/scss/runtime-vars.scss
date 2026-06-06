@@ -1,0 +1,114 @@
+/* runtime-vars.scss
+   Bridges Material 3 system tokens (--mat-sys-*, emitted per preset) to the validated --tch-*
+   tokens that Tchalanet components consume. Preset-agnostic: one mapping serves every preset, so
+   presets only need to emit --mat-sys-* + their brand "-base" tokens. */
+
+.tch-theme {
+  /* Validated component-facing token set (see docs/conventions/theme.md). */
+  --tch-color-background: var(--mat-sys-background);
+  --tch-color-on-background: var(--mat-sys-on-background, var(--mat-sys-on-surface));
+  --tch-color-foreground: var(--mat-sys-on-surface);
+  --tch-color-primary: var(--mat-sys-primary);
+  --tch-color-primary-strong: var(--mat-sys-primary-container);
+  --tch-color-primary-contrast: var(--mat-sys-on-primary);
+  --tch-color-on-primary: var(--mat-sys-on-primary);
+  --tch-color-primary-container: var(--mat-sys-primary-container);
+  --tch-color-on-primary-container: var(--mat-sys-on-primary-container);
+  --tch-color-primary-fixed: var(--mat-sys-primary-fixed);
+  --tch-color-primary-fixed-dim: var(--mat-sys-primary-fixed-dim);
+  --tch-color-on-primary-fixed: var(--mat-sys-on-primary-fixed);
+  --tch-color-on-primary-fixed-variant: var(--mat-sys-on-primary-fixed-variant);
+  --tch-color-secondary: var(--mat-sys-secondary);
+  --tch-color-on-secondary: var(--mat-sys-on-secondary);
+  --tch-color-secondary-container: var(--mat-sys-secondary-container);
+  --tch-color-on-secondary-container: var(--mat-sys-on-secondary-container);
+  --tch-color-secondary-fixed: var(--mat-sys-secondary-fixed);
+  --tch-color-secondary-fixed-dim: var(--mat-sys-secondary-fixed-dim);
+  --tch-color-surface: var(--mat-sys-surface);
+  --tch-color-surface-bright: var(--mat-sys-surface-bright, var(--mat-sys-surface));
+  --tch-color-surface-container-lowest: var(--mat-sys-surface-container-lowest);
+  --tch-color-surface-container-low: var(--mat-sys-surface-container-low);
+  --tch-color-surface-container: var(--mat-sys-surface-container);
+  --tch-color-surface-container-high: var(--mat-sys-surface-container-high);
+  --tch-color-surface-container-highest: var(--mat-sys-surface-container-highest);
+  --tch-color-surface-variant: var(--mat-sys-surface-variant);
+  --tch-color-surface-tonal: var(--mat-sys-surface-container);
+  --tch-color-on-surface: var(--mat-sys-on-surface);
+  --tch-color-on-surface-variant: var(--mat-sys-on-surface-variant);
+  --tch-color-surface-muted: var(--mat-sys-surface-container, var(--mat-sys-surface-variant));
+  --tch-color-outline: var(--mat-sys-outline);
+  --tch-color-outline-variant: var(--mat-sys-outline-variant);
+  --tch-color-error: var(--mat-sys-error);
+  --tch-color-on-error: var(--mat-sys-on-error);
+  --tch-color-error-container: var(--mat-sys-error-container);
+  --tch-color-on-error-container: var(--mat-sys-on-error-container);
+  --tch-color-status-ready: #10b981;
+  --tch-color-status-warning: #f59e0b;
+  --tch-color-status-blocked: #dc2626;
+  --tch-color-status-missing: #64748b;
+  --tch-color-orange-accent: #f7931e;
+
+  /* Brand tokens consumed by shell/header/footer/CTA. */
+  --tch-header-bg: var(--tch-header-bg-base);
+  --tch-header-fg: var(--tch-header-fg-base);
+  --tch-footer-bg: var(--tch-footer-bg-base);
+  --tch-footer-fg: var(--tch-footer-fg-base);
+  --tch-color-accent: var(--tch-accent-bg-base);
+  --tch-on-color-accent: var(--tch-accent-fg-base);
+}
+
+.tch-theme:not(.dark)[data-preset='tchalanet'] {
+  --tch-color-background: #f9f9fc;
+  --tch-color-on-background: #1a1c1e;
+  --tch-color-foreground: #1a1c1e;
+  --tch-color-surface: #f9f9fc;
+  --tch-color-surface-bright: #f9f9fc;
+  --tch-color-surface-container-lowest: #ffffff;
+  --tch-color-surface-container-low: #f3f3f6;
+  --tch-color-surface-container: #edeef1;
+  --tch-color-surface-container-high: #e8e8eb;
+  --tch-color-surface-container-highest: #e2e2e5;
+  --tch-color-surface-variant: #e2e2e5;
+  --tch-color-surface-tonal: #ebebf5;
+  --tch-color-on-surface: #1a1c1e;
+  --tch-color-on-surface-variant: #464652;
+  --tch-color-surface-muted: #edeef1;
+  --tch-color-outline: #777683;
+  --tch-color-outline-variant: #c7c5d4;
+  --tch-color-primary: #1a1b4b;
+  --tch-color-primary-strong: #15157d;
+  --tch-color-primary-contrast: #ffffff;
+  --tch-color-on-primary: #ffffff;
+  --tch-color-primary-container: #2e3192;
+  --tch-color-on-primary-container: #e1e0ff;
+  --tch-color-primary-fixed: #e1e0ff;
+  --tch-color-primary-fixed-dim: #c0c1ff;
+  --tch-color-on-primary-fixed: #04006d;
+  --tch-color-on-primary-fixed-variant: #373a9b;
+  --tch-color-secondary: #745b00;
+  --tch-color-on-secondary: #ffffff;
+  --tch-color-secondary-container: #fecb00;
+  --tch-color-on-secondary-container: #241a00;
+  --tch-color-secondary-fixed: #ffe08b;
+  --tch-color-secondary-fixed-dim: #f1c100;
+  --tch-color-error: #ba1a1a;
+  --tch-color-on-error: #ffffff;
+  --tch-color-error-container: #ffdad6;
+  --tch-color-on-error-container: #93000a;
+  --tch-header-bg: #1a1b4b;
+  --tch-header-fg: #ffffff;
+  --tch-footer-bg: #1a1b4b;
+  --tch-footer-fg: #ffffff;
+  --tch-color-accent: #fecb00;
+  --tch-on-color-accent: #241a00;
+}
+
+/* Dark post-processing: darken the brand header/footer so a vivid primary stays legible in dark,
+   and force a high-contrast foreground. M3 surface/primary tokens already adapt via the dark
+   preset; this only tunes the brand chrome layer. */
+.tch-theme.dark {
+  --tch-header-bg: color-mix(in oklab, var(--tch-header-bg-base) 70%, var(--tch-darken-base) 30%);
+  --tch-header-fg: var(--tch-dark-fg);
+  --tch-footer-bg: color-mix(in oklab, var(--tch-footer-bg-base) 70%, var(--tch-darken-base) 30%);
+  --tch-footer-fg: var(--tch-dark-fg);
+}

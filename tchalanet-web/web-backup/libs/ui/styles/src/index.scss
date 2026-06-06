@@ -1,13 +1,9 @@
 @use '@angular/material' as mat;
-@use '../../theme/src/lib/scss/runtime-root' as *;
-@use '../../theme/src/lib/scss/runtime-vars' as *;
 @use './lib/tokens';
 @use './lib/typography';
 @use './lib/mixins';
 @use './lib/utilities';
 @use './lib/primitives/index';
-@use './lib/components/header';
-@use './lib/components/footer';
 @use './lib/overlay';
 
 /* Puis seulement les @include qui émettent du CSS */

@@ -1,15 +1,15 @@
 {
   "code": "private.dashboard.tenant_admin",
-  "logical_id": "private.dashboard.tenant_admin",
+  "logicalId": "private.dashboard.tenant_admin",
   "scope": "private",
   "slug": "dashboard",
   "name": "Tenant admin dashboard",
   "label": "tenant admin dashboard",
-  "schema_version": 2,
+  "schemaVersion": 2,
   "schema": {},
-  "is_default": true,
+  "isDefault": true,
   "level": "GLOBAL",
-  "tenant_id": null,
+  "tenantId": null,
   "description": "Tenant admin dashboard V1: tenant KPIs, readiness, alerts, operations summary, commercial summary and quick actions.",
   "model": {
     "meta": {
@@ -17,13 +17,13 @@
       "scope": "private",
       "slug": "dashboard",
       "context": "private_dashboard_tenant_admin",
-      "schema_version": 2,
+      "schemaVersion": 2,
       "langs": [
         "fr",
         "en",
         "ht"
       ],
-      "default_lang": "fr"
+      "defaultLang": "fr"
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -31,15 +31,13 @@
       "density": 0
     },
     "shell": {
-      "header": {
-        "component": "PrivateShell",
-        "binding": {
-          "mode": "dynamic",
-          "source": "json_file"
-        },
-        "props": {
-          "file_key": "private_shell_tenant_admin"
-        }
+      "component": "PrivateShell",
+      "binding": {
+        "mode": "dynamic",
+        "source": "jsonFile"
+      },
+      "props": {
+        "fileKey": "private_shell_tenant_admin"
       }
     },
     "content": {
@@ -48,62 +46,62 @@
         "rows": [
           {
             "id": "header",
-            "label_key": "layout.dashboard.tenant_admin.header",
+            "labelKey": "layout.dashboard.tenant_admin.header",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.header"
+                  "dashboard.tenantAdmin.header"
                 ]
               }
             ]
           },
           {
             "id": "kpis",
-            "label_key": "layout.dashboard.tenant_admin.kpis",
+            "labelKey": "layout.dashboard.tenant_admin.kpis",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.kpis"
+                  "dashboard.tenantAdmin.kpis"
                 ]
               }
             ]
           },
           {
-            "id": "readiness_alerts",
-            "label_key": "layout.dashboard.tenant_admin.readiness_alerts",
+            "id": "readinessAlerts",
+            "labelKey": "layout.dashboard.tenant_admin.readiness_alerts",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.readiness",
-                  "dashboard.tenant_admin.alerts"
+                  "dashboard.tenantAdmin.readiness",
+                  "dashboard.tenantAdmin.alerts"
                 ]
               }
             ]
           },
           {
             "id": "summaries",
-            "label_key": "layout.dashboard.tenant_admin.summaries",
+            "labelKey": "layout.dashboard.tenant_admin.summaries",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.operations",
-                  "dashboard.tenant_admin.commercial"
+                  "dashboard.tenantAdmin.operations",
+                  "dashboard.tenantAdmin.commercial"
                 ]
               }
             ]
           },
           {
-            "id": "quick_actions",
-            "label_key": "layout.dashboard.tenant_admin.quick_actions",
+            "id": "quickActions",
+            "labelKey": "layout.dashboard.tenant_admin.quick_actions",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "dashboard.tenant_admin.quick_actions"
+                  "dashboard.tenantAdmin.quickActions"
                 ]
               }
             ]
@@ -111,7 +109,17 @@
         ]
       },
       "widgets": {
-        "dashboard.tenant_admin.kpis": {
+        "dashboard.tenantAdmin.header": {
+          "type": "TenantDashboardHeaderWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.tenant_admin.header.title"
+          }
+        },
+        "dashboard.tenantAdmin.kpis": {
           "type": "KpiGridWidget",
           "binding": {
             "mode": "dynamic",
@@ -125,58 +133,32 @@
               "openDraws",
               "pendingApprovals"
             ],
-            "title_key": "dashboard.tenant_admin.kpis.title"
+            "titleKey": "dashboard.tenant_admin.kpis.title"
           }
         },
-        "dashboard.tenant_admin.alerts": {
-          "type": "AlertsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "max_items": 5,
-            "title_key": "dashboard.tenant_admin.alerts.title"
-          }
-        },
-        "dashboard.tenant_admin.header": {
-          "type": "TenantDashboardHeaderWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "title_key": "dashboard.tenant_admin.header.title"
-          }
-        },
-        "dashboard.tenant_admin.readiness": {
+        "dashboard.tenantAdmin.readiness": {
           "type": "ReadinessSummaryWidget",
           "binding": {
             "mode": "dynamic",
             "source": "tenant_admin_dashboard"
           },
           "props": {
-            "title_key": "dashboard.tenant_admin.readiness.title",
-            "max_issues": 4
+            "titleKey": "dashboard.tenant_admin.readiness.title",
+            "maxIssues": 4
           }
         },
-        "dashboard.tenant_admin.commercial": {
-          "type": "CommercialSummaryWidget",
+        "dashboard.tenantAdmin.alerts": {
+          "type": "AlertsWidget",
           "binding": {
             "mode": "dynamic",
             "source": "tenant_admin_dashboard"
           },
           "props": {
-            "sections": [
-              "gamesPricing",
-              "drawChannels",
-              "limits",
-              "promotions"
-            ],
-            "title_key": "dashboard.tenant_admin.commercial.title"
+            "maxItems": 5,
+            "titleKey": "dashboard.tenant_admin.alerts.title"
           }
         },
-        "dashboard.tenant_admin.operations": {
+        "dashboard.tenantAdmin.operations": {
           "type": "OperationsSummaryWidget",
           "binding": {
             "mode": "dynamic",
@@ -189,17 +171,33 @@
               "terminals",
               "sessions"
             ],
-            "title_key": "dashboard.tenant_admin.operations.title"
+            "titleKey": "dashboard.tenant_admin.operations.title"
           }
         },
-        "dashboard.tenant_admin.quick_actions": {
+        "dashboard.tenantAdmin.commercial": {
+          "type": "CommercialSummaryWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
+          },
+          "props": {
+            "sections": [
+              "gamesPricing",
+              "drawChannels",
+              "limits",
+              "promotions"
+            ],
+            "titleKey": "dashboard.tenant_admin.commercial.title"
+          }
+        },
+        "dashboard.tenantAdmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
             "mode": "dynamic",
             "source": "tenant_admin_dashboard"
           },
           "props": {
-            "title_key": "dashboard.tenant_admin.quick_actions.title"
+            "titleKey": "dashboard.tenant_admin.quick_actions.title"
           }
         }
       }

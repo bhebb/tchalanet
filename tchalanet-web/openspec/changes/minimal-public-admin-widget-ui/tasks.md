@@ -42,7 +42,7 @@
 ## 2. Public widget renderer
 
 - [x] Rebuilt renderer in `features/pagemodel/` (`PageModelComponent` + `WidgetHostComponent` +
-      light `PageShellComponent` header/footer), retargeted to `PageModelDoc` and the PR1 foundation
+      light `PublicShellComponent` header/footer), retargeted to `PageModelDoc` and the PR1 foundation
       (mono-app `tch-portal`; web-backup libs used as inspiration only, not copied).
 - [x] V1 supported widgets: `HeroWidget`, `NewsTickerWidget`, `FeatureGridWidget`, `PlansWidget`
       (+ shell). `PublicDrawResultsWidget`/`CheckTicketWidget`/`TchalaSearchWidget` → fallback.

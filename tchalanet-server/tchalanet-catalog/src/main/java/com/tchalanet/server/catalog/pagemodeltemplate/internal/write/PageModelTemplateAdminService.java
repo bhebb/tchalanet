@@ -43,7 +43,7 @@ public class PageModelTemplateAdminService {
         // enforce unique logicalId among non-deleted rows
         repository.findFirstByLogicalIdAndDeletedAtIsNull(view.logicalId())
             .ifPresent(x -> {
-                throw ProblemRest.conflict("page_model_template.logical_id" + view.logicalId());
+                throw ProblemRest.conflict("page_model_template.logicalId" + view.logicalId());
             });
 
         PageModelTemplateEntity e = new PageModelTemplateEntity();
@@ -67,7 +67,7 @@ public class PageModelTemplateAdminService {
         if (view.logicalId() != null && !view.logicalId().equals(existing.getLogicalId())) {
             repository.findFirstByLogicalIdAndDeletedAtIsNull(view.logicalId())
                 .ifPresent(x -> {
-                    throw ProblemRest.conflict("page_model_template.logical_id" + view.logicalId());
+                    throw ProblemRest.conflict("page_model_template.logicalId" + view.logicalId());
                 });
         }
 
@@ -197,7 +197,7 @@ public class PageModelTemplateAdminService {
 
         repository.findFirstByLogicalIdAndDeletedAtIsNull(targetLogicalId)
             .ifPresent(x -> {
-                throw ProblemRest.conflict("page_model_template.logical_id " + targetLogicalId);
+                throw ProblemRest.conflict("page_model_template.logicalId " + targetLogicalId);
             });
 
         var copy = createNewModelTemplateEntity(targetCode, targetLogicalId, source);

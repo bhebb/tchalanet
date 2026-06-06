@@ -1,0 +1,22 @@
+<svg width="420" height="560" viewBox="0 0 420 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="560" rx="36" fill="#F9F9FC"/>
+  <path d="M0 46C22 46 22 18 44 18C66 18 66 46 88 46C110 46 110 18 132 18C154 18 154 46 176 46C198 46 198 18 220 18C242 18 242 46 264 46C286 46 286 18 308 18C330 18 330 46 352 46C374 46 374 18 396 18C408 18 414 26 420 34V524C414 532 408 540 396 540C374 540 374 512 352 512C330 512 330 540 308 540C286 540 286 512 264 512C242 512 242 540 220 540C198 540 198 512 176 512C154 512 154 540 132 540C110 540 110 512 88 512C66 512 66 540 44 540C22 540 22 512 0 512V46Z" fill="white"/>
+  <rect x="38" y="54" width="344" height="452" rx="20" fill="#FFFFFF" stroke="#C7C5D4" stroke-width="2"/>
+  <image href="/assets/brand/tchalanet-logo.svg" x="62" y="78" width="190" height="48"/>
+  <rect x="62" y="148" width="296" height="1.5" fill="#C7C5D4"/>
+  <text x="62" y="182" fill="#464652" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="700">Ticket vérifiable</text>
+  <text x="62" y="214" fill="#1A1C1E" font-family="JetBrains Mono, monospace" font-size="28" font-weight="700" letter-spacing="2">ABC-123-XYZ</text>
+  <rect x="62" y="242" width="296" height="104" rx="14" fill="#EBEBF5"/>
+  <text x="82" y="278" fill="#464652" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="700">Statut</text>
+  <rect x="82" y="296" width="156" height="30" rx="15" fill="#FECB00"/>
+  <text x="100" y="317" fill="#241A00" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="800">En attente</text>
+  <rect x="62" y="372" width="70" height="70" rx="10" fill="#1A1B4B"/>
+  <rect x="78" y="388" width="12" height="12" fill="#FFFFFF"/>
+  <rect x="98" y="388" width="18" height="12" fill="#FFFFFF"/>
+  <rect x="78" y="408" width="18" height="18" fill="#FFFFFF"/>
+  <rect x="106" y="416" width="10" height="10" fill="#FFFFFF"/>
+  <rect x="152" y="378" width="206" height="10" rx="5" fill="#E2E2E5"/>
+  <rect x="152" y="402" width="172" height="10" rx="5" fill="#E2E2E5"/>
+  <rect x="152" y="426" width="128" height="10" rx="5" fill="#E2E2E5"/>
+  <text x="62" y="474" fill="#777683" font-family="Plus Jakarta Sans, sans-serif" font-size="12" font-weight="600">Conservez toujours le reçu original.</text>
+</svg>

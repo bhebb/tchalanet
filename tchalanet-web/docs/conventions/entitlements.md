@@ -17,7 +17,20 @@ Entitlements are **not** feature flags. See [`feature-flags.md`](./feature-flags
 
 ```text
 apps/tch-portal/src/app/core/entitlement/   // EntitlementsStore
+libs/shared-config/src/lib/settings/        // private settings source
 ```
+
+## Runtime Path
+
+There is currently no dedicated entitlement endpoint. Exported UI entitlements are boolean values
+under `entitlement.*`, loaded through:
+
+```http
+GET /api/v1/tenant/settings/resolve
+```
+
+The path is owned by `API_PATHS.settings.tenantResolve` in `@tch/shared-config`. A future dedicated
+entitlement endpoint may replace the store source, but must not change feature call sites.
 
 ## API
 

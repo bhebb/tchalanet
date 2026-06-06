@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Typed contract for a QuickActionsWidget payload.
- * Uses {@code ActionItem} records (typed {@code labelKey} + {@code path}).
+ * Uses {@code ActionItem} records (typed {@code labelKey} + {@code destination}).
  */
 public record QuickActionsPayload(List<ActionItem> actions) {
 

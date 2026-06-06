@@ -17,7 +17,7 @@ import java.util.Set;
 public final class WidgetRegistry {
 
   public static final Set<String> ALLOWED_SOURCES_V1 = Set.of(
-      "json_file",
+      "jsonFile",
       "public_home",
       "public_draw_results",
       "tenant_admin_dashboard",

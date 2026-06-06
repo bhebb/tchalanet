@@ -14,6 +14,7 @@ Backend contracts consumed by this slice SHALL be documented and tested in a way
 ### Requirement: Backend public widget page payload is reused
 
 The web slice SHALL reuse the existing backend public page payload endpoint.
+The backend payload SHALL include stable widget ids/types, translation keys, theme-compatible configuration, and contained widget errors when applicable.
 
 #### Scenario: Anonymous user loads public page
 
@@ -24,6 +25,16 @@ The web slice SHALL reuse the existing backend public page payload endpoint.
 
 - **WHEN** one public widget provider fails
 - **THEN** the backend returns a contained widget error for that widget and does not fail the whole page when the remaining page can still render
+
+#### Scenario: Translation value is not resolved
+
+- **WHEN** a widget has a title, label, or description key without a resolved value
+- **THEN** the backend still returns the key/fallback contract so the frontend can render directly
+
+#### Scenario: Widget payload is cacheable
+
+- **WHEN** the backend caches a PageModel/template payload
+- **THEN** the cache is only an optimization and does not decide action authorization or mutation validity
 
 ### Requirement: SUPER_ADMIN tenant provisioning is reused
 

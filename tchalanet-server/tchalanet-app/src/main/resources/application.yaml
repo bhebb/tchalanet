@@ -58,7 +58,10 @@ tch:
       key: news
       cacheName: news
     refresh:
-      cron: "0 0 * * * *"
+#      cron: "0 0 * * * *"
+      cron: "0 */5 * * * *"
+    provider:
+      url: ${TCH_NEWS_PROVIDER_URL:https://lotterydaily.com/feed/}
 
   sales:
     tickets:

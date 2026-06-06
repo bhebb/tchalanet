@@ -1,10 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { ThemeStore } from '@tch/ui/theme';
 
 import { AuthSessionService } from '../auth/auth-session.service';
-import { FeatureFlags } from '../feature';
+import { FeatureFlags } from '@tch/shared-config';
 import { I18nFacade } from '../i18n';
-import { RuntimeSettingsStore } from '../settings';
-import { ThemeRuntimeStore } from '../theme';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 
 type RuntimeBootstrapState = 'idle' | 'loading' | 'ready' | 'error';
 type RuntimeBootstrapScope = 'none' | 'public' | 'private';
@@ -15,7 +15,7 @@ export class AppRuntimeStore {
   private readonly i18n = inject(I18nFacade);
   private readonly settings = inject(RuntimeSettingsStore);
   private readonly features = inject(FeatureFlags);
-  private readonly theme = inject(ThemeRuntimeStore);
+  private readonly theme = inject(ThemeStore);
   private readonly bootstrapState = signal<RuntimeBootstrapState>('idle');
   private readonly bootstrapScope = signal<RuntimeBootstrapScope>('none');
   private readonly bootstrapError = signal<unknown | null>(null);
@@ -72,7 +72,7 @@ export class AppRuntimeStore {
     this.theme.init();
     void this.auth
       .refreshSession()
-      .then((session) => {
+      .then(session => {
         if (session.authenticated) {
           this.theme.loadPrivateTheme();
           this.settings.loadPrivateSettings();

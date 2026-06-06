@@ -55,7 +55,7 @@ Rules:
 
 - full width;
 - largest button/action card;
-- blue primary;
+- primary role;
 - large ticket icon;
 - uppercase allowed;
 - must be immediately visible without scrolling.
@@ -70,7 +70,7 @@ PAYER GAGNANT
 Rules:
 
 - two-column grid;
-- secondary/purple acceptable;
+- secondary/action accent role acceptable;
 - must be smaller than `VENDRE TICKET`;
 - `PAYER GAGNANT` is a sensitive financial operation and may later get a financial variant.
 

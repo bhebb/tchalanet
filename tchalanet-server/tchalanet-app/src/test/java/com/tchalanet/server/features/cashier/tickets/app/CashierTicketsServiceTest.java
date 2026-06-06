@@ -34,6 +34,8 @@ import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
 import com.tchalanet.server.features.cashier.tickets.mapper.CashierTicketMapper;
 import com.tchalanet.server.features.cashier.tickets.model.CashierAction;
@@ -57,10 +59,11 @@ class CashierTicketsServiceTest {
     private final SellerOperationalContextResolver sellerContextResolver =
         mock(SellerOperationalContextResolver.class);
     private final CashierTicketMapper mapper = mock(CashierTicketMapper.class);
+    private final TicketPrintReaderPort port = mock(TicketPrintReaderPort.class);
     private final TicketScanResolver ticketScanResolver = new TicketScanResolver();
 
     private final CashierTicketsService service = new CashierTicketsService(
-        queryBus, commandBus, sellerContextResolver, mapper, ticketScanResolver);
+        queryBus, commandBus, sellerContextResolver, mapper, ticketScanResolver, port);
 
     private final TenantId tenantId = TenantId.of(UUID.randomUUID());
     private final UserId userId = UserId.of(UUID.randomUUID());

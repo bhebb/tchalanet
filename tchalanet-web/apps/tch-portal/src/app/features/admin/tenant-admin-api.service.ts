@@ -2,8 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 
-import { ApiResponse } from '../../shared/types';
-import { unwrapApiResponse } from '../../core/http';
+import { ApiResponse, unwrapApiResponse } from '@tch/api';
 
 /**
  * Mirror of backend admin `CreateUserRequest`. The tenant is resolved server-side from request

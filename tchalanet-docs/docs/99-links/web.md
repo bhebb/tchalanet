@@ -8,8 +8,11 @@ Web documentation remains canonical near Angular/Nx code.
 | ----------------------- | -------------------------------------- |
 | Web agent/context rules | `tchalanet-web/AGENTS.md`              |
 | App overview            | `tchalanet-web/README.md`              |
-| UI/widget rendering     | `tchalanet-web/libs/ui/widget-renderer/README.md` |
-| Theme/tokens            | `tchalanet-web/libs/ui/styles/src/lib/theme-help.md` |
+| Architecture            | `tchalanet-web/docs/ARCHITECTURE.md`   |
+| Theme convention        | `tchalanet-web/docs/conventions/theme.md` |
+| Runtime theme           | `tchalanet-web/libs/ui/theme/src/lib/README.md` |
+| Shared styles           | `tchalanet-web/libs/ui/styles/src/lib/README.md` |
+| Shared UI components    | `tchalanet-web/libs/ui/components/README.md` |
 | Feature/lib docs        | `tchalanet-web/libs/**/README.md`      |
 | Web OpenSpec            | `tchalanet-web/openspec/`              |
 
@@ -19,8 +22,8 @@ Web documentation remains canonical near Angular/Nx code.
 - `tchalanet-web/CLAUDE.md`
 - `tchalanet-web/AGENTS.md`
 - `tchalanet-web/openspec/`
-- `tchalanet-web/libs/ui/styles/src/lib/theme-help.md`
-- `tchalanet-web/libs/ui/widget-renderer/README.md`
-- `tchalanet-web/libs/web/**/README.md`
+- `tchalanet-web/docs/ARCHITECTURE.md`
+- `tchalanet-web/docs/conventions/theme.md`
+- `tchalanet-web/libs/ui/{theme,styles,components}/`
 
 MkDocs should link to these files and keep only curated summaries.

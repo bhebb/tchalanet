@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { EntitlementsStore } from '../entitlement';
-import { FeatureFlags } from '../feature';
+import { FeatureFlags } from '@tch/shared-config';
 import { AccessService } from './access.service';
 
 describe('AccessService', () => {

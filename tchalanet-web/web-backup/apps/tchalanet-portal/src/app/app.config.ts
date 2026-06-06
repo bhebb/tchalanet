@@ -15,7 +15,6 @@ import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
 import { PageEffects, pageFeature } from '@tchl/data-access/page';
 import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
 import { LocalStorageSecurityService } from '@tchl/shared/auth';
-import { THEME_INIT_PROVIDER } from '@tchl/ui/theme';
 import { I18nMergerService, MergedTranslateLoader, MergedTranslateLoaderOptions } from '@tchl/utils/i18n';
 import { provideBuiltinWidgets } from '@tchl/web/widgets';
 
@@ -106,9 +105,6 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: AbstractSecurityStorage, useClass: LocalStorageSecurityService },
     provideBuiltinWidgets(),
-    // removed APP_INITIALIZER authInitializer to prevent bootstrap blocking
-    THEME_INIT_PROVIDER,
-
     provideMarkdown(),
     //features
     { provide: FEATURE_INITIAL, useValue: [] },

@@ -7,18 +7,16 @@ import { navAfterLoadFeature } from '@tchl/data-access/page';
 import { SessionEffects, sessionFeature } from '@tchl/data-access/session';
 import { AuthCallbackComponent, AuthLoginComponent, authGuard } from '@tchl/shared/auth';
 import { HomePublicPage } from '@tchl/web/feature-home-public';
-import { PUBLIC_ROUTES, PublicShellComponent } from '@tchl/web/public-pages';
+import { PUBLIC_ROUTES } from '@tchl/web/public-pages';
 
 export const appRoutes: Routes = [
   {
     path: '',
-    component: PublicShellComponent,
     children: [
       {
         path: '',
         component: HomePublicPage,
       },
-      { path: '404', loadComponent: () => import('@tchl/ui/layout').then(m => m.NotFoundComponent) },
       ...PUBLIC_ROUTES,
     ],
   },
@@ -42,7 +40,7 @@ export const appRoutes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '404',
+    redirectTo: '',
     pathMatch: 'full',
   },
 ];
