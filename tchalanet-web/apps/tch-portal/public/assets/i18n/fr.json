@@ -30,6 +30,9 @@
     }
   },
   "common": {
+    "error": {
+      "title": "Erreur"
+    },
     "disabled": "désactivé",
     "enabled": "activé",
     "loading": "Chargement…",

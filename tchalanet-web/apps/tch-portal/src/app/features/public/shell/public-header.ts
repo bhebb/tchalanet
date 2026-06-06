@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { ActionItem, PublicShellRuntime, actionText } from '../../../shared/types';
-import { LabelPipe } from '@tch/page-model';
-import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
+import { LabelPipe, PublicShellRuntime } from '@tch/page-model';
+import { ActionItem, actionText, TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
 
 @Component({
   selector: 'tch-public-header',
@@ -275,7 +274,6 @@ export class PublicHeader {
   readonly brand = computed(() => publicBrand(this.shell()));
   readonly nav = computed(() => publicHeaderNav(this.shell()));
   readonly loginAction = computed(() => publicLoginAction(this.shell()));
-  readonly actionText = actionText;
 
   login(): void {
     void this.auth.login();
@@ -288,6 +286,8 @@ export class PublicHeader {
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
   }
+
+  protected readonly actionText = actionText;
 }
 
 function publicBrand(shell: PublicShellRuntime | undefined): ActionItem | undefined {

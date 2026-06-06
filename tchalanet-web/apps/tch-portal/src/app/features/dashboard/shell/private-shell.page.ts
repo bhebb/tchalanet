@@ -2,15 +2,14 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchBrand, TchLangThemeGroup, TchSidebarNav } from '@tch/ui/components';
+import { ActionItem, TchBrand, TchLangThemeGroup, TchSidebarNav } from '@tch/ui/components';
 import { ThemeSwitcherComponent } from '@tch/ui/theme';
 import { catchError, defer, of } from 'rxjs';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { PageModelApi } from '../../../core/pagemodel';
 import { AppRuntimeStore } from '../../../core/runtime';
-import { ActionItem, PrivateShellRuntime } from '../../../shared/types';
+import { PageModelApi, PrivateShellRuntime } from '@tch/page-model';
 
 @Component({
   imports: [
