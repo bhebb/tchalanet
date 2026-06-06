@@ -98,15 +98,18 @@ tchalanet-web/
 ├── apps/
 │   └── tch-portal/
 │       └── src/app/
-│           ├── core/       ← auth, HTTP, i18n, runtime, settings, PageModel API
-│           ├── features/   ← pages, shells, renderer PageModel et widgets actifs
+│           ├── core/       ← auth, i18n et runtime applicatif
+│           ├── features/   ← pages et orchestration de surface
 │           └── shared/     ← contrats encore locaux à l'application
 └── libs/
     ├── api/
     │   └── src/lib/
     │       ├── contracts/  ← contrats backend/web transverses
     │       └── http/       ← clients HTTP, interceptors, helpers API
+    ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
     ├── shared-config/      ← settings runtime et feature flags
+    ├── web/                ← présentation shell réutilisable
+    ├── widgets/            ← registre concret et widgets PageModel
     └── ui/
         ├── components/     ← composants UI réutilisables et stateless
         ├── styles/         ← primitives SCSS compile-time
@@ -117,7 +120,8 @@ tchalanet-web/
 
 ## 5. Structure cible par extraction
 
-Ces libs sont des **cibles de migration**, pas des dossiers à créer à vide.
+`page-model`, `widgets` et `web` sont actives. Les autres libs restent des **cibles de migration**,
+pas des dossiers à créer à vide.
 
 ```text
 libs/
@@ -126,9 +130,9 @@ libs/
   shared-i18n/     traduction runtime et sélection de langue
   shared-config/   feature flags, settings et configuration runtime
   ui/              components, styles et theme
-  page-model/      moteur de layout/rendu PageModel, sans widgets concrets
-  widgets/         registry et widgets dynamiques
-  web/             routes, pages, containers et shells par surface
+  page-model/      actif : contrats, API, renderer et registre abstrait
+  widgets/         actif : registre concret et widgets dynamiques
+  web/             actif partiellement : présentation shell réutilisable
 ```
 
 Une lib est créée seulement si un change :
@@ -147,7 +151,7 @@ Une lib est créée seulement si un change :
 Responsabilité :
 
 * contrats backend/web ;
-* `ApiResponse`, `ActionItem`, `NavigationDestination`, PageModel runtime contracts ;
+* `ApiResponse`, `ActionItem`, `NavigationDestination` et contrats HTTP génériques ;
 * clients HTTP transverses ;
 * interceptors ;
 * helpers API.
@@ -158,6 +162,37 @@ Règle :
 ui/components peut consommer ActionItem.
 ui/components ne possède pas ActionItem.
 ```
+
+---
+
+### `libs/page-model`
+
+Responsabilité :
+
+* contrats runtime PageModel ;
+* `PageModelApi` ;
+* renderer et `WidgetHostComponent` ;
+* token abstrait `WIDGET_REGISTRY`.
+
+---
+
+### `libs/widgets`
+
+Responsabilité :
+
+* widgets PageModel concrets ;
+* registre concret ;
+* provider `provideWidgets()`.
+
+---
+
+### `libs/web`
+
+Responsabilité active :
+
+* présentation shell réutilisable sans services applicatifs ;
+* footer public ;
+* navigation publique basse.
 
 ---
 
@@ -324,8 +359,10 @@ Avant d’ajouter du code :
 * [ ] Est-ce un appel HTTP transverse ? → `libs/api/http`
 * [ ] Est-ce du SCSS partagé ? → `libs/ui/styles`
 * [ ] Est-ce du thème runtime ? → `libs/ui/theme`
-* [ ] Est-ce un widget rendu par PageModel ? → future `libs/widgets`, ou feature actuelle pendant migration
-* [ ] Est-ce un shell/page/surface applicative ? → future `libs/web`, ou feature actuelle pendant migration
+* [ ] Est-ce un contrat/API/renderer/helper PageModel ? → `libs/page-model`
+* [ ] Est-ce un widget rendu par PageModel ? → `libs/widgets`
+* [ ] Est-ce une présentation shell réutilisable sans service app ? → `libs/web`
+* [ ] Est-ce une page ou une orchestration de surface ? → feature applicative
 
 ---
 
@@ -386,9 +423,10 @@ type:app,scope:web
 Règles cibles :
 
 ```text
-web          → ui, widgets, api, shared-*
-widgets      → ui, api, shared-*
-page-model   → api, ui
+tch-portal   → page-model, widgets, web
+web          → page-model, ui/components
+widgets      → page-model
+page-model   → api, ui/components; jamais widgets
 ui/components→ api/contracts, ui/styles, ui/theme si nécessaire
 ui/styles    → aucune lib applicative
 ui/theme     → api/contracts si nécessaire, jamais widgets/web

@@ -6,7 +6,7 @@ import { catchError, map, of, startWith } from 'rxjs';
 
 import { PageModelApi } from '../../core/pagemodel';
 import { PageRuntimeResponse, PublicShellRuntime } from '../../shared/types';
-import { PageModelComponent } from '../pagemodel/page-model.component';
+import { PageModelComponent } from '@tch/page-model';
 import { PublicShellComponent } from './shell/public-shell.component';
 
 type PublicHomeState =

@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Data, RouterLink } from '@angular/router';
 
 import { PublicShellComponent } from './shell/public-shell.component';
-import { LabelPipe } from '../pagemodel/label.pipe';
+import { LabelPipe } from '@tch/page-model';
 
 type PublicInfoKind = 'check-ticket' | 'results' | 'rules' | 'help' | 'contact' | 'privacy' | 'terms';
 

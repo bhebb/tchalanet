@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { LabelPipe } from '../pagemodel/label.pipe';
+import { LabelPipe } from '@tch/page-model';
 import { PublicShellComponent } from './shell/public-shell.component';
 
 export type PublicRuleGameId = 'borlette' | 'mariage' | 'lotto3' | 'lotto4';

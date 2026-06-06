@@ -973,6 +973,300 @@
       "nx/target-defaults"
     ]
   },
+  "libs/page-model": {
+    "root": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "prefix": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:shared": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:feature": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.buildTarget": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.tsConfig": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.watch": [
+      "libs/page-model/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/web": {
+    "root": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "prefix": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:web": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:components": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.buildTarget": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.tsConfig": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.watch": [
+      "libs/web/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/widgets": {
+    "root": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "prefix": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:shared": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:feature": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.buildTarget": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.tsConfig": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.watch": [
+      "libs/widgets/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
   "libs/api": {
     "root": [
       "libs/api/project.json",

@@ -107,6 +107,18 @@ ui          -> shared uniquement
 shared      -> rien
 ```
 
+### 4.1 Graphe actif PageModel
+
+```text
+tch-portal -> page-model, widgets, web
+widgets    -> page-model
+web        -> page-model, ui/components
+page-model -X-> widgets
+```
+
+Le token `WIDGET_REGISTRY` appartient à `page-model`. L'implémentation concrète appartient à
+`widgets` et l'app composition root l'active avec `provideWidgets()`.
+
 ## 5. Règles strictes
 
 - `ui` ne dépend jamais de `data-access`.
@@ -114,6 +126,9 @@ shared      -> rien
 - `data-access` ne dépend jamais de `features`.
 - `shared` ne dépend jamais de `core`, `features`, `data-access`, `ui`.
 - `features` ne doivent pas accéder directement à `HttpClient` si une lib `data-access` existe.
+- `page-model` ne dépend jamais de `widgets`.
+- `widgets` ne dépend jamais de l'app.
+- `web` ne dépend jamais des services auth/i18n possédés par l'app.
 
 ## 6. Exemple ESLint boundary
 

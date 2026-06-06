@@ -15,10 +15,13 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@tch/api": ["./libs/api/src/index.ts"],
+      "@tch/page-model": ["./libs/page-model/src/index.ts"],
       "@tch/shared-config": ["./libs/shared-config/src/index.ts"],
+      "@tch/web": ["./libs/web/src/index.ts"],
       "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],
       "@tch/ui/theme/*": ["./libs/ui/theme/src/*"],
-      "@tch/ui/components": ["./libs/ui/components/src/index.ts"]
+      "@tch/ui/components": ["./libs/ui/components/src/index.ts"],
+      "@tch/widgets": ["./libs/widgets/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

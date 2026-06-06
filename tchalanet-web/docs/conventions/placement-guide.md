@@ -2,7 +2,7 @@
 
 > **Status**: DRAFT v0.2
 > **Scope**: frontend placement rules for `tchalanet-web` / `tch-portal`
-> **Related**: `WEB_ARCHITECTURE.md`, `web-naming.md`, `web-state-management.md`, `page-model-convention.md`
+> **Related**: `../ARCHITECTURE.md`, `naming.md`, `state-management.md`, `pagemodel.md`
 
 ---
 
@@ -41,14 +41,18 @@ tchalanet-web/
     │   └── src/lib/
     │       ├── contracts/
     │       └── http/
+    ├── page-model/
     ├── shared-config/
+    ├── web/
+    ├── widgets/
     └── ui/
         ├── components/
         ├── styles/
         └── theme/
 ```
 
-Target-only libs such as `shared-auth`, `shared-i18n`, `page-model`, `widgets`, and `web` are extracted later, slice by slice.
+`page-model`, `widgets`, and the reusable part of `web` are extracted. App-coupled shell
+orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
 
 ---
 
@@ -69,16 +73,16 @@ Target-only libs such as `shared-auth`, `shared-i18n`, `page-model`, `widgets`, 
 | Material global overrides                   | `libs/ui/styles` unless directly tied to M3 preset generation                            |
 | Button / Card / Badge / Loading / Errors    | `libs/ui/components`                                                                     |
 | Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                     |
-| Public shell                                | app feature now, future `libs/web`                                                       |
+| Public shell                                | reusable presentation in `libs/web`; app-specific orchestration in the app               |
 | Private shell                               | app feature now, future `libs/web`                                                       |
 | Public home page                            | `apps/tch-portal/src/app/features/public/home`                                           |
 | Cashier dashboard page                      | `apps/tch-portal/src/app/features/cashier/dashboard`                                     |
 | Tenant admin dashboard page                 | `apps/tch-portal/src/app/features/admin/dashboard`                                       |
 | Platform dashboard page                     | `apps/tch-portal/src/app/features/platform/dashboard`                                    |
-| PageModel runtime API contract              | `libs/api/src/lib/contracts`                                                             |
-| PageModel API client                        | `libs/api/src/lib/http` or app core during migration                                     |
-| PageModel renderer                          | app feature now, future `libs/page-model`                                                |
-| Widget registry / concrete widgets          | app feature now, future `libs/widgets`                                                   |
+| PageModel runtime API contract              | `libs/page-model`                                                                        |
+| PageModel API client                        | `libs/page-model`                                                                        |
+| PageModel renderer                          | `libs/page-model`                                                                        |
+| Widget registry / concrete widgets          | `libs/widgets`                                                                           |
 | PageModel editor screen                     | `apps/tch-portal/src/app/features/platform/page-models`                                  |
 | Auth session store                          | app `core/auth` now, future `shared-auth`                                                |
 | Auth guards                                 | app `core/auth` now, future `shared-auth`                                                |
@@ -207,17 +211,17 @@ PrivateShell
   -> main
 ```
 
-Placement now:
+App-owned orchestration:
 
 ```text
-apps/tch-portal/src/app/features/shells/public-shell
-apps/tch-portal/src/app/features/shells/private-shell
+apps/tch-portal/src/app/features/public/shell
+apps/tch-portal/src/app/features/dashboard/shell
 ```
 
-Future placement when stable:
+Reusable public shell presentation:
 
 ```text
-libs/web
+libs/web/src/lib/public-shell
 ```
 
 Shared visual parts:
@@ -239,16 +243,10 @@ Public footer rendering belongs to the public shell area.
 
 Reusable visual primitives can live in `ui/components`, but the footer composition itself is shell-specific.
 
-Current:
+Current reusable footer:
 
 ```text
-apps/tch-portal/src/app/features/shells/public-shell/public-footer.ts
-```
-
-Future:
-
-```text
-libs/web/public-shell
+libs/web/src/lib/public-shell/public-footer.ts
 ```
 
 The footer consumes a resolved runtime shell fragment:
@@ -266,13 +264,7 @@ The footer must not resolve `fileKey`.
 
 ## 7. PageModel placement
 
-Current placement during migration:
-
-```text
-apps/tch-portal/src/app/features/pagemodel
-```
-
-Future target:
+Current placement:
 
 ```text
 libs/page-model
@@ -299,20 +291,14 @@ SidebarNav
 Theme runtime
 i18n bootstrap
 backend fileKey/jsonFile resolution
-concrete widgets after widgets lib exists
+concrete widgets
 ```
 
 ---
 
 ## 8. Widgets placement
 
-Current during migration:
-
-```text
-apps/tch-portal/src/app/features/pagemodel/widgets
-```
-
-Future:
+Current:
 
 ```text
 libs/widgets
@@ -505,16 +491,15 @@ Page:
 apps/tch-portal/src/app/features/public/home/public-home.page.ts
 ```
 
-PageModel renderer:
-
-```text
-apps/tch-portal/src/app/features/pagemodel
-```
-
-Later:
+PageModel runtime, API and renderer:
 
 ```text
 libs/page-model
+```
+
+Concrete widget registry and widgets:
+
+```text
 libs/widgets
 ```
 
@@ -600,6 +585,9 @@ Before adding/moving code:
 
 * [ ] Is this a contract? Put it in `libs/api/contracts`.
 * [ ] Is this an HTTP client? Put it in `libs/api/http`.
+* [ ] Is this a PageModel runtime contract/client/renderer/helper? Put it in `libs/page-model`.
+* [ ] Is this a concrete PageModel widget or registry entry? Put it in `libs/widgets`.
+* [ ] Is this reusable shell presentation without app services? Put it in `libs/web`.
 * [ ] Is this reusable visual UI? Put it in `libs/ui/components`.
 * [ ] Is this SCSS primitive? Put it in `libs/ui/styles`.
 * [ ] Is this runtime theme? Put it in `libs/ui/theme`.

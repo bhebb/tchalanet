@@ -291,7 +291,7 @@ Add NgRx only after real pressure appears.
 | Active theme/mode                             | `libs/ui/theme`                                  |
 | Theme preset cache                            | `libs/ui/theme`                                  |
 | PageModel editor state                        | `features/platform/page-models`                  |
-| PageModel runtime cache used by many features | owning active lib, likely future `page-model`    |
+| PageModel runtime cache used by many features | `libs/page-model` when a shared cache is needed  |
 | Catalog/reference cache                       | `libs/api` only after stable multi-consumer need |
 | Tenant config used by one page                | feature store                                    |
 | Tenant config used by many pages              | owning active lib after extraction               |

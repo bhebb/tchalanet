@@ -17,6 +17,7 @@ import {
   keycloakUrlForHostname,
 } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
+import { provideWidgets } from '@tch/widgets';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   includeBearerTokenInterceptor,
@@ -49,6 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideEffects([I18nEffects]),
     provideRouterStore(),
     themeStoreProvider,
+    provideWidgets(),
     // Feature-management isolation seam: call sites depend on FeatureFlags, swapping the backing
     // provider (e.g. to Unleash) only rebinds this token.
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },

@@ -25,13 +25,15 @@ Les contrats backend/web vivent dans :
 libs/api/src/lib/contracts
 ```
 
+Exception possédée par sa capacité : les contrats runtime PageModel vivent dans
+`libs/page-model/src/lib/runtime`.
+
 Exemples :
 
 ```text
 api-response.ts
 action-item.ts
 navigation-destination.ts
-page-model.ts
 problem-detail.ts
 service-status.ts
 ```
@@ -262,7 +264,7 @@ Le PageModel ne rend pas le shell.
 
 ## 7. PageModel
 
-Future lib cible :
+Lib active :
 
 ```text
 libs/page-model
@@ -300,7 +302,7 @@ Le PageModel ne doit pas posséder :
 
 ## 8. Widgets
 
-Future lib cible :
+Lib active :
 
 ```text
 libs/widgets
@@ -578,5 +580,3 @@ libs/api/contracts/action-item.ts
 libs/api/http
 navigation.helpers.ts
 ```
-
-

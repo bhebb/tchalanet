@@ -1,6 +1,6 @@
 # PageModel Convention — Tchalanet
 
-> **Status**: DRAFT v0.3
+> **Status**: ACTIVE v0.4
 > **Scope**: dynamic page runtime payloads, layout renderer, widget renderer, widget actions
 > **Living doc** — update in the same commit as any code that changes a rule here.
 
@@ -46,6 +46,37 @@ Widget      = render known props/data
 ```
 
 PageModel must stay a composition contract, not a CMS.
+
+---
+
+## 2.1 Frontend ownership
+
+Active placement:
+
+```text
+libs/page-model
+  api/          PageModelApi
+  rendering/    PageModelComponent, WidgetHostComponent
+  runtime/      PageRuntimeResponse and related contracts
+  widget/       shared widget contracts/helpers and LabelPipe
+
+libs/widgets
+  widgets/      concrete Angular widgets
+  widget-registry.ts
+
+apps/tch-portal
+  app.config.ts composition root
+```
+
+Dependency direction:
+
+```text
+widgets -> page-model
+page-model -X-> widgets
+```
+
+`WidgetHostComponent` resolves components through the injectable `WIDGET_REGISTRY` token.
+The portal activates the concrete registry with `provideWidgets()` in `app.config.ts`.
 
 ---
 
@@ -276,6 +307,9 @@ Rule:
 ```text
 Registry key = backend type string.
 No normalization layer.
+Concrete registry = libs/widgets.
+Registry abstraction/token = libs/page-model.
+Registry provider = portal composition root.
 ```
 
 A widget component receives only:
@@ -299,11 +333,20 @@ A slice may add one widget at a time.
 
 Unknown backend widget types must render the unsupported-widget fallback and must not break the page.
 
-Current public slices may support only a subset such as:
+Current public registry:
 
 ```text
 HeroWidget
 NewsTickerWidget
+PublicDrawResultsWidget
+LatestResultsWidget -> PublicDrawResultsWidget
+CheckTicketWidget -> TicketVerificationWidget
+TicketVerificationWidget
+HowItWorksWidget
+RulesWidget -> RulesSimulationWidget
+SimulationWidget -> RulesSimulationWidget
+OperatorCtaWidget
+TchalaSearchWidget
 FeatureGridWidget
 PlansWidget
 ```
@@ -515,7 +558,8 @@ Do not:
 * carry full theme tokens in PageModel;
 * carry settings values in PageModel;
 * expose `fileKey/jsonFile/binding` as required frontend runtime data;
-* create a widget library before a real page needs the widget;
+* bypass `provideWidgets()` with app-local registry mappings;
+* make `page-model` import `widgets`;
 * make layout a backend-controlled CSS engine.
 
 ---
@@ -535,4 +579,6 @@ Before merging PageModel changes:
 * [ ] Widget receives only its config/data/error.
 * [ ] Unsupported widget fallback exists.
 * [ ] A widget failure cannot blank the page.
+* [ ] New concrete widgets are registered in `libs/widgets`.
+* [ ] `libs/page-model` does not import `libs/widgets`.
 * [ ] No auth/theme/i18n/settings payload is embedded in PageModel.

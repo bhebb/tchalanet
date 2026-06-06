@@ -1856,6 +1856,55 @@
         "implicitDependencies": []
       }
     },
+    "page-model": {
+      "name": "page-model",
+      "type": "lib",
+      "data": {
+        "root": "libs/page-model",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/page-model/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "page-model",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/page-model/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:feature"
+        ],
+        "implicitDependencies": []
+      }
+    },
     "tch-portal": {
       "name": "tch-portal",
       "type": "app",
@@ -2049,6 +2098,55 @@
         "implicitDependencies": []
       }
     },
+    "widgets": {
+      "name": "widgets",
+      "type": "lib",
+      "data": {
+        "root": "libs/widgets",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/widgets/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "widgets",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/widgets/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:shared",
+          "type:feature"
+        ],
+        "implicitDependencies": []
+      }
+    },
     "api": {
       "name": "api",
       "type": "lib",
@@ -2078,6 +2176,55 @@
         "tags": [
           "scope:shared",
           "type:data-access"
+        ],
+        "implicitDependencies": []
+      }
+    },
+    "web": {
+      "name": "web",
+      "type": "lib",
+      "data": {
+        "root": "libs/web",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          },
+          "test": {
+            "executor": "@angular/build:unit-test",
+            "options": {
+              "buildTarget": "tch-portal:build:development",
+              "tsConfig": "libs/web/tsconfig.spec.json",
+              "watch": false
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default"
+            ]
+          }
+        },
+        "name": "web",
+        "$schema": "../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/web/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [
+          "scope:web",
+          "type:components"
         ],
         "implicitDependencies": []
       }
@@ -2254,6 +2401,18 @@
       }
     ],
     "ui-components": [],
+    "page-model": [
+      {
+        "source": "page-model",
+        "target": "api",
+        "type": "static"
+      },
+      {
+        "source": "page-model",
+        "target": "ui-components",
+        "type": "static"
+      }
+    ],
     "tch-portal": [
       {
         "source": "tch-portal",
@@ -2272,16 +2431,50 @@
       },
       {
         "source": "tch-portal",
+        "target": "widgets",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
         "target": "ui-components",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "page-model",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
+        "target": "web",
         "type": "static"
       }
     ],
     "ui-styles": [],
     "ui-theme": [],
+    "widgets": [
+      {
+        "source": "widgets",
+        "target": "page-model",
+        "type": "static"
+      }
+    ],
     "api": [],
+    "web": [
+      {
+        "source": "web",
+        "target": "page-model",
+        "type": "static"
+      },
+      {
+        "source": "web",
+        "target": "ui-components",
+        "type": "static"
+      }
+    ],
     "tchalanet-web": []
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780772678333
+  "computedAt": 1780775187474
 }

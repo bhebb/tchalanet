@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { PublicShellComponent } from './shell/public-shell.component';
-import { ResultStatus } from '../pagemodel/widget.contract';
+import { ResultStatus } from '@tch/page-model';
 
 type ResultFilter = 'all' | 'new-york' | 'florida' | 'georgia';
 

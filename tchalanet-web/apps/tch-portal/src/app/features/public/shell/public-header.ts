@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
 import { ActionItem, PublicShellRuntime, actionText } from '../../../shared/types';
-import { LabelPipe } from '../../pagemodel/label.pipe';
+import { LabelPipe } from '@tch/page-model';
 import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
 
 @Component({

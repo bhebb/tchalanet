@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 import { PublicShellRuntime } from '../../../shared/types';
-import { LabelPipe } from '../../pagemodel/label.pipe';
-import { PublicBottomNav } from './public-bottom-nav';
-import { PublicFooter } from './public-footer';
+import { LabelPipe } from '@tch/page-model';
+import { PublicBottomNav, PublicFooter } from '@tch/web';
 import { PublicHeader } from './public-header';
 
 @Component({

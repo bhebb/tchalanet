@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { PublicShellComponent } from './shell/public-shell.component';
-import { ResultStatus } from '../pagemodel/widget.contract';
+import { ResultStatus } from '@tch/page-model';
 
 interface PublicResultDetail {
   readonly id: string;

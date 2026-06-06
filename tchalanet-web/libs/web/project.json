@@ -1,0 +1,19 @@
+{
+  "name": "web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:web", "type:components"],
+  "targets": {
+    "lint": { "executor": "@nx/eslint:lint" },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "buildTarget": "tch-portal:build:development",
+        "tsConfig": "libs/web/tsconfig.spec.json",
+        "watch": false
+      }
+    }
+  }
+}

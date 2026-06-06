@@ -1,6 +1,6 @@
 # tch-portal — Architecture Frontend
 
-> **Statut** : Target architecture — migration en cours
+> **Statut** : Architecture active — extraction progressive en cours
 > **App** : `apps/tch-portal/` — Angular / Nx
 > **Objectif** : garder une architecture frontend lisible, slice-first, sans créer de libs vides ni transformer PageModel en usine à gaz.
 
@@ -38,22 +38,25 @@ tchalanet-web/
 ├── apps/
 │   └── tch-portal/
 │       └── src/app/
-│           ├── core/       ← auth, HTTP, i18n, runtime, settings, PageModel API
-│           ├── features/   ← pages, shells, renderer PageModel et widgets actifs
+│           ├── core/       ← auth, i18n et runtime applicatif
+│           ├── features/   ← pages et orchestration de surface
 │           └── shared/     ← contrats encore locaux à l'application
 └── libs/
     ├── api/
     │   └── src/lib/
     │       ├── contracts/  ← contrats backend/web transverses
     │       └── http/       ← clients HTTP, interceptors, helpers API
+    ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
     ├── shared-config/      ← settings runtime et feature flags
+    ├── web/                ← présentation shell réutilisable sans services app
+    ├── widgets/            ← registre concret et widgets PageModel
     └── ui/
         ├── components/     ← composants UI réutilisables et stateless
         ├── styles/         ← primitives SCSS compile-time
         └── theme/          ← thème runtime, presets Material 3 et tokens
 ```
 
-Cette structure est volontairement petite. Chaque lib active doit porter une frontière déjà utilisée.
+Cette structure est volontairement petite. Chaque lib active porte une frontière déjà utilisée.
 
 ---
 
@@ -77,7 +80,6 @@ ApiNotice
 ProblemDetail model côté frontend
 ActionItem
 NavigationDestination
-PageModel runtime contracts
 TchPage
 ServiceStatus
 ```
@@ -89,9 +91,50 @@ ui/components peut consommer ActionItem.
 ui/components ne possède pas ActionItem.
 ```
 
-Les nouveaux contrats backend/frontend doivent cibler `libs/api/src/lib/contracts`.
+Les contrats HTTP génériques ciblent `libs/api/src/lib/contracts`. Les contrats runtime PageModel
+ciblent `libs/page-model`.
 
 Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`, mais uniquement pendant migration.
+
+---
+
+### `libs/page-model`
+
+Responsabilité :
+
+* contrats `PageRuntimeResponse` et types associés ;
+* client `PageModelApi` ;
+* renderer rows/columns et `WidgetHostComponent` ;
+* fallbacks de widgets contenus ;
+* token injectable abstrait `WIDGET_REGISTRY` ;
+* helpers communs aux widgets et `LabelPipe`.
+
+Cette lib ne dépend jamais de `libs/widgets`.
+
+---
+
+### `libs/widgets`
+
+Responsabilité :
+
+* widgets PageModel concrets ;
+* mapping direct type backend → composant Angular ;
+* provider `provideWidgets()`, activé par l'app composition root.
+
+Cette lib dépend de `libs/page-model`.
+
+---
+
+### `libs/web`
+
+Responsabilité active :
+
+* éléments de shell web réutilisables sans injection de services applicatifs ;
+* footer public ;
+* navigation publique basse.
+
+Le header public et la composition complète du shell restent dans l'app tant qu'ils orchestrent
+auth et i18n.
 
 ---
 
@@ -201,12 +244,13 @@ libs/
   shared-i18n/     traduction runtime et sélection de langue
   shared-config/   feature flags, settings et configuration runtime
   ui/              components, styles et theme
-  page-model/      moteur de layout/rendu PageModel, sans widgets concrets
-  widgets/         registry et widgets dynamiques
-  web/             routes, pages, containers et shells par surface
+  page-model/      actif : contrats, API, moteur de rendu et registre abstrait
+  widgets/         actif : registre concret et widgets dynamiques
+  web/             actif partiellement : présentation shell réutilisable
 ```
 
-Ces libs sont des **cibles de migration**, pas des dossiers à créer à vide.
+Les libs `page-model`, `widgets` et `web` sont actives. Les autres restent des cibles de migration,
+pas des dossiers à créer à vide.
 
 Une lib est créée seulement lorsqu’un change :
 
@@ -215,19 +259,13 @@ Une lib est créée seulement lorsqu’un change :
 * valide ses dépendances Nx ;
 * supprime ou réduit une dépendance depuis `apps/tch-portal`.
 
-Ordre recommandé :
-
-1. `shared-auth` / `shared-i18n`
-2. `page-model`
-3. `widgets`
-4. `web`
-
-`page-model` doit précéder `widgets`.
+Graphe de dépendances actif :
 
 ```text
-page-model = contrat runtime + renderer abstrait + WidgetHost abstrait
-widgets = registry + widgets concrets
-web = routes, pages, shells et containers par surface
+tch-portal -> page-model, widgets, web
+widgets    -> page-model
+web        -> page-model, ui/components
+page-model -X-> widgets
 ```
 
 ---
@@ -293,8 +331,9 @@ Le runtime frontend doit recevoir une page prête à rendre.
     },
     "widgets": {}
   },
-  "data": {
-    "widgets": {}
+  "dynamic": {
+    "widgets": {},
+    "errors": []
   }
 }
 ```
@@ -321,8 +360,9 @@ Le runtime frontend doit recevoir une page prête à rendre.
     },
     "widgets": {}
   },
-  "data": {
-    "widgets": {}
+  "dynamic": {
+    "widgets": {},
+    "errors": []
   }
 }
 ```
@@ -536,7 +576,8 @@ public-home.page.ts
 * Les composants UI ne font pas d’appel HTTP.
 * Les composants UI ne dépendent pas de NgRx ni de services applicatifs.
 * Les pages orchestrent des services applicatifs/state dédiés, sans appeler directement `HttpClient`.
-* Les contrats backend/frontend ciblent `libs/api/contracts`.
+* Les contrats HTTP génériques ciblent `libs/api/contracts`.
+* Les contrats runtime PageModel ciblent `libs/page-model`.
 * Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`.
 * Pas de nouvelle lib sans frontière claire et stable.
 * Pas de lib Nx vide créée uniquement pour correspondre au diagramme cible.

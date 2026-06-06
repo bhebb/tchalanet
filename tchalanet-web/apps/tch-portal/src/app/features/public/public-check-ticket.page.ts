@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { PublicShellComponent } from './shell/public-shell.component';
-import { VerificationStatus } from '../pagemodel/widget.contract';
+import { VerificationStatus } from '@tch/page-model';
 
 type CheckState =
   | { readonly kind: 'default' }
