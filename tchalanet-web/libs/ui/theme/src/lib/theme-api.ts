@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { mapBackendThemeTokens } from './theme-token-map';
-import { RuntimeTheme, ThemeMode } from './theme-types';
+import { RuntimeTheme, ThemeDensity, ThemeMode } from './theme-types';
 
 interface ApiResponse<T> {
   readonly data: T;
@@ -43,8 +43,14 @@ function toRuntimeTheme(view: ThemeRuntimeApiView): RuntimeTheme {
     activePresetKey: view.presetCode || 'tchalanet',
     mode: toThemeMode(view.mode),
     effectiveMode: toEffectiveThemeMode(view.mode),
+    density: toThemeDensity(view.tokens['density.default']),
     tokens: mapBackendThemeTokens(view.tokens),
   };
+}
+
+function toThemeDensity(value: string | undefined): ThemeDensity {
+  const normalized = value?.toLowerCase();
+  return normalized === 'compact' || normalized === 'dense' ? normalized : 'comfortable';
 }
 
 function unwrapApiResponse<T>(response: ApiResponse<T>): T {

@@ -210,11 +210,22 @@ of supported themes". Preset label keys are `theme.presets.<id>` and must exist 
 2. **Tenant member signs in**: apply the tenant's theme (`presetId`, `mode`, `density`, and tenant
    `overrides`). Each tenant will have its own theme; v3 lets a tenant build its own M3 theme.
 3. Apply order in the DOM (owned by `ThemeDomApplier`): generated preset CSS
-   (`<style id=tch-theme-preset>`) → runtime state (`.tch-theme`/`.dark` classes + `data-preset` on
-   root/body/overlay) → tenant **overrides** (`<style id=tch-theme-overrides>`). `toOverrideCss`
-   currently emits the resolved tenant token map as plain `--tch-*: value` declarations scoped to
-   `.tch-theme[data-preset='…']` — it does **not** yet support `--dark:`-prefixed variants or a custom
-   `fontHref`. Those are a **future enhancement** (needed for tenant custom fonts), not current behavior.
+   (`<style id=tch-theme-preset>`) → runtime state (`.tch-theme`/`.dark` classes, `data-preset` and
+   `data-theme-density` on root/body/overlay, plus the **density** class
+   `.tch-density-compact`/`.tch-density-dense`) → tenant **overrides**
+   (`<style id=tch-theme-overrides>`). `toOverrideCss` emits the resolved tenant token map as plain
+   `--tch-*: value` declarations scoped to `.tch-theme[data-preset='…']` — it does **not** yet support
+   `--dark:`-prefixed variants or a custom `fontHref`. Those are a **future enhancement** (needed for
+   tenant custom fonts), not current behavior.
+
+### Density (runtime)
+
+Density is **decoupled from presets** (M3 density only affects component metric tokens, so a single
+set of classes serves every preset). The preset generation no longer bakes `density`; instead
+`scss/density.scss` emits `mat.theme((density: -2|-4))` scoped to `.tch-density-compact` /
+`.tch-density-dense`, and `ThemeDomApplier` toggles the class from the runtime `density`
+(`comfortable` = default, no class). The backend `density.default` token flows through
+`ThemeApi → RuntimeTheme.density` and is persisted like mode/preset.
 
 ### Backend's role (and where its tokens fit)
 

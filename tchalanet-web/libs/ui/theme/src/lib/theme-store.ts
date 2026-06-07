@@ -5,12 +5,13 @@ import { ThemeApi } from './theme-api';
 import { ThemeDomApplier } from './theme-dom-applier';
 import { defaultThemePresetId } from './theme-presets';
 import { ThemeRepository } from './theme.repository';
-import { RuntimeTheme, ThemeMode, ThemePreset } from './theme-types';
+import { RuntimeTheme, ThemeDensity, ThemeMode, ThemePreset } from './theme-types';
 
 type ThemeLoadState = 'idle' | 'loading' | 'ready' | 'fallback';
 
 const themeModeStorageKey = 'tchalanet.web.theme.mode';
 const themePresetStorageKey = 'tchalanet.web.theme.preset';
+const themeDensityStorageKey = 'tchalanet.web.theme.density';
 
 @Injectable()
 export class ThemeStore {
@@ -89,6 +90,7 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode: this.activeTheme().mode,
       effectiveMode: this.effectiveMode(this.activeTheme().mode),
+      density: this.activeTheme().density,
       tokens: {},
     });
     persistTheme(this.activeTheme());
@@ -124,6 +126,7 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode: 'light',
       effectiveMode: 'light',
+      density: 'comfortable',
       tokens: {},
     };
   }
@@ -137,6 +140,7 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode,
       effectiveMode: this.effectiveMode(mode),
+      density: restoreDensity(),
       tokens: {},
     };
   }
@@ -163,6 +167,7 @@ export const themeStoreProvider = {
 function persistTheme(theme: RuntimeTheme): void {
   localStorage.setItem(themeModeStorageKey, theme.mode);
   localStorage.setItem(themePresetStorageKey, theme.activePresetKey);
+  localStorage.setItem(themeDensityStorageKey, theme.density);
 }
 
 function restoreMode(): ThemeMode {
@@ -172,6 +177,11 @@ function restoreMode(): ThemeMode {
 
 function restorePresetKey(): string {
   return localStorage.getItem(themePresetStorageKey) || defaultThemePresetId;
+}
+
+function restoreDensity(): ThemeDensity {
+  const value = localStorage.getItem(themeDensityStorageKey);
+  return value === 'compact' || value === 'dense' ? value : 'comfortable';
 }
 
 function systemPrefersDark(): boolean {

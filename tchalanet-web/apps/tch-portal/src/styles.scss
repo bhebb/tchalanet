@@ -4,6 +4,7 @@
 // SCSS resolved via libs/ui/theme/src (stylePreprocessorOptions.includePaths in project.json).
 @use 'scss/runtime-root';
 @use 'scss/runtime-vars';
+@use 'scss/density';
 @use 'index';
 
 html,

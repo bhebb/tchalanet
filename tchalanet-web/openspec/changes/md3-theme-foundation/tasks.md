@@ -88,8 +88,11 @@
       plus-jakarta-sans) vers de vraies stacks ; familles inconnues passées telles quelles. Plus Jakarta
       Sans reste la police de marque. Suivi backend : aligner le seed (`fontFamily:"roboto"`) +
       `allowedFonts` sur Plus Jakarta Sans.
-- [ ] **F4** — densité runtime (décision : implémenter) : découpler la densité des presets +
-      `mat.theme((density))` en classes globales + câblage `RuntimeTheme`/`ThemeApi`/`ThemeStore`/`ThemeDomApplier`.
+- [x] **F4** — densité runtime implémentée : densité découplée des presets (`_generate-theme.scss`
+      n'émet plus `density:0`) ; `scss/density.scss` émet `mat.theme((density:-2|-4))` en classes
+      `.tch-density-compact/dense` (preset-agnostiques) ; `RuntimeTheme.density` câblé via
+      `ThemeApi` (lit `density.default`) → `ThemeStore` (persisté) → `ThemeDomApplier` (toggle classe).
+      `comfortable` = défaut sans classe. Registry régénéré (métriques densité retirées des presets).
 - [ ] Web — génération pilotée par le set supporté plateforme + consommation de la liste/runtime backend.
 - [ ] Backend — exposer/figer la liste des thèmes supportés consommable par la génération frontend.
 - [ ] Style — passe de conformité des composants `ui/components`.
