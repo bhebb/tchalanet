@@ -2,6 +2,14 @@
 
 > Status: DRAFT v0.1
 
+> **État réel des tags (juin 2026)** : les libs `ui/*` utilisent `scope:ui` + `type:<role>` —
+> `ui-styles` = `["scope:ui","type:styles"]`, `ui-components` = `["scope:ui","type:components"]`,
+> `ui-theme` = `["scope:ui","type:theme"]`. Les exemples ci-dessous (`type:ui`/`scope:shared`) sont la
+> cible théorique, pas le réel. ⚠️ Les `depConstraints` racine sont aujourd'hui permissifs
+> (`sourceTag:'*' → onlyDependOnLibsWithTags:['*']`) : **aucune frontière n'est encore imposée** par
+> ESLint. Le durcissement (interdire `ui → features/data-access`) est un suivi à valider contre
+> `nx lint` global avant activation.
+
 ## 1. Purpose
 
 Nx est utilisé comme garde-fou, pas comme architecture en soi.

@@ -4,7 +4,7 @@
   "sourceRoot": "libs/ui/theme/src",
   "prefix": "tch",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:ui", "type:theme"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"

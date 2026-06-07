@@ -21,11 +21,11 @@ describe('mapBackendThemeTokens', () => {
       '--tch-color-secondary': '#4A6267',
       '--tch-color-surface': '#FFFBFE',
       '--tch-color-surface-container-lowest': '#FFFFFF',
-      '--tch-color-foreground': '#1C1B1F',
+      '--tch-color-on-surface': '#1C1B1F',
       '--tch-color-on-surface-variant': '#464652',
       '--tch-color-secondary-container': '#FECB00',
       '--tch-color-status-ready': '#10B981',
-      '--tch-radius-control': '12px',
+      '--tch-radius-md': '12px',
     });
   });
 

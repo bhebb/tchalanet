@@ -30,7 +30,8 @@
   /* Shape / motion */
   --tch-radius-sm: 4px;
   --tch-radius-md: 8px;
-  --tch-radius-control: 8px;
+  /* Legacy alias of --tch-radius-md: derive it so an override on radius.md cascades here. */
+  --tch-radius-control: var(--tch-radius-md);
   --tch-radius-lg: 12px;
   --tch-radius-xl: 24px;
   --tch-radius-pill: 9999px;
@@ -53,6 +54,15 @@
   --tch-touch-target: 48px;
   --tch-border-width: 1px;
 
+  /* Stacking — single source for z-index, no magic numbers in components. */
+  --tch-z-header: 30;
+  --tch-z-drawer: 40;
+  --tch-z-overlay: 50;
+  --tch-z-toast: 60;
+
+  /* Scrim for overlays/backdrops (readable over light or dark content). */
+  --tch-color-scrim: rgb(0 0 0 / 0.45);
+
   /* Dark-layer helpers (used by runtime-vars post-processing) */
   --tch-darken-base: #000;
   --tch-dark-fg: #fff;
@@ -62,7 +72,7 @@
      these from --mat-sys-* under the more specific `.tch-theme[data-preset]`. */
   --tch-color-background: #f9f9fc;
   --tch-color-on-background: #1a1c1e;
-  --tch-color-foreground: #1a1c1e;
+  --tch-color-foreground: var(--tch-color-on-surface);
   --tch-color-primary: #1a1b4b;
   --tch-color-primary-strong: #15157d;
   --tch-color-primary-contrast: #ffffff;
@@ -102,4 +112,6 @@
   --tch-color-status-warning: #f59e0b;
   --tch-color-status-blocked: #dc2626;
   --tch-color-status-missing: #64748b;
+  --tch-color-accent: #fecb00;
+  --tch-on-color-accent: #241a00;
 }

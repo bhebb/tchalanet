@@ -177,7 +177,9 @@ Avoid:
 
 ## 5. Token usage
 
-Components consume tokens.
+Components consume tokens. The canonical `--tch-*` set is generated into
+`libs/ui/theme/src/registry/token-manifest.generated.ts` (`npm run tokens:generate`) and guarded by
+`theme-token-contract.spec.ts` — consult the manifest for the full list rather than this excerpt.
 
 Preferred tokens:
 
@@ -447,7 +449,17 @@ SCSS media queries should use `libs/ui/styles` breakpoints once available:
 }
 ```
 
-Angular runtime breakpoint logic should use `TchBreakpointService`, not duplicated ad hoc `matchMedia`.
+`libs/ui/styles/_breakpoints.scss` (`sm/md/lg/xl`) is the **single source of truth** for responsive
+bounds. Angular runtime breakpoint logic should use `TchBreakpointService` (not ad hoc `matchMedia`),
+whose semantic tiers derive from the same bounds:
+
+```text
+handset  → below md   (< 768px)
+tablet   → md to lg    (768–1023.98px)
+desktop  → lg and up   (≥ 1024px)
+```
+
+Do not redefine breakpoint pixel values anywhere else; reference the `sm/md/lg/xl` scale.
 
 ---
 
@@ -547,11 +559,20 @@ Example:
 
 Every interactive component must have visible focus.
 
-Preferred:
+Prefer the shared `focus-visible` mixin from `libs/ui/styles` (`_mixins.scss`) — it is the canonical
+focus style. It enforces a minimum ring thickness so the outline stays visible when the token is small:
+
+```scss
+@use '@tch/ui/styles' as ui;
+
+@include ui.focus-visible; // outputs the rule below on :focus-visible
+```
+
+Canonical output:
 
 ```scss
 :focus-visible {
-  outline: var(--tch-focus-ring-width, 2px) solid currentColor;
+  outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor;
   outline-offset: var(--tch-focus-ring-offset, 2px);
 }
 ```
@@ -583,9 +604,7 @@ min-height: var(--tch-touch-target, 48px);
 
 ## 15. Z-index
 
-Do not use random z-index values.
-
-Preferred token pattern:
+Do not use random z-index values. These tokens are **emitted** by `runtime-root.scss` (`:root`):
 
 ```text
 --tch-z-header
@@ -593,6 +612,9 @@ Preferred token pattern:
 --tch-z-overlay
 --tch-z-toast
 ```
+
+A `--tch-color-scrim` token is likewise emitted for overlay/backdrop scrims (use it instead of a
+hardcoded `#000`).
 
 Example:
 

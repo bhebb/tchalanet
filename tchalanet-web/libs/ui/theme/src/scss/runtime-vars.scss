@@ -7,7 +7,9 @@
   /* Validated component-facing token set (see docs/conventions/theme.md). */
   --tch-color-background: var(--mat-sys-background);
   --tch-color-on-background: var(--mat-sys-on-background, var(--mat-sys-on-surface));
-  --tch-color-foreground: var(--mat-sys-on-surface);
+  /* Legacy alias of the standard on-surface role: derive it so a tenant override on
+     --tch-color-on-surface cascades here too. New code should use --tch-color-on-surface. */
+  --tch-color-foreground: var(--tch-color-on-surface);
   --tch-color-primary: var(--mat-sys-primary);
   --tch-color-primary-strong: var(--mat-sys-primary-container);
   --tch-color-primary-contrast: var(--mat-sys-on-primary);
@@ -60,7 +62,7 @@
 .tch-theme:not(.dark)[data-preset='tchalanet'] {
   --tch-color-background: #f9f9fc;
   --tch-color-on-background: #1a1c1e;
-  --tch-color-foreground: #1a1c1e;
+  --tch-color-foreground: var(--tch-color-on-surface);
   --tch-color-surface: #f9f9fc;
   --tch-color-surface-bright: #f9f9fc;
   --tch-color-surface-container-lowest: #ffffff;

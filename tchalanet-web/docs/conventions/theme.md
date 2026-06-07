@@ -84,19 +84,33 @@ The mapping lives in `libs/ui/theme/src/lib/theme-token-map.ts`
 color.primary    -> --tch-color-primary
 color.secondary  -> --tch-color-secondary
 color.surface    -> --tch-color-surface
-color.onSurface  -> --tch-color-foreground (compatibility alias)
-shape.radius.md  -> --tch-radius-control (compatibility alias)
+color.onSurface  -> --tch-color-on-surface
+shape.radius.md  -> --tch-radius-md
 ```
+
+Backend overrides now target the **standard component-facing roles** (`--tch-color-on-surface`,
+`--tch-radius-md`). The legacy aliases `--tch-color-foreground` and `--tch-radius-control` are
+**derived from** those roles in `runtime-vars.scss`/`runtime-root.scss`
+(`--tch-color-foreground: var(--tch-color-on-surface)`, `--tch-radius-control: var(--tch-radius-md)`),
+so a tenant override cascades to both names without a double mapping. Prefer the standard role in new
+code; the aliases remain only for existing consumers.
 
 Rules: unmapped backend tokens are dropped (never emit invalid CSS); keys already shaped as `--tch-*`
 pass through; tokens with no backend equivalent (`background`, `outline`, `primary-contrast`,
-`surface-muted`) come from the active preset CSS. Extend the map (with a test) when the backend adds a
-token the web needs. New components use the standardized `--tch-color-on-surface` and
-`--tch-radius-md` roles; compatibility aliases must not become new component contracts.
+`surface-muted`) come from the active preset CSS. Extend the map **with a test** when the backend adds
+a token the web needs — `theme-token-contract.spec.ts` fails if a mapping targets a token that is not
+emitted.
 
 ## CSS Token Rules
 
-Components use CSS variables, not hardcoded colors:
+The **canonical list** of `--tch-*` tokens is generated from the SCSS sources of truth
+(`runtime-root.scss` + `runtime-vars.scss`) into
+`libs/ui/theme/src/registry/token-manifest.generated.ts` (`npm run tokens:generate`). Do not maintain
+a parallel hand-written list — `theme-token-contract.spec.ts` keeps the manifest, the SCSS, and
+`theme-token-map.ts` in sync and fails on drift.
+
+Components use CSS variables, not hardcoded colors. Representative subset (see the manifest for the
+full set):
 
 ```text
 --tch-color-background
@@ -185,9 +199,12 @@ of supported themes". Preset label keys are `theme.presets.<id>` and must exist 
 1. **Startup / public**: apply the default public preset.
 2. **Tenant member signs in**: apply the tenant's theme (`presetId`, `mode`, `density`, and tenant
    `overrides`). Each tenant will have its own theme; v3 lets a tenant build its own M3 theme.
-3. Apply order in the DOM: generated preset CSS (`<style id=tch-theme-base>`, `data-preset` attr)
-   → runtime state (`.dark` class, `mat-density-*`) → tenant **overrides** (`<style id=tch-theme-overrides>`,
-   supports `--dark:`-prefixed vars + custom `fontHref`).
+3. Apply order in the DOM (owned by `ThemeDomApplier`): generated preset CSS
+   (`<style id=tch-theme-preset>`) → runtime state (`.tch-theme`/`.dark` classes + `data-preset` on
+   root/body/overlay) → tenant **overrides** (`<style id=tch-theme-overrides>`). `toOverrideCss`
+   currently emits the resolved tenant token map as plain `--tch-*: value` declarations scoped to
+   `.tch-theme[data-preset='…']` — it does **not** yet support `--dark:`-prefixed variants or a custom
+   `fontHref`. Those are a **future enhancement** (needed for tenant custom fonts), not current behavior.
 
 ### Backend's role (and where its tokens fit)
 

@@ -233,6 +233,11 @@ Shared styles consomme les tokens.
 Components exposent des variables locales --comp-*.
 ```
 
+> Fondation theme/styles : le vocabulaire `--tch-*` est généré dans
+> `libs/ui/theme/src/registry/token-manifest.generated.ts` et gardé par `theme-token-contract.spec.ts`
+> (cohérence pont SCSS ↔ fallback ↔ token-map ↔ docs). L'**application de ces conventions aux
+> composants `ui/components` et aux features est un slice ultérieur** (ce socle ne les restyle pas).
+
 ---
 
 ## 4. Structure cible par extraction
