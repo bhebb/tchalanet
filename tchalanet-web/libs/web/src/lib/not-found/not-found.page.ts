@@ -3,10 +3,10 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { TchPageError } from '@tch/ui/components';
 
 @Component({
-  selector: 'tch-not-found-page',
-  imports: [TchPageError, TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
+    selector: 'tch-not-found-page',
+    imports: [TchPageError, TranslatePipe],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
     <tch-page-error
       code="404"
       [title]="'common.notFound.title' | translate"
