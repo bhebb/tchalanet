@@ -50,6 +50,26 @@
   --tch-color-status-missing: #64748b;
   --tch-color-orange-accent: #f7931e;
 
+  /* Typography bridge — derive the brand-named --tch typo tokens from the M3 type scale
+     (--mat-sys-*, emitted by mat.theme) so typography follows the active preset/theme like colours.
+     The :root values in runtime-root.scss remain as first-paint fallback. New code may also consume
+     --mat-sys-* directly. */
+  --tch-font-size-body: var(--mat-sys-body-large-size);
+  --tch-font-size-small: var(--mat-sys-body-medium-size);
+  --tch-font-size-body-md: var(--mat-sys-body-large-size);
+  --tch-font-size-title-md: var(--mat-sys-title-large-size);
+  --tch-font-size-headline-mobile: var(--mat-sys-headline-small-size);
+  --tch-font-size-headline-lg: var(--mat-sys-headline-large-size);
+  --tch-font-size-display-lg: var(--mat-sys-display-large-size);
+  --tch-font-size-label-sm: var(--mat-sys-label-small-size);
+  --tch-line-height-body-md: var(--mat-sys-body-large-line-height);
+  --tch-line-height-title-md: var(--mat-sys-title-large-line-height);
+  --tch-line-height-headline-mobile: var(--mat-sys-headline-small-line-height);
+  --tch-line-height-headline-lg: var(--mat-sys-headline-large-line-height);
+  --tch-line-height-display-lg: var(--mat-sys-display-large-line-height);
+  --tch-line-height-label-sm: var(--mat-sys-label-small-line-height);
+  --tch-letter-spacing-display-lg: var(--mat-sys-display-large-tracking);
+
   /* Brand tokens consumed by shell/header/footer/CTA. */
   --tch-header-bg: var(--tch-header-bg-base);
   --tch-header-fg: var(--tch-header-fg-base);

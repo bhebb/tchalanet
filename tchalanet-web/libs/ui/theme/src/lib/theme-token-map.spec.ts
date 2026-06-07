@@ -29,7 +29,7 @@ describe('mapBackendThemeTokens', () => {
     });
   });
 
-  it('drops unmapped backend tokens instead of emitting invalid CSS variables', () => {
+  it('drops unmapped backend tokens and maps font keywords to real stacks', () => {
     const mapped = mapBackendThemeTokens({
       'color.primary': '#006874',
       'typography.fontFamily': 'roboto',
@@ -38,9 +38,18 @@ describe('mapBackendThemeTokens', () => {
 
     expect(mapped).toEqual({
       '--tch-color-primary': '#006874',
-      '--tch-font-family': 'roboto',
+      '--tch-font-family': 'Roboto, system-ui, sans-serif',
     });
     expect(mapped['--color.primary']).toBeUndefined();
+  });
+
+  it('maps each known font keyword to a stack and leaves unknown families untouched', () => {
+    expect(mapBackendThemeTokens({ 'typography.fontFamily': 'inter' })).toEqual({
+      '--tch-font-family': '"Inter", system-ui, sans-serif',
+    });
+    expect(mapBackendThemeTokens({ 'typography.fontFamily': 'Custom Sans, serif' })).toEqual({
+      '--tch-font-family': 'Custom Sans, serif',
+    });
   });
 
   it('passes through keys already expressed as --tch-* custom properties', () => {

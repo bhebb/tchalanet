@@ -60,6 +60,24 @@ export const BACKEND_TOKEN_TO_CSS_VAR: Readonly<Record<string, string>> = {
   'shape.radius.xl': '--tch-radius-xl',
 };
 
+/**
+ * Backend font-family overrides arrive as bare keywords (the seed `allowedFonts`:
+ * `system`, `roboto`, `poppins`, `inter`). Applied verbatim they yield an invalid single-token
+ * `font-family` with no fallback. Map each keyword to a real font stack. `Plus Jakarta Sans` stays
+ * the brand default (set in runtime-root.scss); these are only for tenant overrides.
+ */
+const FONT_STACKS: Readonly<Record<string, string>> = {
+  system: 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+  roboto: 'Roboto, system-ui, sans-serif',
+  poppins: '"Poppins", system-ui, sans-serif',
+  inter: '"Inter", system-ui, sans-serif',
+  'plus-jakarta-sans': '"Plus Jakarta Sans", system-ui, sans-serif',
+};
+
+function resolveFontFamily(value: string): string {
+  return FONT_STACKS[value.trim().toLowerCase()] ?? value;
+}
+
 export function mapBackendThemeTokens(
   tokens: Readonly<Record<string, string>>,
 ): Readonly<Record<string, string>> {
@@ -68,7 +86,7 @@ export function mapBackendThemeTokens(
   for (const [key, value] of Object.entries(tokens)) {
     const target = key.startsWith('--tch-') ? key : BACKEND_TOKEN_TO_CSS_VAR[key];
     if (target) {
-      mapped[target] = value;
+      mapped[target] = target === '--tch-font-family' ? resolveFontFamily(value) : value;
     }
   }
 

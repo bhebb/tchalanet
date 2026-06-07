@@ -101,6 +101,16 @@ pass through; tokens with no backend equivalent (`background`, `outline`, `prima
 a token the web needs — `theme-token-contract.spec.ts` fails if a mapping targets a token that is not
 emitted.
 
+**Typography follows M3 like colours**: `--tch-font-size-*` / `--tch-line-height-*` /
+`--tch-letter-spacing-*` are bridged from the M3 type scale (`--mat-sys-{role}-size/line-height/
+tracking`) in `runtime-vars.scss`, with the `:root` px values as first-paint fallback. The web adopts
+the M3 type scale (so `display-lg` is M3's display-large, not a custom compact size). `--tch-weight-*`
+remain static.
+
+**Font keywords → stacks**: a tenant `typography.fontFamily` override arrives as a keyword
+(`system`/`roboto`/`poppins`/`inter`); `theme-token-map.ts` resolves it to a real font stack so the
+applied `--tch-font-family` is valid. `Plus Jakarta Sans` stays the brand default.
+
 ## CSS Token Rules
 
 The **canonical list** of `--tch-*` tokens is generated from the SCSS sources of truth

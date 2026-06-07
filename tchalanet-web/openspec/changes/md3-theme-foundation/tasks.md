@@ -80,10 +80,16 @@
 - [ ] **F1** — décision marque + fidélité : trancher LA couleur primary `tchalanet`
       (teal `#006874` / indigo `#1A1B4B` / bleu `#134D9F`), régénérer la palette, retirer le raw-hex
       override de `runtime-vars`, aligner le seed backend. (Slice génération-pilotée.)
-- [ ] **F2** — bridger les `--tch-font-size-*`/`--tch-line-height-*` depuis `--mat-sys-*` (typo suit M3).
-- [ ] **F3** — mapper `allowedFonts` (mots-clés) vers de vraies stacks ; réconcilier famille générée
-      (`Plus Jakarta Sans`) ↔ seed (`roboto`/`allowedFonts`) ↔ `--tch-font-family`.
-- [ ] **F4** — décider du support densité runtime (`mat-density-*` appliqué) ou retirer de `editableTokens`.
+- [x] **F2** — typo bridgée sur M3 : `--tch-font-size-*`/`--tch-line-height-*`/`--tch-letter-spacing`
+      dérivent de `--mat-sys-{role}-size/line-height/tracking` dans `runtime-vars.scss` (fallback :root
+      conservé). ⚠️ Décision MD3 assumée : adoption de l'échelle M3 → `display-lg` passe 40→57px sur
+      ~80 usages → **à valider visuellement** (app lancée).
+- [x] **F3** — `theme-token-map.ts` mappe les mots-clés `allowedFonts` (system/roboto/poppins/inter +
+      plus-jakarta-sans) vers de vraies stacks ; familles inconnues passées telles quelles. Plus Jakarta
+      Sans reste la police de marque. Suivi backend : aligner le seed (`fontFamily:"roboto"`) +
+      `allowedFonts` sur Plus Jakarta Sans.
+- [ ] **F4** — densité runtime (décision : implémenter) : découpler la densité des presets +
+      `mat.theme((density))` en classes globales + câblage `RuntimeTheme`/`ThemeApi`/`ThemeStore`/`ThemeDomApplier`.
 - [ ] Web — génération pilotée par le set supporté plateforme + consommation de la liste/runtime backend.
 - [ ] Backend — exposer/figer la liste des thèmes supportés consommable par la génération frontend.
 - [ ] Style — passe de conformité des composants `ui/components`.
