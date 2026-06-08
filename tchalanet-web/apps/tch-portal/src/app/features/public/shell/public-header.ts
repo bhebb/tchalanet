@@ -116,6 +116,7 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       display: flex;
       align-items: center;
       gap: 0.25rem;
+      margin-left: auto;
     }
 
     .public-header__tools {
