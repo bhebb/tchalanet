@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
 import { PublicBottomNav, PublicFooter } from '@tch/web';
@@ -6,16 +7,16 @@ import { PublicHeader } from './public-header';
 import { PublicShellService } from './public-shell.service';
 
 @Component({
-  selector: 'tch-page-shell',
-  imports: [LabelPipe, PublicHeader, PublicFooter, PublicBottomNav],
+  selector: 'tch-public-shell',
+  imports: [LabelPipe, RouterOutlet, PublicHeader, PublicFooter, PublicBottomNav],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <a class="shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
+    <a class="public-shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
 
     <tch-public-header [shell]="shellSvc.shell()" />
 
-    <main id="public-content" class="shell__body">
-      <ng-content />
+    <main id="public-content" class="public-shell__main">
+      <router-outlet />
     </main>
 
     <tch-public-footer [shell]="shellSvc.shell()" />
@@ -33,7 +34,7 @@ import { PublicShellService } from './public-shell.service';
       color: var(--comp-shell-fg);
     }
 
-    .shell__skip {
+    .public-shell__skip {
       position: fixed;
       z-index: var(--tch-z-toast, 60);
       left: 1rem;
@@ -48,24 +49,23 @@ import { PublicShellService } from './public-shell.service';
       transition: transform var(--tch-duration-short, 200ms) var(--tch-ease-standard-decelerate);
     }
 
-    .shell__skip:focus-visible {
+    .public-shell__skip:focus-visible {
       transform: translateY(0);
       outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor;
       outline-offset: var(--tch-focus-ring-offset, 2px);
     }
 
-    /* Bottom nav padding for mobile (safe-area + tab bar height) */
-    .shell__body {
+    .public-shell__main {
       padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
     }
 
     @media (min-width: 840px) {
-      .shell__body {
+      .public-shell__main {
         padding-bottom: 0;
       }
     }
   `],
 })
-export class PublicShellComponent {
+export class TchPublicShellComponent {
   protected readonly shellSvc = inject(PublicShellService);
 }

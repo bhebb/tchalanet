@@ -5,7 +5,6 @@ import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { catchError, map, of, startWith } from 'rxjs';
 
 import { PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
-import { PublicShellComponent } from './shell/public-shell.component';
 import { PublicShellService } from './shell/public-shell.service';
 // Dev-only theme sandbox: referenced exclusively inside the @defer block below, so Angular
 // code-splits it (and its Material modules) into a lazy chunk that prod never loads.
@@ -19,7 +18,6 @@ type PublicHomeState =
 @Component({
   selector: 'tch-public-home-page',
   imports: [
-    PublicShellComponent,
     PageModelComponent,
     TranslatePipe,
     TchLoading,
@@ -31,22 +29,20 @@ type PublicHomeState =
     @defer (when devMode) {
       <tch-theme-sandbox />
     }
-    <tch-page-shell>
-      @switch (state().status) {
-        @case ('loading') {
-          <tch-loading [label]="'common.loading' | translate" />
-        }
-        @case ('error') {
-          <tch-error-panel
-            [title]="'common.error.title' | translate"
-            [message]="'public.home.loadError' | translate"
-          />
-        }
-        @case ('ready') {
-          <tch-page-model [content]="response()!.content" [dynamic]="response()!.dynamic" />
-        }
+    @switch (state().status) {
+      @case ('loading') {
+        <tch-loading [label]="'common.loading' | translate" />
       }
-    </tch-page-shell>
+      @case ('error') {
+        <tch-error-panel
+          [title]="'common.error.title' | translate"
+          [message]="'public.home.loadError' | translate"
+        />
+      }
+      @case ('ready') {
+        <tch-page-model [content]="response()!.content" [dynamic]="response()!.dynamic" />
+      }
+    }
   `,
 })
 export class PublicHomePage {

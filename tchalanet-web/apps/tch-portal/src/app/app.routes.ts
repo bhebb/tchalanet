@@ -11,49 +11,25 @@ import { PublicInfoPage } from './features/public/public-info.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicResultDetailPage } from './features/public/public-result-detail.page';
 import { PublicResultsPage } from './features/public/public-results.page';
+import { TchPublicShellComponent } from './features/public/shell/public-shell.component';
 import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
 import { NotFoundPage } from '@tch/web';
 
 export const appRoutes: Route[] = [
   {
     path: 'public',
-    component: PublicHomePage,
-  },
-  {
-    path: 'public/check-ticket',
-    component: PublicCheckTicketPage,
-  },
-  {
-    path: 'public/results',
-    component: PublicResultsPage,
-  },
-  {
-    path: 'public/results/:id',
-    component: PublicResultDetailPage,
-  },
-  {
-    path: 'public/rules',
-    component: PublicRulesPage,
-  },
-  {
-    path: 'public/help',
-    component: PublicInfoPage,
-    data: { kind: 'help' },
-  },
-  {
-    path: 'public/contact',
-    component: PublicInfoPage,
-    data: { kind: 'contact' },
-  },
-  {
-    path: 'public/privacy',
-    component: PublicInfoPage,
-    data: { kind: 'privacy' },
-  },
-  {
-    path: 'public/terms',
-    component: PublicInfoPage,
-    data: { kind: 'terms' },
+    component: TchPublicShellComponent,
+    children: [
+      { path: '', component: PublicHomePage },
+      { path: 'check-ticket', component: PublicCheckTicketPage },
+      { path: 'results', component: PublicResultsPage },
+      { path: 'results/:id', component: PublicResultDetailPage },
+      { path: 'rules', component: PublicRulesPage },
+      { path: 'help', component: PublicInfoPage, data: { kind: 'help' } },
+      { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },
+      { path: 'privacy', component: PublicInfoPage, data: { kind: 'privacy' } },
+      { path: 'terms', component: PublicInfoPage, data: { kind: 'terms' } },
+    ],
   },
   {
     path: 'forbidden',
@@ -67,9 +43,7 @@ export const appRoutes: Route[] = [
       {
         path: '',
         component: RoleDashboardPage,
-        data: {
-          titleKey: 'dashboard.titles.cashier',
-        },
+        data: { titleKey: 'dashboard.titles.cashier' },
       },
     ],
   },
@@ -81,9 +55,7 @@ export const appRoutes: Route[] = [
       {
         path: '',
         component: TenantAdminDashboardPage,
-        data: {
-          titleKey: 'dashboard.titles.admin',
-        },
+        data: { titleKey: 'dashboard.titles.admin' },
       },
     ],
   },
@@ -95,9 +67,7 @@ export const appRoutes: Route[] = [
       {
         path: '',
         component: SuperAdminDashboardPage,
-        data: {
-          titleKey: 'dashboard.titles.platform',
-        },
+        data: { titleKey: 'dashboard.titles.platform' },
       },
     ],
   },

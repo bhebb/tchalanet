@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PublicShellComponent } from './shell/public-shell.component';
 import { ResultStatus } from '@tch/page-model';
 
 interface PublicResultDetail {
@@ -31,11 +30,10 @@ interface ResultStatusView {
 
 @Component({
   selector: 'tch-public-result-detail-page',
-  imports: [PublicShellComponent, RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="result-detail">
+    <div class="result-detail">
         <nav class="result-detail__breadcrumb" aria-label="Breadcrumb">
           <a routerLink="/public/results">{{ 'public.results.latest_title' | translate }}</a>
           <span aria-hidden="true">/</span>
@@ -142,8 +140,7 @@ interface ResultStatusView {
             </div>
           </section>
         }
-      </main>
-    </tch-page-shell>
+    </div>
   `,
   styles: [
     `

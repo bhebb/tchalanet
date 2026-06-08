@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
-import { PublicShellComponent } from './shell/public-shell.component';
 
 export type PublicRuleGameId = 'borlette' | 'mariage' | 'lotto3' | 'lotto4';
 
@@ -103,11 +102,10 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
 
 @Component({
   selector: 'tch-public-rules-page',
-  imports: [PublicShellComponent, LabelPipe, RouterLink],
+  imports: [LabelPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="rules-page">
+    <div class="rules-page">
         <section class="rules-page__hero">
           <div class="rules-page__hero-copy">
             <p class="rules-page__eyebrow">{{ 'public.pages.rules.eyebrow' | tchLabel }}</p>
@@ -210,8 +208,7 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
             }
           </div>
         </section>
-      </main>
-    </tch-page-shell>
+    </div>
   `,
   styles: [
     `

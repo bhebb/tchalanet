@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PublicShellComponent } from './shell/public-shell.component';
 import { ResultStatus } from '@tch/page-model';
 
 type ResultFilter = 'all' | 'new-york' | 'florida' | 'georgia';
@@ -61,11 +60,10 @@ const RESULT_ITEMS: readonly PublicResultListItem[] = [
 
 @Component({
   selector: 'tch-public-results-page',
-  imports: [PublicShellComponent, RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="results-page">
+    <div class="results-page">
         <section class="results-page__hero" aria-labelledby="results-page-title">
           <img
             class="results-page__hero-image"
@@ -173,8 +171,7 @@ const RESULT_ITEMS: readonly PublicResultListItem[] = [
             </div>
           }
         </section>
-      </main>
-    </tch-page-shell>
+    </div>
   `,
   styles: [
     `

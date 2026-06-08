@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PublicShellComponent } from './shell/public-shell.component';
 import { VerificationStatus } from '@tch/page-model';
 
 type CheckState =
@@ -21,11 +20,10 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [PublicShellComponent, RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="check-page">
+    <div class="check-page">
         <section class="check-page__hero" aria-labelledby="check-title">
           <div class="check-page__visual" aria-hidden="true">
             <img
@@ -132,8 +130,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
             <p>{{ 'public.check.help_body' | translate }}</p>
           </div>
         </section>
-      </main>
-    </tch-page-shell>
+    </div>
   `,
   styles: [
     `

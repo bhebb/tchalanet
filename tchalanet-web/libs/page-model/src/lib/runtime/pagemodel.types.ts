@@ -14,6 +14,15 @@ export interface PageMeta {
   readonly scope: string;
   readonly slug: string;
   readonly schemaVersion: number;
+  readonly currentLang?: string;
+  readonly supportedLangs?: readonly PublicLanguageOption[];
+}
+
+export interface PublicLanguageOption {
+  readonly code: string;
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly flag?: string;
 }
 
 export interface PageThemeHint {

@@ -220,14 +220,17 @@
     "nav": {
       "check_ticket": "Verify a ticket",
       "help": "Help",
+      "home": "Home",
       "login": "Login",
+      "main": "Main navigation",
       "menu": "Open menu",
+      "menu_close": "Close menu",
+      "menu_open": "Open menu",
       "operators": "For operators",
       "results": "Results",
+      "rules": "Rules",
       "skip": "Skip to content",
-      "verify_short": "Verify",
-      "home": "Home",
-      "rules": "Rules"
+      "verify_short": "Verify"
     },
     "operator": {
       "access": "Operator access",

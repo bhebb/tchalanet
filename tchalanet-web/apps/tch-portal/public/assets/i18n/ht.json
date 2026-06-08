@@ -220,14 +220,17 @@
     "nav": {
       "check_ticket": "Verifye yon tikè",
       "help": "Èd",
+      "home": "Akèy",
       "login": "Konekte",
+      "main": "Navigasyon prensipal",
       "menu": "Louvri meni an",
+      "menu_close": "Fèmen meni an",
+      "menu_open": "Louvri meni an",
       "operators": "Pou operatè",
       "results": "Rezilta",
+      "rules": "Règ yo",
       "skip": "Ale nan kontni an",
-      "verify_short": "Verifye",
-      "home": "Akèy",
-      "rules": "Règ yo"
+      "verify_short": "Verifye"
     },
     "operator": {
       "access": "Aksè operatè",

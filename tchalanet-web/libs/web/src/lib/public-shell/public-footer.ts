@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 import { LabelPipe, PublicFooterColumn, PublicShellRuntime } from '@tch/page-model';
 import { ActionItem, actionHref, actionRoute, actionText, isExternalAction } from '@tch/api';
-import { MatIconRegistry } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 
 interface FooterText {
@@ -14,7 +14,7 @@ interface FooterText {
 
 @Component({
   selector: 'tch-public-footer',
-  imports: [RouterLink, LabelPipe],
+  imports: [RouterLink, LabelPipe, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <footer class="public-footer">
@@ -44,11 +44,8 @@ interface FooterText {
                   rel="noopener noreferrer"
                   [attr.aria-label]="actionText(item) | tchLabel"
                 >
-                  @if (item.icon) {
-                    <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
-                  } @else {
-                    <span aria-hidden="true">{{ actionText(item) | tchLabel }}</span>
-                  }
+                  <!-- icon from backend when available, fallback to item.id which matches registered SVG names -->
+                  <mat-icon [svgIcon]="item.icon ?? item.id" aria-hidden="true" />
                 </a>
               }
             </nav>
@@ -59,30 +56,30 @@ interface FooterText {
           <nav class="public-footer__columns" aria-label="Pied de page public">
             @for (column of columns(); track column.id ?? column.titleKey) {
               <section class="public-footer__column">
-                <h2>{{ column.titleKey | tchLabel }}</h2>
+                <h2 class="public-footer__heading">{{ column.titleKey | tchLabel }}</h2>
 
-                @for (item of column.links; track item.id) {
-                  @if (isExternalAction(item)) {
-                    <a [href]="actionHref(item)" target="_blank" rel="noopener noreferrer">
-                      {{ actionText(item) | tchLabel }}
-                    </a>
-                  } @else {
-                    <a [routerLink]="actionRoute(item)">
-                      {{ actionText(item) | tchLabel }}
-                    </a>
+                <div class="public-footer__links">
+                  @for (item of column.links; track item.id) {
+                    @if (isExternalAction(item)) {
+                      <a [href]="actionHref(item)" target="_blank" rel="noopener noreferrer">
+                        {{ actionText(item) | tchLabel }}
+                      </a>
+                    } @else {
+                      <a [routerLink]="actionRoute(item)">
+                        {{ actionText(item) | tchLabel }}
+                      </a>
+                    }
                   }
-                }
+                </div>
               </section>
             }
           </nav>
         }
       </div>
 
-      @if (text().copyrightKey) {
-        <div class="public-footer__bottom">
-          <small>{{ text().copyrightKey | tchLabel }}</small>
-        </div>
-      }
+      <div class="public-footer__bottom">
+        <small>© {{ currentYear }} Tchalanet</small>
+      </div>
     </footer>
   `,
   styles: [`
@@ -192,21 +189,26 @@ interface FooterText {
       gap: 0.625rem;
     }
 
-    .public-footer__column h2 {
+    .public-footer__heading {
       margin: 0 0 0.25rem;
       font-size: var(--tch-font-size-label-sm, 0.75rem);
       line-height: var(--tch-line-height-label-sm, 1rem);
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--tch-color-secondary-container);
+      color: var(--tch-color-accent);
     }
 
-    .public-footer__column a {
+    .public-footer__links {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .public-footer__links a {
       color: var(--comp-footer-link);
       text-decoration: none;
     }
 
-    .public-footer__column a:hover {
+    .public-footer__links a:hover {
       color: var(--tch-color-on-primary);
     }
 
@@ -231,7 +233,7 @@ interface FooterText {
       }
 
       .public-footer__columns {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
       }
     }
   `],
@@ -241,6 +243,7 @@ export class PublicFooter {
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly shell = input<PublicShellRuntime | undefined>();
+  readonly currentYear = new Date().getFullYear();
 
   readonly brand = computed(() => this.shell()?.footer.brand);
   readonly brandImage = computed(

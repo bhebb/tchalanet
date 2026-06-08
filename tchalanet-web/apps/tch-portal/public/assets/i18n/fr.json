@@ -227,14 +227,17 @@
     "nav": {
       "check_ticket": "Vérifier un ticket",
       "help": "Aide",
+      "home": "Accueil",
       "login": "Connexion",
+      "main": "Navigation principale",
       "menu": "Ouvrir le menu",
+      "menu_close": "Fermer le menu",
+      "menu_open": "Ouvrir le menu",
       "operators": "Pour opérateurs",
       "results": "Résultats",
+      "rules": "Règles",
       "skip": "Aller au contenu",
-      "verify_short": "Vérifier",
-      "home": "Accueil",
-      "rules": "Règles"
+      "verify_short": "Vérifier"
     },
     "operator": {
       "access": "Accès opérateur",

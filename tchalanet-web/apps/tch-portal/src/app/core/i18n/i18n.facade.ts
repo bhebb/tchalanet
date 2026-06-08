@@ -30,6 +30,10 @@ export class I18nFacade {
     return this.translate.instant(key, params) as string;
   }
 
+  setLanguages(languages: readonly string[], currentLanguage?: string): void {
+    this.store.dispatch(I18nActions.setLanguages({ languages, currentLanguage }));
+  }
+
   label(language: string): string {
     return (
       {

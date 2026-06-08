@@ -1,51 +1,67 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+import { ActionItem, actionText } from '@tch/api';
+import { LabelPipe, PublicShellRuntime } from '@tch/page-model';
+import { TchActionButton, TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
+
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { LabelPipe, PublicShellRuntime } from '@tch/page-model';
-import { ActionItem, actionText } from '@tch/api';
-import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
 
 @Component({
   selector: 'tch-public-header',
-  imports: [LanguageSwitcherComponent, LabelPipe, TchBrand, TchNav, TchOverlayNav],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    LabelPipe,
+    TchActionButton,
+    TchBrand,
+    TchNav,
+    TchOverlayNav,
+    LanguageSwitcherComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="public-header">
       <div class="public-header__inner">
+        <button
+          type="button"
+          mat-icon-button
+          class="public-header__menu-button"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          [attr.aria-label]="(mobileMenuOpen() ? 'public.nav.menu_close' : 'public.nav.menu_open') | tchLabel"
+          (click)="toggleMobileMenu()"
+          aria-controls="public-overlay-nav"
+        >
+          <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+        </button>
+
         <tch-brand class="public-header__brand" [brand]="brand()" [showName]="false" />
 
-        <tch-nav class="public-header__nav" [items]="nav()" ariaLabel="Navigation publique" />
+        <tch-nav
+          class="public-header__nav"
+          [items]="nav()"
+          [ariaLabel]="'public.nav.main' | tchLabel"
+        />
 
         <div class="public-header__actions">
-          <div class="public-header__tools" aria-label="Langue">
+          <div class="public-header__tools">
             <tch-language-switcher />
           </div>
           @if (loginAction(); as loginItem) {
-            <button type="button" class="public-header__login" (click)="login()">
+            <button tch-action type="button" (click)="login()">
               {{ actionText(loginItem) | tchLabel }}
             </button>
           }
         </div>
-
-        <button
-          type="button"
-          class="public-header__burger"
-          [attr.aria-expanded]="mobileMenuOpen()"
-          [attr.aria-label]="'public.nav.menu' | tchLabel"
-          (click)="toggleMobileMenu()"
-          aria-controls="public-overlay-nav"
-        >
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </button>
       </div>
 
       <tch-overlay-nav
         id="public-overlay-nav"
         [open]="mobileMenuOpen()"
         [items]="nav()"
-        ariaLabel="Navigation publique mobile"
+        [ariaLabel]="'public.nav.main' | tchLabel"
         (requestClose)="closeMobileMenu()"
       />
     </header>
@@ -70,7 +86,12 @@ import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.375rem;
+    }
+
+    .public-header__menu-button {
+      flex: 0 0 auto;
+      color: var(--tch-color-primary);
     }
 
     .public-header__brand {
@@ -89,7 +110,6 @@ import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
       display: block;
     }
 
-    /* Mobile-first: nav and tools hidden on compact */
     .public-header__nav {
       display: none;
     }
@@ -105,46 +125,20 @@ import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
       display: none;
     }
 
-    .public-header__login {
-      min-height: 2.5rem;
-      padding: 0 0.875rem;
-      border-radius: var(--tch-radius-md, 8px);
-      border: 0;
-      background: var(--tch-color-accent);
-      color: var(--tch-on-color-accent);
-      cursor: pointer;
-      font-weight: var(--tch-weight-extra-bold, 800);
-      font-size: 0.875rem;
+    /* Force gold accent on login CTA — secondary-container is lavender in M3 palette */
+    .tch-action {
+      --comp-action-bg: var(--tch-color-accent);
+      --comp-action-fg: var(--tch-on-color-accent, #1a1b4b);
     }
 
-    /* Burger: visible on compact */
-    .public-header__burger {
-      flex: 0 0 auto;
-      width: var(--tch-touch-target, 48px);
-      height: var(--tch-touch-target, 48px);
-      display: grid;
-      place-items: center;
-      gap: 0;
-      border: 1px solid var(--tch-color-outline-variant);
-      border-radius: var(--tch-radius-md, 8px);
-      background: transparent;
-      color: var(--tch-color-primary);
-      cursor: pointer;
-    }
-
-    .public-header__burger span {
-      width: 1.25rem;
-      height: 2px;
-      display: block;
-      border-radius: 9999px;
-      background: currentColor;
-    }
-
-    /* Expanded layout ≥ 840px */
     @media (min-width: 840px) {
       .public-header__inner {
-        min-height: 4.5rem;
-        gap: clamp(0.75rem, 2vw, 1.25rem);
+        min-height: 4rem;
+        gap: clamp(0.5rem, 2vw, 1rem);
+      }
+
+      .public-header__menu-button {
+        display: none;
       }
 
       .public-header__brand {
@@ -160,45 +154,20 @@ import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
         flex: 1 1 auto;
         flex-wrap: nowrap;
         justify-content: flex-start;
-        gap: 0.25rem;
         min-width: 0;
-      }
-
-      .public-header__nav a {
-        min-height: 2.5rem;
-        display: inline-flex;
-        align-items: center;
-        padding: 0 0.625rem;
-        border-radius: var(--tch-radius-pill, 9999px);
-        color: var(--tch-color-on-surface-variant);
-        text-decoration: none;
-        font-weight: var(--tch-weight-extra-bold, 800);
-        font-size: 0.875rem;
-        white-space: nowrap;
-      }
-
-      .public-header__nav a:hover {
-        background: var(--tch-color-surface-container);
-        color: var(--tch-color-primary);
+        --comp-nav-hover-bg: color-mix(in srgb, var(--tch-color-accent) 14%, transparent);
+        --comp-nav-active: var(--tch-color-primary);
+        --comp-nav-active-indicator: var(--tch-color-accent);
       }
 
       .public-header__actions {
-        gap: 0.625rem;
+        gap: 0.5rem;
       }
 
       .public-header__tools {
         display: flex;
         align-items: center;
         gap: 0.375rem;
-      }
-
-      .public-header__login {
-        min-height: var(--tch-touch-target, 48px);
-        padding: 0 1.125rem;
-      }
-
-      .public-header__burger {
-        display: none;
       }
     }
   `],
