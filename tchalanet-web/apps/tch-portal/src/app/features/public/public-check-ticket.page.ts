@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { VerificationStatus } from '@tch/page-model';
@@ -30,7 +30,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [RouterLink, TranslatePipe, TchCard, TchActionButton, TchLoading],
+  imports: [TranslatePipe, TchCard, TchActionButton, TchLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="check-page">
@@ -850,7 +850,7 @@ export function verificationCopy(status: VerificationStatus): VerificationCopy {
       bodyKey:  'public.check.status.NOT_PAYABLE.body',
     },
     PAYABLE: {
-      icon: 'emoji_events', tone: 'success',
+      icon: 'task_alt', tone: 'success',
       titleKey: 'public.check.status.PAYABLE.title',
       bodyKey:  'public.check.status.PAYABLE.body',
     },
