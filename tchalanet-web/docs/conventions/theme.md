@@ -148,17 +148,26 @@ full set):
 `--tch-*` variables are global theme tokens. `--comp-*` variables are component-local extension
 points and must fall back to `--tch-*`; they are not new global theme roles.
 
-The current Web foundation uses:
+The official `tchalanet` brand palette (light) — the exact hexes are **pinned** on both `--mat-sys-*`
+and `--tch-*` in `runtime-vars.scss` (`.tch-theme:not(.dark)[data-preset='tchalanet']`), so Material
+and app components never diverge. Roles not listed here derive from the `#1A1B4B`-seeded M3 palette.
 
 ```text
-primary             #1A1B4B
-onPrimary           #FFFFFF
-secondaryContainer  #FECB00
-onSecondaryContainer #241A00
-orangeAccent        #F7931E
-fontFamily          Plus Jakarta Sans
+primary              #1A1B4B   deep navy — brand sections, titles, key fills
+onPrimary            #FFFFFF
+primaryContainer     #2E3192   lighter navy — highlight sections
+accent (= tertiary)  #FECB00   gold — primary CTA / accents  (NOT secondary)
+onAccent             #241A00
+background           #F9F9FC
+surfaceContainerLowest #FFFFFF  cards/widgets
+onSurface            #1A1C1E
+onSurfaceVariant     #464652
+header               #FFFFFF bg / #1A1C1E text   (white top bar)
+footer               #1A1B4B bg / #FFFFFF text
+fontFamily           Plus Jakarta Sans
 ```
 
+The gold lives **only** in the accent role (M3 `tertiary`); `secondary` derives to a muted indigo.
 This is the current Web reference. Mobile/POS alignment requires a separate Mobile-owned change;
 this convention does not claim that Flutter already implements these values.
 

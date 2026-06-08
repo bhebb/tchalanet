@@ -77,9 +77,13 @@
 
 ## 9. Suivis (hors de ce change, à tracer)
 
-- [ ] **F1** — décision marque + fidélité : trancher LA couleur primary `tchalanet`
-      (teal `#006874` / indigo `#1A1B4B` / bleu `#134D9F`), régénérer la palette, retirer le raw-hex
-      override de `runtime-vars`, aligner le seed backend. (Slice génération-pilotée.)
+- [x] **F1 (web)** — résolu : primary marque = **#1A1B4B** (navy). Palette `_theme-colors.scss`
+      régénérée depuis #1A1B4B + tertiary #FECB00 (schematic Material) ; les hexes officiels de marque
+      (primary navy, primaryContainer #2E3192, accent gold, background #F9F9FC, surfaces, on-surface,
+      header blanc/footer navy) sont **épinglés sur `--mat-sys-*` ET `--tch-*`** → plus de divergence.
+      Gold = accent (tertiary) uniquement ; secondary dérive en indigo muté. Fallback `:root` aligné.
+- [ ] **F1 (backend)** — aligner le seed V203 `tchalanet color.primary` (#006874 teal) sur #1A1B4B + la
+      famille de police (`roboto` → Plus Jakarta Sans) + `allowedFonts`. (Suivi backend.)
 - [x] **F2** — typo bridgée sur M3 : `--tch-font-size-*`/`--tch-line-height-*`/`--tch-letter-spacing`
       dérivent de `--mat-sys-{role}-size/line-height/tracking` dans `runtime-vars.scss` (fallback :root
       conservé). ⚠️ Décision MD3 assumée : adoption de l'échelle M3 → `display-lg` passe 40→57px sur

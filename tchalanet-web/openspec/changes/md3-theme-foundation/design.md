@@ -58,9 +58,13 @@ reste à décider si la densité runtime est supportée (sinon retirer `allowedF
 
 ## Décisions / suites
 
-- **F1 fidélité** : décision marque (teal `#006874` vs indigo `#1A1B4B` vs bleu `#134D9F`) → **slice
-  génération-pilotée-par-le-set-supporté** ; régénérer la palette `tchalanet` depuis la couleur
-  retenue et retirer le raw-hex override de `runtime-vars`. Aligner le seed backend.
+- **F1 fidélité — RÉSOLU (web)** : couleur de marque retenue = **#1A1B4B (navy)**, sur référence design
+  officielle. Palette `_theme-colors.scss` régénérée depuis #1A1B4B (+ tertiary #FECB00) via le
+  schematic Material. Les hexes officiels (primary navy, primaryContainer #2E3192, accent gold,
+  background #F9F9FC, surfaceContainerLowest #FFFFFF, onSurface #1A1C1E, onSurfaceVariant #464652,
+  header blanc / footer navy) sont **épinglés sur `--mat-sys-*` ET `--tch-*`** dans `runtime-vars.scss`
+  → Material et composants app rendent identiquement. Gold = accent (M3 tertiary) uniquement ;
+  secondary dérive en indigo muté. **Suivi backend** : aligner le seed V203 (#006874 teal → #1A1B4B).
 - **F2/F3/F4** : suites de la passe MD3 typographie/fonts/densité — touchent `runtime-root`,
   `runtime-vars`, `theme-token-map`, `_generate-theme` ; à valider visuellement (app lancée), donc
   hors du socle « sans régression visuelle » de ce change.

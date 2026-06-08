@@ -23,6 +23,10 @@ export class ThemeDomApplier {
     root.dataset['theme'] = theme.effectiveMode;
     root.dataset['themePreference'] = theme.mode;
     root.dataset['themePreset'] = theme.activePresetKey;
+    // Also expose data-preset on the root so the `.tch-theme[data-preset]` preset CSS (--mat-sys-* +
+    // colours) resolves at <html>, not only <body>; otherwise the .tch-theme bridge defeats the
+    // :root first-paint colour fallback on the root element.
+    root.dataset['preset'] = theme.activePresetKey;
     root.dataset['themeDensity'] = theme.density;
     root.classList.add('tch-theme');
     root.classList.toggle('dark', theme.effectiveMode === 'dark');

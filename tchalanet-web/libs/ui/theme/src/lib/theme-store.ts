@@ -107,6 +107,11 @@ export class ThemeStore {
     persistTheme(this.activeTheme());
   }
 
+  setDensity(density: ThemeDensity): void {
+    this.apply({ ...this.activeTheme(), density });
+    persistTheme(this.activeTheme());
+  }
+
   private effectiveMode(mode: ThemeMode): Exclude<ThemeMode, 'system'> {
     return mode === 'system' ? (this.systemDarkSignal() ? 'dark' : 'light') : mode;
   }

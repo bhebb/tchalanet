@@ -79,50 +79,45 @@
   --tch-on-color-accent: var(--tch-accent-fg-base);
 }
 
+/* Official tchalanet brand palette (light) — exact brand hexes, pinned on BOTH the M3 system tokens
+   (--mat-sys-*, what Material components read) and the validated --tch-* set (what app components
+   read) so the two never diverge. Roles NOT pinned here (secondary, outline, error, mid surface
+   steps, *-fixed) derive from the #1A1B4B-seeded M3 palette. Dark mode derives from the palette. */
 .tch-theme:not(.dark)[data-preset='tchalanet'] {
-  --tch-color-background: #f9f9fc;
-  --tch-color-on-background: #1a1c1e;
-  --tch-color-foreground: var(--tch-color-on-surface);
-  --tch-color-surface: #f9f9fc;
-  --tch-color-surface-bright: #f9f9fc;
-  --tch-color-surface-container-lowest: #ffffff;
-  --tch-color-surface-container-low: #f3f3f6;
-  --tch-color-surface-container: #edeef1;
-  --tch-color-surface-container-high: #e8e8eb;
-  --tch-color-surface-container-highest: #e2e2e5;
-  --tch-color-surface-variant: #e2e2e5;
-  --tch-color-surface-tonal: #ebebf5;
-  --tch-color-on-surface: #1a1c1e;
-  --tch-color-on-surface-variant: #464652;
-  --tch-color-surface-muted: #edeef1;
-  --tch-color-outline: #777683;
-  --tch-color-outline-variant: #c7c5d4;
+  /* Primary — deep navy, used for brand sections/titles/key fills. */
+  --mat-sys-primary: #1a1b4b;
   --tch-color-primary: #1a1b4b;
-  --tch-color-primary-strong: #15157d;
-  --tch-color-primary-contrast: #ffffff;
+  --mat-sys-on-primary: #ffffff;
   --tch-color-on-primary: #ffffff;
+  --mat-sys-primary-container: #2e3192;
   --tch-color-primary-container: #2e3192;
-  --tch-color-on-primary-container: #e1e0ff;
-  --tch-color-primary-fixed: #e1e0ff;
-  --tch-color-primary-fixed-dim: #c0c1ff;
-  --tch-color-on-primary-fixed: #04006d;
-  --tch-color-on-primary-fixed-variant: #373a9b;
-  --tch-color-secondary: #745b00;
-  --tch-color-on-secondary: #ffffff;
-  --tch-color-secondary-container: #fecb00;
-  --tch-color-on-secondary-container: #241a00;
-  --tch-color-secondary-fixed: #ffe08b;
-  --tch-color-secondary-fixed-dim: #f1c100;
-  --tch-color-error: #ba1a1a;
-  --tch-color-on-error: #ffffff;
-  --tch-color-error-container: #ffdad6;
-  --tch-color-on-error-container: #93000a;
-  --tch-header-bg: #1a1b4b;
-  --tch-header-fg: #ffffff;
-  --tch-footer-bg: #1a1b4b;
-  --tch-footer-fg: #ffffff;
+  --mat-sys-on-primary-container: #ffffff;
+  --tch-color-on-primary-container: #ffffff;
+  --tch-color-primary-contrast: #ffffff;
+
+  /* Gold accent — primary CTA / visual accents. Mapped to M3 tertiary so Material accent matches. */
+  --mat-sys-tertiary: #fecb00;
+  --mat-sys-on-tertiary: #241a00;
   --tch-color-accent: #fecb00;
   --tch-on-color-accent: #241a00;
+
+  /* Surfaces & content. */
+  --mat-sys-background: #f9f9fc;
+  --tch-color-background: #f9f9fc;
+  --mat-sys-surface: #f9f9fc;
+  --tch-color-surface: #f9f9fc;
+  --mat-sys-surface-container-lowest: #ffffff;
+  --tch-color-surface-container-lowest: #ffffff;
+  --mat-sys-on-surface: #1a1c1e;
+  --tch-color-on-surface: #1a1c1e;
+  --mat-sys-on-surface-variant: #464652;
+  --tch-color-on-surface-variant: #464652;
+
+  /* Chrome: white top bar with navy text (per design); navy footer. */
+  --tch-header-bg: #ffffff;
+  --tch-header-fg: #1a1c1e;
+  --tch-footer-bg: #1a1b4b;
+  --tch-footer-fg: #ffffff;
 }
 
 /* Dark post-processing: darken the brand header/footer so a vivid primary stays legible in dark,

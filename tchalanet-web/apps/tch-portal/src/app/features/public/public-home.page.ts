@@ -6,6 +6,7 @@ import { catchError, map, of, startWith } from 'rxjs';
 
 import { PageModelApi, PageModelComponent, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
 import { PublicShellComponent } from './shell/public-shell.component';
+import { ThemeSandboxComponent } from './theme-sandbox.component'; // dev-only theme sandbox (floating, isDevMode)
 
 type PublicHomeState =
   | { readonly status: 'loading' }
@@ -21,9 +22,18 @@ type PublicHomeState =
  */
 @Component({
   selector: 'tch-public-home-page',
-  imports: [PublicShellComponent, PageModelComponent, TranslatePipe, TchLoading, TchErrorPanel],
+  imports: [
+    PublicShellComponent,
+    PageModelComponent,
+    TranslatePipe,
+    TchLoading,
+    TchErrorPanel,
+    ThemeSandboxComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+      <!-- Dev-only floating theme sandbox (no-op in prod via isDevMode) -->
+      <tch-theme-sandbox />
       <tch-page-shell [shell]="shell()">
           @switch (state().status) {
               @case ('loading') {
