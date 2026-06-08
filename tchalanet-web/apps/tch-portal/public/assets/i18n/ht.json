@@ -73,7 +73,7 @@
       "title": "Verifye yon tikè"
     },
     "draws": {
-      "title": "Tiraj"
+      "title": "Dènye tiraj"
     },
     "features": {
       "title": "Fonksyonalite"
@@ -95,6 +95,20 @@
     "plans": {
       "empty": "Pa gen plan disponib.",
       "title": "Plan"
+    },
+    "tchala": {
+      "title": "Entèpretasyon rèv — Tchala",
+      "subtitle": "Jwenn nimewo ki asosye ak rèv ou yo dapre Tchala ayisyen an.",
+      "search_placeholder": "Antre yon rèv oswa yon bagay...",
+      "search_submit": "Chèche",
+      "by_number_label": "Chèche pa nimewo",
+      "by_dream_label": "Chèche pa rèv",
+      "dream": {
+        "poisson": "Pwason",
+        "serpent": "Sèpan",
+        "argent": "Kòb",
+        "mariage": "Maryaj"
+      }
     }
   },
   "layout": {
@@ -376,7 +390,10 @@
       "status_label": "Estati rezilta",
       "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
       "supported_source": "Sous ki sipòte",
-      "verify_ticket": "Verifye yon tikè"
+      "verify_ticket": "Verifye yon tikè",
+      "numbers_pending": "Nimewo ap tann piblikasyon.",
+      "next_in": "Pwochen tiraj nan",
+      "awaiting": "Ap tann rezilta yo"
     },
     "rules": {
       "badge": "Endikatif",
@@ -460,7 +477,8 @@
       "help": "Ki kote pou jwenn kòd piblik la?",
       "placeholder": "ABC-123-XYZ",
       "scan_qr": "Eskane QR",
-      "title": "Verifye yon tikè"
+      "title": "Verifye yon tikè",
+      "status_pending": "Ap tann"
     }
   },
   "widget": {

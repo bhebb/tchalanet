@@ -84,8 +84,6 @@ export class NewsTickerWidget {
     () => stringProp(this.config(), 'title_key') ?? 'home.news.title',
   );
   readonly items = computed<readonly NewsItem[]>(() =>
-    ((this.dynamic() as NewsDynamic)?.items ?? []).filter(
-      (item) => item.source !== 'EXTERNAL_RSS',
-    ),
+    (this.dynamic() as NewsDynamic)?.items ?? [],
   );
 }

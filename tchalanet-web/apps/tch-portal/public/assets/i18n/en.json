@@ -73,7 +73,7 @@
       "title": "Check a ticket"
     },
     "draws": {
-      "title": "Draws"
+      "title": "Latest draws"
     },
     "features": {
       "title": "Features"
@@ -95,6 +95,20 @@
     "plans": {
       "empty": "No plans available.",
       "title": "Plans"
+    },
+    "tchala": {
+      "title": "Dream Interpretation — Tchala",
+      "subtitle": "Find the numbers associated with your dreams according to the Haitian Tchala.",
+      "search_placeholder": "Enter a dream or object...",
+      "search_submit": "Search",
+      "by_number_label": "Search by number",
+      "by_dream_label": "Search by dream",
+      "dream": {
+        "poisson": "Fish",
+        "serpent": "Snake",
+        "argent": "Money",
+        "mariage": "Wedding"
+      }
     }
   },
   "layout": {
@@ -376,7 +390,10 @@
       "status_label": "Result status",
       "subtitle": "Confirmed results according to supported sources.",
       "supported_source": "Supported source",
-      "verify_ticket": "Verify a ticket"
+      "verify_ticket": "Verify a ticket",
+      "numbers_pending": "Numbers pending publication.",
+      "next_in": "Next draw in",
+      "awaiting": "Awaiting results"
     },
     "rules": {
       "badge": "Indicative",
@@ -460,7 +477,8 @@
       "help": "Where can I find the public code?",
       "placeholder": "ABC-123-XYZ",
       "scan_qr": "Scan QR",
-      "title": "Verify a ticket"
+      "title": "Verify a ticket",
+      "status_pending": "Pending"
     }
   },
   "widget": {

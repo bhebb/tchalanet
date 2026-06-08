@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 
 import { WidgetConfig } from '@tch/page-model';
 import { LabelPipe } from '@tch/page-model';
-import { isRecord } from '@tch/page-model';
+import { stringProp } from '@tch/page-model';
 
 @Component({
   selector: 'tch-tchala-search-widget',
@@ -39,10 +39,6 @@ export class TchalaSearchWidget {
   readonly config = input<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
-  readonly titleKey = computed(() => keyFromDynamic(this.dynamic(), 'title_key') ?? 'public.help.title');
-  readonly subtitleKey = computed(() => keyFromDynamic(this.dynamic(), 'subtitle_key') ?? 'public.help.subtitle');
-}
-
-function keyFromDynamic(value: unknown, key: string): string | undefined {
-  return isRecord(value) && typeof value[key] === 'string' ? value[key] : undefined;
+  readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? 'home.tchala.title');
+  readonly subtitleKey = computed(() => stringProp(this.config(), 'subtitleKey') ?? 'home.tchala.subtitle');
 }

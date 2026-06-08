@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { VerificationStatus } from '@tch/page-model';
@@ -480,8 +480,17 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
   ],
 })
 export class PublicCheckTicketPage {
+  private readonly route = inject(ActivatedRoute);
+
   readonly code = signal('');
   readonly state = signal<CheckState>({ kind: 'default' });
+
+  constructor() {
+    const rawCode = this.route.snapshot.queryParamMap.get('code');
+    if (rawCode) {
+      this.code.set(formatPublicCode(rawCode));
+    }
+  }
 
   readonly resultCopy = computed(() => {
     const current = this.state();
