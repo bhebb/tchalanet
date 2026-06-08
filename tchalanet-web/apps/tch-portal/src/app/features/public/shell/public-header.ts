@@ -115,11 +115,19 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       flex: 0 0 auto;
       display: flex;
       align-items: center;
-      gap: 0;
+      gap: 0.25rem;
     }
 
     .public-header__tools {
-      display: none;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Compact action button on mobile */
+    .public-header__actions .tch-action {
+      font-size: 0.875rem;
+      padding: 0 0.875rem;
+      min-height: 2.75rem;
     }
 
     /* Force gold accent on login CTA — secondary-container is lavender in M3 palette */
@@ -160,9 +168,14 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       }
 
       .public-header__tools {
-        display: flex;
-        align-items: center;
         gap: 0.5rem;
+      }
+
+      /* Reset to full size on desktop */
+      .public-header__actions .tch-action {
+        font-size: 1rem;
+        padding: 0 1.25rem;
+        min-height: var(--tch-touch-target, 48px);
       }
     }
   `],
