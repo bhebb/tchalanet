@@ -8,13 +8,13 @@ import { ThemeSwitcherComponent } from '@tch/ui/theme';
 import { catchError, defer, of } from 'rxjs';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
-import { LanguageSwitcherComponent } from '../../../core/i18n';
+import { LanguageSwitcher } from '../../../core/i18n';
 import { AppRuntimeStore } from '../../../core/runtime';
 import { PageModelApi, PrivateShellRuntime } from '@tch/page-model';
 
 @Component({
   imports: [
-    LanguageSwitcherComponent,
+    LanguageSwitcher,
     RouterOutlet,
     TchBrand,
     TchLangThemeGroup,

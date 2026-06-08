@@ -20,7 +20,7 @@ const LANG_META: Record<string, { label: string; shortLabel: string; flag: strin
     />
   `,
 })
-export class LanguageSwitcherComponent {
+export class LanguageSwitcher {
   readonly i18n = inject(I18nFacade);
 
   readonly languages = () =>

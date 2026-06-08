@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { LanguageSwitcherComponent } from '../i18n';
+import { LanguageSwitcher } from '../i18n';
 
 @Component({
-  imports: [RouterLink, TranslatePipe, LanguageSwitcherComponent],
+  imports: [RouterLink, TranslatePipe, LanguageSwitcher],
   selector: 'tch-forbidden-page',
   template: `
     <section class="page">
