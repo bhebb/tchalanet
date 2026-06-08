@@ -4,8 +4,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { catchError, map, of, startWith } from 'rxjs';
 
-import { PageModelApi, PageModelComponent, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
+import { PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
 import { PublicShellComponent } from './shell/public-shell.component';
+import { PublicShellService } from './shell/public-shell.service';
 // Dev-only theme sandbox: referenced exclusively inside the @defer block below, so Angular
 // code-splits it (and its Material modules) into a lazy chunk that prod never loads.
 import { ThemeSandboxComponent } from '../dev/theme-sandbox.component';
@@ -13,15 +14,8 @@ import { ThemeSandboxComponent } from '../dev/theme-sandbox.component';
 type PublicHomeState =
   | { readonly status: 'loading' }
   | { readonly status: 'error' }
-  | {
-      readonly status: 'ready';
-      readonly response: PageRuntimeResponse;
-    };
+  | { readonly status: 'ready'; readonly response: PageRuntimeResponse };
 
-/**
- * Public home page. Loads the `public.home` PageModel from the backend and renders it through the
- * widget engine inside the public shell. Works without an authenticated session.
- */
 @Component({
   selector: 'tch-public-home-page',
   imports: [
@@ -34,34 +28,33 @@ type PublicHomeState =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-      <!-- Dev-only floating theme sandbox — lazy chunk, never loaded in prod -->
-      @defer (when devMode) {
-        <tch-theme-sandbox />
+    @defer (when devMode) {
+      <tch-theme-sandbox />
+    }
+    <tch-page-shell>
+      @switch (state().status) {
+        @case ('loading') {
+          <tch-loading [label]="'common.loading' | translate" />
+        }
+        @case ('error') {
+          <tch-error-panel
+            [title]="'common.error.title' | translate"
+            [message]="'public.home.loadError' | translate"
+          />
+        }
+        @case ('ready') {
+          <tch-page-model [content]="response()!.content" [dynamic]="response()!.dynamic" />
+        }
       }
-      <tch-page-shell [shell]="shell()">
-          @switch (state().status) {
-              @case ('loading') {
-                  <tch-loading [label]="'common.loading' | translate"/>
-              }
-              @case ('error') {
-                  <tch-error-panel
-                          [title]="'common.error.title' | translate"
-                          [message]="'public.home.loadError' | translate"
-                  />
-              }
-              @case ('ready') {
-                  <tch-page-model [content]="response()!.content" [dynamic]="response()!.dynamic"/>
-              }
-          }
-      </tch-page-shell>
+    </tch-page-shell>
   `,
 })
 export class PublicHomePage {
-  private readonly api = inject(PageModelApi);
+  private readonly shellSvc = inject(PublicShellService);
   protected readonly devMode = isDevMode();
 
   readonly state = toSignal(
-    this.api.getPublicPage().pipe(
+    this.shellSvc.page$.pipe(
       map(response => ({ status: 'ready', response }) as PublicHomeState),
       catchError(() => of({ status: 'error' } as PublicHomeState)),
       startWith({ status: 'loading' } as PublicHomeState),
@@ -72,10 +65,5 @@ export class PublicHomePage {
   readonly response = computed(() => {
     const s = this.state();
     return s.status === 'ready' ? s.response : undefined;
-  });
-
-  readonly shell = computed<PublicShellRuntime | undefined>(() => {
-    const shell = this.response()?.shell;
-    return shell?.type === 'public' ? shell : undefined;
   });
 }

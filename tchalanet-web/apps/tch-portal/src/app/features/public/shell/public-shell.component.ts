@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
-import { PublicShellRuntime } from '../../../shared/types';
 import { LabelPipe } from '@tch/page-model';
 import { PublicBottomNav, PublicFooter } from '@tch/web';
 import { PublicHeader } from './public-header';
+import { PublicShellService } from './public-shell.service';
 
 @Component({
   selector: 'tch-page-shell',
@@ -12,54 +12,60 @@ import { PublicHeader } from './public-header';
   template: `
     <a class="shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
 
-    <tch-public-header [shell]="shell()" />
+    <tch-public-header [shell]="shellSvc.shell()" />
 
     <main id="public-content" class="shell__body">
       <ng-content />
     </main>
 
-    <tch-public-footer [shell]="shell()" />
+    <tch-public-footer [shell]="shellSvc.shell()" />
 
-    <tch-public-bottom-nav [shell]="shell()" />
+    <tch-public-bottom-nav [shell]="shellSvc.shell()" />
   `,
-  styles: [
-    `
-      :host {
-        --comp-shell-bg: var(--tch-color-background);
-        --comp-shell-fg: var(--tch-color-on-background);
-        display: grid;
-        min-height: 100vh;
-        grid-template-rows: auto 1fr auto;
-        background: var(--comp-shell-bg);
-        color: var(--comp-shell-fg);
-      }
+  styles: [`
+    :host {
+      --comp-shell-bg: var(--tch-color-background);
+      --comp-shell-fg: var(--tch-color-on-background);
+      display: grid;
+      min-height: 100dvh;
+      grid-template-rows: auto 1fr auto;
+      background: var(--comp-shell-bg);
+      color: var(--comp-shell-fg);
+    }
 
-      .shell__skip {
-        position: fixed;
-        z-index: 100;
-        left: 1rem;
-        top: 1rem;
-        transform: translateY(-5rem);
-        padding: 0.625rem 0.875rem;
-        border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-accent, var(--mat-sys-tertiary));
-        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
-        text-decoration: none;
-        font-weight: 800;
-      }
+    .shell__skip {
+      position: fixed;
+      z-index: var(--tch-z-toast, 60);
+      left: 1rem;
+      top: 1rem;
+      transform: translateY(-6rem);
+      padding: 0.625rem 0.875rem;
+      border-radius: var(--tch-radius-md, 8px);
+      background: var(--tch-color-accent);
+      color: var(--tch-on-color-accent);
+      text-decoration: none;
+      font-weight: var(--tch-weight-extra-bold, 800);
+      transition: transform var(--tch-duration-short, 200ms) var(--tch-ease-standard-decelerate);
+    }
 
-      .shell__skip:focus {
-        transform: translateY(0);
-      }
+    .shell__skip:focus-visible {
+      transform: translateY(0);
+      outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor;
+      outline-offset: var(--tch-focus-ring-offset, 2px);
+    }
 
-      @media (max-width: 720px) {
-        .shell__body {
-          padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
-        }
+    /* Bottom nav padding for mobile (safe-area + tab bar height) */
+    .shell__body {
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    @media (min-width: 840px) {
+      .shell__body {
+        padding-bottom: 0;
       }
-    `,
-  ],
+    }
+  `],
 })
 export class PublicShellComponent {
-  readonly shell = input<PublicShellRuntime | undefined>();
+  protected readonly shellSvc = inject(PublicShellService);
 }
