@@ -8,6 +8,7 @@ import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboa
 import { PublicCheckTicketPage } from './features/public/public-check-ticket.page';
 import { PublicHomePage } from './features/public/public-home.page';
 import { PublicInfoPage } from './features/public/public-info.page';
+import { PublicOperatorsPage } from './features/public/public-operators.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicResultDetailPage } from './features/public/public-result-detail.page';
 import { PublicResultsPage } from './features/public/public-results.page';
@@ -26,6 +27,7 @@ export const appRoutes: Route[] = [
       { path: 'results/:id', component: PublicResultDetailPage },
       { path: 'rules', component: PublicRulesPage },
       { path: 'help', component: PublicInfoPage, data: { kind: 'help' } },
+      { path: 'operators', component: PublicOperatorsPage },
       { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },
       { path: 'privacy', component: PublicInfoPage, data: { kind: 'privacy' } },
       { path: 'terms', component: PublicInfoPage, data: { kind: 'terms' } },
