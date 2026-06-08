@@ -167,7 +167,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         background:
           radial-gradient(
             circle at 80% 10%,
-            color-mix(in oklab, var(--tch-color-secondary-container, var(--mat-sys-secondary-container)) 38%, transparent),
+            color-mix(in oklab, var(--tch-color-accent, var(--mat-sys-tertiary)) 38%, transparent),
             transparent 34%
           ),
           linear-gradient(
@@ -303,8 +303,8 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         height: 2.75rem;
         border: 0;
         border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         transform: translateY(-50%);
       }
 
@@ -335,8 +335,8 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         gap: 0.625rem;
         width: 100%;
         border: 0;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-size: 1rem;
       }
 

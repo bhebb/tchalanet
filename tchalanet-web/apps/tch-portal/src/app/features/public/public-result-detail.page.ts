@@ -233,8 +233,8 @@ interface ResultStatusView {
         gap: 0.5rem;
         min-height: var(--tch-touch-target, 48px);
         border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-weight: 800;
         text-decoration: none;
       }
@@ -381,7 +381,7 @@ interface ResultStatusView {
         background: linear-gradient(
           90deg,
           var(--tch-color-primary, var(--mat-sys-primary)),
-          var(--tch-color-secondary-container, var(--mat-sys-secondary-container)),
+          var(--tch-color-accent, var(--mat-sys-tertiary)),
           var(--tch-color-primary, var(--mat-sys-primary))
         );
       }

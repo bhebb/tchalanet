@@ -152,8 +152,8 @@ import { ActionItem, actionText, TchBrand, TchNav, TchOverlayNav } from '@tch/ui
         padding: 0 1.125rem;
         border-radius: var(--tch-radius-control, 8px);
         border: 0;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         cursor: pointer;
         font-weight: 900;
       }
@@ -248,8 +248,8 @@ import { ActionItem, actionText, TchBrand, TchNav, TchOverlayNav } from '@tch/ui
         }
 
         .public-header__mobile-nav a:nth-child(2) {
-          background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-          color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+          background: var(--tch-color-accent, var(--mat-sys-tertiary));
+          color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         }
 
         .public-header__mobile-tools {

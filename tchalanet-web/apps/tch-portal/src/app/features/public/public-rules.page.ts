@@ -313,8 +313,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
       }
 
       .rules-page__primary-link {
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
       }
 
       .rules-page__secondary-link {
@@ -370,8 +370,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         width: 3rem;
         height: 3rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
       }
 
       .rules-page__game dl {
@@ -411,8 +411,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         justify-self: start;
         border-radius: var(--tch-radius-pill, 9999px);
         padding: 0.25rem 0.625rem;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         font-weight: 800;
       }
@@ -496,8 +496,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         min-width: 2.75rem;
         min-height: 2.5rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-family: var(--tch-font-family-mono, monospace);
         font-weight: 800;
       }

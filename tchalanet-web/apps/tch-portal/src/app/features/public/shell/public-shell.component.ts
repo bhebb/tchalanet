@@ -42,8 +42,8 @@ import { PublicHeader } from './public-header';
         transform: translateY(-5rem);
         padding: 0.625rem 0.875rem;
         border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         text-decoration: none;
         font-weight: 800;
       }
