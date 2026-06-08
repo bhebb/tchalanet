@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
-import { PublicBottomNav, PublicFooter } from '@tch/web';
+import { PublicFooter } from '@tch/web';
 import { PublicHeader } from './public-header';
 import { PublicShellService } from './public-shell.service';
 
 @Component({
   selector: 'tch-public-shell',
-  imports: [LabelPipe, RouterOutlet, PublicHeader, PublicFooter, PublicBottomNav],
+  imports: [LabelPipe, RouterOutlet, PublicHeader, PublicFooter],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a class="public-shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
@@ -20,8 +20,6 @@ import { PublicShellService } from './public-shell.service';
     </main>
 
     <tch-public-footer [shell]="shellSvc.shell()" />
-
-    <tch-public-bottom-nav [shell]="shellSvc.shell()" />
   `,
   styles: [`
     :host {
@@ -56,13 +54,7 @@ import { PublicShellService } from './public-shell.service';
     }
 
     .public-shell__main {
-      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
-    }
-
-    @media (min-width: 840px) {
-      .public-shell__main {
-        padding-bottom: 0;
-      }
+      padding-bottom: 0;
     }
   `],
 })

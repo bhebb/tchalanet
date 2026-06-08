@@ -96,8 +96,8 @@ interface FooterText {
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 2rem;
-      padding: 2.5rem 0 calc(2.5rem + env(safe-area-inset-bottom, 0px));
+      gap: 1.5rem;
+      padding: 2rem 0 1.5rem;
     }
 
     .public-footer__brand {
@@ -123,6 +123,12 @@ interface FooterText {
     .public-footer__brand p {
       margin: 0;
       max-width: 22rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       color: var(--comp-footer-link);
     }
 
@@ -150,8 +156,8 @@ interface FooterText {
     }
 
     .public-footer__social a {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 2rem;
+      height: 2rem;
       display: inline-grid;
       place-items: center;
       border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
@@ -180,13 +186,13 @@ interface FooterText {
     .public-footer__columns {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1rem;
     }
 
     .public-footer__column {
       display: grid;
       align-content: start;
-      gap: 0.625rem;
+      gap: 0.375rem;
     }
 
     .public-footer__heading {
@@ -200,10 +206,11 @@ interface FooterText {
 
     .public-footer__links {
       display: grid;
-      gap: 0.5rem;
+      gap: 0.375rem;
     }
 
     .public-footer__links a {
+      font-size: 0.875rem;
       color: var(--comp-footer-link);
       text-decoration: none;
     }
@@ -215,7 +222,7 @@ interface FooterText {
     .public-footer__bottom {
       width: min(100% - 2 * var(--tch-page-margin-mobile, 16px), 1120px);
       margin: 0 auto;
-      padding: 1rem 0;
+      padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
       border-top: 1px solid color-mix(in oklab, currentColor 18%, transparent);
       color: var(--comp-footer-link);
     }
@@ -225,7 +232,7 @@ interface FooterText {
       .public-footer__inner {
         grid-template-columns: minmax(16rem, 1.2fr) 2fr;
         gap: clamp(2rem, 6vw, 4rem);
-        padding: clamp(2.5rem, 8vw, 4rem) 0;
+        padding: clamp(3rem, 8vw, 5rem) 0;
       }
 
       .public-footer__brand-link img {

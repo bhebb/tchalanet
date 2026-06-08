@@ -102,10 +102,7 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       text-decoration: none;
       font-weight: var(--tch-weight-extra-bold, 800);
       flex: 1 1 auto;
-    }
-
-    /* clip to icon mark only on mobile — img sized by TchBrand (max-width 11rem) */
-    .public-header__brand {
+      /* clip to icon mark only on mobile — img sized by TchBrand (max-width 11rem) */
       overflow: hidden;
       max-width: 2.5rem;
     }
@@ -134,7 +131,7 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
     @media (min-width: 840px) {
       .public-header__inner {
         min-height: 4rem;
-        gap: clamp(0.5rem, 2vw, 1rem);
+        gap: clamp(0.75rem, 2vw, 1.5rem);
       }
 
       .public-header__menu-button {
@@ -143,9 +140,6 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
 
       .public-header__brand {
         flex: 0 0 auto;
-      }
-
-      .public-header__brand {
         overflow: visible;
         max-width: none;
       }
@@ -162,13 +156,13 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       }
 
       .public-header__actions {
-        gap: 0.5rem;
+        gap: 0.75rem;
       }
 
       .public-header__tools {
         display: flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.5rem;
       }
     }
   `],
