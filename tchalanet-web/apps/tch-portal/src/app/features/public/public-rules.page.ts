@@ -718,8 +718,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
 export class PublicRulesPage {
   readonly games = PUBLIC_RULE_GAMES;
   readonly query = signal('');
-  readonly selectedGame = signal<PublicRuleGameId>('borlette');
-  readonly betAmount = signal(100);
+  readonly selectedGame = signal<PublicRuleGameId>(sessionReadGame());
+  readonly betAmount = signal(sessionReadAmount());
 
   readonly filteredEntries = computed(() => filterTchalaEntries(PUBLIC_TCHALA_ENTRIES, this.query()));
 
@@ -735,14 +735,41 @@ export class PublicRulesPage {
 
   selectGame(id: PublicRuleGameId): void {
     this.selectedGame.set(id);
+    sessionWrite(SESSION_GAME_KEY, id);
   }
 
   updateBetAmount(event: Event): void {
     const value = parseInt((event.target as HTMLInputElement).value, 10);
-    if (!isNaN(value) && value > 0) {
+    if (Number.isFinite(value) && value > 0) {
       this.betAmount.set(value);
+      sessionWrite(SESSION_AMOUNT_KEY, String(value));
     }
   }
+}
+
+const SESSION_GAME_KEY = 'tch.rules.game';
+const SESSION_AMOUNT_KEY = 'tch.rules.amount';
+
+function sessionReadGame(): PublicRuleGameId {
+  try {
+    const v = sessionStorage.getItem(SESSION_GAME_KEY);
+    return v && PUBLIC_RULE_GAMES.some(g => g.id === v) ? (v as PublicRuleGameId) : 'borlette';
+  } catch {
+    return 'borlette';
+  }
+}
+
+function sessionReadAmount(): number {
+  try {
+    const v = parseInt(sessionStorage.getItem(SESSION_AMOUNT_KEY) ?? '', 10);
+    return Number.isFinite(v) && v > 0 ? v : 100;
+  } catch {
+    return 100;
+  }
+}
+
+function sessionWrite(key: string, value: string): void {
+  try { sessionStorage.setItem(key, value); } catch { /* private browsing */ }
 }
 
 export function filterTchalaEntries(entries: readonly PublicTchalaEntry[], query: string): readonly PublicTchalaEntry[] {
