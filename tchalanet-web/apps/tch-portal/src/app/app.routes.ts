@@ -10,6 +10,7 @@ import { PublicHomePage } from './features/public/public-home.page';
 import { PublicInfoPage } from './features/public/public-info.page';
 import { PublicOperatorsPage } from './features/public/public-operators.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
+import { PublicTchalaPage } from './features/public/public-tchala.page';
 import { PublicResultDetailPage } from './features/public/public-result-detail.page';
 import { PublicResultsPage } from './features/public/public-results.page';
 import { TchPublicShellComponent } from './features/public/shell/public-shell.component';
@@ -26,6 +27,7 @@ export const appRoutes: Route[] = [
       { path: 'results', component: PublicResultsPage },
       { path: 'results/:id', component: PublicResultDetailPage },
       { path: 'rules', component: PublicRulesPage },
+      { path: 'tchala', component: PublicTchalaPage },
       { path: 'help', component: PublicInfoPage, data: { kind: 'help' } },
       { path: 'operators', component: PublicOperatorsPage },
       { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },

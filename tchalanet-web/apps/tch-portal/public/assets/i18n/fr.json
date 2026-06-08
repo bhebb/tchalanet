@@ -97,10 +97,18 @@
       "title": "Plans"
     },
     "tchala": {
-      "title": "Interprétation des rêves — Tchala",
-      "subtitle": "Trouvez les numéros associés à vos rêves selon le Tchala haïtien.",
-      "search_placeholder": "Entrez un rêve ou un objet...",
+      "title": "Tchala",
+      "eyebrow": "Dictionnaire des rêves",
+      "subtitle": "Interprétez vos rêves en numéros de chance selon la tradition haïtienne.",
+      "search_placeholder": "Rechercher eau, chien, voyage…",
+      "search_label": "Rechercher un rêve",
       "search_submit": "Chercher",
+      "all_label": "Tous",
+      "alpha_nav_aria": "Navigation alphabétique",
+      "numbers_label": "Numéros associés",
+      "empty": "Aucun résultat pour cette recherche.",
+      "note_title": "Repères culturels indicatifs",
+      "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
       "by_number_label": "Chercher par numéro",
       "by_dream_label": "Chercher par rêve",
       "dream": {
@@ -503,6 +511,10 @@
     },
     "rules": {
       "badge": "Indicatif",
+      "calc_amount_label": "Mise (HTG)",
+      "calc_gain_label": "Gain estimé",
+      "calc_game_aria": "Sélectionner le type de jeu",
+      "calc_note": "Indicatif — non garanti",
       "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du point de vente, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
       "games": {
         "borlette": {

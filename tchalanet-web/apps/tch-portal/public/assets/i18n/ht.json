@@ -97,10 +97,18 @@
       "title": "Plan"
     },
     "tchala": {
-      "title": "Entèpretasyon rèv — Tchala",
-      "subtitle": "Jwenn nimewo ki asosye ak rèv ou yo dapre Tchala ayisyen an.",
-      "search_placeholder": "Antre yon rèv oswa yon bagay...",
+      "title": "Tchala",
+      "eyebrow": "Diksyonè rèv",
+      "subtitle": "Entèprete rèv ou yo nan nimewo chans dapre tradisyon Tchala ayisyen an.",
+      "search_placeholder": "Chèche dlo, chyen, vwayaj…",
+      "search_label": "Chèche yon rèv",
       "search_submit": "Chèche",
+      "all_label": "Tout",
+      "alpha_nav_aria": "Navigasyon alfabetik",
+      "numbers_label": "Nimewo ki asosye",
+      "empty": "Pa gen rezilta pou rechèch sa a.",
+      "note_title": "Repè kiltirèl endikatif",
+      "note_body": "Asosyasyon sa yo soti nan tradisyon Tchala ayisyen an epi yo prezante a tit endikatif sèlman. Yo pa konsitye yon garanti rezilta.",
       "by_number_label": "Chèche pa nimewo",
       "by_dream_label": "Chèche pa rèv",
       "dream": {
@@ -496,6 +504,10 @@
     },
     "rules": {
       "badge": "Endikatif",
+      "calc_amount_label": "Miz (HTG)",
+      "calc_gain_label": "Estimasyon gain",
+      "calc_game_aria": "Chwazi kalite jwèt la",
+      "calc_note": "Endikatif — pa garanti",
       "disclaimer": "Similasyon endikatif. Montan ki peyab la depann de tikè reyèl la, règ pwen vant lan, estati tiraj la, ak rezilta konfime yo. Similasyon sa a pa garanti peman.",
       "games": {
         "borlette": {
