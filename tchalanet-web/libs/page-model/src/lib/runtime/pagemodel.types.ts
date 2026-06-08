@@ -1,4 +1,4 @@
-import { ActionItem, NavigationSection } from '@tch/ui/components';
+import { ActionItem, NavigationSection } from '@tch/api';
 
 /** Resolved PageModel BFF contract. It contains no storage bindings or fragment keys. */
 export interface PageRuntimeResponse {

@@ -1,10 +1,13 @@
 @use 'sass:map';
 
+// M3 adaptive layout breakpoints — 5 window-size classes per m3.material.io/foundations/layout/breakpoints.
+// Each key is the name of the class that starts at that value.
+// Compact < 600px · Medium 600–839px · Expanded 840–1199px · Large 1200–1599px · Extra-large ≥ 1600px
 $bps: (
-  sm: 480px,
-  md: 768px,
-  lg: 1024px,
-  xl: 1280px
+  medium:       600px,
+  expanded:     840px,
+  large:        1200px,
+  extra-large:  1600px,
 ) !default;
 
 @function bp($name) {
@@ -12,19 +15,13 @@ $bps: (
 }
 
 @mixin up($name) {
-  @media (min-width: bp($name)) {
-    @content;
-  }
+  @media (min-width: bp($name)) { @content; }
 }
 
 @mixin down($name) {
-  @media (max-width: bp($name)) {
-    @content;
-  }
+  @media (max-width: bp($name) - 0.02px) { @content; }
 }
 
-@mixin between($a, $b) {
-  @media (min-width: bp($a)) and (max-width: bp($b)) {
-    @content;
-  }
+@mixin between($from, $to) {
+  @media (min-width: bp($from)) and (max-width: bp($to) - 0.02px) { @content; }
 }

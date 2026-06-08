@@ -2,8 +2,8 @@
    Global, non-themed tokens. Always present regardless of active preset/mode. */
 :root {
   /* Typography */
-  --tch-font-family: 'Plus Jakarta Sans, system-ui, sans-serif';
-  --tch-font-family-mono: 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace';
+  --tch-font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --tch-font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --tch-font-size-body: 1rem;
   --tch-font-size-small: 0.9375rem;
   --tch-font-size-display-lg: 40px;
@@ -26,15 +26,18 @@
   --tch-weight-medium: 500;
   --tch-weight-semibold: 600;
   --tch-weight-bold: 700;
+  --tch-weight-extra-bold: 800;
 
-  /* Shape / motion */
-  --tch-radius-sm: 4px;
-  --tch-radius-md: 8px;
+  /* Shape — aligned to M3 scale: extra-small(4) small(8) medium(12) large(16) extra-large(28) full */
+  --tch-radius-sm: 4px;        /* M3 extra-small */
+  --tch-radius-md: 8px;        /* M3 small */
   /* Legacy alias of --tch-radius-md: derive it so an override on radius.md cascades here. */
   --tch-radius-control: var(--tch-radius-md);
-  --tch-radius-lg: 12px;
-  --tch-radius-xl: 24px;
-  --tch-radius-pill: 9999px;
+  --tch-radius-lg: 12px;       /* M3 medium */
+  --tch-radius-large: 16px;    /* M3 large  — dialogs, bottom sheets, prominent cards */
+  --tch-radius-xl: 24px;       /* design step between M3 large and extra-large */
+  --tch-radius-2xl: 28px;      /* M3 extra-large */
+  --tch-radius-pill: 9999px;   /* M3 full */
   --tch-elevation-1: 0 1px 3px rgb(0 0 0 / 0.14);
   --tch-elevation-2: 0 6px 18px rgb(0 0 0 / 0.16);
   --tch-elevation-3: 0 10px 28px rgb(0 0 0 / 0.18);
@@ -42,8 +45,19 @@
   --tch-elevation-5: 0 18px 48px rgb(0 0 0 / 0.22);
   --tch-focus-ring-width: 2px;
   --tch-focus-ring-offset: 2px;
-  --tch-duration-fast: 150ms;
-  --tch-ease-standard: cubic-bezier(0.2, 0, 0, 0.9);
+  /* Motion — M3 duration scale */
+  --tch-duration-short: 200ms;     /* M3 emphasized-accelerate / standard-accelerate */
+  --tch-duration-medium: 300ms;    /* M3 standard                                    */
+  --tch-duration-enter: 400ms;     /* M3 emphasized-decelerate (element enters)      */
+  --tch-duration-long: 500ms;      /* M3 emphasized (element stays on screen)        */
+  /* M3 easing curves — Emphasized family (expressive, large elements) */
+  --tch-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);           /* stays on screen          */
+  --tch-ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1); /* enters screen      */
+  --tch-ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15); /* exits screen       */
+  /* M3 easing curves — Standard family (utility transitions) */
+  --tch-ease-standard: cubic-bezier(0.2, 0, 0, 1);             /* stays on screen          */
+  --tch-ease-standard-decelerate: cubic-bezier(0, 0, 0, 1);    /* enters screen            */
+  --tch-ease-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);  /* exits screen             */
 
   /* Layout */
   --tch-space-base: 4px;
@@ -86,7 +100,7 @@
   --tch-color-secondary: #5d5c72;
   --tch-color-on-secondary: #ffffff;
   --tch-color-secondary-container: #e2e0fa;
-  --tch-color-on-secondary-container: #241a00;
+  --tch-color-on-secondary-container: #45455a;
   --tch-color-secondary-fixed: #e2e0fa;
   --tch-color-secondary-fixed-dim: #c6c4de;
   --tch-color-orange-accent: #f7931e;
@@ -114,4 +128,7 @@
   --tch-color-status-missing: #64748b;
   --tch-color-accent: #fecb00;
   --tch-on-color-accent: #241a00;
+  /* M3 tertiary role — same as accent at first-paint. */
+  --tch-color-tertiary: #fecb00;
+  --tch-color-on-tertiary: #241a00;
 }

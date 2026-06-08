@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { ActionItem, actionRoute, actionText, isRouteAction } from '../navigation/action-item';
+import { ActionItem, actionRoute, actionText, isRouteAction } from '@tch/api';
 
 @Component({
   selector: 'tch-nav',

@@ -33,8 +33,24 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'tertiary';
         text-decoration: none;
         cursor: pointer;
         border: none;
-        transition: opacity var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease);
+        position: relative;
+        overflow: hidden;
+        transition: opacity var(--tch-duration-short, 200ms) var(--tch-ease-standard, cubic-bezier(0.2, 0, 0, 1));
       }
+      :host::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: currentColor;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--tch-duration-short, 200ms) var(--tch-ease-standard, cubic-bezier(0.2, 0, 0, 1));
+      }
+      :host:hover::after  { opacity: 0.08; }
+      :host:focus-visible { outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor; outline-offset: var(--tch-focus-ring-offset, 2px); }
+      :host:focus-visible::after { opacity: 0.12; }
+      :host:active::after { opacity: 0.12; }
       :host:disabled,
       :host[disabled] {
         opacity: 0.38;
@@ -46,25 +62,15 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'tertiary';
         background: var(--comp-action-bg);
         color: var(--comp-action-fg);
       }
-      :host([data-variant='primary']:hover) {
-        opacity: 0.88;
-      }
       :host([data-variant='secondary']),
       :host(:not([data-variant])) {
         background: var(--comp-action-bg);
         color: var(--comp-action-fg);
       }
-      :host([data-variant='secondary']:hover),
-      :host(:not([data-variant]):hover) {
-        opacity: 0.88;
-      }
       :host([data-variant='tertiary']) {
         background: transparent;
         color: var(--tch-color-primary);
         border: 1px solid var(--comp-action-outline);
-      }
-      :host([data-variant='tertiary']:hover) {
-        background: color-mix(in oklab, var(--tch-color-primary, #1a1b4b) 8%, transparent);
       }
     `,
   ],

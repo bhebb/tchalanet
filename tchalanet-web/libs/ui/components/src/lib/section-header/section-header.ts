@@ -38,7 +38,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         color: var(--comp-section-subtitle);
         font-size: var(--tch-font-size-body-md, 1rem);
       }
-      @media (max-width: 767.98px) {
+      @media (max-width: 839.98px) {
         .section-header {
           display: grid;
         }

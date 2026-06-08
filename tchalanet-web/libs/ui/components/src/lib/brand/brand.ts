@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { ActionItem, actionRoute, actionText, isRouteAction } from '../navigation/action-item';
+import { ActionItem, actionRoute, actionText, isRouteAction } from '@tch/api';
 
 @Component({
   selector: 'tch-brand',
@@ -28,7 +28,7 @@ import { ActionItem, actionRoute, actionText, isRouteAction } from '../navigatio
   `,
   styles: [`
     :host { --comp-brand-fg: var(--tch-color-primary); display: inline-flex; }
-    .brand { display: inline-flex; align-items: center; gap: .625rem; color: var(--comp-brand-fg); font-weight: 800; text-decoration: none; }
+    .brand { display: inline-flex; align-items: center; gap: .625rem; color: var(--comp-brand-fg); font-weight: var(--tch-weight-extra-bold, 800); text-decoration: none; }
     img { display: block; max-width: 11rem; max-height: 3rem; }
   `],
 })

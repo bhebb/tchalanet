@@ -51,8 +51,51 @@
 }
 
 @mixin uses-tokens {
-  font-family: var(--tch-font-family), system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: var(--tch-font-family);
   color: var(--tch-color-on-surface);
+}
+
+// M3 motion helpers — use these instead of hand-writing transition values.
+// $props: one or more CSS properties (default: all)
+// $family: 'emphasized' (expressive, larger elements) | 'standard' (utility transitions)
+// $phase:  'stay' | 'enter' | 'exit'
+@mixin transition($props: all, $family: standard, $phase: stay) {
+  $duration: if(
+    $phase == enter,  var(--tch-duration-enter,  400ms),
+    if($phase == exit, var(--tch-duration-short, 200ms),
+      if($family == emphasized, var(--tch-duration-long, 500ms), var(--tch-duration-medium, 300ms))
+    )
+  );
+  $ease: if(
+    $family == emphasized,
+    if($phase == enter,  var(--tch-ease-emphasized-decelerate),
+      if($phase == exit, var(--tch-ease-emphasized-accelerate), var(--tch-ease-emphasized))),
+    if($phase == enter,  var(--tch-ease-standard-decelerate),
+      if($phase == exit, var(--tch-ease-standard-accelerate), var(--tch-ease-standard)))
+  );
+  transition-property: $props;
+  transition-duration: #{$duration};
+  transition-timing-function: #{$ease};
+}
+
+// M3 state layer — adds hover/focus/pressed overlay on top of the component.
+// Place inside a positioned ancestor that carries the brand color as background.
+// $color: the on-color for the surface (e.g. --tch-color-on-primary), used for the overlay tint.
+@mixin state-layer($color: var(--tch-color-on-surface)) {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #{$color};
+    opacity: 0;
+    pointer-events: none;
+    @include transition(opacity, standard, stay);
+  }
+  &:hover::after  { opacity: 0.08; }
+  &:focus-visible::after { opacity: 0.12; }
+  &:active::after { opacity: 0.12; }
 }
 
 @mixin link-reset {

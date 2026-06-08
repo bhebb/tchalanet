@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
 import { LabelPipe, PublicShellRuntime } from '@tch/page-model';
-import { ActionItem, actionText, TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
+import { ActionItem, actionText } from '@tch/api';
+import { TchBrand, TchNav, TchOverlayNav } from '@tch/ui/components';
 
 @Component({
   selector: 'tch-public-header',

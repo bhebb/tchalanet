@@ -77,6 +77,9 @@
   --tch-footer-fg: var(--tch-footer-fg-base);
   --tch-color-accent: var(--tch-accent-bg-base);
   --tch-on-color-accent: var(--tch-accent-fg-base);
+  /* M3 tertiary role alias — same value as accent, exposed under the standard M3 role name. */
+  --tch-color-tertiary: var(--tch-accent-bg-base);
+  --tch-color-on-tertiary: var(--tch-accent-fg-base);
 }
 
 /* Official tchalanet brand palette (light) — exact brand hexes, pinned on BOTH the M3 system tokens

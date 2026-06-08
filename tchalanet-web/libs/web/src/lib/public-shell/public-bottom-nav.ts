@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { RouterLink } from '@angular/router';
 
 import { LabelPipe, PublicShellRuntime } from '@tch/page-model';
-import { actionRoute, actionText } from '@tch/ui/components';
+import { actionRoute, actionText } from '@tch/api';
 
 @Component({
   selector: 'tch-public-bottom-nav',

@@ -1,5 +1,5 @@
 import { InputSignal } from '@angular/core';
-import { NavigationDestination } from '@tch/ui/components';
+import { NavigationDestination } from '@tch/api';
 
 import { WidgetConfig } from '../runtime/pagemodel.types';
 

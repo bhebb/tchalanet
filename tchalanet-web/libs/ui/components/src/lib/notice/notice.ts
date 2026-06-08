@@ -17,7 +17,7 @@ export type NoticeType = 'info' | 'success' | 'warning' | 'error';
         --comp-notice-bg: var(--tch-color-surface-container);
         --comp-notice-fg: var(--tch-color-on-surface);
         display: block;
-        border-radius: var(--tch-radius-control, 8px);
+        border-radius: var(--tch-radius-lg, 12px);
         padding: 0.75rem 1rem;
         font-size: var(--tch-font-size-body-md, 1rem);
         line-height: var(--tch-line-height-body-md, 1.5rem);

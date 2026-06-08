@@ -21,7 +21,7 @@ export interface LanguageOption {
     :host { --comp-lang-active: var(--tch-color-primary); }
     .lang-switcher { display: flex; gap: .375rem; }
     button { border: 0; border-radius: var(--tch-radius-pill); background: transparent; color: inherit; cursor: pointer; padding: .5rem; }
-    button.is-active { color: var(--comp-lang-active); font-weight: 800; }
+    button.is-active { color: var(--comp-lang-active); font-weight: var(--tch-weight-extra-bold, 800); }
   `],
 })
 export class TchLangSwitcher {

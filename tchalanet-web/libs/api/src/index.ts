@@ -1,3 +1,4 @@
+export * from './lib/contracts/action-item';
 export * from './lib/contracts/api.types';
 export * from './lib/http/api-response';
 export * from './lib/http/correlation.interceptor';

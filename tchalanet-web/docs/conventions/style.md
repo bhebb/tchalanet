@@ -195,6 +195,7 @@ Preferred tokens:
 --tch-color-secondary
 --tch-color-secondary-container
 --tch-color-on-secondary-container
+--tch-color-accent               ← gold CTA / badge fills (#FECB00)
 --tch-color-outline
 --tch-color-outline-variant
 --tch-color-error
@@ -212,7 +213,15 @@ Preferred tokens:
 --tch-page-max
 --tch-page-gutter
 --tch-font-family
+--tch-font-size-display-lg
+--tch-font-size-headline-lg
+--tch-font-size-headline-mobile
+--tch-font-size-title-md
+--tch-font-size-body-md
+--tch-font-size-label-sm
 ```
+
+The canonical list is the token manifest — see `theme.md` for the authoritative reference.
 
 Hardcoded color values are allowed only as defensive fallback:
 
@@ -430,36 +439,24 @@ Preferred:
 }
 ```
 
-Breakpoints:
+Breakpoints follow the M3 window-size class model (`libs/ui/styles/_breakpoints.scss`):
 
 ```text
-sm 480px
-md 768px
-lg 1024px
-xl 1280px
+compact       < 600px
+medium      600–839px
+expanded   840–1199px
+large     1200–1599px
+extra-large  ≥ 1600px
 ```
-
-SCSS media queries should use `libs/ui/styles` breakpoints once available:
 
 ```scss
 @use '@tch/ui/styles' as ui;
 
-@include ui.up(md) {
-  ...
-}
+@include ui.up(medium)   { ... }   // ≥ 600px
+@include ui.up(expanded) { ... }   // ≥ 840px
 ```
 
-`libs/ui/styles/_breakpoints.scss` (`sm/md/lg/xl`) is the **single source of truth** for responsive
-bounds. Angular runtime breakpoint logic should use `TchBreakpointService` (not ad hoc `matchMedia`),
-whose semantic tiers derive from the same bounds:
-
-```text
-handset  → below md   (< 768px)
-tablet   → md to lg    (768–1023.98px)
-desktop  → lg and up   (≥ 1024px)
-```
-
-Do not redefine breakpoint pixel values anywhere else; reference the `sm/md/lg/xl` scale.
+Do not redefine breakpoint pixel values anywhere else — use `bp()` or the mixins.
 
 ---
 
@@ -480,6 +477,8 @@ ellipsis
 surface
 outline
 elevation
+transition  (M3 motion tokens)
+state-layer (M3 hover/focus/pressed overlays)
 Material overrides
 ```
 
@@ -674,7 +673,26 @@ Small utilities are acceptable if stable and documented:
 ```text
 .visually-hidden
 .text-muted
-.h1 / .h2 / .h3
+```
+
+Typography utilities — `libs/ui/styles/src/lib/_typography.scss` provides `.h1 / .h2 / .h3`
+mapped to the M3 type scale tokens:
+
+```text
+.h1  →  --tch-font-size-display-lg   / --tch-line-height-display-lg   / --tch-weight-extra-bold (800)
+.h2  →  --tch-font-size-headline-lg  / --tch-line-height-headline-lg  / --tch-weight-extra-bold (800)
+.h3  →  --tch-font-size-headline-mobile / --tch-line-height-headline-mobile / --tch-weight-bold (700)
+```
+
+Motion utilities — `_mixins.scss` provides `transition()` and `state-layer()` backed by M3 tokens:
+
+```scss
+// Use instead of hand-writing transition properties
+@include ui.transition(opacity, emphasized, enter);   // 400ms emphasized-decelerate
+@include ui.transition(transform, standard, exit);    // 200ms standard-accelerate
+
+// M3 interactive state overlays (hover 8%, focus/pressed 12%)
+@include ui.state-layer(var(--tch-color-on-surface));
 ```
 
 Do not recreate Tailwind-like utilities manually.

@@ -2,13 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { RouterLink } from '@angular/router';
 
 import { LabelPipe, PublicFooterColumn, PublicShellRuntime } from '@tch/page-model';
-import {
-    ActionItem,
-    actionHref,
-    actionRoute,
-    actionText,
-    isExternalAction,
-} from '@tch/ui/components';
+import { ActionItem, actionHref, actionRoute, actionText, isExternalAction } from '@tch/api';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 

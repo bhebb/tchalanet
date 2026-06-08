@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, input, output } fro
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { ActionItem, actionRoute, actionText, isRouteAction } from '../navigation/action-item';
+import { ActionItem, actionRoute, actionText, isRouteAction } from '@tch/api';
 
 @Component({
   selector: 'tch-overlay-nav',
@@ -25,8 +25,8 @@ import { ActionItem, actionRoute, actionText, isRouteAction } from '../navigatio
   `,
   styles: [`
     :host { --comp-overlay-bg: var(--tch-color-surface); --comp-overlay-fg: var(--tch-color-on-surface); }
-    .overlay { position: fixed; inset: 0; z-index: 50; padding: 5rem var(--tch-page-gutter) 1rem; }
-    .overlay__backdrop { position: absolute; inset: 0; width: 100%; border: 0; background: color-mix(in srgb, #000 45%, transparent); cursor: pointer; }
+    .overlay { position: fixed; inset: 0; z-index: var(--tch-z-overlay, 50); padding: 5rem var(--tch-page-gutter) 1rem; }
+    .overlay__backdrop { position: absolute; inset: 0; width: 100%; border: 0; background: var(--tch-color-scrim, rgb(0 0 0 / 0.45)); cursor: pointer; }
     .overlay__panel { position: relative; display: grid; gap: .5rem; max-width: 32rem; margin-inline: auto; padding: 1rem; border-radius: var(--tch-radius-lg); background: var(--comp-overlay-bg); color: var(--comp-overlay-fg); box-shadow: var(--tch-elevation-2); }
     a { color: inherit; padding: .875rem; text-decoration: none; border-radius: var(--tch-radius-md); }
     a:hover { background: var(--tch-color-surface-container); }
