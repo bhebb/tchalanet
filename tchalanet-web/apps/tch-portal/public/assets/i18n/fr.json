@@ -291,6 +291,9 @@
           "title": "Service temporairement indisponible"
         }
       },
+      "result_eyebrow": "Résultat de la vérification",
+      "security_body": "Ce résultat est généré en temps réel par le système de vérification Tchalanet. Aucune donnée de ticket n'est conservée après la consultation.",
+      "security_title": "Résultat sécurisé",
       "status_label": "Statut du ticket",
       "verify_another": "Vérifier un autre ticket",
       "visual_badge": "Ticket vérifiable"

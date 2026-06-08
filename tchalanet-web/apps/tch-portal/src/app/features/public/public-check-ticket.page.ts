@@ -18,12 +18,24 @@ interface VerificationCopy {
 
 const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
 
+const STAMP_LINES: Record<VerificationStatus, string[]> = {
+  PAYABLE:             ['PAYÉ', 'VALIDÉ'],
+  NOT_PAYABLE:         ['NON', 'PAYABLE'],
+  PENDING_RESULT:      ['EN', 'ATTENTE'],
+  INVALID_OR_CANCELLED:['ANNULÉ'],
+  NOT_FOUND:           ['NON', 'TROUVÉ'],
+  SERVICE_UNAVAILABLE: ['HORS', 'LIGNE'],
+};
+
 @Component({
   selector: 'tch-public-check-ticket-page',
   imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="check-page">
+
+      <!-- ── Form / Loading states: show hero + panel + help ── -->
+      @if (state().kind !== 'result') {
         <section class="check-page__hero" aria-labelledby="check-title">
           <div class="check-page__visual" aria-hidden="true">
             <img
@@ -36,7 +48,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
               <span>{{ 'public.check.visual_badge' | translate }}</span>
             </div>
           </div>
-
           <div class="check-page__intro">
             <p class="check-page__eyebrow">{{ 'public.ticket.eyebrow' | translate }}</p>
             <h1 id="check-title">{{ 'public.ticket.title' | translate }}</h1>
@@ -77,7 +88,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
                     <span>{{ 'public.check.code_hint' | translate }}</span>
                   </p>
                 </div>
-
                 <button class="check-page__submit" type="submit">
                   <span>{{ 'public.ticket.cta' | translate }}</span>
                   <span class="material-symbols-outlined">search</span>
@@ -91,33 +101,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
                 <p>{{ 'public.check.loading_body' | translate }}</p>
               </div>
             }
-            @case ('result') {
-              <article
-                class="check-page__result"
-                [class.is-success]="resultCopy().tone === 'success'"
-                [class.is-warning]="resultCopy().tone === 'warning'"
-                [class.is-danger]="resultCopy().tone === 'danger'"
-                [class.is-neutral]="resultCopy().tone === 'neutral'"
-                aria-live="polite"
-              >
-                <div class="check-page__result-icon">
-                  <span class="material-symbols-outlined">{{ resultCopy().icon }}</span>
-                </div>
-                <div class="check-page__result-copy">
-                  <p class="check-page__result-label">{{ 'public.check.status_label' | translate }}</p>
-                  <h2>{{ resultCopy().titleKey | translate }}</h2>
-                  <p>{{ resultCopy().bodyKey | translate }}</p>
-                </div>
-                <div class="check-page__result-actions">
-                  <button class="check-page__secondary-action" type="button" (click)="reset()">
-                    {{ 'public.check.verify_another' | translate }}
-                  </button>
-                  <a class="check-page__text-action" routerLink="/public/help">
-                    {{ 'public.ticket.help' | translate }}
-                  </a>
-                </div>
-              </article>
-            }
           }
         </section>
 
@@ -130,10 +113,140 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
             <p>{{ 'public.check.help_body' | translate }}</p>
           </div>
         </section>
+      }
+
+      <!-- ── Result state: full-width redesign ── -->
+      @if (state().kind === 'result') {
+        <section class="check-result" aria-live="polite">
+
+          <!-- Header -->
+          <div class="check-result__header">
+            <div>
+              <p class="check-result__eyebrow">
+                {{ 'public.check.result_eyebrow' | translate }}
+              </p>
+              <h1 class="check-result__code">{{ code() }}</h1>
+            </div>
+            <div class="check-result__header-actions">
+              <button
+                class="check-result__verify-another"
+                type="button"
+                (click)="reset()"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+                {{ 'public.check.verify_another' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Content grid -->
+          <div class="check-result__grid">
+
+            <!-- Status card -->
+            <article
+              class="check-result__status-card"
+              [class.is-success]="resultCopy().tone === 'success'"
+              [class.is-warning]="resultCopy().tone === 'warning'"
+              [class.is-danger]="resultCopy().tone  === 'danger'"
+              [class.is-neutral]="resultCopy().tone === 'neutral'"
+            >
+              <span class="check-result__status-corner" aria-hidden="true"></span>
+              <div class="check-result__status-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">{{ resultCopy().icon }}</span>
+              </div>
+              <div class="check-result__status-body">
+                <h2 class="check-result__status-title">
+                  {{ resultCopy().titleKey | translate }}
+                </h2>
+                <p class="check-result__status-desc">
+                  {{ resultCopy().bodyKey | translate }}
+                </p>
+              </div>
+            </article>
+
+            <!-- Security / trust card -->
+            <div class="check-result__security">
+              <div class="check-result__security-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">security</span>
+              </div>
+              <div>
+                <h3 class="check-result__security-title">
+                  {{ 'public.check.security_title' | translate }}
+                </h3>
+                <p class="check-result__security-body">
+                  {{ 'public.check.security_body' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Thermal receipt (right column) -->
+            <div class="check-result__receipt-wrap">
+              <div class="check-result__receipt">
+
+                <!-- Letterhead -->
+                <div class="check-result__receipt-header">
+                  <span class="check-result__receipt-brand">TCHALANET</span>
+                  <span class="check-result__receipt-sub">BUREAU CENTRAL PORT-AU-PRINCE</span>
+                  <span class="check-result__receipt-sub">TEL: +509 0000-0000</span>
+                </div>
+
+                <!-- Meta -->
+                <dl class="check-result__receipt-meta">
+                  <div>
+                    <dt>DATE:</dt>
+                    <dd>{{ receiptDate() }}</dd>
+                  </div>
+                  <div>
+                    <dt>CODE:</dt>
+                    <dd>{{ code() }}</dd>
+                  </div>
+                  <div>
+                    <dt>TERMINAL:</dt>
+                    <dd>POS-HT-0000</dd>
+                  </div>
+                </dl>
+
+                <div class="check-result__receipt-rule"></div>
+
+                <!-- Stamp -->
+                <div class="check-result__stamp-wrap">
+                  <div
+                    class="check-result__stamp"
+                    [class.is-success]="resultCopy().tone === 'success'"
+                    [class.is-warning]="resultCopy().tone === 'warning'"
+                    [class.is-danger]="resultCopy().tone  === 'danger'"
+                    [class.is-neutral]="resultCopy().tone === 'neutral'"
+                    aria-hidden="true"
+                  >
+                    @for (line of stampLines(); track $index) {
+                      <span>{{ line }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="check-result__receipt-rule"></div>
+
+                <!-- Footer text -->
+                <p class="check-result__receipt-footer">
+                  MERCI DE VOTRE CONFIANCE.<br />WWW.TCHALANET.COM
+                </p>
+
+                <!-- Decorative barcode -->
+                <div class="check-result__barcode" aria-hidden="true"></div>
+              </div>
+            </div>
+
+          </div><!-- /grid -->
+        </section>
+      }
+
     </div>
   `,
   styles: [
     `
+      /* ────────────────────────────────────────────────
+         Shared helpers
+      ──────────────────────────────────────────────── */
       .check-page {
         display: grid;
         gap: 1.5rem;
@@ -142,15 +255,9 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         padding: 1.5rem 0 calc(5rem + var(--tch-page-gutter, 16px));
       }
 
-      .check-page .material-symbols-outlined {
-        display: inline-block;
-        overflow: hidden;
-        max-width: 1em;
-        line-height: 1;
-        vertical-align: middle;
-        white-space: nowrap;
-      }
-
+      /* ────────────────────────────────────────────────
+         HERO (form state)
+      ──────────────────────────────────────────────── */
       .check-page__hero {
         display: grid;
         gap: 1.5rem;
@@ -172,7 +279,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
             var(--tch-color-primary, var(--mat-sys-primary)),
             var(--tch-color-primary-container, var(--mat-sys-primary-container))
           );
-        box-shadow: var(--tch-elevation-sm, 0 1px 2px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 14%, transparent));
       }
 
       .check-page__ticket-image {
@@ -215,8 +321,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
       .check-page__hint,
       .check-page__loading h2,
       .check-page__loading p,
-      .check-page__result h2,
-      .check-page__result p,
       .check-page__help-card h2,
       .check-page__help-card p {
         margin: 0;
@@ -238,11 +342,13 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
       .check-page__intro p,
       .check-page__hint,
       .check-page__loading p,
-      .check-page__result-copy p,
       .check-page__help-card p {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
       }
 
+      /* ────────────────────────────────────────────────
+         PANEL (form + loading)
+      ──────────────────────────────────────────────── */
       .check-page__panel,
       .check-page__help-card {
         border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
@@ -250,15 +356,10 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
       }
 
-      .check-page__panel {
-        padding: 1rem;
-      }
+      .check-page__panel { padding: 1rem; }
 
       .check-page__form,
-      .check-page__field {
-        display: grid;
-        gap: 0.875rem;
-      }
+      .check-page__field { display: grid; gap: 0.875rem; }
 
       .check-page__label {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
@@ -266,9 +367,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         font-weight: 800;
       }
 
-      .check-page__input-wrap {
-        position: relative;
-      }
+      .check-page__input-wrap { position: relative; }
 
       .check-page__code-input {
         width: 100%;
@@ -310,19 +409,12 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         align-items: flex-start;
         gap: 0.375rem;
         font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
       }
 
       .check-page__hint .material-symbols-outlined {
         color: var(--tch-color-outline, var(--mat-sys-outline));
         font-size: 1rem;
-      }
-
-      .check-page__submit,
-      .check-page__secondary-action,
-      .check-page__text-action {
-        min-height: var(--tch-touch-target, 48px);
-        border-radius: var(--tch-radius-lg, 12px);
-        font-weight: 800;
       }
 
       .check-page__submit {
@@ -331,10 +423,13 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         justify-content: center;
         gap: 0.625rem;
         width: 100%;
+        min-height: var(--tch-touch-target, 48px);
         border: 0;
+        border-radius: var(--tch-radius-lg, 12px);
         background: var(--tch-color-accent, var(--mat-sys-tertiary));
         color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-size: 1rem;
+        font-weight: 800;
       }
 
       .check-page__loading {
@@ -352,74 +447,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         border-top-color: var(--tch-color-primary, var(--mat-sys-primary));
         border-radius: var(--tch-radius-pill, 9999px);
         animation: check-page-spin 0.9s linear infinite;
-      }
-
-      .check-page__result {
-        display: grid;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
-        border-left: 0.25rem solid var(--tch-color-status-missing, var(--mat-sys-outline));
-      }
-
-      .check-page__result.is-success {
-        border-left-color: var(--tch-color-status-ready, var(--mat-sys-tertiary));
-      }
-
-      .check-page__result.is-warning {
-        border-left-color: var(--tch-color-status-warning, var(--mat-sys-secondary));
-      }
-
-      .check-page__result.is-danger {
-        border-left-color: var(--tch-color-status-blocked, var(--mat-sys-error));
-      }
-
-      .check-page__result-icon {
-        display: inline-grid;
-        place-items: center;
-        width: 3rem;
-        height: 3rem;
-        border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-      }
-
-      .check-page__result-label {
-        font-size: var(--tch-font-size-label-sm, 0.75rem);
-        font-weight: 800;
-        text-transform: uppercase;
-      }
-
-      .check-page__result-copy {
-        display: grid;
-        gap: 0.375rem;
-      }
-
-      .check-page__result-copy h2,
-      .check-page__help-card h2 {
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-        font-size: var(--tch-font-size-title-md, 1.125rem);
-        line-height: var(--tch-line-height-title-md, 1.5rem);
-      }
-
-      .check-page__result-actions {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .check-page__secondary-action {
-        border: 0;
-        background: var(--tch-color-primary, var(--mat-sys-primary));
-        color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
-      }
-
-      .check-page__text-action {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-        text-decoration: none;
       }
 
       .check-page__help-card {
@@ -443,6 +470,379 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         color: var(--tch-color-primary, var(--mat-sys-primary));
       }
 
+      /* ────────────────────────────────────────────────
+         RESULT SECTION
+      ──────────────────────────────────────────────── */
+      .check-result {
+        grid-column: 1 / -1;
+        display: grid;
+        gap: 2rem;
+      }
+
+      /* ── Result header ── */
+      .check-result__header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .check-result__eyebrow {
+        margin: 0 0 0.375rem;
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--tch-color-outline, var(--mat-sys-outline));
+      }
+
+      .check-result__code {
+        margin: 0;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .check-result__verify-another {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: var(--tch-touch-target, 48px);
+        padding: 0 1.25rem;
+        border: none;
+        border-radius: var(--tch-radius-control, 8px);
+        background: var(--tch-color-accent, #fecb00);
+        color: #1a1a1a;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      /* ── Content grid ── */
+      .check-result__grid {
+        display: grid;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      /* ── Status card ── */
+      .check-result__status-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--tch-radius-xl, 20px);
+        padding: clamp(1.5rem, 4vw, 2rem);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        display: flex;
+        gap: 1.25rem;
+        align-items: flex-start;
+      }
+
+      .check-result__status-corner {
+        position: absolute;
+        top: -2rem;
+        right: -2rem;
+        width: 7rem;
+        height: 7rem;
+        border-radius: 50%;
+        opacity: 0.1;
+        pointer-events: none;
+      }
+
+      .check-result__status-card.is-success {
+        border-color: color-mix(in oklab, var(--tch-color-status-ready, #10b981) 40%, transparent);
+      }
+      .check-result__status-card.is-success .check-result__status-corner {
+        background: var(--tch-color-status-ready, #10b981);
+      }
+      .check-result__status-card.is-success .check-result__status-icon {
+        background: var(--tch-color-status-ready, #10b981);
+        color: #fff;
+      }
+      .check-result__status-card.is-success .check-result__status-title {
+        color: var(--tch-color-status-ready, #10b981);
+      }
+
+      .check-result__status-card.is-warning {
+        border-color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 40%, transparent);
+      }
+      .check-result__status-card.is-warning .check-result__status-corner {
+        background: var(--tch-color-status-warning, #f59e0b);
+      }
+      .check-result__status-card.is-warning .check-result__status-icon {
+        background: var(--tch-color-status-warning, #f59e0b);
+        color: #1a1a1a;
+      }
+      .check-result__status-card.is-warning .check-result__status-title {
+        color: var(--tch-color-status-warning, #f59e0b);
+      }
+
+      .check-result__status-card.is-danger {
+        border-color: color-mix(in oklab, var(--tch-color-error, var(--mat-sys-error)) 40%, transparent);
+      }
+      .check-result__status-card.is-danger .check-result__status-corner {
+        background: var(--tch-color-error, var(--mat-sys-error));
+      }
+      .check-result__status-card.is-danger .check-result__status-icon {
+        background: var(--tch-color-error, var(--mat-sys-error));
+        color: #fff;
+      }
+      .check-result__status-card.is-danger .check-result__status-title {
+        color: var(--tch-color-error, var(--mat-sys-error));
+      }
+
+      .check-result__status-card.is-neutral .check-result__status-corner {
+        background: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+      .check-result__status-card.is-neutral .check-result__status-icon {
+        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+      .check-result__status-card.is-neutral .check-result__status-title {
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+      }
+
+      .check-result__status-icon {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+      }
+
+      .check-result__status-icon .material-symbols-outlined {
+        font-size: 1.75rem;
+        max-width: none;
+      }
+
+      .check-result__status-body {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 0.5rem;
+        align-content: start;
+      }
+
+      .check-result__status-title {
+        margin: 0;
+        font-size: clamp(1.25rem, 3vw, 1.75rem);
+        line-height: 1.2;
+        font-weight: 800;
+      }
+
+      .check-result__status-desc {
+        margin: 0;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        line-height: 1.6;
+      }
+
+      /* ── Security card ── */
+      .check-result__security {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.5rem;
+        border-radius: var(--tch-radius-xl, 20px);
+        background: var(--tch-color-primary, var(--mat-sys-primary));
+        color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+      }
+
+      .check-result__security-icon {
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+      }
+
+      .check-result__security-icon .material-symbols-outlined {
+        font-size: 1.5rem;
+        opacity: 0.8;
+        max-width: none;
+      }
+
+      .check-result__security-title {
+        margin: 0 0 0.375rem;
+        font-weight: 800;
+        font-size: var(--tch-font-size-title-md, 1.125rem);
+      }
+
+      .check-result__security-body {
+        margin: 0;
+        opacity: 0.88;
+        line-height: 1.6;
+        font-size: var(--tch-font-size-body-md, 1rem);
+      }
+
+      /* ── Receipt wrap ── */
+      .check-result__receipt-wrap {
+        display: flex;
+        justify-content: center;
+      }
+
+      /* ── Thermal receipt ── */
+      .check-result__receipt {
+        width: 100%;
+        max-width: 22rem;
+        padding: 2rem 1.5rem 3rem;
+        border-radius: var(--tch-radius-control, 8px) var(--tch-radius-control, 8px) 0 0;
+        background-color: var(--tch-color-surface-container-lowest, #fff);
+        background-image: radial-gradient(
+          color-mix(in oklab, var(--tch-color-outline-variant, #c7c5d4) 60%, transparent) 0.5px,
+          transparent 0.5px
+        );
+        background-size: 10px 10px;
+        box-shadow:
+          0 4px 6px -1px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 10%, transparent),
+          0 20px 48px -8px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
+        /* jagged tear at the bottom */
+        clip-path: polygon(
+          0% 0%, 100% 0%, 100% 96%,
+          98% 100%, 96% 96%, 94% 100%, 92% 96%, 90% 100%, 88% 96%, 86% 100%,
+          84% 96%, 82% 100%, 80% 96%, 78% 100%, 76% 96%, 74% 100%, 72% 96%,
+          70% 100%, 68% 96%, 66% 100%, 64% 96%, 62% 100%, 60% 96%, 58% 100%,
+          56% 96%, 54% 100%, 52% 96%, 50% 100%, 48% 96%, 46% 100%, 44% 96%,
+          42% 100%, 40% 96%, 38% 100%, 36% 96%, 34% 100%, 32% 96%, 30% 100%,
+          28% 96%, 26% 100%, 24% 96%, 22% 100%, 20% 96%, 18% 100%, 16% 96%,
+          14% 100%, 12% 96%, 10% 100%, 8% 96%, 6% 100%, 4% 96%, 2% 100%, 0% 96%
+        );
+      }
+
+      .check-result__receipt-header {
+        display: grid;
+        gap: 0.125rem;
+        text-align: center;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        margin-bottom: 1.25rem;
+      }
+
+      .check-result__receipt-brand {
+        display: block;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 1.125rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .check-result__receipt-sub {
+        display: block;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.6875rem;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        letter-spacing: 0.04em;
+      }
+
+      .check-result__receipt-meta {
+        margin: 0 0 0;
+        display: grid;
+        gap: 0.3rem;
+      }
+
+      .check-result__receipt-meta > div {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.75rem;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+      }
+
+      .check-result__receipt-meta dt {
+        opacity: 0.6;
+      }
+
+      .check-result__receipt-meta dd {
+        margin: 0;
+        font-weight: 700;
+      }
+
+      .check-result__receipt-rule {
+        border: none;
+        border-top: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        margin: 1.25rem 0;
+      }
+
+      /* ── Rotated stamp ── */
+      .check-result__stamp-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 1rem 0 0.5rem;
+      }
+
+      .check-result__stamp {
+        width: 5.5rem;
+        height: 5.5rem;
+        border-radius: 50%;
+        border: 3px double currentColor;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        transform: rotate(-15deg);
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.625rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      .check-result__stamp span {
+        display: block;
+      }
+
+      .check-result__stamp.is-success { color: var(--tch-color-status-ready, #10b981); }
+      .check-result__stamp.is-warning { color: var(--tch-color-status-warning, #f59e0b); }
+      .check-result__stamp.is-danger  { color: var(--tch-color-error, var(--mat-sys-error)); }
+      .check-result__stamp.is-neutral { color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
+
+      .check-result__receipt-footer {
+        margin: 0;
+        text-align: center;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.625rem;
+        color: var(--tch-color-outline, var(--mat-sys-outline));
+        line-height: 1.5;
+        letter-spacing: 0.04em;
+      }
+
+      /* CSS barcode decoration */
+      .check-result__barcode {
+        margin-top: 1.25rem;
+        height: 2rem;
+        opacity: 0.28;
+        background: repeating-linear-gradient(
+          to right,
+          var(--tch-color-on-surface, #1a1c1e) 0px,
+          var(--tch-color-on-surface, #1a1c1e) 2px,
+          transparent 2px,
+          transparent 5px,
+          var(--tch-color-on-surface, #1a1c1e) 5px,
+          var(--tch-color-on-surface, #1a1c1e) 8px,
+          transparent 8px,
+          transparent 12px,
+          var(--tch-color-on-surface, #1a1c1e) 12px,
+          var(--tch-color-on-surface, #1a1c1e) 15px,
+          transparent 15px,
+          transparent 19px,
+          var(--tch-color-on-surface, #1a1c1e) 19px,
+          var(--tch-color-on-surface, #1a1c1e) 22px,
+          transparent 22px,
+          transparent 25px,
+          var(--tch-color-on-surface, #1a1c1e) 25px,
+          var(--tch-color-on-surface, #1a1c1e) 26px,
+          transparent 26px,
+          transparent 30px
+        );
+      }
+
+      /* ────────────────────────────────────────────────
+         Responsive
+      ──────────────────────────────────────────────── */
       @media (min-width: 760px) {
         .check-page {
           grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
@@ -462,19 +862,38 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
           line-height: var(--tch-line-height-headline-lg, 2.5rem);
         }
 
-        .check-page__panel {
-          padding: 1.5rem;
+        .check-page__panel { padding: 1.5rem; }
+
+        .check-page__help-card { grid-column: 2; }
+      }
+
+      @media (min-width: 960px) {
+        .check-result__grid {
+          grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+          grid-template-rows: auto auto;
         }
 
-        .check-page__help-card {
+        .check-result__status-card {
+          grid-row: 1;
+          grid-column: 1;
+        }
+
+        .check-result__security {
+          grid-row: 2;
+          grid-column: 1;
+        }
+
+        .check-result__receipt-wrap {
+          grid-row: 1 / 3;
           grid-column: 2;
+          position: sticky;
+          top: 5rem;
+          align-self: start;
         }
       }
 
       @keyframes check-page-spin {
-        to {
-          transform: rotate(360deg);
-        }
+        to { transform: rotate(360deg); }
       }
     `,
   ],
@@ -497,6 +916,18 @@ export class PublicCheckTicketPage {
     return current.kind === 'result'
       ? verificationCopy(current.status)
       : verificationCopy('SERVICE_UNAVAILABLE');
+  });
+
+  readonly stampLines = computed(() => {
+    const current = this.state();
+    return current.kind === 'result' ? STAMP_LINES[current.status] : [];
+  });
+
+  readonly receiptDate = computed(() => {
+    const d = new Date();
+    const months = ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUN',
+                    'JUL', 'AOU', 'SEP', 'OCT', 'NOV', 'DÉC'];
+    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
   });
 
   updateCode(event: Event): void {
@@ -528,12 +959,8 @@ export class PublicCheckTicketPage {
 
 export function formatPublicCode(value: string): string {
   const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
-  if (compact.length <= 4) {
-    return compact;
-  }
-  if (compact.length <= 8) {
-    return `${compact.slice(0, 4)}-${compact.slice(4)}`;
-  }
+  if (compact.length <= 4) return compact;
+  if (compact.length <= 8) return `${compact.slice(0, 4)}-${compact.slice(4)}`;
   return `${compact.slice(0, 4)}-${compact.slice(4, 7)}-${compact.slice(7)}`;
 }
 
@@ -552,7 +979,7 @@ export function verificationCopy(status: VerificationStatus): VerificationCopy {
       bodyKey: 'public.check.status.NOT_PAYABLE.body',
     },
     PAYABLE: {
-      icon: 'task_alt',
+      icon: 'emoji_events',
       tone: 'success',
       titleKey: 'public.check.status.PAYABLE.title',
       bodyKey: 'public.check.status.PAYABLE.body',
@@ -576,6 +1003,5 @@ export function verificationCopy(status: VerificationStatus): VerificationCopy {
       bodyKey: 'public.check.status.SERVICE_UNAVAILABLE.body',
     },
   };
-
   return copies[status];
 }

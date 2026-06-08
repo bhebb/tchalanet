@@ -284,6 +284,9 @@
           "title": "Service temporarily unavailable"
         }
       },
+      "result_eyebrow": "Verification result",
+      "security_body": "This result is generated in real time by the Tchalanet verification system. No ticket data is retained after the consultation.",
+      "security_title": "Secured result",
       "status_label": "Ticket status",
       "verify_another": "Verify another ticket",
       "visual_badge": "Verifiable ticket"

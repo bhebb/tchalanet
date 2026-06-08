@@ -284,6 +284,9 @@
           "title": "Sèvis tanporèman pa disponib"
         }
       },
+      "result_eyebrow": "Rezilta verifikasyon an",
+      "security_body": "Rezilta sa a jenere an tan reyèl pa sistèm verifikasyon Tchalanet la. Pa gen done tikè ki konsève apre konsiltasyon an.",
+      "security_title": "Rezilta sekirize",
       "status_label": "Estati tikè a",
       "verify_another": "Verifye yon lòt tikè",
       "visual_badge": "Tikè verifyab"
