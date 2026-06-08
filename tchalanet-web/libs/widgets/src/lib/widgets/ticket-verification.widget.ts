@@ -179,6 +179,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
 
       .check-ticket-widget__submit {
         width: 100%;
+        box-sizing: border-box;
         justify-content: center;
       }
 
