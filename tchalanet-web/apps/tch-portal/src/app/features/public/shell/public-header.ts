@@ -104,10 +104,10 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
       flex: 1 1 auto;
     }
 
-    .public-header__brand img {
-      width: 8.75rem;
-      height: auto;
-      display: block;
+    /* clip to icon mark only on mobile — img sized by TchBrand (max-width 11rem) */
+    .public-header__brand {
+      overflow: hidden;
+      max-width: 2.5rem;
     }
 
     .public-header__nav {
@@ -145,8 +145,9 @@ import { LanguageSwitcherComponent } from '../../../core/i18n';
         flex: 0 0 auto;
       }
 
-      .public-header__brand img {
-        width: 10rem;
+      .public-header__brand {
+        overflow: visible;
+        max-width: none;
       }
 
       .public-header__nav {
