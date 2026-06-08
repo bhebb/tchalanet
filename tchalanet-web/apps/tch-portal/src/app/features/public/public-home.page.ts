@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, isDevMode } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
@@ -6,7 +6,9 @@ import { catchError, map, of, startWith } from 'rxjs';
 
 import { PageModelApi, PageModelComponent, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
 import { PublicShellComponent } from './shell/public-shell.component';
-import { ThemeSandboxComponent } from './theme-sandbox.component'; // dev-only theme sandbox (floating, isDevMode)
+// Dev-only theme sandbox: referenced exclusively inside the @defer block below, so Angular
+// code-splits it (and its Material modules) into a lazy chunk that prod never loads.
+import { ThemeSandboxComponent } from '../dev/theme-sandbox.component';
 
 type PublicHomeState =
   | { readonly status: 'loading' }
@@ -32,8 +34,10 @@ type PublicHomeState =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-      <!-- Dev-only floating theme sandbox (no-op in prod via isDevMode) -->
-      <tch-theme-sandbox />
+      <!-- Dev-only floating theme sandbox — lazy chunk, never loaded in prod -->
+      @defer (when devMode) {
+        <tch-theme-sandbox />
+      }
       <tch-page-shell [shell]="shell()">
           @switch (state().status) {
               @case ('loading') {
@@ -54,6 +58,7 @@ type PublicHomeState =
 })
 export class PublicHomePage {
   private readonly api = inject(PageModelApi);
+  protected readonly devMode = isDevMode();
 
   readonly state = toSignal(
     this.api.getPublicPage().pipe(

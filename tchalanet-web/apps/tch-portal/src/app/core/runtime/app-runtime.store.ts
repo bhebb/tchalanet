@@ -54,7 +54,7 @@ export class AppRuntimeStore {
           return;
         }
 
-        this.theme.loadPublicTheme();
+        this.theme.loadPublicTheme().subscribe();
         this.settings.loadPublicSettings();
         this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready');
       });
@@ -74,17 +74,17 @@ export class AppRuntimeStore {
       .refreshSession()
       .then(session => {
         if (session.authenticated) {
-          this.theme.loadPrivateTheme();
+          this.theme.loadPrivateTheme().subscribe();
           this.settings.loadPrivateSettings();
           return;
         }
 
-        this.theme.loadPublicTheme();
+        this.theme.loadPublicTheme().subscribe();
         this.settings.loadPublicSettings();
       })
       .catch((error: unknown) => {
         this.bootstrapError.set(error);
-        this.theme.loadPublicTheme();
+        this.theme.loadPublicTheme().subscribe();
         this.settings.loadPublicSettings();
       })
       .finally(() => this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready'));

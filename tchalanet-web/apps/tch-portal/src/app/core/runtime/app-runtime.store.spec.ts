@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeStore } from '@tch/ui/theme';
+import { of } from 'rxjs';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '@tch/shared-config';
@@ -59,8 +60,8 @@ describe('AppRuntimeStore', () => {
     theme = {
       activeTheme: signal({}),
       init: vi.fn(),
-      loadPrivateTheme: vi.fn(),
-      loadPublicTheme: vi.fn(),
+      loadPrivateTheme: vi.fn(() => of(null)),
+      loadPublicTheme: vi.fn(() => of(null)),
       loadState: signal('ready'),
     };
 

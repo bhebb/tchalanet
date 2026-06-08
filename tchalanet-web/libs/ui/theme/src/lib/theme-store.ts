@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { catchError, of, tap } from 'rxjs';
+import { Observable, catchError, of, tap } from 'rxjs';
 
 import { ThemeApi } from './theme-api';
 import { ThemeDomApplier } from './theme-dom-applier';
@@ -44,40 +44,37 @@ export class ThemeStore {
     this.apply(this.resolveStoredTheme());
   }
 
-  loadPublicTheme(): void {
+  /** Loads the public theme runtime. Returns the stream (cold) so callers can await completion;
+   *  it emits the applied theme, or `null` if it fell back. The caller must subscribe. */
+  loadPublicTheme(): Observable<RuntimeTheme | null> {
     this.loadStateSignal.set('loading');
-    this.api
-      .getPublicTheme(this.activeTheme().mode)
-      .pipe(
-        tap((theme) => {
-          this.apply(this.resolveBackendTheme(theme));
-          this.loadStateSignal.set('ready');
-        }),
-        catchError(() => {
-          this.apply(this.resolveStoredTheme());
-          this.loadStateSignal.set('fallback');
-          return of(null);
-        }),
-      )
-      .subscribe();
+    return this.api.getPublicTheme(this.activeTheme().mode).pipe(
+      tap((theme) => {
+        this.apply(this.resolveBackendTheme(theme));
+        this.loadStateSignal.set('ready');
+      }),
+      catchError(() => {
+        this.apply(this.resolveStoredTheme());
+        this.loadStateSignal.set('fallback');
+        return of(null);
+      }),
+    );
   }
 
-  loadPrivateTheme(): void {
+  /** Loads the tenant theme runtime. Same contract as `loadPublicTheme`. */
+  loadPrivateTheme(): Observable<RuntimeTheme | null> {
     this.loadStateSignal.set('loading');
-    this.api
-      .getPrivateTheme(this.activeTheme().mode)
-      .pipe(
-        tap((theme) => {
-          this.apply(this.resolveBackendTheme(theme));
-          this.loadStateSignal.set('ready');
-        }),
-        catchError(() => {
-          this.apply(this.resolveStoredTheme());
-          this.loadStateSignal.set('fallback');
-          return of(null);
-        }),
-      )
-      .subscribe();
+    return this.api.getPrivateTheme(this.activeTheme().mode).pipe(
+      tap((theme) => {
+        this.apply(this.resolveBackendTheme(theme));
+        this.loadStateSignal.set('ready');
+      }),
+      catchError(() => {
+        this.apply(this.resolveStoredTheme());
+        this.loadStateSignal.set('fallback');
+        return of(null);
+      }),
+    );
   }
 
   setPreset(presetKey: string): void {
@@ -91,7 +88,9 @@ export class ThemeStore {
       mode: this.activeTheme().mode,
       effectiveMode: this.effectiveMode(this.activeTheme().mode),
       density: this.activeTheme().density,
-      tokens: {},
+      // Preserve backend tenant token overrides across a preset switch — only the backend/runtime
+      // load replaces them. Wiping here would silently drop a tenant's customised tokens.
+      tokens: this.activeTheme().tokens,
     });
     persistTheme(this.activeTheme());
   }
