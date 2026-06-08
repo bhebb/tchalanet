@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
-import { LabelPipe } from '@tch/page-model';
+
 
 interface TchalaEntry {
   readonly id: string;
@@ -64,23 +65,23 @@ function normalizeQuery(value: string): string {
 
 @Component({
   selector: 'tch-public-tchala-page',
-  imports: [LabelPipe],
+  imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tchala-page">
       <section class="tchala-page__hero">
-        <p class="tchala-page__eyebrow">{{ 'public.tchala.eyebrow' | tchLabel }}</p>
-        <h1>{{ 'public.tchala.title' | tchLabel }}</h1>
-        <p class="tchala-page__lead">{{ 'public.tchala.subtitle' | tchLabel }}</p>
+        <p class="tchala-page__eyebrow">{{ 'public.tchala.eyebrow' | translate }}</p>
+        <h1>{{ 'public.tchala.title' | translate }}</h1>
+        <p class="tchala-page__lead">{{ 'public.tchala.subtitle' | translate }}</p>
       </section>
 
       <div class="tchala-page__search-wrap">
         <label class="tchala-page__search">
-          <span class="tchala-page__search-label">{{ 'public.tchala.search_label' | tchLabel }}</span>
+          <span class="tchala-page__search-label">{{ 'public.tchala.search_label' | translate }}</span>
           <input
             type="search"
             class="tchala-page__search-input"
-            [placeholder]="'public.tchala.search_placeholder' | tchLabel"
+            [placeholder]="'public.tchala.search_placeholder' | translate"
             [value]="query()"
             (input)="updateQuery($event)"
           />
@@ -88,13 +89,13 @@ function normalizeQuery(value: string): string {
         </label>
       </div>
 
-      <nav class="tchala-page__alpha-nav" [attr.aria-label]="'public.tchala.alpha_nav_aria' | tchLabel">
+      <nav class="tchala-page__alpha-nav" [attr.aria-label]="'public.tchala.alpha_nav_aria' | translate">
         <button
           type="button"
           class="tchala-page__alpha-pill"
           [class.tchala-page__alpha-pill--active]="activeLetter() === ''"
           (click)="setActiveLetter('')"
-        >{{ 'public.tchala.all_label' | tchLabel }}</button>
+        >{{ 'public.tchala.all_label' | translate }}</button>
         @for (letter of letters; track letter) {
           <button
             type="button"
@@ -116,7 +117,7 @@ function normalizeQuery(value: string): string {
                 <h2 class="tchala-page__card-term">{{ entry.term }}</h2>
                 <p class="tchala-page__card-desc">{{ entry.description }}</p>
               </div>
-              <div class="tchala-page__numbers" [attr.aria-label]="'public.tchala.numbers_label' | tchLabel">
+              <div class="tchala-page__numbers" [attr.aria-label]="'public.tchala.numbers_label' | translate">
                 @for (num of entry.numbers; track num) {
                   <span>{{ num }}</span>
                 }
@@ -125,14 +126,14 @@ function normalizeQuery(value: string): string {
           }
         </div>
       } @else {
-        <p class="tchala-page__empty">{{ 'public.tchala.empty' | tchLabel }}</p>
+        <p class="tchala-page__empty">{{ 'public.tchala.empty' | translate }}</p>
       }
 
       <section class="tchala-page__note" aria-labelledby="tchala-note-title">
         <span class="material-symbols-outlined tchala-page__note-icon" aria-hidden="true">info</span>
         <div>
-          <h2 id="tchala-note-title">{{ 'public.tchala.note_title' | tchLabel }}</h2>
-          <p>{{ 'public.tchala.note_body' | tchLabel }}</p>
+          <h2 id="tchala-note-title">{{ 'public.tchala.note_title' | translate }}</h2>
+          <p>{{ 'public.tchala.note_body' | translate }}</p>
         </div>
       </section>
     </div>

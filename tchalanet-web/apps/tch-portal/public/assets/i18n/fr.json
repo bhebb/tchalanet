@@ -182,7 +182,8 @@
         "check_ticket": "Vérification de tickets",
         "operators": "Pour opérateurs",
         "pos_management": "Gestion points de vente",
-        "title": "Solutions"
+        "title": "Solutions",
+        "ticket_verification": "Vérification de ticket"
       },
       "status": {
         "operational": "Systèmes opérationnels"
@@ -193,14 +194,28 @@
         "results": "Résultats",
         "rules": "Règles",
         "status": "État du système",
-        "title": "Support"
+        "title": "Support",
+        "system_status": "État du système"
       }
     },
     "help": {
-      "payment_answer": "Tchalanet permet de consulter le statut du ticket. Le paiement, lorsqu’il est applicable, se fait selon les instructions du point de vente participant.",
-      "payment_question": "Est-ce que Tchalanet paie directement ?",
-      "subtitle": "Réponses aux questions courantes sur la vérification, les résultats et les paiements.",
-      "title": "Aide"
+      "cat_aria": "Catégories d'aide",
+      "cat_games": "Jeux",
+      "cat_payments": "Paiements",
+      "cat_security": "Sécurité",
+      "cat_withdrawals": "Retraits",
+      "faq_title": "Questions fréquentes",
+      "hero_body": "Trouvez des réponses rapides ou contactez notre support.",
+      "hero_title": "Comment pouvons-nous vous aider ?",
+      "search_label": "Rechercher une question",
+      "search_placeholder": "Rechercher…",
+      "support_direct_body": "Nos agents sont disponibles pour vous assister dans vos démarches.",
+      "support_direct_cta": "Parler à un agent",
+      "support_direct_title": "Support direct",
+      "support_section_aria": "Options de support",
+      "support_ticket_body": "Si votre problème nécessite une enquête approfondie, ouvrez un ticket.",
+      "support_ticket_cta": "Ouvrir un ticket",
+      "support_ticket_title": "Envoyer un ticket"
     },
     "hero": {
       "primary_action": "Commencer la vérification",
@@ -402,6 +417,21 @@
       "verify_another": "Vérifier un autre ticket",
       "visual_badge": "Ticket vérifiable"
     },
+    "markdown": {
+      "error": "Impossible de charger ce contenu. Veuillez réessayer.",
+      "loading": "Chargement du contenu…"
+    },
+    "news": {
+      "feed_aria": "Fil d'actualités",
+      "filter_all": "Tout",
+      "filter_aria": "Filtrer les actualités",
+      "filter_promo": "Promotions",
+      "filter_results": "Résultats",
+      "filter_system": "Système",
+      "filter_tchala": "Tchala",
+      "title": "Actualités",
+      "empty": "Aucune actualité pour ce filtre."
+    },
     "pages": {
       "check-ticket": {
         "description": "Entrez votre code public pour consulter le statut de votre ticket.",
@@ -597,6 +627,19 @@
       "scan_qr": "Scanner QR",
       "title": "Vérifier un ticket",
       "status_pending": "En attente"
+    },
+    "tchala": {
+      "eyebrow": "Dictionnaire des rêves",
+      "title": "Tchala",
+      "subtitle": "Découvrez la signification de vos rêves et les numéros qui leur correspondent selon la tradition haïtienne.",
+      "search_label": "Rechercher dans le Tchala",
+      "search_placeholder": "Ex : eau, serpent…",
+      "alpha_nav_aria": "Navigation alphabétique",
+      "all_label": "Tout",
+      "numbers_label": "Numéros",
+      "empty": "Aucun résultat trouvé.",
+      "note_title": "Note",
+      "note_body": "Le Tchala est une tradition culturelle haïtienne. Les numéros indiqués sont indicatifs et à titre informatif uniquement."
     }
   },
   "widget": {

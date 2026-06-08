@@ -74,6 +74,7 @@
     "@ngx-translate/http-loader": "^17.0.0",
     "keycloak-angular": "^21.0.0",
     "keycloak-js": "^26.2.4",
+    "marked": "^18.0.5",
     "rxjs": "~7.8.0"
   }
 }

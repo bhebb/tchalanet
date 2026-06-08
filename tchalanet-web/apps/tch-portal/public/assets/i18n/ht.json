@@ -175,7 +175,8 @@
         "check_ticket": "Verifikasyon tikè",
         "operators": "Pou operatè",
         "pos_management": "Jesyon pwen vant",
-        "title": "Solisyon"
+        "title": "Solisyon",
+        "ticket_verification": "Verifikasyon tikè"
       },
       "status": {
         "operational": "Sistèm yo operasyonèl"
@@ -186,14 +187,28 @@
         "results": "Rezilta",
         "rules": "Règ",
         "status": "Eta sistèm nan",
-        "title": "Sipò"
+        "title": "Sipò",
+        "system_status": "Eta sistèm nan"
       }
     },
     "help": {
-      "payment_answer": "Tchalanet pèmèt ou konsilte estati tikè a. Peman, lè li aplikab, fèt selon enstriksyon pwen vant patisipan an.",
-      "payment_question": "Èske Tchalanet peye dirèkteman?",
-      "subtitle": "Repons sou verifikasyon tikè, rezilta, peman, ak pwoblèm komen.",
-      "title": "Èd"
+      "cat_aria": "Kategori èd",
+      "cat_games": "Jwèt",
+      "cat_payments": "Peman",
+      "cat_security": "Sekirite",
+      "cat_withdrawals": "Retrè",
+      "faq_title": "Kesyon yo poze souvan",
+      "hero_body": "Jwenn repons rapid oswa kontakte sipò nou an.",
+      "hero_title": "Kijan nou ka ede ou ?",
+      "search_label": "Chèche yon kesyon",
+      "search_placeholder": "Chèche…",
+      "support_direct_body": "Ajan nou yo disponib pou ede ou nan demarsh ou yo.",
+      "support_direct_cta": "Pale ak yon ajan",
+      "support_direct_title": "Sipò dirèk",
+      "support_section_aria": "Opsyon sipò",
+      "support_ticket_body": "Si pwoblèm ou an nesesite yon ankèt apwofondi, louvri yon tikè sipò.",
+      "support_ticket_cta": "Louvri yon tikè",
+      "support_ticket_title": "Voye yon tikè"
     },
     "hero": {
       "primary_action": "Kòmanse verifikasyon an",
@@ -395,6 +410,21 @@
       "verify_another": "Verifye yon lòt tikè",
       "visual_badge": "Tikè verifyab"
     },
+    "markdown": {
+      "error": "Enposib chaje kontni sa a. Tanpri eseye ankò.",
+      "loading": "Chajman kontni…"
+    },
+    "news": {
+      "feed_aria": "Fil nouvèl",
+      "filter_all": "Tout",
+      "filter_aria": "Filtre nouvèl",
+      "filter_promo": "Pwomosyon",
+      "filter_results": "Rezilta",
+      "filter_system": "Sistèm",
+      "filter_tchala": "Tchala",
+      "title": "Nouvèl",
+      "empty": "Pa gen nouvèl pou filtre sa a."
+    },
     "pages": {
       "check-ticket": {
         "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
@@ -590,6 +620,19 @@
       "scan_qr": "Eskane QR",
       "title": "Verifye yon tikè",
       "status_pending": "Ap tann"
+    },
+    "tchala": {
+      "eyebrow": "Diksyonè rèv",
+      "title": "Tchala",
+      "subtitle": "Dekouvri siyifikasyon rèv ou yo ak nimewo ki koresponn ak yo selon tradisyon ayisyen an.",
+      "search_label": "Chèche nan Tchala a",
+      "search_placeholder": "Eks : dlo, sèpan…",
+      "alpha_nav_aria": "Navigasyon alfabetik",
+      "all_label": "Tout",
+      "numbers_label": "Nimewo",
+      "empty": "Pa gen rezilta jwenn.",
+      "note_title": "Nòt",
+      "note_body": "Tchala a se yon tradisyon kiltirèl ayisyen. Nimewo yo endike sèlman pou enfòmasyon."
     }
   },
   "widget": {

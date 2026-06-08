@@ -175,7 +175,8 @@
         "check_ticket": "Ticket verification",
         "operators": "For operators",
         "pos_management": "Point of sale management",
-        "title": "Solutions"
+        "title": "Solutions",
+        "ticket_verification": "Ticket verification"
       },
       "status": {
         "operational": "Systems operational"
@@ -186,14 +187,28 @@
         "results": "Results",
         "rules": "Rules",
         "status": "System status",
-        "title": "Support"
+        "title": "Support",
+        "system_status": "System status"
       }
     },
     "help": {
-      "payment_answer": "Tchalanet lets users consult ticket status. Payment, when applicable, follows the instructions from the participating point of sale.",
-      "payment_question": "Does Tchalanet pay directly?",
-      "subtitle": "Answers about ticket verification, results, payments, and common issues.",
-      "title": "Help"
+      "cat_aria": "Help categories",
+      "cat_games": "Games",
+      "cat_payments": "Payments",
+      "cat_security": "Security",
+      "cat_withdrawals": "Withdrawals",
+      "faq_title": "Frequently asked questions",
+      "hero_body": "Find quick answers or contact our support team.",
+      "hero_title": "How can we help you?",
+      "search_label": "Search a question",
+      "search_placeholder": "Search…",
+      "support_direct_body": "Our agents are available to assist you.",
+      "support_direct_cta": "Talk to an agent",
+      "support_direct_title": "Direct support",
+      "support_section_aria": "Support options",
+      "support_ticket_body": "If your issue requires a deeper investigation, open a support ticket.",
+      "support_ticket_cta": "Open a ticket",
+      "support_ticket_title": "Submit a ticket"
     },
     "hero": {
       "primary_action": "Start verification",
@@ -395,6 +410,21 @@
       "verify_another": "Verify another ticket",
       "visual_badge": "Verifiable ticket"
     },
+    "markdown": {
+      "error": "Unable to load this content. Please try again.",
+      "loading": "Loading content…"
+    },
+    "news": {
+      "feed_aria": "News feed",
+      "filter_all": "All",
+      "filter_aria": "Filter news",
+      "filter_promo": "Promotions",
+      "filter_results": "Results",
+      "filter_system": "System",
+      "filter_tchala": "Tchala",
+      "title": "News",
+      "empty": "No news for this filter."
+    },
     "pages": {
       "check-ticket": {
         "description": "Enter your public code to consult your ticket status.",
@@ -590,6 +620,19 @@
       "scan_qr": "Scan QR",
       "title": "Verify a ticket",
       "status_pending": "Pending"
+    },
+    "tchala": {
+      "eyebrow": "Dream Dictionary",
+      "title": "Tchala",
+      "subtitle": "Discover the meaning of your dreams and their corresponding numbers according to Haitian tradition.",
+      "search_label": "Search the Tchala",
+      "search_placeholder": "E.g. water, snake…",
+      "alpha_nav_aria": "Alphabetical navigation",
+      "all_label": "All",
+      "numbers_label": "Numbers",
+      "empty": "No results found.",
+      "note_title": "Note",
+      "note_body": "The Tchala is a Haitian cultural tradition. The numbers shown are indicative and for informational purposes only."
     }
   },
   "widget": {

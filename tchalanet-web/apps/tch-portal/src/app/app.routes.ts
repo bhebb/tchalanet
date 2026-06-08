@@ -6,8 +6,11 @@ import { ForbiddenPage } from './core/auth/forbidden.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
 import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
 import { PublicCheckTicketPage } from './features/public/public-check-ticket.page';
+import { PublicHelpPage } from './features/public/public-help.page';
 import { PublicHomePage } from './features/public/public-home.page';
 import { PublicInfoPage } from './features/public/public-info.page';
+import { PublicMarkdownPage } from './features/public/public-markdown.page';
+import { PublicNewsPage } from './features/public/public-news.page';
 import { PublicOperatorsPage } from './features/public/public-operators.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicTchalaPage } from './features/public/public-tchala.page';
@@ -28,11 +31,12 @@ export const appRoutes: Route[] = [
       { path: 'results/:id', component: PublicResultDetailPage },
       { path: 'rules', component: PublicRulesPage },
       { path: 'tchala', component: PublicTchalaPage },
-      { path: 'help', component: PublicInfoPage, data: { kind: 'help' } },
+      { path: 'news', component: PublicNewsPage },
+      { path: 'help', component: PublicHelpPage },
       { path: 'operators', component: PublicOperatorsPage },
       { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },
-      { path: 'privacy', component: PublicInfoPage, data: { kind: 'privacy' } },
-      { path: 'terms', component: PublicInfoPage, data: { kind: 'terms' } },
+      { path: 'privacy', component: PublicMarkdownPage, data: { file: 'privacy' } },
+      { path: 'terms', component: PublicMarkdownPage, data: { file: 'terms' } },
     ],
   },
   {
