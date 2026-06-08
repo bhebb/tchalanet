@@ -83,11 +83,11 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                       type="button"
                       [attr.aria-label]="'public.ticket.scan_qr' | translate"
                     >
-                      <span class="material-symbols-outlined">qr_code_scanner</span>
+                      <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
                     </button>
                   </div>
                   <p class="check-page__hint">
-                    <span class="material-symbols-outlined">info</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
                     <span>{{ 'public.check.code_hint' | translate }}</span>
                   </p>
                 </div>
@@ -97,8 +97,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                   type="submit"
                   style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
                 >
-                  <span>{{ 'public.ticket.cta' | translate }}</span>
-                  <span class="material-symbols-outlined">search</span>
+                  {{ 'public.ticket.cta' | translate }}
                 </button>
               </form>
             }
@@ -114,7 +113,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         </tch-card>
 
         <tch-card class="check-page__help-card" aria-labelledby="check-help-title">
-          <div class="check-page__help-icon">
+          <div class="check-page__help-icon" aria-hidden="true">
             <span class="material-symbols-outlined">receipt_long</span>
           </div>
           <div>
@@ -389,11 +388,10 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         }
       }
 
-      /* submit = TchActionButton, only need width + gap override */
+      /* submit = TchActionButton, only need width override */
       button.check-page__submit[tch-action] {
         width: 100%;
         box-sizing: border-box;
-        gap: 0.5rem;
         font-weight: 800;
       }
 
