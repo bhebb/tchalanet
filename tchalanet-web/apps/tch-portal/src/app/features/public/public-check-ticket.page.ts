@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { VerificationStatus } from '@tch/page-model';
+import { TchActionButton, TchCard, TchLoading } from '@tch/ui/components';
 
 type CheckState =
   | { readonly kind: 'default' }
@@ -19,23 +20,24 @@ interface VerificationCopy {
 const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
 
 const STAMP_LINES: Record<VerificationStatus, string[]> = {
-  PAYABLE:             ['PAYÉ', 'VALIDÉ'],
-  NOT_PAYABLE:         ['NON', 'PAYABLE'],
-  PENDING_RESULT:      ['EN', 'ATTENTE'],
-  INVALID_OR_CANCELLED:['ANNULÉ'],
-  NOT_FOUND:           ['NON', 'TROUVÉ'],
-  SERVICE_UNAVAILABLE: ['HORS', 'LIGNE'],
+  PAYABLE:              ['PAYÉ', 'VALIDÉ'],
+  NOT_PAYABLE:          ['NON', 'PAYABLE'],
+  PENDING_RESULT:       ['EN', 'ATTENTE'],
+  INVALID_OR_CANCELLED: ['ANNULÉ'],
+  NOT_FOUND:            ['NON', 'TROUVÉ'],
+  SERVICE_UNAVAILABLE:  ['HORS', 'LIGNE'],
 };
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, TchCard, TchActionButton, TchLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="check-page">
 
-      <!-- ── Form / Loading states: show hero + panel + help ── -->
+      <!-- ─── Form / Loading: hero + panel + help ─── -->
       @if (state().kind !== 'result') {
+
         <section class="check-page__hero" aria-labelledby="check-title">
           <div class="check-page__visual" aria-hidden="true">
             <img
@@ -55,8 +57,9 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
           </div>
         </section>
 
-        <section class="check-page__panel" aria-labelledby="check-form-title">
+        <tch-card class="check-page__panel">
           @switch (state().kind) {
+
             @case ('default') {
               <form class="check-page__form" (submit)="submit($event)">
                 <div class="check-page__field">
@@ -88,23 +91,29 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                     <span>{{ 'public.check.code_hint' | translate }}</span>
                   </p>
                 </div>
-                <button class="check-page__submit" type="submit">
+                <button
+                  tch-action
+                  class="check-page__submit"
+                  type="submit"
+                  style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+                >
                   <span>{{ 'public.ticket.cta' | translate }}</span>
                   <span class="material-symbols-outlined">search</span>
                 </button>
               </form>
             }
-            @case ('loading') {
-              <div class="check-page__loading" role="status" aria-live="polite">
-                <span class="check-page__spinner" aria-hidden="true"></span>
-                <h2 id="check-form-title">{{ 'public.check.loading_title' | translate }}</h2>
-                <p>{{ 'public.check.loading_body' | translate }}</p>
-              </div>
-            }
-          }
-        </section>
 
-        <section class="check-page__help-card" aria-labelledby="check-help-title">
+            @case ('loading') {
+              <tch-loading
+                [label]="'public.check.loading_title' | translate"
+                [ariaLabel]="'public.check.loading_title' | translate"
+              />
+            }
+
+          }
+        </tch-card>
+
+        <tch-card class="check-page__help-card" aria-labelledby="check-help-title">
           <div class="check-page__help-icon">
             <span class="material-symbols-outlined">receipt_long</span>
           </div>
@@ -112,38 +121,35 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
             <h2 id="check-help-title">{{ 'public.check.help_title' | translate }}</h2>
             <p>{{ 'public.check.help_body' | translate }}</p>
           </div>
-        </section>
+        </tch-card>
+
       }
 
-      <!-- ── Result state: full-width redesign ── -->
+      <!-- ─── Result state: full-width redesign ─── -->
       @if (state().kind === 'result') {
         <section class="check-result" aria-live="polite">
 
-          <!-- Header -->
           <div class="check-result__header">
             <div>
-              <p class="check-result__eyebrow">
-                {{ 'public.check.result_eyebrow' | translate }}
-              </p>
+              <p class="check-result__eyebrow">{{ 'public.check.result_eyebrow' | translate }}</p>
               <h1 class="check-result__code">{{ code() }}</h1>
             </div>
-            <div class="check-result__header-actions">
-              <button
-                class="check-result__verify-another"
-                type="button"
-                (click)="reset()"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
-                {{ 'public.check.verify_another' | translate }}
-              </button>
-            </div>
+            <button
+              tch-action
+              class="check-result__verify-another"
+              type="button"
+              style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+              (click)="reset()"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+              {{ 'public.check.verify_another' | translate }}
+            </button>
           </div>
 
-          <!-- Content grid -->
           <div class="check-result__grid">
 
             <!-- Status card -->
-            <article
+            <tch-card
               class="check-result__status-card"
               [class.is-success]="resultCopy().tone === 'success'"
               [class.is-warning]="resultCopy().tone === 'warning'"
@@ -162,10 +168,10 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                   {{ resultCopy().bodyKey | translate }}
                 </p>
               </div>
-            </article>
+            </tch-card>
 
             <!-- Security / trust card -->
-            <div class="check-result__security">
+            <tch-card class="check-result__security">
               <div class="check-result__security-icon" aria-hidden="true">
                 <span class="material-symbols-outlined">security</span>
               </div>
@@ -177,38 +183,26 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                   {{ 'public.check.security_body' | translate }}
                 </p>
               </div>
-            </div>
+            </tch-card>
 
-            <!-- Thermal receipt (right column) -->
+            <!-- Thermal receipt -->
             <div class="check-result__receipt-wrap">
               <div class="check-result__receipt">
 
-                <!-- Letterhead -->
                 <div class="check-result__receipt-header">
                   <span class="check-result__receipt-brand">TCHALANET</span>
                   <span class="check-result__receipt-sub">BUREAU CENTRAL PORT-AU-PRINCE</span>
                   <span class="check-result__receipt-sub">TEL: +509 0000-0000</span>
                 </div>
 
-                <!-- Meta -->
                 <dl class="check-result__receipt-meta">
-                  <div>
-                    <dt>DATE:</dt>
-                    <dd>{{ receiptDate() }}</dd>
-                  </div>
-                  <div>
-                    <dt>CODE:</dt>
-                    <dd>{{ code() }}</dd>
-                  </div>
-                  <div>
-                    <dt>TERMINAL:</dt>
-                    <dd>POS-HT-0000</dd>
-                  </div>
+                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
+                  <div><dt>CODE:</dt><dd>{{ code() }}</dd></div>
+                  <div><dt>TERMINAL:</dt><dd>POS-HT-0000</dd></div>
                 </dl>
 
                 <div class="check-result__receipt-rule"></div>
 
-                <!-- Stamp -->
                 <div class="check-result__stamp-wrap">
                   <div
                     class="check-result__stamp"
@@ -226,17 +220,15 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
 
                 <div class="check-result__receipt-rule"></div>
 
-                <!-- Footer text -->
                 <p class="check-result__receipt-footer">
                   MERCI DE VOTRE CONFIANCE.<br />WWW.TCHALANET.COM
                 </p>
 
-                <!-- Decorative barcode -->
                 <div class="check-result__barcode" aria-hidden="true"></div>
               </div>
             </div>
 
-          </div><!-- /grid -->
+          </div>
         </section>
       }
 
@@ -244,9 +236,9 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
   `,
   styles: [
     `
-      /* ────────────────────────────────────────────────
-         Shared helpers
-      ──────────────────────────────────────────────── */
+      @use 'breakpoints' as bp;
+
+      /* ─── Page wrapper ─── */
       .check-page {
         display: grid;
         gap: 1.5rem;
@@ -255,13 +247,8 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         padding: 1.5rem 0 calc(5rem + var(--tch-page-gutter, 16px));
       }
 
-      /* ────────────────────────────────────────────────
-         HERO (form state)
-      ──────────────────────────────────────────────── */
-      .check-page__hero {
-        display: grid;
-        gap: 1.5rem;
-      }
+      /* ─── Hero ─── */
+      .check-page__hero { display: grid; gap: 1.5rem; }
 
       .check-page__visual {
         position: relative;
@@ -274,8 +261,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
             color-mix(in oklab, var(--tch-color-accent, var(--mat-sys-tertiary)) 38%, transparent),
             transparent 34%
           ),
-          linear-gradient(
-            145deg,
+          linear-gradient(145deg,
             var(--tch-color-primary, var(--mat-sys-primary)),
             var(--tch-color-primary-container, var(--mat-sys-primary-container))
           );
@@ -286,7 +272,8 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         inset: auto 0 -1.25rem auto;
         width: min(76%, 21rem);
         transform: rotate(-4deg);
-        filter: drop-shadow(0 1rem 1.25rem color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
+        filter: drop-shadow(0 1rem 1.25rem
+          color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
       }
 
       .check-page__visual-badge {
@@ -313,17 +300,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
       .check-page__intro {
         display: grid;
         gap: 0.5rem;
-      }
-
-      .check-page__eyebrow,
-      .check-page__intro h1,
-      .check-page__intro p,
-      .check-page__hint,
-      .check-page__loading h2,
-      .check-page__loading p,
-      .check-page__help-card h2,
-      .check-page__help-card p {
-        margin: 0;
+        p, h1 { margin: 0; }
       }
 
       .check-page__eyebrow {
@@ -339,25 +316,17 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         line-height: var(--tch-line-height-headline-mobile, 2rem);
       }
 
-      .check-page__intro p,
-      .check-page__hint,
-      .check-page__loading p,
-      .check-page__help-card p {
+      .check-page__intro p {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
       }
 
-      /* ────────────────────────────────────────────────
-         PANEL (form + loading)
-      ──────────────────────────────────────────────── */
-      .check-page__panel,
-      .check-page__help-card {
-        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+      /* ─── Panel (TchCard override) ─── */
+      tch-card.check-page__panel {
+        padding: 1rem;
         border-radius: var(--tch-radius-xl, 24px);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
       }
 
-      .check-page__panel { padding: 1rem; }
-
+      /* ─── Form ─── */
       .check-page__form,
       .check-page__field { display: grid; gap: 0.875rem; }
 
@@ -382,11 +351,12 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         letter-spacing: 0.16em;
         padding: 0 3.75rem 0 1rem;
         text-transform: uppercase;
-      }
 
-      .check-page__code-input:focus {
-        border-color: var(--tch-color-primary, var(--mat-sys-primary));
-        outline: 3px solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
+        &:focus {
+          border-color: var(--tch-color-primary, var(--mat-sys-primary));
+          outline: 3px solid color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
+        }
       }
 
       .check-page__scan-button {
@@ -402,6 +372,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         background: var(--tch-color-accent, var(--mat-sys-tertiary));
         color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         transform: translateY(-50%);
+        cursor: pointer;
       }
 
       .check-page__hint {
@@ -410,53 +381,37 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         gap: 0.375rem;
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        margin: 0;
+
+        .material-symbols-outlined {
+          color: var(--tch-color-outline, var(--mat-sys-outline));
+          font-size: 1rem;
+        }
       }
 
-      .check-page__hint .material-symbols-outlined {
-        color: var(--tch-color-outline, var(--mat-sys-outline));
-        font-size: 1rem;
-      }
-
-      .check-page__submit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.625rem;
+      /* submit = TchActionButton, only need width + gap override */
+      button.check-page__submit[tch-action] {
         width: 100%;
-        min-height: var(--tch-touch-target, 48px);
-        border: 0;
-        border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-accent, var(--mat-sys-tertiary));
-        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
-        font-size: 1rem;
+        box-sizing: border-box;
+        gap: 0.5rem;
         font-weight: 800;
       }
 
-      .check-page__loading {
-        display: grid;
-        justify-items: center;
-        gap: 0.75rem;
-        padding: 2rem 1rem;
-        text-align: center;
-      }
-
-      .check-page__spinner {
-        width: 4rem;
-        height: 4rem;
-        border: 0.25rem solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 18%, transparent);
-        border-top-color: var(--tch-color-primary, var(--mat-sys-primary));
-        border-radius: var(--tch-radius-pill, 9999px);
-        animation: check-page-spin 0.9s linear infinite;
-      }
-
-      .check-page__help-card {
+      /* ─── Help card (TchCard override) ─── */
+      tch-card.check-page__help-card {
         display: flex;
         gap: 1rem;
-        padding: 1rem;
+        border-radius: var(--tch-radius-xl, 24px);
         background:
-          radial-gradient(var(--tch-color-outline-variant, var(--mat-sys-outline-variant)) 0.5px, transparent 0.5px),
+          radial-gradient(
+            var(--tch-color-outline-variant, var(--mat-sys-outline-variant)) 0.5px,
+            transparent 0.5px
+          ),
           var(--tch-color-surface-tonal, var(--mat-sys-surface-container-low));
         background-size: 0.5rem 0.5rem;
+
+        h2 { margin: 0; }
+        p  { margin: 0; color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
       }
 
       .check-page__help-icon {
@@ -466,20 +421,18 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         width: 3rem;
         height: 3rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 12%, transparent);
+        background: color-mix(in oklab,
+          var(--tch-color-primary, var(--mat-sys-primary)) 12%, transparent);
         color: var(--tch-color-primary, var(--mat-sys-primary));
       }
 
-      /* ────────────────────────────────────────────────
-         RESULT SECTION
-      ──────────────────────────────────────────────── */
+      /* ─── Result section ─── */
       .check-result {
         grid-column: 1 / -1;
         display: grid;
         gap: 2rem;
       }
 
-      /* ── Result header ── */
       .check-result__header {
         display: flex;
         align-items: flex-end;
@@ -506,120 +459,83 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         color: var(--tch-color-primary, var(--mat-sys-primary));
       }
 
-      .check-result__verify-another {
-        display: inline-flex;
-        align-items: center;
+      /* verify-another = TchActionButton, only need layout extras */
+      button.check-result__verify-another[tch-action] {
         gap: 0.5rem;
-        min-height: var(--tch-touch-target, 48px);
-        padding: 0 1.25rem;
-        border: none;
-        border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-accent, #fecb00);
-        color: #1a1a1a;
-        font-size: 1rem;
         font-weight: 800;
-        cursor: pointer;
         white-space: nowrap;
       }
 
-      /* ── Content grid ── */
-      .check-result__grid {
-        display: grid;
-        gap: 1.5rem;
-        align-items: start;
-      }
+      /* ─── Content grid ─── */
+      .check-result__grid { display: grid; gap: 1.5rem; align-items: start; }
 
-      /* ── Status card ── */
-      .check-result__status-card {
+      /* ─── Status card (TchCard override) ─── */
+      tch-card.check-result__status-card {
         position: relative;
         overflow: hidden;
-        border-radius: var(--tch-radius-xl, 20px);
         padding: clamp(1.5rem, 4vw, 2rem);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
-        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-xl, 20px);
         display: flex;
         gap: 1.25rem;
         align-items: flex-start;
       }
 
+      tch-card.check-result__status-card.is-success {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-status-ready, #10b981) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-status-ready, #10b981); }
+        .check-result__status-icon   { background: var(--tch-color-status-ready, #10b981); color: #fff; }
+        .check-result__status-title  { color: var(--tch-color-status-ready, #10b981); }
+      }
+
+      tch-card.check-result__status-card.is-warning {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-status-warning, #f59e0b) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-status-warning, #f59e0b); }
+        .check-result__status-icon   { background: var(--tch-color-status-warning, #f59e0b); color: #1a1a1a; }
+        .check-result__status-title  { color: var(--tch-color-status-warning, #f59e0b); }
+      }
+
+      tch-card.check-result__status-card.is-danger {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-error, var(--mat-sys-error)) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-error, var(--mat-sys-error)); }
+        .check-result__status-icon   { background: var(--tch-color-error, var(--mat-sys-error)); color: #fff; }
+        .check-result__status-title  { color: var(--tch-color-error, var(--mat-sys-error)); }
+      }
+
+      tch-card.check-result__status-card.is-neutral {
+        .check-result__status-corner {
+          background: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        }
+        .check-result__status-icon {
+          background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+          color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        }
+        .check-result__status-title {
+          color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        }
+      }
+
       .check-result__status-corner {
         position: absolute;
-        top: -2rem;
-        right: -2rem;
-        width: 7rem;
-        height: 7rem;
+        top: -2rem; right: -2rem;
+        width: 7rem; height: 7rem;
         border-radius: 50%;
         opacity: 0.1;
         pointer-events: none;
-      }
-
-      .check-result__status-card.is-success {
-        border-color: color-mix(in oklab, var(--tch-color-status-ready, #10b981) 40%, transparent);
-      }
-      .check-result__status-card.is-success .check-result__status-corner {
-        background: var(--tch-color-status-ready, #10b981);
-      }
-      .check-result__status-card.is-success .check-result__status-icon {
-        background: var(--tch-color-status-ready, #10b981);
-        color: #fff;
-      }
-      .check-result__status-card.is-success .check-result__status-title {
-        color: var(--tch-color-status-ready, #10b981);
-      }
-
-      .check-result__status-card.is-warning {
-        border-color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 40%, transparent);
-      }
-      .check-result__status-card.is-warning .check-result__status-corner {
-        background: var(--tch-color-status-warning, #f59e0b);
-      }
-      .check-result__status-card.is-warning .check-result__status-icon {
-        background: var(--tch-color-status-warning, #f59e0b);
-        color: #1a1a1a;
-      }
-      .check-result__status-card.is-warning .check-result__status-title {
-        color: var(--tch-color-status-warning, #f59e0b);
-      }
-
-      .check-result__status-card.is-danger {
-        border-color: color-mix(in oklab, var(--tch-color-error, var(--mat-sys-error)) 40%, transparent);
-      }
-      .check-result__status-card.is-danger .check-result__status-corner {
-        background: var(--tch-color-error, var(--mat-sys-error));
-      }
-      .check-result__status-card.is-danger .check-result__status-icon {
-        background: var(--tch-color-error, var(--mat-sys-error));
-        color: #fff;
-      }
-      .check-result__status-card.is-danger .check-result__status-title {
-        color: var(--tch-color-error, var(--mat-sys-error));
-      }
-
-      .check-result__status-card.is-neutral .check-result__status-corner {
-        background: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
-      }
-      .check-result__status-card.is-neutral .check-result__status-icon {
-        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
-        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
-      }
-      .check-result__status-card.is-neutral .check-result__status-title {
-        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
       }
 
       .check-result__status-icon {
         position: relative;
         z-index: 1;
         flex-shrink: 0;
-        width: 3.5rem;
-        height: 3.5rem;
+        width: 3.5rem; height: 3.5rem;
         border-radius: 50%;
         display: grid;
         place-items: center;
-      }
 
-      .check-result__status-icon .material-symbols-outlined {
-        font-size: 1.75rem;
-        max-width: none;
+        .material-symbols-outlined { font-size: 1.75rem; }
       }
 
       .check-result__status-body {
@@ -643,26 +559,22 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         line-height: 1.6;
       }
 
-      /* ── Security card ── */
-      .check-result__security {
+      /* ─── Security card (TchCard override) ─── */
+      tch-card.check-result__security {
+        --comp-card-bg: var(--tch-color-primary, var(--mat-sys-primary));
+        --comp-card-border: transparent;
         display: flex;
         gap: 1rem;
         align-items: flex-start;
         padding: 1.5rem;
         border-radius: var(--tch-radius-xl, 20px);
-        background: var(--tch-color-primary, var(--mat-sys-primary));
         color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
       }
 
       .check-result__security-icon {
         flex-shrink: 0;
         margin-top: 0.125rem;
-      }
-
-      .check-result__security-icon .material-symbols-outlined {
-        font-size: 1.5rem;
-        opacity: 0.8;
-        max-width: none;
+        .material-symbols-outlined { font-size: 1.5rem; opacity: 0.8; }
       }
 
       .check-result__security-title {
@@ -675,16 +587,14 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         margin: 0;
         opacity: 0.88;
         line-height: 1.6;
-        font-size: var(--tch-font-size-body-md, 1rem);
       }
 
-      /* ── Receipt wrap ── */
+      /* ─── Thermal receipt ─── */
       .check-result__receipt-wrap {
         display: flex;
         justify-content: center;
       }
 
-      /* ── Thermal receipt ── */
       .check-result__receipt {
         width: 100%;
         max-width: 22rem;
@@ -697,9 +607,10 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         );
         background-size: 10px 10px;
         box-shadow:
-          0 4px 6px -1px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 10%, transparent),
-          0 20px 48px -8px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
-        /* jagged tear at the bottom */
+          0 4px 6px -1px color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 10%, transparent),
+          0 20px 48px -8px color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
         clip-path: polygon(
           0% 0%, 100% 0%, 100% 96%,
           98% 100%, 96% 96%, 94% 100%, 92% 96%, 90% 100%, 88% 96%, 86% 100%,
@@ -739,26 +650,19 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
       }
 
       .check-result__receipt-meta {
-        margin: 0 0 0;
+        margin: 0;
         display: grid;
         gap: 0.3rem;
-      }
 
-      .check-result__receipt-meta > div {
-        display: flex;
-        justify-content: space-between;
-        font-family: var(--tch-font-family-mono, monospace);
-        font-size: 0.75rem;
-        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
-      }
-
-      .check-result__receipt-meta dt {
-        opacity: 0.6;
-      }
-
-      .check-result__receipt-meta dd {
-        margin: 0;
-        font-weight: 700;
+        > div {
+          display: flex;
+          justify-content: space-between;
+          font-family: var(--tch-font-family-mono, monospace);
+          font-size: 0.75rem;
+          color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        }
+        dt { opacity: 0.6; }
+        dd { margin: 0; font-weight: 700; }
       }
 
       .check-result__receipt-rule {
@@ -767,7 +671,6 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         margin: 1.25rem 0;
       }
 
-      /* ── Rotated stamp ── */
       .check-result__stamp-wrap {
         display: flex;
         justify-content: center;
@@ -775,8 +678,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
       }
 
       .check-result__stamp {
-        width: 5.5rem;
-        height: 5.5rem;
+        width: 5.5rem; height: 5.5rem;
         border-radius: 50%;
         border: 3px double currentColor;
         display: grid;
@@ -789,16 +691,14 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         letter-spacing: 0.08em;
         text-align: center;
         line-height: 1.4;
-      }
 
-      .check-result__stamp span {
-        display: block;
-      }
+        span { display: block; }
 
-      .check-result__stamp.is-success { color: var(--tch-color-status-ready, #10b981); }
-      .check-result__stamp.is-warning { color: var(--tch-color-status-warning, #f59e0b); }
-      .check-result__stamp.is-danger  { color: var(--tch-color-error, var(--mat-sys-error)); }
-      .check-result__stamp.is-neutral { color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
+        &.is-success { color: var(--tch-color-status-ready, #10b981); }
+        &.is-warning { color: var(--tch-color-status-warning, #f59e0b); }
+        &.is-danger  { color: var(--tch-color-error, var(--mat-sys-error)); }
+        &.is-neutral { color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
+      }
 
       .check-result__receipt-footer {
         margin: 0;
@@ -810,7 +710,6 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         letter-spacing: 0.04em;
       }
 
-      /* CSS barcode decoration */
       .check-result__barcode {
         margin-top: 1.25rem;
         height: 2rem;
@@ -819,31 +718,24 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
           to right,
           var(--tch-color-on-surface, #1a1c1e) 0px,
           var(--tch-color-on-surface, #1a1c1e) 2px,
-          transparent 2px,
-          transparent 5px,
+          transparent 2px, transparent 5px,
           var(--tch-color-on-surface, #1a1c1e) 5px,
           var(--tch-color-on-surface, #1a1c1e) 8px,
-          transparent 8px,
-          transparent 12px,
+          transparent 8px, transparent 12px,
           var(--tch-color-on-surface, #1a1c1e) 12px,
           var(--tch-color-on-surface, #1a1c1e) 15px,
-          transparent 15px,
-          transparent 19px,
+          transparent 15px, transparent 19px,
           var(--tch-color-on-surface, #1a1c1e) 19px,
           var(--tch-color-on-surface, #1a1c1e) 22px,
-          transparent 22px,
-          transparent 25px,
+          transparent 22px, transparent 25px,
           var(--tch-color-on-surface, #1a1c1e) 25px,
           var(--tch-color-on-surface, #1a1c1e) 26px,
-          transparent 26px,
-          transparent 30px
+          transparent 26px, transparent 30px
         );
       }
 
-      /* ────────────────────────────────────────────────
-         Responsive
-      ──────────────────────────────────────────────── */
-      @media (min-width: 760px) {
+      /* ─── Responsive ─── */
+      @include bp.up(medium) {
         .check-page {
           grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
           align-items: start;
@@ -862,9 +754,9 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
           line-height: var(--tch-line-height-headline-lg, 2.5rem);
         }
 
-        .check-page__panel { padding: 1.5rem; }
+        tch-card.check-page__panel { padding: 1.5rem; }
 
-        .check-page__help-card { grid-column: 2; }
+        tch-card.check-page__help-card { grid-column: 2; }
       }
 
       @media (min-width: 960px) {
@@ -873,15 +765,8 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
           grid-template-rows: auto auto;
         }
 
-        .check-result__status-card {
-          grid-row: 1;
-          grid-column: 1;
-        }
-
-        .check-result__security {
-          grid-row: 2;
-          grid-column: 1;
-        }
+        tch-card.check-result__status-card { grid-row: 1; grid-column: 1; }
+        tch-card.check-result__security    { grid-row: 2; grid-column: 1; }
 
         .check-result__receipt-wrap {
           grid-row: 1 / 3;
@@ -890,10 +775,6 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
           top: 5rem;
           align-self: start;
         }
-      }
-
-      @keyframes check-page-spin {
-        to { transform: rotate(360deg); }
       }
     `,
   ],
@@ -906,28 +787,23 @@ export class PublicCheckTicketPage {
 
   constructor() {
     const rawCode = this.route.snapshot.queryParamMap.get('code');
-    if (rawCode) {
-      this.code.set(formatPublicCode(rawCode));
-    }
+    if (rawCode) this.code.set(formatPublicCode(rawCode));
   }
 
   readonly resultCopy = computed(() => {
-    const current = this.state();
-    return current.kind === 'result'
-      ? verificationCopy(current.status)
-      : verificationCopy('SERVICE_UNAVAILABLE');
+    const s = this.state();
+    return s.kind === 'result' ? verificationCopy(s.status) : verificationCopy('SERVICE_UNAVAILABLE');
   });
 
   readonly stampLines = computed(() => {
-    const current = this.state();
-    return current.kind === 'result' ? STAMP_LINES[current.status] : [];
+    const s = this.state();
+    return s.kind === 'result' ? STAMP_LINES[s.status] : [];
   });
 
   readonly receiptDate = computed(() => {
     const d = new Date();
-    const months = ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUN',
-                    'JUL', 'AOU', 'SEP', 'OCT', 'NOV', 'DÉC'];
-    return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    const m = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOU','SEP','OCT','NOV','DÉC'];
+    return `${String(d.getDate()).padStart(2, '0')} ${m[d.getMonth()]} ${d.getFullYear()}`;
   });
 
   updateCode(event: Event): void {
@@ -939,12 +815,11 @@ export class PublicCheckTicketPage {
 
   submit(event: Event): void {
     event.preventDefault();
-    const compactCode = this.code().replace(/-/g, '');
-    if (compactCode.length < 6 || !CODE_PATTERN.test(this.code())) {
+    const compact = this.code().replace(/-/g, '');
+    if (compact.length < 6 || !CODE_PATTERN.test(this.code())) {
       this.state.set({ kind: 'result', status: 'NOT_FOUND' });
       return;
     }
-
     this.state.set({ kind: 'loading' });
     window.setTimeout(() => {
       this.state.set({ kind: 'result', status: 'SERVICE_UNAVAILABLE' });
@@ -965,43 +840,37 @@ export function formatPublicCode(value: string): string {
 }
 
 export function verificationCopy(status: VerificationStatus): VerificationCopy {
-  const copies: Record<VerificationStatus, VerificationCopy> = {
+  const map: Record<VerificationStatus, VerificationCopy> = {
     PENDING_RESULT: {
-      icon: 'schedule',
-      tone: 'warning',
+      icon: 'schedule', tone: 'warning',
       titleKey: 'public.check.status.PENDING_RESULT.title',
-      bodyKey: 'public.check.status.PENDING_RESULT.body',
+      bodyKey:  'public.check.status.PENDING_RESULT.body',
     },
     NOT_PAYABLE: {
-      icon: 'remove_circle',
-      tone: 'neutral',
+      icon: 'remove_circle', tone: 'neutral',
       titleKey: 'public.check.status.NOT_PAYABLE.title',
-      bodyKey: 'public.check.status.NOT_PAYABLE.body',
+      bodyKey:  'public.check.status.NOT_PAYABLE.body',
     },
     PAYABLE: {
-      icon: 'emoji_events',
-      tone: 'success',
+      icon: 'emoji_events', tone: 'success',
       titleKey: 'public.check.status.PAYABLE.title',
-      bodyKey: 'public.check.status.PAYABLE.body',
+      bodyKey:  'public.check.status.PAYABLE.body',
     },
     INVALID_OR_CANCELLED: {
-      icon: 'block',
-      tone: 'danger',
+      icon: 'block', tone: 'danger',
       titleKey: 'public.check.status.INVALID_OR_CANCELLED.title',
-      bodyKey: 'public.check.status.INVALID_OR_CANCELLED.body',
+      bodyKey:  'public.check.status.INVALID_OR_CANCELLED.body',
     },
     NOT_FOUND: {
-      icon: 'search_off',
-      tone: 'danger',
+      icon: 'search_off', tone: 'danger',
       titleKey: 'public.check.status.NOT_FOUND.title',
-      bodyKey: 'public.check.status.NOT_FOUND.body',
+      bodyKey:  'public.check.status.NOT_FOUND.body',
     },
     SERVICE_UNAVAILABLE: {
-      icon: 'cloud_off',
-      tone: 'neutral',
+      icon: 'cloud_off', tone: 'neutral',
       titleKey: 'public.check.status.SERVICE_UNAVAILABLE.title',
-      bodyKey: 'public.check.status.SERVICE_UNAVAILABLE.body',
+      bodyKey:  'public.check.status.SERVICE_UNAVAILABLE.body',
     },
   };
-  return copies[status];
+  return map[status];
 }
