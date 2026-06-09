@@ -12,6 +12,7 @@ public class DrawResultWebMapper {
         if (drawResultView == null) return null;
 
         return new DrawResultResponse(
+            drawResultView.resultDate(),
             drawResultView.occurredAt(),
             drawResultView.status(),
             drawResultView.source(),
@@ -28,6 +29,7 @@ public class DrawResultWebMapper {
         if (response == null) return null;
 
         return new DrawResult(
+            response.resultDate(),
             response.occurredAt(),
             response.status(),
             response.source(),

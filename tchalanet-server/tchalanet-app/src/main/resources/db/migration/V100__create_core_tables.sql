@@ -381,6 +381,7 @@ CREATE TABLE draw_result (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   result_slot_id uuid NOT NULL REFERENCES result_slot(id),
   occurred_at timestamptz NOT NULL,
+  result_date date NOT NULL,
   source_result jsonb NOT NULL,
   haiti_result jsonb NOT NULL,
   raw_payload jsonb,

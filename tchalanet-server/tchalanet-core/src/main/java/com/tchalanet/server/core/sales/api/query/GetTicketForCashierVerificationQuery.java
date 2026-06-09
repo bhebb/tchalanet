@@ -6,4 +6,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record GetTicketForCashierVerificationQuery(
     @NotBlank String publicCode
-) implements Query<TicketCashierVerificationView> {}
+) implements Query<TicketCashierVerificationView> {
+}

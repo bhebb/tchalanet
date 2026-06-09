@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
 export interface LanguageOption {
@@ -13,7 +12,7 @@ export interface LanguageOption {
 @Component({
   selector: 'tch-lang-switcher',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [MatButtonModule, MatMenuModule],
   template: `
     <div class="lang-switcher">
       <button
@@ -38,15 +37,18 @@ export interface LanguageOption {
             type="button"
             class="lang-switcher__item"
             [class.is-active]="language.id === current()"
+            [attr.aria-current]="language.id === current() ? 'true' : null"
             (click)="selected.emit(language.id)"
           >
-            @if (language.flag) {
-              <span class="lang-switcher__flag" aria-hidden="true">{{ language.flag }}</span>
-            }
-            <span>{{ language.label }}</span>
-            @if (language.id === current()) {
-              <mat-icon class="lang-switcher__check">check</mat-icon>
-            }
+            <span class="lang-switcher__item-label">
+              @if (language.flag) {
+                <span class="lang-switcher__flag" aria-hidden="true">{{ language.flag }}</span>
+              }
+              {{ language.label }}
+            </span>
+            <span class="lang-switcher__check" aria-hidden="true">
+              @if (language.id === current()) { ✓ }
+            </span>
           </button>
         }
       </mat-menu>
@@ -82,13 +84,24 @@ export interface LanguageOption {
       font-weight: 700;
     }
 
+    .lang-switcher__item-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
     .lang-switcher__flag {
-      margin-inline-end: 0.25rem;
+      flex-shrink: 0;
     }
 
     .lang-switcher__check {
-      margin-inline-start: auto;
-      font-size: 1rem;
+      flex-shrink: 0;
+      width: 1.25rem;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 700;
       color: var(--comp-lang-active);
     }
   `],

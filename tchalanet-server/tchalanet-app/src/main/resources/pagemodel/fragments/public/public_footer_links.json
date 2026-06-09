@@ -33,7 +33,7 @@
           "label": null,
           "destination": {
             "kind": "route",
-            "value": "/public/operators"
+            "value": "/public/managers"
           },
           "icon": "storefront",
           "image": null,

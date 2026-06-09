@@ -21,7 +21,6 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
-import com.tchalanet.server.core.sales.api.query.GetTicketDetailsQuery;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;

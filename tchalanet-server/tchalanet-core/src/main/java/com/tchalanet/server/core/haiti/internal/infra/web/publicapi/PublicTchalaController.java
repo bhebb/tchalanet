@@ -11,6 +11,8 @@ import com.tchalanet.server.core.haiti.api.query.GetTchalaByDreamQuery;
 import com.tchalanet.server.core.haiti.api.query.GetTchalaByNumberQuery;
 import com.tchalanet.server.core.haiti.api.query.GetTchalaEntryQuery;
 import com.tchalanet.server.core.haiti.api.query.SearchTchalaQuery;
+import com.tchalanet.server.core.haiti.internal.application.command.handler.SubmitTchalaSuggestionCommandHandler;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaEntryRepositoryPort;
 import com.tchalanet.server.core.haiti.internal.domain.tchala.exception.TchalaEntryNotFoundException;
 import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
 import com.tchalanet.server.core.haiti.internal.infra.web.model.SubmitSuggestionRequest;
@@ -38,6 +40,7 @@ public class PublicTchalaController {
 
   private final QueryBus queryBus;
   private final CommandBus commandBus;
+  private final TchalaEntryRepositoryPort repo;
 
   /**
    * Get a tchala entry by id (public read). Accepts TchalaEntryId bound via the
@@ -56,7 +59,7 @@ public class PublicTchalaController {
   @GetMapping("/search")
   public ApiResponse<TchPage<TchalaEntryResponse>> search(
       @RequestParam(defaultValue = "fr") String lang,
-      @RequestParam(name = "q") @NotBlank String text,
+      @RequestParam(name = "q", required = false) String text,
       @RequestParam(defaultValue = "0") @Min(0) int offset,
       @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit) {
 
@@ -118,8 +121,16 @@ public class PublicTchalaController {
     return ApiResponse.success(data);
   }
 
+  /** Returns whether the public suggestion box is open (pending count below the limit). */
+  @GetMapping("/suggestions/status")
+  public ApiResponse<SuggestionStatusResponse> suggestionStatus() {
+    long pending = repo.countAllPending();
+    int max = SubmitTchalaSuggestionCommandHandler.MAX_PENDING_SUGGESTIONS;
+    boolean open = pending < max;
+    return ApiResponse.success(new SuggestionStatusResponse(open, (int) pending, max));
+  }
+
   /** Submit a new suggestion. Returns 201 with created entry id and status. */
-  // Création publique (suggestion) — temporaire
   @PostMapping("/suggestions")
   @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<SubmitSuggestionResponse> submitSuggestion(
@@ -135,4 +146,6 @@ public class PublicTchalaController {
 
     return ApiResponse.created(response);
   }
+
+  record SuggestionStatusResponse(boolean open, int pendingCount, int maxPending) {}
 }

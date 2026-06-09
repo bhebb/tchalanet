@@ -1,12 +1,20 @@
 import { Provider, Type } from '@angular/core';
 import { WIDGET_REGISTRY as WIDGET_REGISTRY_TOKEN } from '@tch/page-model';
 
+import { ContactCtaWidget } from './widgets/contact-cta.widget';
+import { FaqWidget } from './widgets/faq.widget';
 import { FeatureGridWidget } from './widgets/feature-grid.widget';
 import { HeroWidget } from './widgets/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { OperatorCtaWidget } from './widgets/operator-cta.widget';
 import { PlansWidget } from './widgets/plans.widget';
+import { PublicBusinessAccessControlWidget } from './widgets/public-business-access-control.widget';
+import { PublicBusinessFeaturesWidget } from './widgets/public-business-features.widget';
+import { PublicBusinessHeroWidget } from './widgets/public-business-hero.widget';
+import { PublicBusinessLeadFormWidget } from './widgets/public-business-lead-form.widget';
+import { PublicBusinessPlansWidget } from './widgets/public-business-plans.widget';
+import { PublicBusinessProcessWidget } from './widgets/public-business-process.widget';
 import { PublicDrawResultsWidget } from './widgets/public-draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/tchala-search.widget';
@@ -28,10 +36,19 @@ export const WIDGET_REGISTRY: Readonly<Record<string, Type<unknown>>> = {
   HowItWorksWidget,
   RulesWidget: RulesSimulationWidget,
   SimulationWidget: RulesSimulationWidget,
+  ManagerCtaWidget: OperatorCtaWidget,
   OperatorCtaWidget,
   TchalaSearchWidget,
   FeatureGridWidget,
   PlansWidget,
+  ContactCtaWidget,
+  PublicBusinessHeroWidget,
+  PublicBusinessFeaturesWidget,
+  PublicBusinessProcessWidget,
+  PublicBusinessPlansWidget,
+  PublicBusinessAccessControlWidget,
+  PublicBusinessLeadFormWidget,
+  FaqWidget,
 };
 
 export function resolveWidget(type: string | undefined): Type<unknown> | null {

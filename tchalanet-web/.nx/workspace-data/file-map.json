@@ -44,636 +44,676 @@
   "fileMap": {
     "nonProjectFiles": [],
     "projectFileMap": {
-      "shared/types": [
+      "ui-components": [
         {
-          "file": "web-backup/libs/shared/types/README.md",
-          "hash": "16865305315750181877"
+          "file": "libs/ui/components/README.md",
+          "hash": "1048300374754876532"
         },
         {
-          "file": "web-backup/libs/shared/types/project.json",
-          "hash": "15220277811629232252"
+          "file": "libs/ui/components/eslint.config.mjs",
+          "hash": "6911888895805478804"
         },
         {
-          "file": "web-backup/libs/shared/types/src/index.ts",
-          "hash": "3845776317791302580"
+          "file": "libs/ui/components/project.json",
+          "hash": "5149177875525579302"
         },
         {
-          "file": "web-backup/libs/shared/types/src/lib/auth.model.ts",
-          "hash": "14621500119763325154"
+          "file": "libs/ui/components/src/index.ts",
+          "hash": "532148099307633493"
         },
         {
-          "file": "web-backup/libs/shared/types/src/lib/lottery.model.ts",
-          "hash": "5530351771107191821"
+          "file": "libs/ui/components/src/lib/action-button/action-button.ts",
+          "hash": "17734359208681014847"
         },
         {
-          "file": "web-backup/libs/shared/types/src/lib/page.model.ts",
-          "hash": "10087939915665618073"
+          "file": "libs/ui/components/src/lib/brand/brand.ts",
+          "hash": "2363625720016197211",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/types/src/lib/widget.model.ts",
-          "hash": "16359909437605029768"
+          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
+          "hash": "14220795768093247726"
         },
         {
-          "file": "web-backup/libs/shared/types/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "libs/ui/components/src/lib/card/card.ts",
+          "hash": "2128839883764420960"
         },
         {
-          "file": "web-backup/libs/shared/types/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "libs/ui/components/src/lib/empty-state/empty-state.ts",
+          "hash": "18010049587449564620"
         },
         {
-          "file": "web-backup/libs/shared/types/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "libs/ui/components/src/lib/error-panel/error-panel.ts",
+          "hash": "12330710118942343033"
         },
         {
-          "file": "web-backup/libs/shared/types/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "libs/ui/components/src/lib/field-error/field-error.ts",
+          "hash": "949467474437262915"
         },
         {
-          "file": "web-backup/libs/shared/types/vite.config.mts",
-          "hash": "17493186266026543801"
+          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.ts",
+          "hash": "4677278547444957795"
+        },
+        {
+          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.ts",
+          "hash": "9377904144937739534"
+        },
+        {
+          "file": "libs/ui/components/src/lib/loading/loading.ts",
+          "hash": "12380156399824553072"
+        },
+        {
+          "file": "libs/ui/components/src/lib/nav/nav.ts",
+          "hash": "11046528614224296363",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
+          "hash": "9963452027253079812"
+        },
+        {
+          "file": "libs/ui/components/src/lib/notice/notice.ts",
+          "hash": "15315254400579590416"
+        },
+        {
+          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.ts",
+          "hash": "4820806468313465274",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/page-error/page-error.ts",
+          "hash": "9481708808872860789"
+        },
+        {
+          "file": "libs/ui/components/src/lib/section-header/section-header.ts",
+          "hash": "8389808095608091511"
+        },
+        {
+          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.ts",
+          "hash": "16619494793349845790",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/status-badge/status-badge.ts",
+          "hash": "17124275208030297630"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.json",
+          "hash": "14130435081233809606"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.lib.json",
+          "hash": "14882418245198400289"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.spec.json",
+          "hash": "8647352538471907012"
         }
       ],
-      "tch-portal-e2e": [
+      "ui-styles": [
         {
-          "file": "apps/tch-portal-e2e/eslint.config.mjs",
-          "hash": "1172734138943286526"
+          "file": "libs/ui/styles/project.json",
+          "hash": "12776518627876021150"
         },
         {
-          "file": "apps/tch-portal-e2e/playwright.config.ts",
-          "hash": "9182228263159653438"
+          "file": "libs/ui/styles/src/lib/README.md",
+          "hash": "10326622484236586287"
         },
         {
-          "file": "apps/tch-portal-e2e/project.json",
-          "hash": "5997281328099186134"
+          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
+          "hash": "4783027941652895497"
         },
         {
-          "file": "apps/tch-portal-e2e/src/example.spec.ts",
-          "hash": "16019101014373124625"
+          "file": "libs/ui/styles/src/lib/_functions.scss",
+          "hash": "7749853334664996475"
         },
         {
-          "file": "apps/tch-portal-e2e/tsconfig.json",
-          "hash": "15726545290547512047"
+          "file": "libs/ui/styles/src/lib/_index.scss",
+          "hash": "8698166025698481804"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
+          "hash": "662076388056195332"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_mixins.scss",
+          "hash": "15895756648504285623"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_overlay.scss",
+          "hash": "4654987298841419955"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_typography.scss",
+          "hash": "10226960127459954445"
         }
       ],
-      "tchalanet-portal-e2e": [
+      "tch-portal": [
         {
-          "file": "web-backup/apps/tchalanet-portal-e2e/playwright.config.ts",
-          "hash": "11605003860944380104"
+          "file": "apps/tch-portal/eslint.config.mjs",
+          "hash": "17259448085244140710"
         },
         {
-          "file": "web-backup/apps/tchalanet-portal-e2e/project.json",
-          "hash": "1816283450649504372"
+          "file": "apps/tch-portal/project.json",
+          "hash": "10715989852832063096"
         },
         {
-          "file": "web-backup/apps/tchalanet-portal-e2e/src/example.spec.ts",
-          "hash": "2617822881957773046"
+          "file": "apps/tch-portal/proxy.conf.cjs",
+          "hash": "15907308992828329689"
         },
         {
-          "file": "web-backup/apps/tchalanet-portal-e2e/tsconfig.json",
-          "hash": "15726545290547512047"
-        }
-      ],
-      "shared/config": [
-        {
-          "file": "web-backup/libs/shared/config/README.md",
-          "hash": "4892843028727828919"
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-app-icon.svg",
+          "hash": "12874165811994458338"
         },
         {
-          "file": "web-backup/libs/shared/config/project.json",
-          "hash": "9042952064188825598"
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-inverse.svg",
+          "hash": "658935036689201510"
         },
         {
-          "file": "web-backup/libs/shared/config/src/index.ts",
-          "hash": "17818475148440210277"
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-print.svg",
+          "hash": "13544880900038085132"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/config.json",
-          "hash": "7105138814460287834"
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo.svg",
+          "hash": "11611510610655879067"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment-local-ide.ts",
-          "hash": "7834897957086707763"
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-points.svg",
+          "hash": "2572440331795345445"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment-local.ts",
-          "hash": "11861597561597877239"
+          "file": "apps/tch-portal/public/assets/config/page-default.json",
+          "hash": "9860149031374809755"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment-prod.ts",
-          "hash": "17252886126220602365"
+          "file": "apps/tch-portal/public/assets/config/page-private-fallback.json",
+          "hash": "1315317739657244237"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment-staging.ts",
-          "hash": "14260964661889355628"
+          "file": "apps/tch-portal/public/assets/config/test.json",
+          "hash": "525576925740094733"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment.ts",
-          "hash": "336969631202826032"
+          "file": "apps/tch-portal/public/assets/i18n/en.json",
+          "hash": "14246075183506315610"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/environments/environment.types.ts",
-          "hash": "15551781833995988519"
+          "file": "apps/tch-portal/public/assets/i18n/fr.json",
+          "hash": "11011084184520845448"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/features-toggle-default.json",
-          "hash": "7813905942678566607"
+          "file": "apps/tch-portal/public/assets/i18n/ht.json",
+          "hash": "4926032289048186931"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/integration-settings.json",
-          "hash": "16033527532817032339"
+          "file": "apps/tch-portal/public/assets/public/pages/privacy.md",
+          "hash": "10157244665251192380"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/page-default.json",
-          "hash": "7105138814460287834"
+          "file": "apps/tch-portal/public/assets/public/pages/terms.md",
+          "hash": "2864754145844916399"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/roles-default.json",
-          "hash": "11338389873914873612"
+          "file": "apps/tch-portal/public/assets/public/results-hero-balls.png",
+          "hash": "4445278347749924069"
         },
         {
-          "file": "web-backup/libs/shared/config/src/lib/theming.json",
-          "hash": "12035567707812898316"
+          "file": "apps/tch-portal/public/assets/public/rules-tchala-preview.png",
+          "hash": "16390624073948934258"
         },
         {
-          "file": "web-backup/libs/shared/config/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/public/assets/public/ticket-verification-preview.svg",
+          "hash": "8316209520341358832"
         },
         {
-          "file": "web-backup/libs/shared/config/src/vite-env.d.ts",
-          "hash": "12026329535378027803"
+          "file": "apps/tch-portal/public/assets/svg/i18n/en.svg",
+          "hash": "8996652583045834758"
         },
         {
-          "file": "web-backup/libs/shared/config/tsconfig.json",
-          "hash": "2898173503493847498"
+          "file": "apps/tch-portal/public/assets/svg/i18n/fr.svg",
+          "hash": "8734635249429673528"
         },
         {
-          "file": "web-backup/libs/shared/config/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/public/assets/svg/i18n/ht.svg",
+          "hash": "3671587302395020241"
         },
         {
-          "file": "web-backup/libs/shared/config/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/public/assets/svg/socials/facebook.svg",
+          "hash": "967391752942287665"
         },
         {
-          "file": "web-backup/libs/shared/config/vite.config.mts",
-          "hash": "1772702827121826114"
-        }
-      ],
-      "private-pages": [
-        {
-          "file": "web-backup/libs/web/private-pages/README.md",
-          "hash": "16294594850601576442"
+          "file": "apps/tch-portal/public/assets/svg/socials/instagram.svg",
+          "hash": "2873581573737657841"
         },
         {
-          "file": "web-backup/libs/web/private-pages/project.json",
-          "hash": "5487498543932446920"
+          "file": "apps/tch-portal/public/assets/svg/socials/linkedin.svg",
+          "hash": "3639310474159767663"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/index.ts",
-          "hash": "546223085526265087"
+          "file": "apps/tch-portal/public/assets/svg/socials/x.svg",
+          "hash": "11921670630856471303"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/admin-dashboard/admin.page.ts",
-          "hash": "1693590168906570685"
+          "file": "apps/tch-portal/public/assets/svg/socials/youtube.svg",
+          "hash": "11877118905697745251"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.html",
-          "hash": "13013414552844463438"
+          "file": "apps/tch-portal/public/favicon.ico",
+          "hash": "9303420814833116677"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.scss",
-          "hash": "13759041760121032824"
+          "file": "apps/tch-portal/src/app/app.config.ts",
+          "hash": "2748500040425471910",
+          "deps": [
+            "api",
+            "shared-config",
+            "ui-theme",
+            "widgets"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.spec.ts",
-          "hash": "2101637453779912195"
+          "file": "apps/tch-portal/src/app/app.html",
+          "hash": "17816966185630879015"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.ts",
-          "hash": "10674901553589145942"
+          "file": "apps/tch-portal/src/app/app.routes.spec.ts",
+          "hash": "10865680119776248906"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/cashier-dashboard/cashier-dashboard.page.ts",
-          "hash": "12733789295356273148"
+          "file": "apps/tch-portal/src/app/app.routes.ts",
+          "hash": "14856344518682991530",
+          "deps": [
+            "web"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-container/dashboard-container.component.ts",
-          "hash": "1827024672468821995"
-        },
-        {
-          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-container/role-dashboard-routing.ts",
-          "hash": "16514847161799302116"
-        },
-        {
-          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.html",
+          "file": "apps/tch-portal/src/app/app.scss",
           "hash": "3244421341483603138"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.scss",
-          "hash": "14207321583589823496"
+          "file": "apps/tch-portal/src/app/app.spec.ts",
+          "hash": "9986106757481818555"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.ts",
-          "hash": "9139177324468470098"
+          "file": "apps/tch-portal/src/app/app.ts",
+          "hash": "14076902099445983754"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.html",
-          "hash": "2026079131038240324"
+          "file": "apps/tch-portal/src/app/core/access/access.guard.ts",
+          "hash": "16850386478850012436"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.scss",
-          "hash": "16916390348263324389"
+          "file": "apps/tch-portal/src/app/core/access/access.service.spec.ts",
+          "hash": "6640096682438240487",
+          "deps": [
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.spec.ts",
-          "hash": "9685190197105269044"
+          "file": "apps/tch-portal/src/app/core/access/access.service.ts",
+          "hash": "4222061836141798715",
+          "deps": [
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.ts",
-          "hash": "1855410850422083774"
+          "file": "apps/tch-portal/src/app/core/access/can.directive.spec.ts",
+          "hash": "6402104276751496358"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/private.routes.ts",
-          "hash": "3968063948437040609"
+          "file": "apps/tch-portal/src/app/core/access/can.directive.ts",
+          "hash": "10214675084168249800"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.html",
-          "hash": "8376169750450880724"
+          "file": "apps/tch-portal/src/app/core/access/can.pipe.spec.ts",
+          "hash": "17497947782995573630"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.scss",
-          "hash": "6847372038948527576"
+          "file": "apps/tch-portal/src/app/core/access/can.pipe.ts",
+          "hash": "18333879155136684826"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.spec.ts",
-          "hash": "10773755363663579267"
+          "file": "apps/tch-portal/src/app/core/access/index.ts",
+          "hash": "15501236874533786793"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.ts",
-          "hash": "13594169442702791416"
+          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.ts",
+          "hash": "14572180438252855900"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.html",
-          "hash": "8438031635488042633"
+          "file": "apps/tch-portal/src/app/core/auth/auth.guard.ts",
+          "hash": "2070303611095165071"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.scss",
-          "hash": "1605228709696091483"
+          "file": "apps/tch-portal/src/app/core/auth/forbidden.page.ts",
+          "hash": "4977796061594985785"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.spec.ts",
-          "hash": "6470582398949229891"
+          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.spec.ts",
+          "hash": "2459180322843986171",
+          "deps": [
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.ts",
-          "hash": "13342650353795508473"
+          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.ts",
+          "hash": "12779077616967056190",
+          "deps": [
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/super-admin-dashboard/super-admin-dashboard.page.ts",
-          "hash": "6601728429230336619"
+          "file": "apps/tch-portal/src/app/core/entitlement/index.ts",
+          "hash": "3448829033650478349"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/tenant-admin-dashboard/tenant-admin-dashboard.page.ts",
-          "hash": "226602687643690942"
+          "file": "apps/tch-portal/src/app/core/i18n/i18n-merger.service.ts",
+          "hash": "10282054811448084104"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.html",
-          "hash": "7082742113112201395"
+          "file": "apps/tch-portal/src/app/core/i18n/i18n-runtime.spec.ts",
+          "hash": "6274271047955086677"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.scss",
-          "hash": "115613874046882622"
+          "file": "apps/tch-portal/src/app/core/i18n/i18n.facade.ts",
+          "hash": "6959284456245516114"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.spec.ts",
-          "hash": "17495987310183232969"
+          "file": "apps/tch-portal/src/app/core/i18n/index.ts",
+          "hash": "17634653132995065099"
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.ts",
-          "hash": "95303776981190628"
+          "file": "apps/tch-portal/src/app/core/i18n/language-switcher.ts",
+          "hash": "8926732499177673502",
+          "deps": [
+            "ui-components"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/src/app/core/i18n/merged-translate-loader.ts",
+          "hash": "14943754805161728524",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/web/private-pages/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.actions.ts",
+          "hash": "15316225955927752849"
         },
         {
-          "file": "web-backup/libs/web/private-pages/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.effects.ts",
+          "hash": "4656616946384430025"
         },
         {
-          "file": "web-backup/libs/web/private-pages/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.reducer.ts",
+          "hash": "12087515273103006269"
         },
         {
-          "file": "web-backup/libs/web/private-pages/vite.config.mts",
-          "hash": "13371091601130785800"
-        }
-      ],
-      "constants": [
-        {
-          "file": "web-backup/libs/web/constants/README.md",
-          "hash": "4559969932893867951"
-        },
-        {
-          "file": "web-backup/libs/web/constants/package.json",
-          "hash": "15643105243047936209"
-        },
-        {
-          "file": "web-backup/libs/web/constants/project.json",
-          "hash": "6311030494275412179"
-        },
-        {
-          "file": "web-backup/libs/web/constants/src/index.ts",
-          "hash": "59831201904335374"
-        },
-        {
-          "file": "web-backup/libs/web/constants/src/lib/constants.spec.ts",
-          "hash": "3942182014290355603"
-        },
-        {
-          "file": "web-backup/libs/web/constants/src/lib/constants.ts",
-          "hash": "13886671584621868109"
-        },
-        {
-          "file": "web-backup/libs/web/constants/tsconfig.json",
-          "hash": "9505886339790543345"
-        },
-        {
-          "file": "web-backup/libs/web/constants/tsconfig.lib.json",
-          "hash": "2310906518119603203"
-        },
-        {
-          "file": "web-backup/libs/web/constants/tsconfig.spec.json",
-          "hash": "2829456023087870280"
-        },
-        {
-          "file": "web-backup/libs/web/constants/vite.config.ts",
-          "hash": "6387763083683903406"
-        }
-      ],
-      "auth": [
-        {
-          "file": "web-backup/libs/shared/auth/README.md",
-          "hash": "9370648284768385907"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/project.json",
-          "hash": "13702680161878924530"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/index.ts",
-          "hash": "9688644324168336420"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/auth.guard.ts",
-          "hash": "6311217872441489356"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/components/auth-callback.component.ts",
-          "hash": "3786341792924486932"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/components/auth-login.component.ts",
-          "hash": "5116962223759975602"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/role.guard.ts",
-          "hash": "3530842382621353473"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/services/auth.service.spec.ts",
-          "hash": "1083514398293325462"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/services/auth.service.ts",
-          "hash": "18044724737503599664"
-        },
-        {
-          "file": "web-backup/libs/shared/auth/src/lib/services/local-storage-security.service.ts",
-          "hash": "16016180174279189213"
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.state.ts",
+          "hash": "12419402642410075021"
         },
         {
-          "file": "web-backup/libs/shared/auth/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.spec.ts",
+          "hash": "7590093481807291470",
+          "deps": [
+            "ui-theme",
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/auth/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.ts",
+          "hash": "13658118886469489940",
+          "deps": [
+            "ui-theme",
+            "shared-config"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/auth/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/src/app/core/runtime/index.ts",
+          "hash": "11343725147077395441"
         },
         {
-          "file": "web-backup/libs/shared/auth/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-api.service.ts",
+          "hash": "3994562282379597490",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/auth/vite.config.mts",
-          "hash": "16326380201792868007"
-        }
-      ],
-      "web/ui-shell-public": [
-        {
-          "file": "web-backup/libs/web/shell/README.md",
-          "hash": "13991887529601564460"
-        },
-        {
-          "file": "web-backup/libs/web/shell/project.json",
-          "hash": "15802185377969477396"
-        },
-        {
-          "file": "web-backup/libs/web/shell/src/index.ts",
-          "hash": "7437946747602976906"
-        },
-        {
-          "file": "web-backup/libs/web/shell/src/lib/markdown-page.component/markdown-page.component.ts",
-          "hash": "1812098995010937938"
-        },
-        {
-          "file": "web-backup/libs/web/shell/src/lib/public-stub-page.component/public-sub-page.component.ts",
-          "hash": "14617983181661550072"
+          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-dashboard.page.spec.ts",
+          "hash": "3994032274527447376"
         },
         {
-          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.html",
-          "hash": "13287862402296325415"
+          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-dashboard.page.ts",
+          "hash": "9932868990183976368"
         },
         {
-          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.scss",
-          "hash": "13374527483177556855"
+          "file": "apps/tch-portal/src/app/features/dashboard/role-dashboard.page.ts",
+          "hash": "8637080750269081309"
         },
         {
-          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.ts",
-          "hash": "7791641008707751313"
+          "file": "apps/tch-portal/src/app/features/dashboard/shell/private-shell.page.ts",
+          "hash": "10556330474748808874",
+          "deps": [
+            "api",
+            "ui-components",
+            "ui-theme",
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/web/shell/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/src/app/features/dev/theme-sandbox.component.ts",
+          "hash": "8717013832573654904",
+          "deps": [
+            "ui-theme"
+          ]
         },
         {
-          "file": "web-backup/libs/web/shell/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "apps/tch-portal/src/app/features/platform/platform-admin-api.service.ts",
+          "hash": "4787398320008201740",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/web/shell/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/src/app/features/platform/super-admin-dashboard.page.spec.ts",
+          "hash": "8432009199138921744"
         },
         {
-          "file": "web-backup/libs/web/shell/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/src/app/features/platform/super-admin-dashboard.page.ts",
+          "hash": "15048640604493527813"
         },
         {
-          "file": "web-backup/libs/web/shell/vite.config.mts",
-          "hash": "1212780873808754150"
-        }
-      ],
-      "shared/api": [
-        {
-          "file": "web-backup/libs/shared/api/README.md",
-          "hash": "9704761659612717664"
-        },
-        {
-          "file": "web-backup/libs/shared/api/project.json",
-          "hash": "17022645384624789747"
+          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.spec.ts",
+          "hash": "12994669434459642401"
         },
         {
-          "file": "web-backup/libs/shared/api/src/index.ts",
-          "hash": "1622754179341164837"
+          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.ts",
+          "hash": "6488501156986466073",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/context.api.ts",
-          "hash": "5125263749583742145"
+          "file": "apps/tch-portal/src/app/features/public/public-draw-results.service.ts",
+          "hash": "14752444751117346752",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/features.api.ts",
-          "hash": "16508645704163521885"
+          "file": "apps/tch-portal/src/app/features/public/public-help.page.ts",
+          "hash": "6938995144567627912"
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/kpis.api.ts",
-          "hash": "7503899007167994041"
+          "file": "apps/tch-portal/src/app/features/public/public-home.page.ts",
+          "hash": "16262816530284744698",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/me.api.ts",
-          "hash": "8733979492540445056"
+          "file": "apps/tch-portal/src/app/features/public/public-info.page.ts",
+          "hash": "18157732977125822443",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/page.api.ts",
-          "hash": "10329576688019388161"
+          "file": "apps/tch-portal/src/app/features/public/public-managers.page.ts",
+          "hash": "16939763904570672752",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/api/translation-override.api.ts",
-          "hash": "667751204212826490"
+          "file": "apps/tch-portal/src/app/features/public/public-markdown.page.ts",
+          "hash": "11481760936225088735"
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/interceptors/api-base.interceptor.ts",
-          "hash": "15889311302787173340"
+          "file": "apps/tch-portal/src/app/features/public/public-news.page.ts",
+          "hash": "3137519338334569302"
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/interceptors/auth.interceptor.ts",
-          "hash": "4658096217804093104"
+          "file": "apps/tch-portal/src/app/features/public/public-operators.page.ts",
+          "hash": "7866387516065600301",
+          "deps": [
+            "ui-components"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/interceptors/meta-headers.interceptor.ts",
-          "hash": "13029914796989506039"
+          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.spec.ts",
+          "hash": "10213639127909885550"
         },
         {
-          "file": "web-backup/libs/shared/api/src/lib/utils/http.utils.ts",
-          "hash": "3697741514800069273"
+          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.ts",
+          "hash": "16462808079264293397",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/shared/api/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/src/app/features/public/public-results.page.spec.ts",
+          "hash": "4804489171399284244"
         },
         {
-          "file": "web-backup/libs/shared/api/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "apps/tch-portal/src/app/features/public/public-results.page.ts",
+          "hash": "2031940948917866886"
         },
         {
-          "file": "web-backup/libs/shared/api/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/src/app/features/public/public-rules.page.spec.ts",
+          "hash": "1235770529747224097"
         },
         {
-          "file": "web-backup/libs/shared/api/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/src/app/features/public/public-rules.page.ts",
+          "hash": "5892129213178907141",
+          "deps": [
+            "page-model"
+          ]
         },
-        {
-          "file": "web-backup/libs/shared/api/vite.config.mts",
-          "hash": "9863475356400041721"
-        }
-      ],
-      "plans": [
         {
-          "file": "web-backup/libs/ui/plans/README.md",
-          "hash": "7169651611537827464"
+          "file": "apps/tch-portal/src/app/features/public/public-tchala.page.ts",
+          "hash": "4608123909074722284",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/project.json",
-          "hash": "10866913605590772681"
+          "file": "apps/tch-portal/src/app/features/public/public-tchala.service.ts",
+          "hash": "9496826212384283917",
+          "deps": [
+            "api"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/index.ts",
-          "hash": "2328283286621527239"
+          "file": "apps/tch-portal/src/app/features/public/public-ticket.service.ts",
+          "hash": "3930064579497036882",
+          "deps": [
+            "api",
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/models/plans.model.ts",
-          "hash": "4525100216713088750"
+          "file": "apps/tch-portal/src/app/features/public/shell/public-header.ts",
+          "hash": "2533641746336652772",
+          "deps": [
+            "api",
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.html",
-          "hash": "13370581297814929778"
+          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.component.ts",
+          "hash": "10597881676292190141",
+          "deps": [
+            "page-model",
+            "web"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.scss",
-          "hash": "6787720858277323357"
+          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.service.ts",
+          "hash": "6221162880733150283",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.spec.ts",
-          "hash": "2114830989856562350"
+          "file": "apps/tch-portal/src/app/nx-welcome.ts",
+          "hash": "343355658247319681"
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.ts",
-          "hash": "3555155640966289155"
+          "file": "apps/tch-portal/src/app/shared/types/auth.types.ts",
+          "hash": "14483994496514256555"
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.html",
-          "hash": "668862127796522979"
+          "file": "apps/tch-portal/src/app/shared/types/i18n.types.ts",
+          "hash": "8531350485649006672"
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.scss",
-          "hash": "11342439411938457856"
+          "file": "apps/tch-portal/src/app/shared/types/index.ts",
+          "hash": "205957344025404793",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.spec.ts",
-          "hash": "659588446996836303"
+          "file": "apps/tch-portal/src/app/shared/types/operational-context.types.ts",
+          "hash": "313886294629532644"
         },
         {
-          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.ts",
-          "hash": "11935415794422453971"
+          "file": "apps/tch-portal/src/index.html",
+          "hash": "18098801359882671045"
         },
         {
-          "file": "web-backup/libs/ui/plans/src/test-setup.ts",
-          "hash": "7269083439716718770"
+          "file": "apps/tch-portal/src/main.ts",
+          "hash": "1203322362176323"
         },
         {
-          "file": "web-backup/libs/ui/plans/tsconfig.json",
-          "hash": "7926296956335143092"
+          "file": "apps/tch-portal/src/styles.scss",
+          "hash": "1710274816140183338"
         },
         {
-          "file": "web-backup/libs/ui/plans/tsconfig.lib.json",
-          "hash": "9162017831943094349"
+          "file": "apps/tch-portal/tsconfig.app.json",
+          "hash": "18236407445202082987"
         },
         {
-          "file": "web-backup/libs/ui/plans/tsconfig.spec.json",
-          "hash": "17510586545033859175"
+          "file": "apps/tch-portal/tsconfig.json",
+          "hash": "16004134237605501702"
         },
         {
-          "file": "web-backup/libs/ui/plans/vite.config.mts",
-          "hash": "3963476932692949514"
+          "file": "apps/tch-portal/tsconfig.spec.json",
+          "hash": "13919890687900665478"
         }
       ],
       "styles": [
@@ -766,6 +806,940 @@
           "hash": "9188918407737885228"
         }
       ],
+      "shared/config": [
+        {
+          "file": "web-backup/libs/shared/config/README.md",
+          "hash": "4892843028727828919"
+        },
+        {
+          "file": "web-backup/libs/shared/config/project.json",
+          "hash": "9042952064188825598"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/index.ts",
+          "hash": "17818475148440210277"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/config.json",
+          "hash": "7105138814460287834"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment-local-ide.ts",
+          "hash": "7834897957086707763"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment-local.ts",
+          "hash": "11861597561597877239"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment-prod.ts",
+          "hash": "17252886126220602365"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment-staging.ts",
+          "hash": "14260964661889355628"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment.ts",
+          "hash": "336969631202826032"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/environments/environment.types.ts",
+          "hash": "15551781833995988519"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/features-toggle-default.json",
+          "hash": "7813905942678566607"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/integration-settings.json",
+          "hash": "16033527532817032339"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/page-default.json",
+          "hash": "7105138814460287834"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/roles-default.json",
+          "hash": "11338389873914873612"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/lib/theming.json",
+          "hash": "12035567707812898316"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/config/src/vite-env.d.ts",
+          "hash": "12026329535378027803"
+        },
+        {
+          "file": "web-backup/libs/shared/config/tsconfig.json",
+          "hash": "2898173503493847498"
+        },
+        {
+          "file": "web-backup/libs/shared/config/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/config/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/config/vite.config.mts",
+          "hash": "1772702827121826114"
+        }
+      ],
+      "breadcrumb": [
+        {
+          "file": "web-backup/libs/ui/breadcrumb/README.md",
+          "hash": "3739259743076389271"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/project.json",
+          "hash": "12686676156466604050"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/src/index.ts",
+          "hash": "6754185589805969932"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.scss",
+          "hash": "3028714071183233299"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.ts",
+          "hash": "2381693942876762185"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/ui/breadcrumb/vite.config.mts",
+          "hash": "5096341199691235867"
+        }
+      ],
+      "shared/facades": [
+        {
+          "file": "web-backup/libs/shared/facades/README.md",
+          "hash": "17104896925938425831"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/project.json",
+          "hash": "13494156163228155578"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/src/index.ts",
+          "hash": "10632920490106980240"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/src/lib/i18n.facade.ts",
+          "hash": "13204903569690376098"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/src/lib/page.facade.ts",
+          "hash": "16057485567199634626"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/src/lib/session.facade.ts",
+          "hash": "12466905384633686935"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/facades/vite.config.mts",
+          "hash": "195305633142398502"
+        }
+      ],
+      "shared/data-access": [
+        {
+          "file": "web-backup/libs/shared/data-access/page/README.md",
+          "hash": "11185793730919232796"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/project.json",
+          "hash": "3790544894283790174"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/index.ts",
+          "hash": "16919755300831696284"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/navigation/nav.actions.ts",
+          "hash": "211034203073721022"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/navigation/nav.reducer.ts",
+          "hash": "4397796105498163212"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.actions.ts",
+          "hash": "12255894919634930704"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.effects.ts",
+          "hash": "6933068560764959855"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.reducer.ts",
+          "hash": "5409625764180844107"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.selectors.ts",
+          "hash": "13325168128063443094"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.state.ts",
+          "hash": "6200010888951631940"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/tsconfig.lib.json",
+          "hash": "4374220781941404143"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/tsconfig.spec.json",
+          "hash": "8445581699757985060"
+        },
+        {
+          "file": "web-backup/libs/shared/data-access/page/vite.config.mts",
+          "hash": "7236860228300591771"
+        }
+      ],
+      "shared/api": [
+        {
+          "file": "web-backup/libs/shared/api/README.md",
+          "hash": "9704761659612717664"
+        },
+        {
+          "file": "web-backup/libs/shared/api/project.json",
+          "hash": "17022645384624789747"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/index.ts",
+          "hash": "1622754179341164837"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/context.api.ts",
+          "hash": "5125263749583742145"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/features.api.ts",
+          "hash": "16508645704163521885"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/kpis.api.ts",
+          "hash": "7503899007167994041"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/me.api.ts",
+          "hash": "8733979492540445056"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/page.api.ts",
+          "hash": "10329576688019388161"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/api/translation-override.api.ts",
+          "hash": "667751204212826490"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/interceptors/api-base.interceptor.ts",
+          "hash": "15889311302787173340"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/interceptors/auth.interceptor.ts",
+          "hash": "4658096217804093104"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/interceptors/meta-headers.interceptor.ts",
+          "hash": "13029914796989506039"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/lib/utils/http.utils.ts",
+          "hash": "3697741514800069273"
+        },
+        {
+          "file": "web-backup/libs/shared/api/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/api/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/shared/api/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/api/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/api/vite.config.mts",
+          "hash": "9863475356400041721"
+        }
+      ],
+      "feature": [
+        {
+          "file": "web-backup/libs/shared/feature/README.md",
+          "hash": "13790967894665321138"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/project.json",
+          "hash": "16394135936773687240"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/index.ts",
+          "hash": "4334971335081321398"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/clients/memory.client.ts",
+          "hash": "13147483734178039157"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/clients/unleash-proxy.client.ts",
+          "hash": "9832968005711759888"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.directive.ts",
+          "hash": "12761085263075623197"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.guard.ts",
+          "hash": "17970776386070381276"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.pipe.ts",
+          "hash": "3978836876740406103"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.provider.ts",
+          "hash": "10321529837573622816"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.service.ts",
+          "hash": "15942919507680475684"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.tokens.ts",
+          "hash": "13625393685793541833"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/lib/feature.types.ts",
+          "hash": "13351713416844738180"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/feature/vite.config.mts",
+          "hash": "12036602440132026214"
+        }
+      ],
+      "analytics": [
+        {
+          "file": "web-backup/libs/shared/analytics/README.md",
+          "hash": "729403698734640253"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/project.json",
+          "hash": "5999912516597646354"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/index.ts",
+          "hash": "8896467435234418046"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/lib/analytics.init.ts",
+          "hash": "3471021394213635609"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/lib/analytics.router.ts",
+          "hash": "15400182467171161353"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/lib/analytics.service.ts",
+          "hash": "3265089265639430115"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/lib/analytics.tokens.ts",
+          "hash": "16714754623664308535"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/lib/analytics.types.ts",
+          "hash": "10948261773090117503"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/analytics/vite.config.mts",
+          "hash": "18033422597137904185"
+        }
+      ],
+      "tchalanet-portal-e2e": [
+        {
+          "file": "web-backup/apps/tchalanet-portal-e2e/playwright.config.ts",
+          "hash": "11605003860944380104"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal-e2e/project.json",
+          "hash": "1816283450649504372"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal-e2e/src/example.spec.ts",
+          "hash": "2617822881957773046"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal-e2e/tsconfig.json",
+          "hash": "15726545290547512047"
+        }
+      ],
+      "tchalanet-portal": [
+        {
+          "file": "web-backup/apps/tchalanet-portal/API-PROXY-FIX.md",
+          "hash": "4995476694730085338"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/DEV-MODES.md",
+          "hash": "2203521592248502793"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/ENV-MIGRATION-SUMMARY.md",
+          "hash": "6943005542313748223"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/ENVIRONMENT-CONFIG.md",
+          "hash": "11087190281232763808"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/I18N-ASSETS-FIX.md",
+          "hash": "10586336242203065100"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/PORTS-CONFIG.md",
+          "hash": "461880117662016439"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/STYLES-FIX.md",
+          "hash": "9668673008838115082"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/copy-i18n.sh",
+          "hash": "793214838345832624"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/index.html",
+          "hash": "13678774867668318006"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/project.json",
+          "hash": "2608397820489086076"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/autres_page_accueil.png",
+          "hash": "8849838016682624392"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/hero-loto-stats.svg",
+          "hash": "11772524389670836289"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-dark.png",
+          "hash": "8378016480270454645"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-full.svg",
+          "hash": "12005063171692936682"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-icon.svg",
+          "hash": "5857535977076983574"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-light.png",
+          "hash": "8378016480270454645"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-tchalanet.svg",
+          "hash": "8597524040964363814"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo.png",
+          "hash": "15327968009570735270"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo_tchalanet.png",
+          "hash": "7216988695715234899"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/lotto-simple-balls.svg",
+          "hash": "10985203163896091005"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/single-ball-3-d.svg",
+          "hash": "11168289796043752007"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/stats-today-sales.svg",
+          "hash": "4000201544257829820"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/config/page-default.json",
+          "hash": "9860149031374809755"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/config/page-private-fallback.json",
+          "hash": "1315317739657244237"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/config/test.json",
+          "hash": "525576925740094733"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/explanations.md",
+          "hash": "2056411441729220538"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/privacy.md",
+          "hash": "3943125856194635736"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/regulation.md",
+          "hash": "3760497516457624715"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/responsible.md",
+          "hash": "12915207258210712294"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/official-reports.md",
+          "hash": "10089214007303605303"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/security.md",
+          "hash": "18188525465980011378"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/support.md",
+          "hash": "10771131039229380936"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/tchala.md",
+          "hash": "16084178865244277323"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/explanations.md",
+          "hash": "4881712702175075002"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/privacy.md",
+          "hash": "11282026828188153350"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/regulation.md",
+          "hash": "1898924575269010486"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/responsible.md",
+          "hash": "17943614216038175264"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/official-reports.md",
+          "hash": "17066918847453155446"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/security.md",
+          "hash": "4151730025672154937"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/support.md",
+          "hash": "15235668243935706097"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/tchala.md",
+          "hash": "3342277373496412245"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/explanations.md",
+          "hash": "4257281786274687405"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/privacy.md",
+          "hash": "13026684881996667058"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/regulation.md",
+          "hash": "8065667826473023365"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/responsible.md",
+          "hash": "7891369726380561235"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/official-reports.md",
+          "hash": "16524555073533836991"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/security.md",
+          "hash": "8313680769929081389"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/support.md",
+          "hash": "17071601724270759027"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/tchala.md",
+          "hash": "4352485086787452071"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/favicon-mono.svg",
+          "hash": "5618926102623049985"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-analytics.svg",
+          "hash": "843471898197445865"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-configurable.svg",
+          "hash": "13768338633678609376"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-connected-bank.svg",
+          "hash": "13981202213753689514"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-mobile-app.svg",
+          "hash": "14329612675576709637"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-multiple-login.svg",
+          "hash": "5462761786884644402"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-multitenant.svg",
+          "hash": "8251965580016078419"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-pos-integration.svg",
+          "hash": "14673818330244701369"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-secure.svg",
+          "hash": "8697515330900087273"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-ticket.svg",
+          "hash": "9957980739386606506"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/features/loto.svg",
+          "hash": "17368973638674607531"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/connected-bank.svg",
+          "hash": "13981202213753689514"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/cta-hero-illustration-2.svg",
+          "hash": "16220701439734462451"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/cta-simple.svg",
+          "hash": "13102741028556336112"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/hero-main.svg",
+          "hash": "6286492143686131399"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-analytics-reporting.svg",
+          "hash": "17068752650731600559"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-cloud-scalability.svg",
+          "hash": "17354282558549590544"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-compliance-fairness.svg",
+          "hash": "15313755659966538116"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-network-multitenant.svg",
+          "hash": "14160359440752955414"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-secure-shield.svg",
+          "hash": "13468289978653280621"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-support-headset.svg",
+          "hash": "3564055444493673585"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/multicolor-nodes.svg",
+          "hash": "13419040259558499263"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/pos-monitor.svg",
+          "hash": "4731021291915101539"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/security-shield.svg",
+          "hash": "15295438019226432007"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/user-card.svg",
+          "hash": "2390581593233206905"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/en.svg",
+          "hash": "8996652583045834758"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/fr.svg",
+          "hash": "8734635249429673528"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/ht.svg",
+          "hash": "3671587302395020241"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/facebook.svg",
+          "hash": "967391752942287665"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/instagram.svg",
+          "hash": "2873581573737657841"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/linkedin.svg",
+          "hash": "3639310474159767663"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/x.svg",
+          "hash": "11921670630856471303"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/youtube.svg",
+          "hash": "11877118905697745251"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/favicon.ico",
+          "hash": "1032133437451643664"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/public/tchalanet_feature_catalog.html",
+          "hash": "7561678151906277926"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/app/app.config.ts",
+          "hash": "13033905790368180789"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/app/app.routes.ts",
+          "hash": "5410489968566262341"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/app/app.spec.ts",
+          "hash": "10922523535053444868"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/app/app.ts",
+          "hash": "11405746108968629396"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/app/purge-oidc-cache.ts",
+          "hash": "16669983940769258245"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/main.ts",
+          "hash": "824071333226514808"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/styles.scss",
+          "hash": "15422605287241565095"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/styles/_pos-home-reference.scss",
+          "hash": "15298950471000116498"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/styles/_tokens.scss",
+          "hash": "17790736534873017175"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/test-setup.ts",
+          "hash": "3791648620616607453"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/src/vite-env.d.ts",
+          "hash": "8972312480294491078"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/start-dev.sh",
+          "hash": "3901523195910229590"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/tsconfig.app.json",
+          "hash": "14015480133463777547"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/tsconfig.json",
+          "hash": "4663124578817442910"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/tsconfig.spec.json",
+          "hash": "11359119564988205903"
+        },
+        {
+          "file": "web-backup/apps/tchalanet-portal/vite.config.mts",
+          "hash": "9345698385718273182"
+        }
+      ],
+      "web/feature-home-private": [
+        {
+          "file": "web-backup/libs/web/feature-home-private/README.md",
+          "hash": "18428874616856101935"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/project.json",
+          "hash": "7523086448761396690"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/src/index.ts",
+          "hash": "16256386135790345082"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/src/lib/home-private.page.ts",
+          "hash": "7173072064702189898"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/web/feature-home-private/vite.config.mts",
+          "hash": "17614523619984652036"
+        }
+      ],
+      "shared/util-i18n": [
+        {
+          "file": "web-backup/libs/shared/utils/i18n/README.md",
+          "hash": "13843790437707370867"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/project.json",
+          "hash": "7457134361143872062"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/src/index.ts",
+          "hash": "11008602038366681434"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/src/lib/i18n-merger.service.ts",
+          "hash": "16108821536137902657"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/src/lib/loader/merged-translate-loader.ts",
+          "hash": "4637033416801763838"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/tsconfig.spec.json",
+          "hash": "10616371895249057201"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/i18n/vite.config.mts",
+          "hash": "5419088412670643260"
+        }
+      ],
       "session": [
         {
           "file": "web-backup/libs/shared/data-access/session/README.md",
@@ -823,743 +1797,601 @@
           "hash": "13474150288910677736"
         }
       ],
-      "tch-portal": [
+      "shared/types": [
         {
-          "file": "apps/tch-portal/eslint.config.mjs",
-          "hash": "17259448085244140710"
+          "file": "web-backup/libs/shared/types/README.md",
+          "hash": "16865305315750181877"
         },
         {
-          "file": "apps/tch-portal/project.json",
-          "hash": "3276975084222163422"
+          "file": "web-backup/libs/shared/types/project.json",
+          "hash": "15220277811629232252"
         },
         {
-          "file": "apps/tch-portal/proxy.conf.cjs",
-          "hash": "15907308992828329689"
+          "file": "web-backup/libs/shared/types/src/index.ts",
+          "hash": "3845776317791302580"
         },
         {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-app-icon.svg",
-          "hash": "12874165811994458338"
+          "file": "web-backup/libs/shared/types/src/lib/auth.model.ts",
+          "hash": "14621500119763325154"
         },
         {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-inverse.svg",
-          "hash": "658935036689201510"
+          "file": "web-backup/libs/shared/types/src/lib/lottery.model.ts",
+          "hash": "5530351771107191821"
         },
         {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-print.svg",
-          "hash": "13544880900038085132"
+          "file": "web-backup/libs/shared/types/src/lib/page.model.ts",
+          "hash": "10087939915665618073"
         },
         {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo.svg",
-          "hash": "11611510610655879067"
+          "file": "web-backup/libs/shared/types/src/lib/widget.model.ts",
+          "hash": "16359909437605029768"
         },
         {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-points.svg",
-          "hash": "2572440331795345445"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/page-default.json",
-          "hash": "9860149031374809755"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/page-private-fallback.json",
-          "hash": "1315317739657244237"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/test.json",
-          "hash": "525576925740094733"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/en.json",
-          "hash": "451087658717279576"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/fr.json",
-          "hash": "5988910377454567008"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/ht.json",
-          "hash": "17854098084298518377"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/results-hero-balls.png",
-          "hash": "4445278347749924069"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/rules-tchala-preview.png",
-          "hash": "16390624073948934258"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/ticket-verification-preview.svg",
-          "hash": "8316209520341358832"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/en.svg",
-          "hash": "8996652583045834758"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/fr.svg",
-          "hash": "8734635249429673528"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/ht.svg",
-          "hash": "3671587302395020241"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/facebook.svg",
-          "hash": "967391752942287665"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/instagram.svg",
-          "hash": "2873581573737657841"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/linkedin.svg",
-          "hash": "3639310474159767663"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/x.svg",
-          "hash": "11921670630856471303"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/youtube.svg",
-          "hash": "11877118905697745251"
-        },
-        {
-          "file": "apps/tch-portal/public/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.config.ts",
-          "hash": "3522335675450073478",
-          "deps": [
-            "api",
-            "shared-config",
-            "ui-theme",
-            "widgets"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.html",
-          "hash": "17816966185630879015"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.routes.spec.ts",
-          "hash": "10865680119776248906"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.routes.ts",
-          "hash": "9406131036779139925"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.scss",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.spec.ts",
-          "hash": "9986106757481818555"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.ts",
-          "hash": "14076902099445983754"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.guard.ts",
-          "hash": "16850386478850012436"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.service.spec.ts",
-          "hash": "6640096682438240487",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.service.ts",
-          "hash": "4222061836141798715",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.directive.spec.ts",
-          "hash": "6402104276751496358"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.directive.ts",
-          "hash": "10214675084168249800"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.pipe.spec.ts",
-          "hash": "17497947782995573630"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.pipe.ts",
-          "hash": "18333879155136684826"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/index.ts",
-          "hash": "15501236874533786793"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.ts",
-          "hash": "14572180438252855900"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth.guard.ts",
-          "hash": "2070303611095165071"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/forbidden.page.ts",
-          "hash": "13249995064206528501"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.spec.ts",
-          "hash": "2459180322843986171",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.ts",
-          "hash": "12779077616967056190",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/index.ts",
-          "hash": "3448829033650478349"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/http/index.ts",
-          "hash": "9420588669917263911"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/http/not-found.page.ts",
-          "hash": "8930680010524118988",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n-merger.service.ts",
-          "hash": "10282054811448084104"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n-runtime.spec.ts",
-          "hash": "6274271047955086677"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n.facade.ts",
-          "hash": "13651790732908935290"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/index.ts",
-          "hash": "16125947698811972585"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/language-switcher.component.ts",
-          "hash": "13479704764960389103",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/merged-translate-loader.ts",
-          "hash": "14943754805161728524",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.actions.ts",
-          "hash": "3781046624558779473"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.effects.ts",
-          "hash": "4656616946384430025"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.reducer.ts",
-          "hash": "529302449597903161"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.state.ts",
-          "hash": "12419402642410075021"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.spec.ts",
-          "hash": "8899335754414587270",
-          "deps": [
-            "ui-theme",
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.ts",
-          "hash": "12840431790431422544",
-          "deps": [
-            "ui-theme",
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/index.ts",
-          "hash": "11343725147077395441"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-api.service.ts",
-          "hash": "3994562282379597490",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-dashboard.page.spec.ts",
-          "hash": "3994032274527447376"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-dashboard.page.ts",
-          "hash": "9932868990183976368"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dashboard/role-dashboard.page.ts",
-          "hash": "8637080750269081309"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dashboard/shell/private-shell.page.ts",
-          "hash": "16368973595331498534",
-          "deps": [
-            "ui-components",
-            "ui-theme",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/platform-admin-api.service.ts",
-          "hash": "4787398320008201740",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/super-admin-dashboard.page.spec.ts",
-          "hash": "8432009199138921744"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/super-admin-dashboard.page.ts",
-          "hash": "15048640604493527813"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.spec.ts",
-          "hash": "12994669434459642401"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.ts",
-          "hash": "6495519881933502970",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-home.page.ts",
-          "hash": "7458739108010759322",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-info.page.ts",
-          "hash": "3606875068430853481",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.spec.ts",
-          "hash": "12340962329726202105"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.ts",
-          "hash": "15644029437803036979",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-results.page.spec.ts",
-          "hash": "5532006232883331080"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-results.page.ts",
-          "hash": "10607368631454215243",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-rules.page.spec.ts",
-          "hash": "1235770529747224097"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-rules.page.ts",
-          "hash": "17399024072858347107",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shell/public-header.ts",
-          "hash": "13194612389654723415",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.component.ts",
-          "hash": "10168974899586308610",
-          "deps": [
-            "page-model",
-            "web"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/nx-welcome.ts",
-          "hash": "343355658247319681"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/auth.types.ts",
-          "hash": "14483994496514256555"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/i18n.types.ts",
-          "hash": "8531350485649006672"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/index.ts",
-          "hash": "205957344025404793",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/operational-context.types.ts",
-          "hash": "313886294629532644"
-        },
-        {
-          "file": "apps/tch-portal/src/index.html",
-          "hash": "6913233961377774473"
-        },
-        {
-          "file": "apps/tch-portal/src/main.ts",
-          "hash": "1203322362176323"
-        },
-        {
-          "file": "apps/tch-portal/src/styles.scss",
-          "hash": "12610905204880146576"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.app.json",
-          "hash": "18236407445202082987"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.json",
-          "hash": "16004134237605501702"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.spec.json",
-          "hash": "13919890687900665478"
-        }
-      ],
-      "widgets": [
-        {
-          "file": "libs/widgets/project.json",
-          "hash": "14996755350796628443"
-        },
-        {
-          "file": "libs/widgets/src/index.ts",
-          "hash": "14883825294113808548"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
-          "hash": "9294134563431912316"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.ts",
-          "hash": "1878025338382069853",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
-          "hash": "18266659740703399291",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
-          "hash": "9334005778456541343",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
-          "hash": "9357849919000751005",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
-          "hash": "9804044555208699814",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
-          "hash": "10342647338043959065",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
-          "hash": "11981380542626531982",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
-          "hash": "877229045137318658",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
-          "hash": "18067699448614601906",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
-          "hash": "1851639158375918861",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
-          "hash": "10040602892777911548",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/widgets/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/widgets/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
-      "web/feature-home-private": [
-        {
-          "file": "web-backup/libs/web/feature-home-private/README.md",
-          "hash": "18428874616856101935"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-private/project.json",
-          "hash": "7523086448761396690"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-private/src/index.ts",
-          "hash": "16256386135790345082"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-private/src/lib/home-private.page.ts",
-          "hash": "7173072064702189898"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-private/src/test-setup.ts",
+          "file": "web-backup/libs/shared/types/src/test-setup.ts",
           "hash": "7269083439716718770"
         },
         {
-          "file": "web-backup/libs/web/feature-home-private/tsconfig.json",
+          "file": "web-backup/libs/shared/types/tsconfig.json",
           "hash": "7926296956335143092"
         },
         {
-          "file": "web-backup/libs/web/feature-home-private/tsconfig.lib.json",
+          "file": "web-backup/libs/shared/types/tsconfig.lib.json",
           "hash": "9162017831943094349"
         },
         {
-          "file": "web-backup/libs/web/feature-home-private/tsconfig.spec.json",
+          "file": "web-backup/libs/shared/types/tsconfig.spec.json",
           "hash": "17510586545033859175"
         },
         {
-          "file": "web-backup/libs/web/feature-home-private/vite.config.mts",
-          "hash": "17614523619984652036"
+          "file": "web-backup/libs/shared/types/vite.config.mts",
+          "hash": "17493186266026543801"
         }
       ],
-      "shared/ui-shell-material": [
+      "web/widgets": [
         {
-          "file": "web-backup/libs/ui/layout/README.md",
-          "hash": "12155061028784400327"
+          "file": "web-backup/libs/web/widgets/README.md",
+          "hash": "8491177283145298734"
         },
         {
-          "file": "web-backup/libs/ui/layout/project.json",
-          "hash": "16636841807196458695"
+          "file": "web-backup/libs/web/widgets/project.json",
+          "hash": "6416038830711438697"
         },
         {
-          "file": "web-backup/libs/ui/layout/src/index.ts",
-          "hash": "2376847283639608571"
+          "file": "web-backup/libs/web/widgets/src/index.ts",
+          "hash": "14369146027074062557"
         },
         {
-          "file": "web-backup/libs/ui/layout/src/lib/grid-layout/grid-layout.component.scss",
-          "hash": "11656062073587133317"
+          "file": "web-backup/libs/web/widgets/src/lib/buildin-widgets.provider.ts",
+          "hash": "9193789210962458365"
         },
         {
-          "file": "web-backup/libs/ui/layout/src/lib/grid-layout/grid-layout.component.ts",
-          "hash": "13555185469722130657"
+          "file": "web-backup/libs/web/widgets/src/lib/draw-card/draw-card.component.scss",
+          "hash": "14952144018972786320"
         },
         {
-          "file": "web-backup/libs/ui/layout/src/test-setup.ts",
+          "file": "web-backup/libs/web/widgets/src/lib/draw-card/draw-card.component.ts",
+          "hash": "1893591213210674053"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.scss",
+          "hash": "2383825913393125493"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.ts",
+          "hash": "18210904126585225743"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/feature-card/feature-card.component.scss",
+          "hash": "6857891386996242960"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/feature-card/feature-card.component.ts",
+          "hash": "10127006006279370320"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/generic-info-widget/generic-info-widget.component.ts",
+          "hash": "2850320754761817910"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/hero/hero.component.scss",
+          "hash": "18174779039561985522"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/hero/hero.component.ts",
+          "hash": "2896590259252852655"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/info-widget/info-widget.component.ts",
+          "hash": "196868769715421380"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/kpi/kpi.component.ts",
+          "hash": "9493410477801700467"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.scss",
+          "hash": "4070786555651081982"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.ts",
+          "hash": "5323168132200984267"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/news-banner/news-banner.component.scss",
+          "hash": "18034869501733839879"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/news-banner/news-banner.component.ts",
+          "hash": "11947486932935616862"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/quick-actions/quick-actions.component.ts",
+          "hash": "13246448753650073307"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/lib/widget.token.ts",
+          "hash": "14936090503630955424"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/src/test-setup.ts",
           "hash": "7269083439716718770"
         },
         {
-          "file": "web-backup/libs/ui/layout/tsconfig.json",
+          "file": "web-backup/libs/web/widgets/tsconfig.json",
           "hash": "7926296956335143092"
         },
         {
-          "file": "web-backup/libs/ui/layout/tsconfig.lib.json",
+          "file": "web-backup/libs/web/widgets/tsconfig.lib.json",
           "hash": "9162017831943094349"
         },
         {
-          "file": "web-backup/libs/ui/layout/tsconfig.spec.json",
+          "file": "web-backup/libs/web/widgets/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/web/widgets/vite.config.mts",
+          "hash": "6474399105334290251"
+        }
+      ],
+      "shared-util-constants": [
+        {
+          "file": "web-backup/libs/shared/utils/constants/README.md",
+          "hash": "6606471215181729195"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/package.json",
+          "hash": "16809526882458680503"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/project.json",
+          "hash": "949445745405641995"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/src/index.ts",
+          "hash": "7773816820801655882"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/src/lib/shared-util-constants.spec.ts",
+          "hash": "7458676383104532484"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/src/lib/shared-util-constants.ts",
+          "hash": "14373445567224576634"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/tsconfig.json",
+          "hash": "7846400365888195640"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/tsconfig.lib.json",
+          "hash": "7724353352098402329"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/tsconfig.spec.json",
+          "hash": "917466382069000416"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/constants/vite.config.ts",
+          "hash": "77368826751392577"
+        }
+      ],
+      "tch-portal-e2e": [
+        {
+          "file": "apps/tch-portal-e2e/eslint.config.mjs",
+          "hash": "1172734138943286526"
+        },
+        {
+          "file": "apps/tch-portal-e2e/playwright.config.ts",
+          "hash": "9182228263159653438"
+        },
+        {
+          "file": "apps/tch-portal-e2e/project.json",
+          "hash": "5997281328099186134"
+        },
+        {
+          "file": "apps/tch-portal-e2e/src/example.spec.ts",
+          "hash": "16019101014373124625"
+        },
+        {
+          "file": "apps/tch-portal-e2e/tsconfig.json",
+          "hash": "15726545290547512047"
+        }
+      ],
+      "shared/utils": [
+        {
+          "file": "web-backup/libs/shared/utils/layout/README.md",
+          "hash": "16221505251583894857"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/project.json",
+          "hash": "8102772238204485030"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/src/asset.util.ts",
+          "hash": "2113416182209654208"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/src/index.ts",
+          "hash": "14923137081561564582"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/utils/layout/tsconfig.spec.json",
           "hash": "10616371895249057201"
         },
         {
-          "file": "web-backup/libs/ui/layout/vite.config.mts",
-          "hash": "8211163989736584193"
+          "file": "web-backup/libs/shared/utils/layout/vite.config.mts",
+          "hash": "6673952056133039605"
         }
       ],
-      "ui-components": [
+      "web/feature-home-public": [
         {
-          "file": "libs/ui/components/README.md",
-          "hash": "8562387935991706419"
+          "file": "web-backup/libs/web/feature-home-public/README.md",
+          "hash": "11577871624848178743"
         },
         {
-          "file": "libs/ui/components/eslint.config.mjs",
-          "hash": "6911888895805478804"
+          "file": "web-backup/libs/web/feature-home-public/project.json",
+          "hash": "17057662836153295866"
         },
         {
-          "file": "libs/ui/components/project.json",
-          "hash": "14446065196555956636"
+          "file": "web-backup/libs/web/feature-home-public/src/index.ts",
+          "hash": "11461013292936844294"
         },
         {
-          "file": "libs/ui/components/src/index.ts",
-          "hash": "2264169244093784650"
+          "file": "web-backup/libs/web/feature-home-public/src/lib/home-public.page.ts",
+          "hash": "16674707014396137941"
         },
         {
-          "file": "libs/ui/components/src/lib/action-button/action-button.component.ts",
-          "hash": "12777701732154778625"
+          "file": "web-backup/libs/web/feature-home-public/src/test-setup.ts",
+          "hash": "7269083439716718770"
         },
         {
-          "file": "libs/ui/components/src/lib/brand/brand.component.ts",
-          "hash": "11888223734490620345"
+          "file": "web-backup/libs/web/feature-home-public/tsconfig.json",
+          "hash": "7926296956335143092"
         },
         {
-          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
-          "hash": "1661153504612880850"
+          "file": "web-backup/libs/web/feature-home-public/tsconfig.lib.json",
+          "hash": "9162017831943094349"
         },
         {
-          "file": "libs/ui/components/src/lib/card/card.component.ts",
-          "hash": "2128839883764420960"
+          "file": "web-backup/libs/web/feature-home-public/tsconfig.spec.json",
+          "hash": "17510586545033859175"
         },
         {
-          "file": "libs/ui/components/src/lib/empty-state/empty-state.component.ts",
-          "hash": "18010049587449564620"
+          "file": "web-backup/libs/web/feature-home-public/vite.config.mts",
+          "hash": "15980148624330926307"
+        }
+      ],
+      "ui/widget-renderer": [
+        {
+          "file": "web-backup/libs/ui/widget-renderer/README.md",
+          "hash": "3035150266239687726"
         },
         {
-          "file": "libs/ui/components/src/lib/error-panel/error-panel.component.ts",
-          "hash": "12330710118942343033"
+          "file": "web-backup/libs/ui/widget-renderer/project.json",
+          "hash": "5945673252327651403"
         },
         {
-          "file": "libs/ui/components/src/lib/field-error/field-error.component.ts",
-          "hash": "949467474437262915"
+          "file": "web-backup/libs/ui/widget-renderer/src/index.ts",
+          "hash": "13351295944200384543"
         },
         {
-          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.component.ts",
-          "hash": "11317647335764426522"
+          "file": "web-backup/libs/ui/widget-renderer/src/lib/widget-renderer.component.ts",
+          "hash": "1230358280736409981"
         },
         {
-          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.component.ts",
-          "hash": "9377904144937739534"
+          "file": "web-backup/libs/ui/widget-renderer/src/test-setup.ts",
+          "hash": "7269083439716718770"
         },
         {
-          "file": "libs/ui/components/src/lib/loading/loading.component.ts",
-          "hash": "12380156399824553072"
+          "file": "web-backup/libs/ui/widget-renderer/tsconfig.json",
+          "hash": "7926296956335143092"
         },
         {
-          "file": "libs/ui/components/src/lib/nav/nav.component.ts",
-          "hash": "15057664490747661248"
+          "file": "web-backup/libs/ui/widget-renderer/tsconfig.lib.json",
+          "hash": "9162017831943094349"
         },
         {
-          "file": "libs/ui/components/src/lib/navigation/action-item.spec.ts",
-          "hash": "3167894704080162670"
+          "file": "web-backup/libs/ui/widget-renderer/tsconfig.spec.json",
+          "hash": "17510586545033859175"
         },
         {
-          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
-          "hash": "9963452027253079812"
+          "file": "web-backup/libs/ui/widget-renderer/vite.config.mts",
+          "hash": "2525131685657778332"
+        }
+      ],
+      "web": [
+        {
+          "file": "libs/web/project.json",
+          "hash": "7453140065828415454"
         },
         {
-          "file": "libs/ui/components/src/lib/notice/notice.component.ts",
-          "hash": "5719114346308468741"
+          "file": "libs/web/src/index.ts",
+          "hash": "14567335148333783511"
         },
         {
-          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.component.ts",
-          "hash": "3928833735426415968"
+          "file": "libs/web/src/lib/not-found/not-found.page.ts",
+          "hash": "1230743266568970090",
+          "deps": [
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/components/src/lib/page-error/page-error.component.ts",
-          "hash": "12451283778808874359"
+          "file": "libs/web/src/lib/public-shell/public-bottom-nav.ts",
+          "hash": "14284234962230661120",
+          "deps": [
+            "page-model",
+            "api"
+          ]
         },
         {
-          "file": "libs/ui/components/src/lib/section-header/section-header.component.ts",
-          "hash": "17042160578293988553"
+          "file": "libs/web/src/lib/public-shell/public-footer.ts",
+          "hash": "15483671443930328589",
+          "deps": [
+            "page-model",
+            "api"
+          ]
         },
         {
-          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.component.ts",
-          "hash": "11238961962431574275"
+          "file": "libs/web/src/lib/public-shell/public-shell.spec.ts",
+          "hash": "4728531647748911709"
         },
         {
-          "file": "libs/ui/components/src/lib/status-badge/status-badge.component.ts",
-          "hash": "17124275208030297630"
+          "file": "libs/web/tsconfig.json",
+          "hash": "6098727767136629672"
         },
         {
-          "file": "libs/ui/components/tsconfig.json",
-          "hash": "14130435081233809606"
+          "file": "libs/web/tsconfig.lib.json",
+          "hash": "9173947970313865903"
         },
         {
-          "file": "libs/ui/components/tsconfig.lib.json",
-          "hash": "14882418245198400289"
+          "file": "libs/web/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "constants": [
+        {
+          "file": "web-backup/libs/web/constants/README.md",
+          "hash": "4559969932893867951"
         },
         {
-          "file": "libs/ui/components/tsconfig.spec.json",
-          "hash": "8647352538471907012"
+          "file": "web-backup/libs/web/constants/package.json",
+          "hash": "15643105243047936209"
+        },
+        {
+          "file": "web-backup/libs/web/constants/project.json",
+          "hash": "6311030494275412179"
+        },
+        {
+          "file": "web-backup/libs/web/constants/src/index.ts",
+          "hash": "59831201904335374"
+        },
+        {
+          "file": "web-backup/libs/web/constants/src/lib/constants.spec.ts",
+          "hash": "3942182014290355603"
+        },
+        {
+          "file": "web-backup/libs/web/constants/src/lib/constants.ts",
+          "hash": "13886671584621868109"
+        },
+        {
+          "file": "web-backup/libs/web/constants/tsconfig.json",
+          "hash": "9505886339790543345"
+        },
+        {
+          "file": "web-backup/libs/web/constants/tsconfig.lib.json",
+          "hash": "2310906518119603203"
+        },
+        {
+          "file": "web-backup/libs/web/constants/tsconfig.spec.json",
+          "hash": "2829456023087870280"
+        },
+        {
+          "file": "web-backup/libs/web/constants/vite.config.ts",
+          "hash": "6387763083683903406"
+        }
+      ],
+      "ui-theme": [
+        {
+          "file": "libs/ui/theme/README.md",
+          "hash": "523284715630508394"
+        },
+        {
+          "file": "libs/ui/theme/eslint.config.mjs",
+          "hash": "14754633781889188846"
+        },
+        {
+          "file": "libs/ui/theme/project.json",
+          "hash": "18252264992682606200"
+        },
+        {
+          "file": "libs/ui/theme/src/index.ts",
+          "hash": "10170072490190447469"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-api.ts",
+          "hash": "17797961561970764538"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
+          "hash": "14849990087210799945"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-presets.ts",
+          "hash": "8683411710997030997"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-store.ts",
+          "hash": "17466312263595806883"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
+          "hash": "231595962544266657"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-contract.spec.ts",
+          "hash": "16625412493476112818"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
+          "hash": "14911692992412442769"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
+          "hash": "9697886265990620641"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-types.ts",
+          "hash": "6062169308715798539"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.repository.ts",
+          "hash": "12289027144071371214"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
+          "hash": "5112514122229607644"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/token-manifest.generated.ts",
+          "hash": "2967899537633583817"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
+          "hash": "9014223019815349846"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/density.scss",
+          "hash": "274748125214705874"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-root.scss",
+          "hash": "5093180623556393654"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
+          "hash": "9557983113373245384"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
+          "hash": "17589864670225387356"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/theme-presets.scss",
+          "hash": "15829592671263239537"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
+          "hash": "1589122421491685804"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-token-manifest.mjs",
+          "hash": "13365119433662527447"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.json",
+          "hash": "1973382141025117759"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.lib.json",
+          "hash": "2571691299537351603"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.spec.json",
+          "hash": "5074326386517990425"
+        }
+      ],
+      "auth": [
+        {
+          "file": "web-backup/libs/shared/auth/README.md",
+          "hash": "9370648284768385907"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/project.json",
+          "hash": "13702680161878924530"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/index.ts",
+          "hash": "9688644324168336420"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/auth.guard.ts",
+          "hash": "6311217872441489356"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/components/auth-callback.component.ts",
+          "hash": "3786341792924486932"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/components/auth-login.component.ts",
+          "hash": "5116962223759975602"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/role.guard.ts",
+          "hash": "3530842382621353473"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/services/auth.service.spec.ts",
+          "hash": "1083514398293325462"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/services/auth.service.ts",
+          "hash": "18044724737503599664"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/lib/services/local-storage-security.service.ts",
+          "hash": "16016180174279189213"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/shared/auth/vite.config.mts",
+          "hash": "16326380201792868007"
         }
       ],
       "page-model": [
@@ -1569,7 +2401,7 @@
         },
         {
           "file": "libs/page-model/src/index.ts",
-          "hash": "11341801529738779903"
+          "hash": "6821024734962765154"
         },
         {
           "file": "libs/page-model/src/lib/api/page-model-api.service.spec.ts",
@@ -1577,7 +2409,7 @@
         },
         {
           "file": "libs/page-model/src/lib/api/page-model-api.service.ts",
-          "hash": "288405798628356222",
+          "hash": "15037045140917361775",
           "deps": [
             "api"
           ]
@@ -1600,10 +2432,14 @@
         },
         {
           "file": "libs/page-model/src/lib/runtime/pagemodel.types.ts",
-          "hash": "3446684766920319415",
+          "hash": "5843158651591704717",
           "deps": [
-            "ui-components"
+            "api"
           ]
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/game-label.pipe.ts",
+          "hash": "7535620449578045370"
         },
         {
           "file": "libs/page-model/src/lib/widget/label.pipe.ts",
@@ -1615,9 +2451,9 @@
         },
         {
           "file": "libs/page-model/src/lib/widget/widget.contract.ts",
-          "hash": "8530372672238449727",
+          "hash": "15648615254485372427",
           "deps": [
-            "ui-components"
+            "api"
           ]
         },
         {
@@ -2043,12 +2879,48 @@
           "hash": "6968594856788810628"
         },
         {
+          "file": "check-ticket-form-mobile-final.png",
+          "hash": "9332990784440507899"
+        },
+        {
+          "file": "check-ticket-form-v3.png",
+          "hash": "7934246086204191674"
+        },
+        {
+          "file": "check-ticket-icons-fixed.png",
+          "hash": "12138508716199074468"
+        },
+        {
+          "file": "check-ticket-mobile-result.png",
+          "hash": "24239970830709923"
+        },
+        {
+          "file": "check-ticket-result-desktop.png",
+          "hash": "5354977634256858480"
+        },
+        {
+          "file": "check-ticket-result-mobile-final.png",
+          "hash": "13746827270886728411"
+        },
+        {
+          "file": "check-ticket-result-v3.png",
+          "hash": "13746827270886728411"
+        },
+        {
+          "file": "check-v2-desktop.png",
+          "hash": "11487317936330389671"
+        },
+        {
+          "file": "check-v2-mobile.png",
+          "hash": "12016533128242936442"
+        },
+        {
           "file": "commitlint.config.js",
           "hash": "5925728963993065719"
         },
         {
           "file": "docs/ARCHITECTURE.md",
-          "hash": "4725254378685999552"
+          "hash": "14151586375017495839"
         },
         {
           "file": "docs/QUICKSTART.md",
@@ -2092,7 +2964,7 @@
         },
         {
           "file": "docs/conventions/nx-boundaries.md",
-          "hash": "16884800125466883874"
+          "hash": "8218084119958675208"
         },
         {
           "file": "docs/conventions/pagemodel.md",
@@ -2112,11 +2984,15 @@
         },
         {
           "file": "docs/conventions/style.md",
-          "hash": "9447529080589656534"
+          "hash": "13151423422387353880"
         },
         {
           "file": "docs/conventions/theme.md",
-          "hash": "14427973738105313232"
+          "hash": "4712370159018191862"
+        },
+        {
+          "file": "docs/conventions/web-public-css-theming.md",
+          "hash": "915227345974987535"
         },
         {
           "file": "docs/dependencies.md",
@@ -2148,7 +3024,7 @@
         },
         {
           "file": "openspec/changes/complete-navigation-shell-error-alignment/tasks.md",
-          "hash": "7581229321987783269"
+          "hash": "13436989551283692702"
         },
         {
           "file": "openspec/changes/establish-ui-shell-foundation/design.md",
@@ -2223,6 +3099,10 @@
           "hash": "6745159086856817156"
         },
         {
+          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/specs/frontend-library-boundaries/spec.md",
+          "hash": "3369280239080825353"
+        },
+        {
           "file": "openspec/changes/extract-pagemodel-widgets-web-libs/tasks.md",
           "hash": "940690523547249475"
         },
@@ -2240,7 +3120,23 @@
         },
         {
           "file": "openspec/changes/init-web-platform-foundation/tasks.md",
-          "hash": "8221742592761732862"
+          "hash": "112290691768155156"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/design.md",
+          "hash": "16910338295149158804"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/proposal.md",
+          "hash": "16769054417682182316"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/specs/md3-theme-foundation/spec.md",
+          "hash": "10451059827817391101"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/tasks.md",
+          "hash": "4197257159481507590"
         },
         {
           "file": "openspec/changes/minimal-public-admin-widget-ui/design.md",
@@ -2272,7 +3168,19 @@
         },
         {
           "file": "openspec/changes/public-design-system-pagemodel-widgets/tasks.md",
-          "hash": "8948327378975022817"
+          "hash": "1345031470621768102"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/proposal.md",
+          "hash": "11101065413553236994"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/specs/public-shell-v1/spec.md",
+          "hash": "14053451051315201671"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/tasks.md",
+          "hash": "1980852003363284181"
         },
         {
           "file": "openspec/changes/tchalanet-frontend-foundation-openspec/README.md",
@@ -2319,12 +3227,20 @@
           "hash": "3244421341483603138"
         },
         {
+          "file": "operators-page-desktop.png",
+          "hash": "12763290222753828345"
+        },
+        {
+          "file": "operators-page-mobile.png",
+          "hash": "16948184993141865188"
+        },
+        {
           "file": "package-lock.json",
           "hash": "9643078295776789284"
         },
         {
           "file": "package.json",
-          "hash": "11871683134031725501"
+          "hash": "4622669840461503159"
         },
         {
           "file": "skills-lock.json",
@@ -2369,160 +3285,172 @@
         {
           "file": "web-backup/vitest.workspace.ts",
           "hash": "4665328684042819579"
+        },
+        {
+          "file": "widget-check-fixed.png",
+          "hash": "16935731296335586900"
+        },
+        {
+          "file": "widget-desktop-full.png",
+          "hash": "4508053440649988853"
+        },
+        {
+          "file": "widget-mobile-full.png",
+          "hash": "17969006842303610185"
         }
       ],
-      "analytics": [
+      "private-pages": [
         {
-          "file": "web-backup/libs/shared/analytics/README.md",
-          "hash": "729403698734640253"
+          "file": "web-backup/libs/web/private-pages/README.md",
+          "hash": "16294594850601576442"
         },
         {
-          "file": "web-backup/libs/shared/analytics/project.json",
-          "hash": "5999912516597646354"
+          "file": "web-backup/libs/web/private-pages/project.json",
+          "hash": "5487498543932446920"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/index.ts",
-          "hash": "8896467435234418046"
+          "file": "web-backup/libs/web/private-pages/src/index.ts",
+          "hash": "546223085526265087"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/lib/analytics.init.ts",
-          "hash": "3471021394213635609"
+          "file": "web-backup/libs/web/private-pages/src/lib/admin-dashboard/admin.page.ts",
+          "hash": "1693590168906570685"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/lib/analytics.router.ts",
-          "hash": "15400182467171161353"
+          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.html",
+          "hash": "13013414552844463438"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/lib/analytics.service.ts",
-          "hash": "3265089265639430115"
+          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.scss",
+          "hash": "13759041760121032824"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/lib/analytics.tokens.ts",
-          "hash": "16714754623664308535"
+          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.spec.ts",
+          "hash": "2101637453779912195"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/lib/analytics.types.ts",
-          "hash": "10948261773090117503"
+          "file": "web-backup/libs/web/private-pages/src/lib/admin-page/admin.page.ts",
+          "hash": "10674901553589145942"
         },
         {
-          "file": "web-backup/libs/shared/analytics/src/test-setup.ts",
+          "file": "web-backup/libs/web/private-pages/src/lib/cashier-dashboard/cashier-dashboard.page.ts",
+          "hash": "12733789295356273148"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-container/dashboard-container.component.ts",
+          "hash": "1827024672468821995"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-container/role-dashboard-routing.ts",
+          "hash": "16514847161799302116"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.html",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.scss",
+          "hash": "14207321583589823496"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/dashboard-page/dashboard.page.ts",
+          "hash": "9139177324468470098"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.html",
+          "hash": "2026079131038240324"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.scss",
+          "hash": "16916390348263324389"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.spec.ts",
+          "hash": "9685190197105269044"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/draws-page/draws.page.ts",
+          "hash": "1855410850422083774"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/private.routes.ts",
+          "hash": "3968063948437040609"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.html",
+          "hash": "8376169750450880724"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.scss",
+          "hash": "6847372038948527576"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.spec.ts",
+          "hash": "10773755363663579267"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/profile-page/profile.page.ts",
+          "hash": "13594169442702791416"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.html",
+          "hash": "8438031635488042633"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.scss",
+          "hash": "1605228709696091483"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.spec.ts",
+          "hash": "6470582398949229891"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/reports-page/reports.page.ts",
+          "hash": "13342650353795508473"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/super-admin-dashboard/super-admin-dashboard.page.ts",
+          "hash": "6601728429230336619"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/tenant-admin-dashboard/tenant-admin-dashboard.page.ts",
+          "hash": "226602687643690942"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.html",
+          "hash": "7082742113112201395"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.scss",
+          "hash": "115613874046882622"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.spec.ts",
+          "hash": "17495987310183232969"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/lib/tickets-page/tickets.page.ts",
+          "hash": "95303776981190628"
+        },
+        {
+          "file": "web-backup/libs/web/private-pages/src/test-setup.ts",
           "hash": "7269083439716718770"
         },
         {
-          "file": "web-backup/libs/shared/analytics/tsconfig.json",
+          "file": "web-backup/libs/web/private-pages/tsconfig.json",
           "hash": "7926296956335143092"
         },
         {
-          "file": "web-backup/libs/shared/analytics/tsconfig.lib.json",
+          "file": "web-backup/libs/web/private-pages/tsconfig.lib.json",
           "hash": "9162017831943094349"
         },
         {
-          "file": "web-backup/libs/shared/analytics/tsconfig.spec.json",
+          "file": "web-backup/libs/web/private-pages/tsconfig.spec.json",
           "hash": "17510586545033859175"
         },
         {
-          "file": "web-backup/libs/shared/analytics/vite.config.mts",
-          "hash": "18033422597137904185"
-        }
-      ],
-      "shared/data-access": [
-        {
-          "file": "web-backup/libs/shared/data-access/page/README.md",
-          "hash": "11185793730919232796"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/project.json",
-          "hash": "3790544894283790174"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/index.ts",
-          "hash": "16919755300831696284"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/navigation/nav.actions.ts",
-          "hash": "211034203073721022"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/navigation/nav.reducer.ts",
-          "hash": "4397796105498163212"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.actions.ts",
-          "hash": "12255894919634930704"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.effects.ts",
-          "hash": "6933068560764959855"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.reducer.ts",
-          "hash": "5409625764180844107"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.selectors.ts",
-          "hash": "13325168128063443094"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/lib/store/page/page.state.ts",
-          "hash": "6200010888951631940"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/tsconfig.json",
-          "hash": "17094599609342217009"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/tsconfig.lib.json",
-          "hash": "4374220781941404143"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/tsconfig.spec.json",
-          "hash": "8445581699757985060"
-        },
-        {
-          "file": "web-backup/libs/shared/data-access/page/vite.config.mts",
-          "hash": "7236860228300591771"
-        }
-      ],
-      "shared/utils": [
-        {
-          "file": "web-backup/libs/shared/utils/layout/README.md",
-          "hash": "16221505251583894857"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/project.json",
-          "hash": "8102772238204485030"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/src/asset.util.ts",
-          "hash": "2113416182209654208"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/src/index.ts",
-          "hash": "14923137081561564582"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/tsconfig.json",
-          "hash": "17094599609342217009"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/tsconfig.spec.json",
-          "hash": "10616371895249057201"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/layout/vite.config.mts",
-          "hash": "6673952056133039605"
+          "file": "web-backup/libs/web/private-pages/vite.config.mts",
+          "hash": "13371091601130785800"
         }
       ],
       "public-pages": [
@@ -2583,48 +3511,6 @@
           "hash": "1823153526313575572"
         }
       ],
-      "web": [
-        {
-          "file": "libs/web/project.json",
-          "hash": "7453140065828415454"
-        },
-        {
-          "file": "libs/web/src/index.ts",
-          "hash": "16717085206401835358"
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-bottom-nav.ts",
-          "hash": "3270267849142047692",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-footer.ts",
-          "hash": "17973961881771389992",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-shell.spec.ts",
-          "hash": "4728531647748911709"
-        },
-        {
-          "file": "libs/web/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/web/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/web/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
       "api": [
         {
           "file": "libs/api/README.md",
@@ -2636,15 +3522,27 @@
         },
         {
           "file": "libs/api/project.json",
-          "hash": "6703598902226029319"
+          "hash": "8662667758228254435"
         },
         {
           "file": "libs/api/src/index.ts",
-          "hash": "4750475748818951862"
+          "hash": "11183968840504245198"
+        },
+        {
+          "file": "libs/api/src/lib/contracts/action-item.spec.ts",
+          "hash": "3167894704080162670"
+        },
+        {
+          "file": "libs/api/src/lib/contracts/action-item.ts",
+          "hash": "9963452027253079812"
         },
         {
           "file": "libs/api/src/lib/contracts/api.types.ts",
           "hash": "1798666415080744827"
+        },
+        {
+          "file": "libs/api/src/lib/http/api-base.ts",
+          "hash": "16696681674660023474"
         },
         {
           "file": "libs/api/src/lib/http/api-response.ts",
@@ -2669,76 +3567,6 @@
         {
           "file": "libs/api/tsconfig.lib.json",
           "hash": "9173947970313865903"
-        }
-      ],
-      "feature": [
-        {
-          "file": "web-backup/libs/shared/feature/README.md",
-          "hash": "13790967894665321138"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/project.json",
-          "hash": "16394135936773687240"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/index.ts",
-          "hash": "4334971335081321398"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/clients/memory.client.ts",
-          "hash": "13147483734178039157"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/clients/unleash-proxy.client.ts",
-          "hash": "9832968005711759888"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.directive.ts",
-          "hash": "12761085263075623197"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.guard.ts",
-          "hash": "17970776386070381276"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.pipe.ts",
-          "hash": "3978836876740406103"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.provider.ts",
-          "hash": "10321529837573622816"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.service.ts",
-          "hash": "15942919507680475684"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.tokens.ts",
-          "hash": "13625393685793541833"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/lib/feature.types.ts",
-          "hash": "13351713416844738180"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/tsconfig.json",
-          "hash": "7926296956335143092"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/tsconfig.spec.json",
-          "hash": "17510586545033859175"
-        },
-        {
-          "file": "web-backup/libs/shared/feature/vite.config.mts",
-          "hash": "12036602440132026214"
         }
       ],
       "shared-config": [
@@ -2784,7 +3612,7 @@
         },
         {
           "file": "libs/shared-config/src/lib/runtime/runtime-paths.ts",
-          "hash": "2790884996820713111"
+          "hash": "6083581124123754285"
         },
         {
           "file": "libs/shared-config/src/lib/settings/runtime-settings.store.ts",
@@ -2812,6 +3640,76 @@
         {
           "file": "libs/shared-config/tsconfig.spec.json",
           "hash": "13291579508309900195"
+        }
+      ],
+      "plans": [
+        {
+          "file": "web-backup/libs/ui/plans/README.md",
+          "hash": "7169651611537827464"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/project.json",
+          "hash": "10866913605590772681"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/index.ts",
+          "hash": "2328283286621527239"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/models/plans.model.ts",
+          "hash": "4525100216713088750"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.html",
+          "hash": "13370581297814929778"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.scss",
+          "hash": "6787720858277323357"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.spec.ts",
+          "hash": "2114830989856562350"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-item/plan-item.ts",
+          "hash": "3555155640966289155"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.html",
+          "hash": "668862127796522979"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.scss",
+          "hash": "11342439411938457856"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.spec.ts",
+          "hash": "659588446996836303"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/lib/plan-list/plan-list.ts",
+          "hash": "11935415794422453971"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/src/test-setup.ts",
+          "hash": "7269083439716718770"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "web-backup/libs/ui/plans/vite.config.mts",
+          "hash": "3963476932692949514"
         }
       ],
       "i18n": [
@@ -2868,892 +3766,267 @@
           "hash": "8480941326381063820"
         }
       ],
-      "ui-theme": [
+      "widgets": [
         {
-          "file": "libs/ui/theme/README.md",
-          "hash": "523284715630508394"
+          "file": "libs/widgets/project.json",
+          "hash": "14996755350796628443"
         },
         {
-          "file": "libs/ui/theme/eslint.config.mjs",
-          "hash": "14754633781889188846"
+          "file": "libs/widgets/src/index.ts",
+          "hash": "14883825294113808548"
         },
         {
-          "file": "libs/ui/theme/project.json",
-          "hash": "9247815899202493554"
+          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
+          "hash": "9294134563431912316"
         },
         {
-          "file": "libs/ui/theme/src/index.ts",
-          "hash": "10170072490190447469"
+          "file": "libs/widgets/src/lib/widget-registry.ts",
+          "hash": "2661134877271077874",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-api.ts",
-          "hash": "12442758009212956395"
+          "file": "libs/widgets/src/lib/widgets/contact-cta.widget.ts",
+          "hash": "4213575795673608706",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
-          "hash": "18065809051011848488"
+          "file": "libs/widgets/src/lib/widgets/faq.widget.ts",
+          "hash": "3782076490227609759",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-presets.ts",
-          "hash": "8683411710997030997"
+          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
+          "hash": "18266659740703399291",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-store.ts",
-          "hash": "14663034992841394931"
+          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
+          "hash": "10498676521089889444",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
-          "hash": "231595962544266657"
+          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
+          "hash": "9357849919000751005",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
-          "hash": "1507148824852310524"
+          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
+          "hash": "2665644559725841837",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
-          "hash": "14311686098747294750"
+          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
+          "hash": "5162459440002317711",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme-types.ts",
-          "hash": "8069540871961738866"
+          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
+          "hash": "11981380542626531982",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/lib/theme.repository.ts",
-          "hash": "12289027144071371214"
+          "file": "libs/widgets/src/lib/widgets/public-business-access-control.widget.ts",
+          "hash": "17497890107384251630",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
-          "hash": "1653998440353101892"
+          "file": "libs/widgets/src/lib/widgets/public-business-features.widget.ts",
+          "hash": "8154133721792320844",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
-          "hash": "18092484385930119684"
+          "file": "libs/widgets/src/lib/widgets/public-business-hero.widget.ts",
+          "hash": "4826023674247588713",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/scss/runtime-root.scss",
-          "hash": "15574880445304660191"
+          "file": "libs/widgets/src/lib/widgets/public-business-lead-form.widget.ts",
+          "hash": "278181758201436177",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
-          "hash": "7551806558419801080"
+          "file": "libs/widgets/src/lib/widgets/public-business-plans.widget.ts",
+          "hash": "13164301055273829344",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
-          "hash": "2894841518073399976"
+          "file": "libs/widgets/src/lib/widgets/public-business-process.widget.ts",
+          "hash": "4644185645435208939",
+          "deps": [
+            "page-model"
+          ]
         },
         {
-          "file": "libs/ui/theme/src/scss/theme-presets.scss",
-          "hash": "15829592671263239537"
+          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
+          "hash": "782838592484216525",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
-          "hash": "1589122421491685804"
+          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
+          "hash": "7085149090602567258",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/tsconfig.json",
-          "hash": "1973382141025117759"
+          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
+          "hash": "347510757167972718",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/tsconfig.lib.json",
-          "hash": "2571691299537351603"
+          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
+          "hash": "9947224027362549956",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
         },
         {
-          "file": "libs/ui/theme/tsconfig.spec.json",
-          "hash": "5074326386517990425"
+          "file": "libs/widgets/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/widgets/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/widgets/tsconfig.spec.json",
+          "hash": "13291579508309900195"
         }
       ],
-      "web/widgets": [
+      "web/ui-shell-public": [
         {
-          "file": "web-backup/libs/web/widgets/README.md",
-          "hash": "8491177283145298734"
+          "file": "web-backup/libs/web/shell/README.md",
+          "hash": "13991887529601564460"
         },
         {
-          "file": "web-backup/libs/web/widgets/project.json",
-          "hash": "6416038830711438697"
+          "file": "web-backup/libs/web/shell/project.json",
+          "hash": "15802185377969477396"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/index.ts",
-          "hash": "14369146027074062557"
+          "file": "web-backup/libs/web/shell/src/index.ts",
+          "hash": "7437946747602976906"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/buildin-widgets.provider.ts",
-          "hash": "9193789210962458365"
+          "file": "web-backup/libs/web/shell/src/lib/markdown-page.component/markdown-page.component.ts",
+          "hash": "1812098995010937938"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/draw-card/draw-card.component.scss",
-          "hash": "14952144018972786320"
+          "file": "web-backup/libs/web/shell/src/lib/public-stub-page.component/public-sub-page.component.ts",
+          "hash": "14617983181661550072"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/draw-card/draw-card.component.ts",
-          "hash": "1893591213210674053"
+          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.html",
+          "hash": "13287862402296325415"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.scss",
-          "hash": "2383825913393125493"
+          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.scss",
+          "hash": "13374527483177556855"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.ts",
-          "hash": "18210904126585225743"
+          "file": "web-backup/libs/web/shell/src/lib/shell/shell.component.ts",
+          "hash": "7791641008707751313"
         },
         {
-          "file": "web-backup/libs/web/widgets/src/lib/feature-card/feature-card.component.scss",
-          "hash": "6857891386996242960"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/feature-card/feature-card.component.ts",
-          "hash": "10127006006279370320"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/generic-info-widget/generic-info-widget.component.ts",
-          "hash": "2850320754761817910"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/hero/hero.component.scss",
-          "hash": "18174779039561985522"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/hero/hero.component.ts",
-          "hash": "2896590259252852655"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/info-widget/info-widget.component.ts",
-          "hash": "196868769715421380"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/kpi/kpi.component.ts",
-          "hash": "9493410477801700467"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.scss",
-          "hash": "4070786555651081982"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.ts",
-          "hash": "5323168132200984267"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/news-banner/news-banner.component.scss",
-          "hash": "18034869501733839879"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/news-banner/news-banner.component.ts",
-          "hash": "11947486932935616862"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/quick-actions/quick-actions.component.ts",
-          "hash": "13246448753650073307"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/lib/widget.token.ts",
-          "hash": "14936090503630955424"
-        },
-        {
-          "file": "web-backup/libs/web/widgets/src/test-setup.ts",
+          "file": "web-backup/libs/web/shell/src/test-setup.ts",
           "hash": "7269083439716718770"
         },
         {
-          "file": "web-backup/libs/web/widgets/tsconfig.json",
+          "file": "web-backup/libs/web/shell/tsconfig.json",
           "hash": "7926296956335143092"
         },
         {
-          "file": "web-backup/libs/web/widgets/tsconfig.lib.json",
+          "file": "web-backup/libs/web/shell/tsconfig.lib.json",
           "hash": "9162017831943094349"
         },
         {
-          "file": "web-backup/libs/web/widgets/tsconfig.spec.json",
+          "file": "web-backup/libs/web/shell/tsconfig.spec.json",
           "hash": "17510586545033859175"
         },
         {
-          "file": "web-backup/libs/web/widgets/vite.config.mts",
-          "hash": "6474399105334290251"
+          "file": "web-backup/libs/web/shell/vite.config.mts",
+          "hash": "1212780873808754150"
         }
       ],
-      "shared-util-constants": [
+      "shared/ui-shell-material": [
         {
-          "file": "web-backup/libs/shared/utils/constants/README.md",
-          "hash": "6606471215181729195"
+          "file": "web-backup/libs/ui/layout/README.md",
+          "hash": "12155061028784400327"
         },
         {
-          "file": "web-backup/libs/shared/utils/constants/package.json",
-          "hash": "16809526882458680503"
+          "file": "web-backup/libs/ui/layout/project.json",
+          "hash": "16636841807196458695"
         },
         {
-          "file": "web-backup/libs/shared/utils/constants/project.json",
-          "hash": "949445745405641995"
+          "file": "web-backup/libs/ui/layout/src/index.ts",
+          "hash": "2376847283639608571"
         },
         {
-          "file": "web-backup/libs/shared/utils/constants/src/index.ts",
-          "hash": "7773816820801655882"
+          "file": "web-backup/libs/ui/layout/src/lib/grid-layout/grid-layout.component.scss",
+          "hash": "11656062073587133317"
         },
         {
-          "file": "web-backup/libs/shared/utils/constants/src/lib/shared-util-constants.spec.ts",
-          "hash": "7458676383104532484"
+          "file": "web-backup/libs/ui/layout/src/lib/grid-layout/grid-layout.component.ts",
+          "hash": "13555185469722130657"
         },
         {
-          "file": "web-backup/libs/shared/utils/constants/src/lib/shared-util-constants.ts",
-          "hash": "14373445567224576634"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/constants/tsconfig.json",
-          "hash": "7846400365888195640"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/constants/tsconfig.lib.json",
-          "hash": "7724353352098402329"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/constants/tsconfig.spec.json",
-          "hash": "917466382069000416"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/constants/vite.config.ts",
-          "hash": "77368826751392577"
-        }
-      ],
-      "breadcrumb": [
-        {
-          "file": "web-backup/libs/ui/breadcrumb/README.md",
-          "hash": "3739259743076389271"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/project.json",
-          "hash": "12686676156466604050"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/src/index.ts",
-          "hash": "6754185589805969932"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.scss",
-          "hash": "3028714071183233299"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.ts",
-          "hash": "2381693942876762185"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/src/test-setup.ts",
+          "file": "web-backup/libs/ui/layout/src/test-setup.ts",
           "hash": "7269083439716718770"
         },
         {
-          "file": "web-backup/libs/ui/breadcrumb/tsconfig.json",
+          "file": "web-backup/libs/ui/layout/tsconfig.json",
           "hash": "7926296956335143092"
         },
         {
-          "file": "web-backup/libs/ui/breadcrumb/tsconfig.lib.json",
+          "file": "web-backup/libs/ui/layout/tsconfig.lib.json",
           "hash": "9162017831943094349"
         },
         {
-          "file": "web-backup/libs/ui/breadcrumb/tsconfig.spec.json",
-          "hash": "17510586545033859175"
-        },
-        {
-          "file": "web-backup/libs/ui/breadcrumb/vite.config.mts",
-          "hash": "5096341199691235867"
-        }
-      ],
-      "ui/widget-renderer": [
-        {
-          "file": "web-backup/libs/ui/widget-renderer/README.md",
-          "hash": "3035150266239687726"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/project.json",
-          "hash": "5945673252327651403"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/src/index.ts",
-          "hash": "13351295944200384543"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/src/lib/widget-renderer.component.ts",
-          "hash": "1230358280736409981"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/tsconfig.json",
-          "hash": "7926296956335143092"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/tsconfig.spec.json",
-          "hash": "17510586545033859175"
-        },
-        {
-          "file": "web-backup/libs/ui/widget-renderer/vite.config.mts",
-          "hash": "2525131685657778332"
-        }
-      ],
-      "tchalanet-portal": [
-        {
-          "file": "web-backup/apps/tchalanet-portal/API-PROXY-FIX.md",
-          "hash": "4995476694730085338"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/DEV-MODES.md",
-          "hash": "2203521592248502793"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/ENV-MIGRATION-SUMMARY.md",
-          "hash": "6943005542313748223"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/ENVIRONMENT-CONFIG.md",
-          "hash": "11087190281232763808"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/I18N-ASSETS-FIX.md",
-          "hash": "10586336242203065100"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/PORTS-CONFIG.md",
-          "hash": "461880117662016439"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/STYLES-FIX.md",
-          "hash": "9668673008838115082"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/copy-i18n.sh",
-          "hash": "793214838345832624"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/index.html",
-          "hash": "13678774867668318006"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/project.json",
-          "hash": "2608397820489086076"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/autres_page_accueil.png",
-          "hash": "8849838016682624392"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/hero-loto-stats.svg",
-          "hash": "11772524389670836289"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-dark.png",
-          "hash": "8378016480270454645"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-full.svg",
-          "hash": "12005063171692936682"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-icon.svg",
-          "hash": "5857535977076983574"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-light.png",
-          "hash": "8378016480270454645"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo-tchalanet.svg",
-          "hash": "8597524040964363814"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo.png",
-          "hash": "15327968009570735270"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/logo_tchalanet.png",
-          "hash": "7216988695715234899"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/lotto-simple-balls.svg",
-          "hash": "10985203163896091005"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/single-ball-3-d.svg",
-          "hash": "11168289796043752007"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/branding/stats-today-sales.svg",
-          "hash": "4000201544257829820"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/config/page-default.json",
-          "hash": "9860149031374809755"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/config/page-private-fallback.json",
-          "hash": "1315317739657244237"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/config/test.json",
-          "hash": "525576925740094733"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/explanations.md",
-          "hash": "2056411441729220538"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/privacy.md",
-          "hash": "3943125856194635736"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/regulation.md",
-          "hash": "3760497516457624715"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/legal/responsible.md",
-          "hash": "12915207258210712294"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/official-reports.md",
-          "hash": "10089214007303605303"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/security.md",
-          "hash": "18188525465980011378"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/support.md",
-          "hash": "10771131039229380936"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/en/tchala.md",
-          "hash": "16084178865244277323"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/explanations.md",
-          "hash": "4881712702175075002"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/privacy.md",
-          "hash": "11282026828188153350"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/regulation.md",
-          "hash": "1898924575269010486"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/legal/responsible.md",
-          "hash": "17943614216038175264"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/official-reports.md",
-          "hash": "17066918847453155446"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/security.md",
-          "hash": "4151730025672154937"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/support.md",
-          "hash": "15235668243935706097"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/fr/tchala.md",
-          "hash": "3342277373496412245"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/explanations.md",
-          "hash": "4257281786274687405"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/privacy.md",
-          "hash": "13026684881996667058"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/regulation.md",
-          "hash": "8065667826473023365"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/legal/responsible.md",
-          "hash": "7891369726380561235"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/official-reports.md",
-          "hash": "16524555073533836991"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/security.md",
-          "hash": "8313680769929081389"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/support.md",
-          "hash": "17071601724270759027"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/content/ht/tchala.md",
-          "hash": "4352485086787452071"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/favicon-mono.svg",
-          "hash": "5618926102623049985"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-analytics.svg",
-          "hash": "843471898197445865"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-configurable.svg",
-          "hash": "13768338633678609376"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-connected-bank.svg",
-          "hash": "13981202213753689514"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-mobile-app.svg",
-          "hash": "14329612675576709637"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-multiple-login.svg",
-          "hash": "5462761786884644402"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-multitenant.svg",
-          "hash": "8251965580016078419"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-pos-integration.svg",
-          "hash": "14673818330244701369"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-secure.svg",
-          "hash": "8697515330900087273"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/feature-ticket.svg",
-          "hash": "9957980739386606506"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/features/loto.svg",
-          "hash": "17368973638674607531"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/connected-bank.svg",
-          "hash": "13981202213753689514"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/cta-hero-illustration-2.svg",
-          "hash": "16220701439734462451"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/cta-simple.svg",
-          "hash": "13102741028556336112"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/hero/hero-main.svg",
-          "hash": "6286492143686131399"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-analytics-reporting.svg",
-          "hash": "17068752650731600559"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-cloud-scalability.svg",
-          "hash": "17354282558549590544"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-compliance-fairness.svg",
-          "hash": "15313755659966538116"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-network-multitenant.svg",
-          "hash": "14160359440752955414"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-secure-shield.svg",
-          "hash": "13468289978653280621"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/feature-support-headset.svg",
-          "hash": "3564055444493673585"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/multicolor-nodes.svg",
-          "hash": "13419040259558499263"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/pos-monitor.svg",
-          "hash": "4731021291915101539"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/security-shield.svg",
-          "hash": "15295438019226432007"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/illustrations/user-card.svg",
-          "hash": "2390581593233206905"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/en.svg",
-          "hash": "8996652583045834758"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/fr.svg",
-          "hash": "8734635249429673528"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/i18n/ht.svg",
-          "hash": "3671587302395020241"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/facebook.svg",
-          "hash": "967391752942287665"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/instagram.svg",
-          "hash": "2873581573737657841"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/linkedin.svg",
-          "hash": "3639310474159767663"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/x.svg",
-          "hash": "11921670630856471303"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/assets/svg/socials/youtube.svg",
-          "hash": "11877118905697745251"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/favicon.ico",
-          "hash": "1032133437451643664"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/public/tchalanet_feature_catalog.html",
-          "hash": "7561678151906277926"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/app/app.config.ts",
-          "hash": "13033905790368180789"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/app/app.routes.ts",
-          "hash": "5410489968566262341"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/app/app.spec.ts",
-          "hash": "10922523535053444868"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/app/app.ts",
-          "hash": "11405746108968629396"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/app/purge-oidc-cache.ts",
-          "hash": "16669983940769258245"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/main.ts",
-          "hash": "824071333226514808"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/styles.scss",
-          "hash": "15422605287241565095"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/styles/_pos-home-reference.scss",
-          "hash": "15298950471000116498"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/styles/_tokens.scss",
-          "hash": "17790736534873017175"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/test-setup.ts",
-          "hash": "3791648620616607453"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/src/vite-env.d.ts",
-          "hash": "8972312480294491078"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/start-dev.sh",
-          "hash": "3901523195910229590"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/tsconfig.app.json",
-          "hash": "14015480133463777547"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/tsconfig.json",
-          "hash": "4663124578817442910"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/tsconfig.spec.json",
-          "hash": "11359119564988205903"
-        },
-        {
-          "file": "web-backup/apps/tchalanet-portal/vite.config.mts",
-          "hash": "9345698385718273182"
-        }
-      ],
-      "shared/util-i18n": [
-        {
-          "file": "web-backup/libs/shared/utils/i18n/README.md",
-          "hash": "13843790437707370867"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/project.json",
-          "hash": "7457134361143872062"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/src/index.ts",
-          "hash": "11008602038366681434"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/src/lib/i18n-merger.service.ts",
-          "hash": "16108821536137902657"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/src/lib/loader/merged-translate-loader.ts",
-          "hash": "4637033416801763838"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/tsconfig.json",
-          "hash": "17094599609342217009"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/shared/utils/i18n/tsconfig.spec.json",
+          "file": "web-backup/libs/ui/layout/tsconfig.spec.json",
           "hash": "10616371895249057201"
         },
         {
-          "file": "web-backup/libs/shared/utils/i18n/vite.config.mts",
-          "hash": "5419088412670643260"
-        }
-      ],
-      "ui-styles": [
-        {
-          "file": "libs/ui/styles/project.json",
-          "hash": "12776518627876021150"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/README.md",
-          "hash": "10565563463602994371"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
-          "hash": "4554722867918363495"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_functions.scss",
-          "hash": "7749853334664996475"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_index.scss",
-          "hash": "8698166025698481804"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
-          "hash": "662076388056195332"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_mixins.scss",
-          "hash": "4468409386214050699"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_overlay.scss",
-          "hash": "4654987298841419955"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_typography.scss",
-          "hash": "10184414690149522165"
-        }
-      ],
-      "web/feature-home-public": [
-        {
-          "file": "web-backup/libs/web/feature-home-public/README.md",
-          "hash": "11577871624848178743"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/project.json",
-          "hash": "17057662836153295866"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/src/index.ts",
-          "hash": "11461013292936844294"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/src/lib/home-public.page.ts",
-          "hash": "16674707014396137941"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/tsconfig.json",
-          "hash": "7926296956335143092"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/tsconfig.spec.json",
-          "hash": "17510586545033859175"
-        },
-        {
-          "file": "web-backup/libs/web/feature-home-public/vite.config.mts",
-          "hash": "15980148624330926307"
-        }
-      ],
-      "shared/facades": [
-        {
-          "file": "web-backup/libs/shared/facades/README.md",
-          "hash": "17104896925938425831"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/project.json",
-          "hash": "13494156163228155578"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/src/index.ts",
-          "hash": "10632920490106980240"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/src/lib/i18n.facade.ts",
-          "hash": "13204903569690376098"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/src/lib/page.facade.ts",
-          "hash": "16057485567199634626"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/src/lib/session.facade.ts",
-          "hash": "12466905384633686935"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/src/test-setup.ts",
-          "hash": "7269083439716718770"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/tsconfig.json",
-          "hash": "7926296956335143092"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/tsconfig.lib.json",
-          "hash": "9162017831943094349"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/tsconfig.spec.json",
-          "hash": "17510586545033859175"
-        },
-        {
-          "file": "web-backup/libs/shared/facades/vite.config.mts",
-          "hash": "195305633142398502"
+          "file": "web-backup/libs/ui/layout/vite.config.mts",
+          "hash": "8211163989736584193"
         }
       ]
     }

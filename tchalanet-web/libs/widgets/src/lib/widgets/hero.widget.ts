@@ -5,7 +5,9 @@ import { LabelPipe } from '@tch/page-model';
 import {
   actionsFrom,
   destinationHref,
+  isRecord,
   stringProp,
+  stringValue,
   WidgetAction,
 } from '@tch/page-model';
 import { TchActionButton } from '@tch/ui/components';
@@ -61,11 +63,11 @@ import { TchActionButton } from '@tch/ui/components';
           <span class="hero-widget__ticket-label">{{ 'public.ticket.code_label' | tchLabel }}</span>
           <span class="hero-widget__ticket-qr-icon" aria-hidden="true">▣</span>
         </div>
-        <div class="hero-widget__ticket-code">{{ 'public.ticket.placeholder' | tchLabel }}</div>
+        <div class="hero-widget__ticket-code">{{ ticketCodeLiteral() ?? ('public.ticket.placeholder' | tchLabel) }}</div>
         <div class="hero-widget__ticket-status-row">
-          <span class="hero-widget__ticket-badge">{{ 'public.ticket.status_pending' | tchLabel }}</span>
+          <span class="hero-widget__ticket-badge">{{ statusLabelKey() | tchLabel }}</span>
         </div>
-        <p class="hero-widget__ticket-note">{{ 'public.ticket.description' | tchLabel }}</p>
+        <p class="hero-widget__ticket-note">{{ helperTextKey() | tchLabel }}</p>
       </div>
     </div>
   `,
@@ -76,8 +78,9 @@ import { TchActionButton } from '@tch/ui/components';
 
       :host {
         display: grid;
-        gap: 2rem;
+        gap: 1.5rem;
         padding: 2rem 1rem 2.5rem;
+        overflow: hidden;
         border-radius: 0 0 var(--tch-radius-xl, 24px) var(--tch-radius-xl, 24px);
         background:
           radial-gradient(
@@ -93,12 +96,12 @@ import { TchActionButton } from '@tch/ui/components';
         color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
 
         @include bp.up(expanded) {
-          grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
+          grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 1.1fr);
           align-items: center;
-          min-height: clamp(28rem, 44vw, 36rem);
-          padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 5vw, 4rem);
+          min-height: clamp(26rem, 36vw, 34rem);
+          padding: clamp(3rem, 5vw, 4.5rem) clamp(2rem, 4.5vw, 4rem);
           border-radius: var(--tch-radius-xl, 24px);
-          gap: clamp(2rem, 4vw, 4rem);
+          gap: clamp(2rem, 4vw, 3.5rem);
         }
       }
 
@@ -160,6 +163,9 @@ import { TchActionButton } from '@tch/ui/components';
 
           a[tch-action] {
             width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
           }
         }
       }
@@ -176,24 +182,29 @@ import { TchActionButton } from '@tch/ui/components';
         display: flex;
         justify-content: center;
         align-items: center;
+        max-width: 100%;
+
+        @include bp.up(expanded) {
+          justify-self: center;
+        }
       }
 
       .hero-widget__ticket-card {
         display: grid;
         gap: 0.875rem;
-        width: min(100%, 22rem);
-        padding: 1.5rem;
+        width: min(100%, 20rem);
+        padding: 1.25rem;
         border-radius: var(--tch-radius-xl, 20px);
         background: var(--tch-color-surface, var(--mat-sys-surface));
         color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
         box-shadow:
           0 4px 6px -1px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent),
           0 20px 48px -8px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 32%, transparent);
-        transform: rotate(-1.5deg);
 
         @include bp.up(expanded) {
           width: min(100%, 26rem);
           padding: 2rem;
+          transform: rotate(-1.5deg);
         }
       }
 
@@ -264,7 +275,24 @@ export class HeroWidget {
   readonly titleKey = computed(
     () => stringProp(this.config(), 'titleKey') ?? 'home.hero.title',
   );
-  readonly descriptionKey = computed(() => stringProp(this.config(), 'subtitleKey'));
+  readonly descriptionKey = computed(
+    () => stringProp(this.config(), 'subtitleKey') ?? 'home.hero.subtitle',
+  );
+
+  private readonly visual = computed(() => {
+    const v = this.config()?.props?.['visual'];
+    return isRecord(v) ? v : undefined;
+  });
+
+  readonly ticketCodeLiteral = computed(
+    () => stringValue(this.visual()?.['ticketCode']),
+  );
+  readonly statusLabelKey = computed(
+    () => stringValue(this.visual()?.['statusLabelKey']) ?? 'public.ticket.status_pending',
+  );
+  readonly helperTextKey = computed(
+    () => stringValue(this.visual()?.['helperTextKey']) ?? 'public.ticket.description',
+  );
 
   private readonly allActions = computed(() =>
     actionsFrom(this.config()?.props?.['actions']).filter(

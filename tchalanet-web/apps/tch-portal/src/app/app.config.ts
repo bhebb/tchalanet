@@ -30,6 +30,7 @@ import {
   MergedTranslateLoader,
   i18nFeature,
 } from './core/i18n';
+import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
@@ -45,6 +46,7 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     provideAnimationsAsync(),
+    { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-outlined' } },
     provideStore({}),
     provideState(i18nFeature),
     provideEffects([I18nEffects]),

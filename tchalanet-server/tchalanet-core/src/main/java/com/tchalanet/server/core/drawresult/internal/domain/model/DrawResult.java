@@ -5,6 +5,7 @@ import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -14,6 +15,7 @@ import java.util.Objects;
  * projection haïtienne (lot1..lot4).
  */
 public record DrawResult(
+    LocalDate resultDate, // date métier du tirage côté source
     Instant occurredAt, // instant du tirage côté source
     DrawResultStatus status, // PROVISIONAL/CONFIRMED/OVERRIDDEN/ERROR
     DrawSource source,       // EXTERNAL/MANUAL/ADMIN_OVERRIDE/...
@@ -27,6 +29,7 @@ public record DrawResult(
 ) {
 
     public DrawResult {
+        Objects.requireNonNull(resultDate);
         Objects.requireNonNull(occurredAt);
         Objects.requireNonNull(status);
         Objects.requireNonNull(source);
@@ -40,6 +43,7 @@ public record DrawResult(
 
     public DrawResult override(JsonNode newHaiti, String reason) {
         return new DrawResult(
+            resultDate,
             occurredAt,
             status,
             source,

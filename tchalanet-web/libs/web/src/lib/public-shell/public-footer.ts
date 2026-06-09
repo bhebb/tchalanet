@@ -89,6 +89,7 @@ interface FooterText {
       --comp-footer-link: var(--tch-color-primary-fixed);
       background: var(--comp-footer-bg);
       color: var(--comp-footer-fg);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .public-footer__inner {
@@ -97,7 +98,7 @@ interface FooterText {
       display: grid;
       grid-template-columns: 1fr;
       gap: 1.5rem;
-      padding: 2rem 0 1.5rem;
+      padding-block: 2rem 1.5rem;
     }
 
     .public-footer__brand {
@@ -192,7 +193,7 @@ interface FooterText {
     .public-footer__column {
       display: grid;
       align-content: start;
-      gap: 0.375rem;
+      gap: 0.5rem;
     }
 
     .public-footer__heading {
@@ -206,10 +207,13 @@ interface FooterText {
 
     .public-footer__links {
       display: grid;
-      gap: 0.375rem;
+      gap: 0.5rem;
     }
 
     .public-footer__links a {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
       font-size: 0.875rem;
       color: var(--comp-footer-link);
       text-decoration: none;
@@ -222,25 +226,54 @@ interface FooterText {
     .public-footer__bottom {
       width: min(100% - 2 * var(--tch-page-margin-mobile, 16px), 1120px);
       margin: 0 auto;
-      padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
+      padding: 1rem 0;
       border-top: 1px solid color-mix(in oklab, currentColor 18%, transparent);
       color: var(--comp-footer-link);
     }
 
-    /* Expanded layout ≥ 840px */
-    @media (min-width: 840px) {
+    /* ── Tablet ≥ 768px: 2-column grid ── */
+    @media (min-width: 768px) {
+      .public-footer__inner,
+      .public-footer__bottom {
+        width: min(100% - 2 * var(--tch-page-margin-desktop, 32px), 1120px);
+      }
+
       .public-footer__inner {
-        grid-template-columns: minmax(16rem, 1.2fr) 2fr;
-        gap: clamp(2rem, 6vw, 4rem);
-        padding: clamp(3rem, 8vw, 5rem) 0;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+        gap: 2rem 3rem;
+        padding-block: clamp(2.5rem, 6vw, 3.5rem);
+      }
+
+      .public-footer__columns {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .public-footer__brand-link img {
+        width: 10rem;
+      }
+    }
+
+    /* ── Desktop ≥ 1024px: 4-column grid ── */
+    @media (min-width: 1024px) {
+      .public-footer__inner {
+        grid-template-columns: minmax(260px, 1.5fr) repeat(3, minmax(140px, 1fr));
+        gap: 3rem;
+        padding-block: clamp(3rem, 8vw, 5rem);
+      }
+
+      .public-footer__brand {
+        grid-column: 1;
+      }
+
+      .public-footer__columns {
+        grid-column: 2 / -1;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
       }
 
       .public-footer__brand-link img {
         width: 11rem;
-      }
-
-      .public-footer__columns {
-        grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
       }
     }
   `],

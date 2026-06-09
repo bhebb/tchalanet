@@ -5,15 +5,23 @@ import { WidgetConfig } from '../runtime/pagemodel.types';
 
 export type WidgetState = 'default' | 'loading' | 'empty' | 'error' | 'partial';
 
+/**
+ * Customer-facing ticket verification statuses.
+ * Mirrors the backend PublicTicketVerificationResponse.status enum.
+ */
 export type VerificationStatus =
   | 'PENDING_RESULT'
-  | 'NOT_PAYABLE'
-  | 'PAYABLE'
-  | 'INVALID_OR_CANCELLED'
+  | 'LOST'
+  | 'WINNING_PAYABLE'
+  | 'WINNING_PAID'
+  | 'CANCELLED'
+  | 'EXPIRED'
+  | 'BLOCKED'
   | 'NOT_FOUND'
   | 'SERVICE_UNAVAILABLE';
 
-export type ResultStatus = 'CONFIRMED' | 'PENDING' | 'UNAVAILABLE';
+/** Mirrors the backend DrawResultStatus enum. */
+export type ResultStatus = 'PROVISIONAL' | 'CONFIRMED' | 'OVERRIDDEN' | 'ERROR';
 
 export type SimulationStatus =
   | 'NO_GAME_SELECTED'
@@ -82,6 +90,9 @@ export function mapBackendDestination(value: unknown): NavigationDestination | u
   }
   if (kind === 'route' && destinationValue) {
     return { kind: 'route', value: toPublicPath(destinationValue) };
+  }
+  if (kind === 'anchor' && destinationValue) {
+    return { kind: 'url', value: destinationValue };
   }
 
   return undefined;

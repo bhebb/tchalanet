@@ -22,6 +22,15 @@ export class PageModelApi {
       .pipe(map(unwrapApiResponse));
   }
 
+  /** Public managers page (gestionnaires). */
+  getPublicManagersPage(lang?: string): Observable<PageRuntimeResponse> {
+    return this.http
+      .get<ApiResponse<PageRuntimeResponse>>('/api/v1/public/managers', {
+        params: langParams(lang),
+      })
+      .pipe(map(unwrapApiResponse));
+  }
+
   /** SUPER_ADMIN dashboard, resolved server-side by role. */
   getPlatformPage(lang?: string): Observable<PageRuntimeResponse> {
     return this.http

@@ -1,67 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 
+import { TchPage } from '@tch/api';
+import { PublicTchalaService, TchalaEntry, TchalaSuggestionRequest } from './public-tchala.service';
 
+// ── Display model ─────────────────────────────────────────────────────────────
 
-interface TchalaEntry {
+interface TchalaDisplayEntry {
   readonly id: string;
-  readonly letter: string;
   readonly icon: string;
   readonly term: string;
   readonly description: string;
   readonly numbers: readonly string[];
 }
 
-const TCHALA_ENTRIES: readonly TchalaEntry[] = [
-  { id: 'airplane', letter: 'A', icon: 'flight', term: 'Avion', description: 'Vwayaj, ambisyon, elvasyou.', numbers: ['04', '71'] },
-  { id: 'alligator', letter: 'A', icon: 'water', term: 'Alligator', description: 'Danje kache, pouvwa ki an sekirite.', numbers: ['21', '47'] },
-  { id: 'argent', letter: 'A', icon: 'account_balance_wallet', term: 'Argent', description: 'Lajan, resous, abondans.', numbers: ['33', '67'] },
-  { id: 'baby', letter: 'B', icon: 'child_care', term: 'Bébé', description: 'Nouvo kòmansman, pwoteksyon.', numbers: ['08', '55'] },
-  { id: 'bateau', letter: 'B', icon: 'directions_boat', term: 'Bateau', description: 'Travèse, vwayaj lwen.', numbers: ['16', '43'] },
-  { id: 'boeuf', letter: 'B', icon: 'agriculture', term: 'Bœuf', description: 'Fòs travay, labè.', numbers: ['23', '76'] },
-  { id: 'chat', letter: 'C', icon: 'cruelty_free', term: 'Chat', description: 'Entisyon, mistè, vijilans.', numbers: ['11', '39'] },
-  { id: 'cheval', letter: 'C', icon: 'directions_run', term: 'Cheval', description: 'Libète, vitès, pisans.', numbers: ['18', '63'] },
-  { id: 'chien', letter: 'C', icon: 'pets', term: 'Chien', description: 'Fidèlite, fanmi, vijilans.', numbers: ['12', '98'] },
-  { id: 'couteau', letter: 'C', icon: 'content_cut', term: 'Couteau', description: 'Tranchan, separasyon, desizyon.', numbers: ['02', '57'] },
-  { id: 'dent', letter: 'D', icon: 'dentistry', term: 'Dent', description: 'Fòs, pawòl, sante.', numbers: ['09', '44'] },
-  { id: 'diable', letter: 'D', icon: 'whatshot', term: 'Diable', description: 'Tantasyon, tès, prezans ki fò.', numbers: ['66', '13'] },
-  { id: 'eau', letter: 'E', icon: 'water_drop', term: 'Eau', description: 'Mouvman, pasaj, renouvelman.', numbers: ['45', '01'] },
-  { id: 'enfant', letter: 'E', icon: 'face', term: 'Enfant', description: 'Inosan, kòmansman, espwa.', numbers: ['10', '28'] },
-  { id: 'etoile', letter: 'E', icon: 'star', term: 'Étoile', description: 'Wèl, gidans, destin.', numbers: ['07', '77'] },
-  { id: 'feu', letter: 'F', icon: 'local_fire_department', term: 'Feu', description: 'Transfòmasyon, enèji, alèt.', numbers: ['14', '50'] },
-  { id: 'fleur', letter: 'F', icon: 'local_florist', term: 'Fleur', description: 'Bote, fèt, kwasans.', numbers: ['06', '35'] },
-  { id: 'grenouille', letter: 'G', icon: 'pest_control', term: 'Grenouille', description: 'Transfòmasyon, lapli, feritilite.', numbers: ['17', '73'] },
-  { id: 'homme', letter: 'H', icon: 'person', term: 'Homme', description: 'Fòs, direksyon, otorite.', numbers: ['20', '64'] },
-  { id: 'jardin', letter: 'J', icon: 'yard', term: 'Jardin', description: 'Kiltivasyon, fanmi, abondans.', numbers: ['03', '38'] },
-  { id: 'lapin', letter: 'L', icon: 'cruelty_free', term: 'Lapin', description: 'Rapid, chans, feritilite.', numbers: ['15', '52'] },
-  { id: 'lune', letter: 'L', icon: 'nightlight', term: 'Lune', description: 'Sik, entisyon, mistè.', numbers: ['07', '40'] },
-  { id: 'maison', letter: 'M', icon: 'home', term: 'Maison', description: 'Sekirite, fanmi, fondman.', numbers: ['19', '61'] },
-  { id: 'mer', letter: 'M', icon: 'waves', term: 'Mer', description: 'Abondans, pwofondè, vwayaj.', numbers: ['25', '80'] },
-  { id: 'montagne', letter: 'M', icon: 'landscape', term: 'Montagne', description: 'Obstakl, defi, elvasyou.', numbers: ['31', '58'] },
-  { id: 'nuit', letter: 'N', icon: 'dark_mode', term: 'Nuit', description: 'Sekrè, repo, tranzisyon.', numbers: ['13', '46'] },
-  { id: 'oiseau', letter: 'O', icon: 'flutter_dash', term: 'Oiseau', description: 'Libète, mesaj, leje.', numbers: ['05', '34'] },
-  { id: 'or', letter: 'O', icon: 'emoji_events', term: 'Or', description: 'Richès, siksè, limyè.', numbers: ['27', '83'] },
-  { id: 'pluie', letter: 'P', icon: 'water', term: 'Pluie', description: 'Benediksyon, pifikasyon, kwasans.', numbers: ['22', '69'] },
-  { id: 'poisson', letter: 'P', icon: 'set_meal', term: 'Poisson', description: 'Abondans, pwofondè, dlo.', numbers: ['30', '77'] },
-  { id: 'riviere', letter: 'R', icon: 'kayaking', term: 'Rivière', description: 'Ekoulman, chanjman, pasaj.', numbers: ['26', '74'] },
-  { id: 'rose', letter: 'R', icon: 'local_florist', term: 'Rose', description: 'Lanmou, bote, rèl kache.', numbers: ['36', '89'] },
-  { id: 'serpent', letter: 'S', icon: 'pest_control', term: 'Serpent', description: 'Sajès, danje, transfòmasyon.', numbers: ['24', '68'] },
-  { id: 'soleil', letter: 'S', icon: 'wb_sunny', term: 'Soleil', description: 'Klète, enèji, siksè.', numbers: ['32', '79'] },
-  { id: 'tigre', letter: 'T', icon: 'cruelty_free', term: 'Tigre', description: 'Pisans, ensten, alèt.', numbers: ['29', '85'] },
-  { id: 'tonnerre', letter: 'T', icon: 'thunderstorm', term: 'Tonnerre', description: 'Sipriz, fòs, avètisman.', numbers: ['37', '91'] },
-  { id: 'vache', letter: 'V', icon: 'agriculture', term: 'Vache', description: 'Nouri, stabilite, feritilite.', numbers: ['41', '87'] },
-  { id: 'voyage', letter: 'V', icon: 'airplane_ticket', term: 'Voyage', description: 'Deplaseman, chanjman, demarsh.', numbers: ['04', '82'] },
-];
-
-const ALL_LETTERS = [...new Set(TCHALA_ENTRIES.map(e => e.letter))].sort();
-
-function normalizeQuery(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .trim()
-    .toLowerCase();
+function apiEntryToDisplay(e: TchalaEntry): TchalaDisplayEntry {
+  return {
+    id: e.id,
+    icon: 'auto_stories',
+    term: e.dream,
+    description: e.source === 'IMPORT' ? '' : (e.note ?? ''),
+    numbers: e.numbers.map(n => String(n).padStart(2, '0')),
+  };
 }
+
+const PAGE_SIZE = 24;
+
+type FormState = 'idle' | 'submitting' | 'success' | 'error' | 'limit_exceeded';
 
 @Component({
   selector: 'tch-public-tchala-page',
@@ -83,39 +49,28 @@ function normalizeQuery(value: string): string {
             class="tchala-page__search-input"
             [placeholder]="'public.tchala.search_placeholder' | translate"
             [value]="query()"
-            (input)="updateQuery($event)"
+            (input)="onQueryInput($event)"
           />
           <span class="material-symbols-outlined tchala-page__search-icon" aria-hidden="true">auto_awesome</span>
         </label>
       </div>
 
-      <nav class="tchala-page__alpha-nav" [attr.aria-label]="'public.tchala.alpha_nav_aria' | translate">
-        <button
-          type="button"
-          class="tchala-page__alpha-pill"
-          [class.tchala-page__alpha-pill--active]="activeLetter() === ''"
-          (click)="setActiveLetter('')"
-        >{{ 'public.tchala.all_label' | translate }}</button>
-        @for (letter of letters; track letter) {
-          <button
-            type="button"
-            class="tchala-page__alpha-pill"
-            [class.tchala-page__alpha-pill--active]="activeLetter() === letter"
-            (click)="setActiveLetter(letter)"
-          >{{ letter }}</button>
-        }
-      </nav>
-
-      @if (filteredEntries().length > 0) {
+      @if (resource.isLoading()) {
+        <p class="tchala-page__status">{{ 'public.tchala.searching' | translate }}</p>
+      } @else if (resource.error()) {
+        <p class="tchala-page__status tchala-page__status--error">{{ 'public.tchala.search_error' | translate }}</p>
+      } @else if (entries().length > 0) {
         <div class="tchala-page__grid" role="list">
-          @for (entry of filteredEntries(); track entry.id) {
+          @for (entry of entries(); track entry.id) {
             <article class="tchala-page__card" role="listitem">
               <div class="tchala-page__card-icon">
                 <span class="material-symbols-outlined" aria-hidden="true">{{ entry.icon }}</span>
               </div>
               <div class="tchala-page__card-body">
                 <h2 class="tchala-page__card-term">{{ entry.term }}</h2>
-                <p class="tchala-page__card-desc">{{ entry.description }}</p>
+                @if (entry.description) {
+                  <p class="tchala-page__card-desc">{{ entry.description }}</p>
+                }
               </div>
               <div class="tchala-page__numbers" [attr.aria-label]="'public.tchala.numbers_label' | translate">
                 @for (num of entry.numbers; track num) {
@@ -125,10 +80,156 @@ function normalizeQuery(value: string): string {
             </article>
           }
         </div>
+
+        @if (totalPages() > 1) {
+          <nav class="tchala-page__pagination" [attr.aria-label]="'public.tchala.pagination_aria' | translate">
+            <button
+              type="button"
+              class="tchala-page__pager-btn"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+              {{ 'public.tchala.prev_page' | translate }}
+            </button>
+            <span class="tchala-page__page-indicator">{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+            <button
+              type="button"
+              class="tchala-page__pager-btn"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)"
+            >
+              {{ 'public.tchala.next_page' | translate }}
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            </button>
+          </nav>
+        }
       } @else {
         <p class="tchala-page__empty">{{ 'public.tchala.empty' | translate }}</p>
       }
 
+      <!-- ── Suggestion section ── -->
+      @if (!suggestionStatusResource.isLoading()) {
+        <section class="tchala-page__suggest" aria-labelledby="suggest-title">
+
+          @if (!suggestionOpen()) {
+            <!-- Boîte pleine : barre compacte non cliquable -->
+            <div class="tchala-page__suggest-bar tchala-page__suggest-bar--locked">
+              <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+              <span>{{ 'public.tchala.suggest.closed' | translate }}</span>
+            </div>
+
+          } @else if (formState() === 'success') {
+            <!-- Succès : barre compacte avec lien reset -->
+            <div class="tchala-page__suggest-bar tchala-page__suggest-bar--success">
+              <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              <span>{{ 'public.tchala.suggest.success' | translate }}</span>
+              <button type="button" class="tchala-page__suggest-again" (click)="resetForm()">
+                {{ 'public.tchala.suggest.suggest_again' | translate }}
+              </button>
+            </div>
+
+          } @else {
+            <!-- Barre trigger / formulaire inline -->
+            <button
+              type="button"
+              class="tchala-page__suggest-bar tchala-page__suggest-bar--toggle"
+              [class.tchala-page__suggest-bar--open]="formExpanded()"
+              [attr.aria-expanded]="formExpanded()"
+              aria-controls="suggest-form-body"
+              (click)="formExpanded.set(!formExpanded())"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+              <span id="suggest-title" class="tchala-page__suggest-bar-label">
+                {{ 'public.tchala.suggest.lead_short' | translate }}
+              </span>
+              <span class="tchala-page__suggest-bar-sub">{{ 'public.tchala.suggest.title' | translate }}</span>
+              <span
+                class="material-symbols-outlined tchala-page__suggest-chevron"
+                aria-hidden="true"
+              >{{ formExpanded() ? 'expand_less' : 'expand_more' }}</span>
+            </button>
+
+            @if (formExpanded()) {
+              <div id="suggest-form-body" class="tchala-page__suggest-body">
+                <form class="tchala-page__suggest-form" (submit)="onSubmit($event)" novalidate>
+                  <div class="tchala-page__suggest-fields">
+                    <div class="tchala-page__suggest-field">
+                      <label class="tchala-page__suggest-label" for="suggest-dream">
+                        {{ 'public.tchala.suggest.dream_label' | translate }}<span aria-hidden="true"> *</span>
+                      </label>
+                      <input
+                        id="suggest-dream"
+                        type="text"
+                        class="tchala-page__suggest-input"
+                        [placeholder]="'public.tchala.suggest.dream_placeholder' | translate"
+                        [value]="dreamInput()"
+                        (input)="dreamInput.set(getInputValue($event))"
+                        required
+                        maxlength="80"
+                        autofocus
+                      />
+                    </div>
+
+                    <div class="tchala-page__suggest-field">
+                      <label class="tchala-page__suggest-label" for="suggest-numbers">
+                        {{ 'public.tchala.suggest.numbers_label' | translate }}<span aria-hidden="true"> *</span>
+                      </label>
+                      <input
+                        id="suggest-numbers"
+                        type="text"
+                        class="tchala-page__suggest-input"
+                        [placeholder]="'public.tchala.suggest.numbers_placeholder' | translate"
+                        [value]="numbersInput()"
+                        (input)="numbersInput.set(getInputValue($event))"
+                        required
+                        maxlength="40"
+                      />
+                      <span class="tchala-page__suggest-hint">{{ 'public.tchala.suggest.numbers_hint' | translate }}</span>
+                    </div>
+                  </div>
+
+                  <div class="tchala-page__suggest-field">
+                    <label class="tchala-page__suggest-label" for="suggest-note">
+                      {{ 'public.tchala.suggest.note_label' | translate }}
+                    </label>
+                    <textarea
+                      id="suggest-note"
+                      class="tchala-page__suggest-textarea"
+                      [placeholder]="'public.tchala.suggest.note_placeholder' | translate"
+                      [value]="noteInput()"
+                      (input)="noteInput.set(getInputValue($event))"
+                      rows="2"
+                      maxlength="300"
+                    ></textarea>
+                  </div>
+
+                  <div class="tchala-page__suggest-footer">
+                    @if (formState() === 'error') {
+                      <p class="tchala-page__suggest-error" role="alert">
+                        {{ 'public.tchala.suggest.error' | translate }}
+                      </p>
+                    }
+                    <button
+                      type="submit"
+                      class="tchala-page__suggest-submit"
+                      [disabled]="formState() === 'submitting' || !canSubmit()"
+                    >
+                      @if (formState() === 'submitting') {
+                        <span class="material-symbols-outlined tchala-page__suggest-spinner" aria-hidden="true">autorenew</span>
+                      }
+                      {{ 'public.tchala.suggest.submit' | translate }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            }
+          }
+
+        </section>
+      }
+
+      <!-- ── Note ── -->
       <section class="tchala-page__note" aria-labelledby="tchala-note-title">
         <span class="material-symbols-outlined tchala-page__note-icon" aria-hidden="true">info</span>
         <div>
@@ -180,6 +281,8 @@ function normalizeQuery(value: string): string {
         max-width: 52ch;
       }
 
+      /* ── Search ── */
+
       .tchala-page__search {
         position: relative;
         display: grid;
@@ -188,8 +291,7 @@ function normalizeQuery(value: string): string {
 
       .tchala-page__search-label {
         position: absolute;
-        width: 1px;
-        height: 1px;
+        width: 1px; height: 1px;
         overflow: hidden;
         clip: rect(0 0 0 0);
       }
@@ -212,35 +314,30 @@ function normalizeQuery(value: string): string {
         pointer-events: none;
       }
 
-      .tchala-page__alpha-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.375rem;
-        overflow-x: auto;
-        padding-bottom: 0.25rem;
-      }
+      /* ── Status / empty ── */
 
-      .tchala-page__alpha-pill {
-        min-height: 2rem;
-        min-width: 2rem;
-        padding: 0 0.625rem;
-        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
-        border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+      .tchala-page__status {
+        padding: 1rem;
+        text-align: center;
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
-        cursor: pointer;
-        font: inherit;
-        font-size: var(--tch-font-size-label-sm, 0.75rem);
-        font-weight: 700;
-        white-space: nowrap;
-        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        font-style: italic;
+        font-size: var(--tch-font-size-body-sm, 0.875rem);
       }
 
-      .tchala-page__alpha-pill--active {
-        background: var(--tch-color-accent, var(--mat-sys-tertiary));
-        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
-        border-color: var(--tch-color-accent, var(--mat-sys-tertiary));
+      .tchala-page__status--error {
+        color: var(--tch-color-error, var(--mat-sys-error));
+        font-style: normal;
       }
+
+      .tchala-page__empty {
+        padding: 2rem 1rem;
+        text-align: center;
+        border-radius: var(--tch-radius-lg, 12px);
+        background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      /* ── Grid ── */
 
       .tchala-page__grid {
         display: grid;
@@ -262,8 +359,7 @@ function normalizeQuery(value: string): string {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2.5rem; height: 2.5rem;
         border-radius: var(--tch-radius-control, 8px);
         background: var(--tch-color-primary-fixed, var(--mat-sys-primary-container));
         color: var(--tch-color-primary, var(--mat-sys-primary));
@@ -292,8 +388,7 @@ function normalizeQuery(value: string): string {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 2.25rem;
-        min-height: 2rem;
+        min-width: 2.25rem; min-height: 2rem;
         border-radius: var(--tch-radius-pill, 9999px);
         background: var(--tch-color-accent, var(--mat-sys-tertiary));
         color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
@@ -302,13 +397,220 @@ function normalizeQuery(value: string): string {
         font-weight: 800;
       }
 
-      .tchala-page__empty {
-        padding: 2rem 1rem;
+      /* ── Pagination ── */
+
+      .tchala-page__pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .tchala-page__pager-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        min-height: var(--tch-touch-target, 48px);
+        padding: 0 1rem;
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-pill, 9999px);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--tch-font-size-label-md, 0.875rem);
+        font-weight: 600;
+        transition: background 0.15s, opacity 0.15s;
+      }
+
+      .tchala-page__pager-btn:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+      }
+
+      .tchala-page__pager-btn:not(:disabled):hover {
+        background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+      }
+
+      .tchala-page__page-indicator {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        min-width: 4rem;
         text-align: center;
-        border-radius: var(--tch-radius-lg, 12px);
+      }
+
+      /* ── Suggestion section ── */
+
+      .tchala-page__suggest {
+        border-radius: var(--tch-radius-xl, 24px);
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        overflow: hidden;
+      }
+
+      /* Barre compacte partagée entre les 3 états */
+      .tchala-page__suggest-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
         background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        font: inherit;
+        font-size: var(--tch-font-size-body-sm, 0.875rem);
+        border: none;
+        text-align: left;
       }
+
+      .tchala-page__suggest-bar--toggle {
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .tchala-page__suggest-bar--toggle:hover,
+      .tchala-page__suggest-bar--open {
+        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+      }
+
+      .tchala-page__suggest-bar--success {
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+        flex-wrap: wrap;
+      }
+
+      .tchala-page__suggest-bar-label {
+        font-weight: 700;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+      }
+
+      .tchala-page__suggest-bar-sub {
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        display: none;
+      }
+
+      .tchala-page__suggest-chevron {
+        margin-left: auto;
+        flex-shrink: 0;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .tchala-page__suggest-again {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+        cursor: pointer;
+        text-decoration: underline;
+        margin-left: auto;
+      }
+
+      /* Formulaire inline (sous la barre) */
+      .tchala-page__suggest-body {
+        padding: 1.25rem 1rem;
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        border-top: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+      }
+
+      .tchala-page__suggest-form {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .tchala-page__suggest-fields {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .tchala-page__suggest-field {
+        display: grid;
+        gap: 0.375rem;
+      }
+
+      .tchala-page__suggest-label {
+        font-size: var(--tch-font-size-label-md, 0.875rem);
+        font-weight: 600;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+      }
+
+      .tchala-page__suggest-input,
+      .tchala-page__suggest-textarea {
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-lg, 12px);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        padding: 0.625rem 1rem;
+        font: inherit;
+        font-size: var(--tch-font-size-body-md, 1rem);
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.15s;
+      }
+
+      .tchala-page__suggest-input {
+        min-height: var(--tch-touch-target, 48px);
+      }
+
+      .tchala-page__suggest-input:focus,
+      .tchala-page__suggest-textarea:focus {
+        outline: 2px solid var(--tch-color-primary, var(--mat-sys-primary));
+        outline-offset: 2px;
+        border-color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .tchala-page__suggest-textarea {
+        resize: vertical;
+      }
+
+      .tchala-page__suggest-hint {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .tchala-page__suggest-footer {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .tchala-page__suggest-error {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-error, var(--mat-sys-error));
+        font-weight: 600;
+        flex: 1 1 100%;
+      }
+
+      .tchala-page__suggest-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: var(--tch-touch-target, 48px);
+        padding: 0 1.5rem;
+        border-radius: var(--tch-radius-pill, 9999px);
+        border: none;
+        background: var(--tch-color-primary, var(--mat-sys-primary));
+        color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+
+      .tchala-page__suggest-submit:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .tchala-page__suggest-spinner {
+        animation: spin 1s linear infinite;
+      }
+
+      /* ── Note ── */
 
       .tchala-page__note {
         grid-template-columns: auto 1fr;
@@ -336,6 +638,16 @@ function normalizeQuery(value: string): string {
         margin-top: 0.25rem;
       }
 
+      @media (min-width: 600px) {
+        .tchala-page__suggest-bar-sub {
+          display: inline;
+        }
+
+        .tchala-page__suggest-fields {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
       @media (min-width: 760px) {
         .tchala-page h1 {
           font-size: var(--tch-font-size-display-lg, 2.5rem);
@@ -345,36 +657,102 @@ function normalizeQuery(value: string): string {
         .tchala-page__grid {
           grid-template-columns: repeat(3, 1fr);
         }
+
+        .tchala-page__suggest-body {
+          padding: 1.5rem;
+        }
       }
     `,
   ],
 })
 export class PublicTchalaPage {
-  readonly letters = ALL_LETTERS;
+  private readonly tchalaService = inject(PublicTchalaService);
+
+  // ── Catalogue ────────────────────────────────────────────────────────────────
+
   readonly query = signal('');
-  readonly activeLetter = signal('');
+  readonly currentPage = signal(0);
 
-  readonly filteredEntries = computed(() => {
-    const q = normalizeQuery(this.query());
-    const letter = this.activeLetter();
-
-    return TCHALA_ENTRIES.filter(entry => {
-      const matchesLetter = !letter || entry.letter === letter;
-      if (!matchesLetter) return false;
-      if (!q) return true;
-
-      const haystack = normalizeQuery(entry.term + ' ' + entry.description);
-      return haystack.includes(q);
-    });
+  readonly resource = rxResource({
+    params: () => ({
+      lang: 'ht', // catalogue Tchala en créole haïtien uniquement
+      q: this.query().trim() || undefined,
+      page: this.currentPage(),
+      size: PAGE_SIZE,
+    }),
+    stream: ({ params }): import('rxjs').Observable<TchPage<TchalaEntry>> =>
+      this.tchalaService.search(params.lang, params.q, params.page, params.size),
   });
 
-  updateQuery(event: Event): void {
+  readonly entries = computed((): readonly TchalaDisplayEntry[] =>
+    (this.resource.value()?.items ?? []).map(apiEntryToDisplay),
+  );
+
+  readonly totalPages = computed(() => this.resource.value()?.totalPages ?? 0);
+
+  onQueryInput(event: Event): void {
     this.query.set(event.target instanceof HTMLInputElement ? event.target.value : '');
-    this.activeLetter.set('');
+    this.currentPage.set(0);
   }
 
-  setActiveLetter(letter: string): void {
-    this.activeLetter.set(letter);
-    this.query.set('');
+  goToPage(page: number): void {
+    this.currentPage.set(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Suggestions ──────────────────────────────────────────────────────────────
+
+  readonly suggestionStatusResource = rxResource({
+    params: () => ({}),
+    stream: () => this.tchalaService.suggestionStatus(),
+  });
+
+  readonly suggestionOpen = computed(() => this.suggestionStatusResource.value()?.open ?? false);
+
+  readonly formExpanded = signal(false);
+  readonly dreamInput = signal('');
+  readonly numbersInput = signal('');
+  readonly noteInput = signal('');
+  readonly formState = signal<FormState>('idle');
+
+  readonly canSubmit = computed(
+    () => this.dreamInput().trim().length >= 2 && this.numbersInput().trim().length >= 1,
+  );
+
+  getInputValue(event: Event): string {
+    return event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement
+      ? event.target.value
+      : '';
+  }
+
+  onSubmit(event: Event): void {
+    event.preventDefault();
+    if (!this.canSubmit() || this.formState() === 'submitting') return;
+
+    this.formState.set('submitting');
+
+    const body: TchalaSuggestionRequest = {
+      lang: 'ht',
+      dream: this.dreamInput().trim(),
+      numbers: this.numbersInput().trim(),
+      note: this.noteInput().trim() || undefined,
+    };
+
+    this.tchalaService.submitSuggestion(body).subscribe({
+      next: () => {
+        this.formState.set('success');
+        this.formExpanded.set(false);
+      },
+      error: () => this.formState.set('error'),
+    });
+  }
+
+  resetForm(): void {
+    this.dreamInput.set('');
+    this.numbersInput.set('');
+    this.noteInput.set('');
+    this.formState.set('idle');
+    this.formExpanded.set(false);
+    this.suggestionStatusResource.reload();
   }
 }

@@ -79,10 +79,12 @@
       "title": "Fonksyonalite"
     },
     "hero": {
-      "cta": "Kòmanse verifikasyon an",
-      "subtitle": "Tchalanet ede operatè yo jere tikè, tiraj, pwen vant ak verifikasyon piblik ak plis lisibilite.",
+      "cta": "Verifye yon tikè",
+      "eyebrow": "Verifikasyon piblik tikè",
+      "subtitle": "Jwe. Verifye. Genyen.",
       "tagline": "Verifikasyon piblik tikè",
-      "title": "Verifye tikè yo epi gade dènye tiraj yo."
+      "ticket_helper": "Antre kòd piblik ou pou konnen estati tikè ou.",
+      "title": "Byenveni"
     },
     "nav": {
       "check_ticket": "Tikè",
@@ -90,6 +92,10 @@
     },
     "news": {
       "empty": "Pa gen nouvèl pou kounye a.",
+      "empty_body": "Nouvèl yo pral disponib byento.",
+      "external_source": "Sous ekstèn agrege otomatikman.",
+      "see_all": "Wè tout nouvèl yo",
+      "subtitle": "Dènye nouvèl sou lotri ak operatè yo.",
       "title": "Nouvèl"
     },
     "plans": {
@@ -97,20 +103,44 @@
       "title": "Plan"
     },
     "tchala": {
+      "badge": "Tradisyon",
+      "discover": "Dekouvri Tchala",
       "title": "Tchala",
       "eyebrow": "Diksyonè rèv",
-      "subtitle": "Entèprete rèv ou yo nan nimewo chans dapre tradisyon Tchala ayisyen an.",
+      "subtitle": "Eksplore korèspondans tradisyonèl ant rèv, senbòl ak nimewo chans. Yon eksperyans kiltirèl endikatif enspire pa tradisyon ayisyen an.",
       "search_placeholder": "Chèche dlo, chyen, vwayaj…",
       "search_label": "Chèche yon rèv",
       "search_submit": "Chèche",
       "all_label": "Tout",
       "alpha_nav_aria": "Navigasyon alfabetik",
       "numbers_label": "Nimewo ki asosye",
+      "searching": "Ap chaje…",
+      "search_error": "Chajman an echwe. Tanpri eseye ankò.",
+      "pagination_aria": "Paginasyon",
+      "prev_page": "Anvan",
+      "next_page": "Apre",
       "empty": "Pa gen rezilta pou rechèch sa a.",
       "note_title": "Repè kiltirèl endikatif",
       "note_body": "Asosyasyon sa yo soti nan tradisyon Tchala ayisyen an epi yo prezante a tit endikatif sèlman. Yo pa konsitye yon garanti rezilta.",
       "by_number_label": "Chèche pa nimewo",
       "by_dream_label": "Chèche pa rèv",
+      "suggest": {
+        "title": "Propose yon antre Tchala",
+        "lead": "Ou konnen yon asosyasyon rèv–nimewo ki manke ? Propose li epi ekip nou an ap egzamine li.",
+        "lead_short": "Yon mo manke ?",
+        "dream_label": "Rèv oswa senbòl",
+        "dream_placeholder": "ex. Krapo",
+        "numbers_label": "Nimewo ki asosye",
+        "numbers_placeholder": "ex. 12 45",
+        "numbers_hint": "Separe nimewo yo ak yon espas oswa yon vigil (0–99).",
+        "note_label": "Nòt (opsyonèl)",
+        "note_placeholder": "Kontèks kiltirèl oswa presizyon…",
+        "submit": "Propose",
+        "success": "Mèsi ! Sijesyon ou a te resevwa epi y ap egzamine li.",
+        "suggest_again": "Propose yon lòt mo",
+        "error": "Yon erè te rive. Tanpri eseye ankò.",
+        "closed": "Bwat sijesyon an plen pou kounye a. Tounen pita."
+      },
       "dream": {
         "poisson": "Pwason",
         "serpent": "Sèpan",
@@ -121,6 +151,7 @@
   },
   "layout": {
     "public_home": {
+      "contact_cta": "Kontak",
       "draws": "Tiraj",
       "features": "Fonksyonalite",
       "hero": "Hero",
@@ -173,7 +204,7 @@
       },
       "solutions": {
         "check_ticket": "Verifikasyon tikè",
-        "operators": "Pou operatè",
+        "operators": "Pou jeran yo",
         "pos_management": "Jesyon pwen vant",
         "title": "Solisyon",
         "ticket_verification": "Verifikasyon tikè"
@@ -217,20 +248,20 @@
     "how": {
       "description": "Yon chemen senp pou konsilte estati yon tikè epi swiv rezilta ki disponib.",
       "step1": {
-        "text": "Resevwa yon tikè ak QR oswa kòd piblik ki soti nan yon pwen vant patisipan.",
-        "title": "Tikè verifyab"
+        "title": "Tikè verifyab",
+        "text": "Resevwa yon tikè ak QR oswa kòd piblik."
       },
       "step2": {
-        "text": "Antre kòd piblik la oswa eskane QR la pou konsilte estati tikè a.",
-        "title": "Verifikasyon anliy"
+        "title": "Verifikasyon anliy",
+        "text": "Eskane QR a oswa antre kòd piblik la."
       },
       "step3": {
-        "text": "Konsilte estati tikè a ak rezilta konfime selon sous ki sipòte yo.",
-        "title": "Estati ak rezilta"
+        "title": "Estati & rezilta",
+        "text": "Tcheke estati tikè a ak rezilta ki gen rapò."
       },
       "step4": {
-        "text": "Si tikè a peyab, swiv enstriksyon ki parèt yo pou kontakte pwen vant lan.",
-        "title": "Enstriksyon peman"
+        "title": "Enstriksyon retrè",
+        "text": "Si tikè a ka peye, swiv enstriksyon ki afiche yo."
       },
       "title": "Kijan pou verifye yon tikè?"
     },
@@ -252,7 +283,11 @@
       },
       "settings": "Paramèt",
       "subtitle": "Wout piblik la disponib san koneksyon.",
-      "title": "Tchalanet Web"
+      "title": "Tchalanet Web",
+      "latest_results": {
+        "title": "Dènye tiraj",
+        "subtitle": "Rezilta konfime selon sous ki sipòte yo."
+      }
     },
     "nav": {
       "check_ticket": "Verifye yon tikè",
@@ -263,63 +298,78 @@
       "menu": "Louvri meni an",
       "menu_close": "Fèmen meni an",
       "menu_open": "Louvri meni an",
+      "managers": "Pou jeran yo",
       "operators": "Pou operatè",
+      "operators_short": "Operatè",
       "results": "Rezilta",
       "rules": "Règ yo",
       "skip": "Ale nan kontni an",
       "verify_short": "Verifye"
     },
-    "operator": {
-      "access": "Aksè operatè",
+    "manager": {
+      "access": "Aksè jeran",
       "demo": "Mande yon demo",
-      "description": "Dekouvri kijan Tchalanet ka senplifye jesyon chak jou, swiv lavant yo pi byen, epi otomatize rapò aktivite yo.",
-      "title": "Èske ou jere yon pwen vant oswa yon rezo vandè?",
-      "eyebrow": "Pou operatè",
+      "discover": "Dekouvri espas jeran an",
+      "description": "Pou pwen vant, vandè ak jeran rezo. Vann tikè, swiv sesyon yo, verifye rezilta epi konsulte rapò ou yo.",
+      "title": "Espas jeran",
+      "eyebrow": "Pou jeran yo"
+    },
+    "operator": {
+      "access": "Aksè jeran",
+      "demo": "Mande yon demo",
+      "discover": "Dekouvri espas jeran an",
+      "description": "Pou pwen vant, vandè ak jeran rezo. Vann tikè, swiv sesyon yo, verifye rezilta epi konsulte rapò ou yo.",
+      "title": "Espas jeran",
+      "eyebrow": "Pou jeran yo",
       "hero_aria": "Seksyon operatè",
-      "hero_title": "Jere vant tikè ou yo ak plis klarite.",
-      "hero_body": "Tchalanet ede operatè yo jere tikè, vandè, terminal, tiraj ak verifikasyon piblik tikè. Yon platfòm santral pou pi byen swiv operasyon ou yo.",
+      "hero_title": "Jere vandè, tikè ak rapò ou yo ak plis klarite.",
+      "hero_body": "Tchalanet ede bank borlèt, pwen vant ak rezo vandè emèt tikè, swiv sesyon, verifye rezilta epi konsulte rapò aktivite yo.",
+      "hero_stat_tickets": "Tikè jodi a",
+      "hero_stat_sessions": "Sesyon ouvè",
+      "hero_stat_agents": "Vandè aktif",
+      "hero_stat_payments": "Pèman pou swiv",
       "cta_demo": "Mande yon demo",
-      "cta_plans": "Wè plan yo",
-      "benefits_title": "Karakteristik Prensipal",
-      "benefits_body": "Yon enfrastrikti solid ki fèt pou eskalabilite ak sekirite operasyon chak jou ou yo.",
-      "benefit_tickets_title": "Vant ak enpresyon tikè",
-      "benefit_tickets_body": "Emèt tikè avèk kòd QR inik pou pèmèt verifikasyon imedya pa kliyan yo.",
-      "benefit_verify_title": "Verifikasyon piblik",
-      "benefit_verify_body": "Ban kliyan ou yo posiblite pou verifye estati tikè yo atravè yon entèfas dedye.",
+      "cta_plans": "Dekouvri fonksyon yo",
+      "benefits_title": "Sa Tchalanet pote nan operasyon ou yo",
+      "benefits_body": "Yon enfrastrikti ki fèt pou pwen vant ak rezo vandè chak jou.",
       "benefit_agents_title": "Vandè ak terminal",
-      "benefit_agents_body": "Sivèye vandè ou yo epi jere terminal otorize yo nan sesyon operasyonèl kontwole.",
+      "benefit_agents_body": "Asiye vandè yo nan pwen vant ak terminal otorize yo.",
+      "benefit_tickets_title": "Vant ak enpresyon tikè",
+      "benefit_tickets_body": "Emèt tikè avèk QR/kòd piblik pou fasilitatè verifikasyon.",
+      "benefit_verify_title": "Verifikasyon piblik",
+      "benefit_verify_body": "Pèmèt kliyan yo verifye yon tikè san yo pa antre nan espas jeran an.",
       "benefit_results_title": "Rezilta ak estati",
-      "benefit_results_body": "Konsulte epi valide rezilta konfime ki soti nan sous sipòte yo.",
+      "benefit_results_body": "Swiv rezilta konfime yo ak estati tikè yo.",
       "benefit_payments_title": "Pèman ak swivi",
-      "benefit_payments_body": "Otomatize swivi tikè ki ka peye selon règ entèn ou yo ak validite tiraj yo.",
+      "benefit_payments_body": "Idantifye tikè ki ka peye epi kenbe yon dosye pèman.",
       "benefit_reports_title": "Rapò aktivite",
-      "benefit_reports_body": "Jwenn yon vi analytik klè sou tout vant ak pèfòmans operasyonèl ou yo.",
-      "workflow_title": "Pwosesis Operasyonèl",
+      "benefit_reports_body": "Konsulte vant, sesyon ak pèfòmans rezo ou.",
+      "workflow_title": "Kijan sa fonksyone",
       "step1_title": "Konfigire",
-      "step1_body": "Konfigurasyon pwen vant, terminal ak vandè ou yo.",
+      "step1_body": "Ajoute pwen vant, terminal ak vandè yo.",
       "step2_title": "Vann",
-      "step2_body": "Emèt tikè soti nan terminal otorize.",
+      "step2_body": "Emèt tikè soti nan terminal otorize yo.",
       "step3_title": "Verifye",
-      "step3_body": "Verifikasyon via QR oswa kòd piblik.",
+      "step3_body": "Tikè ka verifye pa QR oswa kòd piblik.",
       "step4_title": "Swivi",
-      "step4_body": "Kontwole rapò ak pèman yo.",
-      "plans_title": "Òf operatè",
+      "step4_body": "Konsulte vant, pèman ak rapò yo.",
+      "plans_title": "Òf pou jeran yo",
       "plans_body": "Chwazi nivo sipò ki adapte ak rezo ou.",
-      "plan_trial_title": "Eseye operatè",
-      "plan_trial_price": "Eseye disponib",
+      "plan_trial_title": "Eseye",
+      "plan_trial_price": "Disponib",
       "plan_trial_body": "Teste Tchalanet ak kèk vandè anvan deplwaman konplè.",
       "plan_trial_cta": "Mande yon eseye",
-      "plan_essential_title": "Esansyèl",
-      "plan_essential_price": "100 USD / mwa",
+      "plan_essential_title": "Pwen vant",
+      "plan_essential_price": "Sou demann",
       "plan_essential_body": "Pou yon pwen vant ki vle kòmanse senp.",
       "plan_essential_cta": "Mande yon demo",
       "plan_network_title": "Rezo",
       "plan_network_price": "Sou demann",
       "plan_network_body": "Pou plizyè vandè, terminal oswa pwen vant.",
       "plan_network_cta": "Mande yon demo",
-      "plan_operator_title": "Operatè",
+      "plan_operator_title": "Sou mezire",
       "plan_operator_price": "Selon konfigirasyon",
-      "plan_operator_body": "Pou yon òganizasyon ki vle pilote plizyè operasyon.",
+      "plan_operator_body": "Pou yon òganizasyon ak bezwen avanse.",
       "plan_operator_cta": "Kontakte ekip la",
       "plan_badge_recommended": "REKÒMANDE",
       "feat_limits": "limit defini pa plan",
@@ -338,38 +388,42 @@
       "feat_advanced_perms": "pèmisyon avanse",
       "feat_reports_consolidated": "rapò konsolide",
       "feat_integration": "sipò entegrasyon",
-      "access_title": "Aksè kontwole selon plan ou",
-      "access_body": "Chak tenant gen yon plan ak limit ki asosye. Soskripsyon an endike si aksè a aktif, nan eseye, pou regilarizasyon oswa sispann.",
-      "access_plan_title": "Plan",
-      "access_plan_body": "Defini opsyon ak limit ki enkli yo.",
-      "access_subscription_title": "Soskripsyon",
-      "access_subscription_body": "Endike si aksè a aktif, nan eseye oswa pou regilarizasyon.",
-      "access_rights_title": "Dwa aplike",
-      "access_rights_body": "Kontwole fonksyonalite ki disponib nan aplikasyon an.",
-      "form_title": "Prè pou teste Tchalanet?",
-      "form_body": "Ranpli fòm sa a pou yon demonstrasyon pèsonalize.",
+      "access_title": "Aksè kontwole pou chak òganizasyon",
+      "access_body": "Chak itilizatè wè sèlman fonksyon ki otorize selon wòl li, pwen vant li, terminal li ak plan aktif la.",
+      "access_rights_title": "Wòl itilizatè",
+      "access_rights_body": "Admin, sipèvizè, vandè oswa kesye selon bezwen ou yo.",
+      "access_subscription_title": "Terminal otorize",
+      "access_subscription_body": "Vant yo lye ak terminal ak sesyon kontwole.",
+      "access_plan_title": "Plan ak limit",
+      "access_plan_body": "Aksè ak limit yo aplike selon konfigirasyon ou.",
+      "form_title": "Mande yon demonstrasyon",
+      "form_body": "Dekri pwen vant ou oswa rezo ou. Nou pral kontakte ou avèk yon demonstrasyon adapte.",
       "form_name_label": "Non",
-      "form_name_placeholder": "Eks: Jean Dupont",
+      "form_name_placeholder": "Eks: Reginald Louisjuste",
       "form_org_label": "Òganizasyon / pwen vant",
-      "form_org_placeholder": "Eks: Ajans Horizon",
+      "form_org_placeholder": "Eks: Borlèt Etwal Nò",
       "form_contact_label": "Telefòn oswa imèl",
       "form_contact_placeholder": "contact@exemple.com",
       "form_city_label": "Vil / zòn",
-      "form_city_placeholder": "Pòtoprens",
+      "form_city_placeholder": "Eks: Kafou, Okap…",
       "form_message_label": "Mesaj opsyonèl",
-      "form_message_placeholder": "Dekri bezwen ou yo...",
+      "form_message_placeholder": "Eks: Mwen gen 3 vandè Kafou epi mwen vle jere tiraj chak jou yo.",
       "form_cta": "Mande yon demo",
       "form_sending": "Ap voye...",
       "form_sent": "Demann voye!",
       "faq_title": "Kesyon Frekàn",
       "faq_trial_q": "Kijan peryòd eseye a fonksyone?",
       "faq_trial_a": "Peryòd eseye a pèmèt ou teste aplikasyon an ak yon kantite vandè oswa terminal limite selon plan disponib la.",
-      "faq_terminals_q": "Kisa limit terminal yo ye?",
-      "faq_terminals_a": "Limit terminal yo depann de plan ak dwa aplike sou tenant an.",
-      "faq_verify_q": "Kijan verifikasyon piblik la fonksyone?",
-      "faq_verify_a": "Chak tikè gen yon kòd piblik oswa QR ki pèmèt nenpòt moun verifye estati tikè a.",
-      "faq_expired_q": "Sa k pase si soskripsyon an ekspire?",
-      "faq_expired_a": "Kèk fonksyonalite ka limite jiskaske soskripsyon an regilarizasyon oswa reaktive."
+      "faq_terminals_q": "Konbyen vandè oswa terminal mwen ka itilize?",
+      "faq_terminals_a": "Limit yo depann de plan chwazi a. Kontakte nou pou konnen konfigirasyon ki adapte ak rezo ou.",
+      "faq_verify_q": "Kijan kliyan yo verifye yon tikè?",
+      "faq_verify_a": "Chak tikè gen yon kòd piblik oswa QR ki pèmèt nenpòt moun verifye estati li san yo pa antre nan espas jeran an.",
+      "faq_expired_q": "Sa k pase si aksè mwen sispann?",
+      "faq_expired_a": "Fonksyonalite yo limite jiskaske regilarizasyon fèt. Kontakte ekip la pou reaktive aksè ou.",
+      "faq_multipos_q": "Eske mwen ka jere plizyè pwen vant?",
+      "faq_multipos_a": "Wi. Plan Rezo ak Sou mezire pèmèt ou konfigire plizyè pwen vant epi santralize rapò yo.",
+      "faq_mobile_q": "Eske vandè mwen yo ka itilize Tchalanet sou mobil?",
+      "faq_mobile_a": "Wi. Aplikasyon POS Tchalanet disponib sou mobil pou vandè otorize yo."
     },
     "check": {
       "code_hint": "Fòma kòd la parèt anba resi enprime ou.",
@@ -378,29 +432,41 @@
       "loading_body": "Konsiltasyon tanporè sèvis verifikasyon piblik la.",
       "loading_title": "Verifikasyon tikè a ap fèt…",
       "status": {
-        "INVALID_OR_CANCELLED": {
-          "body": "Tikè sa a pa ka verifye kòm peyab.",
-          "title": "Tikè envalid oswa anile"
+        "WINNING_PAYABLE": {
+          "title": "Tikè gayan — ale reklame peman an",
+          "body": "Tikè sa a gen yon prim. Prezante resi orijinal la nan yon pwen vant patisipan pou w kolekte peman ou selon enstriksyon ki parèt yo."
         },
-        "NOT_FOUND": {
-          "body": "Kòd la envalid oswa li pa jwenn. Verifye kòd la epi eseye ankò.",
-          "title": "Tikè pa jwenn"
+        "WINNING_PAID": {
+          "title": "Tikè gayan — deja peye",
+          "body": "Tikè sa a deja prezante epi peye. Si ou kwè se yon erè, kontakte sèvis kliyan Tchalanet."
         },
-        "NOT_PAYABLE": {
-          "body": "Tikè sa a pa montre yon montan peyab selon rezilta ki disponib yo.",
-          "title": "Tikè pa peyab"
-        },
-        "PAYABLE": {
-          "body": "Si tikè a peyab, swiv enstriksyon ki parèt yo pou kontakte pwen vant lan. Toujou konsève resi orijinal la.",
-          "title": "Tikè peyab"
+        "LOST": {
+          "title": "Tikè ki pa gayan",
+          "body": "Tikè sa a pa montre yon prim selon rezilta ki disponib yo. Mèsi pou patisipasyon ou."
         },
         "PENDING_RESULT": {
-          "body": "Tikè a rekonèt, men rezilta tiraj la poko disponib.",
-          "title": "Tikè an atant rezilta"
+          "title": "Tikè an atant rezilta",
+          "body": "Tikè a rekonèt, men rezilta tiraj la poko disponib. Tounen verifye apre tiraj la."
+        },
+        "CANCELLED": {
+          "title": "Tikè anile",
+          "body": "Tikè sa a anile epi li pa ka peye. Kontakte pwen vant lan si ou kwè se yon erè."
+        },
+        "EXPIRED": {
+          "title": "Tikè ekspire",
+          "body": "Dela reklamasyon pou tikè sa a pase. Tikè Tchalanet yo dwe prezante nan delè ki pèmèt la."
+        },
+        "BLOCKED": {
+          "title": "Tikè bloke",
+          "body": "Tikè sa a bloke tanporèman. Kontakte pwen vant ou oswa sèvis kliyan Tchalanet pou plis enfòmasyon."
+        },
+        "NOT_FOUND": {
+          "title": "Tikè pa jwenn",
+          "body": "Kòd la envalid oswa li pa jwenn. Verifye kòd ki enprime sou resi ou epi eseye ankò."
         },
         "SERVICE_UNAVAILABLE": {
-          "body": "Verifikasyon an pa disponib tanporèman. Eseye ankò nan kèk moman.",
-          "title": "Sèvis tanporèman pa disponib"
+          "title": "Sèvis tanporèman pa disponib",
+          "body": "Verifikasyon an pa disponib tanporèman. Eseye ankò nan kèk moman."
         }
       },
       "result_eyebrow": "Rezilta verifikasyon an",
@@ -474,13 +540,17 @@
           "body": "Rezilta sa a disponib selon sous ki sipòte yo.",
           "title": "Rezilta konfime"
         },
-        "PENDING": {
-          "body": "Estati rezilta a an atant. Retounen pita pou konsilte enfòmasyon ki ajou.",
-          "title": "An atant"
+        "PROVISIONAL": {
+          "body": "Nimewo yo pibliye men rezilta a ap tann konfirmasyon final.",
+          "title": "Ap tann konfirmasyon"
         },
-        "UNAVAILABLE": {
-          "body": "Rezilta a pa disponib tanporèman pou tiraj sa a.",
-          "title": "Pa disponib"
+        "OVERRIDDEN": {
+          "body": "Rezilta sa a te korije manyèlman selon yon sous ki valid.",
+          "title": "Rezilta korije"
+        },
+        "ERROR": {
+          "body": "Te gen yon erè pou rezilta sa a. Tounen pita.",
+          "title": "Erè rezilta"
         }
       },
       "draw_datetime": "Dat ak lè tiraj la",
@@ -491,12 +561,21 @@
         "updated_at": "20 me 2024 · 14:42"
       },
       "filters": {
-        "all": "Tout",
+        "all": "Tout rezilta yo",
         "aria": "Filtè rezilta",
         "florida": "Florida",
         "georgia": "Georgia",
         "more": "Plis filtè",
-        "new_york": "New York"
+        "new_york": "New York",
+        "texas": "Texas",
+        "provider": "Eta / founisè",
+        "slot_type": "Kalite tiraj",
+        "slot_all": "Tout",
+        "slot_mid": "Midi",
+        "slot_eve": "Swa",
+        "slot_late": "Nwit",
+        "from": "Depi",
+        "to": "Jiska"
       },
       "game": "Jwèt",
       "latest_title": "Dènye tiraj",
@@ -521,19 +600,47 @@
       "related_title": "Rezilta ki gen rapò",
       "status": {
         "CONFIRMED": "Rezilta konfime",
-        "PENDING": "An atant",
-        "UNAVAILABLE": "Pa disponib"
+        "PROVISIONAL": "Ap tann konfirmasyon",
+        "OVERRIDDEN": "Rezilta korije",
+        "ERROR": "Erè rezilta"
       },
       "status_label": "Estati rezilta",
       "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
       "supported_source": "Sous ki sipòte",
       "verify_ticket": "Verifye yon tikè",
       "numbers_pending": "Nimewo ap tann piblikasyon.",
+      "loading": "Ap chaje tiraj yo…",
+      "load_error": "Nou pa ka chaje rezilta yo. Verifye koneksyon ou.",
+      "retry": "Eseye ankò",
+      "pagination": {
+        "prev": "Anvan",
+        "next": "Apre",
+        "total": "rezilta",
+        "per_page": "Pa paj"
+      },
       "next_in": "Pwochen tiraj nan",
-      "awaiting": "Ap tann rezilta yo"
+      "awaiting": "Ap tann rezilta yo",
+      "table": {
+        "date": "Dat",
+        "draw": "Tiraj",
+        "time": "Lè",
+        "status": "Estati",
+        "numbers": "Nimewo",
+        "action": "Aksyon"
+      },
+      "copy_ref": "Kopye referans",
+      "copied": "Kopye !"
+    },
+    "contact_cta": {
+      "body": "Eksplike nou pwen vant ou oswa rezo ou. Nou pral kontakte ou pou yon demontstrasyon adapte.",
+      "cta": "Mande yon demo",
+      "help": "Wè èd la",
+      "title": "Prè pou dekouvri Tchalanet ?"
     },
     "rules": {
       "badge": "Endikatif",
+      "cta_note": "Simulasyon endikatif disponib dapre jeu ki konfigire yo.",
+      "cta_rules": "Konsulte règ yo",
       "calc_amount_label": "Miz (HTG)",
       "calc_gain_label": "Estimasyon gain",
       "calc_game_aria": "Chwazi kalite jwèt la",
@@ -616,7 +723,7 @@
       "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
       "eyebrow": "Verifikasyon piblik tikè",
       "help": "Ki kote pou jwenn kòd piblik la?",
-      "placeholder": "ABC-123-XYZ",
+      "placeholder": "AB12-CD34",
       "scan_qr": "Eskane QR",
       "title": "Verifye yon tikè",
       "status_pending": "Ap tann"
@@ -624,21 +731,48 @@
     "tchala": {
       "eyebrow": "Diksyonè rèv",
       "title": "Tchala",
-      "subtitle": "Dekouvri siyifikasyon rèv ou yo ak nimewo ki koresponn ak yo selon tradisyon ayisyen an.",
-      "search_label": "Chèche nan Tchala a",
-      "search_placeholder": "Eks : dlo, sèpan…",
+      "subtitle": "Eksplore korèspondans tradisyonèl ant rèv, senbòl ak nimewo chans. Yon eksperyans kiltirèl endikatif enspire pa tradisyon ayisyen an.",
+      "search_label": "Chèche yon rèv",
+      "search_placeholder": "Chèche dlo, chyen, vwayaj…",
       "alpha_nav_aria": "Navigasyon alfabetik",
       "all_label": "Tout",
-      "numbers_label": "Nimewo",
-      "empty": "Pa gen rezilta jwenn.",
-      "note_title": "Nòt",
-      "note_body": "Tchala a se yon tradisyon kiltirèl ayisyen. Nimewo yo endike sèlman pou enfòmasyon."
+      "numbers_label": "Nimewo ki asosye",
+      "searching": "Ap chaje…",
+      "search_error": "Chajman an echwe. Tanpri eseye ankò.",
+      "pagination_aria": "Paginasyon",
+      "prev_page": "Anvan",
+      "next_page": "Apre",
+      "empty": "Pa gen rezilta pou rechèch sa a.",
+      "note_title": "Repè kiltirèl endikatif",
+      "note_body": "Asosyasyon sa yo soti nan tradisyon Tchala ayisyen an epi yo prezante a tit endikatif sèlman. Yo pa konsitye yon garanti rezilta.",
+      "suggest": {
+        "title": "Propose yon antre Tchala",
+        "lead": "Ou konnen yon asosyasyon rèv–nimewo ki manke ? Propose li epi ekip nou an ap egzamine li.",
+        "lead_short": "Yon mo manke ?",
+        "dream_label": "Rèv oswa senbòl",
+        "dream_placeholder": "ex. Krapo",
+        "numbers_label": "Nimewo ki asosye",
+        "numbers_placeholder": "ex. 12 45",
+        "numbers_hint": "Separe nimewo yo ak yon espas oswa yon vigil (0–99).",
+        "note_label": "Nòt (opsyonèl)",
+        "note_placeholder": "Kontèks kiltirèl oswa presizyon…",
+        "submit": "Propose",
+        "success": "Mèsi ! Sijesyon ou a te resevwa epi y ap egzamine li.",
+        "suggest_again": "Propose yon lòt mo",
+        "error": "Yon erè te rive. Tanpri eseye ankò.",
+        "closed": "Bwat sijesyon an plen pou kounye a. Tounen pita."
+      }
     }
   },
   "widget": {
     "error": "Kontni sa a pa disponib pou kounye a.",
     "invalid": "Widget envalid.",
     "unsupported": "Tip widget pa sipòte."
+  },
+  "ticket": {
+    "status": {
+      "pending": "An atant"
+    }
   },
   "theme": {
     "modes": {
@@ -659,6 +793,77 @@
       "m3-cyan": "Material syan",
       "m3-amber": "Material anb",
       "m3-brown": "Material mawon"
+    }
+  },
+  "draw_channel": {
+    "ny": {
+      "mid": {
+        "label": "New York — Midi"
+      },
+      "eve": {
+        "label": "New York — Swa"
+      }
+    },
+    "fl": {
+      "mid": {
+        "label": "Florida — Midi"
+      },
+      "eve": {
+        "label": "Florida — Swa"
+      }
+    },
+    "ga": {
+      "mid": {
+        "label": "Georgia — Midi"
+      },
+      "eve": {
+        "label": "Georgia — Swa"
+      },
+      "late": {
+        "label": "Georgia — Nwit"
+      }
+    },
+    "tx": {
+      "1000": {
+        "label": "Texas — 10:00"
+      },
+      "1227": {
+        "label": "Texas — 12:27"
+      },
+      "1800": {
+        "label": "Texas — 18:00"
+      },
+      "2212": {
+        "label": "Texas — 22:12"
+      }
+    }
+  },
+  "catalog": {
+    "game": {
+      "HT_BOLET": "Bolèt",
+      "HT_MARYAJ": "Maryaj",
+      "HT_MARYAJ_GRATUIT": "Maryaj Gratis",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "bet_type": {
+      "MATCH_1_2D": "1ye nimewo",
+      "MATCH_2_2D": "2yèm nimewo",
+      "MATCH_3_2D": "3yèm nimewo",
+      "MARRIAGE_2D2D": "Maryaj",
+      "MARRIAGE_2D": "Maryaj",
+      "LOTTO3_3D": "Loto 3 chif",
+      "LOTTO4_PATTERN": "Loto 4 chif",
+      "LOTTO5_PATTERN": "Loto 5 chif"
+    },
+    "option": {
+      "Exact": "Egzak",
+      "EXACT": "Egzak",
+      "Any": "Nenpòt lòd",
+      "ANY": "Nenpòt lòd",
+      "Front": "Devan",
+      "Back": "Dèyè"
     }
   }
 }

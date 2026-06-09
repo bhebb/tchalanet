@@ -11,6 +11,7 @@ import { PublicHomePage } from './features/public/public-home.page';
 import { PublicInfoPage } from './features/public/public-info.page';
 import { PublicMarkdownPage } from './features/public/public-markdown.page';
 import { PublicNewsPage } from './features/public/public-news.page';
+import { PublicManagersPage } from './features/public/public-managers.page';
 import { PublicOperatorsPage } from './features/public/public-operators.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicTchalaPage } from './features/public/public-tchala.page';
@@ -27,13 +28,13 @@ export const appRoutes: Route[] = [
     children: [
       { path: '', component: PublicHomePage },
       { path: 'check-ticket', component: PublicCheckTicketPage },
-      { path: 'results', component: PublicResultsPage },
-      { path: 'results/:id', component: PublicResultDetailPage },
+      { path: 'results', component: PublicResultsPage, pathMatch: 'full' },
+      { path: 'results/:drawResultId', component: PublicResultDetailPage },
       { path: 'rules', component: PublicRulesPage },
       { path: 'tchala', component: PublicTchalaPage },
       { path: 'news', component: PublicNewsPage },
       { path: 'help', component: PublicHelpPage },
-      { path: 'operators', component: PublicOperatorsPage },
+      { path: 'managers', component: PublicManagersPage },
       { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },
       { path: 'privacy', component: PublicMarkdownPage, data: { file: 'privacy' } },
       { path: 'terms', component: PublicMarkdownPage, data: { file: 'terms' } },

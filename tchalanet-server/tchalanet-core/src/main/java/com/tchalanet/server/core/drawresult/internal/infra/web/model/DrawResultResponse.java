@@ -4,9 +4,11 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import java.time.Instant;
+import java.time.LocalDate;
 import tools.jackson.databind.JsonNode;
 
 public record DrawResultResponse(
+    LocalDate resultDate,
     Instant occurredAt,
     DrawResultStatus status,
     DrawSource source,

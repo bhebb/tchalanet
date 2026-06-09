@@ -1845,7 +1845,8 @@
           "test": {
             "executor": "nx:run-commands",
             "options": {
-              "command": "vitest run libs/ui/components/src"
+              "command": "vitest run libs/ui/components/src --passWithNoTests",
+              "cwd": ""
             },
             "configurations": {},
             "parallelism": true,
@@ -1970,8 +1971,8 @@
                   },
                   {
                     "type": "anyComponentStyle",
-                    "maximumWarning": "4kb",
-                    "maximumError": "8kb"
+                    "maximumWarning": "8kb",
+                    "maximumError": "20kb"
                   }
                 ],
                 "outputHashing": "all"
@@ -2102,7 +2103,10 @@
         "sourceRoot": "libs/ui/theme/src",
         "prefix": "tch",
         "projectType": "library",
-        "tags": [],
+        "tags": [
+          "scope:ui",
+          "type:theme"
+        ],
         "implicitDependencies": []
       }
     },
@@ -2175,6 +2179,16 @@
               "{workspaceRoot}/eslint.config.mjs",
               "{workspaceRoot}/tools/eslint-rules/**/*"
             ]
+          },
+          "test": {
+            "executor": "nx:run-commands",
+            "options": {
+              "command": "vitest run libs/api/src",
+              "cwd": ""
+            },
+            "configurations": {},
+            "parallelism": true,
+            "cache": true
           }
         },
         "name": "api",
@@ -2254,7 +2268,8 @@
               "lint",
               "format",
               "test",
-              "theme:generate"
+              "theme:generate",
+              "tokens:generate"
             ]
           },
           "description": "",
@@ -2339,6 +2354,18 @@
             "configurations": {},
             "parallelism": true
           },
+          "tokens:generate": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "tokens:generate"
+            },
+            "metadata": {
+              "scriptContent": "node libs/ui/theme/tools/generate-token-manifest.mjs",
+              "runCommand": "pnpm run tokens:generate"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
           "nx-release-publish": {
             "executor": "@nx/js:release-publish",
             "dependsOn": [
@@ -2408,16 +2435,17 @@
         "type": "static"
       }
     ],
-    "ui-components": [],
+    "ui-components": [
+      {
+        "source": "ui-components",
+        "target": "api",
+        "type": "static"
+      }
+    ],
     "page-model": [
       {
         "source": "page-model",
         "target": "api",
-        "type": "static"
-      },
-      {
-        "source": "page-model",
-        "target": "ui-components",
         "type": "static"
       }
     ],
@@ -2444,17 +2472,17 @@
       },
       {
         "source": "tch-portal",
+        "target": "web",
+        "type": "static"
+      },
+      {
+        "source": "tch-portal",
         "target": "ui-components",
         "type": "static"
       },
       {
         "source": "tch-portal",
         "target": "page-model",
-        "type": "static"
-      },
-      {
-        "source": "tch-portal",
-        "target": "web",
         "type": "static"
       }
     ],
@@ -2465,10 +2493,20 @@
         "source": "widgets",
         "target": "page-model",
         "type": "static"
+      },
+      {
+        "source": "widgets",
+        "target": "ui-components",
+        "type": "static"
       }
     ],
     "api": [],
     "web": [
+      {
+        "source": "web",
+        "target": "ui-components",
+        "type": "static"
+      },
       {
         "source": "web",
         "target": "page-model",
@@ -2476,7 +2514,7 @@
       },
       {
         "source": "web",
-        "target": "ui-components",
+        "target": "api",
         "type": "static"
       }
     ],
@@ -2484,5 +2522,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780778180815
+  "computedAt": 1781037630215
 }

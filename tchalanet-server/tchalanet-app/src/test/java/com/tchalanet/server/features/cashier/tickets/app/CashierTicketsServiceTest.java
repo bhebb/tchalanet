@@ -35,7 +35,6 @@ import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStat
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
 import com.tchalanet.server.features.cashier.tickets.mapper.CashierTicketMapper;
 import com.tchalanet.server.features.cashier.tickets.model.CashierAction;

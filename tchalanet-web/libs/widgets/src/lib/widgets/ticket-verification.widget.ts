@@ -30,6 +30,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
               type="text"
               autocomplete="off"
               inputmode="text"
+              maxlength="9"
               [value]="code()"
               [placeholder]="'public.ticket.placeholder' | tchLabel"
               (input)="onCodeInput($event)"
@@ -228,9 +229,9 @@ export class TicketVerificationWidget {
   }
 }
 
+/** Format XXXX-XXXX (4 alphanum + tiret + 4 alphanum). */
 function formatWidgetCode(value: string): string {
-  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
+  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
   if (compact.length <= 4) return compact;
-  if (compact.length <= 8) return `${compact.slice(0, 4)}-${compact.slice(4)}`;
-  return `${compact.slice(0, 4)}-${compact.slice(4, 7)}-${compact.slice(7)}`;
+  return `${compact.slice(0, 4)}-${compact.slice(4)}`;
 }

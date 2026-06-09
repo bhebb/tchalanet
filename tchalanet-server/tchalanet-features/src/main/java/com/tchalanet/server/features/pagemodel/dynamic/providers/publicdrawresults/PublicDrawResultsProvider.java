@@ -15,27 +15,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.tchalanet.server.features.publicdrawresults.DrawChannelLabelKeyResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
  * Single provider for source {@code public_draw_results} (dashboard-overview-runtime-v1).
  *
- * Loads the bundled payload once per request via {@link PageModelResolutionContext}
- * and dispatches the relevant slice by widgetId. Reads props to decide whether to
- * include the bounded history (cheap path for the home widget vs full path for the
- * dedicated results page).
+ * Loads the slots with their latest results once per request via {@link PageModelResolutionContext}.
+ * Both widgets use the same structure {@link HomeSlot} with i18n label keys.
  *
  * Supported widget ids:
- *   - home.draws                  → slots only (props.includeHistory=false)
- *   - public.draw_results.main    → slots + history (props.includeHistory=true)
+ *   - home.draws                  → slots only (same structure)
+ *   - public.draw_results.main    → slots only (same structure)
  */
 @Component
 @RequiredArgsConstructor
 public class PublicDrawResultsProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "public_draw_results";
-  private static final int DEFAULT_HISTORY_LIMIT = 10;
 
   private final PublicDrawResultsPayloadAssembler assembler;
 
@@ -56,16 +55,11 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     PublicDrawResultsPayloadAssembler.Spec spec = buildSpec(widgetConfig);
     PublicDrawResultsPayloadAssembler.Payload payload =
         resolutionContext.getOrLoad(spec.memoKey(), () -> assembler.assemble(spec));
-    Map<String, Object> props = widgetConfig == null ? null : widgetConfig.props();
 
+    // Les deux widgets retournent la même structure
     return switch (widgetId == null ? "" : widgetId) {
-      case "home.draws" -> Map.of(
-          "slots", homeSlots(payload.slots(), readInt(props, "maxSlots", Integer.MAX_VALUE)));
-      case "public.draw_results.main" -> Map.of(
-          "slots", payload.slots(),
-          "history", payload.history(),
-          "historyLimit", spec.historyLimit(),
-          "includeHistory", spec.includeHistory());
+      case "home.draws", "public.draw_results.main" ->
+          Map.of("slots", homeSlots(payload.slots()));
       default -> throw new PageModelDynamicProviderException(
           "PUBLIC_DRAW_RESULTS_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
@@ -78,17 +72,12 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
   }
 
   static List<HomeSlot> homeSlots(List<PublicDrawResultSlotView> slots) {
-    return homeSlots(slots, Integer.MAX_VALUE);
-  }
-
-  static List<HomeSlot> homeSlots(List<PublicDrawResultSlotView> slots, int maxSlots) {
     if (slots == null) {
       return List.of();
     }
     return slots.stream()
         .filter(Objects::nonNull)
         .map(PublicDrawResultsProvider::homeSlot)
-        .limit(Math.max(0, maxSlots))
         .toList();
   }
 
@@ -96,6 +85,7 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     return new HomeSlot(
         slot.slotKey(),
         slot.provider(),
+        DrawChannelLabelKeyResolver.resolve(slot.slotKey()),
         slot.label(),
         slot.timezone(),
         slot.drawTime(),
@@ -113,6 +103,7 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     return latest == null
         ? null
         : new HomeLatest(
+            latest.drawResultId(),
             latest.resultDate(),
             latest.occurredAt(),
             latest.status(),
@@ -128,10 +119,14 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     return latest.haiti() == null ? null : latest.haiti().path(field).asString(null);
   }
 
+
   record HomeSlot(
       String slotKey,
       String provider,
-      String label,
+      /** Clé i18n stable (ex: "draw_channel.ny.eve.label"). */
+      String drawChannelLabelKey,
+      /** Label public affiché (fallback si i18n non disponible). */
+      String drawChannelLabel,
       String timezone,
       LocalTime drawTime,
       HomeNext next,
@@ -144,6 +139,8 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
       long countdownSeconds) {}
 
   record HomeLatest(
+      /** UUID opaque pour naviguer vers le détail. */
+      String drawResultId,
       LocalDate resultDate,
       Instant occurredAt,
       String status,
@@ -156,14 +153,15 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
       String lot3,
       String lot4) {}
 
+
   static PublicDrawResultsPayloadAssembler.Spec buildSpec(
       PageModelDoc.WidgetConfig config) {
     Map<String, Object> props = config == null ? null : config.props();
     return new PublicDrawResultsPayloadAssembler.Spec(
         readStringList(props, "slotKeys"),
         readString(props, "provider"),
-        readBoolean(props, "includeHistory", false),
-        readInt(props, "historyLimit", DEFAULT_HISTORY_LIMIT));
+        false,  // includeHistory - désactivé car non utilisé par les widgets
+        0);     // historyLimit - 0 car non utilisé
   }
 
   private static String readString(Map<String, Object> props, String key) {
@@ -190,23 +188,5 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
           .toList();
     }
     return List.of();
-  }
-
-  private static boolean readBoolean(Map<String, Object> props, String key, boolean defaultValue) {
-    if (props == null) return defaultValue;
-    Object v = props.get(key);
-    if (v instanceof Boolean b) return b;
-    if (v instanceof String s) return Boolean.parseBoolean(s);
-    return defaultValue;
-  }
-
-  private static int readInt(Map<String, Object> props, String key, int defaultValue) {
-    if (props == null) return defaultValue;
-    Object v = props.get(key);
-    if (v instanceof Number n) return n.intValue();
-    if (v instanceof String s) {
-      try { return Integer.parseInt(s); } catch (NumberFormatException ignored) { }
-    }
-    return defaultValue;
   }
 }

@@ -1312,6 +1312,26 @@
       "libs/api/project.json",
       "nx/core/project-json"
     ],
+    "targets.test": [
+      "libs/api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.executor": [
+      "libs/api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options": [
+      "libs/api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.command": [
+      "libs/api/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.test.options.cwd": [
+      "libs/api/project.json",
+      "nx/core/project-json"
+    ],
     "targets.lint.cache": [
       "nx.json",
       "nx/target-defaults"
@@ -1321,6 +1341,14 @@
       "nx/target-defaults"
     ],
     "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.test.parallelism": [
       "nx.json",
       "nx/target-defaults"
     ]
@@ -1488,6 +1516,10 @@
       "libs/ui/components/project.json",
       "nx/core/project-json"
     ],
+    "targets.test.options.cwd": [
+      "libs/ui/components/project.json",
+      "nx/core/project-json"
+    ],
     "targets.lint.cache": [
       "nx.json",
       "nx/target-defaults"
@@ -1539,6 +1571,14 @@
       "nx/core/project-json"
     ],
     "tags": [
+      "libs/ui/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.scope:ui": [
+      "libs/ui/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "tags.type:theme": [
       "libs/ui/theme/project.json",
       "nx/core/project-json"
     ],
@@ -4032,6 +4072,10 @@
       "package.json",
       "nx/core/package-json"
     ],
+    "metadata.targetGroups.NPM Scripts.6": [
+      "package.json",
+      "nx/core/package-json"
+    ],
     "metadata.description": [
       "package.json",
       "nx/core/package-json"
@@ -4225,6 +4269,34 @@
       "nx/core/package-json"
     ],
     "targets.theme:generate.metadata.runCommand": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.executor": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.options": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.metadata": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.options.script": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.metadata.scriptContent": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.tokens:generate.metadata.runCommand": [
       "package.json",
       "nx/core/package-json"
     ],

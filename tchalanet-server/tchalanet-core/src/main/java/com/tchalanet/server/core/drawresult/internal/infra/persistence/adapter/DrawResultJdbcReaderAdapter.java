@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Component
@@ -66,6 +67,14 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     }
 
     @Override
+    public Optional<DrawResultId> findByResultSlotIdAndResultDate(ResultSlotId resultSlotId, LocalDate resultDate) {
+        if (resultSlotId == null || resultDate == null) return Optional.empty();
+        return Optional.ofNullable(DrawResultId.nullableOf(
+            jdbcRepo.findByResultSlotIdAndResultDate(resultSlotId.value(), resultDate)
+        ));
+    }
+
+    @Override
     public TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria) {
         var pageable = criteria == null || criteria.pageable() == null
             ? PageRequest.of(0, 20)
@@ -104,7 +113,8 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     }
 
     @Override
-    public boolean existsUsableExternalResult(ResultSlotId resultSlotId, Instant occurredAt) {
-        return jdbcRepo.existsUsableExternalResult(resultSlotId.value(), occurredAt);
+    public boolean existsUsableExternalResult(ResultSlotId resultSlotId, LocalDate resultDate) {
+        if (resultSlotId == null || resultDate == null) return false;
+        return jdbcRepo.existsUsableExternalResult(resultSlotId.value(), resultDate);
     }
 }

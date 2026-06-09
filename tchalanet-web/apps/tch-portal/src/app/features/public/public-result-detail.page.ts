@@ -1,23 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { EMPTY, Observable } from 'rxjs';
 
 import { ResultStatus } from '@tch/page-model';
+import { PublicDrawResultDetail, PublicDrawResultsService } from './public-draw-results.service';
 
 interface PublicResultDetail {
-  readonly id: string;
-  readonly gameName: string;
-  readonly drawDateKey: string;
+  readonly drawResultId: string;
+  readonly slotKey: string;
+  /** Stable i18n key from the server (e.g. "draw_channel.ny.eve.label"). */
+  readonly drawChannelLabelKey: string;
+  /** Human-readable fallback label from the server. */
+  readonly drawChannelLabel: string;
+  readonly resultDate: string;
   readonly drawTime: string;
+  readonly timezone: string;
   readonly status: ResultStatus;
   readonly numbers: readonly string[];
-  readonly sourceLabelKey: string;
-  readonly updatedAtKey: string;
+  readonly sourceLabel: string;
+  readonly publishedAt: string | null;
   readonly related: readonly RelatedResult[];
 }
 
 interface RelatedResult {
-  readonly id: string;
+  readonly drawResultId: string;
   readonly label: string;
   readonly status: ResultStatus;
 }
@@ -34,17 +42,25 @@ interface ResultStatusView {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="result-detail">
+
+      @if (isLoading()) {
+        <div class="result-detail__loading" aria-live="polite" aria-busy="true">
+          <span class="result-detail__spinner" aria-hidden="true"></span>
+          <span>{{ 'public.results.loading' | translate }}</span>
+        </div>
+      }
+
         <nav class="result-detail__breadcrumb" aria-label="Breadcrumb">
           <a routerLink="/public/results">{{ 'public.results.latest_title' | translate }}</a>
           <span aria-hidden="true">/</span>
-          <span>{{ result().gameName }}</span>
+          <span>{{ channelLabel() | translate }}</span>
         </nav>
 
         <section class="result-detail__hero" aria-labelledby="result-detail-title">
           <div class="result-detail__copy">
             <p class="result-detail__eyebrow">{{ 'public.results.detail_eyebrow' | translate }}</p>
-            <h1 id="result-detail-title">{{ result().gameName }}</h1>
-            <p>{{ 'public.results.subtitle' | translate }}</p>
+            <h1 id="result-detail-title">{{ channelLabel() | translate }}</h1>
+            <p class="result-detail__code">{{ result().slotKey }} · {{ result().resultDate }} · {{ hhmm(result().drawTime) }}</p>
           </div>
           <a class="result-detail__primary-action" routerLink="/public/check-ticket">
             <span class="material-symbols-outlined">qr_code_scanner</span>
@@ -72,31 +88,51 @@ interface ResultStatusView {
             <div class="result-detail__card-header">
               <div>
                 <p class="result-detail__meta-label">{{ 'public.results.draw_datetime' | translate }}</p>
-                <h2 id="result-numbers-title">{{ result().drawDateKey | translate }} · {{ result().drawTime }}</h2>
+                <h2 id="result-numbers-title">{{ result().resultDate }} · {{ hhmm(result().drawTime) }}</h2>
               </div>
               <span class="result-detail__chip" [attr.data-status]="result().status">
                 {{ statusLabel(result().status) | translate }}
               </span>
             </div>
 
-            <div class="result-detail__numbers" aria-label="Result numbers">
-              @for (number of result().numbers; track $index) {
-                <span class="result-detail__number">{{ number }}</span>
-              }
-            </div>
+            @if (result().numbers.length) {
+              <div class="result-detail__numbers" aria-label="Result numbers">
+                @for (number of result().numbers; track $index) {
+                  <span class="result-detail__number">{{ number }}</span>
+                }
+              </div>
+            } @else {
+              <p class="result-detail__no-numbers">{{ 'public.results.numbers_pending' | translate }}</p>
+            }
 
             <dl class="result-detail__meta">
               <div class="result-detail__meta-row">
                 <dt>{{ 'public.results.supported_source' | translate }}</dt>
-                <dd>{{ result().sourceLabelKey | translate }}</dd>
+                <dd>{{ result().sourceLabel }}</dd>
               </div>
-              <div class="result-detail__meta-row">
-                <dt>{{ 'public.results.last_update' | translate }}</dt>
-                <dd>{{ result().updatedAtKey | translate }}</dd>
-              </div>
+              @if (result().publishedAt) {
+                <div class="result-detail__meta-row">
+                  <dt>{{ 'public.results.last_update' | translate }}</dt>
+                  <dd>{{ fmtIso(result().publishedAt) }}</dd>
+                </div>
+              }
               <div class="result-detail__meta-row">
                 <dt>{{ 'public.results.public_reference' | translate }}</dt>
-                <dd>{{ result().id }}</dd>
+                <dd class="result-detail__ref-id">
+                  <span class="result-detail__ref-short" [title]="result().drawResultId">
+                    {{ shortId(result().drawResultId) }}
+                  </span>
+                  <button
+                    type="button"
+                    class="result-detail__copy-btn"
+                    [attr.aria-label]="'public.results.copy_ref' | translate"
+                    (click)="copyRef(result().drawResultId)"
+                  >
+                    <span class="material-symbols-outlined" aria-hidden="true">
+                      {{ copiedRef() ? 'check' : 'content_copy' }}
+                    </span>
+                  </button>
+                </dd>
               </div>
             </dl>
           </article>
@@ -105,19 +141,19 @@ interface ResultStatusView {
             <div class="result-detail__receipt-edge" aria-hidden="true"></div>
             <p class="result-detail__receipt-brand">TCHALANET</p>
             <h2 id="result-receipt-title">{{ 'public.results.receipt_title' | translate }}</h2>
-            <div class="result-detail__receipt-code">{{ result().id }}</div>
+            <div class="result-detail__receipt-code">{{ result().slotKey }}</div>
             <div class="result-detail__receipt-lines">
               <div>
                 <span>{{ 'public.results.game' | translate }}</span>
-                <strong>{{ result().gameName }}</strong>
+                <strong>{{ channelLabel() | translate }}</strong>
+              </div>
+              <div>
+                <span>{{ 'public.results.draw_datetime' | translate }}</span>
+                <strong>{{ result().resultDate }} · {{ hhmm(result().drawTime) }}</strong>
               </div>
               <div>
                 <span>{{ 'public.results.status_label' | translate }}</span>
                 <strong>{{ statusLabel(result().status) | translate }}</strong>
-              </div>
-              <div>
-                <span>{{ 'public.results.last_update' | translate }}</span>
-                <strong>{{ result().updatedAtKey | translate }}</strong>
               </div>
             </div>
             <p class="result-detail__receipt-note">{{ 'public.results.receipt_note' | translate }}</p>
@@ -131,8 +167,8 @@ interface ResultStatusView {
               <a routerLink="/public/results">{{ 'public.results.all' | translate }}</a>
             </div>
             <div class="result-detail__related-grid">
-              @for (item of result().related; track item.id) {
-                <a class="result-detail__related-card" [routerLink]="['/public/results', item.id]">
+              @for (item of result().related; track item.drawResultId) {
+                <a class="result-detail__related-card" [routerLink]="['/public/results', item.drawResultId]">
                   <span>{{ item.label }}</span>
                   <strong>{{ statusLabel(item.status) | translate }}</strong>
                 </a>
@@ -216,11 +252,18 @@ interface ResultStatusView {
         line-height: var(--tch-line-height-headline-mobile, 2rem);
       }
 
+      .result-detail__code,
       .result-detail__copy p,
       .result-detail__status p,
       .result-detail__meta-row dt,
       .result-detail__receipt-note {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .result-detail__code {
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-variant-numeric: tabular-nums;
       }
 
       .result-detail__primary-action {
@@ -252,12 +295,17 @@ interface ResultStatusView {
         border-radius: var(--tch-radius-lg, 12px);
       }
 
-      .result-detail__status[data-status='CONFIRMED'] {
+      .result-detail__status[data-status='CONFIRMED'],
+      .result-detail__status[data-status='OVERRIDDEN'] {
         border-left-color: var(--tch-color-status-ready, var(--mat-sys-tertiary));
       }
 
-      .result-detail__status[data-status='PENDING'] {
+      .result-detail__status[data-status='PROVISIONAL'] {
         border-left-color: var(--tch-color-status-warning, var(--mat-sys-secondary));
+      }
+
+      .result-detail__status[data-status='ERROR'] {
+        border-left-color: var(--tch-color-status-blocked, var(--mat-sys-error));
       }
 
       .result-detail__status-icon {
@@ -306,12 +354,17 @@ interface ResultStatusView {
         font-weight: 800;
       }
 
-      .result-detail__chip[data-status='CONFIRMED'] {
+      .result-detail__chip[data-status='CONFIRMED'],
+      .result-detail__chip[data-status='OVERRIDDEN'] {
         color: var(--tch-color-status-ready, var(--mat-sys-tertiary));
       }
 
-      .result-detail__chip[data-status='PENDING'] {
+      .result-detail__chip[data-status='PROVISIONAL'] {
         color: var(--tch-color-status-warning, var(--mat-sys-secondary));
+      }
+
+      .result-detail__chip[data-status='ERROR'] {
+        color: var(--tch-color-status-blocked, var(--mat-sys-error));
       }
 
       .result-detail__numbers {
@@ -331,6 +384,12 @@ interface ResultStatusView {
         font-family: var(--tch-font-family-mono, monospace);
         font-size: 1.25rem;
         font-weight: 800;
+      }
+
+      .result-detail__no-numbers {
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        font-style: italic;
+        margin: 0;
       }
 
       .result-detail__meta {
@@ -355,6 +414,45 @@ interface ResultStatusView {
         color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
         font-weight: 800;
         text-align: right;
+      }
+
+      .result-detail__ref-id {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+      }
+
+      .result-detail__ref-short {
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 800;
+        cursor: default;
+      }
+
+      .result-detail__copy-btn {
+        flex-shrink: 0;
+        display: inline-grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        padding: 0;
+        border: 0;
+        border-radius: var(--tch-radius-control, 8px);
+        background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: color 150ms, background 150ms;
+
+        .material-symbols-outlined {
+          font-size: 1rem;
+          max-width: unset;
+        }
+
+        &:hover {
+          background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+          color: var(--tch-color-primary, var(--mat-sys-primary));
+        }
       }
 
       .result-detail__receipt {
@@ -489,57 +587,167 @@ interface ResultStatusView {
           grid-template-columns: repeat(3, minmax(0, 1fr));
         }
       }
+
+      .result-detail__loading {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+      }
+
+      .result-detail__spinner {
+        flex-shrink: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-top-color: var(--tch-color-primary, var(--mat-sys-primary));
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
     `,
   ],
 })
 export class PublicResultDetailPage {
   private readonly route = inject(ActivatedRoute);
+  private readonly svc = inject(PublicDrawResultsService);
 
-  readonly result = computed(() => publicResultFallback(this.route.snapshot.paramMap.get('id')));
+  private readonly drawResultId =
+    this.route.snapshot.paramMap.get('drawResultId') ?? null;
+
+  readonly resource = rxResource({
+    params: () => this.drawResultId,
+    stream: ({ params: id }): Observable<PublicDrawResultDetail> =>
+      id ? this.svc.detail(id) : EMPTY,
+  });
+
+  /** Resolved data: live from server if available, otherwise fallback mock */
+  readonly result = computed(() => {
+    const live = this.resource.value();
+    if (live) {
+      return {
+        drawResultId: live.drawResultId,
+        slotKey: live.slotKey,
+        drawChannelLabelKey: live.drawChannelLabelKey,
+        drawChannelLabel: live.drawChannelLabel,
+        resultDate: live.resultDate,
+        drawTime: live.drawTime,
+        timezone: live.timezone,
+        status: live.status as ResultStatus,
+        numbers: live.numbers,
+        sourceLabel: live.sourceLabel ?? '',
+        publishedAt: live.publishedAt,
+        related: [],
+      } satisfies PublicResultDetail;
+    }
+    return publicResultFallback(this.drawResultId);
+  });
+
+  readonly isLoading = computed(() => this.resource.isLoading());
+  readonly hasError = computed(() => !!this.resource.error() && !this.resource.value());
+
+  /** Channel label: uses drawChannelLabelKey translated, fallback to drawChannelLabel. */
+  readonly channelLabel = computed(() => {
+    const r = this.result();
+    return r.drawChannelLabelKey || r.drawChannelLabel;
+  });
+
   readonly statusView = computed(() => resultStatusView(this.result().status));
 
   statusLabel(status: ResultStatus): string {
     return `public.results.status.${status}`;
   }
+
+  /** Strips seconds from a time string: "14:30:00" → "14:30". */
+  hhmm(time: string | undefined): string {
+    if (!time) return '';
+    return time.length > 5 ? time.substring(0, 5) : time;
+  }
+
+  /**
+   * Formats an ISO timestamp for public display.
+   * "2026-06-09T02:55:02.192926Z" → "2026-06-09 · 02:55 UTC"
+   */
+  fmtIso(iso: string | null | undefined): string {
+    if (!iso) return '';
+    const ms = Date.parse(iso);
+    if (isNaN(ms)) return iso;
+    const d = new Date(ms);
+    const date = d.toISOString().substring(0, 10);   // "2026-06-09"
+    const time = d.toISOString().substring(11, 16);  // "02:55"
+    return `${date} · ${time} UTC`;
+  }
+
+  /**
+   * Truncates a UUID for mobile display.
+   * "71f2ff4a-e52d-44f5-93f6-943db0e94ed9" → "71f2ff4a…"
+   */
+  shortId(id: string): string {
+    return id.length > 12 ? `${id.substring(0, 8)}…` : id;
+  }
+
+  readonly copiedRef = signal(false);
+
+  async copyRef(id: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(id);
+      this.copiedRef.set(true);
+      setTimeout(() => this.copiedRef.set(false), 2000);
+    } catch {
+      // Clipboard API unavailable (non-secure context) — silently ignore
+    }
+  }
 }
 
-export function publicResultFallback(id: string | null): PublicResultDetail {
-  const publicId = id?.trim() || 'ny-afternoon';
+export function publicResultFallback(drawResultId: string | null): PublicResultDetail {
+  const id = drawResultId?.trim() || 'fallback';
   return {
-    id: publicId,
-    gameName: 'New York Afternoon',
-    drawDateKey: 'public.results.fallback.draw_date',
-    drawTime: '14:30',
+    drawResultId: id,
+    slotKey: 'NY_MID',
+    drawChannelLabelKey: 'draw_channel.ny.mid.label',
+    drawChannelLabel: 'New York — Midi',
+    resultDate: '2026-06-08',
+    drawTime: '12:30',
+    timezone: 'America/New_York',
     status: 'CONFIRMED',
     numbers: ['84', '12', '99', '24'],
-    sourceLabelKey: 'public.results.fallback.source',
-    updatedAtKey: 'public.results.fallback.updated_at',
+    sourceLabel: 'New York Lottery',
+    publishedAt: null,
     related: [
-      { id: 'florida-evening', label: 'Florida Evening', status: 'PENDING' },
-      { id: 'georgia-midday', label: 'Georgia Midday', status: 'CONFIRMED' },
-      { id: 'ny-evening', label: 'New York Evening', status: 'UNAVAILABLE' },
+      { drawResultId: 'fl-eve-fallback', label: 'Florida Evening', status: 'PROVISIONAL' },
+      { drawResultId: 'ga-mid-fallback', label: 'Georgia Midday', status: 'CONFIRMED' },
+      { drawResultId: 'ny-eve-fallback', label: 'New York Evening', status: 'PROVISIONAL' },
     ],
   };
 }
 
 export function resultStatusView(status: ResultStatus): ResultStatusView {
   const views: Record<ResultStatus, ResultStatusView> = {
+    PROVISIONAL: {
+      icon: 'schedule',
+      titleKey: 'public.results.detail_status.PROVISIONAL.title',
+      bodyKey: 'public.results.detail_status.PROVISIONAL.body',
+    },
     CONFIRMED: {
       icon: 'verified',
       titleKey: 'public.results.detail_status.CONFIRMED.title',
       bodyKey: 'public.results.detail_status.CONFIRMED.body',
     },
-    PENDING: {
-      icon: 'schedule',
-      titleKey: 'public.results.detail_status.PENDING.title',
-      bodyKey: 'public.results.detail_status.PENDING.body',
+    OVERRIDDEN: {
+      icon: 'edit_note',
+      titleKey: 'public.results.detail_status.OVERRIDDEN.title',
+      bodyKey: 'public.results.detail_status.OVERRIDDEN.body',
     },
-    UNAVAILABLE: {
-      icon: 'cloud_off',
-      titleKey: 'public.results.detail_status.UNAVAILABLE.title',
-      bodyKey: 'public.results.detail_status.UNAVAILABLE.body',
+    ERROR: {
+      icon: 'error_outline',
+      titleKey: 'public.results.detail_status.ERROR.title',
+      bodyKey: 'public.results.detail_status.ERROR.body',
     },
   };
-
   return views[status];
 }

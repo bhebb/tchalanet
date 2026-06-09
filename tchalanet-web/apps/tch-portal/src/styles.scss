@@ -12,6 +12,20 @@ body {
   height: 100%;
 }
 
+/* ── Lang-switcher menu panel ── */
+.lang-switcher__menu {
+  min-width: 160px !important;
+
+  .mat-mdc-menu-content {
+    padding-block: 4px;
+  }
+
+  .mat-mdc-menu-item {
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+}
+
 body {
   background: var(--tch-color-background);
   color: var(--tch-color-foreground);

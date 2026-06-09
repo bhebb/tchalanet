@@ -13,17 +13,49 @@ import { LabelPipe } from '@tch/page-model';
 import { actionFrom, destinationHref, isRecord, ResultStatus, stringProp } from '@tch/page-model';
 import { BadgeStatus, TchActionButton, TchCard, TchSectionHeader, TchStatusBadge } from '@tch/ui/components';
 
-interface DrawSlot {
+/**
+ * One item from GET /public/draw-results/latest.
+ * All fields are optional so the widget tolerates partial or legacy payloads.
+ */
+interface DrawResultItem {
+  // ── Spec fields (latest / history response) ──
+  readonly drawResultId?: string;
   readonly slotKey?: string;
-  readonly label?: string;
   readonly provider?: string;
+  /**
+   * Stable i18n key sent by the server (e.g. "draw_channel.ny.mid.label").
+   * Preferred over drawChannelLabel for display — pipe through | tchLabel.
+   */
+  readonly drawChannelLabelKey?: string;
+  /**
+   * Raw label from server — in the home-draws legacy payload this is just
+   * the slot code (e.g. "NY_MID"), not a human-readable string.
+   * Use drawChannelLabelKey | tchLabel instead.
+   */
+  readonly drawChannelLabel?: string;
+  readonly resultDate?: string;
+  readonly drawTime?: string;
+  readonly timezone?: string;
+  readonly occurredAt?: string;
+  readonly status?: string;
+  readonly numbers?: readonly string[];
+  readonly publishedAt?: string | null;
+  /** ISO timestamp of the next expected result — used to compute the live countdown. */
+  readonly nextResultAt?: string | null;
+  /** Backend-provided path, e.g. "/public/results/<uuid>" */
+  readonly detailPath?: string;
+  // ── Legacy slot fields (home.draws payload) ──
+  readonly label?: string;
   readonly next?: {
     readonly status?: string;
     readonly localDate?: string;
     readonly localTime?: string;
     readonly expectedAt?: string;
+    /** Pre-computed countdown in seconds at response time — seed for the timer. */
+    readonly countdownSeconds?: number;
   };
   readonly latest?: {
+    readonly drawResultId?: string;   // UUID — backend must include for direct detail linking
     readonly resultDate?: string;
     readonly occurredAt?: string;
     readonly status?: string;
@@ -36,7 +68,7 @@ interface DrawSlot {
   };
 }
 
-interface DrawSlotView extends DrawSlot {
+interface DrawSlotView extends DrawResultItem {
   readonly countdown: string | null;
   readonly isAwaiting: boolean;
 }
@@ -52,27 +84,28 @@ interface DrawSlotView extends DrawSlot {
         [subtitle]="'public.results.subtitle' | tchLabel"
       >
         <a tch-action variant="tertiary" slot="action" [attr.href]="moreHref()">
-          {{ moreLabelKey() | tchLabel }}
+          {{ moreLabelKey | tchLabel }}
         </a>
       </tch-section-header>
     </div>
 
     @if (slotsWithCountdown().length) {
       <ul class="latest-results-widget__list" role="list">
-        @for (slot of slotsWithCountdown(); track slot.slotKey ?? $index) {
+        @for (slot of slotsWithCountdown(); track slot.drawResultId ?? slot.slotKey ?? $index) {
           <li>
             <tch-card class="latest-results-widget__item">
               <div class="latest-results-widget__item-top">
                 <div class="latest-results-widget__item-meta">
                   <h3 class="latest-results-widget__item-name">
-                    {{ slot.label || slot.slotKey || slot.provider }}
+                    {{ (slot.drawChannelLabelKey || slot.label || slot.slotKey || slot.provider) | tchLabel }}
                   </h3>
+                  <p class="latest-results-widget__item-slot-key">{{ slot.slotKey }}</p>
                   <time class="latest-results-widget__item-date">
-                    {{ slot.latest?.resultDate || slot.next?.localDate || '' }}
+                    {{ slot.resultDate || slot.latest?.resultDate || slot.next?.localDate || '' }}{{ slotTime(slot) ? ' · ' + slotTime(slot) : '' }}
                   </time>
                 </div>
                 <tch-status-badge
-                  [status]="badgeStatus(slotStatus(slot))"
+                  [status]="slotBadgeStatus(slot)"
                   [label]="slotStatusLabel(slot) | tchLabel"
                 />
               </div>
@@ -102,9 +135,11 @@ interface DrawSlotView extends DrawSlot {
                 </div>
               }
 
-              <a tch-action variant="tertiary" class="latest-results-widget__detail-link" [attr.href]="detailHref(slot)">
-                {{ 'public.results.detail' | tchLabel }}
-              </a>
+              @if (detailHref(slot); as href) {
+                <a tch-action variant="tertiary" class="latest-results-widget__detail-link" [attr.href]="href">
+                  {{ 'public.results.detail' | tchLabel }}
+                </a>
+              }
             </tch-card>
           </li>
         }
@@ -173,6 +208,12 @@ interface DrawSlotView extends DrawSlot {
         justify-content: space-between;
         align-items: flex-start;
         gap: 0.75rem;
+
+        /* On narrow screens, stack the badge below the meta block */
+        @media (max-width: 400px) {
+          flex-direction: column-reverse;
+          gap: 0.5rem;
+        }
       }
 
       .latest-results-widget__item-meta {
@@ -185,6 +226,14 @@ interface DrawSlotView extends DrawSlot {
         font-size: var(--tch-font-size-body-md, 1rem);
         font-weight: 800;
         color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+      }
+
+      .latest-results-widget__item-slot-key {
+        margin: 0;
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-family: var(--tch-font-family-mono, monospace);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        opacity: 0.6;
       }
 
       .latest-results-widget__item-date {
@@ -317,67 +366,161 @@ export class PublicDrawResultsWidget {
     return dest ? destinationHref(dest.destination) : '/public/results';
   });
 
-  readonly moreLabelKey = computed(() => {
-    const dest = actionFrom(this.config()?.props?.['moreDestination']);
-    return dest?.labelKey ?? 'public.results.all';
+  // Spec: global action always "Tous les résultats", regardless of server labelKey.
+  readonly moreLabelKey = 'public.results.all';
+
+  /**
+   * Max slots to display on the home preview.
+   * Reads `maxSlots` from widget config (server-declared); absolute cap is 9
+   * (3 cols × 3 rows desktop). The full history is on /public/results.
+   */
+  private readonly maxSlots = computed<number>(() => {
+    const raw = this.config()?.props?.['maxSlots'];
+    const n = typeof raw === 'number' ? raw : Number(raw);
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 9) : 9;
   });
 
-  private readonly slots = computed<readonly DrawSlot[]>(() => {
+  private readonly slots = computed<readonly DrawResultItem[]>(() => {
     const data = this.dynamic();
-    return isRecord(data) && Array.isArray(data['slots'])
-      ? (data['slots'] as readonly DrawSlot[])
-      : [];
+    if (!isRecord(data)) return [];
+    const raw: readonly DrawResultItem[] = Array.isArray(data['items'])
+      ? (data['items'] as readonly DrawResultItem[])
+      : Array.isArray(data['slots'])
+        ? (data['slots'] as readonly DrawResultItem[])
+        : [];
+
+    return [...raw]
+      // Keep only slots that have at least one number published
+      .filter(slot => extractNumbers(slot).length > 0)
+      // Most recent result first
+      .sort((a, b) => occurredAtMs(b) - occurredAtMs(a))
+      // Home preview: at most maxSlots cards
+      .slice(0, this.maxSlots());
   });
+
+  /** Server reference time from the latest response payload; used to anchor countdowns. */
+  private readonly serverNowMs = computed<number>(() => {
+    const data = this.dynamic();
+    if (isRecord(data) && typeof data['serverNow'] === 'string') {
+      const ms = Date.parse(data['serverNow'] as string);
+      return isNaN(ms) ? Date.now() : ms;
+    }
+    return Date.now();
+  });
+
+  /** Client time at the moment serverNow was received (used to compute elapsed drift). */
+  private readonly clientNowAtLoad = signal(Date.now());
 
   readonly slotsWithCountdown = computed<readonly DrawSlotView[]>(() => {
-    const now = this._now();
+    const clientNow = this._now();
+    const serverNowMs = this.serverNowMs();
+    const clientNowAtLoad = this.clientNowAtLoad();
+    // Adjust server reference time forward by elapsed client time since load
+    const adjustedNow = serverNowMs + (clientNow - clientNowAtLoad);
     return this.slots().map(slot => ({
       ...slot,
-      countdown: slotCountdown(slot, now),
-      isAwaiting: slotIsAwaiting(slot, now),
+      countdown: slotCountdown(slot, adjustedNow, clientNowAtLoad),
+      isAwaiting: slotIsAwaiting(slot, adjustedNow, clientNowAtLoad),
     }));
   });
 
-  slotStatus(slot: DrawSlot): ResultStatus {
-    const s = slot.latest?.status;
-    if (s === 'CONFIRMED') return 'CONFIRMED';
-    if (s === 'PROVISIONAL' || slot.next?.status === 'WAITING') return 'PENDING';
-    if (slot.latest?.quality === 'COMPLETE') return 'PENDING';
-    return 'UNAVAILABLE';
-  }
-
-  slotStatusLabel(slot: DrawSlot): string {
-    return `public.results.status.${this.slotStatus(slot)}`;
-  }
-
-  badgeStatus(s: ResultStatus): BadgeStatus {
-    if (s === 'CONFIRMED') return 'ready';
-    if (s === 'PENDING') return 'pending';
-    return 'missing';
-  }
-
-  numbers(slot: DrawSlot): readonly string[] {
-    const haiti = slot.latest?.haiti;
-    if (haiti) {
-      const vals = Object.values(haiti).filter(v => v && v.trim().length > 0);
-      if (vals.length) return vals;
+  /**
+   * Status label rules (spec V1):
+   * - No numbers            → "En attente des résultats"
+   * - Numbers + CONFIRMED   → "Résultats confirmés"
+   * - Numbers + other       → "En attente de confirmation"
+   * Never show "Indisponible" when numbers are present.
+   */
+  slotStatusLabel(slot: DrawResultItem): string {
+    if (!this.numbers(slot).length) return 'public.results.awaiting';
+    const s = slot.status ?? slot.latest?.status;
+    switch (s) {
+      case 'CONFIRMED':  return 'public.results.status.CONFIRMED';
+      case 'OVERRIDDEN': return 'public.results.status.OVERRIDDEN';
+      case 'ERROR':      return 'public.results.status.ERROR';
+      default:           return 'public.results.status.PROVISIONAL';
     }
-    return [
-      ...(slot.latest?.source?.pick3?.main ?? []),
-      ...(slot.latest?.source?.pick4?.main ?? []),
-    ];
   }
 
-  detailHref(slot: DrawSlot): string {
-    const key = (slot.slotKey ?? slot.provider ?? '').toLowerCase().replace(/_/g, '-');
-    return key ? `/public/results/${encodeURIComponent(key)}` : '/public/results';
+  slotBadgeStatus(slot: DrawResultItem): BadgeStatus {
+    if (!this.numbers(slot).length) return 'pending';
+    const s = slot.status ?? slot.latest?.status;
+    if (s === 'CONFIRMED' || s === 'OVERRIDDEN') return 'ready';
+    if (s === 'ERROR') return 'blocked';
+    return 'pending';
+  }
+
+  /** Strips seconds from a time string: "14:30:00" → "14:30". */
+  slotTime(slot: DrawResultItem): string {
+    const t = slot.drawTime ?? slot.next?.localTime ?? '';
+    return t.length > 5 ? t.substring(0, 5) : t;
+  }
+
+  numbers(slot: DrawResultItem): readonly string[] {
+    return extractNumbers(slot);
+  }
+
+  /**
+   * Returns the detail href for a slot, or null when no stable ID is available.
+   * Priority: spec detailPath → top-level drawResultId → latest.drawResultId.
+   * Returns null for home-draws slots where the backend has not yet included a drawResultId.
+   */
+  detailHref(slot: DrawResultItem): string | null {
+    if (slot.detailPath) return slot.detailPath;
+    const id = slot.drawResultId ?? slot.latest?.drawResultId;
+    return id ? `/public/results/${encodeURIComponent(id)}` : null;
   }
 }
 
-function parseExpectedMs(slot: DrawSlot): number | null {
+/**
+ * Extracts the published numbers from a slot, normalising both the spec
+ * format (top-level `numbers[]`) and the legacy home-draws format
+ * (`latest.haiti.*` / `latest.source.*`).
+ */
+function extractNumbers(slot: DrawResultItem): readonly string[] {
+  if (slot.numbers?.length) return slot.numbers;
+  const haiti = slot.latest?.haiti;
+  if (haiti) {
+    const vals = Object.values(haiti).filter(v => !!v && v.trim().length > 0);
+    if (vals.length) return vals;
+  }
+  return [
+    ...(slot.latest?.source?.pick3?.main ?? []),
+    ...(slot.latest?.source?.pick4?.main ?? []),
+  ];
+}
+
+/** Returns the epoch (ms) of the most recent result for sorting purposes. */
+function occurredAtMs(slot: DrawResultItem): number {
+  const iso = slot.occurredAt ?? slot.latest?.occurredAt;
+  if (iso) {
+    const ms = Date.parse(iso);
+    if (!isNaN(ms)) return ms;
+  }
+  return 0;
+}
+
+/**
+ * Returns the absolute epoch (ms) of the next expected result for a slot.
+ *
+ * Priority:
+ * 1. `nextResultAt` — spec ISO timestamp (new endpoints)
+ * 2. `next.expectedAt` — legacy ISO timestamp (home-draws payload)
+ * 3. `next.countdownSeconds` — pre-computed server countdown; converted to
+ *    an absolute epoch using the client's load time as the origin
+ * 4. `next.localDate + localTime` — older legacy format
+ */
+function parseNextResultMs(slot: DrawResultItem, clientLoadMs = Date.now()): number | null {
+  if (slot.nextResultAt) {
+    const ms = Date.parse(slot.nextResultAt);
+    return isNaN(ms) ? null : ms;
+  }
   if (slot.next?.expectedAt) {
     const ms = Date.parse(slot.next.expectedAt);
     return isNaN(ms) ? null : ms;
+  }
+  if (typeof slot.next?.countdownSeconds === 'number' && slot.next.countdownSeconds > 0) {
+    return clientLoadMs + slot.next.countdownSeconds * 1000;
   }
   if (slot.next?.localDate && slot.next?.localTime) {
     const ms = Date.parse(`${slot.next.localDate}T${slot.next.localTime}`);
@@ -386,8 +529,8 @@ function parseExpectedMs(slot: DrawSlot): number | null {
   return null;
 }
 
-function slotCountdown(slot: DrawSlot, now: number): string | null {
-  const ts = parseExpectedMs(slot);
+function slotCountdown(slot: DrawResultItem, now: number, clientLoadMs: number): string | null {
+  const ts = parseNextResultMs(slot, clientLoadMs);
   if (ts === null || ts <= now) return null;
   const totalSecs = Math.floor((ts - now) / 1000);
   const h = Math.floor(totalSecs / 3600);
@@ -396,7 +539,7 @@ function slotCountdown(slot: DrawSlot, now: number): string | null {
   if (h >= 24) {
     const days = Math.floor(h / 24);
     const remH = h % 24;
-    return `${days}j ${String(remH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    return `${days}j ${String(remH).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
   if (h > 0) {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -404,8 +547,8 @@ function slotCountdown(slot: DrawSlot, now: number): string | null {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-function slotIsAwaiting(slot: DrawSlot, now: number): boolean {
-  const ts = parseExpectedMs(slot);
+function slotIsAwaiting(slot: DrawResultItem, now: number, clientLoadMs: number): boolean {
+  const ts = parseNextResultMs(slot, clientLoadMs);
   if (ts === null) return false;
-  return ts <= now && slot.latest?.status !== 'CONFIRMED';
+  return ts <= now && slot.status !== 'CONFIRMED' && slot.latest?.status !== 'CONFIRMED';
 }

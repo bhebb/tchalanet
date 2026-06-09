@@ -1,14 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { VerificationStatus } from '@tch/page-model';
+import { GameLabelPipe, VerificationStatus } from '@tch/page-model';
 import { TchActionButton, TchCard, TchLoading } from '@tch/ui/components';
+
+import {
+  extractPublicCodeFromQr,
+  mapBackendStatus,
+  MoneyAmount,
+  normalizePublicCode,
+  PublicTicketVerificationApi,
+  PublicTicketVerificationResponse,
+  VerifyTicketDraw,
+  VerifyTicketLine,
+} from './public-ticket.service';
 
 type CheckState =
   | { readonly kind: 'default' }
   | { readonly kind: 'loading' }
-  | { readonly kind: 'result'; readonly status: VerificationStatus };
+  | {
+      readonly kind: 'result';
+      readonly status: VerificationStatus;
+      readonly data: PublicTicketVerificationResponse | null;
+    };
 
 interface VerificationCopy {
   readonly icon: string;
@@ -17,20 +34,24 @@ interface VerificationCopy {
   readonly bodyKey: string;
 }
 
-const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
+/** Format attendu : XXXX-XXXX (4 alphanum + tiret + 4 alphanum) */
+const CODE_PATTERN = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 
 const STAMP_LINES: Record<VerificationStatus, string[]> = {
-  PAYABLE:              ['PAYÉ', 'VALIDÉ'],
-  NOT_PAYABLE:          ['NON', 'PAYABLE'],
-  PENDING_RESULT:       ['EN', 'ATTENTE'],
-  INVALID_OR_CANCELLED: ['ANNULÉ'],
-  NOT_FOUND:            ['NON', 'TROUVÉ'],
-  SERVICE_UNAVAILABLE:  ['HORS', 'LIGNE'],
+  WINNING_PAYABLE:     ['GAGNANT', 'PAYABLE'],
+  WINNING_PAID:        ['DÉJÀ', 'PAYÉ'],
+  LOST:                ['NON', 'GAGNANT'],
+  PENDING_RESULT:      ['EN', 'ATTENTE'],
+  CANCELLED:           ['ANNULÉ'],
+  EXPIRED:             ['EXPIRÉ'],
+  BLOCKED:             ['BLOQUÉ'],
+  NOT_FOUND:           ['NON', 'TROUVÉ'],
+  SERVICE_UNAVAILABLE: ['HORS', 'LIGNE'],
 };
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [TranslatePipe, TchCard, TchActionButton, TchLoading],
+  imports: [DecimalPipe, GameLabelPipe, TranslatePipe, TchCard, TchActionButton, TchLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="check-page">
@@ -73,7 +94,7 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                       name="code"
                       autocomplete="off"
                       inputmode="text"
-                      maxlength="11"
+                      maxlength="9"
                       [value]="code()"
                       [placeholder]="'public.ticket.placeholder' | translate"
                       (input)="updateCode($event)"
@@ -84,6 +105,9 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                       [attr.aria-label]="'public.ticket.scan_qr' | translate"
                     >
                       <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
+                      <span class="check-page__scan-label" aria-hidden="true">
+                        {{ 'public.ticket.scan_qr' | translate }}
+                      </span>
                     </button>
                   </div>
                   <p class="check-page__hint">
@@ -195,10 +219,52 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
                 </div>
 
                 <dl class="check-result__receipt-meta">
-                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
                   <div><dt>CODE:</dt><dd>{{ code() }}</dd></div>
-                  <div><dt>TERMINAL:</dt><dd>POS-HT-0000</dd></div>
+                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
+                  @if (resultData()?.outlet?.name; as outlet) {
+                    <div><dt>PDV:</dt><dd>{{ outlet }}</dd></div>
+                  }
+                  @if (resultDraw(); as draw) {
+                    <div><dt>TIRAGE:</dt><dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd></div>
+                    <div><dt>DATE TIR.:</dt><dd>{{ draw.drawDate }}</dd></div>
+                  }
                 </dl>
+
+                @if (resultLines().length > 0) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-lines">
+                    @for (line of resultLines(); track line.lineNumber) {
+                      <div class="check-result__receipt-line">
+                        <div class="check-result__receipt-line-head">
+                          <span>{{ line.gameDisplayName | gameLabel }}</span>
+                          <span>{{ line.stake.amount | number:'1.0-0' }} {{ line.stake.currency.value }}</span>
+                        </div>
+                        <div class="check-result__receipt-line-detail">
+                          {{ line.selection }}
+                          · {{ line.optionLabel | gameLabel:'catalog.option' }}
+                        </div>
+                      </div>
+                    }
+                  </dl>
+                }
+
+                @if (resultData()?.totalAmount; as total) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-meta check-result__receipt-total">
+                    <div>
+                      <dt>TOTAL MISE:</dt>
+                      <dd>{{ total.amount | number:'1.0-0' }} {{ total.currency.value }}</dd>
+                    </div>
+                    @if (resultData()?.winningAmount; as win) {
+                      @if (!win.zero) {
+                        <div class="check-result__receipt-gain">
+                          <dt>GAIN:</dt>
+                          <dd>{{ win.amount | number:'1.0-0' }} {{ win.currency.value }}</dd>
+                        </div>
+                      }
+                    }
+                  </dl>
+                }
 
                 <div class="check-result__receipt-rule"></div>
 
@@ -335,6 +401,8 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         font-weight: 800;
       }
 
+      /* ── Input + scan overlay (390px+) ── */
+
       .check-page__input-wrap { position: relative; }
 
       .check-page__code-input {
@@ -358,6 +426,8 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         }
       }
 
+      .check-page__scan-label { display: none; }
+
       .check-page__scan-button {
         position: absolute;
         right: 0.625rem;
@@ -372,6 +442,37 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         transform: translateY(-50%);
         cursor: pointer;
+      }
+
+      /* ── Very small screens (<360px): stack scan button below input ── */
+
+      @media (max-width: 359px) {
+        .check-page__input-wrap {
+          position: static;
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .check-page__code-input {
+          padding: 0 1rem; /* no room needed for overlay icon */
+        }
+
+        .check-page__scan-label { display: inline; }
+
+        .check-page__scan-button {
+          position: static;
+          transform: none;
+          width: 100%;
+          height: var(--tch-touch-target, 48px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          border-radius: var(--tch-radius-lg, 12px);
+          font-size: var(--tch-font-size-label-sm, 0.75rem);
+          font-weight: 800;
+          font-family: inherit;
+        }
       }
 
       .check-page__hint {
@@ -655,12 +756,48 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
         > div {
           display: flex;
           justify-content: space-between;
+          gap: 0.5rem;
           font-family: var(--tch-font-family-mono, monospace);
           font-size: 0.75rem;
           color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
         }
-        dt { opacity: 0.6; }
-        dd { margin: 0; font-weight: 700; }
+        dt { opacity: 0.6; flex-shrink: 0; }
+        dd { margin: 0; font-weight: 700; text-align: right; }
+      }
+
+      .check-result__receipt-dd--wrap { word-break: break-word; }
+
+      /* Bet lines */
+      .check-result__receipt-lines {
+        margin: 0;
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .check-result__receipt-line {
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.75rem;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        display: grid;
+        gap: 0.125rem;
+      }
+
+      .check-result__receipt-line-head {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 700;
+      }
+
+      .check-result__receipt-line-detail {
+        opacity: 0.7;
+        font-size: 0.6875rem;
+      }
+
+      /* Total + gain */
+      .check-result__receipt-total { margin-top: 0; }
+
+      .check-result__receipt-gain {
+        dd { color: var(--tch-color-status-ready, #10b981); }
       }
 
       .check-result__receipt-rule {
@@ -779,13 +916,21 @@ const STAMP_LINES: Record<VerificationStatus, string[]> = {
 })
 export class PublicCheckTicketPage {
   private readonly route = inject(ActivatedRoute);
+  private readonly svc = inject(PublicTicketVerificationApi);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly code = signal('');
   readonly state = signal<CheckState>({ kind: 'default' });
 
   constructor() {
     const rawCode = this.route.snapshot.queryParamMap.get('code');
-    if (rawCode) this.code.set(formatPublicCode(rawCode));
+    if (rawCode) {
+      // Support both plain code and full URL (from QR scanner)
+      const normalized = extractPublicCodeFromQr(rawCode);
+      this.code.set(formatPublicCode(normalized));
+      // Auto-trigger verification when code is pre-filled via query param
+      this.doVerify(normalized);
+    }
   }
 
   readonly resultCopy = computed(() => {
@@ -798,8 +943,23 @@ export class PublicCheckTicketPage {
     return s.kind === 'result' ? STAMP_LINES[s.status] : [];
   });
 
+  /** The raw API data from the last successful verify call. */
+  readonly resultData = computed<PublicTicketVerificationResponse | null>(() => {
+    const s = this.state();
+    return s.kind === 'result' ? s.data : null;
+  });
+
+  readonly resultDraw = computed<VerifyTicketDraw | null>(
+    () => this.resultData()?.draw ?? null,
+  );
+
+  readonly resultLines = computed<readonly VerifyTicketLine[]>(
+    () => this.resultData()?.lines ?? [],
+  );
+
   readonly receiptDate = computed(() => {
-    const d = new Date();
+    const placedAt = this.resultData()?.placedAt;
+    const d = placedAt ? new Date(placedAt) : new Date();
     const m = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOU','SEP','OCT','NOV','DÉC'];
     return `${String(d.getDate()).padStart(2, '0')} ${m[d.getMonth()]} ${d.getFullYear()}`;
   });
@@ -813,15 +973,23 @@ export class PublicCheckTicketPage {
 
   submit(event: Event): void {
     event.preventDefault();
-    const compact = this.code().replace(/-/g, '');
-    if (compact.length < 6 || !CODE_PATTERN.test(this.code())) {
-      this.state.set({ kind: 'result', status: 'NOT_FOUND' });
+    const normalized = normalizePublicCode(this.code());
+    if (!CODE_PATTERN.test(this.code())) {
+      this.state.set({ kind: 'result', status: 'NOT_FOUND', data: null });
       return;
     }
+    this.doVerify(normalized);
+  }
+
+  /** Internal: call the API and update state. Called from constructor (auto-submit) or submit(). */
+  private doVerify(normalizedCode: string): void {
     this.state.set({ kind: 'loading' });
-    window.setTimeout(() => {
-      this.state.set({ kind: 'result', status: 'SERVICE_UNAVAILABLE' });
-    }, 450);
+    this.svc
+      .verify(normalizedCode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ status, data }) =>
+        this.state.set({ kind: 'result', status, data }),
+      );
   }
 
   reset(): void {
@@ -830,34 +998,49 @@ export class PublicCheckTicketPage {
   }
 }
 
+/** Formate pour l'affichage : QVQENRVR → QVQE-NRVR (4-4). */
 export function formatPublicCode(value: string): string {
-  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
+  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
   if (compact.length <= 4) return compact;
-  if (compact.length <= 8) return `${compact.slice(0, 4)}-${compact.slice(4)}`;
-  return `${compact.slice(0, 4)}-${compact.slice(4, 7)}-${compact.slice(7)}`;
+  return `${compact.slice(0, 4)}-${compact.slice(4)}`;
 }
 
 export function verificationCopy(status: VerificationStatus): VerificationCopy {
   const map: Record<VerificationStatus, VerificationCopy> = {
+    WINNING_PAYABLE: {
+      icon: 'task_alt', tone: 'success',
+      titleKey: 'public.check.status.WINNING_PAYABLE.title',
+      bodyKey:  'public.check.status.WINNING_PAYABLE.body',
+    },
+    WINNING_PAID: {
+      icon: 'check_circle', tone: 'neutral',
+      titleKey: 'public.check.status.WINNING_PAID.title',
+      bodyKey:  'public.check.status.WINNING_PAID.body',
+    },
+    LOST: {
+      icon: 'remove_circle', tone: 'neutral',
+      titleKey: 'public.check.status.LOST.title',
+      bodyKey:  'public.check.status.LOST.body',
+    },
     PENDING_RESULT: {
       icon: 'schedule', tone: 'warning',
       titleKey: 'public.check.status.PENDING_RESULT.title',
       bodyKey:  'public.check.status.PENDING_RESULT.body',
     },
-    NOT_PAYABLE: {
-      icon: 'remove_circle', tone: 'neutral',
-      titleKey: 'public.check.status.NOT_PAYABLE.title',
-      bodyKey:  'public.check.status.NOT_PAYABLE.body',
-    },
-    PAYABLE: {
-      icon: 'task_alt', tone: 'success',
-      titleKey: 'public.check.status.PAYABLE.title',
-      bodyKey:  'public.check.status.PAYABLE.body',
-    },
-    INVALID_OR_CANCELLED: {
+    CANCELLED: {
       icon: 'block', tone: 'danger',
-      titleKey: 'public.check.status.INVALID_OR_CANCELLED.title',
-      bodyKey:  'public.check.status.INVALID_OR_CANCELLED.body',
+      titleKey: 'public.check.status.CANCELLED.title',
+      bodyKey:  'public.check.status.CANCELLED.body',
+    },
+    EXPIRED: {
+      icon: 'timer_off', tone: 'neutral',
+      titleKey: 'public.check.status.EXPIRED.title',
+      bodyKey:  'public.check.status.EXPIRED.body',
+    },
+    BLOCKED: {
+      icon: 'lock', tone: 'danger',
+      titleKey: 'public.check.status.BLOCKED.title',
+      bodyKey:  'public.check.status.BLOCKED.body',
     },
     NOT_FOUND: {
       icon: 'search_off', tone: 'danger',
@@ -872,3 +1055,6 @@ export function verificationCopy(status: VerificationStatus): VerificationCopy {
   };
   return map[status];
 }
+
+// Re-export QR helpers so consumers can import from the page barrel if needed
+export { extractPublicCodeFromQr, normalizePublicCode };

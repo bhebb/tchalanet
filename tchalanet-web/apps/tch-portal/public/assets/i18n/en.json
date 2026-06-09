@@ -79,10 +79,12 @@
       "title": "Features"
     },
     "hero": {
-      "cta": "Start verification",
-      "subtitle": "Tchalanet helps operators manage tickets, draws, points of sale, and public verification with clearer follow-up.",
+      "cta": "Verify a ticket",
+      "eyebrow": "Public ticket verification",
+      "subtitle": "Play. Verify. Win.",
       "tagline": "Public ticket verification",
-      "title": "Verify tickets and check the latest draws."
+      "ticket_helper": "Enter your public code to check the status of your ticket.",
+      "title": "Welcome"
     },
     "nav": {
       "check_ticket": "Ticket",
@@ -90,6 +92,10 @@
     },
     "news": {
       "empty": "No news yet.",
+      "empty_body": "News will be available soon.",
+      "external_source": "Automatically aggregated external sources.",
+      "see_all": "See all news",
+      "subtitle": "Latest news around lotteries and operators.",
       "title": "News"
     },
     "plans": {
@@ -97,20 +103,44 @@
       "title": "Plans"
     },
     "tchala": {
+      "badge": "Tradition",
+      "discover": "Discover Tchala",
       "title": "Tchala",
       "eyebrow": "Dream Dictionary",
-      "subtitle": "Interpret your dreams into lucky numbers following the Haitian Tchala tradition.",
+      "subtitle": "Explore traditional correspondences between dreams, symbols and lucky numbers. An indicative cultural experience inspired by the Haitian tradition.",
       "search_placeholder": "Search water, dog, travel…",
       "search_label": "Search a dream",
       "search_submit": "Search",
       "all_label": "All",
       "alpha_nav_aria": "Alphabetical navigation",
       "numbers_label": "Associated numbers",
+      "searching": "Loading…",
+      "search_error": "Failed to load. Please try again.",
+      "pagination_aria": "Pagination",
+      "prev_page": "Previous",
+      "next_page": "Next",
       "empty": "No results for this search.",
       "note_title": "Indicative cultural references",
       "note_body": "These associations are drawn from the Haitian Tchala tradition and are presented for informational purposes only. They do not constitute a guarantee of results.",
       "by_number_label": "Search by number",
       "by_dream_label": "Search by dream",
+      "suggest": {
+        "title": "Suggest a Tchala entry",
+        "lead": "Know a dream–number association that's missing? Suggest it and our team will review it.",
+        "lead_short": "A missing word?",
+        "dream_label": "Dream or symbol",
+        "dream_placeholder": "e.g. Toad",
+        "numbers_label": "Associated numbers",
+        "numbers_placeholder": "e.g. 12 45",
+        "numbers_hint": "Separate numbers with a space or comma (0–99).",
+        "note_label": "Note (optional)",
+        "note_placeholder": "Cultural context or detail…",
+        "submit": "Suggest",
+        "success": "Thank you! Your suggestion has been received and will be reviewed.",
+        "suggest_again": "Suggest another word",
+        "error": "An error occurred. Please try again.",
+        "closed": "The suggestion box is temporarily full. Please check back later."
+      },
       "dream": {
         "poisson": "Fish",
         "serpent": "Snake",
@@ -121,6 +151,7 @@
   },
   "layout": {
     "public_home": {
+      "contact_cta": "Contact",
       "draws": "Draws",
       "features": "Features",
       "hero": "Hero",
@@ -173,7 +204,7 @@
       },
       "solutions": {
         "check_ticket": "Ticket verification",
-        "operators": "For operators",
+        "operators": "For managers",
         "pos_management": "Point of sale management",
         "title": "Solutions",
         "ticket_verification": "Ticket verification"
@@ -217,20 +248,20 @@
     "how": {
       "description": "A simple path to consult ticket status and follow available results.",
       "step1": {
-        "text": "Receive a ticket with QR or public code issued by a participating point of sale.",
-        "title": "Verifiable ticket"
+        "title": "Verifiable ticket",
+        "text": "Receive a ticket with QR or public code."
       },
       "step2": {
-        "text": "Enter the public code or scan the QR to consult ticket status.",
-        "title": "Online verification"
+        "title": "Online verification",
+        "text": "Scan the QR or enter the public code."
       },
       "step3": {
-        "text": "Consult ticket status and confirmed results according to supported sources.",
-        "title": "Status and results"
+        "title": "Status & results",
+        "text": "Check the ticket status and related results."
       },
       "step4": {
-        "text": "If the ticket is payable, follow the displayed instructions to contact the point of sale.",
-        "title": "Payment instructions"
+        "title": "Withdrawal instructions",
+        "text": "If the ticket is payable, follow the displayed instructions."
       },
       "title": "How do I verify a ticket?"
     },
@@ -252,7 +283,11 @@
       },
       "settings": "Settings",
       "subtitle": "Public route is available without login.",
-      "title": "Tchalanet Web"
+      "title": "Tchalanet Web",
+      "latest_results": {
+        "title": "Latest draws",
+        "subtitle": "Confirmed results according to supported sources."
+      }
     },
     "nav": {
       "check_ticket": "Verify a ticket",
@@ -263,63 +298,78 @@
       "menu": "Open menu",
       "menu_close": "Close menu",
       "menu_open": "Open menu",
+      "managers": "For managers",
       "operators": "For operators",
+      "operators_short": "Operators",
       "results": "Results",
       "rules": "Rules",
       "skip": "Skip to content",
       "verify_short": "Verify"
     },
-    "operator": {
-      "access": "Operator access",
+    "manager": {
+      "access": "Manager access",
       "demo": "Request a demo",
-      "description": "Discover how Tchalanet can simplify daily operations, improve sales tracking, and automate activity reports.",
-      "title": "Do you manage a point of sale or a seller network?",
-      "eyebrow": "For operators",
+      "discover": "Discover manager space",
+      "description": "For points of sale, sellers and network managers. Sell tickets, track sessions, verify results and consult your reports.",
+      "title": "Manager space",
+      "eyebrow": "For managers"
+    },
+    "operator": {
+      "access": "Manager access",
+      "demo": "Request a demo",
+      "discover": "Discover manager space",
+      "description": "For points of sale, sellers and network managers. Sell tickets, track sessions, verify results and consult your reports.",
+      "title": "Manager space",
+      "eyebrow": "For managers",
       "hero_aria": "Operators section",
-      "hero_title": "Manage your ticket sales with greater clarity.",
-      "hero_body": "Tchalanet helps operators manage tickets, sellers, terminals, draws, and public ticket verification. A centralized platform to better track your operations.",
+      "hero_title": "Manage your sellers, tickets and reports with greater clarity.",
+      "hero_body": "Tchalanet helps borlette banks, points of sale and seller networks issue tickets, track sessions, verify results and consult activity reports.",
+      "hero_stat_tickets": "Tickets today",
+      "hero_stat_sessions": "Open sessions",
+      "hero_stat_agents": "Active sellers",
+      "hero_stat_payments": "Payments to track",
       "cta_demo": "Request a demo",
-      "cta_plans": "View plans",
-      "benefits_title": "Key Features",
-      "benefits_body": "A robust infrastructure designed for scalability and security of your daily operations.",
-      "benefit_tickets_title": "Ticket sale and printing",
-      "benefit_tickets_body": "Issue tickets with unique QR codes to enable instant verification by customers.",
-      "benefit_verify_title": "Public verification",
-      "benefit_verify_body": "Give your customers the ability to check the status of their tickets through a dedicated interface.",
+      "cta_plans": "Discover features",
+      "benefits_title": "What Tchalanet brings to your operations",
+      "benefits_body": "An infrastructure built for points of sale and seller networks day to day.",
       "benefit_agents_title": "Sellers and terminals",
-      "benefit_agents_body": "Supervise your sellers and manage authorized terminals within controlled operational sessions.",
+      "benefit_agents_body": "Assign sellers to authorized points of sale and terminals.",
+      "benefit_tickets_title": "Ticket sale and printing",
+      "benefit_tickets_body": "Issue tickets with QR/public code to make verification easy.",
+      "benefit_verify_title": "Public verification",
+      "benefit_verify_body": "Let customers verify a ticket without accessing the manager space.",
       "benefit_results_title": "Results and statuses",
-      "benefit_results_body": "Consult and validate confirmed results from supported sources.",
+      "benefit_results_body": "Track confirmed results and ticket statuses.",
       "benefit_payments_title": "Payments and tracking",
-      "benefit_payments_body": "Automate payable ticket tracking according to your internal rules and draw validity.",
+      "benefit_payments_body": "Identify payable tickets and keep a record of payments.",
       "benefit_reports_title": "Activity reports",
-      "benefit_reports_body": "Get a clear analytical view of all your sales and operational performance.",
-      "workflow_title": "Operational Process",
+      "benefit_reports_body": "Consult sales, sessions and your network's performance.",
+      "workflow_title": "How it works",
       "step1_title": "Configure",
-      "step1_body": "Set up your points of sale, terminals, and assigned sellers.",
+      "step1_body": "Add points of sale, terminals and sellers.",
       "step2_title": "Sell",
       "step2_body": "Issue tickets from authorized terminals.",
       "step3_title": "Verify",
-      "step3_body": "Verification via QR or public code.",
+      "step3_body": "Tickets can be verified by QR or public code.",
       "step4_title": "Track",
-      "step4_body": "Monitor reports and payments.",
-      "plans_title": "Operator offers",
+      "step4_body": "Consult sales, payments and reports.",
+      "plans_title": "Offers for managers",
       "plans_body": "Choose the level of support suited to your network.",
-      "plan_trial_title": "Operator trial",
-      "plan_trial_price": "Trial available",
+      "plan_trial_title": "Trial",
+      "plan_trial_price": "Available",
       "plan_trial_body": "Test Tchalanet with a few sellers before a full deployment.",
       "plan_trial_cta": "Request a trial",
-      "plan_essential_title": "Essential",
-      "plan_essential_price": "100 USD / month",
+      "plan_essential_title": "Point of sale",
+      "plan_essential_price": "On request",
       "plan_essential_body": "For a point of sale that wants to start simply.",
       "plan_essential_cta": "Request a demo",
       "plan_network_title": "Network",
       "plan_network_price": "On request",
       "plan_network_body": "For multiple sellers, terminals, or points of sale.",
       "plan_network_cta": "Request a demo",
-      "plan_operator_title": "Operator",
+      "plan_operator_title": "Custom",
       "plan_operator_price": "Based on configuration",
-      "plan_operator_body": "For an organization that wants to pilot multiple operations.",
+      "plan_operator_body": "For an organization with advanced needs.",
       "plan_operator_cta": "Contact the team",
       "plan_badge_recommended": "RECOMMENDED",
       "feat_limits": "plan-defined limits",
@@ -338,38 +388,42 @@
       "feat_advanced_perms": "advanced permissions",
       "feat_reports_consolidated": "consolidated reports",
       "feat_integration": "integration support",
-      "access_title": "Controlled access based on your plan",
-      "access_body": "Each tenant has a plan and associated limits. The subscription indicates whether access is active, in trial, to be regularized, or suspended.",
-      "access_plan_title": "Plan",
-      "access_plan_body": "Defines the included options and limits.",
-      "access_subscription_title": "Subscription",
-      "access_subscription_body": "Indicates whether access is active, in trial, or to be regularized.",
-      "access_rights_title": "Applied rights",
-      "access_rights_body": "Control the features available in the application.",
-      "form_title": "Ready to test Tchalanet?",
-      "form_body": "Fill out the form below for a personalized demonstration.",
+      "access_title": "Controlled access for every organization",
+      "access_body": "Each user only sees the features authorized by their role, their point of sale, their terminal and the active plan.",
+      "access_rights_title": "User roles",
+      "access_rights_body": "Admin, supervisor, seller or cashier based on your needs.",
+      "access_subscription_title": "Authorized terminals",
+      "access_subscription_body": "Sales are linked to controlled terminals and sessions.",
+      "access_plan_title": "Plans and limits",
+      "access_plan_body": "Access and limits are applied based on your configuration.",
+      "form_title": "Request a demonstration",
+      "form_body": "Describe your point of sale or network. We will get back to you with a tailored demonstration.",
       "form_name_label": "Name",
-      "form_name_placeholder": "Ex: John Doe",
+      "form_name_placeholder": "Ex: Reginald Louisjuste",
       "form_org_label": "Organization / point of sale",
-      "form_org_placeholder": "Ex: Horizon Agency",
+      "form_org_placeholder": "Ex: Borlette Étoile du Nord",
       "form_contact_label": "Phone or email",
       "form_contact_placeholder": "contact@example.com",
       "form_city_label": "City / area",
-      "form_city_placeholder": "Port-au-Prince",
+      "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
       "form_message_label": "Optional message",
-      "form_message_placeholder": "Describe your needs...",
+      "form_message_placeholder": "Ex: I have 3 sellers in Carrefour and I want to manage my daily draws.",
       "form_cta": "Request a demo",
       "form_sending": "Sending...",
       "form_sent": "Request sent!",
       "faq_title": "Frequently asked questions",
       "faq_trial_q": "How does the trial period work?",
       "faq_trial_a": "The trial period lets you test the application with a limited number of sellers or terminals depending on the available plan.",
-      "faq_terminals_q": "What are the terminal limits?",
-      "faq_terminals_a": "Terminal limits depend on the plan and the rights applied to the tenant.",
-      "faq_verify_q": "How does public verification work?",
-      "faq_verify_a": "Each ticket has a public code or QR allowing anyone to check the ticket status transparently.",
-      "faq_expired_q": "What happens if the subscription expires?",
-      "faq_expired_a": "Some features may be limited until the subscription is regularized or reactivated."
+      "faq_terminals_q": "How many sellers or terminals can I use?",
+      "faq_terminals_a": "Limits depend on the chosen plan. Contact us to find the configuration suited to your network.",
+      "faq_verify_q": "How do customers verify a ticket?",
+      "faq_verify_a": "Each ticket has a public code or QR allowing anyone to check its status without accessing the manager space.",
+      "faq_expired_q": "What happens if my access is suspended?",
+      "faq_expired_a": "Features are limited until regularized. Contact the team to reactivate your access.",
+      "faq_multipos_q": "Can I manage multiple points of sale?",
+      "faq_multipos_a": "Yes. The Network and Custom plans allow you to configure multiple points of sale and centralize reports.",
+      "faq_mobile_q": "Can my sellers use Tchalanet on mobile?",
+      "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized sellers."
     },
     "check": {
       "code_hint": "The code format appears at the bottom of your printed receipt.",
@@ -378,29 +432,41 @@
       "loading_body": "Temporarily consulting the public verification service.",
       "loading_title": "Ticket verification in progress…",
       "status": {
-        "INVALID_OR_CANCELLED": {
-          "body": "This ticket cannot be verified as payable.",
-          "title": "Ticket invalid or cancelled"
+        "WINNING_PAYABLE": {
+          "title": "Winning ticket — payment to claim",
+          "body": "This ticket has a prize. Present the original receipt at a participating point of sale to collect your winnings per the displayed instructions."
         },
-        "NOT_FOUND": {
-          "body": "Invalid or missing code. Check the code and try again.",
-          "title": "Ticket not found"
+        "WINNING_PAID": {
+          "title": "Winning ticket — already paid",
+          "body": "This ticket has already been presented and paid. If you believe this is an error, contact Tchalanet customer support."
         },
-        "NOT_PAYABLE": {
-          "body": "This ticket does not show a payable amount according to available results.",
-          "title": "Ticket not payable"
-        },
-        "PAYABLE": {
-          "body": "If the ticket is payable, follow the displayed instructions to contact the point of sale. Always keep the original receipt.",
-          "title": "Ticket payable"
+        "LOST": {
+          "title": "Non-winning ticket",
+          "body": "This ticket does not show a prize based on the available results. Thank you for playing."
         },
         "PENDING_RESULT": {
-          "body": "The ticket is recognized, but the draw result is not available yet.",
-          "title": "Ticket awaiting result"
+          "title": "Ticket awaiting result",
+          "body": "The ticket is recognised, but the draw result is not yet available. Check back after the draw."
+        },
+        "CANCELLED": {
+          "title": "Cancelled ticket",
+          "body": "This ticket has been cancelled and cannot be paid. Contact the point of sale if you believe this is an error."
+        },
+        "EXPIRED": {
+          "title": "Expired ticket",
+          "body": "The claim period for this ticket has passed. Tchalanet tickets must be presented within the allowed timeframe."
+        },
+        "BLOCKED": {
+          "title": "Blocked ticket",
+          "body": "This ticket is temporarily blocked. Contact your point of sale or Tchalanet customer support for more information."
+        },
+        "NOT_FOUND": {
+          "title": "Ticket not found",
+          "body": "Invalid or missing code. Check the code printed on your receipt and try again."
         },
         "SERVICE_UNAVAILABLE": {
-          "body": "Verification is temporarily unavailable. Try again in a few moments.",
-          "title": "Service temporarily unavailable"
+          "title": "Service temporarily unavailable",
+          "body": "Verification is temporarily unavailable. Try again in a few moments."
         }
       },
       "result_eyebrow": "Verification result",
@@ -474,13 +540,17 @@
           "body": "This result is available according to supported sources.",
           "title": "Confirmed results"
         },
-        "PENDING": {
-          "body": "The result status is pending. Come back later to consult updated information.",
-          "title": "Pending"
+        "PROVISIONAL": {
+          "body": "Numbers are published but the result is awaiting final confirmation.",
+          "title": "Awaiting confirmation"
         },
-        "UNAVAILABLE": {
-          "body": "The result is temporarily unavailable for this draw.",
-          "title": "Unavailable"
+        "OVERRIDDEN": {
+          "body": "This result was manually corrected based on a validated source.",
+          "title": "Corrected results"
+        },
+        "ERROR": {
+          "body": "An error occurred for this result. Please check back later.",
+          "title": "Result error"
         }
       },
       "draw_datetime": "Draw date and time",
@@ -491,12 +561,21 @@
         "updated_at": "May 20, 2024 · 14:42"
       },
       "filters": {
-        "all": "All",
+        "all": "All results",
         "aria": "Result filters",
         "florida": "Florida",
         "georgia": "Georgia",
         "more": "More filters",
-        "new_york": "New York"
+        "new_york": "New York",
+        "texas": "Texas",
+        "provider": "State / provider",
+        "slot_type": "Draw type",
+        "slot_all": "All",
+        "slot_mid": "Midday",
+        "slot_eve": "Evening",
+        "slot_late": "Night",
+        "from": "From",
+        "to": "To"
       },
       "game": "Game",
       "latest_title": "Latest draws",
@@ -521,19 +600,47 @@
       "related_title": "Related results",
       "status": {
         "CONFIRMED": "Confirmed results",
-        "PENDING": "Pending",
-        "UNAVAILABLE": "Unavailable"
+        "PROVISIONAL": "Awaiting confirmation",
+        "OVERRIDDEN": "Corrected results",
+        "ERROR": "Result error"
       },
       "status_label": "Result status",
       "subtitle": "Confirmed results according to supported sources.",
       "supported_source": "Supported source",
       "verify_ticket": "Verify a ticket",
       "numbers_pending": "Numbers pending publication.",
+      "loading": "Loading draws…",
+      "load_error": "Unable to load results. Please check your connection.",
+      "retry": "Retry",
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "total": "result(s)",
+        "per_page": "Per page"
+      },
       "next_in": "Next draw in",
-      "awaiting": "Awaiting results"
+      "awaiting": "Awaiting results",
+      "table": {
+        "date": "Date",
+        "draw": "Draw",
+        "time": "Time",
+        "status": "Status",
+        "numbers": "Numbers",
+        "action": "Action"
+      },
+      "copy_ref": "Copy reference",
+      "copied": "Copied!"
+    },
+    "contact_cta": {
+      "body": "Tell us about your point of sale or network. We will get back to you for a tailored demonstration.",
+      "cta": "Request a demo",
+      "help": "View help",
+      "title": "Ready to discover Tchalanet?"
     },
     "rules": {
       "badge": "Indicative",
+      "cta_note": "Indicative simulation available depending on configured games.",
+      "cta_rules": "View rules",
       "calc_amount_label": "Bet (HTG)",
       "calc_gain_label": "Estimated gain",
       "calc_game_aria": "Select game type",
@@ -616,7 +723,7 @@
       "description": "Enter your public code to consult your ticket status.",
       "eyebrow": "Public ticket verification",
       "help": "Where can I find the public code?",
-      "placeholder": "ABC-123-XYZ",
+      "placeholder": "AB12-CD34",
       "scan_qr": "Scan QR",
       "title": "Verify a ticket",
       "status_pending": "Pending"
@@ -624,21 +731,48 @@
     "tchala": {
       "eyebrow": "Dream Dictionary",
       "title": "Tchala",
-      "subtitle": "Discover the meaning of your dreams and their corresponding numbers according to Haitian tradition.",
-      "search_label": "Search the Tchala",
-      "search_placeholder": "E.g. water, snake…",
+      "subtitle": "Explore traditional correspondences between dreams, symbols and lucky numbers. An indicative cultural experience inspired by the Haitian tradition.",
+      "search_label": "Search a dream",
+      "search_placeholder": "Search water, dog, travel…",
       "alpha_nav_aria": "Alphabetical navigation",
       "all_label": "All",
-      "numbers_label": "Numbers",
-      "empty": "No results found.",
-      "note_title": "Note",
-      "note_body": "The Tchala is a Haitian cultural tradition. The numbers shown are indicative and for informational purposes only."
+      "numbers_label": "Associated numbers",
+      "searching": "Loading…",
+      "search_error": "Failed to load. Please try again.",
+      "pagination_aria": "Pagination",
+      "prev_page": "Previous",
+      "next_page": "Next",
+      "empty": "No results for this search.",
+      "note_title": "Indicative cultural references",
+      "note_body": "These associations are drawn from the Haitian Tchala tradition and are presented for informational purposes only. They do not constitute a guarantee of results.",
+      "suggest": {
+        "title": "Suggest a Tchala entry",
+        "lead": "Know a dream–number association that's missing? Suggest it and our team will review it.",
+        "lead_short": "A missing word?",
+        "dream_label": "Dream or symbol",
+        "dream_placeholder": "e.g. Toad",
+        "numbers_label": "Associated numbers",
+        "numbers_placeholder": "e.g. 12 45",
+        "numbers_hint": "Separate numbers with a space or comma (0–99).",
+        "note_label": "Note (optional)",
+        "note_placeholder": "Cultural context or detail…",
+        "submit": "Suggest",
+        "success": "Thank you! Your suggestion has been received and will be reviewed.",
+        "suggest_again": "Suggest another word",
+        "error": "An error occurred. Please try again.",
+        "closed": "The suggestion box is temporarily full. Please check back later."
+      }
     }
   },
   "widget": {
     "error": "This content is temporarily unavailable.",
     "invalid": "Invalid widget.",
     "unsupported": "Unsupported widget type."
+  },
+  "ticket": {
+    "status": {
+      "pending": "Pending"
+    }
   },
   "theme": {
     "modes": {
@@ -659,6 +793,77 @@
       "m3-cyan": "Material cyan",
       "m3-amber": "Material amber",
       "m3-brown": "Material brown"
+    }
+  },
+  "draw_channel": {
+    "ny": {
+      "mid": {
+        "label": "New York Midday"
+      },
+      "eve": {
+        "label": "New York Evening"
+      }
+    },
+    "fl": {
+      "mid": {
+        "label": "Florida Midday"
+      },
+      "eve": {
+        "label": "Florida Evening"
+      }
+    },
+    "ga": {
+      "mid": {
+        "label": "Georgia Midday"
+      },
+      "eve": {
+        "label": "Georgia Evening"
+      },
+      "late": {
+        "label": "Georgia Night"
+      }
+    },
+    "tx": {
+      "1000": {
+        "label": "Texas 10:00"
+      },
+      "1227": {
+        "label": "Texas 12:27"
+      },
+      "1800": {
+        "label": "Texas 18:00"
+      },
+      "2212": {
+        "label": "Texas 22:12"
+      }
+    }
+  },
+  "catalog": {
+    "game": {
+      "HT_BOLET": "Bolet",
+      "HT_MARYAJ": "Marriage",
+      "HT_MARYAJ_GRATUIT": "Free Marriage",
+      "HT_LOTO3": "Lotto 3",
+      "HT_LOTO4": "Lotto 4",
+      "HT_LOTO5": "Lotto 5"
+    },
+    "bet_type": {
+      "MATCH_1_2D": "1st number",
+      "MATCH_2_2D": "2nd number",
+      "MATCH_3_2D": "3rd number",
+      "MARRIAGE_2D2D": "Marriage",
+      "MARRIAGE_2D": "Marriage",
+      "LOTTO3_3D": "3-digit lotto",
+      "LOTTO4_PATTERN": "4-digit lotto",
+      "LOTTO5_PATTERN": "5-digit lotto"
+    },
+    "option": {
+      "Exact": "Exact",
+      "EXACT": "Exact",
+      "Any": "Any Order",
+      "ANY": "Any Order",
+      "Front": "Front",
+      "Back": "Back"
     }
   }
 }

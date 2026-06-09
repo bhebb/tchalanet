@@ -4,6 +4,7 @@
   "titleKey": "home.hero.title",
   "taglineKey": "home.hero.tagline",
   "subtitleKey": "home.hero.subtitle",
+  "eyebrowKey": "home.hero.eyebrow",
   "image": {
     "url": "/assets/public/home/hero-ticket.png",
     "altKey": "home.hero.image_alt",
@@ -12,6 +13,13 @@
     "height": null,
     "aspectRatio": "16:9",
     "loading": "eager"
+  },
+  "visual": {
+    "kind": "ticket-preview",
+    "ticketCode": "AB31-XY23",
+    "statusLabelKey": "ticket.status.pending",
+    "helperTextKey": "home.hero.ticket_helper",
+    "decorative": true
   },
   "actions": [
     {
@@ -25,11 +33,7 @@
         "value": "/public/check-ticket"
       },
       "icon": "qr_code_scanner",
-      "image": null,
-      "activeMatch": null,
       "disabled": false,
-      "reasonKey": null,
-      "badge": null,
       "children": []
     },
     {
@@ -43,11 +47,7 @@
         "value": "/public/contact"
       },
       "icon": "rocket_launch",
-      "image": null,
-      "activeMatch": null,
       "disabled": false,
-      "reasonKey": null,
-      "badge": null,
       "children": []
     }
   ]

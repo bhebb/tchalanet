@@ -33,12 +33,12 @@ interface FaqItem {
 const P = 'public.operator';
 
 const BENEFITS: readonly Benefit[] = [
-  { icon: 'qr_code_2',             titleKey: `${P}.benefit_tickets_title`,  bodyKey: `${P}.benefit_tickets_body`  },
-  { icon: 'public',                titleKey: `${P}.benefit_verify_title`,   bodyKey: `${P}.benefit_verify_body`   },
-  { icon: 'group',                 titleKey: `${P}.benefit_agents_title`,   bodyKey: `${P}.benefit_agents_body`   },
-  { icon: 'analytics',             titleKey: `${P}.benefit_results_title`,  bodyKey: `${P}.benefit_results_body`  },
-  { icon: 'payments',              titleKey: `${P}.benefit_payments_title`, bodyKey: `${P}.benefit_payments_body` },
-  { icon: 'description',           titleKey: `${P}.benefit_reports_title`,  bodyKey: `${P}.benefit_reports_body`  },
+  { icon: 'group',        titleKey: `${P}.benefit_agents_title`,   bodyKey: `${P}.benefit_agents_body`   },
+  { icon: 'qr_code_2',    titleKey: `${P}.benefit_tickets_title`,  bodyKey: `${P}.benefit_tickets_body`  },
+  { icon: 'public',       titleKey: `${P}.benefit_verify_title`,   bodyKey: `${P}.benefit_verify_body`   },
+  { icon: 'analytics',    titleKey: `${P}.benefit_results_title`,  bodyKey: `${P}.benefit_results_body`  },
+  { icon: 'payments',     titleKey: `${P}.benefit_payments_title`, bodyKey: `${P}.benefit_payments_body` },
+  { icon: 'description',  titleKey: `${P}.benefit_reports_title`,  bodyKey: `${P}.benefit_reports_body`  },
 ];
 
 const STEPS: readonly WorkflowStep[] = [
@@ -85,22 +85,49 @@ const PLANS: readonly PlanDef[] = [
       <!-- Hero -->
       <section class="ops__hero" aria-label="{{ 'public.operator.hero_aria' | translate }}">
         <div class="ops__container ops__hero-inner">
-          <p class="ops__eyebrow">{{ 'public.operator.eyebrow' | translate }}</p>
-          <h1 class="ops__hero-title">{{ 'public.operator.hero_title' | translate }}</h1>
-          <p class="ops__hero-body">{{ 'public.operator.hero_body' | translate }}</p>
-          <div class="ops__hero-ctas">
-            <button tch-action class="ops__cta-primary" type="button">
-              {{ 'public.operator.cta_demo' | translate }}
-            </button>
-            <button tch-action class="ops__cta-ghost" type="button">
-              {{ 'public.operator.cta_plans' | translate }}
-            </button>
+          <div class="ops__hero-content">
+            <p class="ops__eyebrow">{{ 'public.operator.eyebrow' | translate }}</p>
+            <h1 class="ops__hero-title">{{ 'public.operator.hero_title' | translate }}</h1>
+            <p class="ops__hero-body">{{ 'public.operator.hero_body' | translate }}</p>
+            <div class="ops__hero-ctas">
+              <button tch-action class="ops__cta-primary" type="button" (click)="scrollToDemo()">
+                {{ 'public.operator.cta_demo' | translate }}
+              </button>
+              <button tch-action class="ops__cta-ghost" type="button" (click)="scrollToFeatures()">
+                {{ 'public.operator.cta_plans' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="ops__hero-visual" aria-hidden="true">
+            <div class="ops__stat-card">
+              <div class="ops__stat-row">
+                <span class="material-symbols-outlined ops__stat-icon">confirmation_number</span>
+                <span class="ops__stat-label">{{ 'public.operator.hero_stat_tickets' | translate }}</span>
+                <span class="ops__stat-value">247</span>
+              </div>
+              <div class="ops__stat-row">
+                <span class="material-symbols-outlined ops__stat-icon">timer</span>
+                <span class="ops__stat-label">{{ 'public.operator.hero_stat_sessions' | translate }}</span>
+                <span class="ops__stat-value">3</span>
+              </div>
+              <div class="ops__stat-row">
+                <span class="material-symbols-outlined ops__stat-icon">group</span>
+                <span class="ops__stat-label">{{ 'public.operator.hero_stat_agents' | translate }}</span>
+                <span class="ops__stat-value">12</span>
+              </div>
+              <div class="ops__stat-row ops__stat-row--highlight">
+                <span class="material-symbols-outlined ops__stat-icon">payments</span>
+                <span class="ops__stat-label">{{ 'public.operator.hero_stat_payments' | translate }}</span>
+                <span class="ops__stat-value">5</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Benefits -->
-      <section class="ops__section ops__benefits">
+      <section id="ops-benefits" class="ops__section ops__benefits">
         <div class="ops__container">
           <div class="ops__section-header">
             <h2>{{ 'public.operator.benefits_title' | translate }}</h2>
@@ -158,7 +185,7 @@ const PLANS: readonly PlanDef[] = [
                     </li>
                   }
                 </ul>
-                <button tch-action class="ops__plan-cta" [class.ops__plan-cta--featured]="plan.featured" type="button">
+                <button tch-action class="ops__plan-cta" [class.ops__plan-cta--featured]="plan.featured" type="button" (click)="scrollToDemo()">
                   {{ plan.ctaKey | translate }}
                 </button>
               </tch-card>
@@ -194,7 +221,7 @@ const PLANS: readonly PlanDef[] = [
       </section>
 
       <!-- Demo form -->
-      <section class="ops__section ops__form-section">
+      <section id="ops-demo-form" class="ops__section ops__form-section">
         <div class="ops__container ops__form-container">
           <tch-card class="ops__form-card">
             <div class="ops__form-header">
@@ -329,11 +356,77 @@ const PLANS: readonly PlanDef[] = [
     .ops__hero-inner {
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 2.5rem;
+
+      @include bp.up(expanded) {
+        flex-direction: row;
+        align-items: center;
+        gap: 4rem;
+      }
     }
 
     .ops__hero-content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .ops__hero-visual {
+      width: 100%;
+      max-width: 340px;
+      margin-inline: auto;
+
+      @include bp.up(expanded) {
+        flex: 0 0 300px;
+        margin-inline: 0;
+      }
+    }
+
+    /* ── Stat card (mock dashboard) ── */
+    .ops__stat-card {
+      background: color-mix(in oklab, var(--tch-color-primary-fixed-dim, #c4c6ea) 20%, transparent);
+      border: 1px solid color-mix(in oklab, #fff 20%, transparent);
+      border-radius: var(--tch-radius-xl, 24px);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      color: var(--tch-color-on-primary, #fff);
+    }
+
+    .ops__stat-row {
+      display: grid;
+      grid-template-columns: 1.375rem 1fr auto;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.875rem;
+      border-radius: var(--tch-radius-lg, 12px);
+      background: color-mix(in oklab, #fff 8%, transparent);
+    }
+
+    .ops__stat-row--highlight {
+      background: color-mix(in oklab, var(--tch-color-accent, #fecb00) 18%, transparent);
+    }
+
+    .ops__stat-icon {
+      font-size: 1.125rem;
+      opacity: 0.75;
+    }
+
+    .ops__stat-label {
+      font-size: 0.8125rem;
+      opacity: 0.8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ops__stat-value {
+      font-family: var(--tch-font-family-mono, monospace);
+      font-weight: var(--tch-weight-bold, 700);
+      font-size: 1rem;
+      color: var(--tch-color-accent, #fecb00);
     }
 
     .ops__eyebrow {
@@ -880,9 +973,9 @@ export class PublicOperatorsPage {
   readonly formState = signal<'idle' | 'sending' | 'sent'>('idle');
 
   readonly accessItems = [
-    { icon: 'card_membership', titleKey: `${P}.access_plan_title`,         bodyKey: `${P}.access_plan_body`         },
-    { icon: 'event_repeat',    titleKey: `${P}.access_subscription_title`, bodyKey: `${P}.access_subscription_body` },
-    { icon: 'admin_panel_settings', titleKey: `${P}.access_rights_title`,  bodyKey: `${P}.access_rights_body`       },
+    { icon: 'manage_accounts',  titleKey: `${P}.access_rights_title`,       bodyKey: `${P}.access_rights_body`       },
+    { icon: 'point_of_sale',    titleKey: `${P}.access_subscription_title`, bodyKey: `${P}.access_subscription_body` },
+    { icon: 'price_check',      titleKey: `${P}.access_plan_title`,         bodyKey: `${P}.access_plan_body`         },
   ];
 
   readonly faqItems: FaqItem[] = [
@@ -890,6 +983,8 @@ export class PublicOperatorsPage {
     { qKey: `${P}.faq_terminals_q`, aKey: `${P}.faq_terminals_a`, open: false },
     { qKey: `${P}.faq_verify_q`,   aKey: `${P}.faq_verify_a`,   open: false },
     { qKey: `${P}.faq_expired_q`,  aKey: `${P}.faq_expired_a`,  open: false },
+    { qKey: `${P}.faq_multipos_q`, aKey: `${P}.faq_multipos_a`, open: false },
+    { qKey: `${P}.faq_mobile_q`,   aKey: `${P}.faq_mobile_a`,   open: false },
   ];
 
   readonly accessLogSample = `{
@@ -903,6 +998,14 @@ export class PublicOperatorsPage {
     "Sessions"
   ]
 }`;
+
+  scrollToDemo(): void {
+    document.getElementById('ops-demo-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  scrollToFeatures(): void {
+    document.getElementById('ops-benefits')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   toggleFaq(index: number): void {
     this.faqItems[index].open = !this.faqItems[index].open;

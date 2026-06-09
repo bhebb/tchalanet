@@ -9,6 +9,6 @@ public record TicketPublicProperties(
 ) {
     public TicketPublicProperties {
         if (baseUrl == null) baseUrl = "https://app.tchalanet.com";
-        if (ticketPathTemplate == null || ticketPathTemplate.isBlank()) ticketPathTemplate = "/ticket/{code}";
+        if (ticketPathTemplate == null || ticketPathTemplate.isBlank()) ticketPathTemplate = "/public/check-ticket?code={code}";
     }
 }
