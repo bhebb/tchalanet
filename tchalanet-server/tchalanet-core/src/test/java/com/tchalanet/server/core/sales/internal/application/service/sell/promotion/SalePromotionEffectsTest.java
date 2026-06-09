@@ -27,7 +27,10 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSour
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
+import com.tchalanet.server.core.sales.internal.application.service.sell.generation.DefaultSelectionGenerationService;
+import com.tchalanet.server.core.sales.internal.application.service.sell.generation.RandomSelectionGenerator;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.selection.api.SelectionApi;
@@ -85,7 +88,10 @@ class SalePromotionEffectsTest {
         () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
         SELECTION_STUB,
         PRICING_STUB,
-        new PromotionSelectionResolver()
+        new PromotionSelectionResolver(new DefaultSelectionGenerationService(
+            new RandomSelectionGenerator(),
+            new DefaultSelectionApi()
+        ))
     );
     private final SalePromotionEffectApplier applier =
         new SalePromotionEffectApplier(lineFactory, oddsBoostApplier, chargeApplier);

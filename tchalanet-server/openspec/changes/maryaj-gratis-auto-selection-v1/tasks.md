@@ -34,12 +34,13 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 5. SelectionGenerationService
 
-- [ ] `SelectionGenerationService` dans `core.sales` (port + service).
-- [ ] `RandomSelectionGenerator` — règles jeu depuis catalog/runtime game config (nb numéros, range, doublons, format).
-- [ ] Enum stratégie avec `LOW_EXPOSURE_RANDOM` -> UNSUPPORTED.
-- [ ] `purpose` : PROMOTION_FREE_LINE | CASHIER_SUGGESTION.
-- [ ] Vérifier que les règles de génération de `HT_MARYAJ_GRATUIT` sont disponibles au runtime ; sinon, compléter catalog (lecture des seeds V204/V208).
-- [ ] Tests unitaires : sélections valides, respect range/doublons, gameCode inconnu.
+- [x] `SelectionGenerationService` dans `core.sales` (port + service).
+- [x] `RandomSelectionGenerator` — règles jeu depuis catalog/runtime game config (nb numéros, range, doublons, format).
+- [x] Enum stratégie avec `LOW_EXPOSURE_RANDOM` -> UNSUPPORTED.
+- [x] `purpose` : PROMOTION_FREE_LINE | CASHIER_SUGGESTION.
+- [x] Vérifier que les règles de génération de `HT_MARYAJ_GRATUIT` sont disponibles au runtime ; sinon, compléter catalog (lecture des seeds V204/V208).
+- [x] Tests unitaires : sélections valides, respect range/doublons, gameCode inconnu.
+- [x] Bonus : `PromotionSelectionResolver` branché sur le service — remplace le générateur hash qui produisait une sélection invalide (un seul 2D) pour MARRIAGE_2D2D (bug latent du flux FREE_GAME_LINE existant).
 
 ## 6. SalePreparation core
 

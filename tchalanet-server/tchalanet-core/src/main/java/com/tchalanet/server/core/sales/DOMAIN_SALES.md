@@ -395,14 +395,23 @@ purge EXPIRED/CANCELLED à 7 j ; CONFIRMED gardé 30 j ou jusqu'à
 réconciliation ; index (tenant_id, status, expires_at).
 ```
 
-### SelectionGenerationService (`core.sales`, jamais `core.promotion`)
+### SelectionGenerationService (`core.sales`, jamais `core.promotion`) — ✅ IMPLÉMENTÉ (2026-06-09)
 
 ```text
-generate(gameCode, strategy, purpose)
-  strategy : RANDOM (V1) | LOW_EXPOSURE_RANDOM (enum prête, refusée partout V1)
-  purpose  : PROMOTION_FREE_LINE | CASHIER_SUGGESTION
-  règles jeu (nb numéros, range, doublons, format) depuis catalog/runtime.
+internal/application/service/sell/generation/
+  SelectionGenerationService (interface)
+  DefaultSelectionGenerationService  (dispatch stratégie + canonicalisation SelectionApi)
+  RandomSelectionGenerator           (SecureRandom ; paire 2D distincte pour MARRIAGE_2D2D)
+api/model/selection/
+  SelectionGenerationStrategy : RANDOM (V1) | LOW_EXPOSURE_RANDOM (refusée partout V1)
+  SelectionGenerationPurpose  : PROMOTION_FREE_LINE | CASHIER_SUGGESTION
 ```
+
+Les règles de forme viennent de `catalog.game.api` (`BetType.canonicalWidth`,
+`BetOption`) + `core.selection` (`SelectionApi.canonicalize`) — pas de config
+DB supplémentaire. Branché dans `PromotionSelectionResolver` : remplace
+l'ancien générateur hash déterministe qui produisait un seul nombre 2D pour un
+Maryaj (sélection invalide pour `MARRIAGE_2D2D` — bug latent corrigé).
 
 ### Ligne promotionnelle (snapshot TicketLine)
 
