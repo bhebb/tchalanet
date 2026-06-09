@@ -564,3 +564,52 @@ core.sales integration:
 - [ ] `SalePromotionEffectApplier` default branch throws, never warns.
 - [ ] Odds read from `pricing_odds`; `FREE_GAME_LINE` effect carries no odds.
 - [ ] Snapshot embeds the `PromotionDecision` verbatim; settlement re-reads it.
+
+---
+
+## 16. Sélection auto-générée & template tenant — SPÉCIFIÉ, non implémenté
+
+> Source de vérité : `tchalanet-server/openspec/changes/maryaj-gratis-auto-selection-v1/`
+> (proposal + design + tasks). Mettre à jour le statut quand les slices livrent.
+
+### Extension de l'effet (FREE_GAME_LINE)
+
+Champs ajoutés sur `promotion_rule_effect` :
+
+```text
+selection_mode                 MANUAL | AUTO_GENERATED
+generation_strategy            RANDOM | LOW_EXPOSURE_RANDOM
+regenerable_before_confirm     boolean
+max_regenerations_before_confirm  int (défaut 3)
+```
+
+Règles :
+
+- `AUTO_GENERATED` exige une stratégie supportée.
+- `LOW_EXPOSURE_RANDOM` est **refusé partout en V1** (validation effet,
+  activation campagne, génération, régénération) — l'enum n'est qu'une
+  réservation.
+- Promotion **ne génère jamais** les numéros. Elle décide l'effet ;
+  `core.sales.SelectionGenerationService` génère et matérialise
+  (voir `core/sales/DOMAIN_SALES.md` §11).
+- Ce mécanisme complète `PromotionSelectionResolver` (§11) : avec
+  `selection_mode = AUTO_GENERATED`, la sélection vient du générateur côté
+  sales (`selectionSource = AUTO_GENERATED`), pas du client ni d'un défaut.
+
+### Template par défaut tenant
+
+```text
+DEFAULT_MARYAJ_GRATIS (seed versionné, pas de campagne globale runtime)
+  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT, quantity = 1
+  payoutBaseAmount = 50 HTG (défaut, à confirmer — porté par le seed)
+  selectionMode = AUTO_GENERATED, generationStrategy = RANDOM
+  regenerableBeforeConfirm = true, max 3
+  éligibilité : minPaidTotal > 0 + au moins 1 ligne payante
+```
+
+- Instanciation : template plateforme -> campagne tenant ACTIVE via commande
+  admin interne. Hook onboarding = follow-up ; **jamais de backfill
+  automatique silencieux** des tenants existants (tâche ops avec dry-run).
+- Chaque tenant peut ensuite désactiver/pauser la campagne, modifier montant,
+  éligibilité, quantité (valeur fixe V1 ; mode multiplicateur = open question
+  du change).
