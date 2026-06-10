@@ -1,0 +1,244 @@
+    <div class="check-page">
+
+      <!-- ─── Form / Loading: hero + panel + help ─── -->
+      @if (state().kind !== 'result') {
+
+        <section class="check-page__hero" aria-labelledby="check-title">
+          <div class="check-page__visual" aria-hidden="true">
+            <img
+              class="check-page__ticket-image"
+              src="/assets/public/ticket-verification-preview.svg"
+              alt=""
+            />
+            <div class="check-page__visual-badge">
+              <span class="material-symbols-outlined">verified_user</span>
+              <span>{{ 'public.check.visual_badge' | translate }}</span>
+            </div>
+          </div>
+          <div class="check-page__intro">
+            <p class="check-page__eyebrow">{{ 'public.ticket.eyebrow' | translate }}</p>
+            <h1 id="check-title">{{ 'public.ticket.title' | translate }}</h1>
+            <p>{{ 'public.ticket.description' | translate }}</p>
+          </div>
+        </section>
+
+        <tch-card class="check-page__panel">
+          @switch (state().kind) {
+
+            @case ('default') {
+              <form class="check-page__form" (submit)="submit($event)">
+                <div class="check-page__field">
+                  <label class="check-page__label" for="public-ticket-code">
+                    {{ 'public.ticket.code_label' | translate }}
+                  </label>
+                  <div class="check-page__input-wrap">
+                    <input
+                      id="public-ticket-code"
+                      class="check-page__code-input"
+                      name="code"
+                      autocomplete="off"
+                      inputmode="text"
+                      maxlength="9"
+                      [value]="code()"
+                      [placeholder]="'public.ticket.placeholder' | translate"
+                      (input)="updateCode($event)"
+                    />
+                    <button
+                      class="check-page__scan-button"
+                      type="button"
+                      [attr.aria-label]="'public.ticket.scan_qr' | translate"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
+                      <span class="check-page__scan-label" aria-hidden="true">
+                        {{ 'public.ticket.scan_qr' | translate }}
+                      </span>
+                    </button>
+                  </div>
+                  <p class="check-page__hint">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                    <span>{{ 'public.check.code_hint' | translate }}</span>
+                  </p>
+                </div>
+                <button
+                  tch-action
+                  class="check-page__submit"
+                  type="submit"
+                  style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+                >
+                  {{ 'public.ticket.cta' | translate }}
+                </button>
+              </form>
+            }
+
+            @case ('loading') {
+              <tch-loading
+                [label]="'public.check.loading_title' | translate"
+                [ariaLabel]="'public.check.loading_title' | translate"
+              />
+            }
+
+          }
+        </tch-card>
+
+        <tch-card class="check-page__help-card" aria-labelledby="check-help-title">
+          <div class="check-page__help-icon" aria-hidden="true">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div>
+            <h2 id="check-help-title">{{ 'public.check.help_title' | translate }}</h2>
+            <p>{{ 'public.check.help_body' | translate }}</p>
+          </div>
+        </tch-card>
+
+      }
+
+      <!-- ─── Result state: full-width redesign ─── -->
+      @if (state().kind === 'result') {
+        <section class="check-result" aria-live="polite">
+
+          <div class="check-result__header">
+            <div>
+              <p class="check-result__eyebrow">{{ 'public.check.result_eyebrow' | translate }}</p>
+              <h1 class="check-result__code">{{ code() }}</h1>
+            </div>
+            <button
+              tch-action
+              class="check-result__verify-another"
+              type="button"
+              style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+              (click)="reset()"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+              {{ 'public.check.verify_another' | translate }}
+            </button>
+          </div>
+
+          <div class="check-result__grid">
+
+            <!-- Status card -->
+            <tch-card
+              class="check-result__status-card"
+              [class.is-success]="resultCopy().tone === 'success'"
+              [class.is-warning]="resultCopy().tone === 'warning'"
+              [class.is-danger]="resultCopy().tone  === 'danger'"
+              [class.is-neutral]="resultCopy().tone === 'neutral'"
+            >
+              <span class="check-result__status-corner" aria-hidden="true"></span>
+              <div class="check-result__status-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">{{ resultCopy().icon }}</span>
+              </div>
+              <div class="check-result__status-body">
+                <h2 class="check-result__status-title">
+                  {{ resultCopy().titleKey | translate }}
+                </h2>
+                <p class="check-result__status-desc">
+                  {{ resultCopy().bodyKey | translate }}
+                </p>
+              </div>
+            </tch-card>
+
+            <!-- Security / trust card -->
+            <tch-card class="check-result__security">
+              <div class="check-result__security-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">security</span>
+              </div>
+              <div>
+                <h3 class="check-result__security-title">
+                  {{ 'public.check.security_title' | translate }}
+                </h3>
+                <p class="check-result__security-body">
+                  {{ 'public.check.security_body' | translate }}
+                </p>
+              </div>
+            </tch-card>
+
+            <!-- Thermal receipt -->
+            <div class="check-result__receipt-wrap">
+              <div class="check-result__receipt">
+
+                <div class="check-result__receipt-header">
+                  <span class="check-result__receipt-brand">TCHALANET</span>
+                  <span class="check-result__receipt-sub">BUREAU CENTRAL PORT-AU-PRINCE</span>
+                  <span class="check-result__receipt-sub">TEL: +509 0000-0000</span>
+                </div>
+
+                <dl class="check-result__receipt-meta">
+                  <div><dt>CODE:</dt><dd>{{ code() }}</dd></div>
+                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
+                  @if (resultData()?.outlet?.name; as outlet) {
+                    <div><dt>PDV:</dt><dd>{{ outlet }}</dd></div>
+                  }
+                  @if (resultDraw(); as draw) {
+                    <div><dt>TIRAGE:</dt><dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd></div>
+                    <div><dt>DATE TIR.:</dt><dd>{{ draw.drawDate }}</dd></div>
+                  }
+                </dl>
+
+                @if (resultLines().length > 0) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-lines">
+                    @for (line of resultLines(); track line.lineNumber) {
+                      <div class="check-result__receipt-line">
+                        <div class="check-result__receipt-line-head">
+                          <span>{{ line.gameDisplayName | gameLabel }}</span>
+                          <span>{{ line.stake.amount | number:'1.0-0' }} {{ line.stake.currency.value }}</span>
+                        </div>
+                        <div class="check-result__receipt-line-detail">
+                          {{ line.selection }}
+                          · {{ line.optionLabel | gameLabel:'catalog.option' }}
+                        </div>
+                      </div>
+                    }
+                  </dl>
+                }
+
+                @if (resultData()?.totalAmount; as total) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-meta check-result__receipt-total">
+                    <div>
+                      <dt>TOTAL MISE:</dt>
+                      <dd>{{ total.amount | number:'1.0-0' }} {{ total.currency.value }}</dd>
+                    </div>
+                    @if (resultData()?.winningAmount; as win) {
+                      @if (!win.zero) {
+                        <div class="check-result__receipt-gain">
+                          <dt>GAIN:</dt>
+                          <dd>{{ win.amount | number:'1.0-0' }} {{ win.currency.value }}</dd>
+                        </div>
+                      }
+                    }
+                  </dl>
+                }
+
+                <div class="check-result__receipt-rule"></div>
+
+                <div class="check-result__stamp-wrap">
+                  <div
+                    class="check-result__stamp"
+                    [class.is-success]="resultCopy().tone === 'success'"
+                    [class.is-warning]="resultCopy().tone === 'warning'"
+                    [class.is-danger]="resultCopy().tone  === 'danger'"
+                    [class.is-neutral]="resultCopy().tone === 'neutral'"
+                    aria-hidden="true"
+                  >
+                    @for (line of stampLines(); track $index) {
+                      <span>{{ line }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="check-result__receipt-rule"></div>
+
+                <p class="check-result__receipt-footer">
+                  MERCI DE VOTRE CONFIANCE.<br />WWW.TCHALANET.COM
+                </p>
+
+                <div class="check-result__barcode" aria-hidden="true"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      }
+
+    </div>

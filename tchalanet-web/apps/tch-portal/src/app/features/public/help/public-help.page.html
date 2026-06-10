@@ -1,0 +1,71 @@
+<div class="help-page">
+  <section class="help-page__hero">
+    <h1>{{ 'public.help.hero_title' | translate }}</h1>
+    <p>{{ 'public.help.hero_body' | translate }}</p>
+    <label class="help-page__search">
+      <span class="help-page__search-label">{{ 'public.help.search_label' | translate }}</span>
+      <span class="material-symbols-outlined help-page__search-icon" aria-hidden="true">search</span>
+      <input
+        type="search"
+        class="help-page__search-input"
+        [placeholder]="'public.help.search_placeholder' | translate"
+        [value]="query()"
+        (input)="updateQuery($event)"
+      />
+    </label>
+  </section>
+
+  <nav class="help-page__categories" [attr.aria-label]="'public.help.cat_aria' | translate">
+    @for (cat of categories; track cat.icon) {
+      <tch-public-action-card [icon]="cat.icon" [title]="cat.labelKey" />
+    }
+  </nav>
+
+  <section class="help-page__faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">{{ 'public.help.faq_title' | translate }}</h2>
+    @for (item of faqItems; track item.q; let i = $index) {
+      <div class="help-page__faq-item">
+        <button
+          type="button"
+          class="help-page__faq-trigger"
+          [attr.aria-expanded]="item.open"
+          [attr.aria-controls]="'faq-panel-' + i"
+          (click)="toggleFaq(i)"
+        >
+          <span>{{ item.q }}</span>
+          <span class="material-symbols-outlined help-page__faq-chevron" [class.help-page__faq-chevron--open]="item.open" aria-hidden="true">expand_more</span>
+        </button>
+        @if (item.open) {
+          <div [id]="'faq-panel-' + i" class="help-page__faq-panel" role="region">
+            <p>{{ item.a }}</p>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="help-page__support" aria-labelledby="support-title">
+    <h2 id="support-title" class="help-page__sr-only">{{ 'public.help.support_section_aria' | translate }}</h2>
+
+    <tch-public-card tone="featured">
+      <div class="help-page__support-card-body">
+        <h3 class="help-page__featured-title">{{ 'public.help.support_direct_title' | translate }}</h3>
+        <p class="help-page__featured-body">{{ 'public.help.support_direct_body' | translate }}</p>
+        <a class="help-page__support-btn" routerLink="/public/contact">
+          <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
+          {{ 'public.help.support_direct_cta' | translate }}
+        </a>
+      </div>
+      <span class="material-symbols-outlined help-page__support-watermark" aria-hidden="true">shield</span>
+    </tch-public-card>
+
+    <tch-public-card>
+      <h3>{{ 'public.help.support_ticket_title' | translate }}</h3>
+      <p>{{ 'public.help.support_ticket_body' | translate }}</p>
+      <a class="help-page__support-link" routerLink="/public/contact">
+        {{ 'public.help.support_ticket_cta' | translate }}
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+    </tch-public-card>
+  </section>
+</div>

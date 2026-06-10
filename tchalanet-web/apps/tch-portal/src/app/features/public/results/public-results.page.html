@@ -1,0 +1,236 @@
+    <div class="results-page">
+      <!-- ── Hero ── -->
+      <section class="results-page__hero" aria-labelledby="results-page-title">
+        <img
+          class="results-page__hero-image"
+          src="/assets/public/results-hero-balls.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <div class="results-page__hero-shade" aria-hidden="true"></div>
+        <div class="results-page__hero-copy">
+          <p class="results-page__eyebrow">{{ 'public.results.detail_eyebrow' | translate }}</p>
+          <h1 id="results-page-title">{{ 'public.results.latest_title' | translate }}</h1>
+          <p>{{ 'public.results.subtitle' | translate }}</p>
+        </div>
+      </section>
+
+      <!-- ── List shell (filters + content + pagination) ── -->
+      <tch-public-list-shell>
+        <!-- Filters slot -->
+        <tch-public-filter-bar filters>
+          <!-- Provider chips -->
+          <div
+            class="results-page__filter-row"
+            role="group"
+            [attr.aria-label]="'public.results.filters.provider' | translate"
+          >
+            @for (p of providerFilters; track p.id) {
+              <button
+                type="button"
+                class="results-page__chip"
+                [class.is-active]="providerFilter() === p.id"
+                (click)="setProvider(p.id)"
+              >
+                {{ p.labelKey | translate }}
+              </button>
+            }
+          </div>
+
+          <!-- Slot type chips -->
+          <div
+            class="results-page__filter-row"
+            role="group"
+            [attr.aria-label]="'public.results.filters.slot_type' | translate"
+          >
+            @for (s of slotTypeFilters; track s.id) {
+              <button
+                type="button"
+                class="results-page__chip"
+                [class.is-active]="slotTypeFilter() === s.id"
+                (click)="setSlotType(s.id)"
+              >
+                {{ s.labelKey | translate }}
+              </button>
+            }
+          </div>
+
+          <!-- Date range -->
+          <div class="results-page__filter-dates">
+            <label class="results-page__date-label">
+              <span>{{ 'public.results.filters.from' | translate }}</span>
+              <input
+                class="results-page__date-input"
+                type="date"
+                [value]="fromDate()"
+                (change)="setFrom($any($event.target).value)"
+              />
+            </label>
+            <label class="results-page__date-label">
+              <span>{{ 'public.results.filters.to' | translate }}</span>
+              <input
+                class="results-page__date-input"
+                type="date"
+                [value]="toDate()"
+                (change)="setTo($any($event.target).value)"
+              />
+            </label>
+            @if (hasActiveFilters()) {
+              <button type="button" class="results-page__clear" (click)="clearFilters()">
+                {{ 'public.results.list.clear_filters' | translate }}
+              </button>
+            }
+          </div>
+        </tch-public-filter-bar>
+
+        <!-- Content slot -->
+        <ng-container content>
+          @if (result.isLoading()) {
+            <div class="results-page__loading" aria-live="polite" aria-busy="true">
+              <span class="results-page__spinner" aria-hidden="true"></span>
+              <span>{{ 'public.results.loading' | translate }}</span>
+            </div>
+          } @else if (result.error()) {
+            <div class="results-page__error" role="alert">
+              <span class="material-symbols-outlined">cloud_off</span>
+              <p>{{ 'public.results.load_error' | translate }}</p>
+              <button type="button" (click)="result.reload()">
+                {{ 'public.results.retry' | translate }}
+              </button>
+            </div>
+          } @else if (rows().length) {
+            <!-- Desktop table -->
+            <div class="results-page__table-wrap">
+              <table class="results-page__table">
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'public.results.table.date' | translate }}</th>
+                    <th scope="col">{{ 'public.results.table.draw' | translate }}</th>
+                    <th scope="col" class="results-page__th--right">
+                      {{ 'public.results.table.time' | translate }}
+                    </th>
+                    <th scope="col">{{ 'public.results.table.status' | translate }}</th>
+                    <th scope="col">{{ 'public.results.table.numbers' | translate }}</th>
+                    <th scope="col">
+                      <span class="visually-hidden">{{
+                        'public.results.table.action' | translate
+                      }}</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of rows(); track row.drawResultId) {
+                    <tr>
+                      <td class="results-page__td--date">{{ row.resultDate }}</td>
+                      <td class="results-page__td--draw">
+                        <span class="results-page__draw-label">{{
+                          row.drawChannelLabelKey | translate
+                        }}</span>
+                        <span class="results-page__draw-code">{{ row.slotKey }}</span>
+                      </td>
+                      <td class="results-page__td--right results-page__td--mono">
+                        {{ hhmm(row.drawTime) }}
+                      </td>
+                      <td>
+                        <span class="results-page__status-chip" [attr.data-status]="row.status">
+                          {{ statusLabel(row) | translate }}
+                        </span>
+                      </td>
+                      <td class="results-page__td--numbers">
+                        @if (row.numbers.length) {
+                          <div class="results-page__numbers">
+                            @for (n of row.numbers; track $index) {
+                              <span class="results-page__ball">{{ n }}</span>
+                            }
+                          </div>
+                        } @else {
+                          <span class="results-page__numbers-pending">
+                            {{ 'public.results.numbers_pending' | translate }}
+                          </span>
+                        }
+                      </td>
+                      <td class="results-page__td--action">
+                        <a
+                          class="results-page__detail-link"
+                          [routerLink]="['/public/results', row.drawResultId]"
+                        >
+                          {{ 'public.results.detail' | translate }}
+                          <span class="material-symbols-outlined" aria-hidden="true"
+                            >arrow_forward</span
+                          >
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile cards -->
+            <div class="results-page__mobile-cards">
+              @for (row of rows(); track row.drawResultId) {
+                <div class="results-page__card">
+                  <div class="results-page__card-top">
+                    <div>
+                      <p class="results-page__card-label">
+                        {{ row.drawChannelLabelKey | translate }}
+                      </p>
+                      <p class="results-page__card-meta">
+                        {{ row.resultDate }} · {{ hhmm(row.drawTime) }}
+                      </p>
+                    </div>
+                    <span class="results-page__status-chip" [attr.data-status]="row.status">
+                      {{ statusLabel(row) | translate }}
+                    </span>
+                  </div>
+                  @if (row.numbers.length) {
+                    <div class="results-page__numbers">
+                      @for (n of row.numbers; track $index) {
+                        <span class="results-page__ball">{{ n }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <p class="results-page__numbers-pending">
+                      {{ 'public.results.numbers_pending' | translate }}
+                    </p>
+                  }
+                  <a
+                    class="results-page__detail-link"
+                    [routerLink]="['/public/results', row.drawResultId]"
+                  >
+                    {{ 'public.results.detail' | translate }}
+                    <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                  </a>
+                </div>
+              }
+            </div>
+          } @else {
+            <tch-public-empty-state
+              icon="search_off"
+              [title]="'public.results.list.empty_title' | translate"
+              [message]="'public.results.list.empty_body' | translate"
+            >
+              @if (hasActiveFilters()) {
+                <button type="button" class="results-page__clear" (click)="clearFilters()">
+                  {{ 'public.results.list.clear_filters' | translate }}
+                </button>
+              }
+            </tch-public-empty-state>
+          }
+        </ng-container>
+
+        <!-- Footer slot: pagination (only when rows are loaded) -->
+        @if (rows().length) {
+          <tch-public-pagination-bar
+            footer
+            [page]="currentPage()"
+            [size]="pageSize()"
+            [total]="totalItems()"
+            [totalPages]="totalPages()"
+            [sizeOptions]="pageSizeOptions"
+            (pageChange)="currentPage.set($event)"
+            (sizeChange)="setPageSize($event)"
+          />
+        }
+      </tch-public-list-shell>
+    </div>

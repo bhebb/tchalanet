@@ -1,0 +1,146 @@
+    <div class="result-detail">
+      @if (isLoading()) {
+        <div class="result-detail__loading" aria-live="polite" aria-busy="true">
+          <span class="result-detail__spinner" aria-hidden="true"></span>
+          <span>{{ 'public.results.loading' | translate }}</span>
+        </div>
+      }
+
+      <nav class="result-detail__breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/public/results">{{ 'public.results.latest_title' | translate }}</a>
+        <span aria-hidden="true">/</span>
+        <span>{{ channelLabel() | translate }}</span>
+      </nav>
+
+      <section class="result-detail__hero" aria-labelledby="result-detail-title">
+        <div class="result-detail__copy">
+          <p class="result-detail__eyebrow">{{ 'public.results.detail_eyebrow' | translate }}</p>
+          <h1 id="result-detail-title">{{ channelLabel() | translate }}</h1>
+          <p class="result-detail__code">
+            {{ result().slotKey }} · {{ result().resultDate }} · {{ hhmm(result().drawTime) }}
+          </p>
+        </div>
+        <a class="result-detail__primary-action" routerLink="/public/check-ticket">
+          <span class="material-symbols-outlined">qr_code_scanner</span>
+          <span>{{ 'public.results.verify_ticket' | translate }}</span>
+        </a>
+      </section>
+
+      <section
+        class="result-detail__status"
+        [attr.data-status]="result().status"
+        aria-labelledby="result-status-title"
+      >
+        <div class="result-detail__status-icon">
+          <span class="material-symbols-outlined">{{ statusView().icon }}</span>
+        </div>
+        <div>
+          <p class="result-detail__status-label">{{ 'public.results.status_label' | translate }}</p>
+          <h2 id="result-status-title">{{ statusView().titleKey | translate }}</h2>
+          <p>{{ statusView().bodyKey | translate }}</p>
+        </div>
+      </section>
+
+      <div class="result-detail__layout">
+        <article class="result-detail__card" aria-labelledby="result-numbers-title">
+          <div class="result-detail__card-header">
+            <div>
+              <p class="result-detail__meta-label">
+                {{ 'public.results.draw_datetime' | translate }}
+              </p>
+              <h2 id="result-numbers-title">
+                {{ result().resultDate }} · {{ hhmm(result().drawTime) }}
+              </h2>
+            </div>
+            <span class="result-detail__chip" [attr.data-status]="result().status">
+              {{ statusLabel(result().status) | translate }}
+            </span>
+          </div>
+
+          @if (result().numbers.length) {
+            <div class="result-detail__numbers" aria-label="Result numbers">
+              @for (number of result().numbers; track $index) {
+                <span class="result-detail__number">{{ number }}</span>
+              }
+            </div>
+          } @else {
+            <p class="result-detail__no-numbers">
+              {{ 'public.results.numbers_pending' | translate }}
+            </p>
+          }
+
+          <dl class="result-detail__meta">
+            <div class="result-detail__meta-row">
+              <dt>{{ 'public.results.supported_source' | translate }}</dt>
+              <dd>{{ result().sourceLabel }}</dd>
+            </div>
+            @if (result().publishedAt) {
+              <div class="result-detail__meta-row">
+                <dt>{{ 'public.results.last_update' | translate }}</dt>
+                <dd>{{ fmtIso(result().publishedAt) }}</dd>
+              </div>
+            }
+            <div class="result-detail__meta-row">
+              <dt>{{ 'public.results.public_reference' | translate }}</dt>
+              <dd class="result-detail__ref-id">
+                <span class="result-detail__ref-short" [title]="result().drawResultId">
+                  {{ shortId(result().drawResultId) }}
+                </span>
+                <button
+                  type="button"
+                  class="result-detail__copy-btn"
+                  [attr.aria-label]="'public.results.copy_ref' | translate"
+                  (click)="copyRef(result().drawResultId)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ copiedRef() ? 'check' : 'content_copy' }}
+                  </span>
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <aside class="result-detail__receipt" aria-labelledby="result-receipt-title">
+          <div class="result-detail__receipt-edge" aria-hidden="true"></div>
+          <p class="result-detail__receipt-brand">TCHALANET</p>
+          <h2 id="result-receipt-title">{{ 'public.results.receipt_title' | translate }}</h2>
+          <div class="result-detail__receipt-code">{{ result().slotKey }}</div>
+          <div class="result-detail__receipt-lines">
+            <div>
+              <span>{{ 'public.results.game' | translate }}</span>
+              <strong>{{ channelLabel() | translate }}</strong>
+            </div>
+            <div>
+              <span>{{ 'public.results.draw_datetime' | translate }}</span>
+              <strong>{{ result().resultDate }} · {{ hhmm(result().drawTime) }}</strong>
+            </div>
+            <div>
+              <span>{{ 'public.results.status_label' | translate }}</span>
+              <strong>{{ statusLabel(result().status) | translate }}</strong>
+            </div>
+          </div>
+          <p class="result-detail__receipt-note">{{ 'public.results.receipt_note' | translate }}</p>
+        </aside>
+      </div>
+
+      @if (result().related.length) {
+        <section class="result-detail__related" aria-labelledby="related-results-title">
+          <div class="result-detail__section-heading">
+            <h2 id="related-results-title">{{ 'public.results.related_title' | translate }}</h2>
+            <a routerLink="/public/results">{{ 'public.results.all' | translate }}</a>
+          </div>
+          <div class="result-detail__related-grid">
+            @for (item of result().related; track item.drawResultId) {
+              <a
+                class="result-detail__related-card"
+                [routerLink]="['/public/results', item.drawResultId]"
+              >
+                <span>{{ item.label }}</span>
+                <strong>{{ statusLabel(item.status) | translate }}</strong>
+              </a>
+            }
+          </div>
+        </section>
+      }
+    </div>
