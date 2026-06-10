@@ -44,15 +44,15 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 6. SalePreparation core
 
-- [ ] Entité + table `sale_preparation` (BaseTenantEntity / RLS) — migration à valider avant création.
-- [ ] Statuts DRAFT / CONFIRMED / EXPIRED / CANCELLED + transitions.
-- [ ] TTL 10 minutes (`expires_at`), expiration paresseuse au confirm/regenerate + job périodique d'expiration.
-- [ ] Rétention : purge EXPIRED/CANCELLED après 7 jours ; CONFIRMED gardé 30 jours ou jusqu'à réconciliation, puis purge.
-- [ ] Index `(tenant_id, status, expires_at)`.
+- [x] Entité + table `sale_preparation` (+ `sale_preparation_promotion_line`) — migration V223, RLS + index + grants.
+- [x] Statuts DRAFT / CONFIRMED / EXPIRED / CANCELLED + transitions (`SalePreparationStateMachine`).
+- [x] TTL 10 minutes (`expires_at`) + job périodique (`SalePreparationRetentionScheduler`, ShedLock, per-tenant RLS binding). Check paresseux au confirm/regenerate -> slices 8-9.
+- [x] Rétention : purge EXPIRED/CANCELLED à 7 j ; CONFIRMED à 30 j (lien réconciliation = simple borne 30 j en V1, voir design).
+- [x] Index `(tenant_id, status, expires_at)` + unique partiel `(tenant_id, idempotency_key)`.
 - [ ] `input_hash`/`cart_hash` calculé serveur au prepare (dérive panier + déduplication).
 - [ ] `idempotency_key` + `ticket_id` stockés au confirm.
-- [ ] Lignes promo générées avec `line_ref` + `regeneration_count`.
-- [ ] Tests : transitions invalides, expiration, purge.
+- [x] Lignes promo générées avec `line_ref` + `regeneration_count` (+ regenerable/max_regenerations snapshotés sur la ligne).
+- [x] Tests : transitions invalides (state machine 3/3). Expiration/purge couverts par contraintes SQL + queries dédiées ; e2e en slice 12.
 
 ## 7. PrepareSaleCommand
 
