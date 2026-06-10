@@ -117,6 +117,15 @@ ConfirmPreparedSaleCommand
 Pas de réévaluation de la promotion au confirm — vérification de sécurité
 minimale seulement. La vérité des lignes vient de la préparation.
 
+**Décision d'implémentation (2026-06-10)** : le confirm rejoue le pipeline
+sell standard (`SellTicketCommand` reconstruit depuis l'input snapshotté) avec
+les sélections promotionnelles **épinglées** via `promotionChoices`
+(`PromotionSelectionResolver` privilégie les choix fournis). Les numéros du
+ticket sont garantis identiques au dernier preview ; la validation
+money/limits/session est conservée (sécurité financière). Conséquence
+assumée V1 : si la campagne a été désactivée pendant le TTL, la ligne
+gratuite disparaît au confirm.
+
 ## 6. TicketLine promotionnelle (snapshot)
 
 ```text

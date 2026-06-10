@@ -56,32 +56,32 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 7. PrepareSaleCommand
 
-- [ ] `PrepareSaleCommand` + handler : paidLines -> `EvaluatePromotionQuery` -> FREE_GAME_LINE -> génération -> persist préparation -> `SalePreparationView`.
-- [ ] Ordre de préparation conforme à close-promotion-v1 §11 (lines -> charges -> money -> promotion -> final money -> limits).
-- [ ] Endpoint cashier (web adapter) retournant preparationId + lignes finales.
-- [ ] Tenant sans campagne ACTIVE -> aucune ligne gratuite, flux inchangé.
-- [ ] Tests intégration.
+- [x] `PrepareSaleCommand` + handler : réutilise `SalePreparationOrchestrator` (mode FINAL) -> persist préparation -> `SalePreparationView`.
+- [x] Ordre de préparation conforme à close-promotion-v1 §11 (porté par l'orchestrateur existant).
+- [x] Endpoint cashier `POST /tenant/sales/preparations` (terminal proof gate, retourne preparationId + lignes finales).
+- [x] Tenant sans campagne ACTIVE -> aucune ligne gratuite (décision null => zéro ligne promo), flux inchangé.
+- [ ] Tests intégration (DB/e2e — slice 12).
 
 ## 8. RegeneratePromotionLineCommand
 
-- [ ] `RegenerateSalePreparationPromotionLineCommand` + handler.
-- [ ] Endpoint dédié `POST .../preparations/{preparationId}/promotion-lines/{lineRef}/regenerate`.
-- [ ] Garde-fous : DRAFT non expirée, ligne PROMOTION uniquement, regenerable=true, count < max.
-- [ ] Audit actor/session/terminal par régénération.
-- [ ] Remplacement de la sélection (pas d'historique).
-- [ ] Tests : max dépassé -> refus, après confirm -> refus.
+- [x] `RegenerateSalePreparationPromotionLineCommand` + handler.
+- [x] Endpoint dédié `POST /tenant/sales/preparations/{preparationId}/promotion-lines/{lineRef}/regenerate`.
+- [x] Garde-fous : DRAFT non expirée (expiration paresseuse), ligne PROMOTION uniquement, regenerable=true, count < max.
+- [x] Audit actor/session/terminal par régénération (log structuré).
+- [x] Remplacement de la sélection (pas d'historique).
+- [x] Tests : max dépassé -> refus, après confirm -> refus, non-regenerable -> refus, expirée -> refus + EXPIRED (5/5).
 
 ## 9. ConfirmPreparedSaleCommand
 
-- [ ] `ConfirmPreparedSaleCommand` + handler : payload = preparationId + idempotencyKey uniquement (aucune ligne envoyée par le client) ; charge la préparation, vérifie contexte/expiration, persiste exactement les lignes préparées, snapshot promotion, marque CONFIRMED.
-- [ ] Aucune réévaluation promotion au confirm (vérif sécurité minimale seulement).
-- [ ] Validation anti-forgerie complète (voir design.md §7).
-- [ ] Double confirm même idempotencyKey -> retourne le même ticket.
-- [ ] Tests intégration.
+- [x] `ConfirmPreparedSaleCommand` + handler : payload = preparationId + idempotencyKey uniquement ; rejoue le pipeline sell avec sélections épinglées (voir design §5) ; marque CONFIRMED + ticketId.
+- [x] Aucune régénération au confirm ; sélections épinglées depuis la préparation (décision design §5 : pipeline sell rejoué pour la sécurité money/limits).
+- [x] Validation anti-forgerie : le client n'envoie jamais de lignes au confirm ; pipeline sell + applier valident sélection/montants côté serveur.
+- [x] Double confirm même idempotencyKey -> même ticketId (handler) + @RequireIdempotency au web layer.
+- [x] Tests handler 5/5 (épinglage sélections, replay idempotent, clé différente -> conflit, expirée -> EXPIRED, vente rejetée -> DRAFT conservé). Tests intégration DB/e2e -> slice 12.
 
 ## 10. Receipt / events / snapshots
 
-- [ ] TicketLine : ajouter `selectionSource` (close-promotion-v1 §11 porte origin/pricingSource/payoutBaseAmount/promotionDecisionId).
+- [x] TicketLine : `selectionSource` existe déjà (origin/pricingSource/promotionDecisionId aussi — close-promotion-v1 §11 livré en réalité, son tasks.md est en retard).
 - [ ] Reçu : ligne « Maryaj gratuit offert » + sélection + mise de base.
 - [ ] Events ticket : exposer selectionSource + promotion snapshot.
 - [ ] Vérifier settlement/payout : snapshots only (gardes close-promotion-v1 §12-13).
