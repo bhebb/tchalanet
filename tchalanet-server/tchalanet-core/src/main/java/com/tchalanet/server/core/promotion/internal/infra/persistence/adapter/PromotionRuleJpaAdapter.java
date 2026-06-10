@@ -66,6 +66,8 @@ class PromotionRuleJpaAdapter implements PromotionRuleReadPort {
     private PromotionEffect toEffect(PromotionRuleEffectJpaEntity effect) {
         return new PromotionEffect(
             com.tchalanet.server.common.types.id.PromotionRuleId.of(effect.getRuleId()),
+            null,
+            null,
             effect.getEffectType(),
             effect.getGameCode(),
             effect.getQuantity() == null ? 1 : effect.getQuantity(),
@@ -73,7 +75,10 @@ class PromotionRuleJpaAdapter implements PromotionRuleReadPort {
             null,
             effect.getChargeType(),
             null,
-            PromotionChoiceMode.NONE
+            effect.getChoiceMode() == null ? PromotionChoiceMode.NONE : effect.getChoiceMode(),
+            effect.getGenerationStrategy(),
+            effect.isRegenerableBeforeConfirm(),
+            effect.getMaxRegenerationsBeforeConfirm()
         );
     }
 }

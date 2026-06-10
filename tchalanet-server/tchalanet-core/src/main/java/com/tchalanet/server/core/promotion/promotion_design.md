@@ -567,21 +567,27 @@ core.sales integration:
 
 ---
 
-## 16. Sélection auto-générée & template tenant — SPÉCIFIÉ, non implémenté
+## 16. Sélection auto-générée & template tenant — ✅ IMPLÉMENTÉ (2026-06-10, slices 3-4)
 
 > Source de vérité : `tchalanet-server/openspec/changes/maryaj-gratis-auto-selection-v1/`
 > (proposal + design + tasks). Mettre à jour le statut quand les slices livrent.
 
 ### Extension de l'effet (FREE_GAME_LINE)
 
-Champs ajoutés sur `promotion_rule_effect` :
+Champs ajoutés sur `promotion_rule_effect` (migration V222) :
 
 ```text
-selection_mode                 MANUAL | AUTO_GENERATED
-generation_strategy            RANDOM | LOW_EXPOSURE_RANDOM
-regenerable_before_confirm     boolean
+choice_mode                       NONE | CUSTOMER_SELECTS | SELLER_SELECTS | AUTO_GENERATE
+generation_strategy               RANDOM | LOW_EXPOSURE_RANDOM
+regenerable_before_confirm        boolean (défaut false)
 max_regenerations_before_confirm  int (défaut 3)
 ```
+
+Décision d'implémentation : le `selectionMode` de la spec est porté par le
+`PromotionChoiceMode` existant (désormais persisté en `choice_mode`) —
+`AUTO_GENERATE` = sélection auto-générée ; pas de colonne doublon.
+L'enum stratégie vit dans `core.selection.api.model.SelectionGenerationStrategy`
+(module neutre) pour éviter un cycle promotion <-> sales.
 
 Règles :
 
@@ -598,8 +604,12 @@ Règles :
 
 ### Template par défaut tenant
 
+Implémenté en code versionné (`MaryajGratisDefaultTemplate`) + commande
+`InstantiateDefaultMaryajGratisCommand` (idempotente par code), endpoint
+`POST /admin/promotions/campaigns/templates/default-maryaj-gratis/instantiate`.
+
 ```text
-DEFAULT_MARYAJ_GRATIS (seed versionné, pas de campagne globale runtime)
+DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
   effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT, quantity = 1
   payoutBaseAmount = 50 HTG (défaut, à confirmer — porté par le seed)
   selectionMode = AUTO_GENERATED, generationStrategy = RANDOM

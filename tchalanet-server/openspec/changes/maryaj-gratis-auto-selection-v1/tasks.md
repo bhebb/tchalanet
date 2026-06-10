@@ -18,18 +18,18 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 3. Promotion model
 
-- [ ] Ajouter sur l'effet : `selectionMode` (MANUAL | AUTO_GENERATED).
-- [ ] Ajouter `generationStrategy` (RANDOM | LOW_EXPOSURE_RANDOM).
-- [ ] Ajouter `regenerableBeforeConfirm` (boolean).
-- [ ] Ajouter `maxRegenerationsBeforeConfirm` (défaut 3).
-- [ ] Migration `V*` colonnes `promotion_rule_effect` — **demander avant création (pré-go-live)**.
-- [ ] Validation effet : AUTO_GENERATED exige une stratégie supportée ; LOW_EXPOSURE_RANDOM refusé partout en V1 (validation effet, activation, génération, régénération).
-- [ ] Exposer les nouveaux champs dans `PromotionEffectConfigView`.
+- [x] Ajouter sur l'effet : `selectionMode` (MANUAL | AUTO_GENERATED).
+- [x] Ajouter `generationStrategy` (RANDOM | LOW_EXPOSURE_RANDOM).
+- [x] Ajouter `regenerableBeforeConfirm` (boolean).
+- [x] Ajouter `maxRegenerationsBeforeConfirm` (défaut 3).
+- [x] Migration `V*` colonnes `promotion_rule_effect` — **demander avant création (pré-go-live)**.
+- [x] Validation effet : AUTO_GENERATED exige une stratégie supportée ; LOW_EXPOSURE_RANDOM refusé partout en V1 (validation effet, activation, génération, régénération).
+- [x] Exposer les nouveaux champs dans `PromotionEffectConfigView`.
 
 ## 4. Maryaj default template
 
-- [ ] Seed template `DEFAULT_MARYAJ_GRATIS` (effet FREE_GAME_LINE, gameCode HT_MARYAJ_GRATUIT, quantity 1, payoutBaseAmount 50 HTG à confirmer, AUTO_GENERATED, RANDOM, regenerable, max 3 ; éligibilité minPaidTotal > 0 + 1 ligne payante).
-- [ ] Commande admin interne d'instanciation pour un tenant (template -> campagne tenant ACTIVE).
+- [x] Seed template `DEFAULT_MARYAJ_GRATIS` (effet FREE_GAME_LINE, gameCode HT_MARYAJ_GRATUIT, quantity 1, payoutBaseAmount 50 HTG à confirmer, AUTO_GENERATED, RANDOM, regenerable, max 3 ; éligibilité minPaidTotal > 0 + 1 ligne payante).
+- [x] Commande admin interne d'instanciation pour un tenant (template -> campagne tenant ACTIVE).
 - [ ] Follow-up (hors V1, noter seulement) : hook onboarding nouveau tenant ; backfill ops explicite avec dry-run pour tenants existants.
 
 ## 5. SelectionGenerationService

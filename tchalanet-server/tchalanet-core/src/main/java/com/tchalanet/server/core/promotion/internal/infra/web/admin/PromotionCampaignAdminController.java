@@ -11,6 +11,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.ActivatePromotionCampaignCommand;
+import com.tchalanet.server.core.promotion.api.command.template.InstantiateDefaultMaryajGratisCommand;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.ArchivePromotionCampaignCommand;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.DeactivatePromotionCampaignCommand;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.PausePromotionCampaignCommand;
@@ -84,6 +85,16 @@ public class PromotionCampaignAdminController {
     ) {
         var command = mapper.toCommand(ctx.effectiveTenantIdRequired(), campaignId, request);
         var result = commandBus.execute(command);
+        return ApiResponse.success(result);
+    }
+
+    @PostMapping("/templates/default-maryaj-gratis/instantiate")
+    public ApiResponse<PromotionCampaignView> instantiateDefaultMaryajGratis(
+        @CurrentContext TchRequestContext ctx
+    ) {
+        var result = commandBus.execute(new InstantiateDefaultMaryajGratisCommand(
+            ctx.effectiveTenantIdRequired()
+        ));
         return ApiResponse.success(result);
     }
 

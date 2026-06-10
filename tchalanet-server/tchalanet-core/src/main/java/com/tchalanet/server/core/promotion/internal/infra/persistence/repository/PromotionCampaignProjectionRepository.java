@@ -20,6 +20,8 @@ public interface PromotionCampaignProjectionRepository extends JpaRepository<Pro
     """)
     Page<PromotionCampaignProjection> findSummaries(Pageable pageable);
 
+    java.util.Optional<PromotionCampaignJpaEntity> findByCodeAndDeletedAtIsNull(String code);
+
     @Query("""
         SELECT new com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionCampaignProjection(
             p.id, p.code, p.name, p.status, p.priority, p.startsAt, p.endsAt, p.createdAt

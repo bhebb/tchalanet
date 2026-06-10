@@ -90,6 +90,28 @@ class PromotionCampaignActivationPolicyTest {
             var campaign = campaign(T0, T1, List.of(ruleWith(PromotionEffectType.FREE_GAME_LINE)));
             assertThatCode(() -> policy.validate(campaign)).doesNotThrowAnyException();
         }
+
+        @Test
+        @DisplayName("FREE_GAME_LINE with RANDOM generation strategy passes")
+        void freeGameLineRandomStrategy() {
+            var campaign = campaign(T0, T1, List.of(rule(List.of(new PromotionEffectConfigView(
+                PromotionEffectType.FREE_GAME_LINE,
+                Map.of("choiceMode", "AUTO_GENERATE", "generationStrategy", "RANDOM"))))));
+            assertThatCode(() -> policy.validate(campaign)).doesNotThrowAnyException();
+        }
+    }
+
+    @Nested
+    @DisplayName("Generation strategy validation")
+    class GenerationStrategy {
+        @Test
+        @DisplayName("LOW_EXPOSURE_RANDOM is rejected at activation in V1")
+        void lowExposureRandomRejected() {
+            var campaign = campaign(T0, T1, List.of(rule(List.of(new PromotionEffectConfigView(
+                PromotionEffectType.FREE_GAME_LINE,
+                Map.of("choiceMode", "AUTO_GENERATE", "generationStrategy", "LOW_EXPOSURE_RANDOM"))))));
+            assertThatThrownBy(() -> policy.validate(campaign)).isInstanceOf(ProblemRestException.class);
+        }
     }
 
     private static PromotionCampaignView campaign(Instant startsAt, Instant endsAt, List<PromotionRuleView> rules) {

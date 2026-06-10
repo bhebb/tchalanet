@@ -6,6 +6,7 @@ import com.tchalanet.server.core.promotion.api.command.rule.DeletePromotionRuleC
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigInput;
@@ -21,6 +22,7 @@ import com.tchalanet.server.core.promotion.internal.infra.persistence.repository
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleEffectRepository;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleEligibilityLineRepository;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleRepository;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
@@ -191,6 +193,7 @@ class PromotionRuleWriteSupport {
                 effect.setGameCode(requiredString(params, "gameCode"));
                 effect.setPayoutBaseAmount(positiveDecimal(params, "payoutBaseAmount", "amount"));
                 effect.setQuantity(params.containsKey("quantity") ? positiveInt(params, "quantity") : 1);
+                applySelectionGeneration(effect, params);
             }
             case BOOST_ODDS -> {
                 effect.setGameCode(requiredString(params, "gameCode"));
@@ -199,6 +202,46 @@ class PromotionRuleWriteSupport {
             case WAIVE_CHARGE -> effect.setChargeType(requiredString(params, "chargeType", "chargeCode"));
         }
         return effect;
+    }
+
+    private void applySelectionGeneration(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
+        PromotionChoiceMode choiceMode = enumParam(
+            params, "choiceMode", PromotionChoiceMode.class, "promotion.rule.choice_mode_invalid");
+        SelectionGenerationStrategy strategy = enumParam(
+            params, "generationStrategy", SelectionGenerationStrategy.class,
+            "promotion.rule.generation_strategy_invalid");
+
+        if (strategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
+            throw ProblemRest.badRequest("promotion.rule.generation_strategy_unsupported");
+        }
+        if (choiceMode == PromotionChoiceMode.AUTO_GENERATE && strategy == null) {
+            strategy = SelectionGenerationStrategy.RANDOM;
+        }
+        if (strategy != null && choiceMode != PromotionChoiceMode.AUTO_GENERATE) {
+            throw ProblemRest.badRequest("promotion.rule.generation_strategy_requires_auto_generate");
+        }
+
+        effect.setChoiceMode(choiceMode);
+        effect.setGenerationStrategy(strategy);
+        effect.setRegenerableBeforeConfirm(
+            Boolean.parseBoolean(String.valueOf(params.getOrDefault("regenerableBeforeConfirm", "false"))));
+        effect.setMaxRegenerationsBeforeConfirm(
+            params.containsKey("maxRegenerationsBeforeConfirm")
+                ? positiveInt(params, "maxRegenerationsBeforeConfirm")
+                : 3);
+    }
+
+    private <E extends Enum<E>> E enumParam(
+        Map<String, Object> params, String key, Class<E> type, String errorCode) {
+        var raw = params.get(key);
+        if (raw == null || String.valueOf(raw).isBlank()) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(type, String.valueOf(raw));
+        } catch (IllegalArgumentException ex) {
+            throw ProblemRest.badRequest(errorCode);
+        }
     }
 
     private int nonNegativePriority(Integer priority) {

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.service.sell.genera
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationPurpose;
-import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationStrategy;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
 import java.util.Random;
 import org.junit.jupiter.api.DisplayName;

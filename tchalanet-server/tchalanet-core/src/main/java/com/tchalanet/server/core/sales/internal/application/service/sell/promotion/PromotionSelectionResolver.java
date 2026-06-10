@@ -8,7 +8,7 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationPurpose;
-import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationStrategy;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.SelectionGenerationService;
 import org.springframework.stereotype.Component;
 

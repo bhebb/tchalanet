@@ -60,6 +60,12 @@ class PromotionCampaignReadJpaAdapter implements PromotionCampaignReadPort {
     }
 
     @Override
+    public Optional<PromotionCampaignView> findByCode(String code) {
+        return repository.findByCodeAndDeletedAtIsNull(code)
+            .map(e -> promotionCampaignViewAssembler.toCampaignView(e.getId()));
+    }
+
+    @Override
     @Cacheable(
         value = PromotionCacheSpecProvider.PROMOTION_CAMPAIGN_BY_ID,
         key = "#root.target.campaignCacheKey(#promotionCampaignId)"

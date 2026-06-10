@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.sales.api.model.selection;
+package com.tchalanet.server.core.selection.api.model;
 
 /**
  * Strategy used to auto-generate a selection.
