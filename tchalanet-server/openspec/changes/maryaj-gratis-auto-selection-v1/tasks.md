@@ -88,7 +88,7 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 11. Mobile POS (change compagnon)
 
-- [ ] Créer le change `tchalanet-mobile/openspec/changes/` une fois le contrat API figé (preview auto, bouton Régénérer si autorisé, confirm par preparationId, impression). Le POS n'applique pas la promo, il la voit.
+- [x] Créer le change compagnon : `tchalanet-mobile/openspec/changes/maryaj-gratis-pos-v1/` (proposal + tasks, contrat API figé inclus). Implémentation mobile = sessions /mobile-task dédiées.
 
 ## 12. E2E
 
