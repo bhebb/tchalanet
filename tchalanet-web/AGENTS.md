@@ -17,6 +17,44 @@ Canonical local docs:
 - `libs/**/README.md`
 - `libs/ui/widget-renderer/README.md`
 
+## Architecture and conventions
+
+Architecture overview (read when adding features, new libs, or touching shell/routing):
+
+- `docs/ARCHITECTURE.md` — app structure, PageModel contract, lib boundaries
+- `docs/dependencies.md` — lib dependency graph and allowed import directions
+
+Conventions (load the relevant file for your task — do not load all):
+
+| Task area | Load |
+|---|---|
+| Creating/moving files or components | `docs/conventions/placement-guide.md` |
+| Naming files, classes, selectors | `docs/conventions/naming.md` |
+| Adding a feature (route, page, service) | `docs/conventions/feature-playbook.md` |
+| HTTP calls, backend client, errors | `docs/conventions/http-api.md` |
+| Styles, CSS tokens, SCSS | `docs/conventions/style.md` + `docs/conventions/theme.md` |
+| i18n keys and translation files | `docs/conventions/i18n.md` |
+| Auth, guards, session | `docs/conventions/auth.md` |
+| Access gating (`*tchCan`, `can` pipe) | `docs/conventions/access.md` |
+| Entitlements | `docs/conventions/entitlements.md` |
+| Feature flags | `docs/conventions/feature-flags.md` |
+| Nx lib boundaries | `docs/conventions/nx-boundaries.md` |
+| State (signals, NgRx) | `docs/conventions/state-management.md` |
+| PageModel / widget renderer | `docs/conventions/pagemodel.md` |
+| Runtime settings | `docs/conventions/settings.md` |
+
+Full index: `docs/conventions/README.md`
+
+## Key libs
+
+- `@tch/api` — `TchBackendClient`, `NavigationSection`, `ActionItem`, contracts
+- `@tch/ui/components` — `TchCard`, `TchEmptyState`, `TchStatusBadge`, `TchLoading`, `TchSidebarNav`, …
+- `@tch/ui/styles` — SCSS mixins and design token helpers
+- `@tch/ui/theme` — Material 3 theme pipeline
+- `@tch/page-model` — `PageModel`, `WidgetDef`, `VerificationStatus`, …
+- `@tch/web` — `NotFoundPage`, shared app-level pieces
+- `libs/widgets/` — widget components rendered by the widget renderer
+
 OpenSpec:
 
 - Use `tchalanet-web/openspec/` for Angular/Nx changes.
