@@ -1,5 +1,29 @@
 {
   "admin": {
+    "dashboard": {
+      "title": "Administration",
+      "description": "Vue d'ensemble de l'administration tenant",
+      "kpi": {
+        "sellers": "Vendeurs",
+        "outlets": "Points de vente",
+        "terminals": "Terminaux",
+        "openSessions": "Sessions ouvertes"
+      },
+      "onboarding": { "title": "Onboarding" },
+      "attention": { "title": "Attention requise" },
+      "recentSales": {
+        "title": "Ventes récentes",
+        "description": "Dernières ventes de tickets",
+        "empty": "Aucune vente récente."
+      }
+    },
+    "onboarding": { "title": "Onboarding", "description": "Étapes d'onboarding tenant" },
+    "users": { "title": "Utilisateurs", "description": "Gestion des utilisateurs" },
+    "sellers": { "title": "Vendeurs", "description": "Gestion des vendeurs" },
+    "outlets": { "title": "Points de vente", "description": "Gestion des points de vente" },
+    "terminals": { "title": "Terminaux", "description": "Gestion des terminaux" },
+    "sessions": { "title": "Sessions", "description": "Gestion des sessions caissier" },
+    "settings": { "title": "Paramètres", "description": "Configuration du tenant" },
     "seller": {
       "email": "E-mail",
       "error": "Échec de l'onboarding du vendeur.",
@@ -41,7 +65,11 @@
       "message": "La page demandée est introuvable.",
       "title": "Page introuvable"
     },
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "placeholder": {
+      "title": "Écran en préparation",
+      "message": "Cette fonctionnalité sera disponible prochainement."
+    }
   },
   "dashboard": {
     "actions": {
@@ -179,9 +207,78 @@
   },
   "nav": {
     "check_ticket": "Vérifier un ticket",
-    "results": "Résultats"
+    "results": "Résultats",
+    "platform": {
+      "section": { "platform": "Plateforme" },
+      "dashboard": "Tableau de bord",
+      "tenants": "Tenants",
+      "tenantProvisioning": "Provisionnement tenant",
+      "contactRequests": "Demandes de contact",
+      "news": "Actualités",
+      "notifications": "Notifications",
+      "ops": "Opérations",
+      "spaceTitle": "Plateforme"
+    },
+    "admin": {
+      "section": { "admin": "Administration" },
+      "dashboard": "Tableau de bord",
+      "onboarding": "Onboarding",
+      "users": "Utilisateurs",
+      "sellers": "Vendeurs",
+      "outlets": "Points de vente",
+      "terminals": "Terminaux",
+      "sessions": "Sessions",
+      "settings": "Paramètres",
+      "spaceTitle": "Admin"
+    },
+    "cashier": {
+      "section": { "cashier": "Caissier" },
+      "dashboard": "Tableau de bord",
+      "sell": "Nouveau ticket",
+      "spaceTitle": "Caissier"
+    },
+    "private": {
+      "ariaLabel": "Navigation privée"
+    }
   },
   "platform": {
+    "dashboard": {
+      "title": "Plateforme",
+      "description": "Vue d'ensemble de l'infrastructure Tchalanet",
+      "kpi": {
+        "activeTenants": "Tenants actifs",
+        "receivedContacts": "Demandes de contact",
+        "pendingNotifications": "Notifications en attente",
+        "degradedServices": "Services dégradés"
+      },
+      "provisioning": { "title": "Provisionnements récents" },
+      "integrity": { "title": "Intégrité opérationnelle" },
+      "contacts": { "title": "Demandes de contact récentes" }
+    },
+    "tenants": {
+      "title": "Tenants",
+      "description": "Gestion des tenants Tchalanet"
+    },
+    "tenantProvisioning": {
+      "title": "Provisionnement tenant",
+      "description": "Provisionner un nouveau tenant"
+    },
+    "contactRequests": {
+      "title": "Demandes de contact",
+      "description": "Gestion des demandes entrantes"
+    },
+    "news": {
+      "title": "Actualités",
+      "description": "Gestion des actualités plateforme"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Gestion des notifications plateforme"
+    },
+    "ops": {
+      "title": "Opérations",
+      "description": "Statut des services et monitoring"
+    },
     "onboarding": {
       "adminCreated": "Admin tenant créé",
       "code": "Code tenant",
@@ -769,7 +866,59 @@
         "error": "Une erreur est survenue. Veuillez réessayer.",
         "closed": "La boîte de suggestions est temporairement pleine. Revenez plus tard."
       }
+    },
+    "contact": {
+      "intent_label": "Type de demande",
+      "intents": {
+        "REQUEST_DEMO": "Demander une démo",
+        "BECOME_OPERATOR": "Devenir opérateur",
+        "SUPPORT": "Support / Question",
+        "PARTNERSHIP": "Partenariat",
+        "OTHER": "Autre"
+      },
+      "full_name_label": "Nom complet",
+      "phone_label": "Téléphone / WhatsApp",
+      "email_label": "Adresse email (optionnel)",
+      "organization_label": "Organisation (optionnel)",
+      "city_label": "Ville",
+      "country_label": "Pays",
+      "message_label": "Message",
+      "consent_label": "J'accepte d'être contacté par l'équipe Tchalanet",
+      "submit_cta": "Envoyer ma demande",
+      "submitting": "Envoi en cours…",
+      "success_title": "Demande reçue",
+      "success_body": "Votre demande a été reçue. Notre équipe vous contactera bientôt.",
+      "error_title": "Erreur",
+      "error_body": "Une erreur est survenue. Veuillez réessayer.",
+      "reset_cta": "Nouvelle demande"
     }
+  },
+  "cashier": {
+    "dashboard": {
+      "title": "Tableau de bord",
+      "description": "Votre activité de vente",
+      "action": { "newTicket": "Nouveau ticket" },
+      "kpi": {
+        "todaySales": "Ventes du jour",
+        "commission": "Commission",
+        "tickets": "Tickets"
+      },
+      "blocked": {
+        "title": "Session bloquée",
+        "message": "Votre session est actuellement bloquée. Contactez votre superviseur."
+      }
+    },
+    "session": { "title": "Session", "openedAt": "Ouverte à" },
+    "draw": { "title": "Tirage en cours" },
+    "printer": { "title": "Imprimante" },
+    "tickets": { "title": "Tickets récents", "print": "Imprimer" },
+    "quickActions": {
+      "title": "Actions rapides",
+      "newTicket": "Nouveau ticket",
+      "history": "Historique",
+      "closeSession": "Fermer la session"
+    },
+    "sell": { "title": "Nouveau ticket", "description": "Émettre un nouveau ticket" }
   },
   "widget": {
     "error": "Ce contenu est momentanément indisponible.",

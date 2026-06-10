@@ -1,84 +1,51 @@
 import { Route } from '@angular/router';
 
 import { roleGuard } from './core/auth/auth.guard';
-import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboard.page';
 import { ForbiddenPage } from './core/auth/forbidden.page';
-import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
-import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
-import { PublicCheckTicketPage } from './features/public/public-check-ticket.page';
-import { PublicHelpPage } from './features/public/public-help.page';
-import { PublicHomePage } from './features/public/public-home.page';
-import { PublicInfoPage } from './features/public/public-info.page';
-import { PublicMarkdownPage } from './features/public/public-markdown.page';
-import { PublicNewsPage } from './features/public/public-news.page';
-import { PublicManagersPage } from './features/public/public-managers.page';
-import { PublicOperatorsPage } from './features/public/public-operators.page';
-import { PublicRulesPage } from './features/public/public-rules.page';
-import { PublicTchalaPage } from './features/public/public-tchala.page';
-import { PublicResultDetailPage } from './features/public/public-result-detail.page';
-import { PublicResultsPage } from './features/public/public-results.page';
-import { TchPublicShellComponent } from './features/public/shell/public-shell.component';
-import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
 import { NotFoundPage } from '@tch/web';
 
 export const appRoutes: Route[] = [
   {
     path: 'public',
-    component: TchPublicShellComponent,
-    children: [
-      { path: '', component: PublicHomePage },
-      { path: 'check-ticket', component: PublicCheckTicketPage },
-      { path: 'results', component: PublicResultsPage, pathMatch: 'full' },
-      { path: 'results/:drawResultId', component: PublicResultDetailPage },
-      { path: 'rules', component: PublicRulesPage },
-      { path: 'tchala', component: PublicTchalaPage },
-      { path: 'news', component: PublicNewsPage },
-      { path: 'help', component: PublicHelpPage },
-      { path: 'managers', component: PublicManagersPage },
-      { path: 'contact', component: PublicInfoPage, data: { kind: 'contact' } },
-      { path: 'privacy', component: PublicMarkdownPage, data: { file: 'privacy' } },
-      { path: 'terms', component: PublicMarkdownPage, data: { file: 'terms' } },
-    ],
+    loadComponent: () =>
+      import('./features/public/shell/public-shell.component').then(
+        m => m.TchPublicShellComponent,
+      ),
+    loadChildren: () =>
+      import('./features/public/public.routes').then(m => m.publicRoutes),
   },
   {
     path: 'forbidden',
     component: ForbiddenPage,
   },
   {
-    path: 'app/cashier',
-    component: PrivateShellPage,
-    canActivate: [roleGuard('CASHIER')],
-    children: [
-      {
-        path: '',
-        component: RoleDashboardPage,
-        data: { titleKey: 'dashboard.titles.cashier' },
-      },
-    ],
+    path: 'app/platform',
+    loadComponent: () =>
+      import('./features/private/shell/private-shell.component').then(
+        m => m.PrivateShellComponent,
+      ),
+    canActivate: [roleGuard('SUPER_ADMIN')],
+    loadChildren: () =>
+      import('./features/platform/platform.routes').then(m => m.platformRoutes),
   },
   {
     path: 'app/admin',
-    component: PrivateShellPage,
+    loadComponent: () =>
+      import('./features/private/shell/private-shell.component').then(
+        m => m.PrivateShellComponent,
+      ),
     canActivate: [roleGuard('TENANT_ADMIN')],
-    children: [
-      {
-        path: '',
-        component: TenantAdminDashboardPage,
-        data: { titleKey: 'dashboard.titles.admin' },
-      },
-    ],
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
   {
-    path: 'app/platform',
-    component: PrivateShellPage,
-    canActivate: [roleGuard('SUPER_ADMIN')],
-    children: [
-      {
-        path: '',
-        component: SuperAdminDashboardPage,
-        data: { titleKey: 'dashboard.titles.platform' },
-      },
-    ],
+    path: 'app/cashier',
+    loadComponent: () =>
+      import('./features/private/shell/private-shell.component').then(
+        m => m.PrivateShellComponent,
+      ),
+    canActivate: [roleGuard('CASHIER')],
+    loadChildren: () =>
+      import('./features/cashier/cashier.routes').then(m => m.cashierRoutes),
   },
   {
     path: '',

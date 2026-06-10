@@ -12,6 +12,7 @@ import type { CheckState } from './public-check-ticket.model';
 import { formatPublicCode, verificationCopy } from './public-check-ticket.utils';
 import {
   PublicTicketVerificationApi,
+  PublicTicketVerificationResponse,
   VerifyTicketDraw,
   VerifyTicketLine,
   extractPublicCodeFromQr,

@@ -1,5 +1,29 @@
 {
   "admin": {
+    "dashboard": {
+      "title": "Administrasyon",
+      "description": "Rezime administrasyon tenant",
+      "kpi": {
+        "sellers": "Vandè",
+        "outlets": "Pwen vant",
+        "terminals": "Tèminal",
+        "openSessions": "Sesyon ouvè"
+      },
+      "onboarding": { "title": "Onboarding" },
+      "attention": { "title": "Atansyon nesesè" },
+      "recentSales": {
+        "title": "Vant resan",
+        "description": "Dènye vant tikè",
+        "empty": "Pa gen vant resan."
+      }
+    },
+    "onboarding": { "title": "Onboarding", "description": "Etap onboarding tenant" },
+    "users": { "title": "Itilizatè", "description": "Jesyon itilizatè" },
+    "sellers": { "title": "Vandè", "description": "Jesyon vandè" },
+    "outlets": { "title": "Pwen vant", "description": "Jesyon pwen vant" },
+    "terminals": { "title": "Tèminal", "description": "Jesyon tèminal" },
+    "sessions": { "title": "Sesyon", "description": "Jesyon sesyon kesye" },
+    "settings": { "title": "Paramèt", "description": "Konfigirasyon tenant" },
     "seller": {
       "email": "Imèl",
       "error": "Onboarding vandè a echwe.",
@@ -41,7 +65,11 @@
       "message": "Nou pa jwenn paj ou mande a.",
       "title": "Paj pa jwenn"
     },
-    "unknown": "Enkoni"
+    "unknown": "Enkoni",
+    "placeholder": {
+      "title": "Ekran ap prepare",
+      "message": "Fonksyonalite sa a pral disponib byento."
+    }
   },
   "dashboard": {
     "actions": {
@@ -172,9 +200,60 @@
   },
   "nav": {
     "check_ticket": "Verifye yon tikè",
-    "results": "Rezilta"
+    "results": "Rezilta",
+    "platform": {
+      "section": { "platform": "Platfòm" },
+      "dashboard": "Tablo debò",
+      "tenants": "Tenant",
+      "tenantProvisioning": "Pwovizyon tenant",
+      "contactRequests": "Demann kontak",
+      "news": "Nouvèl",
+      "notifications": "Notifikasyon",
+      "ops": "Operasyon",
+      "spaceTitle": "Platfòm"
+    },
+    "admin": {
+      "section": { "admin": "Administrasyon" },
+      "dashboard": "Tablo debò",
+      "onboarding": "Onboarding",
+      "users": "Itilizatè",
+      "sellers": "Vandè",
+      "outlets": "Pwen vant",
+      "terminals": "Tèminal",
+      "sessions": "Sesyon",
+      "settings": "Paramèt",
+      "spaceTitle": "Admin"
+    },
+    "cashier": {
+      "section": { "cashier": "Kesye" },
+      "dashboard": "Tablo debò",
+      "sell": "Nouvo tikè",
+      "spaceTitle": "Kesye"
+    },
+    "private": {
+      "ariaLabel": "Navigasyon prive"
+    }
   },
   "platform": {
+    "dashboard": {
+      "title": "Platfòm",
+      "description": "Rezime enfrastrikti Tchalanet",
+      "kpi": {
+        "activeTenants": "Tenant aktif",
+        "receivedContacts": "Demann kontak",
+        "pendingNotifications": "Notifikasyon an atant",
+        "degradedServices": "Sèvis degraded"
+      },
+      "provisioning": { "title": "Pwovizyon resan" },
+      "integrity": { "title": "Entegrite operasyonèl" },
+      "contacts": { "title": "Demann kontak resan" }
+    },
+    "tenants": { "title": "Tenant", "description": "Jesyon tenant Tchalanet" },
+    "tenantProvisioning": { "title": "Pwovizyon tenant", "description": "Pwovizyone yon nouvo tenant" },
+    "contactRequests": { "title": "Demann kontak", "description": "Jesyon demann ki rive" },
+    "news": { "title": "Nouvèl", "description": "Jesyon nouvèl platfòm" },
+    "notifications": { "title": "Notifikasyon", "description": "Jesyon notifikasyon platfòm" },
+    "ops": { "title": "Operasyon", "description": "Eta sèvis ak monitè" },
     "onboarding": {
       "adminCreated": "Admin tenant kreye",
       "code": "Kòd tenant",
@@ -762,7 +841,59 @@
         "error": "Yon erè te rive. Tanpri eseye ankò.",
         "closed": "Bwat sijesyon an plen pou kounye a. Tounen pita."
       }
+    },
+    "contact": {
+      "intent_label": "Tip demann",
+      "intents": {
+        "REQUEST_DEMO": "Mande yon demo",
+        "BECOME_OPERATOR": "Vin yon operatè",
+        "SUPPORT": "Sipò / Kesyon",
+        "PARTNERSHIP": "Patenarya",
+        "OTHER": "Lòt"
+      },
+      "full_name_label": "Non konplè",
+      "phone_label": "Telefòn / WhatsApp",
+      "email_label": "Adrès imel (opsyonèl)",
+      "organization_label": "Òganizasyon (opsyonèl)",
+      "city_label": "Vil",
+      "country_label": "Peyi",
+      "message_label": "Mesaj",
+      "consent_label": "Mwen aksepte ekip Tchalanet kontakte mwen",
+      "submit_cta": "Voye demann mwen",
+      "submitting": "Ap voye…",
+      "success_title": "Demann resevwa",
+      "success_body": "Nou resevwa demann ou. Ekip nou an pral kontakte ou byento.",
+      "error_title": "Erè",
+      "error_body": "Yon erè te fèt. Tanpri eseye ankò.",
+      "reset_cta": "Nouvo demann"
     }
+  },
+  "cashier": {
+    "dashboard": {
+      "title": "Tablo debò",
+      "description": "Aktivite vant ou",
+      "action": { "newTicket": "Nouvo tikè" },
+      "kpi": {
+        "todaySales": "Vant jodi a",
+        "commission": "Komisyon",
+        "tickets": "Tikè"
+      },
+      "blocked": {
+        "title": "Sesyon bloke",
+        "message": "Sesyon ou bloke kounye a. Kontakte sipèvizè ou."
+      }
+    },
+    "session": { "title": "Sesyon", "openedAt": "Louvri a" },
+    "draw": { "title": "Tiraj kounya" },
+    "printer": { "title": "Enprimant" },
+    "tickets": { "title": "Tikè resan", "print": "Enprime" },
+    "quickActions": {
+      "title": "Aksyon rapid",
+      "newTicket": "Nouvo tikè",
+      "history": "Istwa",
+      "closeSession": "Fèmen sesyon"
+    },
+    "sell": { "title": "Nouvo tikè", "description": "Emet yon nouvo tikè" }
   },
   "widget": {
     "error": "Kontni sa a pa disponib pou kounye a.",

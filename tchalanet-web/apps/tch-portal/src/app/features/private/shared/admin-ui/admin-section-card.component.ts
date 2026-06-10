@@ -1,0 +1,102 @@
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+
+import { TchCard } from '@tch/ui/components';
+
+@Component({
+  selector: 'tch-admin-section-card',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TchCard],
+  template: `
+    <tch-card class="section-card">
+      <div class="section-card__header">
+        @if (icon()) {
+          <span class="section-card__icon material-symbols-outlined" aria-hidden="true">
+            {{ icon() }}
+          </span>
+        }
+        <div class="section-card__title-group">
+          <h2 class="section-card__title">{{ title() }}</h2>
+          @if (description()) {
+            <p class="section-card__description">{{ description() }}</p>
+          }
+        </div>
+        <div class="section-card__actions">
+          <ng-content select="[actions]" />
+        </div>
+      </div>
+      <div class="section-card__body">
+        <ng-content />
+      </div>
+    </tch-card>
+  `,
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+
+      tch-card {
+        --tch-radius-lg: var(--tch-radius-2xl, 1.5rem);
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .section-card__header {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
+      }
+
+      .section-card__icon {
+        font-size: 1.25rem;
+        color: var(--tch-color-secondary, #745b00);
+        flex-shrink: 0;
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+
+      .section-card__title-group {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .section-card__title {
+        margin: 0;
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--tch-color-on-surface, #1a1c1e);
+      }
+
+      .section-card__description {
+        margin: 0.125rem 0 0;
+        font-size: 0.8125rem;
+        color: var(--tch-color-on-surface-variant, #46464f);
+      }
+
+      .section-card__actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+      }
+
+      .section-card__body {
+        padding: 1.5rem;
+      }
+
+      .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+      }
+    `,
+  ],
+})
+export class AdminSectionCardComponent {
+  readonly title = input.required<string>();
+  readonly description = input<string | null>(null);
+  readonly icon = input<string | null>(null);
+}

@@ -1,5 +1,29 @@
 {
   "admin": {
+    "dashboard": {
+      "title": "Administration",
+      "description": "Tenant administration overview",
+      "kpi": {
+        "sellers": "Sellers",
+        "outlets": "Outlets",
+        "terminals": "Terminals",
+        "openSessions": "Open Sessions"
+      },
+      "onboarding": { "title": "Onboarding" },
+      "attention": { "title": "Requires Attention" },
+      "recentSales": {
+        "title": "Recent Sales",
+        "description": "Latest ticket sales",
+        "empty": "No recent sales."
+      }
+    },
+    "onboarding": { "title": "Onboarding", "description": "Tenant onboarding steps" },
+    "users": { "title": "Users", "description": "Manage users" },
+    "sellers": { "title": "Sellers", "description": "Manage sellers" },
+    "outlets": { "title": "Outlets", "description": "Manage points of sale" },
+    "terminals": { "title": "Terminals", "description": "Manage terminals" },
+    "sessions": { "title": "Sessions", "description": "Manage cashier sessions" },
+    "settings": { "title": "Settings", "description": "Tenant configuration" },
     "seller": {
       "email": "Email",
       "error": "Seller onboarding failed.",
@@ -41,7 +65,11 @@
       "message": "The requested page could not be found.",
       "title": "Page not found"
     },
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "placeholder": {
+      "title": "Screen in preparation",
+      "message": "This feature will be connected in a future release."
+    }
   },
   "dashboard": {
     "actions": {
@@ -172,9 +200,78 @@
   },
   "nav": {
     "check_ticket": "Check a ticket",
-    "results": "Results"
+    "results": "Results",
+    "platform": {
+      "section": { "platform": "Platform" },
+      "dashboard": "Dashboard",
+      "tenants": "Tenants",
+      "tenantProvisioning": "Tenant Provisioning",
+      "contactRequests": "Contact Requests",
+      "news": "News",
+      "notifications": "Notifications",
+      "ops": "Ops",
+      "spaceTitle": "Platform"
+    },
+    "admin": {
+      "section": { "admin": "Administration" },
+      "dashboard": "Dashboard",
+      "onboarding": "Onboarding",
+      "users": "Users",
+      "sellers": "Sellers",
+      "outlets": "Outlets",
+      "terminals": "Terminals",
+      "sessions": "Sessions",
+      "settings": "Settings",
+      "spaceTitle": "Admin"
+    },
+    "cashier": {
+      "section": { "cashier": "Cashier" },
+      "dashboard": "Dashboard",
+      "sell": "New Ticket",
+      "spaceTitle": "Cashier"
+    },
+    "private": {
+      "ariaLabel": "Private navigation"
+    }
   },
   "platform": {
+    "dashboard": {
+      "title": "Platform",
+      "description": "Overview of Tchalanet infrastructure",
+      "kpi": {
+        "activeTenants": "Active Tenants",
+        "receivedContacts": "Contact Requests",
+        "pendingNotifications": "Pending Notifications",
+        "degradedServices": "Degraded Services"
+      },
+      "provisioning": { "title": "Recent Provisioning" },
+      "integrity": { "title": "Operational Integrity" },
+      "contacts": { "title": "Recent Contact Requests" }
+    },
+    "tenants": {
+      "title": "Tenants",
+      "description": "Manage Tchalanet tenants"
+    },
+    "tenantProvisioning": {
+      "title": "Tenant Provisioning",
+      "description": "Provision a new tenant"
+    },
+    "contactRequests": {
+      "title": "Contact Requests",
+      "description": "Manage incoming contact requests"
+    },
+    "news": {
+      "title": "News",
+      "description": "Manage platform news"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage platform notifications"
+    },
+    "ops": {
+      "title": "Ops",
+      "description": "Service status and operational monitoring"
+    },
     "onboarding": {
       "adminCreated": "Tenant admin created",
       "code": "Tenant code",
@@ -762,6 +859,71 @@
         "error": "An error occurred. Please try again.",
         "closed": "The suggestion box is temporarily full. Please check back later."
       }
+    },
+    "contact": {
+      "intent_label": "Request type",
+      "intents": {
+        "REQUEST_DEMO": "Request a demo",
+        "BECOME_OPERATOR": "Become an operator",
+        "SUPPORT": "Support / Question",
+        "PARTNERSHIP": "Partnership",
+        "OTHER": "Other"
+      },
+      "full_name_label": "Full name",
+      "phone_label": "Phone / WhatsApp",
+      "email_label": "Email address (optional)",
+      "organization_label": "Organization (optional)",
+      "city_label": "City",
+      "country_label": "Country",
+      "message_label": "Message",
+      "consent_label": "I agree to be contacted by the Tchalanet team",
+      "submit_cta": "Send my request",
+      "submitting": "Sending…",
+      "success_title": "Request received",
+      "success_body": "Your request has been received. Our team will contact you soon.",
+      "error_title": "Error",
+      "error_body": "An error occurred. Please try again.",
+      "reset_cta": "New request"
+    }
+  },
+  "cashier": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Your sales activity",
+      "action": { "newTicket": "New Ticket" },
+      "kpi": {
+        "todaySales": "Today's Sales",
+        "commission": "Commission",
+        "tickets": "Tickets"
+      },
+      "blocked": {
+        "title": "Session blocked",
+        "message": "Your session is currently blocked. Contact your supervisor."
+      }
+    },
+    "session": {
+      "title": "Session",
+      "openedAt": "Opened at"
+    },
+    "draw": {
+      "title": "Current Draw"
+    },
+    "printer": {
+      "title": "Printer"
+    },
+    "tickets": {
+      "title": "Recent Tickets",
+      "print": "Print"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newTicket": "New Ticket",
+      "history": "History",
+      "closeSession": "Close Session"
+    },
+    "sell": {
+      "title": "New Ticket",
+      "description": "Issue a new ticket"
     }
   },
   "widget": {
