@@ -3,12 +3,13 @@ import { RouterOutlet } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
 import { PublicFooter } from '@tch/web';
+import { ShellFeedbackOutletComponent } from '../../../shared/feedback/shell-feedback-outlet.component';
 import { PublicHeader } from './public-header';
 import { PublicShellService } from './public-shell.service';
 
 @Component({
   selector: 'tch-public-shell',
-  imports: [LabelPipe, RouterOutlet, PublicHeader, PublicFooter],
+  imports: [LabelPipe, RouterOutlet, PublicHeader, PublicFooter, ShellFeedbackOutletComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a class="public-shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
@@ -16,6 +17,7 @@ import { PublicShellService } from './public-shell.service';
     <tch-public-header [shell]="shellSvc.shell()" />
 
     <main id="public-content" class="public-shell__main">
+      <tch-shell-feedback-outlet verbosity="minimal" />
       <router-outlet />
     </main>
 

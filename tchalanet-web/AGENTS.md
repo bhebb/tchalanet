@@ -27,6 +27,21 @@ Validation:
 - Use existing Nx/pnpm targets for the touched app or library.
 - Keep validation focused on changed web surfaces.
 
+## HTTP / API convention
+
+Toute communication avec le backend Tchalanet suit le layering :
+
+```
+Page / Component → service métier → TchBackendClient → HttpClient
+```
+
+- Les services métier injectent `TchBackendClient` (depuis `@tch/api`), pas `HttpClient`.
+- Les pages n'appellent ni `TchBackendClient` ni `HttpClient` directement.
+- Les paths passés à `TchBackendClient` sont des paths logiques sans `/api/v1` (ex. `/public/results`).
+- Les appels hors backend Tchalanet (assets, i18n, Keycloak) conservent `HttpClient` direct.
+- Voir `libs/api/README.md` pour la référence complète (`TchBackendClient`, raw downloads,
+  multipart, suppressShellFeedback, asTenantAdmin).
+
 Context rule:
 
 - Load root rules, local web router, one relevant frontend/design doc, and touched component files.

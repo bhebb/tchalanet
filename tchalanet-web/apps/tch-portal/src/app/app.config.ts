@@ -7,6 +7,7 @@ import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
+import { apiFeedbackInterceptor } from './shared/api/api-feedback.interceptor';
 import {
   APPLICATION_API_URL_PATTERN,
   AUTH_CONFIG,
@@ -42,6 +43,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         correlationRequestInterceptor,
         includeBearerTokenInterceptor,
+        apiFeedbackInterceptor,
         problemDetailInterceptor,
       ]),
     ),

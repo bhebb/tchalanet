@@ -1,21 +1,20 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { ApiResponse, unwrapApiResponse } from '@tch/api';
-import { map, Observable } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { TchBackendClient } from '@tch/api';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { API_PATHS } from '../runtime/runtime-paths';
 import { RuntimeSettingsSource, toRuntimeSettings } from './settings.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsApi {
-  private readonly http = inject(HttpClient);
+  private readonly backend = inject(TchBackendClient);
 
   getPublicSettings(namespace?: string): Observable<RuntimeSettingsSource> {
     const params = namespace ? new HttpParams().set('namespace', namespace) : undefined;
-
-    return this.http
-      .get<ApiResponse<readonly SettingsApiSetting[]>>(API_PATHS.settings.public, { params })
-      .pipe(map(response => toRuntimeSettings(unwrapApiResponse(response))));
+    return this.backend
+      .get<readonly SettingsApiSetting[]>('/public/settings', { params })
+      .pipe(map(toRuntimeSettings));
   }
 
   getPrivateSettings(namespaces: readonly string[] = []): Observable<RuntimeSettingsSource> {
@@ -23,12 +22,9 @@ export class SettingsApi {
       (acc, namespace) => acc.append('namespaces', namespace),
       new HttpParams(),
     );
-
-    return this.http
-      .get<ApiResponse<readonly SettingsApiSetting[]>>(API_PATHS.settings.tenantResolve, {
-        params,
-      })
-      .pipe(map(response => toRuntimeSettings(unwrapApiResponse(response))));
+    return this.backend
+      .get<readonly SettingsApiSetting[]>('/tenant/settings/resolve', { params })
+      .pipe(map(toRuntimeSettings));
   }
 }
 

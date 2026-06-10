@@ -10,12 +10,15 @@ import { catchError, defer, of } from 'rxjs';
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcher } from '../../../core/i18n';
 import { AppRuntimeStore } from '../../../core/runtime';
+import { ShellFeedbackOutletComponent } from '../../../shared/feedback/shell-feedback-outlet.component';
+import { ShellFeedbackVerbosity } from '../../../shared/feedback/shell-feedback.model';
 import { PageModelApi, PrivateShellRuntime } from '@tch/page-model';
 
 @Component({
   imports: [
     LanguageSwitcher,
     RouterOutlet,
+    ShellFeedbackOutletComponent,
     TchBrand,
     TchLangThemeGroup,
     TchSidebarNav,
@@ -49,6 +52,7 @@ import { PageModelApi, PrivateShellRuntime } from '@tch/page-model';
         />
 
         <main class="content">
+          <tch-shell-feedback-outlet [verbosity]="feedbackVerbosity()" />
           <router-outlet />
         </main>
       </div>
@@ -108,6 +112,10 @@ export class PrivateShellPage {
   private readonly auth = inject(AuthSessionService);
   private readonly runtime = inject(AppRuntimeStore);
   private readonly pageModelApi = inject(PageModelApi);
+
+  readonly feedbackVerbosity = computed<ShellFeedbackVerbosity>(() =>
+    this.auth.session().roles.includes('SUPER_ADMIN') ? 'verbose' : 'standard',
+  );
 
   private readonly pageRuntime = toSignal(
     defer(() =>
