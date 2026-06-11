@@ -82,9 +82,9 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 ## 10. Receipt / events / snapshots
 
 - [x] TicketLine : `selectionSource` existe déjà (origin/pricingSource/promotionDecisionId aussi — close-promotion-v1 §11 livré en réalité, son tasks.md est en retard).
-- [ ] Reçu : ligne « Maryaj gratuit offert » + sélection + mise de base.
-- [ ] Events ticket : exposer selectionSource + promotion snapshot.
-- [ ] Vérifier settlement/payout : snapshots only (gardes close-promotion-v1 §12-13).
+- [x] Reçu : déjà implémenté — `TicketReceiptGameLinesFormatter` affiche la ligne + marqueur `Promotion: <label>` (i18n `PROMOTION_FREE_GAME_LINE`, seed V210) ; montants stake/payout par colonne (payout = payoutBaseAmount × odds).
+- [x] Events ticket : déjà exposés — `TicketLinePlacedItem` porte origin/selectionSource/payoutBaseAmount et `TicketPlacedEvent` embarque la `PromotionDecision`.
+- [x] Vérifié : `TicketWinningCalculator` paie `potentialPayoutAmount` snapshoté ; aucun appel `EvaluatePromotionQuery` dans settlement/payout.
 
 ## 11. Mobile POS (change compagnon)
 
