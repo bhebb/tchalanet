@@ -18,8 +18,8 @@ public record TicketVerificationView(
     List<TicketLineView> lines
 ) {
     public record DrawInfoView(
+        String channelKey,
         String channelName,
-        String channelLabel,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}

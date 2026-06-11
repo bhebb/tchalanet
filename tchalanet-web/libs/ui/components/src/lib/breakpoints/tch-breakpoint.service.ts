@@ -3,29 +3,33 @@ import { computed, inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map } from 'rxjs';
 
+// M3 window-size class boundaries — must stay in sync with _breakpoints.scss $bps.
 export const TCH_BREAKPOINTS = {
-  handset: '(max-width: 767.98px)',
-  tablet: '(min-width: 768px) and (max-width: 1023.98px)',
-  desktop: '(min-width: 1024px)',
+  compact:    '(max-width: 599.98px)',
+  medium:     '(min-width: 600px) and (max-width: 839.98px)',
+  expanded:   '(min-width: 840px) and (max-width: 1199.98px)',
+  large:      '(min-width: 1200px) and (max-width: 1599.98px)',
+  extraLarge: '(min-width: 1600px)',
 } as const;
 
 @Injectable({ providedIn: 'root' })
 export class TchBreakpointService {
   private readonly bp = inject(BreakpointObserver);
-  private readonly handsetSignal = this.match(TCH_BREAKPOINTS.handset, false);
-  private readonly tabletSignal = this.match(TCH_BREAKPOINTS.tablet, false);
-  private readonly desktopSignal = this.match(TCH_BREAKPOINTS.desktop, true);
 
-  readonly handset = computed(() => this.handsetSignal());
-  readonly tablet = computed(() => this.tabletSignal());
-  readonly desktop = computed(() => this.desktopSignal());
-  readonly isHandset = this.handset;
-  readonly isTablet = this.tablet;
-  readonly isDesktop = this.desktop;
+  readonly compact    = this.match(TCH_BREAKPOINTS.compact,    true);
+  readonly medium     = this.match(TCH_BREAKPOINTS.medium,     false);
+  readonly expanded   = this.match(TCH_BREAKPOINTS.expanded,   false);
+  readonly large      = this.match(TCH_BREAKPOINTS.large,      false);
+  readonly extraLarge = this.match(TCH_BREAKPOINTS.extraLarge, false);
+
+  /** True for compact or medium — single-pane layouts. */
+  readonly isNarrow = computed(() => this.compact() || this.medium());
+  /** True for expanded and above — multi-pane layouts. */
+  readonly isWide = computed(() => this.expanded() || this.large() || this.extraLarge());
 
   private match(query: string, initialValue: boolean) {
     return toSignal(
-      this.bp.observe(query).pipe(map((result) => result.matches), distinctUntilChanged()),
+      this.bp.observe(query).pipe(map((r) => r.matches), distinctUntilChanged()),
       { initialValue },
     );
   }

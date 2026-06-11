@@ -127,7 +127,7 @@ public class FetchExternalResultsWindowCommandHandler
             }
 
             if (!cmd.force()
-                && drawResultReaderPort.existsUsableExternalResult(slot.id(), expectedOccurredAt)) {
+                && drawResultReaderPort.existsUsableExternalResult(slot.id(), date)) {
                 counters.alreadyFetched++;
                 log.debug(
                     "draw-results.fetch.skip already_usable slot={} date={} occurredAt={}",
@@ -163,11 +163,12 @@ public class FetchExternalResultsWindowCommandHandler
             var upsert =
                 writer.upsert(
                     slot.id(),
+                    date,
                     expectedOccurredAt,
                     payload.sourceResult(),
                     payload.haitiResult(),
                     payload.rawPayload(),
-                    DrawResultStatus.PROVISIONAL.name(),
+                    DrawResultStatus.CONFIRMED.name(),
                     DrawSource.EXTERNAL.name(),
                     payload.flags(),
                     payload.quality(),
@@ -270,7 +271,7 @@ public class FetchExternalResultsWindowCommandHandler
             slot.slotKey(),
             date,
             occurredAt,
-            DrawResultStatus.PROVISIONAL.name(),
+            DrawResultStatus.CONFIRMED.name(),
             payload.quality(),
             gameCodes.size(),
             List.copyOf(gameCodes),

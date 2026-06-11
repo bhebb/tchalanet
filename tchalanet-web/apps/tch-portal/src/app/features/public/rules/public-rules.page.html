@@ -1,0 +1,304 @@
+<div class="rules-page">
+  <section class="rules-page__hero">
+    <div class="rules-page__hero-copy">
+      <p class="rules-page__eyebrow">{{ 'public.pages.rules.eyebrow' | tchLabel }}</p>
+      <h1>{{ 'public.rules.title' | tchLabel }}</h1>
+      <p class="rules-page__lead">{{ 'public.rules.subtitle' | tchLabel }}</p>
+      <div class="rules-page__actions">
+        <a class="rules-page__primary-link" routerLink="/public/check-ticket">
+          <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+          {{ 'public.rules.verify_link' | tchLabel }}
+        </a>
+        <a class="rules-page__secondary-link" href="#tchala">
+          <span class="material-symbols-outlined" aria-hidden="true">auto_stories</span>
+          {{ 'public.rules.tchala.jump_link' | tchLabel }}
+        </a>
+      </div>
+    </div>
+    <figure class="rules-page__media">
+      <img
+        src="/assets/public/rules-tchala-preview.png"
+        [alt]="'public.rules.hero_image_alt' | tchLabel"
+      />
+      <figcaption>
+        <span class="material-symbols-outlined" aria-hidden="true">info</span>
+        {{ 'public.rules.hero_caption' | tchLabel }}
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="rules-page__interactive" aria-labelledby="rules-games-title">
+    <div class="rules-page__section-heading">
+      <p class="rules-page__eyebrow">{{ 'public.rules.games.eyebrow' | tchLabel }}</p>
+      <h2 id="rules-games-title">{{ 'public.rules.games.title' | tchLabel }}</h2>
+    </div>
+
+    <div
+      class="rules-page__game-selector"
+      role="tablist"
+      [attr.aria-label]="'public.rules.calc_game_aria' | tchLabel"
+    >
+      @for (game of games; track game.id) {
+      <button
+        role="tab"
+        type="button"
+        class="rules-page__game-chip"
+        [class.rules-page__game-chip--active]="selectedGame() === game.id"
+        [attr.aria-selected]="selectedGame() === game.id"
+        (click)="selectGame(game.id)"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">{{ game.icon }}</span>
+        {{ game.titleKey | tchLabel }}
+      </button>
+      }
+    </div>
+
+    <div class="rules-page__content">
+      <div class="rules-page__detail">
+        <h3 class="rules-page__detail-title">{{ activeGame().titleKey | tchLabel }}</h3>
+        <p class="rules-page__principle">{{ activeGame().principleKey | tchLabel }}</p>
+
+        <div class="rules-page__bet-table-wrap">
+          <p class="rules-page__bet-table-heading">
+            {{ 'public.rules.games.bet_options_title' | tchLabel }}
+          </p>
+          <table class="rules-page__bet-table" role="table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'public.rules.simulation.bet_option_label' | tchLabel }}</th>
+                <th scope="col">{{ 'public.rules.simulation.multiplier_label' | tchLabel }}</th>
+                <th scope="col">{{ 'public.rules.simulation.gain_for_100' | tchLabel }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (opt of activeGame().betOptions; track opt.id) {
+              <tr
+                class="rules-page__bet-row"
+                [class.rules-page__bet-row--active]="selectedOption() === opt.id"
+                (click)="selectBetOption(opt.id)"
+              >
+                <td>{{ opt.labelKey | tchLabel }}</td>
+                <td class="rules-page__bet-mult">×{{ opt.defaultMultiplier | number:'1.0-0' }}</td>
+                @if (opt.bonusMultiplier) {
+                <td class="rules-page__bet-gain">
+                  {{ 100 * opt.defaultMultiplier | number:'1.0-0' }} + {{ 100 * opt.bonusMultiplier
+                  | number:'1.0-0' }} HTG
+                </td>
+                } @else {
+                <td class="rules-page__bet-gain">
+                  {{ 100 * opt.defaultMultiplier | number:'1.0-0' }} HTG
+                </td>
+                }
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (selectedGame() === 'maryaj_gratis') {
+        <p class="rules-page__availability-note">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          {{ 'public.rules.maryaj_gratis.availability_note' | tchLabel }}
+        </p>
+        } @if (selectedGame() === 'mariage') {
+        <p class="rules-page__availability-note">
+          {{ 'public.rules.simulation.mariage_different_note' | tchLabel }}
+        </p>
+        }
+      </div>
+
+      <aside
+        class="rules-page__simulation"
+        [attr.aria-label]="'public.rules.simulation_title' | tchLabel"
+      >
+        <span class="rules-page__badge">{{ 'public.rules.badge' | tchLabel }}</span>
+        <h2 class="rules-page__sim-title">{{ activeGame().titleKey | tchLabel }}</h2>
+
+        <div
+          class="rules-page__sim-options"
+          role="group"
+          [attr.aria-label]="'public.rules.simulation.bet_option_label' | tchLabel"
+        >
+          @for (opt of activeGame().betOptions; track opt.id) {
+          <button
+            type="button"
+            class="rules-page__sim-option"
+            [class.rules-page__sim-option--active]="selectedOption() === opt.id"
+            [attr.aria-pressed]="selectedOption() === opt.id"
+            (click)="selectBetOption(opt.id)"
+          >
+            {{ opt.labelKey | tchLabel }}
+          </button>
+          }
+        </div>
+
+        <div class="rules-page__number-fields">
+          @for (field of activeOption().numberFields; track field.id) {
+          <label class="rules-page__number-label">
+            <span>{{ field.labelKey | tchLabel }}</span>
+            <input
+              type="text"
+              inputmode="numeric"
+              [attr.maxlength]="field.maxLength"
+              [attr.minlength]="field.minLength"
+              [attr.pattern]="field.pattern"
+              [placeholder]="'0'.repeat(field.minLength)"
+            />
+          </label>
+          }
+        </div>
+
+        <label class="rules-page__amount-label">
+          <span>{{ 'public.rules.calc_amount_label' | tchLabel }}</span>
+          <div class="rules-page__amount-wrap">
+            <span class="rules-page__currency" aria-hidden="true">HTG</span>
+            <input
+              type="number"
+              min="1"
+              max="999999"
+              step="10"
+              [value]="betAmount()"
+              (input)="updateBetAmount($event)"
+            />
+          </div>
+        </label>
+
+        <div class="rules-page__multiplier-wrap">
+          <label class="rules-page__multiplier-label">
+            <span class="rules-page__multiplier-label-row">
+              {{ 'public.rules.simulation.multiplier_label' | tchLabel }} @if (isMultiplierCustom())
+              {
+              <span class="rules-page__custom-badge"
+                >{{ 'public.rules.simulation.multiplier_custom_badge' | tchLabel }}</span
+              >
+              }
+            </span>
+            <div class="rules-page__multiplier-input-wrap">
+              <span class="rules-page__mult-prefix" aria-hidden="true">×</span>
+              <input
+                type="number"
+                min="1"
+                [value]="displayedMultiplier()"
+                (input)="updateMultiplier($event)"
+              />
+            </div>
+          </label>
+          @if (isMultiplierCustom()) {
+          <button type="button" class="rules-page__reset-btn" (click)="resetMultiplier()">
+            {{ 'public.rules.simulation.multiplier_reset' | tchLabel }}
+          </button>
+          }
+          <p class="rules-page__mult-note">
+            {{ 'public.rules.simulation.multiplier_note' | tchLabel }}
+          </p>
+        </div>
+
+        @if (selectedGame() === 'maryaj_gratis') {
+        <div class="rules-page__fich rules-page__fich--double" aria-live="polite">
+          <div class="rules-page__fich-punch rules-page__fich-punch--left" aria-hidden="true"></div>
+          <div
+            class="rules-page__fich-punch rules-page__fich-punch--right"
+            aria-hidden="true"
+          ></div>
+          <div class="rules-page__fich-double-row">
+            <span class="rules-page__fich-line-label"
+              >{{ 'public.rules.simulation.borlette_gain_line' | tchLabel }}</span
+            >
+            <span class="rules-page__fich-line-amount"
+              >{{ borletteBaseGain() | number:'1.0-0' }}<small> HTG</small></span
+            >
+          </div>
+          <div class="rules-page__fich-double-row">
+            <span class="rules-page__fich-line-label"
+              >{{ 'public.rules.simulation.maryaj_gratis_gain_line' | tchLabel }}</span
+            >
+            <span class="rules-page__fich-line-amount"
+              >{{ maryajGratisBonus() | number:'1.0-0' }}<small> HTG</small></span
+            >
+          </div>
+          <div class="rules-page__fich-total">
+            <span class="rules-page__fich-eyebrow"
+              >{{ 'public.rules.simulation.total_gain_label' | tchLabel }}</span
+            >
+            <span class="rules-page__fich-amount" aria-hidden="true"
+              >{{ potentialGain() | number:'1.0-0' }}<small> HTG</small></span
+            >
+          </div>
+        </div>
+        } @else {
+        <div
+          class="rules-page__fich"
+          aria-live="polite"
+          [attr.aria-label]="('public.rules.calc_gain_label' | tchLabel) + ': ' + (potentialGain() | number:'1.0-0') + ' HTG'"
+        >
+          <div class="rules-page__fich-punch rules-page__fich-punch--left" aria-hidden="true"></div>
+          <div
+            class="rules-page__fich-punch rules-page__fich-punch--right"
+            aria-hidden="true"
+          ></div>
+          <span class="rules-page__fich-eyebrow"
+            >{{ 'public.rules.calc_gain_label' | tchLabel }}</span
+          >
+          <span class="rules-page__fich-amount" aria-hidden="true">
+            {{ potentialGain() | number:'1.0-0' }}<small> HTG</small>
+          </span>
+          <span class="rules-page__fich-note">{{ 'public.rules.calc_note' | tchLabel }}</span>
+        </div>
+        }
+
+        <p class="rules-page__disclaimer">{{ 'public.rules.disclaimer' | tchLabel }}</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="rules-page__tchala" id="tchala" aria-labelledby="rules-tchala-title">
+    <div class="rules-page__tchala-header">
+      <div class="rules-page__section-heading">
+        <p class="rules-page__eyebrow">{{ 'public.rules.tchala.eyebrow' | tchLabel }}</p>
+        <h2 id="rules-tchala-title">{{ 'public.rules.tchala.title' | tchLabel }}</h2>
+        <p>{{ 'public.rules.tchala.subtitle' | tchLabel }}</p>
+      </div>
+      <a class="rules-page__tchala-see-all" routerLink="/public/tchala">
+        <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+        {{ 'public.rules.tchala.see_all' | tchLabel }}
+      </a>
+    </div>
+
+    <label class="rules-page__search">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <span class="rules-page__search-label"
+        >{{ 'public.rules.tchala.search_label' | tchLabel }}</span
+      >
+      <input
+        type="search"
+        [placeholder]="'public.rules.tchala.search_placeholder' | tchLabel"
+        [value]="query()"
+        (input)="updateQuery($event)"
+      />
+    </label>
+
+    <div class="rules-page__tchala-grid">
+      @for (entry of filteredEntries(); track entry.id) {
+      <article class="rules-page__dream">
+        <span class="material-symbols-outlined rules-page__dream-icon" aria-hidden="true"
+          >{{ entry.icon }}</span
+        >
+        <div>
+          <h3>{{ entry.termKey | tchLabel }}</h3>
+          <p>{{ entry.descriptionKey | tchLabel }}</p>
+        </div>
+        <div
+          class="rules-page__numbers"
+          [attr.aria-label]="'public.rules.tchala.numbers_label' | tchLabel"
+        >
+          @for (number of entry.numbers; track number) {
+          <span>{{ number }}</span>
+          }
+        </div>
+      </article>
+      } @empty {
+      <p class="rules-page__empty">{{ 'public.rules.tchala.empty' | tchLabel }}</p>
+      }
+    </div>
+  </section>
+</div>

@@ -1,8 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.query.handler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.GameStatsView;
 import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
@@ -19,9 +16,9 @@ import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.config.TicketVisibilityProperties;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
@@ -34,6 +31,9 @@ import com.tchalanet.server.core.sales.internal.application.receipt.formatter.Ti
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.CustomerTicketStatusResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.TicketVisibilityPolicy;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -46,8 +46,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class VerifyTicketByPublicCodeQueryHandlerTest {
 
@@ -64,7 +65,7 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
         TchContext.set(context(Locale.ENGLISH));
         var handler = handler(new StubTicketVerificationReader(Instant.parse("2026-05-27T09:00:00Z")));
 
-        var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH", "VCODE123"));
+        var result = handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH"));
 
         assertThat(result.lines()).singleElement()
             .extracting(line -> line.promotionLabel())
@@ -73,9 +74,9 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
 
     @Test
     void unknownOrWrongVerificationCodeReturnsTicketNotFound() {
-        var handler = handler((publicCode, verificationCode) -> Optional.empty());
+        var handler = handler((publicCode) -> Optional.empty());
 
-        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH", "WRONG")))
+        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
             .isInstanceOf(ProblemRestException.class)
             .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
             .isEqualTo(404);
@@ -85,7 +86,7 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
     void hiddenTicketReturnsTicketNotFound() {
         var handler = handler(new StubTicketVerificationReader(Instant.parse("2025-01-01T09:00:00Z")));
 
-        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH", "VCODE123")))
+        assertThatThrownBy(() -> handler.handle(new VerifyTicketByPublicCodeQuery("ABCD-EFGH")))
             .isInstanceOf(ProblemRestException.class)
             .extracting(ex -> ((ProblemRestException) ex).getProblem().getStatus())
             .isEqualTo(404);
@@ -133,10 +134,8 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
 
     private record StubTicketVerificationReader(Instant placedAt) implements TicketVerificationReaderPort {
         @Override
-        public Optional<TicketVerificationProjection> findByPublicCodeAndVerificationCode(
-            String publicCode,
-            String verificationCode
-        ) {
+        public Optional<TicketVerificationProjection> findByPublicCode(
+            String publicCode) {
             var usd = CurrencyCode.of("USD");
             return Optional.of(new TicketVerificationProjection(
                 TENANT_ID,
@@ -196,7 +195,7 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
 
         @Override
         public com.tchalanet.server.catalog.i18n.api.model.I18nBundleView loadBundle(
-                String locale, java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
+            String locale, java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
             return new com.tchalanet.server.catalog.i18n.api.model.I18nBundleView(locale, Map.of());
         }
 

@@ -43,6 +43,7 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
                t.currency,
                d.draw_date,
                d.scheduled_at,
+               dc.code            AS draw_channel_key,
                dc.name            AS draw_channel_name,
                o.name             AS outlet_name
         FROM sales_ticket t
@@ -50,7 +51,6 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         LEFT JOIN draw_channel dc ON dc.id = t.draw_channel_id
         LEFT JOIN outlet o ON o.id = t.outlet_id
         WHERE t.public_code = :publicCode
-          AND t.verification_code = :verificationCode
           AND t.deleted_at IS NULL
           AND t.sale_status NOT IN ('PENDING_APPROVAL', 'REJECTED')
         """;
@@ -66,18 +66,16 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         """;
 
     @Override
-    public Optional<TicketVerificationProjection> findByPublicCodeAndVerificationCode(
-        String publicCode,
-        String verificationCode
+    public Optional<TicketVerificationProjection> findByPublicCode(
+        String publicCode
     ) {
         var params = new MapSqlParameterSource()
-            .addValue("publicCode", publicCode)
-            .addValue("verificationCode", verificationCode);
+            .addValue("publicCode", publicCode);
 
         var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs));
         if (rows.isEmpty()) return Optional.empty();
 
-        var h = rows.get(0);
+        var h = rows.getFirst();
         var currency = CurrencyCode.of(h.currency());
 
         var lineParams = new MapSqlParameterSource("ticketId", h.ticketId());
@@ -94,7 +92,7 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
             new Money(h.totalAmount(), currency),
             h.winningAmount() != null ? new Money(h.winningAmount(), currency) : null,
             new TicketVerificationProjection.DrawProjection(
-                h.drawChannelName(),
+                h.drawChannelKey(),
                 h.drawChannelName(),
                 h.drawDate(),
                 h.scheduledAt()
@@ -121,9 +119,10 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         var scheduledAtTs = rs.getTimestamp("scheduled_at");
         Instant scheduledAt = scheduledAtTs != null ? scheduledAtTs.toInstant() : null;
         String drawChannelName = rs.getString("draw_channel_name");
+        String drawChannelKey = rs.getString("draw_channel_key");
         String outletName = rs.getString("outlet_name");
         return new HeaderRow(ticketId, tenantId, publicCode, saleStatus, resultStatus, settlementStatus,
-            placedAt, totalAmount, winningAmount, currency, drawDate, scheduledAt, drawChannelName, outletName);
+            placedAt, totalAmount, winningAmount, currency, drawDate, scheduledAt, drawChannelKey, drawChannelName, outletName);
     }
 
     private TicketVerificationProjection.LineProjection mapLine(ResultSet rs, CurrencyCode currency)
@@ -196,6 +195,6 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         TicketSettlementStatus settlementStatus,
         Instant placedAt, BigDecimal totalAmount, BigDecimal winningAmount,
         String currency, LocalDate drawDate, Instant scheduledAt,
-        String drawChannelName, String outletName
+        String drawChannelKey, String drawChannelName, String outletName
     ) {}
 }

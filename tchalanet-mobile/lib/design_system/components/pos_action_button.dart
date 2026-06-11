@@ -6,6 +6,8 @@ import '../tokens/tch_spacing.dart';
 
 enum PosActionButtonSize { large, medium }
 
+enum PosActionButtonTone { primary, secondary, tertiary }
+
 /// Bold action button used for primary POS operations.
 /// Large (h=128): primary sell action. Medium (h=112): secondary actions.
 class PosActionButton extends StatelessWidget {
@@ -14,7 +16,7 @@ class PosActionButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
-    this.color,
+    this.tone = PosActionButtonTone.primary,
     this.size = PosActionButtonSize.medium,
     this.enabled = true,
   });
@@ -22,7 +24,7 @@ class PosActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
-  final Color? color;
+  final PosActionButtonTone tone;
   final PosActionButtonSize size;
   final bool enabled;
 
@@ -34,8 +36,11 @@ class PosActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final bg = color ?? scheme.primary;
-    final fg = scheme.onPrimary;
+    final (bg, fg) = switch (tone) {
+      PosActionButtonTone.primary => (scheme.primary, scheme.onPrimary),
+      PosActionButtonTone.secondary => (scheme.secondary, scheme.onSecondary),
+      PosActionButtonTone.tertiary => (scheme.tertiary, scheme.onTertiary),
+    };
     final effectiveOnPressed = enabled ? onPressed : null;
 
     return SizedBox(
@@ -68,12 +73,12 @@ class PosActionButton extends StatelessWidget {
                   label.toUpperCase(),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: effectiveOnPressed != null
-                            ? fg
-                            : scheme.onSurface.withValues(alpha: 0.38),
-                        letterSpacing: 0.5,
-                      ),
+                    fontWeight: FontWeight.w800,
+                    color: effectiveOnPressed != null
+                        ? fg
+                        : scheme.onSurface.withValues(alpha: 0.38),
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),

@@ -1,11 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { TranslateLoader } from '@ngx-translate/core';
 import { ApiResponse } from '@tch/api';
-import { Observable, catchError, forkJoin, map, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { TranslationTree } from '../../shared/types';
-import { I18nMergerService } from './i18n-merger.service';
 
 export interface I18nBundleResponse {
   readonly locale?: string;
@@ -16,56 +15,38 @@ export interface I18nBundleResponse {
 export interface MergedTranslateLoaderOptions {
   readonly assetsPrefix: string;
   readonly assetsSuffix: string;
-  readonly backendPath: string;
-  /**
-   * Surfaces are requested and merged in order. Put common bundles first and
-   * specific surfaces later so specific keys override shared defaults.
-   */
-  readonly surfaces: readonly string[];
 }
 
 export const MERGED_TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
   'MERGED_TRANSLATE_LOADER_OPTIONS',
 );
 
+/**
+ * Local-only translate loader. It loads the bundled `fr/en/ht` fallback for a language.
+ *
+ * Backend translations are no longer fetched here: they are delivered inside the runtime bootstrap
+ * response (`/public/runtime/bootstrap`, `/tenant/runtime/bootstrap`) and overlaid on top via
+ * `TranslateService.setTranslation(lang, messages, shouldMerge=true)` by the runtime initializers.
+ * Local bundles remain only as an offline fallback.
+ */
 @Injectable()
 export class MergedTranslateLoader implements TranslateLoader {
   private readonly http = inject(HttpClient);
-  private readonly merger = inject(I18nMergerService);
   private readonly options = inject(MERGED_TRANSLATE_LOADER_OPTIONS);
 
   getTranslation(lang: string): Observable<TranslationTree> {
-    return forkJoin({
-      local: this.loadLocal(lang),
-      backend: this.loadBackendOverrides(lang),
-    }).pipe(map(({ local, backend }) => this.merger.merge(local, backend)));
-  }
-
-  private loadLocal(lang: string): Observable<TranslationTree> {
     return this.http
       .get<TranslationTree>(
         `${this.options.assetsPrefix}${encodeURIComponent(lang)}${this.options.assetsSuffix}`,
       )
-      .pipe(catchError(() => of({})));
-  }
-
-  private loadBackendOverrides(lang: string): Observable<TranslationTree> {
-    let params = new HttpParams().set('locale', lang);
-    this.options.surfaces.forEach(surface => {
-      params = params.append('surface', surface);
-    });
-
-    return this.http
-      .get<
-        ApiResponse<I18nBundleResponse> | I18nBundleResponse | TranslationTree
-      >(this.options.backendPath, { params })
-      .pipe(
-        map(response => normalizeBackendTranslations(response, this.options.surfaces)),
-        catchError(() => of({})),
-      );
+      .pipe(catchError(() => of<TranslationTree>({})));
   }
 }
 
+/**
+ * Normalize a backend i18n bundle (surface-grouped or flat) into a flat translation tree.
+ * Retained as a pure helper: the bootstrap path can reuse it to flatten surface bundles.
+ */
 export function normalizeBackendTranslations(
   response: ApiResponse<I18nBundleResponse> | I18nBundleResponse | TranslationTree,
   surfaceOrder: readonly string[] = [],

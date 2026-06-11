@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TchPubCard, TchPubCardGrid } from '@tch/ui/components';
 
-import { WidgetConfig } from '@tch/page-model';
-import { LabelPipe } from '@tch/page-model';
-import { stringProp } from '@tch/page-model';
+import { LabelPipe, WidgetConfig, stringProp } from '@tch/page-model';
 
 interface FeatureItem {
   readonly id?: string;
@@ -21,23 +20,23 @@ interface FeatureDynamic {
 /** `FeatureGridWidget`: compact preview grid rendered from its resolved dynamic payload. */
 @Component({
   selector: 'tch-feature-grid-widget',
-  imports: [LabelPipe],
+  imports: [LabelPipe, TchPubCard, TchPubCardGrid],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="features">
       <h2 class="features__title">{{ titleKey() | tchLabel }}</h2>
-      <ul class="features__grid">
+      <tch-public-card-grid style="--pub-card-grid-min: 220px">
         @for (item of items(); track item.id ?? $index) {
-          <li class="features__card">
+          <tch-public-card density="compact">
             <h3 class="features__name">{{ item.title ?? (item.title_key | tchLabel) }}</h3>
             @if (item.description || item.description_key) {
               <p class="features__desc">
                 {{ item.description ?? (item.description_key | tchLabel) }}
               </p>
             }
-          </li>
+          </tch-public-card>
         }
-      </ul>
+      </tch-public-card-grid>
     </section>
   `,
   styles: [
@@ -50,23 +49,6 @@ interface FeatureDynamic {
       .features__title {
         margin: 0;
         font-size: 1.25rem;
-      }
-      .features__grid {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      }
-      .features__card {
-        display: grid;
-        gap: 0.5rem;
-        padding: 1.25rem;
-        border-radius: var(--tch-radius-control, 12px);
-        background: var(--tch-color-surface, var(--mat-sys-surface));
-        color: var(--tch-color-foreground, var(--mat-sys-on-surface));
-        border: 1px solid var(--tch-color-outline, var(--mat-sys-outline-variant));
       }
       .features__name {
         margin: 0;

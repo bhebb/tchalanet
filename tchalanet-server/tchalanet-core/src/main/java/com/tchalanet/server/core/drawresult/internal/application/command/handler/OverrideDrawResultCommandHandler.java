@@ -70,7 +70,7 @@ public class OverrideDrawResultCommandHandler
             null, command.drawDate(), slot.drawTime(), slot.timezone(), clock);
 
         // [Règle Override refusé post-SETTLED]
-        resultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt).ifPresent(drId -> {
+        resultReader.findByResultSlotIdAndResultDate(slot.id(), command.drawDate()).ifPresent(drId -> {
             if (drawReader.existsSettledDrawForResult(drId)) {
                 throw new DrawResultOverrideForbiddenException(drId);
             }
@@ -91,6 +91,7 @@ public class OverrideDrawResultCommandHandler
         var res =
             writer.upsert(
                 slot.id(),
+                command.drawDate(),
                 occurredAt,
                 sourceResult,
                 jsonUtils.toJsonNode(haitiResult.result()),

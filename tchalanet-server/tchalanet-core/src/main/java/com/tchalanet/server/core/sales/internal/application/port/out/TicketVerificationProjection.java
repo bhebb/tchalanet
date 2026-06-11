@@ -27,8 +27,8 @@ public record TicketVerificationProjection(
     List<LineProjection> lines
 ) {
     public record DrawProjection(
+        String drawChannelKey,
         String drawChannelName,
-        String drawChannelLabel,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}

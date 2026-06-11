@@ -2,18 +2,16 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Data, RouterLink } from '@angular/router';
 
-import { PublicShellComponent } from './shell/public-shell.component';
 import { LabelPipe } from '@tch/page-model';
 
 type PublicInfoKind = 'check-ticket' | 'results' | 'rules' | 'help' | 'contact' | 'privacy' | 'terms';
 
 @Component({
   selector: 'tch-public-info-page',
-  imports: [PublicShellComponent, LabelPipe, RouterLink],
+  imports: [LabelPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <section class="info">
+    <section class="info">
         <p class="info__eyebrow">{{ eyebrowKey() | tchLabel }}</p>
         <h1>{{ titleKey() | tchLabel }}</h1>
         <p class="info__lead">{{ descriptionKey() | tchLabel }}</p>
@@ -59,7 +57,6 @@ type PublicInfoKind = 'check-ticket' | 'results' | 'rules' | 'help' | 'contact' 
           }
         }
       </section>
-    </tch-page-shell>
   `,
   styles: [
     `
@@ -117,8 +114,8 @@ type PublicInfoKind = 'check-ticket' | 'results' | 'rules' | 'help' | 'contact' 
       }
       .info__card button {
         border: 0;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-weight: 800;
       }
       .info__card a {
@@ -129,8 +126,8 @@ type PublicInfoKind = 'check-ticket' | 'results' | 'rules' | 'help' | 'contact' 
         justify-self: start;
         border-radius: var(--tch-radius-pill, 9999px);
         padding: 0.25rem 0.625rem;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         font-weight: 800;
       }

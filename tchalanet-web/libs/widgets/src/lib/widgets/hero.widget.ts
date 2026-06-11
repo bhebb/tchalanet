@@ -5,236 +5,263 @@ import { LabelPipe } from '@tch/page-model';
 import {
   actionsFrom,
   destinationHref,
+  isRecord,
   stringProp,
+  stringValue,
   WidgetAction,
 } from '@tch/page-model';
-
-interface HeroDynamic {
-  readonly title_key?: string;
-  readonly tagline_key?: string;
-  readonly subtitle_key?: string;
-  readonly cta_key?: string;
-  readonly cta_path?: string;
-  readonly actions?: readonly unknown[];
-}
+import { TchActionButton } from '@tch/ui/components';
 
 /**
- * `HeroWidget`: strong hero with a primary action. Title/subtitle/CTA come from the widget props
- * (`*_key`) with an optional resolved dynamic payload. Styled only via theme tokens.
+ * `HeroWidget` — section d'entrée de la page publique.
+ * Mobile-first : copy (eyebrow → titre → description → actions) puis visuel ticket.
+ * Desktop : deux colonnes [copy | visuel].
+ * Props lues depuis config.props (camelCase), actions depuis config.props.actions.
  */
 @Component({
   selector: 'tch-hero-widget',
-  imports: [LabelPipe],
+  imports: [LabelPipe, TchActionButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="hero">
-      <div class="hero__copy">
-        @if (taglineKey()) {
-          <p class="hero__eyebrow">{{ taglineKey() | tchLabel }}</p>
-        }
-        <h1 class="hero__title">{{ titleKey() | tchLabel }}</h1>
-        @if (subtitleKey()) {
-          <p class="hero__subtitle">{{ subtitleKey() | tchLabel }}</p>
-        }
-        @if (actions().length) {
-          <div class="hero__actions">
-            @for (action of actions(); track action.id ?? action.labelKey) {
-              <a
-                class="hero__cta"
-                [class.hero__cta--secondary]="action.style !== 'primary'"
-                [attr.href]="href(action)"
-              >
-                {{ action.label ?? (action.labelKey | tchLabel) }}
-              </a>
-            }
-          </div>
-        } @else if (ctaKey()) {
-          <a class="hero__cta" [attr.href]="ctaPath()">{{ ctaKey() | tchLabel }}</a>
-        }
-      </div>
-
-      <div class="hero__visual" aria-hidden="true">
-        <img
-          class="hero__ticket"
-          src="/assets/public/ticket-verification-preview.svg"
-          alt=""
-          loading="eager"
-        />
-        <div class="hero__quick-check">
-          <div class="hero__quick-head">
-            <span>{{ 'public.ticket.code_label' | tchLabel }}</span>
-            <span>QR</span>
-          </div>
-          <div class="hero__quick-code">{{ 'public.ticket.placeholder' | tchLabel }}</div>
-          <div class="hero__quick-note">{{ 'public.ticket.description' | tchLabel }}</div>
+    <div class="hero-widget__content">
+      @if (eyebrowKey()) {
+        <p class="hero-widget__eyebrow">{{ eyebrowKey() | tchLabel }}</p>
+      }
+      <h1 class="hero-widget__title">{{ titleKey() | tchLabel }}</h1>
+      @if (descriptionKey()) {
+        <p class="hero-widget__description">{{ descriptionKey() | tchLabel }}</p>
+      }
+      @if (primaryAction() || secondaryActions().length) {
+        <div class="hero-widget__actions">
+          @if (primaryAction(); as action) {
+            <a
+              tch-action
+              variant="primary"
+              [attr.href]="href(action)"
+              style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+            >
+              {{ action.label ?? (action.labelKey | tchLabel) }}
+            </a>
+          }
+          @for (action of secondaryActions(); track action.id ?? action.labelKey) {
+            <a
+              tch-action
+              variant="tertiary"
+              [attr.href]="href(action)"
+              style="color: var(--tch-color-on-primary, #fff); --comp-action-outline: color-mix(in oklab, var(--tch-color-on-primary, #fff) 40%, transparent);"
+            >
+              {{ action.label ?? (action.labelKey | tchLabel) }}
+            </a>
+          }
         </div>
+      }
+    </div>
+
+    <div class="hero-widget__visual" aria-hidden="true">
+      <div class="hero-widget__ticket-card">
+        <div class="hero-widget__ticket-header">
+          <span class="hero-widget__ticket-label">{{ 'public.ticket.code_label' | tchLabel }}</span>
+          <span class="hero-widget__ticket-qr-icon" aria-hidden="true">▣</span>
+        </div>
+        <div class="hero-widget__ticket-code">{{ ticketCodeLiteral() ?? ('public.ticket.placeholder' | tchLabel) }}</div>
+        <div class="hero-widget__ticket-status-row">
+          <span class="hero-widget__ticket-badge">{{ statusLabelKey() | tchLabel }}</span>
+        </div>
+        <p class="hero-widget__ticket-note">{{ helperTextKey() | tchLabel }}</p>
       </div>
-    </section>
+    </div>
   `,
   styles: [
     `
-      .hero {
-        position: relative;
-        overflow: hidden;
+      @use 'mixins' as tch;
+      @use 'breakpoints' as bp;
+
+      :host {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
-        align-items: center;
-        gap: 1rem;
-        min-height: clamp(24rem, 52vw, 34rem);
-        padding: clamp(2rem, 8vw, 5rem) clamp(1.25rem, 5vw, 4rem);
-        border-radius: var(--tch-radius-xl, 24px);
+        gap: 1.5rem;
+        padding: 2rem 1rem 2.5rem;
+        overflow: hidden;
+        border-radius: 0 0 var(--tch-radius-xl, 24px) var(--tch-radius-xl, 24px);
         background:
           radial-gradient(
-            circle at 88% 8%,
-            color-mix(
-                in oklab,
-                var(--tch-color-primary-container, var(--mat-sys-primary-container)) 58%,
-                var(--tch-color-on-primary, var(--mat-sys-on-primary)) 0%
-              )
-              0,
-            transparent 18rem
+            ellipse at 80% 0%,
+            color-mix(in oklab, var(--tch-color-primary-container, var(--mat-sys-primary-container)) 60%, transparent) 0%,
+            transparent 50%
           ),
           linear-gradient(
-            145deg,
+            150deg,
             var(--tch-color-primary, var(--mat-sys-primary)) 0%,
-            var(--tch-color-primary-container, var(--mat-sys-primary-container)) 100%
+            color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 80%, var(--tch-color-primary-container, var(--mat-sys-primary-container))) 100%
           );
         color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+
+        @include bp.up(expanded) {
+          grid-template-columns: minmax(0, 0.9fr) minmax(22rem, 1.1fr);
+          align-items: center;
+          min-height: clamp(26rem, 36vw, 34rem);
+          padding: clamp(3rem, 5vw, 4.5rem) clamp(2rem, 4.5vw, 4rem);
+          border-radius: var(--tch-radius-xl, 24px);
+          gap: clamp(2rem, 4vw, 3.5rem);
+        }
       }
-      .hero__copy {
-        position: relative;
-        z-index: 1;
+
+      /* ── Content ── */
+
+      .hero-widget__content {
         display: grid;
-        gap: 1rem;
+        gap: 1.25rem;
+        align-content: start;
+
+        @include bp.up(expanded) {
+          gap: 1.5rem;
+        }
       }
-      .hero__eyebrow {
+
+      .hero-widget__eyebrow {
         margin: 0;
-        color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+        width: fit-content;
+        padding: 0.3rem 0.875rem;
+        border-radius: var(--tch-radius-pill, 9999px);
+        background: color-mix(in oklab, var(--tch-color-on-primary, var(--mat-sys-on-primary)) 14%, transparent);
         font-size: var(--tch-font-size-label-sm, 0.75rem);
-        line-height: var(--tch-line-height-label-sm, 1rem);
         font-weight: 700;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-      }
-      .hero__title {
-        margin: 0;
         color: inherit;
-        font-size: clamp(2rem, 6vw, var(--tch-font-size-display-lg, 2.5rem));
-        line-height: var(--tch-line-height-display-lg, 3rem);
-        max-width: 46rem;
       }
-      .hero__subtitle {
+
+      .hero-widget__title {
         margin: 0;
-        max-width: 42rem;
-        color: var(--tch-color-primary-fixed, var(--mat-sys-primary-fixed));
+        font-size: clamp(1.875rem, 5.5vw, var(--tch-font-size-display-md, 2.5rem));
+        line-height: 1.15;
+        font-weight: 800;
+        color: inherit;
+        max-width: 22rem;
+
+        @include bp.up(expanded) {
+          max-width: 38rem;
+        }
       }
-      .hero__actions {
+
+      .hero-widget__description {
+        margin: 0;
+        max-width: 36rem;
+        color: color-mix(in oklab, var(--tch-color-on-primary, var(--mat-sys-on-primary)) 80%, transparent);
+        font-size: var(--tch-font-size-body-md, 1rem);
+        line-height: 1.65;
+      }
+
+      /* ── Actions ── */
+
+      .hero-widget__actions {
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
+
+        @include bp.down(medium) {
+          flex-direction: column;
+
+          a[tch-action] {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+          }
+        }
       }
-      .hero__cta {
-        justify-self: start;
-        min-height: var(--tch-touch-target, 48px);
-        display: inline-flex;
-        align-items: center;
-        padding: 0 1.25rem;
-        border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
-        text-decoration: none;
-        font-weight: 600;
-      }
-      .hero__cta--secondary {
-        background: transparent;
+
+      /* Ghost secondary — visible on dark hero background */
+      .hero-widget__secondary-cta {
         color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
-        border: 1px solid color-mix(in oklab, currentColor 40%, transparent);
+        --comp-action-outline: color-mix(in oklab, var(--tch-color-on-primary, var(--mat-sys-on-primary)) 40%, transparent);
       }
-      .hero__visual {
-        position: relative;
-        z-index: 1;
+
+      /* ── Visual ── */
+
+      .hero-widget__visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-width: 100%;
+
+        @include bp.up(expanded) {
+          justify-self: center;
+        }
+      }
+
+      .hero-widget__ticket-card {
         display: grid;
-        justify-items: center;
-        gap: 1rem;
-      }
-      .hero__ticket {
-        width: min(100%, 18rem);
-        filter: drop-shadow(0 22px 34px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 32%, transparent));
-        transform: rotate(-2deg);
-      }
-      .hero__quick-check {
+        gap: 0.875rem;
         width: min(100%, 20rem);
-        display: none;
-        gap: 0.75rem;
-        padding: 1rem;
-        border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        padding: 1.25rem;
+        border-radius: var(--tch-radius-xl, 20px);
+        background: var(--tch-color-surface, var(--mat-sys-surface));
         color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
-        box-shadow: var(--mat-sys-level3, 0 14px 32px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
+        box-shadow:
+          0 4px 6px -1px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent),
+          0 20px 48px -8px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 32%, transparent);
+
+        @include bp.up(expanded) {
+          width: min(100%, 26rem);
+          padding: 2rem;
+          transform: rotate(-1.5deg);
+        }
       }
-      .hero__quick-head {
+
+      .hero-widget__ticket-header {
         display: flex;
         justify-content: space-between;
-        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
-        font-size: var(--tch-font-size-label-sm, 0.75rem);
-        line-height: var(--tch-line-height-label-sm, 1rem);
-        font-weight: 800;
-        text-transform: uppercase;
+        align-items: center;
       }
-      .hero__quick-code {
-        padding: 0.875rem;
+
+      .hero-widget__ticket-label {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .hero-widget__ticket-qr-icon {
+        font-size: 1.5rem;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        opacity: 0.5;
+      }
+
+      .hero-widget__ticket-code {
+        padding: 0.875rem 1rem;
         border-radius: var(--tch-radius-control, 8px);
         background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
         color: var(--tch-color-primary, var(--mat-sys-primary));
         font-family: var(--tch-font-family-mono, monospace);
-        font-size: 1.125rem;
+        font-size: 1.25rem;
         font-weight: 800;
+        letter-spacing: 0.1em;
         text-align: center;
-        letter-spacing: 0.08em;
       }
-      .hero__quick-note {
-        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+
+      .hero-widget__ticket-status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .hero-widget__ticket-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--tch-radius-pill, 9999px);
+        background: color-mix(in oklab, var(--tch-color-accent, #fecb00) 18%, transparent);
+        color: color-mix(in oklab, var(--tch-color-accent, #fecb00) 80%, var(--tch-color-on-surface, var(--mat-sys-on-surface)));
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+      }
+
+      .hero-widget__ticket-note {
+        margin: 0;
         font-size: 0.75rem;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
         text-align: center;
-      }
-      @media (max-width: 720px) {
-        .hero {
-          grid-template-columns: 1fr;
-          min-height: auto;
-          justify-items: center;
-          text-align: center;
-          padding: 2rem var(--tch-page-margin-mobile, 16px) 2.25rem;
-          border-radius: 0 0 var(--tch-radius-xl, 24px) var(--tch-radius-xl, 24px);
-        }
-        .hero__copy {
-          justify-items: center;
-        }
-        .hero__title {
-          font-size: var(--tch-font-size-headline-mobile, 1.5rem);
-          line-height: var(--tch-line-height-headline-mobile, 2rem);
-          max-width: 20rem;
-        }
-        .hero__subtitle {
-          max-width: 21rem;
-        }
-        .hero__ticket {
-          width: min(62vw, 15rem);
-          order: -1;
-        }
-        .hero__actions {
-          width: min(100%, 20rem);
-        }
-        .hero__cta {
-          width: 100%;
-          justify-content: center;
-        }
-        .hero__cta--secondary {
-          display: none;
-        }
-      }
-      @media (min-width: 520px) and (max-width: 720px) {
-        .hero__quick-check {
-          display: grid;
-        }
       }
     `,
   ],
@@ -244,47 +271,39 @@ export class HeroWidget {
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
 
-  private readonly data = computed<HeroDynamic>(() => (this.dynamic() as HeroDynamic) ?? {});
-
+  readonly eyebrowKey = computed(() => stringProp(this.config(), 'taglineKey'));
   readonly titleKey = computed(
-    () => this.data().title_key ?? stringProp(this.config(), 'title_key') ?? 'home.hero.title',
+    () => stringProp(this.config(), 'titleKey') ?? 'home.hero.title',
   );
-  readonly taglineKey = computed(() => this.data().tagline_key ?? stringProp(this.config(), 'tagline_key'));
-  readonly subtitleKey = computed(
-    () => this.data().subtitle_key ?? stringProp(this.config(), 'subtitle_key'),
+  readonly descriptionKey = computed(
+    () => stringProp(this.config(), 'subtitleKey') ?? 'home.hero.subtitle',
   );
-  readonly ctaKey = computed(() => this.data().cta_key ?? stringProp(this.config(), 'cta_key'));
-  readonly ctaPath = computed(
-    () => this.data().cta_path ?? stringProp(this.config(), 'cta_path') ?? '#',
+
+  private readonly visual = computed(() => {
+    const v = this.config()?.props?.['visual'];
+    return isRecord(v) ? v : undefined;
+  });
+
+  readonly ticketCodeLiteral = computed(
+    () => stringValue(this.visual()?.['ticketCode']),
   );
-  readonly actions = computed(() => publicHeroActions(this.widgetId(), actionsFrom(this.data().actions)));
+  readonly statusLabelKey = computed(
+    () => stringValue(this.visual()?.['statusLabelKey']) ?? 'public.ticket.status_pending',
+  );
+  readonly helperTextKey = computed(
+    () => stringValue(this.visual()?.['helperTextKey']) ?? 'public.ticket.description',
+  );
+
+  private readonly allActions = computed(() =>
+    actionsFrom(this.config()?.props?.['actions']).filter(
+      a => a.id !== 'LOGIN' && a.id !== 'login',
+    ),
+  );
+
+  readonly primaryAction = computed(() => this.allActions()[0]);
+  readonly secondaryActions = computed(() => this.allActions().slice(1));
 
   href(action: WidgetAction): string {
     return destinationHref(action.destination);
   }
-}
-
-const HOME_HERO_ACTIONS: readonly WidgetAction[] = [
-  {
-    id: 'public-check-ticket',
-    labelKey: 'public.hero.primary_action',
-    style: 'primary',
-    destination: { kind: 'route', value: '/public/check-ticket' },
-  },
-  {
-    id: 'public-results',
-    labelKey: 'public.hero.secondary_action',
-    style: 'secondary',
-    destination: { kind: 'route', value: '/public/results' },
-  },
-];
-
-function publicHeroActions(
-  widgetId: string,
-  actions: readonly WidgetAction[],
-): readonly WidgetAction[] {
-  if (widgetId === 'home.hero') {
-    return HOME_HERO_ACTIONS;
-  }
-  return actions.filter(action => action.id !== 'LOGIN');
 }

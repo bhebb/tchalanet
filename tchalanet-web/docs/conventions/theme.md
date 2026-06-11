@@ -84,19 +84,43 @@ The mapping lives in `libs/ui/theme/src/lib/theme-token-map.ts`
 color.primary    -> --tch-color-primary
 color.secondary  -> --tch-color-secondary
 color.surface    -> --tch-color-surface
-color.onSurface  -> --tch-color-foreground (compatibility alias)
-shape.radius.md  -> --tch-radius-control (compatibility alias)
+color.onSurface  -> --tch-color-on-surface
+shape.radius.md  -> --tch-radius-md
 ```
+
+Backend overrides now target the **standard component-facing roles** (`--tch-color-on-surface`,
+`--tch-radius-md`). The legacy aliases `--tch-color-foreground` and `--tch-radius-control` are
+**derived from** those roles in `runtime-vars.scss`/`runtime-root.scss`
+(`--tch-color-foreground: var(--tch-color-on-surface)`, `--tch-radius-control: var(--tch-radius-md)`),
+so a tenant override cascades to both names without a double mapping. Prefer the standard role in new
+code; the aliases remain only for existing consumers.
 
 Rules: unmapped backend tokens are dropped (never emit invalid CSS); keys already shaped as `--tch-*`
 pass through; tokens with no backend equivalent (`background`, `outline`, `primary-contrast`,
-`surface-muted`) come from the active preset CSS. Extend the map (with a test) when the backend adds a
-token the web needs. New components use the standardized `--tch-color-on-surface` and
-`--tch-radius-md` roles; compatibility aliases must not become new component contracts.
+`surface-muted`) come from the active preset CSS. Extend the map **with a test** when the backend adds
+a token the web needs — `theme-token-contract.spec.ts` fails if a mapping targets a token that is not
+emitted.
+
+**Typography follows M3 like colours**: `--tch-font-size-*` / `--tch-line-height-*` /
+`--tch-letter-spacing-*` are bridged from the M3 type scale (`--mat-sys-{role}-size/line-height/
+tracking`) in `runtime-vars.scss`, with the `:root` px values as first-paint fallback. The web adopts
+the M3 type scale (so `display-lg` is M3's display-large, not a custom compact size). `--tch-weight-*`
+remain static.
+
+**Font keywords → stacks**: a tenant `typography.fontFamily` override arrives as a keyword
+(`system`/`roboto`/`poppins`/`inter`); `theme-token-map.ts` resolves it to a real font stack so the
+applied `--tch-font-family` is valid. `Plus Jakarta Sans` stays the brand default.
 
 ## CSS Token Rules
 
-Components use CSS variables, not hardcoded colors:
+The **canonical list** of `--tch-*` tokens is generated from the SCSS sources of truth
+(`runtime-root.scss` + `runtime-vars.scss`) into
+`libs/ui/theme/src/registry/token-manifest.generated.ts` (`npm run tokens:generate`). Do not maintain
+a parallel hand-written list — `theme-token-contract.spec.ts` keeps the manifest, the SCSS, and
+`theme-token-map.ts` in sync and fails on drift.
+
+Components use CSS variables, not hardcoded colors. Representative subset (see the manifest for the
+full set):
 
 ```text
 --tch-color-background
@@ -124,17 +148,26 @@ Components use CSS variables, not hardcoded colors:
 `--tch-*` variables are global theme tokens. `--comp-*` variables are component-local extension
 points and must fall back to `--tch-*`; they are not new global theme roles.
 
-The current Web foundation uses:
+The official `tchalanet` brand palette (light) — the exact hexes are **pinned** on both `--mat-sys-*`
+and `--tch-*` in `runtime-vars.scss` (`.tch-theme:not(.dark)[data-preset='tchalanet']`), so Material
+and app components never diverge. Roles not listed here derive from the `#1A1B4B`-seeded M3 palette.
 
 ```text
-primary             #1A1B4B
-onPrimary           #FFFFFF
-secondaryContainer  #FECB00
-onSecondaryContainer #241A00
-orangeAccent        #F7931E
-fontFamily          Plus Jakarta Sans
+primary              #1A1B4B   deep navy — brand sections, titles, key fills
+onPrimary            #FFFFFF
+primaryContainer     #2E3192   lighter navy — highlight sections
+accent (= tertiary)  #FECB00   gold — primary CTA / accents  (NOT secondary)
+onAccent             #241A00
+background           #F9F9FC
+surfaceContainerLowest #FFFFFF  cards/widgets
+onSurface            #1A1C1E
+onSurfaceVariant     #464652
+header               #FFFFFF bg / #1A1C1E text   (white top bar)
+footer               #1A1B4B bg / #FFFFFF text
+fontFamily           Plus Jakarta Sans
 ```
 
+The gold lives **only** in the accent role (M3 `tertiary`); `secondary` derives to a muted indigo.
 This is the current Web reference. Mobile/POS alignment requires a separate Mobile-owned change;
 this convention does not claim that Flutter already implements these values.
 
@@ -185,9 +218,23 @@ of supported themes". Preset label keys are `theme.presets.<id>` and must exist 
 1. **Startup / public**: apply the default public preset.
 2. **Tenant member signs in**: apply the tenant's theme (`presetId`, `mode`, `density`, and tenant
    `overrides`). Each tenant will have its own theme; v3 lets a tenant build its own M3 theme.
-3. Apply order in the DOM: generated preset CSS (`<style id=tch-theme-base>`, `data-preset` attr)
-   → runtime state (`.dark` class, `mat-density-*`) → tenant **overrides** (`<style id=tch-theme-overrides>`,
-   supports `--dark:`-prefixed vars + custom `fontHref`).
+3. Apply order in the DOM (owned by `ThemeDomApplier`): generated preset CSS
+   (`<style id=tch-theme-preset>`) → runtime state (`.tch-theme`/`.dark` classes, `data-preset` and
+   `data-theme-density` on root/body/overlay, plus the **density** class
+   `.tch-density-compact`/`.tch-density-dense`) → tenant **overrides**
+   (`<style id=tch-theme-overrides>`). `toOverrideCss` emits the resolved tenant token map as plain
+   `--tch-*: value` declarations scoped to `.tch-theme[data-preset='…']` — it does **not** yet support
+   `--dark:`-prefixed variants or a custom `fontHref`. Those are a **future enhancement** (needed for
+   tenant custom fonts), not current behavior.
+
+### Density (runtime)
+
+Density is **decoupled from presets** (M3 density only affects component metric tokens, so a single
+set of classes serves every preset). The preset generation no longer bakes `density`; instead
+`scss/density.scss` emits `mat.theme((density: -2|-4))` scoped to `.tch-density-compact` /
+`.tch-density-dense`, and `ThemeDomApplier` toggles the class from the runtime `density`
+(`comfortable` = default, no class). The backend `density.default` token flows through
+`ThemeApi → RuntimeTheme.density` and is persisted like mode/preset.
 
 ### Backend's role (and where its tokens fit)
 

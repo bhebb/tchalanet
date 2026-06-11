@@ -11,6 +11,8 @@ public record PublicDrawResultView(
     String status,
     String quality,
     JsonNode haiti,
-    JsonNode source
+    JsonNode source,
+    /** UUID opaque — identifiant public du draw_result. */
+    String drawResultId
 ) {
 }

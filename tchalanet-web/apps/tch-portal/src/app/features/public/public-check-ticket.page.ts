@@ -1,14 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PublicShellComponent } from './shell/public-shell.component';
-import { VerificationStatus } from '@tch/page-model';
+import { GameLabelPipe, VerificationStatus } from '@tch/page-model';
+import { TchActionButton, TchCard, TchLoading } from '@tch/ui/components';
+
+import {
+  extractPublicCodeFromQr,
+  mapBackendStatus,
+  MoneyAmount,
+  normalizePublicCode,
+  PublicTicketVerificationApi,
+  PublicTicketVerificationResponse,
+  VerifyTicketDraw,
+  VerifyTicketLine,
+} from './public-ticket.service';
 
 type CheckState =
   | { readonly kind: 'default' }
   | { readonly kind: 'loading' }
-  | { readonly kind: 'result'; readonly status: VerificationStatus };
+  | {
+      readonly kind: 'result';
+      readonly status: VerificationStatus;
+      readonly data: PublicTicketVerificationResponse | null;
+    };
 
 interface VerificationCopy {
   readonly icon: string;
@@ -17,15 +34,31 @@ interface VerificationCopy {
   readonly bodyKey: string;
 }
 
-const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
+/** Format attendu : XXXX-XXXX (4 alphanum + tiret + 4 alphanum) */
+const CODE_PATTERN = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+
+const STAMP_LINES: Record<VerificationStatus, string[]> = {
+  WINNING_PAYABLE:     ['GAGNANT', 'PAYABLE'],
+  WINNING_PAID:        ['DÉJÀ', 'PAYÉ'],
+  LOST:                ['NON', 'GAGNANT'],
+  PENDING_RESULT:      ['EN', 'ATTENTE'],
+  CANCELLED:           ['ANNULÉ'],
+  EXPIRED:             ['EXPIRÉ'],
+  BLOCKED:             ['BLOQUÉ'],
+  NOT_FOUND:           ['NON', 'TROUVÉ'],
+  SERVICE_UNAVAILABLE: ['HORS', 'LIGNE'],
+};
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [PublicShellComponent, RouterLink, TranslatePipe],
+  imports: [DecimalPipe, GameLabelPipe, TranslatePipe, TchCard, TchActionButton, TchLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="check-page">
+    <div class="check-page">
+
+      <!-- ─── Form / Loading: hero + panel + help ─── -->
+      @if (state().kind !== 'result') {
+
         <section class="check-page__hero" aria-labelledby="check-title">
           <div class="check-page__visual" aria-hidden="true">
             <img
@@ -38,7 +71,6 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
               <span>{{ 'public.check.visual_badge' | translate }}</span>
             </div>
           </div>
-
           <div class="check-page__intro">
             <p class="check-page__eyebrow">{{ 'public.ticket.eyebrow' | translate }}</p>
             <h1 id="check-title">{{ 'public.ticket.title' | translate }}</h1>
@@ -46,8 +78,9 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
           </div>
         </section>
 
-        <section class="check-page__panel" aria-labelledby="check-form-title">
+        <tch-card class="check-page__panel">
           @switch (state().kind) {
+
             @case ('default') {
               <form class="check-page__form" (submit)="submit($event)">
                 <div class="check-page__field">
@@ -61,7 +94,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
                       name="code"
                       autocomplete="off"
                       inputmode="text"
-                      maxlength="11"
+                      maxlength="9"
                       [value]="code()"
                       [placeholder]="'public.ticket.placeholder' | translate"
                       (input)="updateCode($event)"
@@ -71,72 +104,206 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
                       type="button"
                       [attr.aria-label]="'public.ticket.scan_qr' | translate"
                     >
-                      <span class="material-symbols-outlined">qr_code_scanner</span>
+                      <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
+                      <span class="check-page__scan-label" aria-hidden="true">
+                        {{ 'public.ticket.scan_qr' | translate }}
+                      </span>
                     </button>
                   </div>
                   <p class="check-page__hint">
-                    <span class="material-symbols-outlined">info</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
                     <span>{{ 'public.check.code_hint' | translate }}</span>
                   </p>
                 </div>
-
-                <button class="check-page__submit" type="submit">
-                  <span>{{ 'public.ticket.cta' | translate }}</span>
-                  <span class="material-symbols-outlined">search</span>
+                <button
+                  tch-action
+                  class="check-page__submit"
+                  type="submit"
+                  style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+                >
+                  {{ 'public.ticket.cta' | translate }}
                 </button>
               </form>
             }
-            @case ('loading') {
-              <div class="check-page__loading" role="status" aria-live="polite">
-                <span class="check-page__spinner" aria-hidden="true"></span>
-                <h2 id="check-form-title">{{ 'public.check.loading_title' | translate }}</h2>
-                <p>{{ 'public.check.loading_body' | translate }}</p>
-              </div>
-            }
-            @case ('result') {
-              <article
-                class="check-page__result"
-                [class.is-success]="resultCopy().tone === 'success'"
-                [class.is-warning]="resultCopy().tone === 'warning'"
-                [class.is-danger]="resultCopy().tone === 'danger'"
-                [class.is-neutral]="resultCopy().tone === 'neutral'"
-                aria-live="polite"
-              >
-                <div class="check-page__result-icon">
-                  <span class="material-symbols-outlined">{{ resultCopy().icon }}</span>
-                </div>
-                <div class="check-page__result-copy">
-                  <p class="check-page__result-label">{{ 'public.check.status_label' | translate }}</p>
-                  <h2>{{ resultCopy().titleKey | translate }}</h2>
-                  <p>{{ resultCopy().bodyKey | translate }}</p>
-                </div>
-                <div class="check-page__result-actions">
-                  <button class="check-page__secondary-action" type="button" (click)="reset()">
-                    {{ 'public.check.verify_another' | translate }}
-                  </button>
-                  <a class="check-page__text-action" routerLink="/public/help">
-                    {{ 'public.ticket.help' | translate }}
-                  </a>
-                </div>
-              </article>
-            }
-          }
-        </section>
 
-        <section class="check-page__help-card" aria-labelledby="check-help-title">
-          <div class="check-page__help-icon">
+            @case ('loading') {
+              <tch-loading
+                [label]="'public.check.loading_title' | translate"
+                [ariaLabel]="'public.check.loading_title' | translate"
+              />
+            }
+
+          }
+        </tch-card>
+
+        <tch-card class="check-page__help-card" aria-labelledby="check-help-title">
+          <div class="check-page__help-icon" aria-hidden="true">
             <span class="material-symbols-outlined">receipt_long</span>
           </div>
           <div>
             <h2 id="check-help-title">{{ 'public.check.help_title' | translate }}</h2>
             <p>{{ 'public.check.help_body' | translate }}</p>
           </div>
+        </tch-card>
+
+      }
+
+      <!-- ─── Result state: full-width redesign ─── -->
+      @if (state().kind === 'result') {
+        <section class="check-result" aria-live="polite">
+
+          <div class="check-result__header">
+            <div>
+              <p class="check-result__eyebrow">{{ 'public.check.result_eyebrow' | translate }}</p>
+              <h1 class="check-result__code">{{ code() }}</h1>
+            </div>
+            <button
+              tch-action
+              class="check-result__verify-another"
+              type="button"
+              style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
+              (click)="reset()"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+              {{ 'public.check.verify_another' | translate }}
+            </button>
+          </div>
+
+          <div class="check-result__grid">
+
+            <!-- Status card -->
+            <tch-card
+              class="check-result__status-card"
+              [class.is-success]="resultCopy().tone === 'success'"
+              [class.is-warning]="resultCopy().tone === 'warning'"
+              [class.is-danger]="resultCopy().tone  === 'danger'"
+              [class.is-neutral]="resultCopy().tone === 'neutral'"
+            >
+              <span class="check-result__status-corner" aria-hidden="true"></span>
+              <div class="check-result__status-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">{{ resultCopy().icon }}</span>
+              </div>
+              <div class="check-result__status-body">
+                <h2 class="check-result__status-title">
+                  {{ resultCopy().titleKey | translate }}
+                </h2>
+                <p class="check-result__status-desc">
+                  {{ resultCopy().bodyKey | translate }}
+                </p>
+              </div>
+            </tch-card>
+
+            <!-- Security / trust card -->
+            <tch-card class="check-result__security">
+              <div class="check-result__security-icon" aria-hidden="true">
+                <span class="material-symbols-outlined">security</span>
+              </div>
+              <div>
+                <h3 class="check-result__security-title">
+                  {{ 'public.check.security_title' | translate }}
+                </h3>
+                <p class="check-result__security-body">
+                  {{ 'public.check.security_body' | translate }}
+                </p>
+              </div>
+            </tch-card>
+
+            <!-- Thermal receipt -->
+            <div class="check-result__receipt-wrap">
+              <div class="check-result__receipt">
+
+                <div class="check-result__receipt-header">
+                  <span class="check-result__receipt-brand">TCHALANET</span>
+                  <span class="check-result__receipt-sub">BUREAU CENTRAL PORT-AU-PRINCE</span>
+                  <span class="check-result__receipt-sub">TEL: +509 0000-0000</span>
+                </div>
+
+                <dl class="check-result__receipt-meta">
+                  <div><dt>CODE:</dt><dd>{{ code() }}</dd></div>
+                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
+                  @if (resultData()?.outlet?.name; as outlet) {
+                    <div><dt>PDV:</dt><dd>{{ outlet }}</dd></div>
+                  }
+                  @if (resultDraw(); as draw) {
+                    <div><dt>TIRAGE:</dt><dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd></div>
+                    <div><dt>DATE TIR.:</dt><dd>{{ draw.drawDate }}</dd></div>
+                  }
+                </dl>
+
+                @if (resultLines().length > 0) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-lines">
+                    @for (line of resultLines(); track line.lineNumber) {
+                      <div class="check-result__receipt-line">
+                        <div class="check-result__receipt-line-head">
+                          <span>{{ line.gameDisplayName | gameLabel }}</span>
+                          <span>{{ line.stake.amount | number:'1.0-0' }} {{ line.stake.currency.value }}</span>
+                        </div>
+                        <div class="check-result__receipt-line-detail">
+                          {{ line.selection }}
+                          · {{ line.optionLabel | gameLabel:'catalog.option' }}
+                        </div>
+                      </div>
+                    }
+                  </dl>
+                }
+
+                @if (resultData()?.totalAmount; as total) {
+                  <div class="check-result__receipt-rule"></div>
+                  <dl class="check-result__receipt-meta check-result__receipt-total">
+                    <div>
+                      <dt>TOTAL MISE:</dt>
+                      <dd>{{ total.amount | number:'1.0-0' }} {{ total.currency.value }}</dd>
+                    </div>
+                    @if (resultData()?.winningAmount; as win) {
+                      @if (!win.zero) {
+                        <div class="check-result__receipt-gain">
+                          <dt>GAIN:</dt>
+                          <dd>{{ win.amount | number:'1.0-0' }} {{ win.currency.value }}</dd>
+                        </div>
+                      }
+                    }
+                  </dl>
+                }
+
+                <div class="check-result__receipt-rule"></div>
+
+                <div class="check-result__stamp-wrap">
+                  <div
+                    class="check-result__stamp"
+                    [class.is-success]="resultCopy().tone === 'success'"
+                    [class.is-warning]="resultCopy().tone === 'warning'"
+                    [class.is-danger]="resultCopy().tone  === 'danger'"
+                    [class.is-neutral]="resultCopy().tone === 'neutral'"
+                    aria-hidden="true"
+                  >
+                    @for (line of stampLines(); track $index) {
+                      <span>{{ line }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="check-result__receipt-rule"></div>
+
+                <p class="check-result__receipt-footer">
+                  MERCI DE VOTRE CONFIANCE.<br />WWW.TCHALANET.COM
+                </p>
+
+                <div class="check-result__barcode" aria-hidden="true"></div>
+              </div>
+            </div>
+
+          </div>
         </section>
-      </main>
-    </tch-page-shell>
+      }
+
+    </div>
   `,
   styles: [
     `
+      @use 'breakpoints' as bp;
+
+      /* ─── Page wrapper ─── */
       .check-page {
         display: grid;
         gap: 1.5rem;
@@ -145,19 +312,8 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         padding: 1.5rem 0 calc(5rem + var(--tch-page-gutter, 16px));
       }
 
-      .check-page .material-symbols-outlined {
-        display: inline-block;
-        overflow: hidden;
-        max-width: 1em;
-        line-height: 1;
-        vertical-align: middle;
-        white-space: nowrap;
-      }
-
-      .check-page__hero {
-        display: grid;
-        gap: 1.5rem;
-      }
+      /* ─── Hero ─── */
+      .check-page__hero { display: grid; gap: 1.5rem; }
 
       .check-page__visual {
         position: relative;
@@ -167,15 +323,13 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         background:
           radial-gradient(
             circle at 80% 10%,
-            color-mix(in oklab, var(--tch-color-secondary-container, var(--mat-sys-secondary-container)) 38%, transparent),
+            color-mix(in oklab, var(--tch-color-accent, var(--mat-sys-tertiary)) 38%, transparent),
             transparent 34%
           ),
-          linear-gradient(
-            145deg,
+          linear-gradient(145deg,
             var(--tch-color-primary, var(--mat-sys-primary)),
             var(--tch-color-primary-container, var(--mat-sys-primary-container))
           );
-        box-shadow: var(--tch-elevation-sm, 0 1px 2px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 14%, transparent));
       }
 
       .check-page__ticket-image {
@@ -183,7 +337,8 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         inset: auto 0 -1.25rem auto;
         width: min(76%, 21rem);
         transform: rotate(-4deg);
-        filter: drop-shadow(0 1rem 1.25rem color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
+        filter: drop-shadow(0 1rem 1.25rem
+          color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
       }
 
       .check-page__visual-badge {
@@ -210,19 +365,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
       .check-page__intro {
         display: grid;
         gap: 0.5rem;
-      }
-
-      .check-page__eyebrow,
-      .check-page__intro h1,
-      .check-page__intro p,
-      .check-page__hint,
-      .check-page__loading h2,
-      .check-page__loading p,
-      .check-page__result h2,
-      .check-page__result p,
-      .check-page__help-card h2,
-      .check-page__help-card p {
-        margin: 0;
+        p, h1 { margin: 0; }
       }
 
       .check-page__eyebrow {
@@ -238,30 +381,19 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         line-height: var(--tch-line-height-headline-mobile, 2rem);
       }
 
-      .check-page__intro p,
-      .check-page__hint,
-      .check-page__loading p,
-      .check-page__result-copy p,
-      .check-page__help-card p {
+      .check-page__intro p {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
       }
 
-      .check-page__panel,
-      .check-page__help-card {
-        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
-        border-radius: var(--tch-radius-xl, 24px);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
-      }
-
-      .check-page__panel {
+      /* ─── Panel (TchCard override) ─── */
+      tch-card.check-page__panel {
         padding: 1rem;
+        border-radius: var(--tch-radius-xl, 24px);
       }
 
+      /* ─── Form ─── */
       .check-page__form,
-      .check-page__field {
-        display: grid;
-        gap: 0.875rem;
-      }
+      .check-page__field { display: grid; gap: 0.875rem; }
 
       .check-page__label {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
@@ -269,9 +401,9 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         font-weight: 800;
       }
 
-      .check-page__input-wrap {
-        position: relative;
-      }
+      /* ── Input + scan overlay (390px+) ── */
+
+      .check-page__input-wrap { position: relative; }
 
       .check-page__code-input {
         width: 100%;
@@ -286,12 +418,15 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         letter-spacing: 0.16em;
         padding: 0 3.75rem 0 1rem;
         text-transform: uppercase;
+
+        &:focus {
+          border-color: var(--tch-color-primary, var(--mat-sys-primary));
+          outline: 3px solid color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
+        }
       }
 
-      .check-page__code-input:focus {
-        border-color: var(--tch-color-primary, var(--mat-sys-primary));
-        outline: 3px solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
-      }
+      .check-page__scan-label { display: none; }
 
       .check-page__scan-button {
         position: absolute;
@@ -303,9 +438,41 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         height: 2.75rem;
         border: 0;
         border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         transform: translateY(-50%);
+        cursor: pointer;
+      }
+
+      /* ── Very small screens (<360px): stack scan button below input ── */
+
+      @media (max-width: 359px) {
+        .check-page__input-wrap {
+          position: static;
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .check-page__code-input {
+          padding: 0 1rem; /* no room needed for overlay icon */
+        }
+
+        .check-page__scan-label { display: inline; }
+
+        .check-page__scan-button {
+          position: static;
+          transform: none;
+          width: 100%;
+          height: var(--tch-touch-target, 48px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          border-radius: var(--tch-radius-lg, 12px);
+          font-size: var(--tch-font-size-label-sm, 0.75rem);
+          font-weight: 800;
+          font-family: inherit;
+        }
       }
 
       .check-page__hint {
@@ -313,126 +480,37 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         align-items: flex-start;
         gap: 0.375rem;
         font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        margin: 0;
+
+        .material-symbols-outlined {
+          color: var(--tch-color-outline, var(--mat-sys-outline));
+          font-size: 1rem;
+        }
       }
 
-      .check-page__hint .material-symbols-outlined {
-        color: var(--tch-color-outline, var(--mat-sys-outline));
-        font-size: 1rem;
-      }
-
-      .check-page__submit,
-      .check-page__secondary-action,
-      .check-page__text-action {
-        min-height: var(--tch-touch-target, 48px);
-        border-radius: var(--tch-radius-lg, 12px);
-        font-weight: 800;
-      }
-
-      .check-page__submit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.625rem;
+      /* submit = TchActionButton, only need width override */
+      button.check-page__submit[tch-action] {
         width: 100%;
-        border: 0;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
-        font-size: 1rem;
-      }
-
-      .check-page__loading {
-        display: grid;
-        justify-items: center;
-        gap: 0.75rem;
-        padding: 2rem 1rem;
-        text-align: center;
-      }
-
-      .check-page__spinner {
-        width: 4rem;
-        height: 4rem;
-        border: 0.25rem solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 18%, transparent);
-        border-top-color: var(--tch-color-primary, var(--mat-sys-primary));
-        border-radius: var(--tch-radius-pill, 9999px);
-        animation: check-page-spin 0.9s linear infinite;
-      }
-
-      .check-page__result {
-        display: grid;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
-        border-left: 0.25rem solid var(--tch-color-status-missing, var(--mat-sys-outline));
-      }
-
-      .check-page__result.is-success {
-        border-left-color: var(--tch-color-status-ready, var(--mat-sys-tertiary));
-      }
-
-      .check-page__result.is-warning {
-        border-left-color: var(--tch-color-status-warning, var(--mat-sys-secondary));
-      }
-
-      .check-page__result.is-danger {
-        border-left-color: var(--tch-color-status-blocked, var(--mat-sys-error));
-      }
-
-      .check-page__result-icon {
-        display: inline-grid;
-        place-items: center;
-        width: 3rem;
-        height: 3rem;
-        border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-      }
-
-      .check-page__result-label {
-        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        box-sizing: border-box;
         font-weight: 800;
-        text-transform: uppercase;
       }
 
-      .check-page__result-copy {
-        display: grid;
-        gap: 0.375rem;
-      }
-
-      .check-page__result-copy h2,
-      .check-page__help-card h2 {
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-        font-size: var(--tch-font-size-title-md, 1.125rem);
-        line-height: var(--tch-line-height-title-md, 1.5rem);
-      }
-
-      .check-page__result-actions {
-        display: grid;
-        gap: 0.75rem;
-      }
-
-      .check-page__secondary-action {
-        border: 0;
-        background: var(--tch-color-primary, var(--mat-sys-primary));
-        color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
-      }
-
-      .check-page__text-action {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-        text-decoration: none;
-      }
-
-      .check-page__help-card {
+      /* ─── Help card (TchCard override) ─── */
+      tch-card.check-page__help-card {
         display: flex;
         gap: 1rem;
-        padding: 1rem;
+        border-radius: var(--tch-radius-xl, 24px);
         background:
-          radial-gradient(var(--tch-color-outline-variant, var(--mat-sys-outline-variant)) 0.5px, transparent 0.5px),
+          radial-gradient(
+            var(--tch-color-outline-variant, var(--mat-sys-outline-variant)) 0.5px,
+            transparent 0.5px
+          ),
           var(--tch-color-surface-tonal, var(--mat-sys-surface-container-low));
         background-size: 0.5rem 0.5rem;
+
+        h2 { margin: 0; }
+        p  { margin: 0; color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
       }
 
       .check-page__help-icon {
@@ -442,11 +520,357 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
         width: 3rem;
         height: 3rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 12%, transparent);
+        background: color-mix(in oklab,
+          var(--tch-color-primary, var(--mat-sys-primary)) 12%, transparent);
         color: var(--tch-color-primary, var(--mat-sys-primary));
       }
 
-      @media (min-width: 760px) {
+      /* ─── Result section ─── */
+      .check-result {
+        grid-column: 1 / -1;
+        display: grid;
+        gap: 2rem;
+      }
+
+      .check-result__header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .check-result__eyebrow {
+        margin: 0 0 0.375rem;
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--tch-color-outline, var(--mat-sys-outline));
+      }
+
+      .check-result__code {
+        margin: 0;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      /* verify-another = TchActionButton, only need layout extras */
+      button.check-result__verify-another[tch-action] {
+        gap: 0.5rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      /* ─── Content grid ─── */
+      .check-result__grid { display: grid; gap: 1.5rem; align-items: start; }
+
+      /* ─── Status card (TchCard override) ─── */
+      tch-card.check-result__status-card {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(1.5rem, 4vw, 2rem);
+        border-radius: var(--tch-radius-xl, 20px);
+        display: flex;
+        gap: 1.25rem;
+        align-items: flex-start;
+      }
+
+      tch-card.check-result__status-card.is-success {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-status-ready, #10b981) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-status-ready, #10b981); }
+        .check-result__status-icon   { background: var(--tch-color-status-ready, #10b981); color: #fff; }
+        .check-result__status-title  { color: var(--tch-color-status-ready, #10b981); }
+      }
+
+      tch-card.check-result__status-card.is-warning {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-status-warning, #f59e0b) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-status-warning, #f59e0b); }
+        .check-result__status-icon   { background: var(--tch-color-status-warning, #f59e0b); color: #1a1a1a; }
+        .check-result__status-title  { color: var(--tch-color-status-warning, #f59e0b); }
+      }
+
+      tch-card.check-result__status-card.is-danger {
+        --comp-card-border: color-mix(in oklab,
+          var(--tch-color-error, var(--mat-sys-error)) 40%, transparent);
+        .check-result__status-corner { background: var(--tch-color-error, var(--mat-sys-error)); }
+        .check-result__status-icon   { background: var(--tch-color-error, var(--mat-sys-error)); color: #fff; }
+        .check-result__status-title  { color: var(--tch-color-error, var(--mat-sys-error)); }
+      }
+
+      tch-card.check-result__status-card.is-neutral {
+        .check-result__status-corner {
+          background: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        }
+        .check-result__status-icon {
+          background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+          color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        }
+        .check-result__status-title {
+          color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        }
+      }
+
+      .check-result__status-corner {
+        position: absolute;
+        top: -2rem; right: -2rem;
+        width: 7rem; height: 7rem;
+        border-radius: 50%;
+        opacity: 0.1;
+        pointer-events: none;
+      }
+
+      .check-result__status-icon {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        width: 3.5rem; height: 3.5rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+
+        .material-symbols-outlined { font-size: 1.75rem; }
+      }
+
+      .check-result__status-body {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 0.5rem;
+        align-content: start;
+      }
+
+      .check-result__status-title {
+        margin: 0;
+        font-size: clamp(1.25rem, 3vw, 1.75rem);
+        line-height: 1.2;
+        font-weight: 800;
+      }
+
+      .check-result__status-desc {
+        margin: 0;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        line-height: 1.6;
+      }
+
+      /* ─── Security card (TchCard override) ─── */
+      tch-card.check-result__security {
+        --comp-card-bg: var(--tch-color-primary, var(--mat-sys-primary));
+        --comp-card-border: transparent;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1.5rem;
+        border-radius: var(--tch-radius-xl, 20px);
+        color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+      }
+
+      .check-result__security-icon {
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+        .material-symbols-outlined { font-size: 1.5rem; opacity: 0.8; }
+      }
+
+      .check-result__security-title {
+        margin: 0 0 0.375rem;
+        font-weight: 800;
+        font-size: var(--tch-font-size-title-md, 1.125rem);
+      }
+
+      .check-result__security-body {
+        margin: 0;
+        opacity: 0.88;
+        line-height: 1.6;
+      }
+
+      /* ─── Thermal receipt ─── */
+      .check-result__receipt-wrap {
+        display: flex;
+        justify-content: center;
+      }
+
+      .check-result__receipt {
+        width: 100%;
+        max-width: 22rem;
+        padding: 2rem 1.5rem 3rem;
+        border-radius: var(--tch-radius-control, 8px) var(--tch-radius-control, 8px) 0 0;
+        background-color: var(--tch-color-surface-container-lowest, #fff);
+        background-image: radial-gradient(
+          color-mix(in oklab, var(--tch-color-outline-variant, #c7c5d4) 60%, transparent) 0.5px,
+          transparent 0.5px
+        );
+        background-size: 10px 10px;
+        box-shadow:
+          0 4px 6px -1px color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 10%, transparent),
+          0 20px 48px -8px color-mix(in oklab,
+            var(--tch-color-primary, var(--mat-sys-primary)) 20%, transparent);
+        clip-path: polygon(
+          0% 0%, 100% 0%, 100% 96%,
+          98% 100%, 96% 96%, 94% 100%, 92% 96%, 90% 100%, 88% 96%, 86% 100%,
+          84% 96%, 82% 100%, 80% 96%, 78% 100%, 76% 96%, 74% 100%, 72% 96%,
+          70% 100%, 68% 96%, 66% 100%, 64% 96%, 62% 100%, 60% 96%, 58% 100%,
+          56% 96%, 54% 100%, 52% 96%, 50% 100%, 48% 96%, 46% 100%, 44% 96%,
+          42% 100%, 40% 96%, 38% 100%, 36% 96%, 34% 100%, 32% 96%, 30% 100%,
+          28% 96%, 26% 100%, 24% 96%, 22% 100%, 20% 96%, 18% 100%, 16% 96%,
+          14% 100%, 12% 96%, 10% 100%, 8% 96%, 6% 100%, 4% 96%, 2% 100%, 0% 96%
+        );
+      }
+
+      .check-result__receipt-header {
+        display: grid;
+        gap: 0.125rem;
+        text-align: center;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        margin-bottom: 1.25rem;
+      }
+
+      .check-result__receipt-brand {
+        display: block;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 1.125rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .check-result__receipt-sub {
+        display: block;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.6875rem;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        letter-spacing: 0.04em;
+      }
+
+      .check-result__receipt-meta {
+        margin: 0;
+        display: grid;
+        gap: 0.3rem;
+
+        > div {
+          display: flex;
+          justify-content: space-between;
+          gap: 0.5rem;
+          font-family: var(--tch-font-family-mono, monospace);
+          font-size: 0.75rem;
+          color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        }
+        dt { opacity: 0.6; flex-shrink: 0; }
+        dd { margin: 0; font-weight: 700; text-align: right; }
+      }
+
+      .check-result__receipt-dd--wrap { word-break: break-word; }
+
+      /* Bet lines */
+      .check-result__receipt-lines {
+        margin: 0;
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .check-result__receipt-line {
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.75rem;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        display: grid;
+        gap: 0.125rem;
+      }
+
+      .check-result__receipt-line-head {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 700;
+      }
+
+      .check-result__receipt-line-detail {
+        opacity: 0.7;
+        font-size: 0.6875rem;
+      }
+
+      /* Total + gain */
+      .check-result__receipt-total { margin-top: 0; }
+
+      .check-result__receipt-gain {
+        dd { color: var(--tch-color-status-ready, #10b981); }
+      }
+
+      .check-result__receipt-rule {
+        border: none;
+        border-top: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        margin: 1.25rem 0;
+      }
+
+      .check-result__stamp-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 1rem 0 0.5rem;
+      }
+
+      .check-result__stamp {
+        width: 5.5rem; height: 5.5rem;
+        border-radius: 50%;
+        border: 3px double currentColor;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        transform: rotate(-15deg);
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.625rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-align: center;
+        line-height: 1.4;
+
+        span { display: block; }
+
+        &.is-success { color: var(--tch-color-status-ready, #10b981); }
+        &.is-warning { color: var(--tch-color-status-warning, #f59e0b); }
+        &.is-danger  { color: var(--tch-color-error, var(--mat-sys-error)); }
+        &.is-neutral { color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant)); }
+      }
+
+      .check-result__receipt-footer {
+        margin: 0;
+        text-align: center;
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: 0.625rem;
+        color: var(--tch-color-outline, var(--mat-sys-outline));
+        line-height: 1.5;
+        letter-spacing: 0.04em;
+      }
+
+      .check-result__barcode {
+        margin-top: 1.25rem;
+        height: 2rem;
+        opacity: 0.28;
+        background: repeating-linear-gradient(
+          to right,
+          var(--tch-color-on-surface, #1a1c1e) 0px,
+          var(--tch-color-on-surface, #1a1c1e) 2px,
+          transparent 2px, transparent 5px,
+          var(--tch-color-on-surface, #1a1c1e) 5px,
+          var(--tch-color-on-surface, #1a1c1e) 8px,
+          transparent 8px, transparent 12px,
+          var(--tch-color-on-surface, #1a1c1e) 12px,
+          var(--tch-color-on-surface, #1a1c1e) 15px,
+          transparent 15px, transparent 19px,
+          var(--tch-color-on-surface, #1a1c1e) 19px,
+          var(--tch-color-on-surface, #1a1c1e) 22px,
+          transparent 22px, transparent 25px,
+          var(--tch-color-on-surface, #1a1c1e) 25px,
+          var(--tch-color-on-surface, #1a1c1e) 26px,
+          transparent 26px, transparent 30px
+        );
+      }
+
+      /* ─── Responsive ─── */
+      @include bp.up(medium) {
         .check-page {
           grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
           align-items: start;
@@ -465,32 +889,79 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
           line-height: var(--tch-line-height-headline-lg, 2.5rem);
         }
 
-        .check-page__panel {
-          padding: 1.5rem;
-        }
+        tch-card.check-page__panel { padding: 1.5rem; }
 
-        .check-page__help-card {
-          grid-column: 2;
-        }
+        tch-card.check-page__help-card { grid-column: 2; }
       }
 
-      @keyframes check-page-spin {
-        to {
-          transform: rotate(360deg);
+      @media (min-width: 960px) {
+        .check-result__grid {
+          grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+          grid-template-rows: auto auto;
+        }
+
+        tch-card.check-result__status-card { grid-row: 1; grid-column: 1; }
+        tch-card.check-result__security    { grid-row: 2; grid-column: 1; }
+
+        .check-result__receipt-wrap {
+          grid-row: 1 / 3;
+          grid-column: 2;
+          position: sticky;
+          top: 5rem;
+          align-self: start;
         }
       }
     `,
   ],
 })
 export class PublicCheckTicketPage {
+  private readonly route = inject(ActivatedRoute);
+  private readonly svc = inject(PublicTicketVerificationApi);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly code = signal('');
   readonly state = signal<CheckState>({ kind: 'default' });
 
+  constructor() {
+    const rawCode = this.route.snapshot.queryParamMap.get('code');
+    if (rawCode) {
+      // Support both plain code and full URL (from QR scanner)
+      const normalized = extractPublicCodeFromQr(rawCode);
+      this.code.set(formatPublicCode(normalized));
+      // Auto-trigger verification when code is pre-filled via query param
+      this.doVerify(normalized);
+    }
+  }
+
   readonly resultCopy = computed(() => {
-    const current = this.state();
-    return current.kind === 'result'
-      ? verificationCopy(current.status)
-      : verificationCopy('SERVICE_UNAVAILABLE');
+    const s = this.state();
+    return s.kind === 'result' ? verificationCopy(s.status) : verificationCopy('SERVICE_UNAVAILABLE');
+  });
+
+  readonly stampLines = computed(() => {
+    const s = this.state();
+    return s.kind === 'result' ? STAMP_LINES[s.status] : [];
+  });
+
+  /** The raw API data from the last successful verify call. */
+  readonly resultData = computed<PublicTicketVerificationResponse | null>(() => {
+    const s = this.state();
+    return s.kind === 'result' ? s.data : null;
+  });
+
+  readonly resultDraw = computed<VerifyTicketDraw | null>(
+    () => this.resultData()?.draw ?? null,
+  );
+
+  readonly resultLines = computed<readonly VerifyTicketLine[]>(
+    () => this.resultData()?.lines ?? [],
+  );
+
+  readonly receiptDate = computed(() => {
+    const placedAt = this.resultData()?.placedAt;
+    const d = placedAt ? new Date(placedAt) : new Date();
+    const m = ['JAN','FÉV','MAR','AVR','MAI','JUN','JUL','AOU','SEP','OCT','NOV','DÉC'];
+    return `${String(d.getDate()).padStart(2, '0')} ${m[d.getMonth()]} ${d.getFullYear()}`;
   });
 
   updateCode(event: Event): void {
@@ -502,16 +973,23 @@ export class PublicCheckTicketPage {
 
   submit(event: Event): void {
     event.preventDefault();
-    const compactCode = this.code().replace(/-/g, '');
-    if (compactCode.length < 6 || !CODE_PATTERN.test(this.code())) {
-      this.state.set({ kind: 'result', status: 'NOT_FOUND' });
+    const normalized = normalizePublicCode(this.code());
+    if (!CODE_PATTERN.test(this.code())) {
+      this.state.set({ kind: 'result', status: 'NOT_FOUND', data: null });
       return;
     }
+    this.doVerify(normalized);
+  }
 
+  /** Internal: call the API and update state. Called from constructor (auto-submit) or submit(). */
+  private doVerify(normalizedCode: string): void {
     this.state.set({ kind: 'loading' });
-    window.setTimeout(() => {
-      this.state.set({ kind: 'result', status: 'SERVICE_UNAVAILABLE' });
-    }, 450);
+    this.svc
+      .verify(normalizedCode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ status, data }) =>
+        this.state.set({ kind: 'result', status, data }),
+      );
   }
 
   reset(): void {
@@ -520,56 +998,63 @@ export class PublicCheckTicketPage {
   }
 }
 
+/** Formate pour l'affichage : QVQENRVR → QVQE-NRVR (4-4). */
 export function formatPublicCode(value: string): string {
-  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 10);
-  if (compact.length <= 4) {
-    return compact;
-  }
-  if (compact.length <= 8) {
-    return `${compact.slice(0, 4)}-${compact.slice(4)}`;
-  }
-  return `${compact.slice(0, 4)}-${compact.slice(4, 7)}-${compact.slice(7)}`;
+  const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
+  if (compact.length <= 4) return compact;
+  return `${compact.slice(0, 4)}-${compact.slice(4)}`;
 }
 
 export function verificationCopy(status: VerificationStatus): VerificationCopy {
-  const copies: Record<VerificationStatus, VerificationCopy> = {
+  const map: Record<VerificationStatus, VerificationCopy> = {
+    WINNING_PAYABLE: {
+      icon: 'task_alt', tone: 'success',
+      titleKey: 'public.check.status.WINNING_PAYABLE.title',
+      bodyKey:  'public.check.status.WINNING_PAYABLE.body',
+    },
+    WINNING_PAID: {
+      icon: 'check_circle', tone: 'neutral',
+      titleKey: 'public.check.status.WINNING_PAID.title',
+      bodyKey:  'public.check.status.WINNING_PAID.body',
+    },
+    LOST: {
+      icon: 'remove_circle', tone: 'neutral',
+      titleKey: 'public.check.status.LOST.title',
+      bodyKey:  'public.check.status.LOST.body',
+    },
     PENDING_RESULT: {
-      icon: 'schedule',
-      tone: 'warning',
+      icon: 'schedule', tone: 'warning',
       titleKey: 'public.check.status.PENDING_RESULT.title',
-      bodyKey: 'public.check.status.PENDING_RESULT.body',
+      bodyKey:  'public.check.status.PENDING_RESULT.body',
     },
-    NOT_PAYABLE: {
-      icon: 'remove_circle',
-      tone: 'neutral',
-      titleKey: 'public.check.status.NOT_PAYABLE.title',
-      bodyKey: 'public.check.status.NOT_PAYABLE.body',
+    CANCELLED: {
+      icon: 'block', tone: 'danger',
+      titleKey: 'public.check.status.CANCELLED.title',
+      bodyKey:  'public.check.status.CANCELLED.body',
     },
-    PAYABLE: {
-      icon: 'task_alt',
-      tone: 'success',
-      titleKey: 'public.check.status.PAYABLE.title',
-      bodyKey: 'public.check.status.PAYABLE.body',
+    EXPIRED: {
+      icon: 'timer_off', tone: 'neutral',
+      titleKey: 'public.check.status.EXPIRED.title',
+      bodyKey:  'public.check.status.EXPIRED.body',
     },
-    INVALID_OR_CANCELLED: {
-      icon: 'block',
-      tone: 'danger',
-      titleKey: 'public.check.status.INVALID_OR_CANCELLED.title',
-      bodyKey: 'public.check.status.INVALID_OR_CANCELLED.body',
+    BLOCKED: {
+      icon: 'lock', tone: 'danger',
+      titleKey: 'public.check.status.BLOCKED.title',
+      bodyKey:  'public.check.status.BLOCKED.body',
     },
     NOT_FOUND: {
-      icon: 'search_off',
-      tone: 'danger',
+      icon: 'search_off', tone: 'danger',
       titleKey: 'public.check.status.NOT_FOUND.title',
-      bodyKey: 'public.check.status.NOT_FOUND.body',
+      bodyKey:  'public.check.status.NOT_FOUND.body',
     },
     SERVICE_UNAVAILABLE: {
-      icon: 'cloud_off',
-      tone: 'neutral',
+      icon: 'cloud_off', tone: 'neutral',
       titleKey: 'public.check.status.SERVICE_UNAVAILABLE.title',
-      bodyKey: 'public.check.status.SERVICE_UNAVAILABLE.body',
+      bodyKey:  'public.check.status.SERVICE_UNAVAILABLE.body',
     },
   };
-
-  return copies[status];
+  return map[status];
 }
+
+// Re-export QR helpers so consumers can import from the page barrel if needed
+export { extractPublicCodeFromQr, normalizePublicCode };

@@ -18,7 +18,7 @@
 
 ## 2. Frontend Implementation
 
-- [ ] Update the existing base `tchalanet` theme preset, not a separate one-off public palette:
+- [x] Update the existing base `tchalanet` theme preset, not a separate one-off public palette:
   - `apps/tch-portal/src/app/core/theme/scss/tchalanet/_theme-colors.scss` regenerated from brand seeds `primary=#1A1B4B` and accent/action `#FECB00` or the closest M3-compatible tertiary seed.
   - `apps/tch-portal/src/app/core/theme/scss/theme-presets.scss` keeps preset id `tchalanet`.
   - `apps/tch-portal/src/app/core/theme/theme-presets.registry.ts` regenerated with the existing theme generator.
@@ -266,9 +266,9 @@ Frontend owner: implement as follow-up slices after V1 shell/design system is ac
   - [x] `PublicCheckTicketPage`
   - [x] `PublicResultsPage`
   - [x] `PublicResultDetailPage`
-  - `PublicHelpPage`
-  - `PublicContactPage`
-  - `PublicLegalPage`.
+  - [x] `PublicHelpPage`
+  - [ ] `PublicContactPage`
+  - [x] `PublicLegalPage`.
 - [x] Implement `/public/results` as a full mobile-first results page:
   - card list, filters by source/game/slot if backend provides them;
   - no dense mobile tables;
@@ -288,7 +288,7 @@ Frontend owner: implement as follow-up slices after V1 shell/design system is ac
   - explicit `VerificationStatus` result rendering;
   - loading/error/not-found/service-unavailable states;
   - no frontend direct payout claims.
-- [ ] Implement `/public/help` as a real FAQ page:
+- [x] Implement `/public/help` as a real FAQ page:
   - sections: Vérification ticket, Résultats, Paiement, Problèmes courants, Contact;
   - questions listed in spec;
   - contact orientation.
@@ -296,10 +296,10 @@ Frontend owner: implement as follow-up slices after V1 shell/design system is ac
   - point of sale/operator CTA;
   - support/contact form or backend-backed contact destination when available;
   - no private/admin links.
-- [ ] Implement `/public/privacy` and `/public/terms` with real legal content or backend Markdown/PageModel payloads.
+- [x] Implement `/public/privacy` and `/public/terms` with real legal content or backend Markdown/PageModel payloads.
 - [ ] Add V1.5 `/public/news` route and `NewsListWidget` once backend provides safe public news payloads.
 - [ ] Add V1.5 `/public/news/:slug` route and `NewsDetailWidget`/`RelatedNewsWidget`.
-- [ ] Add V1.5 `/public/operators` route for operator-focused CTA/demo content.
+- [x] Add V1.5 `/public/operators` route for operator-focused CTA/demo content.
 - [ ] Add V1.5 `/public/status` route for public system status.
 - [ ] Add V1.5 `/public/games` route or alias strategy with `/public/rules`.
 - [ ] Replace current frontend RSS filtering workaround with backend-gated safe public news.

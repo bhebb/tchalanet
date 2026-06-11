@@ -36,7 +36,6 @@ public class RecordManualDrawResultCommandHandler
     private final HaitiLotteryPort haitiLotteryPort;
     private final JsonUtils jsonUtils;
     private final HaitiProjectionConfigPort haitiProjectionConfigPort;
-    private final Clock clock;
 
     @Override
     public RecordManualDrawResultResult handle(RecordManualDrawResultCommand command) {
@@ -50,6 +49,7 @@ public class RecordManualDrawResultCommandHandler
         var res =
             writer.upsert(
                 slot.id(),
+                command.drawDate(),
                 occurredAt,
                 sourceResult,
                 jsonUtils.toJsonNode(haitiResult.result()),

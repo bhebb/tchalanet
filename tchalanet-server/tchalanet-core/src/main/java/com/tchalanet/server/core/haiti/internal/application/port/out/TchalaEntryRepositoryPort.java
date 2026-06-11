@@ -21,6 +21,8 @@ public interface TchalaEntryRepositoryPort {
 
   TchPage<TchalaEntry> listPending(TchalaLang lang, boolean conflictOnly, int page, int size);
 
+  long countAllPending();
+
   TchalaEntry save(TchalaEntry entry);
 
   // Hard-delete operations (for admin/cleanup). Implementations should remove associated numbers

@@ -1,13 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-
-import { ApiResponse, unwrapApiResponse } from '@tch/api';
+import { Injectable, inject } from '@angular/core';
+import { TchBackendClient } from '@tch/api';
+import { Observable } from 'rxjs';
 
 export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
 export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
 
-/** Mirror of backend `TenantProvisioningRequest`. */
 export interface TenantProvisioningRequest {
   readonly code: string;
   readonly name: string;
@@ -18,7 +15,6 @@ export interface TenantProvisioningRequest {
   readonly initialAdminEmail?: string;
 }
 
-/** Mirror of backend `TenantProvisioningPreviewView`. */
 export interface TenantProvisioningPreviewView {
   readonly profile: TenantProvisioningProfile;
   readonly includedDomains: readonly string[];
@@ -27,7 +23,6 @@ export interface TenantProvisioningPreviewView {
   readonly expectedReadinessSections: readonly string[];
 }
 
-/** Mirror of backend `TenantProvisioningResultView` (subset consumed by the UI). */
 export interface TenantProvisioningResultView {
   readonly tenantId: string;
   readonly tenantCode: string;
@@ -38,24 +33,21 @@ export interface TenantProvisioningResultView {
   readonly initialAdminUserId?: string;
 }
 
-/** SUPER_ADMIN tenant onboarding actions. */
 @Injectable({ providedIn: 'root' })
 export class PlatformAdminApi {
-  private readonly http = inject(HttpClient);
+  private readonly backend = inject(TchBackendClient);
 
   previewTenant(request: TenantProvisioningRequest): Observable<TenantProvisioningPreviewView> {
-    return this.http
-      .post<
-        ApiResponse<TenantProvisioningPreviewView>
-      >('/api/v1/platform/tenant-onboarding/preview', request)
-      .pipe(map(unwrapApiResponse));
+    return this.backend.post<TenantProvisioningPreviewView>(
+      '/platform/tenant-onboarding/preview',
+      request,
+    );
   }
 
   provisionTenant(request: TenantProvisioningRequest): Observable<TenantProvisioningResultView> {
-    return this.http
-      .post<
-        ApiResponse<TenantProvisioningResultView>
-      >('/api/v1/platform/tenant-onboarding/provision', request)
-      .pipe(map(unwrapApiResponse));
+    return this.backend.post<TenantProvisioningResultView>(
+      '/platform/tenant-onboarding/provision',
+      request,
+    );
   }
 }

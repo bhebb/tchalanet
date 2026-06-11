@@ -1,12 +1,15 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeStore } from '@tch/ui/theme';
+import { of } from 'rxjs';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '@tch/shared-config';
 import { I18nFacade } from '../i18n';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 import { AppRuntimeStore } from './app-runtime.store';
+import { PrivateRuntimeInitializer } from './private-runtime-initializer';
+import { PublicRuntimeInitializer } from './public-runtime-initializer';
 
 describe('AppRuntimeStore', () => {
   const anonymousSession = {
@@ -27,17 +30,15 @@ describe('AppRuntimeStore', () => {
     loadState: ReturnType<typeof signal<'idle' | 'loading' | 'ready' | 'fallback'>>;
     ready: ReturnType<typeof signal<boolean>>;
     settings: ReturnType<typeof signal<Record<string, unknown>>>;
-    loadPublicSettings: ReturnType<typeof vi.fn>;
-    loadPrivateSettings: ReturnType<typeof vi.fn>;
     isFeatureEnabled: ReturnType<typeof vi.fn>;
   };
   let theme: {
     activeTheme: ReturnType<typeof signal<Record<string, unknown>>>;
     loadState: ReturnType<typeof signal<'idle' | 'loading' | 'ready' | 'fallback'>>;
     init: ReturnType<typeof vi.fn>;
-    loadPublicTheme: ReturnType<typeof vi.fn>;
-    loadPrivateTheme: ReturnType<typeof vi.fn>;
   };
+  let privateInitializer: { initialize: ReturnType<typeof vi.fn> };
+  let publicInitializer: { initialize: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     auth = {
@@ -50,8 +51,6 @@ describe('AppRuntimeStore', () => {
     };
     settings = {
       isFeatureEnabled: vi.fn(),
-      loadPrivateSettings: vi.fn(),
-      loadPublicSettings: vi.fn(),
       loadState: signal('idle'),
       ready: signal(true),
       settings: signal({}),
@@ -59,9 +58,13 @@ describe('AppRuntimeStore', () => {
     theme = {
       activeTheme: signal({}),
       init: vi.fn(),
-      loadPrivateTheme: vi.fn(),
-      loadPublicTheme: vi.fn(),
       loadState: signal('ready'),
+    };
+    privateInitializer = {
+      initialize: vi.fn(() => of(undefined)),
+    };
+    publicInitializer = {
+      initialize: vi.fn(() => of(undefined)),
     };
 
     TestBed.configureTestingModule({
@@ -75,11 +78,13 @@ describe('AppRuntimeStore', () => {
           useValue: { isEnabled: (key: string, fallback = false) => fallback },
         },
         { provide: ThemeStore, useValue: theme },
+        { provide: PrivateRuntimeInitializer, useValue: privateInitializer },
+        { provide: PublicRuntimeInitializer, useValue: publicInitializer },
       ],
     });
   });
 
-  it('initializes public runtime and loads public settings/theme after session refresh', async () => {
+  it('initializes public runtime via a single public bootstrap call', async () => {
     const runtime = TestBed.inject(AppRuntimeStore);
 
     runtime.initPublicRuntime();
@@ -88,37 +93,33 @@ describe('AppRuntimeStore', () => {
     expect(i18n.init).toHaveBeenCalledOnce();
     expect(theme.init).toHaveBeenCalledOnce();
     expect(auth.refreshSession).toHaveBeenCalledOnce();
-    expect(theme.loadPublicTheme).toHaveBeenCalledOnce();
-    expect(settings.loadPublicSettings).toHaveBeenCalledOnce();
+    // Single public bootstrap call: no separate settings/theme runtime calls (bootstrap carries them).
+    expect(publicInitializer.initialize).toHaveBeenCalledOnce();
     expect(runtime.scope()).toBe('public');
   });
 
-  it('loads private settings/theme only after authenticated refresh', async () => {
+  it('runs the private bootstrap only after an authenticated refresh', async () => {
     auth.refreshSession.mockResolvedValue(authenticatedSession);
     const runtime = TestBed.inject(AppRuntimeStore);
 
     runtime.initPrivateRuntime();
-    expect(settings.loadPrivateSettings).not.toHaveBeenCalled();
+    expect(privateInitializer.initialize).not.toHaveBeenCalled();
     await flushPromises();
 
     expect(auth.refreshSession).toHaveBeenCalledOnce();
-    expect(theme.loadPrivateTheme).toHaveBeenCalledOnce();
-    expect(settings.loadPrivateSettings).toHaveBeenCalledOnce();
-    expect(theme.loadPublicTheme).not.toHaveBeenCalled();
-    expect(settings.loadPublicSettings).not.toHaveBeenCalled();
+    expect(privateInitializer.initialize).toHaveBeenCalledOnce();
+    expect(publicInitializer.initialize).not.toHaveBeenCalled();
     expect(runtime.scope()).toBe('private');
   });
 
-  it('falls back to public settings/theme when private refresh is anonymous', async () => {
+  it('falls back to the public bootstrap when a private refresh is anonymous', async () => {
     const runtime = TestBed.inject(AppRuntimeStore);
 
     runtime.initPrivateRuntime();
     await flushPromises();
 
-    expect(theme.loadPublicTheme).toHaveBeenCalledOnce();
-    expect(settings.loadPublicSettings).toHaveBeenCalledOnce();
-    expect(theme.loadPrivateTheme).not.toHaveBeenCalled();
-    expect(settings.loadPrivateSettings).not.toHaveBeenCalled();
+    expect(publicInitializer.initialize).toHaveBeenCalledOnce();
+    expect(privateInitializer.initialize).not.toHaveBeenCalled();
   });
 
   it('keeps repeated public and private bootstrap calls idempotent', async () => {
@@ -133,8 +134,8 @@ describe('AppRuntimeStore', () => {
     await flushPromises();
 
     expect(auth.refreshSession).toHaveBeenCalledTimes(2);
-    expect(settings.loadPublicSettings).toHaveBeenCalledOnce();
-    expect(settings.loadPrivateSettings).toHaveBeenCalledOnce();
+    expect(publicInitializer.initialize).toHaveBeenCalledOnce();
+    expect(privateInitializer.initialize).toHaveBeenCalledOnce();
     expect(runtime.scope()).toBe('private');
   });
 
@@ -154,10 +155,8 @@ describe('AppRuntimeStore', () => {
     resolvePublicRefresh(anonymousSession);
     await flushPromises();
 
-    expect(settings.loadPrivateSettings).toHaveBeenCalledOnce();
-    expect(theme.loadPrivateTheme).toHaveBeenCalledOnce();
-    expect(settings.loadPublicSettings).not.toHaveBeenCalled();
-    expect(theme.loadPublicTheme).not.toHaveBeenCalled();
+    expect(privateInitializer.initialize).toHaveBeenCalledOnce();
+    expect(publicInitializer.initialize).not.toHaveBeenCalled();
     expect(runtime.scope()).toBe('private');
   });
 
@@ -171,8 +170,8 @@ describe('AppRuntimeStore', () => {
 
     expect(runtime.state()).toBe('error');
     expect(runtime.error()).toBe(error);
-    expect(settings.loadPublicSettings).toHaveBeenCalledOnce();
-    expect(theme.loadPublicTheme).toHaveBeenCalledOnce();
+    // On refresh failure it still attempts the public bootstrap as a best-effort fallback.
+    expect(publicInitializer.initialize).toHaveBeenCalledOnce();
   });
 });
 

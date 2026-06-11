@@ -1,0 +1,314 @@
+{
+  "fragment_type": "Sidebar",
+  "code": "platform_admin_sidebar",
+  "logicalId": "platform_admin_sidebar",
+  "scope": "private",
+  "schemaVersion": 2,
+  "description": "Platform admin sidebar V1: navigation for superadmin platform, global configuration, operations and reports.",
+  "brand": {
+    "id": "platformAdminBrand",
+    "label_key": "app.name",
+    "label": null,
+    "subtitle_key": "surface.platform_admin",
+    "path": "/app/platform",
+    "image": {
+      "url": "/assets/brand/tchalanet-logo.svg",
+      "alt_key": "brand.logo_alt",
+      "title_key": null,
+      "width": 36,
+      "height": 36,
+      "aspect_ratio": "1:1",
+      "loading": "eager"
+    }
+  },
+  "topDestinations": [
+    {
+      "id": "dashboard",
+      "type": "destination",
+      "label_key": "nav.dashboard",
+      "label": null,
+      "path": "/app/platform",
+      "kind": "internal",
+      "icon": "dashboard",
+      "image": null,
+      "active_match": "exact",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
+    },
+    {
+      "id": "platformOverview",
+      "type": "destination",
+      "label_key": "nav.platform_overview",
+      "label": null,
+      "path": "/app/platform/overview",
+      "kind": "internal",
+      "icon": "map",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
+    }
+  ],
+  "sections": [
+    {
+      "id": "platform",
+      "label_key": "nav.section.platform",
+      "label": null,
+      "items": [
+        {
+          "id": "tenants",
+          "type": "destination",
+          "label_key": "nav.tenants",
+          "label": null,
+          "path": "/app/platform/tenants",
+          "kind": "internal",
+          "icon": "apartment",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "tenantOnboarding",
+          "type": "destination",
+          "label_key": "nav.tenant_onboarding",
+          "label": null,
+          "path": "/app/platform/tenant-onboarding",
+          "kind": "internal",
+          "icon": "playlist_add_check",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "subscriptions",
+          "type": "destination",
+          "label_key": "nav.subscriptions",
+          "label": null,
+          "path": "/app/platform/subscriptions",
+          "kind": "internal",
+          "icon": "workspace_premium",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "globalConfiguration",
+      "label_key": "nav.section.global_configuration",
+      "label": null,
+      "items": [
+        {
+          "id": "globalSettings",
+          "type": "destination",
+          "label_key": "nav.global_settings",
+          "label": null,
+          "path": "/app/platform/settings",
+          "kind": "internal",
+          "icon": "settings",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "globalTranslations",
+          "type": "destination",
+          "label_key": "nav.global_translations",
+          "label": null,
+          "path": "/app/platform/i18n",
+          "kind": "internal",
+          "icon": "translate",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "themePresets",
+          "type": "destination",
+          "label_key": "nav.theme_presets",
+          "label": null,
+          "path": "/app/platform/theme-presets",
+          "kind": "internal",
+          "icon": "palette",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "referentials",
+          "type": "destination",
+          "label_key": "nav.referentials",
+          "label": null,
+          "path": "/app/platform/referentials",
+          "kind": "internal",
+          "icon": "dataset",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "globalDrawChannels",
+          "type": "destination",
+          "label_key": "nav.global_draw_channels",
+          "label": null,
+          "path": "/app/platform/draw-channels",
+          "kind": "internal",
+          "icon": "event",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "label_key": "nav.section.operations",
+      "label": null,
+      "items": [
+        {
+          "id": "platformHealth",
+          "type": "destination",
+          "label_key": "nav.platform_health",
+          "label": null,
+          "path": "/app/platform/ops/health",
+          "kind": "internal",
+          "icon": "monitor_heart",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "jobsSchedulers",
+          "type": "destination",
+          "label_key": "nav.jobs_schedulers",
+          "label": null,
+          "path": "/app/platform/ops/jobs",
+          "kind": "internal",
+          "icon": "schedule",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "cache",
+          "type": "destination",
+          "label_key": "nav.cache",
+          "label": null,
+          "path": "/app/platform/ops/cache",
+          "kind": "internal",
+          "icon": "cached",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "audit",
+          "type": "destination",
+          "label_key": "nav.audit",
+          "label": null,
+          "path": "/app/platform/audit",
+          "kind": "internal",
+          "icon": "fact_check",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "communications",
+          "type": "destination",
+          "label_key": "nav.notifications_communications",
+          "label": null,
+          "path": "/app/platform/communications",
+          "kind": "internal",
+          "icon": "notifications",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "label_key": "nav.section.reports",
+      "label": null,
+      "items": [
+        {
+          "id": "platformReports",
+          "type": "destination",
+          "label_key": "nav.platform_reports",
+          "label": null,
+          "path": "/app/platform/reports",
+          "kind": "internal",
+          "icon": "assessment",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ]
+    }
+  ],
+  "footerDestinations": [
+    {
+      "id": "releaseNotes",
+      "type": "destination",
+      "label_key": "footer.release_notes",
+      "label": null,
+      "path": "/app/platform/releases",
+      "kind": "internal",
+      "icon": "article",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
+    }
+  ],
+  "actions": []
+}

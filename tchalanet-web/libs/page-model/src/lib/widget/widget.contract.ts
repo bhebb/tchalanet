@@ -1,19 +1,27 @@
 import { InputSignal } from '@angular/core';
-import { NavigationDestination } from '@tch/ui/components';
+import { NavigationDestination } from '@tch/api';
 
 import { WidgetConfig } from '../runtime/pagemodel.types';
 
 export type WidgetState = 'default' | 'loading' | 'empty' | 'error' | 'partial';
 
+/**
+ * Customer-facing ticket verification statuses.
+ * Mirrors the backend PublicTicketVerificationResponse.status enum.
+ */
 export type VerificationStatus =
   | 'PENDING_RESULT'
-  | 'NOT_PAYABLE'
-  | 'PAYABLE'
-  | 'INVALID_OR_CANCELLED'
+  | 'LOST'
+  | 'WINNING_PAYABLE'
+  | 'WINNING_PAID'
+  | 'CANCELLED'
+  | 'EXPIRED'
+  | 'BLOCKED'
   | 'NOT_FOUND'
   | 'SERVICE_UNAVAILABLE';
 
-export type ResultStatus = 'CONFIRMED' | 'PENDING' | 'UNAVAILABLE';
+/** Mirrors the backend DrawResultStatus enum. */
+export type ResultStatus = 'PROVISIONAL' | 'CONFIRMED' | 'OVERRIDDEN' | 'ERROR';
 
 export type SimulationStatus =
   | 'NO_GAME_SELECTED'
@@ -52,6 +60,49 @@ export function stringProp(config: WidgetConfig | undefined, key: string): strin
   return typeof value === 'string' ? value : undefined;
 }
 
+/**
+ * Optional widget data binding. A config value may be a literal, or a binding that resolves from the
+ * widget's resolved dynamic payload (`dynamic.widgets[id]`, passed to the widget as its `dynamic`
+ * input) by dot-path. Bindings are opt-in and backward-compatible — a widget without one keeps its
+ * current behavior.
+ */
+export interface WidgetBinding {
+  readonly source: 'dynamic';
+  readonly path: string;
+}
+
+const FORBIDDEN_PATH_PARTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+/** Type guard for a `{ source: 'dynamic', path }` binding descriptor. */
+export function isBinding(value: unknown): value is WidgetBinding {
+  return (
+    isRecord(value) && value['source'] === 'dynamic' && typeof value['path'] === 'string'
+  );
+}
+
+/** Resolve a dot-path against a value (e.g. `kpis.totalSellers`). Proto-pollution safe. */
+export function resolvePath(root: unknown, path: string): unknown {
+  if (!path) {
+    return undefined;
+  }
+  let cursor: unknown = root;
+  for (const part of path.split('.')) {
+    if (!part || FORBIDDEN_PATH_PARTS.has(part) || !isRecord(cursor)) {
+      return undefined;
+    }
+    cursor = cursor[part];
+  }
+  return cursor;
+}
+
+/**
+ * Resolve a config value that may be a literal or a `{ source, path }` binding.
+ * Bindings read from the widget's `dynamic` payload; literals pass through unchanged.
+ */
+export function resolveBinding(value: unknown, dynamic: unknown): unknown {
+  return isBinding(value) ? resolvePath(dynamic, value.path) : value;
+}
+
 /** Derive a stable human fallback label from an i18n key (e.g. `home.hero.title` → `title`). */
 export function keyFallback(key: string | undefined): string {
   if (!key) {
@@ -82,6 +133,9 @@ export function mapBackendDestination(value: unknown): NavigationDestination | u
   }
   if (kind === 'route' && destinationValue) {
     return { kind: 'route', value: toPublicPath(destinationValue) };
+  }
+  if (kind === 'anchor' && destinationValue) {
+    return { kind: 'url', value: destinationValue };
   }
 
   return undefined;

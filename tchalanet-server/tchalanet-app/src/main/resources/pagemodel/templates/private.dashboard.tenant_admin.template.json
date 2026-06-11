@@ -4,13 +4,13 @@
   "scope": "private",
   "slug": "dashboard",
   "name": "Tenant admin dashboard",
-  "label": "tenant admin dashboard",
+  "label": "Tenant admin dashboard",
   "schemaVersion": 2,
   "schema": {},
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Tenant admin dashboard V1: tenant KPIs, readiness, alerts, operations summary, commercial summary and quick actions.",
+  "description": "Tenant admin dashboard V1: KPIs, readiness, alerts and quick actions (static binding).",
   "model": {
     "meta": {
       "id": "private.dashboard.tenant_admin",
@@ -18,11 +18,7 @@
       "slug": "dashboard",
       "context": "private_dashboard_tenant_admin",
       "schemaVersion": 2,
-      "langs": [
-        "fr",
-        "en",
-        "ht"
-      ],
+      "langs": ["fr", "en", "ht"],
       "defaultLang": "fr"
     },
     "theme": {
@@ -45,26 +41,12 @@
         "component": "GridLayout",
         "rows": [
           {
-            "id": "header",
-            "labelKey": "layout.dashboard.tenant_admin.header",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "dashboard.tenantAdmin.header"
-                ]
-              }
-            ]
-          },
-          {
             "id": "kpis",
             "labelKey": "layout.dashboard.tenant_admin.kpis",
             "columns": [
               {
                 "span": 12,
-                "widgets": [
-                  "dashboard.tenantAdmin.kpis"
-                ]
+                "widgets": ["dashboard.tenantAdmin.kpis"]
               }
             ]
           },
@@ -73,24 +55,12 @@
             "labelKey": "layout.dashboard.tenant_admin.readiness_alerts",
             "columns": [
               {
-                "span": 12,
-                "widgets": [
-                  "dashboard.tenantAdmin.readiness",
-                  "dashboard.tenantAdmin.alerts"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "summaries",
-            "labelKey": "layout.dashboard.tenant_admin.summaries",
-            "columns": [
+                "span": 6,
+                "widgets": ["dashboard.tenantAdmin.readiness"]
+              },
               {
-                "span": 12,
-                "widgets": [
-                  "dashboard.tenantAdmin.operations",
-                  "dashboard.tenantAdmin.commercial"
-                ]
+                "span": 6,
+                "widgets": ["dashboard.tenantAdmin.alerts"]
               }
             ]
           },
@@ -100,104 +70,86 @@
             "columns": [
               {
                 "span": 12,
-                "widgets": [
-                  "dashboard.tenantAdmin.quickActions"
-                ]
+                "widgets": ["dashboard.tenantAdmin.quickActions"]
               }
             ]
           }
         ]
       },
       "widgets": {
-        "dashboard.tenantAdmin.header": {
-          "type": "TenantDashboardHeaderWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.tenant_admin.header.title"
-          }
-        },
         "dashboard.tenantAdmin.kpis": {
           "type": "KpiGridWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
+            "mode": "static"
           },
           "props": {
+            "titleKey": "dashboard.tenant_admin.kpis.title",
             "items": [
-              "salesToday",
-              "ticketCountToday",
-              "activeSessions",
-              "openDraws",
-              "pendingApprovals"
-            ],
-            "titleKey": "dashboard.tenant_admin.kpis.title"
+              { "id": "sellers", "labelKey": "admin.kpi.sellers.label", "icon": "person_pin" },
+              { "id": "outlets", "labelKey": "admin.kpi.outlets.label", "icon": "storefront" },
+              { "id": "terminals", "labelKey": "admin.kpi.terminals.label", "icon": "point_of_sale" },
+              { "id": "openSessions", "labelKey": "admin.kpi.openSessions.label", "icon": "account_balance_wallet" }
+            ]
           }
         },
         "dashboard.tenantAdmin.readiness": {
           "type": "ReadinessSummaryWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "titleKey": "dashboard.tenant_admin.readiness.title",
-            "maxIssues": 4
+            "titleKey": "dashboard.tenant_admin.readiness.title"
           }
         },
         "dashboard.tenantAdmin.alerts": {
           "type": "AlertsWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "maxItems": 5,
-            "titleKey": "dashboard.tenant_admin.alerts.title"
-          }
-        },
-        "dashboard.tenantAdmin.operations": {
-          "type": "OperationsSummaryWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "sections": [
-              "users",
-              "outlets",
-              "terminals",
-              "sessions"
-            ],
-            "titleKey": "dashboard.tenant_admin.operations.title"
-          }
-        },
-        "dashboard.tenantAdmin.commercial": {
-          "type": "CommercialSummaryWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
-          },
-          "props": {
-            "sections": [
-              "gamesPricing",
-              "drawChannels",
-              "limits",
-              "promotions"
-            ],
-            "titleKey": "dashboard.tenant_admin.commercial.title"
+            "titleKey": "dashboard.tenant_admin.alerts.title",
+            "emptyKey": "dashboard.tenant_admin.alerts.empty"
           }
         },
         "dashboard.tenantAdmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "tenant_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "titleKey": "dashboard.tenant_admin.quick_actions.title"
+            "titleKey": "dashboard.tenant_admin.quick_actions.title",
+            "actions": [
+              {
+                "id": "users",
+                "labelKey": "admin.action.users",
+                "icon": "group",
+                "destination": { "kind": "route", "value": "/app/admin/users" }
+              },
+              {
+                "id": "outlets",
+                "labelKey": "admin.action.outlets",
+                "icon": "storefront",
+                "destination": { "kind": "route", "value": "/app/admin/outlets" }
+              },
+              {
+                "id": "terminals",
+                "labelKey": "admin.action.terminals",
+                "icon": "point_of_sale",
+                "destination": { "kind": "route", "value": "/app/admin/terminals" }
+              },
+              {
+                "id": "sessions",
+                "labelKey": "admin.action.sessions",
+                "icon": "account_balance_wallet",
+                "destination": { "kind": "route", "value": "/app/admin/sessions" }
+              },
+              {
+                "id": "settings",
+                "labelKey": "admin.action.settings",
+                "icon": "settings",
+                "destination": { "kind": "route", "value": "/app/admin/settings" }
+              }
+            ]
           }
         }
       }

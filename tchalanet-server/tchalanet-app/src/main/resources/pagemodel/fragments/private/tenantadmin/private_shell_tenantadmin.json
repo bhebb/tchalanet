@@ -2,14 +2,7 @@
   "fragment_type": "PrivateShell",
   "schema_version": 2,
   "topAppBar": {
-    "title": {
-      "label_key": "surface.tenant_admin",
-      "label": null
-    },
-    "context": {
-      "tenantName": null,
-      "tenantCode": null
-    },
+    "titleKey": "surface.tenant_admin",
     "leftActions": [
       {
         "id": "toggleNavigationDrawer",
@@ -148,7 +141,7 @@
         "loading": "eager"
       }
     },
-    "topDestinations": [
+    "primary": [
       {
         "id": "dashboard",
         "type": "destination",
@@ -412,7 +405,7 @@
         ]
       }
     ],
-    "footerDestinations": [],
+    "secondary": [],
     "actions": []
   },
   "footer": null

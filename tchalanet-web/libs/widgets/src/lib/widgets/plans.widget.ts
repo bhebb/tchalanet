@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TchPubCard, TchPubCardGrid } from '@tch/ui/components';
 
-import { WidgetConfig } from '@tch/page-model';
-import { LabelPipe } from '@tch/page-model';
-import { stringProp } from '@tch/page-model';
+import { LabelPipe, WidgetConfig, stringProp } from '@tch/page-model';
 
 interface PlanItem {
   readonly id?: string;
@@ -20,22 +19,22 @@ interface PlansDynamic {
 /** `PlansWidget`: grid of active subscription plans from the `public_home` source (`{ plans }`). */
 @Component({
   selector: 'tch-plans-widget',
-  imports: [LabelPipe],
+  imports: [LabelPipe, TchPubCard, TchPubCardGrid],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="plans">
       <h2 class="plans__title">{{ titleKey() | tchLabel }}</h2>
       @if (plans().length) {
-        <ul class="plans__grid">
+        <tch-public-card-grid style="--pub-card-grid-min: 200px">
           @for (plan of plans(); track plan.id ?? plan.code ?? $index) {
-            <li class="plans__card" [class.plans__card--highlight]="plan.highlighted">
+            <tch-public-card [tone]="plan.highlighted ? 'primary' : 'default'">
               <h3 class="plans__name">{{ plan.name || (plan.nameKey | tchLabel) || plan.code }}</h3>
               @if (plan.price !== null && plan.price !== undefined) {
                 <span class="plans__price">{{ plan.price }}</span>
               }
-            </li>
+            </tch-public-card>
           }
-        </ul>
+        </tch-public-card-grid>
       } @else {
         <p class="plans__empty">{{ 'home.plans.empty' | tchLabel }}</p>
       }
@@ -51,27 +50,6 @@ interface PlansDynamic {
       .plans__title {
         margin: 0;
         font-size: 1.25rem;
-      }
-      .plans__grid {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
-      .plans__card {
-        display: grid;
-        gap: 0.5rem;
-        padding: 1.25rem;
-        border-radius: var(--tch-radius-control, 12px);
-        background: var(--tch-color-surface, var(--mat-sys-surface));
-        color: var(--tch-color-foreground, var(--mat-sys-on-surface));
-        border: 1px solid var(--tch-color-outline, var(--mat-sys-outline-variant));
-      }
-      .plans__card--highlight {
-        border-color: var(--tch-color-primary, var(--mat-sys-primary));
-        box-shadow: 0 0 0 1px var(--tch-color-primary, var(--mat-sys-primary));
       }
       .plans__name {
         margin: 0;

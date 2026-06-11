@@ -51,6 +51,23 @@ public class DrawResultJdbcRepository {
         return rows.isEmpty() ? null : rows.getFirst();
     }
 
+    public UUID findByResultSlotIdAndResultDate(UUID resultSlotId, LocalDate resultDate) {
+        var rows = jdbc.query(
+            """
+                select id
+                from draw_result
+                where result_slot_id = ?
+                  and result_date = ?
+                  and deleted_at is null
+                """,
+            (rs, rowNum) -> rs.getObject("id", UUID.class),
+            resultSlotId,
+            java.sql.Date.valueOf(resultDate)
+        );
+
+        return rows.isEmpty() ? null : rows.getFirst();
+    }
+
     // ---------------------------------------------------------
     // 📦 VIEW (OPS / ADMIN)
     // ---------------------------------------------------------
@@ -82,6 +99,7 @@ public class DrawResultJdbcRepository {
             select
               dr.id,
               rs.key,
+              dr.result_date,
               dr.occurred_at,
               dr.status,
               dr.source,
@@ -225,6 +243,7 @@ public class DrawResultJdbcRepository {
             select
               dr.id,
               rs.slot_key,
+              dr.result_date,
               dr.occurred_at,
               dr.status,
               dr.source,
@@ -266,6 +285,7 @@ public class DrawResultJdbcRepository {
         return new DrawResultView(
             DrawResultId.of(rs.getObject("id", UUID.class)),
             rs.getString("slot_key"),
+            rs.getObject("result_date", LocalDate.class),
             rs.getTimestamp("occurred_at").toInstant(),
             DrawResultStatus.valueOf(rs.getString("status")),
             DrawSource.valueOf(rs.getString("source")),
@@ -334,13 +354,13 @@ public class DrawResultJdbcRepository {
     }
 
 
-    public boolean existsUsableExternalResult(UUID resultSlotId, Instant occurredAt) {
+    public boolean existsUsableExternalResult(UUID resultSlotId, LocalDate resultDate) {
         var count = jdbc.queryForObject(
             """
                 select count(1)
                 from draw_result dr
                 where dr.result_slot_id = ?
-                  and dr.occurred_at = ?
+                  and dr.result_date = ?
                   and dr.deleted_at is null
                   and dr.source = ?
                   and dr.status in (?, ?, ?)
@@ -348,7 +368,7 @@ public class DrawResultJdbcRepository {
                 """,
             Long.class,
             resultSlotId,
-            Timestamp.from(occurredAt),
+            java.sql.Date.valueOf(resultDate),
             DrawSource.EXTERNAL.name(),
             DrawResultStatus.PROVISIONAL.name(),
             DrawResultStatus.CONFIRMED.name(),

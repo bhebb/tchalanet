@@ -1,6 +1,5 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideRouterStore } from '@ngrx/router-store';
@@ -8,6 +7,7 @@ import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
+import { apiFeedbackInterceptor } from './shared/api/api-feedback.interceptor';
 import {
   APPLICATION_API_URL_PATTERN,
   AUTH_CONFIG,
@@ -31,6 +31,8 @@ import {
   MergedTranslateLoader,
   i18nFeature,
 } from './core/i18n';
+import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -41,10 +43,12 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         correlationRequestInterceptor,
         includeBearerTokenInterceptor,
+        apiFeedbackInterceptor,
         problemDetailInterceptor,
       ]),
     ),
     provideAnimationsAsync(),
+    { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-outlined' } },
     provideStore({}),
     provideState(i18nFeature),
     provideEffects([I18nEffects]),
@@ -75,8 +79,6 @@ export const appConfig: ApplicationConfig = {
       useValue: {
         assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
         assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
-        backendPath: PORTAL_I18N_CONFIG.backendPath,
-        surfaces: PORTAL_I18N_CONFIG.surfaces,
       },
     },
     provideKeycloak({

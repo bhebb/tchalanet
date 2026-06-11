@@ -2,11 +2,7 @@
   "fragment_type": "PrivateShell",
   "schema_version": 2,
   "topAppBar": {
-    "title": {
-      "label_key": "surface.cashier",
-      "label": null
-    },
-    "context": {},
+    "titleKey": "surface.cashier",
     "leftActions": [
       {
         "id": "toggleNavigationDrawer",
@@ -145,7 +141,7 @@
         "loading": "eager"
       }
     },
-    "topDestinations": [
+    "primary": [
       {
         "id": "dashboard",
         "type": "destination",
@@ -238,7 +234,7 @@
       }
     ],
     "sections": [],
-    "footerDestinations": [
+    "secondary": [
       {
         "id": "support",
         "type": "destination",

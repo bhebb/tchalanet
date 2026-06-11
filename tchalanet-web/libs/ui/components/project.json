@@ -4,12 +4,20 @@
   "sourceRoot": "libs/ui/components/src",
   "prefix": "tch",
   "projectType": "library",
-  "tags": ["scope:ui", "type:components"],
+  "tags": [
+    "scope:ui",
+    "type:components"
+  ],
   "targets": {
-    "lint": { "executor": "@nx/eslint:lint" },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
     "test": {
       "executor": "nx:run-commands",
-      "options": { "command": "vitest run libs/ui/components/src" }
+      "options": {
+        "command": "vitest run libs/ui/components/src --passWithNoTests",
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }

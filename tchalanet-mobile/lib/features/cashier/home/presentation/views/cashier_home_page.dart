@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/online_badge.dart';
 import '../../../../../design_system/components/pos_action_button.dart';
 import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
@@ -9,6 +10,7 @@ import '../../../../../design_system/components/stat_card.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
+import '../../../../notifications/presentation/view_models/notification_summary_controller.dart';
 import '../../data/models/cashier_home_models.dart';
 import '../view_models/cashier_home_providers.dart';
 
@@ -102,10 +104,7 @@ class _SetupRequiredScaffold extends ConsumerWidget {
     final step = home.requiredStep!;
 
     return Scaffold(
-      appBar: _PosAppBar(
-        terminalLabel: home.header?.subtitle,
-        onMenuTap: null,
-      ),
+      appBar: _PosAppBar(terminalLabel: home.header?.subtitle, onMenuTap: null),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(TchSpacing.s24),
@@ -182,11 +181,7 @@ class _SessionClosedScaffold extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Icon(
-                Icons.lock_clock_rounded,
-                size: 64,
-                color: scheme.secondary,
-              ),
+              Icon(Icons.lock_clock_rounded, size: 64, color: scheme.secondary),
               const SizedBox(height: TchSpacing.s24),
               Text(
                 step.title,
@@ -266,7 +261,6 @@ class _OperationalScaffold extends ConsumerWidget {
                 PosActionButton(
                   label: primaryAction.label,
                   icon: Icons.confirmation_number_rounded,
-                  color: Theme.of(context).colorScheme.primary,
                   size: PosActionButtonSize.large,
                   enabled: primaryAction.enabled,
                   onPressed: primaryAction.enabled
@@ -281,9 +275,7 @@ class _OperationalScaffold extends ConsumerWidget {
               const SizedBox(height: TchSpacing.s12),
 
               // Sync button
-              _SyncButton(
-                onPressed: () => ref.invalidate(cashierHomeProvider),
-              ),
+              _SyncButton(onPressed: () => ref.invalidate(cashierHomeProvider)),
               const SizedBox(height: TchSpacing.s24),
 
               // Stats
@@ -349,7 +341,6 @@ class _QuickActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final visible = actions.take(2).toList(); // max 2 in grid
     if (visible.isEmpty) return const SizedBox.shrink();
 
@@ -358,17 +349,19 @@ class _QuickActionsGrid extends StatelessWidget {
         for (int i = 0; i < visible.length; i++) ...[
           if (i > 0) const SizedBox(width: TchSpacing.s12),
           Expanded(
-            child: Builder(builder: (context) {
-              final a = visible[i];
-              return PosActionButton(
-                label: a.label,
-                icon: _icons[a.type] ?? Icons.touch_app_rounded,
-                color: scheme.secondary,
-                size: PosActionButtonSize.medium,
-                enabled: a.enabled,
-                onPressed: a.enabled ? () => context.push(a.route) : null,
-              );
-            }),
+            child: Builder(
+              builder: (context) {
+                final a = visible[i];
+                return PosActionButton(
+                  label: a.label,
+                  icon: _icons[a.type] ?? Icons.touch_app_rounded,
+                  tone: PosActionButtonTone.secondary,
+                  size: PosActionButtonSize.medium,
+                  enabled: a.enabled,
+                  onPressed: a.enabled ? () => context.push(a.route) : null,
+                );
+              },
+            ),
           ),
         ],
       ],
@@ -394,10 +387,10 @@ class _SyncButton extends StatelessWidget {
         label: Text(
           'ACTUALISER',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: scheme.primary,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.5,
-              ),
+            color: scheme.primary,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+          ),
         ),
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: scheme.outlineVariant),
@@ -435,9 +428,9 @@ class _SessionInfoRow extends StatelessWidget {
           const SizedBox(width: TchSpacing.s8),
           Text(
             'Session ouverte à ${session.openedAtLabel}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -461,6 +454,7 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final session = ref.watch(userSessionProvider);
+    final translations = ref.watch(i18nBundleProvider);
 
     return AppBar(
       // backgroundColor, elevation, surfaceTintColor from appBarTheme in ThemeBuilder
@@ -492,10 +486,22 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     color: scheme.primary,
                   ),
                 ),
-                const OnlineBadge(online: true),
+                OnlineBadge(
+                  online: true,
+                  onlineLabel: translations.translate('common.status.online'),
+                  offlineLabel: translations.translate('common.status.offline'),
+                ),
               ],
             ),
           ),
+        _NotificationCenterAction(
+          unreadCount: ref.watch(
+            notificationSummaryProvider.select(
+              (state) => state.summary.unreadCount,
+            ),
+          ),
+          tooltip: translations.translate('notifications.center.open'),
+        ),
         Padding(
           padding: const EdgeInsets.only(right: TchSpacing.s12),
           child: _UserAvatar(
@@ -516,6 +522,29 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 }
 
+class _NotificationCenterAction extends StatelessWidget {
+  const _NotificationCenterAction({
+    required this.unreadCount,
+    required this.tooltip,
+  });
+
+  final int unreadCount;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: () => context.push('/pos/notifications'),
+      icon: Badge(
+        isLabelVisible: unreadCount > 0,
+        label: Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+        child: const Icon(Icons.notifications_outlined),
+      ),
+    );
+  }
+}
+
 class _UserAvatar extends StatelessWidget {
   const _UserAvatar({required this.initials});
 
@@ -530,9 +559,9 @@ class _UserAvatar extends StatelessWidget {
       child: Text(
         initials,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: scheme.onPrimaryContainer,
-            ),
+          fontWeight: FontWeight.w700,
+          color: scheme.onPrimaryContainer,
+        ),
       ),
     );
   }

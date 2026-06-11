@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/i18n_repository.dart';
+import '../../../../design_system/components/components.dart';
 import '../../../../design_system/layout/screen_size.dart';
 import '../../../../design_system/tokens/tch_colors.dart';
 import '../../../../design_system/tokens/tch_radius.dart';
@@ -10,20 +11,37 @@ import '../../../draw/data/models/draw_models.dart';
 import '../../../draw/presentation/view_models/draw_providers.dart';
 import '../view_models/auth_controller.dart';
 
+class _LoginCopy {
+  const _LoginCopy({
+    required this.title,
+    required this.subtitle,
+    required this.loginAction,
+    required this.terminalMode,
+  });
+
+  final String title;
+  final String subtitle;
+  final String loginAction;
+  final String terminalMode;
+}
+
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
-
-    ref.listen<AuthState>(authControllerProvider, (_, next) {
-      if (next is AuthAuthenticated) context.go('/pos');
-    });
-
+    final translations = ref.watch(i18nBundleProvider);
     final isLoading = authState is AuthLoading;
-    final errorMessage =
-        authState is AuthUnauthenticated ? authState.errorMessage : null;
+    final errorKey = authState is AuthUnauthenticated
+        ? authState.errorKey
+        : null;
+    final copy = _LoginCopy(
+      title: translations.translate('auth.login.title'),
+      subtitle: translations.translate('auth.login.subtitle'),
+      loginAction: translations.translate('auth.login.button'),
+      terminalMode: translations.translate('auth.login.terminal_mode'),
+    );
 
     void onLogin() => ref.read(authControllerProvider.notifier).login();
 
@@ -32,13 +50,19 @@ class LoginPage extends ConsumerWidget {
       body: SafeArea(
         child: context.isPosTerminal
             ? _TerminalLayout(
+                copy: copy,
                 isLoading: isLoading,
-                errorMessage: errorMessage,
+                errorMessage: errorKey == null
+                    ? null
+                    : translations.translate(errorKey),
                 onLogin: onLogin,
               )
             : _PhoneLayout(
+                copy: copy,
                 isLoading: isLoading,
-                errorMessage: errorMessage,
+                errorMessage: errorKey == null
+                    ? null
+                    : translations.translate(errorKey),
                 onLogin: onLogin,
               ),
       ),
@@ -50,11 +74,13 @@ class LoginPage extends ConsumerWidget {
 
 class _PhoneLayout extends ConsumerWidget {
   const _PhoneLayout({
+    required this.copy,
     required this.isLoading,
     required this.onLogin,
     this.errorMessage,
   });
 
+  final _LoginCopy copy;
   final bool isLoading;
   final String? errorMessage;
   final VoidCallback onLogin;
@@ -67,7 +93,7 @@ class _PhoneLayout extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _CompactHeader(),
+        _CompactHeader(title: copy.title),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s16),
@@ -93,7 +119,10 @@ class _PhoneLayout extends ConsumerWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(
-            TchSpacing.s16, TchSpacing.s8, TchSpacing.s16, TchSpacing.s16,
+            TchSpacing.s16,
+            TchSpacing.s8,
+            TchSpacing.s16,
+            TchSpacing.s16,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,7 +131,11 @@ class _PhoneLayout extends ConsumerWidget {
                 _ErrorBanner(message: errorMessage!),
                 const SizedBox(height: TchSpacing.s8),
               ],
-              _ConnectButton(isLoading: isLoading, height: 56, onPressed: onLogin),
+              _ConnectButton(
+                label: copy.loginAction,
+                isLoading: isLoading,
+                onPressed: onLogin,
+              ),
             ],
           ),
         ),
@@ -115,11 +148,13 @@ class _PhoneLayout extends ConsumerWidget {
 
 class _TerminalLayout extends ConsumerWidget {
   const _TerminalLayout({
+    required this.copy,
     required this.isLoading,
     required this.onLogin,
     this.errorMessage,
   });
 
+  final _LoginCopy copy;
   final bool isLoading;
   final String? errorMessage;
   final VoidCallback onLogin;
@@ -140,15 +175,24 @@ class _TerminalLayout extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _BrandBlock(iconSize: 96, large: true),
+                _BrandBlock(
+                  iconSize: 96,
+                  large: true,
+                  title: copy.title,
+                  subtitle: copy.subtitle,
+                ),
                 const SizedBox(height: TchSpacing.s40),
                 if (errorMessage != null) ...[
                   _ErrorBanner(message: errorMessage!),
                   const SizedBox(height: TchSpacing.s16),
                 ],
-                _ConnectButton(isLoading: isLoading, height: 72, onPressed: onLogin),
+                _ConnectButton(
+                  label: copy.loginAction,
+                  isLoading: isLoading,
+                  onPressed: onLogin,
+                ),
                 const SizedBox(height: TchSpacing.s24),
-                const _TerminalModeLabel(),
+                _TerminalModeLabel(label: copy.terminalMode),
               ],
             ),
           ),
@@ -163,7 +207,9 @@ class _TerminalLayout extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _DrawsColumnHeader(onRefresh: () => ref.invalidate(homeDrawSlotsProvider)),
+              _DrawsColumnHeader(
+                onRefresh: () => ref.invalidate(homeDrawSlotsProvider),
+              ),
               Expanded(
                 child: slotsAsync.when(
                   loading: () => const Padding(
@@ -176,7 +222,8 @@ class _TerminalLayout extends ConsumerWidget {
                   data: (slots) {
                     final hasNextDraw = nextDraw != null;
                     final hasResults = slots.any(
-                        (s) => s.latest?.numbers?.hasNumbers == true);
+                      (s) => s.latest?.numbers?.hasNumbers == true,
+                    );
                     if (!hasNextDraw && !hasResults) {
                       return _DrawsEmptyState(
                         onRefresh: () => ref.invalidate(homeDrawSlotsProvider),
@@ -184,8 +231,10 @@ class _TerminalLayout extends ConsumerWidget {
                     }
                     return SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(
-                        TchSpacing.s32, TchSpacing.s16,
-                        TchSpacing.s32, TchSpacing.s32,
+                        TchSpacing.s32,
+                        TchSpacing.s16,
+                        TchSpacing.s32,
+                        TchSpacing.s32,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -212,6 +261,10 @@ class _TerminalLayout extends ConsumerWidget {
 // ─── Shared components ────────────────────────────────────────────────────────
 
 class _CompactHeader extends StatelessWidget {
+  const _CompactHeader({required this.title});
+
+  final String title;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -244,10 +297,10 @@ class _CompactHeader extends StatelessWidget {
           ),
           const SizedBox(width: TchSpacing.s12),
           Text(
-            'Tchalanet POS',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -256,10 +309,17 @@ class _CompactHeader extends StatelessWidget {
 }
 
 class _BrandBlock extends StatelessWidget {
-  const _BrandBlock({required this.iconSize, required this.large});
+  const _BrandBlock({
+    required this.iconSize,
+    required this.large,
+    required this.title,
+    required this.subtitle,
+  });
 
   final double iconSize;
   final bool large;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -283,23 +343,24 @@ class _BrandBlock extends StatelessWidget {
         ),
         const SizedBox(height: TchSpacing.s24),
         Text(
-          'Tchalanet POS',
-          style: (large
-                  ? Theme.of(context).textTheme.displaySmall
-                  : Theme.of(context).textTheme.headlineLarge)
-              ?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: scheme.onSurface,
-            letterSpacing: -0.5,
-          ),
+          title,
+          style:
+              (large
+                      ? Theme.of(context).textTheme.displaySmall
+                      : Theme.of(context).textTheme.headlineLarge)
+                  ?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: scheme.onSurface,
+                    letterSpacing: -0.5,
+                  ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: TchSpacing.s8),
         Text(
-          'Connectez-vous avec votre compte Tchalanet',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
+          subtitle,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
           textAlign: TextAlign.center,
         ),
       ],
@@ -380,7 +441,9 @@ class _DrawResultsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final withResults = slots.where((s) => s.latest?.numbers?.hasNumbers == true).toList();
+    final withResults = slots
+        .where((s) => s.latest?.numbers?.hasNumbers == true)
+        .toList();
     if (withResults.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -452,18 +515,16 @@ class _DrawResultRow extends StatelessWidget {
                 if (slot.displayDrawTime.isNotEmpty)
                   Text(
                     slot.displayDrawTime,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.outline,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(color: scheme.outline),
                   ),
               ],
             ),
           ),
           Wrap(
             spacing: TchSpacing.s8,
-            children: numbers
-                .map((n) => _NumberBadge(number: n))
-                .toList(),
+            children: numbers.map((n) => _NumberBadge(number: n)).toList(),
           ),
         ],
       ),
@@ -539,14 +600,18 @@ class _ErrorBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded, color: TchColors.error, size: 20),
+          const Icon(
+            Icons.error_outline_rounded,
+            color: TchColors.error,
+            size: 20,
+          ),
           const SizedBox(width: TchSpacing.s12),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: TchColors.error,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: TchColors.error),
             ),
           ),
         ],
@@ -557,50 +622,22 @@ class _ErrorBanner extends StatelessWidget {
 
 class _ConnectButton extends StatelessWidget {
   const _ConnectButton({
+    required this.label,
     required this.isLoading,
-    required this.height,
     required this.onPressed,
   });
 
+  final String label;
   final bool isLoading;
-  final double height;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: FilledButton(
-        onPressed: isLoading ? null : onPressed,
-        style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TchRadius.md),
-          ),
-        ),
-        child: isLoading
-            ? SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.login_rounded, size: 20),
-                  const SizedBox(width: TchSpacing.s8),
-                  Text(
-                    'Se connecter',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-      ),
+    return PrimaryActionButton(
+      label: label,
+      icon: Icons.login_rounded,
+      loading: isLoading,
+      onPressed: onPressed,
     );
   }
 }
@@ -608,19 +645,22 @@ class _ConnectButton extends StatelessWidget {
 // ─── Terminal mode label ──────────────────────────────────────────────────────
 
 class _TerminalModeLabel extends StatelessWidget {
-  const _TerminalModeLabel();
+  const _TerminalModeLabel({required this.label});
 
   static const _version = '1.0.0';
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Mode Terminal POS • v$_version',
+      '$label • v$_version',
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
-            letterSpacing: 0.4,
-            fontWeight: FontWeight.w500,
-          ),
+        color: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
+        letterSpacing: 0.4,
+        fontWeight: FontWeight.w500,
+      ),
       textAlign: TextAlign.center,
     );
   }
@@ -638,7 +678,10 @@ class _DrawsColumnHeader extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        TchSpacing.s32, TchSpacing.s20, TchSpacing.s16, TchSpacing.s12,
+        TchSpacing.s32,
+        TchSpacing.s20,
+        TchSpacing.s16,
+        TchSpacing.s12,
       ),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
@@ -649,14 +692,18 @@ class _DrawsColumnHeader extends StatelessWidget {
             child: Text(
               'Tirages & résultats',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                  ),
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.refresh_rounded, size: 20, color: scheme.onSurfaceVariant),
+            icon: Icon(
+              Icons.refresh_rounded,
+              size: 20,
+              color: scheme.onSurfaceVariant,
+            ),
             visualDensity: VisualDensity.compact,
             tooltip: 'Actualiser',
             onPressed: onRefresh,
@@ -690,17 +737,17 @@ class _DrawsEmptyState extends StatelessWidget {
           Text(
             'Aucun tirage disponible',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: scheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: TchSpacing.s8),
           Text(
             'Les prochains tirages et résultats\napparaîtront ici.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-                ),
+              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+            ),
           ),
           if (onRefresh != null) ...[
             const SizedBox(height: TchSpacing.s24),

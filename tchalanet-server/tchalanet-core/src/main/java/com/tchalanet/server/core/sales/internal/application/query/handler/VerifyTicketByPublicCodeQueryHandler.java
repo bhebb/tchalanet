@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.sales.internal.application.query.handler;
 
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.catalog.drawchannel.api.resolver.DrawChannelLabelKeyResolver;
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
@@ -10,8 +11,8 @@ import com.tchalanet.server.core.sales.api.model.verification.TicketVerification
 import com.tchalanet.server.core.sales.api.query.VerifyTicketByPublicCodeQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationProjection;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationReaderPort;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.CustomerTicketStatusResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.TicketVisibilityPolicy;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +33,9 @@ public class VerifyTicketByPublicCodeQueryHandler
 
     @Override
     public TicketVerificationView handle(VerifyTicketByPublicCodeQuery query) {
-        var projection = reader.findByPublicCodeAndVerificationCode(
-                publicCodeFormatter.normalize(query.publicCode()),
-                query.verificationCode()
-            )
+        var publicCode = publicCodeFormatter.display(query.publicCode());
+
+        var projection = reader.findByPublicCode(publicCode)
             .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
 
         if (!visibilityPolicy.isPubliclyVisible(projection.placedAt())) {
@@ -58,8 +58,8 @@ public class VerifyTicketByPublicCodeQueryHandler
             winningAmount,
             projection.placedAt(),
             new TicketVerificationView.DrawInfoView(
+                DrawChannelLabelKeyResolver.resolve(projection.draw().drawChannelKey()),
                 projection.draw().drawChannelName(),
-                projection.draw().drawChannelLabel(),
                 projection.draw().drawDate(),
                 projection.draw().scheduledAt()
             ),
@@ -84,10 +84,10 @@ public class VerifyTicketByPublicCodeQueryHandler
     ) {
         var gameDisplayName = line.gameCode() != null
             ? firstNonBlank(
-                line.gameLabel(),
-                gameCatalog.findByCode(line.gameCode().name())
-            .map(g -> g.name())
-            .orElse(line.gameCode().name()))
+            line.gameLabel(),
+            gameCatalog.findByCode(line.gameCode().name())
+                .map(g -> g.name())
+                .orElse(line.gameCode().name()))
             : null;
         var betTypeLabel = firstNonBlank(line.betTypeLabel(), line.betType() != null ? line.betType().name() : null);
         return new TicketVerificationView.TicketLineView(

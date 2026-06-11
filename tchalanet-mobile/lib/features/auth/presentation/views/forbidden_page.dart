@@ -1,43 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ForbiddenPage extends StatelessWidget {
+import '../../../../core/i18n/i18n_repository.dart';
+import '../../../../design_system/components/components.dart';
+import '../view_models/forbidden_view_model.dart';
+
+class ForbiddenPage extends ConsumerWidget {
   const ForbiddenPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(forbiddenViewModelProvider);
+    final translations = ref.watch(i18nBundleProvider);
+
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Accès refusé',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "Vous n'avez pas les droits nécessaires pour accéder à cette page.",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                OutlinedButton(
-                  onPressed: () => context.go('/login'),
-                  child: const Text('Retour à la connexion'),
-                ),
-              ],
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: FeedbackState(
+                kind: FeedbackStateKind.blocked,
+                title: translations.translate(state.titleKey),
+                message: translations.translate(state.messageKey),
+                actionLabel: translations.translate(state.backActionKey),
+                onAction: () => context.go('/login'),
+              ),
             ),
           ),
         ),

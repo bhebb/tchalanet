@@ -7,6 +7,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 
 public interface DrawResultReaderPort {
@@ -23,10 +24,12 @@ public interface DrawResultReaderPort {
 
     Optional<DrawResultId> findByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt);
 
+    Optional<DrawResultId> findByResultSlotIdAndResultDate(ResultSlotId resultSlotId, LocalDate resultDate);
+
     TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria);
 
     Optional<DrawResultView> findByDrawId(DrawId drawId);
 
-    boolean existsUsableExternalResult(ResultSlotId resultSlotId, Instant occurredAt);
+    boolean existsUsableExternalResult(ResultSlotId resultSlotId, LocalDate resultDate);
 
 }

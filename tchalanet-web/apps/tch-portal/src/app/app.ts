@@ -1,7 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
-import { AppRuntimeStore } from './core/runtime';
 
 @Component({
   imports: [RouterModule],
@@ -10,11 +8,9 @@ import { AppRuntimeStore } from './core/runtime';
   styleUrl: './app.scss',
 })
 export class App {
-  private readonly runtime = inject(AppRuntimeStore);
-
   protected title = 'tch-portal';
 
-  constructor() {
-    this.runtime.initPublicRuntime();
-  }
+  // Runtime bootstrap is owned by each shell: TchPublicShellComponent inits the
+  // public runtime, PrivateShellPage the private one. Landing directly on /app/**
+  // must not trigger any public API call.
 }

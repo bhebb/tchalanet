@@ -167,17 +167,17 @@ Acceptance:
 
 ## 9. PageModel runtime
 
-- [ ] Create PageModel API client.
-- [ ] Create PageModel renderer minimal.
-- [ ] Support text/title keys, actions, and simple widget dispatch.
-- [ ] Ensure PageModel uses i18n keys, not embedded translations.
-- [ ] Ensure PageModel uses active theme, not embedded theme data.
-- [ ] Ensure PageModel uses settings only through runtime state, not embedded flags.
+- [x] Create PageModel API client.
+- [x] Create PageModel renderer minimal.
+- [x] Support text/title keys, actions, and simple widget dispatch.
+- [x] Ensure PageModel uses i18n keys, not embedded translations.
+- [x] Ensure PageModel uses active theme, not embedded theme data.
+- [x] Ensure PageModel uses settings only through runtime state, not embedded flags.
 
 Acceptance:
 
-- [ ] Public home can render a minimal PageModel payload.
-- [ ] If PageModel fails, show `TchErrorPanel` or fallback.
+- [x] Public home can render a minimal PageModel payload.
+- [x] If PageModel fails, show `TchErrorPanel` or fallback.
 
 ## 10. Runtime bootstrap orchestration
 
@@ -202,13 +202,13 @@ Acceptance:
 
 Create only components needed now.
 
-- [ ] `TchNotice`.
-- [ ] `TchErrorPanel`.
-- [ ] `TchLoading`.
-- [ ] `TchEmptyState`.
-- [ ] `TchActionButton`.
+- [x] `TchNotice`.
+- [x] `TchErrorPanel`.
+- [x] `TchLoading`.
+- [x] `TchEmptyState`.
+- [x] `TchActionButton`.
 - [ ] `TchActionList`.
-- [ ] `TchStatusBadge`.
+- [x] `TchStatusBadge`.
 - [ ] `TchPageHeader`.
 - [ ] `TchConfirmDialog`.
 
@@ -224,7 +224,7 @@ Deferred until real admin/POS pages:
 
 ## 12. Layout shells
 
-- [ ] `PublicShell`.
+- [x] `PublicShell`.
 - [x] `PrivateShell`.
 - [ ] `TopAppBar`.
 - [ ] `NavigationDrawer` / `SideNav`.
@@ -240,16 +240,16 @@ Acceptance:
 
 ## 13. First public home
 
-- [ ] Create `PublicHomePage`.
-- [ ] Render through public bootstrap state.
-- [ ] Show loading/error/fallback states.
-- [ ] Render at least one PageModel widget and one action.
+- [x] Create `PublicHomePage`.
+- [x] Render through public bootstrap state.
+- [x] Show loading/error/fallback states.
+- [x] Render at least one PageModel widget and one action.
 
 ## 14. Prepare next V1 legs
 
 Tenant admin Web:
 
-- [ ] Create placeholder route and dashboard.
+- [x] Create placeholder route and dashboard.
 - [ ] Prepare overview/users/outlets/terminals/sessions/settings route structure.
 
 Cashier Web:
@@ -258,5 +258,5 @@ Cashier Web:
 
 Superadmin:
 
-- [ ] Create minimal protected platform dashboard.
-- [ ] Prioritize onboarding tenant later before full superadmin console.
+- [x] Create minimal protected platform dashboard.
+- [x] Prioritize onboarding tenant later before full superadmin console.

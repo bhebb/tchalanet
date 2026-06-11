@@ -1,0 +1,19 @@
+/* density.scss
+   Runtime density, applied preset-agnostically. M3 density only affects component metric tokens
+   (sizes/heights), not colour — so a single set of classes serves every preset. ThemeDomApplier
+   toggles `.tch-density-compact` / `.tch-density-dense` on the themed root; the base `.tch-theme`
+   carries the default (comfortable / density 0).
+
+   Backend `density.default` → class mapping (theme-store.ts):
+     comfortable → (base, no class)   compact → .tch-density-compact   dense → .tch-density-dense */
+@use '@angular/material' as mat;
+
+/* Comfortable (density 0) is the default — Material component CSS already carries the default
+   metrics, so no rule is needed. Only the denser variants emit override tokens. */
+.tch-theme.tch-density-compact {
+  @include mat.theme((density: -2));
+}
+
+.tch-theme.tch-density-dense {
+  @include mat.theme((density: -4));
+}

@@ -8,27 +8,28 @@ export const API_PATHS = {
     },
 } as const;
 
+// Backend translations are delivered inside the runtime bootstrap response and overlaid via
+// TranslateService.setTranslation; the loader only serves local fallback bundles.
 export const PORTAL_I18N_CONFIG = {
     fallbackLang: 'fr',
     defaultLang: 'fr',
     assetsPrefix: '/assets/i18n/',
     assetsSuffix: '.json',
-    backendPath: API_PATHS.i18n.public,
-    surfaces: ['PUBLIC_RESULTS',
-        'PUBLIC_TICKET_CHECK',
-        'COMMON_PUBLIC_ERROR',
-        'PUBLIC_HOME'],
 } as const;
 
 export const AUTH_CONFIG = {
     realm: 'tchalanet',
     clientId: 'tchalanet-web',
-    localUrl: 'https://auth.localtest.me',
+    // Must match KC_HOSTNAME exactly (dev includes the external port :8443) —
+    // keycloak-js validates the iss callback parameter against this URL.
+    localUrl: 'https://auth.localtest.me:8443',
     lanUrl: 'https://auth.tchalanet.lan',
 } as const;
 
+// Bearer token is attached only to non-public API calls: /api/v1/public/** must stay
+// anonymous even when a Keycloak session exists (public pages + token = no Authorization).
 export const APPLICATION_API_URL_PATTERN =
-    /^(\/api\/|https?:\/\/(localhost|127\.0\.0\.1):8083\/api\/|https?:\/\/api\.(localtest\.me|tchalanet\.lan)\/api\/)/i;
+    /^(?:https?:\/\/(?:(?:localhost|127\.0\.0\.1):8083|api\.(?:localtest\.me|tchalanet\.lan)))?\/api\/(?!v1\/public\/)/i;
 
 export function keycloakUrlForHostname(hostname: string): string {
     return hostname.endsWith('tchalanet.lan') ? AUTH_CONFIG.lanUrl : AUTH_CONFIG.localUrl;
