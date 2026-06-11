@@ -49,8 +49,8 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 - [x] TTL 10 minutes (`expires_at`) + job périodique (`SalePreparationRetentionScheduler`, ShedLock, per-tenant RLS binding). Check paresseux au confirm/regenerate -> slices 8-9.
 - [x] Rétention : purge EXPIRED/CANCELLED à 7 j ; CONFIRMED à 30 j (lien réconciliation = simple borne 30 j en V1, voir design).
 - [x] Index `(tenant_id, status, expires_at)` + unique partiel `(tenant_id, idempotency_key)`.
-- [ ] `input_hash`/`cart_hash` calculé serveur au prepare (dérive panier + déduplication).
-- [ ] `idempotency_key` + `ticket_id` stockés au confirm.
+- [x] `input_hash` calculé serveur au prepare (`SalePreparationInputCodec.hash`, SHA-256 déterministe de l'input trié).
+- [x] `idempotency_key` + `ticket_id` stockés au confirm (`SalePreparationStorePort.confirm`).
 - [x] Lignes promo générées avec `line_ref` + `regeneration_count` (+ regenerable/max_regenerations snapshotés sur la ligne).
 - [x] Tests : transitions invalides (state machine 3/3). Expiration/purge couverts par contraintes SQL + queries dédiées ; e2e en slice 12.
 
