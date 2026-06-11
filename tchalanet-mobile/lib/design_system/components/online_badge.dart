@@ -6,9 +6,16 @@ import '../tokens/tch_spacing.dart';
 
 /// Animated pulse dot + label indicating connectivity.
 class OnlineBadge extends StatefulWidget {
-  const OnlineBadge({super.key, required this.online});
+  const OnlineBadge({
+    super.key,
+    required this.online,
+    required this.onlineLabel,
+    required this.offlineLabel,
+  });
 
   final bool online;
+  final String onlineLabel;
+  final String offlineLabel;
 
   @override
   State<OnlineBadge> createState() => _OnlineBadgeState();
@@ -26,9 +33,10 @@ class _OnlineBadgeState extends State<OnlineBadge>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-    _fade = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _fade = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
     if (widget.online) _ctrl.repeat(reverse: true);
   }
 
@@ -51,9 +59,8 @@ class _OnlineBadgeState extends State<OnlineBadge>
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final dotColor =
-        widget.online ? TchColors.online : const Color(0xFF9CA3AF);
-    final label = widget.online ? 'Online' : 'Hors ligne';
+    final dotColor = widget.online ? TchColors.online : TchColors.missing;
+    final label = widget.online ? widget.onlineLabel : widget.offlineLabel;
     final labelColor = widget.online
         ? Theme.of(context).colorScheme.onSurfaceVariant
         : Theme.of(context).colorScheme.outline;

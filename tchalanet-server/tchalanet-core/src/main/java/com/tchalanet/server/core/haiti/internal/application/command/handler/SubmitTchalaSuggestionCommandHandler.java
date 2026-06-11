@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.exception.TchBusinessRuleException;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TchalaEntryId;
 import com.tchalanet.server.core.haiti.api.command.SubmitTchalaSuggestionCommand;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Component;
 public class SubmitTchalaSuggestionCommandHandler
     implements CommandHandler<SubmitTchalaSuggestionCommand, SubmitTchalaSuggestionResult> {
 
+  public static final int MAX_PENDING_SUGGESTIONS = 20;
+
   private final TchalaEntryRepositoryPort repo;
   private final Clock clock;
   private final IdGenerator idGenerator;
@@ -35,6 +38,13 @@ public class SubmitTchalaSuggestionCommandHandler
   @Override
   public SubmitTchalaSuggestionResult handle(SubmitTchalaSuggestionCommand command) {
     Objects.requireNonNull(command);
+
+    if (repo.countAllPending() >= MAX_PENDING_SUGGESTIONS) {
+      throw new TchBusinessRuleException(
+          "tchala.suggestion.limit_exceeded",
+          "La boîte de suggestions est pleine. Réessayez plus tard.");
+    }
+
     TchalaLang lang = TchalaLang.of(command.lang());
     DreamText dream = DreamText.of(command.dream());
     List<TchalaNumber> numbers = parseNumbers(command.numbers());

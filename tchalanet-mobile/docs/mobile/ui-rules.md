@@ -44,45 +44,19 @@ context. `web_admin` is allowed dense tables and dashboards.
 - Primary POS action is ideally 56 px or taller.
 - Red is reserved for dangerous/destructive actions.
 - Green is reserved for success or OK status.
-- Primary purple is reserved for main actions.
+- Tchalanet navy is the primary brand role.
+- Tchalanet gold is the Material 3 tertiary/accent role.
 - No nested card layouts as the default structure.
 - No long scrolling POS pages for critical flows.
 - Screens do not contain business logic.
 - View models/controllers/providers own state transitions.
 - Backend remains source of truth for final sale, limits, cutoff, payout, auth, and tenant decisions.
 
-## Project Structure Target
+## Project Structure
 
-```text
-lib/
-  app/
-    theme/
-      app_colors.dart
-      app_typography.dart
-      app_spacing.dart
-      app_theme.dart
-    router/
-    shell/
-
-  shared/
-    ui/
-      buttons/
-      cards/
-      feedback/
-      layout/
-
-  features/
-    auth/
-    cashier_home/
-    sell_ticket/
-    ticket_success/
-    tickets/
-    session/
-    profile/
-```
-
-This structure refines [../ARCHITECTURE.md](../ARCHITECTURE.md) for the POS V1 work. Keep
-feature slices simple; add subfolders only when a feature has enough files to justify it.
+The canonical project structure and dependency direction live in
+[../ARCHITECTURE.md](../ARCHITECTURE.md). Shared UI belongs in `lib/design_system/`;
+feature UI belongs in `lib/features/<feature>/presentation/`.
 
 ## Screen Checklist
 

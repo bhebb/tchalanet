@@ -1,5 +1,54 @@
 {
   "admin": {
+    "dashboard": {
+      "title": "Administration",
+      "description": "Vue d'ensemble de l'administration tenant",
+      "kpi": {
+        "sellers": "Vendeurs",
+        "outlets": "Points de vente",
+        "terminals": "Terminaux",
+        "openSessions": "Sessions ouvertes"
+      },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "attention": {
+        "title": "Attention requise"
+      },
+      "recentSales": {
+        "title": "Ventes récentes",
+        "description": "Dernières ventes de tickets",
+        "empty": "Aucune vente récente."
+      }
+    },
+    "onboarding": {
+      "title": "Onboarding",
+      "description": "Étapes d'onboarding tenant"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Gestion des utilisateurs"
+    },
+    "sellers": {
+      "title": "Vendeurs",
+      "description": "Gestion des vendeurs"
+    },
+    "outlets": {
+      "title": "Points de vente",
+      "description": "Gestion des points de vente"
+    },
+    "terminals": {
+      "title": "Terminaux",
+      "description": "Gestion des terminaux"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Gestion des sessions caissier"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Configuration du tenant"
+    },
     "seller": {
       "email": "E-mail",
       "error": "Échec de l'onboarding du vendeur.",
@@ -11,6 +60,27 @@
       "success": "Vendeur créé :",
       "terminalId": "Terminal",
       "title": "Onboarding vendeur"
+    },
+    "action": {
+      "outlets": "Points de vente",
+      "sessions": "Sessions",
+      "settings": "Paramètres",
+      "terminals": "Terminaux",
+      "users": "Utilisateurs"
+    },
+    "kpi": {
+      "openSessions": {
+        "label": "Sessions ouvertes"
+      },
+      "outlets": {
+        "label": "Points de vente"
+      },
+      "sellers": {
+        "label": "Vendeurs"
+      },
+      "terminals": {
+        "label": "Terminaux"
+      }
     }
   },
   "app": {
@@ -20,14 +90,16 @@
     },
     "nav": {
       "dashboard": "Mon espace"
-    }
+    },
+    "name": "Tchalanet"
   },
   "auth": {
     "forbidden": {
       "back": "Retour à l'accueil public",
       "body": "Votre rôle actuel ne permet pas d'accéder à cette surface.",
       "title": "Accès interdit"
-    }
+    },
+    "logout": "Déconnexion"
   },
   "common": {
     "error": {
@@ -41,7 +113,12 @@
       "message": "La page demandée est introuvable.",
       "title": "Page introuvable"
     },
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "placeholder": {
+      "title": "Écran en préparation",
+      "message": "Cette fonctionnalité sera disponible prochainement."
+    },
+    "coming_soon": "Bientôt disponible"
   },
   "dashboard": {
     "actions": {
@@ -60,6 +137,48 @@
       "admin": "Tableau de bord admin tenant",
       "cashier": "Tableau de bord caissier",
       "platform": "Tableau de bord plateforme"
+    },
+    "cashier": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "readiness": {
+        "title": "État du poste"
+      }
+    },
+    "superadmin": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "kpis": {
+        "title": "Indicateurs"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "tenants": {
+        "title": "Tenants"
+      }
+    },
+    "tenant_admin": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "kpis": {
+        "title": "Indicateurs"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "readiness": {
+        "title": "État opérationnel"
+      }
     }
   },
   "error": {
@@ -73,16 +192,18 @@
       "title": "Vérifier un ticket"
     },
     "draws": {
-      "title": "Tirages"
+      "title": "Derniers tirages"
     },
     "features": {
       "title": "Fonctionnalités"
     },
     "hero": {
-      "cta": "Commencer la vérification",
-      "subtitle": "Tchalanet aide les opérateurs à gérer les tickets, les tirages, les points de vente et la vérification publique avec plus de transparence.",
+      "cta": "Vérifier un ticket",
+      "eyebrow": "Vérification publique du ticket",
+      "subtitle": "Jouez. Vérifiez. Gagnez.",
       "tagline": "Vérification publique du ticket",
-      "title": "Vérifiez vos tickets et consultez les derniers tirages."
+      "ticket_helper": "Entrez votre code public pour consulter le statut de votre ticket.",
+      "title": "Bienvenue"
     },
     "nav": {
       "check_ticket": "Ticket",
@@ -90,15 +211,66 @@
     },
     "news": {
       "empty": "Aucune actualité pour le moment.",
+      "empty_body": "Les actualités seront bientôt disponibles.",
+      "external_source": "Sources externes agrégées automatiquement.",
+      "see_all": "Voir toutes les actualités",
+      "subtitle": "Dernières nouvelles autour des loteries et opérateurs.",
       "title": "Actualités"
     },
     "plans": {
       "empty": "Aucun plan disponible.",
       "title": "Plans"
+    },
+    "tchala": {
+      "badge": "Tradition",
+      "discover": "Découvrir Tchala",
+      "title": "Tchala",
+      "eyebrow": "Dictionnaire des rêves",
+      "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne.",
+      "search_placeholder": "Rechercher eau, chien, voyage…",
+      "search_label": "Rechercher un rêve",
+      "search_submit": "Chercher",
+      "all_label": "Tous",
+      "alpha_nav_aria": "Navigation alphabétique",
+      "numbers_label": "Numéros associés",
+      "searching": "Chargement…",
+      "search_error": "Erreur lors du chargement. Veuillez réessayer.",
+      "pagination_aria": "Pagination",
+      "prev_page": "Précédent",
+      "next_page": "Suivant",
+      "empty": "Aucun résultat pour cette recherche.",
+      "note_title": "Repères culturels indicatifs",
+      "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
+      "by_number_label": "Chercher par numéro",
+      "by_dream_label": "Chercher par rêve",
+      "suggest": {
+        "title": "Proposez une entrée Tchala",
+        "lead": "Vous connaissez une association rêve–numéro qui manque ? Proposez-la et notre équipe l'examinera.",
+        "lead_short": "Un mot manque ?",
+        "dream_label": "Rêve ou symbole",
+        "dream_placeholder": "ex. Crapaud",
+        "numbers_label": "Numéros associés",
+        "numbers_placeholder": "ex. 12 45",
+        "numbers_hint": "Séparez les numéros par un espace ou une virgule (0–99).",
+        "note_label": "Note (facultatif)",
+        "note_placeholder": "Contexte ou précision culturelle…",
+        "submit": "Proposer",
+        "success": "Merci ! Votre suggestion a été reçue et sera examinée.",
+        "suggest_again": "Proposer un autre mot",
+        "error": "Une erreur est survenue. Veuillez réessayer.",
+        "closed": "La boîte de suggestions est temporairement pleine. Revenez plus tard."
+      },
+      "dream": {
+        "poisson": "Poisson",
+        "serpent": "Serpent",
+        "argent": "Argent",
+        "mariage": "Mariage"
+      }
     }
   },
   "layout": {
     "public_home": {
+      "contact_cta": "Contact",
       "draws": "Tirages",
       "features": "Fonctionnalités",
       "hero": "Hero",
@@ -106,6 +278,22 @@
       "plans": "Plans",
       "tchala": "Tchala",
       "rules": "Règles"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Indicateurs",
+        "quick_actions": "Actions rapides",
+        "readiness_alerts": "État & alertes"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Actions rapides",
+      "readiness_alerts": "État & alertes"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Indicateurs",
+      "quick_actions": "Actions rapides",
+      "tenants_alerts": "Tenants & alertes"
     }
   },
   "footer": {
@@ -118,7 +306,8 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "youtube": "YouTube"
-    }
+    },
+    "release_notes": "Notes de version"
   },
   "legal": {
     "privacy": "Confidentialité",
@@ -126,9 +315,139 @@
   },
   "nav": {
     "check_ticket": "Vérifier un ticket",
-    "results": "Résultats"
+    "results": "Résultats",
+    "platform": {
+      "section": {
+        "platform": "Plateforme"
+      },
+      "dashboard": "Tableau de bord",
+      "tenants": "Tenants",
+      "tenantProvisioning": "Provisionnement tenant",
+      "contactRequests": "Demandes de contact",
+      "news": "Actualités",
+      "notifications": "Notifications",
+      "ops": "Opérations",
+      "spaceTitle": "Plateforme"
+    },
+    "admin": {
+      "section": {
+        "admin": "Administration"
+      },
+      "dashboard": "Tableau de bord",
+      "onboarding": "Onboarding",
+      "users": "Utilisateurs",
+      "sellers": "Vendeurs",
+      "outlets": "Points de vente",
+      "terminals": "Terminaux",
+      "sessions": "Sessions",
+      "settings": "Paramètres",
+      "spaceTitle": "Admin"
+    },
+    "cashier": {
+      "section": {
+        "cashier": "Caissier"
+      },
+      "dashboard": "Tableau de bord",
+      "sell": "Nouveau ticket",
+      "spaceTitle": "Caissier"
+    },
+    "private": {
+      "ariaLabel": "Navigation privée"
+    },
+    "dashboard": "Tableau de bord",
+    "tenant_overview": "Vue d'ensemble",
+    "users": "Utilisateurs",
+    "outlets": "Points de vente",
+    "terminals": "Terminaux",
+    "sessions": "Sessions",
+    "tickets_sales": "Tickets & ventes",
+    "draws": "Tirages",
+    "games_pricing": "Jeux & tarifs",
+    "limits": "Limites",
+    "promotions": "Promotions",
+    "settings": "Paramètres",
+    "translations": "Traductions",
+    "appearance": "Apparence",
+    "reports": "Rapports",
+    "quick_sale": "Vente rapide",
+    "tickets": "Tickets",
+    "verify_ticket": "Vérifier un ticket",
+    "session": "Session",
+    "tenants": "Tenants",
+    "tenant_onboarding": "Onboarding tenant",
+    "subscriptions": "Abonnements",
+    "platform_overview": "Vue plateforme",
+    "platform_health": "Santé plateforme",
+    "platform_reports": "Rapports plateforme",
+    "notifications": "Notifications",
+    "notifications_communications": "Notifications & communications",
+    "audit": "Audit",
+    "cache": "Cache",
+    "jobs_schedulers": "Tâches & planificateurs",
+    "referentials": "Référentiels",
+    "global_settings": "Paramètres globaux",
+    "global_translations": "Traductions globales",
+    "global_draw_channels": "Canaux de tirage globaux",
+    "theme_presets": "Thèmes",
+    "language": "Langue",
+    "theme_toggle": "Thème clair/sombre",
+    "profile": "Profil",
+    "toggle_menu": "Ouvrir/fermer le menu",
+    "section": {
+      "administration": "Administration",
+      "games_sales": "Jeux & ventes",
+      "business_rules": "Règles métier",
+      "personalization": "Personnalisation",
+      "reports": "Rapports",
+      "platform": "Plateforme",
+      "operations": "Opérations",
+      "global_configuration": "Configuration globale"
+    }
   },
   "platform": {
+    "dashboard": {
+      "title": "Plateforme",
+      "description": "Vue d'ensemble de l'infrastructure Tchalanet",
+      "kpi": {
+        "activeTenants": "Tenants actifs",
+        "receivedContacts": "Demandes de contact",
+        "pendingNotifications": "Notifications en attente",
+        "degradedServices": "Services dégradés"
+      },
+      "provisioning": {
+        "title": "Provisionnements récents"
+      },
+      "integrity": {
+        "title": "Intégrité opérationnelle"
+      },
+      "contacts": {
+        "title": "Demandes de contact récentes"
+      }
+    },
+    "tenants": {
+      "title": "Tenants",
+      "description": "Gestion des tenants Tchalanet"
+    },
+    "tenantProvisioning": {
+      "title": "Provisionnement tenant",
+      "description": "Provisionner un nouveau tenant"
+    },
+    "contactRequests": {
+      "title": "Demandes de contact",
+      "description": "Gestion des demandes entrantes"
+    },
+    "news": {
+      "title": "Actualités",
+      "description": "Gestion des actualités plateforme"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Gestion des notifications plateforme"
+    },
+    "ops": {
+      "title": "Opérations",
+      "description": "Statut des services et monitoring"
+    },
     "onboarding": {
       "adminCreated": "Admin tenant créé",
       "code": "Code tenant",
@@ -145,6 +464,33 @@
       "timezone": "Fuseau horaire",
       "title": "Provisionnement de tenant",
       "type": "Type"
+    },
+    "action": {
+      "health": "Santé système",
+      "onboarding": "Onboarding",
+      "settings": "Paramètres",
+      "subscriptions": "Abonnements",
+      "tenants": "Tenants"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Abonnements actifs"
+      },
+      "activeTenants": {
+        "label": "Tenants actifs"
+      },
+      "pendingOnboarding": {
+        "label": "Onboarding en attente"
+      },
+      "suspendedTenants": {
+        "label": "Tenants suspendus"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenants avec incidents"
+      },
+      "totalTenants": {
+        "label": "Total tenants"
+      }
     }
   },
   "public": {
@@ -158,9 +504,10 @@
       },
       "solutions": {
         "check_ticket": "Vérification de tickets",
-        "operators": "Pour opérateurs",
-        "pos_management": "Gestion points de vente",
-        "title": "Solutions"
+        "operators": "Pour gestionnaires",
+        "pos_management": "Gestion des points de vente",
+        "title": "Solutions",
+        "ticket_verification": "Vérification de ticket"
       },
       "status": {
         "operational": "Systèmes opérationnels"
@@ -171,14 +518,28 @@
         "results": "Résultats",
         "rules": "Règles",
         "status": "État du système",
-        "title": "Support"
+        "title": "Support",
+        "system_status": "État du système"
       }
     },
     "help": {
-      "payment_answer": "Tchalanet permet de consulter le statut du ticket. Le paiement, lorsqu’il est applicable, se fait selon les instructions du point de vente participant.",
-      "payment_question": "Est-ce que Tchalanet paie directement ?",
-      "subtitle": "Réponses aux questions courantes sur la vérification, les résultats et les paiements.",
-      "title": "Aide"
+      "cat_aria": "Catégories d'aide",
+      "cat_games": "Jeux",
+      "cat_payments": "Paiements",
+      "cat_security": "Sécurité",
+      "cat_withdrawals": "Retraits",
+      "faq_title": "Questions fréquentes",
+      "hero_body": "Trouvez des réponses rapides ou contactez notre support.",
+      "hero_title": "Comment pouvons-nous vous aider ?",
+      "search_label": "Rechercher une question",
+      "search_placeholder": "Rechercher…",
+      "support_direct_body": "Nos agents sont disponibles pour vous assister dans vos démarches.",
+      "support_direct_cta": "Parler à un agent",
+      "support_direct_title": "Support direct",
+      "support_section_aria": "Options de support",
+      "support_ticket_body": "Si votre problème nécessite une enquête approfondie, ouvrez un ticket.",
+      "support_ticket_cta": "Ouvrir un ticket",
+      "support_ticket_title": "Envoyer un ticket"
     },
     "hero": {
       "primary_action": "Commencer la vérification",
@@ -187,20 +548,20 @@
     "how": {
       "description": "Un parcours simple pour consulter le statut d’un ticket et suivre les résultats disponibles.",
       "step1": {
-        "text": "Recevez un ticket avec QR ou code public émis par un point de vente participant.",
-        "title": "Ticket vérifiable"
+        "title": "Ticket vérifiable",
+        "text": "Recevez un ticket avec QR ou code public."
       },
       "step2": {
-        "text": "Entrez le code public ou scannez le QR pour consulter le statut du ticket.",
-        "title": "Vérification en ligne"
+        "title": "Vérification en ligne",
+        "text": "Scannez le QR ou entrez le code public."
       },
       "step3": {
-        "text": "Consultez le statut du ticket et les résultats confirmés selon les sources prises en charge.",
-        "title": "Statut & résultats"
+        "title": "Statut & résultats",
+        "text": "Consultez le statut du ticket et les résultats liés."
       },
       "step4": {
-        "text": "Si le ticket est payable, suivez les instructions affichées pour contacter le point de vente.",
-        "title": "Instructions de paiement"
+        "title": "Instructions de retrait",
+        "text": "Si le ticket est payable, suivez les instructions affichées."
       },
       "title": "Comment vérifier un ticket ?"
     },
@@ -222,25 +583,147 @@
       },
       "settings": "Paramètres",
       "subtitle": "La route publique est disponible sans connexion.",
-      "title": "Tchalanet Web"
+      "title": "Tchalanet Web",
+      "latest_results": {
+        "title": "Derniers tirages",
+        "subtitle": "Résultats confirmés selon les sources prises en charge."
+      }
     },
     "nav": {
       "check_ticket": "Vérifier un ticket",
       "help": "Aide",
-      "login": "Connexion",
-      "menu": "Ouvrir le menu",
-      "operators": "Pour opérateurs",
-      "results": "Résultats",
-      "skip": "Aller au contenu",
-      "verify_short": "Vérifier",
       "home": "Accueil",
-      "rules": "Règles"
+      "login": "Connexion",
+      "main": "Navigation principale",
+      "menu": "Ouvrir le menu",
+      "menu_close": "Fermer le menu",
+      "menu_open": "Ouvrir le menu",
+      "managers": "Pour gestionnaires",
+      "operators": "Pour opérateurs",
+      "operators_short": "Opérateurs",
+      "results": "Résultats",
+      "rules": "Règles",
+      "skip": "Aller au contenu",
+      "verify_short": "Vérifier"
+    },
+    "manager": {
+      "access": "Accès gestionnaire",
+      "demo": "Demander une démo",
+      "discover": "Découvrir l’espace gestionnaire",
+      "description": "Pour les points de vente, vendeurs et gestionnaires de réseau. Vendez des tickets, suivez les sessions, vérifiez les résultats et consultez vos rapports.",
+      "title": "Espace gestionnaire",
+      "eyebrow": "Pour gestionnaires"
     },
     "operator": {
-      "access": "Accès opérateur",
+      "access": "Accès gestionnaire",
       "demo": "Demander une démo",
-      "description": "Découvrez comment Tchalanet peut simplifier votre gestion quotidienne, mieux suivre vos ventes et automatiser vos rapports d’activité.",
-      "title": "Vous gérez un point de vente ou un réseau de vendeurs ?"
+      "discover": "Découvrir l’espace gestionnaire",
+      "description": "Pour les points de vente, vendeurs et gestionnaires de réseau. Vendez des tickets, suivez les sessions, vérifiez les résultats et consultez vos rapports.",
+      "title": "Espace gestionnaire",
+      "eyebrow": "Pour gestionnaires",
+      "hero_aria": "Section opérateurs",
+      "hero_title": "Gérez vos vendeurs, tickets et rapports avec plus de clarté.",
+      "hero_body": "Tchalanet aide les banques borlette, points de vente et réseaux de vendeurs à émettre des tickets, suivre les sessions, vérifier les résultats et consulter les rapports d'activité.",
+      "hero_stat_tickets": "Tickets aujourd'hui",
+      "hero_stat_sessions": "Sessions ouvertes",
+      "hero_stat_agents": "Vendeurs actifs",
+      "hero_stat_payments": "Paiements à suivre",
+      "cta_demo": "Demander une démo",
+      "cta_plans": "Découvrir les fonctionnalités",
+      "benefits_title": "Ce que Tchalanet apporte à vos opérations",
+      "benefits_body": "Une infrastructure pensée pour les points de vente et réseaux de vendeurs au quotidien.",
+      "benefit_agents_title": "Vendeurs et terminaux",
+      "benefit_agents_body": "Attribuez les vendeurs à des points de vente et terminaux autorisés.",
+      "benefit_tickets_title": "Vente et impression de tickets",
+      "benefit_tickets_body": "Émettez des tickets avec QR/code public pour faciliter la vérification.",
+      "benefit_verify_title": "Vérification publique",
+      "benefit_verify_body": "Permettez aux clients de vérifier un ticket sans accéder à l'espace gestionnaire.",
+      "benefit_results_title": "Résultats et statuts",
+      "benefit_results_body": "Suivez les résultats confirmés et les statuts des tickets.",
+      "benefit_payments_title": "Paiements et suivi",
+      "benefit_payments_body": "Identifiez les tickets payables et gardez une trace des paiements.",
+      "benefit_reports_title": "Rapports d'activité",
+      "benefit_reports_body": "Consultez les ventes, sessions et performances de votre réseau.",
+      "workflow_title": "Comment ça fonctionne",
+      "step1_title": "Configurez",
+      "step1_body": "Ajoutez points de vente, terminaux et vendeurs.",
+      "step2_title": "Vendez",
+      "step2_body": "Émettez des tickets depuis les terminaux autorisés.",
+      "step3_title": "Vérifiez",
+      "step3_body": "Les tickets peuvent être vérifiés par QR ou code public.",
+      "step4_title": "Suivez",
+      "step4_body": "Consultez les ventes, paiements et rapports.",
+      "plans_title": "Offres pour gestionnaires",
+      "plans_body": "Choisissez le niveau d'accompagnement adapté à votre réseau.",
+      "plan_trial_title": "Essai",
+      "plan_trial_price": "Disponible",
+      "plan_trial_body": "Testez Tchalanet avec quelques vendeurs avant un déploiement complet.",
+      "plan_trial_cta": "Demander un essai",
+      "plan_essential_title": "Point de vente",
+      "plan_essential_price": "Sur demande",
+      "plan_essential_body": "Pour un point de vente qui veut démarrer simplement.",
+      "plan_essential_cta": "Demander une démo",
+      "plan_network_title": "Réseau",
+      "plan_network_price": "Sur demande",
+      "plan_network_body": "Pour plusieurs vendeurs, terminaux ou points de vente.",
+      "plan_network_cta": "Demander une démo",
+      "plan_operator_title": "Sur mesure",
+      "plan_operator_price": "Selon configuration",
+      "plan_operator_body": "Pour une organisation avec besoins avancés.",
+      "plan_operator_cta": "Contacter l'équipe",
+      "plan_badge_recommended": "CONSEILLÉ",
+      "feat_limits": "limites définies par le plan",
+      "feat_verify": "vérification publique des tickets",
+      "feat_results": "résultats consultables",
+      "feat_reports_basic": "rapports de base",
+      "feat_sell": "vente et impression de tickets",
+      "feat_verify_qr": "vérification publique par QR ou code",
+      "feat_access_results": "accès aux résultats",
+      "feat_vendor_basic": "configuration vendeur de base",
+      "feat_agent_mgmt": "gestion vendeurs, terminaux et sessions",
+      "feat_reports_full": "rapports d'activité",
+      "feat_payments": "suivi des paiements",
+      "feat_pos_config": "configuration par point de vente",
+      "feat_multi_pos": "multi-points de vente",
+      "feat_advanced_perms": "permissions avancées",
+      "feat_reports_consolidated": "rapports consolidés",
+      "feat_integration": "accompagnement d'intégration",
+      "access_title": "Des accès contrôlés pour chaque organisation",
+      "access_body": "Chaque utilisateur voit uniquement les fonctions autorisées selon son rôle, son point de vente, son terminal et le plan actif.",
+      "access_rights_title": "Rôles utilisateurs",
+      "access_rights_body": "Admin, superviseur, vendeur ou caissier selon vos besoins.",
+      "access_subscription_title": "Terminaux autorisés",
+      "access_subscription_body": "Les ventes sont liées à des terminaux et sessions contrôlées.",
+      "access_plan_title": "Plans et limites",
+      "access_plan_body": "Les accès et limites sont appliqués selon votre configuration.",
+      "form_title": "Demander une démonstration",
+      "form_body": "Décrivez votre point de vente ou votre réseau. Nous vous recontacterons avec une démonstration adaptée.",
+      "form_name_label": "Nom",
+      "form_name_placeholder": "Ex: Reginald Louisjuste",
+      "form_org_label": "Organisation / point de vente",
+      "form_org_placeholder": "Ex: Borlette Étoile du Nord",
+      "form_contact_label": "Téléphone ou email",
+      "form_contact_placeholder": "contact@exemple.com",
+      "form_city_label": "Ville / zone",
+      "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
+      "form_message_label": "Message optionnel",
+      "form_message_placeholder": "Ex: J'ai 3 vendeurs à Carrefour et je cherche à gérer mes tirages quotidiens.",
+      "form_cta": "Demander une démo",
+      "form_sending": "Envoi en cours...",
+      "form_sent": "Demande envoyée !",
+      "faq_title": "Questions fréquentes",
+      "faq_trial_q": "Comment fonctionne la période d'essai ?",
+      "faq_trial_a": "La période d'essai vous permet de tester l'application avec un nombre limité de vendeurs ou terminaux selon le plan disponible.",
+      "faq_terminals_q": "Combien de vendeurs ou terminaux puis-je utiliser ?",
+      "faq_terminals_a": "Les limites dépendent du plan choisi. Contactez-nous pour connaître la configuration adaptée à votre réseau.",
+      "faq_verify_q": "Comment les clients vérifient-ils un ticket ?",
+      "faq_verify_a": "Chaque ticket a un code public ou QR permettant à n'importe qui de vérifier son statut sans accéder à l'espace gestionnaire.",
+      "faq_expired_q": "Que se passe-t-il si mon accès est suspendu ?",
+      "faq_expired_a": "Les fonctionnalités sont limitées jusqu'à régularisation. Contactez l'équipe pour réactiver votre accès.",
+      "faq_multipos_q": "Puis-je gérer plusieurs points de vente ?",
+      "faq_multipos_a": "Oui. Les plans Réseau et Sur mesure permettent de configurer plusieurs points de vente et de centraliser les rapports.",
+      "faq_mobile_q": "Est-ce que mes vendeurs peuvent utiliser Tchalanet sur mobile ?",
+      "faq_mobile_a": "Oui. L'application POS Tchalanet est disponible sur mobile pour les vendeurs autorisés."
     },
     "check": {
       "code_hint": "Le format du code se trouve au bas de votre reçu imprimé.",
@@ -249,34 +732,64 @@
       "loading_body": "Consultation temporaire du service de vérification publique.",
       "loading_title": "Vérification du ticket en cours…",
       "status": {
-        "INVALID_OR_CANCELLED": {
-          "body": "Ce ticket ne peut pas être vérifié comme payable.",
-          "title": "Ticket invalide ou annulé"
+        "WINNING_PAYABLE": {
+          "title": "Ticket gagnant — paiement à réclamer",
+          "body": "Ce ticket présente un gain. Présentez le reçu original au point de vente participant pour encaisser votre gain selon les instructions affichées."
         },
-        "NOT_FOUND": {
-          "body": "Code invalide ou introuvable. Vérifiez le code et réessayez.",
-          "title": "Ticket introuvable"
+        "WINNING_PAID": {
+          "title": "Ticket gagnant — déjà payé",
+          "body": "Ce ticket a déjà été présenté et payé. Si vous pensez qu'il s'agit d'une erreur, contactez le service client Tchalanet."
         },
-        "NOT_PAYABLE": {
-          "body": "Ce ticket ne présente pas de montant payable selon les résultats disponibles.",
-          "title": "Ticket non payable"
-        },
-        "PAYABLE": {
-          "body": "Si le ticket est payable, suivez les instructions affichées pour contacter le point de vente. Conservez toujours le reçu original.",
-          "title": "Ticket payable"
+        "LOST": {
+          "title": "Ticket non gagnant",
+          "body": "Ce ticket ne présente pas de gain selon les résultats disponibles. Merci d'avoir participé."
         },
         "PENDING_RESULT": {
-          "body": "Le ticket est reconnu, mais le résultat du tirage n’est pas encore disponible.",
-          "title": "Ticket en attente de résultat"
+          "title": "Ticket en attente de résultat",
+          "body": "Le ticket est reconnu, mais le résultat du tirage n'est pas encore disponible. Revenez vérifier après le tirage."
+        },
+        "CANCELLED": {
+          "title": "Ticket annulé",
+          "body": "Ce ticket a été annulé et ne peut pas être payé. Contactez le point de vente si vous pensez qu'il s'agit d'une erreur."
+        },
+        "EXPIRED": {
+          "title": "Ticket expiré",
+          "body": "Le délai de réclamation pour ce ticket est dépassé. Les tickets Tchalanet doivent être présentés dans les délais impartis."
+        },
+        "BLOCKED": {
+          "title": "Ticket bloqué",
+          "body": "Ce ticket est temporairement bloqué. Contactez votre point de vente ou le service client Tchalanet pour plus d'informations."
+        },
+        "NOT_FOUND": {
+          "title": "Ticket introuvable",
+          "body": "Code invalide ou introuvable. Vérifiez le code imprimé sur votre reçu et réessayez."
         },
         "SERVICE_UNAVAILABLE": {
-          "body": "La vérification est temporairement indisponible. Réessayez dans quelques instants.",
-          "title": "Service temporairement indisponible"
+          "title": "Service temporairement indisponible",
+          "body": "La vérification est temporairement indisponible. Réessayez dans quelques instants."
         }
       },
+      "result_eyebrow": "Résultat de la vérification",
+      "security_body": "Ce résultat est généré en temps réel par le système de vérification Tchalanet. Aucune donnée de ticket n'est conservée après la consultation.",
+      "security_title": "Résultat sécurisé",
       "status_label": "Statut du ticket",
       "verify_another": "Vérifier un autre ticket",
       "visual_badge": "Ticket vérifiable"
+    },
+    "markdown": {
+      "error": "Impossible de charger ce contenu. Veuillez réessayer.",
+      "loading": "Chargement du contenu…"
+    },
+    "news": {
+      "feed_aria": "Fil d'actualités",
+      "filter_all": "Tout",
+      "filter_aria": "Filtrer les actualités",
+      "filter_promo": "Promotions",
+      "filter_results": "Résultats",
+      "filter_system": "Système",
+      "filter_tchala": "Tchala",
+      "title": "Actualités",
+      "empty": "Aucune actualité pour ce filtre."
     },
     "pages": {
       "check-ticket": {
@@ -319,7 +832,7 @@
       }
     },
     "results": {
-      "all": "Tous les tirages",
+      "all": "Tous les résultats",
       "detail": "Voir détail",
       "detail_eyebrow": "Statut du résultat",
       "detail_status": {
@@ -327,13 +840,17 @@
           "body": "Ce résultat est disponible selon les sources prises en charge.",
           "title": "Résultats confirmés"
         },
-        "PENDING": {
-          "body": "Le statut du résultat est en attente. Revenez plus tard pour consulter les informations mises à jour.",
-          "title": "En attente"
+        "PROVISIONAL": {
+          "body": "Les numéros sont publiés mais le résultat est en attente de confirmation finale.",
+          "title": "En attente de confirmation"
         },
-        "UNAVAILABLE": {
-          "body": "Le résultat est temporairement indisponible pour ce tirage.",
-          "title": "Indisponible"
+        "OVERRIDDEN": {
+          "body": "Ce résultat a été manuellement corrigé selon une source validée.",
+          "title": "Résultats corrigés"
+        },
+        "ERROR": {
+          "body": "Une erreur est survenue pour ce résultat. Revenez plus tard.",
+          "title": "Résultat en erreur"
         }
       },
       "draw_datetime": "Date et heure du tirage",
@@ -349,7 +866,16 @@
         "florida": "Florida",
         "georgia": "Georgia",
         "more": "Plus de filtres",
-        "new_york": "New York"
+        "new_york": "New York",
+        "texas": "Texas",
+        "provider": "Province / état",
+        "slot_type": "Type de tirage",
+        "slot_all": "Tous",
+        "slot_mid": "Midi",
+        "slot_eve": "Soir",
+        "slot_late": "Nuit",
+        "from": "Du",
+        "to": "Au"
       },
       "game": "Jeu",
       "latest_title": "Derniers tirages",
@@ -374,16 +900,51 @@
       "related_title": "Résultats liés",
       "status": {
         "CONFIRMED": "Résultats confirmés",
-        "PENDING": "En attente",
-        "UNAVAILABLE": "Indisponible"
+        "PROVISIONAL": "En attente de confirmation",
+        "OVERRIDDEN": "Résultats corrigés",
+        "ERROR": "Résultat en erreur"
       },
       "status_label": "Statut du résultat",
       "subtitle": "Résultats confirmés selon les sources prises en charge.",
       "supported_source": "Source prise en charge",
-      "verify_ticket": "Vérifier un ticket"
+      "verify_ticket": "Vérifier un ticket",
+      "numbers_pending": "Numéros en attente de publication.",
+      "loading": "Chargement des tirages…",
+      "load_error": "Impossible de charger les résultats. Vérifiez votre connexion.",
+      "retry": "Réessayer",
+      "pagination": {
+        "prev": "Précédent",
+        "next": "Suivant",
+        "total": "résultat(s)",
+        "per_page": "Par page"
+      },
+      "next_in": "Prochain tirage dans",
+      "awaiting": "En attente des résultats",
+      "table": {
+        "date": "Date",
+        "draw": "Tirage",
+        "time": "Heure",
+        "status": "Statut",
+        "numbers": "Numéros",
+        "action": "Action"
+      },
+      "copy_ref": "Copier la référence",
+      "copied": "Copié !"
+    },
+    "contact_cta": {
+      "body": "Expliquez-nous votre point de vente ou votre réseau. Nous vous recontacterons pour une démonstration adaptée.",
+      "cta": "Demander une démo",
+      "help": "Voir l'aide",
+      "title": "Prêt à découvrir Tchalanet ?"
     },
     "rules": {
       "badge": "Indicatif",
+      "cta_note": "Simulation indicative disponible selon les jeux configurés.",
+      "cta_rules": "Consulter les règles",
+      "calc_amount_label": "Mise (HTG)",
+      "calc_gain_label": "Gain estimé",
+      "calc_game_aria": "Sélectionner le type de jeu",
+      "calc_note": "Indicatif — non garanti",
       "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du point de vente, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
       "games": {
         "borlette": {
@@ -462,15 +1023,123 @@
       "description": "Entrez votre code public pour consulter le statut de votre ticket.",
       "eyebrow": "Vérification publique du ticket",
       "help": "Où trouver le code public ?",
-      "placeholder": "ABC-123-XYZ",
+      "placeholder": "AB12-CD34",
       "scan_qr": "Scanner QR",
-      "title": "Vérifier un ticket"
+      "title": "Vérifier un ticket",
+      "status_pending": "En attente"
+    },
+    "tchala": {
+      "eyebrow": "Dictionnaire des rêves",
+      "title": "Tchala",
+      "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne.",
+      "search_label": "Rechercher un rêve",
+      "search_placeholder": "Rechercher eau, chien, voyage…",
+      "alpha_nav_aria": "Navigation alphabétique",
+      "all_label": "Tous",
+      "numbers_label": "Numéros associés",
+      "searching": "Chargement…",
+      "search_error": "Erreur lors du chargement. Veuillez réessayer.",
+      "pagination_aria": "Pagination",
+      "prev_page": "Précédent",
+      "next_page": "Suivant",
+      "empty": "Aucun résultat pour cette recherche.",
+      "note_title": "Repères culturels indicatifs",
+      "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
+      "suggest": {
+        "title": "Proposez une entrée Tchala",
+        "lead": "Vous connaissez une association rêve–numéro qui manque ? Proposez-la et notre équipe l'examinera.",
+        "lead_short": "Un mot manque ?",
+        "dream_label": "Rêve ou symbole",
+        "dream_placeholder": "ex. Crapaud",
+        "numbers_label": "Numéros associés",
+        "numbers_placeholder": "ex. 12 45",
+        "numbers_hint": "Séparez les numéros par un espace ou une virgule (0–99).",
+        "note_label": "Note (facultatif)",
+        "note_placeholder": "Contexte ou précision culturelle…",
+        "submit": "Proposer",
+        "success": "Merci ! Votre suggestion a été reçue et sera examinée.",
+        "suggest_again": "Proposer un autre mot",
+        "error": "Une erreur est survenue. Veuillez réessayer.",
+        "closed": "La boîte de suggestions est temporairement pleine. Revenez plus tard."
+      }
+    },
+    "contact": {
+      "intent_label": "Type de demande",
+      "intents": {
+        "REQUEST_DEMO": "Demander une démo",
+        "BECOME_OPERATOR": "Devenir opérateur",
+        "SUPPORT": "Support / Question",
+        "PARTNERSHIP": "Partenariat",
+        "OTHER": "Autre"
+      },
+      "full_name_label": "Nom complet",
+      "phone_label": "Téléphone / WhatsApp",
+      "email_label": "Adresse email (optionnel)",
+      "organization_label": "Organisation (optionnel)",
+      "city_label": "Ville",
+      "country_label": "Pays",
+      "message_label": "Message",
+      "consent_label": "J'accepte d'être contacté par l'équipe Tchalanet",
+      "submit_cta": "Envoyer ma demande",
+      "submitting": "Envoi en cours…",
+      "success_title": "Demande reçue",
+      "success_body": "Votre demande a été reçue. Notre équipe vous contactera bientôt.",
+      "error_title": "Erreur",
+      "error_body": "Une erreur est survenue. Veuillez réessayer.",
+      "reset_cta": "Nouvelle demande"
+    }
+  },
+  "cashier": {
+    "dashboard": {
+      "title": "Tableau de bord",
+      "description": "Votre activité de vente",
+      "action": {
+        "newTicket": "Nouveau ticket"
+      },
+      "kpi": {
+        "todaySales": "Ventes du jour",
+        "commission": "Commission",
+        "tickets": "Tickets"
+      },
+      "blocked": {
+        "title": "Session bloquée",
+        "message": "Votre session est actuellement bloquée. Contactez votre superviseur."
+      }
+    },
+    "session": {
+      "title": "Session",
+      "openedAt": "Ouverte à"
+    },
+    "draw": {
+      "title": "Tirage en cours"
+    },
+    "printer": {
+      "title": "Imprimante"
+    },
+    "tickets": {
+      "title": "Tickets récents",
+      "print": "Imprimer"
+    },
+    "quickActions": {
+      "title": "Actions rapides",
+      "newTicket": "Nouveau ticket",
+      "history": "Historique",
+      "closeSession": "Fermer la session"
+    },
+    "sell": {
+      "title": "Nouveau ticket",
+      "description": "Émettre un nouveau ticket"
     }
   },
   "widget": {
     "error": "Ce contenu est momentanément indisponible.",
     "invalid": "Widget invalide.",
     "unsupported": "Type de widget non pris en charge."
+  },
+  "ticket": {
+    "status": {
+      "pending": "En attente"
+    }
   },
   "theme": {
     "modes": {
@@ -492,5 +1161,95 @@
       "m3-amber": "Material ambre",
       "m3-brown": "Material marron"
     }
+  },
+  "draw_channel": {
+    "ny": {
+      "mid": {
+        "label": "New York — Midi"
+      },
+      "eve": {
+        "label": "New York — Soir"
+      }
+    },
+    "fl": {
+      "mid": {
+        "label": "Florida — Midi"
+      },
+      "eve": {
+        "label": "Florida — Soir"
+      }
+    },
+    "ga": {
+      "mid": {
+        "label": "Georgia — Midi"
+      },
+      "eve": {
+        "label": "Georgia — Soir"
+      },
+      "late": {
+        "label": "Georgia — Nuit"
+      }
+    },
+    "tx": {
+      "1000": {
+        "label": "Texas — 10:00"
+      },
+      "1227": {
+        "label": "Texas — 12:27"
+      },
+      "1800": {
+        "label": "Texas — 18:00"
+      },
+      "2212": {
+        "label": "Texas — 22:12"
+      }
+    }
+  },
+  "catalog": {
+    "game": {
+      "HT_BOLET": "Bolet",
+      "HT_MARYAJ": "Mariage",
+      "HT_MARYAJ_GRATUIT": "Mariage Gratuit",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "bet_type": {
+      "MATCH_1_2D": "1er lot",
+      "MATCH_2_2D": "2e lot",
+      "MATCH_3_2D": "3e lot",
+      "MARRIAGE_2D2D": "Mariage",
+      "MARRIAGE_2D": "Mariage",
+      "LOTTO3_3D": "Loto 3 chiffres",
+      "LOTTO4_PATTERN": "Loto 4 chiffres",
+      "LOTTO5_PATTERN": "Loto 5 chiffres"
+    },
+    "option": {
+      "Exact": "Exact",
+      "EXACT": "Exact",
+      "Any": "Tout ordre",
+      "ANY": "Tout ordre",
+      "Front": "Avant",
+      "Back": "Arrière"
+    }
+  },
+  "surface": {
+    "cashier": "Caissier",
+    "platform_admin": "Plateforme",
+    "tenant_admin": "Administration"
+  },
+  "cta": {
+    "close_session": "Fermer la session",
+    "sell_ticket": "Vendre un ticket",
+    "verify_ticket": "Vérifier un ticket"
+  },
+  "brand": {
+    "logo_alt": "Logo Tchalanet"
+  },
+  "profile": {
+    "avatar_alt": "Avatar utilisateur"
+  },
+  "readiness": {
+    "noIssues": "Aucun problème"
   }
 }

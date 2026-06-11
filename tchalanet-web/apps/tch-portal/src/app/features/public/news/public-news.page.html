@@ -1,0 +1,47 @@
+<div class="news-page">
+  <div class="news-page__header">
+    <div class="news-page__title-row">
+      <h1>{{ 'public.news.title' | translate }}</h1>
+      <span class="news-page__live-badge">LIVE</span>
+    </div>
+    <nav class="news-page__filters" [attr.aria-label]="'public.news.filter_aria' | translate">
+      @for (filter of filters; track filter.id) {
+        <button
+          type="button"
+          class="news-page__filter-pill"
+          [class.news-page__filter-pill--active]="activeFilter() === filter.id"
+          (click)="setFilter(filter.id)"
+        >{{ filter.labelKey | translate }}</button>
+      }
+    </nav>
+  </div>
+
+  <div class="news-page__feed" role="feed" [attr.aria-label]="'public.news.feed_aria' | translate">
+    @for (item of filteredItems(); track item.id) {
+      <article
+        class="news-page__article"
+        [class.news-page__article--accent-primary]="item.accent === 'primary'"
+        [class.news-page__article--accent-secondary]="item.accent === 'secondary'"
+      >
+        <div class="news-page__thumb" [attr.aria-hidden]="true">
+          <span class="material-symbols-outlined">{{ item.icon }}</span>
+        </div>
+        <div class="news-page__body">
+          <div class="news-page__meta">
+            <span
+              class="news-page__category"
+              [class.news-page__category--primary]="item.categoryStyle === 'primary'"
+              [class.news-page__category--secondary]="item.categoryStyle === 'secondary'"
+              [class.news-page__category--neutral]="item.categoryStyle === 'neutral'"
+            >{{ item.categoryLabel }}</span>
+            <span class="news-page__time">{{ item.time }}</span>
+          </div>
+          <h2 class="news-page__article-title">{{ item.title }}</h2>
+          <p class="news-page__excerpt">{{ item.excerpt }}</p>
+        </div>
+      </article>
+    } @empty {
+      <p class="news-page__empty">{{ 'public.news.empty' | translate }}</p>
+    }
+  </div>
+</div>

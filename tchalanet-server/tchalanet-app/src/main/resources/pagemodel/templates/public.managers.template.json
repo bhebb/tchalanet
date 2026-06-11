@@ -1,0 +1,298 @@
+{
+  "code": "public.managers",
+  "logicalId": "public.managers",
+  "scope": "public",
+  "slug": "managers",
+  "name": "Public managers",
+  "label": "Pour gestionnaires",
+  "schemaVersion": 2,
+  "schema": {},
+  "isDefault": false,
+  "level": "GLOBAL",
+  "description": "Page publique pour gestionnaires (banques borlette, points de vente, réseaux de vendeurs).",
+  "model": {
+    "meta": {
+      "id": "public.managers",
+      "scope": "public",
+      "slug": "managers",
+      "context": "public_managers",
+      "schemaVersion": 2,
+      "langs": ["fr", "en", "ht"],
+      "defaultLang": "fr"
+    },
+    "theme": {
+      "presetId": "tchalanet",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "header": {
+        "component": "PublicHeader",
+        "binding": {
+          "mode": "dynamic",
+          "source": "jsonFile"
+        },
+        "props": {
+          "fileKey": "public_header_links"
+        }
+      },
+      "footer": {
+        "component": "PublicFooter",
+        "binding": {
+          "mode": "dynamic",
+          "source": "jsonFile"
+        },
+        "props": {
+          "fileKey": "public_footer_links"
+        }
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "hero",
+            "labelKey": "layout.public_managers.hero",
+            "columns": [{ "span": 12, "widgets": ["managers.hero"] }]
+          },
+          {
+            "id": "features",
+            "labelKey": "layout.public_managers.features",
+            "columns": [{ "span": 12, "widgets": ["managers.features"] }]
+          },
+          {
+            "id": "process",
+            "labelKey": "layout.public_managers.process",
+            "columns": [{ "span": 12, "widgets": ["managers.process"] }]
+          },
+          {
+            "id": "plans",
+            "labelKey": "layout.public_managers.plans",
+            "columns": [{ "span": 12, "widgets": ["managers.plans"] }]
+          },
+          {
+            "id": "accessControl",
+            "labelKey": "layout.public_managers.access_control",
+            "columns": [{ "span": 12, "widgets": ["managers.accessControl"] }]
+          },
+          {
+            "id": "leadForm",
+            "labelKey": "layout.public_managers.lead_form",
+            "columns": [{ "span": 12, "widgets": ["managers.leadForm"] }]
+          },
+          {
+            "id": "faq",
+            "labelKey": "layout.public_managers.faq",
+            "columns": [{ "span": 12, "widgets": ["managers.faq"] }]
+          }
+        ]
+      },
+      "widgets": {
+        "managers.hero": {
+          "type": "PublicBusinessHeroWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "eyebrowKey": "public.operator.eyebrow",
+            "titleKey": "public.operator.hero_title",
+            "descriptionKey": "public.operator.hero_body",
+            "stats": [
+              { "id": "tickets",  "icon": "confirmation_number", "labelKey": "public.operator.hero_stat_tickets",  "value": "247" },
+              { "id": "sessions", "icon": "timer",               "labelKey": "public.operator.hero_stat_sessions", "value": "3"   },
+              { "id": "agents",   "icon": "group",               "labelKey": "public.operator.hero_stat_agents",   "value": "12"  },
+              { "id": "payments", "icon": "payments",            "labelKey": "public.operator.hero_stat_payments", "value": "5", "highlight": true }
+            ],
+            "primaryAction": {
+              "id": "requestDemo",
+              "kind": "anchor",
+              "labelKey": "public.operator.cta_demo",
+              "destination": { "kind": "anchor", "value": "#manager-demo-form" }
+            },
+            "secondaryAction": {
+              "id": "discoverFeatures",
+              "kind": "anchor",
+              "labelKey": "public.operator.cta_plans",
+              "destination": { "kind": "anchor", "value": "#managers-features" }
+            }
+          }
+        },
+
+        "managers.features": {
+          "type": "PublicBusinessFeaturesWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "titleKey": "public.operator.benefits_title",
+            "subtitleKey": "public.operator.benefits_body",
+            "items": [
+              { "id": "vendors_terminals",  "icon": "group",         "titleKey": "public.operator.benefit_agents_title",   "descriptionKey": "public.operator.benefit_agents_body"   },
+              { "id": "ticket_sales",       "icon": "qr_code_2",     "titleKey": "public.operator.benefit_tickets_title",  "descriptionKey": "public.operator.benefit_tickets_body"  },
+              { "id": "public_verify",      "icon": "verified",      "titleKey": "public.operator.benefit_verify_title",   "descriptionKey": "public.operator.benefit_verify_body"   },
+              { "id": "results_statuses",   "icon": "fact_check",    "titleKey": "public.operator.benefit_results_title",  "descriptionKey": "public.operator.benefit_results_body"  },
+              { "id": "payout_tracking",    "icon": "payments",      "titleKey": "public.operator.benefit_payments_title", "descriptionKey": "public.operator.benefit_payments_body" },
+              { "id": "activity_reports",   "icon": "analytics",     "titleKey": "public.operator.benefit_reports_title",  "descriptionKey": "public.operator.benefit_reports_body"  }
+            ]
+          }
+        },
+
+        "managers.process": {
+          "type": "PublicBusinessProcessWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "titleKey": "public.operator.workflow_title",
+            "steps": [
+              { "id": "configure", "number": 1, "titleKey": "public.operator.step1_title", "descriptionKey": "public.operator.step1_body" },
+              { "id": "sell",      "number": 2, "titleKey": "public.operator.step2_title", "descriptionKey": "public.operator.step2_body" },
+              { "id": "verify",    "number": 3, "titleKey": "public.operator.step3_title", "descriptionKey": "public.operator.step3_body" },
+              { "id": "track",     "number": 4, "titleKey": "public.operator.step4_title", "descriptionKey": "public.operator.step4_body" }
+            ]
+          }
+        },
+
+        "managers.plans": {
+          "type": "PublicBusinessPlansWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "titleKey": "public.operator.plans_title",
+            "subtitleKey": "public.operator.plans_body",
+            "items": [
+              {
+                "id": "trial",
+                "highlighted": false,
+                "badgeKey": null,
+                "nameKey": "public.operator.plan_trial_title",
+                "priceKey": "public.operator.plan_trial_price",
+                "descriptionKey": "public.operator.plan_trial_body",
+                "features": [
+                  "public.operator.feat_limits",
+                  "public.operator.feat_verify",
+                  "public.operator.feat_results",
+                  "public.operator.feat_reports_basic"
+                ],
+                "action": {
+                  "id": "requestTrial",
+                  "style": "secondary",
+                  "labelKey": "public.operator.plan_trial_cta",
+                  "destination": { "kind": "anchor", "value": "#manager-demo-form" }
+                }
+              },
+              {
+                "id": "point_of_sale",
+                "highlighted": false,
+                "badgeKey": null,
+                "nameKey": "public.operator.plan_essential_title",
+                "priceKey": "public.operator.plan_essential_price",
+                "descriptionKey": "public.operator.plan_essential_body",
+                "features": [
+                  "public.operator.feat_sell",
+                  "public.operator.feat_verify_qr",
+                  "public.operator.feat_access_results",
+                  "public.operator.feat_vendor_basic"
+                ],
+                "action": {
+                  "id": "requestDemoPos",
+                  "style": "secondary",
+                  "labelKey": "public.operator.plan_essential_cta",
+                  "destination": { "kind": "anchor", "value": "#manager-demo-form" }
+                }
+              },
+              {
+                "id": "network",
+                "highlighted": true,
+                "badgeKey": "public.operator.plan_badge_recommended",
+                "nameKey": "public.operator.plan_network_title",
+                "priceKey": "public.operator.plan_network_price",
+                "descriptionKey": "public.operator.plan_network_body",
+                "features": [
+                  "public.operator.feat_agent_mgmt",
+                  "public.operator.feat_reports_full",
+                  "public.operator.feat_payments",
+                  "public.operator.feat_pos_config"
+                ],
+                "action": {
+                  "id": "requestDemoNetwork",
+                  "style": "primary",
+                  "labelKey": "public.operator.plan_network_cta",
+                  "destination": { "kind": "anchor", "value": "#manager-demo-form" }
+                }
+              },
+              {
+                "id": "custom",
+                "highlighted": false,
+                "badgeKey": null,
+                "nameKey": "public.operator.plan_operator_title",
+                "priceKey": "public.operator.plan_operator_price",
+                "descriptionKey": "public.operator.plan_operator_body",
+                "features": [
+                  "public.operator.feat_multi_pos",
+                  "public.operator.feat_advanced_perms",
+                  "public.operator.feat_reports_consolidated",
+                  "public.operator.feat_integration"
+                ],
+                "action": {
+                  "id": "contactTeam",
+                  "style": "secondary",
+                  "labelKey": "public.operator.plan_operator_cta",
+                  "destination": { "kind": "anchor", "value": "#manager-demo-form" }
+                }
+              }
+            ]
+          }
+        },
+
+        "managers.accessControl": {
+          "type": "PublicBusinessAccessControlWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "titleKey": "public.operator.access_title",
+            "descriptionKey": "public.operator.access_body",
+            "items": [
+              { "id": "roles",      "icon": "manage_accounts", "titleKey": "public.operator.access_rights_title",       "descriptionKey": "public.operator.access_rights_body"       },
+              { "id": "terminals",  "icon": "point_of_sale",   "titleKey": "public.operator.access_subscription_title", "descriptionKey": "public.operator.access_subscription_body" },
+              { "id": "plans",      "icon": "price_check",     "titleKey": "public.operator.access_plan_title",         "descriptionKey": "public.operator.access_plan_body"         }
+            ]
+          }
+        },
+
+        "managers.leadForm": {
+          "type": "PublicBusinessLeadFormWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "id": "operator-demo-form",
+            "titleKey": "public.operator.form_title",
+            "subtitleKey": "public.operator.form_body",
+            "submitAction": {
+              "method": "POST",
+              "path": "/api/v1/public/operator-leads"
+            },
+            "fields": [
+              { "id": "name",         "type": "text",     "labelKey": "public.operator.form_name_label",    "placeholderKey": "public.operator.form_name_placeholder",    "required": true  },
+              { "id": "organization", "type": "text",     "labelKey": "public.operator.form_org_label",     "placeholderKey": "public.operator.form_org_placeholder",     "required": true  },
+              { "id": "contact",      "type": "text",     "labelKey": "public.operator.form_contact_label", "placeholderKey": "public.operator.form_contact_placeholder", "required": true  },
+              { "id": "zone",         "type": "text",     "labelKey": "public.operator.form_city_label",    "placeholderKey": "public.operator.form_city_placeholder",    "required": false },
+              { "id": "message",      "type": "textarea", "labelKey": "public.operator.form_message_label", "placeholderKey": "public.operator.form_message_placeholder", "required": false }
+            ],
+            "submitLabelKey": "public.operator.form_cta",
+            "sendingLabelKey": "public.operator.form_sending",
+            "sentLabelKey": "public.operator.form_sent"
+          }
+        },
+
+        "managers.faq": {
+          "type": "FaqWidget",
+          "binding": { "mode": "static" },
+          "props": {
+            "titleKey": "public.operator.faq_title",
+            "items": [
+              { "id": "trial",    "qKey": "public.operator.faq_trial_q",    "aKey": "public.operator.faq_trial_a"    },
+              { "id": "sellers",  "qKey": "public.operator.faq_terminals_q", "aKey": "public.operator.faq_terminals_a" },
+              { "id": "verify",   "qKey": "public.operator.faq_verify_q",   "aKey": "public.operator.faq_verify_a"   },
+              { "id": "access",   "qKey": "public.operator.faq_expired_q",  "aKey": "public.operator.faq_expired_a"  },
+              { "id": "multipos", "qKey": "public.operator.faq_multipos_q", "aKey": "public.operator.faq_multipos_a" },
+              { "id": "mobile",   "qKey": "public.operator.faq_mobile_q",   "aKey": "public.operator.faq_mobile_a"   }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

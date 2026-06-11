@@ -357,6 +357,7 @@ CREATE TABLE draw_result_aud
     tenant_id       uuid,
     result_slot_id  uuid,
     occurred_at     timestamptz,
+    result_date date,
     source_result   jsonb,
     haiti_result    jsonb,
     raw_payload     jsonb,

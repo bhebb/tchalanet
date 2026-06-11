@@ -18,6 +18,7 @@ public interface DrawResultMapper {
     ResultQuality quality = entity.getQuality();
 
     return new DrawResult(
+        entity.getResultDate(),
         entity.getOccurredAt(), // [D9] No more Instant.now() fallback here
         status,
         src,
@@ -33,6 +34,7 @@ public interface DrawResultMapper {
   default DrawResultJpaEntity toEntity(DrawResult drawResult) {
     if (drawResult == null) return null;
     DrawResultJpaEntity entity = new DrawResultJpaEntity();
+    entity.setResultDate(drawResult.resultDate());
     entity.setOccurredAt(drawResult.occurredAt());
     entity.setStatus(drawResult.status());
     entity.setSource(drawResult.source());

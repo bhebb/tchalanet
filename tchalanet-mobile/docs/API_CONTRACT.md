@@ -77,8 +77,33 @@ Widgets never call `ApiClient`, Dio, or raw HTTP.
 
 - `ProblemDetail` must be mapped to user-friendly UI errors at ViewModel/application boundary.
 - Technical details must not be exposed directly to users.
+- Mobile must retain `ProblemDetail.traceId` or the `X-Request-Id` response header in
+  the typed API error.
+- API error UI may expose a copy-support-reference action. The copied reference
+  contains trace ID, error ID, stable error code, and HTTP status when available;
+  those details remain hidden from the visible user message.
 - Authentication/session errors must trigger centralized session handling.
 - Validation errors should be shown near the affected input when possible.
+
+### Notices are not internal notifications
+
+- `ApiResponse.notices` belong only to the current HTTP response.
+- They may create a temporary POS notice through `AppNotificationHost`.
+- Their parser must associate the response `X-Request-Id` with each notice so the
+  seller can copy a hidden support reference.
+- Tenant/platform internal notifications are persisted and have read/unread/archive
+  lifecycle.
+- Global sector news is not displayed on the POS.
+
+### POS persistent notification pull
+
+- Runtime summary source: `GET /tenant/runtime/state`.
+- Notification center endpoint: `GET /tenant/me/notifications`.
+- Mutations: `POST /tenant/me/notifications/{id}/read` and `.../{id}/archive`.
+- Mobile receives the initial summary from `GET /tenant/runtime/bootstrap`.
+- Mobile refreshes the summary through runtime-state polling; it must not start a
+  duplicate periodic notification-summary poll.
+- Full notification pages are fetched only when the notification center is opened.
 
 ---
 

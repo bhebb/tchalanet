@@ -22,10 +22,7 @@ class PosBottomNavBar extends StatelessWidget {
       },
       destinations: [
         for (final d in _destinations)
-          NavigationDestination(
-            icon: Icon(d.icon),
-            label: d.label,
-          ),
+          NavigationDestination(icon: Icon(d.icon), label: d.label),
       ],
     );
   }

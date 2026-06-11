@@ -1,20 +1,18 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { catchError, of, tap } from 'rxjs';
 
-import { ThemeApi } from './theme-api';
 import { ThemeDomApplier } from './theme-dom-applier';
 import { defaultThemePresetId } from './theme-presets';
 import { ThemeRepository } from './theme.repository';
-import { RuntimeTheme, ThemeMode, ThemePreset } from './theme-types';
+import { RuntimeTheme, ThemeDensity, ThemeMode, ThemePreset } from './theme-types';
 
 type ThemeLoadState = 'idle' | 'loading' | 'ready' | 'fallback';
 
 const themeModeStorageKey = 'tchalanet.web.theme.mode';
 const themePresetStorageKey = 'tchalanet.web.theme.preset';
+const themeDensityStorageKey = 'tchalanet.web.theme.density';
 
 @Injectable()
 export class ThemeStore {
-  private readonly api = inject(ThemeApi);
   private readonly dom = inject(ThemeDomApplier);
   private readonly repository = inject(ThemeRepository);
   private readonly activeThemeSignal = signal<RuntimeTheme>(this.defaultRuntimeTheme());
@@ -43,40 +41,25 @@ export class ThemeStore {
     this.apply(this.resolveStoredTheme());
   }
 
-  loadPublicTheme(): void {
-    this.loadStateSignal.set('loading');
-    this.api
-      .getPublicTheme(this.activeTheme().mode)
-      .pipe(
-        tap((theme) => {
-          this.apply(this.resolveBackendTheme(theme));
-          this.loadStateSignal.set('ready');
-        }),
-        catchError(() => {
-          this.apply(this.resolveStoredTheme());
-          this.loadStateSignal.set('fallback');
-          return of(null);
-        }),
-      )
-      .subscribe();
-  }
-
-  loadPrivateTheme(): void {
-    this.loadStateSignal.set('loading');
-    this.api
-      .getPrivateTheme(this.activeTheme().mode)
-      .pipe(
-        tap((theme) => {
-          this.apply(this.resolveBackendTheme(theme));
-          this.loadStateSignal.set('ready');
-        }),
-        catchError(() => {
-          this.apply(this.resolveStoredTheme());
-          this.loadStateSignal.set('fallback');
-          return of(null);
-        }),
-      )
-      .subscribe();
+  /**
+   * Apply a theme delivered inside the runtime bootstrap response — no extra theme HTTP call.
+   * `presetCode`/`tokens` come from the private bootstrap; public bootstrap may pass mode only.
+   */
+  applyBootstrapTheme(input: {
+    presetCode?: string | null;
+    mode?: string | null;
+    tokens?: Readonly<Record<string, string>> | null;
+  }): void {
+    const mode = normalizeMode(input.mode);
+    const theme: RuntimeTheme = {
+      activePresetKey: input.presetCode || this.repository.defaultPreset().id,
+      mode,
+      effectiveMode: this.effectiveMode(mode),
+      density: this.activeTheme().density,
+      tokens: { ...(input.tokens ?? {}) },
+    };
+    this.apply(this.resolveBackendTheme(theme));
+    this.loadStateSignal.set('ready');
   }
 
   setPreset(presetKey: string): void {
@@ -89,7 +72,10 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode: this.activeTheme().mode,
       effectiveMode: this.effectiveMode(this.activeTheme().mode),
-      tokens: {},
+      density: this.activeTheme().density,
+      // Preserve backend tenant token overrides across a preset switch — only the backend/runtime
+      // load replaces them. Wiping here would silently drop a tenant's customised tokens.
+      tokens: this.activeTheme().tokens,
     });
     persistTheme(this.activeTheme());
   }
@@ -102,6 +88,11 @@ export class ThemeStore {
       effectiveMode: this.effectiveMode(mode),
       mode,
     });
+    persistTheme(this.activeTheme());
+  }
+
+  setDensity(density: ThemeDensity): void {
+    this.apply({ ...this.activeTheme(), density });
     persistTheme(this.activeTheme());
   }
 
@@ -124,6 +115,7 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode: 'light',
       effectiveMode: 'light',
+      density: 'comfortable',
       tokens: {},
     };
   }
@@ -137,6 +129,7 @@ export class ThemeStore {
       activePresetKey: preset.id,
       mode,
       effectiveMode: this.effectiveMode(mode),
+      density: restoreDensity(),
       tokens: {},
     };
   }
@@ -163,6 +156,7 @@ export const themeStoreProvider = {
 function persistTheme(theme: RuntimeTheme): void {
   localStorage.setItem(themeModeStorageKey, theme.mode);
   localStorage.setItem(themePresetStorageKey, theme.activePresetKey);
+  localStorage.setItem(themeDensityStorageKey, theme.density);
 }
 
 function restoreMode(): ThemeMode {
@@ -172,6 +166,15 @@ function restoreMode(): ThemeMode {
 
 function restorePresetKey(): string {
   return localStorage.getItem(themePresetStorageKey) || defaultThemePresetId;
+}
+
+function restoreDensity(): ThemeDensity {
+  const value = localStorage.getItem(themeDensityStorageKey);
+  return value === 'compact' || value === 'dense' ? value : 'comfortable';
+}
+
+function normalizeMode(value: string | null | undefined): ThemeMode {
+  return value === 'dark' || value === 'system' ? value : 'light';
 }
 
 function systemPrefersDark(): boolean {

@@ -9,9 +9,10 @@ Do not define many one-off colors. Define roles, then use the roles everywhere.
 
 | Role | Token | Value | Usage |
 | --- | --- | --- | --- |
-| Primary | `primary` | `#3525CD` | Main action: sell, verify, confirm. |
-| Primary | `primaryContainer` | `#4F46E5` | Strong primary surfaces and pressed states. |
-| Background | `background` | `#F7F9FB` | Screen background. |
+| Primary | `primary` | `#1A1B4B` | Tchalanet navy: brand sections and key fills. |
+| Primary | `primaryContainer` | `#2E3192` | Navy highlight surfaces. |
+| Accent | `tertiary` | `#FECB00` | Gold CTA and brand accents. |
+| Background | `background` | `#F9F9FC` | Screen background. |
 | Surface | `surface` | `#FFFFFF` | Cards, fields, panels. |
 | Surface | `surfaceMuted` | `#ECEEF0` | Muted field backgrounds and low emphasis areas. |
 | Outline | `outline` | `#C7C4D8` | Light borders. |
@@ -19,19 +20,21 @@ Do not define many one-off colors. Define roles, then use the roles everywhere.
 | Success | `successContainer` | `#6CF8BB` | Positive badges and soft success backgrounds. |
 | Warning | `warning` | `#B26A00` | Limit near, offline, confirmation required. |
 | Error | `error` | `#BA1A1A` | Rejected, blocked, destructive action. |
-| Text | `text` | `#191C1E` | Primary text. |
-| Text | `textMuted` | `#464555` | Secondary text. |
+| Text | `text` | `#1A1C1E` | Primary text. |
+| Text | `textMuted` | `#464652` | Secondary text. |
 
 Color rules:
 
 - Red is reserved for dangerous actions and blocking errors.
 - Green is reserved for success and OK status.
-- Primary purple is reserved for main actions.
+- Navy is the primary brand role.
+- Gold is the Material 3 tertiary/accent role, not secondary.
 - Screens must use theme tokens, not hardcoded values.
 
 ## Typography
 
-Inter is the default POS typeface.
+Plus Jakarta Sans is the default brand typeface when bundled; the approved system
+fallback is used until the font asset is packaged.
 
 | Style | Size | Weight | Usage |
 | --- | --- | --- | --- |

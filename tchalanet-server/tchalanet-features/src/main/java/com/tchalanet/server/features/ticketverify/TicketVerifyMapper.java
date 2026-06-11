@@ -18,8 +18,8 @@ public class TicketVerifyMapper {
             view.placedAt(),
             view.outlet() != null ? new TicketVerifyOutletView(view.outlet().name()) : null,
             new TicketVerifyResponse.DrawView(
+                view.draw().channelKey(),
                 view.draw().channelName(),
-                view.draw().channelLabel(),
                 view.draw().drawDate(),
                 view.draw().scheduledAt()
             ),

@@ -9,7 +9,9 @@
     "lint": "nx run tch-portal:lint",
     "format": "prettier --write .",
     "test": "nx run tch-portal:test",
-    "theme:generate": "node libs/ui/theme/tools/generate-theme-registry.mjs"
+    "theme:generate": "node libs/ui/theme/tools/generate-theme-registry.mjs",
+    "tokens:generate": "node libs/ui/theme/tools/generate-token-manifest.mjs",
+    "fonts:material-symbols": "node tools/build-material-symbols-font.mjs"
   },
   "keywords": [],
   "author": "",
@@ -73,6 +75,7 @@
     "@ngx-translate/http-loader": "^17.0.0",
     "keycloak-angular": "^21.0.0",
     "keycloak-js": "^26.2.4",
+    "marked": "^18.0.5",
     "rxjs": "~7.8.0"
   }
 }

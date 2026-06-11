@@ -13,7 +13,7 @@
  * don't cover (background, outline, primary-contrast, surface-muted) fall back to the active
  * preset CSS. Keys that already look like `--tch-*` are passed through untouched.
  */
-const BACKEND_TOKEN_TO_CSS_VAR: Readonly<Record<string, string>> = {
+export const BACKEND_TOKEN_TO_CSS_VAR: Readonly<Record<string, string>> = {
   'color.background': '--tch-color-background',
   'color.onBackground': '--tch-color-on-background',
   'color.primary': '--tch-color-primary',
@@ -40,7 +40,7 @@ const BACKEND_TOKEN_TO_CSS_VAR: Readonly<Record<string, string>> = {
   'color.surfaceContainerHighest': '--tch-color-surface-container-highest',
   'color.surfaceVariant': '--tch-color-surface-variant',
   'color.surfaceTonal': '--tch-color-surface-tonal',
-  'color.onSurface': '--tch-color-foreground',
+  'color.onSurface': '--tch-color-on-surface',
   'color.onSurfaceVariant': '--tch-color-on-surface-variant',
   'color.outline': '--tch-color-outline',
   'color.outlineVariant': '--tch-color-outline-variant',
@@ -55,10 +55,28 @@ const BACKEND_TOKEN_TO_CSS_VAR: Readonly<Record<string, string>> = {
   'color.orangeAccent': '--tch-color-orange-accent',
   'typography.fontFamily': '--tch-font-family',
   'shape.radius.sm': '--tch-radius-sm',
-  'shape.radius.md': '--tch-radius-control',
+  'shape.radius.md': '--tch-radius-md',
   'shape.radius.lg': '--tch-radius-lg',
   'shape.radius.xl': '--tch-radius-xl',
 };
+
+/**
+ * Backend font-family overrides arrive as bare keywords (the seed `allowedFonts`:
+ * `system`, `roboto`, `poppins`, `inter`). Applied verbatim they yield an invalid single-token
+ * `font-family` with no fallback. Map each keyword to a real font stack. `Plus Jakarta Sans` stays
+ * the brand default (set in runtime-root.scss); these are only for tenant overrides.
+ */
+const FONT_STACKS: Readonly<Record<string, string>> = {
+  system: 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+  roboto: 'Roboto, system-ui, sans-serif',
+  poppins: '"Poppins", system-ui, sans-serif',
+  inter: '"Inter", system-ui, sans-serif',
+  'plus-jakarta-sans': '"Plus Jakarta Sans", system-ui, sans-serif',
+};
+
+function resolveFontFamily(value: string): string {
+  return FONT_STACKS[value.trim().toLowerCase()] ?? value;
+}
 
 export function mapBackendThemeTokens(
   tokens: Readonly<Record<string, string>>,
@@ -68,7 +86,7 @@ export function mapBackendThemeTokens(
   for (const [key, value] of Object.entries(tokens)) {
     const target = key.startsWith('--tch-') ? key : BACKEND_TOKEN_TO_CSS_VAR[key];
     if (target) {
-      mapped[target] = value;
+      mapped[target] = target === '--tch-font-family' ? resolveFontFamily(value) : value;
     }
   }
 

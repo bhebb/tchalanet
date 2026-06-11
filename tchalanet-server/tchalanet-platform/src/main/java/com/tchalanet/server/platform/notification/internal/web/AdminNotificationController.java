@@ -7,6 +7,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationDeliveriesRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
@@ -35,6 +36,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminNotificationController {
 
   private final NotificationService notificationService;
+
+  @GetMapping("/summary")
+  public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
+    return ApiResponse.success(
+        notificationService.getNotificationSummary(
+            new GetNotificationSummaryRequest(context.userId(), roleCode(context))));
+  }
 
   @GetMapping
   public ApiResponse<?> list(
@@ -82,6 +90,10 @@ public class AdminNotificationController {
             request.expiresAt(),
             request.channels()));
     return ApiResponse.created(true);
+  }
+
+  private static String roleCode(TchRequestContext context) {
+    return context.currentRole() == null ? null : context.currentRole().name();
   }
 
   @GetMapping("/deliveries")

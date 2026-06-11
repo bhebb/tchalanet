@@ -1,34 +1,59 @@
-import { filterResults, PublicResultListItem } from './public-results.page';
+import { resolveSlotKeys } from './public-results.page';
 
-const items: readonly PublicResultListItem[] = [
-  {
-    id: 'ny',
-    gameName: 'New York Afternoon',
-    sourceKey: 'new-york',
-    drawDateKey: 'date',
-    drawTime: '14:30',
-    status: 'CONFIRMED',
-    numbers: ['12'],
-  },
-  {
-    id: 'fl',
-    gameName: 'Florida Evening',
-    sourceKey: 'florida',
-    drawDateKey: 'date',
-    drawTime: '18:45',
-    status: 'PENDING',
-    numbers: [],
-  },
-];
-
-describe('PublicResultsPage helpers', () => {
-  it('returns all results when the all filter is selected', () => {
-    expect(filterResults(items, 'all')).toEqual(items);
+describe('resolveSlotKeys', () => {
+  it('returns undefined when both filters are "all" (no query restriction)', () => {
+    expect(resolveSlotKeys('all', 'all')).toBeUndefined();
   });
 
-  it('filters results by source key', () => {
-    expect(filterResults(items, 'new-york')).toEqual([items[0]]);
-    expect(filterResults(items, 'florida')).toEqual([items[1]]);
-    expect(filterResults(items, 'georgia')).toEqual([]);
+  it('returns all slots for a provider when slot type is "all"', () => {
+    expect(resolveSlotKeys('ny', 'all')).toEqual(['NY_MID', 'NY_EVE']);
+    expect(resolveSlotKeys('fl', 'all')).toEqual(['FL_MID', 'FL_EVE']);
+    expect(resolveSlotKeys('ga', 'all')).toEqual(['GA_MID', 'GA_EVE', 'GA_LATE']);
+    expect(resolveSlotKeys('tx', 'all')).toEqual(['TX_1000', 'TX_1227', 'TX_1800', 'TX_2212']);
+  });
+
+  it('cross-filters provider + mid', () => {
+    expect(resolveSlotKeys('ny', 'mid')).toEqual(['NY_MID']);
+    expect(resolveSlotKeys('fl', 'mid')).toEqual(['FL_MID']);
+    expect(resolveSlotKeys('tx', 'mid')).toEqual(['TX_1000', 'TX_1227']);
+    expect(resolveSlotKeys('ga', 'mid')).toEqual(['GA_MID']);
+  });
+
+  it('cross-filters provider + eve', () => {
+    expect(resolveSlotKeys('ny', 'eve')).toEqual(['NY_EVE']);
+    expect(resolveSlotKeys('fl', 'eve')).toEqual(['FL_EVE']);
+    expect(resolveSlotKeys('tx', 'eve')).toEqual(['TX_1800', 'TX_2212']);
+    expect(resolveSlotKeys('ga', 'eve')).toEqual(['GA_EVE']);
+  });
+
+  it('cross-filters provider + late', () => {
+    expect(resolveSlotKeys('ga', 'late')).toEqual(['GA_LATE']);
+  });
+
+  it('returns empty array for impossible combinations', () => {
+    // NY has no LATE slot
+    expect(resolveSlotKeys('ny', 'late')).toEqual([]);
+    // FL has no LATE slot
+    expect(resolveSlotKeys('fl', 'late')).toEqual([]);
+    // TX has no LATE slot
+    expect(resolveSlotKeys('tx', 'late')).toEqual([]);
+  });
+
+  it('returns all mid slots across all providers when provider is "all"', () => {
+    const result = resolveSlotKeys('all', 'mid');
+    expect(result).toContain('NY_MID');
+    expect(result).toContain('FL_MID');
+    expect(result).toContain('GA_MID');
+    expect(result).toContain('TX_1000');
+    expect(result).toContain('TX_1227');
+  });
+
+  it('returns all eve slots across all providers when provider is "all"', () => {
+    const result = resolveSlotKeys('all', 'eve');
+    expect(result).toContain('NY_EVE');
+    expect(result).toContain('FL_EVE');
+    expect(result).toContain('GA_EVE');
+    expect(result).toContain('TX_1800');
+    expect(result).toContain('TX_2212');
   });
 });

@@ -4,6 +4,12 @@ app:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*,https://app.localtest.me,https://auth.localtest.me,https://auth.localtest.me:8443}
   api-base-url: ${APP_API_BASEURL:https://api.localtest.me:8443}
 
+tch:
+  tickets:
+    public:
+      # Base URL for the public ticket verification page (QR target).
+      # Override per environment — dev uses the local web app URL.
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://api.localtest.me}
 
 spring:
   main:

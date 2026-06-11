@@ -40,9 +40,11 @@ public class JpaTchalaEntryRepositoryAdapter implements TchalaEntryRepositoryPor
   @Override
   @Transactional(readOnly = true)
   public TchPage<TchalaEntry> searchApproved(TchalaLang lang, String text, int page, int size) {
+    var pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
     var p =
-        repo.searchApproved(
-            lang.value(), text, PageRequest.of(Math.max(0, page), Math.max(1, size)));
+        (text == null || text.isBlank())
+            ? repo.listAllApproved(lang.value(), pageable)
+            : repo.searchApproved(lang.value(), text, pageable);
     return toTchPage(p);
   }
 
@@ -66,6 +68,12 @@ public class JpaTchalaEntryRepositoryAdapter implements TchalaEntryRepositoryPor
         repo.listPending(
             lang.value(), conflictOnly, PageRequest.of(Math.max(0, page), Math.max(1, size)));
     return toTchPage(p);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public long countAllPending() {
+    return repo.countAllPending();
   }
 
   @Override

@@ -63,14 +63,28 @@ public interface TchalaEntrySpringRepository extends JpaRepository<TchalaEntryJp
     where e.lang = :lang
       and e.status = 'APPROVED'
       and e.canonicalEntryId is null
+    order by e.dream asc
+  """)
+  Page<TchalaEntryJpaEntity> listAllApproved(
+      @Param("lang") String lang, Pageable pageable);
+
+  @Query(
+      """
+    select e from TchalaEntryJpaEntity e
+    where e.lang = :lang
+      and e.status = 'APPROVED'
+      and e.canonicalEntryId is null
       and (
         lower(e.dream) like lower(concat('%', :text, '%'))
         or lower(e.note) like lower(concat('%', :text, '%'))
       )
-    order by e.updatedAt desc
+    order by e.dream asc
   """)
   Page<TchalaEntryJpaEntity> searchApproved(
       @Param("lang") String lang, @Param("text") String text, Pageable pageable);
+
+  @Query("select count(e) from TchalaEntryJpaEntity e where e.status = 'PENDING'")
+  long countAllPending();
 
   // Load a single entry with its numbers (fetch join) to avoid lazy loading issues
   @Query(

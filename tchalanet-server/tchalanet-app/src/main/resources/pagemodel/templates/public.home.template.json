@@ -9,7 +9,7 @@
   "schema": {},
   "isDefault": true,
   "level": "GLOBAL",
-  "description": "Public home PageModel V2: hero, how it works, news, public draw results, ticket verification, Tchala, features, rules, plans and operator CTA.",
+  "description": "Public home PageModel V2: hero, how it works, news, public draw results, ticket verification, Tchala, features, rules, plans and manager CTA.",
   "model": {
     "meta": {
       "id": "public.home",
@@ -104,25 +104,13 @@
             ]
           },
           {
-            "id": "operatorCta",
-            "labelKey": "layout.public_home.operator_cta",
+            "id": "managerCta",
+            "labelKey": "layout.public_home.manager_cta",
             "columns": [
               {
                 "span": 12,
                 "widgets": [
-                  "home.operatorCta"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "news",
-            "labelKey": "layout.public_home.news",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.news"
+                  "home.managerCta"
                 ]
               }
             ]
@@ -147,6 +135,30 @@
                 "span": 12,
                 "widgets": [
                   "home.rules"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "news",
+            "labelKey": "layout.public_home.news",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.news"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "contactCta",
+            "labelKey": "layout.public_home.contact_cta",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.contactCta"
                 ]
               }
             ]
@@ -234,18 +246,36 @@
             "descriptionKey": "home.check_ticket.description"
           }
         },
-        "home.operatorCta": {
-          "type": "OperatorCtaWidget",
+        "home.managerCta": {
+          "type": "ManagerCtaWidget",
           "binding": {
             "mode": "static"
           },
           "props": {
-            "titleKey": "public.operator.title",
-            "descriptionKey": "public.operator.description",
+            "eyebrowKey": "public.manager.eyebrow",
+            "titleKey": "public.manager.title",
+            "descriptionKey": "public.manager.description",
             "primaryAction": {
+              "id": "discoverManager",
+              "kind": "link",
+              "labelKey": "public.manager.discover",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/managers"
+              },
+              "icon": "store",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            },
+            "secondaryAction": {
               "id": "requestDemo",
-              "kind": "button",
-              "labelKey": "public.operator.demo",
+              "kind": "link",
+              "labelKey": "public.manager.demo",
               "label": null,
               "destination": {
                 "kind": "route",
@@ -259,10 +289,10 @@
               "badge": null,
               "children": []
             },
-            "secondaryAction": {
-              "id": "operatorAccess",
+            "tertiaryAction": {
+              "id": "managerAccess",
               "kind": "link",
-              "labelKey": "public.operator.access",
+              "labelKey": "public.manager.access",
               "label": null,
               "destination": {
                 "kind": "route",
@@ -287,17 +317,54 @@
           "props": {
             "limit": 5,
             "titleKey": "home.news.title",
-            "showDates": true
+            "subtitleKey": "home.news.subtitle",
+            "externalSourceNoteKey": "home.news.external_source",
+            "showDates": true,
+            "seeAllAction": {
+              "id": "seeAllNews",
+              "kind": "link",
+              "labelKey": "home.news.see_all",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/news"
+              },
+              "icon": "arrow_forward",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            }
           }
         },
         "home.tchala": {
           "type": "TchalaSearchWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "jsonFile"
+            "mode": "static"
           },
           "props": {
-            "fileKey": "public_tchala"
+            "badgeKey": "home.tchala.badge",
+            "titleKey": "home.tchala.title",
+            "subtitleKey": "home.tchala.subtitle",
+            "ctaAction": {
+              "id": "discoverTchala",
+              "kind": "link",
+              "labelKey": "home.tchala.discover",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/tchala"
+              },
+              "icon": "auto_stories",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            }
           }
         },
         "home.rules": {
@@ -307,7 +374,69 @@
           },
           "props": {
             "titleKey": "public.rules.title",
-            "descriptionKey": "public.rules.subtitle"
+            "descriptionKey": "public.rules.subtitle",
+            "ctaNoteKey": "public.rules.cta_note",
+            "primaryAction": {
+              "id": "viewRules",
+              "kind": "link",
+              "labelKey": "public.rules.cta_rules",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/rules"
+              },
+              "icon": "menu_book",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            }
+          }
+        },
+        "home.contactCta": {
+          "type": "ContactCtaWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "titleKey": "public.contact_cta.title",
+            "bodyKey": "public.contact_cta.body",
+            "primaryAction": {
+              "id": "requestDemo",
+              "kind": "link",
+              "labelKey": "public.contact_cta.cta",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/contact"
+              },
+              "icon": "rocket_launch",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            },
+            "helpAction": {
+              "id": "goToHelp",
+              "kind": "link",
+              "labelKey": "public.contact_cta.help",
+              "label": null,
+              "destination": {
+                "kind": "route",
+                "value": "/public/help"
+              },
+              "icon": "help_outline",
+              "image": null,
+              "activeMatch": null,
+              "disabled": false,
+              "reasonKey": null,
+              "badge": null,
+              "children": []
+            }
           }
         }
       }

@@ -177,7 +177,9 @@ Avoid:
 
 ## 5. Token usage
 
-Components consume tokens.
+Components consume tokens. The canonical `--tch-*` set is generated into
+`libs/ui/theme/src/registry/token-manifest.generated.ts` (`npm run tokens:generate`) and guarded by
+`theme-token-contract.spec.ts` — consult the manifest for the full list rather than this excerpt.
 
 Preferred tokens:
 
@@ -193,6 +195,7 @@ Preferred tokens:
 --tch-color-secondary
 --tch-color-secondary-container
 --tch-color-on-secondary-container
+--tch-color-accent               ← gold CTA / badge fills (#FECB00)
 --tch-color-outline
 --tch-color-outline-variant
 --tch-color-error
@@ -210,7 +213,15 @@ Preferred tokens:
 --tch-page-max
 --tch-page-gutter
 --tch-font-family
+--tch-font-size-display-lg
+--tch-font-size-headline-lg
+--tch-font-size-headline-mobile
+--tch-font-size-title-md
+--tch-font-size-body-md
+--tch-font-size-label-sm
 ```
+
+The canonical list is the token manifest — see `theme.md` for the authoritative reference.
 
 Hardcoded color values are allowed only as defensive fallback:
 
@@ -428,26 +439,24 @@ Preferred:
 }
 ```
 
-Breakpoints:
+Breakpoints follow the M3 window-size class model (`libs/ui/styles/_breakpoints.scss`):
 
 ```text
-sm 480px
-md 768px
-lg 1024px
-xl 1280px
+compact       < 600px
+medium      600–839px
+expanded   840–1199px
+large     1200–1599px
+extra-large  ≥ 1600px
 ```
-
-SCSS media queries should use `libs/ui/styles` breakpoints once available:
 
 ```scss
 @use '@tch/ui/styles' as ui;
 
-@include ui.up(md) {
-  ...
-}
+@include ui.up(medium)   { ... }   // ≥ 600px
+@include ui.up(expanded) { ... }   // ≥ 840px
 ```
 
-Angular runtime breakpoint logic should use `TchBreakpointService`, not duplicated ad hoc `matchMedia`.
+Do not redefine breakpoint pixel values anywhere else — use `bp()` or the mixins.
 
 ---
 
@@ -468,6 +477,8 @@ ellipsis
 surface
 outline
 elevation
+transition  (M3 motion tokens)
+state-layer (M3 hover/focus/pressed overlays)
 Material overrides
 ```
 
@@ -547,11 +558,20 @@ Example:
 
 Every interactive component must have visible focus.
 
-Preferred:
+Prefer the shared `focus-visible` mixin from `libs/ui/styles` (`_mixins.scss`) — it is the canonical
+focus style. It enforces a minimum ring thickness so the outline stays visible when the token is small:
+
+```scss
+@use '@tch/ui/styles' as ui;
+
+@include ui.focus-visible; // outputs the rule below on :focus-visible
+```
+
+Canonical output:
 
 ```scss
 :focus-visible {
-  outline: var(--tch-focus-ring-width, 2px) solid currentColor;
+  outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentColor;
   outline-offset: var(--tch-focus-ring-offset, 2px);
 }
 ```
@@ -583,9 +603,7 @@ min-height: var(--tch-touch-target, 48px);
 
 ## 15. Z-index
 
-Do not use random z-index values.
-
-Preferred token pattern:
+Do not use random z-index values. These tokens are **emitted** by `runtime-root.scss` (`:root`):
 
 ```text
 --tch-z-header
@@ -593,6 +611,9 @@ Preferred token pattern:
 --tch-z-overlay
 --tch-z-toast
 ```
+
+A `--tch-color-scrim` token is likewise emitted for overlay/backdrop scrims (use it instead of a
+hardcoded `#000`).
 
 Example:
 
@@ -652,7 +673,26 @@ Small utilities are acceptable if stable and documented:
 ```text
 .visually-hidden
 .text-muted
-.h1 / .h2 / .h3
+```
+
+Typography utilities — `libs/ui/styles/src/lib/_typography.scss` provides `.h1 / .h2 / .h3`
+mapped to the M3 type scale tokens:
+
+```text
+.h1  →  --tch-font-size-display-lg   / --tch-line-height-display-lg   / --tch-weight-extra-bold (800)
+.h2  →  --tch-font-size-headline-lg  / --tch-line-height-headline-lg  / --tch-weight-extra-bold (800)
+.h3  →  --tch-font-size-headline-mobile / --tch-line-height-headline-mobile / --tch-weight-bold (700)
+```
+
+Motion utilities — `_mixins.scss` provides `transition()` and `state-layer()` backed by M3 tokens:
+
+```scss
+// Use instead of hand-writing transition properties
+@include ui.transition(opacity, emphasized, enter);   // 400ms emphasized-decelerate
+@include ui.transition(transform, standard, exit);    // 200ms standard-accelerate
+
+// M3 interactive state overlays (hover 8%, focus/pressed 12%)
+@include ui.state-layer(var(--tch-color-on-surface));
 ```
 
 Do not recreate Tailwind-like utilities manually.

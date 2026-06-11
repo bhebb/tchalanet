@@ -4,6 +4,7 @@ import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.Instant;
+import java.time.LocalDate;
 
 public interface DrawResultWriterPort {
 
@@ -11,6 +12,7 @@ public interface DrawResultWriterPort {
 
   UpsertResult upsert(
       ResultSlotId resultSlotId,
+      LocalDate resultDate,
       Instant occurredAt,
       JsonNode sourceResult,
       JsonNode haitiResult,

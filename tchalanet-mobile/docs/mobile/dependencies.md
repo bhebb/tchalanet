@@ -12,6 +12,7 @@ Add a new row before adding a package; remove the row when removing the package.
 | `dio` | `^5.x` | HTTP | API calls, bearer token interceptor, typed error mapping | Long-running offline queue or background sync by itself | Replaced by a project-wide HTTP abstraction decision |
 | `flutter_secure_storage` | `^10.x` | Secure storage | Mobile auth token persistence (access + refresh tokens) | General app cache, non-sensitive data | OS-level Keychain/Keystore API wrapping is brought in-house |
 | `flutter_appauth` | `^8.x` | Auth (OIDC) | Authorization Code + PKCE flow against Keycloak; opens system browser, handles redirect, exchanges code for tokens, silent refresh | Username/password forms, ROPC | Replaced by a project-wide auth SDK decision |
+| `shared_preferences` | `^2.x` | Preferences | Persist non-sensitive app preferences such as selected locale before `runApp` | Tokens, secrets, business data, offline queues | Replaced by a consolidated typed preferences Repository |
 
 ## Rules
 

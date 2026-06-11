@@ -1,32 +1,69 @@
-import { Type } from '@angular/core';
-
 import { appRoutes } from './app.routes';
-import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboard.page';
-import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
-import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
-import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
+import { adminRoutes } from './features/admin/admin.routes';
+import { cashierRoutes } from './features/cashier/cashier.routes';
+import { platformRoutes } from './features/platform/platform.routes';
 
 describe('appRoutes', () => {
-  it.each<[string, string, Type<unknown>]>([
-    ['app/cashier', 'dashboard.titles.cashier', RoleDashboardPage],
-    ['app/admin', 'dashboard.titles.admin', TenantAdminDashboardPage],
-    ['app/platform', 'dashboard.titles.platform', SuperAdminDashboardPage],
-  ])(
-    'guards %s at the private shell route and renders its dashboard child',
-    (path, titleKey, child) => {
-      const route = appRoutes.find(candidate => candidate.path === path);
+  describe('private spaces use lazy loading', () => {
+    it.each(['app/platform', 'app/admin', 'app/cashier'])('%s has loadComponent and loadChildren', path => {
+      const route = appRoutes.find(r => r.path === path);
+      expect(route?.loadComponent).toBeDefined();
+      expect(route?.component).toBeUndefined();
+      expect(route?.loadChildren).toBeDefined();
+      expect(route?.children).toBeUndefined();
+    });
 
-      expect(route?.component).toBe(PrivateShellPage);
+    it.each(['app/platform', 'app/admin', 'app/cashier'])('%s has exactly one canActivate guard', path => {
+      const route = appRoutes.find(r => r.path === path);
       expect(route?.canActivate).toHaveLength(1);
-      expect(route?.children).toEqual([
-        {
-          path: '',
-          component: child,
-          data: {
-            titleKey,
-          },
-        },
-      ]);
-    },
-  );
+    });
+  });
+
+  it('public space uses lazy loadComponent and loadChildren', () => {
+    const route = appRoutes.find(r => r.path === 'public');
+    expect(route?.loadComponent).toBeDefined();
+    expect(route?.loadChildren).toBeDefined();
+  });
+
+  it('redirects the root path to public', () => {
+    const root = appRoutes.find(r => r.path === '' && r.redirectTo === 'public');
+    expect(root).toBeDefined();
+  });
+
+  describe('platformRoutes', () => {
+    it('declares all 7 paths', () => {
+      const paths = platformRoutes.map(r => r.path);
+      expect(paths).toEqual(
+        expect.arrayContaining(['', 'tenants', 'tenant-provisioning', 'contact-requests', 'news', 'notifications', 'ops']),
+      );
+    });
+
+    it('all routes use loadComponent', () => {
+      platformRoutes.forEach(r => {
+        expect(r.loadComponent).toBeDefined();
+      });
+    });
+  });
+
+  describe('adminRoutes', () => {
+    it('declares all 8 paths', () => {
+      const paths = adminRoutes.map(r => r.path);
+      expect(paths).toEqual(
+        expect.arrayContaining(['', 'onboarding', 'users', 'sellers', 'outlets', 'terminals', 'sessions', 'settings']),
+      );
+    });
+
+    it('all routes use loadComponent', () => {
+      adminRoutes.forEach(r => {
+        expect(r.loadComponent).toBeDefined();
+      });
+    });
+  });
+
+  describe('cashierRoutes', () => {
+    it('declares dashboard and sell routes', () => {
+      const paths = cashierRoutes.map(r => r.path);
+      expect(paths).toEqual(expect.arrayContaining(['', 'sell']));
+    });
+  });
 });

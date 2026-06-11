@@ -4,11 +4,49 @@
 // SCSS resolved via libs/ui/theme/src (stylePreprocessorOptions.includePaths in project.json).
 @use 'scss/runtime-root';
 @use 'scss/runtime-vars';
+@use 'scss/density';
 @use 'index';
 
 html,
 body {
   height: 100%;
+}
+
+/* ── Lang-switcher menu panel ── */
+.lang-switcher__menu {
+  min-width: 160px !important;
+
+  .mat-mdc-menu-content {
+    padding-block: 4px;
+  }
+
+  .mat-mdc-menu-item {
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+}
+
+/* ── User (account) menu panel — rendered in a CDK overlay, so styled globally ── */
+.user-menu__panel {
+  min-width: 200px !important;
+
+  .user-menu__name {
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 44px;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.25rem;
+    flex: none;
+  }
 }
 
 body {

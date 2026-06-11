@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import Keycloak, { KeycloakProfile } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 
 import { UserRole, UserSession } from '../../shared/types';
 
@@ -17,7 +17,7 @@ export class AuthSessionService {
   readonly authenticated = computed(() => this.session().authenticated);
 
   constructor() {
-    void this.refreshSession();
+    this.refreshSession();
   }
 
   async refreshSession(): Promise<UserSession> {
@@ -28,13 +28,11 @@ export class AuthSessionService {
     }
 
     const token = toRecord(this.keycloak.tokenParsed);
-    const profile = await this.loadProfileSafely();
     const session: UserSession = {
       authenticated: true,
-      userId: readString(token, 'sub') ?? profile?.id,
-      username: profile?.username ?? readString(token, 'preferred_username') ?? readString(token, 'email'),
+      userId: readString(token, 'sub'),
+      username: readString(token, 'preferred_username') ?? readString(token, 'email'),
       displayName:
-        profileDisplayName(profile) ??
         readString(token, 'name') ??
         readString(token, 'preferred_username') ??
         readString(token, 'email') ??
@@ -77,13 +75,6 @@ export class AuthSessionService {
     return session;
   }
 
-  private async loadProfileSafely(): Promise<KeycloakProfile | null> {
-    try {
-      return await this.keycloak.loadUserProfile();
-    } catch {
-      return null;
-    }
-  }
 }
 
 function collectRoles(keycloak: Keycloak): readonly string[] {
@@ -91,15 +82,6 @@ function collectRoles(keycloak: Keycloak): readonly string[] {
   const resourceRoles = Object.values(keycloak.resourceAccess ?? {}).flatMap(access => access.roles);
 
   return [...new Set([...realmRoles, ...resourceRoles])];
-}
-
-function profileDisplayName(profile: KeycloakProfile | null): string | undefined {
-  if (!profile) {
-    return undefined;
-  }
-
-  const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
-  return fullName || profile.username || profile.email;
 }
 
 function toRecord(value: unknown): Readonly<Record<string, unknown>> {

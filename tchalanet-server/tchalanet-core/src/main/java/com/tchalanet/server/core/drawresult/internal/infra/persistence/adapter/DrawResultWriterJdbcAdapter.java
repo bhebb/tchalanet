@@ -11,6 +11,7 @@ import com.tchalanet.server.core.drawresult.internal.infra.cache.DrawResultCache
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
@@ -29,6 +30,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
       insert into draw_result (
         id,
         result_slot_id,
+        result_date,
         occurred_at,
         source_result,
         haiti_result,
@@ -44,8 +46,8 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
         updated_at,
         version
       )
-      values (?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?, 0)
-      on conflict (result_slot_id, occurred_at)
+      values (?, ?, ?::date, ?, ?::jsonb, ?::jsonb, ?::jsonb, ?, ?, ?::jsonb, ?, ?, ?, ?, ?, ?, 0)
+      on conflict (result_slot_id, result_date)
       do update set
         source_result = case
           when draw_result.status in ('CONFIRMED', 'OVERRIDDEN') and ? = false
@@ -112,6 +114,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
     @TchTx
     public UpsertResult upsert(
         ResultSlotId resultSlotId,
+        LocalDate resultDate,
         Instant occurredAt,
         JsonNode sourceResult,
         JsonNode haitiResult,
@@ -139,6 +142,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
             },
             newId,
             resultSlotId.value(),
+            java.sql.Date.valueOf(resultDate),
             Timestamp.from(occurredAt),
             requiredJson(sourceResult),
             requiredJson(haitiResult),
@@ -164,16 +168,16 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
             return result;
         }
 
-        return findAndEvaluateSkip(resultSlotId, occurredAt);
+        return findAndEvaluateSkip(resultSlotId, resultDate);
     }
 
-    private UpsertResult findAndEvaluateSkip(ResultSlotId resultSlotId, Instant occurredAt) {
+    private UpsertResult findAndEvaluateSkip(ResultSlotId resultSlotId, LocalDate resultDate) {
         var rows = jdbc.query(
             """
             select id, status
             from draw_result
             where result_slot_id = ?
-              and occurred_at = ?
+              and result_date = ?
               and deleted_at is null
             """,
             (rs, rowNum) -> new SkipEval(
@@ -181,7 +185,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
                 rs.getString("status")
             ),
             resultSlotId.value(),
-            Timestamp.from(occurredAt)
+            java.sql.Date.valueOf(resultDate)
         );
 
         if (rows.isEmpty()) return null;

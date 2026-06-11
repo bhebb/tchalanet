@@ -31,15 +31,16 @@
           tertiary: $accentPalette,
         ),
         typography: (
-          plain-family: 'Plus Jakarta Sans, system-ui, sans-serif',
-          brand-family: 'Plus Jakarta Sans, system-ui, sans-serif',
+          plain-family: 'Plus Jakarta Sans',
+          brand-family: 'Plus Jakarta Sans',
           regular-weight: 400,
           medium-weight: 500,
           bold-weight: 600,
         ),
-        density: 0,
       )
     );
+    /* Density is applied separately and preset-agnostically via scss/density.scss (runtime class
+       .tch-density-*), so it is not baked per preset. */
   }
 
   /* ================= DARK VARIANT ================= */
@@ -61,14 +62,15 @@
           tertiary: $accentPalette,
         ),
         typography: (
-          plain-family: 'Plus Jakarta Sans, system-ui, sans-serif',
-          brand-family: 'Plus Jakarta Sans, system-ui, sans-serif',
+          plain-family: 'Plus Jakarta Sans',
+          brand-family: 'Plus Jakarta Sans',
           regular-weight: 400,
           medium-weight: 500,
           bold-weight: 600,
         ),
-        density: 0,
       )
     );
+    /* Density is applied separately and preset-agnostically via scss/density.scss (runtime class
+       .tch-density-*), so it is not baked per preset. */
   }
 }

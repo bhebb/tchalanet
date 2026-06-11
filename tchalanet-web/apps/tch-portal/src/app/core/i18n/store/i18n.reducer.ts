@@ -18,6 +18,11 @@ export const i18nFeature = createFeature({
       currentLanguage: language,
       error: null,
     })),
+    on(I18nActions.setLanguages, (state, { languages, currentLanguage }) => ({
+      ...state,
+      languages,
+      currentLanguage: currentLanguage ?? state.currentLanguage,
+    })),
     on(I18nActions.setError, (state, { error }) => ({
       ...state,
       error,

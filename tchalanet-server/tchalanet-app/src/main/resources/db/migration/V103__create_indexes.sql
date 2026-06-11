@@ -43,8 +43,10 @@ CREATE INDEX ix_draw__tenant_scheduled ON draw (tenant_id, scheduled_at);
 CREATE INDEX ix_draw__draw_result_id ON draw (draw_result_id);
 
 -- ─── Draw results ───────────────────────────────────────────────────
-CREATE INDEX ix_draw_result__slot_occurred ON draw_result (result_slot_id, occurred_at DESC);
+CREATE UNIQUE INDEX uq_draw_result_slot_occurred ON draw_result (result_slot_id, occurred_at);
+CREATE UNIQUE INDEX uq_draw_result_slot_result_date ON draw_result (result_slot_id, result_date);
 CREATE INDEX ix_draw_result__source_hash ON draw_result (source_hash);
+
 
 -- ─── Sales zone ──────────────────────────────────────────────────────
 CREATE INDEX ix_sales_zone__tenant  ON sales_zone (tenant_id, active)    WHERE deleted_at IS NULL;

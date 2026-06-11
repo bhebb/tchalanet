@@ -11,7 +11,12 @@ describe('runtime paths', () => {
     expect(API_PATHS.i18n.public).toBe('/api/v1/public/i18n');
     expect(API_PATHS.settings.public).toBe('/api/v1/public/settings');
     expect(API_PATHS.settings.tenantResolve).toBe('/api/v1/tenant/settings/resolve');
-    expect(PORTAL_I18N_CONFIG.backendPath).toBe(API_PATHS.i18n.public);
+  });
+
+  it('keeps i18n loader config local-only (i18n is delivered via bootstrap)', () => {
+    expect(PORTAL_I18N_CONFIG.assetsPrefix).toBe('/assets/i18n/');
+    expect(PORTAL_I18N_CONFIG.assetsSuffix).toBe('.json');
+    expect('backendPath' in PORTAL_I18N_CONFIG).toBe(false);
   });
 
   it('selects the Keycloak host from the browser hostname', () => {
@@ -19,12 +24,19 @@ describe('runtime paths', () => {
     expect(keycloakUrlForHostname('localhost')).toBe(AUTH_CONFIG.localUrl);
   });
 
-  it('recognizes relative and approved local API URLs', () => {
-    expect(APPLICATION_API_URL_PATTERN.test('/api/v1/public/settings')).toBe(true);
-    expect(APPLICATION_API_URL_PATTERN.test('http://localhost:8083/api/v1/public/settings')).toBe(
+  it('attaches the bearer to non-public Tchalanet API URLs only', () => {
+    // Non-public API → bearer attached.
+    expect(APPLICATION_API_URL_PATTERN.test('/api/v1/tenant/runtime/bootstrap')).toBe(true);
+    expect(APPLICATION_API_URL_PATTERN.test('http://localhost:8083/api/v1/tenant/dashboard')).toBe(
       true,
     );
-    expect(APPLICATION_API_URL_PATTERN.test('https://example.com/api/v1/public/settings')).toBe(
+    // Public API → must stay anonymous (no bearer), even with an active session.
+    expect(APPLICATION_API_URL_PATTERN.test('/api/v1/public/settings')).toBe(false);
+    expect(APPLICATION_API_URL_PATTERN.test('http://localhost:8083/api/v1/public/runtime/bootstrap')).toBe(
+      false,
+    );
+    // Foreign origin → never matched.
+    expect(APPLICATION_API_URL_PATTERN.test('https://example.com/api/v1/tenant/dashboard')).toBe(
       false,
     );
   });

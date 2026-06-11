@@ -1,8 +1,8 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
-import { PublicShellComponent } from './shell/public-shell.component';
 
 export type PublicRuleGameId = 'borlette' | 'mariage' | 'lotto3' | 'lotto4';
 
@@ -11,6 +11,7 @@ export interface PublicRuleGame {
   readonly icon: string;
   readonly titleKey: string;
   readonly bodyKey: string;
+  readonly multiplier: number;
   readonly details: readonly PublicRuleDetail[];
 }
 
@@ -34,6 +35,7 @@ export const PUBLIC_RULE_GAMES: readonly PublicRuleGame[] = [
     icon: 'confirmation_number',
     titleKey: 'public.rules.games.borlette.title',
     bodyKey: 'public.rules.games.borlette.body',
+    multiplier: 50,
     details: [
       { labelKey: 'public.rules.games.borlette.detail1_label', valueKey: 'public.rules.games.borlette.detail1_value' },
       { labelKey: 'public.rules.games.borlette.detail2_label', valueKey: 'public.rules.games.borlette.detail2_value' },
@@ -45,6 +47,7 @@ export const PUBLIC_RULE_GAMES: readonly PublicRuleGame[] = [
     icon: 'join_inner',
     titleKey: 'public.rules.games.mariage.title',
     bodyKey: 'public.rules.games.mariage.body',
+    multiplier: 1000,
     details: [
       { labelKey: 'public.rules.games.mariage.detail1_label', valueKey: 'public.rules.games.mariage.detail1_value' },
       { labelKey: 'public.rules.games.mariage.detail2_label', valueKey: 'public.rules.games.mariage.detail2_value' },
@@ -55,6 +58,7 @@ export const PUBLIC_RULE_GAMES: readonly PublicRuleGame[] = [
     icon: 'filter_3',
     titleKey: 'public.rules.games.lotto3.title',
     bodyKey: 'public.rules.games.lotto3.body',
+    multiplier: 500,
     details: [{ labelKey: 'public.rules.games.lotto3.detail1_label', valueKey: 'public.rules.games.lotto3.detail1_value' }],
   },
   {
@@ -62,6 +66,7 @@ export const PUBLIC_RULE_GAMES: readonly PublicRuleGame[] = [
     icon: 'filter_5',
     titleKey: 'public.rules.games.lotto4.title',
     bodyKey: 'public.rules.games.lotto4.body',
+    multiplier: 5000,
     details: [{ labelKey: 'public.rules.games.lotto4.detail1_label', valueKey: 'public.rules.games.lotto4.detail1_value' }],
   },
 ];
@@ -103,11 +108,10 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
 
 @Component({
   selector: 'tch-public-rules-page',
-  imports: [PublicShellComponent, LabelPipe, RouterLink],
+  imports: [DecimalPipe, LabelPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell>
-      <main class="rules-page">
+    <div class="rules-page">
         <section class="rules-page__hero">
           <div class="rules-page__hero-copy">
             <p class="rules-page__eyebrow">{{ 'public.pages.rules.eyebrow' | tchLabel }}</p>
@@ -161,14 +165,55 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
             </div>
           </div>
 
-          <aside class="rules-page__simulation" role="status" aria-live="polite">
+          <aside class="rules-page__simulation" [attr.aria-label]="'public.rules.simulation_title' | tchLabel">
             <span class="rules-page__badge">{{ 'public.rules.badge' | tchLabel }}</span>
             <h2>{{ 'public.rules.simulation_title' | tchLabel }}</h2>
-            <p class="rules-page__simulation-state">{{ 'public.rules.simulation_unavailable' | tchLabel }}</p>
-            <div class="rules-page__simulation-note">
-              <span class="material-symbols-outlined" aria-hidden="true">hourglass_empty</span>
-              <p>{{ 'public.rules.simulation_backend_note' | tchLabel }}</p>
+
+            <div class="rules-page__game-select" role="group" [attr.aria-label]="'public.rules.calc_game_aria' | tchLabel">
+              @for (game of games; track game.id) {
+                <button
+                  type="button"
+                  class="rules-page__game-pill"
+                  [class.rules-page__game-pill--active]="selectedGame() === game.id"
+                  [attr.aria-pressed]="selectedGame() === game.id"
+                  (click)="selectGame(game.id)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">{{ game.icon }}</span>
+                  {{ game.titleKey | tchLabel }}
+                  <span class="rules-page__multiplier">×{{ game.multiplier }}</span>
+                </button>
+              }
             </div>
+
+            <label class="rules-page__amount-label">
+              <span>{{ 'public.rules.calc_amount_label' | tchLabel }}</span>
+              <div class="rules-page__amount-wrap">
+                <span class="rules-page__currency" aria-hidden="true">HTG</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="999999"
+                  step="10"
+                  [value]="betAmount()"
+                  (input)="updateBetAmount($event)"
+                />
+              </div>
+            </label>
+
+            <div
+              class="rules-page__fich"
+              aria-live="polite"
+              [attr.aria-label]="('public.rules.calc_gain_label' | tchLabel) + ': ' + (potentialGain() | number:'1.0-0') + ' HTG'"
+            >
+              <div class="rules-page__fich-punch rules-page__fich-punch--left" aria-hidden="true"></div>
+              <div class="rules-page__fich-punch rules-page__fich-punch--right" aria-hidden="true"></div>
+              <span class="rules-page__fich-eyebrow">{{ 'public.rules.calc_gain_label' | tchLabel }}</span>
+              <span class="rules-page__fich-amount" aria-hidden="true">
+                {{ potentialGain() | number:'1.0-0' }}<small> HTG</small>
+              </span>
+              <span class="rules-page__fich-note">{{ 'public.rules.calc_note' | tchLabel }}</span>
+            </div>
+
             <p class="rules-page__disclaimer">{{ 'public.rules.disclaimer' | tchLabel }}</p>
           </aside>
         </section>
@@ -210,8 +255,7 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
             }
           </div>
         </section>
-      </main>
-    </tch-page-shell>
+    </div>
   `,
   styles: [
     `
@@ -313,8 +357,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
       }
 
       .rules-page__primary-link {
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
       }
 
       .rules-page__secondary-link {
@@ -370,8 +414,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         width: 3rem;
         height: 3rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
       }
 
       .rules-page__game dl {
@@ -411,29 +455,164 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         justify-self: start;
         border-radius: var(--tch-radius-pill, 9999px);
         padding: 0.25rem 0.625rem;
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         font-weight: 800;
-      }
-
-      .rules-page__simulation-state {
-        color: var(--tch-color-primary, var(--mat-sys-primary));
-        font-weight: 800;
-      }
-
-      .rules-page__simulation-note {
-        display: flex;
-        gap: 0.75rem;
-        align-items: flex-start;
-        padding: 1rem;
-        border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
       }
 
       .rules-page__disclaimer {
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         line-height: var(--tch-line-height-label-sm, 1rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .rules-page__game-select {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+
+      .rules-page__game-pill {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.625rem 0.5rem;
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-control, 8px);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        cursor: pointer;
+        font: inherit;
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+      }
+
+      .rules-page__game-pill--active {
+        border-color: var(--tch-color-primary, var(--mat-sys-primary));
+        background: var(--tch-color-primary-fixed, var(--mat-sys-primary-container));
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .rules-page__multiplier {
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 800;
+        color: var(--tch-color-accent, var(--mat-sys-tertiary));
+      }
+
+      .rules-page__game-pill--active .rules-page__multiplier {
+        color: inherit;
+      }
+
+      .rules-page__amount-label {
+        display: grid;
+        gap: 0.375rem;
+      }
+
+      .rules-page__amount-label > span {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .rules-page__amount-wrap {
+        display: flex;
+        align-items: stretch;
+        border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-control, 8px);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        overflow: hidden;
+      }
+
+      .rules-page__currency {
+        display: flex;
+        align-items: center;
+        padding: 0 0.75rem;
+        border-right: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+      }
+
+      .rules-page__amount-wrap input {
+        flex: 1;
+        min-height: var(--tch-touch-target, 48px);
+        border: none;
+        background: transparent;
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        padding: 0 1rem;
+        font: inherit;
+        font-weight: 700;
+      }
+
+      .rules-page__amount-wrap input:focus {
+        outline: none;
+      }
+
+      .rules-page__fich {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        gap: 0.375rem;
+        padding: 1.25rem 2rem;
+        border: 2px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        border-radius: var(--tch-radius-lg, 12px);
+        background-image: radial-gradient(circle, var(--tch-color-outline-variant, rgba(0,0,0,.12)) 1px, transparent 1px);
+        background-size: 18px 18px;
+        background-color: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        text-align: center;
+      }
+
+      .rules-page__fich-punch {
+        position: absolute;
+        top: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        border: 2px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        background: var(--tch-color-surface-tonal, var(--mat-sys-surface-container));
+        transform: translateY(-50%);
+      }
+
+      .rules-page__fich-punch--left { left: -0.75rem; }
+      .rules-page__fich-punch--right { right: -0.75rem; }
+
+      .rules-page__fich-eyebrow {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        font-weight: 700;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .rules-page__fich-amount {
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+        font-family: var(--tch-font-family-mono, monospace);
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 800;
+        animation: rules-fich-pulse 2.5s ease-in-out infinite;
+      }
+
+      .rules-page__fich-amount small {
+        font-size: 0.75em;
+        font-weight: 700;
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      .rules-page__fich-note {
+        font-size: var(--tch-font-size-label-sm, 0.75rem);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+      }
+
+      @keyframes rules-fich-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.65; }
       }
 
       .rules-page__search {
@@ -496,8 +675,8 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
         min-width: 2.75rem;
         min-height: 2.5rem;
         border-radius: var(--tch-radius-pill, 9999px);
-        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        background: var(--tch-color-accent, var(--mat-sys-tertiary));
+        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
         font-family: var(--tch-font-family-mono, monospace);
         font-weight: 800;
       }
@@ -539,13 +718,58 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
 export class PublicRulesPage {
   readonly games = PUBLIC_RULE_GAMES;
   readonly query = signal('');
+  readonly selectedGame = signal<PublicRuleGameId>(sessionReadGame());
+  readonly betAmount = signal(sessionReadAmount());
 
   readonly filteredEntries = computed(() => filterTchalaEntries(PUBLIC_TCHALA_ENTRIES, this.query()));
+
+  readonly potentialGain = computed(() => {
+    const game = this.games.find(g => g.id === this.selectedGame());
+    return this.betAmount() * (game?.multiplier ?? 50);
+  });
 
   updateQuery(event: Event): void {
     const target = event.target;
     this.query.set(target instanceof HTMLInputElement ? target.value : '');
   }
+
+  selectGame(id: PublicRuleGameId): void {
+    this.selectedGame.set(id);
+    sessionWrite(SESSION_GAME_KEY, id);
+  }
+
+  updateBetAmount(event: Event): void {
+    const value = parseInt((event.target as HTMLInputElement).value, 10);
+    if (Number.isFinite(value) && value > 0) {
+      this.betAmount.set(value);
+      sessionWrite(SESSION_AMOUNT_KEY, String(value));
+    }
+  }
+}
+
+const SESSION_GAME_KEY = 'tch.rules.game';
+const SESSION_AMOUNT_KEY = 'tch.rules.amount';
+
+function sessionReadGame(): PublicRuleGameId {
+  try {
+    const v = sessionStorage.getItem(SESSION_GAME_KEY);
+    return v && PUBLIC_RULE_GAMES.some(g => g.id === v) ? (v as PublicRuleGameId) : 'borlette';
+  } catch {
+    return 'borlette';
+  }
+}
+
+function sessionReadAmount(): number {
+  try {
+    const v = parseInt(sessionStorage.getItem(SESSION_AMOUNT_KEY) ?? '', 10);
+    return Number.isFinite(v) && v > 0 ? v : 100;
+  } catch {
+    return 100;
+  }
+}
+
+function sessionWrite(key: string, value: string): void {
+  try { sessionStorage.setItem(key, value); } catch { /* private browsing */ }
 }
 
 export function filterTchalaEntries(entries: readonly PublicTchalaEntry[], query: string): readonly PublicTchalaEntry[] {

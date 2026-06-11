@@ -13,6 +13,7 @@ import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_success_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
+import '../features/notifications/presentation/views/notification_center_page.dart';
 import '../features/pos/presentation/views/pos_stub_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -35,14 +36,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/login',
-        builder: (context, _) => const LoginPage(),
-      ),
-      GoRoute(
-        path: '/pos',
-        builder: (context, _) => const CashierHomePage(),
-      ),
+      GoRoute(path: '/login', builder: (context, _) => const LoginPage()),
+      GoRoute(path: '/pos', builder: (context, _) => const CashierHomePage()),
       GoRoute(
         path: '/pos/setup',
         builder: (context, _) => const CashierSetupPage(),
@@ -64,11 +59,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/pos/profile',
         builder: (context, _) => const PosStubPage(title: 'Profil', index: 3),
       ),
-      // Sell flow — /sell matches server-side HomeAction.route
       GoRoute(
-        path: '/sell',
-        builder: (context, _) => const CashierSellPage(),
+        path: '/pos/notifications',
+        builder: (context, _) => const NotificationCenterPage(),
       ),
+      // Sell flow — /sell matches server-side HomeAction.route
+      GoRoute(path: '/sell', builder: (context, _) => const CashierSellPage()),
       // Ticket flows
       GoRoute(
         path: '/pos/sell/success',

@@ -8,9 +8,7 @@ class I18nOverrides {
 
   factory I18nOverrides.fromJson(Map<String, dynamic> json) => I18nOverrides(
     locale: json['locale'] as String? ?? '',
-    translations: Map<String, String>.from(
-      json['translations'] as Map? ?? {},
-    ),
+    translations: Map<String, String>.from(json['translations'] as Map? ?? {}),
   );
 
   /// Maps the server's I18nBundleView (surfaces grouped) to a flat overrides map.
@@ -44,9 +42,7 @@ class I18nBundle {
   );
 
   factory I18nBundle.fromJson(Map<String, dynamic> json) => I18nBundle(
-    locale: json['locale'] as String? ?? 'fr',
-    translations: Map<String, String>.from(
-      json['translations'] as Map? ?? {},
-    ),
+    locale: json['locale'] as String? ?? 'ht',
+    translations: Map<String, String>.from(json['translations'] as Map? ?? {}),
   );
 }

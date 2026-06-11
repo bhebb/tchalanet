@@ -4,13 +4,13 @@
   "scope": "private",
   "slug": "dashboard",
   "name": "Superadmin dashboard",
-  "label": "superadmin dashboard",
+  "label": "Superadmin dashboard",
   "schemaVersion": 2,
   "schema": {},
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Dashboard global superadmin V1: santé plateforme, tenants, subscriptions, onboarding et alertes.",
+  "description": "Superadmin dashboard V1: platform KPIs, alerts and quick actions (static binding).",
   "model": {
     "meta": {
       "id": "private.dashboard.superadmin",
@@ -18,11 +18,7 @@
       "slug": "dashboard",
       "context": "private_dashboard_superadmin",
       "schemaVersion": 2,
-      "langs": [
-        "fr",
-        "en",
-        "ht"
-      ],
+      "langs": ["fr", "en", "ht"],
       "defaultLang": "fr"
     },
     "theme": {
@@ -37,7 +33,7 @@
         "source": "jsonFile"
       },
       "props": {
-        "fileKey": "private_shell_super_admin"
+        "fileKey": "private_shell_superadmin"
       }
     },
     "content": {
@@ -45,40 +41,26 @@
         "component": "GridLayout",
         "rows": [
           {
-            "id": "health",
-            "labelKey": "layout.private_dashboard_superadmin.health",
+            "id": "kpis",
+            "labelKey": "layout.private_dashboard_superadmin.kpis",
             "columns": [
               {
                 "span": 12,
-                "widgets": [
-                  "dashboard.superadmin.health"
-                ]
+                "widgets": ["dashboard.superadmin.kpis"]
               }
             ]
           },
           {
-            "id": "tenantKpis",
-            "labelKey": "layout.private_dashboard_superadmin.tenant_kpis",
+            "id": "tenantsAlerts",
+            "labelKey": "layout.private_dashboard_superadmin.tenants_alerts",
             "columns": [
               {
-                "span": 12,
-                "widgets": [
-                  "dashboard.superadmin.tenants",
-                  "dashboard.superadmin.subscriptions"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "onboardingAlerts",
-            "labelKey": "layout.private_dashboard_superadmin.onboarding_alerts",
-            "columns": [
+                "span": 6,
+                "widgets": ["dashboard.superadmin.tenants"]
+              },
               {
-                "span": 12,
-                "widgets": [
-                  "dashboard.superadmin.onboarding",
-                  "dashboard.superadmin.alerts"
-                ]
+                "span": 6,
+                "widgets": ["dashboard.superadmin.alerts"]
               }
             ]
           },
@@ -88,75 +70,90 @@
             "columns": [
               {
                 "span": 12,
-                "widgets": [
-                  "dashboard.superadmin.quickActions"
-                ]
+                "widgets": ["dashboard.superadmin.quickActions"]
               }
             ]
           }
         ]
       },
       "widgets": {
-        "dashboard.superadmin.health": {
-          "type": "PlatformHealthWidget",
+        "dashboard.superadmin.kpis": {
+          "type": "KpiGridWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "titleKey": "dashboard.superadmin.health.title"
+            "titleKey": "dashboard.superadmin.kpis.title",
+            "items": [
+              { "id": "totalTenants", "labelKey": "platform.kpi.totalTenants.label", "icon": "apartment" },
+              { "id": "activeTenants", "labelKey": "platform.kpi.activeTenants.label", "icon": "check_circle" },
+              { "id": "activeSubscriptions", "labelKey": "platform.kpi.activeSubscriptions.label", "icon": "workspace_premium" },
+              { "id": "pendingOnboarding", "labelKey": "platform.kpi.pendingOnboarding.label", "icon": "playlist_add_check" }
+            ]
           }
         },
         "dashboard.superadmin.tenants": {
-          "type": "TenantKpiSummaryWidget",
+          "type": "KpiGridWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "titleKey": "dashboard.superadmin.tenants.title"
-          }
-        },
-        "dashboard.superadmin.subscriptions": {
-          "type": "SubscriptionSummaryWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
-          },
-          "props": {
-            "titleKey": "dashboard.superadmin.subscriptions.title"
-          }
-        },
-        "dashboard.superadmin.onboarding": {
-          "type": "TenantOnboardingAlertsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
-          },
-          "props": {
-            "maxItems": 5,
-            "titleKey": "dashboard.superadmin.onboarding.title"
+            "titleKey": "dashboard.superadmin.tenants.title",
+            "items": [
+              { "id": "suspendedTenants", "labelKey": "platform.kpi.suspendedTenants.label", "icon": "block" },
+              { "id": "tenantsWithIssues", "labelKey": "platform.kpi.tenantsWithIssues.label", "icon": "warning" }
+            ]
           }
         },
         "dashboard.superadmin.alerts": {
-          "type": "PlatformAlertsWidget",
+          "type": "AlertsWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "maxItems": 5,
-            "titleKey": "dashboard.superadmin.alerts.title"
+            "titleKey": "dashboard.superadmin.alerts.title",
+            "emptyKey": "dashboard.superadmin.alerts.empty"
           }
         },
         "dashboard.superadmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
-            "mode": "dynamic",
-            "source": "platform_admin_dashboard"
+            "mode": "static"
           },
           "props": {
-            "titleKey": "dashboard.superadmin.quick_actions.title"
+            "titleKey": "dashboard.superadmin.quick_actions.title",
+            "actions": [
+              {
+                "id": "tenants",
+                "labelKey": "platform.action.tenants",
+                "icon": "apartment",
+                "destination": { "kind": "route", "value": "/app/platform/tenants" }
+              },
+              {
+                "id": "onboarding",
+                "labelKey": "platform.action.onboarding",
+                "icon": "playlist_add_check",
+                "destination": { "kind": "route", "value": "/app/platform/tenant-onboarding" }
+              },
+              {
+                "id": "subscriptions",
+                "labelKey": "platform.action.subscriptions",
+                "icon": "workspace_premium",
+                "destination": { "kind": "route", "value": "/app/platform/subscriptions" }
+              },
+              {
+                "id": "health",
+                "labelKey": "platform.action.health",
+                "icon": "monitor_heart",
+                "destination": { "kind": "route", "value": "/app/platform/ops/health" }
+              },
+              {
+                "id": "settings",
+                "labelKey": "platform.action.settings",
+                "icon": "settings",
+                "destination": { "kind": "route", "value": "/app/platform/settings" }
+              }
+            ]
           }
         }
       }
