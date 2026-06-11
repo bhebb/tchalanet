@@ -49,8 +49,8 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 - [x] TTL 10 minutes (`expires_at`) + job périodique (`SalePreparationRetentionScheduler`, ShedLock, per-tenant RLS binding). Check paresseux au confirm/regenerate -> slices 8-9.
 - [x] Rétention : purge EXPIRED/CANCELLED à 7 j ; CONFIRMED à 30 j (lien réconciliation = simple borne 30 j en V1, voir design).
 - [x] Index `(tenant_id, status, expires_at)` + unique partiel `(tenant_id, idempotency_key)`.
-- [ ] `input_hash`/`cart_hash` calculé serveur au prepare (dérive panier + déduplication).
-- [ ] `idempotency_key` + `ticket_id` stockés au confirm.
+- [x] `input_hash` calculé serveur au prepare (`SalePreparationInputCodec.hash`, SHA-256 déterministe de l'input trié).
+- [x] `idempotency_key` + `ticket_id` stockés au confirm (`SalePreparationStorePort.confirm`).
 - [x] Lignes promo générées avec `line_ref` + `regeneration_count` (+ regenerable/max_regenerations snapshotés sur la ligne).
 - [x] Tests : transitions invalides (state machine 3/3). Expiration/purge couverts par contraintes SQL + queries dédiées ; e2e en slice 12.
 
@@ -82,9 +82,9 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 ## 10. Receipt / events / snapshots
 
 - [x] TicketLine : `selectionSource` existe déjà (origin/pricingSource/promotionDecisionId aussi — close-promotion-v1 §11 livré en réalité, son tasks.md est en retard).
-- [ ] Reçu : ligne « Maryaj gratuit offert » + sélection + mise de base.
-- [ ] Events ticket : exposer selectionSource + promotion snapshot.
-- [ ] Vérifier settlement/payout : snapshots only (gardes close-promotion-v1 §12-13).
+- [x] Reçu : déjà implémenté — `TicketReceiptGameLinesFormatter` affiche la ligne + marqueur `Promotion: <label>` (i18n `PROMOTION_FREE_GAME_LINE`, seed V210) ; montants stake/payout par colonne (payout = payoutBaseAmount × odds).
+- [x] Events ticket : déjà exposés — `TicketLinePlacedItem` porte origin/selectionSource/payoutBaseAmount et `TicketPlacedEvent` embarque la `PromotionDecision`.
+- [x] Vérifié : `TicketWinningCalculator` paie `potentialPayoutAmount` snapshoté ; aucun appel `EvaluatePromotionQuery` dans settlement/payout.
 
 ## 11. Mobile POS (change compagnon)
 

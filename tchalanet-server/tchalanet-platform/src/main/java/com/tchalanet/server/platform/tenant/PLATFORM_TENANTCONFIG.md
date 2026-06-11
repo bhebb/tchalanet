@@ -130,6 +130,26 @@ internalSettings:
 
 ---
 
+## Promotion par défaut à l'onboarding — SPÉCIFIÉ, non implémenté
+
+> Source de vérité : `tchalanet-server/openspec/changes/maryaj-gratis-auto-selection-v1/`.
+
+À l'onboarding d'un nouveau tenant, une campagne `Maryaj gratuit` est
+instanciée depuis le template plateforme `DEFAULT_MARYAJ_GRATIS`
+(template -> instance tenant, jamais de campagne globale partagée en runtime).
+
+- V1 : seed du template + **commande admin interne** d'instanciation pour un
+  tenant donné. Le hook automatique dans le provisioning est un follow-up
+  (le provisioning actuel crée seulement tenant + admin).
+- Tenants existants : **pas de backfill automatique silencieux** — tâche ops
+  explicite avec dry-run.
+- La campagne instanciée appartient au tenant : désactivable et modifiable
+  (montant, éligibilité) via l'admin promotion (`core.promotion`).
+
+Détails du template : `core/promotion/promotion_design.md` §16.
+
+---
+
 ## Références
 
 - Provisioning tenant : `tchalanet-docs/docs/02-functional/flows/tenant-onboarding.md`

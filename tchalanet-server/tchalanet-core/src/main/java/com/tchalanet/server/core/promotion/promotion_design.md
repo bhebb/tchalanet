@@ -564,3 +564,62 @@ core.sales integration:
 - [ ] `SalePromotionEffectApplier` default branch throws, never warns.
 - [ ] Odds read from `pricing_odds`; `FREE_GAME_LINE` effect carries no odds.
 - [ ] Snapshot embeds the `PromotionDecision` verbatim; settlement re-reads it.
+
+---
+
+## 16. Sélection auto-générée & template tenant — ✅ IMPLÉMENTÉ (2026-06-10, slices 3-4)
+
+> Source de vérité : `tchalanet-server/openspec/changes/maryaj-gratis-auto-selection-v1/`
+> (proposal + design + tasks). Mettre à jour le statut quand les slices livrent.
+
+### Extension de l'effet (FREE_GAME_LINE)
+
+Champs ajoutés sur `promotion_rule_effect` (migration V222) :
+
+```text
+choice_mode                       NONE | CUSTOMER_SELECTS | SELLER_SELECTS | AUTO_GENERATE
+generation_strategy               RANDOM | LOW_EXPOSURE_RANDOM
+regenerable_before_confirm        boolean (défaut false)
+max_regenerations_before_confirm  int (défaut 3)
+```
+
+Décision d'implémentation : le `selectionMode` de la spec est porté par le
+`PromotionChoiceMode` existant (désormais persisté en `choice_mode`) —
+`AUTO_GENERATE` = sélection auto-générée ; pas de colonne doublon.
+L'enum stratégie vit dans `core.selection.api.model.SelectionGenerationStrategy`
+(module neutre) pour éviter un cycle promotion <-> sales.
+
+Règles :
+
+- `AUTO_GENERATED` exige une stratégie supportée.
+- `LOW_EXPOSURE_RANDOM` est **refusé partout en V1** (validation effet,
+  activation campagne, génération, régénération) — l'enum n'est qu'une
+  réservation.
+- Promotion **ne génère jamais** les numéros. Elle décide l'effet ;
+  `core.sales.SelectionGenerationService` génère et matérialise
+  (voir `core/sales/DOMAIN_SALES.md` §11).
+- Ce mécanisme complète `PromotionSelectionResolver` (§11) : avec
+  `selection_mode = AUTO_GENERATED`, la sélection vient du générateur côté
+  sales (`selectionSource = AUTO_GENERATED`), pas du client ni d'un défaut.
+
+### Template par défaut tenant
+
+Implémenté en code versionné (`MaryajGratisDefaultTemplate`) + commande
+`InstantiateDefaultMaryajGratisCommand` (idempotente par code), endpoint
+`POST /admin/promotions/campaigns/templates/default-maryaj-gratis/instantiate`.
+
+```text
+DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
+  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT, quantity = 1
+  payoutBaseAmount = 50 HTG (défaut, à confirmer — porté par le seed)
+  selectionMode = AUTO_GENERATED, generationStrategy = RANDOM
+  regenerableBeforeConfirm = true, max 3
+  éligibilité : minPaidTotal > 0 + au moins 1 ligne payante
+```
+
+- Instanciation : template plateforme -> campagne tenant ACTIVE via commande
+  admin interne. Hook onboarding = follow-up ; **jamais de backfill
+  automatique silencieux** des tenants existants (tâche ops avec dry-run).
+- Chaque tenant peut ensuite désactiver/pauser la campagne, modifier montant,
+  éligibilité, quantité (valeur fixe V1 ; mode multiplicateur = open question
+  du change).

@@ -9,6 +9,7 @@ import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -57,6 +58,13 @@ public class PromotionJsonMapper {
         var type = typeRaw != null ? PromotionEffectType.valueOf((String) typeRaw) : null;
         var choiceModeRaw = m.get("choiceMode");
         var choiceMode = choiceModeRaw != null ? PromotionChoiceMode.valueOf((String) choiceModeRaw) : null;
+        var strategyRaw = m.get("generationStrategy");
+        var strategy = strategyRaw != null ? SelectionGenerationStrategy.valueOf((String) strategyRaw) : null;
+        var regenerable = Boolean.TRUE.equals(m.get("regenerableBeforeConfirm"));
+        var maxRegenRaw = m.get("maxRegenerationsBeforeConfirm");
+        int maxRegen = maxRegenRaw instanceof Number n
+            ? n.intValue()
+            : PromotionEffect.DEFAULT_MAX_REGENERATIONS;
         var amountRaw = m.get("amount");
         var amount = amountRaw instanceof Number n ? new BigDecimal(n.toString())
             : amountRaw != null ? new BigDecimal((String) amountRaw) : null;
@@ -73,7 +81,10 @@ public class PromotionJsonMapper {
             (String) m.get("currency"),
             (String) m.get("appliesTo"),
             (String) m.get("reason"),
-            choiceMode
+            choiceMode,
+            strategy,
+            regenerable,
+            maxRegen
         );
     }
 
@@ -103,6 +114,9 @@ public class PromotionJsonMapper {
         out.put("appliesTo", effect.appliesTo());
         out.put("reason", effect.reason());
         out.put("choiceMode", effect.choiceMode() == null ? null : effect.choiceMode().name());
+        out.put("generationStrategy", effect.generationStrategy() == null ? null : effect.generationStrategy().name());
+        out.put("regenerableBeforeConfirm", effect.regenerableBeforeConfirm());
+        out.put("maxRegenerationsBeforeConfirm", effect.maxRegenerationsBeforeConfirm());
         return out;
     }
 }

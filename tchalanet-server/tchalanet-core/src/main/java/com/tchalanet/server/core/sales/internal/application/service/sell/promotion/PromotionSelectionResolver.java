@@ -1,15 +1,25 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.selection.SelectionGenerationPurpose;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
+import com.tchalanet.server.core.sales.internal.application.service.sell.generation.SelectionGenerationService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PromotionSelectionResolver {
+
+    private final SelectionGenerationService selectionGenerationService;
+
+    public PromotionSelectionResolver(SelectionGenerationService selectionGenerationService) {
+        this.selectionGenerationService = selectionGenerationService;
+    }
 
     public record SelectionResult(String rawSelection, TicketLineSelectionSource source) {}
 
@@ -45,25 +55,13 @@ public class PromotionSelectionResolver {
             throw new IllegalArgumentException("promotion.free_game_selection_required");
         }
 
-        var generatedSelection = generatedSelectionFor(betType, betOption, decision, effect, index);
-        return new SelectionResult(generatedSelection, TicketLineSelectionSource.PROMOTION_GENERATED);
-    }
-
-    private String generatedSelectionFor(
-        BetType betType,
-        Short betOption,
-        PromotionDecision decision,
-        PromotionEffect effect,
-        int index
-    ) {
-        var seed = Math.abs(java.util.Objects.hash(
-            decision.decisionId(),
-            effect.ruleId(),
-            effect.gameCode(),
+        var generated = selectionGenerationService.generate(
+            GameCode.valueOf(effect.gameCode()),
             betType,
             betOption,
-            index
-        ));
-        return String.format("%02d", seed % 100);
+            SelectionGenerationStrategy.RANDOM,
+            SelectionGenerationPurpose.PROMOTION_FREE_LINE
+        );
+        return new SelectionResult(generated.key().value(), TicketLineSelectionSource.PROMOTION_GENERATED);
     }
 }

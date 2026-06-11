@@ -44,6 +44,31 @@ En tant qu'opérateur ou admin, vous configurez et supervisez le réseau de vent
 
 ---
 
+## Gérer le Maryaj gratuit (promotion par défaut)
+
+> Disponible avec la version « Maryaj gratuit automatique »
+> (spec : `tchalanet-server/openspec/changes/maryaj-gratis-auto-selection-v1/`).
+
+Chaque tenant reçoit une campagne `Maryaj gratuit` instanciée depuis le
+template plateforme. Elle appartient au tenant — vous pouvez :
+
+| Besoin | Action |
+|---|---|
+| Un tenant n'en veut pas | Mettre la campagne en **pause** ou la **désactiver** dans l'admin promotion. Effet immédiat sur les ventes suivantes ; les tickets déjà émis ne changent pas. |
+| Modifier la mise de base offerte | Éditer le `payoutBaseAmount` de l'effet (valeur fixe en V1 ; un mode multiplicateur est à l'étude). |
+| Modifier les conditions | Éditer l'éligibilité de la règle (montant minimum payé, nombre de lignes). |
+| Limiter la régénération des numéros | `maxRegenerationsBeforeConfirm` (3 par défaut) — chaque régénération est auditée. |
+
+Règles à connaître :
+
+- Le vendeur ne valide pas la promo : la ligne gratuite apparaît
+  automatiquement au preview si la campagne est active.
+- Les numéros sont régénérables **avant** confirmation uniquement ; après,
+  ils sont figés sur le ticket.
+- Pas de Maryaj gratuit en vente offline (V1).
+
+---
+
 ## Où vit la vérité
 
 Pour les règles métier et les configurations avancées :

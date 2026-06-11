@@ -4,6 +4,7 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
+import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,11 @@ public class PromotionCampaignActivationPolicy {
             for (var effect : rule.effects()) {
                 if (effect.type() == null || !V1_SUPPORTED_EFFECTS.contains(effect.type())) {
                     throw ProblemRest.badRequest("promotion.campaign.rule_effect_type_unsupported");
+                }
+                var strategy = effect.params() == null ? null : effect.params().get("generationStrategy");
+                if (strategy != null
+                    && !SelectionGenerationStrategy.RANDOM.name().equals(String.valueOf(strategy))) {
+                    throw ProblemRest.badRequest("promotion.campaign.rule_generation_strategy_unsupported");
                 }
             }
         }

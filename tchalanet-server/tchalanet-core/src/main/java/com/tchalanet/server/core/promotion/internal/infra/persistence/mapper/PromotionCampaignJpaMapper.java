@@ -105,6 +105,14 @@ public interface PromotionCampaignJpaMapper {
         if (effect.getChargeType() != null) {
             params.put("chargeType", effect.getChargeType());
         }
+        if (effect.getChoiceMode() != null) {
+            params.put("choiceMode", effect.getChoiceMode().name());
+        }
+        if (effect.getGenerationStrategy() != null) {
+            params.put("generationStrategy", effect.getGenerationStrategy().name());
+            params.put("regenerableBeforeConfirm", effect.isRegenerableBeforeConfirm());
+            params.put("maxRegenerationsBeforeConfirm", effect.getMaxRegenerationsBeforeConfirm());
+        }
         return new PromotionEffectConfigView(effect.getEffectType(), params);
     }
 }

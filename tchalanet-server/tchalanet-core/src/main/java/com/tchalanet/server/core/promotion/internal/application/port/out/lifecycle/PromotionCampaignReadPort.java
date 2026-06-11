@@ -13,6 +13,8 @@ public interface PromotionCampaignReadPort {
 
     Optional<PromotionCampaignView> findById(PromotionCampaignId id);
 
+    Optional<PromotionCampaignView> findByCode(String code);
+
     PromotionCampaignView getRequired(@NotNull PromotionCampaignId promotionCampaignId);
 
 }

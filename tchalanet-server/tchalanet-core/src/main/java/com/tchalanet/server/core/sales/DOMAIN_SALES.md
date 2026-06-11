@@ -350,3 +350,76 @@ OfflineSubmissionTechValidatedEvent (via outbox)
 
 - Le mapper ne valide pas encore `clientSoldAt ≤ draw.cutoffAt` (ROADMAP R4) — un ticket peut être créé pour une draw dont le cutoff est dépassé.
 - `OfflineSubmissionProcessedEvent` publié via `AfterCommit.run` direct, pas outbox sales-side (ROADMAP R2) — risque de perte si crash entre commit et publish.
+
+---
+
+## 11. SalePreparation & Maryaj gratuit automatique — SPÉCIFIÉ, non implémenté
+
+> Source de vérité : `openspec/changes/maryaj-gratis-auto-selection-v1/`
+> (proposal + design + tasks). Cette section décrit l'état cible ; mettre à
+> jour le statut quand les slices sont livrées.
+
+### Pourquoi
+
+Le ticket final doit contenir exactement les numéros vus au preview (ligne
+Maryaj gratuite auto-générée, régénérable avant confirmation). Persister des
+lignes générées n'est plus une query → flux en 3 commands.
+
+### Commands cibles
+
+```text
+PrepareSaleCommand
+  paidLines -> EvaluatePromotionQuery -> FREE_GAME_LINE
+  -> SelectionGenerationService -> persiste SalePreparation (DRAFT)
+  -> SalePreparationView (preparationId + lignes finales)
+
+RegenerateSalePreparationPromotionLineCommand
+  DRAFT non expirée, ligne origin=PROMOTION uniquement,
+  regenerableBeforeConfirm=true, count < maxRegenerationsBeforeConfirm (3),
+  audit actor/session/terminal, remplacement de la sélection.
+
+ConfirmPreparedSaleCommand
+  payload = preparationId + idempotencyKey uniquement (jamais de lignes
+  client). Persiste exactement les lignes préparées ; double confirm même
+  idempotencyKey -> même ticket. Pas de réévaluation promotion au confirm.
+```
+
+`PreviewTicketSaleQuery` (stateless) reste pour le calcul pur.
+
+### SalePreparation (rétention)
+
+```text
+TTL DRAFT 10 min ; statuts DRAFT/CONFIRMED/EXPIRED/CANCELLED ;
+input_hash/cart_hash serveur ; expiration paresseuse + job périodique ;
+purge EXPIRED/CANCELLED à 7 j ; CONFIRMED gardé 30 j ou jusqu'à
+réconciliation ; index (tenant_id, status, expires_at).
+```
+
+### SelectionGenerationService (`core.sales`, jamais `core.promotion`) — ✅ IMPLÉMENTÉ (2026-06-09)
+
+```text
+internal/application/service/sell/generation/
+  SelectionGenerationService (interface)
+  DefaultSelectionGenerationService  (dispatch stratégie + canonicalisation SelectionApi)
+  RandomSelectionGenerator           (SecureRandom ; paire 2D distincte pour MARRIAGE_2D2D)
+api/model/selection/
+  SelectionGenerationStrategy : RANDOM (V1) | LOW_EXPOSURE_RANDOM (refusée partout V1)
+  SelectionGenerationPurpose  : PROMOTION_FREE_LINE | CASHIER_SUGGESTION
+```
+
+Les règles de forme viennent de `catalog.game.api` (`BetType.canonicalWidth`,
+`BetOption`) + `core.selection` (`SelectionApi.canonicalize`) — pas de config
+DB supplémentaire. Branché dans `PromotionSelectionResolver` : remplace
+l'ancien générateur hash déterministe qui produisait un seul nombre 2D pour un
+Maryaj (sélection invalide pour `MARRIAGE_2D2D` — bug latent corrigé).
+
+### Ligne promotionnelle (snapshot TicketLine)
+
+```text
+gameCode=HT_MARYAJ_GRATUIT, origin=PROMOTION, pricingSource=PROMOTION,
+selectionSource=AUTO_GENERATED, stakeAmount=0, lineTotal=0,
+payoutBaseAmount=montant effet, promotionDecisionId.
+```
+
+Maryaj gratuit automatique = **online only** V1 (pas de ligne gratuite via
+`core.offlinesync` tant que la préparation signée côté device n'existe pas).
