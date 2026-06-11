@@ -41,14 +41,6 @@ class _FakeNotificationRepository implements NotificationRepository {
   );
 
   @override
-  Future<NotificationSummary> fetchSummary() async => NotificationSummary(
-    unreadCount: unread.length,
-    criticalCount: 0,
-    actionRequiredCount: unread.length,
-    hasActionRequired: unread.isNotEmpty,
-  );
-
-  @override
   Future<void> markRead(String id) async {
     unread = unread.where((item) => item.id != id).toList();
   }

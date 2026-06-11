@@ -51,9 +51,8 @@ Material 3 restent les références.
 ## Construction
 
 `ThemeBuilder` construit le `ThemeData(useMaterial3: true)` depuis les tokens du thème
-Tchalanet. Le thème local est disponible dès le premier rendu. Le backend peut
-retourner des valeurs pour les mêmes rôles validés, mais ne peut pas sélectionner un
-autre preset mobile.
+Tchalanet. Le thème local est disponible dès le premier rendu. Mobile V1 ignore les
+données thème éventuellement présentes dans les bootstraps serveur.
 
 ## Interdit
 

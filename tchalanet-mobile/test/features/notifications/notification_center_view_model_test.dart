@@ -26,9 +26,6 @@ class _FakeNotificationRepository implements NotificationRepository {
   );
 
   @override
-  Future<NotificationSummary> fetchSummary() async => NotificationSummary.empty;
-
-  @override
   Future<void> markRead(String id) async => markedRead.add(id);
 }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/storage/op_context_storage.dart';
 import '../../../../core/storage/secure_token_storage.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../models/user_role.dart';
@@ -10,12 +11,12 @@ import '../services/auth_service.dart';
 import 'auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._service, this._tokenStorage);
+  AuthRepositoryImpl(this._service, this._tokenStorage, this._opContextStorage);
 
   final AuthService _service;
   final TokenStorage _tokenStorage;
+  final OpContextStorage _opContextStorage;
 
-  @override
   @override
   Future<UserSession> login() async {
     final tokens = await _service.login();
@@ -48,6 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     await _tokenStorage.clear();
+    await _opContextStorage.clear();
   }
 
   Future<void> _storeTokens(AuthTokenData tokens) async {
@@ -63,7 +65,9 @@ class AuthRepositoryImpl implements AuthRepository {
     if (exp == null) return false;
     final expiresAt = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
     // Refresh if less than 60 seconds remaining
-    return DateTime.now().isAfter(expiresAt.subtract(const Duration(seconds: 60)));
+    return DateTime.now().isAfter(
+      expiresAt.subtract(const Duration(seconds: 60)),
+    );
   }
 
   UserSession _buildSession(String accessToken) {
@@ -119,5 +123,6 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
     const AuthService(),
     ref.watch(tokenStorageProvider),
+    ref.watch(opContextStorageProvider),
   );
 });

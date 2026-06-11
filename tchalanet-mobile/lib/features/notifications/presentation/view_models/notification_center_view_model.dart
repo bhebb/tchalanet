@@ -135,7 +135,16 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
         ]),
         clearError: true,
       );
-      await ref.read(notificationSummaryProvider.notifier).refresh(force: true);
+      final current = ref.read(notificationSummaryProvider).summary;
+      ref
+          .read(notificationSummaryProvider.notifier)
+          .applyRuntimeSummary(
+            unreadCount: (current.unreadCount - 1).clamp(
+              0,
+              current.unreadCount,
+            ),
+            criticalCount: current.criticalCount,
+          );
     } catch (_) {
       if (revision != _revision) return;
       state = state.copyWith(errorKey: 'notifications.center.action_error');
@@ -158,7 +167,16 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
         ]),
         clearError: true,
       );
-      await ref.read(notificationSummaryProvider.notifier).refresh(force: true);
+      final current = ref.read(notificationSummaryProvider).summary;
+      ref
+          .read(notificationSummaryProvider.notifier)
+          .applyRuntimeSummary(
+            unreadCount: (current.unreadCount - 1).clamp(
+              0,
+              current.unreadCount,
+            ),
+            criticalCount: current.criticalCount,
+          );
     } catch (_) {
       if (revision != _revision) return;
       state = state.copyWith(errorKey: 'notifications.center.action_error');

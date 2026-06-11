@@ -1,10 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/notification_models.dart';
-import '../../data/repositories/notification_repository.dart';
-import '../../data/repositories/notification_repository_impl.dart';
-
-const notificationPollingInterval = Duration(minutes: 30);
 
 class NotificationSummaryState {
   const NotificationSummaryState({
@@ -29,42 +25,26 @@ class NotificationSummaryState {
 }
 
 class NotificationSummaryController extends Notifier<NotificationSummaryState> {
-  late NotificationRepository _repository;
-  int _revision = 0;
-
   @override
-  NotificationSummaryState build() {
-    _repository = ref.watch(notificationRepositoryProvider);
-    return const NotificationSummaryState(summary: NotificationSummary.empty);
-  }
+  NotificationSummaryState build() =>
+      const NotificationSummaryState(summary: NotificationSummary.empty);
 
-  Future<void> refresh({bool force = false}) async {
-    if (state.refreshing) return;
-    final lastUpdatedAt = state.lastUpdatedAt;
-    if (!force &&
-        lastUpdatedAt != null &&
-        DateTime.now().difference(lastUpdatedAt) <
-            notificationPollingInterval) {
-      return;
-    }
-
-    final revision = _revision;
-    state = state.copyWith(refreshing: true);
-    try {
-      final summary = await _repository.fetchSummary();
-      if (revision != _revision) return;
-      state = NotificationSummaryState(
-        summary: summary,
-        lastUpdatedAt: DateTime.now(),
-      );
-    } catch (_) {
-      if (revision != _revision) return;
-      state = state.copyWith(refreshing: false);
-    }
+  void applyRuntimeSummary({
+    required int unreadCount,
+    required int criticalCount,
+  }) {
+    state = NotificationSummaryState(
+      summary: NotificationSummary(
+        unreadCount: unreadCount,
+        criticalCount: criticalCount,
+        actionRequiredCount: 0,
+        hasActionRequired: false,
+      ),
+      lastUpdatedAt: DateTime.now(),
+    );
   }
 
   void reset() {
-    _revision++;
     state = const NotificationSummaryState(summary: NotificationSummary.empty);
   }
 }

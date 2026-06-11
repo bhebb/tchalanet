@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/storage/op_context_storage.dart';
 import '../../../home/presentation/view_models/cashier_home_providers.dart';
-import '../../../operationalcontext/data/storage/op_context_storage.dart';
 import '../../data/models/cashier_session_models.dart';
 import '../../data/services/cashier_session_service.dart';
 
@@ -38,7 +38,9 @@ class CashierSessionController extends Notifier<SessionOpenState> {
   }) async {
     state = const SessionOpenInProgress();
     try {
-      final session = await ref.read(cashierSessionServiceProvider).open(
+      final session = await ref
+          .read(cashierSessionServiceProvider)
+          .open(
             OpenSessionRequest(
               outletId: outletId,
               terminalId: terminalId,
@@ -46,9 +48,7 @@ class CashierSessionController extends Notifier<SessionOpenState> {
             ),
           );
       // Persist session ID so X-Tch-Sales-Session-Id is sent on all requests
-      await ref
-          .read(opContextStorageProvider)
-          .saveSessionId(session.sessionId);
+      await ref.read(opContextStorageProvider).saveSessionId(session.sessionId);
       // Refresh home — now shows operational layout
       ref.invalidate(cashierHomeProvider);
       state = SessionOpenSuccess(session);
@@ -62,5 +62,5 @@ class CashierSessionController extends Notifier<SessionOpenState> {
 
 final cashierSessionControllerProvider =
     NotifierProvider<CashierSessionController, SessionOpenState>(
-  CashierSessionController.new,
-);
+      CashierSessionController.new,
+    );

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/session_invalidation_controller.dart';
 import '../../data/models/user_session.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -27,6 +28,11 @@ class AuthController extends Notifier<AuthState> {
   @override
   AuthState build() {
     _repository = ref.watch(authRepositoryProvider);
+    ref.listen(sessionInvalidationProvider, (previous, next) {
+      if (previous != next && state is AuthAuthenticated) {
+        logout();
+      }
+    });
     _restore();
     return AuthUnknown();
   }
