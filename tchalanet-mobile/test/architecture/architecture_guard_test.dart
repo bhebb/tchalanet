@@ -2,23 +2,20 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-const _knownCoreFeatureImports = {
-  'lib/core/network/api_client.dart|../../features/cashier/operationalcontext/data/interceptor/op_context_interceptor.dart',
-  'lib/core/network/api_client.dart|../../features/cashier/operationalcontext/data/storage/op_context_storage.dart',
-};
+const _knownCoreFeatureImports = <String>{};
 
 const _knownViewDataSourceImports = {
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart|../../data/services/cashier_ticket_service.dart',
-  'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart|../../../operationalcontext/data/storage/op_context_storage.dart',
+  'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart|../../../../../core/storage/op_context_storage.dart',
   'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart|../../data/services/cashier_ticket_service.dart',
 };
 
 const _knownViewModelDataSourceImports = {
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/cashier_home_service.dart',
   'lib/features/cashier/operationalcontext/presentation/view_models/op_context_setup_controller.dart|../../data/services/cashier_op_context_service.dart',
-  'lib/features/cashier/session/presentation/view_models/cashier_session_controller.dart|../../../operationalcontext/data/storage/op_context_storage.dart',
+  'lib/features/cashier/session/presentation/view_models/cashier_session_controller.dart|../../../../../core/storage/op_context_storage.dart',
   'lib/features/cashier/session/presentation/view_models/cashier_session_controller.dart|../../data/services/cashier_session_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_ticket_service.dart',
@@ -244,7 +241,7 @@ void main() {
         'lib/features/notifications/presentation/view_models/notification_summary_controller.dart',
       ).readAsStringSync();
       final pollingHost = File(
-        'lib/app/notification_polling_host.dart',
+        'lib/app/runtime_polling_host.dart',
       ).readAsStringSync();
 
       expect(auth, contains('Future<void> logout()'));

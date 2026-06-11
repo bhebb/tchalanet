@@ -55,9 +55,12 @@ Nouveau code : privilégier `Notifier`/`AsyncNotifier`; ne pas introduire
   jamais produire une succession de messages identiques ou obsolètes.
 - Les annonces internes persistantes et les notices API temporaires utilisent des
   providers et cycles de vie distincts.
-- `notificationSummaryProvider` est app/session-scoped : chargement immédiat après
-  login, pull du summary toutes les 30 minutes, refresh au retour au premier plan si
-  nécessaire, refresh manuel forcé, reset au logout.
+- `runtimeControllerProvider` est app/session-scoped : bootstrap public avant auth,
+  bootstrap tenant après login, puis pull de `GET /tenant/runtime/state` toutes les
+  10 minutes et au retour au premier plan si le dernier contrôle dépasse 2 minutes.
+- `notificationSummaryProvider` reçoit son état initial du bootstrap tenant puis ses
+  mises à jour du runtime state. Aucun second polling périodique du summary n'est
+  autorisé.
 - `localeProvider` est app-scoped : le `LocaleRepository` est chargé avant `runApp`,
   restaure la préférence non sensible et persiste chaque changement supporté.
 - Le polling ne charge jamais la liste complète. Le centre de notifications charge la

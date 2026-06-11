@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/network/api_client.dart'
     show apiClientProvider, mapDioException;
+import '../../../../../core/storage/op_context_storage.dart';
 import '../models/op_context_options.dart';
-import '../storage/op_context_storage.dart';
 
 class CashierOpContextService {
   const CashierOpContextService(this._dio, this._storage);
@@ -30,8 +30,7 @@ class CashierOpContextService {
   Future<void> saveSelection({
     required String outletId,
     required String terminalId,
-  }) =>
-      _storage.saveSelection(outletId: outletId, terminalId: terminalId);
+  }) => _storage.saveSelection(outletId: outletId, terminalId: terminalId);
 
   Future<void> clearSelection() => _storage.clear();
 }

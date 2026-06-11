@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../operationalcontext/data/storage/op_context_storage.dart';
+import '../../../../core/storage/op_context_storage.dart';
 import '../data/services/cashier_ticket_service.dart';
 
 /// Fetches the ticket receipt from the backend (`POST /tickets/{id}/print`,
@@ -19,7 +19,9 @@ Future<void> printTicket(
 ) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
-    final terminalId = await ref.read(opContextStorageProvider).readTerminalId();
+    final terminalId = await ref
+        .read(opContextStorageProvider)
+        .readTerminalId();
     final bytes = await ref
         .read(cashierTicketServiceProvider)
         .print(ticketId, terminalId: terminalId);
@@ -33,8 +35,6 @@ Future<void> printTicket(
 
     await Printing.layoutPdf(onLayout: (_) async => bytes);
   } on ApiException catch (e) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(e.message)),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(e.message)));
   }
 }

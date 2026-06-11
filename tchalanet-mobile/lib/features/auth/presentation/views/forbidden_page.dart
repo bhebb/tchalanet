@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../design_system/components/components.dart';
+import '../view_models/auth_controller.dart';
 import '../view_models/forbidden_view_model.dart';
 
 class ForbiddenPage extends ConsumerWidget {
@@ -26,7 +27,10 @@ class ForbiddenPage extends ConsumerWidget {
                 title: translations.translate(state.titleKey),
                 message: translations.translate(state.messageKey),
                 actionLabel: translations.translate(state.backActionKey),
-                onAction: () => context.go('/login'),
+                onAction: () async {
+                  await ref.read(authControllerProvider.notifier).logout();
+                  if (context.mounted) context.go('/login');
+                },
               ),
             ),
           ),

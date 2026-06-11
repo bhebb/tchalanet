@@ -1,15 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/cashier/operationalcontext/data/interceptor/op_context_interceptor.dart';
-import '../../features/cashier/operationalcontext/data/storage/op_context_storage.dart';
 import '../config/app_config.dart';
 import '../notifications/app_notification_controller.dart';
+import '../storage/op_context_storage.dart';
 import '../storage/secure_token_storage.dart';
 import 'api_exception.dart';
 import 'api_notice_interceptor.dart';
 import 'auth_interceptor.dart';
 import 'dev_cert_override.dart';
+import 'op_context_interceptor.dart';
+import 'session_invalidation_controller.dart';
 
 final apiClientProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.read(tokenStorageProvider);
@@ -24,7 +25,13 @@ final apiClientProvider = Provider<Dio>((ref) {
     ),
   );
 
-  dio.interceptors.add(AuthInterceptor(tokenStorage));
+  dio.interceptors.add(
+    AuthInterceptor(
+      dio,
+      tokenStorage,
+      ref.read(sessionInvalidationProvider.notifier).invalidate,
+    ),
+  );
   dio.interceptors.add(OpContextInterceptor(opCtxStorage));
   dio.interceptors.add(
     ApiNoticeInterceptor(
