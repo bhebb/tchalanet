@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 
-import { roleGuard } from './core/auth/auth.guard';
+import { roleGuard, spaceDispatchGuard } from './core/auth/auth.guard';
 import { ForbiddenPage } from './core/auth/forbidden.page';
 import { NotFoundPage } from '@tch/web';
 
@@ -19,11 +19,16 @@ export const appRoutes: Route[] = [
     component: ForbiddenPage,
   },
   {
+    // Post-login dispatcher: always redirects to the role-appropriate space.
+    path: 'app',
+    pathMatch: 'full',
+    canActivate: [spaceDispatchGuard],
+    children: [],
+  },
+  {
     path: 'app/platform',
     loadComponent: () =>
-      import('./features/private/shell/private-shell.component').then(
-        m => m.PrivateShellComponent,
-      ),
+      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('SUPER_ADMIN')],
     loadChildren: () =>
       import('./features/platform/platform.routes').then(m => m.platformRoutes),
@@ -31,18 +36,14 @@ export const appRoutes: Route[] = [
   {
     path: 'app/admin',
     loadComponent: () =>
-      import('./features/private/shell/private-shell.component').then(
-        m => m.PrivateShellComponent,
-      ),
+      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('TENANT_ADMIN')],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
   {
     path: 'app/cashier',
     loadComponent: () =>
-      import('./features/private/shell/private-shell.component').then(
-        m => m.PrivateShellComponent,
-      ),
+      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('CASHIER')],
     loadChildren: () =>
       import('./features/cashier/cashier.routes').then(m => m.cashierRoutes),

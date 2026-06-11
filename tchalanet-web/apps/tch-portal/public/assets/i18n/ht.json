@@ -9,21 +9,46 @@
         "terminals": "Tèminal",
         "openSessions": "Sesyon ouvè"
       },
-      "onboarding": { "title": "Onboarding" },
-      "attention": { "title": "Atansyon nesesè" },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "attention": {
+        "title": "Atansyon nesesè"
+      },
       "recentSales": {
         "title": "Vant resan",
         "description": "Dènye vant tikè",
         "empty": "Pa gen vant resan."
       }
     },
-    "onboarding": { "title": "Onboarding", "description": "Etap onboarding tenant" },
-    "users": { "title": "Itilizatè", "description": "Jesyon itilizatè" },
-    "sellers": { "title": "Vandè", "description": "Jesyon vandè" },
-    "outlets": { "title": "Pwen vant", "description": "Jesyon pwen vant" },
-    "terminals": { "title": "Tèminal", "description": "Jesyon tèminal" },
-    "sessions": { "title": "Sesyon", "description": "Jesyon sesyon kesye" },
-    "settings": { "title": "Paramèt", "description": "Konfigirasyon tenant" },
+    "onboarding": {
+      "title": "Onboarding",
+      "description": "Etap onboarding tenant"
+    },
+    "users": {
+      "title": "Itilizatè",
+      "description": "Jesyon itilizatè"
+    },
+    "sellers": {
+      "title": "Vandè",
+      "description": "Jesyon vandè"
+    },
+    "outlets": {
+      "title": "Pwen vant",
+      "description": "Jesyon pwen vant"
+    },
+    "terminals": {
+      "title": "Tèminal",
+      "description": "Jesyon tèminal"
+    },
+    "sessions": {
+      "title": "Sesyon",
+      "description": "Jesyon sesyon kesye"
+    },
+    "settings": {
+      "title": "Paramèt",
+      "description": "Konfigirasyon tenant"
+    },
     "seller": {
       "email": "Imèl",
       "error": "Onboarding vandè a echwe.",
@@ -35,6 +60,27 @@
       "success": "Vandè kreye:",
       "terminalId": "Tèminal",
       "title": "Onboarding vandè"
+    },
+    "action": {
+      "outlets": "Pwen vant",
+      "sessions": "Sesyon",
+      "settings": "Paramèt",
+      "terminals": "Tèminal",
+      "users": "Itilizatè"
+    },
+    "kpi": {
+      "openSessions": {
+        "label": "Sesyon ouvè"
+      },
+      "outlets": {
+        "label": "Pwen vant"
+      },
+      "sellers": {
+        "label": "Vandè"
+      },
+      "terminals": {
+        "label": "Tèminal"
+      }
     }
   },
   "app": {
@@ -44,14 +90,16 @@
     },
     "nav": {
       "dashboard": "Espas mwen"
-    }
+    },
+    "name": "Tchalanet"
   },
   "auth": {
     "forbidden": {
       "back": "Retounen nan paj piblik la",
       "body": "Wòl ou genyen kounye a pa pèmèt ou antre nan espas sa a.",
       "title": "Aksè entèdi"
-    }
+    },
+    "logout": "Dekonekte"
   },
   "common": {
     "error": {
@@ -69,7 +117,8 @@
     "placeholder": {
       "title": "Ekran ap prepare",
       "message": "Fonksyonalite sa a pral disponib byento."
-    }
+    },
+    "coming_soon": "Talè konsa"
   },
   "dashboard": {
     "actions": {
@@ -88,6 +137,48 @@
       "admin": "Tablo admin tenant",
       "cashier": "Tablo kesye",
       "platform": "Tablo platfòm"
+    },
+    "cashier": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "readiness": {
+        "title": "Eta pòs la"
+      }
+    },
+    "superadmin": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "kpis": {
+        "title": "Endikatè"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "tenants": {
+        "title": "Tenant"
+      }
+    },
+    "tenant_admin": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "kpis": {
+        "title": "Endikatè"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "readiness": {
+        "title": "Eta operasyonèl"
+      }
     }
   },
   "error": {
@@ -187,12 +278,36 @@
       "plans": "Plan",
       "tchala": "Tchala",
       "rules": "Règ yo"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Endikatè",
+        "quick_actions": "Aksyon rapid",
+        "readiness_alerts": "Eta & alèt"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Aksyon rapid",
+      "readiness_alerts": "Eta & alèt"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Endikatè",
+      "quick_actions": "Aksyon rapid",
+      "tenants_alerts": "Tenant & alèt"
     }
   },
   "footer": {
     "check_ticket": "Verifikasyon tikè",
     "results": "Rezilta",
-    "support": "Èd"
+    "support": "Èd",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "x": "X (ansyen Twitter)",
+      "youtube": "YouTube"
+    },
+    "release_notes": "Nòt vèsyon"
   },
   "legal": {
     "privacy": "Konfidansyalite",
@@ -202,7 +317,9 @@
     "check_ticket": "Verifye yon tikè",
     "results": "Rezilta",
     "platform": {
-      "section": { "platform": "Platfòm" },
+      "section": {
+        "platform": "Platfòm"
+      },
       "dashboard": "Tablo debò",
       "tenants": "Tenant",
       "tenantProvisioning": "Pwovizyon tenant",
@@ -213,7 +330,9 @@
       "spaceTitle": "Platfòm"
     },
     "admin": {
-      "section": { "admin": "Administrasyon" },
+      "section": {
+        "admin": "Administrasyon"
+      },
       "dashboard": "Tablo debò",
       "onboarding": "Onboarding",
       "users": "Itilizatè",
@@ -225,13 +344,64 @@
       "spaceTitle": "Admin"
     },
     "cashier": {
-      "section": { "cashier": "Kesye" },
+      "section": {
+        "cashier": "Kesye"
+      },
       "dashboard": "Tablo debò",
       "sell": "Nouvo tikè",
       "spaceTitle": "Kesye"
     },
     "private": {
       "ariaLabel": "Navigasyon prive"
+    },
+    "dashboard": "Tablo bò",
+    "tenant_overview": "Apèsi",
+    "users": "Itilizatè",
+    "outlets": "Pwen vant",
+    "terminals": "Tèminal",
+    "sessions": "Sesyon",
+    "tickets_sales": "Tikè & vant",
+    "draws": "Tiraj",
+    "games_pricing": "Jwèt & pri",
+    "limits": "Limit",
+    "promotions": "Pwomosyon",
+    "settings": "Paramèt",
+    "translations": "Tradiksyon",
+    "appearance": "Aparans",
+    "reports": "Rapò",
+    "quick_sale": "Vant rapid",
+    "tickets": "Tikè",
+    "verify_ticket": "Verifye tikè",
+    "session": "Sesyon",
+    "tenants": "Tenant",
+    "tenant_onboarding": "Onbòding tenant",
+    "subscriptions": "Abònman",
+    "platform_overview": "Apèsi platfòm",
+    "platform_health": "Sante platfòm",
+    "platform_reports": "Rapò platfòm",
+    "notifications": "Notifikasyon",
+    "notifications_communications": "Notifikasyon & kominikasyon",
+    "audit": "Odit",
+    "cache": "Kach",
+    "jobs_schedulers": "Travay & planifikatè",
+    "referentials": "Referansyèl",
+    "global_settings": "Paramèt global",
+    "global_translations": "Tradiksyon global",
+    "global_draw_channels": "Kanal tiraj global",
+    "theme_presets": "Tèm",
+    "language": "Lang",
+    "theme_toggle": "Chanje tèm",
+    "profile": "Pwofil",
+    "toggle_menu": "Ouvri/fèmen meni",
+    "section": {
+      "administration": "Administrasyon",
+      "games_sales": "Jwèt & vant",
+      "business_rules": "Règ biznis",
+      "personalization": "Pèsonalizasyon",
+      "reports": "Rapò",
+      "platform": "Platfòm",
+      "operations": "Operasyon",
+      "global_configuration": "Konfigirasyon global"
     }
   },
   "platform": {
@@ -244,16 +414,40 @@
         "pendingNotifications": "Notifikasyon an atant",
         "degradedServices": "Sèvis degraded"
       },
-      "provisioning": { "title": "Pwovizyon resan" },
-      "integrity": { "title": "Entegrite operasyonèl" },
-      "contacts": { "title": "Demann kontak resan" }
+      "provisioning": {
+        "title": "Pwovizyon resan"
+      },
+      "integrity": {
+        "title": "Entegrite operasyonèl"
+      },
+      "contacts": {
+        "title": "Demann kontak resan"
+      }
     },
-    "tenants": { "title": "Tenant", "description": "Jesyon tenant Tchalanet" },
-    "tenantProvisioning": { "title": "Pwovizyon tenant", "description": "Pwovizyone yon nouvo tenant" },
-    "contactRequests": { "title": "Demann kontak", "description": "Jesyon demann ki rive" },
-    "news": { "title": "Nouvèl", "description": "Jesyon nouvèl platfòm" },
-    "notifications": { "title": "Notifikasyon", "description": "Jesyon notifikasyon platfòm" },
-    "ops": { "title": "Operasyon", "description": "Eta sèvis ak monitè" },
+    "tenants": {
+      "title": "Tenant",
+      "description": "Jesyon tenant Tchalanet"
+    },
+    "tenantProvisioning": {
+      "title": "Pwovizyon tenant",
+      "description": "Pwovizyone yon nouvo tenant"
+    },
+    "contactRequests": {
+      "title": "Demann kontak",
+      "description": "Jesyon demann ki rive"
+    },
+    "news": {
+      "title": "Nouvèl",
+      "description": "Jesyon nouvèl platfòm"
+    },
+    "notifications": {
+      "title": "Notifikasyon",
+      "description": "Jesyon notifikasyon platfòm"
+    },
+    "ops": {
+      "title": "Operasyon",
+      "description": "Eta sèvis ak monitè"
+    },
     "onboarding": {
       "adminCreated": "Admin tenant kreye",
       "code": "Kòd tenant",
@@ -270,6 +464,33 @@
       "timezone": "Fizo orè",
       "title": "Pwovizyònman tenant",
       "type": "Tip"
+    },
+    "action": {
+      "health": "Sante sistèm",
+      "onboarding": "Onbòding",
+      "settings": "Paramèt",
+      "subscriptions": "Abònman",
+      "tenants": "Tenant"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Abònman aktif"
+      },
+      "activeTenants": {
+        "label": "Tenant aktif"
+      },
+      "pendingOnboarding": {
+        "label": "Onbòding annatant"
+      },
+      "suspendedTenants": {
+        "label": "Tenant sispann"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenant ak pwoblèm"
+      },
+      "totalTenants": {
+        "label": "Total tenant"
+      }
     }
   },
   "public": {
@@ -872,7 +1093,9 @@
     "dashboard": {
       "title": "Tablo debò",
       "description": "Aktivite vant ou",
-      "action": { "newTicket": "Nouvo tikè" },
+      "action": {
+        "newTicket": "Nouvo tikè"
+      },
       "kpi": {
         "todaySales": "Vant jodi a",
         "commission": "Komisyon",
@@ -883,17 +1106,30 @@
         "message": "Sesyon ou bloke kounye a. Kontakte sipèvizè ou."
       }
     },
-    "session": { "title": "Sesyon", "openedAt": "Louvri a" },
-    "draw": { "title": "Tiraj kounya" },
-    "printer": { "title": "Enprimant" },
-    "tickets": { "title": "Tikè resan", "print": "Enprime" },
+    "session": {
+      "title": "Sesyon",
+      "openedAt": "Louvri a"
+    },
+    "draw": {
+      "title": "Tiraj kounya"
+    },
+    "printer": {
+      "title": "Enprimant"
+    },
+    "tickets": {
+      "title": "Tikè resan",
+      "print": "Enprime"
+    },
     "quickActions": {
       "title": "Aksyon rapid",
       "newTicket": "Nouvo tikè",
       "history": "Istwa",
       "closeSession": "Fèmen sesyon"
     },
-    "sell": { "title": "Nouvo tikè", "description": "Emet yon nouvo tikè" }
+    "sell": {
+      "title": "Nouvo tikè",
+      "description": "Emet yon nouvo tikè"
+    }
   },
   "widget": {
     "error": "Kontni sa a pa disponib pou kounye a.",
@@ -996,5 +1232,24 @@
       "Front": "Devan",
       "Back": "Dèyè"
     }
+  },
+  "surface": {
+    "cashier": "Kesye",
+    "platform_admin": "Platfòm",
+    "tenant_admin": "Administrasyon"
+  },
+  "cta": {
+    "close_session": "Fèmen sesyon an",
+    "sell_ticket": "Vann yon tikè",
+    "verify_ticket": "Verifye yon tikè"
+  },
+  "brand": {
+    "logo_alt": "Logo Tchalanet"
+  },
+  "profile": {
+    "avatar_alt": "Avata itilizatè"
+  },
+  "readiness": {
+    "noIssues": "Pa gen pwoblèm"
   }
 }

@@ -4076,6 +4076,10 @@
       "package.json",
       "nx/core/package-json"
     ],
+    "metadata.targetGroups.NPM Scripts.7": [
+      "package.json",
+      "nx/core/package-json"
+    ],
     "metadata.description": [
       "package.json",
       "nx/core/package-json"
@@ -4297,6 +4301,34 @@
       "nx/core/package-json"
     ],
     "targets.tokens:generate.metadata.runCommand": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.executor": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.options": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.metadata": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.options.script": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.metadata.scriptContent": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.fonts:material-symbols.metadata.runCommand": [
       "package.json",
       "nx/core/package-json"
     ],

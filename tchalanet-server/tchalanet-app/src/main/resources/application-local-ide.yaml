@@ -24,7 +24,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://auth.localtest.me/realms/tchalanet
+          # KC_HOSTNAME (dev) includes the external port — the token iss claim is
+          # https://auth.localtest.me:8443/realms/tchalanet and must match exactly.
+          issuer-uri: https://auth.localtest.me:8443/realms/tchalanet
           # Explicit JWKS endpoint (use http if your local Keycloak uses self-signed certs
           # to avoid JVM trust issues). Adjust to https if Keycloak serves valid TLS.
           jwk-set-uri: https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/certs

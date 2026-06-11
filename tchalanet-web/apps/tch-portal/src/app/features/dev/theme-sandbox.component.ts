@@ -12,6 +12,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ThemeDensity, ThemeMode, ThemeStore } from '@tch/ui/theme';
 
+import { purgeOidcBrowserCache } from './purge-oidc-cache';
+
 interface Swatch {
   readonly label: string;
   readonly token: string;
@@ -87,6 +89,7 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
               </select>
             </label>
             <button type="button" (click)="refresh()">↻</button>
+            <button type="button" (click)="purgeOidc()" title="Purge OIDC cache">🔑 Purge OIDC</button>
           </header>
 
           <section class="block">
@@ -282,6 +285,10 @@ export class ThemeSandboxComponent {
   setDensity(value: ThemeDensity): void {
     this.theme.setDensity(value);
     this.refresh();
+  }
+
+  purgeOidc(): void {
+    purgeOidcBrowserCache();
   }
 
   refresh(): void {

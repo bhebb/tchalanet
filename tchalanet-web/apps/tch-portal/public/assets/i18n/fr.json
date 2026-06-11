@@ -9,21 +9,46 @@
         "terminals": "Terminaux",
         "openSessions": "Sessions ouvertes"
       },
-      "onboarding": { "title": "Onboarding" },
-      "attention": { "title": "Attention requise" },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "attention": {
+        "title": "Attention requise"
+      },
       "recentSales": {
         "title": "Ventes récentes",
         "description": "Dernières ventes de tickets",
         "empty": "Aucune vente récente."
       }
     },
-    "onboarding": { "title": "Onboarding", "description": "Étapes d'onboarding tenant" },
-    "users": { "title": "Utilisateurs", "description": "Gestion des utilisateurs" },
-    "sellers": { "title": "Vendeurs", "description": "Gestion des vendeurs" },
-    "outlets": { "title": "Points de vente", "description": "Gestion des points de vente" },
-    "terminals": { "title": "Terminaux", "description": "Gestion des terminaux" },
-    "sessions": { "title": "Sessions", "description": "Gestion des sessions caissier" },
-    "settings": { "title": "Paramètres", "description": "Configuration du tenant" },
+    "onboarding": {
+      "title": "Onboarding",
+      "description": "Étapes d'onboarding tenant"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Gestion des utilisateurs"
+    },
+    "sellers": {
+      "title": "Vendeurs",
+      "description": "Gestion des vendeurs"
+    },
+    "outlets": {
+      "title": "Points de vente",
+      "description": "Gestion des points de vente"
+    },
+    "terminals": {
+      "title": "Terminaux",
+      "description": "Gestion des terminaux"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Gestion des sessions caissier"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Configuration du tenant"
+    },
     "seller": {
       "email": "E-mail",
       "error": "Échec de l'onboarding du vendeur.",
@@ -35,6 +60,27 @@
       "success": "Vendeur créé :",
       "terminalId": "Terminal",
       "title": "Onboarding vendeur"
+    },
+    "action": {
+      "outlets": "Points de vente",
+      "sessions": "Sessions",
+      "settings": "Paramètres",
+      "terminals": "Terminaux",
+      "users": "Utilisateurs"
+    },
+    "kpi": {
+      "openSessions": {
+        "label": "Sessions ouvertes"
+      },
+      "outlets": {
+        "label": "Points de vente"
+      },
+      "sellers": {
+        "label": "Vendeurs"
+      },
+      "terminals": {
+        "label": "Terminaux"
+      }
     }
   },
   "app": {
@@ -44,14 +90,16 @@
     },
     "nav": {
       "dashboard": "Mon espace"
-    }
+    },
+    "name": "Tchalanet"
   },
   "auth": {
     "forbidden": {
       "back": "Retour à l'accueil public",
       "body": "Votre rôle actuel ne permet pas d'accéder à cette surface.",
       "title": "Accès interdit"
-    }
+    },
+    "logout": "Déconnexion"
   },
   "common": {
     "error": {
@@ -69,7 +117,8 @@
     "placeholder": {
       "title": "Écran en préparation",
       "message": "Cette fonctionnalité sera disponible prochainement."
-    }
+    },
+    "coming_soon": "Bientôt disponible"
   },
   "dashboard": {
     "actions": {
@@ -88,6 +137,48 @@
       "admin": "Tableau de bord admin tenant",
       "cashier": "Tableau de bord caissier",
       "platform": "Tableau de bord plateforme"
+    },
+    "cashier": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "readiness": {
+        "title": "État du poste"
+      }
+    },
+    "superadmin": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "kpis": {
+        "title": "Indicateurs"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "tenants": {
+        "title": "Tenants"
+      }
+    },
+    "tenant_admin": {
+      "alerts": {
+        "empty": "Aucune alerte",
+        "title": "Alertes"
+      },
+      "kpis": {
+        "title": "Indicateurs"
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "readiness": {
+        "title": "État opérationnel"
+      }
     }
   },
   "error": {
@@ -187,6 +278,22 @@
       "plans": "Plans",
       "tchala": "Tchala",
       "rules": "Règles"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Indicateurs",
+        "quick_actions": "Actions rapides",
+        "readiness_alerts": "État & alertes"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Actions rapides",
+      "readiness_alerts": "État & alertes"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Indicateurs",
+      "quick_actions": "Actions rapides",
+      "tenants_alerts": "Tenants & alertes"
     }
   },
   "footer": {
@@ -199,7 +306,8 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "youtube": "YouTube"
-    }
+    },
+    "release_notes": "Notes de version"
   },
   "legal": {
     "privacy": "Confidentialité",
@@ -209,7 +317,9 @@
     "check_ticket": "Vérifier un ticket",
     "results": "Résultats",
     "platform": {
-      "section": { "platform": "Plateforme" },
+      "section": {
+        "platform": "Plateforme"
+      },
       "dashboard": "Tableau de bord",
       "tenants": "Tenants",
       "tenantProvisioning": "Provisionnement tenant",
@@ -220,7 +330,9 @@
       "spaceTitle": "Plateforme"
     },
     "admin": {
-      "section": { "admin": "Administration" },
+      "section": {
+        "admin": "Administration"
+      },
       "dashboard": "Tableau de bord",
       "onboarding": "Onboarding",
       "users": "Utilisateurs",
@@ -232,13 +344,64 @@
       "spaceTitle": "Admin"
     },
     "cashier": {
-      "section": { "cashier": "Caissier" },
+      "section": {
+        "cashier": "Caissier"
+      },
       "dashboard": "Tableau de bord",
       "sell": "Nouveau ticket",
       "spaceTitle": "Caissier"
     },
     "private": {
       "ariaLabel": "Navigation privée"
+    },
+    "dashboard": "Tableau de bord",
+    "tenant_overview": "Vue d'ensemble",
+    "users": "Utilisateurs",
+    "outlets": "Points de vente",
+    "terminals": "Terminaux",
+    "sessions": "Sessions",
+    "tickets_sales": "Tickets & ventes",
+    "draws": "Tirages",
+    "games_pricing": "Jeux & tarifs",
+    "limits": "Limites",
+    "promotions": "Promotions",
+    "settings": "Paramètres",
+    "translations": "Traductions",
+    "appearance": "Apparence",
+    "reports": "Rapports",
+    "quick_sale": "Vente rapide",
+    "tickets": "Tickets",
+    "verify_ticket": "Vérifier un ticket",
+    "session": "Session",
+    "tenants": "Tenants",
+    "tenant_onboarding": "Onboarding tenant",
+    "subscriptions": "Abonnements",
+    "platform_overview": "Vue plateforme",
+    "platform_health": "Santé plateforme",
+    "platform_reports": "Rapports plateforme",
+    "notifications": "Notifications",
+    "notifications_communications": "Notifications & communications",
+    "audit": "Audit",
+    "cache": "Cache",
+    "jobs_schedulers": "Tâches & planificateurs",
+    "referentials": "Référentiels",
+    "global_settings": "Paramètres globaux",
+    "global_translations": "Traductions globales",
+    "global_draw_channels": "Canaux de tirage globaux",
+    "theme_presets": "Thèmes",
+    "language": "Langue",
+    "theme_toggle": "Thème clair/sombre",
+    "profile": "Profil",
+    "toggle_menu": "Ouvrir/fermer le menu",
+    "section": {
+      "administration": "Administration",
+      "games_sales": "Jeux & ventes",
+      "business_rules": "Règles métier",
+      "personalization": "Personnalisation",
+      "reports": "Rapports",
+      "platform": "Plateforme",
+      "operations": "Opérations",
+      "global_configuration": "Configuration globale"
     }
   },
   "platform": {
@@ -251,9 +414,15 @@
         "pendingNotifications": "Notifications en attente",
         "degradedServices": "Services dégradés"
       },
-      "provisioning": { "title": "Provisionnements récents" },
-      "integrity": { "title": "Intégrité opérationnelle" },
-      "contacts": { "title": "Demandes de contact récentes" }
+      "provisioning": {
+        "title": "Provisionnements récents"
+      },
+      "integrity": {
+        "title": "Intégrité opérationnelle"
+      },
+      "contacts": {
+        "title": "Demandes de contact récentes"
+      }
     },
     "tenants": {
       "title": "Tenants",
@@ -295,6 +464,33 @@
       "timezone": "Fuseau horaire",
       "title": "Provisionnement de tenant",
       "type": "Type"
+    },
+    "action": {
+      "health": "Santé système",
+      "onboarding": "Onboarding",
+      "settings": "Paramètres",
+      "subscriptions": "Abonnements",
+      "tenants": "Tenants"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Abonnements actifs"
+      },
+      "activeTenants": {
+        "label": "Tenants actifs"
+      },
+      "pendingOnboarding": {
+        "label": "Onboarding en attente"
+      },
+      "suspendedTenants": {
+        "label": "Tenants suspendus"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenants avec incidents"
+      },
+      "totalTenants": {
+        "label": "Total tenants"
+      }
     }
   },
   "public": {
@@ -897,7 +1093,9 @@
     "dashboard": {
       "title": "Tableau de bord",
       "description": "Votre activité de vente",
-      "action": { "newTicket": "Nouveau ticket" },
+      "action": {
+        "newTicket": "Nouveau ticket"
+      },
       "kpi": {
         "todaySales": "Ventes du jour",
         "commission": "Commission",
@@ -908,17 +1106,30 @@
         "message": "Votre session est actuellement bloquée. Contactez votre superviseur."
       }
     },
-    "session": { "title": "Session", "openedAt": "Ouverte à" },
-    "draw": { "title": "Tirage en cours" },
-    "printer": { "title": "Imprimante" },
-    "tickets": { "title": "Tickets récents", "print": "Imprimer" },
+    "session": {
+      "title": "Session",
+      "openedAt": "Ouverte à"
+    },
+    "draw": {
+      "title": "Tirage en cours"
+    },
+    "printer": {
+      "title": "Imprimante"
+    },
+    "tickets": {
+      "title": "Tickets récents",
+      "print": "Imprimer"
+    },
     "quickActions": {
       "title": "Actions rapides",
       "newTicket": "Nouveau ticket",
       "history": "Historique",
       "closeSession": "Fermer la session"
     },
-    "sell": { "title": "Nouveau ticket", "description": "Émettre un nouveau ticket" }
+    "sell": {
+      "title": "Nouveau ticket",
+      "description": "Émettre un nouveau ticket"
+    }
   },
   "widget": {
     "error": "Ce contenu est momentanément indisponible.",
@@ -1021,5 +1232,24 @@
       "Front": "Avant",
       "Back": "Arrière"
     }
+  },
+  "surface": {
+    "cashier": "Caissier",
+    "platform_admin": "Plateforme",
+    "tenant_admin": "Administration"
+  },
+  "cta": {
+    "close_session": "Fermer la session",
+    "sell_ticket": "Vendre un ticket",
+    "verify_ticket": "Vérifier un ticket"
+  },
+  "brand": {
+    "logo_alt": "Logo Tchalanet"
+  },
+  "profile": {
+    "avatar_alt": "Avatar utilisateur"
+  },
+  "readiness": {
+    "noIssues": "Aucun problème"
   }
 }

@@ -8,20 +8,29 @@ Create shared components first and compose screens from them.
 
 ## Global Components
 
+The shared foundation is available from
+`lib/design_system/components/components.dart`.
+
 | Component | Purpose |
 | --- | --- |
-| `CashierHeader` | Compact seller/outlet/session header. |
-| `SessionStatusBadge` | Open/closed/offline/blocked status indicator. |
 | `PrimaryActionButton` | Main action; filled primary. |
 | `SecondaryActionButton` | Secondary action; outline or surface. |
+| `TonalActionButton` | Lower-emphasis semantic action. |
 | `DangerActionButton` | Destructive/blocking action; red only. |
-| `MetricCard` | One metric with label and numeric value. |
-| `ShortcutButton` | Large shortcut for POS actions. |
+| `SemanticIconAction` | Icon action with a required localized tooltip. |
+| `PosActionButton` | Large POS action using a semantic tone. |
 | `BottomActionBar` | Sticky bottom action zone. |
-| `EmptyState` | No data/cart/tickets state with next action. |
-| `IssueBanner` | Warning/error/offline/blocking message. |
-| `LoadingState` | Loading placeholder for profile/session/draws. |
-| `ErrorState` | Error message plus retry or fallback action. |
+| `FeedbackState` | Loading, empty, error, offline, blocked, or success feedback. |
+| `AppNotificationBanner` | Temporary semantic notification rendered by the root notification host. |
+| `StatusBadge` | Semantic status indicator. |
+| `OnlineBadge` | Online/offline indicator with caller-provided labels. |
+| `SectionHeader` | Section title and optional trailing action. |
+| `SurfaceCard` | Material 3 surface-container card. |
+| `FieldError` | Accessible field validation message. |
+| `AdaptiveNavigationShell` | Bottom navigation on compact screens and navigation rail on wider screens. |
+
+Feature-specific shared components such as `CashierHeader`, `MetricCard`, and
+`IssueBanner` are introduced only when a migrated screen proves their reusable API.
 
 ## Sell Ticket Components
 
@@ -54,6 +63,12 @@ Create shared components first and compose screens from them.
 - Components must be usable on small Android screens.
 - Text must not overflow its touch target.
 - Button labels should be short and action-oriented.
+- Components must not define user-visible text. The caller resolves every label,
+  message, and tooltip through i18n.
+- Components accept semantic variants, not arbitrary feature colors.
+
+Use `FieldError` for one field, `FeedbackState` for durable screen state, and the root
+notification host for temporary cross-screen information, success, warning, or error.
 
 ## Button Rules
 

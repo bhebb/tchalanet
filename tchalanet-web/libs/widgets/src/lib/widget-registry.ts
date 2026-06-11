@@ -1,7 +1,11 @@
 import { Provider, Type } from '@angular/core';
 import { WIDGET_REGISTRY as WIDGET_REGISTRY_TOKEN } from '@tch/page-model';
 
+import { AlertsWidget } from './widgets/alerts.widget';
 import { ContactCtaWidget } from './widgets/contact-cta.widget';
+import { KpiGridWidget } from './widgets/kpi-grid.widget';
+import { QuickActionsWidget } from './widgets/quick-actions.widget';
+import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
 import { FaqWidget } from './widgets/faq.widget';
 import { FeatureGridWidget } from './widgets/feature-grid.widget';
 import { HeroWidget } from './widgets/hero.widget';
@@ -27,6 +31,10 @@ import { TicketVerificationWidget } from './widgets/ticket-verification.widget';
  * V1 supported set. The registry keys are backend widget type strings.
  */
 export const WIDGET_REGISTRY: Readonly<Record<string, Type<unknown>>> = {
+  KpiGridWidget,
+  AlertsWidget,
+  ReadinessSummaryWidget,
+  QuickActionsWidget,
   HeroWidget,
   NewsTickerWidget,
   PublicDrawResultsWidget,

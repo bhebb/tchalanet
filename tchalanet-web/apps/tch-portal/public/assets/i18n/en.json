@@ -9,21 +9,46 @@
         "terminals": "Terminals",
         "openSessions": "Open Sessions"
       },
-      "onboarding": { "title": "Onboarding" },
-      "attention": { "title": "Requires Attention" },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "attention": {
+        "title": "Requires Attention"
+      },
       "recentSales": {
         "title": "Recent Sales",
         "description": "Latest ticket sales",
         "empty": "No recent sales."
       }
     },
-    "onboarding": { "title": "Onboarding", "description": "Tenant onboarding steps" },
-    "users": { "title": "Users", "description": "Manage users" },
-    "sellers": { "title": "Sellers", "description": "Manage sellers" },
-    "outlets": { "title": "Outlets", "description": "Manage points of sale" },
-    "terminals": { "title": "Terminals", "description": "Manage terminals" },
-    "sessions": { "title": "Sessions", "description": "Manage cashier sessions" },
-    "settings": { "title": "Settings", "description": "Tenant configuration" },
+    "onboarding": {
+      "title": "Onboarding",
+      "description": "Tenant onboarding steps"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage users"
+    },
+    "sellers": {
+      "title": "Sellers",
+      "description": "Manage sellers"
+    },
+    "outlets": {
+      "title": "Outlets",
+      "description": "Manage points of sale"
+    },
+    "terminals": {
+      "title": "Terminals",
+      "description": "Manage terminals"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Manage cashier sessions"
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Tenant configuration"
+    },
     "seller": {
       "email": "Email",
       "error": "Seller onboarding failed.",
@@ -35,6 +60,27 @@
       "success": "Seller created:",
       "terminalId": "Terminal",
       "title": "Seller onboarding"
+    },
+    "action": {
+      "outlets": "Outlets",
+      "sessions": "Sessions",
+      "settings": "Settings",
+      "terminals": "Terminals",
+      "users": "Users"
+    },
+    "kpi": {
+      "openSessions": {
+        "label": "Open sessions"
+      },
+      "outlets": {
+        "label": "Outlets"
+      },
+      "sellers": {
+        "label": "Sellers"
+      },
+      "terminals": {
+        "label": "Terminals"
+      }
     }
   },
   "app": {
@@ -44,14 +90,16 @@
     },
     "nav": {
       "dashboard": "My dashboard"
-    }
+    },
+    "name": "Tchalanet"
   },
   "auth": {
     "forbidden": {
       "back": "Back to public home",
       "body": "Your current role does not allow access to this surface.",
       "title": "Forbidden"
-    }
+    },
+    "logout": "Log out"
   },
   "common": {
     "error": {
@@ -69,7 +117,8 @@
     "placeholder": {
       "title": "Screen in preparation",
       "message": "This feature will be connected in a future release."
-    }
+    },
+    "coming_soon": "Coming soon"
   },
   "dashboard": {
     "actions": {
@@ -88,6 +137,48 @@
       "admin": "Tenant admin dashboard",
       "cashier": "Cashier dashboard",
       "platform": "Platform dashboard"
+    },
+    "cashier": {
+      "alerts": {
+        "empty": "No alerts",
+        "title": "Alerts"
+      },
+      "quick_actions": {
+        "title": "Quick actions"
+      },
+      "readiness": {
+        "title": "Readiness"
+      }
+    },
+    "superadmin": {
+      "alerts": {
+        "empty": "No alerts",
+        "title": "Alerts"
+      },
+      "kpis": {
+        "title": "Key metrics"
+      },
+      "quick_actions": {
+        "title": "Quick actions"
+      },
+      "tenants": {
+        "title": "Tenants"
+      }
+    },
+    "tenant_admin": {
+      "alerts": {
+        "empty": "No alerts",
+        "title": "Alerts"
+      },
+      "kpis": {
+        "title": "Key metrics"
+      },
+      "quick_actions": {
+        "title": "Quick actions"
+      },
+      "readiness": {
+        "title": "Readiness"
+      }
     }
   },
   "error": {
@@ -187,12 +278,36 @@
       "plans": "Plans",
       "tchala": "Tchala",
       "rules": "Rules"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Key metrics",
+        "quick_actions": "Quick actions",
+        "readiness_alerts": "Readiness & alerts"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Quick actions",
+      "readiness_alerts": "Readiness & alerts"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Key metrics",
+      "quick_actions": "Quick actions",
+      "tenants_alerts": "Tenants & alerts"
     }
   },
   "footer": {
     "check_ticket": "Ticket verification",
     "results": "Results",
-    "support": "Help"
+    "support": "Help",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "x": "X (formerly Twitter)",
+      "youtube": "YouTube"
+    },
+    "release_notes": "Release notes"
   },
   "legal": {
     "privacy": "Privacy",
@@ -202,7 +317,9 @@
     "check_ticket": "Check a ticket",
     "results": "Results",
     "platform": {
-      "section": { "platform": "Platform" },
+      "section": {
+        "platform": "Platform"
+      },
       "dashboard": "Dashboard",
       "tenants": "Tenants",
       "tenantProvisioning": "Tenant Provisioning",
@@ -213,7 +330,9 @@
       "spaceTitle": "Platform"
     },
     "admin": {
-      "section": { "admin": "Administration" },
+      "section": {
+        "admin": "Administration"
+      },
       "dashboard": "Dashboard",
       "onboarding": "Onboarding",
       "users": "Users",
@@ -225,13 +344,64 @@
       "spaceTitle": "Admin"
     },
     "cashier": {
-      "section": { "cashier": "Cashier" },
+      "section": {
+        "cashier": "Cashier"
+      },
       "dashboard": "Dashboard",
       "sell": "New Ticket",
       "spaceTitle": "Cashier"
     },
     "private": {
       "ariaLabel": "Private navigation"
+    },
+    "dashboard": "Dashboard",
+    "tenant_overview": "Overview",
+    "users": "Users",
+    "outlets": "Outlets",
+    "terminals": "Terminals",
+    "sessions": "Sessions",
+    "tickets_sales": "Tickets & sales",
+    "draws": "Draws",
+    "games_pricing": "Games & pricing",
+    "limits": "Limits",
+    "promotions": "Promotions",
+    "settings": "Settings",
+    "translations": "Translations",
+    "appearance": "Appearance",
+    "reports": "Reports",
+    "quick_sale": "Quick sale",
+    "tickets": "Tickets",
+    "verify_ticket": "Verify ticket",
+    "session": "Session",
+    "tenants": "Tenants",
+    "tenant_onboarding": "Tenant onboarding",
+    "subscriptions": "Subscriptions",
+    "platform_overview": "Platform overview",
+    "platform_health": "Platform health",
+    "platform_reports": "Platform reports",
+    "notifications": "Notifications",
+    "notifications_communications": "Notifications & communications",
+    "audit": "Audit",
+    "cache": "Cache",
+    "jobs_schedulers": "Jobs & schedulers",
+    "referentials": "Referentials",
+    "global_settings": "Global settings",
+    "global_translations": "Global translations",
+    "global_draw_channels": "Global draw channels",
+    "theme_presets": "Theme presets",
+    "language": "Language",
+    "theme_toggle": "Toggle theme",
+    "profile": "Profile",
+    "toggle_menu": "Toggle menu",
+    "section": {
+      "administration": "Administration",
+      "games_sales": "Games & sales",
+      "business_rules": "Business rules",
+      "personalization": "Personalization",
+      "reports": "Reports",
+      "platform": "Platform",
+      "operations": "Operations",
+      "global_configuration": "Global configuration"
     }
   },
   "platform": {
@@ -244,9 +414,15 @@
         "pendingNotifications": "Pending Notifications",
         "degradedServices": "Degraded Services"
       },
-      "provisioning": { "title": "Recent Provisioning" },
-      "integrity": { "title": "Operational Integrity" },
-      "contacts": { "title": "Recent Contact Requests" }
+      "provisioning": {
+        "title": "Recent Provisioning"
+      },
+      "integrity": {
+        "title": "Operational Integrity"
+      },
+      "contacts": {
+        "title": "Recent Contact Requests"
+      }
     },
     "tenants": {
       "title": "Tenants",
@@ -288,6 +464,33 @@
       "timezone": "Timezone",
       "title": "Tenant provisioning",
       "type": "Type"
+    },
+    "action": {
+      "health": "System health",
+      "onboarding": "Onboarding",
+      "settings": "Settings",
+      "subscriptions": "Subscriptions",
+      "tenants": "Tenants"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Active subscriptions"
+      },
+      "activeTenants": {
+        "label": "Active tenants"
+      },
+      "pendingOnboarding": {
+        "label": "Pending onboarding"
+      },
+      "suspendedTenants": {
+        "label": "Suspended tenants"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenants with issues"
+      },
+      "totalTenants": {
+        "label": "Total tenants"
+      }
     }
   },
   "public": {
@@ -890,7 +1093,9 @@
     "dashboard": {
       "title": "Dashboard",
       "description": "Your sales activity",
-      "action": { "newTicket": "New Ticket" },
+      "action": {
+        "newTicket": "New Ticket"
+      },
       "kpi": {
         "todaySales": "Today's Sales",
         "commission": "Commission",
@@ -1027,5 +1232,24 @@
       "Front": "Front",
       "Back": "Back"
     }
+  },
+  "surface": {
+    "cashier": "Cashier",
+    "platform_admin": "Platform",
+    "tenant_admin": "Administration"
+  },
+  "cta": {
+    "close_session": "Close session",
+    "sell_ticket": "Sell a ticket",
+    "verify_ticket": "Verify a ticket"
+  },
+  "brand": {
+    "logo_alt": "Tchalanet logo"
+  },
+  "profile": {
+    "avatar_alt": "User avatar"
+  },
+  "readiness": {
+    "noIssues": "No issues"
   }
 }

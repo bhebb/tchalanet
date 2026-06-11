@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 
 import { LabelPipe } from '@tch/page-model';
 import { PublicFooter } from '@tch/web';
+import { AppRuntimeStore } from '../../../core/runtime';
 import { ShellFeedbackOutletComponent } from '../../../shared/feedback/shell-feedback-outlet.component';
 import { PublicHeader } from './public-header';
 import { PublicShellService } from './public-shell.service';
@@ -61,5 +62,10 @@ import { PublicShellService } from './public-shell.service';
   `],
 })
 export class TchPublicShellComponent {
+  private readonly runtime = inject(AppRuntimeStore);
   protected readonly shellSvc = inject(PublicShellService);
+
+  constructor() {
+    this.runtime.initPublicRuntime();
+  }
 }

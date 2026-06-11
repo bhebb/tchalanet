@@ -4,7 +4,7 @@ export const cashierRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/dashboard/cashier-dashboard.page').then(m => m.CashierDashboardPage),
+      import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
     path: 'sell',

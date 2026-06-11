@@ -250,7 +250,9 @@ export class PublicHeader {
   readonly loginAction = computed(() => publicLoginAction(this.shell()));
 
   login(): void {
-    void this.auth.login();
+    // Land on the /app dispatcher after Keycloak so the user is routed
+    // to the dashboard matching their role, not back to the public page.
+    void this.auth.login(globalThis.location.origin + '/app');
   }
 
   toggleMobileMenu(): void {

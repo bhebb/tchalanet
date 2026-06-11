@@ -4,7 +4,7 @@ export const adminRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
+      import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
     path: 'onboarding',

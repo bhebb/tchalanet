@@ -33,9 +33,21 @@ Agents MUST NOT introduce architecture patterns that contradict these references
 
 ## 0.1 Key principles
 
-These five principles drive every architecture decision in this app. If a class or pattern violates one of them, it is wrong regardless of what it is called.
+These principles drive every architecture decision in this app. If a class or pattern violates one of them, it is wrong regardless of what it is called.
 
-### 1 — MVVM: one View, one ViewModel
+### 1 — Separation of Concerns
+
+The application is split into a UI layer and a Data layer, following Flutter's
+official architecture guide. Each component has a distinct responsibility, interface,
+boundary, and dependency direction:
+
+```text
+UI layer:   Views + ViewModels
+Data layer: Repositories + Services
+Optional:   Domain Use Cases for complex cross-repository orchestration
+```
+
+### 2 — MVVM: one View, one ViewModel
 
 Every screen has exactly one ViewModel. The View displays state; the ViewModel owns logic.
 
@@ -45,7 +57,7 @@ View  →  triggers action →  ViewModel
 ViewModel  →  calls    →  Repository / Use Case
 ```
 
-### 2 — Views contain no business logic
+### 3 — Views contain no business logic
 
 A View (screen/widget) may only:
 - render data provided by its ViewModel
@@ -54,7 +66,7 @@ A View (screen/widget) may only:
 
 A View must NOT: call Dio, parse JSON, access secure storage, evaluate tenant rules, or decide whether a sale is allowed.
 
-### 3 — Repositories are the single source of truth
+### 4 — Repositories are the single source of truth
 
 One Repository per data type. The Repository decides:
 - remote vs. local read
@@ -65,11 +77,11 @@ One Repository per data type. The Repository decides:
 
 A Repository exposes typed domain models, never raw API responses.
 
-### 4 — Services are stateless data sources
+### 5 — Services are stateless data sources
 
 A Service (or DataSource) wraps one external source: an HTTP endpoint, a local DB table, or the platform Keychain. It is stateless and returns raw data. It does not cache or combine sources.
 
-### 5 — `domain/` is for use cases, not models
+### 6 — `domain/` is for use cases, not models
 
 Models live in `data/models/`. The `domain/` folder is optional and exists only for use cases that orchestrate multiple repositories. If a feature has no cross-repository orchestration, skip `domain/` entirely.
 
@@ -84,8 +96,25 @@ Tchalanet Mobile uses:
 - **Repository-driven data layer**
 - **Optional application/domain layer per feature**
 - **Explicit offline support** for POS-critical workflows
+- **Riverpod-only application state management and dependency injection**
 
 The app is NOT organized around global folders like `screens/`, `services/`, `models/`, or `utils/`.
+
+### State-management policy
+
+The durable policy lives in
+[`docs/conventions/state_management.md`](conventions/state_management.md).
+
+Summary:
+
+- View-local state is limited to focus, animation, scroll and text controllers.
+- ViewModels expose immutable typed screen state and commands.
+- Repositories own persisted, cached, offline and remote application data.
+- Screen providers are automatically disposed by default.
+- App/session state resets on logout and tenant change.
+- Riverpod memory state is not persistence.
+- Navigation, dialogs, SnackBars, clipboard, printing and platform calls are one-shot
+  effects, separate from durable state.
 
 ---
 
@@ -230,6 +259,25 @@ Forbidden:
 - ViewModel parsing raw JSON or `Map<String, dynamic>`
 - ViewModel implementing backend business rules
 
+### Automated architecture enforcement
+
+`test/architecture/architecture_guard_test.dart` enforces these boundaries as a
+progressive baseline:
+
+- known legacy violations are listed explicitly and cannot grow;
+- removing a known violation requires removing its baseline entry, so it cannot return;
+- every routed screen is inventoried;
+- screens marked migrated must expose one immutable screen ViewModel through an
+  auto-disposed Riverpod provider;
+- application/session state keeps an explicit reset path.
+- detectable user-visible literals in legacy Views are tracked by an exact
+  decreasing baseline, while migrated/new Views must resolve copy through i18n;
+- feature Views cannot use raw colors or Material palette colors; they use
+  `ColorScheme` roles or approved semantic Tchalanet tokens.
+
+Updating a debt baseline is an architecture decision, not a routine way to make a test
+pass. The migration inventory must explain any deliberate exception.
+
 ---
 
 ## 5. Presentation layer rules
@@ -262,6 +310,17 @@ A ViewModel must NOT:
 - parse raw JSON or `Map<String, dynamic>`
 - mutate local DB directly
 - contain final backend decisions (limits, payout finality, fraud, tenant isolation)
+- expose mutable state, raw exceptions, or raw data-source responses
+- perform navigation, show dialogs/SnackBars, print, or invoke platform plugins
+
+Provider policy:
+
+- Prefer `NotifierProvider` and `AsyncNotifierProvider`.
+- Use `Provider` for DI and pure synchronous derivations.
+- Use `FutureProvider` only for simple read-only queries without commands.
+- Use `StreamProvider` only for genuine Repository-backed streams.
+- Do not introduce new `StateNotifier` implementations.
+- Document and test every provider that is kept alive beyond its natural scope.
 
 ---
 

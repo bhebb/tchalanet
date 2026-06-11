@@ -9,8 +9,8 @@ sealed class AuthState {}
 final class AuthUnknown extends AuthState {}
 
 final class AuthUnauthenticated extends AuthState {
-  AuthUnauthenticated({this.errorMessage});
-  final String? errorMessage;
+  AuthUnauthenticated({this.errorKey});
+  final String? errorKey;
 }
 
 final class AuthLoading extends AuthState {}
@@ -22,6 +22,7 @@ final class AuthAuthenticated extends AuthState {
 
 class AuthController extends Notifier<AuthState> {
   late AuthRepository _repository;
+  int _operationRevision = 0;
 
   @override
   AuthState build() {
@@ -31,26 +32,36 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> _restore() async {
+    final revision = _operationRevision;
     try {
       final session = await _repository.restoreSession();
-      state = session != null ? AuthAuthenticated(session) : AuthUnauthenticated();
+      if (revision != _operationRevision) return;
+      state = session != null
+          ? AuthAuthenticated(session)
+          : AuthUnauthenticated();
     } catch (_) {
+      if (revision != _operationRevision) return;
       state = AuthUnauthenticated();
     }
   }
 
   Future<void> login() async {
+    final revision = ++_operationRevision;
     state = AuthLoading();
     try {
       final session = await _repository.login();
+      if (revision != _operationRevision) return;
       state = AuthAuthenticated(session);
-    } catch (e) {
-      state = AuthUnauthenticated(errorMessage: e.toString());
+    } catch (_) {
+      if (revision != _operationRevision) return;
+      state = AuthUnauthenticated(errorKey: 'auth.login.error');
     }
   }
 
   Future<void> logout() async {
+    final revision = ++_operationRevision;
     await _repository.logout();
+    if (revision != _operationRevision) return;
     state = AuthUnauthenticated();
   }
 }

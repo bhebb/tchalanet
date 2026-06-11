@@ -12,6 +12,10 @@ Conventions techniques Flutter/Dart. Les docs détaillés vivent à la racine de
 | API contract | [`../API_CONTRACT.md`](../API_CONTRACT.md) |
 | Playbook (delivery) | [`../PLAYBOOK.md`](../PLAYBOOK.md) |
 | i18n runtime | [`i18n.md`](i18n.md) |
-| Theme (tokens + runtime) | [`theme.md`](theme.md) |
+| Riverpod state management | [`state_management.md`](state_management.md) |
+| Material 3 | [`material3.md`](material3.md) |
+| Theme Tchalanet unique | [`theme.md`](theme.md) |
+| Styles et tokens | [`style.md`](style.md) |
+| Composants partagés | [`components.md`](components.md) |
 
 > Règle : les conventions mobile sont mises à jour **en même commit** que le code qui change la règle.

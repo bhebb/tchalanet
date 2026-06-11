@@ -4,7 +4,7 @@ export const platformRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/dashboard/platform-dashboard.page').then(m => m.PlatformDashboardPage),
+      import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
     path: 'tenants',

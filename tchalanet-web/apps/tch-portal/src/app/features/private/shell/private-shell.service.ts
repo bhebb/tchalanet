@@ -1,10 +1,12 @@
 import { Injectable, Signal, computed, inject } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { catchError, defer, filter, of, shareReplay } from 'rxjs';
 
 import { NavigationSection } from '@tch/api';
+import { PageModelApi, PageRuntimeResponse, PrivateShellRuntime } from '@tch/page-model';
 
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import {
   CASHIER_NAVIGATION,
   PLATFORM_NAVIGATION,
@@ -14,7 +16,25 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class PrivateShellService {
+  private readonly auth = inject(AuthSessionService);
+  private readonly api = inject(PageModelApi);
   private readonly router = inject(Router);
+
+  readonly page$ = defer(() =>
+    this.auth.session().roles.includes('SUPER_ADMIN')
+      ? this.api.getPlatformPage()
+      : this.api.getTenantPage(),
+  ).pipe(shareReplay(1));
+
+  readonly page = toSignal<PageRuntimeResponse | undefined>(
+    this.page$.pipe(catchError(() => of(undefined))),
+    { initialValue: undefined },
+  );
+
+  readonly shell = computed<PrivateShellRuntime | undefined>(() => {
+    const s = this.page()?.shell;
+    return s?.type === 'private' ? (s as PrivateShellRuntime) : undefined;
+  });
 
   private readonly navEnd = toSignal(
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)),
@@ -30,6 +50,8 @@ export class PrivateShellService {
   });
 
   readonly navigation: Signal<readonly NavigationSection[]> = computed(() => {
+    const sections = this.shell()?.navigationDrawer?.sections;
+    if (sections?.length) return sections as NavigationSection[];
     const space = this.space();
     if (space === 'platform') return PLATFORM_NAVIGATION;
     if (space === 'admin') return TENANT_ADMIN_NAVIGATION;

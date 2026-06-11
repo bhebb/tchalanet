@@ -74,6 +74,13 @@ tch:
       base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://tchalanet.com}
       ticket-path-template: ${TCH_TICKET_PATH_TEMPLATE:/public/check-ticket?code={code}}
 
+  public-contact:
+    notify:
+      enabled: ${TCH_PUBLIC_CONTACT_NOTIFY_ENABLED:true}
+      recipients:
+        - admin@tchalanet.com
+      cc: []
+
   public:
     tickets:
       rate-limit:

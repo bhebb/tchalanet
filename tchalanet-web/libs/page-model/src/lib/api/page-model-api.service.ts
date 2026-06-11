@@ -26,6 +26,12 @@ export class PageModelApi {
   getTenantPage(lang?: string): Observable<PageRuntimeResponse> {
     return this.backend.get<PageRuntimeResponse>('/tenant/dashboard', { params: langParams(lang) });
   }
+
+  getCashierHomePage(lang?: string): Observable<PageRuntimeResponse> {
+    return this.backend.get<PageRuntimeResponse>('/tenant/cashier/home', {
+      params: langParams(lang),
+    });
+  }
 }
 
 function langParams(lang?: string): HttpParams | undefined {

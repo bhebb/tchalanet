@@ -26,6 +26,29 @@ body {
   }
 }
 
+/* ── User (account) menu panel — rendered in a CDK overlay, so styled globally ── */
+.user-menu__panel {
+  min-width: 200px !important;
+
+  .user-menu__name {
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 44px;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.25rem;
+    flex: none;
+  }
+}
+
 body {
   background: var(--tch-color-background);
   color: var(--tch-color-foreground);

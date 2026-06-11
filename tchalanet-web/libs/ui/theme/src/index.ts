@@ -3,7 +3,6 @@
 //   "stylePreprocessorOptions": { "includePaths": ["libs/ui/theme/src"] }
 // Then in styles.scss: @use 'scss/runtime-root'; @use 'scss/runtime-vars';
 
-export * from './lib/theme-api';
 export * from './lib/theme-dom-applier';
 export * from './lib/theme-presets';
 export * from './lib/theme.repository';

@@ -360,8 +360,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -372,8 +371,7 @@
               "cwd": "web-backup/apps/tchalanet-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
+                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
               },
               "command": "playwright test src/example.spec.ts --output=../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -420,8 +418,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -450,8 +447,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
             ],
             "dependsOn": [
               {
@@ -1593,8 +1589,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1605,8 +1600,7 @@
               "cwd": "apps/tch-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
+                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
               },
               "command": "playwright test src/example.spec.ts --output=../../dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -1644,8 +1638,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1665,8 +1658,7 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
             ],
             "dependsOn": [
               {
@@ -1966,8 +1958,8 @@
                 "budgets": [
                   {
                     "type": "initial",
-                    "maximumWarning": "500kb",
-                    "maximumError": "1mb"
+                    "maximumWarning": "1mb",
+                    "maximumError": "2mb"
                   },
                   {
                     "type": "anyComponentStyle",
@@ -2269,7 +2261,8 @@
               "format",
               "test",
               "theme:generate",
-              "tokens:generate"
+              "tokens:generate",
+              "fonts:material-symbols"
             ]
           },
           "description": "",
@@ -2366,6 +2359,18 @@
             "configurations": {},
             "parallelism": true
           },
+          "fonts:material-symbols": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "fonts:material-symbols"
+            },
+            "metadata": {
+              "scriptContent": "node tools/build-material-symbols-font.mjs",
+              "runCommand": "pnpm run fonts:material-symbols"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
           "nx-release-publish": {
             "executor": "@nx/js:release-publish",
             "dependsOn": [
@@ -2428,13 +2433,7 @@
         "type": "implicit"
       }
     ],
-    "shared-config": [
-      {
-        "source": "shared-config",
-        "target": "api",
-        "type": "static"
-      }
-    ],
+    "shared-config": [],
     "ui-components": [
       {
         "source": "ui-components",
@@ -2522,5 +2521,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1781037630215
+  "computedAt": 1781201754460
 }

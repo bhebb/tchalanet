@@ -19,3 +19,4 @@ export * from './lib/page-error/page-error';
 export * from './lib/section-header/section-header';
 export * from './lib/sidebar-nav/sidebar-nav';
 export * from './lib/status-badge/status-badge';
+export * from './lib/user-menu/user-menu';

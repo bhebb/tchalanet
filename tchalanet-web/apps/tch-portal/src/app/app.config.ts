@@ -79,8 +79,6 @@ export const appConfig: ApplicationConfig = {
       useValue: {
         assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
         assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
-        backendPath: PORTAL_I18N_CONFIG.backendPath,
-        surfaces: PORTAL_I18N_CONFIG.surfaces,
       },
     },
     provideKeycloak({

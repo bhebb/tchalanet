@@ -60,6 +60,49 @@ export function stringProp(config: WidgetConfig | undefined, key: string): strin
   return typeof value === 'string' ? value : undefined;
 }
 
+/**
+ * Optional widget data binding. A config value may be a literal, or a binding that resolves from the
+ * widget's resolved dynamic payload (`dynamic.widgets[id]`, passed to the widget as its `dynamic`
+ * input) by dot-path. Bindings are opt-in and backward-compatible — a widget without one keeps its
+ * current behavior.
+ */
+export interface WidgetBinding {
+  readonly source: 'dynamic';
+  readonly path: string;
+}
+
+const FORBIDDEN_PATH_PARTS = new Set(['__proto__', 'prototype', 'constructor']);
+
+/** Type guard for a `{ source: 'dynamic', path }` binding descriptor. */
+export function isBinding(value: unknown): value is WidgetBinding {
+  return (
+    isRecord(value) && value['source'] === 'dynamic' && typeof value['path'] === 'string'
+  );
+}
+
+/** Resolve a dot-path against a value (e.g. `kpis.totalSellers`). Proto-pollution safe. */
+export function resolvePath(root: unknown, path: string): unknown {
+  if (!path) {
+    return undefined;
+  }
+  let cursor: unknown = root;
+  for (const part of path.split('.')) {
+    if (!part || FORBIDDEN_PATH_PARTS.has(part) || !isRecord(cursor)) {
+      return undefined;
+    }
+    cursor = cursor[part];
+  }
+  return cursor;
+}
+
+/**
+ * Resolve a config value that may be a literal or a `{ source, path }` binding.
+ * Bindings read from the widget's `dynamic` payload; literals pass through unchanged.
+ */
+export function resolveBinding(value: unknown, dynamic: unknown): unknown {
+  return isBinding(value) ? resolvePath(dynamic, value.path) : value;
+}
+
 /** Derive a stable human fallback label from an i18n key (e.g. `home.hero.title` → `title`). */
 export function keyFallback(key: string | undefined): string {
   if (!key) {

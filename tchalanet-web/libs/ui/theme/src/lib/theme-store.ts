@@ -1,7 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, of, tap } from 'rxjs';
 
-import { ThemeApi } from './theme-api';
 import { ThemeDomApplier } from './theme-dom-applier';
 import { defaultThemePresetId } from './theme-presets';
 import { ThemeRepository } from './theme.repository';
@@ -15,7 +13,6 @@ const themeDensityStorageKey = 'tchalanet.web.theme.density';
 
 @Injectable()
 export class ThemeStore {
-  private readonly api = inject(ThemeApi);
   private readonly dom = inject(ThemeDomApplier);
   private readonly repository = inject(ThemeRepository);
   private readonly activeThemeSignal = signal<RuntimeTheme>(this.defaultRuntimeTheme());
@@ -44,37 +41,25 @@ export class ThemeStore {
     this.apply(this.resolveStoredTheme());
   }
 
-  /** Loads the public theme runtime. Returns the stream (cold) so callers can await completion;
-   *  it emits the applied theme, or `null` if it fell back. The caller must subscribe. */
-  loadPublicTheme(): Observable<RuntimeTheme | null> {
-    this.loadStateSignal.set('loading');
-    return this.api.getPublicTheme(this.activeTheme().mode).pipe(
-      tap((theme) => {
-        this.apply(this.resolveBackendTheme(theme));
-        this.loadStateSignal.set('ready');
-      }),
-      catchError(() => {
-        this.apply(this.resolveStoredTheme());
-        this.loadStateSignal.set('fallback');
-        return of(null);
-      }),
-    );
-  }
-
-  /** Loads the tenant theme runtime. Same contract as `loadPublicTheme`. */
-  loadPrivateTheme(): Observable<RuntimeTheme | null> {
-    this.loadStateSignal.set('loading');
-    return this.api.getPrivateTheme(this.activeTheme().mode).pipe(
-      tap((theme) => {
-        this.apply(this.resolveBackendTheme(theme));
-        this.loadStateSignal.set('ready');
-      }),
-      catchError(() => {
-        this.apply(this.resolveStoredTheme());
-        this.loadStateSignal.set('fallback');
-        return of(null);
-      }),
-    );
+  /**
+   * Apply a theme delivered inside the runtime bootstrap response — no extra theme HTTP call.
+   * `presetCode`/`tokens` come from the private bootstrap; public bootstrap may pass mode only.
+   */
+  applyBootstrapTheme(input: {
+    presetCode?: string | null;
+    mode?: string | null;
+    tokens?: Readonly<Record<string, string>> | null;
+  }): void {
+    const mode = normalizeMode(input.mode);
+    const theme: RuntimeTheme = {
+      activePresetKey: input.presetCode || this.repository.defaultPreset().id,
+      mode,
+      effectiveMode: this.effectiveMode(mode),
+      density: this.activeTheme().density,
+      tokens: { ...(input.tokens ?? {}) },
+    };
+    this.apply(this.resolveBackendTheme(theme));
+    this.loadStateSignal.set('ready');
   }
 
   setPreset(presetKey: string): void {
@@ -186,6 +171,10 @@ function restorePresetKey(): string {
 function restoreDensity(): ThemeDensity {
   const value = localStorage.getItem(themeDensityStorageKey);
   return value === 'compact' || value === 'dense' ? value : 'comfortable';
+}
+
+function normalizeMode(value: string | null | undefined): ThemeMode {
+  return value === 'dark' || value === 'system' ? value : 'light';
 }
 
 function systemPrefersDark(): boolean {

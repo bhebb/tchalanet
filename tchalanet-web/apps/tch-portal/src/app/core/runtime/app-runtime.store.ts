@@ -5,6 +5,8 @@ import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '@tch/shared-config';
 import { I18nFacade } from '../i18n';
 import { RuntimeSettingsStore } from '@tch/shared-config';
+import { PrivateRuntimeInitializer } from './private-runtime-initializer';
+import { PublicRuntimeInitializer } from './public-runtime-initializer';
 
 type RuntimeBootstrapState = 'idle' | 'loading' | 'ready' | 'error';
 type RuntimeBootstrapScope = 'none' | 'public' | 'private';
@@ -16,6 +18,8 @@ export class AppRuntimeStore {
   private readonly settings = inject(RuntimeSettingsStore);
   private readonly features = inject(FeatureFlags);
   private readonly theme = inject(ThemeStore);
+  private readonly privateInitializer = inject(PrivateRuntimeInitializer);
+  private readonly publicInitializer = inject(PublicRuntimeInitializer);
   private readonly bootstrapState = signal<RuntimeBootstrapState>('idle');
   private readonly bootstrapScope = signal<RuntimeBootstrapScope>('none');
   private readonly bootstrapError = signal<unknown | null>(null);
@@ -54,8 +58,11 @@ export class AppRuntimeStore {
           return;
         }
 
-        this.theme.loadPublicTheme().subscribe();
-        this.settings.loadPublicSettings();
+        // Single public runtime call: bootstrap carries settings + theme + i18n + navigation +
+        // pageModelRef. No separate settings/theme HTTP calls (only bootstrap + the page call).
+        this.publicInitializer.initialize(this.i18n.currentLanguage()).subscribe({
+          error: (err: unknown) => this.bootstrapError.set(err),
+        });
         this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready');
       });
   }
@@ -74,18 +81,21 @@ export class AppRuntimeStore {
       .refreshSession()
       .then(session => {
         if (session.authenticated) {
-          this.theme.loadPrivateTheme().subscribe();
-          this.settings.loadPrivateSettings();
+          // Single private runtime call: bootstrap carries settings + theme + i18n + nav + readiness.
+          this.privateInitializer.initialize().subscribe({
+            error: (err: unknown) => this.bootstrapError.set(err),
+          });
           return;
         }
 
-        this.theme.loadPublicTheme().subscribe();
-        this.settings.loadPublicSettings();
+        // Anonymous on a private route: fall back to the public bootstrap (still one runtime call).
+        this.publicInitializer.initialize(this.i18n.currentLanguage()).subscribe({
+          error: (err: unknown) => this.bootstrapError.set(err),
+        });
       })
       .catch((error: unknown) => {
         this.bootstrapError.set(error);
-        this.theme.loadPublicTheme().subscribe();
-        this.settings.loadPublicSettings();
+        this.publicInitializer.initialize(this.i18n.currentLanguage()).subscribe();
       })
       .finally(() => this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready'));
   }
