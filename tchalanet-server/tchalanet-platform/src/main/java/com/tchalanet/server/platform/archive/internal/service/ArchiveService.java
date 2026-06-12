@@ -39,18 +39,21 @@ public class ArchiveService implements ArchiveApi {
   private final ArchiveObjectJdbcRepository objectRepo;
   private final ArchiveStoragePort storage;
   private final ObjectMapper objectMapper;
+  private final ArchiveMetrics metrics;
 
   // ── Lookup ─────────────────────────────────────────────────────────────────
 
   @Override
   public ArchivedEntityView findArchivedTicket(UUID tenantId, UUID ticketId) {
     log.debug("archive: findArchivedTicket tenant={} ticket={}", tenantId, ticketId);
+    metrics.recordLookupFallback();
     return lookupTicketByEntity(tenantId, ticketId, null);
   }
 
   @Override
   public ArchivedEntityView findArchivedTicketByPublicCode(UUID tenantId, String publicCode) {
     log.debug("archive: findArchivedTicketByPublicCode tenant={} code={}", tenantId, publicCode);
+    metrics.recordLookupFallback();
     return lookupTicketByPublicCode(tenantId, publicCode);
   }
 
@@ -101,6 +104,7 @@ public class ArchiveService implements ArchiveApi {
         }
       } catch (Exception ex) {
         log.error("archive: failed reading ticket object uri={}: {}", uri, ex.getMessage(), ex);
+        metrics.recordObjectReadError("sales_ticket");
       }
     }
     return ArchivedEntityView.notFound(ticketId);
@@ -115,6 +119,7 @@ public class ArchiveService implements ArchiveApi {
   @Override
   public ArchivedEntityView findArchivedPayout(UUID tenantId, UUID payoutId) {
     log.debug("archive: findArchivedPayout tenant={} payout={}", tenantId, payoutId);
+    metrics.recordLookupFallback();
     List<Map<String, Object>> entries =
         lookupRepo.findByEntity("payout", "PAYOUT", payoutId);
     if (entries.isEmpty()) return ArchivedEntityView.notFound(payoutId);
@@ -144,6 +149,7 @@ public class ArchiveService implements ArchiveApi {
         }
       } catch (Exception ex) {
         log.error("archive: failed reading payout object uri={}: {}", uri, ex.getMessage(), ex);
+        metrics.recordObjectReadError("payout");
       }
     }
     return ArchivedEntityView.notFound(payoutId);
@@ -193,6 +199,7 @@ public class ArchiveService implements ArchiveApi {
         }
       } catch (Exception ex) {
         log.error("archive: failed to read archive object uri={}: {}", uri, ex.getMessage(), ex);
+        metrics.recordObjectReadError("audit_log");
       }
     }
 

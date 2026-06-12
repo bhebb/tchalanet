@@ -66,4 +66,17 @@ public class ArchiveRunJdbcRepository {
         "SELECT * FROM archive_run ORDER BY started_at DESC LIMIT :limit",
         Map.of("limit", limit));
   }
+
+  public List<Map<String, Object>> listFailed(int limit) {
+    return jdbc.queryForList(
+        "SELECT * FROM archive_run WHERE status = 'FAILED' ORDER BY started_at DESC LIMIT :limit",
+        Map.of("limit", limit));
+  }
+
+  public long countByStatus(String status) {
+    Long n = jdbc.queryForObject(
+        "SELECT COUNT(*) FROM archive_run WHERE status = :status",
+        Map.of("status", status), Long.class);
+    return n != null ? n : 0L;
+  }
 }

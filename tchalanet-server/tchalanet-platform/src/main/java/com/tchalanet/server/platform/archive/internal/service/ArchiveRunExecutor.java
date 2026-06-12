@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -54,6 +56,7 @@ public class ArchiveRunExecutor {
   private final ArchiveLookupIndexJdbcRepository lookupRepo;
   private final ArchiveStoragePort storage;
   private final ObjectMapper objectMapper;
+  private final ArchiveMetrics metrics;
 
   /** Execute a full archive run for the given period. Returns the resulting run view. */
   public ArchiveRunView execute(TriggerArchiveRunRequest request, UUID requestedBy) {
@@ -69,15 +72,18 @@ public class ArchiveRunExecutor {
 
     UUID runId = guardResult.runId();
     ArchivePeriod period = new ArchivePeriod(request.periodStart(), request.periodEnd());
+    Instant runStart = Instant.now();
 
     try {
       for (ArchiveDatasetProvider provider : providers) {
         executeDataset(runId, provider, period);
       }
       guard.complete(runId);
+      metrics.recordRunCompleted(Duration.between(runStart, Instant.now()));
     } catch (Exception ex) {
       log.error("archive run={} failed after provider loop: {}", runId, ex.getMessage(), ex);
       guard.fail(runId, truncate(ex.getMessage(), 1000));
+      metrics.recordRunFailed();
       throw ex;
     }
 
@@ -117,6 +123,7 @@ public class ArchiveRunExecutor {
     }
 
     objectRepo.markVerified(objectId);
+    metrics.recordRowsExported(tableName, result.rowsExported());
     log.info("archive: dataset={} objectId={} period={}/{} rows={} uri={}",
         tableName, objectId, period.start(), period.end(), result.rowsExported(), uri);
   }

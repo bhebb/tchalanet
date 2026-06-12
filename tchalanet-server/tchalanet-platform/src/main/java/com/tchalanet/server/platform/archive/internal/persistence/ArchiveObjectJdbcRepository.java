@@ -71,4 +71,17 @@ public class ArchiveObjectJdbcRepository {
         "SELECT * FROM archive_object WHERE archive_run_id = :runId ORDER BY segment_no",
         Map.of("runId", runId));
   }
+
+  public List<Map<String, Object>> listInvalid(int limit) {
+    return jdbc.queryForList(
+        "SELECT * FROM archive_object WHERE status = 'INVALID' ORDER BY created_at DESC LIMIT :limit",
+        Map.of("limit", limit));
+  }
+
+  public long countByStatus(String status) {
+    Long n = jdbc.queryForObject(
+        "SELECT COUNT(*) FROM archive_object WHERE status = :status",
+        Map.of("status", status), Long.class);
+    return n != null ? n : 0L;
+  }
 }
