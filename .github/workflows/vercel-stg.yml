@@ -50,6 +50,7 @@ jobs:
           {
             "version": 3,
             "routes": [
+              { "src": "^/realms(/.*)?$", "status": 404 },
               { "handle": "filesystem" },
               { "src": "/(.*)", "dest": "/index.html" }
             ]
