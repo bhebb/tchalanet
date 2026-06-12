@@ -20,7 +20,7 @@ BEGIN
   END IF;
 
   SELECT id INTO u_admin FROM app_user
-  WHERE keycloak_sub = '00000000-0000-0000-0000-000000010002'::uuid LIMIT 1;
+  WHERE id = '00000000-0000-0000-0000-000000010002'::uuid LIMIT 1;
 
   IF u_admin IS NOT NULL THEN
     INSERT INTO terminal_assignment (

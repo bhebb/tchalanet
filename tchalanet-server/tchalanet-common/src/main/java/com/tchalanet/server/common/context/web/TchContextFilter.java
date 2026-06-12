@@ -6,6 +6,7 @@ import static com.tchalanet.server.common.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
 import static com.tchalanet.server.common.http.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.context.auth.ActorContextResolver;
+import com.tchalanet.server.common.context.auth.ActorAuthorizationContextResolver;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.operational.OperationalContextHeaderParser;
@@ -39,6 +40,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
     private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
+    private final ObjectProvider<ActorAuthorizationContextResolver> actorAuthorizationContextResolver;
 
     @Override
     protected void doFilterInternal(
@@ -92,6 +94,19 @@ public class TchContextFilter extends OncePerRequestFilter {
             ctx = actorContextResolver.attachBootstrappedAppUserId(req, res, ctx);
 
             if (ctx == null) {
+                return;
+            }
+
+            var authorizationResolver = actorAuthorizationContextResolver.getIfAvailable();
+            if (authorizationResolver != null && ctx.appUserId() != null) {
+                ctx = authorizationResolver.resolve(ctx);
+                contextBinder.bind(req, ctx);
+            }
+
+            if (ctx.tenantOverridden() && !ctx.isSuperAdmin()) {
+                res.sendError(
+                    HttpServletResponse.SC_FORBIDDEN,
+                    "Super-admin tenant override not confirmed by server authorization");
                 return;
             }
 

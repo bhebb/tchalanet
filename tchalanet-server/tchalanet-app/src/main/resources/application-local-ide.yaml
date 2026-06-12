@@ -35,7 +35,7 @@ spring:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
     repair-on-migrate: true   # repairs checksum mismatches automatically in dev
 
   boot:

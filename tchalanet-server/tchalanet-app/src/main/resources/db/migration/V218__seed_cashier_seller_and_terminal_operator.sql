@@ -1,6 +1,6 @@
 -- V218: Unblock the cashier POS happy path on the dev/e2e seed.
 --
--- Two backend gates were failing for the seeded cashier (keycloak_sub …010003):
+-- Two backend gates were failing for the seeded cashier (app_user id …010003):
 --   1. ValidateTerminalForOperation → Terminal.assignedTo(user) checks the
 --      denormalised terminal.assigned_user_id. V205 set it to super_admin
 --      (…010001), so the cashier was rejected with "terminal.seller_not_assigned".
@@ -34,7 +34,7 @@ BEGIN
 
   SELECT id INTO u_cashier
     FROM app_user
-    WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid
+    WHERE id = '00000000-0000-0000-0000-000000010003'::uuid
     LIMIT 1;
 
   IF u_cashier IS NULL THEN

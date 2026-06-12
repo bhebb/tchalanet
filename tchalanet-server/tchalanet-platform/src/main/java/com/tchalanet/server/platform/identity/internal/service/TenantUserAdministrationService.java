@@ -61,8 +61,8 @@ public class TenantUserAdministrationService {
     // resolved app-side (tenant_user_role), so no realm role is assigned here — the user only
     // needs username/password + the tenant_code attribute (mapped to the token claim). When KC
     // bootstrap is disabled this returns an empty result and we fall back to a random sub
-    // (offline/unit-test behaviour). The returned KC id becomes app_user.keycloak_sub so the
-    // JWT 'sub' on first login resolves to this row.
+    // (offline/unit-test behaviour). The returned KC id is persisted as the KEYCLOAK external
+    // identity subject so the JWT 'sub' on first login resolves to this row.
     var kc =
         keycloakUserProvisionService.provisionUser(
             username, email, firstName, lastName, tenantCode, "pro", null);

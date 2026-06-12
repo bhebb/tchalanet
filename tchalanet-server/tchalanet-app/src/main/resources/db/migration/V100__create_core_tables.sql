@@ -47,7 +47,6 @@ ALTER TABLE tenant ADD CONSTRAINT fk_tenant__address FOREIGN KEY (address_id) RE
 
 CREATE TABLE app_user (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  keycloak_sub uuid NOT NULL,
   username text,
   email citext,
   phone text,
@@ -67,6 +66,26 @@ CREATE TABLE app_user (
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_app_user__status CHECK (status IN ('INVITED','PENDING_APPROVAL','ACTIVE','SUSPENDED'))
+);
+
+CREATE TABLE app_user_external_identity (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  app_user_id uuid NOT NULL REFERENCES app_user(id),
+  provider varchar(32) NOT NULL,
+  issuer varchar(512) NOT NULL,
+  external_subject varchar(255) NOT NULL,
+  email_snapshot citext,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_app_user_external_identity__provider
+    CHECK (provider IN ('KEYCLOAK','FIREBASE','LOCAL_JWT','LOCAL_PERF')),
+  CONSTRAINT uq_app_user_external_identity__provider_issuer_subject
+    UNIQUE (provider, issuer, external_subject)
 );
 
 CREATE TABLE user_preference (

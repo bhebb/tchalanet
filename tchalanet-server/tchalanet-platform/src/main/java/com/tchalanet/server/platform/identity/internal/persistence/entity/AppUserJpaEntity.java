@@ -17,17 +17,11 @@ import org.hibernate.envers.Audited;
 @Entity
 @Table(
     name = "app_user",
-    indexes = {
-      @Index(name = "ix_app_user_keycloak_sub", columnList = "keycloak_sub"),
-      @Index(name = "ix_app_user_email", columnList = "email")
-    })
+    indexes = @Index(name = "ix_app_user_email", columnList = "email"))
 @Audited
 @Getter
 @Setter
 public class AppUserJpaEntity extends BaseEntity {
-
-  @Column(name = "keycloak_sub", nullable = false, updatable = false, columnDefinition = "uuid")
-  private UUID keycloakSub;
 
   @Column(name = "username")
   private String username;

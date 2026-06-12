@@ -6,7 +6,7 @@ import os
 import pytest
 
 from fixtures.pos_context import PosContext
-from tch_e2e.auth import KeycloakAuth
+from tch_e2e.auth import E2EAuth, auth_from_env
 from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext, SeedIds, load_env
 from tch_e2e.scenario_world import ScenarioWorld
@@ -23,8 +23,9 @@ def base_url() -> str:
 
 
 @pytest.fixture(scope="session")
-def keycloak() -> KeycloakAuth:
-    return KeycloakAuth.from_env()
+def keycloak() -> E2EAuth:
+    """Legacy fixture name; provider is selected by TCH_E2E_AUTH_PROVIDER."""
+    return auth_from_env()
 
 
 @pytest.fixture(scope="session")
@@ -33,10 +34,10 @@ def seed_ids() -> SeedIds:
 
 
 @pytest.fixture(scope="session")
-def super_admin_token(keycloak: KeycloakAuth) -> str:
+def super_admin_token(keycloak: E2EAuth) -> str:
     return keycloak.password_grant(
-        username=os.environ["TCH_SUPER_ADMIN_USERNAME"],
-        password=os.environ["TCH_SUPER_ADMIN_PASSWORD"],
+        username=os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin"),
+        password=os.environ.get("TCH_SUPER_ADMIN_PASSWORD", ""),
     )
 
 
@@ -46,18 +47,23 @@ def super_admin_client(base_url: str, super_admin_token: str) -> ApiClient:
 
 
 @pytest.fixture(scope="session")
-def cashier_token(keycloak: KeycloakAuth, base_url: str, super_admin_token: str) -> str:
-    seller_username = os.environ["TCH_SELLER_USERNAME"]
-    seller_password = os.environ["TCH_SELLER_PASSWORD"]
+def cashier_token(keycloak: E2EAuth, base_url: str, super_admin_token: str) -> str:
+    seller_username = os.environ.get("TCH_SELLER_USERNAME", "cashier")
+    seller_password = os.environ.get("TCH_SELLER_PASSWORD", "")
 
     token = keycloak.password_grant(username=seller_username, password=seller_password)
     probe = ApiClient(base_url=base_url, token=token).get("/tenant/me/profile")
     if probe.status_code == 200:
         return token
 
+    if os.environ.get("TCH_E2E_AUTH_PROVIDER", "keycloak").strip().lower() != "keycloak":
+        raise RuntimeError(
+            f"Local cashier token obtained but /tenant/me/profile returns {probe.status_code}. "
+            "Recreate the database so LOCAL_JWT/LOCAL_PERF seed identities are present."
+        )
+
     sync = ApiClient(base_url=base_url, token=super_admin_token).post(
-        "/platform/ops/sync/identity/keycloak-bootstrap-users"
-    )
+        "/platform/ops/sync/identity/keycloak-bootstrap-users")
     if sync.status_code in (200, 201, 202, 204):
         token = keycloak.password_grant(username=seller_username, password=seller_password)
         retry = ApiClient(base_url=base_url, token=token).get("/tenant/me/profile")
@@ -71,7 +77,7 @@ def cashier_token(keycloak: KeycloakAuth, base_url: str, super_admin_token: str)
 
 
 @pytest.fixture(scope="session")
-def world(keycloak: KeycloakAuth, base_url: str, seed_ids: SeedIds, super_admin_token: str) -> ScenarioWorld:
+def world(keycloak: E2EAuth, base_url: str, seed_ids: SeedIds, super_admin_token: str) -> ScenarioWorld:
     return ScenarioWorld.build(
         keycloak, base_url, seed_ids, super_admin_token=super_admin_token
     )
@@ -102,7 +108,7 @@ def cashier_context_a(seed_ids: SeedIds) -> OpContext:
 
 
 @pytest.fixture(scope="session")
-def tenant_admin_token(keycloak: KeycloakAuth) -> str:
+def tenant_admin_token(keycloak: E2EAuth) -> str:
     """Obtain a TENANT_ADMIN token.
 
     Uses TCH_TENANT_ADMIN_USERNAME / TCH_TENANT_ADMIN_PASSWORD (env) which maps to
@@ -111,7 +117,11 @@ def tenant_admin_token(keycloak: KeycloakAuth) -> str:
     """
     username = os.environ.get("TCH_TENANT_ADMIN_USERNAME")
     password = os.environ.get("TCH_TENANT_ADMIN_PASSWORD")
-    if not username or not password:
+    local_auth = os.environ.get("TCH_E2E_AUTH_PROVIDER", "keycloak").strip().lower() != "keycloak"
+    if local_auth:
+        username = username or "admin"
+        password = password or ""
+    if not username or (not password and not local_auth):
         pytest.skip(
             "TCH_TENANT_ADMIN_USERNAME / TCH_TENANT_ADMIN_PASSWORD not set. "
             "Add them to .env.local (seeded user: admin / Changeme1!)."

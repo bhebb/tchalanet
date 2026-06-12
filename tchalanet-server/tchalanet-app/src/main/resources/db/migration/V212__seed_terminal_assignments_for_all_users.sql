@@ -20,8 +20,8 @@ BEGIN
     RETURN;
   END IF;
 
-  SELECT id INTO u_admin   FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010002'::uuid LIMIT 1;
-  SELECT id INTO u_cashier FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid LIMIT 1;
+  SELECT id INTO u_admin   FROM app_user WHERE id = '00000000-0000-0000-0000-000000010002'::uuid LIMIT 1;
+  SELECT id INTO u_cashier FROM app_user WHERE id = '00000000-0000-0000-0000-000000010003'::uuid LIMIT 1;
 
   -- admin terminal_assignment
   IF u_admin IS NOT NULL THEN

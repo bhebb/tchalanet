@@ -10,8 +10,9 @@
 --     autonomy_policy_rule, payout) defined alongside the canonical tables.
 
 -- ─── Identity & access ──────────────────────────────────────────────
-CREATE UNIQUE INDEX ux_app_user__keycloak_sub ON app_user (keycloak_sub) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX ux_app_user__email ON app_user (email) WHERE email IS NOT NULL AND deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_app_user__phone ON app_user (phone) WHERE phone IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX ix_app_user_external_identity__app_user ON app_user_external_identity (app_user_id);
 CREATE INDEX ix_app_role__tenant ON app_role (tenant_id) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX ux_app_role__system_code ON app_role (code) WHERE tenant_id IS NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX ux_app_role__tenant_code ON app_role (tenant_id, code) WHERE tenant_id IS NOT NULL AND deleted_at IS NULL;

@@ -14,8 +14,6 @@ import java.util.UUID;
 @Repository
 public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UUID> {
 
-    Optional<AppUserJpaEntity> findByKeycloakSub(UUID keycloakSub);
-
     Optional<AppUserJpaEntity> findByEmail(String email);
 
     Optional<AppUserJpaEntity> findByPhone(String phone);

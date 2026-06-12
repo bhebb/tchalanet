@@ -3,9 +3,12 @@ package com.tchalanet.server.platform.identity.internal.persistence.adapter;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
+import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserExternalIdentityJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
+import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserExternalIdentityJpaRepository;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import jakarta.persistence.EntityManager;
@@ -25,16 +28,21 @@ import java.util.Optional;
 public class AppUserJpaAdapter {
 
     private final AppUserJpaRepository repository;
+    private final AppUserExternalIdentityJpaRepository externalIdentities;
     private final EntityManager entityManager;
 
     public Optional<AppUser> findById(UserId id) {
-        return repository.findById(id.value()).map(IdentityPersistenceMapper::toUser);
+        return repository.findById(id.value()).map(this::toUser);
     }
 
     public Optional<AppUser> findByKeycloakSub(KeycloakUserSub keycloakSub) {
         return keycloakSub == null
             ? Optional.empty()
-            : repository.findByKeycloakSub(keycloakSub.value()).map(IdentityPersistenceMapper::toUser);
+            : externalIdentities
+                .findFirstByProviderAndExternalSubject(
+                    IdentityProviderType.KEYCLOAK, keycloakSub.value().toString())
+                .flatMap(identity -> repository.findById(identity.getAppUserId()))
+                .map(this::toUser);
     }
 
     public Optional<AppUser> findByEmailOrPhone(String email, String phone) {
@@ -45,13 +53,13 @@ public class AppUserJpaAdapter {
         var hasEmail = email != null && !email.isBlank();
         var hasPhone = phone != null && !phone.isBlank();
         if (hasEmail) {
-            var byEmail = repository.findByEmail(email).map(IdentityPersistenceMapper::toUser);
+            var byEmail = repository.findByEmail(email).map(this::toUser);
             if (byEmail.isPresent() || !hasPhone) {
                 return byEmail;
             }
         }
         if (hasPhone) {
-            return repository.findByPhone(phone).map(IdentityPersistenceMapper::toUser);
+            return repository.findByPhone(phone).map(this::toUser);
         }
         return Optional.empty();
     }
@@ -62,7 +70,9 @@ public class AppUserJpaAdapter {
                 ? new AppUserJpaEntity()
                 : repository.findById(user.id().value()).orElseGet(AppUserJpaEntity::new);
         IdentityPersistenceMapper.merge(entity, user);
-        return IdentityPersistenceMapper.toUser(repository.save(entity));
+        var saved = repository.save(entity);
+        persistKeycloakIdentity(saved, user.keycloakSub());
+        return toUser(saved);
     }
 
     public void softDelete(UserId userId, Instant when) {
@@ -78,7 +88,7 @@ public class AppUserJpaAdapter {
     public Page<AppUser> findAll(Pageable pageable) {
         var page = repository.findAll(pageable);
         return new PageImpl<>(
-            page.getContent().stream().map(IdentityPersistenceMapper::toUser).toList(),
+            page.getContent().stream().map(this::toUser).toList(),
             pageable,
             page.getTotalElements());
     }
@@ -86,7 +96,7 @@ public class AppUserJpaAdapter {
     public Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable) {
         var page = repository.findByTenantMembership(tenantId.value(), pageable);
         return new PageImpl<>(
-            page.getContent().stream().map(IdentityPersistenceMapper::toUser).toList(),
+            page.getContent().stream().map(this::toUser).toList(),
             pageable,
             page.getTotalElements());
     }
@@ -128,7 +138,38 @@ public class AppUserJpaAdapter {
         countPredicates.add(cb.isNull(countRoot.get("deletedAt")));
         countQuery.select(cb.count(countRoot)).where(countPredicates.toArray(new Predicate[0]));
 
-        var rows = typed.getResultList().stream().map(IdentityPersistenceMapper::toUser).toList();
+        var rows = typed.getResultList().stream().map(this::toUser).toList();
         return new PageImpl<>(rows, pageable, entityManager.createQuery(countQuery).getSingleResult());
+    }
+
+    public KeycloakUserSub findKeycloakSub(UserId userId) {
+        return externalIdentities
+            .findFirstByAppUserIdAndProvider(userId.value(), IdentityProviderType.KEYCLOAK)
+            .map(AppUserExternalIdentityJpaEntity::getExternalSubject)
+            .map(KeycloakUserSub::parse)
+            .orElse(null);
+    }
+
+    private AppUser toUser(AppUserJpaEntity entity) {
+        return IdentityPersistenceMapper.toUser(
+            entity, findKeycloakSub(UserId.of(entity.getId())));
+    }
+
+    private void persistKeycloakIdentity(AppUserJpaEntity appUser, KeycloakUserSub keycloakSub) {
+        if (keycloakSub == null) {
+            return;
+        }
+        var existing =
+            externalIdentities.findFirstByAppUserIdAndProvider(
+                appUser.getId(), IdentityProviderType.KEYCLOAK);
+        var identity = existing.orElseGet(AppUserExternalIdentityJpaEntity::new);
+        if (existing.isEmpty()) {
+            identity.setAppUserId(appUser.getId());
+            identity.setProvider(IdentityProviderType.KEYCLOAK);
+            identity.setIssuer("legacy:keycloak");
+            identity.setExternalSubject(keycloakSub.value().toString());
+        }
+        identity.setEmailSnapshot(appUser.getEmail());
+        externalIdentities.save(identity);
     }
 }

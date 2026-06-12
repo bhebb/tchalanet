@@ -98,6 +98,8 @@ Copy `.env.example` to one of those and fill in passwords. Key vars:
 |---|---|---|
 | `TCH_BASE_URL` | `https://api.localtest.me/api/v1` | API root |
 | `TCH_E2E_VERIFY_SSL` | `false` | accept the local mkcert cert |
+| `TCH_E2E_AUTH_PROVIDER` | `keycloak` | `keycloak`, `local-jwt`, or `local-perf` |
+| `TCH_LOCAL_JWT_ISSUER` / `_SECRET` | `tchalanet-local` / dev-only secret | Required when using local auth; must match API config |
 | `TCH_KEYCLOAK_TOKEN_URL` | `https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/token` | token endpoint |
 | `TCH_KEYCLOAK_CLIENT_ID` | `tchalanet-swagger` | **public** direct-access client (default if unset) |
 | `TCH_KEYCLOAK_CLIENT_SECRET` | *(leave unset)* | a secret on a public client → `invalid_client` |
@@ -117,8 +119,26 @@ Copy `.env.example` to one of those and fill in passwords. Key vars:
 Seeded users (realm import), all password `Changeme1!`:
 `super_admin`, `admin` (tenant admin), `operator`, `cashier`, plus edge-case cashiers
 (`cashier_blocked`, `cashier_no_terminal`, `cashier_offline_allowed`, `cashier_offline_denied`).
-The deterministic users (`super_admin`/`admin`/`cashier`/`operator`) have fixed `keycloak_sub`
+The deterministic users (`super_admin`/`admin`/`cashier`/`operator`) have fixed Keycloak external
+subjects in `app_user_external_identity`
 matching the `app_user` seeds, so no sync is needed for the happy path.
+
+For Firebase-independent E2E/performance validation, start the API with
+`TCH_IDENTITY_PROVIDER=local-jwt` or `local-perf`, configure the same
+`TCH_LOCAL_JWT_ISSUER`/`TCH_LOCAL_JWT_SECRET` in the harness, and set
+`TCH_E2E_AUTH_PROVIDER` accordingly. The harness signs tokens only for the seeded
+`super_admin`, `admin`, and `cashier`. Their token roles are routing hints; the API replaces them
+with database-owned roles and permissions before executing handlers. The existing multitenant L3
+suite then exercises the normal context, permission, pooled-connection, and PostgreSQL RLS path.
+
+After recreating the database with the current canonical migrations:
+
+```bash
+export TCH_E2E_AUTH_PROVIDER=local-perf
+export TCH_LOCAL_JWT_ISSUER=tchalanet-local
+export TCH_LOCAL_JWT_SECRET=dev-only-change-me-at-least-32-characters
+python -m pytest tests/auth_context tests/multitenant/test_tenant_isolation.py -m "L2 or L3"
+```
 
 ---
 
@@ -197,10 +217,11 @@ docker restart tchl-keycloak-dev
 Do **not** edit `realm.json` to "fix" users — user/realm state is owned by the import +
 `KeycloakBootstrapSyncService`, not by hand-editing.
 
-### keycloak_sub sync (rarely needed)
+### Keycloak external-subject sync (rarely needed)
 
 The cashier fixture auto-calls `POST /platform/ops/sync/identity/keycloak-bootstrap-users`
-(super_admin) if `/tenant/me/profile` 403s, to reconcile `app_user.keycloak_sub` with KC.
+(super_admin) if `/tenant/me/profile` 403s, to reconcile the KEYCLOAK
+`app_user_external_identity.external_subject` with KC.
 The deterministic seeded users already match, so this only matters for the random-UUID
 edge-case cashiers.
 

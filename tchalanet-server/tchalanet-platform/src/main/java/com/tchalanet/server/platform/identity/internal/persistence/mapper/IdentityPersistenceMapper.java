@@ -18,10 +18,10 @@ public final class IdentityPersistenceMapper {
 
   private IdentityPersistenceMapper() {}
 
-  public static AppUserView toUserView(AppUserJpaEntity e) {
+  public static AppUserView toUserView(AppUserJpaEntity e, KeycloakUserSub keycloakSub) {
     return new AppUserView(
         UserId.of(e.getId()),
-        KeycloakUserSub.of(e.getKeycloakSub()),
+        keycloakSub,
         e.getUsername(),
         e.getEmail(),
         e.getPhone(),
@@ -31,10 +31,10 @@ public final class IdentityPersistenceMapper {
         e.getStatus());
   }
 
-  public static AppUser toUser(AppUserJpaEntity e) {
+  public static AppUser toUser(AppUserJpaEntity e, KeycloakUserSub keycloakSub) {
     return new AppUser(
         UserId.of(e.getId()),
-        KeycloakUserSub.of(e.getKeycloakSub()),
+        keycloakSub,
         e.getUsername(),
         e.getEmail(),
         e.getPhone(),
@@ -52,7 +52,6 @@ public final class IdentityPersistenceMapper {
     if (user.id() != null) {
       e.setId(user.id().value());
     }
-    e.setKeycloakSub(user.keycloakSub().value());
     e.setUsername(user.username());
     e.setEmail(user.email());
     e.setPhone(user.phone());
