@@ -61,12 +61,17 @@ public class KeycloakBootstrapSyncService {
         int updated =
             jdbc.update(
                 """
-                    update app_user
-                    set keycloak_sub = ?, updated_at = now()
+                    insert into app_user_external_identity (
+                      app_user_id, provider, issuer, external_subject, created_at, updated_at
+                    )
+                    select id, 'KEYCLOAK', 'legacy:keycloak', ?::text, now(), now()
+                    from app_user
                     where username = ?
                       and deleted_at is null
+                    on conflict (provider, issuer, external_subject)
+                    do update set app_user_id = excluded.app_user_id, updated_at = now()
                     """,
-                kcId,
+                kcId.toString(),
                 username);
 
         updatedRows += updated;
@@ -99,4 +104,3 @@ public class KeycloakBootstrapSyncService {
 
   public record KeycloakBootstrapSyncResult(int attempted, int foundInKeycloak, int updatedRows) {}
 }
-

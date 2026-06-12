@@ -15,6 +15,17 @@ app:
     allow-credentials: true
 
 tch:
+  identity:
+    provider: ${TCH_IDENTITY_PROVIDER:keycloak}
+    local:
+      issuer: ${TCH_LOCAL_JWT_ISSUER:tchalanet-local}
+      secret: ${TCH_LOCAL_JWT_SECRET:}
+    firebase:
+      project-id: ${FIREBASE_PROJECT_ID:}
+      jwks-uri: ${FIREBASE_JWKS_URI:https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com}
+      credentials-path: ${FIREBASE_CREDENTIALS_PATH:}
+      revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:sensitive-only}
+
   runtime:
     zone-id: ${TCH_RUNTIME_ZONE_ID:UTC}
 
@@ -31,6 +42,10 @@ tch:
     user-bootstrap:
       enabled: ${TCH_SECURITY_USER_BOOTSTRAP_ENABLED:true}
       update-last-login: ${TCH_SECURITY_USER_BOOTSTRAP_UPDATE_LAST_LOGIN:true}
+      mode: ${TCH_SECURITY_USER_BOOTSTRAP_MODE:deny}
+      controlled-auto-allowed-emails: ${TCH_SECURITY_USER_BOOTSTRAP_CONTROLLED_AUTO_ALLOWED_EMAILS:}
+      controlled-auto-allowed-domains: ${TCH_SECURITY_USER_BOOTSTRAP_CONTROLLED_AUTO_ALLOWED_DOMAINS:}
+      allow-controlled-auto-in-production: ${TCH_SECURITY_USER_BOOTSTRAP_ALLOW_CONTROLLED_AUTO_IN_PRODUCTION:false}
 
   admin:
     server:

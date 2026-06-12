@@ -11,8 +11,7 @@ import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
-import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
-import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
+import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
@@ -35,7 +34,7 @@ public class IdentityApiAdapter implements IdentityApi {
 
   private final CurrentUserProfileService profiles;
   private final UserBootstrapService bootstrapService;
-  private final AppUserJpaRepository appUserRepository;
+  private final AppUserJpaAdapter appUsers;
   private final TenantUserJpaRepository tenantUserRepository;
   private final TenantUserProvisioningService provisioningService;
 
@@ -56,7 +55,20 @@ public class IdentityApiAdapter implements IdentityApi {
 
   @Override
   public Optional<AppUserView> findAppUser(UUID userId) {
-    return appUserRepository.findById(userId).map(IdentityPersistenceMapper::toUserView);
+    return appUsers
+        .findById(com.tchalanet.server.common.types.id.UserId.of(userId))
+        .map(
+            user ->
+                new AppUserView(
+                    user.id(),
+                    user.keycloakSub(),
+                    user.username(),
+                    user.email(),
+                    user.phone(),
+                    user.firstName(),
+                    user.lastName(),
+                    user.displayName(),
+                    user.status()));
   }
 
   @Override

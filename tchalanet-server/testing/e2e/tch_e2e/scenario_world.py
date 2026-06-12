@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from tch_e2e.auth import KeycloakAuth
+    from tch_e2e.auth import E2EAuth
     from tch_e2e.client import ApiClient
     from tch_e2e.config import SeedIds, OpContext
 
@@ -59,7 +59,7 @@ class ScenarioWorld:
     @classmethod
     def build(
         cls,
-        keycloak: "KeycloakAuth",
+        keycloak: "E2EAuth",
         base_url: str,
         seed_ids: "SeedIds",
         *,
@@ -70,10 +70,11 @@ class ScenarioWorld:
         run_id = str(uuid.uuid4())[:8]
 
         # --- Tenant A (seed) ------------------------------------------------
-        seller_username = os.environ.get("TCH_SELLER_USERNAME")
-        seller_password = os.environ.get("TCH_SELLER_PASSWORD")
+        local_auth = os.environ.get("TCH_E2E_AUTH_PROVIDER", "keycloak").strip().lower() != "keycloak"
+        seller_username = os.environ.get("TCH_SELLER_USERNAME", "cashier" if local_auth else "")
+        seller_password = os.environ.get("TCH_SELLER_PASSWORD", "" if local_auth else "")
         cashier_token_a: str | None = None
-        if seller_username and seller_password:
+        if seller_username and (seller_password or local_auth):
             try:
                 cashier_token_a = keycloak.password_grant(
                     username=seller_username, password=seller_password

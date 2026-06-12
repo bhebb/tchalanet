@@ -19,7 +19,7 @@ import pytest
 
 from fixtures.seller_pos import onboard_pos_seller
 from prereqs.draws import ensure_draws_today
-from tch_e2e.auth import KeycloakAuth
+from tch_e2e.auth import E2EAuth
 from tch_e2e.client import ApiClient
 from tch_e2e.config import SeedIds
 
@@ -37,7 +37,7 @@ def _ticket_ids(flow) -> set[str]:
 def test_two_sellers_sell_concurrently_and_tickets_are_separated(
     super_admin_client: ApiClient,
     tenant_admin_client: ApiClient,
-    keycloak: KeycloakAuth,
+    keycloak: E2EAuth,
     base_url: str,
     seed_ids: SeedIds,
 ) -> None:

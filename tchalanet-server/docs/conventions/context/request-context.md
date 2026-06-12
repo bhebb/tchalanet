@@ -35,11 +35,13 @@ Il répond à :
 
 ```
 BearerTokenAuthenticationFilter
+  -> IdentityProviderApi (maps already verified token to ExternalAuthenticatedUser)
   -> UserBootstrapFilter
   -> TchContextFilter
        -> ApiScopeResolver
        -> TenantContextResolver
        -> ActorContextResolver
+       -> ActorAuthorizationContextResolver ← remplace les hints token par rôles/permissions DB
        -> OperationalContextResolver      ← attache l'operational context si présent (ne valide pas)
        -> TchContextBinder.bind(finalCtx) ← bind request attribute, ThreadLocal, MDC, RLS
 ```
@@ -47,13 +49,19 @@ BearerTokenAuthenticationFilter
 ### Responsabilités
 
 **`BearerTokenAuthenticationFilter`**
-- Authentification Spring / Keycloak
+- Authentification Spring / provider configuré
 - Ne construit pas le contexte Tchalanet complet
 
 **`UserBootstrapFilter`**
-- Résout ou bootstrap l'utilisateur applicatif
-- Enrichit : `appUserId`, `actorUserId`, statut user, rôles applicatifs dérivés
+- Consomme `ExternalAuthenticatedUser` et résout l'utilisateur applicatif
+- Enrichit : `appUserId`, `actorUserId`, statut user
 - Ne décide pas : tenant effectif, scope API, override tenant, operational context
+
+**`ActorAuthorizationContextResolver`**
+- Charge les rôles et permissions effectives depuis les tables Tchalanet
+- Remplace les rôles/permissions hints du token avant l'exécution des handlers
+- Refuse implicitement toute élévation non confirmée; un override `SUPER_ADMIN` non confirmé est
+  rejeté explicitement par `TchContextFilter`
 
 **`TchContextFilter`**
 - Point central de construction du `TchRequestContext` HTTP

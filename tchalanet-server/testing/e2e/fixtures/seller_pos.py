@@ -25,7 +25,7 @@ from flows.onboarding import OnboardingFlow
 from flows.terminal import TerminalBindingFlow
 from fixtures.pos_context import PosContext
 from prereqs.session import ensure_pos_session_open
-from tch_e2e.auth import KeycloakAuth
+from tch_e2e.auth import E2EAuth
 from tch_e2e.client import ApiClient
 from tch_e2e.config import OpContext
 
@@ -66,7 +66,7 @@ def onboard_pos_seller(
     *,
     super_admin_client: ApiClient,
     admin_client: ApiClient,
-    keycloak: KeycloakAuth,
+    keycloak: E2EAuth,
     base_url: str,
     tenant_id: str,
     label: str,

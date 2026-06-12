@@ -26,7 +26,6 @@ CREATE TABLE app_user_aud
     deleted_by    uuid,
     version       bigint,
     tenant_id     uuid,
-    keycloak_sub  uuid,
     username      text,
     email         citext,
     phone         text,
@@ -40,6 +39,26 @@ CREATE TABLE app_user_aud
     last_login_at timestamptz,
     CONSTRAINT pk_app_user_aud PRIMARY KEY (id, rev),
     CONSTRAINT fk_app_user_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
+);
+CREATE TABLE app_user_external_identity_aud
+(
+    id               uuid    NOT NULL,
+    rev              integer NOT NULL,
+    revtype          smallint,
+    created_at       timestamptz,
+    created_by       uuid,
+    updated_at       timestamptz,
+    updated_by       uuid,
+    deleted_at       timestamptz,
+    deleted_by       uuid,
+    version          bigint,
+    app_user_id      uuid,
+    provider         varchar(32),
+    issuer           varchar(512),
+    external_subject varchar(255),
+    email_snapshot   citext,
+    CONSTRAINT pk_app_user_external_identity_aud PRIMARY KEY (id, rev),
+    CONSTRAINT fk_app_user_external_identity_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
 );
 CREATE TABLE app_role_aud
 (

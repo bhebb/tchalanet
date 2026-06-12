@@ -33,6 +33,7 @@
     <!-- Library versions -->
     <archunit.version>1.4.2</archunit.version>
     <caffeine.version>3.2.4</caffeine.version>
+    <firebase-admin.version>9.9.0</firebase-admin.version>
     <json-schema-validator.version>3.0.3</json-schema-validator.version>
     <keycloak.version>26.0.9</keycloak.version>
     <lombok.version>1.18.46</lombok.version>
@@ -199,6 +200,11 @@
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-admin-client</artifactId>
         <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.firebase</groupId>
+        <artifactId>firebase-admin</artifactId>
+        <version>${firebase-admin.version}</version>
       </dependency>
 
       <!-- Barcode & PDF -->

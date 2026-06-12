@@ -2,6 +2,7 @@
 CREATE TRIGGER trg_tenant__set_updated_at BEFORE UPDATE ON tenant FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_address__set_updated_at BEFORE UPDATE ON address FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_app_user__set_updated_at BEFORE UPDATE ON app_user FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_app_user_external_identity__set_updated_at BEFORE UPDATE ON app_user_external_identity FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_user_preference__set_updated_at BEFORE UPDATE ON user_preference FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_permission__set_updated_at BEFORE UPDATE ON permission FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_app_role__set_updated_at BEFORE UPDATE ON app_role FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();

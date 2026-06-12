@@ -173,31 +173,51 @@ BEGIN
   SELECT id INTO t_id FROM tenant WHERE code = 'tchalanet' LIMIT 1;
 
   -- super_admin
-  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010001'::uuid,
-          '00000000-0000-0000-0000-000000010001'::uuid,
           'super_admin', 'super_admin@local', 'Super Admin', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
     username = 'super_admin', email = 'super_admin@local',
     display_name = 'Super Admin', status = 'ACTIVE', updated_at = now();
 
   -- admin (TENANT_ADMIN)
-  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010002'::uuid,
-          '00000000-0000-0000-0000-000000010002'::uuid,
           'admin', 'admin@local', 'Admin', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
     username = 'admin', email = 'admin@local',
     display_name = 'Admin', status = 'ACTIVE', updated_at = now();
 
   -- cashier
-  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010003'::uuid,
-          '00000000-0000-0000-0000-000000010003'::uuid,
           'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
     username = 'cashier', email = 'cashier@local',
     display_name = 'Cashier', status = 'ACTIVE', updated_at = now();
+
+  INSERT INTO app_user_external_identity (
+    app_user_id, provider, issuer, external_subject, email_snapshot, created_at, updated_at)
+  VALUES
+    ('00000000-0000-0000-0000-000000010001'::uuid, 'KEYCLOAK', 'legacy:keycloak',
+     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010002'::uuid, 'KEYCLOAK', 'legacy:keycloak',
+     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010003'::uuid, 'KEYCLOAK', 'legacy:keycloak',
+     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010001'::uuid, 'LOCAL_JWT', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010002'::uuid, 'LOCAL_JWT', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010003'::uuid, 'LOCAL_JWT', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010001'::uuid, 'LOCAL_PERF', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010002'::uuid, 'LOCAL_PERF', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
+    ('00000000-0000-0000-0000-000000010003'::uuid, 'LOCAL_PERF', 'tchalanet-local',
+     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now())
+  ON CONFLICT (provider, issuer, external_subject) DO NOTHING;
 
   IF t_id IS NULL THEN
     RAISE NOTICE 'V202: tenant tchalanet not found, skipping tenant_user and tenant_user_role inserts';

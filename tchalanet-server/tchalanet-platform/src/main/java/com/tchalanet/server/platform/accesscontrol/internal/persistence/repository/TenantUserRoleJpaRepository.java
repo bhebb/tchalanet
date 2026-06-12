@@ -15,6 +15,19 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
   List<TenantUserRoleJpaEntity> findActiveByTenantAndUser(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
+  @Query("""
+      select distinct role.id
+      from TenantUserRoleJpaEntity assignment
+      join AppRoleJpaEntity role on role.id = assignment.roleId
+      where assignment.userId = :userId
+        and assignment.deletedAt is null
+        and role.system = true
+        and role.active = true
+        and role.deletedAt is null
+        and role.scope = 'PLATFORM'
+      """)
+  List<UUID> findActivePlatformRoleIdsByUser(@Param("userId") UUID userId);
+
   @Query("select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
   Optional<TenantUserRoleJpaEntity> findActiveAssignment(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);

@@ -97,6 +97,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 #### 🔐 Sécurité / Contexte / RLS
 
 - `context.md` — `TchRequestContext`
+- `identity-providers.md` — Firebase, Keycloak, local JWT/perf, provisioning et tests
 - `security_permissions.md` — permissions & rôles
 - `rls.md` — Row Level Security (dernière ligne de défense)
 
@@ -129,6 +130,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 | Cache                          | `conventions/cache.md`                  |
 | Batch                          | `conventions/batch.md`                  |
 | Sécurité / RLS                 | `conventions/context.md` + `rls.md`     |
+| Configurer/tester l'auth       | `conventions/identity-providers.md`     |
 | Typed IDs                      | `conventions/typed_ids.md`              |
 
 ---

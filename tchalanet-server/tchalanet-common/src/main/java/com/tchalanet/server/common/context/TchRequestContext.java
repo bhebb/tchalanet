@@ -190,6 +190,33 @@ public record TchRequestContext(
         );
     }
 
+    public TchRequestContext withAuthorization(
+        Set<TchRole> resolvedSystemRoles, Set<String> resolvedPermissions) {
+        return new TchRequestContext(
+            originalTenantCode,
+            originalTenantUuid,
+            effectiveTenantCode,
+            effectiveTenantUuid,
+            keycloakUserId,
+            appUserId,
+            resolvedSystemRoles == null ? Set.of() : Set.copyOf(resolvedSystemRoles),
+            resolvedPermissions == null ? Set.of() : Set.copyOf(resolvedPermissions),
+            locale,
+            requestId,
+            clientIp,
+            userAgent,
+            tenantOverridden,
+            tenantOverrideReason,
+            deletedVisibility,
+            apiScope,
+            idempotencyKey,
+            tenantId,
+            tenantZoneId,
+            tenantCurrency,
+            operationalContext
+        );
+    }
+
     // NEW helper
     public TchRequestContext withIdempotencyKey(String key) {
         return new TchRequestContext(

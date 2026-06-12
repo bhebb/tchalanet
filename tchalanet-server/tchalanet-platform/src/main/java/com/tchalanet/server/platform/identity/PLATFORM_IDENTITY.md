@@ -1,12 +1,17 @@
 
 # Platform Capability `platform.identity` — User & Tenant Identity
 
+Guide opératoire des providers, variables et tests :
+`docs/conventions/identity-providers.md`.
+
 ## Rôle
 
-Gérer les profils utilisateurs dans le contexte tenant, le mapping Keycloak ↔ utilisateur applicatif, et exposer le contexte utilisateur aux autres modules.
+Gérer les profils utilisateurs dans le contexte tenant, mapper une identité externe vérifiée vers
+un utilisateur applicatif, et exposer le contexte utilisateur aux autres modules.
 
 **Ce module fait** :
-- Résolution et bootstrap d'un `UserId` depuis JWT (`bootstrapCurrentUser`)
+- Mapping provider-neutral d'un token déjà vérifié vers `ExternalAuthenticatedUser`
+- Résolution et bootstrap d'un `UserId` depuis l'identité externe
 - Lecture profil utilisateur courant et lookup par UUID
 - Exposition des infos utilisateur (`CurrentUserView`, `AppUserView`, `UserProfileView`)
 - Résolution de la surface client (`ClientSurface`) depuis les rôles
@@ -15,10 +20,55 @@ Gérer les profils utilisateurs dans le contexte tenant, le mapping Keycloak ↔
   en déléguant l'affectation de rôle à `platform.accesscontrol`
 
 **Ce module ne fait pas** :
-- Authentification (→ Keycloak, `common.security`)
+- Autorisation métier (→ `platform.accesscontrol`)
 - Gestion des rôles/permissions, affectation effective, overrides (→ `platform.accesscontrol`)
 - Configuration tenant (→ `platform.tenantconfig`)
 - Contexte opérationnel (terminal/outlet/session) — reste hors identity
+
+La vérification externe est exposée par `IdentityProviderApi`. Le chemin Keycloak actif mappe le
+JWT déjà vérifié sans seconde vérification. Le bootstrap résout ensuite l'utilisateur via
+`app_user_external_identity`. Les sujets Keycloak existants sont backfillés avec l'issuer sentinelle
+`legacy:keycloak`, puis liés à l'issuer réel lors de leur première authentification vérifiée.
+`app_user` ne contient aucun identifiant fournisseur. Pour Keycloak, l'identifiant utilisateur est
+stocké dans `app_user_external_identity.external_subject` avec `provider=KEYCLOAK`. Les noms
+`KeycloakUserSub` encore exposés dans quelques APIs sont transitoires et ne représentent plus une
+colonne de `app_user`.
+
+Le provider actif est sélectionné par `tch.identity.provider`. En mode `firebase`, le decoder
+valide la signature via le JWKS Google officiel, l'expiration, l'issuer
+`https://securetoken.google.com/{projectId}`, l'audience `{projectId}` et le subject. Les claims
+Firebase ne créent aucune autorité Spring; rôles et permissions restent résolus par Tchalanet.
+Le contrôle Firebase Admin de révocation et d'utilisateur désactivé est configurable avec
+`tch.identity.firebase.revocation-check-mode`: `off`, `sensitive-only` (défaut V0) ou `always`.
+Lorsqu'il est requis, le contrôle échoue fermé et compare `auth_time` au timestamp de révocation
+Firebase. Les credentials viennent de `FIREBASE_CREDENTIALS_PATH` ou des Application Default
+Credentials.
+
+Le bootstrap d'identité externe est contrôlé par `tch.security.user-bootstrap.mode`:
+`deny` (défaut), `invite-only`, `admin-preprovisioned` ou `controlled-auto`. Les modes de liaison
+par email exigent un email externe vérifié; `admin-preprovisioned` accepte aussi une identité
+Firebase Phone correspondant exactement au numéro E.164 local. `controlled-auto` exige une
+allowlist et crée seulement un `AppUser` `PENDING_APPROVAL`; il ne crée ni membership, ni rôle, ni
+permission. En production, `controlled-auto` fait échouer le démarrage sans approbation explicite
+et allowlist.
+
+En mode `admin-preprovisioned`, l'admin crée préalablement un `AppUser` `ACTIVE`. À la première
+connexion, l'email Firebase vérifié ou un numéro E.164 provenant d'une authentification Firebase
+Phone (`firebase.sign_in_provider=phone`) permet de retrouver cet utilisateur et de créer le lien
+durable vers le subject Firebase; l'accès est alors immédiat. Les connexions suivantes utilisent ce
+lien durable et ne dépendent plus de l'email ou du téléphone. Un utilisateur non `ACTIVE` n'est
+jamais lié dans ce mode. Le téléphone `app_user.phone` est unique parmi les utilisateurs actifs.
+
+Les providers `local-jwt` et `local-perf` utilisent des JWT HS256 signés avec un secret local d'au
+moins 32 caractères. Ils traversent le même mapping d'identité externe, le même contrôle de statut
+`AppUser`, le même contexte, les mêmes permissions et la même RLS. `local-perf` ne constitue pas un
+bypass d'autorisation; il sert uniquement à distinguer les fixtures de charge. Les deux providers
+font échouer le démarrage avec un profil `prod` ou `production`.
+
+Les rôles présents dans un token externe ou local sont uniquement des hints de pré-routage Spring
+Security. Après résolution de l'`AppUser` et du tenant, `TchContextFilter` remplace les rôles et
+permissions du contexte par ceux chargés depuis les tables d'access control. Un override tenant
+annoncé par un faux hint `SUPER_ADMIN` est refusé si la base ne confirme pas ce rôle.
 
 ---
 

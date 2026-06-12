@@ -19,7 +19,7 @@ SET first_name   = 'Marie',
     last_name    = 'Joseph',
     display_name = 'Marie Joseph',
     updated_at   = now()
-WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid
+WHERE id = '00000000-0000-0000-0000-000000010003'::uuid
   AND (display_name IS NULL OR display_name = 'Cashier')
   AND deleted_at IS NULL;
 

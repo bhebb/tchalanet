@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,11 @@ public class JwtDecoderConfig {
     private final TchSecurityProperties securityProperties;
 
     @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.identity",
+        name = "provider",
+        havingValue = "keycloak",
+        matchIfMissing = true)
     JwtDecoder jwtDecoder(
         @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri) {
 
@@ -54,4 +60,5 @@ public class JwtDecoderConfig {
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validators));
         return decoder;
     }
+
 }
