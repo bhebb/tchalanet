@@ -6,4 +6,5 @@ export * from './private-runtime-initializer';
 export * from './public-bootstrap.model';
 export * from './public-bootstrap.service';
 export * from './public-bootstrap.store';
+export * from './public-fallback-bundle.service';
 export * from './public-runtime-initializer';

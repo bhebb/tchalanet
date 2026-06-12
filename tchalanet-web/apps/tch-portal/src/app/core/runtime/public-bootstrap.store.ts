@@ -17,6 +17,7 @@ export class PublicBootstrapStore {
   private readonly readinessSignal = signal<PublicReadinessView | null>(null);
   private readonly pageModelRefSignal = signal<PageModelRef | null>(null);
   private readonly errorSignal = signal<unknown | null>(null);
+  private readonly isOfflineFallbackSignal = signal<boolean>(false);
 
   readonly status = this.statusSignal.asReadonly();
   readonly settings = this.settingsSignal.asReadonly();
@@ -25,6 +26,7 @@ export class PublicBootstrapStore {
   readonly readiness = this.readinessSignal.asReadonly();
   readonly pageModelRef = this.pageModelRefSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
+  readonly isOfflineFallback = this.isOfflineFallbackSignal.asReadonly();
 
   readonly ready = computed(
     () => this.statusSignal() === 'ready' || this.statusSignal() === 'partial',
@@ -56,6 +58,10 @@ export class PublicBootstrapStore {
     this.statusSignal.set('error');
   }
 
+  setOfflineFallback(): void {
+    this.isOfflineFallbackSignal.set(true);
+  }
+
   reset(): void {
     this.statusSignal.set('idle');
     this.settingsSignal.set(null);
@@ -64,5 +70,6 @@ export class PublicBootstrapStore {
     this.readinessSignal.set(null);
     this.pageModelRefSignal.set(null);
     this.errorSignal.set(null);
+    this.isOfflineFallbackSignal.set(false);
   }
 }

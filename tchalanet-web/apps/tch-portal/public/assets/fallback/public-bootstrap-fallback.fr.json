@@ -1,0 +1,724 @@
+{
+  "capturedAt": "2026-06-12T01:15:16Z",
+  "schemaVersion": 2,
+  "publicBootstrap": {
+    "settings": {
+      "locale": "fr",
+      "timezone": "America/Port-au-Prince",
+      "supportedLocales": ["fr", "en", "ht"],
+      "defaultCurrency": "HTG",
+      "features": {}
+    },
+    "theme": {
+      "scope": "PUBLIC",
+      "mode": "light",
+      "primaryColor": "#020135",
+      "secondaryColor": "#fecb01",
+      "logoUrl": null,
+      "faviconUrl": null
+    },
+    "i18n": {
+      "lang": "fr",
+      "messages": {
+        "results.empty": "Aucun résultat disponible",
+        "results.title": "Résultats des tirages",
+        "ticket_check.title": "Vérifier un ticket",
+        "home.nav.results": "Résultats",
+        "ticket_check.action.verify": "Vérifier",
+        "ticket_check.input.placeholder": "Entrez votre code public",
+        "results.draw.date": "Date",
+        "home.hero.title": "Bienvenue",
+        "home.hero.cta": "Vérifier un ticket",
+        "ticket_check.result.lost": "Ticket non gagnant",
+        "ticket_check.result.won": "Ticket gagnant",
+        "results.draw.numbers": "Numéros",
+        "home.hero.subtitle": "Jouez. Vérifiez. Gagnez.",
+        "error.network": "Vérifiez votre connexion.",
+        "error.not_found": "Page introuvable",
+        "ticket_check.result.not_found": "Ticket introuvable",
+        "error.generic": "Une erreur est survenue. Réessayez.",
+        "ticket_check.result.pending": "Résultat en attente",
+        "home.nav.check_ticket": "Vérifier"
+      },
+      "loadedAt": "2026-06-12T01:15:16.923202Z"
+    },
+    "navigation": {
+      "items": [
+        { "id": "home",    "labelKey": "nav.public.home",    "route": "/",        "external": null },
+        { "id": "results", "labelKey": "nav.public.results", "route": "/results", "external": null },
+        { "id": "rules",   "labelKey": "nav.public.rules",   "route": "/rules",   "external": null },
+        { "id": "contact", "labelKey": "nav.public.contact", "route": "/contact", "external": null }
+      ],
+      "footerItems": null
+    },
+    "readiness": { "status": "READY", "checks": [] },
+    "pageModelRef": { "route": "/", "endpoint": "/public/page-model?route=/" },
+    "notices": null
+  },
+  "pagePayload": {
+    "meta": {
+      "logicalId": "public.home",
+      "scope": "public",
+      "slug": "home",
+      "schemaVersion": 2
+    },
+    "theme": {
+      "presetId": "tchalanet",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "type": "public",
+      "header": {
+        "brand": {
+          "id": "tchalanetPublic",
+          "kind": "link",
+          "labelKey": "app.brand",
+          "label": null,
+          "destination": { "kind": "route", "value": "/public" },
+          "icon": null,
+          "image": "/assets/brand/tchalanet-logo.svg",
+          "activeMatch": "exact",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        "primary": [
+          {
+            "id": "results",
+            "kind": "link",
+            "labelKey": "public.nav.results",
+            "label": null,
+            "destination": { "kind": "route", "value": "/public/results" },
+            "icon": "emoji_events",
+            "image": null,
+            "activeMatch": "prefix",
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "checkTicket",
+            "kind": "link",
+            "labelKey": "public.nav.check_ticket",
+            "label": null,
+            "destination": { "kind": "route", "value": "/public/check-ticket" },
+            "icon": "qr_code_scanner",
+            "image": null,
+            "activeMatch": "prefix",
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "managers",
+            "kind": "link",
+            "labelKey": "public.nav.managers",
+            "label": null,
+            "destination": { "kind": "route", "value": "/public/managers" },
+            "icon": "storefront",
+            "image": null,
+            "activeMatch": "prefix",
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "rules",
+            "kind": "link",
+            "labelKey": "public.nav.rules",
+            "label": null,
+            "destination": { "kind": "route", "value": "/public/rules" },
+            "icon": "calculate",
+            "image": null,
+            "activeMatch": "prefix",
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          }
+        ],
+        "utilities": [
+          {
+            "id": "language",
+            "kind": "languageSwitcher",
+            "labelKey": "public.nav.language",
+            "label": null,
+            "destination": null,
+            "icon": "language",
+            "image": null,
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "theme",
+            "kind": "themeSwitcher",
+            "labelKey": "public.nav.theme",
+            "label": null,
+            "destination": null,
+            "icon": "light_mode",
+            "image": null,
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          }
+        ],
+        "actions": [
+          {
+            "id": "login",
+            "kind": "button",
+            "labelKey": "public.nav.login",
+            "label": null,
+            "destination": { "kind": "route", "value": "/login" },
+            "icon": "login",
+            "image": null,
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          }
+        ]
+      },
+      "footer": {
+        "brand": {
+          "id": "tchalanetFooter",
+          "kind": "link",
+          "labelKey": "app.name",
+          "label": null,
+          "destination": { "kind": "route", "value": "/public" },
+          "icon": null,
+          "image": "/assets/brand/tchalanet-logo-inverse.svg",
+          "activeMatch": "exact",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
+        },
+        "descriptionKey": "public.footer.description",
+        "statusKey": "public.footer.status.operational",
+        "copyrightKey": "app.footer.copyright",
+        "columns": [
+          {
+            "id": "solutions",
+            "titleKey": "public.footer.solutions.title",
+            "links": [
+              {
+                "id": "operators",
+                "kind": "link",
+                "labelKey": "public.footer.solutions.operators",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/managers" },
+                "icon": "storefront",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "ticketVerification",
+                "kind": "link",
+                "labelKey": "public.footer.solutions.ticket_verification",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/check-ticket" },
+                "icon": "qr_code_scanner",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "posManagement",
+                "kind": "link",
+                "labelKey": "public.footer.solutions.pos_management",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/contact" },
+                "icon": "point_of_sale",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "support",
+            "titleKey": "public.footer.support.title",
+            "links": [
+              {
+                "id": "help",
+                "kind": "link",
+                "labelKey": "public.footer.support.help",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/help" },
+                "icon": "support_agent",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "results",
+                "kind": "link",
+                "labelKey": "public.footer.support.results",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/results" },
+                "icon": "emoji_events",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "rules",
+                "kind": "link",
+                "labelKey": "public.footer.support.rules",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/rules" },
+                "icon": "rule",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "systemStatus",
+                "kind": "link",
+                "labelKey": "public.footer.support.system_status",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/contact" },
+                "icon": "monitor_heart",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "contact",
+                "kind": "link",
+                "labelKey": "public.footer.support.contact",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/contact" },
+                "icon": "mail",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "legal",
+            "titleKey": "public.footer.legal.title",
+            "links": [
+              {
+                "id": "privacy",
+                "kind": "link",
+                "labelKey": "public.footer.legal.privacy",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/privacy" },
+                "icon": "privacy_tip",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "terms",
+                "kind": "link",
+                "labelKey": "public.footer.legal.terms",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/terms" },
+                "icon": "gavel",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              },
+              {
+                "id": "compliance",
+                "kind": "link",
+                "labelKey": "public.footer.legal.compliance",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/terms" },
+                "icon": "verified_user",
+                "image": null,
+                "activeMatch": "prefix",
+                "disabled": false,
+                "reasonKey": null,
+                "badge": null,
+                "children": []
+              }
+            ]
+          }
+        ],
+        "social": [
+          {
+            "id": "linkedin",
+            "kind": "link",
+            "labelKey": "public.footer.social.linkedin",
+            "destination": { "kind": "url", "value": "https://www.linkedin.com/company/tchalanet" },
+            "icon": null,
+            "image": "/assets/svg/socials/linkedin.svg",
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "facebook",
+            "kind": "link",
+            "labelKey": "public.footer.social.facebook",
+            "label": null,
+            "destination": { "kind": "url", "value": "https://www.facebook.com/tchalanet" },
+            "icon": null,
+            "image": "/assets/svg/socials/facebook.svg",
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "instagram",
+            "kind": "link",
+            "labelKey": "public.footer.social.instagram",
+            "label": null,
+            "destination": { "kind": "url", "value": "https://www.instagram.com/tchalanet" },
+            "icon": null,
+            "image": "/assets/svg/socials/instagram.svg",
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "x",
+            "kind": "link",
+            "labelKey": "public.footer.social.x",
+            "label": null,
+            "destination": { "kind": "url", "value": "https://x.com/tchalanet" },
+            "icon": null,
+            "image": "/assets/svg/socials/x.svg",
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "youtube",
+            "kind": "link",
+            "labelKey": "public.footer.social.youtube",
+            "label": null,
+            "destination": { "kind": "url", "value": "https://www.youtube.com/@tchalanet" },
+            "icon": null,
+            "image": "/assets/svg/socials/youtube.svg",
+            "activeMatch": null,
+            "disabled": false,
+            "reasonKey": null,
+            "badge": null,
+            "children": []
+          }
+        ]
+      }
+    },
+    "content": {
+      "layout": {
+        "rows": [
+          { "id": "hero",              "labelKey": "layout.public_home.hero",               "columns": [{ "span": 12, "widgets": ["home.hero"] }] },
+          { "id": "draws",             "labelKey": "layout.public_home.draws",              "columns": [{ "span": 12, "widgets": ["home.draws"] }] },
+          { "id": "howItWorks",        "labelKey": "layout.public_home.how_it_works",       "columns": [{ "span": 12, "widgets": ["home.howItWorks"] }] },
+          { "id": "ticketVerification","labelKey": "layout.public_home.ticket_verification","columns": [{ "span": 12, "widgets": ["home.checkTicket"] }] },
+          { "id": "managerCta",        "labelKey": "layout.public_home.manager_cta",        "columns": [{ "span": 12, "widgets": ["home.managerCta"] }] },
+          { "id": "tchala",            "labelKey": "layout.public_home.tchala",             "columns": [{ "span": 12, "widgets": ["home.tchala"] }] },
+          { "id": "rules",             "labelKey": "layout.public_home.rules",              "columns": [{ "span": 12, "widgets": ["home.rules"] }] },
+          { "id": "news",              "labelKey": "layout.public_home.news",               "columns": [{ "span": 12, "widgets": ["home.news"] }] },
+          { "id": "contactCta",        "labelKey": "layout.public_home.contact_cta",        "columns": [{ "span": 12, "widgets": ["home.contactCta"] }] }
+        ]
+      },
+      "widgets": {
+        "home.hero": {
+          "type": "HeroWidget",
+          "props": {
+            "titleKey": "home.hero.title",
+            "taglineKey": "home.hero.tagline",
+            "subtitleKey": "home.hero.subtitle",
+            "eyebrowKey": "home.hero.eyebrow",
+            "image": {
+              "url": "/assets/public/home/hero-ticket.png",
+              "altKey": "home.hero.image_alt",
+              "titleKey": null,
+              "width": null,
+              "height": null,
+              "aspectRatio": "16:9",
+              "loading": "eager"
+            },
+            "visual": {
+              "kind": "ticket-preview",
+              "ticketCode": "AB31-XY23",
+              "statusLabelKey": "ticket.status.pending",
+              "helperTextKey": "home.hero.ticket_helper",
+              "decorative": true
+            },
+            "actions": [
+              {
+                "id": "checkTicket",
+                "kind": "button",
+                "labelKey": "public.nav.check_ticket",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/check-ticket" },
+                "icon": "qr_code_scanner",
+                "disabled": false,
+                "children": []
+              },
+              {
+                "id": "requestDemo",
+                "kind": "button",
+                "labelKey": "public.operator.demo",
+                "label": null,
+                "destination": { "kind": "route", "value": "/public/contact" },
+                "icon": "rocket_launch",
+                "disabled": false,
+                "children": []
+              }
+            ]
+          }
+        },
+        "home.news": {
+          "type": "NewsTickerWidget",
+          "props": {
+            "limit": 5,
+            "titleKey": "home.news.title",
+            "showDates": true,
+            "subtitleKey": "home.news.subtitle",
+            "seeAllAction": {
+              "id": "seeAllNews",
+              "icon": "arrow_forward",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "home.news.see_all",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/news" }
+            },
+            "externalSourceNoteKey": "home.news.external_source"
+          }
+        },
+        "home.draws": {
+          "type": "PublicDrawResultsWidget",
+          "props": {
+            "maxSlots": 6,
+            "titleKey": "home.draws.title",
+            "historyLimit": 0,
+            "includeHistory": false,
+            "moreDestination": {
+              "id": "moreResults",
+              "icon": "emoji_events",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.nav.results",
+              "reasonKey": null,
+              "activeMatch": "prefix",
+              "destination": { "kind": "route", "value": "/public/results" }
+            }
+          }
+        },
+        "home.rules": {
+          "type": "RulesWidget",
+          "props": {
+            "titleKey": "public.rules.title",
+            "ctaNoteKey": "public.rules.cta_note",
+            "primaryAction": {
+              "id": "viewRules",
+              "icon": "menu_book",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.rules.cta_rules",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/rules" }
+            },
+            "descriptionKey": "public.rules.subtitle"
+          }
+        },
+        "home.tchala": {
+          "type": "TchalaSearchWidget",
+          "props": {
+            "badgeKey": "home.tchala.badge",
+            "titleKey": "home.tchala.title",
+            "ctaAction": {
+              "id": "discoverTchala",
+              "icon": "auto_stories",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "home.tchala.discover",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/tchala" }
+            },
+            "subtitleKey": "home.tchala.subtitle"
+          }
+        },
+        "home.contactCta": {
+          "type": "ContactCtaWidget",
+          "props": {
+            "bodyKey": "public.contact_cta.body",
+            "titleKey": "public.contact_cta.title",
+            "helpAction": {
+              "id": "goToHelp",
+              "icon": "help_outline",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.contact_cta.help",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/help" }
+            },
+            "primaryAction": {
+              "id": "requestDemo",
+              "icon": "rocket_launch",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.contact_cta.cta",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/contact" }
+            }
+          }
+        },
+        "home.howItWorks": {
+          "type": "HowItWorksWidget",
+          "props": {
+            "steps": [
+              { "textKey": "public.how.step1.text", "titleKey": "public.how.step1.title" },
+              { "textKey": "public.how.step2.text", "titleKey": "public.how.step2.title" },
+              { "textKey": "public.how.step3.text", "titleKey": "public.how.step3.title" },
+              { "textKey": "public.how.step4.text", "titleKey": "public.how.step4.title" }
+            ],
+            "titleKey": "public.how.title",
+            "descriptionKey": "public.how.description"
+          }
+        },
+        "home.managerCta": {
+          "type": "ManagerCtaWidget",
+          "props": {
+            "titleKey": "public.manager.title",
+            "eyebrowKey": "public.manager.eyebrow",
+            "primaryAction": {
+              "id": "discoverManager",
+              "icon": "store",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.manager.discover",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/managers" }
+            },
+            "descriptionKey": "public.manager.description",
+            "tertiaryAction": {
+              "id": "managerAccess",
+              "icon": "login",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.manager.access",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/login" }
+            },
+            "secondaryAction": {
+              "id": "requestDemo",
+              "icon": "rocket_launch",
+              "kind": "link",
+              "badge": null,
+              "image": null,
+              "label": null,
+              "children": [],
+              "disabled": false,
+              "labelKey": "public.manager.demo",
+              "reasonKey": null,
+              "activeMatch": null,
+              "destination": { "kind": "route", "value": "/public/contact" }
+            }
+          }
+        },
+        "home.checkTicket": {
+          "type": "TicketVerificationWidget",
+          "props": {
+            "ctaKey": "public.ticket.cta",
+            "titleKey": "home.check_ticket.title",
+            "descriptionKey": "home.check_ticket.description",
+            "destination": { "value": "/public/check-ticket", "kind": "route" }
+          }
+        }
+      }
+    },
+    "dynamic": {
+      "widgets": {},
+      "errors": []
+    }
+  }
+}
