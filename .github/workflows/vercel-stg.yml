@@ -59,4 +59,3 @@ jobs:
 
       - name: Deploy to staging (production slot)
         run: npx vercel deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: tchalanet-web

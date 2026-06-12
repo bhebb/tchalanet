@@ -60,4 +60,3 @@ jobs:
 
       - name: Deploy preview
         run: npx vercel deploy --prebuilt --yes --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: tchalanet-web
