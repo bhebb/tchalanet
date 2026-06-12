@@ -1,22 +1,32 @@
 package com.tchalanet.server.platform.audit.api.model;
 
 public enum AuditAction {
+    // ── Generic lifecycle ─────────────────────────────────────────────────
     CREATE,
     UPDATE,
     DELETE,
     SOFT_DELETE,
     RESTORE,
     STATE_CHANGE,
-    SELL_TICKET,
+
+    // ── Sales (canonical: TICKET_SELL / TICKET_VOID) ──────────────────────
+    TICKET_SELL,
+    TICKET_VOID,
+    SELL_TICKET,      // legacy alias — prefer TICKET_SELL
     CANCEL_TICKET,
     OVERRIDE_RESULT,
     PRINT_TICKET,
+
+    // ── Payout (canonical: PAYOUT_PAID) ───────────────────────────────────
     PAYOUT_REQUEST,
     PAYOUT_APPROVE,
     PAYOUT_REJECT,
-    PAYOUT_EXECUTE,
-    DRAW_GENERATE,
+    PAYOUT_PAID,
+    PAYOUT_EXECUTE,   // legacy alias — prefer PAYOUT_PAID
+    PAY,              // legacy alias — prefer PAYOUT_PAID
 
+    // ── Draw ─────────────────────────────────────────────────────────────
+    DRAW_GENERATE,
     DRAW_OPEN,
     DRAW_CLOSE,
     DRAW_RESULT_FETCH,
@@ -33,18 +43,24 @@ public enum AuditAction {
     DRAW_OVERRIDE,
     DRAW_SETTLE,
     DRAW_GENERATE_BACKFILL,
+    SETTLE,
 
+    // ── Outlet (canonical: OUTLET_LOCK / OUTLET_UNLOCK) ───────────────────
     OUTLET_CREATE,
     OUTLET_UPDATE,
     OUTLET_DELETE,
-    OUTLET_BLOCK,
-    OUTLET_UNBLOCK,
+    OUTLET_LOCK,
+    OUTLET_UNLOCK,
+    OUTLET_BLOCK,     // legacy alias — prefer OUTLET_LOCK
+    OUTLET_UNBLOCK,   // legacy alias — prefer OUTLET_UNLOCK
     OUTLET_BLOCK_SALES,
     OUTLET_UNBLOCK_SALES,
     OUTLET_USER_ASSIGN,
     OUTLET_USER_REMOVE,
     OUTLET_DAY_CLOSE,
     OUTLET_DAY_REOPEN,
+
+    // ── Terminal ──────────────────────────────────────────────────────────
     TERMINAL_CREATE,
     TERMINAL_UPDATE,
     TERMINAL_DELETE,
@@ -62,27 +78,54 @@ public enum AuditAction {
     TERMINAL_METADATA_UPDATE,
     TERMINAL_HEARTBEAT,
     TERMINAL_OPERATIONAL_CONTROL_SET,
+
+    // ── Identity/access (canonical: ROLE_ASSIGN) ─────────────────────────
+    ROLE_ASSIGN,
     USER_CREATE,
     USER_UPDATE,
-    USER_ROLE_CHANGE,
+    USER_ROLE_CHANGE,  // legacy alias — prefer ROLE_ASSIGN
+    APP_USER_EXTERNAL_IDENTITY_LINKED,
+    APP_USER_BOOTSTRAP_DENIED,
+    APP_USER_BOOTSTRAP_CREATED,
+    APP_USER_BOOTSTRAP_INVITE_CONSUMED,
+
+    // ── Limit / commission / config ───────────────────────────────────────
     LIMIT_UPDATE,
     COMMISSION_UPDATE,
     TENANT_THEME_UPDATE,
     FEATURE_FLAG_UPDATE,
-    SUPER_ADMIN_OVERRIDE,
-    FORCE_OPERATION,
-    BATCH_JOB_START,
+
+    // ── Promotion ─────────────────────────────────────────────────────────
+    PROMOTION_ACTIVATE,
+    PROMOTION_PAUSE,
+
+    // ── Tenant / platform (canonical: TENANT_OVERRIDE) ───────────────────
     TENANT_CREATE,
     TENANT_UPDATE,
     TENANT_DISABLE,
-    PAY,
+    TENANT_OVERRIDE,
+    SUPER_ADMIN_OVERRIDE,  // legacy alias — prefer TENANT_OVERRIDE
+    OVERRIDE_TENANT,       // legacy alias — prefer TENANT_OVERRIDE
+
+    // ── Ops / scheduler (canonical: OPS_FORCE_JOB) ───────────────────────
+    OPS_FORCE_JOB,
+    FORCE_OPERATION,   // legacy alias — prefer OPS_FORCE_JOB
+    BATCH_JOB_START,
+
+    // ── Auth ─────────────────────────────────────────────────────────────
     LOGIN,
     LOGOUT,
-    OVERRIDE_TENANT,
+
+    // ── Platform ops ─────────────────────────────────────────────────────
     CACHE_CLEAR,
     AUDIT_PURGE,
-    SETTLE,
-    ARCHIVE,
-    LIST,  // v1 decision: audit read-many operations
+
+    // ── Archive (canonical: ARCHIVE_RUN / ARCHIVE_RESTORE) ───────────────
+    ARCHIVE_RUN,
+    ARCHIVE_RESTORE,
+    ARCHIVE,           // legacy alias — prefer ARCHIVE_RUN or ARCHIVE_RESTORE
+
+    // ── Misc ─────────────────────────────────────────────────────────────
+    LIST,  // audit read-many operations
     OTHER
 }
