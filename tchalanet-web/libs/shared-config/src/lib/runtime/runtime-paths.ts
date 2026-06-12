@@ -32,5 +32,10 @@ export const APPLICATION_API_URL_PATTERN =
     /^(?:https?:\/\/(?:(?:localhost|127\.0\.0\.1):8083|api\.(?:localtest\.me|tchalanet\.lan)))?\/api\/(?!v1\/public\/)/i;
 
 export function keycloakUrlForHostname(hostname: string): string {
-    return hostname.endsWith('tchalanet.lan') ? AUTH_CONFIG.lanUrl : AUTH_CONFIG.localUrl;
+    if (hostname.endsWith('tchalanet.lan')) return AUTH_CONFIG.lanUrl;
+    // Static/preview deployments (Vercel, CDN): point KC at the app origin so the
+    // OIDC discovery fetch returns HTML → immediate JSON parse failure → init rejects
+    // → AuthSessionService catch → public bootstrap + fallback bundle. No network timeout.
+    if (hostname.endsWith('.vercel.app')) return `https://${hostname}`;
+    return AUTH_CONFIG.localUrl;
 }
