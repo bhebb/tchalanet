@@ -44,7 +44,7 @@ public class PlatformArchiveController {
       @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
-        archiveApi.triggerRun(request, ctx.actorId().value()));
+        archiveApi.triggerRun(request, ctx.currentUserIdRequired().value()));
   }
 
   @Operation(summary = "List recent archive runs")

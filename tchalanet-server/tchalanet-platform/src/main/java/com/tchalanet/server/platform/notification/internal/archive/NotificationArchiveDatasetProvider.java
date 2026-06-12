@@ -5,9 +5,11 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetKey;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportResult;
+import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupResult;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -43,5 +45,11 @@ public class NotificationArchiveDatasetProvider implements ArchiveDatasetProvide
   @Override
   public ArchiveLookupResult lookup(ArchiveLookupRequest request) {
     return ArchiveLookupResult.notFound();
+  }
+
+  @Override
+  public List<ArchiveLookupEntry> generateLookupRows(
+      ArchivePeriod period, UUID tenantId, UUID archiveObjectId) {
+    return List.of();
   }
 }

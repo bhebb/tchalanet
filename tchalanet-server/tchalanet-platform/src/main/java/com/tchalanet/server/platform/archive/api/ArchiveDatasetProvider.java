@@ -4,9 +4,11 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetKey;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportResult;
+import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupResult;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,4 +52,16 @@ public interface ArchiveDatasetProvider {
    * Never throws for missing data — callers interpret {@code found == false}.
    */
   ArchiveLookupResult lookup(ArchiveLookupRequest request);
+
+  /**
+   * Return lookup-index rows to insert after the archive object is persisted.
+   *
+   * <p>Called by the executor after saving the archive object to DB. The provider
+   * knows which fields are meaningful for lookup (e.g., entityId, publicCode,
+   * businessDate). The executor inserts the returned entries into
+   * {@code archive_lookup_index}.
+   *
+   * <p>Return an empty list if this dataset does not support per-entity lookup.
+   */
+  List<ArchiveLookupEntry> generateLookupRows(ArchivePeriod period, UUID tenantId, UUID archiveObjectId);
 }

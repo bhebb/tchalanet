@@ -5,9 +5,11 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetKey;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportResult;
+import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupResult;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -49,5 +51,12 @@ public class SalesTicketArchiveDatasetProvider implements ArchiveDatasetProvider
     // TODO: query archive_lookup_index WHERE entity_type='TICKET' AND entity_id=request.entityId()
     //       OR public_code=request.publicCode(), then fetch + decompress from object storage
     return ArchiveLookupResult.notFound();
+  }
+
+  @Override
+  public List<ArchiveLookupEntry> generateLookupRows(
+      ArchivePeriod period, UUID tenantId, UUID archiveObjectId) {
+    // TODO: query sold tickets in period to generate per-ticket lookup entries
+    return List.of();
   }
 }

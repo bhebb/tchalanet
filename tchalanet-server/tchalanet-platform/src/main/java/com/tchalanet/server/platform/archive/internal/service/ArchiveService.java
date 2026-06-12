@@ -1,54 +1,53 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
 import com.tchalanet.server.platform.archive.api.ArchiveApi;
-import com.tchalanet.server.platform.archive.api.ArchiveDatasetProvider;
 import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
+import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * Archive orchestration service — entry point for all archive operations.
+ * Archive service — façade over {@link ArchiveRunExecutor} and lookup repositories.
  *
- * <p>Providers are injected as {@code List<ArchiveDatasetProvider>}; this service
- * never imports provider implementation classes directly (enforced by ArchUnit gate).
- *
- * <p>Object-storage integration, run persistence and restore logic are TODO (Phase 5b/6b).
+ * <p>Providers are discovered via {@link ArchiveRunExecutor}'s injected
+ * {@code List<ArchiveDatasetProvider>}; this service never imports provider
+ * implementation classes (ArchUnit-enforced).
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ArchiveService implements ArchiveApi {
 
-  // All ArchiveDatasetProvider beans discovered via Spring injection
-  @SuppressWarnings("unused")
-  private final List<ArchiveDatasetProvider> providers;
+  private final ArchiveRunExecutor executor;
+  private final ArchiveRunJdbcRepository runRepo;
 
   // ── Lookup ─────────────────────────────────────────────────────────────────
 
   @Override
   public ArchivedEntityView findArchivedTicket(UUID tenantId, UUID ticketId) {
     log.debug("archive: findArchivedTicket tenant={} ticket={}", tenantId, ticketId);
-    // TODO: query archive_lookup_index WHERE entity_type='TICKET' AND entity_id=ticketId
-    //       AND tenant_id=tenantId, then fetch from object storage via SalesTicketArchiveDatasetProvider
+    // TODO Phase 7C: query archive_lookup_index WHERE entity_type='TICKET' AND entity_id=ticketId
     return ArchivedEntityView.notFound(ticketId);
   }
 
   @Override
   public ArchivedEntityView findArchivedTicketByPublicCode(UUID tenantId, String publicCode) {
     log.debug("archive: findArchivedTicketByPublicCode tenant={} code={}", tenantId, publicCode);
-    // TODO: query archive_lookup_index WHERE public_code=publicCode AND tenant_id=tenantId
+    // TODO Phase 7C: query archive_lookup_index WHERE public_code=publicCode
     return ArchivedEntityView.notFound(null);
   }
 
   @Override
   public ArchivedEntityView findArchivedPayout(UUID tenantId, UUID payoutId) {
     log.debug("archive: findArchivedPayout tenant={} payout={}", tenantId, payoutId);
-    // TODO: query archive_lookup_index WHERE entity_type='PAYOUT' AND entity_id=payoutId
+    // TODO Phase 7C: query archive_lookup_index WHERE entity_type='PAYOUT' AND entity_id=payoutId
     return ArchivedEntityView.notFound(payoutId);
   }
 
@@ -56,8 +55,7 @@ public class ArchiveService implements ArchiveApi {
   public List<ArchivedEntityView> findArchivedAuditRecords(
       UUID tenantId, String entityType, UUID entityId) {
     log.debug("archive: findArchivedAuditRecords tenant={} entity={}:{}", tenantId, entityType, entityId);
-    // TODO: query archive_lookup_index WHERE table_name='audit_log' AND entity_type=entityType
-    //       AND entity_id=entityId AND tenant_id=tenantId
+    // TODO Phase 7C: query archive_lookup_index + fetch and scan archive objects
     return List.of();
   }
 
@@ -67,14 +65,33 @@ public class ArchiveService implements ArchiveApi {
   public ArchiveRunView triggerRun(TriggerArchiveRunRequest request, UUID requestedBy) {
     log.info("archive: triggerRun strategy={} period={}/{} by={}",
         request.strategy(), request.periodStart(), request.periodEnd(), requestedBy);
-    // TODO: insert archive_run row, validate idempotency_key, dispatch to providers
-    throw new UnsupportedOperationException(
-        "archive run execution not yet implemented — requires object-storage integration");
+    return executor.execute(request, requestedBy);
   }
 
   @Override
   public List<ArchiveRunView> listRuns(int limit) {
-    // TODO: query archive_run table with pagination
-    return List.of();
+    return runRepo.listRecent(limit).stream()
+        .map(this::toRunView)
+        .toList();
+  }
+
+  private ArchiveRunView toRunView(Map<String, Object> row) {
+    return new ArchiveRunView(
+        (UUID) row.get("id"),
+        (String) row.get("status"),
+        (String) row.get("strategy"),
+        (String) row.get("trigger_type"),
+        (String) row.get("idempotency_key"),
+        toInstant(row.get("started_at")),
+        toInstant(row.get("completed_at")),
+        (String) row.get("error_message")
+    );
+  }
+
+  private static java.time.Instant toInstant(Object val) {
+    if (val == null) return null;
+    if (val instanceof Timestamp ts) return ts.toInstant();
+    if (val instanceof java.time.Instant i) return i;
+    return null;
   }
 }

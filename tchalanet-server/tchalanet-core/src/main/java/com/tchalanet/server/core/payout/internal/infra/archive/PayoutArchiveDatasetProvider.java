@@ -5,9 +5,11 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetKey;
 import com.tchalanet.server.platform.archive.api.model.ArchiveDatasetPlan;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportResult;
+import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupResult;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +44,12 @@ public class PayoutArchiveDatasetProvider implements ArchiveDatasetProvider {
 
   @Override
   public ArchiveLookupResult lookup(ArchiveLookupRequest request) {
-    // Individual payout lookup via archive_lookup_index -> object fetch
     return ArchiveLookupResult.notFound();
+  }
+
+  @Override
+  public List<ArchiveLookupEntry> generateLookupRows(
+      ArchivePeriod period, UUID tenantId, UUID archiveObjectId) {
+    return List.of();
   }
 }
