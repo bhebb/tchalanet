@@ -8,7 +8,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record ArchiveProperties(
     @DefaultValue("false") boolean enabled,
     @DefaultValue Storage storage,
-    @DefaultValue Restore restore
+    @DefaultValue Restore restore,
+    @DefaultValue Cleanup cleanup
 ) {
 
   public record Storage(
@@ -23,5 +24,11 @@ public record ArchiveProperties(
       @DefaultValue("P7D") Duration tempTtl,
       @DefaultValue("1000000") long maxRowsPerRun,
       @DefaultValue("5") int maxActiveRestoreRuns
+  ) {}
+
+  /** Partition DDL cleanup is disabled by default; DRY_RUN produces a plan without DDL. */
+  public record Cleanup(
+      @DefaultValue("false") boolean enabled,
+      @DefaultValue("DRY_RUN") String mode
   ) {}
 }
