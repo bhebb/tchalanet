@@ -45,15 +45,71 @@ public class ArchiveService implements ArchiveApi {
   @Override
   public ArchivedEntityView findArchivedTicket(UUID tenantId, UUID ticketId) {
     log.debug("archive: findArchivedTicket tenant={} ticket={}", tenantId, ticketId);
-    // TODO Phase 8: ticket archive integration
-    return ArchivedEntityView.notFound(ticketId);
+    return lookupTicketByEntity(tenantId, ticketId, null);
   }
 
   @Override
   public ArchivedEntityView findArchivedTicketByPublicCode(UUID tenantId, String publicCode) {
     log.debug("archive: findArchivedTicketByPublicCode tenant={} code={}", tenantId, publicCode);
-    // TODO Phase 8: ticket archive integration
-    return ArchivedEntityView.notFound(null);
+    return lookupTicketByPublicCode(tenantId, publicCode);
+  }
+
+  private ArchivedEntityView lookupTicketByEntity(UUID tenantId, UUID ticketId, String publicCode) {
+    List<Map<String, Object>> entries =
+        lookupRepo.findByEntity("sales_ticket", "TICKET", ticketId);
+    return readFirstMatchingTicket(tenantId, ticketId, publicCode, entries);
+  }
+
+  private ArchivedEntityView lookupTicketByPublicCode(UUID tenantId, String publicCode) {
+    List<Map<String, Object>> entries =
+        lookupRepo.findByPublicCode("sales_ticket", publicCode);
+    return readFirstMatchingTicket(tenantId, null, publicCode, entries);
+  }
+
+  private ArchivedEntityView readFirstMatchingTicket(UUID tenantId, UUID ticketId,
+      String publicCode, List<Map<String, Object>> entries) {
+
+    if (entries.isEmpty()) return ArchivedEntityView.notFound(ticketId);
+
+    String tenantStr   = tenantId  != null ? tenantId.toString()  : null;
+    String ticketIdStr = ticketId  != null ? ticketId.toString()   : null;
+    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+
+    for (Map<String, Object> entry : entries) {
+      UUID objectId = (UUID) entry.get("archive_object_id");
+      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      if (objMeta.isEmpty()) continue;
+
+      String uri = (String) objMeta.get().get("object_uri");
+      int schemaVersion = ((Number) objMeta.get().getOrDefault("schema_version", 1)).intValue();
+      if (!storage.exists(uri)) continue;
+
+      try (InputStream in = storage.openRead(uri)) {
+        List<Map<String, Object>> rows = reader.readMatching(in, row -> {
+          if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id")))) return false;
+          if (ticketIdStr != null && !ticketIdStr.equals(String.valueOf(row.get("id")))) return false;
+          if (publicCode  != null && !publicCode.equals(row.get("public_code"))) return false;
+          return true;
+        });
+
+        if (!rows.isEmpty()) {
+          Map<String, Object> header = rows.get(0);
+          UUID foundId = toUuid(header.get("id"));
+          String foundCode = (String) header.get("public_code");
+          return new ArchivedEntityView(
+              true, foundId, foundCode, "sales_ticket", schemaVersion, null, rows);
+        }
+      } catch (Exception ex) {
+        log.error("archive: failed reading ticket object uri={}: {}", uri, ex.getMessage(), ex);
+      }
+    }
+    return ArchivedEntityView.notFound(ticketId);
+  }
+
+  private static UUID toUuid(Object val) {
+    if (val == null) return null;
+    if (val instanceof UUID u) return u;
+    try { return UUID.fromString(val.toString()); } catch (IllegalArgumentException e) { return null; }
   }
 
   @Override
