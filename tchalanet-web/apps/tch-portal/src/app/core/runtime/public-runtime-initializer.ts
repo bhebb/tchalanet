@@ -2,23 +2,33 @@ import { Injectable, inject } from '@angular/core';
 import { TranslateService, TranslationObject } from '@ngx-translate/core';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, tap } from 'rxjs';
 
 import { PublicBootstrapResponse } from './public-bootstrap.model';
 import { PublicBootstrapService } from './public-bootstrap.service';
 import { PublicBootstrapStore } from './public-bootstrap.store';
+import { PublicFallbackBundleService } from './public-fallback-bundle.service';
 
 @Injectable({ providedIn: 'root' })
 export class PublicRuntimeInitializer {
   private readonly bootstrapApi = inject(PublicBootstrapService);
   private readonly bootstrapStore = inject(PublicBootstrapStore);
+  private readonly fallback = inject(PublicFallbackBundleService);
   private readonly translate = inject(TranslateService);
   private readonly theme = inject(ThemeStore);
   private readonly settings = inject(RuntimeSettingsStore);
 
   initialize(locale?: string): Observable<PublicBootstrapResponse> {
     this.bootstrapStore.setLoading();
-    return this.bootstrapApi.bootstrap(locale).pipe(tap(response => this.applyBootstrap(response)));
+    return this.bootstrapApi.bootstrap(locale).pipe(
+      catchError(() =>
+        this.fallback.load().pipe(
+          tap(() => this.bootstrapStore.setOfflineFallback()),
+          map(bundle => bundle.publicBootstrap),
+        ),
+      ),
+      tap(response => this.applyBootstrap(response)),
+    );
   }
 
   private applyBootstrap(response: PublicBootstrapResponse): void {

@@ -1,16 +1,19 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of, shareReplay, tap } from 'rxjs';
+import { catchError, map, of, shareReplay, tap } from 'rxjs';
 
 import { PageModelApi, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
+import { PublicFallbackBundleService } from '../../../core/runtime/public-fallback-bundle.service';
 import { I18nFacade } from '../../../core/i18n';
 
 @Injectable({ providedIn: 'root' })
 export class PublicShellService {
   private readonly api = inject(PageModelApi);
+  private readonly fallback = inject(PublicFallbackBundleService);
   private readonly i18n = inject(I18nFacade);
 
   readonly page$ = this.api.getPublicPage().pipe(
+    catchError(() => this.fallback.load().pipe(map(b => b.pagePayload))),
     tap(response => this.hydrateI18n(response)),
     shareReplay(1),
   );
