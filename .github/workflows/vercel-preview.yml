@@ -42,6 +42,21 @@ jobs:
         run: pnpm nx build tch-portal --configuration=production
         working-directory: tchalanet-web
 
+      - name: Package for Vercel
+        working-directory: tchalanet-web
+        run: |
+          mkdir -p .vercel/output/static
+          cp -r dist/apps/tch-portal/browser/. .vercel/output/static/
+          cat > .vercel/output/config.json << 'EOF'
+          {
+            "version": 3,
+            "routes": [
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }
+          EOF
+
       - name: Deploy preview
-        run: npx vercel deploy dist/apps/tch-portal/browser --local-config=vercel.json --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy --prebuilt --yes --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: tchalanet-web
