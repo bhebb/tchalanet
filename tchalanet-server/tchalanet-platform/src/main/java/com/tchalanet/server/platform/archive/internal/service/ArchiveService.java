@@ -115,7 +115,37 @@ public class ArchiveService implements ArchiveApi {
   @Override
   public ArchivedEntityView findArchivedPayout(UUID tenantId, UUID payoutId) {
     log.debug("archive: findArchivedPayout tenant={} payout={}", tenantId, payoutId);
-    // TODO Phase 9: payout archive integration
+    List<Map<String, Object>> entries =
+        lookupRepo.findByEntity("payout", "PAYOUT", payoutId);
+    if (entries.isEmpty()) return ArchivedEntityView.notFound(payoutId);
+
+    String tenantStr  = tenantId != null ? tenantId.toString()  : null;
+    String payoutStr  = payoutId.toString();
+    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+
+    for (Map<String, Object> entry : entries) {
+      UUID objectId = (UUID) entry.get("archive_object_id");
+      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      if (objMeta.isEmpty()) continue;
+
+      String uri = (String) objMeta.get().get("object_uri");
+      int schemaVersion = ((Number) objMeta.get().getOrDefault("schema_version", 1)).intValue();
+      if (!storage.exists(uri)) continue;
+
+      try (InputStream in = storage.openRead(uri)) {
+        List<Map<String, Object>> rows = reader.readMatching(in, row -> {
+          if (tenantStr != null && !tenantStr.equals(String.valueOf(row.get("tenant_id")))) return false;
+          return payoutStr.equals(String.valueOf(row.get("id")));
+        });
+
+        if (!rows.isEmpty()) {
+          UUID foundId = toUuid(rows.get(0).get("id"));
+          return new ArchivedEntityView(true, foundId, null, "payout", schemaVersion, null, rows);
+        }
+      } catch (Exception ex) {
+        log.error("archive: failed reading payout object uri={}: {}", uri, ex.getMessage(), ex);
+      }
+    }
     return ArchivedEntityView.notFound(payoutId);
   }
 
