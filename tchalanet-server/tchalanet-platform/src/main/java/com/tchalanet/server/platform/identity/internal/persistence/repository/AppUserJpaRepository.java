@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.identity.internal.persistence.repository;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,20 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
     Optional<AppUserJpaEntity> findByPhone(String phone);
 
     Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
+
+    @Modifying
+    @Query(
+        value =
+            """
+                update app_user
+                   set last_login_at = :lastLoginAt
+                 where id = :appUserId
+                   and deleted_at is null
+                """,
+        nativeQuery = true)
+    int touchLastLogin(
+        @Param("appUserId") UUID appUserId,
+        @Param("lastLoginAt") java.time.Instant lastLoginAt);
 
     @Query(
         value =

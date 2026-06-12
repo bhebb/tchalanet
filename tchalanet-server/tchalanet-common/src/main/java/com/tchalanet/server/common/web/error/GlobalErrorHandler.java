@@ -29,8 +29,11 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.tchalanet.server.common.observability.TchTraceIds;
+
 import static com.tchalanet.server.common.http.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.http.TchHeaders.X_REQUEST_ID;
+import static com.tchalanet.server.common.web.observability.RequiredRequestIdFilter.ATTR_REQUEST_ID;
 
 @RestControllerAdvice
 @Slf4j
@@ -365,9 +368,14 @@ public class GlobalErrorHandler {
         var headers = new HttpHeaders();
         headers.setContentType(PROBLEM_JSON);
 
-        var traceId = headerOrNull(req, X_REQUEST_ID);
-        if (traceId != null) {
-            headers.add(X_REQUEST_ID, traceId);
+        // TraceResponseHeaderFilter handles response headers globally; this is a fallback
+        // for error responses that may bypass normal filter flow.
+        var requestId = (String) req.getAttribute(ATTR_REQUEST_ID);
+        if (requestId == null) {
+            requestId = headerOrNull(req, X_REQUEST_ID);
+        }
+        if (requestId != null) {
+            headers.add(X_REQUEST_ID, requestId);
         }
 
         return new ResponseEntity<>(pd, headers, status);
@@ -393,9 +401,23 @@ public class GlobalErrorHandler {
         pd.setProperty("path", req.getRequestURI());
         pd.setProperty("errorId", UUID.randomUUID().toString());
 
-        var traceId = headerOrNull(req, X_REQUEST_ID);
+        // requestId: prefer the validated attribute set by RequiredRequestIdFilter
+        var requestId = (String) req.getAttribute(ATTR_REQUEST_ID);
+        if (requestId == null) {
+            requestId = headerOrNull(req, X_REQUEST_ID);
+        }
+        if (requestId != null) {
+            pd.setProperty("requestId", requestId);
+        }
+
+        // traceId/spanId from Micrometer Tracing (populated once B3 OTel bridge is active)
+        var traceId = TchTraceIds.currentTraceId();
         if (traceId != null) {
             pd.setProperty("traceId", traceId);
+        }
+        var spanId = TchTraceIds.currentSpanId();
+        if (spanId != null) {
+            pd.setProperty("spanId", spanId);
         }
 
         var version = req.getHeader(APP_ERROR_VERSION);

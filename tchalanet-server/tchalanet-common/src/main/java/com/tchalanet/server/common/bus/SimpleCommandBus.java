@@ -25,7 +25,7 @@ public class SimpleCommandBus implements CommandBus, SmartInitializingSingleton 
         Map<String, CommandHandler> commandHandlers =
             (Map) ctx.getBeansOfType(CommandHandler.class, true, true);
         commandHandlers.forEach((name, bean) ->
-            log.info(
+            log.debug(
                 "QueryHandler candidate name={} proxyClass={} targetClass={}",
                 name,
                 bean.getClass().getName(),

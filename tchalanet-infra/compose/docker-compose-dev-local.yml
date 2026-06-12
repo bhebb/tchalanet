@@ -37,3 +37,12 @@ services:
     # Permettre à Traefik d'accéder à l'hôte
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  otel-collector:
+    ports:
+      - "4317:4317"  # OTLP gRPC (IDE runs → host)
+      - "4318:4318"  # OTLP HTTP (IDE runs → host, Spring Boot default)
+
+  jaeger:
+    ports:
+      - "16686:16686"  # Jaeger UI → http://localhost:16686

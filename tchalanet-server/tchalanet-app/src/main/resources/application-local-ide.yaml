@@ -35,7 +35,7 @@ spring:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:false}
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
     repair-on-migrate: true   # repairs checksum mismatches automatically in dev
 
   boot:
@@ -104,9 +104,20 @@ kc:
       - cashier_offline_denied
       - operator
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
+
 logging:
   level:
-    com.tchalanet.server.common.bus: DEBUG
+    com.tchalanet.server.common.bus: INFO
+    io.opentelemetry.exporter.otlp: DEBUG   # remove after confirming traces flow to Jaeger
 
 # Swagger / OpenAPI OAuth2 redirect URL (used by Swagger UI Authorize button)
 springdoc:

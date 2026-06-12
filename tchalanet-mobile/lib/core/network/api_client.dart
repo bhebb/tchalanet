@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
 import '../notifications/app_notification_controller.dart';
+import '../observability/diagnostic_repository.dart';
 import '../storage/op_context_storage.dart';
 import '../storage/secure_token_storage.dart';
 import 'api_exception.dart';
@@ -10,11 +11,13 @@ import 'api_notice_interceptor.dart';
 import 'auth_interceptor.dart';
 import 'dev_cert_override.dart';
 import 'op_context_interceptor.dart';
+import 'request_id_interceptor.dart';
 import 'session_invalidation_controller.dart';
 
 final apiClientProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.read(tokenStorageProvider);
   final opCtxStorage = ref.read(opContextStorageProvider);
+  final diagnostics = ref.read(diagnosticRepositoryProvider);
 
   final dio = Dio(
     BaseOptions(
@@ -25,6 +28,8 @@ final apiClientProvider = Provider<Dio>((ref) {
     ),
   );
 
+  // RequestIdInterceptor must run first so the request ID is set before auth.
+  dio.interceptors.add(RequestIdInterceptor(diagnostics));
   dio.interceptors.add(
     AuthInterceptor(
       dio,
@@ -55,7 +60,9 @@ ApiException mapDioException(DioException e) {
     DioExceptionType.badResponse => ApiException(
       message: _extractErrorMessage(e.response?.data),
       statusCode: e.response?.statusCode,
+      requestId: _extractRequestId(e),
       traceId: _extractTraceId(e.response),
+      spanId: _extractSpanId(e.response),
       errorId: _extractString(e.response?.data, 'errorId'),
       code: _extractString(e.response?.data, 'code'),
     ),
@@ -67,11 +74,25 @@ ApiException mapDioException(DioException e) {
   };
 }
 
+String? _extractRequestId(DioException e) {
+  // Prefer the outgoing request header (set by RequestIdInterceptor) over the
+  // response echo, which may be absent on network errors.
+  final sent = e.requestOptions.headers['X-Request-Id']?.toString();
+  if (sent != null && sent.isNotEmpty) return sent;
+  final echo = e.response?.headers.value('X-Request-Id');
+  return echo == null || echo.isEmpty ? null : echo;
+}
+
 String? _extractTraceId(Response<dynamic>? response) {
   final bodyTraceId = _extractString(response?.data, 'traceId');
   if (bodyTraceId != null) return bodyTraceId;
-  final headerTraceId = response?.headers.value('X-Request-Id');
+  final headerTraceId = response?.headers.value('X-Trace-Id');
   return headerTraceId == null || headerTraceId.isEmpty ? null : headerTraceId;
+}
+
+String? _extractSpanId(Response<dynamic>? response) {
+  final headerSpanId = response?.headers.value('X-Span-Id');
+  return headerSpanId == null || headerSpanId.isEmpty ? null : headerSpanId;
 }
 
 String? _extractString(dynamic data, String key) {

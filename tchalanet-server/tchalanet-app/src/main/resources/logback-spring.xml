@@ -4,53 +4,67 @@
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
   <!-- Read Spring Boot / application.yml logging.level.* into logback -->
-  <springProperty scope="context" name="ROOT_LEVEL" source="logging.level.root" defaultValue="INFO"/>
-  <springProperty scope="context" name="APP_LEVEL" source="logging.level.com.tchalanet.server" defaultValue="DEBUG"/>
-  <springProperty scope="context" name="WEB_LEVEL" source="logging.level.org.springframework.web" defaultValue="INFO"/>
-  <springProperty scope="context" name="SEC_LEVEL" source="logging.level.org.springframework.security" defaultValue="INFO"/>
-  <springProperty scope="context" name="OAUTH2_LEVEL" source="logging.level.org.springframework.security.oauth2" defaultValue="INFO"/>
-  <springProperty scope="context" name="JWT_LEVEL" source="logging.level.org.springframework.security.oauth2.jwt" defaultValue="INFO"/>
-  <springProperty scope="context" name="RS_LEVEL" source="logging.level.org.springframework.security.oauth2.server.resource" defaultValue="INFO"/>
-  <springProperty scope="context" name="HIB_SQL_LEVEL" source="logging.level.org.hibernate.SQL" defaultValue="INFO"/>
+  <springProperty scope="context" name="ROOT_LEVEL"    source="logging.level.root"                                                defaultValue="INFO"/>
+  <springProperty scope="context" name="APP_LEVEL"     source="logging.level.com.tchalanet.server"                                defaultValue="DEBUG"/>
+  <springProperty scope="context" name="WEB_LEVEL"     source="logging.level.org.springframework.web"                             defaultValue="INFO"/>
+  <springProperty scope="context" name="SEC_LEVEL"     source="logging.level.org.springframework.security"                        defaultValue="INFO"/>
+  <springProperty scope="context" name="OAUTH2_LEVEL"  source="logging.level.org.springframework.security.oauth2"                 defaultValue="INFO"/>
+  <springProperty scope="context" name="JWT_LEVEL"     source="logging.level.org.springframework.security.oauth2.jwt"             defaultValue="INFO"/>
+  <springProperty scope="context" name="RS_LEVEL"      source="logging.level.org.springframework.security.oauth2.server.resource" defaultValue="INFO"/>
+  <springProperty scope="context" name="HIB_SQL_LEVEL" source="logging.level.org.hibernate.SQL"                                   defaultValue="INFO"/>
 
   <property name="LOG_DIR" value="logs"/>
 
+  <!--
+    Console pattern: includes MDC trace context populated by Micrometer + OTel bridge.
+      %X{traceId}   — OTel trace ID (32-hex chars; blank if no active trace)
+      %X{spanId}    — OTel span ID  (16-hex chars; blank if no active trace)
+      %X{requestId} — X-Request-Id validated by RequiredRequestIdFilter
+      %X{batchId}   — Spring Batch job execution ID
+  -->
+  <property name="TCH_CONSOLE_PATTERN"
+            value="%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr([r=%X{requestId:--} b=%X{batchId:--}]){yellow} %clr([t=%X{traceId:--} s=%X{spanId:--}]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"/>
+
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+      <pattern>${TCH_CONSOLE_PATTERN}</pattern>
       <charset>utf8</charset>
     </encoder>
   </appender>
 
   <!-- Default loggers (apply everywhere unless overridden) -->
-  <logger name="com.tchalanet.server" level="${APP_LEVEL}"/>
-  <logger name="org.springframework.web" level="${WEB_LEVEL}"/>
-  <logger name="org.springframework.security" level="${SEC_LEVEL}"/>
-  <logger name="org.springframework.security.oauth2" level="${OAUTH2_LEVEL}"/>
-  <logger name="org.springframework.security.oauth2.jwt" level="${JWT_LEVEL}"/>
-  <logger name="org.springframework.security.oauth2.server.resource" level="${RS_LEVEL}"/>
-  <logger name="org.hibernate.SQL" level="${HIB_SQL_LEVEL}"/>
+  <logger name="com.tchalanet.server"                                    level="${APP_LEVEL}"/>
+  <logger name="org.springframework.web"                                 level="${WEB_LEVEL}"/>
+  <logger name="org.springframework.security"                            level="${SEC_LEVEL}"/>
+  <logger name="org.springframework.security.oauth2"                     level="${OAUTH2_LEVEL}"/>
+  <logger name="org.springframework.security.oauth2.jwt"                 level="${JWT_LEVEL}"/>
+  <logger name="org.springframework.security.oauth2.server.resource"     level="${RS_LEVEL}"/>
+  <logger name="org.hibernate.SQL"                                       level="${HIB_SQL_LEVEL}"/>
 
   <root level="${ROOT_LEVEL}">
     <appender-ref ref="CONSOLE"/>
   </root>
 
-  <!-- Dev/local: you can still force more verbosity -->
+  <!-- local-ide / local / dev: verbose -->
   <springProfile name="local,dev,local-ide">
-    <logger name="com.tchalanet.server" level="DEBUG"/>
-    <logger name="org.springframework.web" level="DEBUG"/>
-    <logger name="org.springframework.security" level="DEBUG"/>
-    <logger name="org.springframework.security.oauth2" level="DEBUG"/>
-    <logger name="org.springframework.security.oauth2.jwt" level="DEBUG"/>
-    <logger name="org.springframework.security.oauth2.server.resource" level="DEBUG"/>
-    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="com.tchalanet.server"                                  level="DEBUG"/>
+    <logger name="org.springframework.web"                               level="DEBUG"/>
+    <logger name="org.springframework.security"                          level="DEBUG"/>
+    <logger name="org.springframework.security.oauth2"                   level="DEBUG"/>
+    <logger name="org.springframework.security.oauth2.jwt"               level="DEBUG"/>
+    <logger name="org.springframework.security.oauth2.server.resource"   level="DEBUG"/>
+    <logger name="org.hibernate.SQL"                                     level="DEBUG"/>
   </springProfile>
 
+  <!-- prod: rolling file with trace context in every line -->
   <springProfile name="prod">
+    <property name="TCH_FILE_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %-5p [r=%X{requestId:--} b=%X{batchId:--}] [t=%X{traceId:--} s=%X{spanId:--}] %logger{50} : %m%n%wEx"/>
+
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <file>${LOG_DIR}/tchalanet-server.log</file>
       <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-        <Pattern>%d %-5level %c{1} [%thread] %msg%n</Pattern>
+        <Pattern>${TCH_FILE_PATTERN}</Pattern>
       </encoder>
       <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
         <fileNamePattern>${LOG_DIR}/archived/tchalanet-server.%d{yyyy-MM-dd}.%i.log</fileNamePattern>

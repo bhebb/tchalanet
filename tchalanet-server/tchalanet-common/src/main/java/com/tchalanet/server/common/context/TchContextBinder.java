@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.context;
 
 import static com.tchalanet.server.common.context.ContextKeys.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class TchContextBinder {
     MDC.put("tenant_effective", valueOrDash(ctx.effectiveTenantCode()));
     MDC.put("tenant_overridden", String.valueOf(ctx.tenantOverridden()));
     MDC.put("kc_user_id", valueOrDash(ctx.keycloakUserId()));
+    MDC.put(MDC_REQUEST_ID, valueOrDash(ctx.requestId()));
     MDC.put("reqId", valueOrDash(ctx.requestId()));
     MDC.put("idem", valueOrDash(ctx.idempotencyKey()));
     MDC.put("tenant_uuid", ctx.tenantIdSafe() != null ? ctx.tenantIdSafe().toString() : "-");

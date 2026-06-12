@@ -187,13 +187,7 @@ public class ExternalIdentityAppUserResolver {
 
   @Transactional
   public void touchLastLogin(UUID appUserId) {
-    appUsers
-        .findById(appUserId)
-        .ifPresent(
-            appUser -> {
-              appUser.setLastLoginAt(Instant.now());
-              appUsers.save(appUser);
-            });
+    appUsers.touchLastLogin(appUserId, Instant.now());
   }
 
   private Optional<AppUserExternalIdentityJpaEntity> claimLegacyKeycloakMapping(

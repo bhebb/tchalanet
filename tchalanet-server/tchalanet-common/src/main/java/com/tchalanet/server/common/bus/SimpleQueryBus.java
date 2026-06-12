@@ -28,7 +28,7 @@ public class SimpleQueryBus implements QueryBus, SmartInitializingSingleton {
         Map<String, QueryHandler<?, ?>> beans =
             (Map) ctx.getBeansOfType(QueryHandler.class, true, true);
         beans.forEach((name, bean) ->
-            log.info(
+            log.debug(
                 "QueryHandler candidate name={} proxyClass={} targetClass={}",
                 name,
                 bean.getClass().getName(),

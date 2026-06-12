@@ -1,5 +1,7 @@
 package com.tchalanet.server.app.batch.context;
 
+import static com.tchalanet.server.common.observability.TchTraceIds.MDC_BATCH_ID;
+
 import com.tchalanet.server.app.batch.params.SpringBatchJobParams;
 import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -8,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.listener.JobExecutionListener;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -24,6 +27,7 @@ public class BatchJobExecutionListener implements JobExecutionListener {
         var jobName = jobExecution.getJobInstance().getJobName();
         var executionId = jobExecution.getId();
 
+        MDC.put(MDC_BATCH_ID, String.valueOf(executionId));
         log.info("batch.job.start jobName={} executionId={}", jobName, executionId);
         var params = SpringBatchJobParams.toStringMap(jobExecution.getJobParameters());
         try {

@@ -19,8 +19,18 @@ export function mapHttpErrorToProblemDetail(error: unknown): ProblemDetail {
 }
 
 function mapHttpErrorResponse(error: HttpErrorResponse): ProblemDetail {
+  const requestId = error.headers.get('X-Request-Id') ?? undefined;
+  const traceId = error.headers.get('X-Trace-Id') ?? undefined;
+  const spanId = error.headers.get('X-Span-Id') ?? undefined;
+
   if (isProblemDetail(error.error)) {
-    return error.error;
+    const body = error.error;
+    return {
+      ...body,
+      requestId: body.requestId ?? requestId,
+      traceId: body.traceId ?? traceId,
+      spanId: body.spanId ?? spanId,
+    };
   }
 
   return {
@@ -28,7 +38,10 @@ function mapHttpErrorResponse(error: HttpErrorResponse): ProblemDetail {
     title: error.statusText || 'HTTP error',
     status: error.status,
     detail: toErrorDetail(error.error) ?? error.message,
-    correlationId: error.headers.get('X-Request-Id') ?? undefined,
+    correlationId: requestId,
+    requestId,
+    traceId,
+    spanId,
   };
 }
 
