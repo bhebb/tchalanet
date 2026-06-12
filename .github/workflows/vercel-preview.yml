@@ -43,10 +43,9 @@ jobs:
         working-directory: tchalanet-web
 
       - name: Package for Vercel
-        working-directory: tchalanet-web
         run: |
           mkdir -p .vercel/output/static
-          cp -r dist/apps/tch-portal/browser/. .vercel/output/static/
+          cp -r tchalanet-web/dist/apps/tch-portal/browser/. .vercel/output/static/
           cat > .vercel/output/config.json << 'EOF'
           {
             "version": 3,
