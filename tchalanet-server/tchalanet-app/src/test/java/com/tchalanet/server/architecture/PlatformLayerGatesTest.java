@@ -82,6 +82,62 @@ class PlatformLayerGatesTest {
     }
 
     @Test
+    @DisplayName("identity provider adapters are internal only")
+    void identityProviderAdaptersAreInternalOnly() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.identity..")
+          .should().dependOnClassesThat()
+          .resideInAnyPackage(
+              "com.tchalanet.server.platform.identity.internal.firebase..",
+              "com.tchalanet.server.platform.identity.internal.keycloak..",
+              "com.tchalanet.server.platform.identity.internal.local..",
+              "com.tchalanet.server.platform.identity.internal.clerk..")
+          .as("identity provider adapters are private to platform.identity")
+          .allowEmptyShould(true)
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("provider SDKs are confined to their identity adapters")
+    void providerSdksAreConfinedToIdentityAdapters() {
+      noClasses()
+          .that()
+          .resideOutsideOfPackages(
+              "com.tchalanet.server.platform.identity.internal.keycloak..",
+              // Transitional allowlist: move legacy admin/provisioning adapters to internal.keycloak.
+              "com.tchalanet.server.platform.identity.internal.service.keycloak..")
+          .should().dependOnClassesThat().resideInAPackage("org.keycloak..")
+          .as("Keycloak SDK classes are private to the Keycloak identity adapter")
+          .check(allClasses);
+
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.identity.internal.firebase..")
+          .should().dependOnClassesThat().resideInAPackage("com.google.firebase..")
+          .as("Firebase SDK classes are private to the Firebase identity adapter")
+          .allowEmptyShould(true)
+          .check(allClasses);
+
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.identity.internal.clerk..")
+          .should().dependOnClassesThat().resideInAPackage("com.clerk..")
+          .as("Clerk SDK classes are private to a future Clerk identity adapter")
+          .allowEmptyShould(true)
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("controllers and handlers must not parse JWTs directly")
+    void controllersAndHandlersMustNotParseJwtsDirectly() {
+      noClasses()
+          .that().haveSimpleNameEndingWith("Controller")
+          .or().haveSimpleNameEndingWith("Handler")
+          .should().dependOnClassesThat().resideInAPackage("org.springframework.security.oauth2.jwt..")
+          .as("controllers and handlers use provider-neutral identity/context APIs")
+          .allowEmptyShould(true)
+          .check(allClasses);
+    }
+
+    @Test
     @DisplayName("notification internals are private to platform.notification")
     void notificationInternalsArePrivateToPlatformNotification() {
       noClasses()
@@ -135,6 +191,30 @@ class PlatformLayerGatesTest {
           .should().dependOnClassesThat()
           .resideInAPackage("com.tchalanet.server.platform.idempotence.internal..")
           .as("idempotence internals are private; other modules use platform.idempotence.api")
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("archive internals are private to platform.archive")
+    void archiveInternalsArePrivateToArchive() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.archive..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.platform.archive.internal..")
+          .as("archive internals are private; other modules use platform.archive.api")
+          .allowEmptyShould(true)
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("platform.archive must not depend on core internals")
+    void archiveMustNotDependOnCoreInternals() {
+      noClasses()
+          .that().resideInAPackage("com.tchalanet.server.platform.archive..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.core..internal..")
+          .as("platform.archive must not import core.<domain>.internal; use ArchiveDatasetProvider interface instead")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
   }
