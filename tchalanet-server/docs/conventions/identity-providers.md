@@ -24,12 +24,109 @@ depuis la base.
 | Valeur `TCH_IDENTITY_PROVIDER` | Usage | Production |
 |---|---|---|
 | `firebase` | Provider cible V0 | Oui |
-| `keycloak` | Compatibilité et transition | Optionnel |
+| `firebase-emulator` | Tests fonctionnels et intégration locale | Interdit |
 | `local-jwt` | Développement et E2E | Interdit |
 | `local-perf` | Performance et validation RLS | Interdit |
 
-`local-jwt` et `local-perf` font échouer le démarrage si un profil actif contient `prod` ou
-`production`.
+`firebase-emulator`, `local-jwt` et `local-perf` font échouer le démarrage si un profil actif
+contient `prod` ou `production`.
+
+## Modes local IDE
+
+Le profil `local-ide` utilise Firebase Auth Emulator par défaut :
+
+```bash
+make -C ../tchalanet-infra up-firebase-emulator ENV=dev
+
+export SPRING_PROFILES_ACTIVE=local-ide
+export TCH_IDENTITY_PROVIDER=firebase-emulator
+export FIREBASE_PROJECT_ID=demo-tchalanet-local
+export FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+```
+
+L'émulateur Auth écoute sur `http://localhost:9099`. Il émet des tokens non signés. Le backend les
+accepte uniquement lorsque `firebase-emulator` est explicitement actif hors production. Aucun
+credential Firebase Admin n'est chargé dans ce mode.
+
+Au démarrage `local-ide`, le bootstrap crée et lie dans Firebase Emulator les trois comptes seedés
+dans Tchalanet :
+
+| Utilisateur | Email | Mot de passe |
+|---|---|---|
+| `super_admin` | `super_admin@local` | `Changeme1!` |
+| `admin` | `admin@local` | `Changeme1!` |
+| `cashier` | `cashier@local` | `Changeme1!` |
+
+Leurs UID Firebase sont les UUID déterministes des lignes `app_user`.
+
+Pour tester la vraie instance Firebase staging depuis le même profil IDE :
+
+```bash
+export SPRING_PROFILES_ACTIVE=local-ide
+export TCH_IDENTITY_PROVIDER=firebase
+export FIREBASE_PROJECT_ID=tchalanet-39115
+export FIREBASE_CREDENTIALS_PATH=/chemin/non-versionne/service-account.json
+```
+
+Le changement de mode ne nécessite aucune modification de code. L'émulateur sert aux tests
+fonctionnels et d'intégration, pas à mesurer les performances de Firebase. Les tests de charge
+backend utilisent `local-jwt`.
+
+Web local :
+
+```bash
+# Firebase Auth Emulator, défaut development
+pnpm nx serve tch-portal
+
+# Vraie instance Firebase staging
+pnpm nx serve tch-portal --configuration=real-firebase
+```
+
+## Obtenir un ID token pour Swagger et curl
+
+Swagger expose uniquement un schéma HTTP bearer provider-neutral. Il n'effectue aucun login
+Keycloak/OAuth. Le bouton **Authorize** attend un Firebase ID token brut; Swagger ajoute lui-même
+le préfixe `Bearer`.
+
+Avec Firebase Auth Emulator :
+
+```bash
+make -C ../tchalanet-infra up-firebase-emulator ENV=dev
+
+export FIREBASE_EMAIL=swagger.admin@example.test
+export FIREBASE_PASSWORD=dev-only-password
+export FIREBASE_CREATE_USER=true
+export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh)"
+```
+
+Après la première création, omettre `FIREBASE_CREATE_USER` pour les connexions suivantes :
+
+```bash
+unset FIREBASE_CREATE_USER
+export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh)"
+```
+
+Avec la vraie instance Firebase staging, activer Email/Password pour l'utilisateur de test, puis
+utiliser la Web API key publique du projet :
+
+```bash
+export FIREBASE_AUTH_BASE_URL=https://identitytoolkit.googleapis.com/v1
+export FIREBASE_API_KEY=<firebase-web-api-key>
+export FIREBASE_EMAIL=<test-user-email>
+export FIREBASE_PASSWORD=<test-user-password>
+export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh)"
+```
+
+Tester ensuite l'API directement :
+
+```bash
+curl -i http://localhost:8083/api/v1/tenant/runtime/bootstrap \
+  -H "Authorization: Bearer ${FIREBASE_ID_TOKEN}" \
+  -H "X-Request-Id: firebase-swagger-smoke-001"
+```
+
+L'identité Firebase doit correspondre à un `AppUser` préprovisionné ou autorisé par la politique
+de bootstrap active. Un token valide sans mapping Tchalanet peut donc recevoir un `403`.
 
 ## Configuration commune
 
@@ -153,18 +250,16 @@ Content-Type: application/json
 
 L'utilisateur doit être `ACTIVE`. Pour un `CASHIER`, `outletId` est obligatoire.
 
-Limite transitoire : l'API actuelle de création d'utilisateur tente encore un provisioning
-Keycloak best-effort avant d'enregistrer l'utilisateur et son identité externe. Ce comportement
-sera retiré lorsque la dépendance de provisioning Keycloak sera supprimée. Il ne change pas le
-principe du flux Firebase : le lien Firebase durable est créé à la première connexion.
+L'API crée d'abord l'identité Firebase active, puis l'`AppUser`, le membership, le rôle et le lien
+durable `(FIREBASE, issuer, uid)`. Si la transaction Tchalanet échoue, un compte Firebase créé par
+cette même requête est supprimé en compensation. Aucun rôle, tenant ou contexte opérationnel
+n'est écrit dans Firebase.
 
-À la première connexion Firebase Phone :
+À la connexion Firebase Phone :
 
 1. Firebase vérifie le code SMS et émet un ID token.
-2. Le backend vérifie que `firebase.sign_in_provider=phone`.
-3. Le backend retrouve l'`AppUser ACTIVE` par le numéro E.164.
-4. Le backend crée le lien durable `(FIREBASE, issuer, uid)`.
-5. Les connexions suivantes utilisent ce lien durable, même si le numéro change plus tard.
+2. Le backend retrouve directement l'`AppUser ACTIVE` par le lien durable créé au provisioning.
+3. Les rôles, permissions, tenant et contexte RLS sont chargés depuis Tchalanet.
 
 ### 5. Tester sans envoyer de vrai SMS
 
@@ -185,7 +280,8 @@ Utiliser un vrai numéro uniquement pour un smoke test ponctuel :
 
 ```bash
 curl -i http://localhost:8083/api/v1/tenant/me/profile \
-  -H "Authorization: Bearer $FIREBASE_ID_TOKEN"
+  -H "Authorization: Bearer $FIREBASE_ID_TOKEN" \
+  -H "X-Request-Id: firebase-phone-smoke-001"
 ```
 
 Le backend n'émet pas le code SMS et ne doit jamais recevoir le code SMS. Il reçoit seulement
@@ -239,28 +335,14 @@ python -m pytest tests/auth_context tests/multitenant/test_tenant_isolation.py -
 Les identités locales seedées sont `super_admin`, `admin` et `cashier`. `local-perf` ne contourne
 ni les permissions ni RLS.
 
-## Keycloak
-
-Keycloak reste l'adapter de transition et le provider par défaut tant que la migration n'est pas
-terminée.
-
-```bash
-export TCH_IDENTITY_PROVIDER=keycloak
-export TCH_KC_ISSUER=https://auth.localtest.me/realms/tchalanet
-```
-
-Le token Keycloak est vérifié par Spring Security, puis mappé vers
-`app_user_external_identity(provider=KEYCLOAK)`. Les rôles et permissions effectifs restent
-confirmés par Tchalanet avant les handlers.
-
-Voir aussi `testing/e2e/README.md` pour le password grant local et les pièges de cache Keycloak.
-
 ## Diagnostic rapide
 
 | Symptôme | Vérification |
 |---|---|
 | API ne démarre pas en Firebase | `FIREBASE_PROJECT_ID`, credentials, provider actif |
 | `401` Firebase | issuer/audience/signature/expiry, project ID, ID token et non refresh token |
+| `401 Unsupported algorithm of none` avec un token émulateur | redémarrer l'API avec `TCH_IDENTITY_PROVIDER=firebase-emulator`; le mode `firebase` réel refuse obligatoirement les tokens non signés |
+| `400 request_id.missing` | ajouter un header `X-Request-Id` unique à l'appel privé |
 | `403 User not provisioned` | bootstrap mode, téléphone/email préprovisionné, mapping externe |
 | `403 User not active` | statut local `AppUser` |
 | Téléphone non lié | format E.164 exact et `firebase.sign_in_provider=phone` |

@@ -211,16 +211,6 @@ public class IdentityUserAdminController {
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.SENT, null));
     }
 
-    @PostMapping("/{userId}/resync-keycloak")
-    @Operation(summary = "Resynchronize user with Keycloak")
-    @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
-    public ApiResponse<TenantUserAdminResponse> resyncKeycloak(
-        @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        view.assertTenantScoped(ctx, userId);
-        users.resyncKeycloak(userId);
-        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
-    }
-
     private static void forbidSuperAdminAssignmentForTenantAdmin(TchRequestContext ctx, TchRole role) {
         if (ctx.isTenantAdmin() && role == TchRole.SUPER_ADMIN) {
             throw ProblemRest.forbidden("Tenant admin cannot assign SUPER_ADMIN role");

@@ -16,7 +16,7 @@ final class LocalIdentityProductionGuard {
   private final Environment environment;
 
   LocalIdentityProductionGuard(
-      @Value("${tch.identity.provider:keycloak}") String provider, Environment environment) {
+      @Value("${tch.identity.provider:firebase}") String provider, Environment environment) {
     this.provider = provider;
     this.environment = environment;
   }

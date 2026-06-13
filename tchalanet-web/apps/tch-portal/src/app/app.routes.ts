@@ -6,13 +6,14 @@ import { NotFoundPage } from '@tch/web';
 
 export const appRoutes: Route[] = [
   {
+    path: 'login',
+    loadComponent: () => import('./core/auth/firebase/login.page').then(m => m.LoginPage),
+  },
+  {
     path: 'public',
     loadComponent: () =>
-      import('./features/public/shell/public-shell.component').then(
-        m => m.TchPublicShellComponent,
-      ),
-    loadChildren: () =>
-      import('./features/public/public.routes').then(m => m.publicRoutes),
+      import('./features/public/shell/public-shell.component').then(m => m.TchPublicShellComponent),
+    loadChildren: () => import('./features/public/public.routes').then(m => m.publicRoutes),
   },
   {
     path: 'forbidden',
@@ -30,8 +31,7 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('SUPER_ADMIN')],
-    loadChildren: () =>
-      import('./features/platform/platform.routes').then(m => m.platformRoutes),
+    loadChildren: () => import('./features/platform/platform.routes').then(m => m.platformRoutes),
   },
   {
     path: 'app/admin',
@@ -45,8 +45,7 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('CASHIER')],
-    loadChildren: () =>
-      import('./features/cashier/cashier.routes').then(m => m.cashierRoutes),
+    loadChildren: () => import('./features/cashier/cashier.routes').then(m => m.cashierRoutes),
   },
   {
     path: '',

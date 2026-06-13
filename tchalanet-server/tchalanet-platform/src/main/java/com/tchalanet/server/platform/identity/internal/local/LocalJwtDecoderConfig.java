@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 
 @Configuration
 @ConditionalOnExpression(
-    "'${tch.identity.provider:keycloak}' == 'local-jwt' || '${tch.identity.provider:keycloak}' == 'local-perf'")
+    "'${tch.identity.provider:firebase}' == 'local-jwt' || '${tch.identity.provider:firebase}' == 'local-perf'")
 class LocalJwtDecoderConfig {
 
   @Bean

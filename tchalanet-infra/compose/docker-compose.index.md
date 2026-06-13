@@ -7,6 +7,7 @@ Vue d'ensemble des services, fichiers Compose, réseaux, ports exposés et dépe
 | Traefik          | `docker-compose-traefik.yml`   | `edge`         | 80/443 (host)                           | -                         |
 | Postgres         | `docker-compose-postgres.yml`  | `back`         | 5432 (host, dev-local)                  | -                         |
 | Redis            | `docker-compose-redis.yml`     | `back`         | 6379 (host, dev-local)                  | -                         |
+| Firebase Auth Emulator | `docker-compose-firebase-emulator.yml` | `back` | 9099, UI 4000 (dev-local) | - |
 | Keycloak         | `docker-compose-keycloak.yml`  | `edge`, `back` | 8080 (container), 8082 (host, dev-local)| Postgres                  |
 | API              | `docker-compose-api.yml`       | `edge`, `back` | 8080 (container, via Traefik)           | Keycloak, Redis, Postgres |
 | Edge service     | `docker-compose-edge-service.yml`      | `back`         | 3000 (container, interne)               | -                         |

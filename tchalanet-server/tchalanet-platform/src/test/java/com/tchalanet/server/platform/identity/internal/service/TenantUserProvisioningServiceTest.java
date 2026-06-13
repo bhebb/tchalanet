@@ -35,7 +35,7 @@ class TenantUserProvisioningServiceTest {
       new TenantUserProvisioningService(userAdminService, memberships, accessControlApi);
 
   @Test
-  @DisplayName("admin-context provisioning creates user, membership, role assignment and mirrors KC realm role")
+  @DisplayName("admin-context provisioning creates user, membership and app-owned role assignment")
   void provisionsUserMembershipAndRole() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var actor = UserId.of(UUID.randomUUID());
@@ -58,8 +58,6 @@ class TenantUserProvisioningServiceTest {
     assertThat(roleReq.getValue().roleCode()).isEqualTo("CASHIER");
     assertThat(roleReq.getValue().assignedBy()).isEqualTo(actor);
 
-    // Role assignment is mirrored to a Keycloak realm role so the new user's JWT carries authority.
-    verify(userAdminService).syncKeycloakRealmRole(createdUserId, "CASHIER");
   }
 
   @Test
@@ -76,7 +74,6 @@ class TenantUserProvisioningServiceTest {
 
     verify(memberships).assign(tenantId, createdUserId, null, null, false);
     verifyNoInteractions(accessControlApi);
-    verify(userAdminService, never()).syncKeycloakRealmRole(any(), any());
   }
 
   @Test
@@ -91,6 +88,5 @@ class TenantUserProvisioningServiceTest {
 
     verify(memberships).assign(tenantId, createdUserId, null, null, false);
     verify(accessControlApi).assignRoleToUser(any(AssignRoleToUserRequest.class));
-    verify(userAdminService).syncKeycloakRealmRole(createdUserId, "TENANT_ADMIN");
   }
 }

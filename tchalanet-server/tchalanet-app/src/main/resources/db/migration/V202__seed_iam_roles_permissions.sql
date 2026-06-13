@@ -199,12 +199,6 @@ BEGIN
   INSERT INTO app_user_external_identity (
     app_user_id, provider, issuer, external_subject, email_snapshot, created_at, updated_at)
   VALUES
-    ('00000000-0000-0000-0000-000000010001'::uuid, 'KEYCLOAK', 'legacy:keycloak',
-     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
-    ('00000000-0000-0000-0000-000000010002'::uuid, 'KEYCLOAK', 'legacy:keycloak',
-     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
-    ('00000000-0000-0000-0000-000000010003'::uuid, 'KEYCLOAK', 'legacy:keycloak',
-     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now()),
     ('00000000-0000-0000-0000-000000010001'::uuid, 'LOCAL_JWT', 'tchalanet-local',
      '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
     ('00000000-0000-0000-0000-000000010002'::uuid, 'LOCAL_JWT', 'tchalanet-local',

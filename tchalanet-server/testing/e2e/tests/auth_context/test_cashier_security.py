@@ -76,9 +76,9 @@ def test_cashier_cannot_list_platform_tenants(
 def test_cashier_cannot_access_platform_ops(
     cashier_client_a: ApiClient,
 ) -> None:
-    """POST /platform/ops/sync/identity/keycloak-bootstrap-users with cashier token → 403."""
+    """POST /platform/ops/sync/identity/firebase-bootstrap-users with cashier token → 403."""
     response = cashier_client_a.post(
-        "/platform/ops/sync/identity/keycloak-bootstrap-users"
+        "/platform/ops/sync/identity/firebase-bootstrap-users"
     )
     assert response.status_code in (401, 403), (
         f"Cashier must be forbidden from platform ops, got {response.status_code}: "

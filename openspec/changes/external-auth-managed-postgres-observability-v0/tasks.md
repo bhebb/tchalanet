@@ -364,6 +364,24 @@ workstream passes, but neither workstream must block early development of the ot
 
 ## Phase 5: Infra and observability
 
+> **⚠ Partially superseded by `observability-tracing-v1` (2026-06-12)**
+>
+> The following tasks from Phase 5 are now owned by `openspec/changes/observability-tracing-v1`:
+> - `X-Request-Id` contract and enforcement (→ slice B1)
+> - `traceId`/`spanId` propagation (→ slice B1)
+> - OTel Collector + Jaeger docker compose (→ slice I1)
+> - OTLP exporter config local/stg/prod (→ slice B3)
+> - Frontend/mobile diagnostic copy (→ slices W1, W2, M1)
+> - CommandBus/QueryBus generic tracing (→ slice B4)
+> - `ApiResponse` trace block (→ slice B2)
+>
+> The following tasks remain valid here (identity-specific observability):
+> - Identity verification result, revocation-check state, and sanitized failure-code attributes.
+> - Identity verification, revocation-check, and external-identity mapping duration/failure metrics.
+> - AppUser/external identity correlation in spans.
+> - Auth failure diagnostics.
+> - Safe context logging documentation specific to identity.
+
 ### Tasks
 
 - [ ] Remove Keycloak from the required production V0 service set.
@@ -371,19 +389,20 @@ workstream passes, but neither workstream must block early development of the ot
 - [x] Add environment-driven Firebase configuration.
 - [ ] Add environment-driven managed PostgreSQL configuration.
 - [ ] Add environment-driven Redis configuration.
-- [ ] Add environment-driven OpenTelemetry configuration.
-- [ ] Add OTEL Collector to development/staging topology.
-- [ ] Add Jaeger to development/staging topology.
-- [ ] Instrument and verify critical-flow trace coverage.
+- [x] ~~Add environment-driven OpenTelemetry configuration.~~ → superseded by observability-tracing-v1 B3
+- [x] ~~Add OTEL Collector to development/staging topology.~~ → superseded by observability-tracing-v1 I1
+- [x] ~~Add Jaeger to development/staging topology.~~ → superseded by observability-tracing-v1 I1
+- [ ] Instrument and verify identity-specific trace coverage (verify_token, revocation_check,
+      map_external_identity, bootstrap_policy, accesscontrol.resolve_permissions).
 - [ ] Add identity verification result, revocation-check state, and sanitized failure-code
       attributes without logging secrets.
 - [ ] Add identity verification, revocation-check, and external-identity mapping duration/failure
       metrics.
 - [ ] Document sampling policy.
-- [ ] Document redaction policy.
+- [ ] Document redaction policy (identity-specific).
 - [ ] Document cardinality limits.
 - [ ] Document secret handling.
-- [ ] Document safe context logging.
+- [ ] Document safe context logging (identity-specific).
 - [ ] Validate compose/configuration.
 - [ ] Update operations documentation.
 - [x] Document provider configuration, Firebase Phone onboarding/testing, and local/performance

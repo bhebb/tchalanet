@@ -1,0 +1,31 @@
+services:
+  firebase-emulator:
+    build:
+      context: ../firebase-emulator
+      dockerfile: Dockerfile
+    image: tchl/firebase-auth-emulator:${FIREBASE_EMULATOR_IMAGE_TAG:-local}
+    container_name: ${DOCKER_PREFIX:-tchl}-firebase-auth-emulator-${ENV:-dev}
+    environment:
+      CI: "true"
+      FIREBASE_CLI_DISABLE_UPDATE_CHECK: "true"
+      GCLOUD_PROJECT: ${FIREBASE_EMULATOR_PROJECT_ID:-demo-tchalanet-local}
+    ports:
+      - "9099:9099"
+    networks:
+      back: {}
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:9099/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+networks:
+  back:
+    name: ${DOCKER_NETWORK_BACK:-back-dev}
+    external: true

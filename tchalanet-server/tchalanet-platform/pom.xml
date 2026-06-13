@@ -101,10 +101,6 @@
 
     <!-- Platform integration libraries -->
     <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-admin-client</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.google.firebase</groupId>
       <artifactId>firebase-admin</artifactId>
     </dependency>

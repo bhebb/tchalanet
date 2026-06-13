@@ -70,14 +70,10 @@ effective = permissions des rôles actifs (tenant_user_role)
 elles se recalculent depuis rôle + overrides.
 
 
-## Autorités JWT vs rôle applicatif (invariant cross-module)
+## Autorités et rôles applicatifs (invariant cross-module)
 
-Les **autorités** portées par le JWT (`hasAnyAuthority('TENANT_ADMIN', …)`) sont dérivées des
-**realm roles Keycloak** par `SecurityConfig`, *pas* du `tenant_user_role` applicatif. Lorsqu'un
-utilisateur est provisionné via l'API, le rôle applicatif affecté ici doit donc être **miroité**
-dans Keycloak (cf. `platform.identity` → `KeycloakUserProvisionService.assignRealmRole`). Les
-**permissions fines** (`hasPermission('code')`) restent, elles, résolues ici via les permissions
-effectives. Voir `PLATFORM_IDENTITY.md` § Provisioning.
+Firebase authentifie l'identité externe uniquement. Les rôles, autorités, permissions fines et
+overrides sont résolus depuis Tchalanet; aucun rôle n'est miroité vers Firebase.
 
 
 ## Deny-Safe Evaluation

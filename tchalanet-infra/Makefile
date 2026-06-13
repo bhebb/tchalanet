@@ -22,7 +22,9 @@ help:
 	@echo "Usage: make <target> [ENV=dev|staging|prod]"
 	@echo ""
 	@echo "Local dev modes:"
-	@echo "  local-ide-up          P0 (Traefik+Postgres+Keycloak) — API runs in IDE"
+	@echo "  local-ide-up          P0 (Traefik+Postgres+Firebase Auth Emulator) — API runs in IDE"
+	@echo "  up-firebase-emulator  Start Firebase Auth Emulator (:9099)"
+	@echo "  down-firebase-emulator Stop Firebase Auth Emulator"
 	@echo "  local-ide-up-redis    P0+ (adds Redis)"
 	@echo "  local-api-up          P0+ + API in Docker"
 	@echo "  local-api-smoke       Health check: P0 + Redis + API"
@@ -207,6 +209,17 @@ down-otel:
 	  -f compose/docker-compose-otel.yml \
 	  down otel-collector jaeger
 	@echo "✅ OTel stack arrêtée"
+
+up-firebase-emulator: networks
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) \
+	  -f compose/docker-compose-firebase-emulator.yml \
+	  up -d --build firebase-emulator
+	@echo "Firebase Auth Emulator → http://localhost:9099"
+
+down-firebase-emulator:
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) \
+	  -f compose/docker-compose-firebase-emulator.yml \
+	  down
 
 logs-%:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs $* $(ENV)

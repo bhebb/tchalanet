@@ -10,7 +10,11 @@
 }
 
 @mixin rounded($radius: null) {
-  border-radius: if($radius == null, var(--tch-radius-md, 8px), $radius);
+  @if $radius == null {
+    border-radius: var(--tch-radius-md, 8px);
+  } @else {
+    border-radius: $radius;
+  }
 }
 
 @mixin elevate($level: 1) {
@@ -60,19 +64,32 @@
 // $family: 'emphasized' (expressive, larger elements) | 'standard' (utility transitions)
 // $phase:  'stay' | 'enter' | 'exit'
 @mixin transition($props: all, $family: standard, $phase: stay) {
-  $duration: if(
-    $phase == enter,  var(--tch-duration-enter,  400ms),
-    if($phase == exit, var(--tch-duration-short, 200ms),
-      if($family == emphasized, var(--tch-duration-long, 500ms), var(--tch-duration-medium, 300ms))
-    )
-  );
-  $ease: if(
-    $family == emphasized,
-    if($phase == enter,  var(--tch-ease-emphasized-decelerate),
-      if($phase == exit, var(--tch-ease-emphasized-accelerate), var(--tch-ease-emphasized))),
-    if($phase == enter,  var(--tch-ease-standard-decelerate),
-      if($phase == exit, var(--tch-ease-standard-accelerate), var(--tch-ease-standard)))
-  );
+  $duration: var(--tch-duration-medium, 300ms);
+  @if $family == emphasized {
+    $duration: var(--tch-duration-long, 500ms);
+  }
+  @if $phase == enter {
+    $duration: var(--tch-duration-enter, 400ms);
+  } @else if $phase == exit {
+    $duration: var(--tch-duration-short, 200ms);
+  }
+
+  $ease: var(--tch-ease-standard);
+  @if $family == emphasized {
+    $ease: var(--tch-ease-emphasized);
+  }
+  @if $phase == enter {
+    $ease: var(--tch-ease-standard-decelerate);
+    @if $family == emphasized {
+      $ease: var(--tch-ease-emphasized-decelerate);
+    }
+  } @else if $phase == exit {
+    $ease: var(--tch-ease-standard-accelerate);
+    @if $family == emphasized {
+      $ease: var(--tch-ease-emphasized-accelerate);
+    }
+  }
+
   transition-property: $props;
   transition-duration: #{$duration};
   transition-timing-function: #{$ease};

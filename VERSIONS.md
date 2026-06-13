@@ -37,6 +37,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | QueryDSL              | 5.1.0   |
 | Caffeine              | 3.2.3   |
 | Keycloak admin        | 26.0.9  |
+| Firebase Admin        | 9.9.0   |
 | ShedLock              | 6.6.0   |
 | Testcontainers        | 1.21.4  |
 | ArchUnit              | 1.4.1   |

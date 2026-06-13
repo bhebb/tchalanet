@@ -108,35 +108,23 @@ long                  countTenantUsers()
 
 ---
 
-## Provisioning utilisateur & sync Keycloak
+## Provisioning utilisateur Firebase
 
-`POST /admin/identity/users` (TENANT_ADMIN / SUPER_ADMIN) crée l'utilisateur applicatif
-**et** son compte Keycloak (`KeycloakUserProvisionService`), pour qu'il puisse s'authentifier
-immédiatement (mot de passe par défaut `Changeme1!`, email vérifié, required-actions vidées).
+`POST /admin/identity/users` (TENANT_ADMIN / SUPER_ADMIN) crée d'abord l'identité Firebase,
+puis l'utilisateur applicatif et son lien durable dans `app_user_external_identity`.
+Si la transaction Tchalanet échoue après la création Firebase, le compte Firebase nouvellement
+créé est supprimé en compensation.
 
-Deux invariants critiques pour qu'un utilisateur créé via l'API soit **opérationnel** :
+Firebase ne reçoit ni rôle, ni permission, ni tenant opérationnel. Le rôle, le tenant effectif,
+les permissions et le contexte RLS sont toujours résolus depuis Tchalanet.
 
-1. **Rôle applicatif → realm role Keycloak.** Les autorités du JWT sont dérivées des realm
-   roles Keycloak (`SecurityConfig`), *pas* du `tenant_user_role` applicatif. Après
-   l'affectation du rôle applicatif (`platform.accesscontrol`), le rôle est donc miroité dans
-   Keycloak (`KeycloakUserProvisionService.assignRealmRole` via
-   `TenantUserAdministrationService.syncKeycloakRealmRole`, best-effort, ne jette jamais).
-   Sans ça, un cashier/admin créé par l'API porte un JWT sans autorité → 403 sur ses endpoints.
-
-2. **Propagation `tenant_code`.** Le nouvel utilisateur reçoit l'attribut Keycloak
-   `tenant_code` = code du tenant courant, résolu par `resolveTenantCodeOrNull` :
-   code du contexte (`effectiveTenantCode` / `originalTenantCode`) pour une requête normale ;
-   **lookup DB par UUID** quand un SUPER_ADMIN agit via override `X-Tenant-Id` (le contexte ne
-   porte alors qu'un UUID dans les champs « code »). Le mapper KC `TchJsonClaimProtocolMapper`
-   émet le claim ; il retombe sur `"default"` si l'attribut est absent.
-   **Prérequis realm** : `unmanagedAttributePolicy=ENABLED` (cf. `tchalanet-infra/.../realm.base.json`),
-   sinon Keycloak supprime à la création les attributs non déclarés (`tenant_code`, `plan`,
-   `featureSetId`) — seul `locale` survit et l'utilisateur tombe dans le tenant `"default"`.
+En `local-ide`, le bootstrap Firebase crée et lie de façon idempotente `super_admin`, `admin`
+et `cashier`, avec des UID égaux aux UUID déterministes des `app_user` seedés.
 
 ## Structure interne (convention « API adapter »)
 
 `internal/model/` (records domaine) · `internal/service/` (services fins) ·
-`internal/service/keycloak/` (provisioning + sync KC) ·
+`internal/firebase/` (verification, provisioning + bootstrap Firebase) ·
 `internal/adapter/IdentityApiAdapter` (impl de l'API publique, délègue uniquement) ·
 `internal/persistence` · `internal/web/{me,admin,ops}`.
 
@@ -145,7 +133,7 @@ Deux invariants critiques pour qu'un utilisateur créé via l'API soit **opérat
 - `TenantMembershipService` est **membership-only** : il ne fait pas `setRole`, n'affecte ni
   ne calcule de permission, et n'injecte pas `AccessControlApi`.
 - `TenantUserProvisioningService` **orchestre** la création d'un utilisateur tenant : app_user +
-  membership (identity), puis `AccessControlApi.assignRoleToUser(...)` (accesscontrol), puis sync KC.
+  membership (identity), puis `AccessControlApi.assignRoleToUser(...)` (accesscontrol).
   Aucune permission n'est copiée dans la ligne utilisateur — elles dérivent du rôle + overrides.
 - `TenantUserAdministrationService` compose la vue admin (profil + membership + rôles/permissions
   effectives via accesscontrol + statut invitation/sync) — sorti du controller, qui reste mince.

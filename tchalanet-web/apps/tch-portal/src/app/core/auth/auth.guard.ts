@@ -4,7 +4,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { UserRole } from '../../shared/types';
 import { AuthSessionService } from './auth-session.service';
 
-export const authGuard: CanActivateFn = async (): Promise<boolean> => {
+export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => {
   const auth = inject(AuthSessionService);
   const session = await auth.refreshSession();
 
@@ -12,8 +12,7 @@ export const authGuard: CanActivateFn = async (): Promise<boolean> => {
     return true;
   }
 
-  await auth.login();
-  return false;
+  return inject(Router).parseUrl('/login');
 };
 
 // Post-login entry point: /app resolves the user's space from roles and redirects
@@ -24,8 +23,7 @@ export const spaceDispatchGuard: CanActivateFn = async (): Promise<UrlTree> => {
   const session = await auth.refreshSession();
 
   if (!session.authenticated) {
-    await auth.login(globalThis.location.origin + '/app');
-    return router.parseUrl('/public');
+    return router.parseUrl('/login');
   }
 
   if (session.roles.includes('SUPER_ADMIN')) {
@@ -48,8 +46,7 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
     const session = await auth.refreshSession();
 
     if (!session.authenticated) {
-      await auth.login();
-      return false;
+      return router.parseUrl('/login');
     }
 
     return auth.hasRole(requiredRole) ? true : router.parseUrl('/forbidden');
