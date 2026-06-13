@@ -13,6 +13,7 @@ compose/
 ├── docker-compose-traefik.yml           # Traefik (reverse proxy) — réseau edge
 ├── docker-compose-postgres.yml          # PostgreSQL 18 — réseau back
 ├── docker-compose-keycloak.yml          # Keycloak 26.4 — réseaux edge + back
+├── docker-compose-firebase-emulator.yml # Firebase Auth Emulator — réseau back, local uniquement
 │
 │   # P0+
 ├── docker-compose-redis.yml             # Redis 8 — réseau back
@@ -80,6 +81,10 @@ make up-all ENV=staging
 # Service individuel
 make up-postgres ENV=staging
 make up-keycloak ENV=staging
+
+# Firebase Auth Emulator local (Auth :9099, UI :4000)
+make up-firebase-emulator ENV=dev
+make down-firebase-emulator ENV=dev
 
 # Logs
 make logs-postgres ENV=staging

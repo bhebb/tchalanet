@@ -33,6 +33,11 @@ import {
 } from './core/i18n';
 import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { environment } from '../environments/environment';
+
+import { firebaseAuthInterceptor } from './core/auth/firebase/firebase-auth.interceptor';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,7 +47,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([
         correlationRequestInterceptor,
-        includeBearerTokenInterceptor,
+        firebaseAuthInterceptor,
         apiFeedbackInterceptor,
         problemDetailInterceptor,
       ]),
@@ -55,6 +60,17 @@ export const appConfig: ApplicationConfig = {
     provideRouterStore(),
     themeStoreProvider,
     provideWidgets(),
+
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAuth(() => {
+      const auth = getAuth();
+      if (environment.firebaseAuthEmulatorUrl) {
+        connectAuthEmulator(auth, environment.firebaseAuthEmulatorUrl, {
+          disableWarnings: true,
+        });
+      }
+      return auth;
+    }),
     // Feature-management isolation seam: call sites depend on FeatureFlags, swapping the backing
     // provider (e.g. to Unleash) only rebinds this token.
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },
@@ -80,25 +96,6 @@ export const appConfig: ApplicationConfig = {
         assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
         assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
       },
-    },
-    provideKeycloak({
-      config: {
-        url: keycloakUrlForHostname(globalThis.location?.hostname ?? ''),
-        realm: AUTH_CONFIG.realm,
-        clientId: AUTH_CONFIG.clientId,
-      },
-      initOptions: {
-        onLoad: 'check-sso',
-        checkLoginIframe: false,
-      },
-    }),
-    {
-      provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-      useValue: [
-        {
-          urlPattern: APPLICATION_API_URL_PATTERN,
-        },
-      ],
-    },
+    }
   ],
 };

@@ -53,6 +53,8 @@ venv/
 
 # Secrets
 envs/**/.secrets
+**/*firebase-adminsdk*.json
+**/firebase-service-account*.json
 
 # Environnement
 .env

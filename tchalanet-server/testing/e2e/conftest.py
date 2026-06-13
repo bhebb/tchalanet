@@ -63,7 +63,7 @@ def cashier_token(keycloak: E2EAuth, base_url: str, super_admin_token: str) -> s
         )
 
     sync = ApiClient(base_url=base_url, token=super_admin_token).post(
-        "/platform/ops/sync/identity/keycloak-bootstrap-users")
+        "/platform/ops/sync/identity/firebase-bootstrap-users")
     if sync.status_code in (200, 201, 202, 204):
         token = keycloak.password_grant(username=seller_username, password=seller_password)
         retry = ApiClient(base_url=base_url, token=token).get("/tenant/me/profile")
@@ -72,7 +72,7 @@ def cashier_token(keycloak: E2EAuth, base_url: str, super_admin_token: str) -> s
 
     raise RuntimeError(
         f"Cashier token obtained but /tenant/me/profile returns {probe.status_code}. "
-        "Run the Keycloak bootstrap sync manually or check seller credentials."
+        "Run the Firebase bootstrap sync manually or check seller credentials."
     )
 
 

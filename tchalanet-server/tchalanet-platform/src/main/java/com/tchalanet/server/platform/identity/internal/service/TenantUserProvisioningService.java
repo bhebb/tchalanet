@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Orchestrates full tenant user provisioning:
- * 1. Create app_user + KC identity (with correct tenantCode in JWT claim).
+ * 1. Create Firebase identity + app_user + durable external identity mapping.
  * 2. Create tenant membership.
  * 3. Assign the requested role via access-control.
  */
@@ -31,8 +31,7 @@ public class TenantUserProvisioningService {
 
   /**
    * Provisions a new user in a tenant with an explicit tenantCode.
-   * The tenantCode is passed directly to KC provisioning so the JWT
-   * tenant_code claim is correct on the very first login.
+   * Authorization and tenant context are resolved from Tchalanet after authentication.
    */
   @Transactional
   public CreateUserResult provisionTenantUser(
@@ -50,8 +49,7 @@ public class TenantUserProvisioningService {
 
   /**
    * Provisions a new user from the admin controller, in the current request's tenant context.
-   * The tenantCode for the KC claim is resolved from {@link TchContext} (not passed explicitly),
-   * the membership carries the requested outlet/terminal, and {@code actor} is recorded as the
+   * The membership carries the requested outlet/terminal, and {@code actor} is recorded as the
    * role assigner.
    */
   @Transactional
@@ -78,10 +76,6 @@ public class TenantUserProvisioningService {
     tenantMembershipService.assign(tenantId, userId, outletId, terminalId, false);
     if (role != null) {
       accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(tenantId, userId, role.name(), actor));
-      // Mirror the role to a Keycloak realm role so the new user's JWT carries the matching
-      // authority (SecurityConfig derives authorities from realm roles); otherwise an API-created
-      // cashier/admin is rejected (403) on its role-gated endpoints. Best-effort, never throws.
-      userAdminService.syncKeycloakRealmRole(userId, role.name());
       log.info("Provisioned user {} in tenant {} with role {}", userId, tenantId, role);
     }
   }

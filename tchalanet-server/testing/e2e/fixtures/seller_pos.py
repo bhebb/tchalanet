@@ -2,7 +2,7 @@
 
 ``onboard_pos_seller`` performs the whole chain for one tenant:
 
-    outlet → cashier user (DB + Keycloak) → seller (linked + assigned)
+    outlet → cashier user (DB + Firebase) → seller (linked + assigned)
     → terminal → assign terminal to cashier → bind terminal (known device cred)
     → cashier JWT → open session
 
@@ -10,7 +10,7 @@ and returns a :class:`PosContext` ready to sell. It is tenant-agnostic: pass any
 ``tenant_id`` whose tenant already has an operational catalog (games / pricing /
 open draws). The SUPER_ADMIN acts as the tenant via the X-Tenant-Id override, and
 the freshly-created cashier authenticates with the platform default password
-(``Changeme1!``, non-temporary, email-verified — see KeycloakUserProvisionService).
+(``Changeme1!`` in the local Firebase bootstrap configuration).
 
 The same helper is what a true cross-tenant dual-POS test would call once per
 tenant; today only the seeded tenant has a catalog, so a provisioned Tenant B

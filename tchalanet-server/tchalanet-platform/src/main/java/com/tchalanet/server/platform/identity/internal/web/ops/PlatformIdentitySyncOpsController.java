@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.web.ops;
 
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.identity.internal.service.keycloak.KeycloakBootstrapSyncService;
+import com.tchalanet.server.platform.identity.internal.firebase.FirebaseBootstrapSyncService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,25 +16,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PlatformIdentitySyncOpsController {
 
-  private final KeycloakBootstrapSyncService syncService;
+  private final FirebaseBootstrapSyncService syncService;
 
-  @PostMapping("/identity/keycloak-bootstrap-users")
+  @PostMapping("/identity/firebase-bootstrap-users")
   @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-  public ResponseEntity<ApiResponse<KeycloakBootstrapSyncResponse>> triggerKeycloakBootstrapSync() {
-    return runKeycloakBootstrapSync();
+  public ResponseEntity<ApiResponse<FirebaseBootstrapSyncResponse>> triggerFirebaseBootstrapSync() {
+    return runFirebaseBootstrapSync();
   }
 
-  private ResponseEntity<ApiResponse<KeycloakBootstrapSyncResponse>> runKeycloakBootstrapSync() {
+  private ResponseEntity<ApiResponse<FirebaseBootstrapSyncResponse>> runFirebaseBootstrapSync() {
     var result = syncService.syncConfiguredUsers();
     var response =
-        new KeycloakBootstrapSyncResponse(
-            result.attempted(), result.foundInKeycloak(), result.updatedRows());
+        new FirebaseBootstrapSyncResponse(
+            result.attempted(), result.createdInFirebase(), result.linked());
     return ResponseEntity.ok(ApiResponse.success(response));
   }
 
-  public record KeycloakBootstrapSyncResponse(int attempted, int foundInKeycloak, int updatedRows) {}
+  public record FirebaseBootstrapSyncResponse(int attempted, int createdInFirebase, int linked) {}
 }
-
 
 
 

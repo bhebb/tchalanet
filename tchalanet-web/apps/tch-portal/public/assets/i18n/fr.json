@@ -99,6 +99,42 @@
       "body": "Votre rôle actuel ne permet pas d'accéder à cette surface.",
       "title": "Accès interdit"
     },
+    "login": {
+      "brand": {
+        "body": "Pilotez les ventes, les tirages et votre réseau depuis un espace opérationnel sécurisé.",
+        "capabilities": {
+          "operations": "Suivi des opérations en temps réel",
+          "sales": "Ventes et sessions centralisées",
+          "security": "Accès protégé et traçable"
+        },
+        "eyebrow": "Réseau de loterie",
+        "title": "Votre réseau. Une seule vision."
+      },
+      "copyright": "© 2026 Tchalanet. Tous droits réservés.",
+      "errors": {
+        "accessDenied": "Connexion réussie, mais votre accès Tchalanet n'est pas encore autorisé.",
+        "invalidCredentials": "Adresse e-mail ou mot de passe invalide."
+      },
+      "form": {
+        "authenticating": "Authentification…",
+        "body": "Utilisez les identifiants associés à votre compte Tchalanet.",
+        "email": "Adresse e-mail",
+        "emailPlaceholder": "nom@organisation.com",
+        "eyebrow": "Portail sécurisé",
+        "hidePassword": "Masquer le mot de passe",
+        "password": "Mot de passe",
+        "remember": "Rester connecté sur cet appareil",
+        "security": "Votre session est sécurisée par Firebase Authentication.",
+        "showPassword": "Afficher le mot de passe",
+        "submit": "Accéder à mon espace",
+        "title": "Bon retour"
+      },
+      "links": {
+        "help": "Aide",
+        "privacy": "Confidentialité",
+        "terms": "Conditions d'utilisation"
+      }
+    },
     "logout": "Déconnexion"
   },
   "common": {

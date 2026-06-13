@@ -214,16 +214,14 @@ docker restart tchl-keycloak-dev
 # wait for healthy, then re-check users/count → 8
 ```
 
-Do **not** edit `realm.json` to "fix" users — user/realm state is owned by the import +
-`KeycloakBootstrapSyncService`, not by hand-editing.
+This Keycloak-only troubleshooting section is retained temporarily for legacy E2E targets. The
+standard local-IDE path now uses Firebase Auth Emulator.
 
-### Keycloak external-subject sync (rarely needed)
+### Firebase bootstrap sync
 
-The cashier fixture auto-calls `POST /platform/ops/sync/identity/keycloak-bootstrap-users`
-(super_admin) if `/tenant/me/profile` 403s, to reconcile the KEYCLOAK
-`app_user_external_identity.external_subject` with KC.
-The deterministic seeded users already match, so this only matters for the random-UUID
-edge-case cashiers.
+`POST /platform/ops/sync/identity/firebase-bootstrap-users` creates or reuses the deterministic
+Firebase Emulator users and persists their `FIREBASE` external identity mappings. It is
+idempotent and restricted to `SUPER_ADMIN`.
 
 ---
 

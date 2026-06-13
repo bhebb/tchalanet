@@ -35,7 +35,6 @@
     <caffeine.version>3.2.4</caffeine.version>
     <firebase-admin.version>9.9.0</firebase-admin.version>
     <json-schema-validator.version>3.0.3</json-schema-validator.version>
-    <keycloak.version>26.0.9</keycloak.version>
     <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <pdfbox.version>3.0.7</pdfbox.version>
@@ -47,7 +46,6 @@
     <rome.version>2.1.0</rome.version>
     <jackson.version>3.1.4</jackson.version>
     <hibernate.version>7.3.2.Final</hibernate.version>
-    <spring-boot-admin.version>4.0.4</spring-boot-admin.version>
     <!-- Spring Modulith -->
     <spring-modulith.version>2.0.6</spring-modulith.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
@@ -84,18 +82,6 @@
         <artifactId>spring-modulith-test</artifactId>
         <version>${spring-modulith.version}</version>
         <scope>test</scope>
-      </dependency>
-
-<!--      spring boot admin 404-->
-      <dependency>
-        <groupId>de.codecentric</groupId>
-        <artifactId>spring-boot-admin-starter-server</artifactId>
-        <version>${spring-boot-admin.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>de.codecentric</groupId>
-        <artifactId>spring-boot-admin-starter-client</artifactId>
-        <version>${spring-boot-admin.version}</version>
       </dependency>
       <!-- Inter-module dependencies -->
       <dependency>
@@ -195,12 +181,6 @@
         <version>${shedlock.version}</version>
       </dependency>
 
-      <!-- Keycloak -->
-      <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-admin-client</artifactId>
-        <version>${keycloak.version}</version>
-      </dependency>
       <dependency>
         <groupId>com.google.firebase</groupId>
         <artifactId>firebase-admin</artifactId>

@@ -21,7 +21,8 @@
       "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],
       "@tch/ui/theme/*": ["./libs/ui/theme/src/*"],
       "@tch/ui/components": ["./libs/ui/components/src/index.ts"],
-      "@tch/widgets": ["./libs/widgets/src/index.ts"]
+      "@tch/widgets": ["./libs/widgets/src/index.ts"],
+      "@env/*": ["./apps/tch-portal/src/environments/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

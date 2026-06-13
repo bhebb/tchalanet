@@ -20,16 +20,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # KC_HOSTNAME (dev) includes the external port — the token iss claim is
-          # https://auth.localtest.me:8443/realms/tchalanet and must match exactly.
-          issuer-uri: https://auth.localtest.me:8443/realms/tchalanet
-          # Explicit JWKS endpoint (use http if your local Keycloak uses self-signed certs
-          # to avoid JVM trust issues). Adjust to https if Keycloak serves valid TLS.
-          jwk-set-uri: https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/certs
   datasource:
     hikari:
       maximum-pool-size: 10
@@ -38,21 +28,22 @@ spring:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
     repair-on-migrate: true   # repairs checksum mismatches automatically in dev
 
-  boot:
-    admin:
-      client:
-        enabled: false
-        url: http://localhost:8083/api/v1/admin/ops
-        auto-registration: false
-        register-once: false
-        period: 10s
-        instance:
-          name: tchalanet-app-local
-          service-url: http://localhost:8083/api/v1
-          management-url: http://localhost:8083/api/v1/actuator
-          health-url: http://localhost:8083/api/v1/actuator/health
 
 tch:
+  identity:
+    provider: ${TCH_IDENTITY_PROVIDER:firebase-emulator}
+    firebase:
+      project-id: ${FIREBASE_PROJECT_ID:demo-tchalanet-local}
+      revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:off}
+      bootstrap:
+        enabled: ${FIREBASE_BOOTSTRAP_ENABLED:true}
+        auto-run-on-startup: ${FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP:true}
+        default-user-password: ${FIREBASE_BOOTSTRAP_DEFAULT_USER_PASSWORD:Changeme1!}
+        users:
+          - super_admin
+          - admin
+          - cashier
+
   admin:
     server:
       enabled: true
@@ -90,20 +81,6 @@ tch:
     job:
       enabled: false
 
-kc:
-  bootstrap:
-    enabled: ${KC_BOOTSTRAP_ENABLED:true}
-    auto-run-on-startup: ${KC_BOOTSTRAP_AUTO_RUN_ON_STARTUP:true}
-    users:
-      - super_admin
-      - admin
-      - cashier
-      - cashier_blocked
-      - cashier_no_terminal
-      - cashier_offline_allowed
-      - cashier_offline_denied
-      - operator
-
 management:
   tracing:
     sampling:
@@ -118,11 +95,6 @@ logging:
   level:
     com.tchalanet.server.common.bus: INFO
     io.opentelemetry.exporter.otlp: DEBUG   # remove after confirming traces flow to Jaeger
-
-# Swagger / OpenAPI OAuth2 redirect URL (used by Swagger UI Authorize button)
-springdoc:
-  swagger-ui:
-    oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
 
 # No signing key set here — Ed25519ServerSigningService generates an ephemeral keypair
 # at startup for local/dev profiles. Set TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64

@@ -99,6 +99,42 @@
       "body": "Wòl ou genyen kounye a pa pèmèt ou antre nan espas sa a.",
       "title": "Aksè entèdi"
     },
+    "login": {
+      "brand": {
+        "body": "Jere vant, tiraj ak rezo ou nan yon sèl espas operasyon ki an sekirite.",
+        "capabilities": {
+          "operations": "Swivi operasyon yo an tan reyèl",
+          "sales": "Vant ak sesyon santralize",
+          "security": "Aksè pwoteje ak trasabl"
+        },
+        "eyebrow": "Rezo lotri",
+        "title": "Rezo ou. Yon sèl vizyon."
+      },
+      "copyright": "© 2026 Tchalanet. Tout dwa rezève.",
+      "errors": {
+        "accessDenied": "Koneksyon an reyisi, men aksè Tchalanet ou poko otorize.",
+        "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
+      },
+      "form": {
+        "authenticating": "Otantifikasyon…",
+        "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
+        "email": "Adrès imèl",
+        "emailPlaceholder": "non@oganizasyon.com",
+        "eyebrow": "Pòtay sekirize",
+        "hidePassword": "Kache modpas la",
+        "password": "Modpas",
+        "remember": "Rete konekte sou aparèy sa a",
+        "security": "Firebase Authentication pwoteje sesyon ou.",
+        "showPassword": "Montre modpas la",
+        "submit": "Antre nan espas mwen",
+        "title": "Byenveni ankò"
+      },
+      "links": {
+        "help": "Èd",
+        "privacy": "Konfidansyalite",
+        "terms": "Kondisyon itilizasyon"
+      }
+    },
     "logout": "Dekonekte"
   },
   "common": {

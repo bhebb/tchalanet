@@ -27,6 +27,12 @@
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/tch-portal/src/environments/environment.ts",
+              "with": "apps/tch-portal/src/environments/environment.prod.ts"
+            }
+          ],
           "budgets": [
             {
               "type": "initial",
@@ -42,6 +48,17 @@
           "outputHashing": "all"
         },
         "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        },
+        "real-firebase": {
+          "fileReplacements": [
+            {
+              "replace": "apps/tch-portal/src/environments/environment.ts",
+              "with": "apps/tch-portal/src/environments/environment.real-firebase.ts"
+            }
+          ],
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
@@ -61,6 +78,9 @@
         },
         "development": {
           "buildTarget": "tch-portal:build:development"
+        },
+        "real-firebase": {
+          "buildTarget": "tch-portal:build:real-firebase"
         }
       },
       "defaultConfiguration": "development"

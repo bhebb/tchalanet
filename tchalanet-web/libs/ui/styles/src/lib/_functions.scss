@@ -13,7 +13,10 @@
   @if math.unit($value) == 'rem' {
     @return $value;
   }
-  $n: if(math.is-unitless($value), $value, strip-unit($value));
+  $n: $value;
+  @if not math.is-unitless($value) {
+    $n: strip-unit($value);
+  }
   @return math.div($n, $base) * 1rem;
 }
 

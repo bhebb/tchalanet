@@ -68,18 +68,6 @@
       <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
-      <groupId>de.codecentric</groupId>
-      <artifactId>spring-boot-admin-starter-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>de.codecentric</groupId>
-      <artifactId>spring-boot-admin-starter-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webflux</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
@@ -106,6 +94,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-batch</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webclient</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -204,12 +196,6 @@
     <dependency>
       <groupId>net.javacrumbs.shedlock</groupId>
       <artifactId>shedlock-provider-jdbc-template</artifactId>
-    </dependency>
-
-    <!-- Keycloak -->
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-admin-client</artifactId>
     </dependency>
 
     <!-- Barcode & PDF -->
@@ -321,7 +307,7 @@
           </excludes>
         </configuration>
       </plugin>
-        <plugin>
+     <!--   <plugin>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-maven-plugin</artifactId>
             <version>${kotlin.version}</version>
@@ -362,7 +348,7 @@
                     <plugin>jpa</plugin>
                 </compilerPlugins>
             </configuration>
-        </plugin>
+        </plugin>-->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>

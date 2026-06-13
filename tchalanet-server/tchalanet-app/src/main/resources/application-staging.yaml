@@ -3,17 +3,6 @@ app:
     allowed-origins: https://test.tchalanet.com,https://auth.stg.tchalanet.com,https://stg.tchalanet.com,https://api.stg.tchalanet.com
   apiBaseUrl: ${APP_API_BASEURL:https://api.stg.tchalanet.com}
 
-
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://auth.stg.tchalanet.com/realms/tchalanet
-springdoc:
-  swagger-ui:
-    oauth2-redirect-url: https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html
-
 management:
   tracing:
     sampling:

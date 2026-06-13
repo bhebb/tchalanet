@@ -57,6 +57,7 @@ public class UserBootstrapFilterImpl extends OncePerRequestFilter implements Ide
             return;
         }
 
+
         if (user.status() != UserStatus.ACTIVE) {
             response.sendError(403, "User not active");
             return;

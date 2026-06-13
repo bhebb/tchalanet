@@ -99,6 +99,42 @@
       "body": "Your current role does not allow access to this surface.",
       "title": "Forbidden"
     },
+    "login": {
+      "brand": {
+        "body": "Manage sales, draws, and your network from one secure operational workspace.",
+        "capabilities": {
+          "operations": "Real-time operation monitoring",
+          "sales": "Centralized sales and sessions",
+          "security": "Protected and traceable access"
+        },
+        "eyebrow": "Lottery network",
+        "title": "Your network. One clear view."
+      },
+      "copyright": "© 2026 Tchalanet. All rights reserved.",
+      "errors": {
+        "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
+        "invalidCredentials": "Invalid email address or password."
+      },
+      "form": {
+        "authenticating": "Authenticating…",
+        "body": "Use the credentials associated with your Tchalanet account.",
+        "email": "Email address",
+        "emailPlaceholder": "name@organization.com",
+        "eyebrow": "Secure portal",
+        "hidePassword": "Hide password",
+        "password": "Password",
+        "remember": "Stay signed in on this device",
+        "security": "Your session is secured by Firebase Authentication.",
+        "showPassword": "Show password",
+        "submit": "Access my workspace",
+        "title": "Welcome back"
+      },
+      "links": {
+        "help": "Help",
+        "privacy": "Privacy",
+        "terms": "Terms of use"
+      }
+    },
     "logout": "Log out"
   },
   "common": {

@@ -11,12 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(prefix = "tch.identity", name = "provider", havingValue = "firebase")
+@ConditionalOnExpression(
+    "'${tch.identity.provider:firebase}' == 'firebase' || '${tch.identity.provider:firebase}' == 'firebase-emulator'")
 public final class FirebaseIdentityProvider implements IdentityProviderApi {
 
   private static final Set<String> SAFE_CLAIMS =

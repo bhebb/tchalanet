@@ -84,8 +84,7 @@ public class SecurityConfig {
                             "/api/v1/actuator/**",
                             // also permit public endpoints without servlet prefix (helpers, local
                             // testing)
-                            "/public/**",
-                            "/api/v1/swagger-ui/oauth2-redirect.html")
+                            "/public/**")
                         .permitAll()
                         .requestMatchers("/error", "/api/v1/error")
                         .permitAll()
