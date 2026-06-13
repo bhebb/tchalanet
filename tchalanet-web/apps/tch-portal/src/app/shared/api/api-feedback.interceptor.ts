@@ -69,7 +69,9 @@ function fromUnhealthyService(sh: ServiceHealth): AddShellFeedbackInput {
 function fromProblemDetail(problem: ProblemDetail, url: string): AddShellFeedbackInput {
   const severity: ShellFeedbackSeverity =
     problem.status >= 500 || problem.status === 0 ? 'error' : 'warn';
-  const traceId = problem.correlationId;
+  const requestId = problem.requestId ?? problem.correlationId;
+  const traceId = problem.traceId;
+  const spanId = problem.spanId;
   const source = problem.instance ?? url;
 
   const item: AddShellFeedbackInput = {
@@ -77,13 +79,15 @@ function fromProblemDetail(problem: ProblemDetail, url: string): AddShellFeedbac
     title: problem.title,
     message: problem.detail ?? problem.title,
     status: problem.status,
+    requestId,
     traceId,
+    spanId,
     source,
   };
 
   return {
     ...item,
-    copyText: buildCopyText({ ...item, traceId, source }),
+    copyText: buildCopyText(item),
   };
 }
 

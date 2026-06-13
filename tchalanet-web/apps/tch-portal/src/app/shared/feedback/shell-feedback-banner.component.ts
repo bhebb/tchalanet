@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  OnInit,
   Output,
   EventEmitter,
   computed,
@@ -27,19 +26,53 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
         <strong class="sfb__title">{{ item.title }}</strong>
         <span class="sfb__message">{{ item.message }}</span>
 
-        @if (showTraceId && item.traceId) {
-          <code class="sfb__trace">{{ item.traceId }}</code>
-        }
         @if (verbosity === 'verbose' && item.status) {
           <span class="sfb__meta">HTTP {{ item.status }}</span>
         }
         @if (verbosity === 'verbose' && item.source) {
           <span class="sfb__meta">{{ item.source }}</span>
         }
+
+        @if (showDetails() && hasDiagnostic()) {
+          <button
+            type="button"
+            class="sfb__details-toggle"
+            [attr.aria-expanded]="expanded()"
+            (click)="toggleDetails()"
+          >
+            <span>Détails techniques</span>
+            <span class="material-symbols-outlined" aria-hidden="true">
+              {{ expanded() ? 'expand_less' : 'expand_more' }}
+            </span>
+          </button>
+
+          @if (expanded()) {
+            <dl class="sfb__details" aria-label="Détails de diagnostic">
+              @if (item.requestId) {
+                <div class="sfb__detail-row">
+                  <dt>requestId</dt>
+                  <dd><code>{{ item.requestId }}</code></dd>
+                </div>
+              }
+              @if (item.traceId) {
+                <div class="sfb__detail-row">
+                  <dt>traceId</dt>
+                  <dd><code>{{ item.traceId }}</code></dd>
+                </div>
+              }
+              @if (item.spanId) {
+                <div class="sfb__detail-row">
+                  <dt>spanId</dt>
+                  <dd><code>{{ item.spanId }}</code></dd>
+                </div>
+              }
+            </dl>
+          }
+        }
       </div>
 
       <div class="sfb__actions">
-        @if (showCopy && item.copyText) {
+        @if (showDetails() && item.copyText) {
           <button
             type="button"
             class="sfb__btn"
@@ -118,17 +151,64 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
       color: color-mix(in srgb, var(--sfb-fg) 80%, transparent);
     }
 
-    .sfb__trace {
-      margin-top: 0.25rem;
-      font-size: 0.75rem;
-      font-family: monospace;
-      opacity: 0.75;
-      word-break: break-all;
-    }
-
     .sfb__meta {
       font-size: 0.75rem;
       opacity: 0.65;
+    }
+
+    .sfb__details-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.375rem;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: color-mix(in srgb, var(--sfb-fg) 70%, transparent);
+      font-size: 0.75rem;
+      cursor: pointer;
+      line-height: 1.25rem;
+    }
+
+    .sfb__details-toggle:hover {
+      color: var(--sfb-fg);
+    }
+
+    .sfb__details-toggle .material-symbols-outlined {
+      font-size: 1rem;
+    }
+
+    .sfb__details {
+      margin: 0.375rem 0 0;
+      padding: 0.5rem 0.625rem;
+      border-radius: var(--tch-radius-sm, 4px);
+      background: color-mix(in srgb, var(--sfb-fg) 6%, transparent);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .sfb__detail-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: baseline;
+    }
+
+    .sfb__detail-row dt {
+      flex-shrink: 0;
+      font-size: 0.6875rem;
+      opacity: 0.65;
+      min-width: 5rem;
+    }
+
+    .sfb__detail-row dd {
+      margin: 0;
+    }
+
+    .sfb__detail-row code {
+      font-size: 0.6875rem;
+      font-family: monospace;
+      word-break: break-all;
     }
 
     .sfb__actions {
@@ -168,6 +248,7 @@ export class ShellFeedbackBannerComponent {
   @Output() dismissed = new EventEmitter<string>();
 
   protected readonly copied = signal(false);
+  protected readonly expanded = signal(false);
 
   protected get icon(): string {
     switch (this.item.severity) {
@@ -177,12 +258,14 @@ export class ShellFeedbackBannerComponent {
     }
   }
 
-  protected get showTraceId(): boolean {
-    return this.verbosity === 'standard' || this.verbosity === 'verbose';
+  protected showDetails = computed(() => this.verbosity === 'standard' || this.verbosity === 'verbose');
+
+  protected hasDiagnostic(): boolean {
+    return !!(this.item.requestId || this.item.traceId || this.item.spanId);
   }
 
-  protected get showCopy(): boolean {
-    return this.verbosity === 'standard' || this.verbosity === 'verbose';
+  protected toggleDetails(): void {
+    this.expanded.update(v => !v);
   }
 
   protected copy(): void {

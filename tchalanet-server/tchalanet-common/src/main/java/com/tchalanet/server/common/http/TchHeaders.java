@@ -9,6 +9,8 @@ public class TchHeaders {
     public static final String X_DELETED_VISIBILITY = "X-Deleted-Visibility";
 
     public static final String X_REQUEST_ID = "X-Request-Id";
+    public static final String X_TRACE_ID = "X-Trace-Id";
+    public static final String X_SPAN_ID = "X-Span-Id";
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final String X_TENANT_ID = "X-Tenant-Id";
     public static final String X_TCH_TENANT_OVERRIDE = "X-Tch-Tenant-Override";

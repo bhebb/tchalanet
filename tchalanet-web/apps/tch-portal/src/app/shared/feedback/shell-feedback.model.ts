@@ -7,7 +7,9 @@ export interface ShellFeedbackItem {
   readonly title: string;
   readonly message: string;
   readonly source?: string;
+  readonly requestId?: string;
   readonly traceId?: string;
+  readonly spanId?: string;
   readonly status?: number;
   readonly copyText?: string;
   readonly dismissible: boolean;
@@ -18,7 +20,9 @@ export interface AddShellFeedbackInput {
   readonly title: string;
   readonly message: string;
   readonly source?: string;
+  readonly requestId?: string;
   readonly traceId?: string;
+  readonly spanId?: string;
   readonly status?: number;
   readonly copyText?: string;
   readonly dismissible?: boolean;

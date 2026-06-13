@@ -47,6 +47,36 @@ tch:
       controlled-auto-allowed-domains: ${TCH_SECURITY_USER_BOOTSTRAP_CONTROLLED_AUTO_ALLOWED_DOMAINS:}
       allow-controlled-auto-in-production: ${TCH_SECURITY_USER_BOOTSTRAP_ALLOW_CONTROLLED_AUTO_IN_PRODUCTION:false}
 
+  observability:
+    enabled: true
+    request-id:
+      required: true
+      response-header: true
+      pattern: '^[A-Za-z0-9._:\-]{8,96}$'
+      exempt-paths:
+        - /public/**
+        - /api/v1/public/**
+        - /actuator/**
+        - /api/v1/actuator/**
+        - /swagger-ui/**
+        - /api/v1/swagger-ui/**
+        - /v3/api-docs/**
+        - /api/v1/openapi/**
+        - /openapi/**
+        - /error
+        - /api/v1/error
+        - /favicon.ico
+    tracing:
+      response-headers: true
+      sensitive-message-allowlist:
+        - SellTicketCommand
+        - VoidSaleCommand
+        - RefundCommand
+        - AuthorizePaymentCommand
+        - CapturePaymentCommand
+        - FindTicketsBySessionQuery
+        - GetSaleReceiptQuery
+
   admin:
     server:
       enabled: ${TCH_ADMIN_SERVER_ENABLED:false}
@@ -150,6 +180,9 @@ kc:
 # SPRING FRAMEWORK
 # ===========================
 spring:
+  application:
+    name: tchalanet-api
+
   boot:
     admin:
       context-path: /admin/ops
@@ -285,8 +318,20 @@ logging:
     org.springframework.security.oauth2.server.resource: INFO
     org.hibernate.SQL: INFO
 
-
 management:
+  otlp:
+    metrics:
+      export:
+        # Jaeger is traces-only; enable this only when the Collector has a metrics pipeline.
+        enabled: ${OTEL_METRICS_ENABLED:false}
+  tracing:
+    sampling:
+      probability: ${OTEL_SAMPLER_PROBABILITY:0.1}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
   endpoints:
     web:
       exposure:

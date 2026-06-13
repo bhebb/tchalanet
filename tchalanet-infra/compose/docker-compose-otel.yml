@@ -1,0 +1,64 @@
+# docker-compose-otel.yml
+# Local observability stack: OTel Collector + Jaeger.
+# Self-contained: declare the back network as external so docker-compose-project.yml
+# does not need to be included.  Networks must already exist (make networks).
+#
+# Usage:  make up-otel            (dev, ports exposed on localhost)
+#         make up-otel ENV=dev    (explicit)
+#         make down-otel
+#
+# Jaeger UI:  http://localhost:16686
+# OTLP HTTP:  http://localhost:4318  (for IDE runs → Spring Boot default)
+# OTLP gRPC:  localhost:4317
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.127.0
+    container_name: tchl-otel-collector-${ENV:-dev}
+    command: ["--config=/etc/otelcol-contrib/otel-collector-config.yaml"]
+    volumes:
+      - ./otel/otel-collector-config.yaml:/etc/otelcol-contrib/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC (IDE → host)
+      - "4318:4318"   # OTLP HTTP (IDE → host, Spring Boot default)
+    networks:
+      back: {}
+    depends_on:
+      jaeger:
+        condition: service_started   # distroless image has no wget; can't use service_healthy
+    restart: unless-stopped
+    healthcheck:
+      disable: true   # distroless — no shell tools; health_check extension on :13133 is the external probe
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.68.0
+    container_name: tchl-jaeger-${ENV:-dev}
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+      - MEMORY_MAX_TRACES=50000
+    ports:
+      - "16686:16686"  # Jaeger UI → http://localhost:16686
+    networks:
+      back: {}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:14269/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  back:
+    name: ${DOCKER_NETWORK_BACK:-back-dev}
+    external: true

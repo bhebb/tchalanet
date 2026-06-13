@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../design_system/tokens/tch_colors.dart';
 
+import '../../../../../core/observability/diagnostic_info.dart';
+import '../../../../../core/observability/diagnostic_repository.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../home/data/models/cashier_home_models.dart';
@@ -53,6 +55,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(sellControllerProvider);
     final homeAsync = ref.watch(cashierHomeProvider);
+    final lastDiagnostic = ref.watch(diagnosticRepositoryProvider).last;
     final opCtx = homeAsync.when(
       data: (h) => h.operationalContext,
       loading: () => null,
@@ -83,6 +86,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
         SellLoadingCatalog() => const Center(child: CircularProgressIndicator()),
         SellCatalogError(:final message) => _ErrorBody(
             message: message,
+            diagnostic: lastDiagnostic,
             onRetry: () => ref
                 .read(sellControllerProvider.notifier)
                 .loadCatalog(),
@@ -94,6 +98,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             isPreviewing: false,
             isConfirming: false,
             error: error,
+            diagnostic: error != null ? lastDiagnostic : null,
             opCtx: opCtx,
             stakeController: _stakeController,
             selectionController: _selectionController,
@@ -195,6 +200,7 @@ class _SellBody extends StatelessWidget {
     required this.onRemoveLine,
     this.previewResult,
     this.error,
+    this.diagnostic,
     this.opCtx,
   });
 
@@ -203,6 +209,7 @@ class _SellBody extends StatelessWidget {
   final bool isPreviewing;
   final bool isConfirming;
   final String? error;
+  final DiagnosticInfo? diagnostic;
   final CashierHomeOpCtx? opCtx;
   final TextEditingController stakeController;
   final TextEditingController selectionController;
@@ -441,18 +448,27 @@ class _SellBody extends StatelessWidget {
                     color: scheme.errorContainer,
                     borderRadius: BorderRadius.circular(TchRadius.md),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.error_outline_rounded,
-                          size: 18, color: scheme.onErrorContainer),
-                      const SizedBox(width: TchSpacing.s8),
-                      Expanded(
-                        child: Text(
-                          error!,
-                          style: textTheme.bodySmall
-                              ?.copyWith(color: scheme.onErrorContainer),
-                        ),
+                      Row(
+                        children: [
+                          Icon(Icons.error_outline_rounded,
+                              size: 18, color: scheme.onErrorContainer),
+                          const SizedBox(width: TchSpacing.s8),
+                          Expanded(
+                            child: Text(
+                              error!,
+                              style: textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onErrorContainer),
+                            ),
+                          ),
+                        ],
                       ),
+                      if (diagnostic != null && diagnostic!.hasAny) ...[
+                        const SizedBox(height: TchSpacing.s8),
+                        _CopyDiagnosticButton(diagnostic: diagnostic!),
+                      ],
                     ],
                   ),
                 ),
@@ -827,10 +843,15 @@ class _Chip extends StatelessWidget {
 // ─── Error body ───────────────────────────────────────────────────────────────
 
 class _ErrorBody extends StatelessWidget {
-  const _ErrorBody({required this.message, required this.onRetry});
+  const _ErrorBody({
+    required this.message,
+    required this.onRetry,
+    this.diagnostic,
+  });
 
   final String message;
   final VoidCallback onRetry;
+  final DiagnosticInfo? diagnostic;
 
   @override
   Widget build(BuildContext context) {
@@ -847,9 +868,54 @@ class _ErrorBody extends StatelessWidget {
             const SizedBox(height: TchSpacing.s24),
             FilledButton.tonal(
                 onPressed: onRetry, child: const Text('Réessayer')),
+            if (diagnostic != null && diagnostic!.hasAny) ...[
+              const SizedBox(height: TchSpacing.s12),
+              _CopyDiagnosticButton(diagnostic: diagnostic!),
+            ],
           ],
         ),
       ),
     );
+  }
+}
+
+// ─── Copy diagnostic ──────────────────────────────────────────────────────────
+
+class _CopyDiagnosticButton extends StatefulWidget {
+  const _CopyDiagnosticButton({required this.diagnostic});
+
+  final DiagnosticInfo diagnostic;
+
+  @override
+  State<_CopyDiagnosticButton> createState() => _CopyDiagnosticButtonState();
+}
+
+class _CopyDiagnosticButtonState extends State<_CopyDiagnosticButton> {
+  bool _copied = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: _copy,
+      icon: Icon(
+        _copied ? Icons.check_rounded : Icons.content_copy_rounded,
+        size: 16,
+      ),
+      label: Text(_copied ? 'Copié' : 'Copier diagnostic'),
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+      ),
+    );
+  }
+
+  Future<void> _copy() async {
+    await Clipboard.setData(
+      ClipboardData(text: widget.diagnostic.toCopyText()),
+    );
+    if (!mounted) return;
+    setState(() => _copied = true);
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _copied = false);
+    });
   }
 }

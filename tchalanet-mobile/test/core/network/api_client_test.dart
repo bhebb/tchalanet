@@ -32,13 +32,17 @@ void main() {
     expect(exception.statusCode, 503);
   });
 
-  test('X-Request-Id is used when ProblemDetail has no traceId', () {
+  test('X-Request-Id header is mapped to requestId (not traceId)', () {
     final response = Response<Map<String, dynamic>>(
-      requestOptions: RequestOptions(path: '/tickets'),
+      requestOptions: RequestOptions(
+        path: '/tickets',
+        headers: {'X-Request-Id': 'tch_req_sent'},
+      ),
       statusCode: 500,
       data: {'detail': 'Server error'},
       headers: Headers.fromMap({
-        'X-Request-Id': ['header-trace'],
+        'X-Request-Id': ['tch_req_echo'],
+        'X-Trace-Id': ['trace-from-otel'],
       }),
     );
 
@@ -50,6 +54,9 @@ void main() {
       ),
     );
 
-    expect(exception.traceId, 'header-trace');
+    // The sent request header takes priority over the echoed response header.
+    expect(exception.requestId, 'tch_req_sent');
+    // X-Trace-Id header maps to traceId.
+    expect(exception.traceId, 'trace-from-otel');
   });
 }

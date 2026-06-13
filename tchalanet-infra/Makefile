@@ -61,6 +61,12 @@ help:
 	@echo "  doppler-download      DOPPLER_TOKEN=dp.st.xxx make doppler-download ENV=staging"
 	@echo "  doppler-download-staging / doppler-download-prod"
 	@echo ""
+	@echo "Observability (local):"
+	@echo "  up-otel               OTel Collector + Jaeger (Jaeger UI → http://localhost:16686)"
+	@echo "  down-otel             Arrêter OTel Collector + Jaeger"
+	@echo "  logs-otel-collector   Logs du collector (via logs-<service>)"
+	@echo "  logs-jaeger           Logs de Jaeger (via logs-<service>)"
+	@echo ""
 	@echo "Logs / inspect:"
 	@echo "  logs-<service>        e.g. make logs-api"
 	@echo "  config-<service>      Print effective compose config for a service"
@@ -184,6 +190,23 @@ up-edge:   env-merge ensure-exec networks
 down-edge: env-merge ensure-exec
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service
 up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
+
+# ─── Observability (OTel Collector + Jaeger) ─────────────────────────────────
+up-otel: networks
+	@echo "→ Démarrage OTel Collector + Jaeger (ENV=$(ENV))..."
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) \
+	  -f compose/docker-compose-otel.yml \
+	  up -d otel-collector jaeger
+	@echo "✅ Jaeger UI → http://localhost:16686"
+	@echo "   OTLP HTTP  → http://localhost:4318/v1/traces"
+	@echo "   OTLP gRPC  → localhost:4317"
+
+down-otel:
+	@echo "→ Arrêt OTel Collector + Jaeger..."
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) \
+	  -f compose/docker-compose-otel.yml \
+	  down otel-collector jaeger
+	@echo "✅ OTel stack arrêtée"
 
 logs-%:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs $* $(ENV)

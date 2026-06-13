@@ -25,3 +25,8 @@ spring:
           # L'URL externe (auth.localtest.me) est injoignable depuis le container API
           # car localtest.me → 127.0.0.1 = le container lui-même, pas Traefik.
           jwk-set-uri: http://keycloak:8080/realms/tchalanet/protocol/openid-connect/certs
+
+management:
+  tracing:
+    sampling:
+      probability: ${OTEL_SAMPLER_PROBABILITY:1.0}

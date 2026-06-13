@@ -1,14 +1,18 @@
 import { ShellFeedbackItem } from './shell-feedback.model';
 
-export function buildCopyText(item: Pick<ShellFeedbackItem, 'title' | 'message' | 'status' | 'traceId' | 'source'>): string {
-  const lines: string[] = ['Erreur Tchalanet'];
-  if (item.status !== undefined) lines.push(`Statut: ${item.status}`);
-  lines.push(`Titre: ${item.title}`);
-  lines.push(`Message: ${item.message}`);
-  if (item.traceId) lines.push(`Trace ID: ${item.traceId}`);
-  if (item.source) lines.push(`Chemin: ${item.source}`);
-  lines.push(`Date: ${new Date().toISOString()}`);
-  return lines.join('\n');
+export function buildCopyText(
+  item: Pick<ShellFeedbackItem, 'requestId' | 'traceId' | 'spanId' | 'source' | 'title' | 'message' | 'status'>,
+): string {
+  const parts: string[] = [];
+  if (item.requestId) parts.push(`requestId=${item.requestId}`);
+  if (item.traceId)   parts.push(`traceId=${item.traceId}`);
+  if (item.spanId)    parts.push(`spanId=${item.spanId}`);
+  if (item.source)    parts.push(`route=${item.source}`);
+  parts.push(`time=${new Date().toISOString()}`);
+  if (item.status !== undefined) parts.push(`status=${item.status}`);
+  parts.push(`title=${item.title}`);
+  if (item.message && item.message !== item.title) parts.push(`message=${item.message}`);
+  return parts.join(' ');
 }
 
 export function copyToClipboard(text: string): void {

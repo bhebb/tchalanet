@@ -11,6 +11,8 @@ Vue d'ensemble des services, fichiers Compose, réseaux, ports exposés et dépe
 | API              | `docker-compose-api.yml`       | `edge`, `back` | 8080 (container, via Traefik)           | Keycloak, Redis, Postgres |
 | Edge service     | `docker-compose-edge-service.yml`      | `back`         | 3000 (container, interne)               | -                         |
 | Web              | `docker-compose-web.yml`       | `edge`         | 80 (container, via Traefik)             | -                         |
+| OTel Collector   | `docker-compose-otel.yml`      | `back`         | 4317/4318 (host, dev-local)             | Jaeger                    |
+| Jaeger           | `docker-compose-otel.yml`      | `back`         | 16686 UI (host, dev-local)              | -                         |
 
 ## Rappels utiles
 
@@ -36,6 +38,22 @@ make down-edge ENV=dev      # stop
 # Stack complète avec edge + web
 make local-product-up ENV=dev
 ```
+
+## Stack observabilité (local)
+
+```bash
+# Démarrer OTel Collector + Jaeger (à ajouter à n'importe quel make target)
+docker compose \
+  -f compose/docker-compose-otel.yml \
+  -f compose/docker-compose-dev-local.yml \
+  --env-file envs/dev/compose.env up -d otel-collector jaeger
+
+# Jaeger UI → http://localhost:16686
+# OTLP HTTP (IDE) → http://localhost:4318/v1/traces
+# OTLP gRPC (IDE) → localhost:4317
+```
+
+Config collector : `compose/otel/otel-collector-config.yaml`
 
 ## Overrides locaux
 

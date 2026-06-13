@@ -1,5 +1,11 @@
 export type ApiStatus = 'SUCCESS' | 'WARNING' | 'ERROR';
 
+export interface TchDiagnosticInfo {
+  readonly requestId?: string;
+  readonly traceId?: string;
+  readonly spanId?: string;
+}
+
 export type NoticeSeverity = 'info' | 'success' | 'warning' | 'error';
 
 export interface ApiNotice {
@@ -28,6 +34,7 @@ export interface ApiResponse<T> {
   readonly notices: readonly ApiNotice[];
   readonly serviceHealth?: readonly ServiceHealth[];
   readonly correlationId?: string;
+  readonly trace?: TchDiagnosticInfo;
 }
 
 export interface ProblemDetail {
@@ -38,6 +45,10 @@ export interface ProblemDetail {
   readonly instance?: string;
   readonly correlationId?: string;
   readonly errors?: Readonly<Record<string, readonly string[]>>;
+  // Trace context — populated from response headers or ProblemDetail body fields
+  readonly requestId?: string;
+  readonly traceId?: string;
+  readonly spanId?: string;
 }
 
 export interface TchPage<T> {

@@ -275,6 +275,14 @@
       <artifactId>bucket4j-core</artifactId>
     </dependency>
 
+    <!-- Distributed Tracing — Spring Boot 4.x native OTel starter
+         Includes: micrometer-tracing-bridge-otel + opentelemetry SDK + OTLP HTTP exporter.
+         Config: management.opentelemetry.tracing.export.otlp.endpoint -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-opentelemetry</artifactId>
+    </dependency>
+
     <!-- Spring Modulith -->
     <dependency>
       <groupId>org.springframework.modulith</groupId>

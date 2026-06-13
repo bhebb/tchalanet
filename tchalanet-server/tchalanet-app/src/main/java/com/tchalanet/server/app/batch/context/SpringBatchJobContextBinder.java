@@ -1,5 +1,7 @@
 package com.tchalanet.server.app.batch.context;
 
+import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
+
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
@@ -72,6 +74,7 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         MDC.put("tenant_uuid", "");
         MDC.put("tz", "UTC");
         MDC.put("ccy", "");
+        MDC.put(MDC_REQUEST_ID, requestId);
         MDC.put("reqId", requestId);
         MDC.put("actor", actor);
     }
@@ -112,6 +115,7 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         MDC.put("tenant_uuid", info.tenantId().value().toString());
         MDC.put("tz", zone.getId());
         MDC.put("ccy", info.currency() == null ? "" : info.currency().getCurrencyCode());
+        MDC.put(MDC_REQUEST_ID, requestId);
         MDC.put("reqId", requestId);
         MDC.put("actor", actor);
     }
