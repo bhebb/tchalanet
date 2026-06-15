@@ -179,6 +179,7 @@ class CurrentUserProfileControllerTest {
         tenantId,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("USD"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 }

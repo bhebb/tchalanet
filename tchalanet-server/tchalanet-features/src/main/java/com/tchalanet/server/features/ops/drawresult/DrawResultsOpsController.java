@@ -42,7 +42,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/platform/ops/draw-results")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Ops • Draw Results")
 @Validated
 public class DrawResultsOpsController {

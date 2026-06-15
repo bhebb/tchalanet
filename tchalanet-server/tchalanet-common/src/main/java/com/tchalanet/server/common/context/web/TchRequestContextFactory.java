@@ -61,27 +61,11 @@ public class TchRequestContextFactory {
                 .orElse(null);
 
         return new TchRequestContext(
-            authData.originalTenantCode(),
-            null,
-            authData.effectiveTenantCode(),
-            null,
-            authData.keycloakUserId(),
-            null,
-            authData.systemRoles(),
-            authData.customRoles(),
-            locale,
-            requestId,
-            clientIp,
-            userAgent,
-            authData.overridden(),
-            tenantOverrideReason,
-            deletedVisibility,
-            scope,
-            idempotencyKey,
-            null,
-            null,
-            null,
-            null);
+            authData.originalTenantCode(), null, authData.effectiveTenantCode(), null,
+            authData.keycloakUserId(), null, authData.systemRoles(), authData.customRoles(),
+            locale, requestId, clientIp, userAgent, authData.overridden(), tenantOverrideReason,
+            deletedVisibility, scope, idempotencyKey, null, null, null, null,
+            null, null, null, null, null);
     }
 
     private String resolveDeletedVisibility(HttpServletRequest req, boolean isSuperAdmin) {

@@ -69,6 +69,16 @@ public class TenantContextResolver {
     private TchRequestContext requireAndResolveTenant(HttpServletResponse res, TchRequestContext ctx)
         throws IOException {
 
+        // Fast path: tenant UUID already injected (e.g. by AccessResolutionFilter via X-Tenant-Id)
+        if (ctx.tenantIdSafe() != null) {
+            var info = tenantLookup.findById(ctx.tenantIdSafe());
+            if (info.isEmpty()) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+                return null;
+            }
+            return ctx.withTenantContext(info.get());
+        }
+
         var code = normalize(ctx.effectiveTenantCode());
 
         if (StringUtils.isBlank(code)) {

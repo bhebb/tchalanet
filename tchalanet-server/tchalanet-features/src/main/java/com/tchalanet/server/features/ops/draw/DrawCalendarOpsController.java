@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/platform/ops/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Ops • Scheduler")
 public class DrawCalendarOpsController {
 

@@ -6,8 +6,8 @@ public record RuntimeReadinessView(
     RuntimeReadinessStatus status,
     List<RuntimeReadinessCheck> checks
 ) {
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeReadinessView ready() {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeReadinessView(RuntimeReadinessStatus.READY, List.of());
+    public static RuntimeReadinessView ready() {
+        return new RuntimeReadinessView(RuntimeReadinessStatus.READY, List.of());
     }
 
     public enum RuntimeReadinessStatus {

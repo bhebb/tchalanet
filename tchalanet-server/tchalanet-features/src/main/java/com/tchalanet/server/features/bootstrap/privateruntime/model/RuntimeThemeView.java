@@ -9,7 +9,7 @@ public record RuntimeThemeView(
     boolean isDefault,
     long version
 ) {
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeThemeView fallback() {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeThemeView("default", "light", Map.of(), true, 0L);
+    public static RuntimeThemeView fallback() {
+        return new RuntimeThemeView("default", "light", Map.of(), true, 0L);
     }
 }

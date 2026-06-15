@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Draws • Admin")
 public class DrawAdminOpsController {
 
@@ -33,7 +33,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Correct an already applied draw result")
     @PostMapping("/{drawId}/results/correct")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_CORRECT_APPLIED_RESULT,
@@ -55,7 +55,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Cancel a draw")
     @PostMapping("/{drawId}/cancel")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_CANCEL,
@@ -72,7 +72,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Reschedule a draw")
     @PostMapping("/{drawId}/reschedule")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_RESCHEDULE,
@@ -98,7 +98,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Lock a draw")
     @PostMapping("/{drawId}/lock")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_LOCK,
@@ -115,7 +115,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Unlock a draw")
     @PostMapping("/{drawId}/unlock")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_UNLOCK,
@@ -132,7 +132,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Archive a draw")
     @PostMapping("/{drawId}/archive")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_ARCHIVE,
@@ -156,7 +156,7 @@ public class DrawAdminOpsController {
         summary = "Settle a draw (DEFERRED - ops/admin strict use only)",
         description = "Settlement pending core.sales alignment. Use with extreme caution.")
     @PostMapping("/{drawId}/settle")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_SETTLE,

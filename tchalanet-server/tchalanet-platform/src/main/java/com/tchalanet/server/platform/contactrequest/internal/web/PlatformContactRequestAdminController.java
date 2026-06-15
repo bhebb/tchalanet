@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/platform/contact-requests")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Contact Requests")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlatformContactRequestAdminController {
 
     private final ContactRequestAdminService service;

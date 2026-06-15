@@ -14,7 +14,7 @@ public record RuntimeVersionHints(
     @Nullable String i18nVersion,
     @Nullable String settingsVersion
 ) {
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeVersionHints of(String bootstrapVersion) {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeVersionHints(bootstrapVersion, null, null, null, null, null);
+    public static RuntimeVersionHints of(String bootstrapVersion) {
+        return new RuntimeVersionHints(bootstrapVersion, null, null, null, null, null);
     }
 }

@@ -2,13 +2,8 @@ package com.tchalanet.server.platform.accesscontrol.api.permissionevaluator;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
-import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
 import jakarta.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +11,19 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+/**
+ * Evaluates {@code @PreAuthorize("hasPermission(...)")} expressions against the
+ * permission set already resolved by {@code AccessResolutionFilter} and stored in
+ * {@link TchRequestContext#permissionKeys()}.
+ *
+ * <p>No repository calls — all DB work is done upstream in the filter pipeline.
+ */
 @Component
 @RequiredArgsConstructor
 public class TchPermissionEvaluator implements PermissionEvaluator {
     private static final Logger log = LoggerFactory.getLogger(TchPermissionEvaluator.class);
 
     private final TchContextResolver contextResolver;
-    private final AccessControlApi accessControlApi;
 
     @Override
     public boolean hasPermission(
@@ -42,60 +43,23 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
     }
 
     private boolean evaluate(Authentication authentication, Object permission) {
-        var eval = prepareContext(authentication, permission);
-        if (eval == null) {
-            return false;
-        }
-
-        try {
-            var result =
-                accessControlApi.checkPermissions(
-                    new CheckUserPermissionsRequest(
-                        eval.tenantId(), eval.userId(), Set.of(eval.permissionKey())));
-            return result.allowed();
-        } catch (RuntimeException ex) {
-            log.warn(
-                "Permission evaluation failed: tenant={} user={} permission={}",
-                eval.tenantId(),
-                eval.userId(),
-                eval.permissionKey(),
-                ex);
-            return false;
-        }
-    }
-
-    private PermissionEvalContext prepareContext(Authentication authentication, Object permission) {
         if (authentication == null || !authentication.isAuthenticated()) {
             log.warn("Permission check denied: unauthenticated request");
-            return null;
+            return false;
         }
 
         TchRequestContext ctx = contextResolver.currentOrNull();
         if (ctx == null) {
             log.warn("Permission check denied: no TchRequestContext bound");
-            return null;
+            return false;
         }
 
-        String permissionKey = normalizePermission(permission);
-        if (permissionKey == null) {
-            return null;
+        String permKey = normalizePermission(permission);
+        if (permKey == null) {
+            return false;
         }
 
-        TenantId tenantId = ctx.tenantIdSafe();
-        if (tenantId == null) {
-            log.warn("Permission check denied: missing tenant context permission={}", permissionKey);
-            return null;
-        }
-
-        UserId userId;
-        try {
-            userId = ctx.currentUserIdRequired();
-        } catch (RuntimeException ex) {
-            log.warn("Permission check denied: missing app user permission={}", permissionKey);
-            return null;
-        }
-
-        return new PermissionEvalContext(tenantId, userId, permissionKey);
+        return ctx.permissionKeys().contains(permKey);
     }
 
     private String normalizePermission(Object permission) {
@@ -103,15 +67,11 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
             log.warn("Permission check denied: null permission");
             return null;
         }
-
-        String permissionKey = permission.toString().trim();
-        if (permissionKey.isEmpty()) {
+        String permKey = permission.toString().trim();
+        if (permKey.isEmpty()) {
             log.warn("Permission check denied: blank permission");
             return null;
         }
-
-        return permissionKey;
+        return permKey;
     }
-
-    private record PermissionEvalContext(TenantId tenantId, UserId userId, String permissionKey) {}
 }

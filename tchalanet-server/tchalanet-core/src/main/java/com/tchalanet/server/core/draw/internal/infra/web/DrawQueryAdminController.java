@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Draws • Admin")
 public class DrawQueryAdminController {
 

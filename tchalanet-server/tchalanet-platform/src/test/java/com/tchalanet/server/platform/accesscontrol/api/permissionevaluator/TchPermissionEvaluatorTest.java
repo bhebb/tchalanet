@@ -1,20 +1,12 @@
 package com.tchalanet.server.platform.accesscontrol.api.permissionevaluator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
-import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
-import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPermissionsResult;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.EnumSet;
@@ -23,96 +15,107 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 class TchPermissionEvaluatorTest {
 
-  @Test
-  void deniesWhenAuthenticationIsMissing() {
-    var api = mock(AccessControlApi.class);
-    var evaluator = new TchPermissionEvaluator(new StaticContextResolver(validContext()), api);
+    // §9.2 — permission present → true
 
-    var allowed = evaluator.hasPermission(null, null, "payout:approve");
+    @Test
+    void permissionPresent_returnsTrue() {
+        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
 
-    assertThat(allowed).isFalse();
-    verify(api, never()).checkPermissions(any());
-  }
-
-  @Test
-  void deniesWhenContextIsMissing() {
-    var api = mock(AccessControlApi.class);
-    var evaluator = new TchPermissionEvaluator(new StaticContextResolver(null), api);
-
-    var allowed = evaluator.hasPermission(authentication(), null, "payout:approve");
-
-    assertThat(allowed).isFalse();
-    verify(api, never()).checkPermissions(any());
-  }
-
-  @Test
-  void returnsAccessControlDecision() {
-    var api = mock(AccessControlApi.class);
-    when(api.checkPermissions(any(CheckUserPermissionsRequest.class)))
-        .thenReturn(new CheckUserPermissionsResult(true, Set.of()));
-    var evaluator = new TchPermissionEvaluator(new StaticContextResolver(validContext()), api);
-
-    var allowed = evaluator.hasPermission(authentication(), null, "payout:approve");
-
-    assertThat(allowed).isTrue();
-    verify(api).checkPermissions(any(CheckUserPermissionsRequest.class));
-  }
-
-  @Test
-  void deniesWhenAccessControlDenies() {
-    var api = mock(AccessControlApi.class);
-    when(api.checkPermissions(any(CheckUserPermissionsRequest.class)))
-        .thenReturn(new CheckUserPermissionsResult(false, Set.of("payout:approve")));
-    var evaluator = new TchPermissionEvaluator(new StaticContextResolver(validContext()), api);
-
-    var allowed = evaluator.hasPermission(authentication(), null, "payout:approve");
-
-    assertThat(allowed).isFalse();
-  }
-
-  private static UsernamePasswordAuthenticationToken authentication() {
-    return new UsernamePasswordAuthenticationToken("user", "n/a", Set.of());
-  }
-
-  private static TchRequestContext validContext() {
-    var tenantId = UUID.randomUUID();
-    return new TchRequestContext(
-        "tenant",
-        tenantId,
-        "tenant",
-        tenantId,
-        "keycloak-user",
-        UUID.randomUUID(),
-        EnumSet.of(TchRole.TENANT_ADMIN),
-        Set.of(),
-        Locale.ENGLISH,
-        "request-id",
-        "127.0.0.1",
-        "test",
-        false,
-        null,
-        "active",
-        ApiScope.TENANT,
-        null,
-        TenantId.of(tenantId),
-        ZoneId.of("UTC"),
-        Currency.getInstance("USD"),
-        null);
-  }
-
-  private static final class StaticContextResolver extends TchContextResolver {
-    private final TchRequestContext context;
-
-    private StaticContextResolver(TchRequestContext context) {
-      this.context = context;
+        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isTrue();
     }
 
-    @Override
-    public TchRequestContext currentOrNull() {
-      return context;
+    // §9.2 — permission absent → false
+
+    @Test
+    void permissionAbsent_returnsFalse() {
+        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
+
+        assertThat(evaluator.hasPermission(auth(), null, "other.permission")).isFalse();
     }
-  }
+
+    // §9.2 — context absent → false
+
+    @Test
+    void contextAbsent_returnsFalse() {
+        var evaluator = evaluator(null);
+
+        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
+    }
+
+    // §9.2 — authentication absent → false
+
+    @Test
+    void authenticationAbsent_returnsFalse() {
+        var evaluator = evaluator(contextWith(Set.of("payout:approve")));
+
+        assertThat(evaluator.hasPermission(null, null, "payout:approve")).isFalse();
+    }
+
+    // §9.2 — permission DENY: resolved context does not contain the key → false
+
+    @Test
+    void permissionNotInResolvedSet_returnsFalse() {
+        var evaluator = evaluator(contextWith(Set.of("ticket.read")));
+
+        assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
+    }
+
+    // §9.2 — terminal.sell works for active terminal (AccessResolutionFilter pre-populates it)
+
+    @Test
+    void terminalSell_presentInPermissions_returnsTrue() {
+        var evaluator = evaluator(contextWith(Set.of("terminal.sell")));
+
+        assertThat(evaluator.hasPermission(auth(), null, "terminal.sell")).isTrue();
+    }
+
+    @Test
+    void terminalSell_absentFromPermissions_returnsFalse() {
+        var evaluator = evaluator(contextWith(Set.of()));
+
+        assertThat(evaluator.hasPermission(auth(), null, "terminal.sell")).isFalse();
+    }
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    private static TchPermissionEvaluator evaluator(TchRequestContext ctx) {
+        return new TchPermissionEvaluator(new StaticContextResolver(ctx));
+    }
+
+    private static Authentication auth() {
+        return new UsernamePasswordAuthenticationToken("user", "n/a", Set.of());
+    }
+
+    private static TchRequestContext contextWith(Set<String> permissionKeys) {
+        var tenantId = UUID.randomUUID();
+        return new TchRequestContext(
+            "tenant", tenantId, "tenant", tenantId,
+            "ext-user", UUID.randomUUID(),
+            EnumSet.of(TchRole.TENANT_ADMIN), Set.of(),
+            Locale.ENGLISH, "request-id", "127.0.0.1", "test",
+            false, null, "active", ApiScope.TENANT,
+            null, TenantId.of(tenantId), ZoneId.of("UTC"), Currency.getInstance("USD"),
+            null,
+            null, null,
+            Set.of(),            // roleCodes
+            permissionKeys,      // permissionKeys — the set under test
+            null);
+    }
+
+    private static final class StaticContextResolver extends TchContextResolver {
+        private final TchRequestContext context;
+
+        StaticContextResolver(TchRequestContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public TchRequestContext currentOrNull() {
+            return context;
+        }
+    }
 }

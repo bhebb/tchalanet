@@ -281,7 +281,8 @@ class CashierTicketsServiceTest {
             ApiScope.TENANT, null, tenantId,
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
-            hint
+            hint,
+            null, null, null, null, null
         );
     }
 }

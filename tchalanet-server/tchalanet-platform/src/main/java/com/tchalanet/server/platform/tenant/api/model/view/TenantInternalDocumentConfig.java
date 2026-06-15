@@ -7,15 +7,15 @@ public record TenantInternalDocumentConfig(ReceiptConfig receipt) {
      * It does not disable ticket printing. Print blocking must rely on outlet-level policy.
      */
     public record ReceiptConfig(
-        boolean enabled,
+        Boolean enabled,
         String displayName,
         String headerMessage,
         String footerMessage,
         String defaultPaperSize,
-        boolean showQrCode,
-        boolean showSellerName,
-        boolean showOutletName,
-        boolean showPotentialPayout,
+        Boolean showQrCode,
+        Boolean showSellerName,
+        Boolean showOutletName,
+        Boolean showPotentialPayout,
         String defaultTemplateKey
     ) {}
 }

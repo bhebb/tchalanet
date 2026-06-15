@@ -49,7 +49,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/tenant/offline")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('AGENT', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tags({@Tag(name = "Offline sync • Tenant")})
 @Validated
 public class OfflineTenantController {

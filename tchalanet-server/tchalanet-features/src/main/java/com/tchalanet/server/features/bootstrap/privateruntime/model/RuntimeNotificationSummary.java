@@ -6,11 +6,11 @@ public record RuntimeNotificationSummary(
     long unreadCount,
     long criticalCount
 ) {
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeNotificationSummary empty() {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeNotificationSummary(0L, 0L);
+    public static RuntimeNotificationSummary empty() {
+        return new RuntimeNotificationSummary(0L, 0L);
     }
 
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeNotificationSummary from(NotificationSummaryView view) {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeNotificationSummary(view.unreadCount(), view.criticalCount());
+    public static RuntimeNotificationSummary from(NotificationSummaryView view) {
+        return new RuntimeNotificationSummary(view.unreadCount(), view.criticalCount());
     }
 }

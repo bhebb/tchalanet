@@ -4,6 +4,7 @@ import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.context.TchActorType;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.EnumSet;
@@ -67,27 +68,12 @@ public final class TchContextScope {
 
   private static TchRequestContext tenantContext(UUID tenantId, String requestId) {
     return new TchRequestContext(
-        "tchalanet",
-        tenantId,
-        "tchalanet",
-        tenantId,
-        null,
-        null,
-        EnumSet.noneOf(TchRole.class),
-        Set.of(),
-        Locale.getDefault(),
-        requestId,
-        "127.0.0.1",
-        null,
-        false,
-        null,
-        "active",
-        ApiScope.TENANT,
-        null,
-        TenantId.nullableOf(tenantId),
-        ZoneId.systemDefault(),
-        Currency.getInstance(CommonConstants.DEFAULT_CURRENCY),
-        null);
+        "tchalanet", tenantId, "tchalanet", tenantId,
+        null, null, EnumSet.noneOf(TchRole.class), Set.of(),
+        Locale.getDefault(), requestId, "127.0.0.1", null, false, null, "active",
+        ApiScope.TENANT, null, TenantId.nullableOf(tenantId), ZoneId.systemDefault(),
+        Currency.getInstance(CommonConstants.DEFAULT_CURRENCY), null,
+        TchActorType.SYSTEM, null, Set.of(), Set.of(), null);
   }
 
   private static void restore(TchRequestContext previous) {

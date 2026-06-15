@@ -1,7 +1,5 @@
 package com.tchalanet.server.features.bootstrap;
 
-import com.tchalanet.server.features.bootstrap.model.PageModelRef;
-import com.tchalanet.server.features.bootstrap.model.PrivateBootstrapSpace;
 import org.springframework.stereotype.Component;
 
 @Component

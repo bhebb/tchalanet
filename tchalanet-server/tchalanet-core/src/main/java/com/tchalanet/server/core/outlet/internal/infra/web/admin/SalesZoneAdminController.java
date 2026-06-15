@@ -30,7 +30,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/sales-zones")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Sales Zone • Admin")
 public class SalesZoneAdminController {

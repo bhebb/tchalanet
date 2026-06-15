@@ -10,7 +10,7 @@ public record TenantInternalCommunicationConfig(BuyerTicketDeliveryConfig buyerT
         DeliveryChannelConfig email) {}
 
     public record DeliveryChannelConfig(
-        boolean enabled,
+        Boolean enabled,
         BigDecimal amount,
         String currency,
         String paidBy) {}

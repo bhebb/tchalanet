@@ -39,7 +39,7 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/tenant/sessions")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN') or hasAuthority('ACTOR_SELLER_TERMINAL')")
 @Tag(name = "Sessions • Tenant Admin")
 @Validated
 public class SalesSessionController {

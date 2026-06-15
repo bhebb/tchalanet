@@ -1,20 +1,17 @@
 package com.tchalanet.server.features.bootstrap.publicruntime.model;
 
-import jakarta.annotation.Nullable;
+import java.util.Map;
 
 /**
- * Global Tchalanet public theme. Tenant theme is not used on public pages unless tenant-branded
- * public pages are introduced later.
+ * Public runtime theme — tokens for CSS variables, served from the global default preset.
+ * No tenant context; the seed sets "tchalanet" as the platform default.
  */
 public record PublicThemeView(
-    String scope,
+    String presetCode,
     String mode,
-    String primaryColor,
-    String secondaryColor,
-    @Nullable String logoUrl,
-    @Nullable String faviconUrl
+    Map<String, String> tokens
 ) {
     public static PublicThemeView fallback() {
-        return new PublicThemeView("PUBLIC", "light", "#020135", "#fecb01", null, null);
+        return new PublicThemeView("tchalanet", "light", Map.of());
     }
 }

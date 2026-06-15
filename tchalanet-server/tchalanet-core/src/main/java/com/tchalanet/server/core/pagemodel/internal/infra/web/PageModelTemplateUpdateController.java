@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/page-model-template-updates")
 @RequiredArgsConstructor
 @Tag(name = "Admin • PageModel Template Updates")
-@PreAuthorize("hasAuthority('TENANT_ADMIN') or hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 public class PageModelTemplateUpdateController {
 
   private final QueryBus queryBus;

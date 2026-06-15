@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tenant/virtual-terminals/phone/{terminalId}/activation-challenges")
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredFeature(PlanFeatureKeys.SALES_PHONE_SELL)
 @Tag(name = "Terminal • Phone Activation")
 @RequiredArgsConstructor

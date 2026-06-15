@@ -157,8 +157,8 @@ class TenantConfigValidatorTest {
     @Test
     void communicationBlankCurrencyIsRejected() {
         var config = VALID_CONFIG.replace(
-            "\"currency\": \"HTG\", \"paidBy\": \"BUYER\"  },\n              \"whatsapp\"",
-            "\"currency\": \"\",    \"paidBy\": \"BUYER\"  },\n              \"whatsapp\"");
+            "\"currency\": \"HTG\", \"paidBy\": \"BUYER\"  },\n      \"whatsapp\"",
+            "\"currency\": \"\",    \"paidBy\": \"BUYER\"  },\n      \"whatsapp\"");
         assertThatThrownBy(() -> validator.validateCommunicationConfig(parse(config)))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("currency");

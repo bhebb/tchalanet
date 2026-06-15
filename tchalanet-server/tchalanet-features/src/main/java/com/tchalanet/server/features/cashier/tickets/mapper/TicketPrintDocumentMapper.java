@@ -156,10 +156,10 @@ public class TicketPrintDocumentMapper {
     }
 
     private boolean showQrCode(TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig) {
-        return !receiptConfigEnabled(tenantReceiptConfig) || tenantReceiptConfig.showQrCode();
+        return !receiptConfigEnabled(tenantReceiptConfig) || Boolean.TRUE.equals(tenantReceiptConfig.showQrCode());
     }
 
     private boolean receiptConfigEnabled(TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig) {
-        return tenantReceiptConfig != null && tenantReceiptConfig.enabled();
+        return tenantReceiptConfig != null && Boolean.TRUE.equals(tenantReceiptConfig.enabled());
     }
 }

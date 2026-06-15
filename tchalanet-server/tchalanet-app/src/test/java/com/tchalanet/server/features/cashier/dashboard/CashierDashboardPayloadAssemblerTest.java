@@ -254,7 +254,8 @@ class CashierDashboardPayloadAssemblerTest {
         hasTenantId ? tenantId : null,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        hint);
+        hint,
+        null, null, null, null, null);
   }
 
   private TchRequestContext contextWithHint(OperationalContextHint hint) {
@@ -279,6 +280,7 @@ class CashierDashboardPayloadAssemblerTest {
         tenantId,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        hint);
+        hint,
+        null, null, null, null, null);
   }
 }

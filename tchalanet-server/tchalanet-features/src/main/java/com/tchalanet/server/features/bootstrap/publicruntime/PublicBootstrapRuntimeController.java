@@ -17,12 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Runtime")
-@RequestMapping("/public/runtime")
 public class PublicBootstrapRuntimeController {
 
     private final PublicRuntimeBootstrapService service;
 
-    @GetMapping("/bootstrap")
+    @GetMapping({"/public/runtime/bootstrap", "/public/bootstrap"})
     @Operation(summary = "Public runtime bootstrap (no auth) — public settings, theme, i18n, navigation, readiness and pageModelRef")
     public ApiResponse<PublicBootstrapResponse> publicBootstrap(
         @RequestParam(required = false) String locale) {

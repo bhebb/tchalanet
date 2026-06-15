@@ -40,7 +40,7 @@ public class ReconciliationOpsController {
     private final ReconciliationAnomalyJpaRepository anomalyRepository;
 
     @PostMapping("/daily-runs")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         action = AuditAction.FORCE_OPERATION,
         entity = AuditEntityType.BATCH_JOB,
@@ -72,7 +72,7 @@ public class ReconciliationOpsController {
     }
 
     @GetMapping("/daily-runs")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<ReconciliationRunResponse>> listDailyRuns(
         @CurrentContext TchRequestContext ctx
     ) {
@@ -84,7 +84,7 @@ public class ReconciliationOpsController {
     }
 
     @GetMapping("/daily-runs/{runId}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ReconciliationRunDetailResponse> getDailyRun(
         @CurrentContext TchRequestContext ctx,
         @PathVariable UUID runId
@@ -100,7 +100,7 @@ public class ReconciliationOpsController {
     }
 
     @GetMapping("/daily-runs/{runId}/anomalies")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<ReconciliationAnomalyResponse>> listDailyRunAnomalies(
         @CurrentContext TchRequestContext ctx,
         @PathVariable UUID runId

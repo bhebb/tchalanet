@@ -1,5 +1,6 @@
 package com.tchalanet.server.app.batch.context;
 
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
@@ -46,27 +47,10 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
 
     private void bindPlatform(String requestId, String actor) {
         var ctx = new TchRequestContext(
-            null,
-            null,
-            null,
-            null,
-            actor,
-            null,
-            Set.of(TchRole.SYSTEM),
-            Set.of(),
-            Locale.FRENCH,
-            requestId,
-            "batch",
-            "batch",
-            false,
-            null,
-            "active",
-            ApiScope.PLATFORM,
-            null,
-            null,
-            ZoneId.of("UTC"),
-            null,
-            null
+            null, null, null, null, actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
+            ApiScope.PLATFORM, null, null, ZoneId.of("UTC"), null, null,
+            TchActorType.SYSTEM, null, Set.of(), Set.of(), null
         );
 
         TchContext.set(ctx);
@@ -87,27 +71,11 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         var zone = info.tenantZoneId() == null ? ZoneId.of("UTC") : info.tenantZoneId();
 
         var ctx = new TchRequestContext(
-            info.tenantCode(),
-            info.tenantId().value(),
-            info.tenantCode(),
-            info.tenantId().value(),
-            actor,
-            null,
-            Set.of(TchRole.SYSTEM),
-            Set.of(),
-            Locale.FRENCH,
-            requestId,
-            "batch",
-            "batch",
-            false,
-            null,
-            "active",
-            ApiScope.TENANT,
-            null,
-            info.tenantId(),
-            zone,
-            info.currency(),
-            null
+            info.tenantCode(), info.tenantId().value(), info.tenantCode(), info.tenantId().value(),
+            actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
+            ApiScope.TENANT, null, info.tenantId(), zone, info.currency(), null,
+            TchActorType.SYSTEM, null, Set.of(), Set.of(), null
         );
 
         TchContext.set(ctx);

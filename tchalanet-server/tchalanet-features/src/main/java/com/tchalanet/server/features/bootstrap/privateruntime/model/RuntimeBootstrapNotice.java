@@ -7,7 +7,7 @@ public record RuntimeBootstrapNotice(
 ) {
     public enum NoticeLevel { INFO, WARNING, ERROR }
 
-    public static com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeBootstrapNotice warning(String code, String message) {
-        return new com.tchalanet.server.features.bootstrap.publicruntime.model.RuntimeBootstrapNotice(code, message, NoticeLevel.WARNING);
+    public static RuntimeBootstrapNotice warning(String code, String message) {
+        return new RuntimeBootstrapNotice(code, message, NoticeLevel.WARNING);
     }
 }

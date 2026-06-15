@@ -39,7 +39,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/policies/limits")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Limit Policy • Admin")
 @Validated

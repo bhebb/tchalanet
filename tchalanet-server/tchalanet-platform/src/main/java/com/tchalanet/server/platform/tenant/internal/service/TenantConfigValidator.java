@@ -107,7 +107,7 @@ public class TenantConfigValidator {
             return;
         }
         var receipt = typed.document().receipt();
-        if (!receipt.enabled()) {
+        if (!Boolean.TRUE.equals(receipt.enabled())) {
             return;
         }
         if (receipt.defaultTemplateKey() == null || receipt.defaultTemplateKey().isBlank()) {

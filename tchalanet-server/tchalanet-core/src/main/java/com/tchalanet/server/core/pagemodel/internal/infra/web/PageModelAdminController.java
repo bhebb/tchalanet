@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/pagemodels")
 @RequiredArgsConstructor
 @Tag(name = "Admin • PageModel")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PageModelAdminController {
 
   private final CommandBus commandBus;
