@@ -53,7 +53,7 @@ public class UserBootstrapFilterImpl extends OncePerRequestFilter implements Ide
         var user = appUserResolver.resolve(externalUser).orElse(null);
 
         if (user == null) {
-            response.sendError(403, "User not provisioned");
+            response.sendError(403, "external_identity.not_linked");
             return;
         }
 

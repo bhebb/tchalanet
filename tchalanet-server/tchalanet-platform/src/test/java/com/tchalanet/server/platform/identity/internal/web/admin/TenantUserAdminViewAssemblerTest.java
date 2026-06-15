@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -17,9 +16,10 @@ import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
+import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
-import com.tchalanet.server.platform.identity.internal.web.admin.model.KeycloakSyncStatus;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.ExternalIdentitySyncStatus;
 import java.time.Instant;
 import java.util.Currency;
 import java.util.Locale;
@@ -34,7 +34,9 @@ class TenantUserAdminViewAssemblerTest {
 
   private final CurrentUserProfileService profiles = mock(CurrentUserProfileService.class);
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
-  private final TenantUserAdminViewAssembler assembler = new TenantUserAdminViewAssembler(profiles, memberships);
+  private final ExternalIdentityLinkService externalIdentities = mock(ExternalIdentityLinkService.class);
+  private final TenantUserAdminViewAssembler assembler =
+      new TenantUserAdminViewAssembler(profiles, memberships, externalIdentities);
 
   @Test
   @DisplayName("assertTenantScoped throws 403 when the user is not a member of the effective tenant")
@@ -60,11 +62,11 @@ class TenantUserAdminViewAssemblerTest {
 
     when(memberships.findByTenantAndUser(tenantId, userId))
         .thenReturn(Optional.of(TenantMembership.active(tenantId, userId).assign(outletId, terminalId, false)));
+    when(externalIdentities.hasIdentity(userId)).thenReturn(true);
     when(profiles.getUserProfile(userId))
         .thenReturn(
             new UserProfileView(
                 userId,
-                KeycloakUserSub.of(UUID.randomUUID()),
                 "tenant.user",
                 "tenant.user@tchalanet.test",
                 "+5090000",
@@ -87,7 +89,7 @@ class TenantUserAdminViewAssemblerTest {
     assertThat(response.membershipStatus()).isEqualTo("ACTIVE");
     assertThat(response.outletId()).isEqualTo(outletId);
     assertThat(response.terminalId()).isEqualTo(terminalId);
-    assertThat(response.keycloakSyncStatus()).isEqualTo(KeycloakSyncStatus.SYNCED);
+    assertThat(response.externalIdentitySyncStatus()).isEqualTo(ExternalIdentitySyncStatus.SYNCED);
     assertThat(response.invitationStatus()).isEqualTo(InvitationStatus.SENT);
     assertThat(response.createdAt()).isEqualTo(createdAt);
   }

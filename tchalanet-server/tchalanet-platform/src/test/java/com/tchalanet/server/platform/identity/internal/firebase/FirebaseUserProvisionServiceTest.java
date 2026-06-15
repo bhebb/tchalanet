@@ -12,6 +12,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.AuthErrorCode;
 import com.google.firebase.auth.UserRecord;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.ProvisionExternalUserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -22,7 +24,10 @@ class FirebaseUserProvisionServiceTest {
 
   private final FirebaseAuth firebaseAuth = mock(FirebaseAuth.class);
   private final ObjectProvider<FirebaseAuth> provider = mock(ObjectProvider.class);
-  private final FirebaseUserProvisionService service = new FirebaseUserProvisionService(provider);
+  private final FirebaseIdentityProperties properties =
+      new FirebaseIdentityProperties("test-project", null, null, null);
+  private final FirebaseUserProvisionService service =
+      new FirebaseUserProvisionService(provider, properties);
 
   @Test
   void createsAnEnabledFirebaseUser() throws Exception {
@@ -40,6 +45,27 @@ class FirebaseUserProvisionServiceTest {
     assertThat(result.uid()).isEqualTo("firebase-uid");
     assertThat(result.created()).isTrue();
     verify(firebaseAuth).createUser(any(UserRecord.CreateRequest.class));
+  }
+
+  @Test
+  void exposesProviderNeutralProvisioningResult() throws Exception {
+    var created = mock(UserRecord.class);
+    var notFound = mock(FirebaseAuthException.class);
+    when(provider.getIfAvailable()).thenReturn(firebaseAuth);
+    when(notFound.getAuthErrorCode()).thenReturn(AuthErrorCode.USER_NOT_FOUND);
+    when(firebaseAuth.getUserByEmail("admin@example.test")).thenThrow(notFound);
+    when(firebaseAuth.createUser(any(UserRecord.CreateRequest.class))).thenReturn(created);
+    when(created.getUid()).thenReturn("firebase-uid");
+
+    var result =
+        service.provisionUser(
+            new ProvisionExternalUserRequest(
+                null, "admin@example.test", null, "Admin", null));
+
+    assertThat(result.provider()).isEqualTo(IdentityProviderType.FIREBASE);
+    assertThat(result.issuer()).isEqualTo("https://securetoken.google.com/test-project");
+    assertThat(result.externalSubject()).isEqualTo("firebase-uid");
+    assertThat(result.created()).isTrue();
   }
 
   @Test

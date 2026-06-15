@@ -23,6 +23,7 @@ depuis la base.
 
 | Valeur `TCH_IDENTITY_PROVIDER` | Usage | Production |
 |---|---|---|
+| `keycloak` | Adaptateur de transition et compatibilité | Transition |
 | `firebase` | Provider cible V0 | Oui |
 | `firebase-emulator` | Tests fonctionnels et intégration locale | Interdit |
 | `local-jwt` | Développement et E2E | Interdit |
@@ -30,6 +31,9 @@ depuis la base.
 
 `firebase-emulator`, `local-jwt` et `local-perf` font échouer le démarrage si un profil actif
 contient `prod` ou `production`.
+
+Pour les commandes de démarrage, de génération de token et de smoke test des quatre modes, voir
+[`authentication-mode-testing.md`](authentication-mode-testing.md).
 
 ## Modes local IDE
 
@@ -93,18 +97,18 @@ Avec Firebase Auth Emulator :
 ```bash
 make -C ../tchalanet-infra up-firebase-emulator ENV=dev
 
-export FIREBASE_EMAIL=swagger.admin@example.test
-export FIREBASE_PASSWORD=dev-only-password
-export FIREBASE_CREATE_USER=true
+# Compte admin local par défaut
 export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh)"
+
+# Autre compte local
+export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh --email cashier@local)"
+
+# Afficher directement une commande export prête à exécuter
+scripts/firebase-id-token.sh --export
 ```
 
-Après la première création, omettre `FIREBASE_CREATE_USER` pour les connexions suivantes :
-
-```bash
-unset FIREBASE_CREATE_USER
-export FIREBASE_ID_TOKEN="$(scripts/firebase-id-token.sh)"
-```
+Le script utilise par défaut `admin@local` / `Changeme1!`. L'option `--create` permet de créer un
+compte personnalisé dans l'émulateur avant de retourner son token.
 
 Avec la vraie instance Firebase staging, activer Email/Password pour l'utilisateur de test, puis
 utiliser la Web API key publique du projet :

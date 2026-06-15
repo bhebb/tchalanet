@@ -61,7 +61,6 @@ public class IdentityApiAdapter implements IdentityApi {
             user ->
                 new AppUserView(
                     user.id(),
-                    user.keycloakSub(),
                     user.username(),
                     user.email(),
                     user.phone(),

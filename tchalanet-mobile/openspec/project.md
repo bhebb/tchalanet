@@ -9,7 +9,7 @@ Périmètres inclus :
 - Flutter 3 + Riverpod + GoRouter + Material 3
 - Flow vendeur (sell ticket, résumé, historique)
 - POS : impression, scan, terminal Capacitor
-- Auth mobile (Keycloak OIDC, token refresh)
+- Auth mobile (provider-neutral session, configured OIDC/PKCE adapter, token refresh)
 - Offline foundation
 - Intégration API mobile
 

@@ -96,6 +96,20 @@ class UserBootstrapFilterImplTest {
     verify(appUserResolver, never()).touchLastLogin(appUserId);
   }
 
+  @Test
+  void rejectsUnknownExternalIdentityWithStableErrorCode() throws Exception {
+    SecurityContextHolder.getContext()
+        .setAuthentication(authenticatedWith(IdentityProviderType.FIREBASE, "unlinked-subject"));
+    when(appUserResolver.resolve(any(ExternalAuthenticatedUser.class))).thenReturn(Optional.empty());
+    var response = new MockHttpServletResponse();
+
+    new UserBootstrapFilterImpl(appUserResolver, properties())
+        .doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+
+    assertThat(response.getStatus()).isEqualTo(403);
+    assertThat(response.getErrorMessage()).isEqualTo("external_identity.not_linked");
+  }
+
   private static UsernamePasswordAuthenticationToken authenticatedWith(
       IdentityProviderType provider, String subject) {
     var authentication =

@@ -3,11 +3,9 @@ package com.tchalanet.server.platform.identity.internal.web.model;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.UserId;
 import java.util.Set;
-import java.util.UUID;
 
 public record MeResponse(
     UserId id,
-    UUID keycloakSub,
     String username,
     String email,
     String firstName,

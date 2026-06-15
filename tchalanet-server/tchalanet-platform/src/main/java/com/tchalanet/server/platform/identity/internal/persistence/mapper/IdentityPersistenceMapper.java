@@ -21,7 +21,6 @@ public final class IdentityPersistenceMapper {
   public static AppUserView toUserView(AppUserJpaEntity e, KeycloakUserSub keycloakSub) {
     return new AppUserView(
         UserId.of(e.getId()),
-        keycloakSub,
         e.getUsername(),
         e.getEmail(),
         e.getPhone(),

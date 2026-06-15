@@ -23,8 +23,6 @@ const _knownViewModelDataSourceImports = {
 };
 
 const _knownCrossFeatureImports = {
-  'lib/features/auth/presentation/views/login_page.dart|../../../draw/data/models/draw_models.dart',
-  'lib/features/auth/presentation/views/login_page.dart|../../../draw/presentation/view_models/draw_providers.dart',
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../notifications/presentation/view_models/notification_summary_controller.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
@@ -39,7 +37,6 @@ const _knownProvidersDeclaredInViews = {
 };
 
 const _knownHardcodedUiLiteralCounts = <String, int>{
-  'lib/features/auth/presentation/views/login_page.dart': 8,
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 7,
   'lib/features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart':
       7,

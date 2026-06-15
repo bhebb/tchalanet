@@ -1,7 +1,5 @@
 package com.tchalanet.server.app.batch.context;
 
-import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
-
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
@@ -18,6 +16,8 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -118,16 +118,5 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         MDC.put(MDC_REQUEST_ID, requestId);
         MDC.put("reqId", requestId);
         MDC.put("actor", actor);
-    }
-
-    private static String valueOr(String value, String fallback) {
-        return value == null || value.isBlank() ? fallback : value.trim();
-    }
-
-    private static String required(String value, String key) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("Required parameter missing: " + key);
-        }
-        return value.trim();
     }
 }

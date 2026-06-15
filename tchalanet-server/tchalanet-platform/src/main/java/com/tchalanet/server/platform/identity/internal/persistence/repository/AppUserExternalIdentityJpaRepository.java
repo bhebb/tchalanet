@@ -19,4 +19,6 @@ public interface AppUserExternalIdentityJpaRepository
 
   Optional<AppUserExternalIdentityJpaEntity> findFirstByAppUserIdAndProvider(
       UUID appUserId, IdentityProviderType provider);
+
+  boolean existsByAppUserId(UUID appUserId);
 }

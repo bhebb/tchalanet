@@ -1,13 +1,18 @@
 package com.tchalanet.server.platform.identity.api.model.result;
 
 import com.tchalanet.server.common.types.id.UserId;
-import java.util.UUID;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 
 /**
  * Result of provisioning an initial tenant user.
  *
- * @param userId      DB user ID (app_user.id)
- * @param keycloakId  Keycloak user UUID, null if KC bootstrap is disabled
- * @param kcCreated   true if a new Keycloak user was created
+ * @param userId DB user ID (app_user.id)
+ * @param provider configured external identity provider
+ * @param externalSubject provider-owned stable subject
+ * @param externalIdentityCreated true if a new external identity was created
  */
-public record ProvisionTenantUserResult(UserId userId, UUID keycloakId, boolean kcCreated) {}
+public record ProvisionTenantUserResult(
+    UserId userId,
+    IdentityProviderType provider,
+    String externalSubject,
+    boolean externalIdentityCreated) {}

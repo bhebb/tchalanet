@@ -4,19 +4,43 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.AuthErrorCode;
 import com.google.firebase.auth.UserRecord;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
+import com.tchalanet.server.platform.identity.api.ProvisionExternalUserRequest;
+import com.tchalanet.server.platform.identity.api.ProvisionedExternalUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
+@ConditionalOnExpression(
+    "'${tch.identity.provider:firebase}' == 'firebase' || '${tch.identity.provider:firebase}' == 'firebase-emulator'")
 @RequiredArgsConstructor
 @Slf4j
-public class FirebaseUserProvisionService {
+public class FirebaseUserProvisionService implements IdentityProvisioningApi {
 
   private final ObjectProvider<FirebaseAuth> firebaseAuthProvider;
+  private final FirebaseIdentityProperties firebaseIdentityProperties;
+
+  @Override
+  public ProvisionedExternalUser provisionUser(ProvisionExternalUserRequest request) {
+    var result =
+        provisionUser(
+            request.requestedExternalSubject(),
+            request.email(),
+            request.phone(),
+            request.displayName(),
+            request.initialPassword());
+    return new ProvisionedExternalUser(
+        IdentityProviderType.FIREBASE,
+        firebaseIdentityProperties.issuer(),
+        result.uid(),
+        result.created());
+  }
 
   public FirebaseProvisionResult provisionUser(
       String uid,

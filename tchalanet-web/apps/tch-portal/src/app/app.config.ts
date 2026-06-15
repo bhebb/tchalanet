@@ -8,21 +8,9 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
 import { apiFeedbackInterceptor } from './shared/api/api-feedback.interceptor';
-import {
-  APPLICATION_API_URL_PATTERN,
-  AUTH_CONFIG,
-  FeatureFlags,
-  PORTAL_I18N_CONFIG,
-  SettingsFeatureFlags,
-  keycloakUrlForHostname,
-} from '@tch/shared-config';
+import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
-import {
-  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
-  includeBearerTokenInterceptor,
-  provideKeycloak,
-} from 'keycloak-angular';
 
 import { appRoutes } from './app.routes';
 import {
@@ -35,9 +23,9 @@ import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { environment } from '../environments/environment';
 
-import { firebaseAuthInterceptor } from './core/auth/firebase/firebase-auth.interceptor';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
+import { authBearerInterceptor } from './core/auth/auth-bearer.interceptor';
+import { provideFirebaseAuthClient } from './core/auth/firebase/firebase-auth.providers';
+import { firebaseApp$ } from '@angular/fire/app';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -47,7 +35,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([
         correlationRequestInterceptor,
-        firebaseAuthInterceptor,
+        authBearerInterceptor,
         apiFeedbackInterceptor,
         problemDetailInterceptor,
       ]),
@@ -61,15 +49,9 @@ export const appConfig: ApplicationConfig = {
     themeStoreProvider,
     provideWidgets(),
 
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => {
-      const auth = getAuth();
-      if (environment.firebaseAuthEmulatorUrl) {
-        connectAuthEmulator(auth, environment.firebaseAuthEmulatorUrl, {
-          disableWarnings: true,
-        });
-      }
-      return auth;
+    provideFirebaseAuthClient({
+      options: environment.firebase,
+      emulatorUrl: environment.firebaseAuthEmulatorUrl,
     }),
     // Feature-management isolation seam: call sites depend on FeatureFlags, swapping the backing
     // provider (e.g. to Unleash) only rebinds this token.
@@ -96,6 +78,6 @@ export const appConfig: ApplicationConfig = {
         assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
         assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
       },
-    }
+    },
   ],
 };

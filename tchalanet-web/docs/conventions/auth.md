@@ -1,48 +1,38 @@
 # Auth Convention
 
 > Status: DRAFT v0.1  
-> Scope: Keycloak/OIDC, session, guards, auth headers
+> Scope: identity providers, application session, guards, auth headers
 
 ## Rule
 
-Auth is a platform capability. Components and feature pages consume session state and guards; they do not read Keycloak tokens directly.
+Auth is a platform capability. Components and feature pages consume session state and guards; they
+do not read provider tokens directly.
 
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/auth/                  session, commands, guards
-libs/shared-config/src/lib/runtime/runtime-paths.ts stable Keycloak/API configuration
+apps/tch-portal/src/app/core/auth/                  neutral session, commands, guards, bearer
+apps/tch-portal/src/app/core/auth/{provider}/       provider SDK adapter
 ```
 
 Use this area for:
 
-- Keycloak bootstrap and login/logout commands;
+- provider-neutral login/logout commands;
 - token refresh and auth interceptor integration;
-- `UserSession` mapping from token claims;
+- `UserSession` mapping from the private backend runtime;
 - auth and role guards;
 - session-facing helpers such as `hasRole`.
 
 Do not put tenant business rules, seller operational validation, or PageModel permissions here.
 
-## Runtime Paths
-
-The composition root configures Keycloak from `AUTH_CONFIG` and `keycloakUrlForHostname()` exported
-by `@tch/shared-config`.
-
-```text
-local browser: https://auth.localtest.me
-LAN browser:   https://auth.tchalanet.lan
-realm:         tchalanet
-client:        tchalanet-web
-```
-
-Application APIs use relative `/api/v1/...` paths. During `nx serve`, `/api` is proxied to the local
-backend target. The bearer interceptor uses `APPLICATION_API_URL_PATTERN`; features must not invent
-their own approved-host regex.
+The composition root selects the identity-provider adapter. Core auth orchestration depends only on
+`AuthClient`; provider SDK imports stay inside the provider adapter and composition root.
 
 ## Session Contract
 
-The frontend session is derived from claims and remains a view model:
+The frontend session is a view model derived from `/runtime/private`. Provider tokens establish
+authentication and supply bearer credentials only; they are not authoritative for application
+identity, tenant context, roles, or permissions.
 
 ```text
 authenticated
@@ -74,7 +64,7 @@ It must not attach tokens to:
 
 - local assets;
 - external public URLs;
-- Keycloak token/login endpoints;
+- identity-provider token/login endpoints;
 - absolute URLs outside approved API hosts.
 
 ## Seller / Cashier Context
@@ -87,7 +77,7 @@ For real sale operations, validation happens at operation time. Ordinary navigat
 
 Do not:
 
-- inject Keycloak into components;
+- inject an identity-provider SDK into components or core session orchestration;
 - parse JWTs in pages;
 - call login/logout from arbitrary feature components without a core auth command;
 - use roles as business permissions when the backend has a stronger authorization rule;

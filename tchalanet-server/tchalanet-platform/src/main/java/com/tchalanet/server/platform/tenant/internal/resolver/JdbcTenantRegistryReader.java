@@ -14,16 +14,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * JDBC implementation of {@link TenantRegistryReader}.
- * Uses {@code rawDataSource} (bypasses RLS) — read-only.
+ * Uses rawDataSource intentionally because tenant registry is needed before
+ * tenant RLS can be bound. This reader must remain read-only and must only
+ * be used by platform/bootstrap context resolution code.
  */
 @Component
 class JdbcTenantRegistryReader implements TenantRegistryReader {
 
     private static final String SELECT =
         "SELECT id, code, name, status, type, timezone, currency, " +
-        "default_language, default_locale, address_id, active_theme_id " +
-        "FROM tenant WHERE deleted_at IS NULL";
+            "default_language, default_locale, address_id, active_theme_id " +
+            "FROM tenant WHERE deleted_at IS NULL";
 
     private final JdbcTemplate jdbc;
 
@@ -76,7 +77,10 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
         try {
             return jdbc.query(
                 SELECT + " ORDER BY " + orderBy + " LIMIT ? OFFSET ?",
-                ps -> { ps.setInt(1, limit); ps.setInt(2, offset); },
+                ps -> {
+                    ps.setInt(1, limit);
+                    ps.setInt(2, offset);
+                },
                 (rs, rowNum) -> map(rs));
         } catch (Exception e) {
             return Collections.emptyList();

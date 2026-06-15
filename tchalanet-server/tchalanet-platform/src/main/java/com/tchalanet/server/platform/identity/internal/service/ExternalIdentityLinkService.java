@@ -13,6 +13,10 @@ public class ExternalIdentityLinkService {
 
   private final AppUserExternalIdentityJpaRepository externalIdentities;
 
+  public boolean hasIdentity(UserId appUserId) {
+    return externalIdentities.existsByAppUserId(appUserId.value());
+  }
+
   public void link(
       UserId appUserId,
       IdentityProviderType provider,

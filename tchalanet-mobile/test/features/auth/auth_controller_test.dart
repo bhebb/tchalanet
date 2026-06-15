@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tchalanet_mobile/core/auth/auth_token_client.dart';
 import 'package:tchalanet_mobile/features/auth/data/models/user_session.dart';
 import 'package:tchalanet_mobile/features/auth/data/repositories/auth_repository.dart';
 import 'package:tchalanet_mobile/features/auth/data/repositories/auth_repository_impl.dart';
@@ -9,7 +10,8 @@ import 'package:tchalanet_mobile/features/auth/presentation/view_models/auth_con
 
 class _FailingAuthRepository implements AuthRepository {
   @override
-  Future<UserSession> login() => throw Exception('sensitive provider error');
+  Future<UserSession> login(AuthCredentials credentials) =>
+      throw Exception('sensitive provider error');
 
   @override
   Future<void> logout() async {}
@@ -22,7 +24,8 @@ class _RacingAuthRepository implements AuthRepository {
   final restoreCompleter = Completer<UserSession?>();
 
   @override
-  Future<UserSession> login() async => UserSession.unauthenticated;
+  Future<UserSession> login(AuthCredentials credentials) async =>
+      UserSession.unauthenticated;
 
   @override
   Future<void> logout() async {}
@@ -44,7 +47,11 @@ void main() {
 
       container.read(authControllerProvider);
       await Future<void>.delayed(Duration.zero);
-      await container.read(authControllerProvider.notifier).login();
+      await container
+          .read(authControllerProvider.notifier)
+          .login(
+            const AuthCredentials(email: 'user@example.com', password: 'x'),
+          );
 
       final state = container.read(authControllerProvider);
       expect(state, isA<AuthUnauthenticated>());
@@ -60,7 +67,9 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(authControllerProvider);
-    await container.read(authControllerProvider.notifier).login();
+    await container
+        .read(authControllerProvider.notifier)
+        .login(const AuthCredentials(email: 'user@example.com', password: 'x'));
     final stateAfterLogin = container.read(authControllerProvider);
 
     repository.restoreCompleter.complete(null);

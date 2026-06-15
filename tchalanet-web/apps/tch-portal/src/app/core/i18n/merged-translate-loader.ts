@@ -25,7 +25,7 @@ export const MERGED_TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslat
  * Local-only translate loader. It loads the bundled `fr/en/ht` fallback for a language.
  *
  * Backend translations are no longer fetched here: they are delivered inside the runtime bootstrap
- * response (`/public/runtime/bootstrap`, `/tenant/runtime/bootstrap`) and overlaid on top via
+ * response (`/public/runtime/bootstrap`, `/runtime/private`) and overlaid on top via
  * `TranslateService.setTranslation(lang, messages, shouldMerge=true)` by the runtime initializers.
  * Local bundles remain only as an offline fallback.
  */

@@ -1,41 +1,30 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
 
-import '../config/app_config.dart';
+import '../auth/auth_token_client.dart';
 import '../storage/token_storage.dart';
 
 class AuthInterceptor extends Interceptor {
   AuthInterceptor(
     this._dio,
     this._tokenStorage,
-    this._onSessionInvalidated, {
-    FlutterAppAuth? appAuth,
-  }) : _appAuth = appAuth ?? const FlutterAppAuth();
+    this._tokenClient,
+    this._onSessionInvalidated,
+  );
 
   final Dio _dio;
   final TokenStorage _tokenStorage;
+  final AuthTokenClient _tokenClient;
   final void Function() _onSessionInvalidated;
-  final FlutterAppAuth _appAuth;
   Future<String?>? _refreshing;
-
-  AuthorizationServiceConfiguration get _serviceConfig =>
-      const AuthorizationServiceConfiguration(
-        authorizationEndpoint:
-            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/auth',
-        tokenEndpoint:
-            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/token',
-        endSessionEndpoint:
-            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/logout',
-      );
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    if (!options.path.startsWith('/tenant/')) {
+    if (!_requiresAuth(options.path)) {
       handler.next(options);
       return;
     }
@@ -58,7 +47,7 @@ class AuthInterceptor extends Interceptor {
     final request = err.requestOptions;
     if (err.response?.statusCode != 401 ||
         request.extra['authRetry'] == true ||
-        !request.path.startsWith('/tenant/')) {
+        !_requiresAuth(request.path)) {
       handler.next(err);
       return;
     }
@@ -77,6 +66,9 @@ class AuthInterceptor extends Interceptor {
       handler.next(retryError);
     }
   }
+
+  bool _requiresAuth(String path) =>
+      path.startsWith('/tenant/') || path == '/runtime/private';
 
   bool _isExpiredOrExpiringSoon(String token) {
     try {
@@ -107,23 +99,12 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<String?> _performRefresh() async {
-    final refreshToken = await _tokenStorage.readRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) {
-      await _invalidateSession();
-      return null;
-    }
     try {
-      final result = await _appAuth.token(
-        TokenRequest(
-          kcClientId,
-          kcRedirectUri,
-          serviceConfiguration: _serviceConfig,
-          refreshToken: refreshToken,
-          scopes: const ['openid', 'profile', 'email'],
-        ),
+      final result = await _tokenClient.refresh(
+        await _tokenStorage.readRefreshToken(),
       );
       final accessToken = result.accessToken;
-      if (accessToken == null || accessToken.isEmpty) {
+      if (accessToken.isEmpty) {
         await _invalidateSession();
         return null;
       }
