@@ -14,11 +14,12 @@ import org.springframework.web.client.RestClient;
     matchIfMissing = true)
 public class UsLotteryConfig {
 
-    private static final String TENNESSEE_LOTTERY_KEY = "tn";
-    private static final String GA_PROVIDER_KEY = "ga";
-    private static final String TX_PROVIDER_KEY = "tx";
-    private static final String FLORIDA_LOTTERY_PROVIDER = "fl";
     private static final String NEW_YORK_PROVIDER_KEY = "ny";
+    private static final String FLORIDA_LOTTERY_PROVIDER = "fl";
+    private static final String GA_PROVIDER_KEY = "ga";
+    private static final String TENNESSEE_LOTTERY_KEY = "tn";
+    private static final String TX_PROVIDER_KEY = "tx";
+    private static final String PA_PROVIDER_KEY = "pa";
 
     @Bean
     public RestClient.Builder restClientBuilder(RestClientFactory factory) {
@@ -77,6 +78,16 @@ public class UsLotteryConfig {
     public RestClient txLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
         return getRestClient(builder, props, TX_PROVIDER_KEY);
 
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.pa",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient paLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+        return getRestClient(builder, props, PA_PROVIDER_KEY);
     }
 
     private RestClient getRestClient(RestClient.Builder builder, UsLotteryProperties props, String providerKey) {

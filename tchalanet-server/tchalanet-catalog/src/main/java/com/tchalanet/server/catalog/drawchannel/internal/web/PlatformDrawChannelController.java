@@ -95,4 +95,11 @@ public class PlatformDrawChannelController {
         adminService.softDelete(id);
         return ApiResponse.success(null);
     }
+
+    @Operation(summary = "Disable a draw channel — kill switch (platform)")
+    @PostMapping("/{id}/disable")
+    public ApiResponse<Void> disable(@PathVariable DrawChannelId id) {
+        adminService.disableChannel(id);
+        return ApiResponse.success(null);
+    }
 }

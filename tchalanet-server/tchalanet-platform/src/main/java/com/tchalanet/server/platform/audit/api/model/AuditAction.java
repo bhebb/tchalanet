@@ -25,7 +25,14 @@ public enum AuditAction {
     PAYOUT_EXECUTE,   // legacy alias — prefer PAYOUT_PAID
     PAY,              // legacy alias — prefer PAYOUT_PAID
 
+    // ── Kill switches ────────────────────────────────────────────────────
+    RESULT_SLOT_DISABLE,
+    RESULT_SLOT_GAME_DISABLE,
+    DRAW_CHANNEL_DISABLE,
+
     // ── Draw ─────────────────────────────────────────────────────────────
+    DRAW_RESULT_PROPOSE,
+    DRAW_RESULT_CONFIRM,
     DRAW_GENERATE,
     DRAW_OPEN,
     DRAW_CLOSE,

@@ -46,6 +46,10 @@ public class RecordManualDrawResultCommandHandler
         var flags = buildFlags(command);
         var haitiResult = projectHaiti(command, slot);
 
+        var status = command.observeTrustPolicy()
+            ? resolveStatus(slot)
+            : DrawResultStatus.CONFIRMED;
+
         var res =
             writer.upsert(
                 slot.id(),
@@ -54,7 +58,7 @@ public class RecordManualDrawResultCommandHandler
                 sourceResult,
                 jsonUtils.toJsonNode(haitiResult.result()),
                 sourceResult,
-                DrawResultStatus.CONFIRMED.name(),
+                status.name(),
                 DrawSource.MANUAL.name(),
                 flags,
                 ResultQuality.COMPLETE.name(),
@@ -136,5 +140,15 @@ public class RecordManualDrawResultCommandHandler
 
     private static String emptyIfNull(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static DrawResultStatus resolveStatus(ResultSlotView slot) {
+        var cfg = slot.sourceCfg();
+        if (cfg == null || cfg.isNull() || !cfg.isObject()) return DrawResultStatus.CONFIRMED;
+        var node = cfg.get("trust_policy");
+        if (node == null || node.isNull()) return DrawResultStatus.CONFIRMED;
+        return "REQUIRE_PLATFORM_REVIEW".equals(node.asText(""))
+            ? DrawResultStatus.PROVISIONAL
+            : DrawResultStatus.CONFIRMED;
     }
 }

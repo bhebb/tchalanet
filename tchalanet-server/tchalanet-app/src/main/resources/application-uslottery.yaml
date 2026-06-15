@@ -43,3 +43,61 @@ tch:
         base-url: ${TCH_US_TX_LOTTERY_BASEURL:https://www.texaslottery.com}
         latest-path: ${TCH_US_TX_LATEST_PATH:/export/sites/lottery/rss/tlc_latest.xml}
         headers: {}
+
+      tn:
+        enabled: ${TCH_US_TN_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_TN_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_TN_LOTTERY_BASEURL:https://www.tnlottery.com}
+        latest-path: ${TCH_US_TN_LATEST_PATH:}
+        headers: {}
+
+      # Full client: RSS feed. Set TCH_US_PA_LOTTERY_BASEURL + TCH_US_PA_LATEST_PATH to activate.
+      pa:
+        enabled: ${TCH_US_PA_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_PA_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_PA_LOTTERY_BASEURL:https://www.palottery.state.pa.us}
+        latest-path: ${TCH_US_PA_LATEST_PATH:}
+        headers: {}
+
+      # Enum-only — no client registered. Results via manual proposal.
+      nj:
+        enabled: ${TCH_US_NJ_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_NJ_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_NJ_LOTTERY_BASEURL:https://www.njlottery.com}
+        latest-path: ${TCH_US_NJ_LATEST_PATH:}
+        headers: {}
+
+      ca:
+        enabled: ${TCH_US_CA_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_CA_TIMEZONE:America/Los_Angeles}
+        base-url: ${TCH_US_CA_LOTTERY_BASEURL:https://www.calottery.com}
+        latest-path: ${TCH_US_CA_LATEST_PATH:}
+        headers: {}
+
+      mo:
+        enabled: ${TCH_US_MO_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_MO_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_MO_LOTTERY_BASEURL:https://www.molottery.com}
+        latest-path: ${TCH_US_MO_LATEST_PATH:}
+        headers: {}
+
+      il:
+        enabled: ${TCH_US_IL_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_IL_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_IL_LOTTERY_BASEURL:https://www.illinoislottery.com}
+        latest-path: ${TCH_US_IL_LATEST_PATH:}
+        headers: {}
+
+      mi:
+        enabled: ${TCH_US_MI_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_MI_TIMEZONE:America/Detroit}
+        base-url: ${TCH_US_MI_LOTTERY_BASEURL:https://www.michiganlottery.com}
+        latest-path: ${TCH_US_MI_LATEST_PATH:}
+        headers: {}
+
+      oh:
+        enabled: ${TCH_US_OH_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_OH_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_OH_LOTTERY_BASEURL:https://www.ohiolottery.com}
+        latest-path: ${TCH_US_OH_LATEST_PATH:}
+        headers: {}

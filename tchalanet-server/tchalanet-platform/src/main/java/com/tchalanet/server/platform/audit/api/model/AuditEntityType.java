@@ -12,6 +12,7 @@ public enum AuditEntityType {
   DRAW,
   DRAW_RESULT,
   DRAW_CHANNEL,
+  RESULT_SLOT,
   ODDS,
   LIMIT_POLICY,
   OUTLET,

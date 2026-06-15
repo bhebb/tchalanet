@@ -33,4 +33,7 @@ public interface DrawResultWriterPort {
    * @param overriddenAt timestamp de l'override
    */
   void markAsOverridden(DrawResultId drawResultId, String reason, Instant overriddenAt);
+
+  /** Transitions a PROVISIONAL draw result to CONFIRMED. No-op if already CONFIRMED/OVERRIDDEN. */
+  void confirmProvisional(DrawResultId drawResultId, Instant confirmedAt);
 }

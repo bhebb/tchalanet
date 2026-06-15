@@ -111,6 +111,25 @@ public class DrawChannelAdminService {
     repository.save(existing);
   }
 
+  @Transactional
+  @CacheEvict(
+      cacheNames = {
+        DrawChannelCacheNames.BY_TENANT,
+        DrawChannelCacheNames.BY_ID,
+        DrawChannelCacheNames.BY_TENANT_GAME_MAP,
+        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
+        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+      },
+      allEntries = true)
+  public void disableChannel(DrawChannelId id) {
+    var existing = repository.findById(id.value())
+        .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
+    if (existing.getDeletedAt() != null) throw new IllegalArgumentException("draw_channel_deleted: " + id);
+    existing.setActive(false);
+    existing.setUpdatedAt(Instant.now());
+    repository.save(existing);
+  }
+
   // mapping helpers
   public DrawChannelView mapToView(DrawChannelEntity e) {
     return mapper.toView(e);

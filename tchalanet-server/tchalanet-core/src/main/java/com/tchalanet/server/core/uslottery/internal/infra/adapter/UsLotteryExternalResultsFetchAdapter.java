@@ -25,20 +25,41 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
 
     @Override
     public ExternalResultFetchBundle fetchProviderResults(ExternalResultFetchQuery query) {
-        var provider = UsLotteryProvider.valueOf(query.provider().trim().toUpperCase(Locale.ROOT));
-        log.info("fetching external results provider={} drawDate={} drawTime={} timezone={} gameCodes={} providerSlotCode={} force={} includeRaw={}",
-            provider,
-            query.drawDate(),
-            query.drawTime(),
-            query.timezone(),
-            query.gameCodes(),
-            query.providerSlotCode(),
-            query.force(),
-            query.includeRaw());
-        var client = registry.get(provider);
+        var provider = resolveProvider(query.provider());
 
-        var response =
-            client.fetch(
+        if (provider == null) {
+            log.warn(
+                "uslottery fetch skipped unknown provider={} drawDate={} drawTime={} providerSlotCode={}",
+                query.provider(),
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode());
+            return ExternalResultFetchBundle.empty(query.provider(), query);
+        }
+
+        if (query.gameCodes() == null || query.gameCodes().isEmpty()) {
+            log.info(
+                "uslottery fetch skipped provider={} drawDate={} drawTime={} providerSlotCode={} reason=no_active_game_codes",
+                provider,
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode());
+            return ExternalResultFetchBundle.empty(provider.name(), query);
+        }
+
+        var client = registry.find(provider);
+        if (client.isEmpty()) {
+            log.warn(
+                "uslottery fetch skipped provider={} drawDate={} drawTime={} providerSlotCode={} reason=no_client_registered",
+                provider,
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode());
+            return ExternalResultFetchBundle.empty(provider.name(), query);
+        }
+
+        try {
+            var response = client.get().fetch(
                 new UsLotteryProviderQuery(
                     query.drawDate(),
                     query.drawTime(),
@@ -48,9 +69,40 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
                     query.force(),
                     query.includeRaw(),
                     query.requestedAt()));
-        log.info("fetched external results provider={} drawDate={} drawTime={} timezone={} gameCodes={} providerSlotCode={}, response={}", provider, query.drawDate(), query.drawTime(), query.timezone(), query.gameCodes(),
-            query.providerSlotCode(), response.results().isEmpty() ?  "no results": "results");
-        return toExternalBundle(response);
+
+            log.info(
+                "uslottery fetch completed provider={} drawDate={} drawTime={} providerSlotCode={} requestedGames={} resultCount={}",
+                provider,
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode(),
+                query.gameCodes(),
+                response.results().size());
+
+            return toExternalBundle(response);
+        } catch (Exception ex) {
+            log.warn(
+                "uslottery fetch failed provider={} drawDate={} drawTime={} providerSlotCode={} requestedGames={} err={}",
+                provider,
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode(),
+                query.gameCodes(),
+                ex.getMessage(),
+                ex);
+            return ExternalResultFetchBundle.empty(provider.name(), query);
+        }
+    }
+
+    private static UsLotteryProvider resolveProvider(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return UsLotteryProvider.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     private ExternalResultFetchBundle toExternalBundle(UsLotteryProviderResponse response) {
