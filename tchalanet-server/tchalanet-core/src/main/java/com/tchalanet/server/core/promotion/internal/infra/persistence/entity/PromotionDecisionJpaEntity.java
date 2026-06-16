@@ -5,17 +5,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity
-@Audited
 @Table(name = "promotion_decision", uniqueConstraints = @UniqueConstraint(name = "uq_promotion_decision_tenant_hash_phase", columnNames = {"tenant_id", "context_hash", "evaluation_phase"}))
 @Getter
 @Setter

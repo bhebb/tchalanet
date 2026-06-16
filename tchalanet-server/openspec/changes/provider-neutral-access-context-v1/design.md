@@ -448,3 +448,105 @@ The context is bound before database access and cleared in `finally`.
 - Terminal seller surfaces use `ACTOR_SELLER_TERMINAL`.
 - Terminal sale action uses `terminal.sell` plus core terminal status validation.
 - Existing `CASHIER` role can remain as legacy compatibility but must not be used for new SellerTerminal flows.
+
+## Pipeline stabilization — 2026-06-15
+
+Refines the "Canonical HTTP Pipeline" above after slices 1–10. The pipeline contract is unchanged;
+this addendum corrects filter wiring, module placement, and removes a redundant context path.
+
+### Filter → Step rename and single pipeline filter
+
+`IdentityBootstrapFilter` and `AccessResolutionFilter` are no longer servlet filters. They become
+steps invoked by one servlet filter in `tchalanet-app`:
+
+```text
+platform.identity.api.IdentityBootstrapStep          (interface)
+platform.accesscontrol.api.AccessResolutionStep      (interface) + AccessResolutionStepImpl
+tchalanet-app  TchAccessContextPipelineFilter         (runs bootstrap + resolve, binds nothing)
+```
+
+`TchAccessContextPipelineFilter` enriches Spring `Authentication` (`ACTOR_*`/`ROLE_*`/`PERM_*`) via
+`AccessResolutionStep`; it MUST NOT bind `TchRequestContext`, MDC, or RLS.
+
+### No custom filter anchors
+
+Custom filters MUST be anchored on known Spring Security filters, never on other custom filters
+(which throws `Filter ... does not have a registered order` at startup):
+
+```text
+addFilterAfter(tchAccessContextPipelineFilter, BearerTokenAuthenticationFilter.class)
+addFilterAfter(sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
+addFilterBefore(tchContextFilter, AuthorizationFilter.class)
+```
+
+**Rule:** every filter that is both added manually to `SecurityFilterChain` and declared as a Spring
+bean MUST have a disabled `FilterRegistrationBean` to prevent double servlet-container registration.
+`SecurityFilterRegistrationConfig` is retained as a dedicated `@Configuration` holding the disabled
+registrations for the filters that are Spring beans:
+
+```text
+TchContextFilter                 -> @Bean, manually added  -> FilterRegistrationBean(enabled=false)
+TchAccessContextPipelineFilter   -> @Bean, manually added  -> FilterRegistrationBean(enabled=false)
+SensitiveIdentityVerificationFilter -> created with `new` in SecurityConfig -> no registration bean
+```
+
+If `SensitiveIdentityVerificationFilter` later becomes a `@Bean`, add a disabled registration for it
+too.
+
+### EffectiveTenantResolver (platform.accesscontrol)
+
+Effective tenant is resolved by an `EffectiveTenantResolver` inside `AccessResolutionStep`, not by
+header parsing:
+
+- **APP_USER (normal):** the effective tenant always comes from the user's single active membership.
+  A request header never selects the tenant for a normal user. Zero memberships → no tenant (denied
+  downstream by the tenant-required guard for tenant/admin scope); more than one → ambiguous, denied.
+- **SUPER_ADMIN, no override:** `effectiveTenantId = null`, `tenantOverride = false`.
+- **SELLER_TERMINAL:** tenant taken from `BootstrappedActor`, never from headers.
+
+The standard `X-Tenant-Id` header is **not** used to select a normal user's tenant. Header-driven
+tenant selection exists only for the super-admin override below.
+
+#### SUPER_ADMIN tenant override contract
+
+A super admin has no tenant by default and enters a tenant only to consult another tenant, through a
+dedicated override header — this is the only header-driven tenant selection in the pipeline:
+
+```text
+X-Tch-Tenant-Override: <tenantUuid>   (required)
+X-Tch-Override-Reason: <reason>       (required, non-blank)
+```
+
+All conditions MUST hold or the request is denied:
+
+```text
+1. actor has ROLE_SUPER_ADMIN
+2. actor has PERM_platform.tenant.override
+3. X-Tch-Tenant-Override present and a valid UUID
+4. X-Tch-Override-Reason present and non-blank
+5. target tenant exists and is ACTIVE
+6. override decision is audited/logged
+```
+
+On success: `effectiveTenantId = target tenant`, `tenantOverride = true`.
+
+Presence/validity of the override header and reason is decided in `EffectiveTenantResolver` (it owns
+the override decision). `TchContextFilter` re-checks reason presence as a guard-rail and adds
+audit/MDC, but does not re-decide the override.
+
+New permission to seed: `platform.tenant.override` (granted to `SUPER_ADMIN`), distinct from the
+existing `platform.tenant.manage`.
+
+### TchContextFilter consumes, does not decide
+
+`TchContextFilter` splits early on the `RESOLVED_ACCESS` attribute into `handleResolvedAccess`
+(provider-neutral protected) and `handlePublicOrLegacy`. The protected path builds context via
+`TchRequestContextFactory.createFromResolvedAccess(req, scope, resolved)`, then hydrates tenant
+**metadata only** via `TenantContextResolver.hydrateResolvedTenant(res, ctx)` (code/uuid/timezone/
+currency; 403 on not-found). It MUST NOT re-resolve tenant from headers or decide membership/override.
+
+### Factory cleanup
+
+`TchRequestContextFactory` drops `AuthContextExtractor` (deleted from `common.context.auth`). It
+exposes `createFromResolvedAccess(...)` (protected) and `createPublic(...)` (public/legacy);
+`create(...)` remains only as a thin alias to `createPublic(...)`.

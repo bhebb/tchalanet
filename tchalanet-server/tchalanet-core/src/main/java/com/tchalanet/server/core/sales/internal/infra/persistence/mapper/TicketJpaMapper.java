@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.SellerId;
 import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
@@ -186,14 +187,17 @@ public interface TicketJpaMapper {
 
     default TicketContext toContext(TicketJpaEntity entity) {
         return new TicketContext(
-            OutletId.of(entity.getOutletId()),
-            TerminalId.of(entity.getTerminalId()),
-            UserId.of(entity.getSellerUserId()),
-            SalesSessionId.of(entity.getSalesSessionId()),
+            OutletId.nullableOf(entity.getOutletId()),
+            TerminalId.nullableOf(entity.getTerminalId()),
+            UserId.nullableOf(entity.getSellerUserId()),
+            SalesSessionId.nullableOf(entity.getSalesSessionId()),
             DrawId.of(entity.getDrawId()),
             DrawChannelId.of(entity.getDrawChannelId()),
             SellerId.nullableOf(entity.getSellerId()),
-            SellerOutletAssignmentId.nullableOf(entity.getSellerAssignmentId())
+            SellerOutletAssignmentId.nullableOf(entity.getSellerAssignmentId()),
+            SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
+            entity.getSellerCommissionRateSnapshot(),
+            entity.getSellerCommissionAmountSnapshot()
         );
     }
 
@@ -419,14 +423,17 @@ public interface TicketJpaMapper {
     }
 
     default void applyContext(TicketContext context, @MappingTarget TicketJpaEntity entity) {
-        entity.setOutletId(context.outletId().value());
-        entity.setTerminalId(context.terminalId().value());
-        entity.setSellerUserId(context.sellerUserId().value());
-        entity.setSalesSessionId(context.salesSessionId().value());
+        entity.setOutletId(context.outletId() == null ? null : context.outletId().value());
+        entity.setTerminalId(context.terminalId() == null ? null : context.terminalId().value());
+        entity.setSellerUserId(context.sellerUserId() == null ? null : context.sellerUserId().value());
+        entity.setSalesSessionId(context.salesSessionId() == null ? null : context.salesSessionId().value());
         entity.setDrawId(context.drawId().value());
         entity.setDrawChannelId(context.drawChannelId().value());
         entity.setSellerId(context.sellerId() == null ? null : context.sellerId().value());
         entity.setSellerAssignmentId(context.sellerAssignmentId() == null ? null : context.sellerAssignmentId().value());
+        entity.setSellerTerminalId(context.sellerTerminalId() == null ? null : context.sellerTerminalId().value());
+        entity.setSellerCommissionRateSnapshot(context.sellerCommissionRateSnapshot());
+        entity.setSellerCommissionAmountSnapshot(context.sellerCommissionAmountSnapshot());
     }
 
     default void applyCodes(TicketCodes codes, @MappingTarget TicketJpaEntity entity) {

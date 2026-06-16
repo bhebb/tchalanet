@@ -86,6 +86,15 @@ public enum AuditAction {
     TERMINAL_HEARTBEAT,
     TERMINAL_OPERATIONAL_CONTROL_SET,
 
+    // ── SellerTerminal ────────────────────────────────────────────────────
+    SELLER_TERMINAL_CREATE,
+    SELLER_TERMINAL_UPDATE,
+    SELLER_TERMINAL_BLOCK,
+    SELLER_TERMINAL_UNBLOCK,
+    SELLER_TERMINAL_DISABLE,
+    SELLER_TERMINAL_RESET_ACCESS,
+    SELLER_TERMINAL_COMMISSION_CHANGE,
+
     // ── Identity/access (canonical: ROLE_ASSIGN) ─────────────────────────
     ROLE_ASSIGN,
     USER_CREATE,

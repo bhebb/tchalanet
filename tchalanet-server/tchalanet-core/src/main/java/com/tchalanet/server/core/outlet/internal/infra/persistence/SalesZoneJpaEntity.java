@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 import java.util.UUID;
 
@@ -18,7 +17,6 @@ import java.util.UUID;
         @UniqueConstraint(name = "uq_sales_zone_tenant_code", columnNames = {"tenant_id", "code"})
     }
 )
-@Audited
 @Getter
 @Setter
 public class SalesZoneJpaEntity extends BaseTenantEntity {

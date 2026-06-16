@@ -7,12 +7,16 @@ import '../../../../../design_system/components/online_badge.dart';
 import '../../../../../design_system/components/pos_action_button.dart';
 import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/components/stat_card.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../../../../notifications/presentation/view_models/notification_summary_controller.dart';
+import '../../../tickets/data/models/cashier_sell_catalog_models.dart';
 import '../../data/models/cashier_home_models.dart';
+import '../../data/services/terminal_stats_service.dart';
 import '../view_models/cashier_home_providers.dart';
+import 'seller_terminal_nav_bar.dart';
 
 class CashierHomePage extends ConsumerWidget {
   const CashierHomePage({super.key});
@@ -228,11 +232,16 @@ class _OperationalScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isSellerTerminal =
+        home.operationalContext?.source == 'SELLER_TERMINAL';
+
+    if (isSellerTerminal) {
+      return _SellerTerminalScaffold(home: home);
+    }
+
     final session = home.session;
     final primaryAction = home.primaryAction;
     final quickActions = home.quickActions;
-
-    // "Gagnants" widget if server sends it (open question — graceful skip if absent)
     final payoutWidget = home.widgets
         .where((w) => w.type == 'POS_PAYOUT_STATUS')
         .firstOrNull;
@@ -256,7 +265,6 @@ class _OperationalScaffold extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Primary action
               if (primaryAction != null)
                 PosActionButton(
                   label: primaryAction.label,
@@ -268,17 +276,11 @@ class _OperationalScaffold extends ConsumerWidget {
                       : null,
                 ),
               const SizedBox(height: TchSpacing.s16),
-
-              // Quick actions grid
               if (quickActions.isNotEmpty)
                 _QuickActionsGrid(actions: quickActions),
               const SizedBox(height: TchSpacing.s12),
-
-              // Sync button
               _SyncButton(onPressed: () => ref.invalidate(cashierHomeProvider)),
               const SizedBox(height: TchSpacing.s24),
-
-              // Stats
               if (session != null) ...[
                 StatCardLarge(
                   label: "Ventes Aujourd'hui",
@@ -309,8 +311,6 @@ class _OperationalScaffold extends ConsumerWidget {
                   ],
                 ),
               ],
-
-              // Session info row
               if (session?.openedAtLabel != null) ...[
                 const SizedBox(height: TchSpacing.s12),
                 _SessionInfoRow(session: session!),
@@ -319,6 +319,428 @@ class _OperationalScaffold extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ─── SellerTerminal home ──────────────────────────────────────────────────────
+
+class _SellerTerminalScaffold extends ConsumerWidget {
+  const _SellerTerminalScaffold({required this.home});
+
+  final CashierHomeResponse home;
+
+  void _showDrawDetail(
+      BuildContext context, WidgetRef ref, CashierAvailableDrawView draw) {
+    final statsAsync = ref.read(terminalDailyStatsProvider);
+    final drawLine = statsAsync.asData?.value.breakdown
+        .where((b) => b.drawId == draw.drawId)
+        .firstOrNull;
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(TchRadius.lg)),
+      ),
+      builder: (sheetCtx) => _DrawDetailSheet(
+        draw: draw,
+        stat: drawLine,
+        onSell: () {
+          Navigator.of(sheetCtx).pop();
+          context.push('/sell', extra: {'drawId': draw.drawId});
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statsAsync = ref.watch(terminalDailyStatsProvider);
+    final drawsAsync = ref.watch(availableDrawsProvider);
+
+    return Scaffold(
+      appBar: _PosAppBar(
+        terminalLabel: home.operationalContext?.terminalLabel,
+        onMenuTap: null,
+      ),
+      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 0),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(cashierHomeProvider);
+            ref.invalidate(terminalDailyStatsProvider);
+            ref.invalidate(availableDrawsProvider);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(TchSpacing.s16),
+            children: [
+              // Stats
+              statsAsync.when(
+                loading: () => const _StatsPlaceholder(),
+                error: (_, _) => const _StatsPlaceholder(),
+                data: (stats) => _TerminalStatsRow(stats: stats),
+              ),
+              const SizedBox(height: TchSpacing.s24),
+
+              // Draws header
+              Text(
+                'TIRAGES DISPONIBLES',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: TchSpacing.s12),
+
+              // Draw list
+              drawsAsync.when(
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(TchSpacing.s24),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (e, _) => _DrawsError(
+                  onRetry: () => ref.invalidate(availableDrawsProvider),
+                ),
+                data: (draws) => draws.isEmpty
+                    ? _NoDraws()
+                    : GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisSpacing: TchSpacing.s12,
+                        mainAxisSpacing: TchSpacing.s12,
+                        childAspectRatio: 1.25,
+                        children: [
+                          for (final draw in draws)
+                            _DrawTile(
+                              draw: draw,
+                              onTap: () => _showDrawDetail(
+                                context,
+                                ref,
+                                draw,
+                              ),
+                            ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TerminalStatsRow extends StatelessWidget {
+  const _TerminalStatsRow({required this.stats});
+
+  final TerminalDailyStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final amount = (stats.salesTotalCents / 100.0).toStringAsFixed(2);
+    return Row(
+      children: [
+        Expanded(
+          child: StatCardLarge(
+            label: "Ventes aujourd'hui",
+            value: amount,
+            unit: stats.currency,
+          ),
+        ),
+        const SizedBox(width: TchSpacing.s12),
+        SizedBox(
+          width: 100,
+          child: StatCard(
+            label: 'Tickets',
+            value: stats.ticketCount.toString(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatsPlaceholder extends StatelessWidget {
+  const _StatsPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Expanded(
+          child: StatCardLarge(label: "Ventes aujourd'hui", value: '—', unit: ''),
+        ),
+        SizedBox(width: TchSpacing.s12),
+        SizedBox(width: 100, child: StatCard(label: 'Tickets', value: '—')),
+      ],
+    );
+  }
+}
+
+// ─── Draw detail bottom sheet ─────────────────────────────────────────────────
+
+class _DrawDetailSheet extends StatelessWidget {
+  const _DrawDetailSheet({
+    required this.draw,
+    required this.stat,
+    required this.onSell,
+  });
+
+  final CashierAvailableDrawView draw;
+  final DrawStatLine? stat;
+  final VoidCallback onSell;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final parts = draw.channelLabel.split(' ');
+    final stateCode = parts[0];
+    final slot = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          TchSpacing.s24, TchSpacing.s8, TchSpacing.s24, TchSpacing.s32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: TchSpacing.s24),
+            decoration: BoxDecoration(
+              color: scheme.outlineVariant,
+              borderRadius: BorderRadius.circular(TchRadius.pill),
+            ),
+          ),
+
+          // Draw identity
+          Row(
+            children: [
+              Text(
+                stateCode,
+                style: textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: scheme.onSurface,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(width: TchSpacing.s12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    slot,
+                    style: textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    draw.formattedCutoff,
+                    style: textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: TchSpacing.s8, vertical: TchSpacing.s4),
+                decoration: BoxDecoration(
+                  color: TchColors.successContainer,
+                  borderRadius: BorderRadius.circular(TchRadius.pill),
+                ),
+                child: Text(
+                  'OUVERT',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: TchColors.success,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: TchSpacing.s24),
+          const Divider(),
+          const SizedBox(height: TchSpacing.s16),
+
+          // Stats for this draw today
+          if (stat != null)
+            Row(
+              children: [
+                Expanded(
+                  child: StatCardLarge(
+                    label: 'Ventes ce tirage',
+                    value: stat!.totalAmount.toStringAsFixed(2),
+                    unit: '',
+                  ),
+                ),
+                const SizedBox(width: TchSpacing.s12),
+                SizedBox(
+                  width: 100,
+                  child: StatCard(
+                    label: 'Tickets',
+                    value: stat!.ticketCount.toString(),
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              'Aucune vente pour ce tirage aujourd\'hui',
+              style: textTheme.bodyMedium
+                  ?.copyWith(color: scheme.onSurfaceVariant),
+            ),
+
+          const SizedBox(height: TchSpacing.s24),
+
+          // Vendre button
+          FilledButton.icon(
+            onPressed: onSell,
+            icon: const Icon(Icons.confirmation_number_rounded),
+            label: const Text('VENDRE'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(56),
+              textStyle: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(TchRadius.md),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Draw tile (grid cell) ────────────────────────────────────────────────────
+
+class _DrawTile extends StatelessWidget {
+  const _DrawTile({required this.draw, required this.onTap});
+
+  final CashierAvailableDrawView draw;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    // "NY Midi" → stateCode="NY", slot="Midi"
+    final parts = draw.channelLabel.split(' ');
+    final stateCode = parts[0];
+    final slot = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+    final isMidi = slot.toLowerCase().contains('midi');
+
+    final slotBg = isMidi ? scheme.primaryContainer : scheme.secondaryContainer;
+    final slotFg =
+        isMidi ? scheme.onPrimaryContainer : scheme.onSecondaryContainer;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(TchRadius.md),
+      child: Container(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(TchRadius.md),
+          border: Border.all(
+            color: TchColors.success.withValues(alpha: 0.35),
+            width: 1.5,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: TchSpacing.s12,
+          vertical: TchSpacing.s16,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              stateCode,
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: scheme.onSurface,
+                height: 1,
+              ),
+            ),
+            const SizedBox(height: TchSpacing.s8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: slotBg,
+                borderRadius: BorderRadius.circular(TchRadius.pill),
+              ),
+              child: Text(
+                slot,
+                style: textTheme.labelMedium?.copyWith(
+                  color: slotFg,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: TchSpacing.s8),
+            Text(
+              draw.formattedCutoff,
+              style: textTheme.bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NoDraws extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: TchSpacing.s32),
+      child: Column(
+        children: [
+          Icon(Icons.event_busy_rounded, size: 48, color: scheme.outlineVariant),
+          const SizedBox(height: TchSpacing.s12),
+          Text(
+            'Aucun tirage disponible',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawsError extends StatelessWidget {
+  const _DrawsError({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(height: TchSpacing.s16),
+          Text('Impossible de charger les tirages',
+              style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: TchSpacing.s12),
+          TextButton(onPressed: onRetry, child: const Text('Réessayer')),
+        ],
       ),
     );
   }

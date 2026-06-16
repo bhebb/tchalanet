@@ -15,7 +15,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Audited
 @Table(
     name = "applied_promotion_snapshot",
     uniqueConstraints = @UniqueConstraint(

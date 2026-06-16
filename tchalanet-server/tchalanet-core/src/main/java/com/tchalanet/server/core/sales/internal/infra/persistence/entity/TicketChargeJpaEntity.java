@@ -21,7 +21,6 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 @Entity
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor

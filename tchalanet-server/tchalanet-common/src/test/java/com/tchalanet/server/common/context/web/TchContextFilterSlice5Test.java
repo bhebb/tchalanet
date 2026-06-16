@@ -1,11 +1,5 @@
 package com.tchalanet.server.common.context.web;
 
-import static com.tchalanet.server.common.context.TchContextRequestAttributes.RESOLVED_ACCESS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
@@ -13,7 +7,6 @@ import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.auth.ActorContextResolver;
-import com.tchalanet.server.common.context.auth.AuthContextExtractor;
 import com.tchalanet.server.common.context.operational.OperationalContextResolver;
 import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
@@ -21,11 +14,6 @@ import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import java.time.ZoneId;
-import java.util.Currency;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
@@ -33,6 +21,18 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.time.ZoneId;
+import java.util.Currency;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static com.tchalanet.server.common.context.TchContextRequestAttributes.RESOLVED_ACCESS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TchContextFilterSlice5Test {
 
@@ -171,11 +171,13 @@ class TchContextFilterSlice5Test {
         assertThat(capturedCtx[0].appUserId()).isEqualTo(userId.value());
     }
 
-    // ── §8.3 super-admin header blocked for non-admin ─────────────────────────
+    // ── §8.3 unauthenticated tenant request is deny-safe ──────────────────────
 
     @Test
-    void sensitiveHeader_withoutSuperAdmin_blocked() throws Exception {
-        // No RESOLVED_ACCESS, X-Tenant-Id present (sensitive for non-admin)
+    void unauthenticatedTenantRequest_withSensitiveHeader_isBlocked() throws Exception {
+        // No RESOLVED_ACCESS: legacy path. A sensitive header (X-Deleted-Visibility) cannot grant
+        // elevation — the deleted-visibility hint is only honored for resolved SUPER_ADMIN actors,
+        // and a tenant-scoped request with no resolvable tenant is denied before the controller.
         var request = new MockHttpServletRequest();
         request.setRequestURI("/api/v1/tenant/something");
         request.addHeader("X-Deleted-Visibility", "all");
@@ -184,7 +186,7 @@ class TchContextFilterSlice5Test {
         filter().doFilter(request, response, new MockFilterChain());
 
         assertThat(response.getStatus()).isEqualTo(403);
-        assertThat(response.getErrorMessage()).isEqualTo("Super-admin override header forbidden");
+        assertThat(response.getErrorMessage()).isEqualTo("Tenant required");
     }
 
     // ── helpers ───────────────────────────────────────────────────────────────
@@ -197,7 +199,7 @@ class TchContextFilterSlice5Test {
         var props = mock(TchContextProperties.class);
         when(props.publicDefaultTenantCode()).thenReturn(null);
 
-        var factory = new TchRequestContextFactory(new AuthContextExtractor());
+        var factory = new TchRequestContextFactory();
 
         return new TchContextFilter(
             props, tenantContextResolver, actorContextResolver, factory, contextBinder,

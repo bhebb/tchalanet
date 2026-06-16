@@ -18,7 +18,6 @@ import java.util.UUID;
         @UniqueConstraint(name = "uq_seller_tenant_code_active", columnNames = {"tenant_id", "code"})
     }
 )
-@Audited
 @Getter
 @Setter
 public class SellerJpaEntity extends BaseTenantEntity {

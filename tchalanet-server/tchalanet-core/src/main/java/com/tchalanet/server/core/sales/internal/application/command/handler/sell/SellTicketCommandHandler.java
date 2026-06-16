@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.command.handler.sell;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -34,6 +36,9 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContex
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
+import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalForSaleValidationQuery;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +58,7 @@ public class SellTicketCommandHandler
     private final TicketReceiptAssembler ticketReceiptAssembler;
     private final TicketBackupAssembler ticketBackupAssembler;
     private final TicketCommunicationRequestDispatcher communicationDispatcher;
+    private final QueryBus queryBus;
 
 
     @Override
@@ -79,11 +85,22 @@ public class SellTicketCommandHandler
             );
         }
 
-        // 2. Build and persist the aggregate.
-        var ticketId = TicketId.of(idGenerator.newUuid());
-        var ticket = Ticket.place(
-            new TicketIdentity(ticketId, tenantId),
-            new TicketContext(
+        // 2. Build ticket context — branch on actor type.
+        TicketContext ticketContext;
+        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
+                tenantId, ctx.sellerTerminalId()));
+            var commissionAmount = prepared.moneyBreakdown().stake().amount()
+                .multiply(terminal.commissionRate())
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            ticketContext = new TicketContext(
+                null, null, null, null,
+                command.drawId(), command.drawChannelId(),
+                null, null,
+                ctx.sellerTerminalId(), terminal.commissionRate(), commissionAmount
+            );
+        } else {
+            ticketContext = new TicketContext(
                 prepared.pos().outletId(),
                 prepared.pos().terminalId(),
                 prepared.pos().actorUserId(),
@@ -91,8 +108,16 @@ public class SellTicketCommandHandler
                 command.drawId(),
                 command.drawChannelId(),
                 prepared.sellerId(),
-                prepared.sellerAssignmentId()
-            ),
+                prepared.sellerAssignmentId(),
+                null, null, null
+            );
+        }
+
+        // 3. Build and persist the aggregate.
+        var ticketId = TicketId.of(idGenerator.newUuid());
+        var ticket = Ticket.place(
+            new TicketIdentity(ticketId, tenantId),
+            ticketContext,
             new TicketCodes(
                 ticketCodeGenerator.nextTicketCode(),
                 ticketCodeGenerator.nextPublicCode(),
@@ -124,7 +149,7 @@ public class SellTicketCommandHandler
         );
         var backup = ticketBackupAssembler.assemble(receipt);
 
-        // 3. Publish AFTER COMMIT.
+        // 4. Publish AFTER COMMIT.
         AfterCommit.run(() -> {
             eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId, prepared.promotionDecision()));
 
@@ -135,7 +160,7 @@ public class SellTicketCommandHandler
             );
         });
 
-        // 4. Return result with notices propagated.
+        // 5. Return result with notices propagated.
         var outcome = prepared.requiresApproval()
             ? SellTicketOutcome.PENDING_APPROVAL
             : SellTicketOutcome.ACCEPTED;

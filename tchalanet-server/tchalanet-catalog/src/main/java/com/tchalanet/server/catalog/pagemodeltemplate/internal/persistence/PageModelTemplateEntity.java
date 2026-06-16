@@ -1,20 +1,22 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
-import jakarta.persistence.*;
+import com.tchalanet.server.common.persistence.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
-import com.tchalanet.server.common.persistence.BaseEntity;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "page_model_template")
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor

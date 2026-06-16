@@ -9,6 +9,15 @@ const apiBaseUrl = String.fromEnvironment(
   defaultValue: 'https://api.localtest.me:8443/api/v1',
 );
 
+// ─── Seller Terminal auth ────────────────────────────────────────────────────
+// Terminal logins use Firebase email/password with derived email:
+//   {terminalCode.toLowerCase()}@{TERMINAL_EMAIL_DOMAIN}
+// In production, set this to the tenant's terminal email domain.
+const terminalEmailDomain = String.fromEnvironment(
+  'TERMINAL_EMAIL_DOMAIN',
+  defaultValue: 'terminal.tchalanet.local',
+);
+
 // ─── Device binding ──────────────────────────────────────────────────────────
 // Sent as X-Device-Binding on authenticated API calls. The backend recomputes
 // SHA256(tenantId|terminalId|<binding>) and compares it to the seeded

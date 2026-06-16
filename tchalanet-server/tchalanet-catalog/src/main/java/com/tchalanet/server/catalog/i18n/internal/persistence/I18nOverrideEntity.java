@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "i18n_override")
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor

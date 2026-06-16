@@ -1,8 +1,6 @@
 package com.tchalanet.server.app.config.security;
 
 import com.tchalanet.server.common.context.web.TchContextFilter;
-import com.tchalanet.server.platform.accesscontrol.api.AccessResolutionFilter;
-import com.tchalanet.server.platform.identity.api.IdentityBootstrapFilter;
 import com.tchalanet.server.platform.identity.api.IdentityProviderApi;
 import com.tchalanet.server.platform.identity.api.IdentityVerificationPolicy;
 import com.tchalanet.server.platform.identity.api.VerifiedExternalToken;
@@ -39,71 +37,71 @@ public class SecurityConfig {
         HttpSecurity http,
         JwtDecoder jwtDecoder,
         IdentityProviderApi identityProviderApi,
-        IdentityBootstrapFilter userBootstrapFilter,
-        AccessResolutionFilter accessResolutionFilter,
-        TchContextFilter tchContextFilter)
-        throws Exception {
+        TchAccessContextPipelineFilter tchAccessContextPipelineFilter,
+        TchContextFilter tchContextFilter
+    ) throws Exception {
         var sensitiveIdentityVerificationFilter =
             new SensitiveIdentityVerificationFilter(
-                identityProviderApi, new SensitiveIdentityRequestMatcher());
+                identityProviderApi,
+                new SensitiveIdentityRequestMatcher()
+            );
+
         http.csrf(AbstractHttpConfigurer::disable)
             .cors(withDefaults())
-            // ✅ API stateless (pas de session)
             .sessionManagement(sm -> sm.sessionCreationPolicy(STATELESS))
-
-            // ✅ ne pas sauvegarder de "saved request"
             .requestCache(RequestCacheConfigurer::disable)
-
-            // ✅ on évite tout mécanisme web login
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
             .logout(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(
-                auth ->
-                    auth.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
-                        .permitAll()
+            .authorizeHttpRequests(auth -> auth
+                .dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD)
+                .permitAll()
 
-                        // Fully public: health, swagger, public API, error.
-                        .requestMatchers(
-                            "/actuator/health",
-                            "/actuator/health/**",
-                            "/swagger-ui.html",
-                            "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/openapi/**",
-                            "/api/v1/openapi/**",
-                            "/api/v1/swagger-ui/**",
-                            "/api/v1/public/**",
-                            "/api/v1/actuator/**",
-                            "/public/**")
-                        .permitAll()
-                        .requestMatchers("/error", "/api/v1/error")
-                        .permitAll()
+                .requestMatchers(
+                    "/actuator/health",
+                    "/actuator/health/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/openapi/**",
+                    "/api/v1/openapi/**",
+                    "/api/v1/swagger-ui/**",
+                    "/api/v1/public/**",
+                    "/api/v1/actuator/**",
+                    "/public/**",
+                    "/error",
+                    "/api/v1/error"
+                )
+                .permitAll()
 
-                        // Spring Boot Admin ops UI (infrastructure, not business auth).
-                        .requestMatchers(
-                            "/api/v1/admin/ops",
-                            "/api/v1/admin/ops/**",
-                            "/admin/ops",
-                            "/admin/ops/**")
-                        .permitAll()
+                .requestMatchers(
+                    "/api/v1/admin/ops",
+                    "/api/v1/admin/ops/**",
+                    "/admin/ops",
+                    "/admin/ops/**"
+                )
+                .permitAll()
 
-                        // All other requests require authentication.
-                        // Business authorization is enforced by @PreAuthorize on controllers.
-                        .anyRequest()
-                        .authenticated())
-            .oauth2ResourceServer(
-                oauth ->
-                    oauth.jwt(
-                        jwt ->
-                            jwt.decoder(jwtDecoder)
-                                .jwtAuthenticationConverter(
-                                    token -> convert(token, identityProviderApi))))
+                .anyRequest()
+                .authenticated()
+            )
+            .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt
+                .decoder(jwtDecoder)
+                .jwtAuthenticationConverter(token -> convert(token, identityProviderApi))
+            ))
+
             .addFilterAfter(
-                sensitiveIdentityVerificationFilter, BearerTokenAuthenticationFilter.class)
-            .addFilterAfter(userBootstrapFilter, SensitiveIdentityVerificationFilter.class)
-            .addFilterAfter(accessResolutionFilter, IdentityBootstrapFilter.class)
-            .addFilterAfter(tchContextFilter, AccessResolutionFilter.class);
+                sensitiveIdentityVerificationFilter,
+                BearerTokenAuthenticationFilter.class
+            )
+            .addFilterAfter(
+                tchAccessContextPipelineFilter,
+                BearerTokenAuthenticationFilter.class
+            )
+            .addFilterBefore(
+                tchContextFilter,
+                org.springframework.security.web.access.intercept.AuthorizationFilter.class
+            );
 
         return http.build();
     }

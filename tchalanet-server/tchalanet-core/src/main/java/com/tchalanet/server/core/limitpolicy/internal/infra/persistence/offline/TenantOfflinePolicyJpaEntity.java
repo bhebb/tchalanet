@@ -4,7 +4,9 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
@@ -12,7 +14,6 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 @Entity
-@Audited
 @Table(name = "tenant_offline_policy")
 public class TenantOfflinePolicyJpaEntity extends BaseTenantEntity {
 

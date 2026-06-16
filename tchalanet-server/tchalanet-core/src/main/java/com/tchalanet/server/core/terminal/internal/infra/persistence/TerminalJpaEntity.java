@@ -23,7 +23,6 @@ import java.util.UUID;
 @Table(name = "terminal")
 @Getter
 @Setter
-@Audited
 public class TerminalJpaEntity extends BaseTenantEntity {
 
     @Column(name = "outlet_id", nullable = false)

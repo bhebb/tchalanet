@@ -18,7 +18,6 @@ import org.hibernate.envers.Audited;
         columnNames = {"tenant_id", "template_key", "locale"}))
 @Getter
 @Setter
-@Audited
 public class NotificationTemplateJpaEntity extends BaseEntity {
 
   @Column(name = "tenant_id", columnDefinition = "uuid")

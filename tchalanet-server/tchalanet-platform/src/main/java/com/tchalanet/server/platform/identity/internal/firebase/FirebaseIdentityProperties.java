@@ -7,7 +7,8 @@ public record FirebaseIdentityProperties(
     String projectId,
     String jwksUri,
     String credentialsPath,
-    FirebaseRevocationCheckMode revocationCheckMode) {
+    FirebaseRevocationCheckMode revocationCheckMode,
+    String terminalEmailDomain) {
 
   public static final String DEFAULT_JWKS_URI =
       "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
@@ -31,5 +32,11 @@ public record FirebaseIdentityProperties(
     return revocationCheckMode == null
         ? FirebaseRevocationCheckMode.SENSITIVE_ONLY
         : revocationCheckMode;
+  }
+
+  public String effectiveTerminalEmailDomain() {
+    return terminalEmailDomain != null && !terminalEmailDomain.isBlank()
+        ? terminalEmailDomain.trim()
+        : "terminal.tchalanet.local";
   }
 }

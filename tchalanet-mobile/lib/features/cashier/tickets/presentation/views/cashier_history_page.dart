@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
-import '../../../../../design_system/tokens/tch_colors.dart';
 
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
 
@@ -193,7 +192,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
           ),
         ],
       ),
-      bottomNavigationBar: const PosBottomNavBar(currentIndex: 1),
+      bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 1),
     );
   }
 }

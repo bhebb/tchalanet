@@ -27,6 +27,7 @@ INSERT INTO permission (code, name, category, system, active) VALUES
   ('billing.read',               'Read billing',                   'billing',  true, true),
   -- Platform governance (new; coarse-grained alternatives to fine-grained V202 codes)
   ('platform.tenant.manage',     'Manage tenants (platform)',      'platform', true, true),
+  ('platform.tenant.override',   'Override tenant scope (platform)','platform', true, true),
   ('platform.ops.run',           'Run platform ops',               'platform', true, true),
   -- Terminal-derived (produced by access resolution, not assigned via role_permission rows)
   ('terminal.me.read',           'Read own terminal profile',      'terminal', true, true),
@@ -100,6 +101,7 @@ SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
 INSERT INTO role_permission (role_id, permission_code)
 SELECT '00000000-0000-0000-0000-000000000301'::uuid, unnest(ARRAY[
   'platform.tenant.manage',
+  'platform.tenant.override',
   'platform.ops.run'
 ]) ON CONFLICT DO NOTHING;
 
@@ -116,6 +118,10 @@ DO $$ DECLARE cnt int; BEGIN
 
   IF NOT EXISTS (SELECT 1 FROM app_role WHERE code = 'TENANT_OWNER' AND tenant_id IS NULL) THEN
     RAISE EXCEPTION 'V232 sanity: TENANT_OWNER role missing';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM permission WHERE code = 'platform.tenant.override') THEN
+    RAISE EXCEPTION 'V232 sanity: permission platform.tenant.override missing';
   END IF;
 
   RAISE NOTICE 'V232 OK: % system roles, TENANT_OWNER present, terminal.sell present', cnt;

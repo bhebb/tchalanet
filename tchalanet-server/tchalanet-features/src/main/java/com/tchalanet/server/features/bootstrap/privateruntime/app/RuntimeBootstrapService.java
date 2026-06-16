@@ -6,9 +6,12 @@ import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.GetEffectivePermissionsRequest;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
@@ -42,8 +45,12 @@ public class RuntimeBootstrapService {
     private final NotificationApi notificationApi;
     private final RuntimeReadinessFacade readinessFacade;
     private final PageModelRefResolver pageModelRefResolver;
+    private final QueryBus queryBus;
 
     public RuntimeBootstrapResponse privateBootstrap(TchRequestContext ctx) {
+        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            return sellerTerminalBootstrap(ctx);
+        }
         PrivateBootstrapSpace space = resolveSpace(ctx);
         var notices = new ArrayList<RuntimeBootstrapNotice>();
 
@@ -74,6 +81,9 @@ public class RuntimeBootstrapService {
     }
 
     public PrivateRuntimeStateResponse privateState(TchRequestContext ctx) {
+        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            return sellerTerminalState(ctx);
+        }
         PrivateBootstrapSpace space = resolveSpace(ctx);
         var notices = new ArrayList<RuntimeBootstrapNotice>();
 
@@ -94,6 +104,50 @@ public class RuntimeBootstrapService {
         return new PrivateRuntimeStateResponse(
             status, readiness, notifications, null, versions,
             notices.isEmpty() ? null : notices);
+    }
+
+    // ── seller terminal ───────────────────────────────────────────────────────
+
+    private RuntimeBootstrapResponse sellerTerminalBootstrap(TchRequestContext ctx) {
+        var terminal = queryBus.ask(new GetSellerTerminalQuery(
+            ctx.effectiveTenantIdRequired(), ctx.sellerTerminalId()));
+        var space = PrivateBootstrapSpace.CASHIER;
+        var notices = new ArrayList<RuntimeBootstrapNotice>();
+        var user = new AuthenticatedUserView(
+            terminal.id().value().toString(),
+            terminal.terminalCode(),
+            terminal.displayName(),
+            null,
+            List.of("ACTOR_SELLER_TERMINAL"),
+            space,
+            "fr",
+            "UTC");
+        var tenantCtx = resolveTenantContext(ctx, space);
+        var entitlements = new EntitlementsView(List.of("ACTOR_SELLER_TERMINAL"), List.of());
+        var features = resolveFeatureFlags(ctx, space);
+        var settings = new RuntimeSettingsView("fr", "UTC",
+            ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG",
+            features);
+        var theme = resolveTheme(ctx, settings.locale(), space, notices);
+        var i18n = resolveI18n(settings.locale(), space, notices);
+        var readiness = readinessFacade.readiness(ctx, space);
+        var pageModelRef = pageModelRefResolver.resolve(space);
+        return new RuntimeBootstrapResponse(
+            space, user, tenantCtx, settings, theme, i18n, entitlements, readiness,
+            RuntimeNotificationSummary.empty(), pageModelRef,
+            notices.isEmpty() ? null : notices);
+    }
+
+    private PrivateRuntimeStateResponse sellerTerminalState(TchRequestContext ctx) {
+        var readiness = readinessFacade.readiness(ctx, PrivateBootstrapSpace.CASHIER);
+        PrivateRuntimeStatus status = switch (readiness.status()) {
+            case READY   -> PrivateRuntimeStatus.READY;
+            case PARTIAL -> PrivateRuntimeStatus.PARTIAL;
+            case BLOCKED -> PrivateRuntimeStatus.BLOCKED;
+        };
+        return new PrivateRuntimeStateResponse(
+            status, readiness, RuntimeNotificationSummary.empty(), null,
+            RuntimeVersionHints.of("boot-v1"), null);
     }
 
     // ── space resolution ──────────────────────────────────────────────────────

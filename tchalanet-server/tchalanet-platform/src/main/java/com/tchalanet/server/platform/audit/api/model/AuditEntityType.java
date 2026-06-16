@@ -17,6 +17,7 @@ public enum AuditEntityType {
   LIMIT_POLICY,
   OUTLET,
   TERMINAL,
+  SELLER_TERMINAL,
   TICKET,
   TICKET_LINE,
   PAYOUT,

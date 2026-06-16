@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/auth/auth_token_client.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../design_system/components/components.dart';
 import '../../../../design_system/layout/screen_size.dart';
@@ -18,27 +19,25 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _passwordVisible = false;
+  final _terminalCodeController = TextEditingController();
+  final _pinController = TextEditingController();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _terminalCodeController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref
-        .read(authControllerProvider.notifier)
-        .login(
-          AuthCredentials(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
+    ref.read(authControllerProvider.notifier).login(
+      AuthCredentials.terminal(
+        terminalCode: _terminalCodeController.text.trim(),
+        pin: _pinController.text,
+        domain: terminalEmailDomain,
+      ),
+    );
   }
 
   @override
@@ -46,30 +45,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authControllerProvider);
     final translations = ref.watch(i18nBundleProvider);
     final isLoading = authState is AuthLoading;
-    final errorMessage = authState is AuthUnauthenticated
-        ? authState.errorKey
-        : null;
+    final errorMessage =
+        authState is AuthUnauthenticated ? authState.errorKey : null;
 
-    final form = _LoginForm(
+    final form = _TerminalLoginForm(
       formKey: _formKey,
-      emailController: _emailController,
-      passwordController: _passwordController,
-      passwordVisible: _passwordVisible,
+      terminalCodeController: _terminalCodeController,
+      pinController: _pinController,
       loading: isLoading,
-      errorMessage: errorMessage == null
-          ? null
-          : translations.translate(errorMessage),
-      emailLabel: translations.translate('auth.login.email'),
-      emailHint: translations.translate('auth.login.email_hint'),
-      passwordLabel: translations.translate('auth.login.password'),
+      errorMessage:
+          errorMessage == null ? null : translations.translate(errorMessage),
+      terminalCodeLabel: translations.translate('auth.login.terminal_code'),
+      terminalCodeHint: translations.translate('auth.login.terminal_code_hint'),
+      pinLabel: translations.translate('auth.login.pin'),
       submitLabel: translations.translate('auth.login.button'),
       blockedLabel: translations.translate('auth.login.blocked'),
       requiredLabel: translations.translate('auth.login.required'),
-      invalidEmailLabel: translations.translate('auth.login.invalid_email'),
-      passwordShowLabel: translations.translate('auth.login.password_show'),
-      passwordHideLabel: translations.translate('auth.login.password_hide'),
-      onPasswordVisibilityChanged: () =>
-          setState(() => _passwordVisible = !_passwordVisible),
       onSubmit: _submit,
     );
 
@@ -99,9 +90,9 @@ class _MobileLoginLayout extends ConsumerWidget {
           child: Column(
             children: [
               _BrandHeader(
-                title: translations.translate('auth.login.operator_title'),
+                title: translations.translate('auth.login.terminal_title'),
                 subtitle: translations.translate('auth.login.subtitle'),
-                icon: Icons.smartphone_rounded,
+                icon: Icons.point_of_sale_rounded,
               ),
               const SizedBox(height: TchSpacing.s32),
               SurfaceCard(
@@ -141,7 +132,7 @@ class _PosLoginLayout extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _BrandHeader(
-                    title: translations.translate('auth.login.operator_title'),
+                    title: translations.translate('auth.login.terminal_title'),
                     subtitle: translations.translate('auth.login.pos_subtitle'),
                     icon: Icons.point_of_sale_rounded,
                     inverse: true,
@@ -198,9 +189,8 @@ class _BrandHeader extends StatelessWidget {
         ? scheme.onPrimaryContainer.withValues(alpha: 0.78)
         : scheme.onSurfaceVariant;
     return Column(
-      crossAxisAlignment: inverse
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
+      crossAxisAlignment:
+          inverse ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Container(
           width: 88,
@@ -237,43 +227,33 @@ class _BrandHeader extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
-  const _LoginForm({
+class _TerminalLoginForm extends StatelessWidget {
+  const _TerminalLoginForm({
     required this.formKey,
-    required this.emailController,
-    required this.passwordController,
-    required this.passwordVisible,
+    required this.terminalCodeController,
+    required this.pinController,
     required this.loading,
-    required this.emailLabel,
-    required this.emailHint,
-    required this.passwordLabel,
+    required this.terminalCodeLabel,
+    required this.terminalCodeHint,
+    required this.pinLabel,
     required this.submitLabel,
     required this.blockedLabel,
     required this.requiredLabel,
-    required this.invalidEmailLabel,
-    required this.passwordShowLabel,
-    required this.passwordHideLabel,
-    required this.onPasswordVisibilityChanged,
     required this.onSubmit,
     this.errorMessage,
   });
 
   final GlobalKey<FormState> formKey;
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
-  final bool passwordVisible;
+  final TextEditingController terminalCodeController;
+  final TextEditingController pinController;
   final bool loading;
-  final String emailLabel;
-  final String emailHint;
-  final String passwordLabel;
+  final String terminalCodeLabel;
+  final String terminalCodeHint;
+  final String pinLabel;
   final String submitLabel;
   final String blockedLabel;
   final String requiredLabel;
-  final String invalidEmailLabel;
-  final String passwordShowLabel;
-  final String passwordHideLabel;
   final String? errorMessage;
-  final VoidCallback onPasswordVisibilityChanged;
   final VoidCallback onSubmit;
 
   @override
@@ -291,45 +271,30 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: TchSpacing.s24),
           TextFormField(
-            controller: emailController,
+            controller: terminalCodeController,
             enabled: !loading,
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
-            autofillHints: const [AutofillHints.email],
+            textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              labelText: emailLabel,
-              hintText: emailHint,
-              prefixIcon: const Icon(Icons.alternate_email_rounded),
+              labelText: terminalCodeLabel,
+              hintText: terminalCodeHint,
+              prefixIcon: const Icon(Icons.terminal_rounded),
             ),
-            validator: (value) {
-              final email = value?.trim() ?? '';
-              if (email.isEmpty) return requiredLabel;
-              if (!email.contains('@')) return invalidEmailLabel;
-              return null;
-            },
+            validator: (value) =>
+                value == null || value.trim().isEmpty ? requiredLabel : null,
           ),
           const SizedBox(height: TchSpacing.s16),
           TextFormField(
-            controller: passwordController,
+            controller: pinController,
             enabled: !loading,
-            obscureText: !passwordVisible,
+            obscureText: true,
+            keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
-            autofillHints: const [AutofillHints.password],
             onFieldSubmitted: (_) => onSubmit(),
             decoration: InputDecoration(
-              labelText: passwordLabel,
-              prefixIcon: const Icon(Icons.lock_outline_rounded),
-              suffixIcon: IconButton(
-                onPressed: loading ? null : onPasswordVisibilityChanged,
-                tooltip: passwordVisible
-                    ? passwordHideLabel
-                    : passwordShowLabel,
-                icon: Icon(
-                  passwordVisible
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                ),
-              ),
+              labelText: pinLabel,
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
             validator: (value) =>
                 value == null || value.isEmpty ? requiredLabel : null,

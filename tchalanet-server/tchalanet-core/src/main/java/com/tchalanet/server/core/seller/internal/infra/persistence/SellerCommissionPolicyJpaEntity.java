@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "seller_commission_policy")
-@Audited
 @Getter
 @Setter
 public class SellerCommissionPolicyJpaEntity extends BaseTenantEntity {

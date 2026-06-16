@@ -21,6 +21,32 @@ public class TenantContextResolver {
 
     private final TenantContextLookup tenantLookup;
 
+    /**
+     * Hydrates tenant metadata (code, UUID, timezone, currency) for a provider-neutral protected
+     * request whose effective tenant was already decided by {@code AccessResolutionStep}.
+     *
+     * <p>This MUST NOT validate membership, permissions, or tenant access — that decision belongs to
+     * {@code platform.accesscontrol}. It only enriches the context with tenant reference data.
+     *
+     * @return the hydrated context, or {@code null} after writing a 403 if the tenant is unknown.
+     */
+    public TchRequestContext hydrateResolvedTenant(HttpServletResponse res, TchRequestContext ctx)
+        throws IOException {
+
+        if (ctx.tenantIdSafe() == null) {
+            return ctx;
+        }
+
+        var info = tenantLookup.findById(ctx.tenantIdSafe());
+
+        if (info.isEmpty()) {
+            res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+            return null;
+        }
+
+        return ctx.withTenantContext(info.get());
+    }
+
     public TchRequestContext resolveForScope(
         HttpServletRequest req,
         HttpServletResponse res,
@@ -65,6 +91,7 @@ public class TenantContextResolver {
 
         return ctx.withTenantContext(tenantContextInfo.get());
     }
+
 
     private TchRequestContext requireAndResolveTenant(HttpServletResponse res, TchRequestContext ctx)
         throws IOException {

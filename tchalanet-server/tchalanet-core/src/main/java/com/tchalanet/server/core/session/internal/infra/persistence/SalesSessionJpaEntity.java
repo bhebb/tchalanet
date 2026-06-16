@@ -17,7 +17,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "sales_session")
-@Audited
 @Getter
 @Setter
 public class SalesSessionJpaEntity extends BaseTenantEntity {

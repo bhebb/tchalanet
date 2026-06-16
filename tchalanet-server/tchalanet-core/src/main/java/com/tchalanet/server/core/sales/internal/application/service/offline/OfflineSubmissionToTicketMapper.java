@@ -76,7 +76,8 @@ public class OfflineSubmissionToTicketMapper {
             draft.outletId(), draft.terminalId(), draft.sellerUserId(),
             draft.salesSessionId(),
             draw.drawId(), draw.drawChannelId(),
-            null, null
+            null, null,
+            null, null, null
         );
         var codes = TicketCodes.of(
             codeGenerator.nextTicketCode(),

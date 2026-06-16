@@ -19,7 +19,6 @@ import org.hibernate.envers.NotAudited;
 @Table(name = "permission")
 @Getter
 @Setter
-@Audited
 public class PermissionJpaEntity extends AuditableEntity {
 
   @Id

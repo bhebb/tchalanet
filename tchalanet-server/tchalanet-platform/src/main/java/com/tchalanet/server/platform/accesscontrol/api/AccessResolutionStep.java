@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.accesscontrol.api;
 
 import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Servlet filter that reads {@code BootstrappedActor} from the request, resolves DB-owned
@@ -12,4 +13,6 @@ import jakarta.servlet.Filter;
  * ({@code tchalanet-app}) can wire this filter after {@code IdentityBootstrapFilter} without
  * importing {@code internal/}.
  */
-public interface AccessResolutionFilter extends Filter {}
+public interface AccessResolutionStep {
+    void resolve(HttpServletRequest request);
+}

@@ -22,7 +22,6 @@ import org.hibernate.envers.Audited;
         @UniqueConstraint(
             name = "uq_app_user_external_identity__provider_issuer_subject",
             columnNames = {"provider", "issuer", "external_subject"}))
-@Audited
 @Getter
 @Setter
 public class AppUserExternalIdentityJpaEntity extends BaseEntity {

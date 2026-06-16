@@ -20,7 +20,6 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
  */
 @Entity
 @Table(name = "app_setting")
-@Audited
 @Getter
 @Setter
 public class SettingEntity extends BaseTenantEntity {

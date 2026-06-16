@@ -15,7 +15,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Audited
 @Table(name = "sales_session_offline_adjustment")
 public class SalesSessionOfflineAdjustmentJpaEntity {
     @Id

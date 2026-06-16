@@ -7,15 +7,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "payout")
-@Audited
 @Getter
 @Setter
 public class PayoutJpaEntity extends BaseTenantEntity {

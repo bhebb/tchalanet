@@ -706,3 +706,128 @@ The filter must not:
 - [ ] blocked seller terminal cannot sell. (requires seller-terminal-v0 tables)
 - [ ] seller terminal cannot access admin endpoints. (requires seller-terminal-v0 tables)
 - [ ] `./mvnw verify` passes. (pre-existing ArchUnit failures in CleanArch/FeatureArch/PageModelArch/FlywayAuditAlignment remain; TenantConfigValidatorTest pre-existing)
+
+## 14. Pipeline stabilization — Filter→Step + anchoring (added 2026-06-15)
+
+> Refactor of slices 1–10: stabilize Spring filter ordering without anchoring custom filters on
+> custom filters, and split identity/access resolution (pipeline filter) from context binding
+> (`TchContextFilter`). See design.md "Pipeline stabilization — 2026-06-15".
+
+### 14.1 SecurityConfig — filter anchoring
+
+- [x] Anchor `tchAccessContextPipelineFilter` `addFilterAfter(BearerTokenAuthenticationFilter.class)`.
+- [x] Anchor `sensitiveIdentityVerificationFilter` `addFilterAfter(BearerTokenAuthenticationFilter.class)`.
+- [x] Anchor `tchContextFilter` `addFilterBefore(AuthorizationFilter.class)`.
+- [x] Remove every custom-filter anchor (no `addFilterAfter(..., <custom>.class)`).
+- [x] `convert()` emits empty authorities; `ExternalAuthenticatedUser` set as auth details.
+- [x] Recreate `SecurityFilterRegistrationConfig` as a dedicated `@Configuration` with disabled
+      `FilterRegistrationBean` for **both** `TchContextFilter` and `TchAccessContextPipelineFilter`
+      (both are Spring `@Bean`s). Do **not** add one for `SensitiveIdentityVerificationFilter` while
+      it is created with `new` in `SecurityConfig`.
+- [x] Rule: any filter both manually added to the chain **and** a Spring bean has a disabled registration.
+
+### 14.2 TchAccessContextPipelineFilter
+
+- [x] Runs only `identityBootstrapStep.bootstrap` + `accessResolutionStep.resolve`.
+- [x] `shouldNotFilter` covers public/health/swagger/openapi/error paths.
+- [x] Binds no `TchRequestContext`, MDC, or RLS.
+
+### 14.3 EffectiveTenantResolver (net-new, full behavior) — `platform.accesscontrol`
+
+- [x] APP_USER (normal): tenant always from the single active membership; a request header never selects the tenant. Zero memberships → none; more than one → `403 tenant.ambiguous_membership`. `X-Tenant-Id` is not read.
+- [x] SUPER_ADMIN without override: `effectiveTenantId=null`, `tenantOverride=false`.
+- [x] SUPER_ADMIN override (all required): `ROLE_SUPER_ADMIN` + `PERM_platform.tenant.override` + `X-Tch-Tenant-Override` valid UUID + non-blank `X-Tch-Override-Reason` → `effectiveTenantId=target`, `tenantOverride=true`, audited. The override header is the only header-driven tenant selection. Target tenant ACTIVE enforced downstream by `hydrateResolvedTenant`.
+- [x] Override decision (header + reason presence) owned by `EffectiveTenantResolver`; `TchContextFilter` re-checks reason as guard-rail only.
+- [x] SELLER_TERMINAL: tenant from `BootstrappedActor`, never from headers (unchanged in `resolveSellerTerminal`).
+- [x] Wired into `AccessResolutionStep`; raw header-only tenant parsing removed.
+
+### 14.3a Seed `platform.tenant.override` permission
+
+- [x] Add `platform.tenant.override` permission and grant it to `SUPER_ADMIN` (distinct from `platform.tenant.manage`).
+- [x] Amended V232 in place (unmerged on this branch, not on `main`). Local/CI DBs that already ran V232 need `flyway repair` or a dev-DB reset.
+
+### 14.4 TchContextFilter flow split
+
+- [x] Early split on `RESOLVED_ACCESS`: `handleResolvedAccess` vs `handlePublicOrLegacy`.
+- [x] Protected flow: tenant-required guard (TENANT/ADMIN), override-reason guard, `createFromResolvedAccess`, `hydrateResolvedTenant`, bind, operational context, bind.
+- [x] Protected flow never re-resolves tenant from headers.
+- [x] Context cleared in `finally`.
+
+### 14.5 TenantContextResolver.hydrateResolvedTenant
+
+- [x] Metadata-only (code/uuid/timezone/currency) via `tenantLookup.findById`.
+- [x] 403 + null on not-found; no membership/permission decisions.
+- [x] `resolveForScope` retained for public/legacy.
+
+### 14.6 TchRequestContextFactory cleanup
+
+- [x] Add `createFromResolvedAccess(req, scope, resolved)` and `createPublic(req, defaultTenantCode, scope)`.
+- [x] `create(...)` becomes a thin alias to `createPublic(...)`.
+- [x] Remove `AuthContextExtractor` field; delete `common.context.auth.AuthContextExtractor` (+ `ExtractedAuthContext`); no references remain.
+
+### 14.7 Boundary + regression
+
+- [x] ArchUnit: `common.context` imports none of the business layers (`CleanArchitectureRulesTest#commonDoesNotDependOnBusinessLayers` green).
+- [x] `AccessResolutionFilterImplTest` / `UserBootstrapFilterImplTest` retired (deleted with the Filter→Step rename).
+- [x] App boots with no `registered order` exception; `SecurityConfigRouteTest` green (5/5).
+- [x] `EffectiveTenantResolver` unit tests — 10/10 (membership-only normal user, header ignored, ambiguous, super-admin override valid/invalid).
+- [x] `TchContextFilterSlice5Test` updated for the flow split (7/7).
+
+## 15. AccessResolutionStep — access-snapshot optimization (added 2026-06-15)
+
+> Reduce per-request DB round-trips during authorization. `AccessResolutionStepImpl` becomes HTTP
+> orchestration only; role/permission resolution moves to a batch-query `AccessControlSnapshotResolver`.
+
+### 15.1 Batch snapshot queries — no N+1
+
+- [x] `TenantUserRoleJpaRepository.findPlatformRoleAccessRows(userId)` — one join (`tenant_user_role ⨝ app_role ⨝ role_permission`, left join) returning `RoleAccessRow(roleCode, permissionCode)` for active PLATFORM roles.
+- [x] `findTenantRoleAccessRows(tenantId, userId)` — same shape for active tenant roles.
+- [x] Replaces: `findActivePlatformRoleIdsByUser` + `findAllById`, the per-role `listPermissionCodes` loops (×2), and the second `findAllById(tenant roleIds)`.
+
+### 15.2 AccessControlSnapshotResolver
+
+- [x] `resolvePlatform(userId) → PlatformAccess(superAdmin, roleCodes, permissionKeys)` (1 query).
+- [x] `resolveTenant(userId, tenantId) → TenantAccess(roleCodes, permissionKeys)` (1 query + 1 overrides query); applies GRANT/DENY overrides, DENY wins.
+- [x] Leaves `EffectivePermissionService` / `PermissionCatalogAdminAdapter` (and their `@Cacheable`) intact for their other callers.
+
+### 15.3 Step is orchestration only
+
+- [x] `AccessResolutionStepImpl` drops `EffectivePermissionService`, `TenantUserRoleJpaRepository`, `AppRoleJpaRepository`, `PermissionCatalogAdminAdapter`; depends only on `AccessControlSnapshotResolver` + `EffectiveTenantResolver`.
+- [x] Per-request DB calls for a tenant user: ~4 (was ~6), no N+1, no redundant role-entity lookups.
+
+### 15.4 Tests
+
+- [x] `AccessControlSnapshotResolverTest` — 5/5 (platform collect + super-admin detect, role-without-perms, empty, tenant GRANT/DENY, DENY-wins).
+- [x] JPQL projections parse at Hibernate startup (`SecurityConfigRouteTest` boots green); accesscontrol suite 25/25.
+- [ ] Query **execution** (ad-hoc entity join) proven only by live-DB e2e (§13) — no `@DataJpaTest` harness in `platform`.
+
+## 16. Identity bootstrap — client-type hint, no fallback (added 2026-06-15)
+
+> `/tenant/**` is shared by `APP_USER` (web/admin) and `SELLER_TERMINAL` (POS). The path cannot
+> determine the actor type, so the `X-Tch-Client-Type: POS` hint selects which resolver to use. The
+> header selects a resolver only — it grants nothing; proof remains the verified JWT + DB mapping.
+
+### 16.1 Client-type header + resolver
+
+- [x] `TchHeaders.X_TCH_CLIENT_TYPE` (+ `CLIENT_TYPE_POS` / `CLIENT_TYPE_WEB`).
+- [x] `ExpectedActorTypeResolver`: `POS` → `SELLER_TERMINAL`, else `APP_USER`.
+
+### 16.2 UserBootstrapFilterImpl — no fallback
+
+- [x] `POS` → SellerTerminal resolver only; absent → AppUser resolver only. No cross-fallback.
+- [x] POS + no terminal mapping → `403 terminal.external_identity_not_linked` (does not try AppUser).
+- [x] no POS + no AppUser mapping → `403 external_identity.not_linked` (does not try terminal).
+- [x] Saves one DB lookup for POS requests (no AppUser miss first).
+
+### 16.3 AccessResolutionStep — terminal tenant rules
+
+- [x] `resolveSellerTerminal` takes the request and rejects `X-Tenant-Id` / `X-Tch-Tenant-Override` with `403 terminal.tenant_selection_not_allowed` (terminal is tenant-bound, not tenant-selecting).
+- [x] Effective tenant always from `BootstrappedActor.tenantId()`; terminal permissions unchanged.
+- [x] `ApiScope` unchanged (no `TERMINAL`): `/tenant/**` stays `ApiScope.TENANT`, actor type is orthogonal.
+
+### 16.4 Tests
+
+- [x] `UserBootstrapFilterImplTest` 5/5 (POS active / no-mapping / inactive; non-POS active / no-mapping; no-fallback verified via `verifyNoInteractions`).
+- [x] `AccessResolutionStepSellerTerminalTest` 3/3 (tenant from actor + terminal perms; `X-Tenant-Id` and `X-Tch-Tenant-Override` each rejected).
+- [x] Context boots with the new bean + changed constructor (`SecurityConfigRouteTest` 5/5).
+- [x] Status rule preserved: bootstrap rejects inactive terminals early; the sale handler still revalidates `seller_terminal.status == ACTIVE` (deferred to `seller-terminal-v0`).

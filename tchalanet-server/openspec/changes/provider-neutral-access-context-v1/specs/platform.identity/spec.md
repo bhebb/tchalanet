@@ -34,3 +34,23 @@ an active AppUser before tenant membership or permissions are resolved.
 - **WHEN** identity bootstrap runs
 - **THEN** the request SHALL be denied before controller execution
 
+### Requirement: Actor type is selected by a client-type hint without fallback
+
+A tenant-scoped path is shared by AppUser and SellerTerminal callers. Identity bootstrap SHALL select
+the resolver from the `X-Tch-Client-Type` hint and SHALL NOT fall back to the other resolver. The hint
+selects a resolver only; it SHALL NOT grant identity, access, tenant, or status.
+
+#### Scenario: POS hint resolves a terminal only
+
+- **GIVEN** an authenticated request with `X-Tch-Client-Type: POS`
+- **WHEN** identity bootstrap runs
+- **THEN** only the SellerTerminal resolver SHALL be used
+- **AND** if no terminal mapping exists the request SHALL be denied without trying the AppUser resolver
+
+#### Scenario: Absent hint resolves an app user only
+
+- **GIVEN** an authenticated request with no `X-Tch-Client-Type: POS`
+- **WHEN** identity bootstrap runs
+- **THEN** only the AppUser resolver SHALL be used
+- **AND** if no AppUser mapping exists the request SHALL be denied without trying the SellerTerminal resolver
+

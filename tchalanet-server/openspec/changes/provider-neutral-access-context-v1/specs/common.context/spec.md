@@ -68,3 +68,24 @@ database access and SHALL NOT depend on HTTP identity/access filters.
 - **WHEN** its explicit system context is created
 - **THEN** its authorities SHALL be named and allowlisted for that job family
 - **AND** it SHALL NOT receive an implicit unrestricted system authority set
+
+### Requirement: Context binding consumes resolved access without re-deciding it
+
+For provider-neutral protected requests, the canonical context binder SHALL build `TchRequestContext`
+from the resolved-access facts and SHALL hydrate tenant **metadata only**. It SHALL NOT re-resolve the
+effective tenant from request headers, nor decide membership or tenant override.
+
+#### Scenario: Protected request binds context from resolved access
+
+- **GIVEN** a request carrying resolved-access facts with an effective tenant
+- **WHEN** the canonical context binder runs
+- **THEN** it SHALL take the effective tenant from the resolved-access facts
+- **AND** it SHALL hydrate only tenant metadata (code, identifier, timezone, currency)
+- **AND** it SHALL NOT re-read a tenant header to choose the tenant
+
+#### Scenario: Hydration target tenant is unknown
+
+- **GIVEN** a resolved effective tenant identifier
+- **WHEN** tenant metadata hydration cannot find that tenant
+- **THEN** the request SHALL be denied before controller execution
+- **AND** no canonical context SHALL be bound

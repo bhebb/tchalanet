@@ -87,6 +87,16 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
     }
   }
 
+  public void resetPasswordForUid(String uid, String newPassword) {
+    var firebaseAuth = requiredFirebaseAuth();
+    try {
+      firebaseAuth.updateUser(new UserRecord.UpdateRequest(uid).setPassword(newPassword));
+      log.info("Firebase password reset uid={}", uid);
+    } catch (FirebaseAuthException ex) {
+      throw new IllegalStateException("Firebase password reset failed for uid=" + uid, ex);
+    }
+  }
+
   private UserRecord findExisting(FirebaseAuth firebaseAuth, String uid, String email, String phone) {
     if (uid != null && !uid.isBlank()) {
       var byUid = find(() -> firebaseAuth.getUser(uid.trim()));

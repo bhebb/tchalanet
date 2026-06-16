@@ -14,7 +14,7 @@ import java.util.Optional;
  * filter wiring compiles and the AppUser path is unaffected. Replace with a real JPA
  * repository implementation once the table is created.
  */
-@Repository
+// Stub disabled — replaced by SellerTerminalExternalIdentityAdapter (S4)
 class StubSellerTerminalExternalIdentityRepository implements SellerTerminalExternalIdentityPort {
 
     @Override

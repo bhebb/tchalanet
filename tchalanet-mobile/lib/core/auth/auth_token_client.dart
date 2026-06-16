@@ -1,6 +1,17 @@
 class AuthCredentials {
   const AuthCredentials({required this.email, required this.password});
 
+  factory AuthCredentials.terminal({
+    required String terminalCode,
+    required String pin,
+    required String domain,
+  }) {
+    return AuthCredentials(
+      email: '${terminalCode.toLowerCase()}@$domain',
+      password: pin,
+    );
+  }
+
   final String email;
   final String password;
 }

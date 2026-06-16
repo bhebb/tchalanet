@@ -29,7 +29,6 @@ import java.util.UUID;
 @Table(name = "tenant_subscription")
 @Getter
 @Setter
-@Audited
 public class SubscriptionJpaEntity extends BaseEntity {
 
   @Column(name = "tenant_id", nullable = false)
