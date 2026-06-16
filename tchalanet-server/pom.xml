@@ -146,7 +146,6 @@
         <artifactId>rome</artifactId>
         <version>${rome.version}</version>
       </dependency>
-
       <!-- API & Documentation -->
       <dependency>
         <groupId>org.springdoc</groupId>

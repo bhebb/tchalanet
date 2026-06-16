@@ -51,29 +51,37 @@ tch:
         latest-path: ${TCH_US_TN_LATEST_PATH:}
         headers: {}
 
-      # Full client: RSS feed. Set TCH_US_PA_LOTTERY_BASEURL + TCH_US_PA_LATEST_PATH to activate.
+      # Internal JSON feed (DrawingsData.aspx). One call returns all games for the day; each Pick
+      # entry nests its evening draw under RelatedEveningDrawing.
       pa:
         enabled: ${TCH_US_PA_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_PA_TIMEZONE:America/New_York}
-        base-url: ${TCH_US_PA_LOTTERY_BASEURL:https://www.palottery.state.pa.us}
-        latest-path: ${TCH_US_PA_LATEST_PATH:}
-        headers: {}
+        base-url: ${TCH_US_PA_LOTTERY_BASEURL:https://www.palottery.pa.gov}
+        latest-path: ${TCH_US_PA_LATEST_PATH:/Custom/feeds/DrawingsData.aspx}
+        headers:
+          Accept: application/json, text/plain, */*
 
-      # Enum-only — no client registered. Results via manual proposal.
+      # Internal JSON: paginated draw-games feed. status=CLOSED + epoch-millis date bounds return
+      # winning numbers. Each draw exposes a FIREBALL variant and the Regular draw (single string).
       nj:
         enabled: ${TCH_US_NJ_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_NJ_TIMEZONE:America/New_York}
         base-url: ${TCH_US_NJ_LOTTERY_BASEURL:https://www.njlottery.com}
-        latest-path: ${TCH_US_NJ_LATEST_PATH:}
-        headers: {}
+        latest-path: ${TCH_US_NJ_LATEST_PATH:/api/v1/draw-games/draws/page}
+        headers:
+          Accept: application/json, text/javascript, */*; q=0.01
+          X-Requested-With: XMLHttpRequest
 
+      # Internal JSON: per-game past draw results.
       ca:
         enabled: ${TCH_US_CA_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_CA_TIMEZONE:America/Los_Angeles}
         base-url: ${TCH_US_CA_LOTTERY_BASEURL:https://www.calottery.com}
-        latest-path: ${TCH_US_CA_LATEST_PATH:}
-        headers: {}
+        latest-path: ${TCH_US_CA_LATEST_PATH:/api/DrawGameApi/DrawGamePastDrawResults}
+        headers:
+          Accept: application/json
 
+      # Enum-only — no client registered. Results via manual proposal (V0).
       mo:
         enabled: ${TCH_US_MO_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_MO_TIMEZONE:America/Chicago}
@@ -81,6 +89,7 @@ tch:
         latest-path: ${TCH_US_MO_LATEST_PATH:}
         headers: {}
 
+      # Enum-only — no client registered. Results via manual proposal (V0).
       il:
         enabled: ${TCH_US_IL_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_IL_TIMEZONE:America/Chicago}
@@ -88,16 +97,25 @@ tch:
         latest-path: ${TCH_US_IL_LATEST_PATH:}
         headers: {}
 
+      # Internal GraphQL endpoint. Returns data.winningNumbers.drawNumbersMid|drawNumbersEve.
       mi:
         enabled: ${TCH_US_MI_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_MI_TIMEZONE:America/Detroit}
         base-url: ${TCH_US_MI_LOTTERY_BASEURL:https://www.michiganlottery.com}
-        latest-path: ${TCH_US_MI_LATEST_PATH:}
-        headers: {}
+        latest-path: ${TCH_US_MI_LATEST_PATH:/api}
+        headers:
+          Accept: application/json
+          Content-Type: application/json
+          Origin: https://www.michiganlottery.com
+          cms-type: ${TCH_US_MI_CMS_TYPE:production}
+          client-metadata: ${TCH_US_MI_CLIENT_METADATA:{"platform":"WEB","device-model":"Macintosh","operating-system":"Mac OS","version-number":"10.15.7"}}
 
+      # Internal JSON with bearer token. If TCH_US_OH_BEARER_TOKEN is blank, client returns empty (warn).
       oh:
         enabled: ${TCH_US_OH_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_OH_TIMEZONE:America/New_York}
-        base-url: ${TCH_US_OH_LOTTERY_BASEURL:https://www.ohiolottery.com}
-        latest-path: ${TCH_US_OH_LATEST_PATH:}
-        headers: {}
+        base-url: ${TCH_US_OH_LOTTERY_BASEURL:https://api-solutions.ohiolottery.com}
+        latest-path: ${TCH_US_OH_LATEST_PATH:/1.0/Games/DrawGames}
+        bearer-token: ${TCH_US_OH_BEARER_TOKEN:}
+        headers:
+          Accept: application/json

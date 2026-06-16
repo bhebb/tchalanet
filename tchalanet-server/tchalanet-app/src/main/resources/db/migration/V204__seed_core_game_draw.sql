@@ -139,6 +139,70 @@ WITH src AS (
 
                  ('TX_2212','TX','America/Chicago','22:12','MON-SAT', true, 53,
                   '{"provider_slot_code":"NIGHT","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('PA_MID','PA','America/New_York','13:35','MON-SUN', true, 60,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('PA_EVE','PA','America/New_York','19:00','MON-SUN', true, 61,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('NJ_MID','NJ','America/New_York','12:59','MON-SUN', true, 70,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('NJ_EVE','NJ','America/New_York','22:57','MON-SUN', true, 71,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('CA_MID','CA','America/Los_Angeles','13:00','MON-SUN', true, 80,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"DAILY3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('CA_EVE','CA','America/Los_Angeles','18:30','MON-SUN', true, 81,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"DAILY3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('OH_MID','OH','America/New_York','12:29','MON-SUN', true, 90,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('OH_EVE','OH','America/New_York','19:29','MON-SUN', true, 91,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('MI_MID','MI','America/Detroit','12:59','MON-SUN', true, 100,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('MI_EVE','MI','America/Detroit','19:29','MON-SUN', true, 101,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('TN_MID','TN','America/Chicago','12:29','MON-SAT', false, 40,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('TN_EVE','TN','America/Chicago','22:00','MON-SAT', false, 41,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('IL_MID','IL','America/Chicago','12:40','MON-SUN', false, 110,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('IL_EVE','IL','America/Chicago','21:22','MON-SUN', false, 111,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('MO_MID','MO','America/Chicago','12:45','MON-SUN', false, 120,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('MO_EVE','MO','America/Chicago','21:00','MON-SUN', false, 121,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
                   '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb)
 
          ) AS v(slot_key, provider, timezone, draw_time, days_of_week, active, sort_order, source_cfg, projection_cfg)
@@ -195,11 +259,26 @@ WITH t AS (
                    ('HT_GA_MID', 'Haïti • Georgia • Midday',   'GA_MID', 300, 'MON-SUN', true, 30),
                    ('HT_GA_EVE', 'Haïti • Georgia • Evening',  'GA_EVE', 300, 'MON-SUN', true, 31),
                    ('HT_GA_LATE','Haïti • Georgia • Late',     'GA_LATE',300, 'MON-SUN', true, 32),
-                   ('HT_TN_MID', 'Haïti • Tennessee • Midday', 'TN_MID', 300, 'MON-SAT', false, 40),
+                   ('HT_TN_MID', 'Haïti • Tennessee • Midday', 'TN_MID', 300, 'MON-SAT', true, 40),
                    ('HT_TX_1000','Haïti • Texas • 10:00',      'TX_1000',300, 'MON-SAT', true, 50),
                    ('HT_TX_1227','Haïti • Texas • 12:27',      'TX_1227',300, 'MON-SAT', true, 51),
                    ('HT_TX_1800','Haïti • Texas • 18:00',      'TX_1800',300, 'MON-SAT', true, 52),
-                   ('HT_TX_2212','Haïti • Texas • 22:12',      'TX_2212',300, 'MON-SAT', true, 53)
+                   ('HT_TX_2212','Haïti • Texas • 22:12',      'TX_2212',300, 'MON-SAT', true,  53),
+                   ('HT_TN_EVE', 'Haïti • Tennessee • Evening','TN_EVE', 300, 'MON-SAT', true, 41),
+                   ('HT_PA_MID', 'Haïti • Pennsylvania • Midday',  'PA_MID', 300, 'MON-SUN', true,  60),
+                   ('HT_PA_EVE', 'Haïti • Pennsylvania • Evening', 'PA_EVE', 300, 'MON-SUN', true,  61),
+                   ('HT_NJ_MID', 'Haïti • New Jersey • Midday',    'NJ_MID', 300, 'MON-SUN', true,  70),
+                   ('HT_NJ_EVE', 'Haïti • New Jersey • Evening',   'NJ_EVE', 300, 'MON-SUN', true,  71),
+                   ('HT_CA_MID', 'Haïti • California • Midday',    'CA_MID', 300, 'MON-SUN', true,  80),
+                   ('HT_CA_EVE', 'Haïti • California • Evening',   'CA_EVE', 300, 'MON-SUN', true,  81),
+                   ('HT_OH_MID', 'Haïti • Ohio • Midday',          'OH_MID', 300, 'MON-SUN', true,  90),
+                   ('HT_OH_EVE', 'Haïti • Ohio • Evening',         'OH_EVE', 300, 'MON-SUN', true,  91),
+                   ('HT_MI_MID', 'Haïti • Michigan • Midday',      'MI_MID', 300, 'MON-SUN', true,  100),
+                   ('HT_MI_EVE', 'Haïti • Michigan • Evening',     'MI_EVE', 300, 'MON-SUN', true,  101),
+                   ('HT_IL_MID', 'Haïti • Illinois • Midday',      'IL_MID', 300, 'MON-SUN', true, 110),
+                   ('HT_IL_EVE', 'Haïti • Illinois • Evening',     'IL_EVE', 300, 'MON-SUN', true, 111),
+                   ('HT_MO_MID', 'Haïti • Missouri • Midday',      'MO_MID', 300, 'MON-SUN', true, 120),
+                   ('HT_MO_EVE', 'Haïti • Missouri • Evening',     'MO_EVE', 300, 'MON-SUN', true, 121)
               ) AS v(code, name, slot_key, cutoff_sec, days_of_week, active, sort_order)
      ),
      rows AS (

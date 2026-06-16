@@ -20,6 +20,10 @@ public class UsLotteryConfig {
     private static final String TENNESSEE_LOTTERY_KEY = "tn";
     private static final String TX_PROVIDER_KEY = "tx";
     private static final String PA_PROVIDER_KEY = "pa";
+    private static final String NJ_PROVIDER_KEY = "nj";
+    private static final String CA_PROVIDER_KEY = "ca";
+    private static final String OH_PROVIDER_KEY = "oh";
+    private static final String MI_PROVIDER_KEY = "mi";
 
     @Bean
     public RestClient.Builder restClientBuilder(RestClientFactory factory) {
@@ -90,6 +94,46 @@ public class UsLotteryConfig {
         return getRestClient(builder, props, PA_PROVIDER_KEY);
     }
 
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.nj",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient njLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+        return getRestClient(builder, props, NJ_PROVIDER_KEY);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.ca",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient caLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+        return getRestClient(builder, props, CA_PROVIDER_KEY);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.oh",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient ohLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+        return getRestClient(builder, props, OH_PROVIDER_KEY);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.mi",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient miLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+        return getRestClient(builder, props, MI_PROVIDER_KEY);
+    }
+
     private RestClient getRestClient(RestClient.Builder builder, UsLotteryProperties props, String providerKey) {
         var p = props.getProviders() != null ? props.getProviders().get(providerKey) : null;
         var baseUrl = p != null ? p.getBaseUrl() : null;
@@ -99,6 +143,11 @@ public class UsLotteryConfig {
         for (var e : headers.entrySet()) {
             b = b.defaultHeader(e.getKey(), e.getValue());
         }
+
+        if (p != null && p.getBearerToken() != null && !p.getBearerToken().isBlank()) {
+            b = b.defaultHeader("Authorization", "Bearer " + p.getBearerToken().trim());
+        }
+
         return b.build();
     }
 
