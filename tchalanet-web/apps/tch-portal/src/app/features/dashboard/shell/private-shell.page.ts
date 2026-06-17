@@ -14,9 +14,11 @@ import { ShellFeedbackOutletComponent } from '../../../shared/feedback/shell-fee
 import { ShellFeedbackStore } from '../../../shared/feedback/shell-feedback.store';
 import { ShellFeedbackVerbosity } from '../../../shared/feedback/shell-feedback.model';
 import { PrivateShellService } from '../../private/shell/private-shell.service';
+import { AdminOverrideBanner } from '../../private/shared/admin-override-banner';
 
 @Component({
   imports: [
+    AdminOverrideBanner,
     LanguageSwitcher,
     RouterOutlet,
     ShellFeedbackOutletComponent,
@@ -84,6 +86,7 @@ import { PrivateShellService } from '../../private/shell/private-shell.service';
         <div class="backdrop" (click)="closeDrawer()" aria-hidden="true"></div>
 
         <main class="content">
+          <tch-admin-override-banner />
           <tch-shell-feedback-outlet [verbosity]="feedbackVerbosity()" />
           <router-outlet />
         </main>
