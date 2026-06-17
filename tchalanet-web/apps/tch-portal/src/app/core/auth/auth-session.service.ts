@@ -6,7 +6,6 @@ import {
     setPersistence,
     signInWithEmailAndPassword,
     signOut,
-    user,
 } from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
 
@@ -29,7 +28,12 @@ export class AuthSessionService {
     readonly authenticated = computed(() => this.session().authenticated);
 
     async refreshSession(force = false): Promise<UserSession> {
-        const firebaseUser = await firstValueFrom(user(this.auth));
+        // Wait for Firebase to restore the persisted session from localStorage.
+        // Without this, firstValueFrom() would capture the transient null emitted
+        // before the SDK finishes initializing, causing a redirect to /login on
+        // every page refresh even when the user is still authenticated.
+        await this.auth.authStateReady();
+        const firebaseUser = this.auth.currentUser;
 
         if (!firebaseUser) {
             return this.setAnonymousSession();
@@ -92,7 +96,7 @@ export class AuthSessionService {
     }
 
     private async firebaseTokenExpiresAt(): Promise<string | undefined> {
-        const firebaseUser = await firstValueFrom(user(this.auth));
+        const firebaseUser = this.auth.currentUser;
 
         if (!firebaseUser) {
             return undefined;
