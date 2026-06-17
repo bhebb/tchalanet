@@ -6,10 +6,12 @@ import com.tchalanet.server.platform.tenant.internal.mapper.TenantMapper;
 import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaRepository;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Persistence adapter for TenantConfig.
@@ -69,4 +71,16 @@ public class TenantPersistenceAdapter {
         return mapper.toDomain(repository.getRequiredByIdActive(tenantId.value()));
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = {
+        TenantCacheNames.REGISTRY_BY_ID,
+        TenantCacheNames.REGISTRY_BY_CODE,
+        TenantCacheNames.ACTIVE_TENANT_IDS
+    }, allEntries = true)
+    public void updateDefaultCommissionRate(TenantId tenantId, BigDecimal rate) {
+        int updated = repository.updateDefaultCommissionRate(tenantId.value(), rate);
+        if (updated == 0) {
+            throw new EntityNotFoundException("Tenant not found: " + tenantId.value());
+        }
+    }
 }

@@ -38,7 +38,7 @@ public class TenantConfigCommunicationFeePolicy implements CommunicationFeePolic
             default -> null;
         };
 
-        if (channelConfig == null || !channelConfig.enabled()) {
+        if (channelConfig == null || !Boolean.TRUE.equals(channelConfig.enabled())) {
             return Optional.empty();
         }
 

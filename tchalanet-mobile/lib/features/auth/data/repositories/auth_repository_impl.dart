@@ -2,26 +2,40 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/auth/auth_token_client.dart';
+import '../../../../core/auth/firebase_auth_token_client.dart';
+import '../../../../core/runtime/runtime_repository.dart';
 import '../../../../core/storage/op_context_storage.dart';
 import '../../../../core/storage/secure_token_storage.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../models/user_role.dart';
 import '../models/user_session.dart';
-import '../services/auth_service.dart';
 import 'auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._service, this._tokenStorage, this._opContextStorage);
+  AuthRepositoryImpl(
+    this._service,
+    this._tokenStorage,
+    this._opContextStorage,
+    this._runtimeRepository,
+  );
 
-  final AuthService _service;
+  final AuthTokenClient _service;
   final TokenStorage _tokenStorage;
   final OpContextStorage _opContextStorage;
+  final RuntimeRepository _runtimeRepository;
 
   @override
-  Future<UserSession> login() async {
-    final tokens = await _service.login();
+  Future<UserSession> login(AuthCredentials credentials) async {
+    final tokens = await _service.login(credentials);
     await _storeTokens(tokens);
-    return _buildSession(tokens.accessToken);
+    try {
+      return await _buildSession(tokens.accessToken);
+    } catch (_) {
+      await _service.logout();
+      await _tokenStorage.clear();
+      rethrow;
+    }
   }
 
   @override
@@ -31,23 +45,31 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Attempt silent refresh if the access token is expired or close to expiry
     if (_isExpiredOrExpiringSoon(accessToken)) {
-      final refreshToken = await _tokenStorage.readRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) return null;
       try {
-        final tokens = await _service.refresh(refreshToken);
+        final tokens = await _service.refresh(
+          await _tokenStorage.readRefreshToken(),
+        );
         await _storeTokens(tokens);
-        return _buildSession(tokens.accessToken);
+        return await _buildSession(tokens.accessToken);
       } catch (_) {
+        await _service.logout();
         await _tokenStorage.clear();
         return null;
       }
     }
 
-    return _buildSession(accessToken);
+    try {
+      return await _buildSession(accessToken);
+    } catch (_) {
+      await _service.logout();
+      await _tokenStorage.clear();
+      return null;
+    }
   }
 
   @override
   Future<void> logout() async {
+    await _service.logout();
     await _tokenStorage.clear();
     await _opContextStorage.clear();
   }
@@ -70,22 +92,17 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
-  UserSession _buildSession(String accessToken) {
+  Future<UserSession> _buildSession(String accessToken) async {
     final payload = _decodeJwtPayload(accessToken);
-
-    final sub = payload['sub'] as String?;
-    final username = payload['preferred_username'] as String?;
-    final displayName = payload['name'] as String?;
-
-    // tch = custom Keycloak claim block (see keycloak-token-contract spec)
-    final tch = payload['tch'] as Map<String, dynamic>?;
-    final tenantCode = tch?['tenant_code'] as String?;
-    final tenantId = tch?['tenant_id'] as String?;
-
-    // roles = root-level custom claim mapped by Tchalanet Keycloak provider
-    final rawRoles = payload['roles'] as List<dynamic>? ?? [];
-    final roles = rawRoles
-        .map((r) => UserRole.fromString(r as String?))
+    final runtime = await _runtimeRepository.loadTenant();
+    final user = runtime.user;
+    if (user == null || user.userId == null) {
+      throw StateError(
+        'Authenticated runtime did not resolve an application user',
+      );
+    }
+    final roles = runtime.roles
+        .map(UserRole.fromString)
         .where((r) => r != UserRole.unknown)
         .toList();
 
@@ -96,11 +113,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return UserSession(
       authenticated: true,
-      userId: sub,
-      username: username,
-      displayName: displayName,
-      tenantId: tenantId,
-      tenantCode: tenantCode,
+      userId: user.userId,
+      username: user.username ?? user.email,
+      displayName: user.displayName ?? user.username ?? user.email,
+      tenantId: runtime.tenantContext?.tenantId,
+      tenantCode: runtime.tenantContext?.tenantCode,
       roles: roles,
       tokenExpiresAt: tokenExpiresAt,
     );
@@ -121,8 +138,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    const AuthService(),
+    FirebaseAuthTokenClient(),
     ref.watch(tokenStorageProvider),
     ref.watch(opContextStorageProvider),
+    ref.watch(runtimeRepositoryProvider),
   );
 });

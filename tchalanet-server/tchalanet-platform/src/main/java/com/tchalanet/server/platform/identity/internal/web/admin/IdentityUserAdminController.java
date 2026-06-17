@@ -20,11 +20,13 @@ import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfil
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
+import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.CreateUserRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.LinkExternalIdentityRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.SetUserRoleRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.TenantUserAdminResponse;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.UpdatePreferencesRequest;
@@ -60,6 +62,7 @@ public class IdentityUserAdminController {
     private final CurrentUserProfileService profiles;
     private final TenantUserAdministrationService users;
     private final TenantMembershipService memberships;
+    private final ExternalIdentityLinkService externalIdentities;
     private final AccessControlApi accessControlApi;
     private final TenantUserProvisioningService provisioning;
     private final TenantUserAdminViewAssembler view;
@@ -106,6 +109,22 @@ public class IdentityUserAdminController {
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
         view.assertTenantScoped(ctx, userId);
         users.approveUser(userId, ctx.currentUserIdRequired());
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
+    }
+
+    @PostMapping("/{userId}/external-identities")
+    @Operation(summary = "Link an external identity to an existing tenant user")
+    @AuditLog(
+        action = AuditAction.APP_USER_EXTERNAL_IDENTITY_LINKED,
+        entity = AuditEntityType.USER,
+        idExpression = "#userId")
+    public ApiResponse<TenantUserAdminResponse> linkExternalIdentity(
+        @CurrentContext TchRequestContext ctx,
+        @PathVariable UserId userId,
+        @Valid @RequestBody LinkExternalIdentityRequest req) {
+        view.assertTenantScoped(ctx, userId);
+        externalIdentities.link(
+            userId, req.provider(), req.issuer(), req.externalSubject(), req.emailSnapshot());
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 

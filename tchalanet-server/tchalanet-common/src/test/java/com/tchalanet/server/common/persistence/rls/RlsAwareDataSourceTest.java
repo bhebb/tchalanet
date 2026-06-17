@@ -91,7 +91,8 @@ class RlsAwareDataSourceTest {
         TenantId.of(tenantUuid),
         ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 
   private record SetConfig(String key, String value) {}

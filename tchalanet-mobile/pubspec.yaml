@@ -41,8 +41,9 @@ dependencies:
   dio: ^5.9.2
   flutter_secure_storage: ^10.2.0
   shared_preferences: ^2.5.4
-  flutter_appauth: ^8.0.0
   printing: ^5.14.3
+  firebase_core: ^4.10.0
+  firebase_auth: ^6.5.2
 
 dev_dependencies:
   flutter_test:

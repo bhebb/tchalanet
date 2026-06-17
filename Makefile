@@ -14,8 +14,8 @@ help:
 	@echo "  up, up-all, down, down-all"
 	@echo ""
 	@echo "Local Development Modes:"
-	@echo "  local-ide-up         - API dans IDE, infra P0 (Traefik+Postgres+Keycloak) dans Docker"
-	@echo "  local-ide-up-redis   - API dans IDE, infra P0+Redis dans Docker"
+	@echo "  local-ide-up         - API dans IDE, infra P0 + Firebase Auth Emulator dans Docker"
+	@echo "  local-ide-up-redis   - API dans IDE, infra P0+Redis + Firebase Auth Emulator"
 	@echo "  local-ide-down       - Arrêter infra P0"
 	@echo "  local-api-up         - API dans Docker, infra P0+Redis"
 	@echo "  local-api-down       - Arrêter API + infra"
@@ -78,4 +78,3 @@ keycloak-restart:
 # Utilities
 doppler-seed: ; @$(MAKE) -C $(INFRA_DIR) doppler-seed ENV=$(ENV)
 print-env:    ; @$(MAKE) -C $(INFRA_DIR) print-env ENV=$(ENV)
-

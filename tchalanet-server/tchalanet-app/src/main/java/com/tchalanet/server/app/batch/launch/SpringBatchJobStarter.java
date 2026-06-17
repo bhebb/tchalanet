@@ -50,7 +50,7 @@ public class SpringBatchJobStarter implements BatchJobStarter {
 
         var metadata = runtimeJob.metadata();
 
-        TenantId tenantId = resolveTenantIdIfRequired(metadata, params);
+        var tenantId = resolveTenantIdIfRequired(metadata, params);
 
         gate.assertEnabledOrThrow(jobKey, tenantId);
         requireParams(jobKey, metadata, params);

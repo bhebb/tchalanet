@@ -102,13 +102,16 @@ Optional<AppUserView> findAppUser(UUID keycloakSub)
 long                  countTenantUsers()
 ```
 
-**`CurrentUserView`** : id, keycloakSub, username, email, firstName, lastName, displayName, tenantId, tenantCode, tenantTimeZone, tenantCurrency, themeMode, density, locale, timeZone, currency
+**`CurrentUserView`** : id, username, email, firstName, lastName, displayName, tenantId, tenantCode, tenantTimeZone, tenantCurrency, themeMode, density, locale, timeZone, currency
 
-**`AppUserView`** : id, keycloakSub, username, email, phone, firstName, lastName, displayName, status (`UserStatus`)
+**`AppUserView`** : id, username, email, phone, firstName, lastName, displayName, status (`UserStatus`)
+
+Les subjects externes ne sont pas exposés dans les vues profil/runtime. La liaison explicite se fait
+via `POST /admin/identity/users/{userId}/external-identities`.
 
 ---
 
-## Provisioning utilisateur Firebase
+## Provisioning utilisateur externe
 
 `POST /admin/identity/users` (TENANT_ADMIN / SUPER_ADMIN) crée d'abord l'identité Firebase,
 puis l'utilisateur applicatif et son lien durable dans `app_user_external_identity`.
@@ -117,6 +120,10 @@ créé est supprimé en compensation.
 
 Firebase ne reçoit ni rôle, ni permission, ni tenant opérationnel. Le rôle, le tenant effectif,
 les permissions et le contexte RLS sont toujours résolus depuis Tchalanet.
+
+L'orchestration dépend uniquement de `IdentityProvisioningApi`. Firebase et Firebase Emulator
+utilisent l'adapter Firebase. Un provider sans adapter de provisioning géré échoue explicitement;
+ajouter un adapter Keycloak ou Clerk ne change pas l'administration utilisateur.
 
 En `local-ide`, le bootstrap Firebase crée et lie de façon idempotente `super_admin`, `admin`
 et `cashier`, avec des UID égaux aux UUID déterministes des `app_user` seedés.

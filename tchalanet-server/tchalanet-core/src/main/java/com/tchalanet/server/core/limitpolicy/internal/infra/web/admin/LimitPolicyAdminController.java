@@ -8,6 +8,7 @@ import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentCommand;
@@ -39,7 +40,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/policies/limits")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Limit Policy • Admin")
 @Validated
@@ -119,6 +120,11 @@ public class LimitPolicyAdminController {
                 yield LimitScopeRef.agent(UserId.parse(targetId));
             }
 
+            case SELLER_TERMINAL -> {
+                requireTargetId(targetType, targetId);
+                yield LimitScopeRef.sellerTerminal(SellerTerminalId.parse(targetId));
+            }
+
             case DRAW_CHANNEL -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeRef.drawChannel(DrawChannelId.parse(targetId));
@@ -148,6 +154,11 @@ public class LimitPolicyAdminController {
             case AGENT -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeQueryRef.agent(UserId.parse(targetId));
+            }
+
+            case SELLER_TERMINAL -> {
+                requireTargetId(targetType, targetId);
+                yield LimitScopeQueryRef.sellerTerminal(SellerTerminalId.parse(targetId));
             }
 
             case DRAW_CHANNEL -> {

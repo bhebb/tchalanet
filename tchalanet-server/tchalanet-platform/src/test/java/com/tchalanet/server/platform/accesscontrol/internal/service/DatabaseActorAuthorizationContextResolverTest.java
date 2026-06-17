@@ -145,7 +145,8 @@ class DatabaseActorAuthorizationContextResolverTest {
         tenantId,
         ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 
   private static TchRequestContext platformContext(UserId userId) {
@@ -170,6 +171,7 @@ class DatabaseActorAuthorizationContextResolverTest {
         null,
         ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 }

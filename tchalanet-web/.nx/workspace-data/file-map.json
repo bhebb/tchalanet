@@ -45,1430 +45,8 @@
     }
   ],
   "fileMap": {
+    "nonProjectFiles": [],
     "projectFileMap": {
-      "tch-portal-e2e": [
-        {
-          "file": "apps/tch-portal-e2e/eslint.config.mjs",
-          "hash": "1172734138943286526"
-        },
-        {
-          "file": "apps/tch-portal-e2e/playwright.config.ts",
-          "hash": "9182228263159653438"
-        },
-        {
-          "file": "apps/tch-portal-e2e/project.json",
-          "hash": "5997281328099186134"
-        },
-        {
-          "file": "apps/tch-portal-e2e/src/example.spec.ts",
-          "hash": "16019101014373124625"
-        },
-        {
-          "file": "apps/tch-portal-e2e/tsconfig.json",
-          "hash": "15726545290547512047"
-        }
-      ],
-      "tchalanet-web": [
-        {
-          "file": ".agents/skills/angular-developer/SKILL.md",
-          "hash": "14979177178409772828"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/angular-animations.md",
-          "hash": "129347060871836214"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/angular-aria.md",
-          "hash": "2381155630355093878"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/cli.md",
-          "hash": "13317431173771221359"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/component-harnesses.md",
-          "hash": "5870468852170713034"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/component-styling.md",
-          "hash": "15069273795887528001"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/components.md",
-          "hash": "9607844804154748436"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/creating-services.md",
-          "hash": "15536799606710796801"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/data-resolvers.md",
-          "hash": "7766777649212437662"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/define-routes.md",
-          "hash": "10776993876235809735"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/defining-providers.md",
-          "hash": "14076483724001849286"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/di-fundamentals.md",
-          "hash": "4410216993244001484"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/e2e-testing.md",
-          "hash": "10235608202008093670"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/effects.md",
-          "hash": "12970206307287894947"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/hierarchical-injectors.md",
-          "hash": "9301101672240525589"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/host-elements.md",
-          "hash": "11996787298050009511"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/injection-context.md",
-          "hash": "6245788921017064432"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/inputs.md",
-          "hash": "14445439380299229080"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/linked-signal.md",
-          "hash": "15287476767354458674"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/loading-strategies.md",
-          "hash": "9871672929784638658"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/mcp.md",
-          "hash": "1348478139885907910"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/migrations.md",
-          "hash": "18319483937516052683"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/navigate-to-routes.md",
-          "hash": "4113548232177492252"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/outputs.md",
-          "hash": "11280596089359180668"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/reactive-forms.md",
-          "hash": "14684102818894992427"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/rendering-strategies.md",
-          "hash": "12857407138438702691"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/resource.md",
-          "hash": "17242364678058781765"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/route-animations.md",
-          "hash": "8214676520390077550"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/route-guards.md",
-          "hash": "8159792662334206472"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/router-lifecycle.md",
-          "hash": "15417473013244094500"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/router-testing.md",
-          "hash": "18418231388049957001"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/show-routes-with-outlets.md",
-          "hash": "5060265772387267369"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/signal-forms.md",
-          "hash": "9579046558774366321"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/signals-overview.md",
-          "hash": "5299154702827325348"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/tailwind-css.md",
-          "hash": "9249328744619220116"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/template-driven-forms.md",
-          "hash": "13239626885434773021"
-        },
-        {
-          "file": ".agents/skills/angular-developer/references/testing-fundamentals.md",
-          "hash": "9875865475265441192"
-        },
-        {
-          "file": ".agents/skills/link-workspace-packages/SKILL.md",
-          "hash": "6638592300654417978"
-        },
-        {
-          "file": ".agents/skills/monitor-ci/SKILL.md",
-          "hash": "8399173415832764241"
-        },
-        {
-          "file": ".agents/skills/monitor-ci/references/fix-flows.md",
-          "hash": "14499115380699629375"
-        },
-        {
-          "file": ".agents/skills/monitor-ci/scripts/ci-poll-decide.mjs",
-          "hash": "11489724214132048566"
-        },
-        {
-          "file": ".agents/skills/monitor-ci/scripts/ci-state-update.mjs",
-          "hash": "13401974159889364904"
-        },
-        {
-          "file": ".agents/skills/nx-generate/SKILL.md",
-          "hash": "12149253535688076771"
-        },
-        {
-          "file": ".agents/skills/nx-import/SKILL.md",
-          "hash": "9709061508228126022"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/ESLINT.md",
-          "hash": "3100736771536685484"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/GRADLE.md",
-          "hash": "15868511153961490698"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/JEST.md",
-          "hash": "8022966628634571060"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/NEXT.md",
-          "hash": "8705422121624482541"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/TURBOREPO.md",
-          "hash": "6654032474246573297"
-        },
-        {
-          "file": ".agents/skills/nx-import/references/VITE.md",
-          "hash": "5793928500507593678"
-        },
-        {
-          "file": ".agents/skills/nx-plugins/SKILL.md",
-          "hash": "4717624081372438208"
-        },
-        {
-          "file": ".agents/skills/nx-run-tasks/SKILL.md",
-          "hash": "10723914446406921246"
-        },
-        {
-          "file": ".agents/skills/nx-workspace/SKILL.md",
-          "hash": "56694506768298655"
-        },
-        {
-          "file": ".agents/skills/nx-workspace/references/AFFECTED.md",
-          "hash": "10577828056523124002"
-        },
-        {
-          "file": ".agents/skills/web-testing/SKILL.md",
-          "hash": "611989462431167601"
-        },
-        {
-          "file": ".claude/settings.json",
-          "hash": "4174402289047638020"
-        },
-        {
-          "file": ".codex/agents/ci-monitor-subagent.toml",
-          "hash": "4478062226442413400"
-        },
-        {
-          "file": ".codex/config.toml",
-          "hash": "5987189001162246520"
-        },
-        {
-          "file": ".github/agents/ci-monitor-subagent.agent.md",
-          "hash": "6573591679819005545"
-        },
-        {
-          "file": ".github/prompts/monitor-ci.prompt.md",
-          "hash": "373234804653081784"
-        },
-        {
-          "file": ".github/skills/link-workspace-packages/SKILL.md",
-          "hash": "6638592300654417978"
-        },
-        {
-          "file": ".github/skills/monitor-ci/SKILL.md",
-          "hash": "8399173415832764241"
-        },
-        {
-          "file": ".github/skills/monitor-ci/references/fix-flows.md",
-          "hash": "14499115380699629375"
-        },
-        {
-          "file": ".github/skills/monitor-ci/scripts/ci-poll-decide.mjs",
-          "hash": "11489724214132048566"
-        },
-        {
-          "file": ".github/skills/monitor-ci/scripts/ci-state-update.mjs",
-          "hash": "13401974159889364904"
-        },
-        {
-          "file": ".github/skills/nx-generate/SKILL.md",
-          "hash": "12149253535688076771"
-        },
-        {
-          "file": ".github/skills/nx-import/SKILL.md",
-          "hash": "9709061508228126022"
-        },
-        {
-          "file": ".github/skills/nx-import/references/ESLINT.md",
-          "hash": "3100736771536685484"
-        },
-        {
-          "file": ".github/skills/nx-import/references/GRADLE.md",
-          "hash": "15868511153961490698"
-        },
-        {
-          "file": ".github/skills/nx-import/references/JEST.md",
-          "hash": "8022966628634571060"
-        },
-        {
-          "file": ".github/skills/nx-import/references/NEXT.md",
-          "hash": "8705422121624482541"
-        },
-        {
-          "file": ".github/skills/nx-import/references/TURBOREPO.md",
-          "hash": "6654032474246573297"
-        },
-        {
-          "file": ".github/skills/nx-import/references/VITE.md",
-          "hash": "5793928500507593678"
-        },
-        {
-          "file": ".github/skills/nx-plugins/SKILL.md",
-          "hash": "4717624081372438208"
-        },
-        {
-          "file": ".github/skills/nx-run-tasks/SKILL.md",
-          "hash": "10723914446406921246"
-        },
-        {
-          "file": ".github/skills/nx-workspace/SKILL.md",
-          "hash": "56694506768298655"
-        },
-        {
-          "file": ".github/skills/nx-workspace/references/AFFECTED.md",
-          "hash": "10577828056523124002"
-        },
-        {
-          "file": ".gitignore",
-          "hash": "14659756692436035594"
-        },
-        {
-          "file": ".opencode/agents/ci-monitor-subagent.md",
-          "hash": "6611362967399008889"
-        },
-        {
-          "file": ".opencode/commands/monitor-ci.md",
-          "hash": "12455117996087874585"
-        },
-        {
-          "file": ".opencode/skills/link-workspace-packages/SKILL.md",
-          "hash": "6638592300654417978"
-        },
-        {
-          "file": ".opencode/skills/monitor-ci/SKILL.md",
-          "hash": "8399173415832764241"
-        },
-        {
-          "file": ".opencode/skills/monitor-ci/references/fix-flows.md",
-          "hash": "14499115380699629375"
-        },
-        {
-          "file": ".opencode/skills/monitor-ci/scripts/ci-poll-decide.mjs",
-          "hash": "11489724214132048566"
-        },
-        {
-          "file": ".opencode/skills/monitor-ci/scripts/ci-state-update.mjs",
-          "hash": "13401974159889364904"
-        },
-        {
-          "file": ".opencode/skills/nx-generate/SKILL.md",
-          "hash": "12149253535688076771"
-        },
-        {
-          "file": ".opencode/skills/nx-import/SKILL.md",
-          "hash": "9709061508228126022"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/ESLINT.md",
-          "hash": "3100736771536685484"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/GRADLE.md",
-          "hash": "15868511153961490698"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/JEST.md",
-          "hash": "8022966628634571060"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/NEXT.md",
-          "hash": "8705422121624482541"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/TURBOREPO.md",
-          "hash": "6654032474246573297"
-        },
-        {
-          "file": ".opencode/skills/nx-import/references/VITE.md",
-          "hash": "5793928500507593678"
-        },
-        {
-          "file": ".opencode/skills/nx-plugins/SKILL.md",
-          "hash": "4717624081372438208"
-        },
-        {
-          "file": ".opencode/skills/nx-run-tasks/SKILL.md",
-          "hash": "10723914446406921246"
-        },
-        {
-          "file": ".opencode/skills/nx-workspace/SKILL.md",
-          "hash": "56694506768298655"
-        },
-        {
-          "file": ".opencode/skills/nx-workspace/references/AFFECTED.md",
-          "hash": "10577828056523124002"
-        },
-        {
-          "file": ".prettierignore",
-          "hash": "13077865780912549743"
-        },
-        {
-          "file": ".prettierrc",
-          "hash": "16679957036968730863"
-        },
-        {
-          "file": "AGENTS.md",
-          "hash": "5710051633583582246"
-        },
-        {
-          "file": "CLAUDE.md",
-          "hash": "6084944026053333119"
-        },
-        {
-          "file": "README.md",
-          "hash": "6968594856788810628"
-        },
-        {
-          "file": "commitlint.config.js",
-          "hash": "5925728963993065719"
-        },
-        {
-          "file": "docs/ARCHITECTURE.md",
-          "hash": "14151586375017495839"
-        },
-        {
-          "file": "docs/QUICKSTART.md",
-          "hash": "15518877902607905760"
-        },
-        {
-          "file": "docs/conventions/README.md",
-          "hash": "16125266579144184937"
-        },
-        {
-          "file": "docs/conventions/access.md",
-          "hash": "2685113817894645877"
-        },
-        {
-          "file": "docs/conventions/auth.md",
-          "hash": "3501470166367088352"
-        },
-        {
-          "file": "docs/conventions/entitlements.md",
-          "hash": "14867693794859761387"
-        },
-        {
-          "file": "docs/conventions/feature-flags.md",
-          "hash": "2790462512135574605"
-        },
-        {
-          "file": "docs/conventions/feature-playbook.md",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "docs/conventions/http-api.md",
-          "hash": "5363460712187130227"
-        },
-        {
-          "file": "docs/conventions/i18n.md",
-          "hash": "14317551908740673637"
-        },
-        {
-          "file": "docs/conventions/naming.md",
-          "hash": "15617436607788783948"
-        },
-        {
-          "file": "docs/conventions/nx-boundaries.md",
-          "hash": "8218084119958675208"
-        },
-        {
-          "file": "docs/conventions/pagemodel.md",
-          "hash": "4401564337069248381"
-        },
-        {
-          "file": "docs/conventions/placement-guide.md",
-          "hash": "1407572893135846787"
-        },
-        {
-          "file": "docs/conventions/settings.md",
-          "hash": "5636476491512768089"
-        },
-        {
-          "file": "docs/conventions/state-management.md",
-          "hash": "15142633611534875884"
-        },
-        {
-          "file": "docs/conventions/style.md",
-          "hash": "13151423422387353880"
-        },
-        {
-          "file": "docs/conventions/theme.md",
-          "hash": "4712370159018191862"
-        },
-        {
-          "file": "docs/conventions/web-public-css-theming.md",
-          "hash": "915227345974987535"
-        },
-        {
-          "file": "docs/dependencies.md",
-          "hash": "11750707071312719022"
-        },
-        {
-          "file": "eslint.config.mjs",
-          "hash": "12926286793420397906"
-        },
-        {
-          "file": "nx.json",
-          "hash": "2932296924475399320"
-        },
-        {
-          "file": "opencode.json",
-          "hash": "8969569099983068167"
-        },
-        {
-          "file": "openspec/changes/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/design.md",
-          "hash": "1662349277990565755"
-        },
-        {
-          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/proposal.md",
-          "hash": "2900754152507630494"
-        },
-        {
-          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/tasks.md",
-          "hash": "16497981480994390881"
-        },
-        {
-          "file": "openspec/changes/complete-navigation-shell-error-alignment/proposal.md",
-          "hash": "11536643918874385700"
-        },
-        {
-          "file": "openspec/changes/complete-navigation-shell-error-alignment/specs/complete-navigation-shell-error-alignment/spec.md",
-          "hash": "8547795868639923783"
-        },
-        {
-          "file": "openspec/changes/complete-navigation-shell-error-alignment/tasks.md",
-          "hash": "13436989551283692702"
-        },
-        {
-          "file": "openspec/changes/establish-ui-shell-foundation/design.md",
-          "hash": "1288749515790448130"
-        },
-        {
-          "file": "openspec/changes/establish-ui-shell-foundation/proposal.md",
-          "hash": "9899483639722939040"
-        },
-        {
-          "file": "openspec/changes/establish-ui-shell-foundation/specs/ui-shell-foundation/spec.md",
-          "hash": "5559719571290777063"
-        },
-        {
-          "file": "openspec/changes/establish-ui-shell-foundation/tasks.md",
-          "hash": "9902951037328721750"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/design.md",
-          "hash": "7984374170381867254"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/proposal.md",
-          "hash": "7790057368297818043"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/specs/pagemodel-runtime/spec.md",
-          "hash": "13067775554916917233"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/tasks.md",
-          "hash": "9045583484541670954"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/platform.dashboard.super_admin.json",
-          "hash": "7686840618190866289"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.cashier.patch.json",
-          "hash": "7697567612564275420"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.tenant_admin.json",
-          "hash": "13081048516792436634"
-        },
-        {
-          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/public.home.patch.json",
-          "hash": "6428522623714254414"
-        },
-        {
-          "file": "openspec/changes/extract-api-config-libraries/design.md",
-          "hash": "4286314446955564476"
-        },
-        {
-          "file": "openspec/changes/extract-api-config-libraries/proposal.md",
-          "hash": "17373331438264438493"
-        },
-        {
-          "file": "openspec/changes/extract-api-config-libraries/specs/frontend-library-boundaries/spec.md",
-          "hash": "9202911980330998935"
-        },
-        {
-          "file": "openspec/changes/extract-api-config-libraries/tasks.md",
-          "hash": "16129649485563885854"
-        },
-        {
-          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/design.md",
-          "hash": "10870556089123829441"
-        },
-        {
-          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/proposal.md",
-          "hash": "6745159086856817156"
-        },
-        {
-          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/specs/frontend-library-boundaries/spec.md",
-          "hash": "3369280239080825353"
-        },
-        {
-          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/tasks.md",
-          "hash": "940690523547249475"
-        },
-        {
-          "file": "openspec/changes/init-web-platform-foundation/design.md",
-          "hash": "1171500714622239591"
-        },
-        {
-          "file": "openspec/changes/init-web-platform-foundation/proposal.md",
-          "hash": "5296029335276036369"
-        },
-        {
-          "file": "openspec/changes/init-web-platform-foundation/specs/web-platform-foundation/spec.md",
-          "hash": "11996059089169973743"
-        },
-        {
-          "file": "openspec/changes/init-web-platform-foundation/tasks.md",
-          "hash": "112290691768155156"
-        },
-        {
-          "file": "openspec/changes/md3-theme-foundation/design.md",
-          "hash": "16910338295149158804"
-        },
-        {
-          "file": "openspec/changes/md3-theme-foundation/proposal.md",
-          "hash": "16769054417682182316"
-        },
-        {
-          "file": "openspec/changes/md3-theme-foundation/specs/md3-theme-foundation/spec.md",
-          "hash": "10451059827817391101"
-        },
-        {
-          "file": "openspec/changes/md3-theme-foundation/tasks.md",
-          "hash": "4197257159481507590"
-        },
-        {
-          "file": "openspec/changes/minimal-public-admin-widget-ui/design.md",
-          "hash": "13833927522200363460"
-        },
-        {
-          "file": "openspec/changes/minimal-public-admin-widget-ui/proposal.md",
-          "hash": "174463542841149916"
-        },
-        {
-          "file": "openspec/changes/minimal-public-admin-widget-ui/specs/public-admin-widget-ui/spec.md",
-          "hash": "16388976467916217501"
-        },
-        {
-          "file": "openspec/changes/minimal-public-admin-widget-ui/tasks.md",
-          "hash": "123356077718985187"
-        },
-        {
-          "file": "openspec/changes/private-bootstrap-v1/design.md",
-          "hash": "14170294613607900205"
-        },
-        {
-          "file": "openspec/changes/private-bootstrap-v1/proposal.md",
-          "hash": "15428942128960180093"
-        },
-        {
-          "file": "openspec/changes/private-bootstrap-v1/tasks.md",
-          "hash": "6735443083235604983"
-        },
-        {
-          "file": "openspec/changes/public-design-system-pagemodel-widgets/design.md",
-          "hash": "8435124953016567179"
-        },
-        {
-          "file": "openspec/changes/public-design-system-pagemodel-widgets/proposal.md",
-          "hash": "15997607533928984963"
-        },
-        {
-          "file": "openspec/changes/public-design-system-pagemodel-widgets/specs/public-design-system-pagemodel-widgets/spec.md",
-          "hash": "8097389122489692224"
-        },
-        {
-          "file": "openspec/changes/public-design-system-pagemodel-widgets/tasks.md",
-          "hash": "1345031470621768102"
-        },
-        {
-          "file": "openspec/changes/public-shell-v1-header-footer/proposal.md",
-          "hash": "11101065413553236994"
-        },
-        {
-          "file": "openspec/changes/public-shell-v1-header-footer/specs/public-shell-v1/spec.md",
-          "hash": "14053451051315201671"
-        },
-        {
-          "file": "openspec/changes/public-shell-v1-header-footer/tasks.md",
-          "hash": "1980852003363284181"
-        },
-        {
-          "file": "openspec/changes/route-private-dashboards-through-widget-engine/proposal.md",
-          "hash": "18107067611955977229"
-        },
-        {
-          "file": "openspec/changes/route-private-dashboards-through-widget-engine/specs/private-dashboard-widget-rendering/spec.md",
-          "hash": "2753488149505764515"
-        },
-        {
-          "file": "openspec/changes/route-private-dashboards-through-widget-engine/tasks.md",
-          "hash": "2194604720869538598"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/README.md",
-          "hash": "10542132403030636875"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/docs/frontend/dependencies.md",
-          "hash": "17276518848366531886"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/docs/mobile/dependencies.md",
-          "hash": "12476448518385791268"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/design.md",
-          "hash": "9743278525910481188"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/proposal.md",
-          "hash": "6105927909942864469"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/specs/web-platform-foundation/spec.md",
-          "hash": "11996059089169973743"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/tasks.md",
-          "hash": "289865368245665939"
-        },
-        {
-          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/context/frontend-foundation-rules.md",
-          "hash": "14700651262144692298"
-        },
-        {
-          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/proposal.md",
-          "hash": "11828054414014357950"
-        },
-        {
-          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/specs/web-runtime-bootstrap/spec.md",
-          "hash": "10389286149851509058"
-        },
-        {
-          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/tasks.md",
-          "hash": "5658987824436354150"
-        },
-        {
-          "file": "openspec/context/90-web-rules.md",
-          "hash": "6465444501346565590"
-        },
-        {
-          "file": "openspec/project.md",
-          "hash": "9528278165344331033"
-        },
-        {
-          "file": "openspec/specs/.gitkeep",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "package-lock.json",
-          "hash": "9643078295776789284"
-        },
-        {
-          "file": "package.json",
-          "hash": "15839097543928875194"
-        },
-        {
-          "file": "skills-lock.json",
-          "hash": "13369930862577631492"
-        },
-        {
-          "file": "tmp-i18n-merge.mjs",
-          "hash": "17939247455579338293"
-        },
-        {
-          "file": "tools/build-material-symbols-font.mjs",
-          "hash": "4591681212210597306"
-        },
-        {
-          "file": "tsconfig.base.json",
-          "hash": "4030960339203328251"
-        },
-        {
-          "file": "vercel.json",
-          "hash": "10644582597363124074"
-        }
-      ],
-      "web": [
-        {
-          "file": "libs/web/project.json",
-          "hash": "7453140065828415454"
-        },
-        {
-          "file": "libs/web/src/index.ts",
-          "hash": "14567335148333783511"
-        },
-        {
-          "file": "libs/web/src/lib/not-found/not-found.page.ts",
-          "hash": "1230743266568970090",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-bottom-nav.ts",
-          "hash": "14284234962230661120",
-          "deps": [
-            "page-model",
-            "api"
-          ]
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-footer.ts",
-          "hash": "15483671443930328589",
-          "deps": [
-            "page-model",
-            "api"
-          ]
-        },
-        {
-          "file": "libs/web/src/lib/public-shell/public-shell.spec.ts",
-          "hash": "4728531647748911709"
-        },
-        {
-          "file": "libs/web/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/web/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/web/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
-      "page-model": [
-        {
-          "file": "libs/page-model/project.json",
-          "hash": "14208149024578156968"
-        },
-        {
-          "file": "libs/page-model/src/index.ts",
-          "hash": "6821024734962765154"
-        },
-        {
-          "file": "libs/page-model/src/lib/api/page-model-api.service.spec.ts",
-          "hash": "13024203986121979940"
-        },
-        {
-          "file": "libs/page-model/src/lib/api/page-model-api.service.ts",
-          "hash": "11539493466482569498",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/page-model.component.spec.ts",
-          "hash": "8387037828881416091"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/page-model.component.ts",
-          "hash": "10826614219609390121"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/widget-host.component.spec.ts",
-          "hash": "13036620522752247857"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/widget-host.component.ts",
-          "hash": "15943033921244517549"
-        },
-        {
-          "file": "libs/page-model/src/lib/runtime/pagemodel.types.ts",
-          "hash": "5843158651591704717",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/game-label.pipe.ts",
-          "hash": "7535620449578045370"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/label.pipe.ts",
-          "hash": "3664821800832016521"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/widget.contract.spec.ts",
-          "hash": "6821087752043984553"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/widget.contract.ts",
-          "hash": "11226333043219749208",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/page-model/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/page-model/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
-      "ui-components": [
-        {
-          "file": "libs/ui/components/README.md",
-          "hash": "1048300374754876532"
-        },
-        {
-          "file": "libs/ui/components/eslint.config.mjs",
-          "hash": "6911888895805478804"
-        },
-        {
-          "file": "libs/ui/components/project.json",
-          "hash": "11330565788443432655"
-        },
-        {
-          "file": "libs/ui/components/src/index.ts",
-          "hash": "394575829590673818"
-        },
-        {
-          "file": "libs/ui/components/src/lib/action-button/action-button.ts",
-          "hash": "17734359208681014847"
-        },
-        {
-          "file": "libs/ui/components/src/lib/brand/brand.ts",
-          "hash": "2363625720016197211",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
-          "hash": "14220795768093247726"
-        },
-        {
-          "file": "libs/ui/components/src/lib/card/card.ts",
-          "hash": "2128839883764420960"
-        },
-        {
-          "file": "libs/ui/components/src/lib/empty-state/empty-state.ts",
-          "hash": "18010049587449564620"
-        },
-        {
-          "file": "libs/ui/components/src/lib/error-panel/error-panel.ts",
-          "hash": "12330710118942343033"
-        },
-        {
-          "file": "libs/ui/components/src/lib/field-error/field-error.ts",
-          "hash": "949467474437262915"
-        },
-        {
-          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.ts",
-          "hash": "4677278547444957795"
-        },
-        {
-          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.ts",
-          "hash": "9377904144937739534"
-        },
-        {
-          "file": "libs/ui/components/src/lib/loading/loading.ts",
-          "hash": "12380156399824553072"
-        },
-        {
-          "file": "libs/ui/components/src/lib/nav/nav.ts",
-          "hash": "11046528614224296363",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
-          "hash": "9963452027253079812"
-        },
-        {
-          "file": "libs/ui/components/src/lib/notice/notice.ts",
-          "hash": "15315254400579590416"
-        },
-        {
-          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.ts",
-          "hash": "4820806468313465274",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/page-error/page-error.ts",
-          "hash": "9481708808872860789"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-action-card.ts",
-          "hash": "15255504412822130017"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-card-grid.ts",
-          "hash": "16755490524303249811"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-card.ts",
-          "hash": "6232503024021761930"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-stat-card.ts",
-          "hash": "11855210019591868770"
-        },
-        {
-          "file": "libs/ui/components/src/lib/section-header/section-header.ts",
-          "hash": "8389808095608091511"
-        },
-        {
-          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.ts",
-          "hash": "12161568023496627641",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/status-badge/status-badge.ts",
-          "hash": "17124275208030297630"
-        },
-        {
-          "file": "libs/ui/components/src/lib/user-menu/user-menu.ts",
-          "hash": "14812234084383689739"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.json",
-          "hash": "14130435081233809606"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.lib.json",
-          "hash": "14882418245198400289"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.spec.json",
-          "hash": "8647352538471907012"
-        }
-      ],
-      "widgets": [
-        {
-          "file": "libs/widgets/project.json",
-          "hash": "14996755350796628443"
-        },
-        {
-          "file": "libs/widgets/src/index.ts",
-          "hash": "14883825294113808548"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
-          "hash": "9294134563431912316"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.ts",
-          "hash": "16251621606112551412",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/alerts.widget.ts",
-          "hash": "2898341213741661533",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/contact-cta.widget.ts",
-          "hash": "4213575795673608706",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/faq.widget.ts",
-          "hash": "17746855083953968189",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
-          "hash": "1179638978525117593",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
-          "hash": "10498676521089889444",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
-          "hash": "9357849919000751005",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/kpi-grid.widget.ts",
-          "hash": "14663214852390309395",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
-          "hash": "2665644559725841837",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
-          "hash": "5162459440002317711",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
-          "hash": "10422736187402699696",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-access-control.widget.ts",
-          "hash": "17497890107384251630",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-features.widget.ts",
-          "hash": "3269174251557296924",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-hero.widget.ts",
-          "hash": "4826023674247588713",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-lead-form.widget.ts",
-          "hash": "9352309083271833710",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-plans.widget.ts",
-          "hash": "180508147043801951",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-process.widget.ts",
-          "hash": "18349005022076699331",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
-          "hash": "782838592484216525",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/quick-actions.widget.ts",
-          "hash": "17403008094454549336",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/readiness-summary.widget.ts",
-          "hash": "16885747214736627164",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
-          "hash": "7085149090602567258",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
-          "hash": "347510757167972718",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
-          "hash": "9947224027362549956",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/widgets/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/widgets/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
-      "ui-theme": [
-        {
-          "file": "libs/ui/theme/README.md",
-          "hash": "523284715630508394"
-        },
-        {
-          "file": "libs/ui/theme/eslint.config.mjs",
-          "hash": "14754633781889188846"
-        },
-        {
-          "file": "libs/ui/theme/project.json",
-          "hash": "18252264992682606200"
-        },
-        {
-          "file": "libs/ui/theme/src/index.ts",
-          "hash": "11508624835753342489"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
-          "hash": "14849990087210799945"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-presets.ts",
-          "hash": "8683411710997030997"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-store.ts",
-          "hash": "17579523714293080808"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
-          "hash": "231595962544266657"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-contract.spec.ts",
-          "hash": "16625412493476112818"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
-          "hash": "14911692992412442769"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
-          "hash": "9697886265990620641"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-types.ts",
-          "hash": "6062169308715798539"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme.repository.ts",
-          "hash": "12289027144071371214"
-        },
-        {
-          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
-          "hash": "5112514122229607644"
-        },
-        {
-          "file": "libs/ui/theme/src/registry/token-manifest.generated.ts",
-          "hash": "2967899537633583817"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
-          "hash": "9014223019815349846"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/density.scss",
-          "hash": "274748125214705874"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/runtime-root.scss",
-          "hash": "5093180623556393654"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
-          "hash": "9557983113373245384"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
-          "hash": "17589864670225387356"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/theme-presets.scss",
-          "hash": "15829592671263239537"
-        },
-        {
-          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
-          "hash": "1589122421491685804"
-        },
-        {
-          "file": "libs/ui/theme/tools/generate-token-manifest.mjs",
-          "hash": "13365119433662527447"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.json",
-          "hash": "1973382141025117759"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.lib.json",
-          "hash": "2571691299537351603"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.spec.json",
-          "hash": "5074326386517990425"
-        }
-      ],
-      "ui-styles": [
-        {
-          "file": "libs/ui/styles/project.json",
-          "hash": "12776518627876021150"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/README.md",
-          "hash": "10326622484236586287"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
-          "hash": "4783027941652895497"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_functions.scss",
-          "hash": "7749853334664996475"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_icons.scss",
-          "hash": "18338444672017629438"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_index.scss",
-          "hash": "6063235898933527933"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
-          "hash": "662076388056195332"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_mixins.scss",
-          "hash": "15895756648504285623"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_overlay.scss",
-          "hash": "4654987298841419955"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_typography.scss",
-          "hash": "10226960127459954445"
-        }
-      ],
       "api": [
         {
           "file": "libs/api/README.md",
@@ -1492,7 +70,7 @@
         },
         {
           "file": "libs/api/src/lib/contracts/action-item.ts",
-          "hash": "9963452027253079812"
+          "hash": "13441077775857706369"
         },
         {
           "file": "libs/api/src/lib/contracts/api.types.ts",
@@ -1541,72 +119,6 @@
         {
           "file": "libs/api/tsconfig.lib.json",
           "hash": "9173947970313865903"
-        }
-      ],
-      "shared-config": [
-        {
-          "file": "libs/shared-config/README.md",
-          "hash": "11303510721159179161"
-        },
-        {
-          "file": "libs/shared-config/eslint.config.mjs",
-          "hash": "11894011368893250078"
-        },
-        {
-          "file": "libs/shared-config/project.json",
-          "hash": "5427401120072737072"
-        },
-        {
-          "file": "libs/shared-config/src/index.ts",
-          "hash": "15998633531000864815"
-        },
-        {
-          "file": "libs/shared-config/src/lib/contracts/runtime.types.ts",
-          "hash": "17020582344888317559"
-        },
-        {
-          "file": "libs/shared-config/src/lib/feature/feature-flag.directive.spec.ts",
-          "hash": "6738179834824977963"
-        },
-        {
-          "file": "libs/shared-config/src/lib/feature/feature-flag.directive.ts",
-          "hash": "2481884055825848375"
-        },
-        {
-          "file": "libs/shared-config/src/lib/feature/feature-flags.ts",
-          "hash": "3698702074616698191"
-        },
-        {
-          "file": "libs/shared-config/src/lib/feature/feature.guard.ts",
-          "hash": "11411167133755767382"
-        },
-        {
-          "file": "libs/shared-config/src/lib/runtime/runtime-paths.spec.ts",
-          "hash": "8887847434599773553"
-        },
-        {
-          "file": "libs/shared-config/src/lib/runtime/runtime-paths.ts",
-          "hash": "7591649007458479696"
-        },
-        {
-          "file": "libs/shared-config/src/lib/settings/runtime-settings.store.ts",
-          "hash": "11590824060702258239"
-        },
-        {
-          "file": "libs/shared-config/src/lib/settings/settings.mapper.ts",
-          "hash": "4578691266930058601"
-        },
-        {
-          "file": "libs/shared-config/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/shared-config/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/shared-config/tsconfig.spec.json",
-          "hash": "13291579508309900195"
         }
       ],
       "tch-portal": [
@@ -1664,15 +176,15 @@
         },
         {
           "file": "apps/tch-portal/public/assets/i18n/en.json",
-          "hash": "5493895535385423695"
+          "hash": "1174967927070949613"
         },
         {
           "file": "apps/tch-portal/public/assets/i18n/fr.json",
-          "hash": "18241601169700287006"
+          "hash": "5245747319281363889"
         },
         {
           "file": "apps/tch-portal/public/assets/i18n/ht.json",
-          "hash": "8375069104478840820"
+          "hash": "14427066854217723692"
         },
         {
           "file": "apps/tch-portal/public/assets/public/pages/privacy.md",
@@ -1732,7 +244,7 @@
         },
         {
           "file": "apps/tch-portal/src/app/app.config.ts",
-          "hash": "9327769230190953825",
+          "hash": "16242145054064018200",
           "deps": [
             "api",
             "shared-config",
@@ -1761,7 +273,7 @@
         },
         {
           "file": "apps/tch-portal/src/app/app.spec.ts",
-          "hash": "9986106757481818555"
+          "hash": "678783735739700221"
         },
         {
           "file": "apps/tch-portal/src/app/app.ts",
@@ -1806,8 +318,24 @@
           "hash": "15501236874533786793"
         },
         {
+          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.spec.ts",
+          "hash": "16796446094516284658"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.ts",
+          "hash": "5037274723661352787"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-client.ts",
+          "hash": "11436820547565559116"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.spec.ts",
+          "hash": "1554256918647793606"
+        },
+        {
           "file": "apps/tch-portal/src/app/core/auth/auth-session.service.ts",
-          "hash": "7983686293984584630"
+          "hash": "17664761542339102719"
         },
         {
           "file": "apps/tch-portal/src/app/core/auth/auth.guard.spec.ts",
@@ -1818,20 +346,20 @@
           "hash": "3578462973243031390"
         },
         {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.interceptor.ts",
-          "hash": "8081054650029331490"
+          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.providers.ts",
+          "hash": "2035443628383943823"
         },
         {
           "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.service.ts",
-          "hash": "11689118180858292423"
+          "hash": "6214801689767148870"
         },
         {
           "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.html",
-          "hash": "12773128636859187258"
+          "hash": "7844167235220199945"
         },
         {
           "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.scss",
-          "hash": "8139975250527292058"
+          "hash": "7440104717751918841"
         },
         {
           "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.ts",
@@ -1884,7 +412,7 @@
         },
         {
           "file": "apps/tch-portal/src/app/core/i18n/merged-translate-loader.ts",
-          "hash": "1476785363115090528",
+          "hash": "13181936228104341241",
           "deps": [
             "api"
           ]
@@ -1930,6 +458,13 @@
           "hash": "10803688114784560634"
         },
         {
+          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.spec.ts",
+          "hash": "2920064627718110692",
+          "deps": [
+            "api"
+          ]
+        },
+        {
           "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.ts",
           "hash": "4824565644019342334",
           "deps": [
@@ -1954,7 +489,7 @@
         },
         {
           "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.service.ts",
-          "hash": "4865267787745477496",
+          "hash": "359092896325053916",
           "deps": [
             "api"
           ]
@@ -1980,7 +515,111 @@
         },
         {
           "file": "apps/tch-portal/src/app/features/admin/admin.routes.ts",
-          "hash": "2706678564769270655"
+          "hash": "6630386185029996325"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/baremes-admin.api.service.ts",
+          "hash": "486582039701930183",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/commission-admin.api.service.ts",
+          "hash": "4244348692019047125",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/draw-admin.api.service.ts",
+          "hash": "11240909724875185353",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/admin-placeholder.page.ts",
+          "hash": "37227328486992402"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.html",
+          "hash": "12114765024794423934"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.scss",
+          "hash": "11243525138588196597"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.ts",
+          "hash": "16527231298479562859",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/set-commission-rate.dialog.ts",
+          "hash": "7370522563693793528"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.html",
+          "hash": "8622065853210614574"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.scss",
+          "hash": "17760856702518201538"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.ts",
+          "hash": "12450354488619780998",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.html",
+          "hash": "16273338637460093659"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.scss",
+          "hash": "12640748286937565714"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.ts",
+          "hash": "5464747016315152369",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.html",
+          "hash": "2480136454735763128"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.scss",
+          "hash": "17142089377451744408"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.ts",
+          "hash": "3547343055909421351",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.html",
+          "hash": "10981558378462825621"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.scss",
+          "hash": "17572220860064663025"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.ts",
+          "hash": "46245056974555692",
+          "deps": [
+            "ui-components"
+          ]
         },
         {
           "file": "apps/tch-portal/src/app/features/admin/pages/onboarding/admin-onboarding.page.ts",
@@ -1991,8 +630,68 @@
           "hash": "3940991836300112186"
         },
         {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.html",
+          "hash": "11310187811161260256"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.scss",
+          "hash": "12269526429238452399"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.ts",
+          "hash": "1230446708239210679",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.html",
+          "hash": "8782063025500562986"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.scss",
+          "hash": "3355674938215886034"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.ts",
+          "hash": "10698034890553092436",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.html",
+          "hash": "1115621147740932886"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.scss",
+          "hash": "2207461939840766708"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.ts",
+          "hash": "17734101509651042419",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.html",
+          "hash": "13005303361710211801"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.scss",
+          "hash": "9586583183437410395"
+        },
+        {
           "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.ts",
-          "hash": "10581459855805787608"
+          "hash": "13106566255640558185",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/reset-pin.dialog.ts",
+          "hash": "18182433550757416215"
         },
         {
           "file": "apps/tch-portal/src/app/features/admin/pages/sessions/admin-sessions.page.ts",
@@ -2009,6 +708,20 @@
         {
           "file": "apps/tch-portal/src/app/features/admin/pages/users/admin-users.page.ts",
           "hash": "13815704774790940855"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/reports-admin.api.service.ts",
+          "hash": "17067811089636158315",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/seller-terminal-admin.api.service.ts",
+          "hash": "17230072020748360671",
+          "deps": [
+            "api"
+          ]
         },
         {
           "file": "apps/tch-portal/src/app/features/admin/tenant-admin-api.service.ts",
@@ -2123,7 +836,7 @@
         },
         {
           "file": "apps/tch-portal/src/app/features/private/shell/private-navigation.model.ts",
-          "hash": "4739128504234421711",
+          "hash": "3473517954770636999",
           "deps": [
             "api"
           ]
@@ -2609,7 +1322,7 @@
         },
         {
           "file": "apps/tch-portal/src/environments/environment.ts",
-          "hash": "9963931267150903234"
+          "hash": "17787986478559498519"
         },
         {
           "file": "apps/tch-portal/src/index.html",
@@ -2635,9 +1348,1564 @@
           "file": "apps/tch-portal/tsconfig.spec.json",
           "hash": "13919890687900665478"
         }
+      ],
+      "page-model": [
+        {
+          "file": "libs/page-model/project.json",
+          "hash": "14208149024578156968"
+        },
+        {
+          "file": "libs/page-model/src/index.ts",
+          "hash": "6821024734962765154"
+        },
+        {
+          "file": "libs/page-model/src/lib/api/page-model-api.service.spec.ts",
+          "hash": "13024203986121979940"
+        },
+        {
+          "file": "libs/page-model/src/lib/api/page-model-api.service.ts",
+          "hash": "11539493466482569498",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/page-model.component.spec.ts",
+          "hash": "8387037828881416091"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/page-model.component.ts",
+          "hash": "10826614219609390121"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/widget-host.component.spec.ts",
+          "hash": "13036620522752247857"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/widget-host.component.ts",
+          "hash": "15943033921244517549"
+        },
+        {
+          "file": "libs/page-model/src/lib/runtime/pagemodel.types.ts",
+          "hash": "5843158651591704717",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/game-label.pipe.ts",
+          "hash": "7535620449578045370"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/label.pipe.ts",
+          "hash": "3664821800832016521"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/widget.contract.spec.ts",
+          "hash": "6821087752043984553"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/widget.contract.ts",
+          "hash": "11226333043219749208",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/page-model/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/page-model/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "tch-portal-e2e": [
+        {
+          "file": "apps/tch-portal-e2e/eslint.config.mjs",
+          "hash": "1172734138943286526"
+        },
+        {
+          "file": "apps/tch-portal-e2e/playwright.config.ts",
+          "hash": "9182228263159653438"
+        },
+        {
+          "file": "apps/tch-portal-e2e/project.json",
+          "hash": "5997281328099186134"
+        },
+        {
+          "file": "apps/tch-portal-e2e/src/example.spec.ts",
+          "hash": "16019101014373124625"
+        },
+        {
+          "file": "apps/tch-portal-e2e/tsconfig.json",
+          "hash": "15726545290547512047"
+        }
+      ],
+      "ui-components": [
+        {
+          "file": "libs/ui/components/README.md",
+          "hash": "1048300374754876532"
+        },
+        {
+          "file": "libs/ui/components/eslint.config.mjs",
+          "hash": "6911888895805478804"
+        },
+        {
+          "file": "libs/ui/components/project.json",
+          "hash": "11330565788443432655"
+        },
+        {
+          "file": "libs/ui/components/src/index.ts",
+          "hash": "355729226513151732"
+        },
+        {
+          "file": "libs/ui/components/src/lib/action-button/action-button.ts",
+          "hash": "17734359208681014847"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-confirm-dialog.ts",
+          "hash": "279759858946999539"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-data-table.ts",
+          "hash": "10440357667046776981"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-empty-state.ts",
+          "hash": "10979347842782486182"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-actions.ts",
+          "hash": "10917627788531537499"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-section.ts",
+          "hash": "4188359219596268082"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-shell.ts",
+          "hash": "7089056710429728876"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-list-toolbar.ts",
+          "hash": "8156217971419743502"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-mobile-card-list.ts",
+          "hash": "4414058299790906953"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-page-header.ts",
+          "hash": "3462860341999717103"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-status-badge.ts",
+          "hash": "16217760007568360319"
+        },
+        {
+          "file": "libs/ui/components/src/lib/brand/brand.ts",
+          "hash": "2363625720016197211",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
+          "hash": "14220795768093247726"
+        },
+        {
+          "file": "libs/ui/components/src/lib/card/card.ts",
+          "hash": "2128839883764420960"
+        },
+        {
+          "file": "libs/ui/components/src/lib/empty-state/empty-state.ts",
+          "hash": "18010049587449564620"
+        },
+        {
+          "file": "libs/ui/components/src/lib/error-panel/error-panel.ts",
+          "hash": "12330710118942343033"
+        },
+        {
+          "file": "libs/ui/components/src/lib/field-error/field-error.ts",
+          "hash": "949467474437262915"
+        },
+        {
+          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.ts",
+          "hash": "4677278547444957795"
+        },
+        {
+          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.ts",
+          "hash": "9377904144937739534"
+        },
+        {
+          "file": "libs/ui/components/src/lib/loading/loading.ts",
+          "hash": "12380156399824553072"
+        },
+        {
+          "file": "libs/ui/components/src/lib/nav/nav.ts",
+          "hash": "11046528614224296363",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
+          "hash": "9963452027253079812"
+        },
+        {
+          "file": "libs/ui/components/src/lib/notice/notice.ts",
+          "hash": "15315254400579590416"
+        },
+        {
+          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.ts",
+          "hash": "4820806468313465274",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/page-error/page-error.ts",
+          "hash": "9481708808872860789"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-action-card.ts",
+          "hash": "15255504412822130017"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-card-grid.ts",
+          "hash": "16755490524303249811"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-card.ts",
+          "hash": "6232503024021761930"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-stat-card.ts",
+          "hash": "11855210019591868770"
+        },
+        {
+          "file": "libs/ui/components/src/lib/section-header/section-header.ts",
+          "hash": "8389808095608091511"
+        },
+        {
+          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.ts",
+          "hash": "108189415301676068",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/status-badge/status-badge.ts",
+          "hash": "17124275208030297630"
+        },
+        {
+          "file": "libs/ui/components/src/lib/user-menu/user-menu.ts",
+          "hash": "14812234084383689739"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.json",
+          "hash": "14130435081233809606"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.lib.json",
+          "hash": "14882418245198400289"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.spec.json",
+          "hash": "8647352538471907012"
+        }
+      ],
+      "widgets": [
+        {
+          "file": "libs/widgets/project.json",
+          "hash": "14996755350796628443"
+        },
+        {
+          "file": "libs/widgets/src/index.ts",
+          "hash": "14883825294113808548"
+        },
+        {
+          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
+          "hash": "9294134563431912316"
+        },
+        {
+          "file": "libs/widgets/src/lib/widget-registry.ts",
+          "hash": "13311369135428257152",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/alerts.widget.ts",
+          "hash": "2898341213741661533",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/commission-summary.widget.ts",
+          "hash": "9244279795290658587",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/contact-cta.widget.ts",
+          "hash": "4213575795673608706",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/faq.widget.ts",
+          "hash": "17746855083953968189",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
+          "hash": "1179638978525117593",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
+          "hash": "10498676521089889444",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
+          "hash": "9357849919000751005",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/kpi-grid.widget.ts",
+          "hash": "14663214852390309395",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
+          "hash": "2665644559725841837",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
+          "hash": "5162459440002317711",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
+          "hash": "10422736187402699696",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-access-control.widget.ts",
+          "hash": "17497890107384251630",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-features.widget.ts",
+          "hash": "3269174251557296924",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-hero.widget.ts",
+          "hash": "4826023674247588713",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-lead-form.widget.ts",
+          "hash": "9352309083271833710",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-plans.widget.ts",
+          "hash": "180508147043801951",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-process.widget.ts",
+          "hash": "18349005022076699331",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
+          "hash": "782838592484216525",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/quick-actions.widget.ts",
+          "hash": "6069871013528336186",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/readiness-summary.widget.ts",
+          "hash": "16885747214736627164",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
+          "hash": "7085149090602567258",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
+          "hash": "347510757167972718",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
+          "hash": "9947224027362549956",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/widgets/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/widgets/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "web": [
+        {
+          "file": "libs/web/project.json",
+          "hash": "7453140065828415454"
+        },
+        {
+          "file": "libs/web/src/index.ts",
+          "hash": "14567335148333783511"
+        },
+        {
+          "file": "libs/web/src/lib/not-found/not-found.page.ts",
+          "hash": "1230743266568970090",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/web/src/lib/public-shell/public-bottom-nav.ts",
+          "hash": "14284234962230661120",
+          "deps": [
+            "page-model",
+            "api"
+          ]
+        },
+        {
+          "file": "libs/web/src/lib/public-shell/public-footer.ts",
+          "hash": "15483671443930328589",
+          "deps": [
+            "page-model",
+            "api"
+          ]
+        },
+        {
+          "file": "libs/web/src/lib/public-shell/public-shell.spec.ts",
+          "hash": "4728531647748911709"
+        },
+        {
+          "file": "libs/web/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/web/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/web/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "ui-theme": [
+        {
+          "file": "libs/ui/theme/README.md",
+          "hash": "523284715630508394"
+        },
+        {
+          "file": "libs/ui/theme/eslint.config.mjs",
+          "hash": "14754633781889188846"
+        },
+        {
+          "file": "libs/ui/theme/project.json",
+          "hash": "18252264992682606200"
+        },
+        {
+          "file": "libs/ui/theme/src/index.ts",
+          "hash": "11508624835753342489"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
+          "hash": "14849990087210799945"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-presets.ts",
+          "hash": "8683411710997030997"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-store.ts",
+          "hash": "17579523714293080808"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
+          "hash": "231595962544266657"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-contract.spec.ts",
+          "hash": "16625412493476112818"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
+          "hash": "14911692992412442769"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
+          "hash": "9697886265990620641"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-types.ts",
+          "hash": "6062169308715798539"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.repository.ts",
+          "hash": "12289027144071371214"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
+          "hash": "5112514122229607644"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/token-manifest.generated.ts",
+          "hash": "2967899537633583817"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
+          "hash": "9014223019815349846"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/density.scss",
+          "hash": "274748125214705874"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-root.scss",
+          "hash": "5093180623556393654"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
+          "hash": "9557983113373245384"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
+          "hash": "17589864670225387356"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/theme-presets.scss",
+          "hash": "15829592671263239537"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
+          "hash": "1589122421491685804"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-token-manifest.mjs",
+          "hash": "13365119433662527447"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.json",
+          "hash": "1973382141025117759"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.lib.json",
+          "hash": "2571691299537351603"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.spec.json",
+          "hash": "5074326386517990425"
+        }
+      ],
+      "tchalanet-web": [
+        {
+          "file": ".agents/skills/angular-developer/SKILL.md",
+          "hash": "14979177178409772828"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/angular-animations.md",
+          "hash": "129347060871836214"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/angular-aria.md",
+          "hash": "2381155630355093878"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/cli.md",
+          "hash": "13317431173771221359"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/component-harnesses.md",
+          "hash": "5870468852170713034"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/component-styling.md",
+          "hash": "15069273795887528001"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/components.md",
+          "hash": "9607844804154748436"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/creating-services.md",
+          "hash": "15536799606710796801"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/data-resolvers.md",
+          "hash": "7766777649212437662"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/define-routes.md",
+          "hash": "10776993876235809735"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/defining-providers.md",
+          "hash": "14076483724001849286"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/di-fundamentals.md",
+          "hash": "4410216993244001484"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/e2e-testing.md",
+          "hash": "10235608202008093670"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/effects.md",
+          "hash": "12970206307287894947"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/hierarchical-injectors.md",
+          "hash": "9301101672240525589"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/host-elements.md",
+          "hash": "11996787298050009511"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/injection-context.md",
+          "hash": "6245788921017064432"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/inputs.md",
+          "hash": "14445439380299229080"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/linked-signal.md",
+          "hash": "15287476767354458674"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/loading-strategies.md",
+          "hash": "9871672929784638658"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/mcp.md",
+          "hash": "1348478139885907910"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/migrations.md",
+          "hash": "18319483937516052683"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/navigate-to-routes.md",
+          "hash": "4113548232177492252"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/outputs.md",
+          "hash": "11280596089359180668"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/reactive-forms.md",
+          "hash": "14684102818894992427"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/rendering-strategies.md",
+          "hash": "12857407138438702691"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/resource.md",
+          "hash": "17242364678058781765"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/route-animations.md",
+          "hash": "8214676520390077550"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/route-guards.md",
+          "hash": "8159792662334206472"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/router-lifecycle.md",
+          "hash": "15417473013244094500"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/router-testing.md",
+          "hash": "18418231388049957001"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/show-routes-with-outlets.md",
+          "hash": "5060265772387267369"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/signal-forms.md",
+          "hash": "9579046558774366321"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/signals-overview.md",
+          "hash": "5299154702827325348"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/tailwind-css.md",
+          "hash": "9249328744619220116"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/template-driven-forms.md",
+          "hash": "13239626885434773021"
+        },
+        {
+          "file": ".agents/skills/angular-developer/references/testing-fundamentals.md",
+          "hash": "9875865475265441192"
+        },
+        {
+          "file": ".agents/skills/link-workspace-packages/SKILL.md",
+          "hash": "6638592300654417978"
+        },
+        {
+          "file": ".agents/skills/monitor-ci/SKILL.md",
+          "hash": "8399173415832764241"
+        },
+        {
+          "file": ".agents/skills/monitor-ci/references/fix-flows.md",
+          "hash": "14499115380699629375"
+        },
+        {
+          "file": ".agents/skills/monitor-ci/scripts/ci-poll-decide.mjs",
+          "hash": "11489724214132048566"
+        },
+        {
+          "file": ".agents/skills/monitor-ci/scripts/ci-state-update.mjs",
+          "hash": "13401974159889364904"
+        },
+        {
+          "file": ".agents/skills/nx-generate/SKILL.md",
+          "hash": "12149253535688076771"
+        },
+        {
+          "file": ".agents/skills/nx-import/SKILL.md",
+          "hash": "9709061508228126022"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/ESLINT.md",
+          "hash": "3100736771536685484"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/GRADLE.md",
+          "hash": "15868511153961490698"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/JEST.md",
+          "hash": "8022966628634571060"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/NEXT.md",
+          "hash": "8705422121624482541"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/TURBOREPO.md",
+          "hash": "6654032474246573297"
+        },
+        {
+          "file": ".agents/skills/nx-import/references/VITE.md",
+          "hash": "5793928500507593678"
+        },
+        {
+          "file": ".agents/skills/nx-plugins/SKILL.md",
+          "hash": "4717624081372438208"
+        },
+        {
+          "file": ".agents/skills/nx-run-tasks/SKILL.md",
+          "hash": "10723914446406921246"
+        },
+        {
+          "file": ".agents/skills/nx-workspace/SKILL.md",
+          "hash": "56694506768298655"
+        },
+        {
+          "file": ".agents/skills/nx-workspace/references/AFFECTED.md",
+          "hash": "10577828056523124002"
+        },
+        {
+          "file": ".agents/skills/web-testing/SKILL.md",
+          "hash": "611989462431167601"
+        },
+        {
+          "file": ".claude/settings.json",
+          "hash": "4174402289047638020"
+        },
+        {
+          "file": ".codex/agents/ci-monitor-subagent.toml",
+          "hash": "4478062226442413400"
+        },
+        {
+          "file": ".codex/config.toml",
+          "hash": "5987189001162246520"
+        },
+        {
+          "file": ".github/agents/ci-monitor-subagent.agent.md",
+          "hash": "6573591679819005545"
+        },
+        {
+          "file": ".github/prompts/monitor-ci.prompt.md",
+          "hash": "373234804653081784"
+        },
+        {
+          "file": ".github/skills/link-workspace-packages/SKILL.md",
+          "hash": "6638592300654417978"
+        },
+        {
+          "file": ".github/skills/monitor-ci/SKILL.md",
+          "hash": "8399173415832764241"
+        },
+        {
+          "file": ".github/skills/monitor-ci/references/fix-flows.md",
+          "hash": "14499115380699629375"
+        },
+        {
+          "file": ".github/skills/monitor-ci/scripts/ci-poll-decide.mjs",
+          "hash": "11489724214132048566"
+        },
+        {
+          "file": ".github/skills/monitor-ci/scripts/ci-state-update.mjs",
+          "hash": "13401974159889364904"
+        },
+        {
+          "file": ".github/skills/nx-generate/SKILL.md",
+          "hash": "12149253535688076771"
+        },
+        {
+          "file": ".github/skills/nx-import/SKILL.md",
+          "hash": "9709061508228126022"
+        },
+        {
+          "file": ".github/skills/nx-import/references/ESLINT.md",
+          "hash": "3100736771536685484"
+        },
+        {
+          "file": ".github/skills/nx-import/references/GRADLE.md",
+          "hash": "15868511153961490698"
+        },
+        {
+          "file": ".github/skills/nx-import/references/JEST.md",
+          "hash": "8022966628634571060"
+        },
+        {
+          "file": ".github/skills/nx-import/references/NEXT.md",
+          "hash": "8705422121624482541"
+        },
+        {
+          "file": ".github/skills/nx-import/references/TURBOREPO.md",
+          "hash": "6654032474246573297"
+        },
+        {
+          "file": ".github/skills/nx-import/references/VITE.md",
+          "hash": "5793928500507593678"
+        },
+        {
+          "file": ".github/skills/nx-plugins/SKILL.md",
+          "hash": "4717624081372438208"
+        },
+        {
+          "file": ".github/skills/nx-run-tasks/SKILL.md",
+          "hash": "10723914446406921246"
+        },
+        {
+          "file": ".github/skills/nx-workspace/SKILL.md",
+          "hash": "56694506768298655"
+        },
+        {
+          "file": ".github/skills/nx-workspace/references/AFFECTED.md",
+          "hash": "10577828056523124002"
+        },
+        {
+          "file": ".gitignore",
+          "hash": "14659756692436035594"
+        },
+        {
+          "file": ".opencode/agents/ci-monitor-subagent.md",
+          "hash": "6611362967399008889"
+        },
+        {
+          "file": ".opencode/commands/monitor-ci.md",
+          "hash": "12455117996087874585"
+        },
+        {
+          "file": ".opencode/skills/link-workspace-packages/SKILL.md",
+          "hash": "6638592300654417978"
+        },
+        {
+          "file": ".opencode/skills/monitor-ci/SKILL.md",
+          "hash": "8399173415832764241"
+        },
+        {
+          "file": ".opencode/skills/monitor-ci/references/fix-flows.md",
+          "hash": "14499115380699629375"
+        },
+        {
+          "file": ".opencode/skills/monitor-ci/scripts/ci-poll-decide.mjs",
+          "hash": "11489724214132048566"
+        },
+        {
+          "file": ".opencode/skills/monitor-ci/scripts/ci-state-update.mjs",
+          "hash": "13401974159889364904"
+        },
+        {
+          "file": ".opencode/skills/nx-generate/SKILL.md",
+          "hash": "12149253535688076771"
+        },
+        {
+          "file": ".opencode/skills/nx-import/SKILL.md",
+          "hash": "9709061508228126022"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/ESLINT.md",
+          "hash": "3100736771536685484"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/GRADLE.md",
+          "hash": "15868511153961490698"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/JEST.md",
+          "hash": "8022966628634571060"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/NEXT.md",
+          "hash": "8705422121624482541"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/TURBOREPO.md",
+          "hash": "6654032474246573297"
+        },
+        {
+          "file": ".opencode/skills/nx-import/references/VITE.md",
+          "hash": "5793928500507593678"
+        },
+        {
+          "file": ".opencode/skills/nx-plugins/SKILL.md",
+          "hash": "4717624081372438208"
+        },
+        {
+          "file": ".opencode/skills/nx-run-tasks/SKILL.md",
+          "hash": "10723914446406921246"
+        },
+        {
+          "file": ".opencode/skills/nx-workspace/SKILL.md",
+          "hash": "56694506768298655"
+        },
+        {
+          "file": ".opencode/skills/nx-workspace/references/AFFECTED.md",
+          "hash": "10577828056523124002"
+        },
+        {
+          "file": ".prettierignore",
+          "hash": "13077865780912549743"
+        },
+        {
+          "file": ".prettierrc",
+          "hash": "16679957036968730863"
+        },
+        {
+          "file": "AGENTS.md",
+          "hash": "5710051633583582246"
+        },
+        {
+          "file": "CLAUDE.md",
+          "hash": "6084944026053333119"
+        },
+        {
+          "file": "README.md",
+          "hash": "6968594856788810628"
+        },
+        {
+          "file": "commitlint.config.js",
+          "hash": "5925728963993065719"
+        },
+        {
+          "file": "docs/ARCHITECTURE.md",
+          "hash": "14151586375017495839"
+        },
+        {
+          "file": "docs/QUICKSTART.md",
+          "hash": "15518877902607905760"
+        },
+        {
+          "file": "docs/conventions/README.md",
+          "hash": "16125266579144184937"
+        },
+        {
+          "file": "docs/conventions/access.md",
+          "hash": "2685113817894645877"
+        },
+        {
+          "file": "docs/conventions/auth.md",
+          "hash": "1670525305368787970"
+        },
+        {
+          "file": "docs/conventions/entitlements.md",
+          "hash": "14867693794859761387"
+        },
+        {
+          "file": "docs/conventions/feature-flags.md",
+          "hash": "2790462512135574605"
+        },
+        {
+          "file": "docs/conventions/feature-playbook.md",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "docs/conventions/http-api.md",
+          "hash": "5363460712187130227"
+        },
+        {
+          "file": "docs/conventions/i18n.md",
+          "hash": "14317551908740673637"
+        },
+        {
+          "file": "docs/conventions/naming.md",
+          "hash": "15617436607788783948"
+        },
+        {
+          "file": "docs/conventions/nx-boundaries.md",
+          "hash": "8218084119958675208"
+        },
+        {
+          "file": "docs/conventions/pagemodel.md",
+          "hash": "4401564337069248381"
+        },
+        {
+          "file": "docs/conventions/placement-guide.md",
+          "hash": "1407572893135846787"
+        },
+        {
+          "file": "docs/conventions/settings.md",
+          "hash": "5636476491512768089"
+        },
+        {
+          "file": "docs/conventions/state-management.md",
+          "hash": "15142633611534875884"
+        },
+        {
+          "file": "docs/conventions/style.md",
+          "hash": "13151423422387353880"
+        },
+        {
+          "file": "docs/conventions/theme.md",
+          "hash": "4712370159018191862"
+        },
+        {
+          "file": "docs/conventions/web-public-css-theming.md",
+          "hash": "915227345974987535"
+        },
+        {
+          "file": "docs/dependencies.md",
+          "hash": "11750707071312719022"
+        },
+        {
+          "file": "eslint.config.mjs",
+          "hash": "12926286793420397906"
+        },
+        {
+          "file": "nx.json",
+          "hash": "2932296924475399320"
+        },
+        {
+          "file": "opencode.json",
+          "hash": "8969569099983068167"
+        },
+        {
+          "file": "openspec/changes/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/design.md",
+          "hash": "1662349277990565755"
+        },
+        {
+          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/proposal.md",
+          "hash": "2900754152507630494"
+        },
+        {
+          "file": "openspec/changes/archive/2026-06-10-backend-client-shell-feedback/tasks.md",
+          "hash": "16497981480994390881"
+        },
+        {
+          "file": "openspec/changes/complete-navigation-shell-error-alignment/proposal.md",
+          "hash": "11536643918874385700"
+        },
+        {
+          "file": "openspec/changes/complete-navigation-shell-error-alignment/specs/complete-navigation-shell-error-alignment/spec.md",
+          "hash": "8547795868639923783"
+        },
+        {
+          "file": "openspec/changes/complete-navigation-shell-error-alignment/tasks.md",
+          "hash": "13436989551283692702"
+        },
+        {
+          "file": "openspec/changes/establish-ui-shell-foundation/design.md",
+          "hash": "1288749515790448130"
+        },
+        {
+          "file": "openspec/changes/establish-ui-shell-foundation/proposal.md",
+          "hash": "9899483639722939040"
+        },
+        {
+          "file": "openspec/changes/establish-ui-shell-foundation/specs/ui-shell-foundation/spec.md",
+          "hash": "5559719571290777063"
+        },
+        {
+          "file": "openspec/changes/establish-ui-shell-foundation/tasks.md",
+          "hash": "9902951037328721750"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/design.md",
+          "hash": "7984374170381867254"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/proposal.md",
+          "hash": "7790057368297818043"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/specs/pagemodel-runtime/spec.md",
+          "hash": "13067775554916917233"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/tasks.md",
+          "hash": "9045583484541670954"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/platform.dashboard.super_admin.json",
+          "hash": "7686840618190866289"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.cashier.patch.json",
+          "hash": "7697567612564275420"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.tenant_admin.json",
+          "hash": "13081048516792436634"
+        },
+        {
+          "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/public.home.patch.json",
+          "hash": "6428522623714254414"
+        },
+        {
+          "file": "openspec/changes/extract-api-config-libraries/design.md",
+          "hash": "4286314446955564476"
+        },
+        {
+          "file": "openspec/changes/extract-api-config-libraries/proposal.md",
+          "hash": "17373331438264438493"
+        },
+        {
+          "file": "openspec/changes/extract-api-config-libraries/specs/frontend-library-boundaries/spec.md",
+          "hash": "9202911980330998935"
+        },
+        {
+          "file": "openspec/changes/extract-api-config-libraries/tasks.md",
+          "hash": "16129649485563885854"
+        },
+        {
+          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/design.md",
+          "hash": "10870556089123829441"
+        },
+        {
+          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/proposal.md",
+          "hash": "6745159086856817156"
+        },
+        {
+          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/specs/frontend-library-boundaries/spec.md",
+          "hash": "3369280239080825353"
+        },
+        {
+          "file": "openspec/changes/extract-pagemodel-widgets-web-libs/tasks.md",
+          "hash": "940690523547249475"
+        },
+        {
+          "file": "openspec/changes/init-web-platform-foundation/design.md",
+          "hash": "1171500714622239591"
+        },
+        {
+          "file": "openspec/changes/init-web-platform-foundation/proposal.md",
+          "hash": "5296029335276036369"
+        },
+        {
+          "file": "openspec/changes/init-web-platform-foundation/specs/web-platform-foundation/spec.md",
+          "hash": "11996059089169973743"
+        },
+        {
+          "file": "openspec/changes/init-web-platform-foundation/tasks.md",
+          "hash": "112290691768155156"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/design.md",
+          "hash": "16910338295149158804"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/proposal.md",
+          "hash": "16769054417682182316"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/specs/md3-theme-foundation/spec.md",
+          "hash": "10451059827817391101"
+        },
+        {
+          "file": "openspec/changes/md3-theme-foundation/tasks.md",
+          "hash": "4197257159481507590"
+        },
+        {
+          "file": "openspec/changes/minimal-public-admin-widget-ui/design.md",
+          "hash": "13833927522200363460"
+        },
+        {
+          "file": "openspec/changes/minimal-public-admin-widget-ui/proposal.md",
+          "hash": "174463542841149916"
+        },
+        {
+          "file": "openspec/changes/minimal-public-admin-widget-ui/specs/public-admin-widget-ui/spec.md",
+          "hash": "16388976467916217501"
+        },
+        {
+          "file": "openspec/changes/minimal-public-admin-widget-ui/tasks.md",
+          "hash": "123356077718985187"
+        },
+        {
+          "file": "openspec/changes/private-bootstrap-v1/design.md",
+          "hash": "14170294613607900205"
+        },
+        {
+          "file": "openspec/changes/private-bootstrap-v1/proposal.md",
+          "hash": "15428942128960180093"
+        },
+        {
+          "file": "openspec/changes/private-bootstrap-v1/tasks.md",
+          "hash": "6735443083235604983"
+        },
+        {
+          "file": "openspec/changes/provider-neutral-web-auth-runtime-v1/inventory.md",
+          "hash": "5392911739438212010"
+        },
+        {
+          "file": "openspec/changes/provider-neutral-web-auth-runtime-v1/proposal.md",
+          "hash": "9004228178410551034"
+        },
+        {
+          "file": "openspec/changes/provider-neutral-web-auth-runtime-v1/tasks.md",
+          "hash": "8529619959816152959"
+        },
+        {
+          "file": "openspec/changes/public-design-system-pagemodel-widgets/design.md",
+          "hash": "8435124953016567179"
+        },
+        {
+          "file": "openspec/changes/public-design-system-pagemodel-widgets/proposal.md",
+          "hash": "15997607533928984963"
+        },
+        {
+          "file": "openspec/changes/public-design-system-pagemodel-widgets/specs/public-design-system-pagemodel-widgets/spec.md",
+          "hash": "8097389122489692224"
+        },
+        {
+          "file": "openspec/changes/public-design-system-pagemodel-widgets/tasks.md",
+          "hash": "1345031470621768102"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/proposal.md",
+          "hash": "11101065413553236994"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/specs/public-shell-v1/spec.md",
+          "hash": "14053451051315201671"
+        },
+        {
+          "file": "openspec/changes/public-shell-v1-header-footer/tasks.md",
+          "hash": "1980852003363284181"
+        },
+        {
+          "file": "openspec/changes/route-private-dashboards-through-widget-engine/proposal.md",
+          "hash": "18107067611955977229"
+        },
+        {
+          "file": "openspec/changes/route-private-dashboards-through-widget-engine/specs/private-dashboard-widget-rendering/spec.md",
+          "hash": "2753488149505764515"
+        },
+        {
+          "file": "openspec/changes/route-private-dashboards-through-widget-engine/tasks.md",
+          "hash": "2194604720869538598"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/README.md",
+          "hash": "10542132403030636875"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/docs/frontend/dependencies.md",
+          "hash": "17276518848366531886"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/docs/mobile/dependencies.md",
+          "hash": "12476448518385791268"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/design.md",
+          "hash": "9743278525910481188"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/proposal.md",
+          "hash": "6105927909942864469"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/specs/web-platform-foundation/spec.md",
+          "hash": "11996059089169973743"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/changes/init-web-platform-foundation/tasks.md",
+          "hash": "289865368245665939"
+        },
+        {
+          "file": "openspec/changes/tchalanet-frontend-foundation-openspec/openspec/context/frontend-foundation-rules.md",
+          "hash": "14700651262144692298"
+        },
+        {
+          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/proposal.md",
+          "hash": "11828054414014357950"
+        },
+        {
+          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/specs/web-runtime-bootstrap/spec.md",
+          "hash": "10389286149851509058"
+        },
+        {
+          "file": "openspec/changes/web-runtime-bootstrap-state-i18n/tasks.md",
+          "hash": "5658987824436354150"
+        },
+        {
+          "file": "openspec/context/90-web-rules.md",
+          "hash": "6465444501346565590"
+        },
+        {
+          "file": "openspec/project.md",
+          "hash": "9528278165344331033"
+        },
+        {
+          "file": "openspec/specs/.gitkeep",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "package-lock.json",
+          "hash": "9643078295776789284"
+        },
+        {
+          "file": "package.json",
+          "hash": "15839097543928875194"
+        },
+        {
+          "file": "skills-lock.json",
+          "hash": "13369930862577631492"
+        },
+        {
+          "file": "tmp-i18n-merge.mjs",
+          "hash": "17939247455579338293"
+        },
+        {
+          "file": "tools/build-material-symbols-font.mjs",
+          "hash": "4591681212210597306"
+        },
+        {
+          "file": "tsconfig.base.json",
+          "hash": "4030960339203328251"
+        },
+        {
+          "file": "vercel.json",
+          "hash": "10644582597363124074"
+        }
+      ],
+      "shared-config": [
+        {
+          "file": "libs/shared-config/README.md",
+          "hash": "11303510721159179161"
+        },
+        {
+          "file": "libs/shared-config/eslint.config.mjs",
+          "hash": "11894011368893250078"
+        },
+        {
+          "file": "libs/shared-config/project.json",
+          "hash": "5427401120072737072"
+        },
+        {
+          "file": "libs/shared-config/src/index.ts",
+          "hash": "15998633531000864815"
+        },
+        {
+          "file": "libs/shared-config/src/lib/contracts/runtime.types.ts",
+          "hash": "17020582344888317559"
+        },
+        {
+          "file": "libs/shared-config/src/lib/feature/feature-flag.directive.spec.ts",
+          "hash": "6738179834824977963"
+        },
+        {
+          "file": "libs/shared-config/src/lib/feature/feature-flag.directive.ts",
+          "hash": "2481884055825848375"
+        },
+        {
+          "file": "libs/shared-config/src/lib/feature/feature-flags.ts",
+          "hash": "3698702074616698191"
+        },
+        {
+          "file": "libs/shared-config/src/lib/feature/feature.guard.ts",
+          "hash": "11411167133755767382"
+        },
+        {
+          "file": "libs/shared-config/src/lib/runtime/runtime-paths.spec.ts",
+          "hash": "8887847434599773553"
+        },
+        {
+          "file": "libs/shared-config/src/lib/runtime/runtime-paths.ts",
+          "hash": "7591649007458479696"
+        },
+        {
+          "file": "libs/shared-config/src/lib/settings/runtime-settings.store.ts",
+          "hash": "11590824060702258239"
+        },
+        {
+          "file": "libs/shared-config/src/lib/settings/settings.mapper.ts",
+          "hash": "4578691266930058601"
+        },
+        {
+          "file": "libs/shared-config/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/shared-config/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/shared-config/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "ui-styles": [
+        {
+          "file": "libs/ui/styles/project.json",
+          "hash": "12776518627876021150"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/README.md",
+          "hash": "10326622484236586287"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
+          "hash": "4783027941652895497"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_forms.scss",
+          "hash": "10356561432060511338"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_functions.scss",
+          "hash": "2752112794568767012"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_icons.scss",
+          "hash": "18338444672017629438"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_index.scss",
+          "hash": "9641235150528217343"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_list.scss",
+          "hash": "13274261927551273691"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
+          "hash": "662076388056195332"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_mixins.scss",
+          "hash": "3963611691020055967"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_overlay.scss",
+          "hash": "4654987298841419955"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_typography.scss",
+          "hash": "10226960127459954445"
+        }
       ]
-    },
-    "nonProjectFiles": []
+    }
   },
   "externalNodesHash": "3244421341483603138"
 }

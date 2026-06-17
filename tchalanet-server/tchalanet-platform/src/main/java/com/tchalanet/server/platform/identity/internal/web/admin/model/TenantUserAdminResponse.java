@@ -7,7 +7,6 @@ import java.time.Instant;
 
 public record TenantUserAdminResponse(
     UserId id,
-    String keycloakSub,
     String username,
     String email,
     String phone,
@@ -16,7 +15,7 @@ public record TenantUserAdminResponse(
     String membershipStatus,
     OutletId outletId,
     TerminalId terminalId,
-    KeycloakSyncStatus keycloakSyncStatus,
+    ExternalIdentitySyncStatus externalIdentitySyncStatus,
     InvitationStatus invitationStatus,
     Instant createdAt,
     String firstName,

@@ -131,7 +131,8 @@ class CashierTicketReceiptServiceTest {
             OUTLET_ID,
             SESSION_ID,
             OperationalContextSource.ADMIN_SELECTION,
-            OperationalContextTrust.WEAK));
+            OperationalContextTrust.WEAK),
+        null, null, null, null, null);
   }
 
   private static final class CapturingQueryBus implements QueryBus {

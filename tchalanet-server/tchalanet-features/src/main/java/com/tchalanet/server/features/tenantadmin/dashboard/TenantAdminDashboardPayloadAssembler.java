@@ -10,7 +10,14 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
+import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
+import com.tchalanet.server.core.terminal.api.model.SellerTerminalCommissionStatsView;
+import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalCommissionStatsQuery;
+import com.tchalanet.server.platform.notification.api.NotificationApi;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
 import com.tchalanet.server.core.outlet.api.query.OutletView;
 import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
@@ -67,6 +74,7 @@ public class TenantAdminDashboardPayloadAssembler {
     private final DrawChannelCatalog drawChannelCatalog;
     private final QueryBus queryBus;
     private final PublicContentApi publicContentApi;
+    private final NotificationApi notificationApi;
 
     public Payload assemble(TchRequestContext ctx) {
         if (ctx == null || ctx.tenantId() == null) {
@@ -82,18 +90,24 @@ public class TenantAdminDashboardPayloadAssembler {
         TenantContextLookupView registry = tenantPreContextLookupApi.findById(tenantId).orElse(null);
         OperationsBundle ops = loadOperationsBundle(tenantId);
         CommercialBundle commercial = loadCommercialBundle(tenantId);
+        TenantKpisView kpisView = loadActiveSellerTerminals(tenantId, tz);
+        long notifCount = loadNotificationCount(ctx);
+
+        BigDecimal tenantDefaultRate = registry != null
+            ? registry.defaultCommissionRate().orElse(null) : null;
+        TenantCommissionSummaryPayload commission = loadCommissionSummary(tenantId, tenantDefaultRate);
 
         TenantDashboardHeaderPayload header = buildHeader(ctx, registry);
-        TenantKpiGridPayload kpis = buildKpis(ctx, ops, tz);
+        TenantKpiGridPayload kpis = buildKpis(ctx, kpisView, notifCount, tz);
         TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial);
-        TenantAlertsPayload alerts = buildAlerts();
+        TenantAlertsPayload alerts = buildAlerts(notifCount);
         TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
         TenantCommercialSummaryPayload commercialSummary = buildCommercialSummary(commercial);
         PublicContentPayload publicContent = buildPublicContent();
         QuickActionsPayload quickActions = buildQuickActions();
 
         return new Payload(header, kpis, readiness, alerts, operations,
-            commercialSummary, publicContent, quickActions);
+            commercialSummary, commission, publicContent, quickActions);
     }
 
     // ---------------------- grouped bundle loaders ----------------------
@@ -144,6 +158,30 @@ public class TenantAdminDashboardPayloadAssembler {
         return new CommercialBundle(games, channels);
     }
 
+    private TenantKpisView loadActiveSellerTerminals(TenantId tenantId, ZoneId tz) {
+        try {
+            LocalDate today = LocalDate.now(tz);
+            TenantKpisView view = queryBus.ask(new GetTenantKpisQuery(tenantId, today, today));
+            return view != null ? view : TenantKpisView.empty();
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load active seller terminals — {}", e.getMessage());
+            return TenantKpisView.empty();
+        }
+    }
+
+    private long loadNotificationCount(TchRequestContext ctx) {
+        try {
+            if (ctx.userId() == null) return 0L;
+            String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
+            NotificationSummaryView summary = notificationApi.getNotificationSummary(
+                new GetNotificationSummaryRequest(ctx.userId(), roleCode));
+            return summary != null ? summary.unreadCount() : 0L;
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load notification count — {}", e.getMessage());
+            return 0L;
+        }
+    }
+
     // ---------------------- per-widget builders ----------------------
 
     private TenantDashboardHeaderPayload buildHeader(TchRequestContext ctx, TenantContextLookupView registry) {
@@ -157,7 +195,7 @@ public class TenantAdminDashboardPayloadAssembler {
             ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
     }
 
-    private TenantKpiGridPayload buildKpis(TchRequestContext ctx, OperationsBundle ops, ZoneId tz) {
+    private TenantKpiGridPayload buildKpis(TchRequestContext ctx, TenantKpisView kpisView, long notifCount, ZoneId tz) {
         LocalDate today = LocalDate.now(tz);
         LocalDate yesterday = today.minusDays(1);
 
@@ -202,11 +240,12 @@ public class TenantAdminDashboardPayloadAssembler {
             log.warn("tenant_admin_dashboard: failed to load KPI stats — {}", e.getMessage());
         }
 
+        long activeSellerTerminals = kpisView.activeCashiers(); // proxy V0: SELLER dim = seller_terminal
         return new TenantKpiGridPayload(
             salesToday, salesYesterday,
             ticketsToday, ticketsYesterday,
             winningsToday, payoutsToday, netToday,
-            0L, 0L, 0L); // activeSessions / openDraws / pendingApprovals: V1 placeholders
+            activeSellerTerminals, notifCount, 0L, 0L);
     }
 
     /**
@@ -256,12 +295,8 @@ public class TenantAdminDashboardPayloadAssembler {
             summary.status().name(), summary.missingCount(), summary.topIssues());
     }
 
-    /**
-     * V1 placeholder: no tenant-wide alerts/notification aggregate query exists yet.
-     * Will be wired in V2 via GetTenantAlertsSummaryQuery (core.notification or equivalent).
-     */
-    private TenantAlertsPayload buildAlerts() {
-        return new TenantAlertsPayload(0, List.of());
+    private TenantAlertsPayload buildAlerts(long notifCount) {
+        return new TenantAlertsPayload((int) Math.min(notifCount, Integer.MAX_VALUE), List.of());
     }
 
     private TenantOperationsSummaryPayload buildOperationsSummary(OperationsBundle ops) {
@@ -300,12 +335,31 @@ public class TenantAdminDashboardPayloadAssembler {
         }
     }
 
+    private TenantCommissionSummaryPayload loadCommissionSummary(TenantId tenantId, BigDecimal tenantDefaultRate) {
+        try {
+            SellerTerminalCommissionStatsView stats = queryBus.ask(
+                new GetSellerTerminalCommissionStatsQuery(tenantId, tenantDefaultRate));
+            return new TenantCommissionSummaryPayload(
+                tenantDefaultRate,
+                stats.totalCount(),
+                stats.countAtDefaultRate(),
+                stats.countWithCustomRate(),
+                stats.minRate(),
+                stats.maxRate());
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load commission stats — {}", e.getMessage());
+            return TenantCommissionSummaryPayload.empty();
+        }
+    }
+
     private QuickActionsPayload buildQuickActions() {
         return new QuickActionsPayload(List.of(
-            new ActionItem("CREATE_OUTLET", "quickaction.admin.create_outlet", "storefront", "/app/admin/outlets/new"),
-            new ActionItem("CREATE_TERMINAL", "quickaction.admin.create_terminal", "point_of_sale", "/app/admin/terminals/new"),
-            new ActionItem("CREATE_SELLER", "quickaction.admin.create_seller", "person_add", "/app/admin/users/new"),
-            new ActionItem("TENANT_OVERVIEW", "quickaction.admin.overview", "map", "/app/admin/overview")));
+            new ActionItem("ADD_SELLER_TERMINAL",    "quickaction.admin.add_seller_terminal",    "person_add",  "/app/admin/sellers/new"),
+            new ActionItem("ACTIVE_SELLER_TERMINALS","quickaction.admin.active_seller_terminals","point_of_sale","/app/admin/sellers?status=active"),
+            new ActionItem("DAILY_REPORT",           "quickaction.admin.daily_report",           "today",       "/app/admin/reports/today"),
+            new ActionItem("MANAGE_LIMITS",          "quickaction.admin.manage_limits",          "shield",      "/app/admin/controls/limits"),
+            new ActionItem("MANAGE_ODDS",            "quickaction.admin.manage_odds",            "percent",     "/app/admin/controls/odds"),
+            new ActionItem("MARYAJ_GRATIS",          "quickaction.admin.maryaj_gratis",          "redeem",      "/app/admin/promotions/maryaj-gratis")));
     }
 
     public record Payload(
@@ -315,6 +369,7 @@ public class TenantAdminDashboardPayloadAssembler {
         TenantAlertsPayload alerts,
         TenantOperationsSummaryPayload operations,
         TenantCommercialSummaryPayload commercial,
+        TenantCommissionSummaryPayload commission,
         PublicContentPayload publicContent,
         QuickActionsPayload quickActions) {
 
@@ -322,7 +377,7 @@ public class TenantAdminDashboardPayloadAssembler {
             return new Payload(
                 new TenantDashboardHeaderPayload("", "", "", "UNKNOWN", "UNKNOWN", "UTC", ""),
                 new TenantKpiGridPayload(BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L,
-                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, 0L),
+                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, 0L, 0L),
                 new TenantReadinessSummaryPayload("UNKNOWN", 0, List.of()),
                 new TenantAlertsPayload(0, List.of()),
                 new TenantOperationsSummaryPayload(
@@ -331,6 +386,7 @@ public class TenantAdminDashboardPayloadAssembler {
                 new TenantCommercialSummaryPayload(
                     new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0),
                     new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)),
+                TenantCommissionSummaryPayload.empty(),
                 PublicContentPayload.empty(),
                 QuickActionsPayload.empty());
         }
@@ -356,7 +412,8 @@ public class TenantAdminDashboardPayloadAssembler {
         BigDecimal winningsToday,
         BigDecimal payoutsToday,
         BigDecimal netRevenueToday,
-        long activeSessions,
+        long activeSellerTerminals,  // V0 proxy: analytics_daily SELLER dim
+        long notificationCount,
         long openDraws,
         long pendingApprovals) {
     }
@@ -390,6 +447,23 @@ public class TenantAdminDashboardPayloadAssembler {
         SectionStatus drawChannels,
         SectionStatus limits,
         SectionStatus promotions) {
+    }
+
+    /**
+     * Commission configuration snapshot for the dashboard.
+     * {@code tenantDefaultRate} is null when the tenant has not set a default.
+     */
+    public record TenantCommissionSummaryPayload(
+        BigDecimal tenantDefaultRate,
+        long totalSellerTerminals,
+        long countAtDefaultRate,
+        long countWithCustomRate,
+        BigDecimal minRate,
+        BigDecimal maxRate) {
+
+        public static TenantCommissionSummaryPayload empty() {
+            return new TenantCommissionSummaryPayload(null, 0L, 0L, 0L, null, null);
+        }
     }
 
     /**

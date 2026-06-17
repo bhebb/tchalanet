@@ -28,7 +28,9 @@ class FirebaseAdminConfig {
   @Lazy
   FirebaseAuth firebaseAuth(
       FirebaseIdentityProperties properties,
-      @Value("${tch.identity.provider:firebase}") String provider) {
+      @Value("${tch.identity.provider:firebase}") String provider,
+      @Value("${FIREBASE_AUTH_EMULATOR_HOST:}") String emulatorHost) {
+    validateEmulatorHost(provider, emulatorHost);
     var existingApp =
         FirebaseApp.getApps().stream()
             .filter(app -> APP_NAME.equals(app.getName()))
@@ -43,6 +45,14 @@ class FirebaseAdminConfig {
             .setCredentials(credentials(provider, properties.credentialsPath()))
             .build();
     return FirebaseAuth.getInstance(FirebaseApp.initializeApp(options, APP_NAME));
+  }
+
+  static void validateEmulatorHost(String provider, String emulatorHost) {
+    if ("firebase-emulator".equals(provider)
+        && (emulatorHost == null || emulatorHost.isBlank())) {
+      throw new IllegalStateException(
+          "firebase-emulator requires FIREBASE_AUTH_EMULATOR_HOST, for example localhost:9099");
+    }
   }
 
   private static GoogleCredentials credentials(String provider, String credentialsPath) {

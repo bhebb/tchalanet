@@ -241,6 +241,7 @@ class CashierHomeServiceTest {
         tenantId,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
-        operationalContext);
+        operationalContext,
+        null, null, null, null, null);
   }
 }

@@ -20,6 +20,7 @@ import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewR
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketVerificationResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierVerifyTicketRequest;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
+import com.tchalanet.server.features.cashier.tickets.model.TerminalDailyStatsResponse;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
@@ -40,13 +41,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tenant/cashier/tickets")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Cashier • Tickets")
 public class CashierTicketsController {
 
@@ -95,6 +97,14 @@ public class CashierTicketsController {
         @Valid @RequestBody CashierTicketCancelRequest request
     ) {
         return ApiResponse.success(ticketsService.cancel(ctx, ticketId, request));
+    }
+
+    @GetMapping("/stats")
+    @Operation(summary = "Sales stats for the authenticated seller terminal. Defaults to today in tenant timezone.")
+    public ApiResponse<TerminalDailyStatsResponse> stats(
+        @CurrentContext TchRequestContext ctx,
+        @RequestParam(required = false) String date) {
+        return ApiResponse.success(ticketsService.terminalStats(ctx, date));
     }
 
     @GetMapping

@@ -44,7 +44,7 @@
     <testcontainers.version>1.21.4</testcontainers.version>
     <zxing.version>3.5.4</zxing.version>
     <rome.version>2.1.0</rome.version>
-    <jackson.version>3.2.0</jackson.version>
+    <jackson.version>3.1.2</jackson.version>
     <hibernate.version>7.3.2.Final</hibernate.version>
     <!-- Spring Modulith -->
     <spring-modulith.version>2.1.0</spring-modulith.version>
@@ -146,7 +146,6 @@
         <artifactId>rome</artifactId>
         <version>${rome.version}</version>
       </dependency>
-
       <!-- API & Documentation -->
       <dependency>
         <groupId>org.springdoc</groupId>

@@ -57,4 +57,18 @@ public class ResultSlotAdminController {
     admin.softDelete(id);
     return ApiResponse.success(null);
   }
+
+  @Operation(summary = "Disable result slot — kill switch (platform)")
+  @PostMapping("/{slotKey}/disable")
+  public ApiResponse<Void> disableSlot(@PathVariable String slotKey) {
+    admin.disableSlot(slotKey);
+    return ApiResponse.success(null);
+  }
+
+  @Operation(summary = "Disable a game within a result slot — kill switch (platform)")
+  @PostMapping("/{slotKey}/games/{gameKey}/disable")
+  public ApiResponse<Void> disableGame(@PathVariable String slotKey, @PathVariable String gameKey) {
+    admin.disableGame(slotKey, gameKey);
+    return ApiResponse.success(null);
+  }
 }

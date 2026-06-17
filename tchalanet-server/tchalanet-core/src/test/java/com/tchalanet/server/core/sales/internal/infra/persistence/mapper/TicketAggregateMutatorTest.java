@@ -221,8 +221,8 @@ class TicketAggregateMutatorTest {
             SalesSessionId.of(UUID.fromString("70000000-0000-0000-0000-000000000001")),
             DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
             DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-            null,
-            null);
+            null, null,
+            null, null, null);
     }
 
     private static TicketLine line() {

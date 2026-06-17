@@ -7,6 +7,7 @@ import {
   WidgetConfig,
   actionsFrom,
   destinationHref,
+  isRecord,
   stringProp,
 } from '@tch/page-model';
 
@@ -108,9 +109,14 @@ export class QuickActionsWidget {
 
   readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? '');
 
-  readonly actions = computed<readonly WidgetAction[]>(() =>
-    actionsFrom(this.config()?.props?.['actions']),
-  );
+  readonly actions = computed<readonly WidgetAction[]>(() => {
+    const dyn = this.dynamic();
+    if (isRecord(dyn) && Array.isArray(dyn['actions'])) {
+      const fromDynamic = actionsFrom(dyn['actions']);
+      if (fromDynamic.length > 0) return fromDynamic;
+    }
+    return actionsFrom(this.config()?.props?.['actions']);
+  });
 
   routerPath(action: WidgetAction): string | null {
     return action.destination?.kind === 'route' ? action.destination.value : null;

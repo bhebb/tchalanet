@@ -5,27 +5,25 @@
 
 ---
 
-## 1. Flow retenu : Authorization Code + PKCE
+## 1. Flow retenu : Firebase Auth opérateur
 
-Le mobile utilise exclusivement **Authorization Code + PKCE** (RFC 7636 / RFC 8252).
+Le mobile utilise le SDK officiel FlutterFire Firebase Auth. L'opérateur se connecte avec son
+email et son mot de passe. Le terminal POS n'est jamais utilisé comme identité opérateur.
 
 ```
 LoginPage
   → bouton "Se connecter"
   → AuthController.login()
-  → AuthService (flutter_appauth)
-  → ouvre navigateur système (Chrome Custom Tabs)
-  → Keycloak login
-  → redirect com.tchalanet.mobile:/oauth2redirect?code=…
-  → AuthService échange le code contre access_token + refresh_token
-  → AuthRepositoryImpl._buildSession() : décode JWT → UserSession
+  → FirebaseAuthTokenClient
+  → Firebase Auth email/password
+  → Firebase ID token
+  → AuthRepositoryImpl appelle GET /runtime/private
+  → le runtime backend → UserSession
   → AuthController.state = AuthAuthenticated(session)
   → GoRouter redirect → /pos
 ```
 
-**Interdit :**
-- ROPC (Resource Owner Password Credentials) — déprécié OAuth 2.1, mot de passe transite dans l'app.
-- Formulaire username/password dans l'app pour l'auth Keycloak.
+Le binding terminal/appareil est exécuté après authentification et reste séparé de l'identité.
 
 ---
 
@@ -33,37 +31,35 @@ LoginPage
 
 | Token | Clé secure storage | Durée de vie |
 |---|---|---|
-| `access_token` | `access_token` | Courte (Keycloak : ~5 min) |
-| `refresh_token` | `refresh_token` | Longue (Keycloak : ~30 min ou session) |
+| `access_token` | `access_token` | Firebase ID token, courte |
 
 **Règles :**
 - Tous les tokens vivent dans `SecureTokenStorage` (Keychain iOS / Keystore Android).
 - Aucun widget ne lit un token directement.
 - Aucun token ne doit apparaître dans les logs (`UserSession.toString()` ne l'expose pas).
-- `TokenStorage.clear()` supprime les deux tokens (appelé par `AuthController.logout()`).
+- `TokenStorage.clear()` supprime le token mis en cache (appelé par `AuthController.logout()`).
+- Firebase Auth conserve et rafraîchit sa propre session via le SDK officiel.
 
 ---
 
 ## 3. UserSession — modèle de session UI
 
-`UserSession` (`lib/features/auth/data/models/user_session.dart`) est le seul objet consommé par l'UI.
+`UserSession` (`lib/features/auth/data/models/user_session.dart`) est le seul objet consommé par
+l'UI. L'identité applicative, le tenant et les rôles viennent de `GET /runtime/private`; le token
+fournisseur sert uniquement au bearer, au refresh et à l'expiration technique.
 
 ```dart
 UserSession(
   authenticated: true,
-  userId:        sub            // payload['sub']
-  username:      preferred_username
-  displayName:   name
-  tenantId:      tch.tenant_id
-  tenantCode:    tch.tenant_code
-  roles:         roles[]        // claim racine Tchalanet
-  tokenExpiresAt: exp
+  userId:        runtime.user.userId
+  username:      runtime.user.username
+  displayName:   runtime.user.displayName
+  tenantId:      runtime.tenantContext.tenantId
+  tenantCode:    runtime.tenantContext.tenantCode
+  roles:         runtime.entitlements.roles
+  tokenExpiresAt: token exp // technique uniquement
 )
 ```
-
-**Claims Keycloak (voir `keycloak-token-contract` spec) :**
-- `roles` → claim racine injecté par le provider Tchalanet Keycloak (pas `realm_access.roles`).
-- `tch` → bloc JSON custom : `tenant_code`, `tenant_id`, `plan`, `featureSetId`.
 
 **Accès dans les widgets :**
 ```dart
@@ -114,25 +110,26 @@ AuthController.logout()
   → GoRouter redirect → /login    // déclenché automatiquement
 ```
 
-Le logout ne fait pas d'appel réseau à Keycloak en V1. Le refresh token est simplement supprimé côté client.
+Le logout appelle `FirebaseAuth.signOut()`, puis efface le token mis en cache et le contexte
+opérationnel.
 
 ---
 
-## 7. Configuration (dart-defines)
+## 7. Configuration Firebase
 
-| Variable | Défaut (émulateur) | Description |
+La configuration publique de l'application Android est générée par FlutterFire dans
+`lib/firebase_options.dart` et `android/app/google-services.json`. Le compte de service Firebase
+Admin du backend ne doit jamais être embarqué dans le mobile.
+
+| Variable dart-define | Défaut (émulateur) | Description |
 |---|---|---|
-| `KC_BASE_URL` | `http://10.0.2.2:8082` | URL base Keycloak |
-| `KC_REALM` | `tchalanet` | Realm |
-| `KC_CLIENT_ID` | `tchalanet-mobile-pos` | Client PKCE public |
-| `API_BASE_URL` | `http://10.0.2.2:8080/api/v1` | Backend API |
-
-`kcRedirectUri` est une constante (pas un dart-define) : `com.tchalanet.mobile:/oauth2redirect`.
+| `FIREBASE_AUTH_EMULATOR` | `true` | Active l'émulateur local |
+| `FIREBASE_AUTH_EMULATOR_HOST` | `10.0.2.2` | Hôte émulateur Android |
+| `FIREBASE_AUTH_EMULATOR_PORT` | `9099` | Port émulateur |
+| `API_BASE_URL` | `https://api.localtest.me:8443/api/v1` | Backend API |
 
 ---
 
 ## 8. Android — prérequis
 
-- `manifestPlaceholders["appAuthRedirectScheme"] = "com.tchalanet.mobile"` dans `build.gradle.kts`
 - `android:networkSecurityConfig="@xml/network_security_config"` pour cleartext HTTP local (dev uniquement)
-- `minSdk = 21` minimum (requis par `flutter_appauth`)

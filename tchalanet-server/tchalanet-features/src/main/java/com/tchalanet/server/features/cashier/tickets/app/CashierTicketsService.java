@@ -2,6 +2,7 @@ package com.tchalanet.server.features.cashier.tickets.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -17,6 +18,9 @@ import com.tchalanet.server.core.payout.api.query.PayoutRow;
 import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.query.GetTerminalDailyStatsQuery;
+import com.tchalanet.server.features.cashier.tickets.model.DrawStatLineDto;
+import com.tchalanet.server.features.cashier.tickets.model.TerminalDailyStatsResponse;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
@@ -45,6 +49,8 @@ import com.tchalanet.server.features.cashier.tickets.model.CashierTicketVerifica
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketVerificationStatus;
 import com.tchalanet.server.features.cashier.tickets.model.CashierVerifyTicketRequest;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -127,6 +133,25 @@ public class CashierTicketsService {
         var result = queryBus.ask(new ListTicketsQuery(
             null, null, null, null, null, null, new TchPageRequest(pageable)));
         return TchPageMapper.map(result, mapper::toPageResponse);
+    }
+
+    public TerminalDailyStatsResponse terminalStats(TchRequestContext ctx, String date) {
+        var zone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.of("UTC");
+        var targetDate = date != null ? LocalDate.parse(date) : LocalDate.now(zone);
+        var from = targetDate.atStartOfDay(zone).toInstant();
+        var to = targetDate.plusDays(1).atStartOfDay(zone).toInstant();
+        var currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG";
+        var stats = queryBus.ask(new GetTerminalDailyStatsQuery(
+            ctx.effectiveTenantIdRequired(),
+            ctx.sellerTerminalId(),
+            from,
+            to,
+            currency
+        ));
+        var breakdown = stats.breakdown().stream()
+            .map(b -> new DrawStatLineDto(b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
+            .toList();
+        return new TerminalDailyStatsResponse(stats.ticketCount(), stats.salesTotalCents(), stats.currency(), breakdown);
     }
 
     public CashierTicketDetailsResponse getDetails(TicketId ticketId) {
@@ -323,6 +348,9 @@ public class CashierTicketsService {
     }
 
     private void validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
+        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            return; // Terminal already validated in the sale orchestrator from JWT context
+        }
         sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
             ctx,
             TerminalId.of(terminalId),

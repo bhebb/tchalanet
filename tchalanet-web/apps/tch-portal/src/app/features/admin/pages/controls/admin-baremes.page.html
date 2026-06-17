@@ -1,0 +1,63 @@
+<tch-admin-page-header
+  title="Barèmes"
+  description="Multiplicateurs de gain configurés pour ce tenant, par jeu et type de mise."
+/>
+
+@let vm = state();
+
+@switch (vm.status) {
+  @case ('loading') {
+    <tch-loading label="Chargement des barèmes…" />
+  }
+  @case ('error') {
+    <tch-error-panel title="Erreur" message="Impossible de charger les barèmes." />
+  }
+  @case ('ready') {
+    @if (vm.groups.length === 0) {
+      <tch-admin-empty-state
+        icon="format_list_numbered"
+        title="Aucun barème configuré"
+        message="Aucun barème de gain n'a été configuré pour ce tenant."
+      />
+    } @else {
+      <div class="baremes-layout">
+        @for (group of vm.groups; track group.gameCode) {
+          <div class="game-card">
+            <div class="game-card__header">
+              <mat-icon class="game-card__icon">casino</mat-icon>
+              <span class="game-card__title">{{ group.gameLabel }}</span>
+              <code class="game-card__code">{{ group.gameCode }}</code>
+            </div>
+
+            <table class="odds-table">
+              <thead>
+                <tr>
+                  <th class="odds-table__col--type">Type de mise</th>
+                  <th class="odds-table__col--option">Variante</th>
+                  <th class="odds-table__col--odds">Multiplicateur</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of group.rows; track row.betType + (row.betOption ?? '')) {
+                  <tr class="odds-row">
+                    <td class="odds-row__type">{{ betTypeLabel(row.betType) }}</td>
+                    <td class="odds-row__option">
+                      @if (row.betOption !== null && row.betOption !== undefined) {
+                        <span class="option-badge">{{ optionLabel(row.betType, row.betOption) }}</span>
+                      } @else {
+                        <span class="option-none">—</span>
+                      }
+                    </td>
+                    <td class="odds-row__odds">
+                      <span class="multiplier">×{{ row.odds | number:'1.0-4' }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+}

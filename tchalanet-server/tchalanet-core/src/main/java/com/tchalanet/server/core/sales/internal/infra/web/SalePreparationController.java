@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tenant/sales/preparations")
 @RequiredArgsConstructor
 @Tag(name = "Sales • Preparation", description = "Prepared sale flow: preview with generated promotion lines, regenerate, confirm")
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission('terminal.sell')")
 public class SalePreparationController {
 
     private final CommandBus commandBus;

@@ -1,19 +1,25 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.AppliedSalePromotionEffects;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
+import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyInput;
+import com.tchalanet.server.core.sales.internal.application.service.sell.model.SaleSellerContext;
 import com.tchalanet.server.core.sales.internal.application.service.sell.promotion.SalePromotionEffectApplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,6 +61,10 @@ public class SalePreparationOrchestrator {
 
         var now = tchTimeProvider.now();
         var tenantId = ctx.effectiveTenantIdRequired();
+
+        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            return prepareSaleForSellerTerminal(command, ctx, now, tenantId);
+        }
 
         var pos = posSaleContextResolver.resolve(ctx);
 
@@ -121,6 +131,30 @@ public class SalePreparationOrchestrator {
             List.copyOf(notices),
             sellerContext.sellerId(),
             sellerContext.sellerAssignmentId()
+        );
+    }
+
+    private PreparedSale prepareSaleForSellerTerminal(
+        SellTicketCommand command,
+        TchRequestContext ctx,
+        Instant now,
+        TenantId tenantId
+    ) {
+        var pos = posSaleContextResolver.resolveForSellerTerminal(ctx);
+        var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
+        var mergedLines = command.lines();
+        var paidLines = ticketLinePreparationService.toTicketLines(tenantId, mergedLines, command.currency());
+        var charges = saleChargeCalculator.compute(tenantId, command);
+        var money = saleMoneyCalculator.compute(paidLines, charges, command);
+        var policyDecision = SalePolicyDecision.allowed(new LimitEvaluationView(null, List.of()));
+
+        return new PreparedSale(
+            pos, draw, now, mergedLines, paidLines, charges, money,
+            policyDecision.limits(), policyDecision.autonomy(),
+            false, null, null, null,
+            List.of(),
+            SaleSellerContext.empty().sellerId(),
+            SaleSellerContext.empty().sellerAssignmentId()
         );
     }
 }

@@ -2,6 +2,7 @@ package com.tchalanet.server.core.limitpolicy.api.model;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 
@@ -9,6 +10,7 @@ public sealed interface LimitScopeRef
     permits LimitScopeRef.TenantScope,
     LimitScopeRef.OutletScope,
     LimitScopeRef.AgentScope,
+    LimitScopeRef.SellerTerminalScope,
     LimitScopeRef.DrawChannelScope {
 
     static TenantScope tenant(TenantId tenantId) {
@@ -23,6 +25,10 @@ public sealed interface LimitScopeRef
         return new AgentScope(userId);
     }
 
+    static SellerTerminalScope sellerTerminal(SellerTerminalId sellerTerminalId) {
+        return new SellerTerminalScope(sellerTerminalId);
+    }
+
     static DrawChannelScope drawChannel(DrawChannelId drawChannelId) {
         return new DrawChannelScope(drawChannelId);
     }
@@ -34,6 +40,9 @@ public sealed interface LimitScopeRef
     }
 
     record AgentScope(UserId userId) implements LimitScopeRef {
+    }
+
+    record SellerTerminalScope(SellerTerminalId sellerTerminalId) implements LimitScopeRef {
     }
 
     record DrawChannelScope(DrawChannelId drawChannelId) implements LimitScopeRef {

@@ -17,4 +17,9 @@ public class TchHeaders {
     public static final String X_TCH_OVERRIDE_REASON = "X-Tch-Override-Reason";
     public static final String IDEMPOTENCY_KEY = "Idempotency-Key";
 
+    /** Resolver hint selecting which identity resolver to use. Never grants access. */
+    public static final String X_TCH_CLIENT_TYPE = "X-Tch-Client-Type";
+    public static final String CLIENT_TYPE_POS = "POS";
+    public static final String CLIENT_TYPE_WEB = "WEB";
+
 }

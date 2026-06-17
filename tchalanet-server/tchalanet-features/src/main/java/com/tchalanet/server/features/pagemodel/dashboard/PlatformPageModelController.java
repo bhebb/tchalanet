@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/platform/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Platform • PageModel")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlatformPageModelController {
 
   private final DashboardPageModelService service;

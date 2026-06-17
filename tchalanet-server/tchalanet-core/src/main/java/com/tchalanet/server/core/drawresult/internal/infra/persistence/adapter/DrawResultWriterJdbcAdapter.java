@@ -211,6 +211,24 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
     }
 
     @Override
+    public void confirmProvisional(DrawResultId drawResultId, Instant confirmedAt) {
+        int updated = jdbc.update("""
+            UPDATE draw_result
+            SET status = 'CONFIRMED', updated_at = ?
+            WHERE id = ? AND status = 'PROVISIONAL' AND deleted_at IS NULL
+            """,
+            Timestamp.from(confirmedAt),
+            drawResultId.value()
+        );
+        if (updated == 0) {
+            log.warn("drawresult.confirm_provisional_noop drawResultId={}", drawResultId);
+        } else {
+            log.info("drawresult.confirmed_provisional drawResultId={}", drawResultId);
+            AfterCommit.run(cacheEvictor::evictAll);
+        }
+    }
+
+    @Override
     public void markAsOverridden(DrawResultId drawResultId, String reason, Instant overriddenAt) {
         int updated = drawResultJpaRepository.markAsOverridden(
             drawResultId.value(),

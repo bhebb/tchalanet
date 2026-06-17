@@ -8,9 +8,8 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
-import com.tchalanet.server.platform.identity.api.IdentityProviderType;
-import com.tchalanet.server.platform.identity.internal.firebase.FirebaseIdentityProperties;
-import com.tchalanet.server.platform.identity.internal.firebase.FirebaseUserProvisionService;
+import com.tchalanet.server.platform.identity.api.IdentityProvisioningApi;
+import com.tchalanet.server.platform.identity.api.ProvisionExternalUserRequest;
 import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import com.tchalanet.server.platform.identity.internal.model.UserRow;
@@ -30,8 +29,7 @@ public class TenantUserAdministrationService {
   private final AppUserJpaAdapter users;
   private final UserPreferenceJpaAdapter preferences;
   private final TimeProvider timeProvider;
-  private final FirebaseUserProvisionService firebaseUserProvisionService;
-  private final FirebaseIdentityProperties firebaseIdentityProperties;
+  private final IdentityProvisioningApi identityProvisioning;
   private final ExternalIdentityLinkService externalIdentityLinks;
 
   @Transactional
@@ -52,9 +50,10 @@ public class TenantUserAdministrationService {
     }
 
     var username = resolveUsername(email, phone);
-    var firebase =
-        firebaseUserProvisionService.provisionUser(
-            null, email, phone, buildDisplayName(firstName, lastName), null);
+    var externalUser =
+        identityProvisioning.provisionUser(
+            new ProvisionExternalUserRequest(
+                null, email, phone, buildDisplayName(firstName, lastName), null));
 
     var now = timeProvider.nowInstant();
     var user =
@@ -72,9 +71,9 @@ public class TenantUserAdministrationService {
                 now).reactivate());
     externalIdentityLinks.link(
         user.id(),
-        IdentityProviderType.FIREBASE,
-        firebaseIdentityProperties.issuer(),
-        firebase.uid(),
+        externalUser.provider(),
+        externalUser.issuer(),
+        externalUser.externalSubject(),
         email);
     preferences.upsert(UserPreference.forUser(user.id()).applyOverrides(prefThemeMode, prefDensity, parseLocale(prefLocale), parseZone(prefTimeZone), parseCurrency(prefCurrency)));
     return new CreateUserResult(user.id());
@@ -96,18 +95,19 @@ public class TenantUserAdministrationService {
       throw new IllegalStateException("User already exists with this email or phone");
     }
     var username = resolveUsername(email, phone);
-    var firebase =
-        firebaseUserProvisionService.provisionUser(
-            null, email, phone, buildDisplayName(firstName, lastName), null);
+    var externalUser =
+        identityProvisioning.provisionUser(
+            new ProvisionExternalUserRequest(
+                null, email, phone, buildDisplayName(firstName, lastName), null));
     var now = timeProvider.nowInstant();
     var user = users.save(AppUser.createNew(
         null, null, username, email, phone,
         firstName, lastName, buildDisplayName(firstName, lastName), null, now).reactivate());
     externalIdentityLinks.link(
         user.id(),
-        IdentityProviderType.FIREBASE,
-        firebaseIdentityProperties.issuer(),
-        firebase.uid(),
+        externalUser.provider(),
+        externalUser.issuer(),
+        externalUser.externalSubject(),
         email);
     return new CreateUserResult(user.id());
   }

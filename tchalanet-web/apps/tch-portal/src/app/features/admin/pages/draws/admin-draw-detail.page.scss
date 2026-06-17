@@ -1,0 +1,198 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ---- Banner ----
+
+.draw-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--tch-radius-lg, 12px);
+  background: var(--tch-color-surface-container-lowest);
+  border: 1px solid var(--tch-color-outline-variant);
+  flex-wrap: wrap;
+}
+
+.draw-banner__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.draw-banner__date {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--tch-color-on-surface);
+  text-transform: capitalize;
+}
+
+.draw-banner__sub {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.draw-banner__code {
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.draw-banner__slot {
+  font-size: 0.8125rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+// ---- Status chips (same as list page) ----
+
+.draw-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--tch-radius-pill, 9999px);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.draw-status--scheduled { background: color-mix(in oklab, var(--tch-color-secondary) 15%, transparent); color: var(--tch-color-secondary); }
+.draw-status--open      { background: color-mix(in oklab, var(--tch-color-primary) 15%, transparent);   color: var(--tch-color-primary); }
+.draw-status--closed    { background: color-mix(in oklab, #F59E0B 15%, transparent); color: #B45309; }
+.draw-status--resulted  { background: color-mix(in oklab, var(--tch-color-tertiary, #7C3AED) 15%, transparent); color: var(--tch-color-tertiary, #7C3AED); }
+.draw-status--settled   { background: color-mix(in oklab, #22C55E 12%, transparent); color: #15803D; }
+.draw-status--canceled  { background: color-mix(in oklab, var(--tch-color-error) 12%, transparent); color: var(--tch-color-error); }
+.draw-status--archived  { background: var(--tch-color-surface-container); color: var(--tch-color-on-surface-variant); }
+
+// ---- KV grid (shared with seller detail) ----
+
+.kv-grid {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.kv-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--tch-color-outline-variant);
+
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+  &:first-child { padding-top: 0; }
+}
+
+.kv-row__key {
+  flex: 0 0 10rem;
+  font-size: 0.875rem;
+  color: var(--tch-color-on-surface-variant);
+  font-weight: 500;
+}
+
+.kv-row__val {
+  flex: 1;
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--tch-color-on-surface);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kv-code {
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+// ---- Result display ----
+
+.result-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.result-lots {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.result-lot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.result-lot__label {
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.result-lot__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--tch-radius-md, 8px);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.lot--1 { background: var(--tch-color-primary-container);   color: var(--tch-color-on-primary-container); }
+.lot--2 { background: var(--tch-color-secondary-container); color: var(--tch-color-on-secondary-container); }
+.lot--3, .lot--4 { background: var(--tch-color-surface-container); color: var(--tch-color-on-surface); }
+
+.result-meta { margin-top: 0.25rem; }
+
+// ---- Manual result form ----
+
+.result-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--tch-radius-md, 8px);
+  background: var(--tch-color-error-container);
+  color: var(--tch-color-on-error-container);
+  font-size: 0.875rem;
+}
+
+.result-provisional-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--tch-radius-md, 8px);
+  background: color-mix(in oklab, #F59E0B 12%, transparent);
+  color: #92400E;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+
+  mat-icon {
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}

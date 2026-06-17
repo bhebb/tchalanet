@@ -6,9 +6,10 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
+import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
-import com.tchalanet.server.platform.identity.internal.web.admin.model.KeycloakSyncStatus;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.ExternalIdentitySyncStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.TenantUserAdminResponse;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class TenantUserAdminViewAssembler {
 
   private final CurrentUserProfileService profiles;
   private final TenantMembershipService memberships;
+  private final ExternalIdentityLinkService externalIdentities;
 
   /** Fails with 403 when the target user is not a member of the request's effective tenant. */
   public void assertTenantScoped(TchRequestContext ctx, UserId userId) {
@@ -46,7 +48,6 @@ public class TenantUserAdminViewAssembler {
             : memberships.findCreatedAt(ctx.tenantId(), userId).orElse(null);
     return new TenantUserAdminResponse(
         profile.id(),
-        profile.keycloakSub() == null ? null : profile.keycloakSub().value().toString(),
         profile.username(),
         profile.email(),
         profile.phone(),
@@ -55,7 +56,7 @@ public class TenantUserAdminViewAssembler {
         membership == null || membership.status() == null ? null : membership.status().name(),
         membership == null ? null : membership.outletId(),
         membership == null ? null : membership.terminalId(),
-        resolveSyncStatus(profile, membership),
+        resolveSyncStatus(userId, membership),
         invitationStatus,
         createdAt,
         profile.firstName(),
@@ -63,10 +64,13 @@ public class TenantUserAdminViewAssembler {
         profile.displayName());
   }
 
-  private static KeycloakSyncStatus resolveSyncStatus(UserProfileView profile, TenantMembership membership) {
+  private ExternalIdentitySyncStatus resolveSyncStatus(
+      UserId userId, TenantMembership membership) {
     if (membership == null) {
-      return KeycloakSyncStatus.NOT_REQUIRED;
+      return ExternalIdentitySyncStatus.NOT_REQUIRED;
     }
-    return profile.keycloakSub() == null ? KeycloakSyncStatus.PENDING : KeycloakSyncStatus.SYNCED;
+    return !externalIdentities.hasIdentity(userId)
+        ? ExternalIdentitySyncStatus.PENDING
+        : ExternalIdentitySyncStatus.SYNCED;
   }
 }

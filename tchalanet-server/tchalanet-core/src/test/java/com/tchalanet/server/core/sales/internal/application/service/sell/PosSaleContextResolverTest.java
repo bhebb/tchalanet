@@ -79,7 +79,8 @@ class PosSaleContextResolverTest {
                 SESSION_ID,
                 OperationalContextSource.SIGNED_DEVICE_BINDING,
                 OperationalContextTrust.STRONG
-            )
+            ),
+            null, null, null, null, null
         );
     }
 

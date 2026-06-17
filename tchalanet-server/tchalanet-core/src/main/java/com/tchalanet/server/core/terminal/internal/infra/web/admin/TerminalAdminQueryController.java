@@ -34,7 +34,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/terminals")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Terminal • Query Admin")
 @RequiredArgsConstructor
 public class TerminalAdminQueryController {

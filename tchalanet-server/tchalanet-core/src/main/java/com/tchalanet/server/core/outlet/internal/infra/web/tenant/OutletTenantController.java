@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 // Tenant-scoped reads consumed by the POS cashier (operational-context / sales-capability)
 // and by tenant admins. 'TENANT_USER' is not a real authority (roles: CASHIER, OPERATOR,
 // TENANT_ADMIN, SUPER_ADMIN), so the previous guard denied everyone.
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN', 'OPERATOR')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN') or hasAuthority('ACTOR_SELLER_TERMINAL')")
 @RequiredArgsConstructor
 @Tag(name = "Outlet • Tenant Admin")
 public class OutletTenantController {

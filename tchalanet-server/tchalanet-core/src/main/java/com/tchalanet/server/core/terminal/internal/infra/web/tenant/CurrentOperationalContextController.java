@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tenant/me/operational-context")
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL')")
 @Tag(name = "Terminal • Operational Context")
 @RequiredArgsConstructor
 public class CurrentOperationalContextController {

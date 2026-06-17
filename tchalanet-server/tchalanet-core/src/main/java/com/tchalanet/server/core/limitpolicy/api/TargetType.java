@@ -14,6 +14,7 @@ public enum TargetType {
   AGENT,
   OUTLET,
   TERMINAL,
+  SELLER_TERMINAL,
   GAME,
   ZONE,
   RANGE,

@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 
+import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public record TenantContextLookupView(
     String defaultLanguage,
     String defaultLocale,
     Optional<AddressId> addressId,
-    Optional<ThemePresetId> activeThemeId
+    Optional<ThemePresetId> activeThemeId,
+    Optional<BigDecimal> defaultCommissionRate
 ) {
 }

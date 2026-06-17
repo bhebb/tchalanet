@@ -30,4 +30,20 @@ class FirebaseEmulatorProductionGuardTest {
     assertThatNoException()
         .isThrownBy(() -> new FirebaseEmulatorProductionGuard(provider, environment).validate());
   }
+
+  @ParameterizedTest
+  @CsvSource({"firebase, ''", "firebase-emulator, localhost:9099"})
+  void acceptsValidFirebaseAdminEndpointConfiguration(String provider, String emulatorHost) {
+    assertThatNoException()
+        .isThrownBy(() -> FirebaseAdminConfig.validateEmulatorHost(provider, emulatorHost));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"''", "' '"})
+  void rejectsEmulatorWithoutItsHost(String emulatorHost) {
+    assertThatThrownBy(
+            () -> FirebaseAdminConfig.validateEmulatorHost("firebase-emulator", emulatorHost))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("FIREBASE_AUTH_EMULATOR_HOST");
+  }
 }

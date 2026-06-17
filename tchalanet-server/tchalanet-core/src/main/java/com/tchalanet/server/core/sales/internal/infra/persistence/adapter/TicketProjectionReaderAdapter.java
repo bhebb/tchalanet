@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OfflineSubmissionId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -9,6 +10,8 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.view.DrawStatLine;
+import com.tchalanet.server.core.sales.api.model.view.TerminalDailyStatsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -197,6 +201,26 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             cents(entity.getTotalAmount()),
             entity.getCurrency()
         );
+    }
+
+    @Override
+    public TerminalDailyStatsView dailyStatsBySellerTerminal(
+        SellerTerminalId sellerTerminalId, TenantId tenantId, Instant from, Instant to) {
+        var count = repository.countBySellerTerminalAndPeriod(
+            sellerTerminalId.value(), tenantId.value(), from, to);
+        var sum = repository.sumTotalAmountBySellerTerminalAndPeriod(
+            sellerTerminalId.value(), tenantId.value(), from, to);
+        var rows = repository.statsByDrawForSellerTerminal(
+            sellerTerminalId.value(), tenantId.value(), from, to);
+        var breakdown = rows.stream()
+            .map(r -> new DrawStatLine(
+                r[0] != null ? r[0].toString() : "",
+                r[1] != null ? (String) r[1] : "",
+                ((Number) r[2]).longValue(),
+                cents(r[3] instanceof java.math.BigDecimal bd ? bd : new java.math.BigDecimal(r[3].toString()))
+            ))
+            .toList();
+        return new TerminalDailyStatsView(count, cents(sum), null, breakdown);
     }
 
     private long cents(BigDecimal amount) {

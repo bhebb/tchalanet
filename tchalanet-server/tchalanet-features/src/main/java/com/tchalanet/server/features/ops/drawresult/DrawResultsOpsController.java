@@ -42,7 +42,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/platform/ops/draw-results")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Ops • Draw Results")
 @Validated
 public class DrawResultsOpsController {
@@ -180,13 +180,31 @@ public class DrawResultsOpsController {
                 req.pick3(),
                 req.pick4(),
                 req.force(),
-                req.reason()
+                req.reason(),
+                false // ops endpoint always writes CONFIRMED
             )
         );
 
         return ApiResponse.success(res);
     }
 
+
+    @Operation(summary = "Confirm a PROVISIONAL draw result (platform review)")
+    @PostMapping("/{drawResultId}/confirm")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_CONFIRM,
+        idExpression = "#drawResultId.toString()",
+        detailsExpression = "'confirmedBy:' + #ctx.externalSubject()")
+    public ApiResponse<ConfirmDrawResultResult> confirm(
+        @PathVariable DrawResultId drawResultId,
+        @CurrentContext TchRequestContext ctx
+    ) {
+        var res = commandBus.execute(
+            new ConfirmDrawResultCommand(drawResultId, ctx.externalSubject())
+        );
+        return ApiResponse.success(res);
+    }
 
     @GetMapping
     public ApiResponse<TchPage<DrawResultOpsResponse>> search(

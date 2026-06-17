@@ -27,7 +27,6 @@ import tools.jackson.databind.JsonNode;
     })
 @Getter
 @Setter
-@Audited
 public class NotificationDeliveryJpaEntity extends BaseEntity {
 
   @Column(name = "tenant_id", columnDefinition = "uuid")

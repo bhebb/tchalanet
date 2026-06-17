@@ -8,6 +8,7 @@ import '../features/auth/presentation/view_models/auth_controller.dart';
 import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
+import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
 import '../features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart';
 import '../features/cashier/session/presentation/views/cashier_session_open_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
@@ -71,8 +72,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/pos/notifications',
         builder: (context, _) => const NotificationCenterPage(),
       ),
+      GoRoute(
+        path: '/pos/stats',
+        builder: (context, _) => const SellerTerminalStatsPage(),
+      ),
       // Sell flow — /sell matches server-side HomeAction.route
-      GoRoute(path: '/sell', builder: (context, _) => const CashierSellPage()),
+      // Optional extra: {'drawId': String} to pre-select a specific draw.
+      GoRoute(
+        path: '/sell',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String?>?;
+          return CashierSellPage(preselectedDrawId: extra?['drawId']);
+        },
+      ),
       // Ticket flows
       GoRoute(
         path: '/pos/sell/success',

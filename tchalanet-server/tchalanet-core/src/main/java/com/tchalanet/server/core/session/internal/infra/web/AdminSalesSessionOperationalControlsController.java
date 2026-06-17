@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/sales-sessions/{sessionId}/operational-controls")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 public class AdminSalesSessionOperationalControlsController {
 
     private final CommandBus commandBus;

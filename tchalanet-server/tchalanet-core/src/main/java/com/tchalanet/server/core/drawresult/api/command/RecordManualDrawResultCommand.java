@@ -8,13 +8,14 @@ import java.time.LocalDate;
 public record RecordManualDrawResultCommand(
     TenantId tenantId,
     LocalDate drawDate,
-    String slotKey, // ✅ ex: NY_MID
+    String slotKey, // ex: NY_MID
     String recordedBy,
     String notes,
     String pick3,
     String pick4,
-    boolean force, // ✅ même logique que override: permet écraser FINAL
-    String reason // AJOUTÉ: obligatoire si force=true
+    boolean force, // allows overwriting CONFIRMED/OVERRIDDEN
+    String reason, // required when force=true
+    boolean observeTrustPolicy // when true, status is driven by source_cfg.trust_policy
     ) implements Command<RecordManualDrawResultResult> {
 
   @AssertTrue(message = "reason is required when force is true")

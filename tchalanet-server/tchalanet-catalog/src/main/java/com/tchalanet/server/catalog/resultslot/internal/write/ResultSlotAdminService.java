@@ -13,12 +13,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Instant;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ResultSlotAdminService {
+
+    private static final Set<String> VALID_GAME_KEYS = Set.of("pick3", "pick4");
 
     private final ResultSlotJpaRepository repo;
     private final ResultSlotMapper mapper;
@@ -53,7 +57,40 @@ public class ResultSlotAdminService {
         var e =
             repo.findByIdAndDeletedAtIsNull(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found"));
-        e.setDeletedAt(Instant.now()); // BaseEntity should have deletedAt
+        e.setDeletedAt(Instant.now());
+        repo.save(e);
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = {ResultSlotCacheNames.ACTIVE, ResultSlotCacheNames.BY_KEY, ResultSlotCacheNames.BY_ID}, allEntries = true)
+    public void disableSlot(String slotKey) {
+        var e = repo.findFirstBySlotKeyIgnoreCaseAndDeletedAtIsNull(slotKey)
+            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found: " + slotKey));
+        e.setActive(false);
+        repo.save(e);
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = {ResultSlotCacheNames.ACTIVE, ResultSlotCacheNames.BY_KEY, ResultSlotCacheNames.BY_ID}, allEntries = true)
+    public void disableGame(String slotKey, String gameKey) {
+        if (!VALID_GAME_KEYS.contains(gameKey)) {
+            throw new IllegalArgumentException("invalid game key: " + gameKey + " — must be pick3 or pick4");
+        }
+
+        var e = repo.findFirstBySlotKeyIgnoreCaseAndDeletedAtIsNull(slotKey)
+            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found: " + slotKey));
+
+        var sourceCfg = e.getSourceCfg();
+        if (sourceCfg instanceof ObjectNode root) {
+            var gameNode = root.get(gameKey);
+            if (gameNode instanceof ObjectNode gameObj) {
+                gameObj.put("active", false);
+            } else {
+                root.putObject(gameKey).put("active", false);
+            }
+            e.setSourceCfg(root);
+        }
+
         repo.save(e);
     }
 

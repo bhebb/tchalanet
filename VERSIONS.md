@@ -44,7 +44,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | PDFBox                | 3.0.7   |
 | ZXing                 | 3.5.3   |
 | Springdoc OpenAPI     | 2.8.6   |
-| Jackson 3 (tools.\*)  | 3.1.1   |
+| Jackson 3 (tools.\*)  | 3.1.2   |
 | json-schema-validator | 3.0.2   |
 
 ### Plugins Maven (versions dans `tchalanet-server/pom.xml` properties)
@@ -81,7 +81,8 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | go_router              | ^17.3.0 |
 | dio                    | ^5.9.2  |
 | flutter_secure_storage | ^10.3.1 |
-| flutter_appauth        | ^8.0.0  |
+| firebase_core          | ^4.10.0 |
+| firebase_auth          | ^6.5.2  |
 | flutter_lints          | ^6.0.0  |
 
 ---

@@ -1378,10 +1378,6 @@
       "package.json",
       "nx/core/package-json"
     ],
-    "metadata.js.packageExports": [
-      "package.json",
-      "nx/core/package-json"
-    ],
     "metadata.js.packageMain": [
       "package.json",
       "nx/core/package-json"

@@ -7,6 +7,7 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,15 @@ public class TenantDrawChannelController {
         var tenantId = ctx.tenantId();
         var list = catalog.listAll(tenantId, activeOnly);
         return ApiResponse.success(list);
+    }
+
+    @Operation(summary = "Get draw channel by id for current tenant")
+    @GetMapping("/{id}")
+    public ApiResponse<DrawChannelView> getById(
+        @PathVariable DrawChannelId id, @CurrentContext TchRequestContext ctx) {
+        var tenantId = ctx.tenantId();
+        var opt = catalog.findById(tenantId, id);
+        return ApiResponse.success(opt.orElse(null));
     }
 
     @Operation(summary = "Get draw channel by code for current tenant (debug)")

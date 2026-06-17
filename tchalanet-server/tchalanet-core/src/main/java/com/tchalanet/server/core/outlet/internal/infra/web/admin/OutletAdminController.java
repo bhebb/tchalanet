@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/outlets")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Outlet • Admin")
 public class OutletAdminController {

@@ -146,7 +146,8 @@ class SellerOperationalContextResolverTest {
             ids.outletId(),
             ids.sessionId(),
             OperationalContextSource.ADMIN_SELECTION,
-            OperationalContextTrust.WEAK));
+            OperationalContextTrust.WEAK),
+        null, null, null, null, null);
   }
 
   private Ids ids() {

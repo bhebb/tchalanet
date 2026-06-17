@@ -41,7 +41,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/admin/offline")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tags({@Tag(name = "Offline sync • Admin")})
 @Validated
 public class OfflineAdminController {

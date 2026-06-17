@@ -2,6 +2,7 @@ import { Provider, Type } from '@angular/core';
 import { WIDGET_REGISTRY as WIDGET_REGISTRY_TOKEN } from '@tch/page-model';
 
 import { AlertsWidget } from './widgets/alerts.widget';
+import { CommissionSummaryWidget } from './widgets/commission-summary.widget';
 import { ContactCtaWidget } from './widgets/contact-cta.widget';
 import { KpiGridWidget } from './widgets/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/quick-actions.widget';
@@ -33,6 +34,7 @@ import { TicketVerificationWidget } from './widgets/ticket-verification.widget';
 export const WIDGET_REGISTRY: Readonly<Record<string, Type<unknown>>> = {
   KpiGridWidget,
   AlertsWidget,
+  CommissionSummaryWidget,
   ReadinessSummaryWidget,
   QuickActionsWidget,
   HeroWidget,

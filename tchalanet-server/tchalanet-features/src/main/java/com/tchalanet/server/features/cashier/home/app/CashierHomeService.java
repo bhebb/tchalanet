@@ -1,9 +1,13 @@
 package com.tchalanet.server.features.cashier.home.app;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
+import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.terminal.api.model.SellerTerminalStatus;
+import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
 import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
@@ -62,6 +66,10 @@ public class CashierHomeService {
     var currency = ctx.tenantCurrency() != null
         ? ctx.tenantCurrency().getCurrencyCode()
         : "HTG";
+
+    if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+      return sellerTerminalHome(ctx, surface, currency);
+    }
 
     var operational = operationalContext(ctx);
     // Require outlet + terminal; STRONG trust is gated at sell/payout, not at home.
@@ -158,6 +166,38 @@ public class CashierHomeService {
         badges,
         notifications,
         blockers);
+  }
+
+  private CashierHomeResponse sellerTerminalHome(
+      TchRequestContext ctx, ClientSurface surface, String currency) {
+    var terminal = queryBus.ask(new GetSellerTerminalQuery(
+        ctx.effectiveTenantIdRequired(), ctx.sellerTerminalId()));
+    var canSell = terminal.status() == SellerTerminalStatus.ACTIVE;
+    var primaryDraw = primaryDraw(ctx);
+    var operationalCtx = new CashierHomeOperationalContext(
+        canSell, true, "SELLER_TERMINAL",
+        null, null,
+        TerminalId.of(ctx.sellerTerminalId().value()),
+        terminal.displayName(),
+        null,
+        List.of()
+    );
+    return new CashierHomeResponse(
+        surface, VERSION,
+        HomeHeader.of("Bonjour", terminal.displayName()),
+        null,
+        operationalCtx,
+        null,
+        primaryDraw,
+        new HomeAction("SELL_TICKET", "Vendre un ticket", canSell && primaryDraw != null, "/sell"),
+        List.of(
+            new HomeAction("RECENT_TICKETS", "Tickets récents", true, "/tickets"),
+            new HomeAction("PROFILE", "Profil", true, "/profile")),
+        List.of(),
+        mobileNavigation(),
+        List.of(),
+        currency
+    );
   }
 
   private CashierHomeResponse missingOperationalContextHome(

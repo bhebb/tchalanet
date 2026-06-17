@@ -1,7 +1,6 @@
 package com.tchalanet.server.app.batch.context;
 
-import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
-
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
@@ -18,6 +17,8 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.tchalanet.server.common.observability.TchTraceIds.MDC_REQUEST_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -46,27 +47,10 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
 
     private void bindPlatform(String requestId, String actor) {
         var ctx = new TchRequestContext(
-            null,
-            null,
-            null,
-            null,
-            actor,
-            null,
-            Set.of(TchRole.SYSTEM),
-            Set.of(),
-            Locale.FRENCH,
-            requestId,
-            "batch",
-            "batch",
-            false,
-            null,
-            "active",
-            ApiScope.PLATFORM,
-            null,
-            null,
-            ZoneId.of("UTC"),
-            null,
-            null
+            null, null, null, null, actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
+            ApiScope.PLATFORM, null, null, ZoneId.of("UTC"), null, null,
+            TchActorType.SYSTEM, null, Set.of(), Set.of(), null
         );
 
         TchContext.set(ctx);
@@ -87,27 +71,11 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         var zone = info.tenantZoneId() == null ? ZoneId.of("UTC") : info.tenantZoneId();
 
         var ctx = new TchRequestContext(
-            info.tenantCode(),
-            info.tenantId().value(),
-            info.tenantCode(),
-            info.tenantId().value(),
-            actor,
-            null,
-            Set.of(TchRole.SYSTEM),
-            Set.of(),
-            Locale.FRENCH,
-            requestId,
-            "batch",
-            "batch",
-            false,
-            null,
-            "active",
-            ApiScope.TENANT,
-            null,
-            info.tenantId(),
-            zone,
-            info.currency(),
-            null
+            info.tenantCode(), info.tenantId().value(), info.tenantCode(), info.tenantId().value(),
+            actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
+            ApiScope.TENANT, null, info.tenantId(), zone, info.currency(), null,
+            TchActorType.SYSTEM, null, Set.of(), Set.of(), null
         );
 
         TchContext.set(ctx);
@@ -118,16 +86,5 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         MDC.put(MDC_REQUEST_ID, requestId);
         MDC.put("reqId", requestId);
         MDC.put("actor", actor);
-    }
-
-    private static String valueOr(String value, String fallback) {
-        return value == null || value.isBlank() ? fallback : value.trim();
-    }
-
-    private static String required(String value, String key) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("Required parameter missing: " + key);
-        }
-        return value.trim();
     }
 }

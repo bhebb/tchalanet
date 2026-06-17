@@ -33,7 +33,20 @@ export function actionText(item: ActionItem | undefined): string {
 }
 
 export function actionRoute(item: ActionItem | undefined): string {
-  return item?.destination?.kind === 'route' ? item.destination.value : '';
+  if (item?.destination?.kind !== 'route') return '';
+  const value = item.destination.value;
+  const qIdx = value.indexOf('?');
+  return qIdx >= 0 ? value.slice(0, qIdx) : value;
+}
+
+export function actionQueryParams(item: ActionItem | undefined): Record<string, string> | null {
+  if (item?.destination?.kind !== 'route') return null;
+  const value = item.destination.value;
+  const qIdx = value.indexOf('?');
+  if (qIdx < 0) return null;
+  const params: Record<string, string> = {};
+  new URLSearchParams(value.slice(qIdx + 1)).forEach((v, k) => { params[k] = v; });
+  return Object.keys(params).length ? params : null;
 }
 
 export function actionHref(item: ActionItem | undefined): string {

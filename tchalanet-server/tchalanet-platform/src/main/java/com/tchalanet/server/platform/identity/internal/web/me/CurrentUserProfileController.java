@@ -3,7 +3,6 @@ package com.tchalanet.server.platform.identity.internal.web.me;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
@@ -55,15 +54,15 @@ public class CurrentUserProfileController {
   }
 
   @PostMapping("/bootstrap")
-  @Operation(summary = "Bootstrap current user profile from Keycloak sub")
+  @Operation(summary = "Bootstrap current user profile from external identity")
   public ApiResponse<MeResponse> bootstrap(@CurrentContext TchRequestContext ctx) {
     if (ctx.keycloakUserId() == null) {
-      throw ProblemRest.forbidden("Missing Keycloak subject (sub) in token");
+      throw ProblemRest.forbidden("Missing external identity subject in token");
     }
     var result =
         bootstrapService.bootstrap(
             new BootstrapCurrentUserRequest(
-                KeycloakUserSub.parse(ctx.keycloakUserId()),
+                ctx.keycloakUserId(),
                 ctx.effectiveTenantCode(),
                 ctx.keycloakUserId(),
                 null,
@@ -96,7 +95,6 @@ public class CurrentUserProfileController {
     return ApiResponse.success(
         new UserResponse(
             profile.id(),
-            profile.keycloakSub(),
             profile.username(),
             profile.email(),
             profile.firstName(),
@@ -112,7 +110,6 @@ public class CurrentUserProfileController {
     var availableSurfaces = ClientSurfacePolicy.availableSurfaces(roles);
     return new MeResponse(
         view.id(),
-        view.keycloakSub().value(),
         view.username(),
         view.email(),
         view.firstName(),

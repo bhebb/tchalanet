@@ -4,17 +4,16 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Audited
 @Table(name = "offline_sync_batch")
 public class OfflineSyncBatchJpaEntity extends BaseTenantEntity {
 

@@ -2,22 +2,25 @@ package com.tchalanet.server.platform.identity.internal.web.admin;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
+import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
+import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.SetUserRoleRequest;
+import com.tchalanet.server.platform.identity.internal.web.admin.model.LinkExternalIdentityRequest;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Optional;
@@ -36,11 +39,20 @@ class IdentityUserAdminControllerTest {
   private final com.tchalanet.server.platform.accesscontrol.api.AccessControlApi accessControlApi =
       mock(com.tchalanet.server.platform.accesscontrol.api.AccessControlApi.class);
   private final TenantUserProvisioningService provisioning = mock(TenantUserProvisioningService.class);
+  private final ExternalIdentityLinkService externalIdentities = mock(ExternalIdentityLinkService.class);
   // Real assembler over the mocked services so tenant-scoping/view composition stays exercised.
-  private final TenantUserAdminViewAssembler view = new TenantUserAdminViewAssembler(profiles, memberships);
+  private final TenantUserAdminViewAssembler view =
+      new TenantUserAdminViewAssembler(profiles, memberships, externalIdentities);
 
   private final IdentityUserAdminController controller =
-      new IdentityUserAdminController(profiles, users, memberships, accessControlApi, provisioning, view);
+      new IdentityUserAdminController(
+          profiles,
+          users,
+          memberships,
+          externalIdentities,
+          accessControlApi,
+          provisioning,
+          view);
 
   @Nested
   @DisplayName("Role restrictions")
@@ -92,7 +104,6 @@ class IdentityUserAdminControllerTest {
           .thenReturn(
               new UserProfileView(
                   userId,
-                  KeycloakUserSub.of(UUID.randomUUID()),
                   "tenant.user",
                   "tenant.user@tchalanet.test",
                   "+5090000",
@@ -108,6 +119,53 @@ class IdentityUserAdminControllerTest {
 
       controller.getUser(ctx, userId);
     }
+
+    @Test
+    @DisplayName("should link a provider-neutral external identity for a scoped user")
+    void shouldLinkExternalIdentityForScopedUser() {
+      var tenantId = TenantId.of(UUID.randomUUID());
+      var userId = UserId.of(UUID.randomUUID());
+      var ctx = context(tenantId, TchRole.TENANT_ADMIN);
+      var request =
+          new LinkExternalIdentityRequest(
+              IdentityProviderType.FIREBASE,
+              "https://securetoken.google.com/demo",
+              "firebase-uid",
+              "tenant.user@tchalanet.test");
+
+      when(memberships.findByTenantAndUser(tenantId, userId))
+          .thenReturn(Optional.of(TenantMembership.active(tenantId, userId)));
+      when(memberships.findCreatedAt(tenantId, userId)).thenReturn(Optional.empty());
+      when(externalIdentities.hasIdentity(userId)).thenReturn(true);
+      when(profiles.getUserProfile(userId)).thenReturn(userProfile(userId));
+
+      controller.linkExternalIdentity(ctx, userId, request);
+
+      verify(externalIdentities)
+          .link(
+              userId,
+              IdentityProviderType.FIREBASE,
+              "https://securetoken.google.com/demo",
+              "firebase-uid",
+              "tenant.user@tchalanet.test");
+    }
+  }
+
+  private static UserProfileView userProfile(UserId userId) {
+    return new UserProfileView(
+        userId,
+        "tenant.user",
+        "tenant.user@tchalanet.test",
+        "+5090000",
+        UserStatus.ACTIVE,
+        "Tenant",
+        "User",
+        "Tenant User",
+        null,
+        null,
+        "fr",
+        "America/Port-au-Prince",
+        "USD");
   }
 
   private static TchRequestContext context(TenantId tenantId, TchRole role) {
@@ -132,9 +190,8 @@ class IdentityUserAdminControllerTest {
         tenantId,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("USD"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 }
-
-
 

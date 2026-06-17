@@ -1,23 +1,50 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, signOut, user } from '@angular/fire/auth';
+import {
+  Auth,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signOut,
+  user,
+} from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
 
-@Injectable({providedIn: 'root'})
-export class FirebaseAuthService {
-    private readonly auth = inject(Auth);
+import { AuthClient, AuthLoginRequest } from '../auth-client';
 
-    readonly user$ = user(this.auth);
+@Injectable({ providedIn: 'root' })
+export class FirebaseAuthService implements AuthClient {
+  private readonly auth = inject(Auth);
 
-    async login(email: string, password: string): Promise<void> {
-        await signInWithEmailAndPassword(this.auth, email, password);
+  readonly user$ = user(this.auth);
+
+  async isAuthenticated(): Promise<boolean> {
+    return (await firstValueFrom(this.user$)) !== null;
+  }
+
+  async login(request: AuthLoginRequest): Promise<void> {
+    await setPersistence(
+      this.auth,
+      request.remember ? browserLocalPersistence : browserSessionPersistence,
+    );
+    await signInWithEmailAndPassword(this.auth, request.username, request.password);
+  }
+
+  async logout(): Promise<void> {
+    await signOut(this.auth);
+  }
+
+  async getAccessToken(forceRefresh = false): Promise<string | null> {
+    const currentUser = await firstValueFrom(this.user$);
+    return currentUser ? currentUser.getIdToken(forceRefresh) : null;
+  }
+
+  async getTokenExpiresAt(): Promise<string | undefined> {
+    const currentUser = await firstValueFrom(this.user$);
+    if (!currentUser) {
+      return undefined;
     }
 
-    async logout(): Promise<void> {
-        await signOut(this.auth);
-    }
-
-    async getIdToken(forceRefresh = false): Promise<string | null> {
-        const currentUser = await firstValueFrom(this.user$);
-        return currentUser ? currentUser.getIdToken(forceRefresh) : null;
-    }
+    return (await currentUser.getIdTokenResult()).expirationTime;
+  }
 }

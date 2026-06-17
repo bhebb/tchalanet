@@ -19,7 +19,6 @@ import org.hibernate.envers.Audited;
     uniqueConstraints =
         @UniqueConstraint(
             name = "ux_tenant_user_tenant_user", columnNames = {"tenant_id", "user_id"}))
-@Audited
 @Getter
 @Setter
 public class TenantUserJpaEntity extends BaseTenantEntity {

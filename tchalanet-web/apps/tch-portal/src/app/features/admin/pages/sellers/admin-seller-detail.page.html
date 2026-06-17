@@ -1,0 +1,192 @@
+@let vm = state();
+
+@switch (vm.status) {
+  @case ('loading') {
+    <tch-loading label="Chargement du vendeur…" />
+  }
+  @case ('error') {
+    <tch-error-panel
+      title="Erreur"
+      message="Impossible de charger ce vendeur."
+    />
+  }
+  @case ('ready') {
+    @let s = vm.seller;
+
+    <tch-admin-page-header [title]="s.displayName">
+      <a actions mat-button routerLink="../">
+        <mat-icon>arrow_back</mat-icon>
+        Vendeurs
+      </a>
+    </tch-admin-page-header>
+
+    <div class="identity-card">
+      <div class="identity-card__avatar" aria-hidden="true">
+        {{ avatarInitials(s.displayName) }}
+      </div>
+      <div class="identity-card__info">
+        <p class="identity-card__name">{{ s.displayName }}</p>
+        <code class="identity-card__code">{{ s.terminalCode }}</code>
+      </div>
+      <tch-admin-status-badge [code]="s.status" [label]="statusLabel(s.status)" />
+      <div class="identity-card__actions">
+        <button mat-stroked-button (click)="openResetPin(s)">
+          <mat-icon>lock_reset</mat-icon>
+          Réinitialiser PIN
+        </button>
+        @if (s.status === 'ACTIVE' || s.status === 'PENDING') {
+          <button mat-stroked-button class="btn--danger" (click)="block(s)">
+            <mat-icon>block</mat-icon>
+            Bloquer
+          </button>
+        }
+        @if (s.status === 'BLOCKED') {
+          <button mat-flat-button (click)="unblock(s)">
+            <mat-icon>check_circle</mat-icon>
+            Débloquer
+          </button>
+        }
+      </div>
+    </div>
+
+    <mat-tab-group animationDuration="200ms" [disableRipple]="true">
+
+      <mat-tab label="Profil">
+        <div class="tab-content">
+          <tch-admin-form-section title="Coordonnées" icon="contact_phone">
+            <dl class="kv-grid">
+              <div class="kv-row">
+                <dt class="kv-row__key">Téléphone</dt>
+                <dd class="kv-row__val">{{ s.phoneNumber ?? '—' }}</dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Code terminal</dt>
+                <dd class="kv-row__val"><code>{{ s.terminalCode }}</code></dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Point de vente</dt>
+                <dd class="kv-row__val">{{ s.outletId ?? '—' }}</dd>
+              </div>
+            </dl>
+          </tch-admin-form-section>
+
+          <tch-admin-form-section title="Dates" icon="calendar_today">
+            <dl class="kv-grid">
+              <div class="kv-row">
+                <dt class="kv-row__key">Activé le</dt>
+                <dd class="kv-row__val">
+                  @if (s.activatedAt) { {{ s.activatedAt | date:'dd MMM yyyy' }} }
+                  @else { — }
+                </dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Dernière connexion</dt>
+                <dd class="kv-row__val">
+                  @if (s.lastSeenAt) { {{ s.lastSeenAt | date:'dd MMM yyyy, HH:mm' }} }
+                  @else { — }
+                </dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Dernière vente</dt>
+                <dd class="kv-row__val">
+                  @if (s.lastSaleAt) { {{ s.lastSaleAt | date:'dd MMM yyyy, HH:mm' }} }
+                  @else { — }
+                </dd>
+              </div>
+            </dl>
+          </tch-admin-form-section>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Activité">
+        <div class="tab-content">
+          <tch-admin-form-section title="Aujourd'hui" icon="today">
+            <dl class="kv-grid">
+              <div class="kv-row">
+                <dt class="kv-row__key">Tickets vendus</dt>
+                <dd class="kv-row__val">{{ s.todayTicketCount ?? '—' }}</dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Ventes</dt>
+                <dd class="kv-row__val">
+                  @if (s.todaySalesAmount !== null) {
+                    <span class="kv-row__val--accent">{{ s.todaySalesAmount | number:'1.2-2' }} HTG</span>
+                  } @else { — }
+                </dd>
+              </div>
+              <div class="kv-row">
+                <dt class="kv-row__key">Commission</dt>
+                <dd class="kv-row__val">
+                  @if (s.todayCommissionAmount !== null) {
+                    {{ s.todayCommissionAmount | number:'1.2-2' }} HTG
+                  } @else { — }
+                </dd>
+              </div>
+            </dl>
+          </tch-admin-form-section>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Commission">
+        <div class="tab-content">
+          <tch-admin-form-section title="Taux de commission" icon="percent">
+            <dl class="kv-grid">
+              <div class="kv-row">
+                <dt class="kv-row__key">Taux actuel</dt>
+                <dd class="kv-row__val">
+                  @if (s.commissionRate !== null) {
+                    <span class="kv-row__val--accent">{{ s.commissionRate }}%</span>
+                    <span class="kv-row__badge">personnalisé</span>
+                  } @else {
+                    <span class="kv-row__val--muted">Taux par défaut du tenant</span>
+                  }
+                </dd>
+              </div>
+            </dl>
+          </tch-admin-form-section>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Sécurité">
+        <div class="tab-content">
+          <tch-admin-form-section
+            title="Accès terminal"
+            icon="lock"
+            description="Gérez l'accès sécurisé du vendeur à son terminal."
+          >
+            <div class="security-actions">
+              <div class="security-action">
+                <div class="security-action__text">
+                  <p class="security-action__title">PIN de connexion</p>
+                  <p class="security-action__desc">
+                    Le vendeur utilise ce code pour déverrouiller son terminal.
+                  </p>
+                </div>
+                <button mat-stroked-button (click)="openResetPin(s)">
+                  <mat-icon>lock_reset</mat-icon>
+                  Réinitialiser
+                </button>
+              </div>
+
+              @if (s.status === 'ACTIVE' || s.status === 'PENDING') {
+                <div class="security-action security-action--danger">
+                  <div class="security-action__text">
+                    <p class="security-action__title">Bloquer l'accès</p>
+                    <p class="security-action__desc">
+                      Le vendeur ne pourra plus se connecter jusqu'au déblocage.
+                    </p>
+                  </div>
+                  <button mat-stroked-button class="btn--danger" (click)="block(s)">
+                    <mat-icon>block</mat-icon>
+                    Bloquer
+                  </button>
+                </div>
+              }
+            </div>
+          </tch-admin-form-section>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+}

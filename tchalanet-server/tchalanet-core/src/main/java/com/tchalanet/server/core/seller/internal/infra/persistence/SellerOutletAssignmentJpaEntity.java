@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "seller_outlet_assignment")
-@Audited
 @Getter
 @Setter
 public class SellerOutletAssignmentJpaEntity extends BaseTenantEntity {

@@ -3,38 +3,20 @@
 //   Android emulator (default) : https://api.localtest.me:8443/api/v1
 //   macOS / Chrome             : https://api.localtest.me/api/v1
 //
-// Requires: adb reverse tcp:8443 tcp:8443 (same tunnel as Keycloak)
+// Requires: adb reverse tcp:8443 tcp:8443 for local backend access.
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'https://api.localtest.me:8443/api/v1',
 );
 
-// ─── Keycloak ──────────────────────────────────────────────────────────────
-// AppAuth Android SDK enforces HTTPS — HTTP is rejected at the native level.
-//
-// Emulator dev workflow (run once per adb session, port 8443 is non-privileged):
-//   adb reverse tcp:8443 tcp:8443
-//   flutter run --dart-define=POS_DEVICE=true
-//
-// Options:
-//   Android emulator (default) : https://auth.localtest.me:8443
-//   macOS / Chrome             : https://auth.localtest.me
-const kcBaseUrl = String.fromEnvironment(
-  'KC_BASE_URL',
-  defaultValue: 'https://auth.localtest.me:8443',
+// ─── Seller Terminal auth ────────────────────────────────────────────────────
+// Terminal logins use Firebase email/password with derived email:
+//   {terminalCode.toLowerCase()}@{TERMINAL_EMAIL_DOMAIN}
+// In production, set this to the tenant's terminal email domain.
+const terminalEmailDomain = String.fromEnvironment(
+  'TERMINAL_EMAIL_DOMAIN',
+  defaultValue: 'terminal.tchalanet.local',
 );
-
-const kcRealm = String.fromEnvironment(
-  'KC_REALM',
-  defaultValue: 'tchalanet',
-);
-
-const kcClientId = String.fromEnvironment(
-  'KC_CLIENT_ID',
-  defaultValue: 'tchalanet-mobile-pos',
-);
-
-const kcRedirectUri = 'com.tchalanet.mobile:/oauth2redirect';
 
 // ─── Device binding ──────────────────────────────────────────────────────────
 // Sent as X-Device-Binding on authenticated API calls. The backend recomputes

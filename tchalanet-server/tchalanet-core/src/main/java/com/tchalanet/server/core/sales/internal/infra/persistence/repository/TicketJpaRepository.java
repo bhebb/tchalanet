@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,4 +51,29 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
      */
     @Query("select t.version from TicketJpaEntity t where t.id = :id")
     Optional<Long> findVersionById(@Param("id") UUID id);
+
+    @Query("SELECT COUNT(t) FROM TicketJpaEntity t WHERE t.sellerTerminalId = :sellerTerminalId AND t.tenantId = :tenantId AND t.createdAt >= :from AND t.createdAt < :to")
+    long countBySellerTerminalAndPeriod(
+        @Param("sellerTerminalId") UUID sellerTerminalId,
+        @Param("tenantId") UUID tenantId,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT COALESCE(SUM(t.totalAmount), 0) FROM TicketJpaEntity t WHERE t.sellerTerminalId = :sellerTerminalId AND t.tenantId = :tenantId AND t.createdAt >= :from AND t.createdAt < :to")
+    BigDecimal sumTotalAmountBySellerTerminalAndPeriod(
+        @Param("sellerTerminalId") UUID sellerTerminalId,
+        @Param("tenantId") UUID tenantId,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT t.drawId, t.drawChannelName, COUNT(t), COALESCE(SUM(t.totalAmount), 0) " +
+           "FROM TicketJpaEntity t " +
+           "WHERE t.sellerTerminalId = :sellerTerminalId AND t.tenantId = :tenantId " +
+           "AND t.createdAt >= :from AND t.createdAt < :to " +
+           "GROUP BY t.drawId, t.drawChannelName ORDER BY SUM(t.totalAmount) DESC")
+    List<Object[]> statsByDrawForSellerTerminal(
+        @Param("sellerTerminalId") UUID sellerTerminalId,
+        @Param("tenantId") UUID tenantId,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
 }

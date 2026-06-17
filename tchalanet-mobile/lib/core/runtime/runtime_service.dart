@@ -26,9 +26,7 @@ class RuntimeService {
 
   Future<RuntimeBootstrap> fetchTenantBootstrap() async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/tenant/runtime/bootstrap',
-      );
+      final response = await _dio.get<Map<String, dynamic>>('/runtime/private');
       return RuntimeBootstrap.fromJson(
         _data(response),
         scope: RuntimeScope.tenant,

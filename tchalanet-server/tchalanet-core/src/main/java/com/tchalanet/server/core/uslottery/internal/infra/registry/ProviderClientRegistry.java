@@ -4,6 +4,7 @@ import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryP
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -28,5 +29,9 @@ public class ProviderClientRegistry {
             throw new IllegalArgumentException("Unsupported lottery provider: " + provider);
         }
         return client;
+    }
+
+    public Optional<UsLotteryProviderClient> find(UsLotteryProvider provider) {
+        return Optional.ofNullable(clientsByProvider.get(provider));
     }
 }

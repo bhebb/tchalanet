@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,7 +13,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Audited
 @Table(name = "offline_submission_ticket_link")
 public class OfflineSubmissionTicketLinkJpaEntity extends BaseTenantEntity {
 

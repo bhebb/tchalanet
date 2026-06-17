@@ -18,7 +18,6 @@ import org.hibernate.envers.Audited;
 @Table(
     name = "app_user",
     indexes = @Index(name = "ix_app_user_email", columnList = "email"))
-@Audited
 @Getter
 @Setter
 public class AppUserJpaEntity extends BaseEntity {

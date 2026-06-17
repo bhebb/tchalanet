@@ -31,7 +31,49 @@
     },
     "sellers": {
       "title": "Vendeurs",
-      "description": "Gestion des vendeurs"
+      "description": "Gestion des vendeurs",
+      "search_placeholder": "Rechercher un vendeur…",
+      "load_error": "Impossible de charger les vendeurs.",
+      "empty": {
+        "title": "Aucun vendeur",
+        "message": "Ajoutez votre premier terminal vendeur pour commencer."
+      },
+      "new": {
+        "title": "Nouveau vendeur",
+        "action": "Ajouter un vendeur",
+        "description": "Remplissez les informations pour créer un nouveau vendeur.",
+        "submit": "Créer le vendeur"
+      },
+      "detail": {
+        "title": "Détail vendeur"
+      },
+      "status": {
+        "ALL": "Tous",
+        "ACTIVE": "Actif",
+        "PENDING": "En attente",
+        "BLOCKED": "Bloqué",
+        "DISABLED": "Désactivé"
+      },
+      "section": {
+        "identity": "Informations vendeur",
+        "assignment": "Affectation",
+        "commission": "Commission",
+        "security": "Accès sécurisé",
+        "security_desc": "Ce code PIN sera utilisé par le vendeur pour se connecter à son terminal."
+      },
+      "field": {
+        "display_name": "Nom affiché",
+        "phone": "Téléphone",
+        "first_name": "Prénom",
+        "last_name": "Nom de famille",
+        "terminal_code": "Code terminal",
+        "terminal_code_hint": "Identifiant unique du terminal (ex: VND-001)",
+        "commission_rate": "Taux de commission",
+        "commission_rate_hint": "Laissez vide pour utiliser le taux par défaut du tenant.",
+        "commission_rate_error": "Le taux doit être entre 0 et 100.",
+        "pin": "PIN (4 chiffres)",
+        "pin_required": "Le PIN est obligatoire et doit contenir 4 chiffres."
+      }
     },
     "outlets": {
       "title": "Points de vente",
@@ -80,6 +122,66 @@
       },
       "terminals": {
         "label": "Terminaux"
+      },
+      "sales_today": {
+        "label": "Ventes aujourd'hui"
+      },
+      "active_seller_terminals": {
+        "label": "Vendeurs actifs"
+      },
+      "payout_due": {
+        "label": "À payer"
+      },
+      "notifications": {
+        "label": "Notifications"
+      }
+    },
+    "draws": {
+      "title": "Tirages"
+    },
+    "controls": {
+      "title": "Contrôles",
+      "commission": {
+        "title": "Commissions"
+      },
+      "limits": {
+        "title": "Limites"
+      },
+      "odds": {
+        "title": "Cotes"
+      },
+      "bonuses": {
+        "title": "Bonus"
+      }
+    },
+    "promotions": {
+      "title": "Promotions",
+      "maryaj_gratis": {
+        "title": "Maryaj Gratis"
+      },
+      "active": {
+        "title": "Promotions actives"
+      }
+    },
+    "reports": {
+      "title": "Rapports",
+      "today": {
+        "title": "Rapport du jour"
+      },
+      "export": {
+        "title": "Export et impression"
+      }
+    },
+    "more": {
+      "title": "Plus",
+      "space": {
+        "title": "Mon espace"
+      },
+      "account": {
+        "title": "Mon compte"
+      },
+      "support": {
+        "title": "Support"
       }
     }
   },
@@ -154,7 +256,13 @@
       "title": "Écran en préparation",
       "message": "Cette fonctionnalité sera disponible prochainement."
     },
-    "coming_soon": "Bientôt disponible"
+    "coming_soon": "Bientôt disponible",
+    "manage": "Gérer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "validation": {
+      "required": "Ce champ est obligatoire."
+    }
   },
   "dashboard": {
     "actions": {
@@ -205,6 +313,15 @@
       "alerts": {
         "empty": "Aucune alerte",
         "title": "Alertes"
+      },
+      "commission": {
+        "title": "Commission",
+        "default_rate": "Taux par défaut du tenant",
+        "default_not_set": "Non configuré",
+        "seller_terminals": "Vendeurs",
+        "at_default": "Au taux par défaut",
+        "custom": "Taux personnalisé",
+        "rate_range": "Fourchette"
       },
       "kpis": {
         "title": "Indicateurs"
@@ -318,6 +435,7 @@
     "dashboard": {
       "tenant_admin": {
         "kpis": "Indicateurs",
+        "commission": "Configuration des commissions",
         "quick_actions": "Actions rapides",
         "readiness_alerts": "État & alertes"
       }
@@ -373,11 +491,31 @@
       "onboarding": "Onboarding",
       "users": "Utilisateurs",
       "sellers": "Vendeurs",
+      "seller_add": "Ajouter vendeur",
+      "seller_active": "Vendeurs actifs",
+      "controls": "Contrôles",
+      "commission": "Commissions",
+      "odds": "Odds",
+      "baremes": "Barèmes",
+      "draw_channels": "Config canaux",
+      "bonuses": "Primes",
+      "maryaj_free": "Maryaj gratis",
+      "active_promotions": "Promotions actives",
+      "today_report": "Rapport du jour",
+      "export_print": "Export / impression",
+      "more": "Plus",
+      "general_configuration": "Configuration générale",
+      "my_space": "Mon espace",
+      "my_account": "Mon compte",
+      "support": "Support",
       "outlets": "Points de vente",
       "terminals": "Terminaux",
       "sessions": "Sessions",
       "settings": "Paramètres",
-      "spaceTitle": "Admin"
+      "spaceTitle": "Admin",
+      "all_draws": "Tous les tirages",
+      "upcoming_draws": "Tirages à venir",
+      "past_draws": "Tirages passés"
     },
     "cashier": {
       "section": {
@@ -1287,5 +1425,15 @@
   },
   "readiness": {
     "noIssues": "Aucun problème"
+  },
+  "quickaction": {
+    "admin": {
+      "add_seller_terminal": "Ajouter vendeur",
+      "active_seller_terminals": "Vendeurs actifs",
+      "daily_report": "Rapport du jour",
+      "manage_limits": "Gérer limites",
+      "manage_odds": "Gérer odds",
+      "maryaj_gratis": "Maryaj gratis"
+    }
   }
 }

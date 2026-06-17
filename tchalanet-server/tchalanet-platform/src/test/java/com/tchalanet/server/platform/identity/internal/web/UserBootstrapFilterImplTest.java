@@ -1,118 +1,145 @@
 package com.tchalanet.server.platform.identity.internal.web;
 
-import static com.tchalanet.server.common.context.ContextKeys.BOOTSTRAPPED_APP_USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.context.BootstrappedActor;
+import com.tchalanet.server.common.context.TchActorType;
+import com.tchalanet.server.common.context.TchContextRequestAttributes;
+import com.tchalanet.server.common.http.TchHeaders;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
+import com.tchalanet.server.platform.identity.internal.persistence.SellerTerminalExternalIdentityPort;
 import com.tchalanet.server.platform.identity.internal.service.AppUserIdentityResolution;
-import com.tchalanet.server.platform.identity.internal.service.AppUserBootstrapMode;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityAppUserResolver;
+import com.tchalanet.server.platform.identity.internal.service.SellerTerminalIdentityResolution;
+import com.tchalanet.server.platform.identity.internal.service.SellerTerminalIdentityResolution.TerminalBootstrapStatus;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapProperties;
-import java.util.List;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.springframework.mock.web.MockFilterChain;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@ExtendWith(MockitoExtension.class)
 class UserBootstrapFilterImplTest {
 
-  private final ExternalIdentityAppUserResolver appUserResolver =
-      org.mockito.Mockito.mock(ExternalIdentityAppUserResolver.class);
+    private static final ExternalAuthenticatedUser EXTERNAL_USER = new ExternalAuthenticatedUser(
+        IdentityProviderType.FIREBASE, "https://issuer", "sub-123", "a@b.com", true, Map.of());
 
-  @AfterEach
-  void clearSecurityContext() {
-    SecurityContextHolder.clearContext();
-  }
+    @Mock private ExternalIdentityAppUserResolver appUserResolver;
+    @Mock private SellerTerminalExternalIdentityPort sellerTerminalPort;
+    @Mock private UserBootstrapProperties props;
 
-  @ParameterizedTest
-  @EnumSource(IdentityProviderType.class)
-  void bootstrapsEveryProviderThroughTheSameAppUserResolutionPath(IdentityProviderType provider)
-      throws Exception {
-    var externalSubject = "provider-subject";
-    var appUserId = UUID.randomUUID();
-    var authentication = authenticatedWith(provider, externalSubject);
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    when(appUserResolver.resolve(any(ExternalAuthenticatedUser.class)))
-        .thenReturn(Optional.of(new AppUserIdentityResolution(appUserId, UserStatus.ACTIVE)));
+    private UserBootstrapFilterImpl filter;
 
-    var request = new MockHttpServletRequest();
-    var response = new MockHttpServletResponse();
-    var chain = new MockFilterChain();
+    @BeforeEach
+    void setUp() {
+        lenient().when(props.enabled()).thenReturn(true);
+        filter = new UserBootstrapFilterImpl(
+            appUserResolver, sellerTerminalPort, new ExpectedActorTypeResolver(), props);
 
-    new UserBootstrapFilterImpl(appUserResolver, properties())
-        .doFilter(request, response, chain);
+        var auth = new TestingAuthenticationToken("principal", "creds");
+        auth.setAuthenticated(true);
+        auth.setDetails(EXTERNAL_USER);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
-    assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(request.getAttribute(BOOTSTRAPPED_APP_USER_ID)).isEqualTo(appUserId);
-    verify(appUserResolver)
-        .resolve(
-            org.mockito.ArgumentMatchers.argThat(
-                externalUser -> externalUser.provider() == provider));
-    verify(appUserResolver, never()).touchLastLogin(appUserId);
-  }
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
-  @Test
-  void rejectsAuthenticatedRequestWithoutProviderNeutralIdentityDetails() throws Exception {
-    SecurityContextHolder.getContext()
-        .setAuthentication(
-            UsernamePasswordAuthenticationToken.authenticated("principal", "n/a", List.of()));
-    var response = new MockHttpServletResponse();
-    var chain = new MockFilterChain();
+    // ── POS header → SellerTerminal resolver only ───────────────────────────────
 
-    new UserBootstrapFilterImpl(appUserResolver, properties())
-        .doFilter(new MockHttpServletRequest(), response, chain);
+    @Test
+    void posHeader_withActiveTerminal_resolvesSellerTerminal_andSkipsAppUserResolver() {
+        when(sellerTerminalPort.findByExternalIdentity(
+            IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
+            .thenReturn(Optional.of(new SellerTerminalIdentityResolution(
+                SellerTerminalId.of(UUID.randomUUID()),
+                TenantId.of(UUID.randomUUID()),
+                TerminalBootstrapStatus.ACTIVE)));
 
-    assertThat(response.getStatus()).isEqualTo(403);
-    verify(appUserResolver, never()).resolve(any());
-  }
+        var request = posRequest();
+        filter.bootstrap(request);
 
-  @Test
-  void rejectsLocallySuspendedAppUserEvenWhenExternalIdentityIsAuthenticated() throws Exception {
-    var appUserId = UUID.randomUUID();
-    SecurityContextHolder.getContext()
-        .setAuthentication(authenticatedWith(IdentityProviderType.KEYCLOAK, "provider-subject"));
-    when(appUserResolver.resolve(any(ExternalAuthenticatedUser.class)))
-        .thenReturn(Optional.of(new AppUserIdentityResolution(appUserId, UserStatus.SUSPENDED)));
-    var response = new MockHttpServletResponse();
+        assertThat(actorOf(request).actorType()).isEqualTo(TchActorType.SELLER_TERMINAL);
+        verifyNoInteractions(appUserResolver);
+    }
 
-    new UserBootstrapFilterImpl(appUserResolver, properties())
-        .doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
+    @Test
+    void posHeader_noTerminalMapping_isDenied_withoutTryingAppUser() {
+        when(sellerTerminalPort.findByExternalIdentity(
+            IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
+            .thenReturn(Optional.empty());
 
-    assertThat(response.getStatus()).isEqualTo(403);
-    verify(appUserResolver, never()).touchLastLogin(appUserId);
-  }
+        assertThatThrownBy(() -> filter.bootstrap(posRequest()))
+            .isInstanceOf(ProblemRestException.class)
+            .hasMessage("terminal.external_identity_not_linked");
+        verifyNoInteractions(appUserResolver);
+    }
 
-  private static UsernamePasswordAuthenticationToken authenticatedWith(
-      IdentityProviderType provider, String subject) {
-    var authentication =
-        UsernamePasswordAuthenticationToken.authenticated("principal", "n/a", List.of());
-    authentication.setDetails(
-        new ExternalAuthenticatedUser(
-            provider,
-            "https://auth.example/realms/tchalanet",
-            subject,
-            "cashier@example.com",
-            true,
-            Map.of()));
-    return authentication;
-  }
+    @Test
+    void posHeader_inactiveTerminal_isDenied() {
+        when(sellerTerminalPort.findByExternalIdentity(
+            IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
+            .thenReturn(Optional.of(new SellerTerminalIdentityResolution(
+                SellerTerminalId.of(UUID.randomUUID()),
+                TenantId.of(UUID.randomUUID()),
+                TerminalBootstrapStatus.BLOCKED)));
 
-  private static UserBootstrapProperties properties() {
-    return new UserBootstrapProperties(
-        true, false, AppUserBootstrapMode.DENY, List.of(), List.of(), false);
-  }
+        assertThatThrownBy(() -> filter.bootstrap(posRequest()))
+            .isInstanceOf(ProblemRestException.class)
+            .hasMessage("terminal.not_active");
+    }
+
+    // ── No POS header → AppUser resolver only ───────────────────────────────────
+
+    @Test
+    void noPosHeader_withActiveAppUser_resolvesAppUser_andSkipsTerminalResolver() {
+        when(appUserResolver.resolve(EXTERNAL_USER))
+            .thenReturn(Optional.of(new AppUserIdentityResolution(UUID.randomUUID(), UserStatus.ACTIVE)));
+
+        var request = new MockHttpServletRequest();
+        filter.bootstrap(request);
+
+        assertThat(actorOf(request).actorType()).isEqualTo(TchActorType.APP_USER);
+        verifyNoInteractions(sellerTerminalPort);
+    }
+
+    @Test
+    void noPosHeader_noAppUserMapping_isDenied_withoutTryingTerminal() {
+        when(appUserResolver.resolve(EXTERNAL_USER)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> filter.bootstrap(new MockHttpServletRequest()))
+            .isInstanceOf(ProblemRestException.class)
+            .hasMessage("external_identity.not_linked");
+        verifyNoInteractions(sellerTerminalPort);
+    }
+
+    private static MockHttpServletRequest posRequest() {
+        var request = new MockHttpServletRequest();
+        request.addHeader(TchHeaders.X_TCH_CLIENT_TYPE, TchHeaders.CLIENT_TYPE_POS);
+        return request;
+    }
+
+    private static BootstrappedActor actorOf(MockHttpServletRequest request) {
+        return (BootstrappedActor)
+            request.getAttribute(TchContextRequestAttributes.BOOTSTRAPPED_ACTOR);
+    }
 }

@@ -19,7 +19,6 @@ import org.hibernate.envers.Audited;
 @Table(name = "terminal_binding")
 @Getter
 @Setter
-@Audited
 public class TerminalBindingJpaEntity extends BaseTenantEntity {
 
     @Column(name = "terminal_id", nullable = false)

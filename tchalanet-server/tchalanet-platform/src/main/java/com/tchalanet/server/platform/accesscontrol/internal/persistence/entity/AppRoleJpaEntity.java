@@ -14,7 +14,6 @@ import org.hibernate.envers.NotAudited;
 @Table(
     name = "app_role",
     indexes = {@Index(name = "ix_app_role_tenant", columnList = "tenant_id")})
-@Audited
 @Getter
 @Setter
 public class AppRoleJpaEntity extends BaseEntity {

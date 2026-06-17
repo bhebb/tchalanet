@@ -16,7 +16,11 @@ import '../../data/models/cashier_ticket_models.dart';
 import '../view_models/sell_controller.dart';
 
 class CashierSellPage extends ConsumerStatefulWidget {
-  const CashierSellPage({super.key});
+  const CashierSellPage({super.key, this.preselectedDrawId});
+
+  /// When set (e.g., tapped from home draw list), this draw is pre-selected
+  /// before the catalog loads. Falls back to home.primaryDraw if null.
+  final String? preselectedDrawId;
 
   @override
   ConsumerState<CashierSellPage> createState() => _CashierSellPageState();
@@ -35,10 +39,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             loading: () => null,
             error: (_, _) => null,
           );
-      ref
-          .read(sellControllerProvider.notifier)
-          .loadCatalog(
-            preselectedDrawId: home?.primaryDraw?.drawId,
+      ref.read(sellControllerProvider.notifier).loadCatalog(
+            preselectedDrawId:
+                widget.preselectedDrawId ?? home?.primaryDraw?.drawId,
             currency: home?.currency,
           );
     });

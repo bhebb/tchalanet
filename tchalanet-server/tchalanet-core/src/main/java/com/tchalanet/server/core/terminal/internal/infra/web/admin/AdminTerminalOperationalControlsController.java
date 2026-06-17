@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/terminals/{terminalId}/operational-controls")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Terminal • Admin Operational Controls")
 public class AdminTerminalOperationalControlsController {
 

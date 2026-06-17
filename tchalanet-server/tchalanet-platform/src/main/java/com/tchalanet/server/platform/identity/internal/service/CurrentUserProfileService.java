@@ -39,7 +39,6 @@ public class CurrentUserProfileService {
 
     return new CurrentUserView(
         user.id(),
-        user.keycloakSub(),
         user.username(),
         user.email(),
         user.firstName(),
@@ -61,7 +60,6 @@ public class CurrentUserProfileService {
     var pref = preferences.findByUserId(userId).orElse(null);
     return new UserProfileView(
         user.id(),
-        user.keycloakSub(),
         user.username(),
         user.email(),
         user.phone(),

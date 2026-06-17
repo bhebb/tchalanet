@@ -56,6 +56,7 @@ public class EvaluateLimitPolicyQueryHandler
             case LimitScopeRef.DrawChannelScope ignored -> "DRAW_CHANNEL";
             case LimitScopeRef.OutletScope ignored -> "OUTLET";
             case LimitScopeRef.AgentScope ignored -> "AGENT";
+            case LimitScopeRef.SellerTerminalScope ignored -> "SELLER_TERMINAL";
         };
     }
 }

@@ -34,7 +34,6 @@ import java.util.UUID;
  * Currency is inherited from the parent ticket (not stored on the line).
  */
 @Entity
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor

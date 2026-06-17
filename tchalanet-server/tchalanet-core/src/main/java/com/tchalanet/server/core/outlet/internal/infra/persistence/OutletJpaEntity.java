@@ -15,35 +15,42 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.hibernate.type.SqlTypes;
 import tools.jackson.databind.JsonNode;
 
 import java.time.LocalTime;
 import java.util.UUID;
 
+@Audited
 @Entity
 @Table(name = "outlet")
 @Getter
 @Setter
-@Audited
 public class OutletJpaEntity extends BaseTenantEntity {
 
+  @NotAudited
   @Column(name = "name", nullable = false)
   private String name;
 
+  @NotAudited
   @Column(name = "slug", nullable = false)
   private String slug;
 
+  @NotAudited
   @Column(name = "kind", nullable = false, length = 40)
   @Enumerated(EnumType.STRING)
   private OutletKind kind = OutletKind.OWNED_SHOP;
 
+  @NotAudited
   @Column(name = "partner_ref", length = 120)
   private String partnerRef;
 
+  @NotAudited
   @Column(name = "zone_id")
   private UUID zoneId;
 
+  @NotAudited
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata_json", columnDefinition = "jsonb")
   private JsonNode metadataJson;
@@ -88,8 +95,9 @@ public class OutletJpaEntity extends BaseTenantEntity {
   })
   private BlockStateJpaEmbed payoutBlock = new BlockStateJpaEmbed();
 
-  // ── Offline sales block ───────────────────────────────────────────────
+  // ── Offline sales block — not audited ─────────────────────────────────
 
+  @NotAudited
   @Embedded
   @AttributeOverrides({
       @AttributeOverride(name = "blocked", column = @Column(name = "offline_sales_blocked", nullable = false)),
@@ -99,38 +107,49 @@ public class OutletJpaEntity extends BaseTenantEntity {
   })
   private BlockStateJpaEmbed offlineSalesBlock = new BlockStateJpaEmbed();
 
-  // ── Config ────────────────────────────────────────────────────────────
+  // ── Config — not audited ───────────────────────────────────────────────
 
+  @NotAudited
   @Column(name = "timezone", nullable = false)
   private String timezone = "America/Port-au-Prince";
 
+  @NotAudited
   @Column(name = "receipt_printing_enabled", nullable = false)
   private boolean receiptPrintingEnabled = true;
 
+  @NotAudited
   @Column(name = "receipt_header_message")
   private String receiptHeaderMessage;
 
+  @NotAudited
   @Column(name = "receipt_footer_message")
   private String receiptFooterMessage;
 
+  @NotAudited
   @Column(name = "require_opening_float", nullable = false)
   private boolean requireOpeningFloat = true;
 
+  @NotAudited
   @Column(name = "auto_session_open_enabled", nullable = false)
   private boolean autoSessionOpenEnabled = false;
 
+  @NotAudited
   @Column(name = "auto_session_close_enabled", nullable = false)
   private boolean autoSessionCloseEnabled = false;
 
+  @NotAudited
   @Column(name = "session_open_time")
   private LocalTime sessionOpenTime;
 
+  @NotAudited
   @Column(name = "session_close_time")
   private LocalTime sessionCloseTime;
 
+  @NotAudited
   @Column(name = "default_opening_float_cents")
   private Long defaultOpeningFloatCents;
 
+  @NotAudited
   @Column(name = "address_id")
   private UUID addressId;
 }

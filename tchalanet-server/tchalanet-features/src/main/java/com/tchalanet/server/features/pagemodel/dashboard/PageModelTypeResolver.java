@@ -14,7 +14,7 @@ public class PageModelTypeResolver {
     public PageModelType forDashboard(TchRole role) {
         return switch (role) {
             case SUPER_ADMIN -> PageModelType.DASHBOARD_SUPERADMIN;
-            case TENANT_ADMIN, SYSTEM -> PageModelType.DASHBOARD_TENANT_ADMIN;
+            case TENANT_OWNER, TENANT_ADMIN, SYSTEM -> PageModelType.DASHBOARD_TENANT_ADMIN;
             case OPERATOR -> PageModelType.DASHBOARD_OPERATOR;
             case CASHIER -> PageModelType.DASHBOARD_CASHIER_WEB;
         };

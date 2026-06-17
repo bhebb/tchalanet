@@ -34,7 +34,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/tenant/terminals")
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('ACTOR_SELLER_TERMINAL')")
 @RequiredArgsConstructor
 @Tag(name = "Terminal • Tenant Runtime")
 public class TerminalTenantRuntimeController {

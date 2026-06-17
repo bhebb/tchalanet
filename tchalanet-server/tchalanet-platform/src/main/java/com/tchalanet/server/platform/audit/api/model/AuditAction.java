@@ -25,7 +25,14 @@ public enum AuditAction {
     PAYOUT_EXECUTE,   // legacy alias — prefer PAYOUT_PAID
     PAY,              // legacy alias — prefer PAYOUT_PAID
 
+    // ── Kill switches ────────────────────────────────────────────────────
+    RESULT_SLOT_DISABLE,
+    RESULT_SLOT_GAME_DISABLE,
+    DRAW_CHANNEL_DISABLE,
+
     // ── Draw ─────────────────────────────────────────────────────────────
+    DRAW_RESULT_PROPOSE,
+    DRAW_RESULT_CONFIRM,
     DRAW_GENERATE,
     DRAW_OPEN,
     DRAW_CLOSE,
@@ -78,6 +85,15 @@ public enum AuditAction {
     TERMINAL_METADATA_UPDATE,
     TERMINAL_HEARTBEAT,
     TERMINAL_OPERATIONAL_CONTROL_SET,
+
+    // ── SellerTerminal ────────────────────────────────────────────────────
+    SELLER_TERMINAL_CREATE,
+    SELLER_TERMINAL_UPDATE,
+    SELLER_TERMINAL_BLOCK,
+    SELLER_TERMINAL_UNBLOCK,
+    SELLER_TERMINAL_DISABLE,
+    SELLER_TERMINAL_RESET_ACCESS,
+    SELLER_TERMINAL_COMMISSION_CHANGE,
 
     // ── Identity/access (canonical: ROLE_ASSIGN) ─────────────────────────
     ROLE_ASSIGN,

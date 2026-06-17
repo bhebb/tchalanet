@@ -6,13 +6,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "theme_preset")
 @Getter
 @Setter
-@Audited
 public class ThemePresetJpaEntity extends BaseEntity {
 
     @Column(name = "code", nullable = false, length = 128, unique = true)

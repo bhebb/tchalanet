@@ -33,7 +33,9 @@ public class TenantThemeFallbackService {
     public String resolveFallback(TenantId tenantId, String requestedPresetCode) {
 
         // 1) Tenant default theme (if a tenant_theme is marked as defaultTheme=true)
-        var tenantDefaultTheme = tenantThemeAdapter.findByTenantId(tenantId);
+        var tenantDefaultTheme = tenantId != null
+            ? tenantThemeAdapter.findByTenantId(tenantId)
+            : Optional.<TenantTheme>empty();
         if (tenantDefaultTheme.isPresent()
             && tenantDefaultTheme.get().isDefault()
             && isAvailable(tenantDefaultTheme.get().presetCode())) {

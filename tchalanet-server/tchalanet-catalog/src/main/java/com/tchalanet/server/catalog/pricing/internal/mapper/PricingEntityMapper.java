@@ -5,6 +5,9 @@ import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
 import com.tchalanet.server.common.types.id.PricingOddsId;
 import com.tchalanet.server.common.types.id.TenantId;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 @Component
 public class PricingEntityMapper {
@@ -21,4 +24,8 @@ public class PricingEntityMapper {
         e.isActive()
     );
   }
+
+    public List<PricingOddsView> toViews(List<PricingOddsEntity> entities) {
+        return CollectionUtils.isEmpty(entities) ? List.of() : entities.stream().map(this::toView).toList();
+    }
 }

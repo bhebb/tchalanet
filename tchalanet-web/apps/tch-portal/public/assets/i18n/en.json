@@ -31,7 +31,49 @@
     },
     "sellers": {
       "title": "Sellers",
-      "description": "Manage sellers"
+      "description": "Manage seller terminals",
+      "search_placeholder": "Search sellers…",
+      "load_error": "Could not load sellers.",
+      "empty": {
+        "title": "No sellers",
+        "message": "Add your first seller terminal to get started."
+      },
+      "new": {
+        "title": "New seller",
+        "action": "Add a seller",
+        "description": "Fill in the information to create a new vendor.",
+        "submit": "Create vendor"
+      },
+      "detail": {
+        "title": "Seller detail"
+      },
+      "status": {
+        "ALL": "All",
+        "ACTIVE": "Active",
+        "PENDING": "Pending",
+        "BLOCKED": "Blocked",
+        "DISABLED": "Disabled"
+      },
+      "section": {
+        "identity": "Vendor information",
+        "assignment": "Assignment",
+        "commission": "Commission",
+        "security": "Secure access",
+        "security_desc": "This PIN will be used by the vendor to log in to their terminal."
+      },
+      "field": {
+        "display_name": "Display name",
+        "phone": "Phone",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "terminal_code": "Terminal code",
+        "terminal_code_hint": "Unique terminal identifier (e.g. VND-001)",
+        "commission_rate": "Commission rate",
+        "commission_rate_hint": "Leave blank to use the tenant default rate.",
+        "commission_rate_error": "Rate must be between 0 and 100.",
+        "pin": "PIN (4 digits)",
+        "pin_required": "PIN is required and must contain 4 digits."
+      }
     },
     "outlets": {
       "title": "Outlets",
@@ -80,6 +122,66 @@
       },
       "terminals": {
         "label": "Terminals"
+      },
+      "sales_today": {
+        "label": "Today's sales"
+      },
+      "active_seller_terminals": {
+        "label": "Active sellers"
+      },
+      "payout_due": {
+        "label": "Payout due"
+      },
+      "notifications": {
+        "label": "Notifications"
+      }
+    },
+    "draws": {
+      "title": "Draws"
+    },
+    "controls": {
+      "title": "Controls",
+      "commission": {
+        "title": "Commissions"
+      },
+      "limits": {
+        "title": "Limits"
+      },
+      "odds": {
+        "title": "Odds"
+      },
+      "bonuses": {
+        "title": "Bonuses"
+      }
+    },
+    "promotions": {
+      "title": "Promotions",
+      "maryaj_gratis": {
+        "title": "Maryaj Gratis"
+      },
+      "active": {
+        "title": "Active promotions"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "today": {
+        "title": "Daily report"
+      },
+      "export": {
+        "title": "Export & print"
+      }
+    },
+    "more": {
+      "title": "More",
+      "space": {
+        "title": "My space"
+      },
+      "account": {
+        "title": "My account"
+      },
+      "support": {
+        "title": "Support"
       }
     }
   },
@@ -154,7 +256,13 @@
       "title": "Screen in preparation",
       "message": "This feature will be connected in a future release."
     },
-    "coming_soon": "Coming soon"
+    "coming_soon": "Coming soon",
+    "manage": "Manage",
+    "back": "Back",
+    "cancel": "Cancel",
+    "validation": {
+      "required": "This field is required."
+    }
   },
   "dashboard": {
     "actions": {
@@ -205,6 +313,15 @@
       "alerts": {
         "empty": "No alerts",
         "title": "Alerts"
+      },
+      "commission": {
+        "title": "Commission",
+        "default_rate": "Tenant default rate",
+        "default_not_set": "Not configured",
+        "seller_terminals": "Sellers",
+        "at_default": "At default rate",
+        "custom": "Custom rate",
+        "rate_range": "Range"
       },
       "kpis": {
         "title": "Key metrics"
@@ -318,6 +435,7 @@
     "dashboard": {
       "tenant_admin": {
         "kpis": "Key metrics",
+        "commission": "Commission settings",
         "quick_actions": "Quick actions",
         "readiness_alerts": "Readiness & alerts"
       }
@@ -373,11 +491,31 @@
       "onboarding": "Onboarding",
       "users": "Users",
       "sellers": "Sellers",
+      "seller_add": "Add seller",
+      "seller_active": "Active sellers",
+      "controls": "Controls",
+      "commission": "Commissions",
+      "odds": "Odds",
+      "baremes": "Odds tables",
+      "draw_channels": "Channel config",
+      "bonuses": "Bonuses",
+      "maryaj_free": "Free Maryaj",
+      "active_promotions": "Active promotions",
+      "today_report": "Today's report",
+      "export_print": "Export / print",
+      "more": "More",
+      "general_configuration": "General configuration",
+      "my_space": "My workspace",
+      "my_account": "My account",
+      "support": "Support",
       "outlets": "Outlets",
       "terminals": "Terminals",
       "sessions": "Sessions",
       "settings": "Settings",
-      "spaceTitle": "Admin"
+      "spaceTitle": "Admin",
+      "all_draws": "All draws",
+      "upcoming_draws": "Upcoming draws",
+      "past_draws": "Past draws"
     },
     "cashier": {
       "section": {
@@ -1287,5 +1425,15 @@
   },
   "readiness": {
     "noIssues": "No issues"
+  },
+  "quickaction": {
+    "admin": {
+      "add_seller_terminal": "Add seller",
+      "active_seller_terminals": "Active sellers",
+      "daily_report": "Today's report",
+      "manage_limits": "Manage limits",
+      "manage_odds": "Manage odds",
+      "maryaj_gratis": "Maryaj gratis"
+    }
   }
 }

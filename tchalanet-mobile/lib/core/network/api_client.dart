@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/firebase_auth_token_client.dart';
 import '../config/app_config.dart';
 import '../notifications/app_notification_controller.dart';
 import '../observability/diagnostic_repository.dart';
@@ -34,6 +35,7 @@ final apiClientProvider = Provider<Dio>((ref) {
     AuthInterceptor(
       dio,
       tokenStorage,
+      FirebaseAuthTokenClient(),
       ref.read(sessionInvalidationProvider.notifier).invalidate,
     ),
   );

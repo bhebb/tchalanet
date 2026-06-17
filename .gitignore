@@ -78,6 +78,12 @@ pgdata*/
 traefik/dynamic/10-routers.yaml
 site/
 android/
+!tchalanet-mobile/android/
+tchalanet-mobile/android/*
+!tchalanet-mobile/android/settings.gradle.kts
+!tchalanet-mobile/android/app/
+tchalanet-mobile/android/app/*
+!tchalanet-mobile/android/app/google-services.json
 10-routers.yaml
 cloud-init.yml
 .dedupe*.txt

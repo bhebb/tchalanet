@@ -18,6 +18,9 @@ import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
 import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
 import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
+import com.tchalanet.server.core.terminal.api.model.SellerTerminalCommissionStatsView;
+import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalCommissionStatsQuery;
+import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
@@ -49,10 +52,11 @@ class TenantAdminDashboardPayloadAssemblerTest {
     private final DrawChannelCatalog drawChannelCatalog = mock(DrawChannelCatalog.class);
     private final QueryBus queryBus = mock(QueryBus.class);
     private final PublicContentApi publicContentApi = mock(PublicContentApi.class);
+    private final NotificationApi notificationApi = mock(NotificationApi.class);
 
     private final TenantAdminDashboardPayloadAssembler assembler =
         new TenantAdminDashboardPayloadAssembler(
-            tenantCatalog, gameCatalog, drawChannelCatalog, queryBus, publicContentApi);
+            tenantCatalog, gameCatalog, drawChannelCatalog, queryBus, publicContentApi, notificationApi);
 
     private final TenantId tenantId = TenantId.of(UUID.randomUUID());
 
@@ -115,7 +119,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
         assertThat(payload.kpis().salesToday()).isEqualByComparingTo(new BigDecimal("123.45"));
         assertThat(payload.kpis().ticketCountToday()).isEqualTo(42L);
-        assertThat(payload.kpis().activeSessions()).isEqualTo(0L);
+        assertThat(payload.kpis().activeSellerTerminals()).isEqualTo(0L);
         assertThat(payload.kpis().openDraws()).isEqualTo(0L);
         assertThat(payload.kpis().pendingApprovals()).isEqualTo(0L);
     }
@@ -191,7 +195,8 @@ class TenantAdminDashboardPayloadAssemblerTest {
             boundTenant,
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
-            null);
+            null,
+        null, null, null, null, null);
     }
 
     private TenantContextLookupView registry() {
@@ -201,7 +206,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
             "fr", "fr-HT",
-            Optional.empty(), Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     @SuppressWarnings("unchecked")

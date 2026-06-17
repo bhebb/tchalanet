@@ -9,7 +9,7 @@ import { PublicBootstrapResponse } from './public-bootstrap.model';
 export class PublicBootstrapService {
   private readonly backend = inject(TchBackendClient);
 
-  /** Unauthenticated public startup runtime. Stays anonymous even with a Keycloak session. */
+  /** Unauthenticated public startup runtime. Stays anonymous even with a provider session. */
   bootstrap(locale?: string): Observable<PublicBootstrapResponse> {
     return this.backend.get<PublicBootstrapResponse>('/public/runtime/bootstrap', {
       suppressShellFeedback: true,

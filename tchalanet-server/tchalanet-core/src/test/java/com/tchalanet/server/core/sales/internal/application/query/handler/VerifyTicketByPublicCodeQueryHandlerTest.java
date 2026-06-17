@@ -128,7 +128,8 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
             TENANT_ID,
             ZoneOffset.UTC,
             Currency.getInstance("USD"),
-            null
+            null,
+            null, null, null, null, null
         );
     }
 

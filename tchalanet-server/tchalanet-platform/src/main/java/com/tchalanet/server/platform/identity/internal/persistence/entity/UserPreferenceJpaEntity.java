@@ -22,7 +22,6 @@ import org.hibernate.envers.Audited;
 @Table(
     name = "user_preference",
     uniqueConstraints = @UniqueConstraint(name = "ux_user_preference_user_id", columnNames = "user_id"))
-@Audited
 @Getter
 @Setter
 public class UserPreferenceJpaEntity extends BaseEntity {

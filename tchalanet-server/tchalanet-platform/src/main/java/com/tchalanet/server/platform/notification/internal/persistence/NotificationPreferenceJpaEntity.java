@@ -19,7 +19,6 @@ import org.hibernate.envers.Audited;
 @Table(name = "notification_preference")
 @Getter
 @Setter
-@Audited
 public class NotificationPreferenceJpaEntity extends BaseEntity {
 
   @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")

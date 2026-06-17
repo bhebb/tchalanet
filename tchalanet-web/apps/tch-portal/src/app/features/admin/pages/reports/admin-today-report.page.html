@@ -1,0 +1,98 @@
+<tch-admin-page-header
+  title="Rapport du jour"
+  description="Ventes, mises et revenus nets par jeu pour la journée sélectionnée."
+/>
+
+<div class="report-controls">
+  <mat-form-field appearance="outline" class="date-picker">
+    <mat-label>Date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [ngModel]="selectedDate()"
+      [max]="maxDate"
+      (ngModelChange)="onDateChange($event)"
+    />
+    <mat-datepicker-toggle matIconSuffix [for]="picker" />
+    <mat-datepicker #picker />
+  </mat-form-field>
+</div>
+
+@let vm = state();
+
+@switch (vm.status) {
+  @case ('loading') {
+    <tch-loading label="Chargement du rapport…" />
+  }
+  @case ('error') {
+    <tch-error-panel title="Erreur" message="Impossible de charger le rapport." />
+  }
+  @case ('ready') {
+    @if (vm.lines.length === 0) {
+      <tch-admin-empty-state
+        icon="bar_chart"
+        title="Aucune vente"
+        message="Aucune vente enregistrée pour cette journée."
+      />
+    } @else {
+      <!-- Summary cards -->
+      <div class="summary-grid">
+        <div class="stat-card">
+          <span class="stat-card__label">Billets vendus</span>
+          <span class="stat-card__value">{{ vm.totals.ticketsSold | number }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Total mises</span>
+          <span class="stat-card__value">{{ vm.totals.totalSales | number:'1.2-2' }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Total paiements</span>
+          <span class="stat-card__value stat-card__value--payout">{{ vm.totals.totalPayout | number:'1.2-2' }}</span>
+        </div>
+        <div class="stat-card stat-card--revenue">
+          <span class="stat-card__label">Revenu net</span>
+          <span class="stat-card__value">{{ vm.totals.netRevenue | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Breakdown table -->
+      <div class="table-card">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Jeu</th>
+              <th class="col-num">Billets</th>
+              <th class="col-num">Mises</th>
+              <th class="col-num">Paiements</th>
+              <th class="col-num">Revenu net</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of vm.lines; track line.gameCode) {
+              <tr class="report-row" [class.report-row--negative]="line.netRevenue < 0">
+                <td class="report-row__game">{{ gameLabel(line.gameCode) }}</td>
+                <td class="col-num">{{ line.ticketsSold | number }}</td>
+                <td class="col-num">{{ line.totalSales | number:'1.2-2' }}</td>
+                <td class="col-num">{{ line.totalPayout | number:'1.2-2' }}</td>
+                <td class="col-num col-num--revenue" [class.negative]="line.netRevenue < 0">
+                  {{ line.netRevenue | number:'1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="report-total">
+              <td>Total</td>
+              <td class="col-num">{{ vm.totals.ticketsSold | number }}</td>
+              <td class="col-num">{{ vm.totals.totalSales | number:'1.2-2' }}</td>
+              <td class="col-num">{{ vm.totals.totalPayout | number:'1.2-2' }}</td>
+              <td class="col-num col-num--revenue" [class.negative]="vm.totals.netRevenue < 0">
+                {{ vm.totals.netRevenue | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+}

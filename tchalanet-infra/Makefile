@@ -327,13 +327,13 @@ ensure-keycloak-image:
 		echo "✓ Keycloak image exists: tchl/keycloak:local-dev"; \
 	fi
 
-# local-ide : API dans l'IDE, infra P0 dans Docker
-local-ide-up: ensure-keycloak-image p0-up
+# local-ide : API dans l'IDE, infra P0 et Firebase Auth Emulator dans Docker
+local-ide-up: ensure-keycloak-image p0-up up-firebase-emulator
 
 # local-ide avec Redis
-local-ide-up-redis: ensure-keycloak-image p0-plus-up
+local-ide-up-redis: ensure-keycloak-image p0-plus-up up-firebase-emulator
 
-local-ide-down: p0-down
+local-ide-down: down-firebase-emulator p0-down
 
 # local-api : API dans Docker (P0+ + API)
 local-api-up: p0-plus-up

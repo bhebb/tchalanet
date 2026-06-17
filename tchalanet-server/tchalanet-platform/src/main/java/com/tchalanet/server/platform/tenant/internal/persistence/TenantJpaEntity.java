@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -69,4 +70,7 @@ public class TenantJpaEntity extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "config", nullable = false, columnDefinition = "jsonb")
     private String config;
+
+    @Column(name = "default_commission_rate", precision = 5, scale = 2)
+    private BigDecimal defaultCommissionRate;
 }

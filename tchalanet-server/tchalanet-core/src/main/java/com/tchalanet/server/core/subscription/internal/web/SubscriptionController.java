@@ -24,7 +24,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/tenant/subscription")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('TENANT_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 public class SubscriptionController {
     private final CommandBus commandBus;
     private final QueryBus queryBus;

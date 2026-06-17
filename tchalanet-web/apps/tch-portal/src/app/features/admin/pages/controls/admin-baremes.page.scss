@@ -1,0 +1,116 @@
+.baremes-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 1.25rem;
+  padding: 1rem 0;
+}
+
+.game-card {
+  border-radius: 12px;
+  border: 1px solid var(--tch-outline-variant);
+  background: var(--tch-surface);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    background: var(--tch-surface-container-low);
+    border-bottom: 1px solid var(--tch-outline-variant);
+  }
+
+  &__icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--tch-primary);
+  }
+
+  &__title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--tch-on-surface);
+    flex: 1;
+  }
+
+  &__code {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    background: var(--tch-surface-container);
+    color: var(--tch-on-surface-variant);
+  }
+}
+
+.odds-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tch-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--tch-outline-variant);
+    background: var(--tch-surface-container-lowest);
+  }
+
+  &__col--odds {
+    text-align: right !important;
+  }
+}
+
+.odds-row {
+  &:not(:last-child) td {
+    border-bottom: 1px solid var(--tch-outline-variant);
+  }
+
+  &:hover {
+    background: var(--tch-surface-container-lowest);
+  }
+
+  td {
+    padding: 0.625rem 1rem;
+    vertical-align: middle;
+  }
+
+  &__type {
+    font-size: 0.875rem;
+    color: var(--tch-on-surface);
+    font-weight: 500;
+  }
+
+  &__option {
+    font-size: 0.8125rem;
+    color: var(--tch-on-surface-variant);
+  }
+
+  &__odds {
+    text-align: right;
+  }
+}
+
+.option-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--tch-secondary-container);
+  color: var(--tch-on-secondary-container);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.option-none {
+  color: var(--tch-outline);
+}
+
+.multiplier {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--tch-primary);
+  font-variant-numeric: tabular-nums;
+}

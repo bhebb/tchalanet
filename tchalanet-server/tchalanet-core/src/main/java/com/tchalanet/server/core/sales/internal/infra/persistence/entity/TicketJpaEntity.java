@@ -53,7 +53,6 @@ import java.util.UUID;
  * <p>Envers is enabled via {@link Audited} for business audit history.
  */
 @Entity
-@Audited
 @Getter
 @Setter
 @NoArgsConstructor
@@ -102,16 +101,16 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
     // -------------------- Context --------------------
 
-    @Column(name = "outlet_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "outlet_id", columnDefinition = "uuid")
     private UUID outletId;
 
-    @Column(name = "terminal_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "terminal_id", columnDefinition = "uuid")
     private UUID terminalId;
 
-    @Column(name = "seller_user_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "seller_user_id", columnDefinition = "uuid")
     private UUID sellerUserId;
 
-    @Column(name = "sales_session_id", nullable = false, columnDefinition = "uuid")
+    @Column(name = "sales_session_id", columnDefinition = "uuid")
     private UUID salesSessionId;
 
     @Column(name = "draw_id", nullable = false, columnDefinition = "uuid")
@@ -135,6 +134,15 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
     @Column(name = "seller_assignment_id", columnDefinition = "uuid")
     private UUID sellerAssignmentId;
+
+    @Column(name = "seller_terminal_id", columnDefinition = "uuid")
+    private UUID sellerTerminalId;
+
+    @Column(name = "seller_commission_rate_snapshot", precision = 5, scale = 2)
+    private BigDecimal sellerCommissionRateSnapshot;
+
+    @Column(name = "seller_commission_amount_snapshot", precision = 12, scale = 2)
+    private BigDecimal sellerCommissionAmountSnapshot;
 
     // -------------------- Codes --------------------
 

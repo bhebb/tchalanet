@@ -89,6 +89,8 @@ class RuntimeBootstrap {
     required this.readinessStatus,
     required this.notifications,
     required this.notices,
+    this.user,
+    this.tenantContext,
   });
 
   final RuntimeScope scope;
@@ -100,6 +102,8 @@ class RuntimeBootstrap {
   final String readinessStatus;
   final RuntimeNotificationSummary notifications;
   final List<RuntimeNotice> notices;
+  final RuntimeUser? user;
+  final RuntimeTenantContext? tenantContext;
 
   bool hasFeature(String key, {bool safeDefault = false}) =>
       features[key] ?? safeDefault;
@@ -127,8 +131,44 @@ class RuntimeBootstrap {
         _map(json['notifications']),
       ),
       notices: _notices(json['notices']),
+      user: scope == RuntimeScope.tenant
+          ? RuntimeUser.fromJson(_map(json['user']))
+          : null,
+      tenantContext:
+          scope == RuntimeScope.tenant && json['tenantContext'] != null
+          ? RuntimeTenantContext.fromJson(_map(json['tenantContext']))
+          : null,
     );
   }
+}
+
+class RuntimeUser {
+  const RuntimeUser({this.userId, this.username, this.displayName, this.email});
+
+  final String? userId;
+  final String? username;
+  final String? displayName;
+  final String? email;
+
+  factory RuntimeUser.fromJson(Map<String, dynamic> json) => RuntimeUser(
+    userId: _nullableString(json['userId']),
+    username: _nullableString(json['username']),
+    displayName: _nullableString(json['displayName']),
+    email: _nullableString(json['email']),
+  );
+}
+
+class RuntimeTenantContext {
+  const RuntimeTenantContext({required this.tenantId, this.tenantCode});
+
+  final String tenantId;
+  final String? tenantCode;
+
+  factory RuntimeTenantContext.fromJson(Map<String, dynamic> json) =>
+      RuntimeTenantContext(
+        tenantId: json['tenantId']?.toString() ?? '',
+        tenantCode: _nullableString(json['tenantCode']),
+      );
 }
 
 class RuntimeStateSnapshot {
@@ -193,3 +233,8 @@ List<RuntimeNotice> _notices(Object? value) => List.unmodifiable([
     if (notice is Map)
       RuntimeNotice.fromJson(Map<String, dynamic>.from(notice)),
 ]);
+
+String? _nullableString(Object? value) {
+  final text = value?.toString();
+  return text == null || text.isEmpty ? null : text;
+}

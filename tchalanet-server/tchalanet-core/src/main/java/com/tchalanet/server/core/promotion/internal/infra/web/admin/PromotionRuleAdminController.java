@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/promotions/campaigns/{campaignId}/rules")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredFeature(PlanFeatureKeys.PROMOTION_RULES_BASIC)
 @Tag(name = "Promotion • Rules • Admin")
 public class PromotionRuleAdminController {

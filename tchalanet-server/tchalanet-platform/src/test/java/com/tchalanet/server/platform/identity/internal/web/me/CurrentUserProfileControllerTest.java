@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
@@ -88,7 +87,7 @@ class CurrentUserProfileControllerTest {
       var ctx = context(tenantId, userId, null);
 
       assertThatThrownBy(() -> controller.bootstrap(ctx))
-          .hasMessageContaining("Missing Keycloak subject (sub)");
+          .hasMessageContaining("Missing external identity subject");
     }
   }
 
@@ -120,7 +119,6 @@ class CurrentUserProfileControllerTest {
   private static CurrentUserView currentUserView(UserId userId, TenantId tenantId) {
     return new CurrentUserView(
         userId,
-        KeycloakUserSub.of(UUID.randomUUID()),
         "tenant.user",
         "tenant.user@tchalanet.test",
         "Tenant",
@@ -140,7 +138,6 @@ class CurrentUserProfileControllerTest {
   private static UserProfileView userProfileView(UserId userId) {
     return new UserProfileView(
         userId,
-        KeycloakUserSub.of(UUID.randomUUID()),
         "tenant.user",
         "tenant.user@tchalanet.test",
         "+50912345678",
@@ -182,7 +179,7 @@ class CurrentUserProfileControllerTest {
         tenantId,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("USD"),
-        null);
+        null,
+        null, null, null, null, null);
   }
 }
-

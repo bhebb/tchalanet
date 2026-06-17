@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/auth/auth_token_client.dart';
 import '../../../../core/network/session_invalidation_controller.dart';
 import '../../data/models/user_session.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -51,11 +52,11 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> login() async {
+  Future<void> login(AuthCredentials credentials) async {
     final revision = ++_operationRevision;
     state = AuthLoading();
     try {
-      final session = await _repository.login();
+      final session = await _repository.login(credentials);
       if (revision != _operationRevision) return;
       state = AuthAuthenticated(session);
     } catch (_) {

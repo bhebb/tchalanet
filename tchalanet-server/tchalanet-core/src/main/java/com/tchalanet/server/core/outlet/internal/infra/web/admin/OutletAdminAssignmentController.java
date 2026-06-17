@@ -34,7 +34,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/outlets")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Outlet • User Assignment Admin")
 public class OutletAdminAssignmentController {

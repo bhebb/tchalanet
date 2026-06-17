@@ -29,6 +29,7 @@ public class UsLotteryProperties {
         private boolean enabled = true;
         private String baseUrl;
         private String appToken;
+        private String bearerToken;
         private String fallbackBaseUrl;
         private String fallbackPath;
         private String timezone;
