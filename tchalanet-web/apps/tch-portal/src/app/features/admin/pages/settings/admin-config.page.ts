@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import { TenantConfigApiService } from '../../tenant-config-api.service';
@@ -24,6 +25,8 @@ interface ConfigHealth {
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
@@ -41,18 +44,9 @@ interface ConfigHealth {
       </div>
 
       @if (loading()) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          Chargement...
-        </div>
+        <tch-loading label="Chargement..." />
       } @else if (error()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-          @if (traceId()) {
-            <span class="trace-id">ID: {{ traceId() }}</span>
-          }
-        </div>
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
       } @else {
         <!-- Health card -->
         <div class="health-card">
@@ -136,26 +130,6 @@ interface ConfigHealth {
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-        margin-bottom: 1rem;
-      }
-      .trace-id { font-size: 0.75rem; opacity: 0.7; }
       .health-card {
         border: 1px solid var(--tch-color-outline-variant);
         border-radius: 0.75rem;

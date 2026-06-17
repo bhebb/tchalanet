@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import {
@@ -125,6 +126,8 @@ export class GameSettingsDialog {
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -136,15 +139,9 @@ export class GameSettingsDialog {
         <!-- Jeux activés -->
         <mat-tab label="Jeux activés">
           @if (loadingGames()) {
-            <div class="loading-state">
-              <span class="material-symbols-outlined spin">progress_activity</span>
-              Chargement...
-            </div>
+            <tch-loading label="Chargement..." />
           } @else if (errorGames()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ errorGames() }}
-            </div>
+            <tch-error-panel [title]="errorGames()!" />
           } @else if (games().length === 0) {
             <tch-admin-empty-state
               icon="casino"
@@ -190,15 +187,9 @@ export class GameSettingsDialog {
         <!-- Catalogue -->
         <mat-tab label="Catalogue">
           @if (loadingCatalog()) {
-            <div class="loading-state">
-              <span class="material-symbols-outlined spin">progress_activity</span>
-              Chargement...
-            </div>
+            <tch-loading label="Chargement..." />
           } @else if (errorCatalog()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ errorCatalog() }}
-            </div>
+            <tch-error-panel [title]="errorCatalog()!" />
           } @else if (catalog().length === 0) {
             <tch-admin-empty-state
               icon="inventory"
@@ -244,25 +235,6 @@ export class GameSettingsDialog {
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-        margin: 1rem 0;
-      }
       table { width: 100%; }
     `,
   ],

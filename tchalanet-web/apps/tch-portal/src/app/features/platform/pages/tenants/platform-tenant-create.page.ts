@@ -11,7 +11,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe } from '@ngx-translate/core';
 
+import { TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
+import { AdminSectionCardComponent } from '../../../private/shared/admin-ui/admin-section-card.component';
+import {
+  AdminStatusPillComponent,
+  AdminStatusTone,
+} from '../../../private/shared/admin-ui/admin-status-pill.component';
 import { PlatformTenantsApi, TenantType } from '../../platform-tenants-api.service';
 
 const TENANT_TYPES: { value: TenantType; label: string }[] = [
@@ -29,6 +35,9 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
     RouterLink,
     ReactiveFormsModule,
     AdminPageShellComponent,
+    AdminSectionCardComponent,
+    AdminStatusPillComponent,
+    TchErrorPanel,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -47,9 +56,7 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
 
       <div class="create-layout">
         <form [formGroup]="form" (ngSubmit)="submit()" class="form-card">
-          <!-- Section: Identité -->
-          <section class="form-section">
-            <h3 class="section-title">Identité</h3>
+          <tch-admin-section-card title="Identité">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Code (slug)</mat-label>
               <input matInput formControlName="code" placeholder="ex: pap-central" />
@@ -79,11 +86,9 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
                 <mat-error>Type requis.</mat-error>
               }
             </mat-form-field>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Section: Régional -->
-          <section class="form-section">
-            <h3 class="section-title">Paramètres régionaux</h3>
+          <tch-admin-section-card title="Paramètres régionaux">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Fuseau horaire</mat-label>
               <input matInput formControlName="timezone" placeholder="ex: America/Port-au-Prince" />
@@ -99,60 +104,50 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
                 <mat-error>Devise requise.</mat-error>
               }
             </mat-form-field>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Section: Adresse -->
-          <section class="form-section" formGroupName="address">
-            <h3 class="section-title">Adresse (optionnel)</h3>
-            <div class="two-col">
-              <mat-form-field appearance="outline">
-                <mat-label>Pays</mat-label>
-                <input matInput formControlName="country" />
+          <tch-admin-section-card title="Adresse (optionnel)">
+            <div formGroupName="address" class="address-fields">
+              <div class="two-col">
+                <mat-form-field appearance="outline">
+                  <mat-label>Pays</mat-label>
+                  <input matInput formControlName="country" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Ville</mat-label>
+                  <input matInput formControlName="city" />
+                </mat-form-field>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Ligne 1</mat-label>
+                <input matInput formControlName="line1" />
               </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Ville</mat-label>
-                <input matInput formControlName="city" />
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Ligne 2</mat-label>
+                <input matInput formControlName="line2" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Code postal</mat-label>
+                <input matInput formControlName="postalCode" />
               </mat-form-field>
             </div>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Ligne 1</mat-label>
-              <input matInput formControlName="line1" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Ligne 2</mat-label>
-              <input matInput formControlName="line2" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Code postal</mat-label>
-              <input matInput formControlName="postalCode" />
-            </mat-form-field>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Section: Thème -->
-          <section class="form-section">
-            <h3 class="section-title">Thème (optionnel)</h3>
+          <tch-admin-section-card title="Thème (optionnel)">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>ID du thème actif</mat-label>
               <input matInput formControlName="activeThemeId" placeholder="ID du thème" />
             </mat-form-field>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Section: Activation -->
-          <section class="form-section">
-            <h3 class="section-title">Activation</h3>
+          <tch-admin-section-card title="Activation">
             <mat-checkbox formControlName="activate">
               Activer immédiatement après création
             </mat-checkbox>
-          </section>
+          </tch-admin-section-card>
 
           @if (error()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ error() }}
-              @if (traceId()) {
-                <span class="trace-id">ID: {{ traceId() }}</span>
-              }
-            </div>
+            <tch-error-panel [title]="error()!" />
           }
 
           <div class="form-actions">
@@ -168,7 +163,7 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
 
         <!-- Preview card -->
         <aside class="preview-card">
-          <h3 class="section-title">Aperçu</h3>
+          <h3 class="preview-title">Aperçu</h3>
           <dl class="preview-list">
             <dt>Code</dt>
             <dd>{{ form.controls.code.value || '—' }}</dd>
@@ -182,9 +177,7 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
             <dd>{{ form.controls.currency.value || '—' }}</dd>
             <dt>Statut</dt>
             <dd>
-              <span class="status-badge" [attr.data-status]="previewStatus()">
-                {{ previewStatus() }}
-              </span>
+              <tch-admin-status-pill [label]="previewStatus()" [tone]="previewTone()" />
             </dd>
           </dl>
         </aside>
@@ -212,23 +205,6 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
         gap: 0;
       }
 
-      .form-section {
-        border: 1px solid var(--tch-color-outline-variant, #cac4d0);
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .section-title {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--tch-color-on-surface);
-      }
-
       .full-width {
         width: 100%;
       }
@@ -240,6 +216,12 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
       .two-col {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+
+      .address-fields {
+        display: flex;
+        flex-direction: column;
         gap: 0.75rem;
       }
 
@@ -258,6 +240,13 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
         top: 1rem;
       }
 
+      .preview-title {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--tch-color-on-surface);
+      }
+
       .preview-list {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -274,41 +263,6 @@ const TENANT_TYPES: { value: TenantType; label: string }[] = [
         margin: 0;
         font-size: 0.875rem;
         font-weight: 500;
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 0.125rem 0.625rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .status-badge[data-status='ACTIVE'] {
-        background: #d4edda;
-        color: #155724;
-      }
-
-      .status-badge[data-status='DRAFT'] {
-        background: #e9ecef;
-        color: #495057;
-      }
-
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-      }
-
-      .trace-id {
-        font-size: 0.75rem;
-        opacity: 0.7;
-        margin-left: 0.25rem;
       }
 
       .spin {
@@ -357,6 +311,7 @@ export class PlatformTenantCreatePage {
   });
 
   readonly previewStatus = computed(() => (this.form.controls.activate.value ? 'ACTIVE' : 'DRAFT'));
+  readonly previewTone = computed((): AdminStatusTone => this.form.controls.activate.value ? 'success' : 'neutral');
 
   submit(): void {
     if (this.form.invalid || this.loading()) return;

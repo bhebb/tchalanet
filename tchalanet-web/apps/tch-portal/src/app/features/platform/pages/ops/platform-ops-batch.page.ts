@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import {
@@ -202,6 +203,8 @@ export class OpsStartJobDialog {
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -213,15 +216,9 @@ export class OpsStartJobDialog {
         <!-- JOBS TAB -->
         <mat-tab label="Jobs">
           @if (loadingJobs()) {
-            <div class="loading-state">
-              <span class="material-symbols-outlined spin">progress_activity</span>
-              Chargement...
-            </div>
+            <tch-loading label="Chargement..." />
           } @else if (errorJobs()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ errorJobs() }}
-            </div>
+            <tch-error-panel [title]="errorJobs()!" />
           } @else if (jobs().length === 0) {
             <tch-admin-empty-state icon="schedule" title="Aucun job" message="Aucun job configuré." />
           } @else {
@@ -260,15 +257,9 @@ export class OpsStartJobDialog {
         <!-- GATES TAB -->
         <mat-tab label="Gates">
           @if (loadingGates()) {
-            <div class="loading-state">
-              <span class="material-symbols-outlined spin">progress_activity</span>
-              Chargement...
-            </div>
+            <tch-loading label="Chargement..." />
           } @else if (errorGates()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ errorGates() }}
-            </div>
+            <tch-error-panel [title]="errorGates()!" />
           } @else if (gates().length === 0) {
             <tch-admin-empty-state icon="toggle_off" title="Aucun gate" message="Aucun gate configuré." />
           } @else {
@@ -302,15 +293,9 @@ export class OpsStartJobDialog {
         <!-- EXECUTIONS TAB -->
         <mat-tab label="Exécutions">
           @if (loadingExecs()) {
-            <div class="loading-state">
-              <span class="material-symbols-outlined spin">progress_activity</span>
-              Chargement...
-            </div>
+            <tch-loading label="Chargement..." />
           } @else if (errorExecs()) {
-            <div class="error-panel">
-              <span class="material-symbols-outlined">error</span>
-              {{ errorExecs() }}
-            </div>
+            <tch-error-panel [title]="errorExecs()!" />
           } @else if (executions().length === 0) {
             <tch-admin-empty-state icon="history" title="Aucune exécution" message="Aucune exécution enregistrée." />
           } @else {
@@ -353,28 +338,6 @@ export class OpsStartJobDialog {
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin {
-        animation: spin 0.8s linear infinite;
-        display: inline-block;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-        margin: 1rem 0;
-      }
       table {
         width: 100%;
       }

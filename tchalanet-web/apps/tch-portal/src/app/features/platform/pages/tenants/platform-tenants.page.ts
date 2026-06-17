@@ -15,14 +15,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { DatePipe } from '@angular/common';
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
+import { AdminCrudShellComponent } from '../../../private/shared/admin-ui/admin-crud-shell.component';
+import {
+  AdminStatusPillComponent,
+  AdminStatusTone,
+} from '../../../private/shared/admin-ui/admin-status-pill.component';
 import {
   PlatformTenantsApi,
   TenantSummaryView,
 } from '../../platform-tenants-api.service';
 import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-access-dialog';
+
+type TenantStatus = 'ACTIVE' | 'DRAFT' | 'SUSPENDED' | 'ARCHIVED';
 
 @Component({
   selector: 'tch-platform-tenants-page',
@@ -34,6 +42,10 @@ import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-ac
     DatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    AdminCrudShellComponent,
+    AdminStatusPillComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
@@ -44,26 +56,10 @@ import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-ac
       [title]="'platform.tenants.title' | translate"
       [description]="'platform.tenants.description' | translate"
     >
-      <div actions>
-        <a mat-flat-button color="primary" routerLink="../tenants/new">
-          <span class="material-symbols-outlined">add</span>
-          Créer un tenant
-        </a>
-      </div>
-
       @if (loading()) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          Chargement...
-        </div>
+        <tch-loading label="Chargement..." />
       } @else if (error()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-          @if (traceId()) {
-            <span class="trace-id">ID: {{ traceId() }}</span>
-          }
-        </div>
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadPage()" />
       } @else if (items().length === 0) {
         <tch-admin-empty-state
           icon="business"
@@ -71,7 +67,15 @@ import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-ac
           [message]="'Créez le premier tenant pour commencer.'"
         />
       } @else {
-        <div class="table-container">
+        <tch-admin-crud-shell>
+          <ng-container toolbar>
+            <a mat-flat-button color="primary" routerLink="../tenants/new">
+              <span class="material-symbols-outlined">add</span>
+              Créer un tenant
+            </a>
+          </ng-container>
+          <ng-container content>
+          <div class="table-container">
           <table mat-table [dataSource]="items()" class="tenant-table">
             <ng-container matColumnDef="code">
               <th mat-header-cell *matHeaderCellDef>Code</th>
@@ -101,7 +105,7 @@ import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-ac
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef>Statut</th>
               <td mat-cell *matCellDef="let row">
-                <span class="status-badge" [attr.data-status]="row.status">{{ row.status }}</span>
+                <tch-admin-status-pill [label]="row.status" [tone]="statusTone(row.status)" />
               </td>
             </ng-container>
 
@@ -165,90 +169,32 @@ import { StartTenantAdminAccessDialog } from '../../shared/start-tenant-admin-ac
             </ng-template>
           </mat-menu>
         </div>
-
-        <div class="pagination">
-          <button mat-button [disabled]="page() === 0" (click)="prevPage()">
-            <span class="material-symbols-outlined">chevron_left</span>
-            Précédent
-          </button>
-          <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-          <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
-            Suivant
-            <span class="material-symbols-outlined">chevron_right</span>
-          </button>
-        </div>
+          </ng-container>
+          <ng-container footer>
+            <div class="pagination">
+              <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+                <span class="material-symbols-outlined">chevron_left</span>
+                Précédent
+              </button>
+              <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+              <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+                Suivant
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+          </ng-container>
+        </tch-admin-crud-shell>
       }
     </tch-admin-page-shell>
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-
-      .spin {
-        animation: spin 0.8s linear infinite;
-        display: inline-block;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-      }
-
-      .trace-id {
-        font-size: 0.75rem;
-        opacity: 0.7;
-        margin-left: 0.25rem;
-      }
-
       .table-container {
         overflow-x: auto;
       }
 
       .tenant-table {
         width: 100%;
-      }
-
-      .status-badge {
-        display: inline-block;
-        padding: 0.125rem 0.625rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .status-badge[data-status='ACTIVE'] {
-        background: #d4edda;
-        color: #155724;
-      }
-
-      .status-badge[data-status='SUSPENDED'] {
-        background: #fff3cd;
-        color: #856404;
-      }
-
-      .status-badge[data-status='DRAFT'],
-      .status-badge[data-status='ARCHIVED'] {
-        background: #e9ecef;
-        color: #495057;
       }
 
       .pagination {
@@ -351,6 +297,16 @@ export class PlatformTenantsPage implements OnInit {
       },
       error: () => this.snackBar.open('Erreur lors de l\'archivage.', 'OK', { duration: 4000 }),
     });
+  }
+
+  statusTone(status: TenantStatus): AdminStatusTone {
+    const map: Record<TenantStatus, AdminStatusTone> = {
+      ACTIVE: 'success',
+      DRAFT: 'neutral',
+      SUSPENDED: 'warning',
+      ARCHIVED: 'danger',
+    };
+    return map[status] ?? 'neutral';
   }
 
   openAdminAccess(tenant: TenantSummaryView): void {
