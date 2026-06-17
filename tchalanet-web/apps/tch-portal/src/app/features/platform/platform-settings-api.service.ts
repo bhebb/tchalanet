@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
-import { TchPageResult } from './platform-ops-api.service';
+import { TchPage as TchPageResult } from './platform-ops-api.service';
 
 export interface SettingView {
   id: { value: string };

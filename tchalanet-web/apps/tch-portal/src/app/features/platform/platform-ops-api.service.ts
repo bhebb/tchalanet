@@ -2,74 +2,192 @@ import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export const VALID_JOB_KEYS = [
-  'draw:lifecycle:generate',
-  'draw:lifecycle:open',
-  'draw:lifecycle:close',
-  'draw:lifecycle:settle',
-  'results:external:refresh',
-  'results:external:fetch',
-  'results:external:apply',
-  'results:external:manual',
-  'results:external:override',
-  'catalog:search:reindex',
-] as const;
+// ── Batch Jobs ──────────────────────────────────────────────────────────────
 
-export type JobKey = (typeof VALID_JOB_KEYS)[number];
-
-export interface BatchJobView {
-  jobKey: JobKey;
-  status: string;
-  lastRunAt?: string;
-  nextRunAt?: string;
+export interface JobInfoResponse {
+  job_key: string;
+  display_name: string;
+  scope: string;
+  required_params: string[];
+  optional_params: string[];
 }
 
-export interface BatchGateView {
-  jobKey: JobKey;
-  enabled: boolean;
-  reason?: string;
-}
-
-export interface BatchExecutionView {
-  executionId: string;
-  jobKey: JobKey;
-  status: string;
-  startedAt: string;
-  endedAt?: string;
-  tenantCode?: string;
-  dryRun: boolean;
-}
-
+/** POST /platform/ops/batch/jobs/{jobKey}:start */
 export interface StartJobRequest {
-  jobKey: JobKey;
-  tenantCode?: string;
-  dryRun?: boolean;
-  force?: boolean;
-  reason?: string;
-  parameters?: Record<string, unknown>;
+  params: Record<string, string>;
 }
 
-export interface DrawOperationRequest {
-  dryRun?: boolean;
-  force?: boolean;
-  reason?: string;
-}
-
-export interface DrawResultView {
-  drawResultId: string;
-  drawId: string;
-  slotCode: string;
+export interface StartJobResponse {
+  job_key: string;
+  execution_id: number;
   status: string;
-  fetchedAt?: string;
-  confirmedAt?: string;
+  started_at: string;
 }
 
-export interface ManualResultRequest {
-  drawId: string;
-  slotCode: string;
-  numbers: number[];
+// ── Batch Gates ─────────────────────────────────────────────────────────────
+
+/** PUT /platform/ops/batch/gates/{jobKey} */
+export interface GateUpdateRequest {
+  scope: 'GLOBAL' | 'TENANT';
+  tenant_id?: string | null;
+  enabled: boolean;
   reason: string;
 }
+
+// ── Draw Calendar ───────────────────────────────────────────────────────────
+
+export interface GenerateDrawsRequest {
+  tenantCodes?: string[];
+  from: string;
+  to: string;
+  dryRun?: boolean;
+  force?: boolean;
+  reason?: string;
+}
+
+export interface OpenTodayDrawsRequest {
+  tenantCodes?: string[];
+  now?: string;
+  drawDate?: string;
+  limit?: number;
+  dryRun?: boolean;
+}
+
+export interface CloseDueDrawsRequest {
+  tenantCodes?: string[];
+  now?: string;
+  limit?: number;
+  dryRun?: boolean;
+}
+
+export interface ApplyExternalResultsRequest {
+  baseDate?: string;
+  daysBack?: number;
+  slotKeys?: string[];
+  force?: boolean;
+  dryRun?: boolean;
+  maxSlots?: number;
+  reason?: string;
+}
+
+export interface TenantBatchOutcome<R> {
+  tenantId: string;
+  ok: boolean;
+  result: R | null;
+  error: string | null;
+}
+
+export interface TenantBatchResponse<R> {
+  tenantsRequested: number;
+  tenantsSucceeded: number;
+  tenantsFailed: number;
+  tenants: TenantBatchOutcome<R>[];
+}
+
+export interface GenerateDrawsForRangeResult {
+  created: number;
+  skipped: number;
+  alreadyExists: number;
+  conflicts: number;
+  skippedProviderClosed: number;
+}
+
+export interface OpenDueDrawsResult {
+  opened: number;
+  skippedLocked: number;
+  skippedTooLateOrCutoffPassed: number;
+  canceledProviderClosed: number;
+}
+
+export interface CloseDueDrawsResult {
+  closed: number;
+  skippedLocked: number;
+}
+
+export interface ApplyExternalResultsWindowResult {
+  inserted: number;
+  updated: number;
+  notFound: number;
+  errors: number;
+}
+
+// ── Draw Results ─────────────────────────────────────────────────────────────
+
+/** POST /platform/ops/draw-results/fetch  (also used for /refresh) */
+export interface FetchExternalResultsRequest {
+  baseDate?: string;
+  daysBack?: number;
+  slotKeys?: string[];
+  force?: boolean;
+  dryRun?: boolean;
+  maxSlots?: number;
+  reason?: string;
+  includeRaw?: boolean;
+}
+
+export interface FetchExternalResultsWindowResult {
+  inserted: number;
+  updated: number;
+  noop: number;
+  skipped: number;
+  notFound: number;
+}
+
+export interface RefreshExternalResultsWindowResult {
+  fetched: number;
+  projectedOk: number;
+  projectedFail: number;
+  upserted: number;
+  applied: number;
+  notFound: number;
+}
+
+export interface OverrideDrawResultRequest {
+  tenantId: string;
+  slotKey: string;
+  drawDate: string;
+  pick3?: string;
+  pick4?: string;
+  reason: string;
+  force?: boolean;
+}
+
+export interface RecordManualDrawResultRequest {
+  tenantId: string;
+  drawDate: string;
+  slotKey: string;
+  recordedBy: string;
+  notes?: string;
+  pick3?: string;
+  pick4?: string;
+  force?: boolean;
+  reason?: string;
+}
+
+export interface DrawResultOpsResponse {
+  id: string;
+  slotKey: string;
+  occurredAt: string;
+  status: string;
+  source: string;
+  quality: string;
+  sourceHash?: string;
+  fetchedAt?: string;
+  sourceResult?: unknown;
+  haitiResult?: unknown;
+  rawPayload?: unknown;
+  overrideReason?: string;
+}
+
+export interface TchPage<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+// ── Draw Lifecycle (admin/draws) ─────────────────────────────────────────────
 
 export interface DrawSummaryResponse {
   drawId: string;
@@ -82,13 +200,7 @@ export interface DrawSummaryResponse {
   settledAt?: string | null;
 }
 
-export interface TchPageResult<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
+// ── Cache ────────────────────────────────────────────────────────────────────
 
 export interface CacheView {
   cacheName: string;
@@ -97,78 +209,95 @@ export interface CacheView {
   lastClearedAt?: string;
 }
 
+// ── Service ──────────────────────────────────────────────────────────────────
+
 @Injectable({ providedIn: 'root' })
 export class PlatformOpsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listJobs(): Observable<BatchJobView[]> {
-    return this.backend.get<BatchJobView[]>('/platform/ops/batch/jobs');
+  // Batch Jobs
+  listJobs(): Observable<JobInfoResponse[]> {
+    return this.backend.get<JobInfoResponse[]>('/platform/ops/batch/jobs');
   }
 
-  startJob(jobKey: JobKey, req: StartJobRequest): Observable<void> {
-    return this.backend.post<void>(`/platform/ops/batch/jobs/${jobKey}:start`, req);
+  startJob(jobKey: string, req: StartJobRequest): Observable<StartJobResponse> {
+    return this.backend.post<StartJobResponse>(`/platform/ops/batch/jobs/${jobKey}:start`, req);
   }
 
-  listGates(): Observable<BatchGateView[]> {
-    return this.backend.get<BatchGateView[]>('/platform/ops/batch/gates:effective');
+  // Batch Gates
+  listGates(jobKeys?: string[]): Observable<Record<string, boolean>> {
+    const q = jobKeys?.length ? `?job_keys=${jobKeys.join(',')}` : '';
+    return this.backend.get<Record<string, boolean>>(`/platform/ops/batch/gates:effective${q}`);
   }
 
-  updateGate(jobKey: JobKey, enabled: boolean): Observable<void> {
-    return this.backend.put<void>(`/platform/ops/batch/gates/${jobKey}`, { enabled });
+  updateGate(jobKey: string, req: GateUpdateRequest): Observable<void> {
+    return this.backend.put<void>(`/platform/ops/batch/gates/${jobKey}`, req);
   }
 
-  listExecutions(params?: { jobKey?: string; limit?: number }): Observable<BatchExecutionView[]> {
-    const query = params
-      ? `?${new URLSearchParams(
+  // Draw Calendar
+  generateDraws(req: GenerateDrawsRequest): Observable<TenantBatchResponse<GenerateDrawsForRangeResult>> {
+    return this.backend.post<TenantBatchResponse<GenerateDrawsForRangeResult>>('/platform/ops/draws/generate', req);
+  }
+
+  openTodayDraws(req: OpenTodayDrawsRequest): Observable<TenantBatchResponse<OpenDueDrawsResult>> {
+    return this.backend.post<TenantBatchResponse<OpenDueDrawsResult>>('/platform/ops/draws/open-today', req);
+  }
+
+  closeDueDraws(req: CloseDueDrawsRequest): Observable<TenantBatchResponse<CloseDueDrawsResult>> {
+    return this.backend.post<TenantBatchResponse<CloseDueDrawsResult>>('/platform/ops/draws/close-due', req);
+  }
+
+  applyDrawResults(req: ApplyExternalResultsRequest): Observable<ApplyExternalResultsWindowResult> {
+    return this.backend.post<ApplyExternalResultsWindowResult>('/platform/ops/draws/apply', req);
+  }
+
+  // Draw Results
+  listDrawResults(params?: {
+    slotKey?: string;
+    status?: string;
+    quality?: string;
+    from?: string;
+    to?: string;
+    page?: number;
+    size?: number;
+    sort?: string;
+  }): Observable<TchPage<DrawResultOpsResponse>> {
+    const q = params
+      ? new URLSearchParams(
           Object.fromEntries(
             Object.entries(params)
-              .filter(([, v]) => v !== undefined)
+              .filter(([, v]) => v !== undefined && v !== '')
               .map(([k, v]) => [k, String(v)]),
           ),
-        ).toString()}`
+        ).toString()
       : '';
-    return this.backend.get<BatchExecutionView[]>(`/platform/ops/batch/executions${query}`);
+    return this.backend.get<TchPage<DrawResultOpsResponse>>(
+      `/platform/ops/draw-results${q ? '?' + q : ''}`,
+    );
   }
 
-  generateDraws(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draws/generate', req);
+  fetchDrawResults(req: FetchExternalResultsRequest): Observable<FetchExternalResultsWindowResult> {
+    return this.backend.post<FetchExternalResultsWindowResult>('/platform/ops/draw-results/fetch', req);
   }
 
-  openTodayDraws(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draws/open-today', req);
+  refreshDrawResults(req: FetchExternalResultsRequest): Observable<RefreshExternalResultsWindowResult> {
+    return this.backend.post<RefreshExternalResultsWindowResult>('/platform/ops/draw-results/refresh', req);
   }
 
-  closeDueDraws(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draws/close-due', req);
+  overrideDrawResult(req: OverrideDrawResultRequest): Observable<unknown> {
+    return this.backend.post<unknown>('/platform/ops/draw-results/override', req);
   }
 
-  applyDrawResults(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draws/apply', req);
+  manualDrawResult(req: RecordManualDrawResultRequest): Observable<unknown> {
+    return this.backend.post<unknown>('/platform/ops/draw-results/manual', req);
   }
 
-  listDrawResults(): Observable<DrawResultView[]> {
-    return this.backend.get<DrawResultView[]>('/platform/ops/draw-results');
+  confirmDrawResult(drawResultId: string): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/ops/draw-results/${drawResultId}/confirm`, {});
   }
 
-  fetchDrawResults(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draw-results/fetch', req);
-  }
-
-  refreshDrawResults(req: DrawOperationRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draw-results/refresh', req);
-  }
-
-  manualDrawResult(req: ManualResultRequest): Observable<void> {
-    return this.backend.post<void>('/platform/ops/draw-results/manual', req);
-  }
-
-  confirmDrawResult(drawResultId: string, reason: string): Observable<void> {
-    return this.backend.post<void>(`/platform/ops/draw-results/${drawResultId}/confirm`, {
-      reason,
-    });
-  }
-
-  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPageResult<DrawSummaryResponse>> {
+  // Draw Lifecycle (per-draw admin actions)
+  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPage<DrawSummaryResponse>> {
     const q = new URLSearchParams(
       Object.fromEntries(
         Object.entries(params)
@@ -176,7 +305,7 @@ export class PlatformOpsApi {
           .map(([k, v]) => [k, String(v)]),
       ),
     ).toString();
-    return this.backend.get<TchPageResult<DrawSummaryResponse>>(`/admin/draws${q ? '?' + q : ''}`);
+    return this.backend.get<TchPage<DrawSummaryResponse>>(`/admin/draws${q ? '?' + q : ''}`);
   }
 
   cancelDraw(drawId: string, reason: string): Observable<DrawSummaryResponse> {
@@ -203,6 +332,7 @@ export class PlatformOpsApi {
     return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/reschedule`, { newScheduledAt });
   }
 
+  // Cache
   listCaches(): Observable<CacheView[]> {
     return this.backend.get<CacheView[]>('/platform/ops/cache');
   }
