@@ -9,6 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import {
@@ -116,6 +117,8 @@ function daysInMonth(year: number, month: number): number {
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -133,15 +136,9 @@ function daysInMonth(year: number, month: number): number {
       </div>
 
       @if (loading()) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          Chargement...
-        </div>
+        <tch-loading label="Chargement..." />
       } @else if (error()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-        </div>
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadMonth()" />
       } @else {
         <!-- Month navigation -->
         <div class="month-nav">
@@ -208,24 +205,6 @@ function daysInMonth(year: number, month: number): number {
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-      }
       .month-nav {
         display: flex;
         align-items: center;
@@ -334,7 +313,7 @@ export class AdminBusinessDaysPage implements OnInit {
     this.loadMonth();
   }
 
-  private loadMonth(): void {
+  loadMonth(): void {
     const from = startOfMonth(this.currentYear(), this.currentMonth());
     const to = endOfMonth(this.currentYear(), this.currentMonth());
     this.loading.set(true);

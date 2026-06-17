@@ -9,8 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
+import { AdminCrudShellComponent } from '../../../private/shared/admin-ui/admin-crud-shell.component';
 import { PlatformOpsApi, DrawResultView, DrawOperationRequest } from '../../platform-ops-api.service';
 
 // ── Confirm action dialog (for sensitive per-row ops) ──────────────────────────
@@ -142,6 +144,9 @@ export class DrawResultActionDialog {
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    AdminCrudShellComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -163,28 +168,13 @@ export class DrawResultActionDialog {
       </div>
 
       @if (actionError()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ actionError() }}
-          @if (actionTraceId()) {
-            <span class="trace-id">ID: {{ actionTraceId() }}</span>
-          }
-        </div>
+        <tch-error-panel [title]="actionError()!" />
       }
 
       @if (loading()) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          Chargement...
-        </div>
+        <tch-loading label="Chargement..." />
       } @else if (error()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-          @if (traceId()) {
-            <span class="trace-id">ID: {{ traceId() }}</span>
-          }
-        </div>
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="ngOnInit()" />
       } @else if (results().length === 0) {
         <tch-admin-empty-state
           icon="receipt_long"
@@ -192,74 +182,58 @@ export class DrawResultActionDialog {
           message="Aucun résultat de tirage disponible."
         />
       } @else {
-        <div class="table-container">
-          <table mat-table [dataSource]="results()">
-            <ng-container matColumnDef="drawResultId">
-              <th mat-header-cell *matHeaderCellDef>ID Résultat</th>
-              <td mat-cell *matCellDef="let row">{{ row.drawResultId }}</td>
-            </ng-container>
-            <ng-container matColumnDef="drawId">
-              <th mat-header-cell *matHeaderCellDef>ID Tirage</th>
-              <td mat-cell *matCellDef="let row">{{ row.drawId }}</td>
-            </ng-container>
-            <ng-container matColumnDef="slotCode">
-              <th mat-header-cell *matHeaderCellDef>Slot</th>
-              <td mat-cell *matCellDef="let row">{{ row.slotCode }}</td>
-            </ng-container>
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Statut</th>
-              <td mat-cell *matCellDef="let row">{{ row.status }}</td>
-            </ng-container>
-            <ng-container matColumnDef="fetchedAt">
-              <th mat-header-cell *matHeaderCellDef>Récupéré le</th>
-              <td mat-cell *matCellDef="let row">{{ row.fetchedAt ?? '—' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="confirmedAt">
-              <th mat-header-cell *matHeaderCellDef>Confirmé le</th>
-              <td mat-cell *matCellDef="let row">{{ row.confirmedAt ?? '—' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let row">
-                <div class="row-actions">
-                  @if (!row.confirmedAt) {
-                    <button mat-stroked-button (click)="confirmResult(row)">
-                      <span class="material-symbols-outlined">check_circle</span>
-                      Confirmer
-                    </button>
-                  }
-                </div>
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        </div>
+        <tch-admin-crud-shell>
+          <ng-container content>
+            <div class="table-container">
+              <table mat-table [dataSource]="results()">
+                <ng-container matColumnDef="drawResultId">
+                  <th mat-header-cell *matHeaderCellDef>ID Résultat</th>
+                  <td mat-cell *matCellDef="let row">{{ row.drawResultId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="drawId">
+                  <th mat-header-cell *matHeaderCellDef>ID Tirage</th>
+                  <td mat-cell *matCellDef="let row">{{ row.drawId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="slotCode">
+                  <th mat-header-cell *matHeaderCellDef>Slot</th>
+                  <td mat-cell *matCellDef="let row">{{ row.slotCode }}</td>
+                </ng-container>
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Statut</th>
+                  <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+                </ng-container>
+                <ng-container matColumnDef="fetchedAt">
+                  <th mat-header-cell *matHeaderCellDef>Récupéré le</th>
+                  <td mat-cell *matCellDef="let row">{{ row.fetchedAt ?? '—' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="confirmedAt">
+                  <th mat-header-cell *matHeaderCellDef>Confirmé le</th>
+                  <td mat-cell *matCellDef="let row">{{ row.confirmedAt ?? '—' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let row">
+                    <div class="row-actions">
+                      @if (!row.confirmedAt) {
+                        <button mat-stroked-button (click)="confirmResult(row)">
+                          <span class="material-symbols-outlined">check_circle</span>
+                          Confirmer
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          </ng-container>
+        </tch-admin-crud-shell>
       }
     </tch-admin-page-shell>
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-        margin-bottom: 1rem;
-      }
-      .trace-id { font-size: 0.75rem; opacity: 0.7; }
       .table-container { overflow-x: auto; }
       table { width: 100%; }
       .row-actions { display: flex; gap: 0.5rem; }

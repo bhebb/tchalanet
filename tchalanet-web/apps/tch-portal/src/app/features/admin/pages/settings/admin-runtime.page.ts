@@ -4,8 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
+import { AdminSectionCardComponent } from '../../../private/shared/admin-ui/admin-section-card.component';
+import {
+  AdminStatusPillComponent,
+  AdminStatusTone,
+} from '../../../private/shared/admin-ui/admin-status-pill.component';
 import { RuntimeApiService, TenantRuntimeView } from '../../runtime-api.service';
 
 const LANGUAGE_LABELS: Record<string, string> = {
@@ -26,6 +32,10 @@ function languageLabel(code: string): string {
     RouterLink,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
+    AdminSectionCardComponent,
+    AdminStatusPillComponent,
+    TchLoading,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
   ],
@@ -42,18 +52,9 @@ function languageLabel(code: string): string {
       </div>
 
       @if (loading()) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          Chargement...
-        </div>
+        <tch-loading label="Chargement..." />
       } @else if (error()) {
-        <div class="error-panel">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-          @if (traceId()) {
-            <span class="trace-id">ID: {{ traceId() }}</span>
-          }
-        </div>
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="reload()" />
       } @else if (!runtime()) {
         <tch-admin-empty-state
           icon="dns"
@@ -62,9 +63,7 @@ function languageLabel(code: string): string {
         />
       } @else {
         <div class="sections">
-          <!-- Runtime Info -->
-          <section class="info-section">
-            <h3 class="section-title">Informations runtime</h3>
+          <tch-admin-section-card title="Informations runtime">
             <dl class="info-list">
               <dt>Code</dt>
               <dd>{{ runtime()!.code }}</dd>
@@ -72,31 +71,25 @@ function languageLabel(code: string): string {
               <dd>{{ runtime()!.name }}</dd>
               <dt>Statut</dt>
               <dd>
-                <span class="status-badge" [attr.data-status]="runtime()!.status">
-                  {{ runtime()!.status }}
-                </span>
+                <tch-admin-status-pill [label]="runtime()!.status" [tone]="runtimeStatusTone(runtime()!.status)" />
               </dd>
               <dt>Langue par défaut</dt>
               <dd>{{ runtime()!.defaultLanguage ? languageLabel(runtime()!.defaultLanguage!) : '—' }}</dd>
               <dt>Locale par défaut</dt>
               <dd>{{ runtime()!.defaultLocale ?? '—' }}</dd>
             </dl>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Regional Config -->
-          <section class="info-section">
-            <h3 class="section-title">Configuration régionale</h3>
+          <tch-admin-section-card title="Configuration régionale">
             <dl class="info-list">
               <dt>Fuseau horaire</dt>
               <dd>{{ runtime()!.timezone }}</dd>
               <dt>Devise</dt>
               <dd>{{ runtime()!.currency }}</dd>
             </dl>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Supported Locales -->
-          <section class="info-section">
-            <h3 class="section-title">Locales supportées</h3>
+          <tch-admin-section-card title="Locales supportées">
             @if (runtime()!.supportedLocales.length === 0) {
               <p class="empty-message">Aucune locale configurée.</p>
             } @else {
@@ -106,17 +99,13 @@ function languageLabel(code: string): string {
                 }
               </ul>
             }
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Raw JSON -->
-          <section class="info-section">
-            <h3 class="section-title">Données brutes (JSON)</h3>
+          <tch-admin-section-card title="Données brutes (JSON)">
             <pre class="json-block">{{ runtimeJson() }}</pre>
-          </section>
+          </tch-admin-section-card>
 
-          <!-- Quick Actions -->
-          <section class="info-section">
-            <h3 class="section-title">Actions rapides</h3>
+          <tch-admin-section-card title="Actions rapides">
             <div class="quick-actions">
               <a mat-stroked-button routerLink="/app/admin/business-days">
                 <span class="material-symbols-outlined">calendar_today</span>
@@ -131,39 +120,14 @@ function languageLabel(code: string): string {
                 Configuration
               </a>
             </div>
-          </section>
+          </tch-admin-section-card>
         </div>
       }
     </tch-admin-page-shell>
   `,
   styles: [
     `
-      .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        color: var(--tch-color-on-surface-variant);
-      }
-      .spin { animation: spin 0.8s linear infinite; display: inline-block; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .error-panel {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: var(--tch-color-error-container, #ffdad6);
-        color: var(--tch-color-on-error-container, #410002);
-      }
-      .trace-id { font-size: 0.75rem; opacity: 0.7; }
       .sections { display: flex; flex-direction: column; gap: 1.25rem; }
-      .info-section {
-        border: 1px solid var(--tch-color-outline-variant);
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-      }
-      .section-title { margin: 0 0 0.75rem; font-size: 1rem; font-weight: 600; }
       .info-list {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -172,16 +136,6 @@ function languageLabel(code: string): string {
       }
       dt { font-size: 0.8125rem; color: var(--tch-color-on-surface-variant); }
       dd { margin: 0; font-size: 0.875rem; font-weight: 500; }
-      .status-badge {
-        display: inline-block;
-        padding: 0.125rem 0.625rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-      .status-badge[data-status='ACTIVE'] { background: #d4edda; color: #155724; }
-      .status-badge[data-status='SUSPENDED'] { background: #fff3cd; color: #856404; }
       .locale-list { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0; list-style: none; margin: 0; }
       .locale-chip {
         display: inline-block;
@@ -210,6 +164,16 @@ export class AdminRuntimePage implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly languageLabel = languageLabel;
+
+  runtimeStatusTone(status: string): AdminStatusTone {
+    const map: Record<string, AdminStatusTone> = {
+      ACTIVE: 'success',
+      DRAFT: 'neutral',
+      SUSPENDED: 'warning',
+      ARCHIVED: 'danger',
+    };
+    return map[status] ?? 'neutral';
+  }
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
