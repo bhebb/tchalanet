@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,8 +32,7 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../platform-tenants-ap
   ],
   template: `
     <tch-admin-page-shell
-      [title]="'Créer un admin tenant'"
-      [description]="tenant() ? 'Tenant ciblé : ' + tenant()!.name + ' (' + tenant()!.code + ')' : ''"
+      [title]="pageTitle()"
     >
       <div actions>
         <a mat-button [routerLink]="['..']">
@@ -154,6 +153,9 @@ export class PlatformTenantAdminCreatePage implements OnInit {
   readonly error = signal<string | null>(null);
   readonly traceId = signal<string | null>(null);
   readonly tenant = signal<TenantSummaryView | null>(null);
+  readonly pageTitle = computed(() =>
+    this.tenant() ? `Ajouter un admin — ${this.tenant()!.name}` : 'Ajouter un admin',
+  );
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

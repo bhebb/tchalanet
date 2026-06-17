@@ -85,6 +85,26 @@ export const platformRoutes: Route[] = [
       import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
   },
   {
+    path: 'ops/draw-lifecycle',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-draw-lifecycle.page').then(m => m.PlatformOpsDrawLifecyclePage),
+  },
+  {
+    path: 'ops/settings',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
+    path: 'ops/i18n',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
+  },
+  {
+    path: 'ops/pagemodels',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
+  },
+  {
     path: 'audit',
     loadComponent: () =>
       import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
