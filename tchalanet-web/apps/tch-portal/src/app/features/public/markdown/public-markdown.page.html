@@ -1,0 +1,23 @@
+<div class="md-page">
+  <header class="md-page__header">
+    <p class="md-page__eyebrow">{{ eyebrowKey() | translate }}</p>
+    <h1>{{ titleKey() | translate }}</h1>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <div class="md-page__loading" role="status" [attr.aria-label]="'public.markdown.loading' | translate">
+        <span class="material-symbols-outlined md-page__spin" aria-hidden="true">progress_activity</span>
+      </div>
+    }
+    @case ('error') {
+      <div class="md-page__error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error_outline</span>
+        <p>{{ 'public.markdown.error' | translate }}</p>
+      </div>
+    }
+    @case ('loaded') {
+      <article class="md-page__content" [innerHTML]="html()"></article>
+    }
+  }
+</div>

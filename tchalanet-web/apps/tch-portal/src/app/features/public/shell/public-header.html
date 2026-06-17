@@ -1,0 +1,52 @@
+<header class="public-header">
+  <div class="public-header__inner">
+    <button
+      type="button"
+      mat-icon-button
+      class="public-header__menu-button"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      [attr.aria-label]="
+        (mobileMenuOpen() ? 'public.nav.menu_close' : 'public.nav.menu_open') | tchLabel
+      "
+      (click)="toggleMobileMenu()"
+      aria-controls="public-overlay-nav"
+    >
+      <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+    </button>
+
+    <tch-brand class="public-header__brand" [brand]="brand()" [showName]="false" />
+
+    <!-- Tablet nav: compact labels, hidden on mobile and desktop -->
+    <tch-nav
+      class="public-header__nav public-header__nav--short"
+      [items]="navCompact()"
+      [ariaLabel]="'public.nav.main' | tchLabel"
+    />
+
+    <!-- Desktop nav: full labels, hidden on mobile and tablet -->
+    <tch-nav
+      class="public-header__nav public-header__nav--long"
+      [items]="nav()"
+      [ariaLabel]="'public.nav.main' | tchLabel"
+    />
+
+    <div class="public-header__actions">
+      <div class="public-header__tools">
+        <tch-language-switcher />
+      </div>
+      @if (loginAction(); as loginItem) {
+        <button tch-action type="button" (click)="login()">
+          {{ actionText(loginItem) | tchLabel }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <tch-overlay-nav
+    id="public-overlay-nav"
+    [open]="mobileMenuOpen()"
+    [items]="nav()"
+    [ariaLabel]="'public.nav.main' | tchLabel"
+    (requestClose)="closeMobileMenu()"
+  />
+</header>

@@ -1,0 +1,66 @@
+<tch-admin-page-shell title="Configuration tenant" description="Paramètres de configuration du tenant.">
+  <div actions>
+    <button mat-stroked-button [disabled]="loading()" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error()) {
+    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else {
+    <div class="config-page__health">
+      <h3 class="config-page__health-title">Santé de la configuration</h3>
+      <div class="config-page__health-grid">
+        @for (item of healthItems(); track item.key) {
+          <div class="config-page__health-item">
+            <span class="material-symbols-outlined config-page__health-icon config-page__health-icon--{{ item.state }}">
+              {{ item.state === 'valid' ? 'check_circle' : item.state === 'invalid' ? 'error' : 'help' }}
+            </span>
+            {{ item.label }}
+          </div>
+        }
+      </div>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Locale">
+        @if (config()) {
+          <div class="config-page__tab-content">
+            <pre class="config-page__json">{{ localeJson() }}</pre>
+          </div>
+        }
+      </mat-tab>
+      <mat-tab label="Communication">
+        <div class="config-page__tab-content">
+          @if (commConfig()) {
+            <pre class="config-page__json">{{ commJson() }}</pre>
+          } @else {
+            <tch-admin-empty-state icon="notifications" title="Non configuré" message="Aucune configuration de communication disponible." />
+          }
+        </div>
+      </mat-tab>
+      <mat-tab label="Document">
+        <div class="config-page__tab-content">
+          @if (docConfig()) {
+            <pre class="config-page__json">{{ docJson() }}</pre>
+          } @else {
+            <tch-admin-empty-state icon="description" title="Non configuré" message="Aucune configuration de document disponible." />
+          }
+        </div>
+      </mat-tab>
+      <mat-tab label="Règles">
+        <div class="config-page__tab-content">
+          <tch-admin-empty-state icon="rule" title="Règles métier" message="Affichage des règles métier bientôt disponible." />
+        </div>
+      </mat-tab>
+      <mat-tab label="JSON brut">
+        <div class="config-page__tab-content">
+          <pre class="config-page__json">{{ rawJson() }}</pre>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</tch-admin-page-shell>

@@ -1,139 +1,112 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core';
-import { DecimalPipe } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, startWith, Subject, switchMap } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
+import { AdminSectionCardComponent } from '../../../private/shared/admin-ui/admin-section-card.component';
+import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import {
-  TchLoading,
-  TchErrorPanel,
-  AdminPageHeader,
-  AdminDataTable,
-  AdminMobileCardList,
-  AdminStatusBadge,
-  AdminEmptyState,
-  AdminConfirmDialog,
-  type AdminConfirmDialogData,
-} from '@tch/ui/components';
-
-import {
-  CommissionAdminApi,
-  CommissionOverview,
-  SellerCommissionRow,
-} from '../../commission-admin.api.service';
-import {
-  SetCommissionRateDialog,
-  type SetRateDialogData,
-} from './set-commission-rate.dialog';
-
-const PAGE_SIZE = 100;
-
-type PageState =
-  | { readonly status: 'loading' }
-  | { readonly status: 'error' }
-  | {
-      readonly status: 'ready';
-      readonly overview: CommissionOverview;
-      readonly sellers: readonly SellerCommissionRow[];
-    };
-
-const DISPLAYED_COLUMNS = ['vendor', 'rate', 'source', 'actions'] as const;
+  AdminCommissionApi,
+  CommissionOverviewView,
+  SellerTerminalCommissionRow,
+} from '../../admin-commission-api.service';
+import { SetDefaultRateDialog } from './dialogs/set-default-rate.dialog';
+import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
 
 @Component({
   selector: 'tch-admin-commission-page',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DecimalPipe,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
+    AdminPageShellComponent,
+    AdminSectionCardComponent,
+    AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
-    AdminPageHeader,
-    AdminDataTable,
-    AdminMobileCardList,
-    AdminStatusBadge,
-    AdminEmptyState,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTableModule,
   ],
   templateUrl: './admin-commission.page.html',
-  styleUrl: './admin-commission.page.scss',
+  styleUrls: ['./admin-commission.page.scss'],
 })
-export class AdminCommissionPage {
-  private readonly api = inject(CommissionAdminApi);
+export class AdminCommissionPage implements OnInit {
+  private readonly api = inject(AdminCommissionApi);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = DISPLAYED_COLUMNS;
+  readonly sellerColumns = ['terminalCode', 'displayName', 'status', 'commissionRate', 'source', 'actions'];
 
-  private readonly refresh$ = new Subject<void>();
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly overview = signal<CommissionOverviewView | null>(null);
+  readonly sellers = signal<SellerTerminalCommissionRow[]>([]);
 
-  readonly state = toSignal(
-    this.refresh$.pipe(
-      startWith(undefined as void),
-      switchMap(() =>
-        this.api.overview().pipe(
-          switchMap(overview =>
-            this.api.listSellers({ size: PAGE_SIZE }).pipe(
-              map(page => ({ status: 'ready', overview, sellers: page.items }) as PageState),
-            ),
-          ),
-          catchError(() => of({ status: 'error' } as PageState)),
-          startWith({ status: 'loading' } as PageState),
-        ),
-      ),
-    ),
-    { initialValue: { status: 'loading' } as PageState },
-  );
-
-  editDefaultRate(): void {
-    const vm = this.state();
-    if (vm.status !== 'ready') return;
-
-    const data: SetRateDialogData = {
-      title: 'Taux de commission par défaut',
-      currentRate: vm.overview.tenantDefaultRate,
-      label: 'Nouveau taux défaut',
-    };
-    this.dialog
-      .open(SetCommissionRateDialog, { data, width: '360px' })
-      .afterClosed()
-      .subscribe(result => {
-        if (result) this.api.setDefaultRate(result.rate).subscribe({ next: () => this.refresh$.next() });
-      });
+  ngOnInit(): void {
+    this.load();
   }
 
-  editSellerRate(row: SellerCommissionRow): void {
-    const data: SetRateDialogData = {
-      title: `Commission — ${row.displayName}`,
-      currentRate: row.commissionRate,
-      label: 'Taux personnalisé',
-    };
-    this.dialog
-      .open(SetCommissionRateDialog, { data, width: '360px' })
-      .afterClosed()
-      .subscribe(result => {
-        if (result) this.api.setSellerRate(row.sellerTerminalId, result.rate).subscribe({ next: () => this.refresh$.next() });
-      });
+  load(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.api.getOverview().subscribe({
+      next: v => { this.overview.set(v); this.loading.set(false); },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.loading.set(false);
+      },
+    });
+
+    this.api.listSellers().subscribe({
+      next: v => this.sellers.set(v),
+      error: () => {},
+    });
   }
 
-  resetSellerRate(row: SellerCommissionRow): void {
-    const data: AdminConfirmDialogData = {
-      title: 'Remettre au taux défaut',
-      message: `Le taux de ${row.displayName} reviendra au taux par défaut du tenant.`,
-      confirmLabel: 'Confirmer',
-    };
-    this.dialog
-      .open(AdminConfirmDialog, { data, width: '400px' })
-      .afterClosed()
-      .subscribe(confirmed => {
-        if (confirmed) this.api.resetSellerRate(row.sellerTerminalId).subscribe({ next: () => this.refresh$.next() });
+  openSetDefaultRate(): void {
+    const current = this.overview()?.tenantDefaultRate ?? 0;
+    const ref = this.dialog.open(SetDefaultRateDialog, { data: { current }, width: '420px' });
+    ref.afterClosed().subscribe((rate: number | undefined) => {
+      if (rate == null) return;
+      this.api.setDefaultRate(rate).subscribe({
+        next: () => {
+          this.snackBar.open('Taux par défaut mis à jour.', 'OK', { duration: 3000 });
+          this.load();
+        },
+        error: () => this.snackBar.open('Erreur lors de la mise à jour.', 'OK', { duration: 4000 }),
       });
+    });
+  }
+
+  openSetSellerRate(row: SellerTerminalCommissionRow): void {
+    const ref = this.dialog.open(SetSellerRateDialog, { data: { row }, width: '420px' });
+    ref.afterClosed().subscribe((rate: number | undefined) => {
+      if (rate == null) return;
+      this.api.setSellerRate(row.id.value, rate).subscribe({
+        next: () => {
+          this.snackBar.open('Taux vendeur mis à jour.', 'OK', { duration: 3000 });
+          this.load();
+        },
+        error: () => this.snackBar.open('Erreur lors de la mise à jour.', 'OK', { duration: 4000 }),
+      });
+    });
+  }
+
+  resetSellerRate(row: SellerTerminalCommissionRow): void {
+    this.api.resetSellerRate(row.id.value).subscribe({
+      next: () => {
+        this.snackBar.open(`${row.displayName} revenu au taux par défaut.`, 'OK', { duration: 3000 });
+        this.load();
+      },
+      error: () => this.snackBar.open('Erreur lors de la réinitialisation.', 'OK', { duration: 4000 }),
+    });
   }
 }

@@ -1,0 +1,73 @@
+<tch-admin-page-shell title="Runtime tenant" description="Configuration d'exécution du tenant courant.">
+  <div actions>
+    <button mat-stroked-button [disabled]="loading()" (click)="reload()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error()) {
+    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="reload()" />
+  } @else if (!runtime()) {
+    <tch-admin-empty-state icon="dns" title="Aucune donnée runtime" message="Impossible de récupérer les informations runtime." />
+  } @else {
+    <div class="runtime-page__sections">
+      <tch-admin-section-card title="Informations runtime">
+        <dl class="runtime-page__info-list">
+          <dt>Code</dt><dd>{{ runtime()!.code }}</dd>
+          <dt>Nom</dt><dd>{{ runtime()!.name }}</dd>
+          <dt>Statut</dt>
+          <dd>
+            <tch-admin-status-pill [label]="runtime()!.status" [tone]="runtimeStatusTone(runtime()!.status)" />
+          </dd>
+          <dt>Langue par défaut</dt>
+          <dd>{{ runtime()!.defaultLanguage ? languageLabel(runtime()!.defaultLanguage!) : '—' }}</dd>
+          <dt>Locale par défaut</dt>
+          <dd>{{ runtime()!.defaultLocale ?? '—' }}</dd>
+        </dl>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card title="Configuration régionale">
+        <dl class="runtime-page__info-list">
+          <dt>Fuseau horaire</dt><dd>{{ runtime()!.timezone }}</dd>
+          <dt>Devise</dt><dd>{{ runtime()!.currency }}</dd>
+        </dl>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card title="Locales supportées">
+        @if (runtime()!.supportedLocales.length === 0) {
+          <p class="runtime-page__empty">Aucune locale configurée.</p>
+        } @else {
+          <ul class="runtime-page__locale-list">
+            @for (locale of runtime()!.supportedLocales; track locale) {
+              <li class="runtime-page__locale-chip">{{ languageLabel(locale) }} ({{ locale }})</li>
+            }
+          </ul>
+        }
+      </tch-admin-section-card>
+
+      <tch-admin-section-card title="Données brutes (JSON)">
+        <pre class="runtime-page__json">{{ runtimeJson() }}</pre>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card title="Actions rapides">
+        <div class="runtime-page__quick-actions">
+          <a mat-stroked-button routerLink="/app/admin/business-days">
+            <span class="material-symbols-outlined">calendar_today</span>
+            Jours ouvrables
+          </a>
+          <a mat-stroked-button routerLink="/app/admin/games">
+            <span class="material-symbols-outlined">casino</span>
+            Jeux
+          </a>
+          <a mat-stroked-button routerLink="/app/admin/settings/config">
+            <span class="material-symbols-outlined">tune</span>
+            Configuration
+          </a>
+        </div>
+      </tch-admin-section-card>
+    </div>
+  }
+</tch-admin-page-shell>

@@ -1,0 +1,22 @@
+<tch-admin-page-shell
+  title="Opérations — Tirages"
+  description="Gestion manuelle du cycle de vie des tirages."
+>
+  <div class="draws-page__grid">
+    @for (action of drawActions; track action.id) {
+      <div class="draws-page__card">
+        <div class="draws-page__card-icon">
+          <span class="material-symbols-outlined">{{ action.icon }}</span>
+        </div>
+        <div class="draws-page__card-body">
+          <h3 class="draws-page__card-title">{{ action.title }}</h3>
+          <p class="draws-page__card-desc">{{ action.description }}</p>
+        </div>
+        <button mat-flat-button color="primary" (click)="action.open()">
+          <span class="material-symbols-outlined">play_arrow</span>
+          Exécuter
+        </button>
+      </div>
+    }
+  </div>
+</tch-admin-page-shell>
