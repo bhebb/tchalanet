@@ -1,140 +1,101 @@
-<tch-admin-page-header
-  title="Commissions"
-  description="Taux par défaut et taux personnalisés par vendeur."
->
-  <button actions mat-flat-button (click)="editDefaultRate()">
-    <mat-icon>edit</mat-icon>
-    Taux défaut
-  </button>
-</tch-admin-page-header>
+<tch-admin-page-shell title="Commissions" description="Taux de commission par défaut et par vendeur.">
+  <div actions>
+    <button mat-stroked-button [disabled]="loading()" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+    <button mat-flat-button color="primary" [disabled]="loading()" (click)="openSetDefaultRate()">
+      <span class="material-symbols-outlined">edit</span>
+      Modifier taux par défaut
+    </button>
+  </div>
 
-@let vm = state();
-
-@switch (vm.status) {
-  @case ('loading') {
-    <tch-loading label="Chargement…" />
-  }
-  @case ('error') {
-    <tch-error-panel
-      title="Erreur"
-      message="Impossible de charger les données de commission."
-    />
-  }
-  @case ('ready') {
-
-    <div class="overview-strip">
-      <div class="stat-card stat-card--primary">
-        <span class="stat-card__value">{{ vm.overview.tenantDefaultRate | number:'1.1-2' }}%</span>
-        <span class="stat-card__label">Taux par défaut</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-card__value">{{ vm.overview.totalSellerTerminals }}</span>
-        <span class="stat-card__label">Vendeurs total</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-card__value">{{ vm.overview.countAtDefaultRate }}</span>
-        <span class="stat-card__label">Au taux défaut</span>
-      </div>
-      <div class="stat-card stat-card--accent">
-        <span class="stat-card__value">{{ vm.overview.countWithCustomRate }}</span>
-        <span class="stat-card__label">Taux personnalisé</span>
-      </div>
-      @if (vm.overview.minRate !== null && vm.overview.maxRate !== null) {
-        <div class="stat-card">
-          <span class="stat-card__value">
-            {{ vm.overview.minRate | number:'1.1-2' }}% – {{ vm.overview.maxRate | number:'1.1-2' }}%
-          </span>
-          <span class="stat-card__label">Fourchette</span>
-        </div>
-      }
-    </div>
-
-    @if (vm.sellers.length === 0) {
-      <tch-admin-empty-state
-        icon="percent"
-        title="Aucun vendeur"
-        message="Aucun vendeur actif à afficher."
-      />
-    } @else {
-
-      <tch-admin-data-table>
-        <table mat-table [dataSource]="vm.sellers">
-
-          <ng-container matColumnDef="vendor">
-            <th mat-header-cell *matHeaderCellDef>Vendeur</th>
-            <td mat-cell *matCellDef="let row">
-              <div class="cell-vendor">
-                <span class="cell-vendor__name">{{ row.displayName }}</span>
-                <code class="cell-vendor__code">{{ row.terminalCode }}</code>
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="rate">
-            <th mat-header-cell *matHeaderCellDef>Taux</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="rate-value" [class.rate-value--custom]="row.rateSource === 'CUSTOM'">
-                {{ row.commissionRate | number:'1.1-2' }}%
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="source">
-            <th mat-header-cell *matHeaderCellDef>Source</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-badge
-                [code]="row.rateSource"
-                [label]="row.rateSource === 'CUSTOM' ? 'Personnalisé' : 'Défaut'"
-              />
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row" class="cell-actions">
-              <button mat-icon-button matTooltip="Modifier le taux" (click)="editSellerRate(row)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              @if (row.rateSource === 'CUSTOM') {
-                <button mat-icon-button matTooltip="Remettre au taux défaut" (click)="resetSellerRate(row)">
-                  <mat-icon>restart_alt</mat-icon>
-                </button>
-              }
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </tch-admin-data-table>
-
-      <tch-admin-mobile-card-list>
-        @for (row of vm.sellers; track row.sellerTerminalId) {
-          <div class="tch-list-row">
-            <div class="tch-list-row__main">
-              <span class="tch-list-row__title">{{ row.displayName }}</span>
-              <span class="tch-list-row__subtitle">{{ row.terminalCode }}</span>
-            </div>
-            <span class="tch-list-row__meta-secondary">
-              {{ row.commissionRate | number:'1.1-2' }}%
-            </span>
-            <tch-admin-status-badge
-              [code]="row.rateSource"
-              [label]="row.rateSource === 'CUSTOM' ? 'Personnalisé' : 'Défaut'"
-            />
-            <div class="mobile-actions">
-              <button mat-icon-button (click)="editSellerRate(row)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              @if (row.rateSource === 'CUSTOM') {
-                <button mat-icon-button (click)="resetSellerRate(row)">
-                  <mat-icon>restart_alt</mat-icon>
-                </button>
-              }
-            </div>
-          </div>
-        }
-      </tch-admin-mobile-card-list>
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error()) {
+    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else {
+    @if (overview()) {
+      <tch-admin-section-card title="Vue d'ensemble">
+        <dl class="commission-page__overview">
+          <dt>Taux par défaut</dt>
+          <dd>{{ overview()!.tenantDefaultRate }}%</dd>
+          <dt>Total vendeurs</dt>
+          <dd>{{ overview()!.totalSellerTerminals }}</dd>
+          <dt>Au taux par défaut</dt>
+          <dd>{{ overview()!.countAtDefaultRate }}</dd>
+          <dt>Taux personnalisé</dt>
+          <dd>{{ overview()!.countWithCustomRate }}</dd>
+          <dt>Min / Max</dt>
+          <dd>{{ overview()!.minRate }}% / {{ overview()!.maxRate }}%</dd>
+        </dl>
+      </tch-admin-section-card>
     }
+
+    <tch-admin-section-card title="Vendeurs">
+      @if (sellers().length === 0) {
+        <tch-admin-empty-state icon="point_of_sale" title="Aucun vendeur" message="Aucun vendeur enregistré." />
+      } @else {
+        <div class="commission-page__table">
+          <table mat-table [dataSource]="sellers()">
+            <ng-container matColumnDef="terminalCode">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row">{{ row.terminalCode }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="displayName">
+              <th mat-header-cell *matHeaderCellDef>Nom</th>
+              <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="commissionRate">
+              <th mat-header-cell *matHeaderCellDef>Taux</th>
+              <td mat-cell *matCellDef="let row">{{ row.commissionRate }}%</td>
+            </ng-container>
+
+            <ng-container matColumnDef="source">
+              <th mat-header-cell *matHeaderCellDef>Source</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="commission-page__source-badge commission-page__source-badge--{{ row.source | lowercase }}">
+                  {{ row.source === 'CUSTOM' ? 'Personnalisé' : 'Défaut' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ row }">
+                  <span class="material-symbols-outlined">more_vert</span>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="sellerColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: sellerColumns"></tr>
+          </table>
+        </div>
+
+        <mat-menu #rowMenu="matMenu">
+          <ng-template matMenuContent let-row="row">
+            <button mat-menu-item (click)="openSetSellerRate(row)">
+              <span class="material-symbols-outlined">edit</span>
+              Modifier le taux
+            </button>
+            @if (row.source === 'CUSTOM') {
+              <button mat-menu-item (click)="resetSellerRate(row)">
+                <span class="material-symbols-outlined">restart_alt</span>
+                Remettre au défaut
+              </button>
+            }
+          </ng-template>
+        </mat-menu>
+      }
+    </tch-admin-section-card>
   }
-}
+</tch-admin-page-shell>

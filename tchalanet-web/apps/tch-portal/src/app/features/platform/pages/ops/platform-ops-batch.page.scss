@@ -1,0 +1,16 @@
+@use 'index' as ui;
+
+.batch-page {
+  &__tab-content {
+    padding: 1rem 0;
+
+    table {
+      width: 100%;
+    }
+
+    code {
+      font-family: monospace;
+      font-size: 0.8125rem;
+    }
+  }
+}

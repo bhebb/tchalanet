@@ -1,0 +1,109 @@
+@use 'breakpoints' as bp;
+
+.pcf__form {
+  display: grid;
+  gap: 1rem;
+}
+
+.pcf__field {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--tch-color-on-surface-variant);
+
+  input,
+  select,
+  textarea {
+    min-height: var(--tch-touch-target, 48px);
+    padding: 0 0.875rem;
+    border-radius: var(--tch-radius-control, 8px);
+    border: 1px solid var(--tch-color-outline-variant);
+    background: var(--tch-color-surface);
+    color: var(--tch-color-on-surface);
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  textarea {
+    min-height: unset;
+    padding: 0.75rem 0.875rem;
+    resize: vertical;
+  }
+}
+
+.pcf__row {
+  display: grid;
+  gap: 1rem;
+
+  @include bp.up(medium) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pcf__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  input {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+.pcf__btn-primary {
+  min-height: var(--tch-touch-target, 48px);
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: var(--tch-radius-control, 8px);
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.pcf__btn-secondary {
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-control, 8px);
+  background: transparent;
+  color: var(--tch-color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pcf__feedback {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: var(--tch-radius-lg, 12px);
+  border: 1px solid var(--tch-color-outline-variant);
+
+  p {
+    margin: 0;
+  }
+
+  &--ok {
+    border-color: var(--tch-color-primary);
+  }
+
+  &--error {
+    border-color: var(--tch-color-error);
+    color: var(--tch-color-error);
+  }
+}
+
+.pcf__feedback-title {
+  font-weight: 700;
+  margin: 0;
+}

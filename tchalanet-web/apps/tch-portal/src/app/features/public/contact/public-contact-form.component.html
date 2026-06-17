@@ -1,0 +1,85 @@
+@switch (state()) {
+  @case ('success') {
+    <div class="pcf__feedback pcf__feedback--ok" role="status">
+      <p class="pcf__feedback-title">{{ 'public.contact.success_title' | translate }}</p>
+      <p>{{ 'public.contact.success_body' | translate }}</p>
+      <button type="button" class="pcf__btn-secondary" (click)="reset()">
+        {{ 'public.contact.reset_cta' | translate }}
+      </button>
+    </div>
+  }
+  @case ('error') {
+    <div class="pcf__feedback pcf__feedback--error" role="alert">
+      <p class="pcf__feedback-title">{{ 'public.contact.error_title' | translate }}</p>
+      <p>{{ 'public.contact.error_body' | translate }}</p>
+      <button type="button" class="pcf__btn-secondary" (click)="reset()">
+        {{ 'public.contact.reset_cta' | translate }}
+      </button>
+    </div>
+  }
+  @default {
+    <form class="pcf__form" [formGroup]="form" (ngSubmit)="submit()">
+
+      @if (!lockIntent) {
+        <label class="pcf__field">
+          <span>{{ 'public.contact.intent_label' | translate }}</span>
+          <select formControlName="intent">
+            @for (i of intents; track i) {
+              <option [value]="i">{{ 'public.contact.intents.' + i | translate }}</option>
+            }
+          </select>
+        </label>
+      }
+
+      <label class="pcf__field">
+        <span>{{ 'public.contact.full_name_label' | translate }}</span>
+        <input type="text" formControlName="fullName" autocomplete="name" />
+      </label>
+
+      <label class="pcf__field">
+        <span>{{ 'public.contact.phone_label' | translate }}</span>
+        <input type="tel" formControlName="phone" autocomplete="tel" />
+      </label>
+
+      <label class="pcf__field">
+        <span>{{ 'public.contact.email_label' | translate }}</span>
+        <input type="email" formControlName="email" autocomplete="email" />
+      </label>
+
+      <label class="pcf__field">
+        <span>{{ 'public.contact.organization_label' | translate }}</span>
+        <input type="text" formControlName="organizationName" autocomplete="organization" />
+      </label>
+
+      <div class="pcf__row">
+        <label class="pcf__field">
+          <span>{{ 'public.contact.city_label' | translate }}</span>
+          <input type="text" formControlName="city" autocomplete="address-level2" />
+        </label>
+        <label class="pcf__field">
+          <span>{{ 'public.contact.country_label' | translate }}</span>
+          <input type="text" formControlName="country" autocomplete="country-name" />
+        </label>
+      </div>
+
+      <label class="pcf__field">
+        <span>{{ 'public.contact.message_label' | translate }}</span>
+        <textarea formControlName="message" rows="4"></textarea>
+      </label>
+
+      <label class="pcf__consent">
+        <input type="checkbox" formControlName="consentToContact" />
+        <span>{{ 'public.contact.consent_label' | translate }}</span>
+      </label>
+
+      <button
+        type="submit"
+        class="pcf__btn-primary"
+        [disabled]="form.invalid || state() === 'submitting'"
+      >
+        {{ (state() === 'submitting' ? 'public.contact.submitting' : 'public.contact.submit_cta') | translate }}
+      </button>
+
+    </form>
+  }
+}

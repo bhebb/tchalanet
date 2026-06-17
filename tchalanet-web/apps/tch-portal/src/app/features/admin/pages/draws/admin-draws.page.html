@@ -1,94 +1,139 @@
-<tch-admin-page-header
-  title="Tirages"
-  description="Historique et planification des tirages par canal."
-/>
+<tch-admin-page-shell title="Tirages" description="Suivi des tirages du tenant.">
+  <div actions>
+    <button mat-stroked-button (click)="loadToday(); loadUpcoming(); loadAll()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
 
-<div class="filter-bar">
-  @for (f of FILTERS; track f.value) {
-    <button
-      class="filter-tab"
-      [class.filter-tab--active]="activeFilter() === f.value"
-      (click)="setFilter(f.value)"
-    >{{ f.label }}</button>
-  }
-</div>
-
-@let vm = state();
-
-@switch (vm.status) {
-  @case ('loading') {
-    <tch-loading label="Chargement des tirages…" />
-  }
-  @case ('error') {
-    <tch-error-panel title="Erreur" message="Impossible de charger les tirages." />
-  }
-  @case ('ready') {
-    @if (vm.items.length === 0) {
-      <tch-admin-empty-state
-        icon="event"
-        title="Aucun tirage"
-        message="Aucun tirage à afficher pour cette période."
-      />
-    } @else {
-      <div class="draw-grid">
-        @for (draw of vm.items; track draw.id) {
-          <a class="draw-card" [routerLink]="[draw.id]">
-            <div class="draw-card__header">
-              <div class="draw-card__channel">
-                <span class="draw-card__channel-name">{{ draw.channel.name }}</span>
-                <code class="draw-card__channel-code">{{ draw.channel.code }}</code>
-              </div>
-              <span class="draw-status draw-status--{{ draw.status.toLowerCase() }}">
-                {{ statusLabel(draw.status) }}
-              </span>
-            </div>
-
-            <div class="draw-card__date">
-              <span class="draw-card__date-value">{{ draw.drawDate | date:'EEE d MMM' : '' : 'fr-CA' }}</span>
-              <span class="draw-card__time">{{ draw.slot.drawTime | slice:0:5 }} {{ draw.slot.timezone }}</span>
-            </div>
-
-            @if (draw.lastResult) {
-              <div class="draw-card__result">
-                <span class="result-label">Résultat</span>
-                <div class="result-lots">
-                  @if (draw.lastResult.lot1) {
-                    <span class="lot lot--1">{{ draw.lastResult.lot1 }}</span>
-                  }
-                  @if (draw.lastResult.lot2) {
-                    <span class="lot lot--2">{{ draw.lastResult.lot2 }}</span>
-                  }
-                  @if (draw.lastResult.lot3) {
-                    <span class="lot lot--3">{{ draw.lastResult.lot3 }}</span>
-                  }
-                  @if (draw.lastResult.lot4) {
-                    <span class="lot lot--4">{{ draw.lastResult.lot4 }}</span>
-                  }
-                </div>
-              </div>
-            } @else if (draw.status === 'CLOSED') {
-              <div class="draw-card__result draw-card__result--pending">
-                <mat-icon>pending</mat-icon>
-                <span>Résultat attendu</span>
-              </div>
-            }
-
-            <mat-icon class="draw-card__chevron">chevron_right</mat-icon>
-          </a>
-        }
-      </div>
-
-      @if (vm.totalPages > 1) {
-        <div class="tch-list-pagination">
-          <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()" aria-label="Page précédente">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          <span class="tch-list-pagination__info">{{ page() + 1 }} / {{ vm.totalPages }}</span>
-          <button mat-icon-button [disabled]="page() + 1 >= vm.totalPages" (click)="nextPage()" aria-label="Page suivante">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
+  <mat-tab-group>
+    <mat-tab label="Aujourd'hui">
+      @if (loadingToday()) {
+        <tch-loading label="Chargement..." />
+      } @else if (errorToday()) {
+        <tch-error-panel [title]="errorToday()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadToday()" />
+      } @else if (today().length === 0) {
+        <tch-admin-empty-state icon="today" title="Aucun tirage aujourd'hui" message="Aucun tirage programmé pour aujourd'hui." />
+      } @else {
+        <div class="draws-page__table">
+          <table mat-table [dataSource]="today()">
+            <ng-container matColumnDef="channel">
+              <th mat-header-cell *matHeaderCellDef>Canal</th>
+              <td mat-cell *matCellDef="let row">{{ row.channel.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="slot">
+              <th mat-header-cell *matHeaderCellDef>Slot</th>
+              <td mat-cell *matCellDef="let row">{{ row.slot.label }}</td>
+            </ng-container>
+            <ng-container matColumnDef="drawDate">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row">{{ row.drawDate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="scheduledAt">
+              <th mat-header-cell *matHeaderCellDef>Heure</th>
+              <td mat-cell *matCellDef="let row">{{ row.scheduledAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="cutoffAt">
+              <th mat-header-cell *matHeaderCellDef>Clôture</th>
+              <td mat-cell *matCellDef="let row">{{ row.cutoffAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [label]="row.status" [tone]="statusTone(row.status)" />
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
         </div>
       }
-    }
-  }
-}
+    </mat-tab>
+
+    <mat-tab label="7 prochains jours">
+      @if (loadingUpcoming()) {
+        <tch-loading label="Chargement..." />
+      } @else if (errorUpcoming()) {
+        <tch-error-panel [title]="errorUpcoming()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadUpcoming()" />
+      } @else if (upcoming().length === 0) {
+        <tch-admin-empty-state icon="event" title="Aucun tirage à venir" message="Aucun tirage dans les 7 prochains jours." />
+      } @else {
+        <div class="draws-page__table">
+          <table mat-table [dataSource]="upcoming()">
+            <ng-container matColumnDef="channel">
+              <th mat-header-cell *matHeaderCellDef>Canal</th>
+              <td mat-cell *matCellDef="let row">{{ row.channel.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="slot">
+              <th mat-header-cell *matHeaderCellDef>Slot</th>
+              <td mat-cell *matCellDef="let row">{{ row.slot.label }}</td>
+            </ng-container>
+            <ng-container matColumnDef="drawDate">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row">{{ row.drawDate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="scheduledAt">
+              <th mat-header-cell *matHeaderCellDef>Heure</th>
+              <td mat-cell *matCellDef="let row">{{ row.scheduledAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="cutoffAt">
+              <th mat-header-cell *matHeaderCellDef>Clôture</th>
+              <td mat-cell *matCellDef="let row">{{ row.cutoffAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [label]="row.status" [tone]="statusTone(row.status)" />
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      }
+    </mat-tab>
+
+    <mat-tab label="Tous">
+      @if (loadingAll()) {
+        <tch-loading label="Chargement..." />
+      } @else if (errorAll()) {
+        <tch-error-panel [title]="errorAll()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadAll()" />
+      } @else if (all().length === 0) {
+        <tch-admin-empty-state icon="casino" title="Aucun tirage" message="Aucun tirage enregistré." />
+      } @else {
+        <div class="draws-page__table">
+          <table mat-table [dataSource]="all()">
+            <ng-container matColumnDef="channel">
+              <th mat-header-cell *matHeaderCellDef>Canal</th>
+              <td mat-cell *matCellDef="let row">{{ row.channel.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="slot">
+              <th mat-header-cell *matHeaderCellDef>Slot</th>
+              <td mat-cell *matCellDef="let row">{{ row.slot.label }}</td>
+            </ng-container>
+            <ng-container matColumnDef="drawDate">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row">{{ row.drawDate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="scheduledAt">
+              <th mat-header-cell *matHeaderCellDef>Heure</th>
+              <td mat-cell *matCellDef="let row">{{ row.scheduledAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="cutoffAt">
+              <th mat-header-cell *matHeaderCellDef>Clôture</th>
+              <td mat-cell *matCellDef="let row">{{ row.cutoffAt | date:'HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [label]="row.status" [tone]="statusTone(row.status)" />
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      }
+    </mat-tab>
+  </mat-tab-group>
+</tch-admin-page-shell>

@@ -1,8 +1,5 @@
 import { Route } from '@angular/router';
 
-const placeholder = () =>
-  import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage);
-
 export const adminRoutes: Route[] = [
   {
     path: '',
@@ -19,19 +16,29 @@ export const adminRoutes: Route[] = [
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
   },
   {
-    path: 'sellers',
+    path: 'terminals',
     loadComponent: () =>
-      import('./pages/sellers/admin-sellers.page').then(m => m.AdminSellersPage),
+      import('./pages/terminals/admin-terminals.page').then(m => m.AdminTerminalsPage),
   },
   {
-    path: 'sellers/new',
+    path: 'games',
     loadComponent: () =>
-      import('./pages/sellers/admin-seller-new.page').then(m => m.AdminSellerNewPage),
+      import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
   },
   {
-    path: 'sellers/:id',
+    path: 'business-days',
     loadComponent: () =>
-      import('./pages/sellers/admin-seller-detail.page').then(m => m.AdminSellerDetailPage),
+      import('./pages/business-days/admin-business-days.page').then(m => m.AdminBusinessDaysPage),
+  },
+  {
+    path: 'commission',
+    loadComponent: () =>
+      import('./pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
+  },
+  {
+    path: 'pricing',
+    loadComponent: () =>
+      import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
   },
   {
     path: 'draws',
@@ -39,109 +46,43 @@ export const adminRoutes: Route[] = [
       import('./pages/draws/admin-draws.page').then(m => m.AdminDrawsPage),
   },
   {
-    path: 'draws/config/channels',
+    path: 'draw-results',
     loadComponent: () =>
-      import('./pages/draws/admin-draw-channels.page').then(m => m.AdminDrawChannelsPage),
+      import('./pages/draw-results/admin-draw-results.page').then(m => m.AdminDrawResultsPage),
   },
   {
-    path: 'draws/:id',
+    path: 'payouts',
     loadComponent: () =>
-      import('./pages/draws/admin-draw-detail.page').then(m => m.AdminDrawDetailPage),
+      import('./pages/payouts/admin-payouts.page').then(m => m.AdminPayoutsPage),
   },
   {
-    path: 'controls',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.controls.title', icon: 'tune' },
-  },
-  {
-    path: 'controls/commission',
+    path: 'subscription',
     loadComponent: () =>
-      import('./pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
+      import('./pages/subscription/admin-subscription.page').then(m => m.AdminSubscriptionPage),
   },
   {
-    path: 'controls/limits',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.controls.limits.title', icon: 'shield' },
-  },
-  {
-    path: 'controls/baremes',
+    path: 'support/tickets',
     loadComponent: () =>
-      import('./pages/controls/admin-baremes.page').then(m => m.AdminBaremesPage),
+      import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
   },
   {
-    path: 'controls/bonuses',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.controls.bonuses.title', icon: 'payments' },
-  },
-  {
-    path: 'promotions',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.promotions.title', icon: 'local_activity' },
-  },
-  {
-    path: 'promotions/maryaj-gratis',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.promotions.maryaj_gratis.title', icon: 'redeem' },
-  },
-  {
-    path: 'promotions/active',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.promotions.active.title', icon: 'campaign' },
-  },
-  {
-    path: 'reports',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.reports.title', icon: 'analytics' },
-  },
-  {
-    path: 'reports/today',
+    path: 'support/sell',
     loadComponent: () =>
-      import('./pages/reports/admin-today-report.page').then(m => m.AdminTodayReportPage),
-  },
-  {
-    path: 'reports/export',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.reports.export.title', icon: 'print' },
-  },
-  {
-    path: 'more',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.more.title', icon: 'more_horiz' },
-  },
-  {
-    path: 'more/space',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.more.space.title', icon: 'domain' },
-  },
-  {
-    path: 'more/account',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.more.account.title', icon: 'account_circle' },
-  },
-  {
-    path: 'more/support',
-    loadComponent: placeholder,
-    data: { titleKey: 'admin.more.support.title', icon: 'support_agent' },
+      import('./pages/support/admin-sell-ticket.page').then(m => m.AdminSellTicketPage),
   },
   {
     path: 'settings',
     loadComponent: () =>
       import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
   },
-  // Legacy routes kept during seller_terminal migration
   {
-    path: 'outlets',
+    path: 'settings/runtime',
     loadComponent: () =>
-      import('./pages/outlets/admin-outlets.page').then(m => m.AdminOutletsPage),
+      import('./pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
   },
   {
-    path: 'terminals',
+    path: 'settings/config',
     loadComponent: () =>
-      import('./pages/terminals/admin-terminals.page').then(m => m.AdminTerminalsPage),
-  },
-  {
-    path: 'sessions',
-    loadComponent: () =>
-      import('./pages/sessions/admin-sessions.page').then(m => m.AdminSessionsPage),
+      import('./pages/settings/admin-config.page').then(m => m.AdminConfigPage),
   },
 ];

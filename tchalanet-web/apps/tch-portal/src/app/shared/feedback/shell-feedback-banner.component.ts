@@ -84,6 +84,17 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
             </span>
           </button>
         }
+        @if (item.reportUrl) {
+          <a
+            class="sfb__btn"
+            [href]="item.reportUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Signaler ce problème"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">bug_report</span>
+          </a>
+        }
         @if (item.dismissible) {
           <button
             type="button"

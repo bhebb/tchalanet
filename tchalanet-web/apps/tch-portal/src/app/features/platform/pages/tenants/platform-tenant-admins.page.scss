@@ -1,0 +1,9 @@
+@use 'index' as ui;
+
+.tenant-admins-page {
+  &__table {
+    overflow-x: auto;
+
+    table { width: 100%; }
+  }
+}

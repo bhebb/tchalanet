@@ -3,53 +3,70 @@ import { Route } from '@angular/router';
 export const publicRoutes: Route[] = [
   {
     path: '',
-    loadComponent: () => import('./public-home.page').then(m => m.PublicHomePage),
+    loadComponent: () => import('./home/public-home.page').then(m => m.PublicHomePage),
   },
   {
     path: 'check-ticket',
-    loadComponent: () => import('./public-check-ticket.page').then(m => m.PublicCheckTicketPage),
+    loadComponent: () =>
+      import('./check-ticket/public-check-ticket.page').then(m => m.PublicCheckTicketPage),
   },
   {
     path: 'results',
     pathMatch: 'full',
-    loadComponent: () => import('./public-results.page').then(m => m.PublicResultsPage),
+    loadComponent: () =>
+      import('./results/public-results.page').then(m => m.PublicResultsPage),
   },
   {
     path: 'results/:drawResultId',
-    loadComponent: () => import('./public-result-detail.page').then(m => m.PublicResultDetailPage),
+    loadComponent: () =>
+      import('./results-detail/public-result-detail.page').then(m => m.PublicResultDetailPage),
   },
   {
     path: 'rules',
-    loadComponent: () => import('./public-rules.page').then(m => m.PublicRulesPage),
+    loadComponent: () => import('./rules/public-rules.page').then(m => m.PublicRulesPage),
   },
   {
     path: 'tchala',
-    loadComponent: () => import('./public-tchala.page').then(m => m.PublicTchalaPage),
+    loadComponent: () => import('./tchala/public-tchala.page').then(m => m.PublicTchalaPage),
   },
   {
     path: 'news',
-    loadComponent: () => import('./public-news.page').then(m => m.PublicNewsPage),
+    loadComponent: () => import('./news/public-news.page').then(m => m.PublicNewsPage),
   },
   {
     path: 'help',
-    loadComponent: () => import('./public-help.page').then(m => m.PublicHelpPage),
+    loadComponent: () => import('./help/public-help.page').then(m => m.PublicHelpPage),
   },
   {
     path: 'managers',
-    loadComponent: () => import('./public-managers.page').then(m => m.PublicManagersPage),
+    loadComponent: () =>
+      import('./managers/public-managers.page').then(m => m.PublicManagersPage),
+  },
+  {
+    path: 'operators',
+    loadComponent: () =>
+      import('./operators/public-operators.page').then(m => m.PublicOperatorsPage),
   },
   {
     path: 'contact',
-    loadComponent: () => import('./contact/public-contact.page').then(m => m.PublicContactPage),
+    loadComponent: () =>
+      import('./contact/public-contact.page').then(m => m.PublicContactPage),
+  },
+  {
+    path: 'support',
+    loadComponent: () =>
+      import('./support/public-support.page').then(m => m.PublicSupportPage),
   },
   {
     path: 'privacy',
-    loadComponent: () => import('./public-markdown.page').then(m => m.PublicMarkdownPage),
+    loadComponent: () =>
+      import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
     data: { file: 'privacy' },
   },
   {
     path: 'terms',
-    loadComponent: () => import('./public-markdown.page').then(m => m.PublicMarkdownPage),
+    loadComponent: () =>
+      import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
     data: { file: 'terms' },
   },
 ];

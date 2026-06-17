@@ -1,0 +1,29 @@
+@use 'index' as ui;
+
+.payouts-page {
+  &__status-select {
+    min-width: 160px;
+
+    @include ui.up(medium) {
+      min-width: 200px;
+    }
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table { width: 100%; }
+  }
+
+  &__amount {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+}

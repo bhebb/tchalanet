@@ -1,0 +1,37 @@
+@use 'index' as ui;
+
+.draw-lifecycle-page {
+  &__dryrun {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+    }
+  }
+
+  &__row-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__footer-count {
+    font-size: 0.875rem;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+}

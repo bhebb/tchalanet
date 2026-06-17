@@ -1,0 +1,217 @@
+<div class="ops">
+
+  <!-- Hero -->
+  <section class="ops__hero" aria-label="{{ 'public.operator.hero_aria' | translate }}">
+    <div class="ops__container ops__hero-inner">
+      <div class="ops__hero-content">
+        <p class="ops__eyebrow">{{ 'public.operator.eyebrow' | translate }}</p>
+        <h1 class="ops__hero-title">{{ 'public.operator.hero_title' | translate }}</h1>
+        <p class="ops__hero-body">{{ 'public.operator.hero_body' | translate }}</p>
+        <div class="ops__hero-ctas">
+          <button tch-action class="ops__cta-primary" type="button" (click)="scrollToDemo()">
+            {{ 'public.operator.cta_demo' | translate }}
+          </button>
+          <button tch-action class="ops__cta-ghost" type="button" (click)="scrollToFeatures()">
+            {{ 'public.operator.cta_plans' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="ops__hero-visual" aria-hidden="true">
+        <div class="ops__stat-card">
+          <div class="ops__stat-row">
+            <span class="material-symbols-outlined ops__stat-icon">confirmation_number</span>
+            <span class="ops__stat-label">{{ 'public.operator.hero_stat_tickets' | translate }}</span>
+            <span class="ops__stat-value">247</span>
+          </div>
+          <div class="ops__stat-row">
+            <span class="material-symbols-outlined ops__stat-icon">timer</span>
+            <span class="ops__stat-label">{{ 'public.operator.hero_stat_sessions' | translate }}</span>
+            <span class="ops__stat-value">3</span>
+          </div>
+          <div class="ops__stat-row">
+            <span class="material-symbols-outlined ops__stat-icon">group</span>
+            <span class="ops__stat-label">{{ 'public.operator.hero_stat_agents' | translate }}</span>
+            <span class="ops__stat-value">12</span>
+          </div>
+          <div class="ops__stat-row ops__stat-row--highlight">
+            <span class="material-symbols-outlined ops__stat-icon">payments</span>
+            <span class="ops__stat-label">{{ 'public.operator.hero_stat_payments' | translate }}</span>
+            <span class="ops__stat-value">5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section id="ops-benefits" class="ops__section ops__benefits">
+    <div class="ops__container">
+      <div class="ops__section-header">
+        <h2>{{ 'public.operator.benefits_title' | translate }}</h2>
+        <p>{{ 'public.operator.benefits_body' | translate }}</p>
+      </div>
+      <div class="ops__benefits-grid">
+        @for (b of benefits; track b.icon) {
+          <tch-card class="ops__benefit-card">
+            <span class="ops__benefit-icon material-symbols-outlined" aria-hidden="true">{{ b.icon }}</span>
+            <h3 class="ops__benefit-title">{{ b.titleKey | translate }}</h3>
+            <p class="ops__benefit-body">{{ b.bodyKey | translate }}</p>
+          </tch-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow -->
+  <section class="ops__section ops__workflow">
+    <div class="ops__container">
+      <h2 class="ops__section-title-centered">{{ 'public.operator.workflow_title' | translate }}</h2>
+      <div class="ops__steps">
+        @for (step of steps; track step.num) {
+          <div class="ops__step">
+            <div class="ops__step-num" aria-hidden="true">{{ step.num }}</div>
+            <h3 class="ops__step-title">{{ step.titleKey | translate }}</h3>
+            <p class="ops__step-body">{{ step.bodyKey | translate }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Plans -->
+  <section class="ops__section ops__plans">
+    <div class="ops__container">
+      <div class="ops__section-header">
+        <h2>{{ 'public.operator.plans_title' | translate }}</h2>
+        <p>{{ 'public.operator.plans_body' | translate }}</p>
+      </div>
+      <div class="ops__plans-grid">
+        @for (plan of plans; track plan.id) {
+          <tch-card class="ops__plan-card" [class.ops__plan-card--featured]="plan.featured">
+            @if (plan.featured) {
+              <span class="ops__plan-badge">{{ 'public.operator.plan_badge_recommended' | translate }}</span>
+            }
+            <h3 class="ops__plan-title">{{ plan.titleKey | translate }}</h3>
+            <p class="ops__plan-price">{{ plan.priceKey | translate }}</p>
+            <p class="ops__plan-body">{{ plan.bodyKey | translate }}</p>
+            <ul class="ops__plan-features" role="list">
+              @for (fk of plan.featureKeys; track fk) {
+                <li class="ops__plan-feature">
+                  <span class="material-symbols-outlined ops__plan-check" aria-hidden="true">check_circle</span>
+                  {{ fk | translate }}
+                </li>
+              }
+            </ul>
+            <button tch-action class="ops__plan-cta" [class.ops__plan-cta--featured]="plan.featured" type="button" (click)="scrollToDemo()">
+              {{ plan.ctaKey | translate }}
+            </button>
+          </tch-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Access control -->
+  <section class="ops__section ops__access">
+    <div class="ops__container ops__access-inner">
+      <div class="ops__access-text">
+        <h2>{{ 'public.operator.access_title' | translate }}</h2>
+        <p class="ops__access-body">{{ 'public.operator.access_body' | translate }}</p>
+        <div class="ops__access-cards">
+          @for (item of accessItems; track item.icon) {
+            <div class="ops__access-item">
+              <span class="material-symbols-outlined ops__access-item-icon" aria-hidden="true">{{ item.icon }}</span>
+              <strong class="ops__access-item-title">{{ item.titleKey | translate }}</strong>
+              <p class="ops__access-item-body">{{ item.bodyKey | translate }}</p>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="ops__access-terminal" aria-hidden="true">
+        <div class="ops__terminal-dots">
+          <span></span><span></span><span></span>
+          <span class="ops__terminal-label">system_access_log.v1</span>
+        </div>
+        <pre class="ops__terminal-code">{{ accessLogSample }}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo form -->
+  <section id="ops-demo-form" class="ops__section ops__form-section">
+    <div class="ops__container ops__form-container">
+      <tch-card class="ops__form-card">
+        <div class="ops__form-header">
+          <h2>{{ 'public.operator.form_title' | translate }}</h2>
+          <p>{{ 'public.operator.form_body' | translate }}</p>
+        </div>
+        <form class="ops__form" (ngSubmit)="submitForm()">
+          <div class="ops__form-row">
+            <div class="ops__field">
+              <label class="ops__label" for="ops-name">{{ 'public.operator.form_name_label' | translate }}</label>
+              <input id="ops-name" class="ops__input" type="text" [placeholder]="'public.operator.form_name_placeholder' | translate" autocomplete="name" />
+            </div>
+            <div class="ops__field">
+              <label class="ops__label" for="ops-org">{{ 'public.operator.form_org_label' | translate }}</label>
+              <input id="ops-org" class="ops__input" type="text" [placeholder]="'public.operator.form_org_placeholder' | translate" autocomplete="organization" />
+            </div>
+          </div>
+          <div class="ops__form-row">
+            <div class="ops__field">
+              <label class="ops__label" for="ops-contact">{{ 'public.operator.form_contact_label' | translate }}</label>
+              <input id="ops-contact" class="ops__input" type="text" [placeholder]="'public.operator.form_contact_placeholder' | translate" autocomplete="email" />
+            </div>
+            <div class="ops__field">
+              <label class="ops__label" for="ops-city">{{ 'public.operator.form_city_label' | translate }}</label>
+              <input id="ops-city" class="ops__input" type="text" [placeholder]="'public.operator.form_city_placeholder' | translate" autocomplete="address-level2" />
+            </div>
+          </div>
+          <div class="ops__field">
+            <label class="ops__label" for="ops-message">{{ 'public.operator.form_message_label' | translate }}</label>
+            <textarea id="ops-message" class="ops__input ops__textarea" rows="4" [placeholder]="'public.operator.form_message_placeholder' | translate"></textarea>
+          </div>
+          <button
+            tch-action
+            class="ops__form-submit"
+            type="submit"
+            [disabled]="formState() === 'sending'"
+          >
+            @switch (formState()) {
+              @case ('sending') { {{ 'public.operator.form_sending' | translate }} }
+              @case ('sent') { {{ 'public.operator.form_sent' | translate }} }
+              @default { {{ 'public.operator.form_cta' | translate }} }
+            }
+          </button>
+        </form>
+      </tch-card>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="ops__section ops__faq">
+    <div class="ops__container ops__faq-container">
+      <h2 class="ops__section-title-centered">{{ 'public.operator.faq_title' | translate }}</h2>
+      <div class="ops__faq-list" role="list">
+        @for (item of faqItems; track item.qKey; let i = $index) {
+          <div class="ops__faq-item" role="listitem">
+            <button
+              class="ops__faq-q"
+              type="button"
+              [attr.aria-expanded]="item.open"
+              [attr.aria-controls]="'faq-' + i"
+              (click)="toggleFaq(i)"
+            >
+              <span>{{ item.qKey | translate }}</span>
+              <span class="material-symbols-outlined ops__faq-chevron" [class.ops__faq-chevron--open]="item.open" aria-hidden="true">expand_more</span>
+            </button>
+            <div [id]="'faq-' + i" class="ops__faq-a" [class.ops__faq-a--open]="item.open">
+              <p>{{ item.aKey | translate }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+</div>

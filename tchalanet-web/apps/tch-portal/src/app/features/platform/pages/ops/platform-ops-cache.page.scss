@@ -1,0 +1,9 @@
+@use 'index' as ui;
+
+.cache-page {
+  &__table {
+    overflow-x: auto;
+
+    table { width: 100%; }
+  }
+}

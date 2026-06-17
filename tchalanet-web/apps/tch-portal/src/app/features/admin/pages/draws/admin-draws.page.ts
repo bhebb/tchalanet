@@ -1,122 +1,112 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DatePipe, SlicePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of, startWith, switchMap } from 'rxjs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
+import { AdminEmptyStateComponent } from '../../../private/shared/admin-ui/admin-empty-state.component';
 import {
-  TchLoading,
-  TchErrorPanel,
-  AdminPageHeader,
-  AdminEmptyState,
-} from '@tch/ui/components';
-
-import { DrawAdminApi, DrawStatus, DrawSummary } from '../../draw-admin.api.service';
-
-type Filter = 'all' | 'upcoming' | 'past';
-
-interface FilterOption {
-  readonly value: Filter;
-  readonly label: string;
-}
-
-const PAGE_SIZE = 30;
-
-type PageState =
-  | { readonly status: 'loading' }
-  | { readonly status: 'error' }
-  | {
-      readonly status: 'ready';
-      readonly items: readonly DrawSummary[];
-      readonly totalPages: number;
-    };
-
-const STATUS_LABELS: Record<DrawStatus, string> = {
-  SCHEDULED: 'Planifié',
-  OPEN: 'Ouvert',
-  CLOSED: 'Fermé',
-  RESULTED: 'Résulté',
-  SETTLED: 'Réglé',
-  CANCELED: 'Annulé',
-  ARCHIVED: 'Archivé',
-};
+  AdminStatusPillComponent,
+  AdminStatusTone,
+} from '../../../private/shared/admin-ui/admin-status-pill.component';
+import { AdminDrawsApi, DrawSummaryView, DrawStatus } from '../../admin-draws-api.service';
 
 @Component({
   selector: 'tch-admin-draws-page',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink,
     DatePipe,
-    SlicePipe,
-    MatButtonModule,
-    MatIconModule,
+    AdminPageShellComponent,
+    AdminEmptyStateComponent,
+    AdminStatusPillComponent,
     TchLoading,
     TchErrorPanel,
-    AdminPageHeader,
-    AdminEmptyState,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatTableModule,
+    MatTabsModule,
   ],
   templateUrl: './admin-draws.page.html',
-  styleUrl: './admin-draws.page.scss',
+  styleUrls: ['./admin-draws.page.scss'],
 })
-export class AdminDrawsPage {
-  private readonly api = inject(DrawAdminApi);
+export class AdminDrawsPage implements OnInit {
+  private readonly api = inject(AdminDrawsApi);
 
-  readonly FILTERS: readonly FilterOption[] = [
-    { value: 'upcoming', label: 'À venir' },
-    { value: 'past',     label: 'Passés' },
-    { value: 'all',      label: 'Tous' },
-  ];
+  readonly columns = ['channel', 'slot', 'drawDate', 'scheduledAt', 'cutoffAt', 'status'];
 
-  readonly activeFilter = signal<Filter>('upcoming');
-  readonly page = signal(0);
+  readonly loadingToday = signal(false);
+  readonly errorToday = signal<string | null>(null);
+  readonly today = signal<DrawSummaryView[]>([]);
 
-  private readonly params = computed(() => ({
-    filter: this.activeFilter(),
-    page: this.page(),
-  }));
+  readonly loadingUpcoming = signal(false);
+  readonly errorUpcoming = signal<string | null>(null);
+  readonly upcoming = signal<DrawSummaryView[]>([]);
 
-  readonly state = toSignal(
-    toObservable(this.params).pipe(
-      switchMap(({ filter, page }) => {
-        const today = new Date().toISOString().slice(0, 10);
-        const req$ = filter === 'upcoming'
-          ? this.api.listUpcoming(14)
-          : this.api.listDraws({
-              to: filter === 'past' ? today : undefined,
-              page,
-              size: PAGE_SIZE,
-            });
+  readonly loadingAll = signal(false);
+  readonly errorAll = signal<string | null>(null);
+  readonly all = signal<DrawSummaryView[]>([]);
 
-        return req$.pipe(
-          switchMap(p => of({
-            status: 'ready',
-            items: p.items,
-            totalPages: p.totalPages,
-          } as PageState)),
-          catchError(() => of({ status: 'error' } as PageState)),
-          startWith({ status: 'loading' } as PageState),
-        );
-      }),
-    ),
-    { initialValue: { status: 'loading' } as PageState },
-  );
-
-  statusLabel(status: DrawStatus): string {
-    return STATUS_LABELS[status] ?? status;
+  ngOnInit(): void {
+    this.loadToday();
+    this.loadUpcoming();
+    this.loadAll();
   }
 
-  setFilter(f: Filter): void {
-    this.activeFilter.set(f);
-    this.page.set(0);
+  loadToday(): void {
+    this.loadingToday.set(true);
+    this.errorToday.set(null);
+    this.api.listToday({ size: 50 }).subscribe({
+      next: p => { this.today.set(p.content); this.loadingToday.set(false); },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.errorToday.set(pd?.title ?? 'Erreur de chargement.');
+        this.loadingToday.set(false);
+      },
+    });
   }
 
-  prevPage(): void { this.page.update(p => Math.max(0, p - 1)); }
-  nextPage(): void { this.page.update(p => p + 1); }
+  loadUpcoming(): void {
+    this.loadingUpcoming.set(true);
+    this.errorUpcoming.set(null);
+    this.api.listUpcoming({ days: 7, size: 50 }).subscribe({
+      next: p => { this.upcoming.set(p.content); this.loadingUpcoming.set(false); },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.errorUpcoming.set(pd?.title ?? 'Erreur de chargement.');
+        this.loadingUpcoming.set(false);
+      },
+    });
+  }
+
+  loadAll(): void {
+    this.loadingAll.set(true);
+    this.errorAll.set(null);
+    this.api.list({ size: 50 }).subscribe({
+      next: p => { this.all.set(p.content); this.loadingAll.set(false); },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.errorAll.set(pd?.title ?? 'Erreur de chargement.');
+        this.loadingAll.set(false);
+      },
+    });
+  }
+
+  statusTone(status: DrawStatus): AdminStatusTone {
+    switch (status) {
+      case 'OPEN': return 'success';
+      case 'LOCKED': return 'warning';
+      case 'PENDING_RESULTS': return 'warning';
+      case 'RESULTS_APPLIED': return 'success';
+      case 'SETTLED': return 'success';
+      case 'CANCELLED': return 'danger';
+      case 'ARCHIVED': return 'neutral';
+      default: return 'neutral';
+    }
+  }
 }
