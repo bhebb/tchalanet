@@ -40,4 +40,24 @@ export const adminRoutes: Route[] = [
     loadComponent: () =>
       import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
   },
+  {
+    path: 'settings/runtime',
+    loadComponent: () =>
+      import('./pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
+  },
+  {
+    path: 'settings/config',
+    loadComponent: () =>
+      import('./pages/settings/admin-config.page').then(m => m.AdminConfigPage),
+  },
+  {
+    path: 'business-days',
+    loadComponent: () =>
+      import('./pages/business-days/admin-business-days.page').then(m => m.AdminBusinessDaysPage),
+  },
+  {
+    path: 'games',
+    loadComponent: () =>
+      import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
+  },
 ];
