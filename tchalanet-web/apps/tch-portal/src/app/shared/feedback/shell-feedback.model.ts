@@ -12,6 +12,7 @@ export interface ShellFeedbackItem {
   readonly spanId?: string;
   readonly status?: number;
   readonly copyText?: string;
+  readonly reportUrl?: string;
   readonly dismissible: boolean;
 }
 
@@ -25,5 +26,6 @@ export interface AddShellFeedbackInput {
   readonly spanId?: string;
   readonly status?: number;
   readonly copyText?: string;
+  readonly reportUrl?: string;
   readonly dismissible?: boolean;
 }

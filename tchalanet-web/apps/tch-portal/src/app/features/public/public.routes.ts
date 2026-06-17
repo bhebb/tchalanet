@@ -53,6 +53,11 @@ export const publicRoutes: Route[] = [
       import('./contact/public-contact.page').then(m => m.PublicContactPage),
   },
   {
+    path: 'support',
+    loadComponent: () =>
+      import('./support/public-support.page').then(m => m.PublicSupportPage),
+  },
+  {
     path: 'privacy',
     loadComponent: () =>
       import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),

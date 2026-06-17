@@ -1,6 +1,8 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
+
+import { AppErrorHandler } from './core/error/app-error-handler';
 import { provideEffects } from '@ngrx/effects';
 import { provideRouterStore } from '@ngrx/router-store';
 import { provideState, provideStore } from '@ngrx/store';
@@ -30,6 +32,7 @@ import { firebaseApp$ } from '@angular/fire/app';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: AppErrorHandler },
     provideRouter(appRoutes),
     provideHttpClient(
       withFetch(),

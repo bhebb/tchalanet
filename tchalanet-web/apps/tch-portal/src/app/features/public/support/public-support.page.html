@@ -1,0 +1,11 @@
+<section class="support">
+  <p class="support__eyebrow">{{ 'public.pages.support.eyebrow' | translate }}</p>
+  <h1>{{ 'public.pages.support.title' | translate }}</h1>
+  <p class="support__lead">{{ 'public.pages.support.description' | translate }}</p>
+
+  <tch-public-contact-form
+    intent="SUPPORT"
+    [lockIntent]="true"
+    [prefillMessage]="prefillMessage()"
+  />
+</section>

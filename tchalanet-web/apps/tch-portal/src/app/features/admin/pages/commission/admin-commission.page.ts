@@ -1,3 +1,4 @@
+import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,6 +24,7 @@ import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    LowerCasePipe,
     AdminPageShellComponent,
     AdminSectionCardComponent,
     AdminEmptyStateComponent,

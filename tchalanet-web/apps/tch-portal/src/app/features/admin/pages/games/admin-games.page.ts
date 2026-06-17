@@ -54,7 +54,7 @@ export class AdminGamesPage implements OnInit {
     this.loadCatalog();
   }
 
-  private loadGames(): void {
+  protected loadGames(): void {
     this.loadingGames.set(true);
     this.api.listEnabledGames().subscribe({
       next: v => { this.games.set(v); this.loadingGames.set(false); },
@@ -66,7 +66,7 @@ export class AdminGamesPage implements OnInit {
     });
   }
 
-  private loadCatalog(): void {
+  protected loadCatalog(): void {
     this.loadingCatalog.set(true);
     this.api.listCatalogGames().subscribe({
       next: v => { this.catalog.set(v); this.loadingCatalog.set(false); },
