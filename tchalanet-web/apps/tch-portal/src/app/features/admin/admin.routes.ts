@@ -61,6 +61,16 @@ export const adminRoutes: Route[] = [
       import('./pages/subscription/admin-subscription.page').then(m => m.AdminSubscriptionPage),
   },
   {
+    path: 'support/tickets',
+    loadComponent: () =>
+      import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
+  },
+  {
+    path: 'support/sell',
+    loadComponent: () =>
+      import('./pages/support/admin-sell-ticket.page').then(m => m.AdminSellTicketPage),
+  },
+  {
     path: 'settings',
     loadComponent: () =>
       import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),

@@ -313,7 +313,7 @@ export class PrivateShellPage {
   }
 
   logout(): void {
-    void this.auth.logout();
+    void this.auth.logout().then(() => this.router.navigate(['/login']));
   }
 }
 
