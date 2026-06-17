@@ -38,77 +38,8 @@ import {
     MatIconModule,
     MatTableModule,
   ],
-  template: `
-    <tch-admin-page-shell
-      [title]="tenant() ? 'Admins — ' + tenant()!.name : 'Admins du tenant'"
-      [description]="tenant() ? tenant()!.code : ''"
-    >
-      <div actions>
-        <a mat-button routerLink="/app/platform/tenants">
-          <span class="material-symbols-outlined">arrow_back</span>
-          Retour
-        </a>
-        <a mat-flat-button color="primary" routerLink="new">
-          <span class="material-symbols-outlined">person_add</span>
-          Ajouter un admin
-        </a>
-      </div>
-
-      @if (loading()) {
-        <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="ngOnInit()" />
-      } @else if (admins().length === 0) {
-        <tch-admin-empty-state
-          icon="person"
-          title="Aucun administrateur"
-          message="Ajoutez le premier administrateur pour ce tenant."
-        />
-      } @else {
-        <tch-admin-crud-shell>
-          <ng-container content>
-            <div class="table-container">
-              <table mat-table [dataSource]="admins()" class="admin-table">
-                <ng-container matColumnDef="email">
-                  <th mat-header-cell *matHeaderCellDef>Email</th>
-                  <td mat-cell *matCellDef="let row">{{ row.email }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="displayName">
-                  <th mat-header-cell *matHeaderCellDef>Nom affiché</th>
-                  <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="roleCodes">
-                  <th mat-header-cell *matHeaderCellDef>Rôles</th>
-                  <td mat-cell *matCellDef="let row">{{ row.roleCodes.join(', ') }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Statut</th>
-                  <td mat-cell *matCellDef="let row">{{ row.status }}</td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-              </table>
-            </div>
-          </ng-container>
-        </tch-admin-crud-shell>
-      }
-    </tch-admin-page-shell>
-  `,
-  styles: [
-    `
-      .table-container {
-        overflow-x: auto;
-      }
-
-      .admin-table {
-        width: 100%;
-      }
-    `,
-  ],
+  templateUrl: './platform-tenant-admins.page.html',
+  styleUrls: ['./platform-tenant-admins.page.scss'],
 })
 export class PlatformTenantAdminsPage implements OnInit {
   private readonly api = inject(PlatformTenantsApi);
