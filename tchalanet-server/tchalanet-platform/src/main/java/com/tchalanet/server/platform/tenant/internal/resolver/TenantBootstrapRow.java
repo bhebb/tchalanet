@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.tenant.internal.resolver;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -17,5 +18,6 @@ public record TenantBootstrapRow(
     String defaultLanguage,
     String defaultLocale,
     UUID addressId,
-    UUID activeThemeId
+    UUID activeThemeId,
+    BigDecimal defaultCommissionRate
 ) {}

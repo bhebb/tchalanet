@@ -82,7 +82,8 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
             safe(row.defaultLanguage(), "fr"),
             safe(row.defaultLocale(), "fr-HT"),
             row.addressId() != null ? Optional.of(AddressId.of(row.addressId())) : Optional.empty(),
-            row.activeThemeId() != null ? Optional.of(ThemePresetId.of(row.activeThemeId())) : Optional.empty());
+            row.activeThemeId() != null ? Optional.of(ThemePresetId.of(row.activeThemeId())) : Optional.empty(),
+            Optional.ofNullable(row.defaultCommissionRate()));
     }
 
     private String buildOrderBy(org.springframework.data.domain.Pageable pageable) {

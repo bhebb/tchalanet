@@ -1,0 +1,79 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.overview-strip {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--tch-radius-lg, 12px);
+  background: var(--tch-color-surface-container-lowest);
+  border: 1px solid var(--tch-color-outline-variant);
+}
+
+.stat-card--primary {
+  background: var(--tch-color-primary-container);
+  border-color: transparent;
+  color: var(--tch-color-on-primary-container);
+}
+
+.stat-card--accent {
+  background: var(--tch-color-secondary-container);
+  border-color: transparent;
+  color: var(--tch-color-on-secondary-container);
+}
+
+.stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-card__label {
+  font-size: 0.8125rem;
+  opacity: 0.75;
+}
+
+.cell-vendor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-block: 0.375rem;
+}
+
+.cell-vendor__name { font-weight: 600; }
+
+.cell-vendor__code {
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.rate-value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.rate-value--custom {
+  color: var(--tch-color-primary);
+}
+
+.cell-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mobile-actions {
+  display: flex;
+  flex-shrink: 0;
+}

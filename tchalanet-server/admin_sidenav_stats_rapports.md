@@ -38,6 +38,7 @@ La sidenav doit rester utilisable sur portable **sans scroll**. Les sous-menus e
 ```text
 Accueil
 Vendeurs
+Tirages
 Contrôles
 Promotions
 Rapports
@@ -46,7 +47,7 @@ Plus
 
 ## 1.2 Sous-menus accessibles mais non dépliés
 
-Le shell peut recevoir des `children`, mais l'UI doit afficher uniquement les 6 entrées principales par défaut.
+Le shell peut recevoir des `children`, mais l'UI doit afficher uniquement les 7 entrées principales par défaut.
 
 Sur desktop : un chevron, un hover menu, un menu contextuel ou un panneau secondaire peut afficher les enfants.
 
@@ -188,6 +189,12 @@ Plus
           "route": "/app/admin/sellers?status=active"
         }
       ]
+    },
+    {
+      "code": "draws",
+      "label": "Tirages",
+      "icon": "event",
+      "route": "/app/admin/draws"
     },
     {
       "code": "controls",
@@ -1095,7 +1102,7 @@ WORKSPACE_ADMIN
 
 ## Navigation
 
-- [ ] La sidenav affiche seulement 6 entrées principales par défaut : Accueil, Vendeurs, Contrôles, Promotions, Rapports, Plus.
+- [ ] La sidenav affiche seulement 7 entrées principales par défaut : Accueil, Vendeurs, Tirages, Contrôles, Promotions, Rapports, Plus.
 - [ ] Aucun scroll vertical n'est nécessaire sur portable pour voir les entrées principales.
 - [ ] Les sous-menus existent dans le payload `children`.
 - [ ] Les enfants ne sont pas dépliés automatiquement.

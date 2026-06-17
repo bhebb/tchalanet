@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.resolver;
 
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimits;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
-import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -49,14 +49,17 @@ public class LimitResolver {
             case LimitScopeRef.AgentScope agent ->
                 ctx.userId() != null && ctx.userId().equals(agent.userId()) ? 60 : -1;
 
+            case LimitScopeRef.SellerTerminalScope sellerTerminalScope ->
+                sellerTerminalScope.sellerTerminalId() != null && sellerTerminalScope.sellerTerminalId().equals(sellerTerminalScope.sellerTerminalId()) ? 60 : -1;
+
             case LimitScopeRef.OutletScope outlet ->
                 ctx.outletId() != null && ctx.outletId().equals(outlet.outletId()) ? 50 : -1;
 
             case LimitScopeRef.DrawChannelScope channel ->
                 ctx.drawChannelId() != null && ctx.drawChannelId().equals(channel.drawChannelId()) ? 30 : -1;
 
-            case LimitScopeRef.TenantScope tenant ->
-                ctx.tenantId().equals(tenant.tenantId()) ? 10 : -1;
+            case LimitScopeRef.TenantScope tenant -> ctx.tenantId().equals(tenant.tenantId()) ? 10 : -1;
+            default -> throw new IllegalStateException("Unexpected value: " + scope);
         };
     }
 }

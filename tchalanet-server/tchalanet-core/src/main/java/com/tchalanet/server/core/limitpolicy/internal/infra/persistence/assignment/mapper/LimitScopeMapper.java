@@ -3,6 +3,7 @@ package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignm
 import com.tchalanet.server.core.limitpolicy.api.ScopeType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
@@ -18,6 +19,7 @@ public class LimitScopeMapper {
             case LimitScopeRef.TenantScope ignored -> ScopeType.TENANT;
             case LimitScopeRef.AgentScope ignored -> ScopeType.AGENT;
             case LimitScopeRef.OutletScope ignored -> ScopeType.OUTLET;
+            case LimitScopeRef.SellerTerminalScope ignored -> ScopeType.SELLER_TERMINAL;
             case LimitScopeRef.DrawChannelScope ignored -> ScopeType.DRAW_CHANNEL;
         };
     }
@@ -27,6 +29,7 @@ public class LimitScopeMapper {
             case LimitScopeRef.TenantScope tenant -> tenant.tenantId().value();
             case LimitScopeRef.AgentScope agent -> agent.userId().value();
             case LimitScopeRef.OutletScope outlet -> outlet.outletId().value();
+            case LimitScopeRef.SellerTerminalScope st -> st.sellerTerminalId().value();
             case LimitScopeRef.DrawChannelScope drawChannel -> drawChannel.drawChannelId().value();
         };
     }
@@ -44,6 +47,7 @@ public class LimitScopeMapper {
             case TENANT -> LimitScopeRef.tenant(TenantId.of(id));
             case AGENT -> LimitScopeRef.agent(UserId.of(id));
             case OUTLET -> LimitScopeRef.outlet(OutletId.of(id));
+            case SELLER_TERMINAL -> LimitScopeRef.sellerTerminal(SellerTerminalId.of(id));
             case DRAW_CHANNEL -> LimitScopeRef.drawChannel(DrawChannelId.of(id));
             default -> throw new IllegalArgumentException("Unsupported scopeType for LimitPolicy V0: " + type);
         };

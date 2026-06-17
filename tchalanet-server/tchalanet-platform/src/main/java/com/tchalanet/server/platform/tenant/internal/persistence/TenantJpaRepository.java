@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.tenant.internal.persistence;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.tchalanet.server.common.exception.TchNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,4 +34,7 @@ public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID
             .orElseThrow(() -> new TchNotFoundException(id.toString(), "Tenant not found"));
     }
 
+    @Modifying
+    @Query("UPDATE TenantJpaEntity t SET t.defaultCommissionRate = :rate WHERE t.id = :id AND t.deletedAt IS NULL")
+    int updateDefaultCommissionRate(@Param("id") UUID id, @Param("rate") BigDecimal rate);
 }

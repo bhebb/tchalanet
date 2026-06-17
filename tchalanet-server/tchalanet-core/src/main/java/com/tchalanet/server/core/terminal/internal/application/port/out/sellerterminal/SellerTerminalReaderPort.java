@@ -5,10 +5,12 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.terminal.api.model.SellerTerminalCommissionStatsView;
 import com.tchalanet.server.core.terminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.terminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.core.terminal.internal.domain.model.sellerterminal.SellerTerminal;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface SellerTerminalReaderPort {
@@ -18,6 +20,8 @@ public interface SellerTerminalReaderPort {
     Optional<SellerTerminal> findByExternalSubject(String provider, String issuer, String externalSubject);
 
     TchPage<SellerTerminalSummaryRow> search(TenantId tenantId, SellerTerminalSearchCriteria criteria, TchPageRequest pageRequest);
+
+    SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate);
 
     default SellerTerminal getRequired(TenantId tenantId, SellerTerminalId id) {
         return findById(tenantId, id)

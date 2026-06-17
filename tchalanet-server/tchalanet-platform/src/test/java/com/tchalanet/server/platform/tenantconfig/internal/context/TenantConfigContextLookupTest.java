@@ -30,7 +30,7 @@ class TenantConfigContextLookupTest {
             TenantStatus.ACTIVE, TenantType.BORLETTE,
             ZoneId.of("America/Toronto"), Currency.getInstance("CAD"),
             "fr", "fr-HT",
-            Optional.empty(), Optional.empty());
+            Optional.empty(), Optional.empty(), Optional.empty());
         var lookup = new TenantContextLookupService(new FakeRegistry(view));
 
         assertThat(lookup).isInstanceOf(TenantContextLookup.class);

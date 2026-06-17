@@ -13,6 +13,7 @@ public enum ScopeType {
     AGENT,
     ZONE,
     TERMINAL,
+    SELLER_TERMINAL,
     DRAW_CHANNEL,
     RANGE
 }

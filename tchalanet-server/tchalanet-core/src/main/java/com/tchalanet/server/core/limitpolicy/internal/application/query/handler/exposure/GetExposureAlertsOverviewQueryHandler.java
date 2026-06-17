@@ -2,6 +2,7 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
@@ -76,10 +77,12 @@ public class GetExposureAlertsOverviewQueryHandler
         java.time.Instant now
     ) {
         OutletId outletId = null;
+        SellerTerminalId sellerTerminalId = null;
         UserId userId = null;
         DrawChannelId drawChannelId = null;
 
         switch (q.scope()) {
+            case LimitScopeRef.SellerTerminalScope sellerTerminalScope -> sellerTerminalId = sellerTerminalScope.sellerTerminalId();
             case LimitScopeRef.OutletScope outlet -> outletId = outlet.outletId();
             case LimitScopeRef.AgentScope agent -> userId = agent.userId();
             case LimitScopeRef.DrawChannelScope channel -> drawChannelId = channel.drawChannelId();
@@ -88,6 +91,7 @@ public class GetExposureAlertsOverviewQueryHandler
             }
         }
 
+        //todo add seller termina
         return new LimitContext(
             q.tenantId(),
             outletId,
@@ -147,6 +151,7 @@ public class GetExposureAlertsOverviewQueryHandler
     private String scopeKey(LimitScopeRef scope) {
         return switch (scope) {
             case LimitScopeRef.TenantScope tenant -> "TENANT:" + tenant.tenantId().value();
+            case LimitScopeRef.SellerTerminalScope sellerTerminalScope -> "SELLER_TERMINAL:" + sellerTerminalScope.sellerTerminalId().value();
             case LimitScopeRef.DrawChannelScope channel -> "DRAW_CHANNEL:" + channel.drawChannelId().value();
             case LimitScopeRef.OutletScope outlet -> "OUTLET:" + outlet.outletId().value();
             case LimitScopeRef.AgentScope agent -> "AGENT:" + agent.userId().value();

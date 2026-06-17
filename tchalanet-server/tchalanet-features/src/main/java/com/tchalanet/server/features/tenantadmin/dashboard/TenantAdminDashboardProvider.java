@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
  *   - dashboard.tenantAdmin.alerts
  *   - dashboard.tenantAdmin.operations
  *   - dashboard.tenantAdmin.commercial
+ *   - dashboard.tenantAdmin.commission
  *   - dashboard.tenantAdmin.publicContent
  *   - dashboard.tenantAdmin.quickActions
  */
@@ -59,6 +60,7 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.tenantAdmin.alerts" -> payload.alerts();
       case "dashboard.tenantAdmin.operations" -> payload.operations();
       case "dashboard.tenantAdmin.commercial" -> payload.commercial();
+      case "dashboard.tenantAdmin.commission" -> payload.commission();
       case "dashboard.tenantAdmin.publicContent" -> payload.publicContent();
       case "dashboard.tenantAdmin.quickActions" -> payload.quickActions();
       default -> throw new PageModelDynamicProviderException(

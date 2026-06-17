@@ -47,6 +47,1783 @@
   "fileMap": {
     "nonProjectFiles": [],
     "projectFileMap": {
+      "api": [
+        {
+          "file": "libs/api/README.md",
+          "hash": "11740150417978160751"
+        },
+        {
+          "file": "libs/api/eslint.config.mjs",
+          "hash": "2624537849564014525"
+        },
+        {
+          "file": "libs/api/project.json",
+          "hash": "8662667758228254435"
+        },
+        {
+          "file": "libs/api/src/index.ts",
+          "hash": "14336552481097640953"
+        },
+        {
+          "file": "libs/api/src/lib/contracts/action-item.spec.ts",
+          "hash": "3167894704080162670"
+        },
+        {
+          "file": "libs/api/src/lib/contracts/action-item.ts",
+          "hash": "13441077775857706369"
+        },
+        {
+          "file": "libs/api/src/lib/contracts/api.types.ts",
+          "hash": "482916933104089525"
+        },
+        {
+          "file": "libs/api/src/lib/http/api-base.ts",
+          "hash": "16696681674660023474"
+        },
+        {
+          "file": "libs/api/src/lib/http/api-feedback-context.ts",
+          "hash": "8153833770457180885"
+        },
+        {
+          "file": "libs/api/src/lib/http/api-response.ts",
+          "hash": "5814619239061205381"
+        },
+        {
+          "file": "libs/api/src/lib/http/correlation.interceptor.spec.ts",
+          "hash": "13213853479926768395"
+        },
+        {
+          "file": "libs/api/src/lib/http/correlation.interceptor.ts",
+          "hash": "16796259240181055232"
+        },
+        {
+          "file": "libs/api/src/lib/http/http-error.mapper.spec.ts",
+          "hash": "9941594704298338254"
+        },
+        {
+          "file": "libs/api/src/lib/http/http-error.mapper.ts",
+          "hash": "580143345574184621"
+        },
+        {
+          "file": "libs/api/src/lib/http/problem-detail.interceptor.ts",
+          "hash": "17236017028153365118"
+        },
+        {
+          "file": "libs/api/src/lib/http/tch-backend-client.ts",
+          "hash": "5291766420765470378"
+        },
+        {
+          "file": "libs/api/tsconfig.json",
+          "hash": "4726319064402332886"
+        },
+        {
+          "file": "libs/api/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        }
+      ],
+      "tch-portal": [
+        {
+          "file": "apps/tch-portal/eslint.config.mjs",
+          "hash": "17259448085244140710"
+        },
+        {
+          "file": "apps/tch-portal/project.json",
+          "hash": "9244419884322255139"
+        },
+        {
+          "file": "apps/tch-portal/proxy.conf.cjs",
+          "hash": "15907308992828329689"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-app-icon.svg",
+          "hash": "12874165811994458338"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-inverse.svg",
+          "hash": "658935036689201510"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-print.svg",
+          "hash": "13544880900038085132"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo.svg",
+          "hash": "11611510610655879067"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/brand/tchalanet-points.svg",
+          "hash": "2572440331795345445"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/config/page-default.json",
+          "hash": "9860149031374809755"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/config/page-private-fallback.json",
+          "hash": "1315317739657244237"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/config/test.json",
+          "hash": "525576925740094733"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/fallback/public-bootstrap-fallback.fr.json",
+          "hash": "1410939130410394735"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/fonts/material-symbols-outlined.woff2",
+          "hash": "2128143914849596329"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/i18n/en.json",
+          "hash": "1174967927070949613"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/i18n/fr.json",
+          "hash": "5245747319281363889"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/i18n/ht.json",
+          "hash": "14427066854217723692"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/public/pages/privacy.md",
+          "hash": "10157244665251192380"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/public/pages/terms.md",
+          "hash": "2864754145844916399"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/public/results-hero-balls.png",
+          "hash": "4445278347749924069"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/public/rules-tchala-preview.png",
+          "hash": "16390624073948934258"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/public/ticket-verification-preview.svg",
+          "hash": "8316209520341358832"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/i18n/en.svg",
+          "hash": "8996652583045834758"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/i18n/fr.svg",
+          "hash": "8734635249429673528"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/i18n/ht.svg",
+          "hash": "3671587302395020241"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/socials/facebook.svg",
+          "hash": "967391752942287665"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/socials/instagram.svg",
+          "hash": "2873581573737657841"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/socials/linkedin.svg",
+          "hash": "3639310474159767663"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/socials/x.svg",
+          "hash": "11921670630856471303"
+        },
+        {
+          "file": "apps/tch-portal/public/assets/svg/socials/youtube.svg",
+          "hash": "11877118905697745251"
+        },
+        {
+          "file": "apps/tch-portal/public/favicon.ico",
+          "hash": "9303420814833116677"
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.config.ts",
+          "hash": "16242145054064018200",
+          "deps": [
+            "api",
+            "shared-config",
+            "ui-theme",
+            "widgets"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.html",
+          "hash": "17816966185630879015"
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.routes.spec.ts",
+          "hash": "16943339908126354338"
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.routes.ts",
+          "hash": "13616072312058652193",
+          "deps": [
+            "web"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.scss",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.spec.ts",
+          "hash": "678783735739700221"
+        },
+        {
+          "file": "apps/tch-portal/src/app/app.ts",
+          "hash": "9456690520680344366"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/access.guard.ts",
+          "hash": "16850386478850012436"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/access.service.spec.ts",
+          "hash": "6640096682438240487",
+          "deps": [
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/access.service.ts",
+          "hash": "4222061836141798715",
+          "deps": [
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/can.directive.spec.ts",
+          "hash": "6402104276751496358"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/can.directive.ts",
+          "hash": "10214675084168249800"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/can.pipe.spec.ts",
+          "hash": "17497947782995573630"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/can.pipe.ts",
+          "hash": "18333879155136684826"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/access/index.ts",
+          "hash": "15501236874533786793"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.spec.ts",
+          "hash": "16796446094516284658"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.ts",
+          "hash": "5037274723661352787"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-client.ts",
+          "hash": "11436820547565559116"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.spec.ts",
+          "hash": "1554256918647793606"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.ts",
+          "hash": "17664761542339102719"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth.guard.spec.ts",
+          "hash": "14553902674788929836"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/auth.guard.ts",
+          "hash": "3578462973243031390"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.providers.ts",
+          "hash": "2035443628383943823"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.service.ts",
+          "hash": "6214801689767148870"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.html",
+          "hash": "7844167235220199945"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.scss",
+          "hash": "7440104717751918841"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.ts",
+          "hash": "10515930055369155314"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/auth/forbidden.page.ts",
+          "hash": "4977796061594985785"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.spec.ts",
+          "hash": "2459180322843986171",
+          "deps": [
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.ts",
+          "hash": "12779077616967056190",
+          "deps": [
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/entitlement/index.ts",
+          "hash": "3448829033650478349"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/i18n-merger.service.ts",
+          "hash": "10282054811448084104"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/i18n-runtime.spec.ts",
+          "hash": "6274271047955086677"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/i18n.facade.ts",
+          "hash": "6959284456245516114"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/index.ts",
+          "hash": "17634653132995065099"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/language-switcher.ts",
+          "hash": "8926732499177673502",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/merged-translate-loader.ts",
+          "hash": "13181936228104341241",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.actions.ts",
+          "hash": "15316225955927752849"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.effects.ts",
+          "hash": "4656616946384430025"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.reducer.ts",
+          "hash": "12087515273103006269"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.state.ts",
+          "hash": "12419402642410075021"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.spec.ts",
+          "hash": "13734054725045311218",
+          "deps": [
+            "ui-theme",
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.ts",
+          "hash": "2618454909056448436",
+          "deps": [
+            "ui-theme",
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/index.ts",
+          "hash": "2439883547837844645"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.model.ts",
+          "hash": "10803688114784560634"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.spec.ts",
+          "hash": "2920064627718110692",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.ts",
+          "hash": "4824565644019342334",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.store.ts",
+          "hash": "17759894076936736148"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/private-runtime-initializer.ts",
+          "hash": "5793576460492021448",
+          "deps": [
+            "shared-config",
+            "ui-theme"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.model.ts",
+          "hash": "11658195417175363280"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.service.ts",
+          "hash": "359092896325053916",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.store.ts",
+          "hash": "2895065483141287079"
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/public-fallback-bundle.service.ts",
+          "hash": "12371720513627910131",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/core/runtime/public-runtime-initializer.ts",
+          "hash": "36042392042909169",
+          "deps": [
+            "shared-config",
+            "ui-theme"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/admin.routes.ts",
+          "hash": "6630386185029996325"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/baremes-admin.api.service.ts",
+          "hash": "486582039701930183",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/commission-admin.api.service.ts",
+          "hash": "4244348692019047125",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/draw-admin.api.service.ts",
+          "hash": "11240909724875185353",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/admin-placeholder.page.ts",
+          "hash": "37227328486992402"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.html",
+          "hash": "12114765024794423934"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.scss",
+          "hash": "11243525138588196597"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/admin-commission.page.ts",
+          "hash": "16527231298479562859",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/commission/set-commission-rate.dialog.ts",
+          "hash": "7370522563693793528"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.html",
+          "hash": "8622065853210614574"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.scss",
+          "hash": "17760856702518201538"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/controls/admin-baremes.page.ts",
+          "hash": "12450354488619780998",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.html",
+          "hash": "16273338637460093659"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.scss",
+          "hash": "12640748286937565714"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-channels.page.ts",
+          "hash": "5464747016315152369",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.html",
+          "hash": "2480136454735763128"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.scss",
+          "hash": "17142089377451744408"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draw-detail.page.ts",
+          "hash": "3547343055909421351",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.html",
+          "hash": "10981558378462825621"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.scss",
+          "hash": "17572220860064663025"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/draws/admin-draws.page.ts",
+          "hash": "46245056974555692",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/onboarding/admin-onboarding.page.ts",
+          "hash": "11894638146369537394"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/outlets/admin-outlets.page.ts",
+          "hash": "3940991836300112186"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.html",
+          "hash": "11310187811161260256"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.scss",
+          "hash": "12269526429238452399"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/reports/admin-today-report.page.ts",
+          "hash": "1230446708239210679",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.html",
+          "hash": "8782063025500562986"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.scss",
+          "hash": "3355674938215886034"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-detail.page.ts",
+          "hash": "10698034890553092436",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.html",
+          "hash": "1115621147740932886"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.scss",
+          "hash": "2207461939840766708"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-seller-new.page.ts",
+          "hash": "17734101509651042419",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.html",
+          "hash": "13005303361710211801"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.scss",
+          "hash": "9586583183437410395"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.ts",
+          "hash": "13106566255640558185",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/reset-pin.dialog.ts",
+          "hash": "18182433550757416215"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/sessions/admin-sessions.page.ts",
+          "hash": "1188222294376393469"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/settings/admin-settings.page.ts",
+          "hash": "8816390701979966697"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/terminals/admin-terminals.page.ts",
+          "hash": "14327517019861747970"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/pages/users/admin-users.page.ts",
+          "hash": "13815704774790940855"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/reports-admin.api.service.ts",
+          "hash": "17067811089636158315",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/seller-terminal-admin.api.service.ts",
+          "hash": "17230072020748360671",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-api.service.ts",
+          "hash": "6507744434688583672",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/cashier/cashier.routes.ts",
+          "hash": "16470181153972395563"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/cashier/pages/sell/cashier-sell.page.ts",
+          "hash": "15987330989193482443"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/dashboard/private-dashboard.page.ts",
+          "hash": "10235166250744893939",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/dashboard/shell/private-shell.page.ts",
+          "hash": "7029982387930885833",
+          "deps": [
+            "api",
+            "ui-components",
+            "ui-theme"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/dev/purge-oidc-cache.ts",
+          "hash": "9495831351562013383"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/dev/theme-sandbox.component.ts",
+          "hash": "228452551246404852",
+          "deps": [
+            "ui-theme"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/contact-requests/platform-contact-requests.page.ts",
+          "hash": "9677304421525760448"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/news/platform-news.page.ts",
+          "hash": "15578068841866195744"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/notifications/platform-notifications.page.ts",
+          "hash": "18011757796811973793"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/ops/platform-ops.page.ts",
+          "hash": "6057983438596954777"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/tenant-provisioning/platform-tenant-provisioning.page.ts",
+          "hash": "1465909732215386134"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/pages/tenants/platform-tenants.page.ts",
+          "hash": "1969074617503908161"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/platform-admin-api.service.ts",
+          "hash": "7543287433266485935",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/platform/platform.routes.ts",
+          "hash": "9925448561453314407"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-crud-shell.component.ts",
+          "hash": "4584462884524532687"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-data-toolbar.component.ts",
+          "hash": "17904937654427481399"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-empty-state.component.ts",
+          "hash": "12596836818658414264",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-page-shell.component.ts",
+          "hash": "7744854472228276355"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-section-card.component.ts",
+          "hash": "11854707728850768598",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-status-pill.component.ts",
+          "hash": "9415592778357702711",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shell/private-navigation.model.ts",
+          "hash": "3473517954770636999",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/private/shell/private-shell.service.ts",
+          "hash": "6721120433773074783",
+          "deps": [
+            "api",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.data.ts",
+          "hash": "9943529496171380799",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.model.ts",
+          "hash": "14020099861144326731",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.html",
+          "hash": "9341191784001937046"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.scss",
+          "hash": "11105049976802294790"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.spec.ts",
+          "hash": "12499613156749140142"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.ts",
+          "hash": "9616803961229830064",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.utils.ts",
+          "hash": "5002787732323917797",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-ticket.service.ts",
+          "hash": "7191825368519172952",
+          "deps": [
+            "api",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.model.ts",
+          "hash": "12874396588534229251"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.page.ts",
+          "hash": "12184689029835996896"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.service.ts",
+          "hash": "11603572474222385846",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.html",
+          "hash": "15722352225356808273"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.scss",
+          "hash": "11214326567170328164"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.ts",
+          "hash": "12281971174555285991",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/home/public-home.page.ts",
+          "hash": "14913537798441493943",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/managers/public-managers.page.ts",
+          "hash": "16939763904570672752",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.html",
+          "hash": "14271605601497810398"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.scss",
+          "hash": "7937584365121754902"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.ts",
+          "hash": "15531873042708350207"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.spec.ts",
+          "hash": "17589454090161624739"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.ts",
+          "hash": "6488501156986466073",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-draw-results.service.ts",
+          "hash": "14752444751117346752",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-help.page.ts",
+          "hash": "6938995144567627912"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-home.page.ts",
+          "hash": "16262816530284744698",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-info.page.ts",
+          "hash": "18157732977125822443",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-managers.page.ts",
+          "hash": "16939763904570672752",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-markdown.page.ts",
+          "hash": "11481760936225088735"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-news.page.ts",
+          "hash": "3137519338334569302"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-operators.page.ts",
+          "hash": "7866387516065600301",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.spec.ts",
+          "hash": "10213639127909885550"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.ts",
+          "hash": "16462808079264293397",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-results.page.spec.ts",
+          "hash": "4804489171399284244"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-results.page.ts",
+          "hash": "2031940948917866886"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-rules.page.spec.ts",
+          "hash": "1235770529747224097"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-rules.page.ts",
+          "hash": "5892129213178907141",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-tchala.page.ts",
+          "hash": "4608123909074722284",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-tchala.service.ts",
+          "hash": "9496826212384283917",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public-ticket.service.ts",
+          "hash": "3930064579497036882",
+          "deps": [
+            "api",
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/public.routes.ts",
+          "hash": "17441484543782033266"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.model.ts",
+          "hash": "1699770990387519922",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.html",
+          "hash": "9250772529373325962"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.scss",
+          "hash": "13913775719297389221"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.spec.ts",
+          "hash": "9445981393608245184"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.ts",
+          "hash": "4016846168418436481",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.utils.ts",
+          "hash": "4823925183954678022",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-draw-results.service.ts",
+          "hash": "15265157781987029237",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.data.ts",
+          "hash": "10898424871910623589"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.model.ts",
+          "hash": "8299052632812670960"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.html",
+          "hash": "14952198171054675700"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.scss",
+          "hash": "10487920817435183046"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.spec.ts",
+          "hash": "4604561477548217705"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.ts",
+          "hash": "15105926525023879725"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/results/public-results.utils.ts",
+          "hash": "7493686499348686508"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.data.ts",
+          "hash": "11338468965169796168"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.model.ts",
+          "hash": "17614614404293370518"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.html",
+          "hash": "9749645355499904703"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.scss",
+          "hash": "7522241767138700804"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.spec.ts",
+          "hash": "16097164158470986039"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.ts",
+          "hash": "2153058032142354273",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.storage.ts",
+          "hash": "17903350111431836066"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.utils.ts",
+          "hash": "15856434152466345483"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shared/components/public-empty-state.component.ts",
+          "hash": "5258063532335794037"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shared/components/public-filter-bar.component.ts",
+          "hash": "887098658939082772"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shared/components/public-list-shell.component.ts",
+          "hash": "10575141550609560365"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shared/components/public-pagination-bar.component.ts",
+          "hash": "16726497371266134862"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shared/index.ts",
+          "hash": "2313512052386879009",
+          "deps": [
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shell/public-header.ts",
+          "hash": "1817733868038821512",
+          "deps": [
+            "api",
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.component.ts",
+          "hash": "13444265713280227100",
+          "deps": [
+            "page-model",
+            "web"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.service.ts",
+          "hash": "14925405024341782151",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.model.ts",
+          "hash": "14705087114784255183"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.html",
+          "hash": "13440235929524361413"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.scss",
+          "hash": "11410070747499196785"
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.ts",
+          "hash": "7891266196008762332",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.service.ts",
+          "hash": "543492072623527070",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.utils.ts",
+          "hash": "9208526453821921553"
+        },
+        {
+          "file": "apps/tch-portal/src/app/nx-welcome.ts",
+          "hash": "343355658247319681"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/api/api-feedback.interceptor.ts",
+          "hash": "290894038250049019",
+          "deps": [
+            "api",
+            "shared-config"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/copy-error-details.spec.ts",
+          "hash": "2391665627933232687"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/copy-error-details.ts",
+          "hash": "13245860603170187179"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-banner.component.spec.ts",
+          "hash": "14700070450482384476"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-banner.component.ts",
+          "hash": "3609650717720911036"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-outlet.component.ts",
+          "hash": "11078528949990394606"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback.model.ts",
+          "hash": "2379777372542580201"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback.store.ts",
+          "hash": "3766279607450662301"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/types/auth.types.ts",
+          "hash": "14483994496514256555"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/types/i18n.types.ts",
+          "hash": "8531350485649006672"
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/types/index.ts",
+          "hash": "205957344025404793",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "apps/tch-portal/src/app/shared/types/operational-context.types.ts",
+          "hash": "313886294629532644"
+        },
+        {
+          "file": "apps/tch-portal/src/environments/environment.prod.ts",
+          "hash": "3097155072341271465"
+        },
+        {
+          "file": "apps/tch-portal/src/environments/environment.real-firebase.ts",
+          "hash": "15349970476986889869"
+        },
+        {
+          "file": "apps/tch-portal/src/environments/environment.ts",
+          "hash": "17787986478559498519"
+        },
+        {
+          "file": "apps/tch-portal/src/index.html",
+          "hash": "18098801359882671045"
+        },
+        {
+          "file": "apps/tch-portal/src/main.ts",
+          "hash": "1203322362176323"
+        },
+        {
+          "file": "apps/tch-portal/src/styles.scss",
+          "hash": "10121280825372921871"
+        },
+        {
+          "file": "apps/tch-portal/tsconfig.app.json",
+          "hash": "18236407445202082987"
+        },
+        {
+          "file": "apps/tch-portal/tsconfig.json",
+          "hash": "16004134237605501702"
+        },
+        {
+          "file": "apps/tch-portal/tsconfig.spec.json",
+          "hash": "13919890687900665478"
+        }
+      ],
+      "page-model": [
+        {
+          "file": "libs/page-model/project.json",
+          "hash": "14208149024578156968"
+        },
+        {
+          "file": "libs/page-model/src/index.ts",
+          "hash": "6821024734962765154"
+        },
+        {
+          "file": "libs/page-model/src/lib/api/page-model-api.service.spec.ts",
+          "hash": "13024203986121979940"
+        },
+        {
+          "file": "libs/page-model/src/lib/api/page-model-api.service.ts",
+          "hash": "11539493466482569498",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/page-model.component.spec.ts",
+          "hash": "8387037828881416091"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/page-model.component.ts",
+          "hash": "10826614219609390121"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/widget-host.component.spec.ts",
+          "hash": "13036620522752247857"
+        },
+        {
+          "file": "libs/page-model/src/lib/rendering/widget-host.component.ts",
+          "hash": "15943033921244517549"
+        },
+        {
+          "file": "libs/page-model/src/lib/runtime/pagemodel.types.ts",
+          "hash": "5843158651591704717",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/game-label.pipe.ts",
+          "hash": "7535620449578045370"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/label.pipe.ts",
+          "hash": "3664821800832016521"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/widget.contract.spec.ts",
+          "hash": "6821087752043984553"
+        },
+        {
+          "file": "libs/page-model/src/lib/widget/widget.contract.ts",
+          "hash": "11226333043219749208",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/page-model/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/page-model/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/page-model/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
+      "tch-portal-e2e": [
+        {
+          "file": "apps/tch-portal-e2e/eslint.config.mjs",
+          "hash": "1172734138943286526"
+        },
+        {
+          "file": "apps/tch-portal-e2e/playwright.config.ts",
+          "hash": "9182228263159653438"
+        },
+        {
+          "file": "apps/tch-portal-e2e/project.json",
+          "hash": "5997281328099186134"
+        },
+        {
+          "file": "apps/tch-portal-e2e/src/example.spec.ts",
+          "hash": "16019101014373124625"
+        },
+        {
+          "file": "apps/tch-portal-e2e/tsconfig.json",
+          "hash": "15726545290547512047"
+        }
+      ],
+      "ui-components": [
+        {
+          "file": "libs/ui/components/README.md",
+          "hash": "1048300374754876532"
+        },
+        {
+          "file": "libs/ui/components/eslint.config.mjs",
+          "hash": "6911888895805478804"
+        },
+        {
+          "file": "libs/ui/components/project.json",
+          "hash": "11330565788443432655"
+        },
+        {
+          "file": "libs/ui/components/src/index.ts",
+          "hash": "355729226513151732"
+        },
+        {
+          "file": "libs/ui/components/src/lib/action-button/action-button.ts",
+          "hash": "17734359208681014847"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-confirm-dialog.ts",
+          "hash": "279759858946999539"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-data-table.ts",
+          "hash": "10440357667046776981"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-empty-state.ts",
+          "hash": "10979347842782486182"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-actions.ts",
+          "hash": "10917627788531537499"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-section.ts",
+          "hash": "4188359219596268082"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-form-shell.ts",
+          "hash": "7089056710429728876"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-list-toolbar.ts",
+          "hash": "8156217971419743502"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-mobile-card-list.ts",
+          "hash": "4414058299790906953"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-page-header.ts",
+          "hash": "3462860341999717103"
+        },
+        {
+          "file": "libs/ui/components/src/lib/admin-crud/admin-status-badge.ts",
+          "hash": "16217760007568360319"
+        },
+        {
+          "file": "libs/ui/components/src/lib/brand/brand.ts",
+          "hash": "2363625720016197211",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
+          "hash": "14220795768093247726"
+        },
+        {
+          "file": "libs/ui/components/src/lib/card/card.ts",
+          "hash": "2128839883764420960"
+        },
+        {
+          "file": "libs/ui/components/src/lib/empty-state/empty-state.ts",
+          "hash": "18010049587449564620"
+        },
+        {
+          "file": "libs/ui/components/src/lib/error-panel/error-panel.ts",
+          "hash": "12330710118942343033"
+        },
+        {
+          "file": "libs/ui/components/src/lib/field-error/field-error.ts",
+          "hash": "949467474437262915"
+        },
+        {
+          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.ts",
+          "hash": "4677278547444957795"
+        },
+        {
+          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.ts",
+          "hash": "9377904144937739534"
+        },
+        {
+          "file": "libs/ui/components/src/lib/loading/loading.ts",
+          "hash": "12380156399824553072"
+        },
+        {
+          "file": "libs/ui/components/src/lib/nav/nav.ts",
+          "hash": "11046528614224296363",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
+          "hash": "9963452027253079812"
+        },
+        {
+          "file": "libs/ui/components/src/lib/notice/notice.ts",
+          "hash": "15315254400579590416"
+        },
+        {
+          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.ts",
+          "hash": "4820806468313465274",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/page-error/page-error.ts",
+          "hash": "9481708808872860789"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-action-card.ts",
+          "hash": "15255504412822130017"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-card-grid.ts",
+          "hash": "16755490524303249811"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-card.ts",
+          "hash": "6232503024021761930"
+        },
+        {
+          "file": "libs/ui/components/src/lib/pub-card/pub-stat-card.ts",
+          "hash": "11855210019591868770"
+        },
+        {
+          "file": "libs/ui/components/src/lib/section-header/section-header.ts",
+          "hash": "8389808095608091511"
+        },
+        {
+          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.ts",
+          "hash": "108189415301676068",
+          "deps": [
+            "api"
+          ]
+        },
+        {
+          "file": "libs/ui/components/src/lib/status-badge/status-badge.ts",
+          "hash": "17124275208030297630"
+        },
+        {
+          "file": "libs/ui/components/src/lib/user-menu/user-menu.ts",
+          "hash": "14812234084383689739"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.json",
+          "hash": "14130435081233809606"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.lib.json",
+          "hash": "14882418245198400289"
+        },
+        {
+          "file": "libs/ui/components/tsconfig.spec.json",
+          "hash": "8647352538471907012"
+        }
+      ],
+      "widgets": [
+        {
+          "file": "libs/widgets/project.json",
+          "hash": "14996755350796628443"
+        },
+        {
+          "file": "libs/widgets/src/index.ts",
+          "hash": "14883825294113808548"
+        },
+        {
+          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
+          "hash": "9294134563431912316"
+        },
+        {
+          "file": "libs/widgets/src/lib/widget-registry.ts",
+          "hash": "13311369135428257152",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/alerts.widget.ts",
+          "hash": "2898341213741661533",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/commission-summary.widget.ts",
+          "hash": "9244279795290658587",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/contact-cta.widget.ts",
+          "hash": "4213575795673608706",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/faq.widget.ts",
+          "hash": "17746855083953968189",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
+          "hash": "1179638978525117593",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
+          "hash": "10498676521089889444",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
+          "hash": "9357849919000751005",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/kpi-grid.widget.ts",
+          "hash": "14663214852390309395",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
+          "hash": "2665644559725841837",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
+          "hash": "5162459440002317711",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
+          "hash": "10422736187402699696",
+          "deps": [
+            "ui-components",
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-access-control.widget.ts",
+          "hash": "17497890107384251630",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-features.widget.ts",
+          "hash": "3269174251557296924",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-hero.widget.ts",
+          "hash": "4826023674247588713",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-lead-form.widget.ts",
+          "hash": "9352309083271833710",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-plans.widget.ts",
+          "hash": "180508147043801951",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-business-process.widget.ts",
+          "hash": "18349005022076699331",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
+          "hash": "782838592484216525",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/quick-actions.widget.ts",
+          "hash": "6069871013528336186",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/readiness-summary.widget.ts",
+          "hash": "16885747214736627164",
+          "deps": [
+            "page-model"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
+          "hash": "7085149090602567258",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
+          "hash": "347510757167972718",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
+          "hash": "9947224027362549956",
+          "deps": [
+            "page-model",
+            "ui-components"
+          ]
+        },
+        {
+          "file": "libs/widgets/tsconfig.json",
+          "hash": "6098727767136629672"
+        },
+        {
+          "file": "libs/widgets/tsconfig.lib.json",
+          "hash": "9173947970313865903"
+        },
+        {
+          "file": "libs/widgets/tsconfig.spec.json",
+          "hash": "13291579508309900195"
+        }
+      ],
       "web": [
         {
           "file": "libs/web/project.json",
@@ -94,6 +1871,112 @@
         {
           "file": "libs/web/tsconfig.spec.json",
           "hash": "13291579508309900195"
+        }
+      ],
+      "ui-theme": [
+        {
+          "file": "libs/ui/theme/README.md",
+          "hash": "523284715630508394"
+        },
+        {
+          "file": "libs/ui/theme/eslint.config.mjs",
+          "hash": "14754633781889188846"
+        },
+        {
+          "file": "libs/ui/theme/project.json",
+          "hash": "18252264992682606200"
+        },
+        {
+          "file": "libs/ui/theme/src/index.ts",
+          "hash": "11508624835753342489"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
+          "hash": "14849990087210799945"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-presets.ts",
+          "hash": "8683411710997030997"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-store.ts",
+          "hash": "17579523714293080808"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
+          "hash": "231595962544266657"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-contract.spec.ts",
+          "hash": "16625412493476112818"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
+          "hash": "14911692992412442769"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
+          "hash": "9697886265990620641"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-types.ts",
+          "hash": "6062169308715798539"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.repository.ts",
+          "hash": "12289027144071371214"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
+          "hash": "5112514122229607644"
+        },
+        {
+          "file": "libs/ui/theme/src/registry/token-manifest.generated.ts",
+          "hash": "2967899537633583817"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
+          "hash": "9014223019815349846"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/density.scss",
+          "hash": "274748125214705874"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-root.scss",
+          "hash": "5093180623556393654"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
+          "hash": "9557983113373245384"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
+          "hash": "17589864670225387356"
+        },
+        {
+          "file": "libs/ui/theme/src/scss/theme-presets.scss",
+          "hash": "15829592671263239537"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
+          "hash": "1589122421491685804"
+        },
+        {
+          "file": "libs/ui/theme/tools/generate-token-manifest.mjs",
+          "hash": "13365119433662527447"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.json",
+          "hash": "1973382141025117759"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.lib.json",
+          "hash": "2571691299537351603"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.spec.json",
+          "hash": "5074326386517990425"
         }
       ],
       "tchalanet-web": [
@@ -906,1550 +2789,6 @@
           "hash": "10644582597363124074"
         }
       ],
-      "widgets": [
-        {
-          "file": "libs/widgets/project.json",
-          "hash": "14996755350796628443"
-        },
-        {
-          "file": "libs/widgets/src/index.ts",
-          "hash": "14883825294113808548"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.spec.ts",
-          "hash": "9294134563431912316"
-        },
-        {
-          "file": "libs/widgets/src/lib/widget-registry.ts",
-          "hash": "16251621606112551412",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/alerts.widget.ts",
-          "hash": "2898341213741661533",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/contact-cta.widget.ts",
-          "hash": "4213575795673608706",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/faq.widget.ts",
-          "hash": "17746855083953968189",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/feature-grid.widget.ts",
-          "hash": "1179638978525117593",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/hero.widget.ts",
-          "hash": "10498676521089889444",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/how-it-works.widget.ts",
-          "hash": "9357849919000751005",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/kpi-grid.widget.ts",
-          "hash": "14663214852390309395",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/news-ticker.widget.ts",
-          "hash": "2665644559725841837",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/operator-cta.widget.ts",
-          "hash": "5162459440002317711",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/plans.widget.ts",
-          "hash": "10422736187402699696",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-access-control.widget.ts",
-          "hash": "17497890107384251630",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-features.widget.ts",
-          "hash": "3269174251557296924",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-hero.widget.ts",
-          "hash": "4826023674247588713",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-lead-form.widget.ts",
-          "hash": "9352309083271833710",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-plans.widget.ts",
-          "hash": "180508147043801951",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-business-process.widget.ts",
-          "hash": "18349005022076699331",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/public-draw-results.widget.ts",
-          "hash": "782838592484216525",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/quick-actions.widget.ts",
-          "hash": "17403008094454549336",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/readiness-summary.widget.ts",
-          "hash": "16885747214736627164",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/rules-simulation.widget.ts",
-          "hash": "7085149090602567258",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/tchala-search.widget.ts",
-          "hash": "347510757167972718",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/src/lib/widgets/ticket-verification.widget.ts",
-          "hash": "9947224027362549956",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "libs/widgets/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/widgets/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/widgets/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
-      "tch-portal": [
-        {
-          "file": "apps/tch-portal/eslint.config.mjs",
-          "hash": "17259448085244140710"
-        },
-        {
-          "file": "apps/tch-portal/project.json",
-          "hash": "9244419884322255139"
-        },
-        {
-          "file": "apps/tch-portal/proxy.conf.cjs",
-          "hash": "15907308992828329689"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-app-icon.svg",
-          "hash": "12874165811994458338"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-inverse.svg",
-          "hash": "658935036689201510"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo-print.svg",
-          "hash": "13544880900038085132"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-logo.svg",
-          "hash": "11611510610655879067"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/brand/tchalanet-points.svg",
-          "hash": "2572440331795345445"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/page-default.json",
-          "hash": "9860149031374809755"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/page-private-fallback.json",
-          "hash": "1315317739657244237"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/config/test.json",
-          "hash": "525576925740094733"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/fallback/public-bootstrap-fallback.fr.json",
-          "hash": "1410939130410394735"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/fonts/material-symbols-outlined.woff2",
-          "hash": "2128143914849596329"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/en.json",
-          "hash": "5493895535385423695"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/fr.json",
-          "hash": "18241601169700287006"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/i18n/ht.json",
-          "hash": "8375069104478840820"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/pages/privacy.md",
-          "hash": "10157244665251192380"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/pages/terms.md",
-          "hash": "2864754145844916399"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/results-hero-balls.png",
-          "hash": "4445278347749924069"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/rules-tchala-preview.png",
-          "hash": "16390624073948934258"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/public/ticket-verification-preview.svg",
-          "hash": "8316209520341358832"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/en.svg",
-          "hash": "8996652583045834758"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/fr.svg",
-          "hash": "8734635249429673528"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/i18n/ht.svg",
-          "hash": "3671587302395020241"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/facebook.svg",
-          "hash": "967391752942287665"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/instagram.svg",
-          "hash": "2873581573737657841"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/linkedin.svg",
-          "hash": "3639310474159767663"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/x.svg",
-          "hash": "11921670630856471303"
-        },
-        {
-          "file": "apps/tch-portal/public/assets/svg/socials/youtube.svg",
-          "hash": "11877118905697745251"
-        },
-        {
-          "file": "apps/tch-portal/public/favicon.ico",
-          "hash": "9303420814833116677"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.config.ts",
-          "hash": "16242145054064018200",
-          "deps": [
-            "api",
-            "shared-config",
-            "ui-theme",
-            "widgets"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.html",
-          "hash": "17816966185630879015"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.routes.spec.ts",
-          "hash": "16943339908126354338"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.routes.ts",
-          "hash": "13616072312058652193",
-          "deps": [
-            "web"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.scss",
-          "hash": "3244421341483603138"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.spec.ts",
-          "hash": "678783735739700221"
-        },
-        {
-          "file": "apps/tch-portal/src/app/app.ts",
-          "hash": "9456690520680344366"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.guard.ts",
-          "hash": "16850386478850012436"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.service.spec.ts",
-          "hash": "6640096682438240487",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/access.service.ts",
-          "hash": "4222061836141798715",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.directive.spec.ts",
-          "hash": "6402104276751496358"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.directive.ts",
-          "hash": "10214675084168249800"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.pipe.spec.ts",
-          "hash": "17497947782995573630"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/can.pipe.ts",
-          "hash": "18333879155136684826"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/access/index.ts",
-          "hash": "15501236874533786793"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.spec.ts",
-          "hash": "16796446094516284658"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-bearer.interceptor.ts",
-          "hash": "5037274723661352787"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-client.ts",
-          "hash": "11436820547565559116"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.spec.ts",
-          "hash": "1554256918647793606"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth-session.service.ts",
-          "hash": "17664761542339102719"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth.guard.spec.ts",
-          "hash": "14553902674788929836"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/auth.guard.ts",
-          "hash": "3578462973243031390"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.providers.ts",
-          "hash": "2035443628383943823"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/firebase-auth.service.ts",
-          "hash": "6214801689767148870"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.html",
-          "hash": "7844167235220199945"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.scss",
-          "hash": "7440104717751918841"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/firebase/login.page.ts",
-          "hash": "10515930055369155314"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/auth/forbidden.page.ts",
-          "hash": "4977796061594985785"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.spec.ts",
-          "hash": "2459180322843986171",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/entitlements.store.ts",
-          "hash": "12779077616967056190",
-          "deps": [
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/entitlement/index.ts",
-          "hash": "3448829033650478349"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n-merger.service.ts",
-          "hash": "10282054811448084104"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n-runtime.spec.ts",
-          "hash": "6274271047955086677"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/i18n.facade.ts",
-          "hash": "6959284456245516114"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/index.ts",
-          "hash": "17634653132995065099"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/language-switcher.ts",
-          "hash": "8926732499177673502",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/merged-translate-loader.ts",
-          "hash": "13181936228104341241",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.actions.ts",
-          "hash": "15316225955927752849"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.effects.ts",
-          "hash": "4656616946384430025"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.reducer.ts",
-          "hash": "12087515273103006269"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/i18n/store/i18n.state.ts",
-          "hash": "12419402642410075021"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.spec.ts",
-          "hash": "13734054725045311218",
-          "deps": [
-            "ui-theme",
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/app-runtime.store.ts",
-          "hash": "2618454909056448436",
-          "deps": [
-            "ui-theme",
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/index.ts",
-          "hash": "2439883547837844645"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.model.ts",
-          "hash": "10803688114784560634"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.spec.ts",
-          "hash": "2920064627718110692",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.service.ts",
-          "hash": "4824565644019342334",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/private-bootstrap.store.ts",
-          "hash": "17759894076936736148"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/private-runtime-initializer.ts",
-          "hash": "5793576460492021448",
-          "deps": [
-            "shared-config",
-            "ui-theme"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.model.ts",
-          "hash": "11658195417175363280"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.service.ts",
-          "hash": "359092896325053916",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/public-bootstrap.store.ts",
-          "hash": "2895065483141287079"
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/public-fallback-bundle.service.ts",
-          "hash": "12371720513627910131",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/core/runtime/public-runtime-initializer.ts",
-          "hash": "36042392042909169",
-          "deps": [
-            "shared-config",
-            "ui-theme"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/admin.routes.ts",
-          "hash": "2706678564769270655"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/onboarding/admin-onboarding.page.ts",
-          "hash": "11894638146369537394"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/outlets/admin-outlets.page.ts",
-          "hash": "3940991836300112186"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/sellers/admin-sellers.page.ts",
-          "hash": "10581459855805787608"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/sessions/admin-sessions.page.ts",
-          "hash": "1188222294376393469"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/settings/admin-settings.page.ts",
-          "hash": "8816390701979966697"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/terminals/admin-terminals.page.ts",
-          "hash": "14327517019861747970"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/pages/users/admin-users.page.ts",
-          "hash": "13815704774790940855"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/admin/tenant-admin-api.service.ts",
-          "hash": "6507744434688583672",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/cashier/cashier.routes.ts",
-          "hash": "16470181153972395563"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/cashier/pages/sell/cashier-sell.page.ts",
-          "hash": "15987330989193482443"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dashboard/private-dashboard.page.ts",
-          "hash": "10235166250744893939",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dashboard/shell/private-shell.page.ts",
-          "hash": "7029982387930885833",
-          "deps": [
-            "api",
-            "ui-components",
-            "ui-theme"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dev/purge-oidc-cache.ts",
-          "hash": "9495831351562013383"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/dev/theme-sandbox.component.ts",
-          "hash": "228452551246404852",
-          "deps": [
-            "ui-theme"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/contact-requests/platform-contact-requests.page.ts",
-          "hash": "9677304421525760448"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/news/platform-news.page.ts",
-          "hash": "15578068841866195744"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/notifications/platform-notifications.page.ts",
-          "hash": "18011757796811973793"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/ops/platform-ops.page.ts",
-          "hash": "6057983438596954777"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/tenant-provisioning/platform-tenant-provisioning.page.ts",
-          "hash": "1465909732215386134"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/pages/tenants/platform-tenants.page.ts",
-          "hash": "1969074617503908161"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/platform-admin-api.service.ts",
-          "hash": "7543287433266485935",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/platform/platform.routes.ts",
-          "hash": "9925448561453314407"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-crud-shell.component.ts",
-          "hash": "4584462884524532687"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-data-toolbar.component.ts",
-          "hash": "17904937654427481399"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-empty-state.component.ts",
-          "hash": "12596836818658414264",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-page-shell.component.ts",
-          "hash": "7744854472228276355"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-section-card.component.ts",
-          "hash": "11854707728850768598",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shared/admin-ui/admin-status-pill.component.ts",
-          "hash": "9415592778357702711",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shell/private-navigation.model.ts",
-          "hash": "4739128504234421711",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/private/shell/private-shell.service.ts",
-          "hash": "6721120433773074783",
-          "deps": [
-            "api",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.data.ts",
-          "hash": "9943529496171380799",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.model.ts",
-          "hash": "14020099861144326731",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.html",
-          "hash": "9341191784001937046"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.scss",
-          "hash": "11105049976802294790"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.spec.ts",
-          "hash": "12499613156749140142"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.page.ts",
-          "hash": "9616803961229830064",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-check-ticket.utils.ts",
-          "hash": "5002787732323917797",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/check-ticket/public-ticket.service.ts",
-          "hash": "7191825368519172952",
-          "deps": [
-            "api",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.model.ts",
-          "hash": "12874396588534229251"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.page.ts",
-          "hash": "12184689029835996896"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/contact/public-contact.service.ts",
-          "hash": "11603572474222385846",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.html",
-          "hash": "15722352225356808273"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.scss",
-          "hash": "11214326567170328164"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/help/public-help.page.ts",
-          "hash": "12281971174555285991",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/home/public-home.page.ts",
-          "hash": "14913537798441493943",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/managers/public-managers.page.ts",
-          "hash": "16939763904570672752",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.html",
-          "hash": "14271605601497810398"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.scss",
-          "hash": "7937584365121754902"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/news/public-news.page.ts",
-          "hash": "15531873042708350207"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.spec.ts",
-          "hash": "17589454090161624739"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-check-ticket.page.ts",
-          "hash": "6488501156986466073",
-          "deps": [
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-draw-results.service.ts",
-          "hash": "14752444751117346752",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-help.page.ts",
-          "hash": "6938995144567627912"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-home.page.ts",
-          "hash": "16262816530284744698",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-info.page.ts",
-          "hash": "18157732977125822443",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-managers.page.ts",
-          "hash": "16939763904570672752",
-          "deps": [
-            "ui-components",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-markdown.page.ts",
-          "hash": "11481760936225088735"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-news.page.ts",
-          "hash": "3137519338334569302"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-operators.page.ts",
-          "hash": "7866387516065600301",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.spec.ts",
-          "hash": "10213639127909885550"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-result-detail.page.ts",
-          "hash": "16462808079264293397",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-results.page.spec.ts",
-          "hash": "4804489171399284244"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-results.page.ts",
-          "hash": "2031940948917866886"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-rules.page.spec.ts",
-          "hash": "1235770529747224097"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-rules.page.ts",
-          "hash": "5892129213178907141",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-tchala.page.ts",
-          "hash": "4608123909074722284",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-tchala.service.ts",
-          "hash": "9496826212384283917",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public-ticket.service.ts",
-          "hash": "3930064579497036882",
-          "deps": [
-            "api",
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/public.routes.ts",
-          "hash": "17441484543782033266"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.model.ts",
-          "hash": "1699770990387519922",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.html",
-          "hash": "9250772529373325962"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.scss",
-          "hash": "13913775719297389221"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.spec.ts",
-          "hash": "9445981393608245184"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.page.ts",
-          "hash": "4016846168418436481",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results-detail/public-result-detail.utils.ts",
-          "hash": "4823925183954678022",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-draw-results.service.ts",
-          "hash": "15265157781987029237",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.data.ts",
-          "hash": "10898424871910623589"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.model.ts",
-          "hash": "8299052632812670960"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.html",
-          "hash": "14952198171054675700"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.scss",
-          "hash": "10487920817435183046"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.spec.ts",
-          "hash": "4604561477548217705"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.page.ts",
-          "hash": "15105926525023879725"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/results/public-results.utils.ts",
-          "hash": "7493686499348686508"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.data.ts",
-          "hash": "11338468965169796168"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.model.ts",
-          "hash": "17614614404293370518"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.html",
-          "hash": "9749645355499904703"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.scss",
-          "hash": "7522241767138700804"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.spec.ts",
-          "hash": "16097164158470986039"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.page.ts",
-          "hash": "2153058032142354273",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.storage.ts",
-          "hash": "17903350111431836066"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/rules/public-rules.utils.ts",
-          "hash": "15856434152466345483"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shared/components/public-empty-state.component.ts",
-          "hash": "5258063532335794037"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shared/components/public-filter-bar.component.ts",
-          "hash": "887098658939082772"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shared/components/public-list-shell.component.ts",
-          "hash": "10575141550609560365"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shared/components/public-pagination-bar.component.ts",
-          "hash": "16726497371266134862"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shared/index.ts",
-          "hash": "2313512052386879009",
-          "deps": [
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shell/public-header.ts",
-          "hash": "1817733868038821512",
-          "deps": [
-            "api",
-            "page-model",
-            "ui-components"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.component.ts",
-          "hash": "13444265713280227100",
-          "deps": [
-            "page-model",
-            "web"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/shell/public-shell.service.ts",
-          "hash": "14925405024341782151",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.model.ts",
-          "hash": "14705087114784255183"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.html",
-          "hash": "13440235929524361413"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.scss",
-          "hash": "11410070747499196785"
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.page.ts",
-          "hash": "7891266196008762332",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.service.ts",
-          "hash": "543492072623527070",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/features/public/tchala/public-tchala.utils.ts",
-          "hash": "9208526453821921553"
-        },
-        {
-          "file": "apps/tch-portal/src/app/nx-welcome.ts",
-          "hash": "343355658247319681"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/api/api-feedback.interceptor.ts",
-          "hash": "290894038250049019",
-          "deps": [
-            "api",
-            "shared-config"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/copy-error-details.spec.ts",
-          "hash": "2391665627933232687"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/copy-error-details.ts",
-          "hash": "13245860603170187179"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-banner.component.spec.ts",
-          "hash": "14700070450482384476"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-banner.component.ts",
-          "hash": "3609650717720911036"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback-outlet.component.ts",
-          "hash": "11078528949990394606"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback.model.ts",
-          "hash": "2379777372542580201"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/feedback/shell-feedback.store.ts",
-          "hash": "3766279607450662301"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/auth.types.ts",
-          "hash": "14483994496514256555"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/i18n.types.ts",
-          "hash": "8531350485649006672"
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/index.ts",
-          "hash": "205957344025404793",
-          "deps": [
-            "page-model"
-          ]
-        },
-        {
-          "file": "apps/tch-portal/src/app/shared/types/operational-context.types.ts",
-          "hash": "313886294629532644"
-        },
-        {
-          "file": "apps/tch-portal/src/environments/environment.prod.ts",
-          "hash": "3097155072341271465"
-        },
-        {
-          "file": "apps/tch-portal/src/environments/environment.real-firebase.ts",
-          "hash": "15349970476986889869"
-        },
-        {
-          "file": "apps/tch-portal/src/environments/environment.ts",
-          "hash": "17787986478559498519"
-        },
-        {
-          "file": "apps/tch-portal/src/index.html",
-          "hash": "18098801359882671045"
-        },
-        {
-          "file": "apps/tch-portal/src/main.ts",
-          "hash": "1203322362176323"
-        },
-        {
-          "file": "apps/tch-portal/src/styles.scss",
-          "hash": "10121280825372921871"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.app.json",
-          "hash": "18236407445202082987"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.json",
-          "hash": "16004134237605501702"
-        },
-        {
-          "file": "apps/tch-portal/tsconfig.spec.json",
-          "hash": "13919890687900665478"
-        }
-      ],
-      "api": [
-        {
-          "file": "libs/api/README.md",
-          "hash": "11740150417978160751"
-        },
-        {
-          "file": "libs/api/eslint.config.mjs",
-          "hash": "2624537849564014525"
-        },
-        {
-          "file": "libs/api/project.json",
-          "hash": "8662667758228254435"
-        },
-        {
-          "file": "libs/api/src/index.ts",
-          "hash": "14336552481097640953"
-        },
-        {
-          "file": "libs/api/src/lib/contracts/action-item.spec.ts",
-          "hash": "3167894704080162670"
-        },
-        {
-          "file": "libs/api/src/lib/contracts/action-item.ts",
-          "hash": "9963452027253079812"
-        },
-        {
-          "file": "libs/api/src/lib/contracts/api.types.ts",
-          "hash": "482916933104089525"
-        },
-        {
-          "file": "libs/api/src/lib/http/api-base.ts",
-          "hash": "16696681674660023474"
-        },
-        {
-          "file": "libs/api/src/lib/http/api-feedback-context.ts",
-          "hash": "8153833770457180885"
-        },
-        {
-          "file": "libs/api/src/lib/http/api-response.ts",
-          "hash": "5814619239061205381"
-        },
-        {
-          "file": "libs/api/src/lib/http/correlation.interceptor.spec.ts",
-          "hash": "13213853479926768395"
-        },
-        {
-          "file": "libs/api/src/lib/http/correlation.interceptor.ts",
-          "hash": "16796259240181055232"
-        },
-        {
-          "file": "libs/api/src/lib/http/http-error.mapper.spec.ts",
-          "hash": "9941594704298338254"
-        },
-        {
-          "file": "libs/api/src/lib/http/http-error.mapper.ts",
-          "hash": "580143345574184621"
-        },
-        {
-          "file": "libs/api/src/lib/http/problem-detail.interceptor.ts",
-          "hash": "17236017028153365118"
-        },
-        {
-          "file": "libs/api/src/lib/http/tch-backend-client.ts",
-          "hash": "5291766420765470378"
-        },
-        {
-          "file": "libs/api/tsconfig.json",
-          "hash": "4726319064402332886"
-        },
-        {
-          "file": "libs/api/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        }
-      ],
-      "ui-theme": [
-        {
-          "file": "libs/ui/theme/README.md",
-          "hash": "523284715630508394"
-        },
-        {
-          "file": "libs/ui/theme/eslint.config.mjs",
-          "hash": "14754633781889188846"
-        },
-        {
-          "file": "libs/ui/theme/project.json",
-          "hash": "18252264992682606200"
-        },
-        {
-          "file": "libs/ui/theme/src/index.ts",
-          "hash": "11508624835753342489"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-dom-applier.ts",
-          "hash": "14849990087210799945"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-presets.ts",
-          "hash": "8683411710997030997"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-store.ts",
-          "hash": "17579523714293080808"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-switcher.ts",
-          "hash": "231595962544266657"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-contract.spec.ts",
-          "hash": "16625412493476112818"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-map.spec.ts",
-          "hash": "14911692992412442769"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-token-map.ts",
-          "hash": "9697886265990620641"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme-types.ts",
-          "hash": "6062169308715798539"
-        },
-        {
-          "file": "libs/ui/theme/src/lib/theme.repository.ts",
-          "hash": "12289027144071371214"
-        },
-        {
-          "file": "libs/ui/theme/src/registry/theme-presets.registry.ts",
-          "hash": "5112514122229607644"
-        },
-        {
-          "file": "libs/ui/theme/src/registry/token-manifest.generated.ts",
-          "hash": "2967899537633583817"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/_generate-theme.scss",
-          "hash": "9014223019815349846"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/density.scss",
-          "hash": "274748125214705874"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/runtime-root.scss",
-          "hash": "5093180623556393654"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/runtime-vars.scss",
-          "hash": "9557983113373245384"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/tchalanet/_theme-colors.scss",
-          "hash": "17589864670225387356"
-        },
-        {
-          "file": "libs/ui/theme/src/scss/theme-presets.scss",
-          "hash": "15829592671263239537"
-        },
-        {
-          "file": "libs/ui/theme/tools/generate-theme-registry.mjs",
-          "hash": "1589122421491685804"
-        },
-        {
-          "file": "libs/ui/theme/tools/generate-token-manifest.mjs",
-          "hash": "13365119433662527447"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.json",
-          "hash": "1973382141025117759"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.lib.json",
-          "hash": "2571691299537351603"
-        },
-        {
-          "file": "libs/ui/theme/tsconfig.spec.json",
-          "hash": "5074326386517990425"
-        }
-      ],
-      "ui-styles": [
-        {
-          "file": "libs/ui/styles/project.json",
-          "hash": "12776518627876021150"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/README.md",
-          "hash": "10326622484236586287"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
-          "hash": "4783027941652895497"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_functions.scss",
-          "hash": "2752112794568767012"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_icons.scss",
-          "hash": "18338444672017629438"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_index.scss",
-          "hash": "6063235898933527933"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
-          "hash": "662076388056195332"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_mixins.scss",
-          "hash": "3963611691020055967"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_overlay.scss",
-          "hash": "4654987298841419955"
-        },
-        {
-          "file": "libs/ui/styles/src/lib/_typography.scss",
-          "hash": "10226960127459954445"
-        }
-      ],
-      "page-model": [
-        {
-          "file": "libs/page-model/project.json",
-          "hash": "14208149024578156968"
-        },
-        {
-          "file": "libs/page-model/src/index.ts",
-          "hash": "6821024734962765154"
-        },
-        {
-          "file": "libs/page-model/src/lib/api/page-model-api.service.spec.ts",
-          "hash": "13024203986121979940"
-        },
-        {
-          "file": "libs/page-model/src/lib/api/page-model-api.service.ts",
-          "hash": "11539493466482569498",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/page-model.component.spec.ts",
-          "hash": "8387037828881416091"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/page-model.component.ts",
-          "hash": "10826614219609390121"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/widget-host.component.spec.ts",
-          "hash": "13036620522752247857"
-        },
-        {
-          "file": "libs/page-model/src/lib/rendering/widget-host.component.ts",
-          "hash": "15943033921244517549"
-        },
-        {
-          "file": "libs/page-model/src/lib/runtime/pagemodel.types.ts",
-          "hash": "5843158651591704717",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/game-label.pipe.ts",
-          "hash": "7535620449578045370"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/label.pipe.ts",
-          "hash": "3664821800832016521"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/widget.contract.spec.ts",
-          "hash": "6821087752043984553"
-        },
-        {
-          "file": "libs/page-model/src/lib/widget/widget.contract.ts",
-          "hash": "11226333043219749208",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/page-model/tsconfig.json",
-          "hash": "6098727767136629672"
-        },
-        {
-          "file": "libs/page-model/tsconfig.lib.json",
-          "hash": "9173947970313865903"
-        },
-        {
-          "file": "libs/page-model/tsconfig.spec.json",
-          "hash": "13291579508309900195"
-        }
-      ],
       "shared-config": [
         {
           "file": "libs/shared-config/README.md",
@@ -2516,160 +2855,54 @@
           "hash": "13291579508309900195"
         }
       ],
-      "ui-components": [
+      "ui-styles": [
         {
-          "file": "libs/ui/components/README.md",
-          "hash": "1048300374754876532"
+          "file": "libs/ui/styles/project.json",
+          "hash": "12776518627876021150"
         },
         {
-          "file": "libs/ui/components/eslint.config.mjs",
-          "hash": "6911888895805478804"
+          "file": "libs/ui/styles/src/lib/README.md",
+          "hash": "10326622484236586287"
         },
         {
-          "file": "libs/ui/components/project.json",
-          "hash": "11330565788443432655"
+          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
+          "hash": "4783027941652895497"
         },
         {
-          "file": "libs/ui/components/src/index.ts",
-          "hash": "394575829590673818"
+          "file": "libs/ui/styles/src/lib/_forms.scss",
+          "hash": "10356561432060511338"
         },
         {
-          "file": "libs/ui/components/src/lib/action-button/action-button.ts",
-          "hash": "17734359208681014847"
+          "file": "libs/ui/styles/src/lib/_functions.scss",
+          "hash": "2752112794568767012"
         },
         {
-          "file": "libs/ui/components/src/lib/brand/brand.ts",
-          "hash": "2363625720016197211",
-          "deps": [
-            "api"
-          ]
+          "file": "libs/ui/styles/src/lib/_icons.scss",
+          "hash": "18338444672017629438"
         },
         {
-          "file": "libs/ui/components/src/lib/breakpoints/tch-breakpoint.service.ts",
-          "hash": "14220795768093247726"
+          "file": "libs/ui/styles/src/lib/_index.scss",
+          "hash": "9641235150528217343"
         },
         {
-          "file": "libs/ui/components/src/lib/card/card.ts",
-          "hash": "2128839883764420960"
+          "file": "libs/ui/styles/src/lib/_list.scss",
+          "hash": "13274261927551273691"
         },
         {
-          "file": "libs/ui/components/src/lib/empty-state/empty-state.ts",
-          "hash": "18010049587449564620"
+          "file": "libs/ui/styles/src/lib/_material-overrides.scss",
+          "hash": "662076388056195332"
         },
         {
-          "file": "libs/ui/components/src/lib/error-panel/error-panel.ts",
-          "hash": "12330710118942343033"
+          "file": "libs/ui/styles/src/lib/_mixins.scss",
+          "hash": "3963611691020055967"
         },
         {
-          "file": "libs/ui/components/src/lib/field-error/field-error.ts",
-          "hash": "949467474437262915"
+          "file": "libs/ui/styles/src/lib/_overlay.scss",
+          "hash": "4654987298841419955"
         },
         {
-          "file": "libs/ui/components/src/lib/lang-switcher/lang-switcher.ts",
-          "hash": "4677278547444957795"
-        },
-        {
-          "file": "libs/ui/components/src/lib/lang-theme-group/lang-theme-group.ts",
-          "hash": "9377904144937739534"
-        },
-        {
-          "file": "libs/ui/components/src/lib/loading/loading.ts",
-          "hash": "12380156399824553072"
-        },
-        {
-          "file": "libs/ui/components/src/lib/nav/nav.ts",
-          "hash": "11046528614224296363",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/navigation/action-item.ts",
-          "hash": "9963452027253079812"
-        },
-        {
-          "file": "libs/ui/components/src/lib/notice/notice.ts",
-          "hash": "15315254400579590416"
-        },
-        {
-          "file": "libs/ui/components/src/lib/overlay-nav/overlay-nav.ts",
-          "hash": "4820806468313465274",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/page-error/page-error.ts",
-          "hash": "9481708808872860789"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-action-card.ts",
-          "hash": "15255504412822130017"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-card-grid.ts",
-          "hash": "16755490524303249811"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-card.ts",
-          "hash": "6232503024021761930"
-        },
-        {
-          "file": "libs/ui/components/src/lib/pub-card/pub-stat-card.ts",
-          "hash": "11855210019591868770"
-        },
-        {
-          "file": "libs/ui/components/src/lib/section-header/section-header.ts",
-          "hash": "8389808095608091511"
-        },
-        {
-          "file": "libs/ui/components/src/lib/sidebar-nav/sidebar-nav.ts",
-          "hash": "12161568023496627641",
-          "deps": [
-            "api"
-          ]
-        },
-        {
-          "file": "libs/ui/components/src/lib/status-badge/status-badge.ts",
-          "hash": "17124275208030297630"
-        },
-        {
-          "file": "libs/ui/components/src/lib/user-menu/user-menu.ts",
-          "hash": "14812234084383689739"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.json",
-          "hash": "14130435081233809606"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.lib.json",
-          "hash": "14882418245198400289"
-        },
-        {
-          "file": "libs/ui/components/tsconfig.spec.json",
-          "hash": "8647352538471907012"
-        }
-      ],
-      "tch-portal-e2e": [
-        {
-          "file": "apps/tch-portal-e2e/eslint.config.mjs",
-          "hash": "1172734138943286526"
-        },
-        {
-          "file": "apps/tch-portal-e2e/playwright.config.ts",
-          "hash": "9182228263159653438"
-        },
-        {
-          "file": "apps/tch-portal-e2e/project.json",
-          "hash": "5997281328099186134"
-        },
-        {
-          "file": "apps/tch-portal-e2e/src/example.spec.ts",
-          "hash": "16019101014373124625"
-        },
-        {
-          "file": "apps/tch-portal-e2e/tsconfig.json",
-          "hash": "15726545290547512047"
+          "file": "libs/ui/styles/src/lib/_typography.scss",
+          "hash": "10226960127459954445"
         }
       ]
     }

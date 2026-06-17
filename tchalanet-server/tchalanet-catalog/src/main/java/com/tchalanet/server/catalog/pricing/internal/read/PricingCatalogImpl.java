@@ -2,11 +2,14 @@ package com.tchalanet.server.catalog.pricing.internal.read;
 
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.catalog.pricing.internal.cache.PricingCacheNames;
+import com.tchalanet.server.catalog.pricing.internal.mapper.PricingEntityMapper;
 import com.tchalanet.server.catalog.pricing.internal.persistence.PricingOddsEntity;
 import com.tchalanet.server.catalog.pricing.internal.persistence.PricingOddsJpaRepository;
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class PricingCatalogImpl implements PricingCatalog {
 
   private final PricingOddsJpaRepository repo;
+  private final PricingEntityMapper pricingEntityMapper;
 
   @Override
   @Cacheable(cacheNames = PricingCacheNames.ODDS, key = "#tenantId + ':' + #gameCode + ':' + #betType + ':' + #betOption")
@@ -26,6 +30,15 @@ public class PricingCatalogImpl implements PricingCatalog {
         gameCode, betType, betOption);
     return opt.map(PricingOddsEntity::getOdds).orElse(BigDecimal.ONE);
   }
+
+    @Override
+    @Cacheable(cacheNames = PricingCacheNames.ODDS, key = "#tenantId")
+    public List<PricingOddsView> getOdds(TenantId tenantId) {
+        // RLS will scope results to the current tenant; do not pass tenantId in SQL from read-side
+        List<PricingOddsEntity> entities = repo.findAll();
+
+        return pricingEntityMapper.toViews(entities);
+    }
 
   @Override
   public com.tchalanet.server.catalog.pricing.api.model.PricingStatsView stats() {

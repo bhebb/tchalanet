@@ -31,7 +31,49 @@
     },
     "sellers": {
       "title": "Vandè",
-      "description": "Jesyon vandè"
+      "description": "Jesyon terminal vandè",
+      "search_placeholder": "Chèche vandè…",
+      "load_error": "Pa kapab chaje vandè yo.",
+      "empty": {
+        "title": "Pa gen vandè",
+        "message": "Ajoute premye terminal vandè ou pou kòmanse."
+      },
+      "new": {
+        "title": "Nouvo vandè",
+        "action": "Ajoute yon vandè",
+        "description": "Ranpli enfòmasyon yo pou kreye yon nouvo vandè.",
+        "submit": "Kreye vandè a"
+      },
+      "detail": {
+        "title": "Detay vandè"
+      },
+      "status": {
+        "ALL": "Tout",
+        "ACTIVE": "Aktif",
+        "PENDING": "Annatant",
+        "BLOCKED": "Bloke",
+        "DISABLED": "Dezaktive"
+      },
+      "section": {
+        "identity": "Enfòmasyon vandè",
+        "assignment": "Afektasyon",
+        "commission": "Komisyon",
+        "security": "Aksè sekirize",
+        "security_desc": "Kòd PIN sa a ap itilize pa vandè a pou konekte sou tèminal li."
+      },
+      "field": {
+        "display_name": "Non ki parèt",
+        "phone": "Telefòn",
+        "first_name": "Prenon",
+        "last_name": "Siyati",
+        "terminal_code": "Kòd tèminal",
+        "terminal_code_hint": "Idantifyan inik tèminal la (ex: VND-001)",
+        "commission_rate": "To komisyon",
+        "commission_rate_hint": "Kite vid pou itilize to defòt tenant lan.",
+        "commission_rate_error": "To a dwe ant 0 ak 100.",
+        "pin": "PIN (4 chif)",
+        "pin_required": "PIN an obligatwa epi li dwe gen 4 chif."
+      }
     },
     "outlets": {
       "title": "Pwen vant",
@@ -80,6 +122,66 @@
       },
       "terminals": {
         "label": "Tèminal"
+      },
+      "sales_today": {
+        "label": "Vant jodi a"
+      },
+      "active_seller_terminals": {
+        "label": "Vandè aktif"
+      },
+      "payout_due": {
+        "label": "Pou peye"
+      },
+      "notifications": {
+        "label": "Notifikasyon"
+      }
+    },
+    "draws": {
+      "title": "Tirèy"
+    },
+    "controls": {
+      "title": "Kontwòl",
+      "commission": {
+        "title": "Komisyon"
+      },
+      "limits": {
+        "title": "Limit"
+      },
+      "odds": {
+        "title": "Kòt"
+      },
+      "bonuses": {
+        "title": "Bonis"
+      }
+    },
+    "promotions": {
+      "title": "Pwomosyon",
+      "maryaj_gratis": {
+        "title": "Maryaj Gratis"
+      },
+      "active": {
+        "title": "Pwomosyon aktif"
+      }
+    },
+    "reports": {
+      "title": "Rapò",
+      "today": {
+        "title": "Rapò jodi a"
+      },
+      "export": {
+        "title": "Ekspò ak enpresyon"
+      }
+    },
+    "more": {
+      "title": "Plis",
+      "space": {
+        "title": "Espas mwen"
+      },
+      "account": {
+        "title": "Kont mwen"
+      },
+      "support": {
+        "title": "Sipò"
       }
     }
   },
@@ -154,7 +256,13 @@
       "title": "Ekran ap prepare",
       "message": "Fonksyonalite sa a pral disponib byento."
     },
-    "coming_soon": "Talè konsa"
+    "coming_soon": "Talè konsa",
+    "manage": "Jere",
+    "back": "Retounen",
+    "cancel": "Anile",
+    "validation": {
+      "required": "Chan sa a obligatwa."
+    }
   },
   "dashboard": {
     "actions": {
@@ -205,6 +313,15 @@
       "alerts": {
         "empty": "Pa gen alèt",
         "title": "Alèt"
+      },
+      "commission": {
+        "title": "Komisyon",
+        "default_rate": "To pa defò tenant lan",
+        "default_not_set": "Pa konfigire",
+        "seller_terminals": "Vandè",
+        "at_default": "To pa defò",
+        "custom": "To pèsonalize",
+        "rate_range": "Fotchèt"
       },
       "kpis": {
         "title": "Endikatè"
@@ -318,6 +435,7 @@
     "dashboard": {
       "tenant_admin": {
         "kpis": "Endikatè",
+        "commission": "Konfigirasyon komisyon",
         "quick_actions": "Aksyon rapid",
         "readiness_alerts": "Eta & alèt"
       }
@@ -373,11 +491,31 @@
       "onboarding": "Onboarding",
       "users": "Itilizatè",
       "sellers": "Vandè",
+      "seller_add": "Ajoute vandè",
+      "seller_active": "Vandè aktif",
+      "controls": "Kontwòl",
+      "commission": "Komisyon",
+      "odds": "Odds",
+      "baremes": "Barèm",
+      "draw_channels": "Config kanal",
+      "bonuses": "Prim",
+      "maryaj_free": "Maryaj gratis",
+      "active_promotions": "Pwomosyon aktif",
+      "today_report": "Rapò jodi a",
+      "export_print": "Ekspòtasyon / enprime",
+      "more": "Plis",
+      "general_configuration": "Konfigirasyon jeneral",
+      "my_space": "Espas mwen",
+      "my_account": "Kont mwen",
+      "support": "Sipò",
       "outlets": "Pwen vant",
       "terminals": "Tèminal",
       "sessions": "Sesyon",
       "settings": "Paramèt",
-      "spaceTitle": "Admin"
+      "spaceTitle": "Admin",
+      "all_draws": "Tout tiraj yo",
+      "upcoming_draws": "Tiraj kap vini",
+      "past_draws": "Tiraj pase"
     },
     "cashier": {
       "section": {
@@ -1287,5 +1425,15 @@
   },
   "readiness": {
     "noIssues": "Pa gen pwoblèm"
+  },
+  "quickaction": {
+    "admin": {
+      "add_seller_terminal": "Ajoute vandè",
+      "active_seller_terminals": "Vandè aktif",
+      "daily_report": "Rapò jodi a",
+      "manage_limits": "Jere limit",
+      "manage_odds": "Jere odds",
+      "maryaj_gratis": "Maryaj gratis"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 
-import { ActionItem, NavigationSection, actionRoute, actionText, isRouteAction } from '@tch/api';
+import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionText, isRouteAction } from '@tch/api';
 
 @Component({
   selector: 'tch-sidebar-nav',
@@ -51,6 +51,7 @@ import { ActionItem, NavigationSection, actionRoute, actionText, isRouteAction }
                   <a
                     class="sidebar__child"
                     [routerLink]="actionRoute(child)"
+                    [queryParams]="actionQueryParams(child)"
                     routerLinkActive="is-active"
                     [routerLinkActiveOptions]="{ exact: child.activeMatch === 'exact' }"
                   >
@@ -64,7 +65,8 @@ import { ActionItem, NavigationSection, actionRoute, actionText, isRouteAction }
             </div>
           }
         } @else if (isRouteAction(item)) {
-          <a [routerLink]="actionRoute(item)" routerLinkActive="is-active"
+          <a [routerLink]="actionRoute(item)" [queryParams]="actionQueryParams(item)"
+             routerLinkActive="is-active"
              [routerLinkActiveOptions]="{ exact: item.activeMatch === 'exact' }">
             @if (item.icon) {
               <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
@@ -101,6 +103,7 @@ export class TchSidebarNav {
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
   readonly actionRoute = actionRoute;
+  readonly actionQueryParams = actionQueryParams;
   readonly actionText = actionText;
   readonly isRouteAction = isRouteAction;
 

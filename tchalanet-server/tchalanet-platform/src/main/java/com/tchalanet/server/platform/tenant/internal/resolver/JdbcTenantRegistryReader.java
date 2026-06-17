@@ -23,7 +23,8 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
 
     private static final String SELECT =
         "SELECT id, code, name, status, type, timezone, currency, " +
-            "default_language, default_locale, address_id, active_theme_id " +
+            "default_language, default_locale, address_id, active_theme_id, " +
+            "default_commission_rate " +
             "FROM tenant WHERE deleted_at IS NULL";
 
     private final JdbcTemplate jdbc;
@@ -108,6 +109,7 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
             rs.getString(8),
             rs.getString(9),
             (UUID) rs.getObject(10),
-            (UUID) rs.getObject(11));
+            (UUID) rs.getObject(11),
+            rs.getBigDecimal(12));
     }
 }

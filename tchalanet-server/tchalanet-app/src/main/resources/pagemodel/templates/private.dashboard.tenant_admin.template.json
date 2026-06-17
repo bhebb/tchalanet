@@ -10,7 +10,7 @@
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Tenant admin dashboard V1: KPIs, readiness, alerts and quick actions (static binding).",
+  "description": "Tenant admin dashboard V1: KPIs, readiness, alerts and quick actions (dynamic binding, seller_terminal model).",
   "model": {
     "meta": {
       "id": "private.dashboard.tenant_admin",
@@ -65,6 +65,16 @@
             ]
           },
           {
+            "id": "commission",
+            "labelKey": "layout.dashboard.tenant_admin.commission",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.tenantAdmin.commission"]
+              }
+            ]
+          },
+          {
             "id": "quickActions",
             "labelKey": "layout.dashboard.tenant_admin.quick_actions",
             "columns": [
@@ -80,22 +90,24 @@
         "dashboard.tenantAdmin.kpis": {
           "type": "KpiGridWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.kpis.title",
             "items": [
-              { "id": "sellers", "labelKey": "admin.kpi.sellers.label", "icon": "person_pin" },
-              { "id": "outlets", "labelKey": "admin.kpi.outlets.label", "icon": "storefront" },
-              { "id": "terminals", "labelKey": "admin.kpi.terminals.label", "icon": "point_of_sale" },
-              { "id": "openSessions", "labelKey": "admin.kpi.openSessions.label", "icon": "account_balance_wallet" }
+              { "id": "salesToday",            "labelKey": "admin.kpi.sales_today.label",             "icon": "payments"       },
+              { "id": "activeSellerTerminals", "labelKey": "admin.kpi.active_seller_terminals.label", "icon": "point_of_sale"  },
+              { "id": "winningsToday",         "labelKey": "admin.kpi.payout_due.label",              "icon": "account_balance"},
+              { "id": "notificationCount",     "labelKey": "admin.kpi.notifications.label",           "icon": "notifications"  }
             ]
           }
         },
         "dashboard.tenantAdmin.readiness": {
           "type": "ReadinessSummaryWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.readiness.title"
@@ -104,50 +116,69 @@
         "dashboard.tenantAdmin.alerts": {
           "type": "AlertsWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.alerts.title",
             "emptyKey": "dashboard.tenant_admin.alerts.empty"
           }
         },
+        "dashboard.tenantAdmin.commission": {
+          "type": "CommissionSummaryWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.tenant_admin.commission.title",
+            "manageLink": "/app/admin/controls/commission"
+          }
+        },
         "dashboard.tenantAdmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "tenant_admin_dashboard"
           },
           "props": {
             "titleKey": "dashboard.tenant_admin.quick_actions.title",
             "actions": [
               {
-                "id": "users",
-                "labelKey": "admin.action.users",
-                "icon": "group",
-                "destination": { "kind": "route", "value": "/app/admin/users" }
+                "id": "addSellerTerminal",
+                "labelKey": "quickaction.admin.add_seller_terminal",
+                "icon": "person_add",
+                "destination": { "kind": "route", "value": "/app/admin/sellers/new" }
               },
               {
-                "id": "outlets",
-                "labelKey": "admin.action.outlets",
-                "icon": "storefront",
-                "destination": { "kind": "route", "value": "/app/admin/outlets" }
-              },
-              {
-                "id": "terminals",
-                "labelKey": "admin.action.terminals",
+                "id": "activeSellerTerminals",
+                "labelKey": "quickaction.admin.active_seller_terminals",
                 "icon": "point_of_sale",
-                "destination": { "kind": "route", "value": "/app/admin/terminals" }
+                "destination": { "kind": "route", "value": "/app/admin/sellers?status=active" }
               },
               {
-                "id": "sessions",
-                "labelKey": "admin.action.sessions",
-                "icon": "account_balance_wallet",
-                "destination": { "kind": "route", "value": "/app/admin/sessions" }
+                "id": "dailyReport",
+                "labelKey": "quickaction.admin.daily_report",
+                "icon": "today",
+                "destination": { "kind": "route", "value": "/app/admin/reports/today" }
               },
               {
-                "id": "settings",
-                "labelKey": "admin.action.settings",
-                "icon": "settings",
-                "destination": { "kind": "route", "value": "/app/admin/settings" }
+                "id": "manageLimits",
+                "labelKey": "quickaction.admin.manage_limits",
+                "icon": "shield",
+                "destination": { "kind": "route", "value": "/app/admin/controls/limits" }
+              },
+              {
+                "id": "manageOdds",
+                "labelKey": "quickaction.admin.manage_odds",
+                "icon": "percent",
+                "destination": { "kind": "route", "value": "/app/admin/controls/odds" }
+              },
+              {
+                "id": "maryajGratis",
+                "labelKey": "quickaction.admin.maryaj_gratis",
+                "icon": "redeem",
+                "destination": { "kind": "route", "value": "/app/admin/promotions/maryaj-gratis" }
               }
             ]
           }

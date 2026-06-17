@@ -40,7 +40,7 @@ public class DrawChannelGameAdminService {
 
     var normalizedFlags = flags;
     if (normalizedFlags == null) normalizedFlags = jsonUtils.emptyObjectNode();
-    else if (normalizedFlags.isTextual()) normalizedFlags = jsonUtils.parse(normalizedFlags.asText());
+    else if (normalizedFlags.isString()) normalizedFlags = jsonUtils.parse(normalizedFlags.asText());
 
     if (existing.isPresent()) {
       var e = existing.get();

@@ -1,0 +1,47 @@
+@use 'breakpoints' as bp;
+
+// Layout helpers for reactive-form pages.
+// Wrap mat-form-field elements — Material handles the field styling; these classes handle grid/spacing.
+
+.tch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tch-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// Single-column by default, two-column on medium+
+.tch-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @include bp.up(medium) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.tch-form__row--3 {
+  @include bp.up(expanded) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Span all columns in a row
+.tch-form__full {
+  grid-column: 1 / -1;
+}
+
+.tch-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+}

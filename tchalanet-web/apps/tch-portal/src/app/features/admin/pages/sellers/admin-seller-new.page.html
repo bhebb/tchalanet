@@ -1,0 +1,129 @@
+<tch-admin-page-header
+  [title]="'admin.sellers.new.title' | translate"
+  [description]="'admin.sellers.new.description' | translate"
+>
+  <a actions mat-button routerLink="../">
+    <mat-icon>arrow_back</mat-icon>
+    {{ 'common.back' | translate }}
+  </a>
+</tch-admin-page-header>
+
+<tch-admin-form-shell>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <tch-admin-form-section
+      [title]="'admin.sellers.section.identity' | translate"
+      icon="person"
+    >
+      <div class="tch-form__section">
+        <div class="tch-form__row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.sellers.field.display_name' | translate }}</mat-label>
+            <input matInput formControlName="displayName" autocomplete="off" />
+            @if (form.controls.displayName.hasError('required') && form.controls.displayName.touched) {
+              <mat-error>{{ 'common.validation.required' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.sellers.field.phone' | translate }}</mat-label>
+            <input matInput type="tel" formControlName="phoneNumber" autocomplete="tel" />
+            @if (form.controls.phoneNumber.hasError('required') && form.controls.phoneNumber.touched) {
+              <mat-error>{{ 'common.validation.required' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="tch-form__row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.sellers.field.first_name' | translate }}</mat-label>
+            <input matInput formControlName="firstName" autocomplete="given-name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.sellers.field.last_name' | translate }}</mat-label>
+            <input matInput formControlName="lastName" autocomplete="family-name" />
+          </mat-form-field>
+        </div>
+      </div>
+    </tch-admin-form-section>
+
+    <tch-admin-form-section
+      [title]="'admin.sellers.section.assignment' | translate"
+      icon="store"
+    >
+      <div class="tch-form__section">
+        <mat-form-field appearance="outline" class="tch-form__full">
+          <mat-label>{{ 'admin.sellers.field.terminal_code' | translate }}</mat-label>
+          <input matInput formControlName="terminalCode" autocomplete="off" />
+          <mat-hint>{{ 'admin.sellers.field.terminal_code_hint' | translate }}</mat-hint>
+          @if (form.controls.terminalCode.hasError('required') && form.controls.terminalCode.touched) {
+            <mat-error>{{ 'common.validation.required' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </tch-admin-form-section>
+
+    <tch-admin-form-section
+      [title]="'admin.sellers.section.commission' | translate"
+      icon="percent"
+    >
+      <div class="tch-form__section">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'admin.sellers.field.commission_rate' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="100" step="0.1" formControlName="commissionRate" />
+          <span matSuffix>%</span>
+          <mat-hint>{{ 'admin.sellers.field.commission_rate_hint' | translate }}</mat-hint>
+          @if (form.controls.commissionRate.hasError('min') || form.controls.commissionRate.hasError('max')) {
+            <mat-error>{{ 'admin.sellers.field.commission_rate_error' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </tch-admin-form-section>
+
+    <tch-admin-form-section
+      [title]="'admin.sellers.section.security' | translate"
+      icon="lock"
+      [description]="'admin.sellers.section.security_desc' | translate"
+    >
+      <div class="tch-form__section">
+        <div class="pin-field" [class.pin-field--error]="pinError()">
+          <label class="pin-field__label" for="pin-0">
+            {{ 'admin.sellers.field.pin' | translate }}
+          </label>
+          <div class="pin-field__inputs" role="group" [attr.aria-label]="'admin.sellers.field.pin' | translate">
+            @for (i of pinIndices; track i) {
+              <input
+                class="pin-field__box"
+                type="text"
+                inputmode="numeric"
+                maxlength="1"
+                [id]="'pin-' + i"
+                [value]="pinDigits()[i]"
+                (input)="onPinInput($event, i)"
+                (keydown)="onPinKeydown($event, i)"
+                (paste)="onPinPaste($event)"
+                autocomplete="off"
+              />
+            }
+          </div>
+          @if (pinError()) {
+            <p class="pin-field__error" role="alert">{{ 'admin.sellers.field.pin_required' | translate }}</p>
+          }
+        </div>
+      </div>
+    </tch-admin-form-section>
+
+    @if (submitError()) {
+      <p class="submit-error" role="alert">{{ submitError() }}</p>
+    }
+
+    <tch-admin-form-actions
+      [submitLabel]="'admin.sellers.new.submit' | translate"
+      [cancelLabel]="'common.cancel' | translate"
+      [submitPending]="pending()"
+      [submitDisabled]="form.invalid || !isPinComplete()"
+      (cancelClick)="router.navigate(['..'], { relativeTo: null })"
+    />
+  </form>
+</tch-admin-form-shell>

@@ -1,0 +1,138 @@
+<tch-admin-page-header
+  title="Canaux de tirage"
+  description="Configuration des canaux, horaires et jeux supportés."
+/>
+
+@let vm = state();
+
+@switch (vm.status) {
+  @case ('loading') {
+    <tch-loading label="Chargement des canaux…" />
+  }
+  @case ('error') {
+    <tch-error-panel title="Erreur" message="Impossible de charger les canaux." />
+  }
+  @case ('ready') {
+    @if (vm.channels.length === 0) {
+      <tch-admin-empty-state
+        icon="radio_button_unchecked"
+        title="Aucun canal configuré"
+        message="Aucun canal de tirage n'est disponible pour ce tenant."
+      />
+    } @else {
+      <div class="channel-list">
+        @for (ch of vm.channels; track ch.channelCode) {
+          <div
+            class="channel-card"
+            [class.channel-card--active]="selectedCode() === ch.channelCode"
+            tabindex="0"
+            role="button"
+            (click)="select(ch.channelCode)"
+            (keydown.enter)="select(ch.channelCode)"
+            (keydown.space)="select(ch.channelCode)"
+          >
+            <div class="channel-card__left">
+              <div class="channel-card__name">{{ ch.channelName }}</div>
+              <code class="channel-card__code">{{ ch.channelCode }}</code>
+            </div>
+            <div class="channel-card__schedule">
+              <mat-icon class="schedule-icon">schedule</mat-icon>
+              <span>{{ ch.drawTime | slice:0:5 }}</span>
+              <span class="channel-card__tz">{{ ch.timezone }}</span>
+            </div>
+            <tch-admin-status-badge
+              [code]="ch.active ? 'ACTIVE' : 'DISABLED'"
+              [label]="ch.active ? 'Actif' : 'Inactif'"
+            />
+            <mat-icon class="channel-card__chevron">
+              {{ selectedCode() === ch.channelCode ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </div>
+
+          @if (selectedCode() === ch.channelCode) {
+            @let detail = detailState();
+            <div class="channel-detail">
+              @switch (detail.status) {
+                @case ('loading') {
+                  <tch-loading label="Chargement…" />
+                }
+                @case ('error') {
+                  <tch-error-panel title="Erreur" message="Impossible de charger le détail." />
+                }
+                @case ('ready') {
+                  @let dc = detail.channel;
+
+                  <div class="detail-body">
+                    <!-- Schedule -->
+                    <div class="detail-section">
+                      <p class="detail-section__title">
+                        <mat-icon>calendar_today</mat-icon>
+                        Horaire
+                      </p>
+                      <dl class="kv-grid">
+                        <div class="kv-row">
+                          <dt class="kv-row__key">Heure tirage</dt>
+                          <dd class="kv-row__val">{{ dc.drawTime | slice:0:5 }} <span class="kv-tz">{{ dc.timezone }}</span></dd>
+                        </div>
+                        <div class="kv-row">
+                          <dt class="kv-row__key">Délai clôture</dt>
+                          <dd class="kv-row__val">{{ dc.cutoffSec / 60 }} min avant tirage</dd>
+                        </div>
+                        <div class="kv-row">
+                          <dt class="kv-row__key">Jours actifs</dt>
+                          <dd class="kv-row__val">
+                            <div class="days-row">
+                              @for (day of ALL_DAYS; track day.key) {
+                                <span
+                                  class="day-chip"
+                                  [class.day-chip--active]="dc.daysOfWeek.includes(day.key)"
+                                >{{ day.short }}</span>
+                              }
+                            </div>
+                          </dd>
+                        </div>
+                        @if (dc.period) {
+                          <div class="kv-row">
+                            <dt class="kv-row__key">Période</dt>
+                            <dd class="kv-row__val">{{ dc.period }}</dd>
+                          </div>
+                        }
+                        @if (dc.notes) {
+                          <div class="kv-row">
+                            <dt class="kv-row__key">Notes</dt>
+                            <dd class="kv-row__val">{{ dc.notes }}</dd>
+                          </div>
+                        }
+                      </dl>
+                    </div>
+
+                    <!-- Games -->
+                    <div class="detail-section">
+                      <p class="detail-section__title">
+                        <mat-icon>casino</mat-icon>
+                        Jeux supportés
+                      </p>
+                      @let games = gamesForChannel(ch.channelCode);
+                      @if (games.length === 0) {
+                        <p class="detail-empty">Aucun jeu associé à ce canal.</p>
+                      } @else {
+                        <div class="games-list">
+                          @for (game of games; track game.id) {
+                            <div class="game-chip" [class.game-chip--inactive]="!game.active">
+                              <span class="game-chip__name">{{ game.name }}</span>
+                              <code class="game-chip__code">{{ game.code }}</code>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+  }
+}

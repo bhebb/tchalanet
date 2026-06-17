@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
@@ -78,6 +79,12 @@ class SalePromotionEffectsTest {
         public BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption) {
             return new BigDecimal("12.5");
         }
+
+        @Override
+        public List<PricingOddsView> getOdds(TenantId tenantId) {
+            return List.of();
+        }
+
         @Override
         public com.tchalanet.server.catalog.pricing.api.model.PricingStatsView stats() {
             return null;
