@@ -71,6 +71,25 @@ export interface ManualResultRequest {
   reason: string;
 }
 
+export interface DrawSummaryResponse {
+  drawId: string;
+  channelCode: string;
+  channelName: string;
+  status: string;
+  scheduledAt: string;
+  openedAt?: string | null;
+  closedAt?: string | null;
+  settledAt?: string | null;
+}
+
+export interface TchPageResult<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
 export interface CacheView {
   cacheName: string;
   size: number;
@@ -147,6 +166,41 @@ export class PlatformOpsApi {
     return this.backend.post<void>(`/platform/ops/draw-results/${drawResultId}/confirm`, {
       reason,
     });
+  }
+
+  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPageResult<DrawSummaryResponse>> {
+    const q = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params)
+          .filter(([, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => [k, String(v)]),
+      ),
+    ).toString();
+    return this.backend.get<TchPageResult<DrawSummaryResponse>>(`/admin/draws${q ? '?' + q : ''}`);
+  }
+
+  cancelDraw(drawId: string, reason: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/cancel`, { reason });
+  }
+
+  lockDraw(drawId: string, reason?: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/lock`, { reason });
+  }
+
+  unlockDraw(drawId: string, reason?: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/unlock`, { reason });
+  }
+
+  settleDraw(drawId: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/settle`, {});
+  }
+
+  archiveDraw(drawId: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/archive`, {});
+  }
+
+  rescheduleDraw(drawId: string, newScheduledAt: string): Observable<DrawSummaryResponse> {
+    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/reschedule`, { newScheduledAt });
   }
 
   listCaches(): Observable<CacheView[]> {
