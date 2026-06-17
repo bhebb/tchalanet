@@ -3,28 +3,61 @@ import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 import { TchPage as TchPageResult } from './platform-ops-api.service';
 
+export type SettingValueType = 'STRING' | 'INT' | 'LONG' | 'DECIMAL' | 'BOOLEAN' | 'JSON';
+export type SettingLevel = 'GLOBAL' | 'TENANT' | 'OUTLET' | 'TERMINAL';
+export type SettingExposure = 'INTERNAL' | 'PUBLIC_RUNTIME' | 'TENANT_RUNTIME' | 'ADMIN_RUNTIME';
+
 export interface SettingView {
   id: { value: string };
   namespace: string;
   settingKey: string;
   settingValue: string;
-  valueType: 'STRING' | 'BOOLEAN' | 'INTEGER' | 'DECIMAL' | 'JSON';
-  level: 'GLOBAL' | 'TENANT' | 'OUTLET' | 'TERMINAL';
-  exposure: 'PUBLIC_RUNTIME' | 'TENANT_RUNTIME' | 'ADMIN_RUNTIME' | 'INTERNAL';
+  valueType: SettingValueType;
+  level: SettingLevel;
+  exposure: SettingExposure;
+  tenantId?: { value: string } | null;
+  outletId?: { value: string } | null;
+  terminalId?: { value: string } | null;
   active: boolean;
 }
 
 export interface SettingsCatalogStatsView {
-  totalKeys: number;
-  totalLocales?: number;
-  totalOverrides?: number;
+  totalGlobalSettings: number;
+  totalTenantSettings: number;
+  totalActiveSettings: number;
+}
+
+/** POST /platform/settings */
+export interface CreateSettingRequest {
+  namespace: string;
+  settingKey: string;
+  settingValue: string;
+  valueType: SettingValueType;
+  level: SettingLevel;
+  exposure?: SettingExposure;
+  tenantId?: string;
+}
+
+/** PUT /platform/settings/{id} — patch semantics, null = no change */
+export interface UpdateSettingRequest {
+  settingValue?: string;
+  exposure?: SettingExposure;
+  active?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
 export class PlatformSettingsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listSettings(params: { namespace?: string; q?: string; page?: number; size?: number }): Observable<TchPageResult<SettingView>> {
+  listSettings(params: {
+    namespace?: string;
+    settingKey?: string;
+    level?: SettingLevel;
+    exposure?: SettingExposure;
+    active?: boolean;
+    page?: number;
+    size?: number;
+  }): Observable<TchPageResult<SettingView>> {
     const q = new URLSearchParams(
       Object.fromEntries(
         Object.entries(params)
@@ -43,11 +76,11 @@ export class PlatformSettingsApi {
     return this.backend.get<SettingView>(`/platform/settings/${id}`);
   }
 
-  createSetting(body: Partial<SettingView>): Observable<SettingView> {
+  createSetting(body: CreateSettingRequest): Observable<SettingView> {
     return this.backend.post<SettingView>('/platform/settings', body);
   }
 
-  updateSetting(id: string, body: Partial<SettingView>): Observable<SettingView> {
+  updateSetting(id: string, body: UpdateSettingRequest): Observable<SettingView> {
     return this.backend.put<SettingView>(`/platform/settings/${id}`, body);
   }
 
