@@ -23,6 +23,7 @@ export class ShellFeedbackStore {
       spanId: input.spanId,
       status: input.status,
       copyText: input.copyText,
+      reportUrl: input.reportUrl,
       dismissible: input.dismissible ?? true,
     };
     this._items.update(current => {
