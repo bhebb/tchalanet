@@ -2,14 +2,12 @@ package com.tchalanet.server.features.cashier.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.core.session.api.query.GetCashierIdentityQuery;
-import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -24,17 +22,12 @@ import org.springframework.stereotype.Component;
  *
  * Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) :
  *   1. identity       — {@link GetCashierIdentityQuery}
- *   2. session        — {@link GetCashierSessionSummaryQuery}
- *   3. overview       — {@link GetCashierDashboardOverviewQuery} (only when session active)
- *   4. nextDraws      — {@link ListCashierNextDrawsQuery}
- *   5. recentTickets  — {@link ListCashierRecentTicketsQuery}
+ *   2. overview       — {@link GetCashierDashboardOverviewQuery}
+ *   3. nextDraws      — {@link ListCashierNextDrawsQuery}
+ *   4. recentTickets  — {@link ListCashierRecentTicketsQuery}
  *
- * Note: overview is conditional on an active session — most-common case is therefore
- * ≤ 4 grouped reads. When a session is open, count goes to 5 (one over target, which
- * is acceptable for V1 — the overview query is materially cheap).
- *
- * Readiness and alerts are derived from {@link OperationalContextHint} already
- * carried by the HTTP request — no extra read.
+ * Readiness and alerts are derived from the seller-terminal context already carried by the HTTP
+ * request — no extra read.
  */
 @Component
 @RequiredArgsConstructor
@@ -52,12 +45,12 @@ public class CashierDashboardPayloadAssembler {
     }
 
     CashierIdentityPayload identity    = loadIdentity(ctx);
-    CashierSessionPayload session      = loadSession(ctx);
-    CashierOverviewPayload overview    = loadOverview(ctx, session);
+    CashierSessionPayload session      = CashierSessionPayload.v0();
+    CashierOverviewPayload overview    = loadOverview(ctx);
     List<?> nextDraws                  = loadNextDraws();
     List<?> recentTickets              = loadRecentTickets(ctx);
-    CashierReadinessPayload readiness  = buildReadiness(ctx.operationalContext());
-    CashierAlertsPayload alerts        = buildAlerts(ctx.operationalContext(), session);
+    CashierReadinessPayload readiness  = buildReadiness(ctx);
+    CashierAlertsPayload alerts        = buildAlerts(ctx);
     CashierStatsPayload stats          = loadAnalyticsStats(ctx);
     CashierOfflineSyncPayload offline  = buildOfflineSyncPlaceholder();
 
@@ -77,36 +70,16 @@ public class CashierDashboardPayloadAssembler {
         view.tenantCode() != null ? view.tenantCode() : "");
   }
 
-  private CashierSessionPayload loadSession(TchRequestContext ctx) {
-    var view = queryBus.ask(new GetCashierSessionSummaryQuery(ctx.tenantId(), ctx.userId()));
-    if (view == null || !view.active()) {
-      return CashierSessionPayload.inactive();
-    }
-    return new CashierSessionPayload(
-        true,
-        view.sessionRef() != null ? view.sessionRef() : "",
-        view.openedAt() != null ? view.openedAt().toString() : "",
-        view.openingFloatCents(),
-        view.salesTotalCents(),
-        view.ticketCount());
-  }
-
-  private CashierOverviewPayload loadOverview(TchRequestContext ctx, CashierSessionPayload session) {
-    if (!session.active()) {
-      return CashierOverviewPayload.noSession();
-    }
-
-    LocalDate businessDate = !session.openedAt().isBlank()
-        ? java.time.Instant.parse(session.openedAt()).atZone(ZoneOffset.UTC).toLocalDate()
-        : LocalDate.now(ZoneOffset.UTC);
+  private CashierOverviewPayload loadOverview(TchRequestContext ctx) {
+    LocalDate businessDate = LocalDate.now(ZoneOffset.UTC);
 
     var view = queryBus.ask(
         new GetCashierDashboardOverviewQuery(ctx.tenantId(), ctx.userId(), businessDate));
 
     return new CashierOverviewPayload(
         true,
-        session.sessionRef(),
-        session.openedAt(),
+        "",
+        "",
         businessDate.toString(),
         view != null ? view.ticketCount() : 0L,
         view != null ? view.salesTotalCents() : 0L,
@@ -162,53 +135,37 @@ public class CashierDashboardPayloadAssembler {
     }
   }
 
-  /** V1 placeholder — offline/sync status is not yet tracked server-side. */
+  /** V1 placeholder — offline/sync status is not tracked in V0. */
   private CashierOfflineSyncPayload buildOfflineSyncPlaceholder() {
-    return new CashierOfflineSyncPayload("UNKNOWN", 0);
+    return new CashierOfflineSyncPayload("PARKED", 0);
   }
 
   /**
-   * Operational readiness derived from {@link OperationalContextHint} carried by the
-   * HTTP context — no extra DB read.
+   * Operational readiness derived from seller-terminal context carried by the HTTP context.
    */
-  private CashierReadinessPayload buildReadiness(OperationalContextHint hint) {
+  private CashierReadinessPayload buildReadiness(TchRequestContext ctx) {
     List<String> missing = new ArrayList<>();
-    if (hint == null || hint.outletId() == null)   missing.add("OUTLET");
-    if (hint == null || hint.terminalId() == null) missing.add("TERMINAL");
+    if (ctx == null || ctx.sellerTerminalId() == null) missing.add("SELLER_TERMINAL");
 
-    boolean trusted = hint != null && hint.trustedForSensitiveOperation();
+    boolean trusted = missing.isEmpty();
     boolean ready = missing.isEmpty() && trusted;
 
     return new CashierReadinessPayload(
         ready,
         trusted,
-        hint != null && hint.source() != null ? hint.source().name() : "NONE",
+        trusted ? "SELLER_TERMINAL" : "NONE",
         List.copyOf(missing));
   }
 
   /**
-   * Operational alerts (blockers/warnings) — combines context flags + session state.
-   * No extra DB read; uses the data already loaded by session + the hint.
+   * Operational alerts (blockers/warnings) — derived from context flags only.
    */
-  private CashierAlertsPayload buildAlerts(
-      OperationalContextHint hint, CashierSessionPayload session) {
+  private CashierAlertsPayload buildAlerts(TchRequestContext ctx) {
     List<CashierAlertItem> warnings = new ArrayList<>();
 
-    if (hint == null || hint.outletId() == null) {
-      warnings.add(new CashierAlertItem("BLOCKER", "OUTLET_MISSING",
-          "alert.cashier.outlet_missing"));
-    }
-    if (hint == null || hint.terminalId() == null) {
-      warnings.add(new CashierAlertItem("BLOCKER", "TERMINAL_MISSING",
-          "alert.cashier.terminal_missing"));
-    }
-    if (hint != null && !hint.trustedForSensitiveOperation()) {
-      warnings.add(new CashierAlertItem("WARNING", "CONTEXT_UNTRUSTED",
-          "alert.cashier.context_untrusted"));
-    }
-    if (!session.active()) {
-      warnings.add(new CashierAlertItem("WARNING", "SESSION_CLOSED",
-          "alert.cashier.session_closed"));
+    if (ctx == null || ctx.sellerTerminalId() == null) {
+      warnings.add(new CashierAlertItem("BLOCKER", "SELLER_TERMINAL_MISSING",
+          "alert.cashier.seller_terminal_missing"));
     }
 
     return new CashierAlertsPayload(warnings.size(), List.copyOf(warnings));
@@ -234,7 +191,7 @@ public class CashierDashboardPayloadAssembler {
           CashierOverviewPayload.noSession(),
           List.of(),
           List.of(),
-          new CashierReadinessPayload(false, false, "NONE", List.of("OUTLET", "TERMINAL")),
+          new CashierReadinessPayload(false, false, "NONE", List.of("SELLER_TERMINAL")),
           new CashierAlertsPayload(0, List.of()),
           CashierStatsPayload.unavailable(),
           new CashierOfflineSyncPayload("UNKNOWN", 0));
@@ -261,6 +218,10 @@ public class CashierDashboardPayloadAssembler {
 
     public static CashierSessionPayload inactive() {
       return new CashierSessionPayload(false, "", "", 0L, 0L, 0L);
+    }
+
+    public static CashierSessionPayload v0() {
+      return new CashierSessionPayload(true, "", "", 0L, 0L, 0L);
     }
   }
 

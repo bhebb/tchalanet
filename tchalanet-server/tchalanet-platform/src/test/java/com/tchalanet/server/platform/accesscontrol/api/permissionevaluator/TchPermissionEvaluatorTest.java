@@ -64,20 +64,20 @@ class TchPermissionEvaluatorTest {
         assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
     }
 
-    // §9.2 — terminal.sell works for active terminal (AccessResolutionFilter pre-populates it)
+    // §9.2 — seller_terminal.sell works for active seller terminal.
 
     @Test
-    void terminalSell_presentInPermissions_returnsTrue() {
-        var evaluator = evaluator(contextWith(Set.of("terminal.sell")));
+    void sellerTerminalSell_presentInPermissions_returnsTrue() {
+        var evaluator = evaluator(contextWith(Set.of("seller_terminal.sell")));
 
-        assertThat(evaluator.hasPermission(auth(), null, "terminal.sell")).isTrue();
+        assertThat(evaluator.hasPermission(auth(), null, "seller_terminal.sell")).isTrue();
     }
 
     @Test
-    void terminalSell_absentFromPermissions_returnsFalse() {
+    void sellerTerminalSell_absentFromPermissions_returnsFalse() {
         var evaluator = evaluator(contextWith(Set.of()));
 
-        assertThat(evaluator.hasPermission(auth(), null, "terminal.sell")).isFalse();
+        assertThat(evaluator.hasPermission(auth(), null, "seller_terminal.sell")).isFalse();
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

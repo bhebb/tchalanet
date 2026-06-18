@@ -5,50 +5,54 @@ import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPic
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionToken;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class DefaultHaitiResultProjector implements HaitiResultProjector {
 
-  @Override
-  public HaitiResult project(HaitiProjectionConfig config, ExternalPick pick) {
-    Map<HaitiLot, String> out = new LinkedHashMap<>();
-    var p3 = pick.pick3();
-    var p4 = pick.pick4();
+    @Override
+    public HaitiResult project(HaitiProjectionConfig config, ExternalPick pick) {
+        Map<HaitiLot, String> out = new LinkedHashMap<>();
+        var p3 = pick.pick3();
+        var p4 = pick.pick4();
 
-    for (HaitiLot lot : HaitiLot.values()) {
-      HaitiProjectionToken token = config.tokens().get(lot);
-      if (token == null) throw new IllegalArgumentException("Missing token for " + lot);
-      String value =
-          switch (token) {
-            case PICK3_FULL_3 -> require(p3, "pick3");
-            case PICK3_FIRST2 -> firstN(require(p3, "pick3"), 2);
-            case PICK3_LAST2 -> lastN(require(p3, "pick3"), 2);
-            case PICK4_FULL_4 -> require(p4, "pick4");
-            case PICK4_FIRST2 -> firstN(require(p4, "pick4"), 2);
-            case PICK4_LAST2 -> lastN(require(p4, "pick4"), 2);
-          };
-      out.put(lot, value);
+        for (HaitiLot lot : HaitiLot.values()) {
+            HaitiProjectionToken token = config.tokens().get(lot);
+            if (token == null) {
+                throw new IllegalArgumentException("Missing token for " + lot);
+            }
+
+            String value = projectToken(token, p3, p4);
+            out.put(lot, value);
+        }
+
+        log.debug(
+            "Projected Haiti result for pick3: {}, pick4: {}, pick: {}, result: {}",
+            p3,
+            p4,
+            pick,
+            out
+        );
+
+        return new HaitiResult(out);
     }
-    log.debug(
-        "Projected Haiti result for pick3: {}, pick4: {}, pick: {}, result: {}", p3, p4, pick, out);
-    return new HaitiResult(out);
-  }
 
-  private static String require(String value, String field) {
-    if (value == null || value.isBlank()) throw new IllegalArgumentException("Missing " + field);
-    return value.trim();
-  }
+    private static String projectToken(HaitiProjectionToken token, String p3, String p4) {
+        return switch (token) {
+            case PICK3_FULL_3 -> present(p3) ? p3.trim() : "";
+            case PICK3_FIRST2 -> present(p3) && p3.length() >= 2 ? p3.substring(0, 2) : "";
+            case PICK3_LAST2 -> present(p3) && p3.length() >= 2 ? p3.substring(p3.length() - 2) : "";
+            case PICK4_FULL_4 -> present(p4) ? p4.trim() : "";
+            case PICK4_FIRST2 -> present(p4) && p4.length() >= 2 ? p4.substring(0, 2) : "";
+            case PICK4_LAST2 -> present(p4) && p4.length() >= 2 ? p4.substring(p4.length() - 2) : "";
+        };
+    }
 
-  private static String firstN(String value, int n) {
-    if (value.length() < n) throw new IllegalArgumentException("String too short for firstN: " + value);
-    return value.substring(0, n);
-  }
+    private static boolean present(String value) {
+        return value != null && !value.isBlank();
+    }
 
-  private static String lastN(String value, int n) {
-    if (value.length() < n) throw new IllegalArgumentException("String too short for lastN: " + value);
-    return value.substring(value.length() - n);
-  }
 }

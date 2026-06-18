@@ -10,10 +10,6 @@ import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintComman
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
-import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextView;
 import com.tchalanet.server.features.cashier.tickets.mapper.TicketPrintCommunicationMapper;
 import com.tchalanet.server.features.cashier.tickets.mapper.TicketPrintDocumentMapper;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
@@ -59,7 +55,6 @@ public class CashierTicketReceiptService {
     private final TenantConfigApi tenantConfigApi;
     private final TicketPrintDocumentMapper documentMapper;
     private final TicketPrintCommunicationMapper communicationMapper;
-    private final SellerOperationalContextResolver sellerContextResolver;
     private final DocumentPrintProfileResolver profileResolver;
 
     public ResponseEntity<ByteArrayResource> print(
@@ -67,7 +62,7 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         PrintTicketRequest request
     ) {
-        var sellerContext = validateSellerContextForPrint(ctx, request);
+        var terminalId = validateSellerContext(ctx);
 
         // Resolve print profile once here (applies defaults and rejects invalid combos like ESC_POS+A4)
         final DocumentPrintProfile profile;
@@ -91,10 +86,10 @@ public class CashierTicketReceiptService {
                 ticketId,
                 recordedOptions,
                 request.reprintReason(),
-                sellerContext.actorUserId(),
-                sellerContext.terminalId(),
-                sellerContext.outletId(),
-                sellerContext.salesSessionId(),
+                ctx.userId(),
+                terminalId,
+                null,
+                null,
                 ctx.correlationId()
             ));
         }
@@ -116,7 +111,7 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         SendTicketReceiptRequest request
     ) {
-        validateSellerContext(ctx, request.terminalId(), SellerOperation.SEND_RECEIPT);
+        validateSellerContext(ctx);
         validateRecipient(request);
         var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.locale()));
         var recipient = recipient(ctx, request);
@@ -241,29 +236,10 @@ public class CashierTicketReceiptService {
 
     // -- operational context ------------------------------------------------------
 
-    private SellerOperationalContextView validateSellerContext(TchRequestContext ctx, TerminalId terminalId) {
-        return validateSellerContext(ctx, terminalId, SellerOperation.SELL);
-    }
-
-    private SellerOperationalContextView validateSellerContext(
-        TchRequestContext ctx,
-        TerminalId terminalId,
-        SellerOperation operation
-    ) {
-        if (terminalId == null) {
-            throw ProblemRest.forbidden("cashier.operational_context_required");
+    private TerminalId validateSellerContext(TchRequestContext ctx) {
+        if (ctx == null) {
+            throw ProblemRest.forbidden("seller_terminal.required");
         }
-        return sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
-            ctx,
-            terminalId,
-            operation
-        ));
-    }
-
-    private SellerOperationalContextView validateSellerContextForPrint(TchRequestContext ctx, PrintTicketRequest request) {
-        var operation = request.recordPrint() && request.reprintReason() != null && !request.reprintReason().isBlank()
-            ? SellerOperation.REPRINT_TICKET
-            : SellerOperation.PRINT_TICKET;
-        return validateSellerContext(ctx, request.terminalId(), operation);
+        return TerminalId.of(ctx.sellerTerminalIdRequired().value());
     }
 }

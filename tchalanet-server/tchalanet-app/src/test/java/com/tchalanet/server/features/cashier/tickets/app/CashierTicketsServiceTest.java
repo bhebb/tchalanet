@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.context.operational.OperationalContextSource;
@@ -17,6 +18,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -35,7 +37,6 @@ import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStat
 import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerificationView;
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
 import com.tchalanet.server.features.cashier.tickets.mapper.CashierTicketMapper;
 import com.tchalanet.server.features.cashier.tickets.model.CashierAction;
 import com.tchalanet.server.features.cashier.tickets.model.CashierActionType;
@@ -55,14 +56,12 @@ class CashierTicketsServiceTest {
 
     private final QueryBus queryBus = mock(QueryBus.class);
     private final CommandBus commandBus = mock(CommandBus.class);
-    private final SellerOperationalContextResolver sellerContextResolver =
-        mock(SellerOperationalContextResolver.class);
     private final CashierTicketMapper mapper = mock(CashierTicketMapper.class);
     private final TicketPrintReaderPort port = mock(TicketPrintReaderPort.class);
     private final TicketScanResolver ticketScanResolver = new TicketScanResolver();
 
     private final CashierTicketsService service = new CashierTicketsService(
-        queryBus, commandBus, sellerContextResolver, mapper, ticketScanResolver, port);
+        queryBus, commandBus, mapper, ticketScanResolver, port);
 
     private final TenantId tenantId = TenantId.of(UUID.randomUUID());
     private final UserId userId = UserId.of(UUID.randomUUID());
@@ -282,7 +281,11 @@ class CashierTicketsServiceTest {
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
             hint,
-            null, null, null, null, null
+            TchActorType.SELLER_TERMINAL,
+            SellerTerminalId.of(UUID.randomUUID()),
+            Set.of(),
+            Set.of("seller_terminal.ticket.read_own"),
+            null
         );
     }
 }

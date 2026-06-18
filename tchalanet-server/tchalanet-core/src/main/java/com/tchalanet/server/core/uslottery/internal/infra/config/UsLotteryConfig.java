@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.uslottery.internal.infra.config;
 
-import java.util.Map;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
+
+import java.util.Map;
 
 @Configuration
 @ConditionalOnProperty(
@@ -36,7 +37,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient nyLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient nyLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, NEW_YORK_PROVIDER_KEY);
     }
 
@@ -46,7 +47,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient floridaLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient floridaLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
 
         return getRestClient(builder, props, FLORIDA_LOTTERY_PROVIDER);
 
@@ -58,7 +59,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient gaLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient gaLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, GA_PROVIDER_KEY);
 
     }
@@ -69,7 +70,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient tnLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient tnLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, TENNESSEE_LOTTERY_KEY);
     }
 
@@ -79,7 +80,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient txLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient txLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, TX_PROVIDER_KEY);
 
     }
@@ -90,7 +91,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient paLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient paLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, PA_PROVIDER_KEY);
     }
 
@@ -100,7 +101,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient njLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient njLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, NJ_PROVIDER_KEY);
     }
 
@@ -110,7 +111,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient caLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient caLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, CA_PROVIDER_KEY);
     }
 
@@ -120,7 +121,7 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient ohLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient ohLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, OH_PROVIDER_KEY);
     }
 
@@ -130,22 +131,39 @@ public class UsLotteryConfig {
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-    public RestClient miLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    public RestClient miLotteryRestClient(RestClientFactory builder, UsLotteryProperties props) {
         return getRestClient(builder, props, MI_PROVIDER_KEY);
     }
 
-    private RestClient getRestClient(RestClient.Builder builder, UsLotteryProperties props, String providerKey) {
+    @Bean
+    @ConditionalOnProperty(
+        prefix = "tch.us-lottery.providers.oh",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
+    public RestClient ohAuthRestClient(RestClientFactory factory, UsLotteryProperties props) {
+        var p = props.getProviders() != null ? props.getProviders().get(OH_PROVIDER_KEY) : null;
+        var baseUrl = p != null ? p.getAuthBaseUrl() : null;
+
+        return factory.builder()
+            .baseUrl(baseUrl)
+            .defaultHeader("Accept", "application/json, text/plain, */*")
+            .defaultHeader("Origin", "https://www.ohiolottery.com")
+            .defaultHeader("Referer", "https://www.ohiolottery.com/")
+            .build();
+    }
+
+    private RestClient getRestClient(RestClientFactory factory, UsLotteryProperties props, String providerKey) {
         var p = props.getProviders() != null ? props.getProviders().get(providerKey) : null;
         var baseUrl = p != null ? p.getBaseUrl() : null;
-        var b = (baseUrl == null || baseUrl.isBlank()) ? builder : builder.baseUrl(baseUrl);
+
+        var b = (baseUrl == null || baseUrl.isBlank())
+            ? factory.builder()
+            : factory.builder().baseUrl(baseUrl);
 
         var headers = p == null || p.getHeaders() == null ? Map.<String, String>of() : p.getHeaders();
         for (var e : headers.entrySet()) {
             b = b.defaultHeader(e.getKey(), e.getValue());
-        }
-
-        if (p != null && p.getBearerToken() != null && !p.getBearerToken().isBlank()) {
-            b = b.defaultHeader("Authorization", "Bearer " + p.getBearerToken().trim());
         }
 
         return b.build();

@@ -30,12 +30,18 @@ public class UsLotteryProperties {
         private String baseUrl;
         private String appToken;
         private String bearerToken;
+
+        private String authBaseUrl;
+        private String authPath;
+        private String authUsername;
+        private String authPassword;
+
         private String fallbackBaseUrl;
         private String fallbackPath;
         private String timezone;
         private String latestPath;
         private String alertPath;
-        private Map<String, String> headers; // for TX, etc
+        private Map<String, String> headers;
         private List<String> holidays;
     }
 }

@@ -129,4 +129,14 @@ class FeatureArchitectureTest {
 
     rule.check(classes);
   }
+
+  @Test
+  void featuresMustNotImportCoreSellerTerminalInternals() {
+    ArchRule rule = noClasses()
+        .that().resideInAPackage(FEATURES)
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core.sellerterminal.internal..")
+        .because("features must use the public core.sellerterminal API, not its persistence or internals");
+
+    rule.check(classes);
+  }
 }

@@ -2,11 +2,9 @@ package com.tchalanet.server.features.cashier.tickets.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.web.error.ProblemRestException;
@@ -28,9 +26,6 @@ import com.tchalanet.server.core.sales.api.model.verification.TicketCashierVerif
 import com.tchalanet.server.core.sales.api.query.GetTicketForCashierVerificationQuery;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;
-import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
-import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
 import com.tchalanet.server.features.cashier.tickets.model.CashierAction;
 import com.tchalanet.server.features.cashier.tickets.model.CashierActionType;
 import com.tchalanet.server.features.cashier.tickets.mapper.CashierTicketMapper;
@@ -66,7 +61,6 @@ public class CashierTicketsService {
 
     private final QueryBus queryBus;
     private final CommandBus commandBus;
-    private final SellerOperationalContextResolver sellerContextResolver;
     private final CashierTicketMapper mapper;
     private final TicketScanResolver ticketScanResolver;
     private final com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort ticketPrintReader;
@@ -131,7 +125,7 @@ public class CashierTicketsService {
 
     public TchPage<CashierTicketPageResponse> listTickets(Pageable pageable) {
         var result = queryBus.ask(new ListTicketsQuery(
-            null, null, null, null, null, null, new TchPageRequest(pageable)));
+            null, null, null, null, null, new TchPageRequest(pageable)));
         return TchPageMapper.map(result, mapper::toPageResponse);
     }
 
@@ -143,7 +137,7 @@ public class CashierTicketsService {
         var currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG";
         var stats = queryBus.ask(new GetTerminalDailyStatsQuery(
             ctx.effectiveTenantIdRequired(),
-            ctx.sellerTerminalId(),
+            ctx.sellerTerminalIdRequired(),
             from,
             to,
             currency
@@ -348,14 +342,10 @@ public class CashierTicketsService {
     }
 
     private void validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
-        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
-            return; // Terminal already validated in the sale orchestrator from JWT context
+        if (ctx == null) {
+            throw ProblemRestException.unprocessable("seller_terminal.required");
         }
-        sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
-            ctx,
-            TerminalId.of(terminalId),
-            SellerOperation.SELL
-        ));
+        ctx.sellerTerminalIdRequired();
     }
 
     private DrawChannelId drawChannelId(java.util.UUID value) {

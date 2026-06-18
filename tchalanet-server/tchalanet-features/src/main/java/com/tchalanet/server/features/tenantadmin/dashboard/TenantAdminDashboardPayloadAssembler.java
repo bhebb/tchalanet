@@ -13,18 +13,16 @@ import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
-import com.tchalanet.server.core.terminal.api.model.SellerTerminalCommissionStatsView;
-import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalCommissionStatsQuery;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCommissionStatsView;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
+import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalCommissionStatsQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
-import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
-import com.tchalanet.server.core.outlet.api.query.OutletView;
 import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
 import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
-import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
-import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
-import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
 import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.features.pagemodel.contract.AlertItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
@@ -56,7 +54,7 @@ import java.util.List;
  * Grouped reads (target ≤ 5 per dashboard-overview-runtime-v1 §12):
  * 1. tenant registry  → TenantCatalog.findRegistryById        (header + identity)
  * 2. day-window stats → TenantDashboardStatsService.getStats  (kpi.sales/tickets)
- * 3. operations bundle (outlets + terminals + sellers, 3 calls grouped) → readiness + operations
+ * 3. operations bundle (seller terminals + sellers, 2 calls grouped)    → readiness + operations
  * 4. commercial bundle (games + draw channels, 2 calls grouped)         → commercial
  * <p>
  * Alerts / kpi.openDraws / kpi.activeSessions / kpi.pendingApprovals are V1
@@ -113,21 +111,15 @@ public class TenantAdminDashboardPayloadAssembler {
     // ---------------------- grouped bundle loaders ----------------------
 
     private OperationsBundle loadOperationsBundle(TenantId tenantId) {
-        List<OutletView> outlets;
+        long sellerTerminalCount;
         try {
-            outlets = queryBus.ask(new ListOutletsByTenantQuery(tenantId));
-        } catch (RuntimeException e) {
-            outlets = List.of();
-        }
-
-        long terminalCount;
-        try {
-            TchPage<TerminalSummaryView> page = queryBus.ask(new ListTerminalsQuery(
-                TerminalSearchCriteria.empty(),
+            TchPage<SellerTerminalSummaryRow> page = queryBus.ask(new ListSellerTerminalsQuery(
+                tenantId,
+                SellerTerminalSearchCriteria.empty(),
                 new TchPageRequest(PageRequest.of(0, 1))));
-            terminalCount = page != null ? page.totalElements() : 0L;
+            sellerTerminalCount = page != null ? page.totalElements() : 0L;
         } catch (RuntimeException e) {
-            terminalCount = 0L;
+            sellerTerminalCount = 0L;
         }
 
         List<SellerSummaryView> sellers;
@@ -137,7 +129,7 @@ public class TenantAdminDashboardPayloadAssembler {
             sellers = List.of();
         }
 
-        return new OperationsBundle(outlets, terminalCount, sellers);
+        return new OperationsBundle(sellerTerminalCount, sellers);
     }
 
     private CommercialBundle loadCommercialBundle(TenantId tenantId) {
@@ -262,12 +254,9 @@ public class TenantAdminDashboardPayloadAssembler {
             issues.add(new TenantReadinessIssue("identity", "readiness.identity.missing", "/app/admin"));
             missing++;
         }
-        if (ops.outlets().isEmpty()) {
-            issues.add(new TenantReadinessIssue("outlets", "readiness.outlets.empty", "/app/admin/outlets"));
-            missing++;
-        }
-        if (ops.terminalCount() == 0L) {
-            issues.add(new TenantReadinessIssue("terminals", "readiness.terminals.empty", "/app/admin/terminals"));
+        if (ops.sellerTerminalCount() == 0L) {
+            issues.add(new TenantReadinessIssue(
+                "seller_terminals", "readiness.seller_terminals.empty", "/app/admin/seller-terminals"));
             missing++;
         }
         if (ops.sellers().isEmpty()) {
@@ -302,8 +291,8 @@ public class TenantAdminDashboardPayloadAssembler {
     private TenantOperationsSummaryPayload buildOperationsSummary(OperationsBundle ops) {
         return new TenantOperationsSummaryPayload(
             new SectionStatus(ops.sellers().isEmpty() ? "MISSING" : "READY", ops.sellers().size()),
-            new SectionStatus(ops.outlets().isEmpty() ? "MISSING" : "READY", ops.outlets().size()),
-            new SectionStatus(ops.terminalCount() == 0L ? "MISSING" : "READY", ops.terminalCount()),
+            new SectionStatus("PARKED", 0),
+            new SectionStatus(ops.sellerTerminalCount() == 0L ? "MISSING" : "READY", ops.sellerTerminalCount()),
             new SectionStatus("UNKNOWN", 0));
     }
 
@@ -470,8 +459,7 @@ public class TenantAdminDashboardPayloadAssembler {
      * Grouped operational data — loaded once, shared by readiness + kpis + operations builders.
      */
     record OperationsBundle(
-        List<OutletView> outlets,
-        long terminalCount,
+        long sellerTerminalCount,
         List<SellerSummaryView> sellers) {
     }
 

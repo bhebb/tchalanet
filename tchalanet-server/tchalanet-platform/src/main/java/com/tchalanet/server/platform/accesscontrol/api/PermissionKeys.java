@@ -38,25 +38,17 @@ public final class PermissionKeys {
   public static final String ROLE_PERMISSION_MANAGE = "role.permission.manage";
   public static final String PERMISSION_READ      = "permission.read";
 
-  // Outlet
-  public static final String OUTLET_READ          = "outlet.read";
-  public static final String OUTLET_CREATE        = "outlet.create";
-  public static final String OUTLET_UPDATE        = "outlet.update";
-  public static final String OUTLET_DISABLE       = "outlet.disable";
-
-  // Terminal
-  public static final String TERMINAL_READ        = "terminal.read";
-  public static final String TERMINAL_CREATE      = "terminal.create";
-  public static final String TERMINAL_UPDATE      = "terminal.update";
-  public static final String TERMINAL_DISABLE     = "terminal.disable";
-  public static final String TERMINAL_BIND        = "terminal.bind";
-  public static final String TERMINAL_UNBIND      = "terminal.unbind";
-
-  // Session
-  public static final String SESSION_READ         = "session.read";
-  public static final String SESSION_OPEN         = "session.open";
-  public static final String SESSION_CLOSE        = "session.close";
-  public static final String SESSION_FORCE_CLOSE  = "session.force-close";
+  // Seller terminals
+  public static final String SELLER_TERMINAL_MANAGE = "seller_terminal.manage";
+  public static final String SELLER_TERMINAL_BLOCK = "seller_terminal.block";
+  public static final String SELLER_TERMINAL_RESET_ACCESS = "seller_terminal.reset_access";
+  public static final String SELLER_TERMINAL_OPERATIONAL_CONTEXT_READ =
+      "seller_terminal.operational_context.read";
+  public static final String SELLER_TERMINAL_ME_READ = "seller_terminal.me.read";
+  public static final String SELLER_TERMINAL_SELL = "seller_terminal.sell";
+  public static final String SELLER_TERMINAL_TICKET_READ_OWN = "seller_terminal.ticket.read_own";
+  public static final String SELLER_TERMINAL_TICKET_REPRINT_OWN =
+      "seller_terminal.ticket.reprint_own";
 
   // Settings / pricing
   public static final String SETTINGS_READ        = "settings.read";
@@ -90,14 +82,7 @@ public final class PermissionKeys {
   public static final String TICKET_VERIFY        = "ticket.verify";
   public static final String TICKET_CANCEL_OWN    = "ticket.cancel-own";
 
-  // Payout
-  public static final String PAYOUT_READ          = "payout.read";
-  public static final String PAYOUT_REVIEW        = "payout.review";
-  public static final String PAYOUT_EXECUTE       = "payout.execute";
-
-  // Offline / sync
+  // Sync
   public static final String SYNC_READ            = "sync.read";
   public static final String SYNC_SUBMIT          = "sync.submit";
-  public static final String OFFLINE_GRANT_REQUEST = "offline.grant.request";
-  public static final String OFFLINE_SYNC_SUBMIT  = "offline.sync.submit";
 }

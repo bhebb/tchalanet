@@ -35,23 +35,6 @@ INSERT INTO permission (code, name, category, system, active) VALUES
   ('role.manage',              'Manage roles',                   'access-control', true, true),
   ('role.permission.manage',   'Manage role permissions',        'access-control', true, true),
   ('permission.read',          'Read permissions',               'access-control', true, true),
-  -- Outlet
-  ('outlet.read',              'Read outlets',                   'outlet',   true, true),
-  ('outlet.create',            'Create outlets',                 'outlet',   true, true),
-  ('outlet.update',            'Update outlets',                 'outlet',   true, true),
-  ('outlet.disable',           'Disable outlets',                'outlet',   true, true),
-  -- Terminal
-  ('terminal.read',            'Read terminals',                 'terminal', true, true),
-  ('terminal.create',          'Create terminals',               'terminal', true, true),
-  ('terminal.update',          'Update terminals',               'terminal', true, true),
-  ('terminal.disable',         'Disable terminals',              'terminal', true, true),
-  ('terminal.bind',            'Bind terminal devices',          'terminal', true, true),
-  ('terminal.unbind',          'Unbind terminal devices',        'terminal', true, true),
-  -- Session
-  ('session.read',             'Read sessions',                  'session',  true, true),
-  ('session.open',             'Open sessions',                  'session',  true, true),
-  ('session.close',            'Close sessions',                 'session',  true, true),
-  ('session.force-close',      'Force-close sessions',           'session',  true, true),
   -- Settings / pricing
   ('settings.read',            'Read settings',                  'settings', true, true),
   ('settings.update',          'Update settings',                'settings', true, true),
@@ -78,15 +61,8 @@ INSERT INTO permission (code, name, category, system, active) VALUES
   ('ticket.resend',            'Resend tickets',                 'ticket',   true, true),
   ('ticket.verify',            'Verify tickets',                 'ticket',   true, true),
   ('ticket.cancel-own',        'Cancel own tickets',             'ticket',   true, true),
-  -- Payout
-  ('payout.read',              'Read payouts',                   'payout',   true, true),
-  ('payout.review',            'Review payouts',                 'payout',   true, true),
-  ('payout.execute',           'Execute payouts',                'payout',   true, true),
-  -- Offline sync
   ('sync.read',                'Read sync state',                'sync',     true, true),
-  ('sync.submit',              'Submit sync',                    'sync',     true, true),
-  ('offline.grant.request',    'Request offline grant',          'offline',  true, true),
-  ('offline.sync.submit',      'Submit offline sync',            'offline',  true, true)
+  ('sync.submit',              'Submit sync',                    'sync',     true, true)
 ON CONFLICT (code) DO UPDATE SET
   name   = EXCLUDED.name,
   category = EXCLUDED.category,
@@ -128,10 +104,6 @@ SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
   'user.read','user.create','user.update','user.disable','user.invite','user.sync',
   'user.membership.manage','user.role.assign','user.permission.manage',
   'role.read','permission.read',
-  'outlet.read','outlet.create','outlet.update','outlet.disable',
-  'terminal.read','terminal.create','terminal.update','terminal.disable',
-  'terminal.bind','terminal.unbind',
-  'session.read','session.open','session.close','session.force-close',
   'settings.read','settings.update',
   'game-pricing.read','game-pricing.update',
   'limit.read','limit.manage',
@@ -145,10 +117,7 @@ INSERT INTO role_permission (role_id, permission_code)
 SELECT '00000000-0000-0000-0000-000000000303'::uuid, unnest(ARRAY[
   'operator.access','dashboard.read',
   'operational-context.read','operational-context.select',
-  'outlet.read','terminal.read',
-  'session.read','session.open','session.close',
   'ticket.read','ticket.verify','ticket.print','ticket.resend',
-  'payout.read','payout.review','payout.execute',
   'report.read'
 ]) ON CONFLICT DO NOTHING;
 
@@ -156,9 +125,7 @@ SELECT '00000000-0000-0000-0000-000000000303'::uuid, unnest(ARRAY[
 INSERT INTO role_permission (role_id, permission_code)
 SELECT '00000000-0000-0000-0000-000000000304'::uuid, unnest(ARRAY[
   'cashier.access','operational-context.read',
-  'ticket.sell','ticket.read','ticket.print','ticket.resend','ticket.verify',
-  'payout.read','payout.execute',
-  'offline.grant.request','offline.sync.submit'
+  'ticket.sell','ticket.read','ticket.print','ticket.resend','ticket.verify'
 ]) ON CONFLICT DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────────────────────

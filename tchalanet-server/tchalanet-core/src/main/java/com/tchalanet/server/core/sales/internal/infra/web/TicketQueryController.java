@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -50,7 +49,6 @@ public class TicketQueryController {
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<TchPage<TicketSummaryResponse>> list(
       @RequestParam(required = false) TerminalId terminalId,
-      @RequestParam(required = false) OutletId outletId,
       @RequestParam(required = false) DrawId drawId,
       @RequestParam(required = false) String status,
       @RequestParam(required = false) Instant from,
@@ -60,7 +58,7 @@ public class TicketQueryController {
               defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
     var query =
-        mapper.toListTicketsQuery(terminalId, outletId, drawId, status, from, to, pageReq);
+        mapper.toListTicketsQuery(terminalId, drawId, status, from, to, pageReq);
     var result = queryBus.ask(query);
     return ApiResponse.success(mapper.toPagedSummaryResponse(result));
   }

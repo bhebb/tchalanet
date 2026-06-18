@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -12,8 +11,6 @@ import com.tchalanet.server.core.sales.api.model.preparation.ConfirmPreparedSale
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationView;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketLineRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
-import com.tchalanet.server.core.terminal.api.query.TerminalDeviceProofGate;
-import com.tchalanet.server.core.terminal.api.query.TerminalProofPurpose;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,11 +39,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tenant/sales/preparations")
 @RequiredArgsConstructor
 @Tag(name = "Sales • Preparation", description = "Prepared sale flow: preview with generated promotion lines, regenerate, confirm")
-@PreAuthorize("hasPermission('terminal.sell')")
+@PreAuthorize("hasPermission('seller_terminal.sell')")
 public class SalePreparationController {
 
     private final CommandBus commandBus;
-    private final QueryBus queryBus;
 
     @Operation(operationId = "prepareSale", summary = "Prepare a sale",
         description = "Runs the full sale pipeline, generates promotion lines, persists a 10-minute preparation and returns its id with the final lines.")
@@ -54,17 +50,9 @@ public class SalePreparationController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<SalePreparationView> prepare(
         @CurrentContext TchRequestContext ctx,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_TERMINAL_ID) String terminalId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_BINDING_ID)  String bindingId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_NONCE)       String nonce,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNED_AT)   String signedAt,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNATURE)   String signature,
         @Valid @RequestBody SellTicketRequest body
     ) {
-        TerminalDeviceProofGate.verify(queryBus, ctx.effectiveTenantIdRequired(),
-            terminalId, bindingId, TerminalProofPurpose.SELL_TICKET,
-            "POST", "/tenant/sales/preparations", null,
-            ctx.operationalContext(), nonce, signedAt, signature);
+        ctx.sellerTerminalIdRequired();
 
         var result = commandBus.execute(new PrepareSaleCommand(
             body.drawId(), body.drawChannelId(), body.currency(),
@@ -82,6 +70,7 @@ public class SalePreparationController {
         @PathVariable UUID preparationId,
         @PathVariable String lineRef
     ) {
+        ctx.sellerTerminalIdRequired();
         var result = commandBus.execute(
             new RegenerateSalePreparationPromotionLineCommand(preparationId, lineRef));
         return ApiResponse.success(result);
@@ -94,18 +83,10 @@ public class SalePreparationController {
     @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
     public ApiResponse<ConfirmPreparedSaleResult> confirm(
         @CurrentContext TchRequestContext ctx,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_TERMINAL_ID) String terminalId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_BINDING_ID)  String bindingId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_NONCE)       String nonce,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNED_AT)   String signedAt,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNATURE)   String signature,
         @RequestHeader("Idempotency-Key") @NotBlank String idempotencyKey,
         @PathVariable UUID preparationId
     ) {
-        TerminalDeviceProofGate.verify(queryBus, ctx.effectiveTenantIdRequired(),
-            terminalId, bindingId, TerminalProofPurpose.SELL_TICKET,
-            "POST", "/tenant/sales/preparations/" + preparationId + "/confirm", null,
-            ctx.operationalContext(), nonce, signedAt, signature);
+        ctx.sellerTerminalIdRequired();
 
         var result = commandBus.execute(
             new ConfirmPreparedSaleCommand(preparationId, idempotencyKey));

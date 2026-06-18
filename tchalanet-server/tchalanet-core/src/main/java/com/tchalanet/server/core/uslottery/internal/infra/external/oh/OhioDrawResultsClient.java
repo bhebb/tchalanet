@@ -9,18 +9,21 @@ import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotte
 import com.tchalanet.server.core.uslottery.internal.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
+import com.tchalanet.server.core.uslottery.internal.infra.external.oh.auth.OhioTokenProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 /**
  * Ohio — internal JSON with bearer token.
@@ -44,16 +47,19 @@ public class OhioDrawResultsClient implements UsLotteryProviderClient {
     private static final DateTimeFormatter MDY = DateTimeFormatter.ofPattern("MM-dd-uuuu", Locale.US);
 
     private final RestClient rest;
+    private final OhioTokenProvider ohioTokenProvider;
     private final UsLotteryProperties props;
     private final UsLotteryProviderRawCache cache;
     private final OhioDrawResultsMapper mapper;
 
     public OhioDrawResultsClient(
         @Qualifier("ohLotteryRestClient") RestClient rest,
+        OhioTokenProvider ohioTokenProvider,
         UsLotteryProperties props,
         UsLotteryProviderRawCache cache,
         OhioDrawResultsMapper mapper) {
         this.rest = Objects.requireNonNull(rest);
+        this.ohioTokenProvider = Objects.requireNonNull(ohioTokenProvider);
         this.props = Objects.requireNonNull(props);
         this.cache = Objects.requireNonNull(cache);
         this.mapper = Objects.requireNonNull(mapper);
@@ -72,11 +78,10 @@ public class OhioDrawResultsClient implements UsLotteryProviderClient {
         if (cfg == null || !cfg.isEnabled() || StringUtils.isBlank(cfg.getLatestPath())) {
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
+        var token = ohioTokenProvider.bearerToken();
 
-        if (StringUtils.isBlank(cfg.getBearerToken())) {
-            log.warn(
-                "oh-client skipped drawDate={} reason=missing_bearer_token (set TCH_US_OH_BEARER_TOKEN)",
-                query.drawDate());
+        if (token.isEmpty()) {
+            log.warn("oh-client skipped drawDate={} reason=missing_bearer_token", query.drawDate());
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
 
@@ -100,7 +105,12 @@ public class OhioDrawResultsClient implements UsLotteryProviderClient {
                     List.of(game.get().outputCode()),
                     SHAPE + "|" + url + "|providerSlotCode=" + StringUtils.defaultString(query.providerSlotCode()));
 
-            var body = cache.getOrFetch(PROVIDER.name(), query.drawDate(), queryHash, () -> fetchBody(url));
+            var body = cache.getOrFetch(
+                PROVIDER.name(),
+                query.drawDate(),
+                queryHash,
+                () -> fetchBody(url, token.get())
+            );
             if (StringUtils.isBlank(body)) {
                 continue;
             }
@@ -118,13 +128,17 @@ public class OhioDrawResultsClient implements UsLotteryProviderClient {
             null);
     }
 
-    private String fetchBody(String url) {
+    private String fetchBody(String url, String bearerToken) {
         try {
-            return rest.get().uri(url).retrieve().body(String.class);
+            return rest.get()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken)
+                .retrieve()
+                .body(String.class);
         } catch (Exception e) {
             log.warn("oh-client fetch failed url={} err={}", url, e.getMessage(), e);
-            return null;
         }
+        return null;
     }
 
     private static String joinUrl(String base, String path) {

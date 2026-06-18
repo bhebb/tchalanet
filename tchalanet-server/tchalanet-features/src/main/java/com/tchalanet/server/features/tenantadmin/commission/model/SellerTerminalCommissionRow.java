@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.tenantadmin.commission.model;
 
 import com.tchalanet.server.common.types.id.SellerTerminalId;
-import com.tchalanet.server.core.terminal.api.model.SellerTerminalStatus;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 
 import java.math.BigDecimal;
 

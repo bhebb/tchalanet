@@ -7,8 +7,8 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityBootstrapStep;
+import com.tchalanet.server.platform.identity.api.SellerTerminalIdentityLookup;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
-import com.tchalanet.server.platform.identity.internal.persistence.SellerTerminalExternalIdentityPort;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityAppUserResolver;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapProperties;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ import static com.tchalanet.server.common.context.ContextKeys.BOOTSTRAPPED_APP_U
 public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
 
     private final ExternalIdentityAppUserResolver appUserResolver;
-    private final SellerTerminalExternalIdentityPort sellerTerminalPort;
+    private final SellerTerminalIdentityLookup sellerTerminalIdentityLookup;
     private final ExpectedActorTypeResolver expectedActorTypeResolver;
     private final UserBootstrapProperties props;
 
@@ -90,7 +90,7 @@ public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
         HttpServletRequest request,
         ExternalAuthenticatedUser externalUser
     ) {
-        var terminalResolution = sellerTerminalPort.findByExternalIdentity(
+        var terminalResolution = sellerTerminalIdentityLookup.findByExternalIdentity(
             externalUser.provider(),
             externalUser.issuer(),
             externalUser.subject()

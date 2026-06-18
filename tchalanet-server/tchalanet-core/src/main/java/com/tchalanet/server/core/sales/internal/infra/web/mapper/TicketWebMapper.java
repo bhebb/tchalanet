@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -117,14 +116,13 @@ public class TicketWebMapper {
 
     public ListTicketsQuery toListTicketsQuery(
         TerminalId terminalId,
-        OutletId outletId,
         DrawId drawId,
         String status,
         java.time.Instant from,
         java.time.Instant to,
         TchPageRequest pageReq
     ) {
-        return new ListTicketsQuery(terminalId, outletId, drawId, status, from, to, pageReq);
+        return new ListTicketsQuery(terminalId, drawId, status, from, to, pageReq);
     }
 
     public TchPage<TicketSummaryResponse> toPagedSummaryResponse(TchPage<TicketRow> page) {

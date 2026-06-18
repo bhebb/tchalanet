@@ -12,6 +12,7 @@ import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
@@ -36,7 +37,7 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContex
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
-import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalForSaleValidationQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalForSaleValidationQuery;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -88,8 +89,12 @@ public class SellTicketCommandHandler
         // 2. Build ticket context — branch on actor type.
         TicketContext ticketContext;
         if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+            var sellerTerminalId = ctx.sellerTerminalIdRequired();
             var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
-                tenantId, ctx.sellerTerminalId()));
+                tenantId, sellerTerminalId));
+            if (!terminal.canSell()) {
+                throw ProblemRest.forbidden("seller_terminal.cannot_sell");
+            }
             var commissionAmount = prepared.moneyBreakdown().stake().amount()
                 .multiply(terminal.commissionRate())
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
@@ -97,7 +102,7 @@ public class SellTicketCommandHandler
                 null, null, null, null,
                 command.drawId(), command.drawChannelId(),
                 null, null,
-                ctx.sellerTerminalId(), terminal.commissionRate(), commissionAmount
+                sellerTerminalId, terminal.commissionRate(), commissionAmount
             );
         } else {
             ticketContext = new TicketContext(

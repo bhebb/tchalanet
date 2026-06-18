@@ -22,9 +22,6 @@ CREATE TABLE seller_terminal
     status          varchar(32)   NOT NULL DEFAULT 'PENDING',
     commission_rate numeric(5, 2) NOT NULL DEFAULT 15.00,
 
-    -- grouping (optional)
-    outlet_id uuid,
-
     -- lifecycle timestamps
     last_seen_at   timestamptz,
     activated_at   timestamptz,
@@ -51,7 +48,6 @@ CREATE TABLE seller_terminal
 CREATE INDEX idx_seller_terminal_tenant_status ON seller_terminal (tenant_id, status);
 CREATE INDEX idx_seller_terminal_tenant_code   ON seller_terminal (tenant_id, terminal_code);
 CREATE INDEX idx_seller_terminal_tenant_name   ON seller_terminal (tenant_id, display_name);
-CREATE INDEX idx_seller_terminal_tenant_outlet ON seller_terminal (tenant_id, outlet_id) WHERE outlet_id IS NOT NULL;
 
 -- ─── External identity (same pattern as app_user_external_identity) ───────────
 

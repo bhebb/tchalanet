@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
@@ -12,8 +11,6 @@ import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketLineRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketResponse;
-import com.tchalanet.server.core.terminal.api.query.TerminalDeviceProofGate;
-import com.tchalanet.server.core.terminal.api.query.TerminalProofPurpose;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,11 +32,10 @@ import java.util.List;
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
 @Tag(name = "Sales • Sell", description = "Endpoints for ticket sale operations")
-@PreAuthorize("hasPermission('terminal.sell')")
+@PreAuthorize("hasPermission('seller_terminal.sell')")
 public class TicketSalesController {
 
     private final CommandBus commandBus;
-    private final QueryBus queryBus;
     private final TicketWebMapper mapper;
 
     @Operation(
@@ -59,17 +54,9 @@ public class TicketSalesController {
     @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
     public ApiResponse<SellTicketResponse> sell(
         @CurrentContext TchRequestContext ctx,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_TERMINAL_ID) String terminalId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_BINDING_ID)  String bindingId,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_NONCE)       String nonce,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNED_AT)   String signedAt,
-        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNATURE)   String signature,
         @Valid @RequestBody SellTicketRequest body
     ) {
-        TerminalDeviceProofGate.verify(queryBus, ctx.effectiveTenantIdRequired(),
-            terminalId, bindingId, TerminalProofPurpose.SELL_TICKET,
-            "POST", "/tenant/tickets", null,
-            ctx.operationalContext(), nonce, signedAt, signature);
+        ctx.sellerTerminalIdRequired();
 
         var result = commandBus.execute(new SellTicketCommand(
             body.drawId(), body.drawChannelId(), body.currency(),

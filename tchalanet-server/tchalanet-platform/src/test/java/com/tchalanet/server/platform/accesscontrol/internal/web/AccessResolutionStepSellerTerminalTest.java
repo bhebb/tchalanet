@@ -46,10 +46,10 @@ class AccessResolutionStepSellerTerminalTest {
         assertThat(resolved.actorType()).isEqualTo(TchActorType.SELLER_TERMINAL);
         assertThat(resolved.effectiveTenantId()).isEqualTo(TENANT);
         assertThat(resolved.sellerTerminalId()).isEqualTo(TERMINAL);
-        assertThat(resolved.permissionKeys()).isEqualTo(AccessResolutionStepImpl.TERMINAL_PERMISSIONS);
+        assertThat(resolved.permissionKeys()).isEqualTo(AccessResolutionStepImpl.SELLER_TERMINAL_PERMISSIONS);
         assertThat(resolved.permissionKeys())
-            .contains("terminal.me.read", "terminal.sell",
-                "terminal.ticket.read_own", "terminal.ticket.reprint_own");
+            .contains("seller_terminal.me.read", "seller_terminal.sell",
+                "seller_terminal.ticket.read_own", "seller_terminal.ticket.reprint_own");
     }
 
     @Test

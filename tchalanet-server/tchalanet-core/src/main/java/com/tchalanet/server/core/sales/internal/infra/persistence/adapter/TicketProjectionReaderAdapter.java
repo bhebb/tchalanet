@@ -92,9 +92,6 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             if (query.terminalId() != null) {
                 predicates.add(cb.equal(root.get("terminalId"), query.terminalId().value()));
             }
-            if (query.outletId() != null) {
-                predicates.add(cb.equal(root.get("outletId"), query.outletId().value()));
-            }
             if (query.drawId() != null) {
                 predicates.add(cb.equal(root.get("drawId"), query.drawId().value()));
             }

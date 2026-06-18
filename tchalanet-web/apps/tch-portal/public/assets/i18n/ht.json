@@ -1377,6 +1377,38 @@
       "2212": {
         "label": "Texas — 22:12"
       }
+    },
+    "mi": {
+      "mid": {
+        "label": "Michigan — Midi"
+      },
+      "eve": {
+        "label": "Michigan — Aswè"
+      }
+    },
+    "pa": {
+      "day": {
+        "label": "Pennsylvania — Jour"
+      },
+      "eve": {
+        "label": "Pennsylvania — Aswè"
+      }
+    },
+    "ca": {
+      "mid": {
+        "label": "California — Midi"
+      },
+      "eve": {
+        "label": "California — Aswè"
+      }
+    },
+    "nj": {
+      "mid": {
+        "label": "New Jersey — Midi"
+      },
+      "eve": {
+        "label": "New Jersey — Aswè"
+      }
     }
   },
   "catalog": {
