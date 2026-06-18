@@ -17,9 +17,7 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
-.nx/installation
-.nx/cache
-.nx/workspace-data
+**/.nx/
 
 
 .cursor/rules/nx-rules.mdc
