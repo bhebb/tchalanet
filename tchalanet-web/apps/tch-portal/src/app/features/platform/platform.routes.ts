@@ -7,6 +7,11 @@ export const platformRoutes: Route[] = [
       import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
+    path: 'overview',
+    loadComponent: () =>
+      import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
+  },
+  {
     path: 'tenants',
     loadComponent: () =>
       import('./pages/tenants/platform-tenants.page').then(m => m.PlatformTenantsPage),
@@ -30,7 +35,8 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'tenants/:tenantId',
-    redirectTo: 'tenants/:tenantId/admins',
+    loadComponent: () =>
+      import('./pages/tenants/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
   },
   {
     path: 'tenant-provisioning',
@@ -38,6 +44,18 @@ export const platformRoutes: Route[] = [
       import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
         m => m.PlatformTenantProvisioningPage,
       ),
+  },
+  {
+    path: 'tenant-onboarding',
+    loadComponent: () =>
+      import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
+        m => m.PlatformTenantProvisioningPage,
+      ),
+  },
+  {
+    path: 'subscriptions',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
   },
   {
     path: 'contact-requests',
@@ -48,8 +66,7 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'news',
-    loadComponent: () =>
-      import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+    loadComponent: () => import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
   },
   {
     path: 'notifications',
@@ -63,21 +80,33 @@ export const platformRoutes: Route[] = [
     loadComponent: () => import('./pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
   },
   {
+    path: 'ops/health',
+    loadComponent: () => import('./pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
+  },
+  {
     path: 'ops/batch',
     loadComponent: () =>
       import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
   },
   {
-    path: 'ops/draws',
+    path: 'ops/jobs',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
+  },
+  {
+    path: 'draws',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
+  },
+  {
+    path: 'draw-channels',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
   },
   {
     path: 'ops/draw-results',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-draw-results.page').then(
-        m => m.PlatformOpsDrawResultsPage,
-      ),
+      import('./pages/ops/platform-ops-draw-results.page').then(m => m.PlatformOpsDrawResultsPage),
   },
   {
     path: 'ops/cache',
@@ -87,26 +116,52 @@ export const platformRoutes: Route[] = [
   {
     path: 'ops/draw-lifecycle',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-draw-lifecycle.page').then(m => m.PlatformOpsDrawLifecyclePage),
+      import('./pages/ops/platform-ops-draw-lifecycle.page').then(
+        m => m.PlatformOpsDrawLifecyclePage,
+      ),
   },
   {
-    path: 'ops/settings',
+    path: 'settings',
     loadComponent: () =>
       import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
   },
   {
-    path: 'ops/i18n',
+    path: 'theme-presets',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
+    path: 'referentials',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
+    path: 'i18n',
     loadComponent: () =>
       import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
   },
   {
-    path: 'ops/pagemodels',
+    path: 'pagemodels',
     loadComponent: () =>
       import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
   },
   {
     path: 'audit',
+    loadComponent: () => import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+  },
+  {
+    path: 'communications',
     loadComponent: () =>
-      import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+      import('./pages/notifications/platform-notifications.page').then(
+        m => m.PlatformNotificationsPage,
+      ),
+  },
+  {
+    path: 'reports',
+    loadComponent: () => import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+  },
+  {
+    path: 'releases',
+    loadComponent: () => import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
   },
 ];

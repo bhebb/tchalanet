@@ -16,12 +16,42 @@ export const adminRoutes: Route[] = [
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
   },
   {
+    path: 'sellers',
+    loadComponent: () =>
+      import('./pages/sellers/admin-sellers.page').then(m => m.AdminSellersPage),
+  },
+  {
+    path: 'sellers/new',
+    loadComponent: () =>
+      import('./pages/sellers/admin-seller-new.page').then(m => m.AdminSellerNewPage),
+  },
+  {
+    path: 'sellers/:id',
+    loadComponent: () =>
+      import('./pages/sellers/admin-seller-detail.page').then(m => m.AdminSellerDetailPage),
+  },
+  {
+    path: 'outlets',
+    loadComponent: () =>
+      import('./pages/outlets/admin-outlets.page').then(m => m.AdminOutletsPage),
+  },
+  {
     path: 'terminals',
     loadComponent: () =>
       import('./pages/terminals/admin-terminals.page').then(m => m.AdminTerminalsPage),
   },
   {
+    path: 'sessions',
+    loadComponent: () =>
+      import('./pages/sessions/admin-sessions.page').then(m => m.AdminSessionsPage),
+  },
+  {
     path: 'games',
+    loadComponent: () =>
+      import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
+  },
+  {
+    path: 'games-pricing',
     loadComponent: () =>
       import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
   },
@@ -36,7 +66,43 @@ export const adminRoutes: Route[] = [
       import('./pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
   },
   {
+    path: 'controls',
+    loadComponent: () =>
+      import('./pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
+  },
+  {
+    path: 'controls/commission',
+    loadComponent: () =>
+      import('./pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
+  },
+  {
+    path: 'controls/baremes',
+    loadComponent: () =>
+      import('./pages/controls/admin-baremes.page').then(m => m.AdminBaremesPage),
+  },
+  {
+    path: 'controls/limits',
+    loadComponent: () =>
+      import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
+  },
+  {
+    path: 'controls/odds',
+    loadComponent: () =>
+      import('./pages/controls/admin-baremes.page').then(m => m.AdminBaremesPage),
+  },
+  {
+    path: 'controls/bonuses',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.admin.bonuses', icon: 'payments' },
+  },
+  {
     path: 'pricing',
+    loadComponent: () =>
+      import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
+  },
+  {
+    path: 'limits',
     loadComponent: () =>
       import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
   },
@@ -59,6 +125,40 @@ export const adminRoutes: Route[] = [
     path: 'subscription',
     loadComponent: () =>
       import('./pages/subscription/admin-subscription.page').then(m => m.AdminSubscriptionPage),
+  },
+  {
+    path: 'promotions',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.promotions', icon: 'local_activity' },
+  },
+  {
+    path: 'promotions/maryaj-gratis',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.admin.maryaj_free', icon: 'redeem' },
+  },
+  {
+    path: 'promotions/active',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.admin.active_promotions', icon: 'campaign' },
+  },
+  {
+    path: 'reports',
+    loadComponent: () =>
+      import('./pages/reports/admin-today-report.page').then(m => m.AdminTodayReportPage),
+  },
+  {
+    path: 'reports/today',
+    loadComponent: () =>
+      import('./pages/reports/admin-today-report.page').then(m => m.AdminTodayReportPage),
+  },
+  {
+    path: 'reports/export',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.admin.export_print', icon: 'print' },
   },
   {
     path: 'support/tickets',
@@ -84,5 +184,41 @@ export const adminRoutes: Route[] = [
     path: 'settings/config',
     loadComponent: () =>
       import('./pages/settings/admin-config.page').then(m => m.AdminConfigPage),
+  },
+  {
+    path: 'i18n',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.translations', icon: 'translate' },
+  },
+  {
+    path: 'appearance',
+    loadComponent: () =>
+      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+  },
+  {
+    path: 'pagemodels',
+    loadComponent: () =>
+      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'nav.pagemodels', icon: 'dashboard_customize' },
+  },
+  {
+    path: 'more',
+    loadComponent: () =>
+      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+  },
+  {
+    path: 'more/space',
+    loadComponent: () =>
+      import('./pages/onboarding/admin-onboarding.page').then(m => m.AdminOnboardingPage),
+  },
+  {
+    path: 'more/account',
+    loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
+  },
+  {
+    path: 'more/support',
+    loadComponent: () =>
+      import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
   },
 ];
