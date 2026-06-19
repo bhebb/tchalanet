@@ -2,6 +2,7 @@ package com.tchalanet.server.core.uslottery.internal.infra.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "tch.us-lottery")
+@ToString
 public class UsLotteryProperties {
 
     private boolean enabled = true;
@@ -25,6 +27,7 @@ public class UsLotteryProperties {
 
     @Getter
     @Setter
+    @ToString
     public static class ProviderProperties {
         private boolean enabled = true;
         private String baseUrl;

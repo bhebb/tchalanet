@@ -141,274 +141,89 @@
         "loading": "eager"
       }
     },
-    "primary": [
-      {
-        "id": "dashboard",
-        "type": "destination",
-        "label_key": "nav.dashboard",
-        "label": null,
-        "path": "/app/platform",
-        "kind": "internal",
-        "icon": "dashboard",
-        "image": null,
-        "active_match": "exact",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": []
-      },
-      {
-        "id": "platformOverview",
-        "type": "destination",
-        "label_key": "nav.platform_overview",
-        "label": null,
-        "path": "/app/platform/overview",
-        "kind": "internal",
-        "icon": "map",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": []
-      }
-    ],
+    "primary": [],
     "sections": [
       {
         "id": "platform",
-        "label_key": "nav.section.platform",
+        "label_key": "platform.nav.platform",
         "label": null,
         "items": [
+          {
+            "id": "overview",
+            "label_key": "platform.nav.overview",
+            "icon": "space_dashboard",
+            "children": [
+              { "id": "platform-dashboard", "label_key": "platform.nav.dashboard", "path": "/app/platform/dashboard", "kind": "internal", "icon": "dashboard", "active_match": "exact" },
+              { "id": "platform-health", "label_key": "platform.nav.health", "path": "/app/platform/health", "kind": "internal", "icon": "monitor_heart" }
+            ]
+          },
           {
             "id": "tenants",
-            "type": "destination",
-            "label_key": "nav.tenants",
-            "label": null,
-            "path": "/app/platform/tenants",
-            "kind": "internal",
-            "icon": "apartment",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "label_key": "platform.nav.tenantsGroup",
+            "icon": "business",
+            "children": [
+              { "id": "tenant-list", "label_key": "platform.nav.tenants", "path": "/app/platform/tenants", "kind": "internal", "icon": "domain", "active_match": "exact" },
+              { "id": "tenant-create", "label_key": "platform.nav.createTenant", "path": "/app/platform/tenants/new", "kind": "internal", "icon": "add_business" },
+              { "id": "tenant-onboarding", "label_key": "platform.nav.tenantOnboarding", "path": "/app/platform/tenants/onboarding", "kind": "internal", "icon": "playlist_add_check" },
+              { "id": "tenant-admins", "label_key": "platform.nav.tenantAdmins", "path": "/app/platform/tenant-admins", "kind": "internal", "icon": "admin_panel_settings" },
+              { "id": "tenant-subscriptions", "label_key": "platform.nav.subscriptions", "path": "/app/platform/subscriptions", "kind": "internal", "icon": "workspace_premium" },
+              { "id": "tenant-entitlements", "label_key": "platform.nav.entitlements", "path": "/app/platform/entitlements", "kind": "internal", "icon": "verified_user" }
+            ]
           },
           {
-            "id": "tenantOnboarding",
-            "type": "destination",
-            "label_key": "nav.tenant_onboarding",
-            "label": null,
-            "path": "/app/platform/tenant-onboarding",
-            "kind": "internal",
-            "icon": "playlist_add_check",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "references",
+            "label_key": "platform.nav.references",
+            "icon": "category",
+            "children": [
+              { "id": "catalog-games", "label_key": "platform.nav.games", "path": "/app/platform/catalog/games", "kind": "internal", "icon": "casino" },
+              { "id": "catalog-drawchannels", "label_key": "platform.nav.drawChannels", "path": "/app/platform/catalog/draw-channels", "kind": "internal", "icon": "calendar_month" },
+              { "id": "catalog-resultslots", "label_key": "platform.nav.resultSlots", "path": "/app/platform/catalog/result-slots", "kind": "internal", "icon": "view_timeline" },
+              { "id": "catalog-plans-pricing", "label_key": "platform.nav.plansPricing", "path": "/app/platform/catalog/plans-pricing", "kind": "internal", "icon": "payments" },
+              { "id": "catalog-settings", "label_key": "platform.nav.globalSettings", "path": "/app/platform/catalog/settings", "kind": "internal", "icon": "settings" },
+              { "id": "catalog-themes", "label_key": "platform.nav.themes", "path": "/app/platform/catalog/themes", "kind": "internal", "icon": "palette" },
+              { "id": "catalog-translations", "label_key": "platform.nav.translations", "path": "/app/platform/catalog/translations", "kind": "internal", "icon": "translate" },
+              { "id": "catalog-pagemodel-templates", "label_key": "platform.nav.pageModelTemplates", "path": "/app/platform/catalog/page-model-templates", "kind": "internal", "icon": "dashboard_customize" }
+            ]
           },
           {
-            "id": "subscriptions",
-            "type": "destination",
-            "label_key": "nav.subscriptions",
-            "label": null,
-            "path": "/app/platform/subscriptions",
-            "kind": "internal",
-            "icon": "workspace_premium",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "globalConfiguration",
-        "label_key": "nav.section.global_configuration",
-        "label": null,
-        "items": [
-          {
-            "id": "globalSettings",
-            "type": "destination",
-            "label_key": "nav.global_settings",
-            "label": null,
-            "path": "/app/platform/settings",
-            "kind": "internal",
-            "icon": "settings",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "operations",
+            "label_key": "platform.nav.operations",
+            "icon": "manufacturing",
+            "children": [
+              { "id": "ops-draw-results", "label_key": "platform.nav.drawResults", "path": "/app/platform/ops/draw-results", "kind": "internal", "icon": "fact_check" },
+              { "id": "ops-providers", "label_key": "platform.nav.providers", "path": "/app/platform/ops/providers", "kind": "internal", "icon": "cloud_sync" },
+              { "id": "ops-schedulers", "label_key": "platform.nav.schedulers", "path": "/app/platform/ops/schedulers", "kind": "internal", "icon": "schedule" },
+              { "id": "ops-cache", "label_key": "platform.nav.cache", "path": "/app/platform/ops/cache", "kind": "internal", "icon": "cached" },
+              { "id": "ops-archives", "label_key": "platform.nav.archives", "path": "/app/platform/ops/archives", "kind": "internal", "icon": "inventory_2" },
+              { "id": "ops-audit", "label_key": "platform.nav.audit", "path": "/app/platform/ops/audit", "kind": "internal", "icon": "assignment_turned_in" }
+            ]
           },
           {
-            "id": "globalTranslations",
-            "type": "destination",
-            "label_key": "nav.global_translations",
-            "label": null,
-            "path": "/app/platform/i18n",
-            "kind": "internal",
-            "icon": "translate",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "access",
+            "label_key": "platform.nav.accessRights",
+            "icon": "shield",
+            "children": [
+              { "id": "access-permissions", "label_key": "platform.nav.permissions", "path": "/app/platform/access/permissions", "kind": "internal", "icon": "key" },
+              { "id": "access-roles", "label_key": "platform.nav.roles", "path": "/app/platform/access/roles", "kind": "internal", "icon": "groups" },
+              { "id": "access-overrides", "label_key": "platform.nav.superAdminOverrides", "path": "/app/platform/access/overrides", "kind": "internal", "icon": "security" }
+            ]
           },
           {
-            "id": "themePresets",
-            "type": "destination",
-            "label_key": "nav.theme_presets",
-            "label": null,
-            "path": "/app/platform/theme-presets",
-            "kind": "internal",
-            "icon": "palette",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "communication",
+            "label_key": "platform.nav.communication",
+            "icon": "campaign",
+            "children": [
+              { "id": "communication-notifications", "label_key": "platform.nav.inAppNotifications", "path": "/app/platform/communication/notifications", "kind": "internal", "icon": "notifications" },
+              { "id": "communication-news", "label_key": "platform.nav.news", "path": "/app/platform/communication/news", "kind": "internal", "icon": "article" }
+            ]
           },
           {
-            "id": "referentials",
-            "type": "destination",
-            "label_key": "nav.referentials",
-            "label": null,
-            "path": "/app/platform/referentials",
-            "kind": "internal",
-            "icon": "dataset",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          },
-          {
-            "id": "globalDrawChannels",
-            "type": "destination",
-            "label_key": "nav.global_draw_channels",
-            "label": null,
-            "path": "/app/platform/draw-channels",
-            "kind": "internal",
-            "icon": "event",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "operations",
-        "label_key": "nav.section.operations",
-        "label": null,
-        "items": [
-          {
-            "id": "platformHealth",
-            "type": "destination",
-            "label_key": "nav.platform_health",
-            "label": null,
-            "path": "/app/platform/ops/health",
-            "kind": "internal",
-            "icon": "monitor_heart",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          },
-          {
-            "id": "jobsSchedulers",
-            "type": "destination",
-            "label_key": "nav.jobs_schedulers",
-            "label": null,
-            "path": "/app/platform/ops/jobs",
-            "kind": "internal",
-            "icon": "schedule",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          },
-          {
-            "id": "cache",
-            "type": "destination",
-            "label_key": "nav.cache",
-            "label": null,
-            "path": "/app/platform/ops/cache",
-            "kind": "internal",
-            "icon": "cached",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          },
-          {
-            "id": "audit",
-            "type": "destination",
-            "label_key": "nav.audit",
-            "label": null,
-            "path": "/app/platform/audit",
-            "kind": "internal",
-            "icon": "fact_check",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          },
-          {
-            "id": "communications",
-            "type": "destination",
-            "label_key": "nav.notifications_communications",
-            "label": null,
-            "path": "/app/platform/communications",
-            "kind": "internal",
-            "icon": "notifications",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "reports",
-        "label_key": "nav.section.reports",
-        "label": null,
-        "items": [
-          {
-            "id": "platformReports",
-            "type": "destination",
-            "label_key": "nav.platform_reports",
-            "label": null,
-            "path": "/app/platform/reports",
-            "kind": "internal",
-            "icon": "assessment",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "reports",
+            "label_key": "platform.nav.reports",
+            "icon": "bar_chart",
+            "children": [
+              { "id": "platform-reports", "label_key": "platform.nav.platformReports", "path": "/app/platform/reports", "kind": "internal", "icon": "analytics" }
+            ]
           }
         ]
       }

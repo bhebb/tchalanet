@@ -7,6 +7,15 @@ export const platformRoutes: Route[] = [
       import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
+  },
+  {
+    path: 'health',
+    loadComponent: () => import('./pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
+  },
+  {
     path: 'overview',
     loadComponent: () =>
       import('../dashboard/private-dashboard.page').then(m => m.PrivateDashboardPage),
@@ -20,6 +29,13 @@ export const platformRoutes: Route[] = [
     path: 'tenants/new',
     loadComponent: () =>
       import('./pages/tenants/platform-tenant-create.page').then(m => m.PlatformTenantCreatePage),
+  },
+  {
+    path: 'tenants/onboarding',
+    loadComponent: () =>
+      import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
+        m => m.PlatformTenantProvisioningPage,
+      ),
   },
   {
     path: 'tenants/:tenantId/admins',
@@ -53,9 +69,24 @@ export const platformRoutes: Route[] = [
       ),
   },
   {
+    path: 'tenant-admins',
+    loadComponent: () =>
+      import('./pages/tenants/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
+  },
+  {
     path: 'subscriptions',
     loadComponent: () =>
       import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
+    path: 'entitlements',
+    data: {
+      titleKey: 'platform.nav.entitlements',
+      descriptionKey: 'platform.placeholder.descriptions.entitlements',
+      icon: 'verified_user',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
     path: 'contact-requests',
@@ -94,6 +125,35 @@ export const platformRoutes: Route[] = [
       import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
   },
   {
+    path: 'ops/schedulers',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
+  },
+  {
+    path: 'ops/providers',
+    data: {
+      titleKey: 'platform.nav.providers',
+      descriptionKey: 'platform.placeholder.descriptions.providers',
+      icon: 'cloud_sync',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'ops/archives',
+    data: {
+      titleKey: 'platform.nav.archives',
+      descriptionKey: 'platform.placeholder.descriptions.archives',
+      icon: 'inventory_2',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'ops/audit',
+    loadComponent: () => import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+  },
+  {
     path: 'draws',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
@@ -126,7 +186,17 @@ export const platformRoutes: Route[] = [
       import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
   },
   {
+    path: 'catalog/settings',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
     path: 'theme-presets',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
+    path: 'catalog/themes',
     loadComponent: () =>
       import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
   },
@@ -136,12 +206,52 @@ export const platformRoutes: Route[] = [
       import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
   },
   {
+    path: 'catalog/games',
+    data: {
+      titleKey: 'platform.nav.games',
+      descriptionKey: 'platform.placeholder.descriptions.games',
+      icon: 'casino',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'catalog/draw-channels',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
+  },
+  {
+    path: 'catalog/result-slots',
+    data: {
+      titleKey: 'platform.nav.resultSlots',
+      descriptionKey: 'platform.placeholder.descriptions.resultSlots',
+      icon: 'view_timeline',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'catalog/plans-pricing',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+  },
+  {
     path: 'i18n',
     loadComponent: () =>
       import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
   },
   {
+    path: 'catalog/translations',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
+  },
+  {
     path: 'pagemodels',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
+  },
+  {
+    path: 'catalog/page-model-templates',
     loadComponent: () =>
       import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
   },
@@ -155,6 +265,47 @@ export const platformRoutes: Route[] = [
       import('./pages/notifications/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
+  },
+  {
+    path: 'communication/notifications',
+    loadComponent: () =>
+      import('./pages/notifications/platform-notifications.page').then(
+        m => m.PlatformNotificationsPage,
+      ),
+  },
+  {
+    path: 'communication/news',
+    loadComponent: () => import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+  },
+  {
+    path: 'access/permissions',
+    data: {
+      titleKey: 'platform.nav.permissions',
+      descriptionKey: 'platform.placeholder.descriptions.permissions',
+      icon: 'key',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'access/roles',
+    data: {
+      titleKey: 'platform.nav.roles',
+      descriptionKey: 'platform.placeholder.descriptions.roles',
+      icon: 'groups',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'access/overrides',
+    data: {
+      titleKey: 'platform.nav.superAdminOverrides',
+      descriptionKey: 'platform.placeholder.descriptions.overrides',
+      icon: 'security',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
     path: 'reports',
