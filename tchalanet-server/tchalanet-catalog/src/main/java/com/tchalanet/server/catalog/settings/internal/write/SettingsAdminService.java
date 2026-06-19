@@ -147,9 +147,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
             request.valueType(),
             request.level(),
             request.exposure(),
-            request.tenantId(),
-            request.outletId(),
-            request.terminalId()));
+            request.tenantId()));
   }
 
   @Override
@@ -173,8 +171,6 @@ public class SettingsAdminService implements SettingsAdminCatalog {
             ? request.exposure()
             : com.tchalanet.server.catalog.settings.api.model.SettingExposure.INTERNAL);
         entity.setTenantId(request.tenantId() != null ? request.tenantId().value() : null);
-        entity.setOutletId(request.outletId() != null ? request.outletId().value() : null);
-        entity.setTerminalId(request.terminalId() != null ? request.terminalId().value() : null);
         entity.setActive(true);
         return entity;
     }
@@ -254,16 +250,12 @@ public class SettingsAdminService implements SettingsAdminCatalog {
 
   private void checkUniqueness(CreateSettingRequest request) {
     UUID tenantId = request.tenantId() != null ? request.tenantId().value() : null;
-    UUID outletId = request.outletId() != null ? request.outletId().value() : null;
-    UUID terminalId = request.terminalId() != null ? request.terminalId().value() : null;
 
     var existing =
         repository
-            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndTerminalIdAndNamespaceAndSettingKey(
+            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
                 request.level(),
                 tenantId,
-                outletId,
-                terminalId,
                 request.namespace(),
                 request.settingKey());
 
@@ -281,31 +273,13 @@ public class SettingsAdminService implements SettingsAdminCatalog {
   private void validateLevelRequirements(CreateSettingRequest request) {
     switch (request.level()) {
       case GLOBAL -> {
-        if (request.tenantId() != null
-            || request.outletId() != null
-            || request.terminalId() != null) {
-          throw new IllegalArgumentException("GLOBAL level must not have tenant/outlet/terminal");
+        if (request.tenantId() != null) {
+          throw new IllegalArgumentException("GLOBAL level must not have tenant");
         }
       }
       case TENANT -> {
         if (request.tenantId() == null) {
           throw new IllegalArgumentException("TENANT level requires tenantId");
-        }
-        if (request.outletId() != null || request.terminalId() != null) {
-          throw new IllegalArgumentException("TENANT level must not have outlet/terminal");
-        }
-      }
-      case OUTLET -> {
-        if (request.tenantId() == null || request.outletId() == null) {
-          throw new IllegalArgumentException("OUTLET level requires tenantId and outletId");
-        }
-        if (request.terminalId() != null) {
-          throw new IllegalArgumentException("OUTLET level must not have id");
-        }
-      }
-      case TERMINAL -> {
-        if (request.tenantId() == null || request.terminalId() == null) {
-          throw new IllegalArgumentException("TERMINAL level requires tenantId and id");
         }
       }
     }

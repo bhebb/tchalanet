@@ -15,13 +15,14 @@ public class DefaultHaitiProjectionConfigAdapter implements HaitiProjectionConfi
 
   @Override
   public HaitiProjectionConfig getDefault() {
-    var tokens = new EnumMap<HaitiLot, HaitiProjectionToken>(HaitiLot.class);
-    // Exemple : LOT1..LOT4 mapping (à ajuster selon tes vraies règles)
-    tokens.put(HaitiLot.LOT1, HaitiProjectionToken.PICK3_FULL_3);
-    tokens.put(HaitiLot.LOT2, HaitiProjectionToken.PICK3_FIRST2);
-    tokens.put(HaitiLot.LOT3, HaitiProjectionToken.PICK3_LAST2);
-    tokens.put(HaitiLot.LOT4, HaitiProjectionToken.PICK3_FIRST2);
-    return new HaitiProjectionConfig(tokens);
+      var tokens = new EnumMap<HaitiLot, HaitiProjectionToken>(HaitiLot.class);
+
+      tokens.put(HaitiLot.LOT1, HaitiProjectionToken.PICK3_FULL_3);
+      tokens.put(HaitiLot.LOT2, HaitiProjectionToken.PICK4_FIRST2);
+      tokens.put(HaitiLot.LOT3, HaitiProjectionToken.PICK4_LAST2);
+      tokens.put(HaitiLot.LOT4, HaitiProjectionToken.PICK3_FIRST2);
+
+      return new HaitiProjectionConfig(tokens);
   }
 
   @Override

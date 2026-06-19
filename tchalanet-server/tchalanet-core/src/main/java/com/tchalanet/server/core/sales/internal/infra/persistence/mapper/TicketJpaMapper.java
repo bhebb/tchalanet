@@ -1,19 +1,10 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
-import com.tchalanet.server.common.types.id.SellerId;
-import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
-import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
-import com.tchalanet.server.common.types.id.OfflineSubmissionId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
@@ -187,14 +178,8 @@ public interface TicketJpaMapper {
 
     default TicketContext toContext(TicketJpaEntity entity) {
         return new TicketContext(
-            OutletId.nullableOf(entity.getOutletId()),
-            TerminalId.nullableOf(entity.getTerminalId()),
-            UserId.nullableOf(entity.getSellerUserId()),
-            SalesSessionId.nullableOf(entity.getSalesSessionId()),
             DrawId.of(entity.getDrawId()),
             DrawChannelId.of(entity.getDrawChannelId()),
-            SellerId.nullableOf(entity.getSellerId()),
-            SellerOutletAssignmentId.nullableOf(entity.getSellerAssignmentId()),
             SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
             entity.getSellerCommissionRateSnapshot(),
             entity.getSellerCommissionAmountSnapshot()
@@ -264,15 +249,7 @@ public interface TicketJpaMapper {
     }
 
     default PaymentTrace toPaymentTrace(TicketJpaEntity entity) {
-        if (entity.getPaidAt() == null && entity.getPaidBy() == null) {
-            return null;
-        }
-
-        return new PaymentTrace(
-            PayoutId.of(entity.getPayoutId()),
-            entity.getPaidAt(),
-            nullableUserId(entity.getPaidBy())
-        );
+        return null;
     }
 
     default ApprovalTrace toApprovalTrace(TicketJpaEntity entity) {
@@ -333,29 +310,7 @@ public interface TicketJpaMapper {
     }
 
     default OfflineSaleRef toOfflineSaleRef(TicketJpaEntity entity) {
-        if (entity.getOfflineSubmissionId() == null) {
-            return null;
-        }
-
-        if (entity.getOfflineCodeBatchId() == null
-            || entity.getOfflineCode() == null
-            || entity.getOfflineClientSaleId() == null
-            || entity.getOfflineLocalSequence() == null
-            || entity.getOfflineSoldAtDevice() == null
-            || entity.getOfflineSyncStatus() == null) {
-            throw new IllegalStateException("Incomplete offline sale reference for ticket " + entity.getId());
-        }
-
-        return new OfflineSaleRef(
-            OfflineSubmissionId.of(entity.getOfflineSubmissionId()),
-            null,
-            OfflineCodeBatchId.of(entity.getOfflineCodeBatchId()),
-            entity.getOfflineCode(),
-            entity.getOfflineClientSaleId(),
-            entity.getOfflineLocalSequence(),
-            entity.getOfflineSoldAtDevice(),
-            entity.getOfflineSyncStatus()
-        );
+        return null;
     }
 
     default TicketPrintState toPrintState(TicketJpaEntity entity) {
@@ -423,14 +378,8 @@ public interface TicketJpaMapper {
     }
 
     default void applyContext(TicketContext context, @MappingTarget TicketJpaEntity entity) {
-        entity.setOutletId(context.outletId() == null ? null : context.outletId().value());
-        entity.setTerminalId(context.terminalId() == null ? null : context.terminalId().value());
-        entity.setSellerUserId(context.sellerUserId() == null ? null : context.sellerUserId().value());
-        entity.setSalesSessionId(context.salesSessionId() == null ? null : context.salesSessionId().value());
         entity.setDrawId(context.drawId().value());
         entity.setDrawChannelId(context.drawChannelId().value());
-        entity.setSellerId(context.sellerId() == null ? null : context.sellerId().value());
-        entity.setSellerAssignmentId(context.sellerAssignmentId() == null ? null : context.sellerAssignmentId().value());
         entity.setSellerTerminalId(context.sellerTerminalId() == null ? null : context.sellerTerminalId().value());
         entity.setSellerCommissionRateSnapshot(context.sellerCommissionRateSnapshot());
         entity.setSellerCommissionAmountSnapshot(context.sellerCommissionAmountSnapshot());
@@ -520,39 +469,15 @@ public interface TicketJpaMapper {
         if (settlement.payment() == null) {
             entity.setPaidAt(null);
             entity.setPaidBy(null);
-            entity.setPayoutId(null);
             return;
         }
 
         entity.setPaidAt(settlement.payment().paidAt());
         entity.setPaidBy(value(settlement.payment().paidBy()));
-        entity.setPayoutId(settlement.payment().payoutId().value());
     }
 
     default void applyOrigin(TicketOrigin origin, @MappingTarget TicketJpaEntity entity) {
         entity.setSaleChannel(origin.channel());
-        applyOfflineSaleRef(origin.offlineRef(), entity);
-    }
-
-    default void applyOfflineSaleRef(OfflineSaleRef ref, @MappingTarget TicketJpaEntity entity) {
-        if (ref == null) {
-            entity.setOfflineSubmissionId(null);
-            entity.setOfflineCodeBatchId(null);
-            entity.setOfflineCode(null);
-            entity.setOfflineClientSaleId(null);
-            entity.setOfflineLocalSequence(null);
-            entity.setOfflineSoldAtDevice(null);
-            entity.setOfflineSyncStatus(null);
-            return;
-        }
-
-        entity.setOfflineSubmissionId(ref.submissionId().value());
-        entity.setOfflineCodeBatchId(ref.codeBatchId().value());
-        entity.setOfflineCode(ref.offlineCode());
-        entity.setOfflineClientSaleId(ref.clientSaleId());
-        entity.setOfflineLocalSequence(ref.localSequence());
-        entity.setOfflineSoldAtDevice(ref.soldAtDevice());
-        entity.setOfflineSyncStatus(ref.syncStatus());
     }
 
     default void applyPrintState(TicketPrintState print, @MappingTarget TicketJpaEntity entity) {

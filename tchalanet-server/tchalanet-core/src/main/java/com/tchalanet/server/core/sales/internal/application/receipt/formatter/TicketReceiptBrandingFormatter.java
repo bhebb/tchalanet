@@ -38,13 +38,12 @@ public class TicketReceiptBrandingFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
         addBranding(lines, firstNonBlank(receipt.tenantDisplayName(), "TCHALANET"), receipt.tenantReceiptHeader(), tenantMode);
-        addBranding(lines, receipt.outletName(), receipt.outletReceiptHeader(), outletMode);
+        addBranding(lines, receipt.sellerDisplayName(), receipt.outletReceiptHeader(), outletMode);
         return List.copyOf(lines);
     }
 
     public List<TicketReceiptTextLine> footerLines(TicketReceiptView receipt) {
         var lines = new ArrayList<TicketReceiptTextLine>();
-        add(lines, receipt.outletReceiptFooter(), false);
         add(lines, receipt.tenantReceiptFooter(), false);
         return List.copyOf(lines);
     }

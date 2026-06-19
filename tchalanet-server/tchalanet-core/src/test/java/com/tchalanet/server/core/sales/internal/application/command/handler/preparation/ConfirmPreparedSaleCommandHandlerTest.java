@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.pre
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.time.TimeProvider;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.command.preparation.ConfirmPreparedSaleCommand;
@@ -63,7 +64,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
 
     private SalePreparation draft(Instant expiresAt) {
         return new SalePreparation(
-            PREP_ID, SalePreparationStatus.DRAFT, null, null, null, UUID.randomUUID(),
+            PREP_ID, SalePreparationStatus.DRAFT, SellerTerminalId.of(UUID.randomUUID()), UUID.randomUUID(),
             "hash",
             Map.of(
                 "drawId", UUID.randomUUID().toString(),
@@ -84,7 +85,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
     private static SellTicketResult soldResult() {
         var ticket = new SoldTicketView(
             TicketId.of(TICKET_ID), "TCK-1", "PUB-1", "PUB-1", null,
-            null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, SellerTerminalId.of(UUID.randomUUID()),
             null, null, null, NOW, NOW);
         return new SellTicketResult(ticket, SellTicketOutcome.ACCEPTED, null, List.of());
     }

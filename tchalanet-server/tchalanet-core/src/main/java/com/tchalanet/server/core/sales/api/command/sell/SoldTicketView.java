@@ -1,11 +1,8 @@
 package com.tchalanet.server.core.sales.api.command.sell;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
@@ -25,10 +22,7 @@ public record SoldTicketView(
     TicketSettlementStatus settlementStatus,
     TicketSaleChannel saleChannel,
     DrawId drawId,
-    OutletId outletId,
-    TerminalId terminalId,
-    SalesSessionId salesSessionId,
-    UserId sellerUserId,
+    SellerTerminalId sellerTerminalId,
     Money totalAmount,
     Money potentialPayoutAmount,
     TicketPrintStatus printStatus,

@@ -18,24 +18,14 @@ CREATE TRIGGER trg_draw_channel__set_updated_at BEFORE UPDATE ON draw_channel FO
 CREATE TRIGGER trg_draw_channel_game__set_updated_at BEFORE UPDATE ON draw_channel_game FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_draw_result__set_updated_at BEFORE UPDATE ON draw_result FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_draw__set_updated_at BEFORE UPDATE ON draw FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_outlet__set_updated_at BEFORE UPDATE ON outlet FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_terminal__set_updated_at BEFORE UPDATE ON terminal FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_terminal_capability__set_updated_at BEFORE UPDATE ON terminal_capability FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_terminal_assignment__set_updated_at BEFORE UPDATE ON terminal_assignment FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_terminal_binding__set_updated_at BEFORE UPDATE ON terminal_binding FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_terminal_challenge__set_updated_at BEFORE UPDATE ON terminal_challenge FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_sales_session__set_updated_at BEFORE UPDATE ON sales_session FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_pricing_odds__set_updated_at BEFORE UPDATE ON pricing_odds FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_payout__set_updated_at BEFORE UPDATE ON payout FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_billing_plan__set_updated_at BEFORE UPDATE ON billing_plan FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_tenant_subscription__set_updated_at BEFORE UPDATE ON tenant_subscription FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_page_model_template__set_updated_at BEFORE UPDATE ON page_model_template FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_page_model__set_updated_at BEFORE UPDATE ON page_model FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_audit_event__set_updated_at BEFORE UPDATE ON audit_event FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_autonomy_policy_rule__set_updated_at BEFORE UPDATE ON autonomy_policy_rule FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_limit_assignment__set_updated_at BEFORE UPDATE ON limit_assignment FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_draw_exposure__set_updated_at BEFORE UPDATE ON draw_exposure FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_ledger_entry__set_updated_at BEFORE UPDATE ON ledger_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_tchala_entry__set_updated_at BEFORE UPDATE ON tchala_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_notification__set_updated_at BEFORE UPDATE ON notification FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_notification_delivery__set_updated_at BEFORE UPDATE ON notification_delivery FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -51,16 +41,6 @@ CREATE TRIGGER trg_stats_daily__set_updated_at BEFORE UPDATE ON stats_daily FOR 
 CREATE TRIGGER trg_sales_ticket__set_updated_at BEFORE UPDATE ON sales_ticket FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_ticket_line__set_updated_at BEFORE UPDATE ON sales_ticket_line FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_ticket_charge__set_updated_at BEFORE UPDATE ON sales_ticket_charge FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_grant__set_updated_at BEFORE UPDATE ON offline_grant FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_sync_batch__set_updated_at BEFORE UPDATE ON offline_sync_batch FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_code_batch__set_updated_at BEFORE UPDATE ON offline_code_batch FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_submission__set_updated_at BEFORE UPDATE ON offline_submission FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_submission_line__set_updated_at BEFORE UPDATE ON offline_submission_line FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_code__set_updated_at BEFORE UPDATE ON offline_code FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_submission_ticket_link__set_updated_at BEFORE UPDATE ON offline_submission_ticket_link FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_submission_decision__set_updated_at BEFORE UPDATE ON offline_submission_decision FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_tenant_offline_policy__set_updated_at BEFORE UPDATE ON tenant_offline_policy FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
 CREATE OR REPLACE FUNCTION public.increment_draw_exposure(
   p_tenant_id uuid,
   p_draw_id uuid,

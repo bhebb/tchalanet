@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import com.tchalanet.server.core.sales.internal.application.port.out.preparation.SalePreparationStorePort;
@@ -26,9 +27,7 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
     public SalePreparation create(SalePreparation preparation) {
         var entity = new SalePreparationJpaEntity();
         entity.setId(preparation.id());
-        entity.setSellerId(preparation.sellerId());
-        entity.setSessionId(preparation.sessionId());
-        entity.setTerminalId(preparation.terminalId());
+        entity.setSellerTerminalId(preparation.sellerTerminalId().value());
         entity.setDrawId(preparation.drawId());
         entity.setStatus(preparation.status());
         entity.setInputHash(preparation.inputHash());
@@ -111,9 +110,7 @@ class SalePreparationJpaAdapter implements SalePreparationStorePort {
         return new SalePreparation(
             entity.getId(),
             entity.getStatus(),
-            entity.getSellerId(),
-            entity.getSessionId(),
-            entity.getTerminalId(),
+            SellerTerminalId.of(entity.getSellerTerminalId()),
             entity.getDrawId(),
             entity.getInputHash(),
             entity.getPaidLinesJson(),

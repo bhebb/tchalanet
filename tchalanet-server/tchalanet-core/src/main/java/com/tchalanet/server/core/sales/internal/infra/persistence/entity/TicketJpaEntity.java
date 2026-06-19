@@ -4,7 +4,6 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import org.hibernate.annotations.Formula;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
-import com.tchalanet.server.core.sales.api.model.status.OfflineSyncStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
@@ -63,22 +62,14 @@ import java.util.UUID;
             columnList = "tenant_id"),
         @Index(name = "idx_sales_ticket_tenant_draw",
             columnList = "tenant_id, draw_id"),
-        @Index(name = "idx_sales_ticket_tenant_session",
-            columnList = "tenant_id, sales_session_id"),
-        @Index(name = "idx_sales_ticket_tenant_seller",
-            columnList = "tenant_id, seller_user_id"),
-        @Index(name = "idx_sales_ticket_tenant_outlet",
-            columnList = "tenant_id, outlet_id"),
-        @Index(name = "idx_sales_ticket_tenant_terminal",
-            columnList = "tenant_id, terminal_id"),
+        @Index(name = "idx_sales_ticket_tenant_seller_terminal",
+            columnList = "tenant_id, seller_terminal_id"),
         @Index(name = "idx_sales_ticket_tenant_sale_status",
             columnList = "tenant_id, sale_status"),
         @Index(name = "idx_sales_ticket_tenant_result_status",
             columnList = "tenant_id, result_status"),
         @Index(name = "idx_sales_ticket_tenant_settlement_status",
             columnList = "tenant_id, settlement_status"),
-        @Index(name = "idx_sales_ticket_offline_submission",
-            columnList = "tenant_id, offline_submission_id"),
         @Index(name = "idx_sales_ticket_sold_at_desc",
             columnList = "tenant_id, sold_at DESC")
     },
@@ -101,18 +92,6 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
     // -------------------- Context --------------------
 
-    @Column(name = "outlet_id", columnDefinition = "uuid")
-    private UUID outletId;
-
-    @Column(name = "terminal_id", columnDefinition = "uuid")
-    private UUID terminalId;
-
-    @Column(name = "seller_user_id", columnDefinition = "uuid")
-    private UUID sellerUserId;
-
-    @Column(name = "sales_session_id", columnDefinition = "uuid")
-    private UUID salesSessionId;
-
     @Column(name = "draw_id", nullable = false, columnDefinition = "uuid")
     private UUID drawId;
 
@@ -128,12 +107,6 @@ public class TicketJpaEntity extends BaseTenantEntity {
     @NotAudited
     @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")
     private java.time.Instant drawScheduledAt;
-
-    @Column(name = "seller_id", columnDefinition = "uuid")
-    private UUID sellerId;
-
-    @Column(name = "seller_assignment_id", columnDefinition = "uuid")
-    private UUID sellerAssignmentId;
 
     @Column(name = "seller_terminal_id", columnDefinition = "uuid")
     private UUID sellerTerminalId;
@@ -259,40 +232,11 @@ public class TicketJpaEntity extends BaseTenantEntity {
     @Column(name = "paid_by", columnDefinition = "uuid")
     private UUID paidBy;
 
-    @Column(name = "payout_id", columnDefinition = "uuid")
-    private UUID payoutId;
-
     // -------------------- Origin --------------------
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_channel", nullable = false, length = 32)
     private TicketSaleChannel saleChannel;
-
-    // Offline sale ref — all null unless saleChannel == POS_OFFLINE_SYNCED
-    @Column(name = "offline_submission_id", columnDefinition = "uuid")
-    private UUID offlineSubmissionId;
-
-    @Column(name = "offline_batch_id", columnDefinition = "uuid")
-    private UUID offlineBatchId;
-
-    @Column(name = "offline_code_batch_id", columnDefinition = "uuid")
-    private UUID offlineCodeBatchId;
-
-    @Column(name = "offline_code", length = 64)
-    private String offlineCode;
-
-    @Column(name = "offline_client_sale_id", length = 64)
-    private String offlineClientSaleId;
-
-    @Column(name = "offline_local_sequence")
-    private Long offlineLocalSequence;
-
-    @Column(name = "offline_sold_at_device")
-    private Instant offlineSoldAtDevice;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "offline_sync_status", length = 48)
-    private OfflineSyncStatus offlineSyncStatus;
 
     // -------------------- Print --------------------
 

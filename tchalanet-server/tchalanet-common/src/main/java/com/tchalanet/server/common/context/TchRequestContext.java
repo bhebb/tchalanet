@@ -252,6 +252,14 @@ public record TchRequestContext(
         return UserId.of(appUserId);
     }
 
+    public SellerTerminalId sellerTerminalIdRequired() {
+        if (sellerTerminalId == null) {
+            throw ProblemRest.unprocessable(
+                "seller_terminal.required: sellerTerminalId is required");
+        }
+        return sellerTerminalId;
+    }
+
     public TchRequestContext withTenantContext(TenantContextInfo info) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode,

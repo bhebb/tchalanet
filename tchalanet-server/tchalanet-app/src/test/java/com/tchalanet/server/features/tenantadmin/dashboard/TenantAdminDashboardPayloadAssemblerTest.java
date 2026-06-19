@@ -12,14 +12,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
-import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
-import com.tchalanet.server.core.outlet.api.query.OutletView;
-import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
-import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
-import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
-import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
-import com.tchalanet.server.core.terminal.api.model.SellerTerminalCommissionStatsView;
-import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalCommissionStatsQuery;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
+import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
@@ -81,9 +75,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
     @DisplayName("header includes tenant catalog data when available")
     void headerEnriched() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.of(registry()));
-        when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+        when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
         when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
@@ -108,9 +100,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
         when(queryBus.ask(any(GetTenantDashboardStatsQuery.class))).thenReturn(statsView);
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
-        when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+        when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
         when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
@@ -128,9 +118,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
     @DisplayName("readiness is MISSING when every bundle is empty")
     void readinessMissing() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
-        when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
-        when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+        when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
         when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
@@ -138,18 +126,14 @@ class TenantAdminDashboardPayloadAssemblerTest {
         var payload = assembler.assemble(context(tenantId));
 
         assertThat(payload.readiness().status()).isEqualTo("MISSING");
-        assertThat(payload.readiness().missingCount()).isEqualTo(6);
+        assertThat(payload.readiness().missingCount()).isEqualTo(5);
     }
 
     @Test
     @DisplayName("operations + commercial counts derived from grouped bundles")
     void operationsAndCommercial() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.of(registry()));
-        when(queryBus.ask(any(ListOutletsByTenantQuery.class)))
-            .thenReturn(List.of(mock(OutletView.class), mock(OutletView.class)));
-        when(queryBus.ask(any(ListSellersQuery.class)))
-            .thenReturn(List.of(mock(SellerSummaryView.class)));
-        when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(pageWithTotal(3L));
+        when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(pageWithTotal(3L));
         when(gameCatalog.listActive()).thenReturn(List.of(mock(GameView.class)));
         when(drawChannelCatalog.listAll(any(), any()))
             .thenReturn(List.of(mock(DrawChannelSummaryView.class), mock(DrawChannelSummaryView.class)));
@@ -157,16 +141,15 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
         var payload = assembler.assemble(context(tenantId));
 
-        assertThat(payload.operations().outlets().count()).isEqualTo(2);
+        assertThat(payload.operations().outlets().status()).isEqualTo("PARKED");
+        assertThat(payload.operations().outlets().count()).isZero();
         assertThat(payload.operations().terminals().count()).isEqualTo(3L);
         assertThat(payload.operations().users().count()).isEqualTo(1);
         assertThat(payload.commercial().gamesPricing().count()).isEqualTo(1);
         assertThat(payload.commercial().drawChannels().count()).isEqualTo(2);
 
         // Single bundle invocation — each grouped read called exactly once per assemble.
-        verify(queryBus, times(1)).ask(any(ListOutletsByTenantQuery.class));
-        verify(queryBus, times(1)).ask(any(ListSellersQuery.class));
-        verify(queryBus, times(1)).ask(any(ListTerminalsQuery.class));
+        verify(queryBus, times(1)).ask(any(ListSellerTerminalsQuery.class));
         verify(gameCatalog, times(1)).listActive();
         verify(drawChannelCatalog, times(1)).listAll(any(), any());
     }
@@ -196,7 +179,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
             null,
-        null, null, null, null, null);
+            null, null, null, null, null);
     }
 
     private TenantContextLookupView registry() {
@@ -210,12 +193,12 @@ class TenantAdminDashboardPayloadAssemblerTest {
     }
 
     @SuppressWarnings("unchecked")
-    private TchPage<TerminalSummaryView> emptyPage() {
+    private TchPage<SellerTerminalSummaryRow> emptyPage() {
         return new TchPage<>(List.of(), 0, 1, 0L, 0, true, false, false);
     }
 
     @SuppressWarnings("unchecked")
-    private TchPage<TerminalSummaryView> pageWithTotal(long total) {
+    private TchPage<SellerTerminalSummaryRow> pageWithTotal(long total) {
         return new TchPage<>(List.of(), 0, 1, total, 1, true, false, false);
     }
 }

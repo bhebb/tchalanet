@@ -22,8 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Regenerate guards: DRAFT non expirée, ligne PROMOTION régénérable,
- * compteur < max. Remplace la sélection (pas d'historique de lignes) ;
- * chaque régénération est auditée (actor/session/terminal).
+ * compteur < max. Remplace la sélection (pas d'historique de lignes).
  */
 @UseCase
 @RequiredArgsConstructor
@@ -65,10 +64,9 @@ public class RegenerateSalePreparationPromotionLineCommandHandler
             preparation.id(), line.lineRef(), selection.key().value(), line.regenerationCount() + 1);
 
         var ctx = TchContext.currentOrNull();
-        log.info("sales: promotion line regenerated preparation={} lineRef={} count={} actor={} session={} terminal={}",
+        log.info("sales: promotion line regenerated preparation={} lineRef={} count={} actor={}",
             preparation.id(), line.lineRef(), line.regenerationCount() + 1,
-            ctx == null ? null : ctx.userId(),
-            preparation.sessionId(), preparation.terminalId());
+            ctx == null ? null : ctx.userId());
 
         var reloaded = store.findById(preparation.id()).orElseThrow();
         return assembler.toView(reloaded);

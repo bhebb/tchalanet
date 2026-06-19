@@ -9,9 +9,7 @@ import java.util.List;
  * current tenant within the next {@code lookaheadHours} hours. Tenant scope is inferred
  * from the request context (RLS-filtered).
  *
- * <p>Used notably by {@code core.offlinesync} when issuing a grant: the response embeds the
- * list of draws the cashier is allowed to sell offline against, so the POS device can pin
- * a {@code drawId} on each offline sale.
+ * <p>Used by sales surfaces that need channel and game metadata to validate a sale.
  *
  * @param lookaheadHours  forward window (typically days × 24)
  * @param limit           hard cap on the returned list size (1..200 enforced by the handler)

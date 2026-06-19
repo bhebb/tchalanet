@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Returns the next upcoming draws for the current tenant across all channels.
- * Used notably by {@code core.offlinesync} to embed a list of allowed draws in a fresh grant.
+ * Used by sales surfaces to embed a list of allowed draws.
  */
 @UseCase
 @RequiredArgsConstructor

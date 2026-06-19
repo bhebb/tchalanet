@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.sel
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -12,6 +11,7 @@ import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
@@ -36,7 +36,7 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContex
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
-import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalForSaleValidationQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalForSaleValidationQuery;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -85,33 +85,23 @@ public class SellTicketCommandHandler
             );
         }
 
-        // 2. Build ticket context — branch on actor type.
-        TicketContext ticketContext;
-        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
-            var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
-                tenantId, ctx.sellerTerminalId()));
-            var commissionAmount = prepared.moneyBreakdown().stake().amount()
-                .multiply(terminal.commissionRate())
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-            ticketContext = new TicketContext(
-                null, null, null, null,
-                command.drawId(), command.drawChannelId(),
-                null, null,
-                ctx.sellerTerminalId(), terminal.commissionRate(), commissionAmount
-            );
-        } else {
-            ticketContext = new TicketContext(
-                prepared.pos().outletId(),
-                prepared.pos().terminalId(),
-                prepared.pos().actorUserId(),
-                prepared.pos().salesSessionId(),
-                command.drawId(),
-                command.drawChannelId(),
-                prepared.sellerId(),
-                prepared.sellerAssignmentId(),
-                null, null, null
-            );
+        // 2. Build ticket context from the authenticated seller terminal.
+        var sellerTerminalId = ctx.sellerTerminalIdRequired();
+        var terminal = queryBus.ask(new GetSellerTerminalForSaleValidationQuery(
+            tenantId, sellerTerminalId));
+        if (!terminal.canSell()) {
+            throw ProblemRest.forbidden("seller_terminal.cannot_sell");
         }
+        var commissionAmount = prepared.moneyBreakdown().stake().amount()
+            .multiply(terminal.commissionRate())
+            .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        var ticketContext = new TicketContext(
+            command.drawId(),
+            command.drawChannelId(),
+            sellerTerminalId,
+            terminal.commissionRate(),
+            commissionAmount
+        );
 
         // 3. Build and persist the aggregate.
         var ticketId = TicketId.of(idGenerator.newUuid());
@@ -189,10 +179,7 @@ public class SellTicketCommandHandler
             ticket.lifecycle().settlement().status(),
             ticket.origin().channel(),
             ticket.context().drawId(),
-            ticket.context().outletId(),
-            ticket.context().terminalId(),
-            ticket.context().salesSessionId(),
-            ticket.context().sellerUserId(),
+            ticket.context().sellerTerminalId(),
             ticket.money().breakdown().total(),
             ticket.money().potentialPayoutAmount(),
             TicketPrintStatus.valueOf(ticket.print().status().name()),
@@ -205,10 +192,6 @@ public class SellTicketCommandHandler
         com.tchalanet.server.core.promotion.api.model.PromotionDecision promotionDecision
     ) {
         var context = new TicketContextPayload(
-            saved.context().outletId(),
-            saved.context().terminalId(),
-            saved.context().sellerUserId(),
-            saved.context().salesSessionId(),
             saved.context().drawId(),
             saved.context().drawChannelId()
         );

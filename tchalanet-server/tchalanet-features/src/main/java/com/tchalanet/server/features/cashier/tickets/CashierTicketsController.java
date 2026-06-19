@@ -20,7 +20,7 @@ import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewR
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketVerificationResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierVerifyTicketRequest;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
-import com.tchalanet.server.features.cashier.tickets.model.TerminalDailyStatsResponse;
+import com.tchalanet.server.features.cashier.tickets.model.SellerTerminalDailyStatsResponse;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
@@ -101,10 +101,10 @@ public class CashierTicketsController {
 
     @GetMapping("/stats")
     @Operation(summary = "Sales stats for the authenticated seller terminal. Defaults to today in tenant timezone.")
-    public ApiResponse<TerminalDailyStatsResponse> stats(
+    public ApiResponse<SellerTerminalDailyStatsResponse> stats(
         @CurrentContext TchRequestContext ctx,
         @RequestParam(required = false) String date) {
-        return ApiResponse.success(ticketsService.terminalStats(ctx, date));
+        return ApiResponse.success(ticketsService.sellerTerminalStats(ctx, date));
     }
 
     @GetMapping

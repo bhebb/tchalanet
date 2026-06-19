@@ -95,9 +95,6 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "draw_channel_display_name")
     private String drawChannelDisplayName;
 
-    @Column(name = "outlet_id")
-    private UUID outletId;
-
     @Column(name = "outlet_code")
     private String outletCode;
 
@@ -111,22 +108,16 @@ public class TicketPrintHeaderViewEntity {
     private String outletReceiptFooter;
 
     @Column(name = "terminal_id")
-    private UUID terminalId;
+    private UUID sellerTerminalId;
 
     @Column(name = "terminal_code")
-    private String terminalCode;
+    private String sellerTerminalCode;
 
     @Column(name = "terminal_label")
-    private String terminalLabel;
-
-    @Column(name = "sales_session_id")
-    private UUID salesSessionId;
+    private String sellerTerminalLabel;
 
     @Column(name = "session_code")
     private String sessionCode;
-
-    @Column(name = "seller_user_id", nullable = false)
-    private UUID sellerUserId;
 
     @Column(name = "seller_display_name")
     private String sellerDisplayName;
@@ -165,4 +156,3 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "timezone")
     private String timezone;
 }
-

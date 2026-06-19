@@ -3,10 +3,8 @@ package com.tchalanet.server.features.tenantadmin.readiness;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
-import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
-import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
-import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
+import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSection;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
@@ -27,11 +25,10 @@ import org.springframework.stereotype.Component;
  *
  * Section checks wired for V1 (4 grouped reads):
  *   1. identity  → TenantCatalog.findRegistryById
- *   2. outlets   → ListOutletsByTenantQuery
- *   3. terminals → ListTerminalsQuery (page size 1)
- *   4. users     → ListSellersQuery
+ *   2. seller terminals → ListSellerTerminalsQuery (page size 1)
+ *   3. users            → ListSellersQuery
  *
- * Remaining sections (sessions, games_pricing, draws, limits, promotions,
+ * Remaining sections (games_pricing, draws, limits, promotions,
  * settings, i18n, theme, pagemodels) return UNKNOWN until their respective
  * structural check queries are exposed by each domain.
  *
@@ -51,9 +48,7 @@ public class TenantReadinessAssembler {
   private static final List<SectionDescriptor> SECTIONS = List.of(
       new SectionDescriptor("identity",     "readiness.section.identity",     "/app/admin"),
       new SectionDescriptor("users",        "readiness.section.users",        "/app/admin/users"),
-      new SectionDescriptor("outlets",      "readiness.section.outlets",      "/app/admin/outlets"),
-      new SectionDescriptor("terminals",    "readiness.section.terminals",    "/app/admin/terminals"),
-      new SectionDescriptor("sessions",     "readiness.section.sessions",     "/app/admin/sessions"),
+      new SectionDescriptor("seller_terminals", "readiness.section.seller_terminals", "/app/admin/seller-terminals"),
       new SectionDescriptor("games_pricing","readiness.section.games_pricing","/app/admin/games-pricing"),
       new SectionDescriptor("draws",        "readiness.section.draws",        "/app/admin/draws"),
       new SectionDescriptor("limits",       "readiness.section.limits",       "/app/admin/limits"),
@@ -74,9 +69,7 @@ public class TenantReadinessAssembler {
 
     // --- Grouped reads (≤ 4 per dashboard-overview-runtime-v1 §12) ---
     boolean identityFound = checkIdentity(ctx);
-    boolean hasOutlets    = checkOutlets(ctx);
-    boolean hasTerminals  = checkTerminals(ctx);
-    boolean hasSellers    = checkSellers(ctx);
+    boolean hasSellerTerminals = checkSellerTerminals(ctx);
 
     List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
     for (SectionDescriptor d : SECTIONS) {
@@ -92,28 +85,13 @@ public class TenantReadinessAssembler {
             issues.add(new TenantReadinessIssue("identity", "readiness.identity.missing", d.route()));
           }
         }
-        case "users" -> {
-          if (hasSellers) {
+        case "seller_terminals" -> {
+          if (hasSellerTerminals) {
             status = TenantReadinessStatus.READY;
           } else {
             status = TenantReadinessStatus.MISSING;
-            issues.add(new TenantReadinessIssue("users", "readiness.sellers.empty", d.route()));
-          }
-        }
-        case "outlets" -> {
-          if (hasOutlets) {
-            status = TenantReadinessStatus.READY;
-          } else {
-            status = TenantReadinessStatus.MISSING;
-            issues.add(new TenantReadinessIssue("outlets", "readiness.outlets.empty", d.route()));
-          }
-        }
-        case "terminals" -> {
-          if (hasTerminals) {
-            status = TenantReadinessStatus.READY;
-          } else {
-            status = TenantReadinessStatus.MISSING;
-            issues.add(new TenantReadinessIssue("terminals", "readiness.terminals.empty", d.route()));
+            issues.add(new TenantReadinessIssue(
+                "seller_terminals", "readiness.seller_terminals.empty", d.route()));
           }
         }
         default ->
@@ -157,19 +135,11 @@ public class TenantReadinessAssembler {
     }
   }
 
-  private boolean checkOutlets(TchRequestContext ctx) {
+  private boolean checkSellerTerminals(TchRequestContext ctx) {
     try {
-      var items = queryBus.ask(new ListOutletsByTenantQuery(ctx.tenantId()));
-      return items != null && !items.isEmpty();
-    } catch (RuntimeException e) {
-      return false;
-    }
-  }
-
-  private boolean checkTerminals(TchRequestContext ctx) {
-    try {
-      var page = queryBus.ask(new ListTerminalsQuery(
-          TerminalSearchCriteria.empty(),
+      var page = queryBus.ask(new ListSellerTerminalsQuery(
+          ctx.tenantId(),
+          SellerTerminalSearchCriteria.empty(),
           new TchPageRequest(PageRequest.of(0, 1))));
       return page != null && page.totalElements() > 0;
     } catch (RuntimeException e) {
@@ -177,14 +147,7 @@ public class TenantReadinessAssembler {
     }
   }
 
-  private boolean checkSellers(TchRequestContext ctx) {
-    try {
-      var items = queryBus.ask(new ListSellersQuery(ctx.tenantId()));
-      return items != null && !items.isEmpty();
-    } catch (RuntimeException e) {
-      return false;
-    }
-  }
+
 
   // ---- rollup ---------------------------------------------------------------
 

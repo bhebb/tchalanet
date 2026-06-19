@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.domain.model.preparation;
 
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
 import java.time.Instant;
 import java.util.List;
@@ -15,9 +16,7 @@ import java.util.UUID;
 public record SalePreparation(
     UUID id,
     SalePreparationStatus status,
-    UUID sellerId,
-    UUID sessionId,
-    UUID terminalId,
+    SellerTerminalId sellerTerminalId,
     UUID drawId,
     String inputHash,
     Map<String, Object> input,

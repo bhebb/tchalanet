@@ -58,8 +58,7 @@ public class TicketArchiveJdbcRepository {
         SELECT id, tenant_id, public_code, ticket_code, sale_status, result_status,
                settlement_status, sold_at, placed_at, currency,
                stake_amount, total_amount, potential_payout_amount, winning_amount,
-               outlet_id, terminal_id, seller_user_id, sales_session_id,
-               draw_id, draw_channel_id, sale_channel, payout_id,
+               seller_terminal_id, draw_id, draw_channel_id, sale_channel,
                cancelled_at, voided_at, paid_at, created_at
           FROM sales_ticket
          WHERE sold_at >= :from AND sold_at < :to

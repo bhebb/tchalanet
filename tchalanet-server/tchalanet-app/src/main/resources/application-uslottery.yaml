@@ -114,8 +114,20 @@ tch:
       oh:
         enabled: ${TCH_US_OH_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_OH_TIMEZONE:America/New_York}
+
         base-url: ${TCH_US_OH_LOTTERY_BASEURL:https://api-solutions.ohiolottery.com}
         latest-path: ${TCH_US_OH_LATEST_PATH:/1.0/Games/DrawGames}
+
+        auth-base-url: ${TCH_US_OH_AUTH_BASEURL:https://authapi-solutions.ohiolottery.com}
+        auth-path: ${TCH_US_OH_AUTH_PATH:/1.0/Authentication/Login}
+        auth-username: ${TCH_US_OH_AUTH_USERNAME:mobilepublic@mtllc.com}
+        auth-password: ${TCH_US_OH_AUTH_PASSWORD:R7V5Sz8@}
+
+        # fallback debug/local seulement
         bearer-token: ${TCH_US_OH_BEARER_TOKEN:}
+
         headers:
-          Accept: application/json
+          Accept: application/json, text/plain, */*
+          Origin: https://www.ohiolottery.com
+          Referer: https://www.ohiolottery.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)

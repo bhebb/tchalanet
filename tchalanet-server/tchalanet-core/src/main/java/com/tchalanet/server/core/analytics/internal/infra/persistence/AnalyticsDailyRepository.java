@@ -82,7 +82,7 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
       """)
   Optional<AnalyticsDailyEntity> findSellerRow(
       @Param("tenantId") UUID tenantId,
-      @Param("sellerId") UUID sellerId,
+      @Param("sellerTerminalId1") UUID sellerId,
       @Param("refDate") LocalDate refDate);
 
   /** Delete rows older than retention cutoff for purge. */

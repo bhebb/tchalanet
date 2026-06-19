@@ -46,7 +46,6 @@ VALUES (
     "audit.basic": true,
     "user.management.basic": true,
     "outlet.management.basic": true,
-    "terminal.management.basic": true,
     "session.cashier.basic": true,
     "sales.ticket.cancel.basic": true,
     "payout.session.basic": true,
@@ -58,7 +57,6 @@ VALUES (
   '{
     "limits.users.max": 5,
     "limits.outlets.max": 1,
-    "limits.terminals.max": 2,
     "limits.mobile_devices.max": 0,
     "limits.promotion_rules.max": 0,
     "limits.offline_days.max": 0,
@@ -112,7 +110,6 @@ VALUES (
 
     "user.management.basic": true,
     "outlet.management.basic": true,
-    "terminal.management.basic": true,
     "session.cashier.basic": true,
     "sales.ticket.cancel.basic": true,
     "payout.session.basic": true,
@@ -124,8 +121,6 @@ VALUES (
     "user.management.standard": true,
     "user.role.assignment.basic": true,
     "outlet.management.multi": true,
-    "terminal.licensing": true,
-    "terminal.device.binding": true,
     "sales.phone.sell": true,
     "session.supervision": true,
     "sales.ticket.void.admin": true,
@@ -140,7 +135,6 @@ VALUES (
   '{
     "limits.users.max": 15,
     "limits.outlets.max": 3,
-    "limits.terminals.max": 10,
     "limits.mobile_devices.max": 2,
     "limits.promotion_rules.max": 0,
     "limits.offline_days.max": 0,
@@ -194,7 +188,6 @@ VALUES (
 
     "user.management.basic": true,
     "outlet.management.basic": true,
-    "terminal.management.basic": true,
     "session.cashier.basic": true,
     "sales.ticket.cancel.basic": true,
     "payout.session.basic": true,
@@ -206,8 +199,6 @@ VALUES (
     "user.management.standard": true,
     "user.role.assignment.basic": true,
     "outlet.management.multi": true,
-    "terminal.licensing": true,
-    "terminal.device.binding": true,
     "sales.phone.sell": true,
     "session.supervision": true,
     "sales.ticket.void.admin": true,
@@ -238,7 +229,6 @@ VALUES (
   '{
     "limits.users.max": 50,
     "limits.outlets.max": 10,
-    "limits.terminals.max": 30,
     "limits.mobile_devices.max": 20,
     "limits.promotion_rules.max": 10,
     "limits.offline_days.max": 2,
@@ -293,7 +283,6 @@ VALUES (
 
       "user.management.basic": true,
       "outlet.management.basic": true,
-      "terminal.management.basic": true,
       "session.cashier.basic": true,
       "sales.ticket.cancel.basic": true,
       "payout.session.basic": true,
@@ -305,8 +294,6 @@ VALUES (
       "user.management.standard": true,
       "user.role.assignment.basic": true,
       "outlet.management.multi": true,
-      "terminal.licensing": true,
-      "terminal.device.binding": true,
       "sales.phone.sell": true,
       "session.supervision": true,
       "sales.ticket.void.admin": true,
@@ -342,7 +329,6 @@ VALUES (
   '{
       "limits.users.max": 9999,
       "limits.outlets.max": 999,
-      "limits.terminals.max": 9999,
       "limits.mobile_devices.max": 9999,
       "limits.promotion_rules.max": 999,
       "limits.offline_days.max": 999,

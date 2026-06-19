@@ -3,8 +3,7 @@ package com.tchalanet.server.core.sales.api.event;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 
@@ -18,6 +17,5 @@ public record TicketWinningSettlementCreatedEvent(
     DrawId drawId,
     long amountCents,
     String currency,
-    OutletId sellingOutletId,
-    SalesSessionId sellingSessionId
+    SellerTerminalId sellerTerminalId
 ) implements DomainEvent {}

@@ -2,11 +2,8 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
@@ -80,15 +77,9 @@ public class TicketPrintViewMapper {
                 header.getCutoffAt()
             ),
             new TicketPrintSellerContext(
-                OutletId.of(header.getOutletId()),
-                header.getOutletCode(),
-                header.getOutletName(),
-                TerminalId.of(header.getTerminalId()),
-                header.getTerminalCode(),
-                header.getTerminalLabel(),
-                SalesSessionId.of(header.getSalesSessionId()),
-                header.getSessionCode(),
-                UserId.of(header.getSellerUserId()),
+                SellerTerminalId.nullableOf(header.getSellerTerminalId()),
+                header.getSellerTerminalCode(),
+                header.getSellerTerminalLabel(),
                 header.getSellerDisplayName()
             ),
             new TicketPrintBranding(

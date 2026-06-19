@@ -39,33 +39,14 @@ public interface SettingRepository
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceIn(
       SettingLevel level, UUID tenantId, Collection<String> namespaces);
 
-  // Outlet variants WITHOUT tenantId (new): RLS will scope to current tenant;
-  // these are intended for the read-side (SettingsCatalogImpl) to call without passing tenantId.
-  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletId(
-      SettingLevel level, UUID outletId);
-
-  List<SettingEntity>
-      findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletIdAndNamespaceIn(
-          SettingLevel level, UUID outletId, Collection<String> namespaces);
-
-  // Terminal variants WITHOUT tenantId (new)
-  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalId(
-      SettingLevel level, UUID terminalId);
-
-  List<SettingEntity>
-      findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalIdAndNamespaceIn(
-          SettingLevel level, UUID terminalId, Collection<String> namespaces);
-
   // ========================================
   // Admin queries (search/uniqueness)
   // ========================================
 
   Optional<SettingEntity>
-      findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndTerminalIdAndNamespaceAndSettingKey(
+      findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
           SettingLevel level,
           UUID tenantId,
-          UUID outletId,
-          UUID terminalId,
           String namespace,
           String settingKey);
 

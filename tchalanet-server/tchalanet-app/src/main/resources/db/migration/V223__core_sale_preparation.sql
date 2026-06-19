@@ -8,9 +8,7 @@
 CREATE TABLE sale_preparation (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
-  seller_id uuid NULL,
-  session_id uuid NULL,
-  terminal_id uuid NULL,
+  seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
   draw_id uuid NOT NULL,
   status varchar(16) NOT NULL DEFAULT 'DRAFT',
   input_hash varchar(64) NOT NULL,

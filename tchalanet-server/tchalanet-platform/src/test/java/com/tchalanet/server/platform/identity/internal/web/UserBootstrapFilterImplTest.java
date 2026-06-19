@@ -14,12 +14,12 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
+import com.tchalanet.server.platform.identity.api.SellerTerminalIdentityLookup;
+import com.tchalanet.server.platform.identity.api.model.SellerTerminalBootstrapStatus;
+import com.tchalanet.server.platform.identity.api.model.SellerTerminalIdentityBootstrapView;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
-import com.tchalanet.server.platform.identity.internal.persistence.SellerTerminalExternalIdentityPort;
 import com.tchalanet.server.platform.identity.internal.service.AppUserIdentityResolution;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityAppUserResolver;
-import com.tchalanet.server.platform.identity.internal.service.SellerTerminalIdentityResolution;
-import com.tchalanet.server.platform.identity.internal.service.SellerTerminalIdentityResolution.TerminalBootstrapStatus;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapProperties;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import java.util.Map;
@@ -42,7 +42,7 @@ class UserBootstrapFilterImplTest {
         IdentityProviderType.FIREBASE, "https://issuer", "sub-123", "a@b.com", true, Map.of());
 
     @Mock private ExternalIdentityAppUserResolver appUserResolver;
-    @Mock private SellerTerminalExternalIdentityPort sellerTerminalPort;
+    @Mock private SellerTerminalIdentityLookup sellerTerminalIdentityLookup;
     @Mock private UserBootstrapProperties props;
 
     private UserBootstrapFilterImpl filter;
@@ -51,7 +51,7 @@ class UserBootstrapFilterImplTest {
     void setUp() {
         lenient().when(props.enabled()).thenReturn(true);
         filter = new UserBootstrapFilterImpl(
-            appUserResolver, sellerTerminalPort, new ExpectedActorTypeResolver(), props);
+            appUserResolver, sellerTerminalIdentityLookup, new ExpectedActorTypeResolver(), props);
 
         var auth = new TestingAuthenticationToken("principal", "creds");
         auth.setAuthenticated(true);
@@ -68,12 +68,12 @@ class UserBootstrapFilterImplTest {
 
     @Test
     void posHeader_withActiveTerminal_resolvesSellerTerminal_andSkipsAppUserResolver() {
-        when(sellerTerminalPort.findByExternalIdentity(
+        when(sellerTerminalIdentityLookup.findByExternalIdentity(
             IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
-            .thenReturn(Optional.of(new SellerTerminalIdentityResolution(
+            .thenReturn(Optional.of(new SellerTerminalIdentityBootstrapView(
                 SellerTerminalId.of(UUID.randomUUID()),
                 TenantId.of(UUID.randomUUID()),
-                TerminalBootstrapStatus.ACTIVE)));
+                SellerTerminalBootstrapStatus.ACTIVE)));
 
         var request = posRequest();
         filter.bootstrap(request);
@@ -84,7 +84,7 @@ class UserBootstrapFilterImplTest {
 
     @Test
     void posHeader_noTerminalMapping_isDenied_withoutTryingAppUser() {
-        when(sellerTerminalPort.findByExternalIdentity(
+        when(sellerTerminalIdentityLookup.findByExternalIdentity(
             IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
             .thenReturn(Optional.empty());
 
@@ -96,12 +96,12 @@ class UserBootstrapFilterImplTest {
 
     @Test
     void posHeader_inactiveTerminal_isDenied() {
-        when(sellerTerminalPort.findByExternalIdentity(
+        when(sellerTerminalIdentityLookup.findByExternalIdentity(
             IdentityProviderType.FIREBASE, "https://issuer", "sub-123"))
-            .thenReturn(Optional.of(new SellerTerminalIdentityResolution(
+            .thenReturn(Optional.of(new SellerTerminalIdentityBootstrapView(
                 SellerTerminalId.of(UUID.randomUUID()),
                 TenantId.of(UUID.randomUUID()),
-                TerminalBootstrapStatus.BLOCKED)));
+                SellerTerminalBootstrapStatus.BLOCKED)));
 
         assertThatThrownBy(() -> filter.bootstrap(posRequest()))
             .isInstanceOf(ProblemRestException.class)
@@ -119,7 +119,7 @@ class UserBootstrapFilterImplTest {
         filter.bootstrap(request);
 
         assertThat(actorOf(request).actorType()).isEqualTo(TchActorType.APP_USER);
-        verifyNoInteractions(sellerTerminalPort);
+        verifyNoInteractions(sellerTerminalIdentityLookup);
     }
 
     @Test
@@ -129,7 +129,7 @@ class UserBootstrapFilterImplTest {
         assertThatThrownBy(() -> filter.bootstrap(new MockHttpServletRequest()))
             .isInstanceOf(ProblemRestException.class)
             .hasMessage("external_identity.not_linked");
-        verifyNoInteractions(sellerTerminalPort);
+        verifyNoInteractions(sellerTerminalIdentityLookup);
     }
 
     private static MockHttpServletRequest posRequest() {

@@ -11,7 +11,7 @@ import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.terminal.api.query.GetSellerTerminalQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.GetEffectivePermissionsRequest;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
@@ -110,7 +110,7 @@ public class RuntimeBootstrapService {
 
     private RuntimeBootstrapResponse sellerTerminalBootstrap(TchRequestContext ctx) {
         var terminal = queryBus.ask(new GetSellerTerminalQuery(
-            ctx.effectiveTenantIdRequired(), ctx.sellerTerminalId()));
+            ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired()));
         var space = PrivateBootstrapSpace.CASHIER;
         var notices = new ArrayList<RuntimeBootstrapNotice>();
         var user = new AuthenticatedUserView(

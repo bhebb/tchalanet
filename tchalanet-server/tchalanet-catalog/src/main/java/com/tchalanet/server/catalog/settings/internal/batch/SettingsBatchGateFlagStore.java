@@ -32,11 +32,9 @@ public class SettingsBatchGateFlagStore implements BatchGateFlagStore {
 
     private Optional<Boolean> findFlag(SettingLevel level, TenantId tenantId, JobKey jobKey) {
         return settingRepository
-            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndTerminalIdAndNamespaceAndSettingKey(
+            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
                 level,
                 tenantId != null ? tenantId.value() : null,
-                null,
-                null,
                 NAMESPACE,
                 jobKey.value())
             .flatMap(entity -> parseBool(entity.getSettingValue(), level, tenantId, jobKey.value()));

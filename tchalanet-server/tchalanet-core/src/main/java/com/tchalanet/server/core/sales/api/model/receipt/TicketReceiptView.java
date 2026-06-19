@@ -30,7 +30,6 @@ public record TicketReceiptView(
     // drawChannelLabel: preferred market/channel name (e.g. "Texas")
     String drawChannelLabel,
     Instant drawScheduledAt,
-    String outletName,
     String terminalCode,
     String sellerDisplayName,
     Instant placedAt,
@@ -40,7 +39,6 @@ public record TicketReceiptView(
     Money stakeTotal,
     Money totalAmount,
     Money potentialPayout,
-    String outletReceiptFooter,
     String tenantReceiptFooter,
     String verificationUrl,
     // false = first print (ORIGINAL), true = any subsequent print (DUPLICATA)

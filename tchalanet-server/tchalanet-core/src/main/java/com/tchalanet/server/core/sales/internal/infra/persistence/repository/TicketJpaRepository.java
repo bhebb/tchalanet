@@ -27,11 +27,6 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
     Optional<TicketJpaEntity> findWithLinesByVerificationCode(String verificationCode);
 
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketJpaEntity> findWithLinesByOfflineSubmissionId(UUID offlineSubmissionId);
-
-    boolean existsByOfflineSubmissionId(UUID offlineSubmissionId);
-
-    @EntityGraph(attributePaths = "lines")
     List<TicketJpaEntity> findWithLinesByDrawId(UUID drawId);
 
     @EntityGraph(attributePaths = "charges")

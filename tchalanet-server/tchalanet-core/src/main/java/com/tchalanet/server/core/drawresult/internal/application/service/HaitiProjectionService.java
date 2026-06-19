@@ -5,7 +5,6 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.haiti.api.HaitiFlags;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
-import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -40,49 +39,48 @@ public class HaitiProjectionService {
             pick4 = external.hasPick4() ? String.join("", external.pick4().main()) : "";
 
             var projCfg = haitiConfigPort.resolve(slot.projectionCfg());
-            var pick = ExternalPick.of(pick3, pick4);
-            var hp = haitiPort.projectResult(pick, projCfg);
+            var pick = ExternalPick.partial(pick3, pick4);
 
-            return new HaitiProjectionResult(
-                coerceHaitiLots(hp == null ? null : hp.result()),
-                hp == null
-                    ? HaitiFlags.fail(1, "PROJECTION_NULL", Map.of())
-                    : hp.flags());
+            if (pick.complete()) {
+                var hp = haitiPort.projectResult(pick, projCfg);
 
-        } catch (InvalidExternalPickException e) {
+                return new HaitiProjectionResult(
+                    coerceHaitiLots(hp == null ? null : hp.result()),
+                    hp == null
+                        ? HaitiFlags.fail(1, "PROJECTION_NULL", Map.of())
+                        : hp.flags());
+            }
+
             log.warn(
-                "draw-results.fetch invalid_pick slot={} date={} pick3='{}' pick3Length={} pick4='{}' pick4Length={} hasPick3={} hasPick4={} err={}",
+                "draw-results.fetch partial_pick slot={} date={} pick3='{}' pick4='{}' hasPick3={} hasPick4={}",
                 slot.slotKey(),
                 date,
                 safePick(pick3),
-                pick3.length(),
                 safePick(pick4),
-                pick4.length(),
-                external.hasPick3(),
-                external.hasPick4(),
-                e.getMessage(),
-                e
+                pick.hasPick3(),
+                pick.hasPick4()
             );
 
             meterRegistry
                 .counter(
-                    "draw_external_pick_invalid_total",
+                    "draw_external_pick_partial_total",
                     "slot", slot.slotKey(),
-                    "reason", invalidReason(pick3, pick4)
+                    "missing", pick.hasPick3() ? "pick4" : "pick3"
                 )
                 .increment();
 
             return new HaitiProjectionResult(
-                emptyHaitiLots(),
+                projectPartialLots(pick),
                 HaitiFlags.fail(
-                    1,
-                    "INVALID_EXTERNAL_PICK",
+                    0,
+                    "PARTIAL_EXTERNAL_PICK",
                     Map.of(
-                        "error", String.valueOf(e.getMessage()),
                         "pick3", safePick(pick3),
-                        "pick3Length", pick3.length(),
+                        "pick3Length", String.valueOf(pick3.length()),
                         "pick4", safePick(pick4),
-                        "pick4Length", pick4.length()
+                        "pick4Length", String.valueOf(pick4.length()),
+                        "hasPick3", String.valueOf(pick.hasPick3()),
+                        "hasPick4", String.valueOf(pick.hasPick4())
                     )
                 ));
 
@@ -104,6 +102,22 @@ public class HaitiProjectionService {
                     "PROJECTION_EXCEPTION",
                     Map.of("error", String.valueOf(e.getMessage()))));
         }
+    }
+
+    private ObjectNode projectPartialLots(ExternalPick pick) {
+        var o = emptyHaitiLots();
+
+        if (pick.hasPick3()) {
+            o.put("lot1", pick.pick3());
+            o.put("lot4", pick.pick3().substring(0, 2));
+        }
+
+        if (pick.hasPick4()) {
+            o.put("lot2", pick.pick4().substring(0, 2));
+            o.put("lot3", pick.pick4().substring(2, 4));
+        }
+
+        return o;
     }
 
     private String safePick(String value) {

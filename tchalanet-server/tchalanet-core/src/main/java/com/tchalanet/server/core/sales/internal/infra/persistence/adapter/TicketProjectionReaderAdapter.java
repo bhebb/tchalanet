@@ -11,7 +11,7 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.view.DrawStatLine;
-import com.tchalanet.server.core.sales.api.model.view.TerminalDailyStatsView;
+import com.tchalanet.server.core.sales.api.model.view.SellerTerminalDailyStatsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
@@ -89,11 +89,8 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
         return (root, ignoredQuery, cb) -> {
             var predicates = new java.util.ArrayList<Predicate>();
 
-            if (query.terminalId() != null) {
-                predicates.add(cb.equal(root.get("terminalId"), query.terminalId().value()));
-            }
-            if (query.outletId() != null) {
-                predicates.add(cb.equal(root.get("outletId"), query.outletId().value()));
+            if (query.sellerTerminalId() != null) {
+                predicates.add(cb.equal(root.get("sellerTerminalId"), query.sellerTerminalId().value()));
             }
             if (query.drawId() != null) {
                 predicates.add(cb.equal(root.get("drawId"), query.drawId().value()));
@@ -154,11 +151,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             entity.getTicketCode(),
             entity.getSaleStatus(),
             DrawId.of(entity.getDrawId()),
-            com.tchalanet.server.common.types.id.SalesSessionId.of(entity.getSalesSessionId()),
-            com.tchalanet.server.common.types.id.OutletId.of(entity.getOutletId()),
-            com.tchalanet.server.common.types.id.TerminalId.of(entity.getTerminalId()),
-            com.tchalanet.server.common.types.id.UserId.of(entity.getSellerUserId()),
-            entity.getOfflineSubmissionId() == null ? null : OfflineSubmissionId.of(entity.getOfflineSubmissionId()),
+            SellerTerminalId.nullableOf(entity.getSellerTerminalId()),
             cents(entity.getTotalAmount()),
             entity.getCurrency(),
             entity.getPlacedAt(),
@@ -204,7 +197,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
     }
 
     @Override
-    public TerminalDailyStatsView dailyStatsBySellerTerminal(
+    public SellerTerminalDailyStatsView dailyStatsBySellerTerminal(
         SellerTerminalId sellerTerminalId, TenantId tenantId, Instant from, Instant to) {
         var count = repository.countBySellerTerminalAndPeriod(
             sellerTerminalId.value(), tenantId.value(), from, to);
@@ -220,7 +213,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
                 cents(r[3] instanceof java.math.BigDecimal bd ? bd : new java.math.BigDecimal(r[3].toString()))
             ))
             .toList();
-        return new TerminalDailyStatsView(count, cents(sum), null, breakdown);
+        return new SellerTerminalDailyStatsView(count, cents(sum), null, breakdown);
     }
 
     private long cents(BigDecimal amount) {

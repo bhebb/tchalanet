@@ -12,12 +12,12 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultProjectionByDrawIdQuery;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultResult;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.internal.application.service.result.TicketWinningCalculator;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.internal.application.service.result.TicketWinningCalculator;
 import com.tchalanet.server.core.sales.internal.infra.cache.SalesTicketCacheEvictor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,13 +103,12 @@ public class RecordDrawTicketsResultCommandHandler
                     saved.lifecycle().settlement().status(),
                     winningAmount,
                     saved.money().currency().code(),
-                    saved.context().outletId(),
-                    saved.context().salesSessionId()
+                    saved.context().sellerTerminalId()
                 ));
 
                 if (resultStatus == TicketResultStatus.WON
-                        && winningAmount != null
-                        && winningAmount.signum() > 0) {
+                    && winningAmount != null
+                    && winningAmount.signum() > 0) {
                     winningSettlementEvents.add(new TicketWinningSettlementCreatedEvent(
                         EventId.of(idGenerator.newUuid()),
                         now,
@@ -118,8 +117,7 @@ public class RecordDrawTicketsResultCommandHandler
                         command.drawId(),
                         winningAmount.movePointRight(2).longValueExact(),
                         saved.money().currency().code(),
-                        saved.context().outletId(),
-                        saved.context().salesSessionId()
+                        saved.context().sellerTerminalId()
                     ));
                 }
             } catch (Exception ex) {

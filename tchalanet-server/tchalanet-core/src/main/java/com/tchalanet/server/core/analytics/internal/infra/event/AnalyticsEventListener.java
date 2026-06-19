@@ -3,15 +3,12 @@ package com.tchalanet.server.core.analytics.internal.infra.event;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
-import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSessionProjector;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
-import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
-import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -40,13 +37,11 @@ public class AnalyticsEventListener {
 
   static final String HANDLER_KEY_DAILY     = "analytics.daily";
   static final String HANDLER_KEY_DRAW      = "analytics.draw";
-  static final String HANDLER_KEY_SESSION   = "analytics.session";
   static final String HANDLER_KEY_SELECTION = "analytics.selection";
 
   private final ProcessedEventPort          processedEvent;
   private final AnalyticsDailyProjector     dailyProjector;
   private final AnalyticsDrawProjector      drawProjector;
-  private final AnalyticsSessionProjector   sessionProjector;
   private final AnalyticsSelectionProjector selectionProjector;
 
   // ── ticket placed ─────────────────────────────────────────────────────────
@@ -107,59 +102,6 @@ public class AnalyticsEventListener {
     }
     LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
     dailyProjector.applyPayoutReversed(event, refDate);
-  }
-
-  // ── session opened ───────────────────────────────────────────────────────
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onSessionOpened(SalesSessionOpenedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate SalesSessionOpenedEvent {}", event.eventId().value());
-      return;
-    }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
-    dailyProjector.applySessionOpened(event, refDate);
-  }
-
-  // ── session closed ────────────────────────────────────────────────────────
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onSessionClosed(SalesSessionClosedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
-      log.debug("analytics: duplicate SalesSessionClosedEvent {}", event.eventId().value());
-      return;
-    }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
-    dailyProjector.applySessionClosed(event, refDate);
-  }
-
-  // ── session projector ─────────────────────────────────────────────────────
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onSessionOpenedForSession(SalesSessionOpenedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SESSION, event.eventId().value())) {
-      log.debug("analytics: duplicate SalesSessionOpenedEvent (session) {}", event.eventId().value());
-      return;
-    }
-    sessionProjector.applySessionOpened(event);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onSessionClosedForSession(SalesSessionClosedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SESSION, event.eventId().value())) {
-      log.debug("analytics: duplicate SalesSessionClosedEvent (session) {}", event.eventId().value());
-      return;
-    }
-    sessionProjector.applySessionClosed(event);
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void onTicketPlacedForSession(TicketPlacedEvent event) {
-    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_SESSION, event.eventId().value())) {
-      log.debug("analytics: duplicate TicketPlacedEvent (session) {}", event.eventId().value());
-      return;
-    }
-    sessionProjector.applyTicketPlaced(event);
   }
 
   // ── selection projector ───────────────────────────────────────────────────

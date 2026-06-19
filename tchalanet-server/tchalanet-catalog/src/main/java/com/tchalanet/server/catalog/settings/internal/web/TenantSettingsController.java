@@ -5,8 +5,6 @@ import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,16 +34,13 @@ public class TenantSettingsController {
 
   @Operation(
       summary = "Resolve effective settings",
-      description =
-          "Get effective settings for a tenant context with optional outlet/terminal overrides")
+      description = "Get effective settings for a tenant context")
   @GetMapping("/resolve")
   public ApiResponse<List<ResolvedSettingView>> resolve(
       @CurrentContext TchRequestContext ctx,
-      @RequestParam(required = false) OutletId outletId,
-      @RequestParam(required = false) TerminalId terminalId,
       @RequestParam(required = false, defaultValue = "") List<String> namespaces) {
 
-    var criteria = new ResolveSettingsCriteria(ctx.tenantId(), outletId, terminalId, namespaces);
+    var criteria = new ResolveSettingsCriteria(ctx.tenantId(), namespaces);
     List<ResolvedSettingView> resolved = settingsCatalog.resolve(criteria);
     return ApiResponse.success(resolved);
   }
