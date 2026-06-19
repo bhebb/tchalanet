@@ -3,7 +3,6 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -43,7 +42,6 @@ public class ListLimitAssignmentsByTargetQueryHandler
     private LimitScopeRef toInternal(LimitScopeQueryRef ref) {
         return switch (ref.type()) {
             case TENANT -> LimitScopeRef.tenant(TenantId.of(ref.id()));
-            case OUTLET -> LimitScopeRef.outlet(OutletId.of(ref.id()));
             case AGENT -> LimitScopeRef.agent(UserId.of(ref.id()));
             case SELLER_TERMINAL -> LimitScopeRef.sellerTerminal(SellerTerminalId.of(ref.id()));
             case DRAW_CHANNEL -> LimitScopeRef.drawChannel(DrawChannelId.of(ref.id()));

@@ -1,14 +1,14 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
-import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
-import com.tchalanet.server.common.types.id.PromotionDecisionId;
-import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -22,9 +22,11 @@ import com.tchalanet.server.core.sales.api.model.lifecycle.TicketLifecycle;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoney;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
-import com.tchalanet.server.core.sales.api.model.origin.OfflineSaleRef;
 import com.tchalanet.server.core.sales.api.model.origin.TicketOrigin;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.value.PublicCode;
 import com.tchalanet.server.core.sales.api.model.value.TicketCode;
 import com.tchalanet.server.core.sales.api.model.value.VerificationCode;
@@ -34,9 +36,6 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
-import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
-import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
@@ -304,14 +303,9 @@ public interface TicketJpaMapper {
 
     default TicketOrigin toOrigin(TicketJpaEntity entity) {
         return new TicketOrigin(
-            entity.getSaleChannel(),
-            toOfflineSaleRef(entity)
-        );
+            entity.getSaleChannel());
     }
 
-    default OfflineSaleRef toOfflineSaleRef(TicketJpaEntity entity) {
-        return null;
-    }
 
     default TicketPrintState toPrintState(TicketJpaEntity entity) {
         return new TicketPrintState(

@@ -2,10 +2,8 @@ package com.tchalanet.server.core.sales.internal.domain.model.ticket;
 
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
-import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.lifecycle.ApprovalTrace;
 import com.tchalanet.server.core.sales.api.model.lifecycle.ResultLifecycle;
@@ -15,7 +13,6 @@ import com.tchalanet.server.core.sales.api.model.lifecycle.TicketLifecycle;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoney;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
-import com.tchalanet.server.core.sales.api.model.origin.OfflineSaleRef;
 import com.tchalanet.server.core.sales.api.model.origin.TicketOrigin;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
@@ -99,7 +96,7 @@ public record Ticket(
      */
     public static Ticket place(TicketIdentity id, TicketContext context, TicketCodes codes,
                                TicketMoneyBreakdown breakdown, List<TicketLine> lines,
-                               TicketSaleChannel channel, OfflineSaleRef offlineSaleRef, boolean requiresApproval,
+                               TicketSaleChannel channel, boolean requiresApproval,
                                ApprovalRequestId approvalRequestId,
                                UserId actorUserId, Instant now) {
         if (requiresApproval && !channel.allowsPendingApproval()) {
@@ -132,7 +129,7 @@ public record Ticket(
                 ResultLifecycle.notResulted(currency),
                 SettlementLifecycle.notSettled()
             ),
-            new TicketOrigin(channel, offlineSaleRef),
+            new TicketOrigin(channel),
             TicketPrintState.notPrinted(),
             TicketAudit.created(actorUserId, now),
             lines
@@ -302,12 +299,12 @@ public record Ticket(
         return withSettlement(newSettlement).touchedBy(settledBy, now);
     }
 
-    public Ticket markPaid(PayoutId payoutId, UserId paidBy, Instant paidAt) {
+    public Ticket markPaid(UserId paidBy, Instant paidAt) {
         if (lifecycle.settlement().status() != TicketSettlementStatus.PAYOUT_PENDING) {
             throw new IllegalStateException(
                 "Ticket " + identity.id() + " is not in PAYOUT_PENDING state, cannot mark paid");
         }
-        return withSettlement(lifecycle.settlement().paid(payoutId, paidBy, paidAt))
+        return withSettlement(lifecycle.settlement().paid(paidBy, paidAt))
             .touchedBy(paidBy, paidAt);
     }
 
@@ -350,10 +347,6 @@ public record Ticket(
 
     public Money winningAmount() {
         return lifecycle.result().winningAmount();
-    }
-
-    public Optional<OfflineSaleRef> offlineSaleRef() {
-        return Optional.ofNullable(origin.offlineRef());
     }
 
     public Optional<ApprovalRequestId> approvalRequestId() {

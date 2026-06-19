@@ -32,10 +32,4 @@ public class TenantUserJpaEntity extends BaseTenantEntity {
 
   @Column(name = "is_owner")
   private Boolean isOwner = Boolean.FALSE;
-
-  @Column(name = "outlet_id")
-  private UUID outletId;
-
-  @Column(name = "terminal_id")
-  private UUID terminalId;
 }

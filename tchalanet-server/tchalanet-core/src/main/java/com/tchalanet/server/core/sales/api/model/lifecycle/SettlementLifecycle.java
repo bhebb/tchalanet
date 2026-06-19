@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.api.model.lifecycle;
 
 
-import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 
@@ -25,9 +24,9 @@ public record SettlementLifecycle(
         return new SettlementLifecycle(TicketSettlementStatus.NO_PAYOUT, now, by, null);
     }
 
-    public SettlementLifecycle paid(PayoutId payoutId, UserId by, Instant at) {
+    public SettlementLifecycle paid(UserId by, Instant at) {
         return new SettlementLifecycle(
-            TicketSettlementStatus.PAID, settledAt, settledBy, new PaymentTrace(payoutId, at, by));
+            TicketSettlementStatus.PAID, settledAt, settledBy, new PaymentTrace(at, by));
     }
 
     public SettlementLifecycle reversed(UserId by, Instant at) {

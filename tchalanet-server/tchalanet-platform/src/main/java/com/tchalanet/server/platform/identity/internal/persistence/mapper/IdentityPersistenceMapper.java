@@ -2,9 +2,7 @@ package com.tchalanet.server.platform.identity.internal.persistence.mapper;
 
 import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
@@ -78,8 +76,6 @@ public final class IdentityPersistenceMapper {
     return new TenantMembership(
         TenantId.of(e.getTenantId()),
         UserId.of(e.getUserId()),
-        OutletId.nullableOf(e.getOutletId()),
-        TerminalId.nullableOf(e.getTerminalId()),
         e.getStatus() == null ? TenantUserStatus.ACTIVE : e.getStatus(),
         Boolean.TRUE.equals(e.getIsOwner()));
   }

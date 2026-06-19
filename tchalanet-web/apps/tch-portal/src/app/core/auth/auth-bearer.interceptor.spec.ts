@@ -37,10 +37,11 @@ describe('authBearerInterceptor', () => {
   it('attaches the configured provider access token to application API requests', async () => {
     vi.mocked(auth.getAccessToken).mockResolvedValue('access-token');
 
-    const response = firstValueFrom(client.get(`${environment.apiBaseUrl}/runtime/private`));
+    const url = `${environment.apiBaseUrl}${environment.apiBasePath}/tenant/runtime/bootstrap`;
+    const response = firstValueFrom(client.get(url));
     await flushPromises();
 
-    const request = http.expectOne(`${environment.apiBaseUrl}/runtime/private`);
+    const request = http.expectOne(url);
     expect(request.request.headers.get('Authorization')).toBe('Bearer access-token');
     request.flush({});
     await response;
@@ -62,7 +63,7 @@ describe('authBearerInterceptor', () => {
       .mockResolvedValueOnce('access-token')
       .mockResolvedValueOnce('refreshed-token');
 
-    const url = `${environment.apiBaseUrl}/runtime/private`;
+    const url = `${environment.apiBaseUrl}${environment.apiBasePath}/tenant/runtime/bootstrap`;
     const response = firstValueFrom(client.get(url));
     await flushPromises();
 

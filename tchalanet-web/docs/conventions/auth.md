@@ -30,9 +30,10 @@ The composition root selects the identity-provider adapter. Core auth orchestrat
 
 ## Session Contract
 
-The frontend session is a view model derived from `/runtime/private`. Provider tokens establish
-authentication and supply bearer credentials only; they are not authoritative for application
-identity, tenant context, roles, or permissions.
+The frontend session is a view model derived from the private runtime bootstrap
+(`/tenant/runtime/bootstrap`). Provider tokens establish authentication and supply bearer
+credentials only; they are not authoritative for application identity, tenant context, roles, or
+permissions.
 
 ```text
 authenticated

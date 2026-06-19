@@ -1,8 +1,5 @@
 package com.tchalanet.server.common.context.operational;
 
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,15 +16,11 @@ public final class OperationalContextHeaderParser {
     }
 
     public static OperationalContextHint parseHint(HeaderReader headers) {
-        var terminalId = parseTerminalId(header(headers, OperationalContextHeaders.TERMINAL_ID));
-        var outletId = parseOutletId(header(headers, OperationalContextHeaders.OUTLET_ID));
-        var salesSessionId =
-            parseSalesSessionId(header(headers, OperationalContextHeaders.SALES_SESSION_ID));
-        var declaredSource = resolveSource(header(headers, OperationalContextHeaders.OPERATIONAL_SOURCE));
-        var source = deriveSource(declaredSource, terminalId, outletId, salesSessionId);
+          var declaredSource = resolveSource(header(headers, OperationalContextHeaders.OPERATIONAL_SOURCE));
+        var source = deriveSource(declaredSource);
         var trust = deriveTrust(source);
 
-        return new OperationalContextHint(terminalId, outletId, salesSessionId, source, trust);
+        return new OperationalContextHint(source, trust);
     }
 
     private static String header(HeaderReader headers, String name) {
@@ -35,17 +28,7 @@ public final class OperationalContextHeaderParser {
         return StringUtils.isNotBlank(value) ? value.trim() : null;
     }
 
-    private static TerminalId parseTerminalId(String value) {
-        return value == null ? null : TerminalId.parse(value);
-    }
 
-    private static OutletId parseOutletId(String value) {
-        return value == null ? null : OutletId.parse(value);
-    }
-
-    private static SalesSessionId parseSalesSessionId(String value) {
-        return value == null ? null : SalesSessionId.parse(value);
-    }
 
     private static OperationalContextSource resolveSource(String value) {
         if (StringUtils.isBlank(value)) {
@@ -56,14 +39,7 @@ public final class OperationalContextHeaderParser {
     }
 
     private static OperationalContextSource deriveSource(
-        OperationalContextSource declaredSource,
-        TerminalId terminalId,
-        OutletId outletId,
-        SalesSessionId salesSessionId) {
-
-        if (terminalId == null && outletId == null && salesSessionId == null) {
-            return OperationalContextSource.NONE;
-        }
+        OperationalContextSource declaredSource) {
 
         if (declaredSource == OperationalContextSource.ADMIN_SELECTION) {
             log.warn("tch.context.admin-selection-without-token");

@@ -92,13 +92,9 @@ public class IdentityUserAdminController {
     public ApiResponse<TenantUserAdminResponse> create(
         @CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateUserRequest req) {
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
-        if (req.role() == TchRole.CASHIER && req.outletId() == null) {
-            throw ProblemRest.badRequest("outletId is required when role=CASHIER");
-        }
         var created = provisioning.provisionTenantUser(
             ctx.tenantId(), ctx.currentUserIdRequired(),
-            req.email(), req.phone(), req.firstName(), req.lastName(),
-            req.outletId(), req.terminalId(), req.role());
+            req.email(), req.phone(), req.firstName(), req.lastName(), req.role());
         return ApiResponse.success(view.load(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
     }
 
@@ -173,7 +169,7 @@ public class IdentityUserAdminController {
         @PathVariable UserId userId,
         @Valid @RequestBody UpsertMembershipRequest req) {
         view.assertTenantScoped(ctx, userId);
-        memberships.assign(ctx.tenantId(), userId, req.outletId(), req.terminalId(), false);
+        memberships.assign(ctx.tenantId(), userId, false);
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 

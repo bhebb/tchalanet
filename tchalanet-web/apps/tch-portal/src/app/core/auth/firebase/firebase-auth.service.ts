@@ -6,9 +6,7 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   signOut,
-  user,
 } from '@angular/fire/auth';
-import { firstValueFrom } from 'rxjs';
 
 import { AuthClient, AuthLoginRequest } from '../auth-client';
 
@@ -16,10 +14,9 @@ import { AuthClient, AuthLoginRequest } from '../auth-client';
 export class FirebaseAuthService implements AuthClient {
   private readonly auth = inject(Auth);
 
-  readonly user$ = user(this.auth);
-
   async isAuthenticated(): Promise<boolean> {
-    return (await firstValueFrom(this.user$)) !== null;
+    await this.auth.authStateReady();
+    return this.auth.currentUser !== null;
   }
 
   async login(request: AuthLoginRequest): Promise<void> {
@@ -35,12 +32,14 @@ export class FirebaseAuthService implements AuthClient {
   }
 
   async getAccessToken(forceRefresh = false): Promise<string | null> {
-    const currentUser = await firstValueFrom(this.user$);
+    await this.auth.authStateReady();
+    const currentUser = this.auth.currentUser;
     return currentUser ? currentUser.getIdToken(forceRefresh) : null;
   }
 
   async getTokenExpiresAt(): Promise<string | undefined> {
-    const currentUser = await firstValueFrom(this.user$);
+    await this.auth.authStateReady();
+    const currentUser = this.auth.currentUser;
     if (!currentUser) {
       return undefined;
     }

@@ -116,7 +116,6 @@ public class SellTicketCommandHandler
             prepared.moneyBreakdown(),
             prepared.ticketLines(),
             TicketSaleChannel.POS_ONLINE,
-            null,
             prepared.requiresApproval(),
             prepared.approvalRequestId(),
             actorUserId,
@@ -224,7 +223,6 @@ public class SellTicketCommandHandler
             context,
             money,
             lines,
-            null,  // offlineRef: always null for POS_ONLINE flow
             promotionDecision
         );
     }

@@ -603,8 +603,52 @@
       "description": "Manage Tchalanet tenants"
     },
     "tenantProvisioning": {
-      "title": "Tenant Provisioning",
-      "description": "Provision a new tenant"
+      "title": "Provision a tenant",
+      "description": "Create a tenant, apply an initial profile, and prepare its configuration.",
+      "backToTenants": "Back to tenants",
+      "section": {
+        "identity": "Identity & classification",
+        "regional": "Regional settings",
+        "profile": "Provisioning profile",
+        "initialAdmin": "Initial admin"
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Display name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "profile": "Profile",
+        "initialAdminEmail": "Initial admin email"
+      },
+      "hint": {
+        "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
+      },
+      "error": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3–30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address."
+      },
+      "action": {
+        "cancel": "Cancel",
+        "submit": "Provision tenant",
+        "submitting": "Provisioning..."
+      },
+      "identityCard": {
+        "eyebrow": "Tenant identity",
+        "fallbackTitle": "New tenant",
+        "unassignedCode": "unassigned"
+      },
+      "health": {
+        "title": "Configuration health",
+        "eyebrow": "Readiness",
+        "loading": "Calculating profile...",
+        "fallback": "To validate"
+      },
+      "result": {
+        "nextSteps": "Next steps",
+        "warnings": "Warnings"
+      }
     },
     "contactRequests": {
       "title": "Contact Requests",

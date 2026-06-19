@@ -115,11 +115,13 @@
             [disabled]="loading() || loginForm.invalid"
           >
             @if (loading()) {
-              <mat-icon class="login-card__spinner" aria-hidden="true">progress_activity</mat-icon>
+              <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
+                progress_activity
+              </span>
               {{ 'auth.login.form.authenticating' | translate }}
             } @else {
               {{ 'auth.login.form.submit' | translate }}
-              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             }
           </button>
         </form>

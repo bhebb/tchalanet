@@ -603,8 +603,52 @@
       "description": "Jesyon tenant Tchalanet"
     },
     "tenantProvisioning": {
-      "title": "Pwovizyon tenant",
-      "description": "Pwovizyone yon nouvo tenant"
+      "title": "Pwovizyone yon tenant",
+      "description": "Kreye yon tenant, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
+      "backToTenants": "Retounen nan tenants",
+      "section": {
+        "identity": "Idantite & klasifikasyon",
+        "regional": "Paramèt rejyonal",
+        "profile": "Pwofil provisioning",
+        "initialAdmin": "Admin inisyal"
+      },
+      "field": {
+        "code": "Kòd tenant",
+        "name": "Non afichaj",
+        "type": "Tip",
+        "timezone": "Fizo orè",
+        "currency": "Lajan",
+        "profile": "Pwofil",
+        "initialAdminEmail": "Imèl admin inisyal"
+      },
+      "hint": {
+        "initialAdminEmail": "Si li vid, tenant lan ap kreye san administratè inisyal."
+      },
+      "error": {
+        "code": "Fòma obligatwa: ti lèt, chif, tirè (3–30 karaktè).",
+        "required": "Chan obligatwa.",
+        "email": "Adrès imèl pa valid."
+      },
+      "action": {
+        "cancel": "Anile",
+        "submit": "Pwovizyone tenant lan",
+        "submitting": "Pwovizyonman..."
+      },
+      "identityCard": {
+        "eyebrow": "Idantite tenant lan",
+        "fallbackTitle": "Nouvo tenant",
+        "unassignedCode": "pa asiyen"
+      },
+      "health": {
+        "title": "Sante konfigirasyon",
+        "eyebrow": "Readiness",
+        "loading": "Kalkil pwofil la...",
+        "fallback": "Pou valide"
+      },
+      "result": {
+        "nextSteps": "Pwochen etap",
+        "warnings": "Avètisman"
+      }
     },
     "contactRequests": {
       "title": "Demann kontak",

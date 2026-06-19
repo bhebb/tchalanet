@@ -1,22 +1,15 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import {
-    Auth,
-    browserLocalPersistence,
-    browserSessionPersistence,
-    setPersistence,
-    signInWithEmailAndPassword,
-    signOut,
-} from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
 
 import { UserRole, UserSession } from '../../shared/types';
 import { PrivateRuntimeInitializer } from '../runtime';
+import { AUTH_CLIENT } from './auth-client';
 
 const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
-    private readonly auth = inject(Auth);
+    private readonly auth = inject(AUTH_CLIENT);
     private readonly runtime = inject(PrivateRuntimeInitializer);
 
     private readonly sessionState = signal<UserSession>({
@@ -28,14 +21,7 @@ export class AuthSessionService {
     readonly authenticated = computed(() => this.session().authenticated);
 
     async refreshSession(force = false): Promise<UserSession> {
-        // Wait for Firebase to restore the persisted session from localStorage.
-        // Without this, firstValueFrom() would capture the transient null emitted
-        // before the SDK finishes initializing, causing a redirect to /login on
-        // every page refresh even when the user is still authenticated.
-        await this.auth.authStateReady();
-        const firebaseUser = this.auth.currentUser;
-
-        if (!firebaseUser) {
+        if (!(await this.auth.isAuthenticated())) {
             return this.setAnonymousSession();
         }
 
@@ -59,7 +45,7 @@ export class AuthSessionService {
                 tenantId: bootstrap.tenantContext?.tenantId,
                 tenantCode: bootstrap.tenantContext?.tenantCode ?? undefined,
                 roles: normalizeRoles(bootstrap.entitlements.roles),
-                tokenExpiresAt: await this.firebaseTokenExpiresAt(),
+                tokenExpiresAt: await this.auth.getTokenExpiresAt(),
             };
 
             this.sessionState.set(session);
@@ -75,13 +61,16 @@ export class AuthSessionService {
     }
 
     async login(email: string, password: string, remember = true): Promise<UserSession> {
-        await setPersistence(this.auth, remember ? browserLocalPersistence : browserSessionPersistence);
-        await signInWithEmailAndPassword(this.auth, email, password);
+        await this.auth.login({
+            username: email,
+            password,
+            remember,
+        });
         return this.refreshSession(true);
     }
 
     async logout(): Promise<void> {
-        await signOut(this.auth);
+        await this.auth.logout();
         this.setAnonymousSession();
     }
 
@@ -94,38 +83,10 @@ export class AuthSessionService {
         this.sessionState.set(session);
         return session;
     }
-
-    private async firebaseTokenExpiresAt(): Promise<string | undefined> {
-        const firebaseUser = this.auth.currentUser;
-
-        if (!firebaseUser) {
-            return undefined;
-        }
-
-        const token = await firebaseUser.getIdToken();
-        const payload = decodeJwtPayload(token);
-        const exp = payload['exp'];
-
-        return typeof exp === 'number' ? new Date(exp * 1000).toISOString() : undefined;
-    }
 }
 
 function normalizeRoles(roles: readonly string[] | undefined): readonly UserRole[] {
     return (roles ?? [])
         .map((role) => role.toUpperCase())
         .filter((role): role is UserRole => supportedRoles.includes(role as UserRole));
-}
-
-function decodeJwtPayload(token: string): Readonly<Record<string, unknown>> {
-    const [, payload] = token.split('.');
-
-    if (!payload) {
-        return {};
-    }
-
-    try {
-        return JSON.parse(atob(payload));
-    } catch {
-        return {};
-    }
 }

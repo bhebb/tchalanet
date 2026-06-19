@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -22,8 +21,6 @@ public final class ScopePersistenceMapper {
             case LimitScopeRef.SellerTerminalScope(SellerTerminalId id) ->
                 new ScopeRow(ScopeType.SELLER_TERMINAL, id.value());
             case LimitScopeRef.AgentScope(UserId id) -> new ScopeRow(ScopeType.AGENT, id.value());
-
-            case LimitScopeRef.OutletScope(OutletId id) -> new ScopeRow(ScopeType.OUTLET, id.value());
 
             case LimitScopeRef.DrawChannelScope(DrawChannelId id) -> new ScopeRow(ScopeType.DRAW_CHANNEL, id.value());
         };

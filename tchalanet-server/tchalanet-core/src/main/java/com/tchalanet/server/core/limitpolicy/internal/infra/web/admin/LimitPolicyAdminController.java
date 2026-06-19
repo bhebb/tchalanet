@@ -7,7 +7,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -110,11 +109,6 @@ public class LimitPolicyAdminController {
         return switch (targetType) {
             case TENANT -> LimitScopeRef.tenant(context.effectiveTenantIdRequired());
 
-            case OUTLET -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeRef.outlet(OutletId.parse(targetId));
-            }
-
             case AGENT -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeRef.agent(UserId.parse(targetId));
@@ -145,11 +139,6 @@ public class LimitPolicyAdminController {
 
         return switch (targetType) {
             case TENANT -> LimitScopeQueryRef.tenant(context.effectiveTenantIdRequired());
-
-            case OUTLET -> {
-                requireTargetId(targetType, targetId);
-                yield LimitScopeQueryRef.outlet(OutletId.parse(targetId));
-            }
 
             case AGENT -> {
                 requireTargetId(targetType, targetId);

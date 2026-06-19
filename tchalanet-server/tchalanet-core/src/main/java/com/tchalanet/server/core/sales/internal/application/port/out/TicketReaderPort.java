@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.port.out;
 
-import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;

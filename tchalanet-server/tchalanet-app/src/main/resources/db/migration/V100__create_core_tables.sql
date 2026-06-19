@@ -1132,6 +1132,10 @@ CREATE TABLE promotion_rule_effect (
   quantity integer NULL,
   odds_override numeric(19,6) NULL,
   charge_type varchar(64) NULL,
+  choice_mode varchar(32) NULL,
+  generation_strategy varchar(32) NULL,
+  regenerable_before_confirm boolean NOT NULL DEFAULT false,
+  max_regenerations_before_confirm integer NOT NULL DEFAULT 3,
   created_at timestamptz NOT NULL DEFAULT now(),
   created_by uuid NULL,
   updated_at timestamptz NULL,
@@ -1142,7 +1146,8 @@ CREATE TABLE promotion_rule_effect (
   CONSTRAINT chk_promotion_rule_effect_type CHECK (effect_type IN ('FREE_GAME_LINE','BOOST_ODDS','WAIVE_CHARGE')),
   CONSTRAINT chk_promotion_rule_effect_quantity CHECK (quantity IS NULL OR quantity > 0),
   CONSTRAINT chk_promotion_rule_effect_amount CHECK (payout_base_amount IS NULL OR payout_base_amount > 0),
-  CONSTRAINT chk_promotion_rule_effect_odds CHECK (odds_override IS NULL OR odds_override > 0)
+  CONSTRAINT chk_promotion_rule_effect_odds CHECK (odds_override IS NULL OR odds_override > 0),
+  CONSTRAINT chk_promotion_rule_effect_regenerations CHECK (max_regenerations_before_confirm >= 0)
 );
 
 CREATE TABLE promotion_rule_eligibility_line (

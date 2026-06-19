@@ -1,8 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.web.admin.model;
 
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TerminalId;
+
 import java.time.Instant;
 
 public record TenantUserAdminResponse(
@@ -13,8 +12,6 @@ public record TenantUserAdminResponse(
     String status,
     String role,
     String membershipStatus,
-    OutletId outletId,
-    TerminalId terminalId,
     ExternalIdentitySyncStatus externalIdentitySyncStatus,
     InvitationStatus invitationStatus,
     Instant createdAt,

@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenant.internal.persistence;
 
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
 import com.tchalanet.server.platform.tenant.internal.port.TenantBusinessCalendarOverrideReader;
@@ -37,28 +36,6 @@ class JdbcTenantBusinessCalendarOverrideReader implements TenantBusinessCalendar
         """;
 
     private final NamedParameterJdbcTemplate jdbc;
-
-    @Override
-    public Optional<TenantBusinessDayView> findOutletOverride(
-        TenantId tenantId,
-        OutletId outletId,
-        LocalDate date
-    ) {
-        var params = new MapSqlParameterSource()
-            .addValue("tenant_id", tenantId.value())
-            .addValue("outlet_id", outletId.value())
-            .addValue("business_date", date);
-
-        return jdbc.query(OUTLET_SQL, params, (rs, i) ->
-            new TenantBusinessDayView(
-                tenantId,
-                date,
-                rs.getBoolean("open"),
-                rs.getString("reason_code"),
-                rs.getString("label")
-            )
-        ).stream().findFirst();
-    }
 
     @Override
     public Optional<TenantBusinessDayView> findTenantOverride(

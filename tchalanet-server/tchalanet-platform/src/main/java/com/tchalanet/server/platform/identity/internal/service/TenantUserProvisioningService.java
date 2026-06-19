@@ -1,9 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
@@ -43,7 +41,7 @@ public class TenantUserProvisioningService {
       TchRole role) {
 
     var created = userAdminService.createUserForTenant(email, null, firstName, lastName, tenantCode);
-    assignMembershipAndRole(tenantId, created.userId(), null, null, role, null);
+    assignMembershipAndRole(tenantId, created.userId(), role, null);
     return created;
   }
 
@@ -60,20 +58,18 @@ public class TenantUserProvisioningService {
       String phone,
       String firstName,
       String lastName,
-      OutletId outletId,
-      TerminalId terminalId,
       TchRole role) {
 
     var created =
         userAdminService.createUser(
             email, phone, firstName, lastName, null, null, null, null, null, false, Set.of());
-    assignMembershipAndRole(tenantId, created.userId(), outletId, terminalId, role, actor);
+    assignMembershipAndRole(tenantId, created.userId(), role, actor);
     return created;
   }
 
   private void assignMembershipAndRole(
-      TenantId tenantId, UserId userId, OutletId outletId, TerminalId terminalId, TchRole role, UserId actor) {
-    tenantMembershipService.assign(tenantId, userId, outletId, terminalId, false);
+      TenantId tenantId, UserId userId, TchRole role, UserId actor) {
+    tenantMembershipService.assign(tenantId, userId, false);
     if (role != null) {
       accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(tenantId, userId, role.name(), actor));
       log.info("Provisioned user {} in tenant {} with role {}", userId, tenantId, role);

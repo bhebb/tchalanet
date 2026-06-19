@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.api.query;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -11,7 +10,6 @@ public record LimitScopeQueryRef(Type type, UUID id) {
 
   public enum Type {
     TENANT,
-    OUTLET,
     AGENT,
     SELLER_TERMINAL,
     DRAW_CHANNEL
@@ -19,10 +17,6 @@ public record LimitScopeQueryRef(Type type, UUID id) {
 
   public static LimitScopeQueryRef tenant(TenantId tenantId) {
     return new LimitScopeQueryRef(Type.TENANT, tenantId.value());
-  }
-
-  public static LimitScopeQueryRef outlet(OutletId outletId) {
-    return new LimitScopeQueryRef(Type.OUTLET, outletId.value());
   }
 
   public static LimitScopeQueryRef agent(UserId userId) {

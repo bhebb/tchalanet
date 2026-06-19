@@ -6,14 +6,14 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, from, switchMap, throwError } from 'rxjs';
+import { APPLICATION_API_URL_PATTERN } from '@tch/shared-config';
 
-import { environment } from '../../../environments/environment';
 import { AUTH_CLIENT } from './auth-client';
 
 const AUTH_RETRY_TOKEN = new HttpContextToken<boolean>(() => false);
 
 export const authBearerInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!isTchalanetApiRequest(req.url)) {
+  if (!APPLICATION_API_URL_PATTERN.test(req.url)) {
     return next(req);
   }
   const auth = inject(AUTH_CLIENT);
@@ -59,11 +59,4 @@ function withBearerToken(req: HttpRequest<unknown>, token: string): HttpRequest<
       Authorization: `Bearer ${token}`,
     },
   });
-}
-
-function isTchalanetApiRequest(url: string): boolean {
-  //url contains /api/v1/tenant, ou /api/v1/platform, ou /api/v1/admin
-  return url.match(new RegExp(`^/?${environment.apiBasePath}/(tenant|platform|admin)/`)) !== null;
-  // Alternatively, if all API endpoints are under /api/, you could simply check:
-  //
 }

@@ -603,8 +603,52 @@
       "description": "Gestion des tenants Tchalanet"
     },
     "tenantProvisioning": {
-      "title": "Provisionnement tenant",
-      "description": "Provisionner un nouveau tenant"
+      "title": "Provisionner un tenant",
+      "description": "Créez un tenant, appliquez un profil initial et préparez sa configuration.",
+      "backToTenants": "Retour aux tenants",
+      "section": {
+        "identity": "Identité & classification",
+        "regional": "Paramètres régionaux",
+        "profile": "Profil de provisioning",
+        "initialAdmin": "Admin initial"
+      },
+      "field": {
+        "code": "Code du tenant",
+        "name": "Nom d'affichage",
+        "type": "Type",
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "profile": "Profil",
+        "initialAdminEmail": "Email de l'admin initial"
+      },
+      "hint": {
+        "initialAdminEmail": "Si vide, le tenant sera créé sans administrateur initial."
+      },
+      "error": {
+        "code": "Format requis : lettres minuscules, chiffres, tirets (3–30 caractères).",
+        "required": "Champ requis.",
+        "email": "Adresse email invalide."
+      },
+      "action": {
+        "cancel": "Annuler",
+        "submit": "Provisionner le tenant",
+        "submitting": "Provisionnement..."
+      },
+      "identityCard": {
+        "eyebrow": "Identité du tenant",
+        "fallbackTitle": "Nouveau tenant",
+        "unassignedCode": "non-assigné"
+      },
+      "health": {
+        "title": "Santé de la configuration",
+        "eyebrow": "Readiness",
+        "loading": "Calcul du profil...",
+        "fallback": "À valider"
+      },
+      "result": {
+        "nextSteps": "Prochaines étapes",
+        "warnings": "Alertes"
+      }
     },
     "contactRequests": {
       "title": "Demandes de contact",

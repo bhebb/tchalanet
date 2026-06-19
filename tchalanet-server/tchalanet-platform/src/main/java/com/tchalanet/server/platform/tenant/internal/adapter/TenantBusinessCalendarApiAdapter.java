@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenant.internal.adapter;
 
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
@@ -21,15 +20,8 @@ public class TenantBusinessCalendarApiAdapter implements TenantBusinessCalendarA
     @Override
     public TenantBusinessDayView resolveBusinessDay(
         TenantId tenantId,
-        OutletId outletId,
         LocalDate businessDate
     ) {
-        if (outletId != null) {
-            var outletOverride = overrideReader.findOutletOverride(tenantId, outletId, businessDate);
-            if (outletOverride.isPresent()) {
-                return outletOverride.get();
-            }
-        }
         var tenantOverride = overrideReader.findTenantOverride(tenantId, businessDate);
         return tenantOverride.orElseGet(() -> resolveFromTenantRules(tenantId, businessDate));
     }
