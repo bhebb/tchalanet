@@ -5,10 +5,8 @@ import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import jakarta.persistence.*;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 
 /**
@@ -23,12 +21,6 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 @Getter
 @Setter
 public class SettingEntity extends BaseTenantEntity {
-
-  @Column(name = "outlet_id")
-  private UUID outletId;
-
-  @Column(name = "terminal_id")
-  private UUID terminalId;
 
   @Column(name = "namespace", nullable = false, length = 255)
   private String namespace;

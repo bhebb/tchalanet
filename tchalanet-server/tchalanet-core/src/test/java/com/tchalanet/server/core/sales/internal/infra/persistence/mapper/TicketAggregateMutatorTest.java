@@ -1,17 +1,12 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -20,10 +15,10 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
@@ -33,13 +28,17 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdenti
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("TicketAggregateMutator")
 class TicketAggregateMutatorTest {
@@ -48,7 +47,8 @@ class TicketAggregateMutatorTest {
     private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
     private static final UserId USER = UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
     private static final TenantId TENANT = TenantId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
-    private static final TicketJpaMapper MAPPER = new TicketJpaMapper() {};
+    private static final TicketJpaMapper MAPPER = new TicketJpaMapper() {
+    };
     private final TicketAggregateMutator mutator = new TicketAggregateMutator(MAPPER);
 
     @Test
@@ -165,10 +165,6 @@ class TicketAggregateMutatorTest {
     ) {
         assertThat(managed.getId()).isEqualTo(original.identity().id().value());
         assertThat(managed.getTenantId()).isEqualTo(original.identity().tenantId().value());
-        assertThat(managed.getOutletId()).isEqualTo(original.context().outletId().value());
-        assertThat(managed.getTerminalId()).isEqualTo(original.context().terminalId().value());
-        assertThat(managed.getSellerUserId()).isEqualTo(original.context().sellerUserId().value());
-        assertThat(managed.getSalesSessionId()).isEqualTo(original.context().salesSessionId().value());
         assertThat(managed.getDrawId()).isEqualTo(original.context().drawId().value());
         assertThat(managed.getDrawChannelId()).isEqualTo(original.context().drawChannelId().value());
         assertThat(managed.getTicketCode()).isEqualTo(original.codes().ticketCode().value());
@@ -215,14 +211,11 @@ class TicketAggregateMutatorTest {
 
     private static TicketContext context() {
         return new TicketContext(
-            OutletId.of(UUID.fromString("50000000-0000-0000-0000-000000000001")),
-            TerminalId.of(UUID.fromString("60000000-0000-0000-0000-000000000001")),
-            USER,
-            SalesSessionId.of(UUID.fromString("70000000-0000-0000-0000-000000000001")),
             DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
             DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-            null, null,
-            null, null, null);
+            SellerTerminalId.of(UUID.fromString("91000000-0000-0000-0000-000000000001")),
+            null,
+            null);
     }
 
     private static TicketLine line() {

@@ -10,7 +10,6 @@ import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
-import com.tchalanet.server.core.sales.internal.application.service.sell.model.SaleSellerContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -66,7 +65,6 @@ public class SalePreparationOrchestrator {
         Instant now,
         TenantId tenantId
     ) {
-        var pos = posSaleContextResolver.resolveForSellerTerminal(ctx);
         var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
         var mergedLines = command.lines();
         var paidLines = ticketLinePreparationService.toTicketLines(tenantId, mergedLines, command.currency());
@@ -75,12 +73,10 @@ public class SalePreparationOrchestrator {
         var policyDecision = SalePolicyDecision.allowed(new LimitEvaluationView(null, List.of()));
 
         return new PreparedSale(
-            pos, draw, now, mergedLines, paidLines, charges, money,
+            draw, now, mergedLines, paidLines, charges, money,
             policyDecision.limits(), policyDecision.autonomy(),
             false, null, null, null,
-            List.of(),
-            SaleSellerContext.empty().sellerId(),
-            SaleSellerContext.empty().sellerAssignmentId()
+            List.of()
         );
     }
 }

@@ -28,8 +28,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
  *       explicit {@code Clock}.</li>
  * </ol>
  *
- * <p>Scope is intentionally limited to actively maintained core domains (draw, sales, session,
- * offlinesync). Known pre-existing violations in other domains are tracked in separate tasks.
+ * <p>Scope is intentionally limited to actively maintained core domains (draw, sales).
+ * Known pre-existing violations in other domains are tracked in separate tasks.
  */
 @DisplayName("Timezone enforcement (ArchUnit)")
 class TimezoneEnforcementArchTest {
@@ -41,8 +41,6 @@ class TimezoneEnforcementArchTest {
     private static final String[] COMPLIANT_CORE_PACKAGES = {
         "com.tchalanet.server.core.draw..",
         "com.tchalanet.server.core.sales..",
-        "com.tchalanet.server.core.session..",
-        "com.tchalanet.server.core.offlinesync..",
     };
 
     private static JavaClasses coreClasses;
@@ -138,4 +136,3 @@ class TimezoneEnforcementArchTest {
         }
     }
 }
-

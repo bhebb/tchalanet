@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.command.handler.preparation;
 
 import com.tchalanet.server.common.time.TimeProvider;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.command.preparation.RegenerateSalePreparationPromotionLineCommand;
 import com.tchalanet.server.core.sales.api.model.preparation.SalePreparationStatus;
@@ -43,7 +44,7 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
     private SalePreparation draft(
         SalePreparationStatus status, Instant expiresAt, boolean regenerable, int count, int max) {
         return new SalePreparation(
-            PREP_ID, status, null, null, null, UUID.randomUUID(),
+            PREP_ID, status, SellerTerminalId.of(UUID.randomUUID()), UUID.randomUUID(),
             "hash", Map.of(), null, null, null, expiresAt, null,
             List.of(new SalePreparationPromotionLine(
                 "ref-1", "HT_MARYAJ_GRATUIT", "MARRIAGE_2D2D", (short) 1, "34-78",

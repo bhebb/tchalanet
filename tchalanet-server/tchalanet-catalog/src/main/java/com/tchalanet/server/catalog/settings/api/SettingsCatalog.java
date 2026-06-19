@@ -11,7 +11,7 @@ import java.util.List;
  * Settings Catalog - Read Contract
  *
  * <p>Provides read-only access to application settings with hierarchical resolution:
- * GLOBAL → TENANT → OUTLET → TERMINAL
+ * GLOBAL → TENANT
  *
  * <p>Settings are merged in order of specificity, with later levels overriding earlier ones.
  *
@@ -27,9 +27,9 @@ public interface SettingsCatalog {
   /**
    * Resolve effective settings for the given criteria.
    *
-   * <p>Merges settings in order: GLOBAL → TENANT → OUTLET (if provided) → TERMINAL (if provided)
+   * <p>Merges settings in order: GLOBAL → TENANT
    *
-   * @param criteria resolution criteria (tenant, outlet, terminal, namespaces)
+   * @param criteria resolution criteria (tenant, namespaces)
    * @return list of resolved settings with effective level
    */
   List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria);

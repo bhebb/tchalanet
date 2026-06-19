@@ -67,13 +67,11 @@ SELECT '00000000-0000-0000-0000-000000000305'::uuid, unnest(ARRAY[
   'game-pricing.read','game-pricing.update',
   'limit.read','limit.manage',
   'promotion.read','promotion.manage',
-  'operational-context.read','operational-context.select',
   'report.read',
   -- V232 additions
   'seller_terminal.manage','seller_terminal.block','seller_terminal.reset_access',
   'seller_terminal.operational_context.read',
   'sales.read','sales.report.read',
-  'ticket.read','ticket.void',
   'odds.read','odds.manage',
   'draw_result.read','draw_result.manage','draw_result.confirm',
   'billing.read',
@@ -86,7 +84,6 @@ SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
   'seller_terminal.manage','seller_terminal.block','seller_terminal.reset_access',
   'seller_terminal.operational_context.read',
   'sales.read','sales.report.read',
-  'ticket.read','ticket.void',
   'odds.read','odds.manage',
   'draw_result.read','draw_result.manage','draw_result.confirm',
   'billing.read'

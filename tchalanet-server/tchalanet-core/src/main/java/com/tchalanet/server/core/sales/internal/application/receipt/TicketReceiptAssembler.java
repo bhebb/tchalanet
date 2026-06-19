@@ -58,9 +58,8 @@ public class TicketReceiptAssembler {
             printView.draw().label(),
             printView.draw().drawChannelName(),
             printView.draw().scheduledAt(),
-            printView.context().outletName(),
-            printView.context().terminalCode(),
-            printView.context().sellerDisplayName(),
+            printView.context().sellerTerminalCode(),
+            printView.context().sellerTerminalDisplayName(),
             printView.metadata().placedAt(),
             locale,
             printView.metadata().timezone(),
@@ -68,8 +67,7 @@ public class TicketReceiptAssembler {
             printView.money().stake(),
             printView.money().totalAmount(),
             printView.money().potentialPayoutAmount(),
-            printView.branding() == null ? null : printView.branding().outletReceiptFooter(),
-            printView.branding() == null ? null : printView.branding().tenantReceiptFooter(),
+            null, // tenantReceiptFooter (no longer used)
             verificationUrl,
             // isReprint: printCount > 0 means at least one prior print → DUPLICATA
             printView.printState() != null && printView.printState().printCount() > 0

@@ -1,8 +1,6 @@
 package com.tchalanet.server.catalog.settings.api.model;
 
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 
 public record CreateSettingAdminRequest(
     String namespace,
@@ -11,6 +9,4 @@ public record CreateSettingAdminRequest(
     SettingValueType valueType,
     SettingLevel level,
     SettingExposure exposure,
-    TenantId tenantId,
-    OutletId outletId,
-    TerminalId terminalId) {}
+    TenantId tenantId) {}

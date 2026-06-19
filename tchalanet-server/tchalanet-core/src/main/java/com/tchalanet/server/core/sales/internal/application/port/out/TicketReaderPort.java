@@ -21,9 +21,5 @@ public interface TicketReaderPort {
 
     Optional<Ticket> findByVerificationCode(String verificationCode);
 
-    Optional<Ticket> findByOfflineSubmissionId(OfflineSubmissionId submissionId);
-
     List<Ticket> findByDrawId(DrawId drawId);
-
-    boolean existsByOfflineSubmissionId(OfflineSubmissionId submissionId);
 }

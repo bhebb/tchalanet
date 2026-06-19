@@ -11,14 +11,11 @@ import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
-import com.tchalanet.server.core.payout.api.query.PayoutRow;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
-import com.tchalanet.server.core.sales.api.query.GetTerminalDailyStatsQuery;
+import com.tchalanet.server.core.sales.api.query.GetSellerTerminalDailyStatsQuery;
 import com.tchalanet.server.features.cashier.tickets.model.DrawStatLineDto;
-import com.tchalanet.server.features.cashier.tickets.model.TerminalDailyStatsResponse;
+import com.tchalanet.server.features.cashier.tickets.model.SellerTerminalDailyStatsResponse;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
 import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
@@ -46,12 +43,10 @@ import com.tchalanet.server.features.cashier.tickets.model.CashierVerifyTicketRe
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +64,7 @@ public class CashierTicketsService {
         TchRequestContext ctx,
         CashierTicketPreviewRequest request
     ) {
-        validateSellerContext(ctx, request.terminalId());
+        validateSellerContext(ctx, request.sellerTerminalId());
         var result = queryBus.ask(new PreviewTicketSaleQuery(
             DrawId.of(request.drawId()),
             drawChannelId(request.drawChannelId()),
@@ -86,7 +81,7 @@ public class CashierTicketsService {
     }
 
     public CashierSellTicketResponse sell(TchRequestContext ctx, CashierSellTicketRequest request) {
-        validateSellerContext(ctx, request.terminalId());
+        validateSellerContext(ctx, request.sellerTerminalId());
         var result = commandBus.execute(new SellTicketCommand(
             DrawId.of(request.drawId()),
             drawChannelId(request.drawChannelId()),
@@ -113,7 +108,7 @@ public class CashierTicketsService {
         TicketId ticketId,
         CashierTicketCancelRequest request
     ) {
-        validateSellerContext(ctx, request.terminalId());
+        validateSellerContext(ctx, request.sellerTerminalId());
         var result = commandBus.execute(new CancelTicketCommand(ticketId, request.reason()));
         return new CashierTicketCancelResponse(
             result.ticketId(),
@@ -129,13 +124,13 @@ public class CashierTicketsService {
         return TchPageMapper.map(result, mapper::toPageResponse);
     }
 
-    public TerminalDailyStatsResponse terminalStats(TchRequestContext ctx, String date) {
+    public SellerTerminalDailyStatsResponse sellerTerminalStats(TchRequestContext ctx, String date) {
         var zone = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.of("UTC");
         var targetDate = date != null ? LocalDate.parse(date) : LocalDate.now(zone);
         var from = targetDate.atStartOfDay(zone).toInstant();
         var to = targetDate.plusDays(1).atStartOfDay(zone).toInstant();
         var currency = ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "HTG";
-        var stats = queryBus.ask(new GetTerminalDailyStatsQuery(
+        var stats = queryBus.ask(new GetSellerTerminalDailyStatsQuery(
             ctx.effectiveTenantIdRequired(),
             ctx.sellerTerminalIdRequired(),
             from,
@@ -145,7 +140,7 @@ public class CashierTicketsService {
         var breakdown = stats.breakdown().stream()
             .map(b -> new DrawStatLineDto(b.drawId(), b.channelLabel(), b.ticketCount(), b.totalCents()))
             .toList();
-        return new TerminalDailyStatsResponse(stats.ticketCount(), stats.salesTotalCents(), stats.currency(), breakdown);
+        return new SellerTerminalDailyStatsResponse(stats.ticketCount(), stats.salesTotalCents(), stats.currency(), breakdown);
     }
 
     public CashierTicketDetailsResponse getDetails(TicketId ticketId) {
@@ -159,7 +154,7 @@ public class CashierTicketsService {
         TchRequestContext ctx,
         CashierVerifyTicketRequest request
     ) {
-        if (ctx.operationalContext() == null || !ctx.operationalContext().trustedForSensitiveOperation()) {
+        if (ctx == null || ctx.sellerTerminalId() == null) {
             return response(
                 CashierTicketVerificationStatus.OPERATION_NOT_ALLOWED,
                 CashierTicketVerificationSeverity.ERROR,
@@ -174,8 +169,7 @@ public class CashierTicketsService {
         var publicCode = ticketScanResolver.resolvePublicCode(request.scannedValue());
         try {
             var ticket = queryBus.ask(new GetTicketForCashierVerificationQuery(publicCode));
-            var payout = latestPayout(ticket);
-            return verificationResponse(ticket, payout);
+            return verificationResponse(ticket);
         } catch (ProblemRestException ex) {
             return response(
                 CashierTicketVerificationStatus.NOT_FOUND,
@@ -188,60 +182,44 @@ public class CashierTicketsService {
         }
     }
 
-    private CashierTicketVerificationResponse verificationResponse(
-        TicketCashierVerificationView ticket,
-        PayoutRow payout
-    ) {
-        var baseParams = params(ticket, payout);
+    private CashierTicketVerificationResponse verificationResponse(TicketCashierVerificationView ticket) {
+        var baseParams = params(ticket);
         if (ticket.customerStatus() == CustomerTicketStatus.CANCELLED) {
-            return status(ticket, payout, CashierTicketVerificationStatus.CANCELLED,
+            return status(ticket, CashierTicketVerificationStatus.CANCELLED,
                 CashierTicketVerificationSeverity.ERROR, baseParams);
         }
         if (ticket.customerStatus() == CustomerTicketStatus.VOIDED) {
-            return status(ticket, payout, CashierTicketVerificationStatus.VOIDED,
+            return status(ticket, CashierTicketVerificationStatus.VOIDED,
                 CashierTicketVerificationSeverity.ERROR, baseParams);
         }
         if (ticket.customerStatus() == CustomerTicketStatus.AWAITING_RESULT) {
             var pendingStatus = ticket.drawScheduledAt() != null && ticket.drawScheduledAt().isAfter(Instant.now())
                 ? CashierTicketVerificationStatus.NOT_PAYABLE_PENDING_DRAW
                 : CashierTicketVerificationStatus.NOT_PAYABLE_RESULT_PENDING;
-            return status(ticket, payout, pendingStatus, CashierTicketVerificationSeverity.INFO, baseParams);
+            return status(ticket, pendingStatus, CashierTicketVerificationSeverity.INFO, baseParams);
         }
         if (ticket.customerStatus() == CustomerTicketStatus.LOST) {
-            return status(ticket, payout, CashierTicketVerificationStatus.NOT_PAYABLE_LOST,
+            return status(ticket, CashierTicketVerificationStatus.NOT_PAYABLE_LOST,
                 CashierTicketVerificationSeverity.INFO, baseParams);
         }
-        if (payout != null && payout.status() == PayoutClaimStatus.PAID) {
-            return status(ticket, payout, CashierTicketVerificationStatus.ALREADY_PAID,
-                CashierTicketVerificationSeverity.SUCCESS, baseParams);
-        }
         if (ticket.customerStatus() == CustomerTicketStatus.WON_PAID) {
-            return status(ticket, payout, CashierTicketVerificationStatus.ALREADY_PAID,
+            return status(ticket, CashierTicketVerificationStatus.ALREADY_PAID,
                 CashierTicketVerificationSeverity.SUCCESS, baseParams);
         }
         if (ticket.customerStatus() == CustomerTicketStatus.CORRECTED) {
-            return status(ticket, payout, CashierTicketVerificationStatus.REPAIR_REQUIRED,
+            return status(ticket, CashierTicketVerificationStatus.REPAIR_REQUIRED,
                 CashierTicketVerificationSeverity.WARNING, baseParams);
         }
         if (ticket.customerStatus() == CustomerTicketStatus.WON_CLAIMABLE) {
-            if (payout == null) {
-                return status(ticket, null, CashierTicketVerificationStatus.REPAIR_REQUIRED,
-                    CashierTicketVerificationSeverity.WARNING, baseParams);
-            }
-            if (payout.status() == PayoutClaimStatus.OPEN) {
-                return status(ticket, payout, CashierTicketVerificationStatus.PAYABLE,
-                    CashierTicketVerificationSeverity.SUCCESS, baseParams);
-            }
-            return status(ticket, payout, CashierTicketVerificationStatus.BLOCKED,
-                CashierTicketVerificationSeverity.WARNING, baseParams);
+            return status(ticket, CashierTicketVerificationStatus.PAYABLE,
+                CashierTicketVerificationSeverity.SUCCESS, baseParams);
         }
-        return status(ticket, payout, CashierTicketVerificationStatus.BLOCKED,
+        return status(ticket, CashierTicketVerificationStatus.BLOCKED,
             CashierTicketVerificationSeverity.WARNING, baseParams);
     }
 
     private CashierTicketVerificationResponse status(
         TicketCashierVerificationView ticket,
-        PayoutRow payout,
         CashierTicketVerificationStatus status,
         CashierTicketVerificationSeverity severity,
         Map<String, Object> params
@@ -252,7 +230,7 @@ public class CashierTicketsService {
             "pos.ticket.verify." + key(status) + ".title",
             "pos.ticket.verify." + key(status) + ".message",
             params,
-            actions(ticket, payout, status)
+            actions(ticket, status)
         );
     }
 
@@ -276,19 +254,8 @@ public class CashierTicketsService {
 
     private List<CashierAction> actions(
         TicketCashierVerificationView ticket,
-        PayoutRow payout,
         CashierTicketVerificationStatus status
     ) {
-        if (status == CashierTicketVerificationStatus.PAYABLE && payout != null) {
-            return List.of(
-                CashierAction.enabled(CashierActionType.EXECUTE_PAYOUT,
-                    "pos.action.execute_payout",
-                    Map.of("payoutId", payout.id().value().toString())),
-                CashierAction.enabled(CashierActionType.VIEW_TICKET,
-                    "pos.action.view_ticket",
-                    Map.of("publicCode", ticket.publicCode()))
-            );
-        }
         if (status == CashierTicketVerificationStatus.NOT_FOUND) {
             return List.of(CashierAction.enabled(CashierActionType.NONE, "pos.action.none", Map.of()));
         }
@@ -305,22 +272,7 @@ public class CashierTicketsService {
         );
     }
 
-    private PayoutRow latestPayout(TicketCashierVerificationView ticket) {
-        var payouts = queryBus.ask(new ListPayoutsQuery(
-            null,
-            ticket.ticketId(),
-            null,
-            null,
-            null,
-            null,
-            PageRequest.of(0, 20)
-        ));
-        return payouts.items().stream()
-            .max(Comparator.comparing(PayoutRow::openedAt))
-            .orElse(null);
-    }
-
-    private Map<String, Object> params(TicketCashierVerificationView ticket, PayoutRow payout) {
+    private Map<String, Object> params(TicketCashierVerificationView ticket) {
         var params = new LinkedHashMap<String, Object>();
         params.put("publicCode", ticket.publicCode());
         params.put("displayCode", ticket.displayCode());
@@ -330,10 +282,6 @@ public class CashierTicketsService {
             params.put("amount", ticket.winningAmount().amount().toPlainString());
             params.put("currency", ticket.winningAmount().currency().value());
         }
-        if (payout != null) {
-            params.put("payoutId", payout.id().value().toString());
-            params.put("payoutStatus", payout.status().name());
-        }
         return params;
     }
 
@@ -341,11 +289,14 @@ public class CashierTicketsService {
         return status.name().toLowerCase(java.util.Locale.ROOT);
     }
 
-    private void validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
+    private void validateSellerContext(TchRequestContext ctx, java.util.UUID sellerTerminalId) {
         if (ctx == null) {
             throw ProblemRestException.unprocessable("seller_terminal.required");
         }
-        ctx.sellerTerminalIdRequired();
+        var currentSellerTerminalId = ctx.sellerTerminalIdRequired();
+        if (sellerTerminalId != null && !sellerTerminalId.equals(currentSellerTerminalId.value())) {
+            throw ProblemRestException.badRequest("seller_terminal.mismatch");
+        }
     }
 
     private DrawChannelId drawChannelId(java.util.UUID value) {

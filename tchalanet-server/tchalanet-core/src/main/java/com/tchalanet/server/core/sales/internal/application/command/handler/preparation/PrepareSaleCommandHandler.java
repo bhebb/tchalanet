@@ -67,9 +67,7 @@ public class PrepareSaleCommandHandler
         var preparation = store.create(new SalePreparation(
             idGenerator.newUuid(),
             SalePreparationStatus.DRAFT,
-            prepared.sellerId() == null ? null : prepared.sellerId().value(),
-            prepared.pos().salesSessionId() == null ? null : prepared.pos().salesSessionId().value(),
-            prepared.pos().terminalId() == null ? null : prepared.pos().terminalId().value(),
+            ctx.sellerTerminalIdRequired(),
             cmd.drawId().value(),
             codec.hash(sell),
             codec.toMap(sell),

@@ -29,7 +29,7 @@ class InMemorySalePreparationStore implements SalePreparationStorePort {
     public void updateStatus(UUID preparationId, SalePreparationStatus status) {
         var p = byId.get(preparationId);
         byId.put(preparationId, new SalePreparation(
-            p.id(), status, p.sellerId(), p.sessionId(), p.terminalId(), p.drawId(),
+            p.id(), status, p.sellerTerminalId(), p.drawId(),
             p.inputHash(), p.input(), p.promotionDecisionId(), p.idempotencyKey(),
             p.ticketId(), p.expiresAt(), p.confirmedAt(), p.promotionLines()));
     }
@@ -47,7 +47,7 @@ class InMemorySalePreparationStore implements SalePreparationStorePort {
                 : l)
             .toList();
         byId.put(preparationId, new SalePreparation(
-            p.id(), p.status(), p.sellerId(), p.sessionId(), p.terminalId(), p.drawId(),
+            p.id(), p.status(), p.sellerTerminalId(), p.drawId(),
             p.inputHash(), p.input(), p.promotionDecisionId(), p.idempotencyKey(),
             p.ticketId(), p.expiresAt(), p.confirmedAt(), lines));
     }
@@ -56,8 +56,8 @@ class InMemorySalePreparationStore implements SalePreparationStorePort {
     public void confirm(UUID preparationId, UUID ticketId, String idempotencyKey, Instant confirmedAt) {
         var p = byId.get(preparationId);
         byId.put(preparationId, new SalePreparation(
-            p.id(), SalePreparationStatus.CONFIRMED, p.sellerId(), p.sessionId(), p.terminalId(),
-            p.drawId(), p.inputHash(), p.input(), p.promotionDecisionId(), idempotencyKey,
+            p.id(), SalePreparationStatus.CONFIRMED, p.sellerTerminalId(), p.drawId(),
+            p.inputHash(), p.input(), p.promotionDecisionId(), idempotencyKey,
             ticketId, p.expiresAt(), confirmedAt, p.promotionLines()));
     }
 }

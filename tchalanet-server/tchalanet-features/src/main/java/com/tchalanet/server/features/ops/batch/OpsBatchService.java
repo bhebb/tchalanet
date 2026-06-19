@@ -142,14 +142,12 @@ public class OpsBatchService {
         UUID tenantUuid = tenantId != null ? tenantId.value() : null;
 
         Optional<SettingEntity> existing = appSettingRepo
-            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndTerminalIdAndNamespaceAndSettingKey(
-                level, tenantUuid, null, null, BATCH_NAMESPACE, settingKey);
+            .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceAndSettingKey(
+                level, tenantUuid, BATCH_NAMESPACE, settingKey);
 
         SettingEntity entity = existing.orElseGet(SettingEntity::new);
         entity.setLevel(level);
         entity.setTenantId(tenantUuid);
-        entity.setOutletId(null);
-        entity.setTerminalId(null);
         entity.setNamespace(BATCH_NAMESPACE);
         entity.setSettingKey(settingKey);
         entity.setValueType(SettingValueType.BOOLEAN);

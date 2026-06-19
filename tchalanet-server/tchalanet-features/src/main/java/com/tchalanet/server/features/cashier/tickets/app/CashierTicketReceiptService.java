@@ -3,7 +3,7 @@ package com.tchalanet.server.features.cashier.tickets.app;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
@@ -62,7 +62,7 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         PrintTicketRequest request
     ) {
-        var terminalId = validateSellerContext(ctx);
+        validateSellerContext(ctx, request.sellerTerminalId());
 
         // Resolve print profile once here (applies defaults and rejects invalid combos like ESC_POS+A4)
         final DocumentPrintProfile profile;
@@ -87,9 +87,6 @@ public class CashierTicketReceiptService {
                 recordedOptions,
                 request.reprintReason(),
                 ctx.userId(),
-                terminalId,
-                null,
-                null,
                 ctx.correlationId()
             ));
         }
@@ -111,7 +108,7 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         SendTicketReceiptRequest request
     ) {
-        validateSellerContext(ctx);
+        validateSellerContext(ctx, request.sellerTerminalId());
         validateRecipient(request);
         var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.locale()));
         var recipient = recipient(ctx, request);
@@ -189,7 +186,7 @@ public class CashierTicketReceiptService {
 
         // communicationPrintOptions must be PDF+A4; caller ensures no ESC_POS reaches here
         var pdfRequest = new PrintTicketRequest(
-            request.terminalId(),
+            request.sellerTerminalId(),
             communicationPrintOptions,
             false,
             request.reprintReason(),
@@ -236,10 +233,13 @@ public class CashierTicketReceiptService {
 
     // -- operational context ------------------------------------------------------
 
-    private TerminalId validateSellerContext(TchRequestContext ctx) {
+    private void validateSellerContext(TchRequestContext ctx, SellerTerminalId sellerTerminalId) {
         if (ctx == null) {
             throw ProblemRest.forbidden("seller_terminal.required");
         }
-        return TerminalId.of(ctx.sellerTerminalIdRequired().value());
+        var currentSellerTerminalId = ctx.sellerTerminalIdRequired();
+        if (sellerTerminalId != null && !sellerTerminalId.equals(currentSellerTerminalId)) {
+            throw ProblemRest.badRequest("seller_terminal.mismatch");
+        }
     }
 }

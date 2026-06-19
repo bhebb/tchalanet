@@ -13,7 +13,6 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageContent;
@@ -41,9 +40,8 @@ class CashierTicketReceiptServiceTest {
       TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
   private static final UserId USER_ID =
       UserId.of(UUID.fromString("00000000-0000-0000-0000-000000000002"));
-  private static final TerminalId TERMINAL_ID =
-      TerminalId.of(UUID.fromString("00000000-0000-0000-0000-000000000003"));
-  private static final SellerTerminalId SELLER_TERMINAL_ID = SellerTerminalId.of(TERMINAL_ID.value());
+  private static final SellerTerminalId SELLER_TERMINAL_ID =
+      SellerTerminalId.of(UUID.fromString("00000000-0000-0000-0000-000000000003"));
   private static final TicketId TICKET_ID =
       TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001"));
 
@@ -65,7 +63,7 @@ class CashierTicketReceiptServiceTest {
         context(),
         TICKET_ID,
         new SendTicketReceiptRequest(
-            TERMINAL_ID,
+            SELLER_TERMINAL_ID,
             CommunicationChannel.SMS,
             "+15145550100",
             null,

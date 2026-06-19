@@ -32,26 +32,25 @@ SELECT t.id                         AS ticket_id,
        dc.name                      AS draw_channel_name,
        COALESCE(dc.name, dc.code)    AS draw_channel_display_name,
 
-       o.id                         AS outlet_id,
-       o.slug                       AS outlet_code,
-       o.name                       AS outlet_name,
-       o.receipt_header_message     AS outlet_receipt_header,
-       o.receipt_footer_message     AS outlet_receipt_footer,
+       NULL::uuid                   AS outlet_id,
+       NULL::varchar                AS outlet_code,
+       NULL::varchar                AS outlet_name,
+       NULL::text                   AS outlet_receipt_header,
+       NULL::text                   AS outlet_receipt_footer,
 
-       tm.id                        AS terminal_id,
-       COALESCE(tm.inventory_tag, tm.label, tm.id::text) AS terminal_code,
-       tm.label                     AS terminal_label,
+       t.seller_terminal_id         AS terminal_id,
+       NULL::varchar                AS terminal_code,
+       NULL::varchar                AS terminal_label,
 
-       ss.id                        AS sales_session_id,
-       ss.id::text                  AS session_code,
+       NULL::uuid                   AS sales_session_id,
+       NULL::text                   AS session_code,
 
-       t.seller_user_id,
-       COALESCE(au.display_name, au.email::text) AS seller_display_name,
+       NULL::uuid                   AS seller_user_id,
+       t.seller_terminal_id::text   AS seller_display_name,
 
        COALESCE(
            NULLIF(tn.config #>> '{document,receipt,displayName}', ''),
            tn.name,
-           o.name,
            'Tchalanet'
        )                            AS tenant_display_name,
        NULLIF(
@@ -76,25 +75,15 @@ SELECT t.id                         AS ticket_id,
 
        t.placed_at,
        t.sale_channel               AS sale_origin,
-       COALESCE(up.locale, 'fr')     AS locale,
-       COALESCE(up.time_zone, o.timezone, 'America/Port-au-Prince') AS timezone
+       'fr'                         AS locale,
+       COALESCE(NULLIF(tn.config #>> '{timezone}', ''), 'America/Port-au-Prince') AS timezone
 FROM sales_ticket t
 JOIN draw d
     ON d.id = t.draw_id
 LEFT JOIN draw_channel dc
     ON dc.id = t.draw_channel_id
-LEFT JOIN outlet o
-    ON o.id = t.outlet_id
 LEFT JOIN tenant tn
     ON tn.id = t.tenant_id
-LEFT JOIN terminal tm
-    ON tm.id = t.terminal_id
-LEFT JOIN sales_session ss
-    ON ss.id = t.sales_session_id
-LEFT JOIN app_user au
-    ON au.id = t.seller_user_id
-LEFT JOIN user_preference up
-    ON up.user_id = au.id
 WHERE t.deleted_at IS NULL;
 
 

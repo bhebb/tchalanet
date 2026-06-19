@@ -109,15 +109,9 @@ CREATE TABLE seller_terminal_aud
 -- ─── Ticket additions — commission snapshot ───────────────────────────────────
 
 ALTER TABLE sales_ticket
-    ADD COLUMN seller_terminal_id                uuid,
     ADD COLUMN seller_commission_rate_snapshot   numeric(5, 2),
     ADD COLUMN seller_commission_amount_snapshot numeric(12, 2);
 
-CREATE INDEX idx_sales_ticket_seller_terminal ON sales_ticket (seller_terminal_id) WHERE seller_terminal_id IS NOT NULL;
-
--- Allow SellerTerminal path: outlet/terminal/user/session are null when actor is SELLER_TERMINAL
 ALTER TABLE sales_ticket
-    ALTER COLUMN outlet_id DROP NOT NULL,
-    ALTER COLUMN terminal_id DROP NOT NULL,
-    ALTER COLUMN seller_user_id DROP NOT NULL,
-    ALTER COLUMN sales_session_id DROP NOT NULL;
+    ADD CONSTRAINT fk_sales_ticket__seller_terminal
+    FOREIGN KEY (seller_terminal_id) REFERENCES seller_terminal(id);

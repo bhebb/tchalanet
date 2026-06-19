@@ -13,10 +13,8 @@ import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OfflineSubmissionId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -92,12 +90,7 @@ class TicketCommandMutationCoverageTest {
         handler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
             new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4),
-            null,
-            USER,
-            original.context().terminalId(),
-            original.context().outletId(),
-            original.context().salesSessionId(),
-            null));
+                         null, null, null));
 
         assertImmutableTicketFields(writer.saved, original);
         assertThat(writer.saved.print().status()).isEqualTo(TicketPrintStateStatus.PRINTED);
@@ -184,9 +177,6 @@ class TicketCommandMutationCoverageTest {
             new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4),
             null,
             USER,
-            original.context().terminalId(),
-            original.context().outletId(),
-            original.context().salesSessionId(),
             null));
         cancelHandler.handle(new CancelTicketCommand(
             TENANT,
@@ -257,14 +247,11 @@ class TicketCommandMutationCoverageTest {
 
     private static TicketContext context() {
         return new TicketContext(
-            OutletId.of(UUID.fromString("50000000-0000-0000-0000-000000000001")),
-            TerminalId.of(UUID.fromString("60000000-0000-0000-0000-000000000001")),
-            USER,
-            SalesSessionId.of(UUID.fromString("70000000-0000-0000-0000-000000000001")),
             DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
             DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
-            null, null,
-            null, null, null);
+            SellerTerminalId.of(UUID.fromString("91000000-0000-0000-0000-000000000001")),
+            null,
+            null);
     }
 
     private static TicketLine line() {
@@ -305,9 +292,7 @@ class TicketCommandMutationCoverageTest {
         @Override public Optional<Ticket> findByTicketCode(String ticketCode) { return Optional.empty(); }
         @Override public Optional<Ticket> findByPublicCode(String publicCode) { return Optional.empty(); }
         @Override public Optional<Ticket> findByVerificationCode(String verificationCode) { return Optional.empty(); }
-        @Override public Optional<Ticket> findByOfflineSubmissionId(OfflineSubmissionId submissionId) { return Optional.empty(); }
         @Override public List<Ticket> findByDrawId(DrawId drawId) { return List.of(); }
-        @Override public boolean existsByOfflineSubmissionId(OfflineSubmissionId submissionId) { return false; }
     }
 
     private static class CapturingWriter implements TicketWriterPort {
@@ -334,9 +319,7 @@ class TicketCommandMutationCoverageTest {
         @Override public Optional<Ticket> findByTicketCode(String ticketCode) { return Optional.empty(); }
         @Override public Optional<Ticket> findByPublicCode(String publicCode) { return Optional.empty(); }
         @Override public Optional<Ticket> findByVerificationCode(String verificationCode) { return Optional.empty(); }
-        @Override public Optional<Ticket> findByOfflineSubmissionId(OfflineSubmissionId submissionId) { return Optional.empty(); }
         @Override public List<Ticket> findByDrawId(DrawId drawId) { return List.of(); }
-        @Override public boolean existsByOfflineSubmissionId(OfflineSubmissionId submissionId) { return false; }
 
         @Override
         public Ticket save(Ticket ticket) {

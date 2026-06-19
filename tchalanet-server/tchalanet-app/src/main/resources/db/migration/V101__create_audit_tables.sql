@@ -239,39 +239,6 @@ CREATE TABLE limit_assignment_aud
     CONSTRAINT fk_limit_assignment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
 );
 
--- ─── Outlet (partial — control/block fields only) ────────────────────────────
-
-CREATE TABLE outlet_aud
-(
-    id                  uuid    NOT NULL,
-    rev                 integer NOT NULL,
-    revtype             smallint,
-    tenant_id           uuid,
-    status              varchar(40),
-    day_closed          boolean,
-    outlet_blocked      boolean,
-    outlet_block_reason text,
-    outlet_blocked_at   timestamptz,
-    outlet_blocked_by   uuid,
-    sales_blocked       boolean,
-    sales_block_reason  text,
-    sales_blocked_at    timestamptz,
-    sales_blocked_by    uuid,
-    payout_blocked      boolean,
-    payout_block_reason text,
-    payout_blocked_at   timestamptz,
-    payout_blocked_by   uuid,
-    created_at          timestamptz,
-    created_by          uuid,
-    updated_at          timestamptz,
-    updated_by          uuid,
-    deleted_at          timestamptz,
-    deleted_by          uuid,
-    version             bigint,
-    CONSTRAINT pk_outlet_aud PRIMARY KEY (id, rev),
-    CONSTRAINT fk_outlet_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
-);
-
 -- ─── Promotions ──────────────────────────────────────────────────────────────
 
 CREATE TABLE promotion_campaign_aud

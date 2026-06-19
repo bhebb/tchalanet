@@ -25,14 +25,8 @@ import org.hibernate.type.SqlTypes;
 @Setter
 public class SalePreparationJpaEntity extends BaseTenantEntity {
 
-    @Column(name = "seller_id")
-    private UUID sellerId;
-
-    @Column(name = "session_id")
-    private UUID sessionId;
-
-    @Column(name = "terminal_id")
-    private UUID terminalId;
+    @Column(name = "seller_terminal_id", nullable = false)
+    private UUID sellerTerminalId;
 
     @Column(name = "draw_id", nullable = false)
     private UUID drawId;

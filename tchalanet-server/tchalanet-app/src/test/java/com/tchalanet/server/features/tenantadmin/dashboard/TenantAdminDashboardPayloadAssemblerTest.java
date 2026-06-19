@@ -12,11 +12,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
-import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
-import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCommissionStatsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
-import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalCommissionStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
@@ -79,7 +75,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
     @DisplayName("header includes tenant catalog data when available")
     void headerEnriched() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.of(registry()));
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
@@ -105,7 +100,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
         when(queryBus.ask(any(GetTenantDashboardStatsQuery.class))).thenReturn(statsView);
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
@@ -124,7 +118,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
     @DisplayName("readiness is MISSING when every bundle is empty")
     void readinessMissing() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
-        when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
         when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
@@ -140,8 +133,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
     @DisplayName("operations + commercial counts derived from grouped bundles")
     void operationsAndCommercial() {
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.of(registry()));
-        when(queryBus.ask(any(ListSellersQuery.class)))
-            .thenReturn(List.of(mock(SellerSummaryView.class)));
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(pageWithTotal(3L));
         when(gameCatalog.listActive()).thenReturn(List.of(mock(GameView.class)));
         when(drawChannelCatalog.listAll(any(), any()))
@@ -158,7 +149,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
         assertThat(payload.commercial().drawChannels().count()).isEqualTo(2);
 
         // Single bundle invocation — each grouped read called exactly once per assemble.
-        verify(queryBus, times(1)).ask(any(ListSellersQuery.class));
         verify(queryBus, times(1)).ask(any(ListSellerTerminalsQuery.class));
         verify(gameCatalog, times(1)).listActive();
         verify(drawChannelCatalog, times(1)).listAll(any(), any());
@@ -189,7 +179,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),
             null,
-        null, null, null, null, null);
+            null, null, null, null, null);
     }
 
     private TenantContextLookupView registry() {

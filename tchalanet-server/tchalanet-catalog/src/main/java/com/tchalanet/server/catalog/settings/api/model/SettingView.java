@@ -1,9 +1,7 @@
 package com.tchalanet.server.catalog.settings.api.model;
 
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SettingId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 
 /**
  * Setting View (Read Model)
@@ -18,10 +16,8 @@ import com.tchalanet.server.common.types.id.TerminalId;
  * @param settingKey setting key within namespace (e.g., "require_open_session")
  * @param settingValue value as text (always stored as string)
  * @param valueType declared type for parsing/validation
- * @param level scope level (GLOBAL, TENANT, OUTLET, TERMINAL)
+ * @param level scope level (GLOBAL, TENANT)
  * @param tenantId tenant context (null for GLOBAL)
- * @param outletId outlet context (null unless OUTLET level)
- * @param terminalId terminal context (null unless TERMINAL level)
  * @param exposure runtime visibility (PUBLIC_RUNTIME, TENANT_RUNTIME, ADMIN_RUNTIME, INTERNAL)
  * @param active whether this setting is active
  */
@@ -34,8 +30,6 @@ public record SettingView(
     SettingLevel level,
     SettingExposure exposure,
     TenantId tenantId,
-    OutletId outletId,
-    TerminalId terminalId,
     Boolean active) {
 
   /** Full key in format "namespace.settingKey" */

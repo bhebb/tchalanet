@@ -37,10 +37,7 @@ public class TicketAggregateMutator {
     private void assertImmutableFields(TicketJpaEntity managed, Ticket domain) {
         requireSame("ticketId", managed.getId(), domain.identity().id().value());
         requireSame("tenantId", managed.getTenantId(), domain.identity().tenantId().value());
-        requireSame("outletId", managed.getOutletId(), domain.context().outletId().value());
-        requireSame("terminalId", managed.getTerminalId(), domain.context().terminalId().value());
-        requireSame("sellerUserId", managed.getSellerUserId(), domain.context().sellerUserId().value());
-        requireSame("salesSessionId", managed.getSalesSessionId(), domain.context().salesSessionId().value());
+        requireSame("sellerTerminalId", managed.getSellerTerminalId(), domain.context().sellerTerminalId().value());
         requireSame("drawId", managed.getDrawId(), domain.context().drawId().value());
         requireSame("drawChannelId", managed.getDrawChannelId(), domain.context().drawChannelId().value());
         requireSame("ticketCode", managed.getTicketCode(), domain.codes().ticketCode().value());

@@ -3,7 +3,6 @@ package com.tchalanet.server.features.cashier.home.app;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
@@ -98,10 +97,8 @@ public class CashierHomeService {
     var primaryDraw = primaryDraw(ctx);
     var operationalCtx = new CashierHomeOperationalContext(
         canSell, true, "SELLER_TERMINAL",
-        null, null,
-        TerminalId.of(sellerTerminalId.value()),
+        sellerTerminalId,
         terminal.displayName(),
-        null,
         List.of()
     );
     return new CashierHomeResponse(

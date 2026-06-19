@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Locale;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 
 public record PrintTicketRequest(
-    TerminalId terminalId,
+    SellerTerminalId sellerTerminalId,
     PrintOptionsRequest printOptionsRequest,
     boolean recordPrint,
     @Size(max = 500) String reprintReason,

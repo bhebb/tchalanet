@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record CashierTicketPreviewRequest(
-    @NotNull UUID terminalId,
+    @NotNull UUID sellerTerminalId,
     @NotNull UUID drawId,
     UUID drawChannelId,
     @NotBlank String currency,

@@ -20,8 +20,6 @@ import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
-import com.tchalanet.server.core.session.api.query.CashierIdentityView;
-import com.tchalanet.server.core.session.api.query.GetCashierIdentityQuery;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -75,16 +73,16 @@ class CashierDashboardPayloadAssemblerTest {
   class GroupedReads {
 
     @Test
-    @DisplayName("V0 loads identity, overview, nextDraws and recentTickets")
+    @DisplayName("V0 loads overview, nextDraws and recentTickets")
     void v0LoadsDashboardReads() {
       stubDashboardQueries();
 
       var payload = assembler.assemble(context(TchActorType.SELLER_TERMINAL, sellerTerminalId, true, true));
 
-      verify(queryBus, times(1)).ask(any(GetCashierIdentityQuery.class));
       verify(queryBus, times(1)).ask(any(GetCashierDashboardOverviewQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierNextDrawsQuery.class));
       verify(queryBus, times(1)).ask(any(ListCashierRecentTicketsQuery.class));
+      assertThat(payload.identity().cashierDisplayName()).isEqualTo(sellerTerminalId.value().toString());
       assertThat(payload.session().active()).isTrue();
       assertThat(payload.overview().sessionOpen()).isTrue();
       assertThat(payload.overview().ticketCount()).isEqualTo(12L);
@@ -125,14 +123,9 @@ class CashierDashboardPayloadAssemblerTest {
   }
 
   private void stubDashboardQueries() {
-    when(queryBus.ask(any(GetCashierIdentityQuery.class))).thenReturn(emptyIdentity());
     when(queryBus.ask(any(GetCashierDashboardOverviewQuery.class))).thenReturn(sampleOverview());
     when(queryBus.ask(any(ListCashierNextDrawsQuery.class))).thenReturn(List.of());
     when(queryBus.ask(any(ListCashierRecentTicketsQuery.class))).thenReturn(List.of());
-  }
-
-  private static CashierIdentityView emptyIdentity() {
-    return new CashierIdentityView("Seller Terminal", "", "", "tenant-demo");
   }
 
   private static CashierDashboardOverviewView sampleOverview() {

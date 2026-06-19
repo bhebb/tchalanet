@@ -9,8 +9,6 @@ import com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheNames;
 import com.tchalanet.server.catalog.settings.internal.mapper.SettingMapper;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,15 +40,11 @@ public class SettingsCatalogImpl implements SettingsCatalog {
       value = SettingsCacheNames.RESOLVED_SETTINGS,
       key = "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#criteria)")
   public List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria) {
-    OutletId outletId = criteria.outletId();
-    TerminalId terminalId = criteria.terminalId();
     List<String> namespaces = criteria.namespaces();
 
     log.debug(
-        "Resolving settings for tenant={}, outlet={}, terminal={}, namespaces={}",
+        "Resolving settings for tenant={}, namespaces={}",
         criteria.tenantId(),
-        outletId,
-        terminalId,
         namespaces);
 
     // Handle empty namespace filter (= all namespaces)
@@ -65,19 +59,6 @@ public class SettingsCatalogImpl implements SettingsCatalog {
 
     // 2. TENANT level (tenant overrides)
     mergeLevel(merged, loadForTenant(effectiveNamespaces), SettingLevel.TENANT);
-
-    // 3. OUTLET level (outlet overrides, if outlet provided)
-    if (outletId != null) {
-      mergeLevel(merged, loadForOutlet(outletId, effectiveNamespaces), SettingLevel.OUTLET);
-    }
-
-    // 4. TERMINAL level (terminal overrides, if terminal provided)
-    if (terminalId != null) {
-      mergeLevel(
-          merged,
-          loadForTerminal(terminalId, effectiveNamespaces),
-          SettingLevel.TERMINAL);
-    }
 
     List<ResolvedSettingView> result = List.copyOf(merged.values());
     log.debug("Resolved {} settings", result.size());
@@ -104,27 +85,6 @@ public class SettingsCatalogImpl implements SettingsCatalog {
     }
     return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
         SettingLevel.TENANT, namespaces);
-  }
-
-  private List<SettingEntity> loadForOutlet(OutletId outletId, List<String> namespaces) {
-    // Use outlet-only repository methods; RLS ensures tenant scoping
-    if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletId(
-          SettingLevel.OUTLET, outletId.value());
-    }
-    return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletIdAndNamespaceIn(
-            SettingLevel.OUTLET, outletId.value(), namespaces);
-  }
-
-  private List<SettingEntity> loadForTerminal(TerminalId terminalId, List<String> namespaces) {
-    if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalId(
-          SettingLevel.TERMINAL, terminalId.value());
-    }
-    return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalIdAndNamespaceIn(
-            SettingLevel.TERMINAL, terminalId.value(), namespaces);
   }
 
   // ========================================

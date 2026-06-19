@@ -3,7 +3,6 @@ package com.tchalanet.server.features.tenantadmin.readiness;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
@@ -71,7 +70,6 @@ public class TenantReadinessAssembler {
     // --- Grouped reads (≤ 4 per dashboard-overview-runtime-v1 §12) ---
     boolean identityFound = checkIdentity(ctx);
     boolean hasSellerTerminals = checkSellerTerminals(ctx);
-    boolean hasSellers    = checkSellers(ctx);
 
     List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
     for (SectionDescriptor d : SECTIONS) {
@@ -85,14 +83,6 @@ public class TenantReadinessAssembler {
           } else {
             status = TenantReadinessStatus.MISSING;
             issues.add(new TenantReadinessIssue("identity", "readiness.identity.missing", d.route()));
-          }
-        }
-        case "users" -> {
-          if (hasSellers) {
-            status = TenantReadinessStatus.READY;
-          } else {
-            status = TenantReadinessStatus.MISSING;
-            issues.add(new TenantReadinessIssue("users", "readiness.sellers.empty", d.route()));
           }
         }
         case "seller_terminals" -> {
@@ -157,14 +147,7 @@ public class TenantReadinessAssembler {
     }
   }
 
-  private boolean checkSellers(TchRequestContext ctx) {
-    try {
-      var items = queryBus.ask(new ListSellersQuery(ctx.tenantId()));
-      return items != null && !items.isEmpty();
-    } catch (RuntimeException e) {
-      return false;
-    }
-  }
+
 
   // ---- rollup ---------------------------------------------------------------
 

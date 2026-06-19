@@ -7,7 +7,6 @@ import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQue
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
-import com.tchalanet.server.core.session.api.query.GetCashierIdentityQuery;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -21,10 +20,9 @@ import org.springframework.stereotype.Component;
  * One assembly per request — memoized via {@code PageModelResolutionContext}.
  *
  * Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) :
- *   1. identity       — {@link GetCashierIdentityQuery}
- *   2. overview       — {@link GetCashierDashboardOverviewQuery}
- *   3. nextDraws      — {@link ListCashierNextDrawsQuery}
- *   4. recentTickets  — {@link ListCashierRecentTicketsQuery}
+ *   1. overview       — {@link GetCashierDashboardOverviewQuery}
+ *   2. nextDraws      — {@link ListCashierNextDrawsQuery}
+ *   3. recentTickets  — {@link ListCashierRecentTicketsQuery}
  *
  * Readiness and alerts are derived from the seller-terminal context already carried by the HTTP
  * request — no extra read.
@@ -59,15 +57,11 @@ public class CashierDashboardPayloadAssembler {
   }
 
   private CashierIdentityPayload loadIdentity(TchRequestContext ctx) {
-    var view = queryBus.ask(new GetCashierIdentityQuery(ctx.tenantId(), ctx.userId()));
-    if (view == null) {
-      return new CashierIdentityPayload("", "", "", "");
-    }
     return new CashierIdentityPayload(
-        view.cashierDisplayName() != null ? view.cashierDisplayName() : "",
-        view.outletName() != null ? view.outletName() : "",
-        view.terminalLabel() != null ? view.terminalLabel() : "",
-        view.tenantCode() != null ? view.tenantCode() : "");
+        ctx.sellerTerminalId() != null ? ctx.sellerTerminalId().value().toString() : "",
+        "",
+        "",
+        ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "");
   }
 
   private CashierOverviewPayload loadOverview(TchRequestContext ctx) {

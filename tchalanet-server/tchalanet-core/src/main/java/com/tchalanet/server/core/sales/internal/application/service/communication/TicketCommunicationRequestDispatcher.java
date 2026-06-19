@@ -60,7 +60,7 @@ public class TicketCommunicationRequestDispatcher {
             channel,
             new OutboundRecipient(
                 ticket.identity().tenantId(),
-                ticket.context().sellerUserId(),
+                null,
                 destination,
                 null
             ),
@@ -80,7 +80,7 @@ public class TicketCommunicationRequestDispatcher {
 
         metadata.put("ticketId", ticket.identity().id().value().toString());
         metadata.put("tenantId", ticket.identity().tenantId().value().toString());
-        metadata.put("actorUserId", ticket.context().sellerUserId().value().toString());
+        metadata.put("sellerTerminalId", ticket.context().sellerTerminalId().value().toString());
         metadata.put("ticketCode", ticket.codes().ticketCode().value());
         metadata.put("publicCode", ticket.codes().publicCode().value());
         metadata.put("verificationCode", ticket.codes().verificationCode().value());

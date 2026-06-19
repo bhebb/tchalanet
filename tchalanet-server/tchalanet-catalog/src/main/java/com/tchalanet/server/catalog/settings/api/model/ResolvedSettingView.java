@@ -14,7 +14,7 @@ import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
  * @param settingKey setting key within namespace
  * @param valueType declared type
  * @param settingValue effective value (as text)
- * @param effectiveLevel which level provided this value (GLOBAL, TENANT, OUTLET, TERMINAL)
+ * @param effectiveLevel which level provided this value (GLOBAL, TENANT)
  */
 public record ResolvedSettingView(
     String namespace,
