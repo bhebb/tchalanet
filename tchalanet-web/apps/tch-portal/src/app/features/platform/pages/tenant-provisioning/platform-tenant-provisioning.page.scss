@@ -1,0 +1,27 @@
+.tenant-provisioning {
+  display: block;
+}
+
+.tenant-provisioning__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.tenant-provisioning__grid--two {
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.tenant-provisioning__field {
+  width: 100%;
+}
+
+.tenant-provisioning__supporting-text {
+  margin: 0.25rem 0 1rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tenant-provisioning__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--tch-color-on-surface);
+}

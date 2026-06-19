@@ -1,0 +1,95 @@
+:host {
+  --comp-health-bg: var(--tch-color-surface);
+  --comp-health-fg: var(--tch-color-on-surface);
+  --comp-health-muted: var(--tch-color-on-surface-variant);
+  --comp-health-border: var(--tch-color-outline-variant);
+  --comp-health-accent: var(--tch-color-accent);
+  --comp-health-radius: var(--tch-radius-xl, 1rem);
+  --comp-health-shadow: var(--tch-elevation-1, none);
+
+  display: block;
+}
+
+.admin-provisioning-health-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--comp-health-border);
+  border-radius: var(--comp-health-radius);
+  background: var(--comp-health-bg);
+  color: var(--comp-health-fg);
+  box-shadow: var(--comp-health-shadow);
+}
+
+.admin-provisioning-health-card__header,
+.admin-provisioning-health-card__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-provisioning-health-card__header {
+  align-items: flex-start;
+}
+
+.admin-provisioning-health-card__eyebrow,
+.admin-provisioning-health-card__title,
+.admin-provisioning-health-card__empty {
+  margin: 0;
+}
+
+.admin-provisioning-health-card__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--comp-health-muted);
+}
+
+.admin-provisioning-health-card__title {
+  margin-top: 0.125rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.admin-provisioning-health-card__progress {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: color-mix(in srgb, var(--comp-health-accent) 18%, transparent);
+}
+
+.admin-provisioning-health-card__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--comp-health-accent);
+}
+
+.admin-provisioning-health-card__items {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.admin-provisioning-health-card__item {
+  min-width: 0;
+}
+
+.admin-provisioning-health-card__item dt {
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--comp-health-muted);
+  overflow-wrap: anywhere;
+}
+
+.admin-provisioning-health-card__item dd {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.admin-provisioning-health-card__empty {
+  font-size: 0.875rem;
+  color: var(--comp-health-muted);
+}

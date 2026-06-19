@@ -25,7 +25,7 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
     @Override
     public Optional<String> bearerToken() {
         var cfg = props.getProviders() == null ? null : props.getProviders().get("oh");
-
+        log.info("Ohio token provider config: {}", cfg);
         if (cfg == null || !cfg.isEnabled()) {
             return Optional.empty();
         }
@@ -41,6 +41,7 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
 
         return authClient.login()
             .map(token -> {
+                log.info("Received new token from Ohio auth service: {}", token);
                 cached = CachedToken.fromJwt(token, timeProvider.now());
                 return token;
             });
