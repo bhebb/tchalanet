@@ -18,6 +18,10 @@ CREATE UNIQUE INDEX ux_app_role__tenant_code ON app_role (tenant_id, code) WHERE
 CREATE INDEX ix_tenant_user__tenant ON tenant_user (tenant_id) WHERE deleted_at IS NULL;
 CREATE INDEX ix_tenant_user__user ON tenant_user (user_id) WHERE deleted_at IS NULL;
 CREATE INDEX ix_address__tenant ON address (tenant_id);
+CREATE INDEX idx_seller_terminal_tenant_status ON seller_terminal (tenant_id, status);
+CREATE INDEX idx_seller_terminal_tenant_code ON seller_terminal (tenant_id, terminal_code);
+CREATE INDEX idx_seller_terminal_tenant_name ON seller_terminal (tenant_id, display_name);
+CREATE INDEX idx_seller_terminal_ext_terminal ON seller_terminal_external_identity (seller_terminal_id);
 
 -- ─── Settings, theming, i18n ────────────────────────────────────────
 CREATE INDEX ix_app_setting__tenant ON app_setting (tenant_id, namespace, setting_key);

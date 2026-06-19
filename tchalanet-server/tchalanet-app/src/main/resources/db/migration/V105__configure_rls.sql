@@ -158,6 +158,62 @@ CREATE POLICY tenant_user_rls_select ON tenant_user
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+ALTER TABLE seller_terminal ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_terminal FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_terminal_rls_all ON seller_terminal
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY seller_terminal_rls_select ON seller_terminal
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE seller_terminal_external_identity ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_terminal_external_identity FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_terminal_external_identity_rls_all ON seller_terminal_external_identity
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM seller_terminal st
+      WHERE st.id = seller_terminal_id
+        AND st.tenant_id = public.current_tenant()
+        AND (public.deleted_visibility() = 'all'
+          OR (public.deleted_visibility() = 'active' AND st.deleted_at IS NULL)
+          OR (public.deleted_visibility() = 'deleted' AND st.deleted_at IS NOT NULL))
+    )
+  )
+  WITH CHECK (
+    public.current_tenant() IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM seller_terminal st
+      WHERE st.id = seller_terminal_id
+        AND st.tenant_id = public.current_tenant()
+    )
+  );
+CREATE POLICY seller_terminal_external_identity_rls_select ON seller_terminal_external_identity
+  FOR SELECT
+  USING (
+    public.allow_platform_cross_tenant_select()
+    OR (
+      public.current_tenant() IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM seller_terminal st
+        WHERE st.id = seller_terminal_id
+          AND st.tenant_id = public.current_tenant()
+      )
+    )
+  );
+
 ALTER TABLE page_model ENABLE ROW LEVEL SECURITY;
 ALTER TABLE page_model FORCE ROW LEVEL SECURITY;
 CREATE POLICY page_model_rls_all ON page_model

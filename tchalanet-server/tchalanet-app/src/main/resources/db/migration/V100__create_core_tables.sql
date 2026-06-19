@@ -901,6 +901,57 @@ CREATE TABLE tenant_communication_settings (
 );
 
 -- =========================================================
+-- SELLER TERMINAL (unified operational seller)
+-- =========================================================
+
+CREATE TABLE seller_terminal (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  terminal_code varchar(64) NOT NULL,
+  first_name varchar(120),
+  last_name varchar(120),
+  display_name varchar(180) NOT NULL,
+  phone_number varchar(64),
+  address_id uuid REFERENCES address(id),
+  status varchar(32) NOT NULL DEFAULT 'PENDING',
+  commission_rate numeric(5, 2) NOT NULL DEFAULT 15.00,
+  last_seen_at timestamptz,
+  activated_at timestamptz,
+  blocked_at timestamptz,
+  blocked_by uuid,
+  blocked_reason varchar(500),
+  disabled_at timestamptz,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_seller_terminal_code UNIQUE (tenant_id, terminal_code),
+  CONSTRAINT chk_seller_terminal__status CHECK (status IN ('PENDING','ACTIVE','BLOCKED','DISABLED'))
+);
+
+CREATE TABLE seller_terminal_external_identity (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
+  provider varchar(32) NOT NULL,
+  issuer varchar(512) NOT NULL,
+  external_subject varchar(255) NOT NULL,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_seller_terminal_external_identity__provider
+    CHECK (provider IN ('FIREBASE')),
+  CONSTRAINT uq_seller_terminal_ext_identity
+    UNIQUE (provider, issuer, external_subject)
+);
+
+-- =========================================================
 -- SALES TICKET (replaces legacy ticket/ticket_line)
 -- =========================================================
 
@@ -949,6 +1000,8 @@ CREATE TABLE sales_ticket (
   print_count integer NOT NULL DEFAULT 0,
   first_printed_at timestamptz,
   last_printed_at timestamptz,
+  seller_commission_rate_snapshot numeric(5, 2),
+  seller_commission_amount_snapshot numeric(12, 2),
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -958,7 +1011,8 @@ CREATE TABLE sales_ticket (
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uk_sales_ticket__tenant_code UNIQUE (tenant_id, ticket_code),
   CONSTRAINT uk_sales_ticket__public_code UNIQUE (tenant_id, public_code),
-  CONSTRAINT uk_sales_ticket__verification_code UNIQUE (tenant_id, verification_code)
+  CONSTRAINT uk_sales_ticket__verification_code UNIQUE (tenant_id, verification_code),
+  CONSTRAINT fk_sales_ticket__seller_terminal FOREIGN KEY (seller_terminal_id) REFERENCES seller_terminal(id)
 );
 
 CREATE TABLE sales_ticket_line (

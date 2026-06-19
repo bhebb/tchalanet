@@ -39,14 +39,14 @@ SELECT t.id                         AS ticket_id,
        NULL::text                   AS outlet_receipt_footer,
 
        t.seller_terminal_id         AS terminal_id,
-       NULL::varchar                AS terminal_code,
-       NULL::varchar                AS terminal_label,
+       st.terminal_code             AS terminal_code,
+       st.display_name              AS terminal_label,
 
        NULL::uuid                   AS sales_session_id,
        NULL::text                   AS session_code,
 
        NULL::uuid                   AS seller_user_id,
-       t.seller_terminal_id::text   AS seller_display_name,
+       COALESCE(st.display_name, t.seller_terminal_id::text) AS seller_display_name,
 
        COALESCE(
            NULLIF(tn.config #>> '{document,receipt,displayName}', ''),
@@ -76,12 +76,18 @@ SELECT t.id                         AS ticket_id,
        t.placed_at,
        t.sale_channel               AS sale_origin,
        'fr'                         AS locale,
-       COALESCE(NULLIF(tn.config #>> '{timezone}', ''), 'America/Port-au-Prince') AS timezone
+       COALESCE(NULLIF(tn.config #>> '{timezone}', ''), 'America/Port-au-Prince') AS timezone,
+
+       t.seller_terminal_id         AS seller_terminal_id,
+       st.terminal_code             AS seller_terminal_code,
+       st.display_name              AS seller_terminal_label
 FROM sales_ticket t
 JOIN draw d
     ON d.id = t.draw_id
 LEFT JOIN draw_channel dc
     ON dc.id = t.draw_channel_id
+LEFT JOIN seller_terminal st
+    ON st.id = t.seller_terminal_id
 LEFT JOIN tenant tn
     ON tn.id = t.tenant_id
 WHERE t.deleted_at IS NULL;
