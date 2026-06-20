@@ -19,4 +19,8 @@ public record CurrentUserView(
     Short density,
     String locale,
     String timeZone,
-    String currency) {}
+    String currency,
+    boolean mustChangePassword,
+    boolean mustCompleteProfile,
+    String firstLoginCompletedAt,
+    String temporaryCredentialIssuedAt) {}

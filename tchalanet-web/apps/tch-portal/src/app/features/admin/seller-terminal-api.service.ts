@@ -11,7 +11,6 @@ export interface SellerTerminalSummaryRow {
   phoneNumber?: string | null;
   status: SellerTerminalStatus;
   commissionRate?: number | null;
-  outletId?: { value: string } | null;
   lastSeenAt?: string | null;
   activatedAt?: string | null;
   todayTicketCount?: number | null;
@@ -31,7 +30,6 @@ export interface CreateSellerTerminalRequest {
   phoneNumber?: string | null;
   commissionRate?: number | null;
   initialPin: string;
-  outletId?: string | null;
 }
 
 export interface UpdateSellerTerminalRequest {

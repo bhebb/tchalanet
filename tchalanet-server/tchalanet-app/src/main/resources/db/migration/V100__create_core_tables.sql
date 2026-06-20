@@ -58,6 +58,10 @@ CREATE TABLE app_user (
   approved_at timestamptz,
   approved_by uuid,
   last_login_at timestamptz,
+  must_change_password boolean NOT NULL DEFAULT false,
+  must_complete_profile boolean NOT NULL DEFAULT false,
+  first_login_completed_at timestamptz,
+  temporary_credential_issued_at timestamptz,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
@@ -65,7 +69,7 @@ CREATE TABLE app_user (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_app_user__status CHECK (status IN ('INVITED','PENDING_APPROVAL','ACTIVE','SUSPENDED'))
+  CONSTRAINT chk_app_user__status CHECK (status IN ('INVITED','PENDING_APPROVAL','ACTIVE','SUSPENDED','BLOCKED','DISABLED'))
 );
 
 CREATE TABLE app_user_external_identity (

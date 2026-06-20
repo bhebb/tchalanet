@@ -46,10 +46,10 @@ describe('appRoutes', () => {
   });
 
   describe('adminRoutes', () => {
-    it('declares all 8 paths', () => {
+    it('declares the admin paths', () => {
       const paths = adminRoutes.map(r => r.path);
       expect(paths).toEqual(
-        expect.arrayContaining(['', 'onboarding', 'users', 'sellers', 'outlets', 'terminals', 'sessions', 'settings']),
+        expect.arrayContaining(['', 'onboarding', 'users', 'seller-terminals', 'settings']),
       );
     });
 

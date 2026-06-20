@@ -76,6 +76,10 @@ public class TenantProvisioningOrchestrator {
 
     UUID tenantId = created.tenantId().value();
     final String[] initialAdminUserId = {null};
+    final String[] initialAdminCredentialStatus = {null};
+    final String[] initialAdminTemporaryPassword = {null};
+    final Boolean[] initialAdminMustChangePassword = {null};
+    final Boolean[] initialAdminMustCompleteProfile = {null};
 
     // Run in new tenant context for RLS — creates admin + computes readiness.
     TenantReadinessView readiness = TchContextScope.runStartupTenantResult(
@@ -91,6 +95,12 @@ public class TenantProvisioningOrchestrator {
                 null,
                 TchRole.TENANT_ADMIN);
             initialAdminUserId[0] = adminResult.userId().value().toString();
+            initialAdminCredentialStatus[0] = adminResult.temporaryCredentialIssued()
+                ? "TEMPORARY_PASSWORD_ISSUED"
+                : (adminResult.created() ? "TEMPORARY_CREDENTIAL_NOT_RETURNED" : "EXISTING_USER_ATTACHED");
+            initialAdminTemporaryPassword[0] = adminResult.temporaryPassword();
+            initialAdminMustChangePassword[0] = Boolean.TRUE;
+            initialAdminMustCompleteProfile[0] = Boolean.TRUE;
           }
           return readinessAssembler.assemble(TchContext.currentOrNull());
         });
@@ -103,7 +113,12 @@ public class TenantProvisioningOrchestrator {
         nextSteps(request.profile(), request.initialAdminEmail()),
         warnings(request),
         readiness,
-        initialAdminUserId[0]);
+        initialAdminUserId[0],
+        blankToNull(request.initialAdminEmail()),
+        initialAdminCredentialStatus[0],
+        initialAdminTemporaryPassword[0],
+        initialAdminMustChangePassword[0],
+        initialAdminMustCompleteProfile[0]);
   }
 
   // --- profile descriptors --------------------------------------------------
@@ -169,5 +184,9 @@ public class TenantProvisioningOrchestrator {
 
   private static String profileDrawChannelsStatus(TenantProvisioningProfile profile) {
     return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT_HAITI";
+  }
+
+  private static String blankToNull(String value) {
+    return value == null || value.isBlank() ? null : value.trim();
   }
 }

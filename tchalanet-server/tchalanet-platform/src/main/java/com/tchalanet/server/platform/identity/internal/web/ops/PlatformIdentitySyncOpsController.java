@@ -19,7 +19,7 @@ public class PlatformIdentitySyncOpsController {
   private final FirebaseBootstrapSyncService syncService;
 
   @PostMapping("/identity/firebase-bootstrap-users")
-  @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ResponseEntity<ApiResponse<FirebaseBootstrapSyncResponse>> triggerFirebaseBootstrapSync() {
     return runFirebaseBootstrapSync();
   }
@@ -34,6 +34,5 @@ public class PlatformIdentitySyncOpsController {
 
   public record FirebaseBootstrapSyncResponse(int attempted, int createdInFirebase, int linked) {}
 }
-
 
 

@@ -4,10 +4,10 @@
       "title": "Administrasyon",
       "description": "Rezime administrasyon tenant",
       "kpi": {
-        "sellers": "Vandè",
-        "outlets": "Pwen vant",
-        "terminals": "Tèminal",
-        "openSessions": "Sesyon ouvè"
+        "sellers": "Seller-terminal",
+        "outlets": "Seller-terminals",
+        "terminals": "Seller-terminal",
+        "openSessions": "Seller-terminals aktif"
       },
       "onboarding": {
         "title": "Onboarding"
@@ -29,112 +29,50 @@
       "title": "Itilizatè",
       "description": "Jesyon itilizatè"
     },
-    "sellers": {
-      "title": "Vandè",
-      "description": "Jesyon terminal vandè",
-      "search_placeholder": "Chèche vandè…",
-      "load_error": "Pa kapab chaje vandè yo.",
-      "empty": {
-        "title": "Pa gen vandè",
-        "message": "Ajoute premye terminal vandè ou pou kòmanse."
-      },
-      "new": {
-        "title": "Nouvo vandè",
-        "action": "Ajoute yon vandè",
-        "description": "Ranpli enfòmasyon yo pou kreye yon nouvo vandè.",
-        "submit": "Kreye vandè a"
-      },
-      "detail": {
-        "title": "Detay vandè"
-      },
-      "status": {
-        "ALL": "Tout",
-        "ACTIVE": "Aktif",
-        "PENDING": "Annatant",
-        "BLOCKED": "Bloke",
-        "DISABLED": "Dezaktive"
-      },
-      "section": {
-        "identity": "Enfòmasyon vandè",
-        "assignment": "Afektasyon",
-        "commission": "Komisyon",
-        "security": "Aksè sekirize",
-        "security_desc": "Kòd PIN sa a ap itilize pa vandè a pou konekte sou tèminal li."
-      },
-      "field": {
-        "display_name": "Non ki parèt",
-        "phone": "Telefòn",
-        "first_name": "Prenon",
-        "last_name": "Siyati",
-        "terminal_code": "Kòd tèminal",
-        "terminal_code_hint": "Idantifyan inik tèminal la (ex: VND-001)",
-        "commission_rate": "To komisyon",
-        "commission_rate_hint": "Kite vid pou itilize to defòt tenant lan.",
-        "commission_rate_error": "To a dwe ant 0 ak 100.",
-        "pin": "PIN (4 chif)",
-        "pin_required": "PIN an obligatwa epi li dwe gen 4 chif."
-      }
-    },
-    "outlets": {
-      "title": "Pwen vant",
-      "description": "Jesyon pwen vant"
-    },
-    "terminals": {
-      "title": "Tèminal",
-      "description": "Jesyon tèminal"
-    },
-    "sessions": {
-      "title": "Sesyon",
-      "description": "Jesyon sesyon kesye"
-    },
     "settings": {
       "title": "Paramèt",
       "description": "Konfigirasyon tenant"
     },
     "seller": {
       "email": "Imèl",
-      "error": "Onboarding vandè a echwe.",
+      "error": "Onboarding seller-terminal a echwe.",
       "firstName": "Prenon",
       "lastName": "Non",
-      "outletId": "Pwen vant",
+      "outletId": "Seller-terminals",
       "phone": "Telefòn",
-      "submit": "Kreye vandè",
-      "success": "Vandè kreye:",
-      "terminalId": "Tèminal",
-      "title": "Onboarding vandè"
+      "submit": "Kreye seller-terminal",
+      "success": "Seller-terminal kreye:",
+      "terminalId": "Seller-terminal",
+      "title": "Onboarding seller-terminal"
     },
     "action": {
-      "outlets": "Pwen vant",
-      "sessions": "Sesyon",
       "settings": "Paramèt",
-      "terminals": "Tèminal",
-      "users": "Itilizatè"
+      "users": "Itilizatè",
+      "seller_terminals": "Seller-terminals"
     },
     "kpi": {
       "openSessions": {
-        "label": "Sesyon ouvè"
+        "label": "Seller-terminals aktif"
       },
       "outlets": {
-        "label": "Pwen vant"
+        "label": "Seller-terminals"
       },
       "sellers": {
-        "label": "Vandè"
+        "label": "Seller-terminal"
       },
       "terminals": {
-        "label": "Tèminal"
+        "label": "Seller-terminal"
       },
       "sales_today": {
         "label": "Vant jodi a"
-      },
-      "active_seller_terminals": {
-        "label": "Vandè aktif"
       },
       "payout_due": {
         "label": "Pou peye"
       },
       "notifications": {
         "label": "Notifikasyon"
-      }
+      },
+      "active_seller_terminals": "Seller-terminals aktif"
     },
     "draws": {
       "title": "Tirèy"
@@ -183,6 +121,11 @@
       "support": {
         "title": "Sipò"
       }
+    },
+    "sellerTerminals": {
+      "title": "Seller-terminals",
+      "description": "Jere seller-terminals",
+      "search_placeholder": "Chèche seller-terminal…"
     }
   },
   "app": {
@@ -206,7 +149,7 @@
         "body": "Jere vant, tiraj ak rezo ou nan yon sèl espas operasyon ki an sekirite.",
         "capabilities": {
           "operations": "Swivi operasyon yo an tan reyèl",
-          "sales": "Vant ak sesyon santralize",
+          "sales": "Vant ak koneksyon santralize",
           "security": "Aksè pwoteje ak trasabl"
         },
         "eyebrow": "Rezo lotri",
@@ -228,7 +171,7 @@
         "hidePassword": "Kache modpas la",
         "password": "Modpas",
         "remember": "Rete konekte sou aparèy sa a",
-        "security": "Firebase Authentication pwoteje sesyon ou.",
+        "security": "Firebase Authentication pwoteje koneksyon ou.",
         "sendEmailLink": "Resevwa yon lyen koneksyon",
         "showPassword": "Montre modpas la",
         "submit": "Antre nan espas mwen",
@@ -326,10 +269,10 @@
         "title": "Komisyon",
         "default_rate": "To pa defò tenant lan",
         "default_not_set": "Pa konfigire",
-        "seller_terminals": "Vandè",
         "at_default": "To pa defò",
         "custom": "To pèsonalize",
-        "rate_range": "Fotchèt"
+        "rate_range": "Fotchèt",
+        "seller_terminals": "Seller-terminals"
       },
       "kpis": {
         "title": "Endikatè"
@@ -498,9 +441,6 @@
       "dashboard": "Tablo debò",
       "onboarding": "Onboarding",
       "users": "Itilizatè",
-      "sellers": "Vandè",
-      "seller_add": "Ajoute vandè",
-      "seller_active": "Vandè aktif",
       "controls": "Kontwòl",
       "commission": "Komisyon",
       "odds": "Odds",
@@ -516,14 +456,14 @@
       "my_space": "Espas mwen",
       "my_account": "Kont mwen",
       "support": "Sipò",
-      "outlets": "Pwen vant",
-      "terminals": "Tèminal",
-      "sessions": "Sesyon",
       "settings": "Paramèt",
       "spaceTitle": "Admin",
       "all_draws": "Tout tiraj yo",
       "upcoming_draws": "Tiraj kap vini",
-      "past_draws": "Tiraj pase"
+      "past_draws": "Tiraj pase",
+      "seller_terminals": "Seller-terminals",
+      "seller_terminal_add": "Ajoute seller-terminal",
+      "seller_terminal_active": "Seller-terminals aktif"
     },
     "cashier": {
       "section": {
@@ -539,9 +479,9 @@
     "dashboard": "Tablo bò",
     "tenant_overview": "Apèsi",
     "users": "Itilizatè",
-    "outlets": "Pwen vant",
-    "terminals": "Tèminal",
-    "sessions": "Sesyon",
+    "outlets": "Seller-terminals",
+    "terminals": "Seller-terminal",
+    "sessions": "Koneksyon",
     "tickets_sales": "Tikè & vant",
     "draws": "Tiraj",
     "games_pricing": "Jwèt & pri",
@@ -554,7 +494,7 @@
     "quick_sale": "Vant rapid",
     "tickets": "Tikè",
     "verify_ticket": "Verifye tikè",
-    "session": "Sesyon",
+    "session": "Koneksyon",
     "tenants": "Tenant",
     "tenant_onboarding": "Onbòding tenant",
     "subscriptions": "Abònman",
@@ -625,7 +565,8 @@
       "contactManagement": "Jesyon kontak",
       "news": "Nouvèl",
       "reports": "Rapò",
-      "platformReports": "Rapò platfòm"
+      "platformReports": "Rapò platfòm",
+      "superAdmins": "Super admins"
     },
     "placeholder": {
       "title": "Ekran an preparasyon",
@@ -792,7 +733,7 @@
           "promotions_templates": "Modèl pwomosyon",
           "limits_templates": "Modèl limit",
           "demo_users": "Itilizatè demo",
-          "demo_seller_terminals": "Vandè / tèminal demo"
+          "demo_seller_terminals": "Seller-terminals demo"
         },
         "data": {
           "tickets": "Tikè",
@@ -806,18 +747,18 @@
         "readiness": {
           "identity": "Idantite tenant",
           "users": "Admin tenant",
-          "seller_terminals": "Vandè / tèminal",
           "draw_channels": "Kanal tiraj",
-          "seller_rules": "Règ vandè",
+          "seller_rules": "Règ seller-terminal",
           "limits": "Limit",
-          "odds": "Barèm"
+          "odds": "Barèm",
+          "seller_terminals": "Seller-terminals"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Kreye admin inisyal la",
           "CONFIGURE_GAMES": "Konfigire jwèt yo",
           "CONFIGURE_DRAW_CHANNELS": "Konfigire kanal tiraj yo",
-          "CONFIGURE_SELLER_RULES": "Konfigire règ vandè yo",
-          "CREATE_SELLER_TERMINAL": "Kreye yon vandè / tèminal",
+          "CONFIGURE_SELLER_RULES": "Konfigire règ seller-terminal",
+          "CREATE_SELLER_TERMINAL": "Kreye yon seller-terminal",
           "CONFIGURE_LIMITS": "Konfigire limit yo",
           "CONFIGURE_ODDS": "Konfigire barèm yo",
           "VERIFY_DEMO_SETUP": "Verifye done demo yo"
@@ -881,7 +822,49 @@
       },
       "result": {
         "nextSteps": "Pwochen etap",
-        "warnings": "Avètisman"
+        "warnings": "Avètisman",
+        "initialAdmin": "Admin inisyal",
+        "adminEmail": "Imèl",
+        "adminStatus": "Estati",
+        "temporaryAccessCreated": "Aksè tanporè kreye",
+        "temporaryPassword": "Modpas tanporè",
+        "passwordConfiguredServerSide": "Modpas tanporè a defini selon konfigirasyon sèvè a.",
+        "adminNextInstruction": "Mande admin nan konekte. Li dwe chanje modpas li epi ranpli pwofil li avan li antre nan /app/admin."
+      },
+      "domain": {
+        "tenantIdentity": "Idantite tenant",
+        "pagemodels": "Paj inisyal",
+        "theme": "Tèm",
+        "settings": "Paramèt",
+        "i18n": "Tradiksyon",
+        "games": "Jwèt",
+        "pricing": "Tarif",
+        "drawChannels": "Kanal tiraj",
+        "promotionsTemplates": "Modèl pwomosyon",
+        "limitsTemplates": "Modèl limit",
+        "demoUsers": "Itilizatè demo",
+        "demoSellerTerminals": "Seller-terminals demo"
+      },
+      "status": {
+        "created": "Kreye",
+        "seeded": "Inisyalize",
+        "default": "Pa defo",
+        "defaultLottery": "Lotri pa defo",
+        "defaultHaiti": "Ayiti pa defo",
+        "templatesAvailable": "Modèl disponib",
+        "none": "Okenn",
+        "planned": "Prevwa",
+        "expected": "Atann"
+      },
+      "step": {
+        "createInitialAdmin": "Kreye admin inisyal la",
+        "configureGames": "Konfigire jwèt yo",
+        "configureDrawChannels": "Konfigire kanal tiraj yo",
+        "createSellerTerminal": "Kreye yon seller-terminal",
+        "configureSellerRules": "Konfigire règ seller-terminal yo",
+        "configureLimits": "Konfigire limit yo",
+        "configureOdds": "Konfigire barèm yo",
+        "verifyDemoSetup": "Verifye done demo yo"
       }
     },
     "contactRequests": {
@@ -957,7 +940,7 @@
       "solutions": {
         "check_ticket": "Verifikasyon tikè",
         "operators": "Pou jeran yo",
-        "pos_management": "Jesyon pwen vant",
+        "pos_management": "Jesyon seller-terminals",
         "title": "Solisyon",
         "ticket_verification": "Verifikasyon tikè"
       },
@@ -1062,7 +1045,7 @@
       "access": "Aksè jeran",
       "demo": "Mande yon demo",
       "discover": "Dekouvri espas jeran an",
-      "description": "Pou pwen vant, vandè ak jeran rezo. Vann tikè, swiv sesyon yo, verifye rezilta epi konsulte rapò ou yo.",
+      "description": "Pou seller-terminals, seller-terminal ak jeran rezo. Vann tikè, swiv koneksyon yo, verifye rezilta epi konsulte rapò ou yo.",
       "title": "Espas jeran",
       "eyebrow": "Pou jeran yo"
     },
@@ -1070,22 +1053,22 @@
       "access": "Aksè jeran",
       "demo": "Mande yon demo",
       "discover": "Dekouvri espas jeran an",
-      "description": "Pou pwen vant, vandè ak jeran rezo. Vann tikè, swiv sesyon yo, verifye rezilta epi konsulte rapò ou yo.",
+      "description": "Pou seller-terminals, seller-terminal ak jeran rezo. Vann tikè, swiv koneksyon yo, verifye rezilta epi konsulte rapò ou yo.",
       "title": "Espas jeran",
       "eyebrow": "Pou jeran yo",
       "hero_aria": "Seksyon operatè",
-      "hero_title": "Jere vandè, tikè ak rapò ou yo ak plis klarite.",
-      "hero_body": "Tchalanet ede bank borlèt, pwen vant ak rezo vandè emèt tikè, swiv sesyon, verifye rezilta epi konsulte rapò aktivite yo.",
+      "hero_title": "Jere seller-terminal, tikè ak rapò ou yo ak plis klarite.",
+      "hero_body": "Tchalanet ede bank borlèt, seller-terminals ak rezo seller-terminal emèt tikè, swiv koneksyon, verifye rezilta epi konsulte rapò aktivite yo.",
       "hero_stat_tickets": "Tikè jodi a",
-      "hero_stat_sessions": "Sesyon ouvè",
-      "hero_stat_agents": "Vandè aktif",
+      "hero_stat_sessions": "Seller-terminals aktif",
+      "hero_stat_agents": "Seller-terminal aktif",
       "hero_stat_payments": "Pèman pou swiv",
       "cta_demo": "Mande yon demo",
       "cta_plans": "Dekouvri fonksyon yo",
       "benefits_title": "Sa Tchalanet pote nan operasyon ou yo",
-      "benefits_body": "Yon enfrastrikti ki fèt pou pwen vant ak rezo vandè chak jou.",
-      "benefit_agents_title": "Vandè ak terminal",
-      "benefit_agents_body": "Asiye vandè yo nan pwen vant ak terminal otorize yo.",
+      "benefits_body": "Yon enfrastrikti ki fèt pou seller-terminals ak rezo seller-terminal chak jou.",
+      "benefit_agents_title": "Seller-terminal ak terminal",
+      "benefit_agents_body": "Asiye seller-terminal yo nan seller-terminals ak terminal otorize yo.",
       "benefit_tickets_title": "Vant ak enpresyon tikè",
       "benefit_tickets_body": "Emèt tikè avèk QR/kòd piblik pou fasilitatè verifikasyon.",
       "benefit_verify_title": "Verifikasyon piblik",
@@ -1095,10 +1078,10 @@
       "benefit_payments_title": "Pèman ak swivi",
       "benefit_payments_body": "Idantifye tikè ki ka peye epi kenbe yon dosye pèman.",
       "benefit_reports_title": "Rapò aktivite",
-      "benefit_reports_body": "Konsulte vant, sesyon ak pèfòmans rezo ou.",
+      "benefit_reports_body": "Konsulte vant, koneksyon ak pèfòmans rezo ou.",
       "workflow_title": "Kijan sa fonksyone",
       "step1_title": "Konfigire",
-      "step1_body": "Ajoute pwen vant, terminal ak vandè yo.",
+      "step1_body": "Ajoute seller-terminals, terminal ak seller-terminal yo.",
       "step2_title": "Vann",
       "step2_body": "Emèt tikè soti nan terminal otorize yo.",
       "step3_title": "Verifye",
@@ -1109,15 +1092,15 @@
       "plans_body": "Chwazi nivo sipò ki adapte ak rezo ou.",
       "plan_trial_title": "Eseye",
       "plan_trial_price": "Disponib",
-      "plan_trial_body": "Teste Tchalanet ak kèk vandè anvan deplwaman konplè.",
+      "plan_trial_body": "Teste Tchalanet ak kèk seller-terminal anvan deplwaman konplè.",
       "plan_trial_cta": "Mande yon eseye",
-      "plan_essential_title": "Pwen vant",
+      "plan_essential_title": "Seller-terminals",
       "plan_essential_price": "Sou demann",
-      "plan_essential_body": "Pou yon pwen vant ki vle kòmanse senp.",
+      "plan_essential_body": "Pou yon seller-terminals ki vle kòmanse senp.",
       "plan_essential_cta": "Mande yon demo",
       "plan_network_title": "Rezo",
       "plan_network_price": "Sou demann",
-      "plan_network_body": "Pou plizyè vandè, terminal oswa pwen vant.",
+      "plan_network_body": "Pou plizyè seller-terminal, terminal oswa seller-terminals.",
       "plan_network_cta": "Mande yon demo",
       "plan_operator_title": "Sou mezire",
       "plan_operator_price": "Selon konfigirasyon",
@@ -1131,62 +1114,62 @@
       "feat_sell": "vant ak enpresyon tikè",
       "feat_verify_qr": "verifikasyon piblik pa QR oswa kòd",
       "feat_access_results": "aksè rezilta",
-      "feat_vendor_basic": "konfigirasyon vandè debaz",
-      "feat_agent_mgmt": "jesyon vandè, terminal ak sesyon",
+      "feat_vendor_basic": "konfigirasyon seller-terminal debaz",
+      "feat_agent_mgmt": "jesyon seller-terminal, terminal ak koneksyon",
       "feat_reports_full": "rapò aktivite",
       "feat_payments": "swivi pèman",
-      "feat_pos_config": "konfigirasyon pa pwen vant",
-      "feat_multi_pos": "plizyè pwen vant",
+      "feat_pos_config": "konfigirasyon pa seller-terminals",
+      "feat_multi_pos": "plizyè seller-terminals",
       "feat_advanced_perms": "pèmisyon avanse",
       "feat_reports_consolidated": "rapò konsolide",
       "feat_integration": "sipò entegrasyon",
       "access_title": "Aksè kontwole pou chak òganizasyon",
-      "access_body": "Chak itilizatè wè sèlman fonksyon ki otorize selon wòl li, pwen vant li, terminal li ak plan aktif la.",
+      "access_body": "Chak itilizatè wè sèlman fonksyon ki otorize selon wòl li, seller-terminals li, terminal li ak plan aktif la.",
       "access_rights_title": "Wòl itilizatè",
-      "access_rights_body": "Admin, sipèvizè, vandè oswa kesye selon bezwen ou yo.",
+      "access_rights_body": "Admin, sipèvizè, seller-terminal oswa kesye selon bezwen ou yo.",
       "access_subscription_title": "Terminal otorize",
-      "access_subscription_body": "Vant yo lye ak terminal ak sesyon kontwole.",
+      "access_subscription_body": "Vant yo lye ak terminal ak koneksyon kontwole.",
       "access_plan_title": "Plan ak limit",
       "access_plan_body": "Aksè ak limit yo aplike selon konfigirasyon ou.",
       "form_title": "Mande yon demonstrasyon",
-      "form_body": "Dekri pwen vant ou oswa rezo ou. Nou pral kontakte ou avèk yon demonstrasyon adapte.",
+      "form_body": "Dekri seller-terminals ou oswa rezo ou. Nou pral kontakte ou avèk yon demonstrasyon adapte.",
       "form_name_label": "Non",
       "form_name_placeholder": "Eks: Reginald Louisjuste",
-      "form_org_label": "Òganizasyon / pwen vant",
+      "form_org_label": "Òganizasyon / seller-terminals",
       "form_org_placeholder": "Eks: Borlèt Etwal Nò",
       "form_contact_label": "Telefòn oswa imèl",
       "form_contact_placeholder": "contact@exemple.com",
       "form_city_label": "Vil / zòn",
       "form_city_placeholder": "Eks: Kafou, Okap…",
       "form_message_label": "Mesaj opsyonèl",
-      "form_message_placeholder": "Eks: Mwen gen 3 vandè Kafou epi mwen vle jere tiraj chak jou yo.",
+      "form_message_placeholder": "Eks: Mwen gen 3 seller-terminal Kafou epi mwen vle jere tiraj chak jou yo.",
       "form_cta": "Mande yon demo",
       "form_sending": "Ap voye...",
       "form_sent": "Demann voye!",
       "faq_title": "Kesyon Frekàn",
       "faq_trial_q": "Kijan peryòd eseye a fonksyone?",
-      "faq_trial_a": "Peryòd eseye a pèmèt ou teste aplikasyon an ak yon kantite vandè oswa terminal limite selon plan disponib la.",
-      "faq_terminals_q": "Konbyen vandè oswa terminal mwen ka itilize?",
+      "faq_trial_a": "Peryòd eseye a pèmèt ou teste aplikasyon an ak yon kantite seller-terminal oswa terminal limite selon plan disponib la.",
+      "faq_terminals_q": "Konbyen seller-terminal oswa terminal mwen ka itilize?",
       "faq_terminals_a": "Limit yo depann de plan chwazi a. Kontakte nou pou konnen konfigirasyon ki adapte ak rezo ou.",
       "faq_verify_q": "Kijan kliyan yo verifye yon tikè?",
       "faq_verify_a": "Chak tikè gen yon kòd piblik oswa QR ki pèmèt nenpòt moun verifye estati li san yo pa antre nan espas jeran an.",
       "faq_expired_q": "Sa k pase si aksè mwen sispann?",
       "faq_expired_a": "Fonksyonalite yo limite jiskaske regilarizasyon fèt. Kontakte ekip la pou reaktive aksè ou.",
-      "faq_multipos_q": "Eske mwen ka jere plizyè pwen vant?",
-      "faq_multipos_a": "Wi. Plan Rezo ak Sou mezire pèmèt ou konfigire plizyè pwen vant epi santralize rapò yo.",
-      "faq_mobile_q": "Eske vandè mwen yo ka itilize Tchalanet sou mobil?",
-      "faq_mobile_a": "Wi. Aplikasyon POS Tchalanet disponib sou mobil pou vandè otorize yo."
+      "faq_multipos_q": "Eske mwen ka jere plizyè seller-terminals?",
+      "faq_multipos_a": "Wi. Plan Rezo ak Sou mezire pèmèt ou konfigire plizyè seller-terminals epi santralize rapò yo.",
+      "faq_mobile_q": "Eske seller-terminal mwen yo ka itilize Tchalanet sou mobil?",
+      "faq_mobile_a": "Wi. Aplikasyon POS Tchalanet disponib sou mobil pou seller-terminal otorize yo."
     },
     "check": {
       "code_hint": "Fòma kòd la parèt anba resi enprime ou.",
-      "help_body": "Kòd piblik la enprime sou resi yon pwen vant patisipan bay. Ou ka antre li manyèlman oswa eskane QR la lè opsyon sa disponib.",
+      "help_body": "Kòd piblik la enprime sou resi yon seller-terminals patisipan bay. Ou ka antre li manyèlman oswa eskane QR la lè opsyon sa disponib.",
       "help_title": "Kisa yon kòd piblik ye?",
       "loading_body": "Konsiltasyon tanporè sèvis verifikasyon piblik la.",
       "loading_title": "Verifikasyon tikè a ap fèt…",
       "status": {
         "WINNING_PAYABLE": {
           "title": "Tikè gayan — ale reklame peman an",
-          "body": "Tikè sa a gen yon prim. Prezante resi orijinal la nan yon pwen vant patisipan pou w kolekte peman ou selon enstriksyon ki parèt yo."
+          "body": "Tikè sa a gen yon prim. Prezante resi orijinal la nan yon seller-terminals patisipan pou w kolekte peman ou selon enstriksyon ki parèt yo."
         },
         "WINNING_PAID": {
           "title": "Tikè gayan — deja peye",
@@ -1202,7 +1185,7 @@
         },
         "CANCELLED": {
           "title": "Tikè anile",
-          "body": "Tikè sa a anile epi li pa ka peye. Kontakte pwen vant lan si ou kwè se yon erè."
+          "body": "Tikè sa a anile epi li pa ka peye. Kontakte seller-terminals lan si ou kwè se yon erè."
         },
         "EXPIRED": {
           "title": "Tikè ekspire",
@@ -1210,7 +1193,7 @@
         },
         "BLOCKED": {
           "title": "Tikè bloke",
-          "body": "Tikè sa a bloke tanporèman. Kontakte pwen vant ou oswa sèvis kliyan Tchalanet pou plis enfòmasyon."
+          "body": "Tikè sa a bloke tanporèman. Kontakte seller-terminals ou oswa sèvis kliyan Tchalanet pou plis enfòmasyon."
         },
         "NOT_FOUND": {
           "title": "Tikè pa jwenn",
@@ -1251,7 +1234,7 @@
       },
       "contact": {
         "body": "Kontakte Tchalanet pou yon demo oswa oryantasyon operatè.",
-        "description": "Yon pwen kontak pou operatè, pwen vant, ak demann sipò piblik.",
+        "description": "Yon pwen kontak pou operatè, seller-terminals, ak demann sipò piblik.",
         "eyebrow": "Kontak",
         "title": "Kontakte Tchalanet"
       },
@@ -1384,7 +1367,7 @@
       "copied": "Kopye !"
     },
     "contact_cta": {
-      "body": "Eksplike nou pwen vant ou oswa rezo ou. Nou pral kontakte ou pou yon demontstrasyon adapte.",
+      "body": "Eksplike nou seller-terminals ou oswa rezo ou. Nou pral kontakte ou pou yon demontstrasyon adapte.",
       "cta": "Mande yon demo",
       "help": "Wè èd la",
       "title": "Prè pou dekouvri Tchalanet ?"
@@ -1397,12 +1380,12 @@
       "calc_gain_label": "Estimasyon gain",
       "calc_game_aria": "Chwazi kalite jwèt la",
       "calc_note": "Endikatif — pa garanti",
-      "disclaimer": "Similasyon endikatif. Montan ki peyab la depann de tikè reyèl la, règ pwen vant lan, estati tiraj la, ak rezilta konfime yo. Similasyon sa a pa garanti peman.",
+      "disclaimer": "Similasyon endikatif. Montan ki peyab la depann de tikè reyèl la, règ seller-terminals lan, estati tiraj la, ak rezilta konfime yo. Similasyon sa a pa garanti peman.",
       "games": {
         "borlette": {
           "body": "Chwazi yon nimewo de chif. Estati a depann de rezilta ki disponib pou tiraj konsène a.",
           "detail1_label": "Premye lo",
-          "detail1_value": "Selon règ pwen vant lan",
+          "detail1_value": "Selon règ seller-terminals lan",
           "detail2_label": "Dezyèm lo",
           "detail2_value": "Selon tikè reyèl la",
           "detail3_label": "Twazyèm lo",
@@ -1417,7 +1400,7 @@
           "title": "Lotto 3"
         },
         "lotto4": {
-          "body": "Chwazi kat oswa senk chif selon jwèt ki disponib nan pwen vant patisipan an.",
+          "body": "Chwazi kat oswa senk chif selon jwèt ki disponib nan seller-terminals patisipan an.",
           "detail1_label": "Disponibilite",
           "detail1_value": "Selon katalòg piblik",
           "title": "Lotto 4 & 5"
@@ -1554,12 +1537,12 @@
         "tickets": "Tikè"
       },
       "blocked": {
-        "title": "Sesyon bloke",
-        "message": "Sesyon ou bloke kounye a. Kontakte sipèvizè ou."
+        "title": "Koneksyon bloke",
+        "message": "Koneksyon ou bloke kounye a. Kontakte sipèvizè ou."
       }
     },
     "session": {
-      "title": "Sesyon",
+      "title": "Koneksyon",
       "openedAt": "Louvri a"
     },
     "draw": {
@@ -1576,7 +1559,7 @@
       "title": "Aksyon rapid",
       "newTicket": "Nouvo tikè",
       "history": "Istwa",
-      "closeSession": "Fèmen sesyon"
+      "closeSession": "Fèmen koneksyon"
     },
     "sell": {
       "title": "Nouvo tikè",
@@ -1723,7 +1706,7 @@
     "tenant_admin": "Administrasyon"
   },
   "cta": {
-    "close_session": "Fèmen sesyon an",
+    "close_session": "Fèmen koneksyon an",
     "sell_ticket": "Vann yon tikè",
     "verify_ticket": "Verifye yon tikè"
   },
@@ -1738,12 +1721,12 @@
   },
   "quickaction": {
     "admin": {
-      "add_seller_terminal": "Ajoute vandè",
-      "active_seller_terminals": "Vandè aktif",
       "daily_report": "Rapò jodi a",
       "manage_limits": "Jere limit",
       "manage_odds": "Jere odds",
-      "maryaj_gratis": "Maryaj gratis"
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Ajoute seller-terminal",
+      "active_seller_terminals": "Seller-terminals aktif"
     },
     "platform": {
       "create_tenant": "Kreye tenant",
@@ -1751,6 +1734,45 @@
       "subscriptions": "Abònman",
       "platform_health": "Sante platfòm",
       "draw_results": "Rezilta & tiraj"
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Aktivasyon kont",
+      "description": "Chanje modpas tanporè a epi ranpli pwofil ou avan ou antre nan espas admin nan.",
+      "security": {
+        "title": "Sekirite",
+        "currentPassword": "Modpas tanporè",
+        "newPassword": "Nouvo modpas",
+        "confirmPassword": "Konfime modpas la",
+        "passwordMismatch": "Modpas yo pa menm."
+      },
+      "profile": {
+        "title": "Pwofil",
+        "firstName": "Prenon",
+        "lastName": "Non",
+        "phoneNumber": "Telefòn opsyonèl"
+      },
+      "tenant": {
+        "title": "Aksè tenant",
+        "name": "Tenant",
+        "code": "Kòd",
+        "role": "Wòl"
+      },
+      "action": {
+        "submit": "Aktive kont mwen",
+        "submitting": "Aktivasyon ap fèt"
+      }
+    }
+  },
+  "sellerTerminal": {
+    "activation": {
+      "title": "Aktivasyon seller-terminal",
+      "description": "Seller-terminal la dwe chanje PIN tanporè li anvan li ka vann.",
+      "pin": {
+        "title": "PIN temporaire",
+        "pendingBackend": "Chanjman PIN lan ap aktive ak endpoint seller-terminal V0 la."
+      }
     }
   }
 }

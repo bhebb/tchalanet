@@ -18,10 +18,12 @@ import com.tchalanet.server.platform.accesscontrol.api.model.request.SetTenantUs
 import com.tchalanet.server.platform.accesscontrol.api.model.request.UpdateRoleRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.BootstrapAccessControlResult;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPermissionsResult;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.EffectivePermissionsView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.PermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RolePermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RoleView;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.List;
 
 public interface AccessControlApi {
@@ -34,6 +36,7 @@ public interface AccessControlApi {
     List<PermissionView> listPermissions(ListPermissionsRequest request);
     List<RolePermissionView> listRolePermissions(ListRolePermissionsRequest request);
     EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request);
+    AccessSnapshotView resolveUserAccess(UserId userId);
 
     // Role assignment (operates on tenant_user_role)
     void assignRoleToUser(AssignRoleToUserRequest request);

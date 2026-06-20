@@ -31,6 +31,17 @@ tch:
         users:
           - super_admin
           - admin
+    invitations:
+      magic-link-enabled: ${TCH_IDENTITY_MAGIC_LINK_ENABLED:false}
+      email-sending-enabled: ${TCH_IDENTITY_EMAIL_SENDING_ENABLED:false}
+    temporary-credentials:
+      admin:
+        enabled: ${TCH_ADMIN_TEMP_CREDENTIALS_ENABLED:true}
+        default-password: ${TCH_ADMIN_TEMP_PASSWORD:Changeme1!}
+        generate-in-prod: ${TCH_ADMIN_TEMP_GENERATE_IN_PROD:true}
+      seller:
+        default-pin-length: ${TCH_SELLER_TEMP_PIN_LENGTH:6}
+        generate-pin: ${TCH_SELLER_TEMP_GENERATE_PIN:true}
 
   runtime:
     zone-id: ${TCH_RUNTIME_ZONE_ID:UTC}

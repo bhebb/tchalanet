@@ -31,6 +31,7 @@ public class TenantUserAdministrationService {
   private final TimeProvider timeProvider;
   private final IdentityProvisioningApi identityProvisioning;
   private final ExternalIdentityLinkService externalIdentityLinks;
+  private final TemporaryCredentialService temporaryCredentials;
 
   @Transactional
   public CreateUserResult createUser(
@@ -91,25 +92,46 @@ public class TenantUserAdministrationService {
       String firstName,
       String lastName,
       String tenantCode) {
-    if (users.findByEmailOrPhone(email, phone).isPresent()) {
-      throw new IllegalStateException("User already exists with this email or phone");
+    var existing = users.findByEmailOrPhone(email, phone);
+    if (existing.isPresent()) {
+      var now = timeProvider.nowInstant();
+      var saved = users.save(existing.get().requireFirstLoginActivation(now));
+      return new CreateUserResult(saved.id(), false, false, null);
     }
     var username = resolveUsername(email, phone);
+    var temporaryPassword = temporaryCredentials.adminTemporaryCredentialsEnabled()
+        ? temporaryCredentials.adminTemporaryPassword()
+        : null;
     var externalUser =
         identityProvisioning.provisionUser(
             new ProvisionExternalUserRequest(
-                null, email, phone, buildDisplayName(firstName, lastName), null));
+                null, email, phone, buildDisplayName(firstName, lastName), temporaryPassword));
     var now = timeProvider.nowInstant();
     var user = users.save(AppUser.createNew(
         null, null, username, email, phone,
-        firstName, lastName, buildDisplayName(firstName, lastName), null, now).reactivate());
+        firstName, lastName, buildDisplayName(firstName, lastName), null, now)
+        .reactivate()
+        .requireFirstLoginActivation(now));
     externalIdentityLinks.link(
         user.id(),
         externalUser.provider(),
         externalUser.issuer(),
         externalUser.externalSubject(),
         email);
-    return new CreateUserResult(user.id());
+    var credentialIssued = temporaryPassword != null && externalUser.created();
+    return new CreateUserResult(user.id(), true, credentialIssued, credentialIssued ? temporaryPassword : null);
+  }
+
+  @Transactional
+  public FirstLoginActivationResult completeFirstLogin(
+      UserId userId, String firstName, String lastName, String phone) {
+    var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    var saved = users.save(user.completeFirstLogin(firstName, lastName, phone, timeProvider.nowInstant()));
+    return new FirstLoginActivationResult(
+        saved.id(),
+        saved.mustChangePassword(),
+        saved.mustCompleteProfile(),
+        "/app/admin");
   }
 
   public void approveUser(UserId userId, UserId approvedBy) {
@@ -209,4 +231,10 @@ public class TenantUserAdministrationService {
       String firstName,
       String lastName,
       String displayName) {}
+
+  public record FirstLoginActivationResult(
+      UserId userId,
+      boolean mustChangePassword,
+      boolean mustCompleteProfile,
+      String entryRoute) {}
 }

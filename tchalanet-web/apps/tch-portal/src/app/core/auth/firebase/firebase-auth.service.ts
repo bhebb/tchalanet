@@ -3,12 +3,15 @@ import {
   Auth,
   browserLocalPersistence,
   browserSessionPersistence,
+  EmailAuthProvider,
   isSignInWithEmailLink,
+  reauthenticateWithCredential,
   sendSignInLinkToEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signOut,
+  updatePassword,
 } from '@angular/fire/auth';
 
 import { AuthClient, AuthLoginRequest } from '../auth-client';
@@ -53,6 +56,18 @@ export class FirebaseAuthService implements AuthClient {
     await signInWithEmailLink(this.auth, email, globalThis.location.href);
     globalThis.localStorage?.removeItem(this.passwordlessEmailStorageKey);
     return true;
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.auth.authStateReady();
+    const currentUser = this.auth.currentUser;
+    if (!currentUser?.email) {
+      throw new Error('No authenticated email user is available');
+    }
+    const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+    await reauthenticateWithCredential(currentUser, credential);
+    await updatePassword(currentUser, newPassword);
+    await currentUser.getIdToken(true);
   }
 
   async logout(): Promise<void> {

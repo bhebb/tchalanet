@@ -17,5 +17,5 @@ public record CreateSellerTerminalRequest(
     @Size(max = 64) String phoneNumber,
     AddressId addressId,
     @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal commissionRate,
-    @Pattern(regexp = "\\d{4,8}", message = "PIN must be 4–8 digits") String initialPin
+    @Pattern(regexp = "\\d{6}", message = "PIN must be exactly 6 digits") String initialPin
 ) {}

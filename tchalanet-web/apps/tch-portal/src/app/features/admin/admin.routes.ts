@@ -16,34 +16,11 @@ export const adminRoutes: Route[] = [
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
   },
   {
-    path: 'sellers',
+    path: 'seller-terminals',
     loadComponent: () =>
-      import('./pages/sellers/admin-sellers.page').then(m => m.AdminSellersPage),
-  },
-  {
-    path: 'sellers/new',
-    loadComponent: () =>
-      import('./pages/sellers/admin-seller-new.page').then(m => m.AdminSellerNewPage),
-  },
-  {
-    path: 'sellers/:id',
-    loadComponent: () =>
-      import('./pages/sellers/admin-seller-detail.page').then(m => m.AdminSellerDetailPage),
-  },
-  {
-    path: 'outlets',
-    loadComponent: () =>
-      import('./pages/outlets/admin-outlets.page').then(m => m.AdminOutletsPage),
-  },
-  {
-    path: 'terminals',
-    loadComponent: () =>
-      import('./pages/terminals/admin-terminals.page').then(m => m.AdminTerminalsPage),
-  },
-  {
-    path: 'sessions',
-    loadComponent: () =>
-      import('./pages/sessions/admin-sessions.page').then(m => m.AdminSessionsPage),
+      import('./pages/seller-terminals/admin-seller-terminals.page').then(
+        m => m.AdminSellerTerminalsPage,
+      ),
   },
   {
     path: 'games',

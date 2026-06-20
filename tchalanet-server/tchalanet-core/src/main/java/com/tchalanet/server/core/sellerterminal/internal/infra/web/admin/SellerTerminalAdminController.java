@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/seller-terminals")
 @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
-@Tag(name = "Vendeurs / Terminaux • Admin")
+@Tag(name = "Seller-terminals • Admin")
 @RequiredArgsConstructor
 public class SellerTerminalAdminController {
 
@@ -86,7 +86,7 @@ public class SellerTerminalAdminController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @RequiresPermission("seller_terminal.manage")
-    @Operation(summary = "Create a seller terminal (Vendeur / Terminal)")
+    @Operation(summary = "Create a seller-terminal")
     @AuditLog(
         entity = AuditEntityType.SELLER_TERMINAL,
         action = AuditAction.SELLER_TERMINAL_CREATE,
@@ -205,6 +205,6 @@ public class SellerTerminalAdminController {
 
     public record ResetPinRequest(
         @jakarta.validation.constraints.Pattern(
-            regexp = "\\d{4,8}", message = "PIN must be 4–8 digits")
+            regexp = "\\d{6}", message = "PIN must be exactly 6 digits")
         String newPin) {}
 }

@@ -4,10 +4,10 @@
       "title": "Administration",
       "description": "Vue d'ensemble de l'administration tenant",
       "kpi": {
-        "sellers": "Vendeurs",
-        "outlets": "Points de vente",
-        "terminals": "Terminaux",
-        "openSessions": "Sessions ouvertes"
+        "sellers": "Seller-terminals",
+        "outlets": "Seller-terminals",
+        "seller-terminals": "Seller-terminals",
+        "openConnexions": "Seller-terminals actifs"
       },
       "onboarding": {
         "title": "Onboarding"
@@ -29,63 +29,9 @@
       "title": "Utilisateurs",
       "description": "Gestion des utilisateurs"
     },
-    "sellers": {
-      "title": "Vendeurs",
-      "description": "Gestion des vendeurs",
-      "search_placeholder": "Rechercher un vendeur…",
-      "load_error": "Impossible de charger les vendeurs.",
-      "empty": {
-        "title": "Aucun vendeur",
-        "message": "Ajoutez votre premier terminal vendeur pour commencer."
-      },
-      "new": {
-        "title": "Nouveau vendeur",
-        "action": "Ajouter un vendeur",
-        "description": "Remplissez les informations pour créer un nouveau vendeur.",
-        "submit": "Créer le vendeur"
-      },
-      "detail": {
-        "title": "Détail vendeur"
-      },
-      "status": {
-        "ALL": "Tous",
-        "ACTIVE": "Actif",
-        "PENDING": "En attente",
-        "BLOCKED": "Bloqué",
-        "DISABLED": "Désactivé"
-      },
-      "section": {
-        "identity": "Informations vendeur",
-        "assignment": "Affectation",
-        "commission": "Commission",
-        "security": "Accès sécurisé",
-        "security_desc": "Ce code PIN sera utilisé par le vendeur pour se connecter à son terminal."
-      },
-      "field": {
-        "display_name": "Nom affiché",
-        "phone": "Téléphone",
-        "first_name": "Prénom",
-        "last_name": "Nom de famille",
-        "terminal_code": "Code terminal",
-        "terminal_code_hint": "Identifiant unique du terminal (ex: VND-001)",
-        "commission_rate": "Taux de commission",
-        "commission_rate_hint": "Laissez vide pour utiliser le taux par défaut du tenant.",
-        "commission_rate_error": "Le taux doit être entre 0 et 100.",
-        "pin": "PIN (4 chiffres)",
-        "pin_required": "Le PIN est obligatoire et doit contenir 4 chiffres."
-      }
-    },
-    "outlets": {
-      "title": "Points de vente",
-      "description": "Gestion des points de vente"
-    },
-    "terminals": {
-      "title": "Terminaux",
-      "description": "Gestion des terminaux"
-    },
-    "sessions": {
-      "title": "Sessions",
-      "description": "Gestion des sessions caissier"
+    "connexions": {
+      "title": "Seller-terminals",
+      "description": "Gestion des seller-terminals"
     },
     "settings": {
       "title": "Paramètres",
@@ -93,48 +39,42 @@
     },
     "seller": {
       "email": "E-mail",
-      "error": "Échec de l'onboarding du vendeur.",
+      "error": "Échec de l'onboarding du seller-terminal.",
       "firstName": "Prénom",
       "lastName": "Nom",
-      "outletId": "Point de vente",
+      "outletId": "Seller-terminal",
       "phone": "Téléphone",
-      "submit": "Créer le vendeur",
-      "success": "Vendeur créé :",
-      "terminalId": "Terminal",
-      "title": "Onboarding vendeur"
+      "submit": "Créer le seller-terminal",
+      "success": "Seller-terminal créé :",
+      "seller-terminalId": "Seller-terminal",
+      "title": "Onboarding seller-terminal"
     },
     "action": {
-      "outlets": "Points de vente",
-      "sessions": "Sessions",
+      "connexions": "Seller-terminals",
       "settings": "Paramètres",
-      "terminals": "Terminaux",
-      "users": "Utilisateurs"
+      "users": "Utilisateurs",
+      "seller_terminals": "Seller-terminals"
     },
     "kpi": {
-      "openSessions": {
-        "label": "Sessions ouvertes"
+      "openConnexions": {
+        "label": "Seller-terminals actifs"
       },
       "outlets": {
-        "label": "Points de vente"
+        "label": "Seller-terminals"
       },
       "sellers": {
-        "label": "Vendeurs"
-      },
-      "terminals": {
-        "label": "Terminaux"
+        "label": "Seller-terminals"
       },
       "sales_today": {
         "label": "Ventes aujourd'hui"
-      },
-      "active_seller_terminals": {
-        "label": "Vendeurs actifs"
       },
       "payout_due": {
         "label": "À payer"
       },
       "notifications": {
         "label": "Notifications"
-      }
+      },
+      "active_seller_terminals": "Seller-terminals actifs"
     },
     "draws": {
       "title": "Tirages"
@@ -183,6 +123,11 @@
       "support": {
         "title": "Support"
       }
+    },
+    "sellerTerminals": {
+      "title": "Seller-terminals",
+      "description": "Gestion des seller-terminals",
+      "search_placeholder": "Rechercher un seller-terminal…"
     }
   },
   "app": {
@@ -206,7 +151,7 @@
         "body": "Pilotez les ventes, les tirages et votre réseau depuis un espace opérationnel sécurisé.",
         "capabilities": {
           "operations": "Suivi des opérations en temps réel",
-          "sales": "Ventes et sessions centralisées",
+          "sales": "Ventes et connexions centralisées",
           "security": "Accès protégé et traçable"
         },
         "eyebrow": "Réseau de loterie",
@@ -228,7 +173,7 @@
         "hidePassword": "Masquer le mot de passe",
         "password": "Mot de passe",
         "remember": "Rester connecté sur cet appareil",
-        "security": "Votre session est sécurisée par Firebase Authentication.",
+        "security": "Votre connexion est sécurisée par Firebase Authentication.",
         "sendEmailLink": "Recevoir un lien de connexion",
         "showPassword": "Afficher le mot de passe",
         "submit": "Accéder à mon espace",
@@ -326,10 +271,10 @@
         "title": "Commission",
         "default_rate": "Taux par défaut du tenant",
         "default_not_set": "Non configuré",
-        "seller_terminals": "Vendeurs",
         "at_default": "Au taux par défaut",
         "custom": "Taux personnalisé",
-        "rate_range": "Fourchette"
+        "rate_range": "Fourchette",
+        "seller_terminals": "Seller-terminals"
       },
       "kpis": {
         "title": "Indicateurs"
@@ -498,9 +443,6 @@
       "dashboard": "Tableau de bord",
       "onboarding": "Onboarding",
       "users": "Utilisateurs",
-      "sellers": "Vendeurs",
-      "seller_add": "Ajouter vendeur",
-      "seller_active": "Vendeurs actifs",
       "controls": "Contrôles",
       "commission": "Commissions",
       "odds": "Odds",
@@ -516,14 +458,15 @@
       "my_space": "Mon espace",
       "my_account": "Mon compte",
       "support": "Support",
-      "outlets": "Points de vente",
-      "terminals": "Terminaux",
-      "sessions": "Sessions",
+      "connexions": "Connexions",
       "settings": "Paramètres",
       "spaceTitle": "Admin",
       "all_draws": "Tous les tirages",
       "upcoming_draws": "Tirages à venir",
-      "past_draws": "Tirages passés"
+      "past_draws": "Tirages passés",
+      "seller_terminals": "Seller-terminals",
+      "seller_terminal_add": "Ajouter seller-terminal",
+      "seller_terminal_active": "Seller-terminals actifs"
     },
     "cashier": {
       "section": {
@@ -539,9 +482,9 @@
     "dashboard": "Tableau de bord",
     "tenant_overview": "Vue d'ensemble",
     "users": "Utilisateurs",
-    "outlets": "Points de vente",
-    "terminals": "Terminaux",
-    "sessions": "Sessions",
+    "outlets": "Seller-terminals",
+    "seller-terminals": "Seller-terminals",
+    "connexions": "Connexions",
     "tickets_sales": "Tickets & ventes",
     "draws": "Tirages",
     "games_pricing": "Jeux & tarifs",
@@ -554,7 +497,7 @@
     "quick_sale": "Vente rapide",
     "tickets": "Tickets",
     "verify_ticket": "Vérifier un ticket",
-    "session": "Session",
+    "connexion": "Connexion",
     "tenants": "Tenants",
     "tenant_onboarding": "Onboarding tenant",
     "subscriptions": "Abonnements",
@@ -625,7 +568,8 @@
       "contactManagement": "Gestion des contacts",
       "news": "Actualités",
       "reports": "Rapports",
-      "platformReports": "Rapports plateforme"
+      "platformReports": "Rapports plateforme",
+      "superAdmins": "Super admins"
     },
     "placeholder": {
       "title": "Écran en préparation",
@@ -792,7 +736,7 @@
           "promotions_templates": "Modèles de promotions",
           "limits_templates": "Modèles de limites",
           "demo_users": "Utilisateurs de démo",
-          "demo_seller_terminals": "Vendeurs / terminaux de démo"
+          "demo_seller_terminals": "Seller-terminals de démo"
         },
         "data": {
           "tickets": "Tickets",
@@ -806,18 +750,18 @@
         "readiness": {
           "identity": "Identité tenant",
           "users": "Admin tenant",
-          "seller_terminals": "Vendeurs / terminaux",
           "draw_channels": "Canaux de tirage",
-          "seller_rules": "Règles vendeur",
+          "seller_rules": "Règles seller-terminal",
           "limits": "Limites",
-          "odds": "Barèmes"
+          "odds": "Barèmes",
+          "seller_terminals": "Seller-terminals"
         },
         "nextSteps": {
           "CREATE_INITIAL_ADMIN": "Créer l’admin initial",
           "CONFIGURE_GAMES": "Configurer les jeux",
           "CONFIGURE_DRAW_CHANNELS": "Configurer les canaux de tirage",
-          "CONFIGURE_SELLER_RULES": "Configurer les règles vendeur",
-          "CREATE_SELLER_TERMINAL": "Créer un vendeur / terminal",
+          "CONFIGURE_SELLER_RULES": "Configurer les règles seller-terminal",
+          "CREATE_SELLER_TERMINAL": "Créer un seller-terminal",
           "CONFIGURE_LIMITS": "Configurer les limites",
           "CONFIGURE_ODDS": "Configurer les barèmes",
           "VERIFY_DEMO_SETUP": "Vérifier les données de démo"
@@ -881,7 +825,49 @@
       },
       "result": {
         "nextSteps": "Prochaines étapes",
-        "warnings": "Alertes"
+        "warnings": "Alertes",
+        "initialAdmin": "Admin initial",
+        "adminEmail": "Email",
+        "adminStatus": "Statut",
+        "temporaryAccessCreated": "Accès temporaire créé",
+        "temporaryPassword": "Mot de passe temporaire",
+        "passwordConfiguredServerSide": "Mot de passe temporaire défini selon la configuration serveur.",
+        "adminNextInstruction": "Demander à l’admin de se connecter. Il devra changer son mot de passe et compléter son profil avant d’accéder à /app/admin."
+      },
+      "domain": {
+        "tenantIdentity": "Identité tenant",
+        "pagemodels": "Pages initiales",
+        "theme": "Thème",
+        "settings": "Paramètres",
+        "i18n": "Traductions",
+        "games": "Jeux",
+        "pricing": "Tarifs",
+        "drawChannels": "Canaux de tirage",
+        "promotionsTemplates": "Modèles de promotions",
+        "limitsTemplates": "Modèles de limites",
+        "demoUsers": "Utilisateurs démo",
+        "demoSellerTerminals": "Seller-terminals de démo"
+      },
+      "status": {
+        "created": "Créé",
+        "seeded": "Initialisé",
+        "default": "Par défaut",
+        "defaultLottery": "Loterie par défaut",
+        "defaultHaiti": "Haïti par défaut",
+        "templatesAvailable": "Modèles disponibles",
+        "none": "Aucun",
+        "planned": "Prévu",
+        "expected": "Attendu"
+      },
+      "step": {
+        "createInitialAdmin": "Créer l’admin initial",
+        "configureGames": "Configurer les jeux",
+        "configureDrawChannels": "Configurer les canaux de tirage",
+        "configureSellerRules": "Configurer les règles seller-terminal",
+        "configureLimits": "Configurer les limites",
+        "configureOdds": "Configurer les barèmes",
+        "verifyDemoSetup": "Vérifier les données de démo",
+        "createSellerTerminal": "Créer un seller-terminal"
       }
     },
     "contactRequests": {
@@ -957,7 +943,7 @@
       "solutions": {
         "check_ticket": "Vérification de tickets",
         "operators": "Pour gestionnaires",
-        "pos_management": "Gestion des points de vente",
+        "pos_management": "Gestion des seller-terminals",
         "title": "Solutions",
         "ticket_verification": "Vérification de ticket"
       },
@@ -1062,7 +1048,7 @@
       "access": "Accès gestionnaire",
       "demo": "Demander une démo",
       "discover": "Découvrir l’espace gestionnaire",
-      "description": "Pour les points de vente, vendeurs et gestionnaires de réseau. Vendez des tickets, suivez les sessions, vérifiez les résultats et consultez vos rapports.",
+      "description": "Pour les seller-terminals, seller-terminals et gestionnaires de réseau. Vendez des tickets, suivez les connexions, vérifiez les résultats et consultez vos rapports.",
       "title": "Espace gestionnaire",
       "eyebrow": "Pour gestionnaires"
     },
@@ -1070,22 +1056,22 @@
       "access": "Accès gestionnaire",
       "demo": "Demander une démo",
       "discover": "Découvrir l’espace gestionnaire",
-      "description": "Pour les points de vente, vendeurs et gestionnaires de réseau. Vendez des tickets, suivez les sessions, vérifiez les résultats et consultez vos rapports.",
+      "description": "Pour les seller-terminals, seller-terminals et gestionnaires de réseau. Vendez des tickets, suivez les connexions, vérifiez les résultats et consultez vos rapports.",
       "title": "Espace gestionnaire",
       "eyebrow": "Pour gestionnaires",
       "hero_aria": "Section opérateurs",
-      "hero_title": "Gérez vos vendeurs, tickets et rapports avec plus de clarté.",
-      "hero_body": "Tchalanet aide les banques borlette, points de vente et réseaux de vendeurs à émettre des tickets, suivre les sessions, vérifier les résultats et consulter les rapports d'activité.",
+      "hero_title": "Gérez vos seller-terminals, tickets et rapports avec plus de clarté.",
+      "hero_body": "Tchalanet aide les banques borlette, seller-terminals et réseaux de seller-terminals à émettre des tickets, suivre les connexions, vérifier les résultats et consulter les rapports d'activité.",
       "hero_stat_tickets": "Tickets aujourd'hui",
-      "hero_stat_sessions": "Sessions ouvertes",
-      "hero_stat_agents": "Vendeurs actifs",
+      "hero_stat_connexions": "Seller-terminals actifs",
+      "hero_stat_agents": "Seller-terminals actifs",
       "hero_stat_payments": "Paiements à suivre",
       "cta_demo": "Demander une démo",
       "cta_plans": "Découvrir les fonctionnalités",
       "benefits_title": "Ce que Tchalanet apporte à vos opérations",
-      "benefits_body": "Une infrastructure pensée pour les points de vente et réseaux de vendeurs au quotidien.",
-      "benefit_agents_title": "Vendeurs et terminaux",
-      "benefit_agents_body": "Attribuez les vendeurs à des points de vente et terminaux autorisés.",
+      "benefits_body": "Une infrastructure pensée pour les seller-terminals et réseaux de seller-terminals au quotidien.",
+      "benefit_agents_title": "Seller-terminals et seller-terminals",
+      "benefit_agents_body": "Attribuez les seller-terminals à des seller-terminals et seller-terminals autorisés.",
       "benefit_tickets_title": "Vente et impression de tickets",
       "benefit_tickets_body": "Émettez des tickets avec QR/code public pour faciliter la vérification.",
       "benefit_verify_title": "Vérification publique",
@@ -1095,12 +1081,12 @@
       "benefit_payments_title": "Paiements et suivi",
       "benefit_payments_body": "Identifiez les tickets payables et gardez une trace des paiements.",
       "benefit_reports_title": "Rapports d'activité",
-      "benefit_reports_body": "Consultez les ventes, sessions et performances de votre réseau.",
+      "benefit_reports_body": "Consultez les ventes, connexions et performances de votre réseau.",
       "workflow_title": "Comment ça fonctionne",
       "step1_title": "Configurez",
-      "step1_body": "Ajoutez points de vente, terminaux et vendeurs.",
+      "step1_body": "Ajoutez seller-terminals, seller-terminals et seller-terminals.",
       "step2_title": "Vendez",
-      "step2_body": "Émettez des tickets depuis les terminaux autorisés.",
+      "step2_body": "Émettez des tickets depuis les seller-terminals autorisés.",
       "step3_title": "Vérifiez",
       "step3_body": "Les tickets peuvent être vérifiés par QR ou code public.",
       "step4_title": "Suivez",
@@ -1109,15 +1095,15 @@
       "plans_body": "Choisissez le niveau d'accompagnement adapté à votre réseau.",
       "plan_trial_title": "Essai",
       "plan_trial_price": "Disponible",
-      "plan_trial_body": "Testez Tchalanet avec quelques vendeurs avant un déploiement complet.",
+      "plan_trial_body": "Testez Tchalanet avec quelques seller-terminals avant un déploiement complet.",
       "plan_trial_cta": "Demander un essai",
-      "plan_essential_title": "Point de vente",
+      "plan_essential_title": "Seller-terminal",
       "plan_essential_price": "Sur demande",
-      "plan_essential_body": "Pour un point de vente qui veut démarrer simplement.",
+      "plan_essential_body": "Pour un seller-terminal qui veut démarrer simplement.",
       "plan_essential_cta": "Demander une démo",
       "plan_network_title": "Réseau",
       "plan_network_price": "Sur demande",
-      "plan_network_body": "Pour plusieurs vendeurs, terminaux ou points de vente.",
+      "plan_network_body": "Pour plusieurs seller-terminals, seller-terminals ou seller-terminals.",
       "plan_network_cta": "Demander une démo",
       "plan_operator_title": "Sur mesure",
       "plan_operator_price": "Selon configuration",
@@ -1131,62 +1117,62 @@
       "feat_sell": "vente et impression de tickets",
       "feat_verify_qr": "vérification publique par QR ou code",
       "feat_access_results": "accès aux résultats",
-      "feat_vendor_basic": "configuration vendeur de base",
-      "feat_agent_mgmt": "gestion vendeurs, terminaux et sessions",
+      "feat_vendor_basic": "configuration seller-terminal de base",
+      "feat_agent_mgmt": "gestion seller-terminals, seller-terminals et connexions",
       "feat_reports_full": "rapports d'activité",
       "feat_payments": "suivi des paiements",
-      "feat_pos_config": "configuration par point de vente",
-      "feat_multi_pos": "multi-points de vente",
+      "feat_pos_config": "configuration par seller-terminal",
+      "feat_multi_pos": "multi-seller-terminals",
       "feat_advanced_perms": "permissions avancées",
       "feat_reports_consolidated": "rapports consolidés",
       "feat_integration": "accompagnement d'intégration",
       "access_title": "Des accès contrôlés pour chaque organisation",
-      "access_body": "Chaque utilisateur voit uniquement les fonctions autorisées selon son rôle, son point de vente, son terminal et le plan actif.",
+      "access_body": "Chaque utilisateur voit uniquement les fonctions autorisées selon son rôle, son seller-terminal, son seller-terminal et le plan actif.",
       "access_rights_title": "Rôles utilisateurs",
-      "access_rights_body": "Admin, superviseur, vendeur ou caissier selon vos besoins.",
-      "access_subscription_title": "Terminaux autorisés",
-      "access_subscription_body": "Les ventes sont liées à des terminaux et sessions contrôlées.",
+      "access_rights_body": "Admin, superviseur, seller-terminal ou caissier selon vos besoins.",
+      "access_subscription_title": "Seller-terminals autorisés",
+      "access_subscription_body": "Les ventes sont liées à des seller-terminals et connexions contrôlées.",
       "access_plan_title": "Plans et limites",
       "access_plan_body": "Les accès et limites sont appliqués selon votre configuration.",
       "form_title": "Demander une démonstration",
-      "form_body": "Décrivez votre point de vente ou votre réseau. Nous vous recontacterons avec une démonstration adaptée.",
+      "form_body": "Décrivez votre seller-terminal ou votre réseau. Nous vous recontacterons avec une démonstration adaptée.",
       "form_name_label": "Nom",
       "form_name_placeholder": "Ex: Reginald Louisjuste",
-      "form_org_label": "Organisation / point de vente",
+      "form_org_label": "Organisation / seller-terminal",
       "form_org_placeholder": "Ex: Borlette Étoile du Nord",
       "form_contact_label": "Téléphone ou email",
       "form_contact_placeholder": "contact@exemple.com",
       "form_city_label": "Ville / zone",
       "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
       "form_message_label": "Message optionnel",
-      "form_message_placeholder": "Ex: J'ai 3 vendeurs à Carrefour et je cherche à gérer mes tirages quotidiens.",
+      "form_message_placeholder": "Ex: J'ai 3 seller-terminals à Carrefour et je cherche à gérer mes tirages quotidiens.",
       "form_cta": "Demander une démo",
       "form_sending": "Envoi en cours...",
       "form_sent": "Demande envoyée !",
       "faq_title": "Questions fréquentes",
       "faq_trial_q": "Comment fonctionne la période d'essai ?",
-      "faq_trial_a": "La période d'essai vous permet de tester l'application avec un nombre limité de vendeurs ou terminaux selon le plan disponible.",
-      "faq_terminals_q": "Combien de vendeurs ou terminaux puis-je utiliser ?",
-      "faq_terminals_a": "Les limites dépendent du plan choisi. Contactez-nous pour connaître la configuration adaptée à votre réseau.",
+      "faq_trial_a": "La période d'essai vous permet de tester l'application avec un nombre limité de seller-terminals ou seller-terminals selon le plan disponible.",
+      "faq_seller-terminals_q": "Combien de seller-terminals ou seller-terminals puis-je utiliser ?",
+      "faq_seller-terminals_a": "Les limites dépendent du plan choisi. Contactez-nous pour connaître la configuration adaptée à votre réseau.",
       "faq_verify_q": "Comment les clients vérifient-ils un ticket ?",
       "faq_verify_a": "Chaque ticket a un code public ou QR permettant à n'importe qui de vérifier son statut sans accéder à l'espace gestionnaire.",
       "faq_expired_q": "Que se passe-t-il si mon accès est suspendu ?",
       "faq_expired_a": "Les fonctionnalités sont limitées jusqu'à régularisation. Contactez l'équipe pour réactiver votre accès.",
-      "faq_multipos_q": "Puis-je gérer plusieurs points de vente ?",
-      "faq_multipos_a": "Oui. Les plans Réseau et Sur mesure permettent de configurer plusieurs points de vente et de centraliser les rapports.",
-      "faq_mobile_q": "Est-ce que mes vendeurs peuvent utiliser Tchalanet sur mobile ?",
-      "faq_mobile_a": "Oui. L'application POS Tchalanet est disponible sur mobile pour les vendeurs autorisés."
+      "faq_multipos_q": "Puis-je gérer plusieurs seller-terminals ?",
+      "faq_multipos_a": "Oui. Les plans Réseau et Sur mesure permettent de configurer plusieurs seller-terminals et de centraliser les rapports.",
+      "faq_mobile_q": "Est-ce que mes seller-terminals peuvent utiliser Tchalanet sur mobile ?",
+      "faq_mobile_a": "Oui. L'application POS Tchalanet est disponible sur mobile pour les seller-terminals autorisés."
     },
     "check": {
       "code_hint": "Le format du code se trouve au bas de votre reçu imprimé.",
-      "help_body": "Le code public est imprimé sur le reçu émis par un point de vente participant. Il peut être saisi manuellement ou scanné depuis le QR quand cette option est disponible.",
+      "help_body": "Le code public est imprimé sur le reçu émis par un seller-terminal participant. Il peut être saisi manuellement ou scanné depuis le QR quand cette option est disponible.",
       "help_title": "Qu’est-ce qu’un code public ?",
       "loading_body": "Consultation temporaire du service de vérification publique.",
       "loading_title": "Vérification du ticket en cours…",
       "status": {
         "WINNING_PAYABLE": {
           "title": "Ticket gagnant — paiement à réclamer",
-          "body": "Ce ticket présente un gain. Présentez le reçu original au point de vente participant pour encaisser votre gain selon les instructions affichées."
+          "body": "Ce ticket présente un gain. Présentez le reçu original au seller-terminal participant pour encaisser votre gain selon les instructions affichées."
         },
         "WINNING_PAID": {
           "title": "Ticket gagnant — déjà payé",
@@ -1202,7 +1188,7 @@
         },
         "CANCELLED": {
           "title": "Ticket annulé",
-          "body": "Ce ticket a été annulé et ne peut pas être payé. Contactez le point de vente si vous pensez qu'il s'agit d'une erreur."
+          "body": "Ce ticket a été annulé et ne peut pas être payé. Contactez le seller-terminal si vous pensez qu'il s'agit d'une erreur."
         },
         "EXPIRED": {
           "title": "Ticket expiré",
@@ -1210,7 +1196,7 @@
         },
         "BLOCKED": {
           "title": "Ticket bloqué",
-          "body": "Ce ticket est temporairement bloqué. Contactez votre point de vente ou le service client Tchalanet pour plus d'informations."
+          "body": "Ce ticket est temporairement bloqué. Contactez votre seller-terminal ou le service client Tchalanet pour plus d'informations."
         },
         "NOT_FOUND": {
           "title": "Ticket introuvable",
@@ -1251,7 +1237,7 @@
       },
       "contact": {
         "body": "Contactez Tchalanet pour une démonstration ou une orientation opérateur.",
-        "description": "Un point de contact pour les opérateurs, points de vente et demandes de support public.",
+        "description": "Un point de contact pour les opérateurs, seller-terminals et demandes de support public.",
         "eyebrow": "Contact",
         "title": "Contacter Tchalanet"
       },
@@ -1384,7 +1370,7 @@
       "copied": "Copié !"
     },
     "contact_cta": {
-      "body": "Expliquez-nous votre point de vente ou votre réseau. Nous vous recontacterons pour une démonstration adaptée.",
+      "body": "Expliquez-nous votre seller-terminal ou votre réseau. Nous vous recontacterons pour une démonstration adaptée.",
       "cta": "Demander une démo",
       "help": "Voir l'aide",
       "title": "Prêt à découvrir Tchalanet ?"
@@ -1397,12 +1383,12 @@
       "calc_gain_label": "Gain estimé",
       "calc_game_aria": "Sélectionner le type de jeu",
       "calc_note": "Indicatif — non garanti",
-      "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du point de vente, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
+      "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du seller-terminal, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
       "games": {
         "borlette": {
           "body": "Choisissez un numéro de deux chiffres. Le statut dépend des résultats disponibles pour le tirage concerné.",
           "detail1_label": "1er lot",
-          "detail1_value": "Selon règles du point de vente",
+          "detail1_value": "Selon règles du seller-terminal",
           "detail2_label": "2e lot",
           "detail2_value": "Selon ticket réel",
           "detail3_label": "3e lot",
@@ -1417,7 +1403,7 @@
           "title": "Lotto 3"
         },
         "lotto4": {
-          "body": "Sélectionnez quatre ou cinq chiffres selon le jeu disponible au point de vente participant.",
+          "body": "Sélectionnez quatre ou cinq chiffres selon le jeu disponible au seller-terminal participant.",
           "detail1_label": "Disponibilité",
           "detail1_value": "Selon catalogue public",
           "title": "Lotto 4 & 5"
@@ -1554,12 +1540,12 @@
         "tickets": "Tickets"
       },
       "blocked": {
-        "title": "Session bloquée",
-        "message": "Votre session est actuellement bloquée. Contactez votre superviseur."
+        "title": "Connexion bloquée",
+        "message": "Votre connexion est actuellement bloquée. Contactez votre superviseur."
       }
     },
-    "session": {
-      "title": "Session",
+    "connexion": {
+      "title": "Connexion",
       "openedAt": "Ouverte à"
     },
     "draw": {
@@ -1576,7 +1562,7 @@
       "title": "Actions rapides",
       "newTicket": "Nouveau ticket",
       "history": "Historique",
-      "closeSession": "Fermer la session"
+      "closeConnexion": "Fermer la connexion"
     },
     "sell": {
       "title": "Nouveau ticket",
@@ -1723,7 +1709,7 @@
     "tenant_admin": "Administration"
   },
   "cta": {
-    "close_session": "Fermer la session",
+    "close_connexion": "Fermer la connexion",
     "sell_ticket": "Vendre un ticket",
     "verify_ticket": "Vérifier un ticket"
   },
@@ -1738,12 +1724,12 @@
   },
   "quickaction": {
     "admin": {
-      "add_seller_terminal": "Ajouter vendeur",
-      "active_seller_terminals": "Vendeurs actifs",
       "daily_report": "Rapport du jour",
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
-      "maryaj_gratis": "Maryaj gratis"
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Ajouter seller-terminal",
+      "active_seller_terminals": "Seller-terminals actifs"
     },
     "platform": {
       "create_tenant": "Créer un tenant",
@@ -1751,6 +1737,45 @@
       "subscriptions": "Abonnements",
       "platform_health": "Santé plateforme",
       "draw_results": "Résultats & tirages"
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Activation du compte",
+      "description": "Changez le mot de passe temporaire et complétez votre profil avant d’entrer dans l’espace admin.",
+      "security": {
+        "title": "Sécurité",
+        "currentPassword": "Mot de passe temporaire",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
+      },
+      "profile": {
+        "title": "Profil",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "phoneNumber": "Téléphone optionnel"
+      },
+      "tenant": {
+        "title": "Accès tenant",
+        "name": "Tenant",
+        "code": "Code",
+        "role": "Rôle"
+      },
+      "action": {
+        "submit": "Activer mon compte",
+        "submitting": "Activation en cours"
+      }
+    }
+  },
+  "sellerTerminal": {
+    "activation": {
+      "title": "Activation seller-terminal",
+      "description": "Le seller-terminal devra changer son PIN temporaire avant d’accéder à la vente.",
+      "pin": {
+        "title": "PIN temporaire",
+        "pendingBackend": "Le changement de PIN sera activé avec le endpoint seller-terminal V0."
+      }
     }
   }
 }

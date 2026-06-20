@@ -1,10 +1,17 @@
-package com.tchalanet.server.features.bootstrap;
+package com.tchalanet.server.features.bootstrap.privateruntime.app;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.features.bootstrap.RuntimeReadinessView.RuntimeReadinessStatus;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeReadinessCheck;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeReadinessView;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace.ADMIN;
+import static com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace.CASHIER;
+import static com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace.PLATFORM;
+
 
 @Component
 public class RuntimeReadinessFacade {
@@ -18,10 +25,8 @@ public class RuntimeReadinessFacade {
 
     private RuntimeReadinessView cashierReadiness() {
         var checks = List.of(
-            new RuntimeReadinessCheck("terminal_binding", "readiness.cashier.terminal_binding", RuntimeReadinessCheck.CheckStatus.MISSING),
-            new RuntimeReadinessCheck("open_session",     "readiness.cashier.open_session",     RuntimeReadinessCheck.CheckStatus.MISSING),
-            new RuntimeReadinessCheck("seller_assigned",  "readiness.cashier.seller_assigned",  RuntimeReadinessCheck.CheckStatus.MISSING)
+            new RuntimeReadinessCheck("seller_terminal", "readiness.cashier.seller_terminal", RuntimeReadinessCheck.CheckStatus.MISSING)
         );
-        return new RuntimeReadinessView(RuntimeReadinessStatus.PARTIAL, checks);
+        return new RuntimeReadinessView(RuntimeReadinessView.RuntimeReadinessStatus.PARTIAL, checks);
     }
 }

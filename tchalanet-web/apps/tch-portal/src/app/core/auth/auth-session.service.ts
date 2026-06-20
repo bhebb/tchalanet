@@ -46,6 +46,9 @@ export class AuthSessionService {
                 tenantCode: bootstrap.tenantContext?.tenantCode ?? undefined,
                 roles: normalizeRoles(bootstrap.entitlements.roles),
                 tokenExpiresAt: await this.auth.getTokenExpiresAt(),
+                entryRoute: bootstrap.entryRoute ?? bootstrap.pageModelRef?.route ?? undefined,
+                mustChangePassword: bootstrap.user.mustChangePassword ?? false,
+                mustCompleteProfile: bootstrap.user.mustCompleteProfile ?? false,
             };
 
             this.sessionState.set(session);
@@ -84,6 +87,13 @@ export class AuthSessionService {
         return completed ? this.refreshSession(true) : null;
     }
 
+    async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+        if (!this.auth.changePassword) {
+            throw new Error('Password change is not supported by this auth client');
+        }
+        await this.auth.changePassword(currentPassword, newPassword);
+    }
+
     async logout(): Promise<void> {
         await this.auth.logout();
         this.setAnonymousSession();
@@ -103,5 +113,10 @@ export class AuthSessionService {
 function normalizeRoles(roles: readonly string[] | undefined): readonly UserRole[] {
     return (roles ?? [])
         .map((role) => role.toUpperCase())
+        .map((role) => {
+            if (role === 'TENANT_OWNER') return 'TENANT_ADMIN';
+            if (role === 'OPERATOR') return 'CASHIER';
+            return role;
+        })
         .filter((role): role is UserRole => supportedRoles.includes(role as UserRole));
 }

@@ -85,6 +85,7 @@
           "children": [
             { "id": "access-permissions", "label_key": "platform.nav.permissions", "path": "/app/platform/access/permissions", "kind": "internal", "icon": "key" },
             { "id": "access-roles", "label_key": "platform.nav.roles", "path": "/app/platform/access/roles", "kind": "internal", "icon": "groups" },
+            { "id": "access-super-admins", "label_key": "platform.nav.superAdmins", "path": "/app/platform/access/super-admins", "kind": "internal", "icon": "admin_panel_settings" },
             { "id": "access-overrides", "label_key": "platform.nav.superAdminOverrides", "path": "/app/platform/access/overrides", "kind": "internal", "icon": "security" }
           ]
         },

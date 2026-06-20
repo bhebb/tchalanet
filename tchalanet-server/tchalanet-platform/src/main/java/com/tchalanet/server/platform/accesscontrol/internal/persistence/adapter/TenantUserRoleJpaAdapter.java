@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, TenantUserRoleWriterPort {
 
+  private static final String TENANT_ROLE_SCOPE = "TENANT";
+
   private final TenantUserRoleJpaRepository tenantUserRoleRepository;
   private final AppRoleJpaRepository appRoleRepository;
 
@@ -57,7 +59,7 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
 
   @Transactional
   public void assign(TenantId tenantId, UserId userId, String roleCode, UserId assignedBy) {
-    var role = appRoleRepository.findByCode(roleCode)
+    var role = appRoleRepository.findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE)
         .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleCode));
     var roleId = role.getId();
     if (tenantUserRoleRepository.findActiveAssignment(tenantId.value(), userId.value(), roleId).isEmpty()) {
@@ -72,7 +74,7 @@ public class TenantUserRoleJpaAdapter implements TenantUserDirectoryPort, Tenant
 
   @Transactional
   public void remove(TenantId tenantId, UserId userId, String roleCode) {
-    appRoleRepository.findByCode(roleCode).ifPresent(role ->
+    appRoleRepository.findActiveSystemRoleByCodeAndScope(roleCode, TENANT_ROLE_SCOPE).ifPresent(role ->
         tenantUserRoleRepository.softDeleteAssignment(tenantId.value(), userId.value(), role.getId()));
   }
 }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -46,6 +47,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
             request.getAttribute(TchContextRequestAttributes.BOOTSTRAPPED_ACTOR);
 
         if (bootstrappedActor == null) {
+            log.info("access.resolution no_bootstrapped_actor path={}", request.getRequestURI());
             // Public endpoint or unauthenticated — no actor to resolve
             return;
         }
@@ -73,30 +75,50 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
         var userId = actor.appUserId();
         var scope = ApiScopeResolver.resolve(request);
 
-        // 1. Platform-scope roles + permissions (one batch query; SUPER_ADMIN, override perms, …).
-        var platform = snapshotResolver.resolvePlatform(userId);
+        // 1. Global DB-backed access snapshot. ApiScopeResolver still decides the current request
+        //    scope; the snapshot supplies the user's possible platform/tenant access contexts.
+        var snapshot = snapshotResolver.resolveUserAccess(userId);
+        var platform = snapshot.platform();
         var superAdmin = platform.superAdmin();
+
+        var roleCodes = new HashSet<>(platform.roleCodes());
+        var permissionKeys = new HashSet<>(platform.permissionKeys());
+        var tenantScopeIds = snapshot.tenantScopes().stream()
+            .map(AccessControlSnapshotResolver.TenantAccessScope::tenantId)
+            .toList();
+
+        if (scope == ApiScope.IDENTITY) {
+            return new ResolvedAccessContext(
+                TchActorType.APP_USER,
+                userId,
+                null,
+                null,
+                superAdmin,
+                false,
+                roleCodes,
+                permissionKeys
+            );
+        }
 
         // 2. Effective tenant + override decided centrally: a normal user's tenant comes from their
         //    single active membership; a SUPER_ADMIN gets a tenant only via an explicit override.
         var effectiveTenant = effectiveTenantResolver.resolveForAppUser(
-            request, userId, superAdmin, platform.permissionKeys());
+            request, userId, superAdmin, platform.permissionKeys(), tenantScopeIds);
         var effectiveTenantId = effectiveTenant.tenantId();
         var tenantOverride = effectiveTenant.tenantOverride();
 
-        var roleCodes = new HashSet<>(platform.roleCodes());
-        var permissionKeys = new HashSet<>(platform.permissionKeys());
-
         // 3. Tenant-scope roles + effective permissions for TENANT and ADMIN scopes.
         if (effectiveTenantId != null && (scope == ApiScope.TENANT || scope == ApiScope.ADMIN)) {
-            var tenant = snapshotResolver.resolveTenant(userId, effectiveTenantId);
+            var tenant = findTenantScope(snapshot.tenantScopes(), effectiveTenantId);
 
-            if (tenant.roleCodes().isEmpty()) {
+            if (tenant == null && !tenantOverride) {
                 throw ProblemRest.forbidden("tenant.no_membership");
             }
 
-            roleCodes.addAll(tenant.roleCodes());
-            permissionKeys.addAll(tenant.permissionKeys());
+            if (tenant != null) {
+                roleCodes.addAll(tenant.roleCodes());
+                permissionKeys.addAll(tenant.permissionKeys());
+            }
         }
 
         return new ResolvedAccessContext(
@@ -109,6 +131,15 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
             roleCodes,
             permissionKeys
         );
+    }
+
+    private AccessControlSnapshotResolver.TenantAccessScope findTenantScope(
+        List<AccessControlSnapshotResolver.TenantAccessScope> tenantScopes,
+        com.tchalanet.server.common.types.id.TenantId tenantId) {
+        return tenantScopes.stream()
+            .filter(scope -> scope.tenantId().equals(tenantId))
+            .findFirst()
+            .orElse(null);
     }
 
     // package-private for unit testing

@@ -1,0 +1,45 @@
+.account-activation {
+  display: block;
+}
+
+.account-activation__grid {
+  display: grid;
+  gap: 16px;
+}
+
+.account-activation__grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-activation__summary {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+
+  div {
+    display: grid;
+    gap: 4px;
+  }
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.8125rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+button mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@media (max-width: 720px) {
+  .account-activation__grid--two {
+    grid-template-columns: 1fr;
+  }
+}

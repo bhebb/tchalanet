@@ -3,7 +3,7 @@ import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 
 import type { TchPage } from '@tch/api';
-import type { SellerTerminalStatus } from './seller-terminal-admin.api.service';
+import type { SellerTerminalStatus } from './seller-terminal-api.service';
 
 export interface CommissionOverview {
   readonly tenantDefaultRate: number;

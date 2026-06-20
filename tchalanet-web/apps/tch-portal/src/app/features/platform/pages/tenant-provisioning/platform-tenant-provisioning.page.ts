@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,6 +54,42 @@ const PROFILES: { value: TenantProvisioningProfile; label: string; description: 
 const TIMEZONES = ['America/Port-au-Prince', 'America/New_York', 'UTC'];
 const CURRENCIES = ['HTG', 'USD'];
 
+const DOMAIN_LABEL_KEYS: Record<string, string> = {
+  tenant_identity: 'platform.tenantProvisioning.domain.tenantIdentity',
+  pagemodels: 'platform.tenantProvisioning.domain.pagemodels',
+  theme: 'platform.tenantProvisioning.domain.theme',
+  settings: 'platform.tenantProvisioning.domain.settings',
+  i18n: 'platform.tenantProvisioning.domain.i18n',
+  games: 'platform.tenantProvisioning.domain.games',
+  pricing: 'platform.tenantProvisioning.domain.pricing',
+  draw_channels: 'platform.tenantProvisioning.domain.drawChannels',
+  promotions_templates: 'platform.tenantProvisioning.domain.promotionsTemplates',
+  limits_templates: 'platform.tenantProvisioning.domain.limitsTemplates',
+  demo_users: 'platform.tenantProvisioning.domain.demoUsers',
+  demo_seller_terminals: 'platform.tenantProvisioning.domain.demoSellerTerminals',
+};
+
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  CREATED: 'platform.tenantProvisioning.status.created',
+  SEEDED_VIA_LISTENER: 'platform.tenantProvisioning.status.seeded',
+  DEFAULT: 'platform.tenantProvisioning.status.default',
+  DEFAULT_LOTTERY: 'platform.tenantProvisioning.status.defaultLottery',
+  DEFAULT_HAITI: 'platform.tenantProvisioning.status.defaultHaiti',
+  TEMPLATES_AVAILABLE: 'platform.tenantProvisioning.status.templatesAvailable',
+  NONE: 'platform.tenantProvisioning.status.none',
+};
+
+const STEP_LABEL_KEYS: Record<string, string> = {
+  CREATE_INITIAL_ADMIN: 'platform.tenantProvisioning.step.createInitialAdmin',
+  CONFIGURE_GAMES: 'platform.tenantProvisioning.step.configureGames',
+  CONFIGURE_DRAW_CHANNELS: 'platform.tenantProvisioning.step.configureDrawChannels',
+  CREATE_SELLER_TERMINAL: 'platform.tenantProvisioning.step.createSellerTerminal',
+  CONFIGURE_SELLER_RULES: 'platform.tenantProvisioning.step.configureSellerRules',
+  CONFIGURE_LIMITS: 'platform.tenantProvisioning.step.configureLimits',
+  CONFIGURE_ODDS: 'platform.tenantProvisioning.step.configureOdds',
+  VERIFY_DEMO_SETUP: 'platform.tenantProvisioning.step.verifyDemoSetup',
+};
+
 @Component({
   selector: 'tch-platform-tenant-provisioning-page',
   standalone: true,
@@ -81,6 +117,7 @@ const CURRENCIES = ['HTG', 'USD'];
 export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   private readonly api = inject(PlatformProvisioningApi);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
   private readonly formRevision = signal(0);
@@ -156,8 +193,8 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     const domainStatuses = this.result()?.domainStatuses;
     if (domainStatuses && Object.keys(domainStatuses).length) {
       return Object.entries(domainStatuses).map(([key, value]) => ({
-        label: key,
-        status: String(value),
+        label: this.label(DOMAIN_LABEL_KEYS[key] ?? key),
+        status: this.label(STATUS_LABEL_KEYS[String(value)] ?? String(value)),
         tone: this.domainTone(String(value)),
       }));
     }
@@ -168,13 +205,13 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     }
 
     const domains = preview.includedDomains.map(domain => ({
-      label: domain,
-      status: 'Prévu',
+      label: this.label(DOMAIN_LABEL_KEYS[domain] ?? domain),
+      status: this.label('platform.tenantProvisioning.status.planned'),
       tone: 'info' as AdminStatusTone,
     }));
     const sections = preview.expectedReadinessSections.map(section => ({
-      label: section,
-      status: 'Attendu',
+      label: this.label(DOMAIN_LABEL_KEYS[section] ?? section),
+      status: this.label('platform.tenantProvisioning.status.expected'),
       tone: 'neutral' as AdminStatusTone,
     }));
 
@@ -212,6 +249,16 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       return 'info';
     }
     return 'neutral';
+  }
+
+  stepLabelKey(step: string): string {
+    return STEP_LABEL_KEYS[step] ?? step;
+  }
+
+  private label(keyOrValue: string): string {
+    return keyOrValue.startsWith('platform.')
+      ? this.translate.instant(keyOrValue)
+      : keyOrValue;
   }
 
   submit(): void {

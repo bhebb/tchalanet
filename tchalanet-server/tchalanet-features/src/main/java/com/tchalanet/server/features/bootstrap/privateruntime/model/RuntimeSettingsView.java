@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.bootstrap;
+package com.tchalanet.server.features.bootstrap.privateruntime.model;
 
 import java.util.Map;
 

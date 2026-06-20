@@ -17,7 +17,7 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
 
   @Query("""
       select distinct role.id
-      from TenantUserRoleJpaEntity assignment
+      from PlatformUserRoleJpaEntity assignment
       join AppRoleJpaEntity role on role.id = assignment.roleId
       where assignment.userId = :userId
         and assignment.deletedAt is null
@@ -47,7 +47,7 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
    */
   @Query("""
       select role.code as roleCode, rp.id.permissionCode as permissionCode
-      from TenantUserRoleJpaEntity assignment
+      from PlatformUserRoleJpaEntity assignment
       join AppRoleJpaEntity role on role.id = assignment.roleId
       left join AppRolePermissionJpaEntity rp on rp.role.id = role.id
       where assignment.userId = :userId
@@ -77,6 +77,68 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
       """)
   List<RoleAccessRow> findTenantRoleAccessRows(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
+
+  /**
+   * DB-backed global access snapshot for an app user. Platform and tenant roles are returned in a
+   * single projection so request access resolution and bootstrap can reason from the same source.
+   *
+   * <p>Seller terminal columns are reserved for a future app-user-to-terminal binding. V0 terminal
+   * actors are still resolved from their dedicated actor mapping.
+   */
+  @Query(
+      value = """
+          select
+            assignment.user_id as "userId",
+            cast(null as uuid) as "tenantId",
+            cast(null as varchar) as "tenantCode",
+            cast(null as varchar) as "tenantName",
+            cast(null as varchar) as "tenantStatus",
+            'PLATFORM' as "scope",
+            ar.code as "roleCode",
+            rp.permission_code as "permissionCode",
+            cast(null as uuid) as "sellerTerminalId",
+            cast(null as varchar) as "terminalCode",
+            cast(null as varchar) as "sellerTerminalStatus"
+          from platform_user_role assignment
+          join app_role ar on ar.id = assignment.role_id
+          left join role_permission rp on rp.role_id = ar.id
+          where assignment.user_id = :userId
+            and assignment.deleted_at is null
+            and ar.system = true
+            and ar.active = true
+            and ar.deleted_at is null
+            and ar.scope = 'PLATFORM'
+          union all
+          select
+            assignment.user_id as "userId",
+            assignment.tenant_id as "tenantId",
+            t.code as "tenantCode",
+            t.name as "tenantName",
+            t.status as "tenantStatus",
+            'TENANT' as "scope",
+            ar.code as "roleCode",
+            rp.permission_code as "permissionCode",
+            cast(null as uuid) as "sellerTerminalId",
+            cast(null as varchar) as "terminalCode",
+            cast(null as varchar) as "sellerTerminalStatus"
+          from tenant_user_role assignment
+          join app_role ar on ar.id = assignment.role_id
+          join tenant t on t.id = assignment.tenant_id
+          join tenant_user membership
+            on membership.tenant_id = assignment.tenant_id
+           and membership.user_id = assignment.user_id
+           and membership.deleted_at is null
+           and coalesce(membership.status, 'ACTIVE') = 'ACTIVE'
+          left join role_permission rp on rp.role_id = ar.id
+          where assignment.user_id = :userId
+            and assignment.deleted_at is null
+            and ar.active = true
+            and ar.deleted_at is null
+            and ar.scope = 'TENANT'
+            and t.deleted_at is null
+          """,
+      nativeQuery = true)
+  List<UserAccessRow> findUserAccessRows(@Param("userId") UUID userId);
 
   @Query("select r from TenantUserRoleJpaEntity r where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
   Optional<TenantUserRoleJpaEntity> findActiveAssignment(

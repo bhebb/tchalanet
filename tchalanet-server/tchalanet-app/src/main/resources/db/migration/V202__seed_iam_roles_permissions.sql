@@ -186,12 +186,8 @@ BEGIN
   VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, false, now(), now())
   ON CONFLICT (tenant_id, user_id) DO NOTHING;
 
-  -- Role assignments via tenant_user_role (no ON CONFLICT — partial unique index not supported)
-  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010001'::uuid AND role_id = '00000000-0000-0000-0000-000000000301'::uuid AND deleted_at IS NULL) THEN
-    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
-    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, '00000000-0000-0000-0000-000000000301'::uuid, now());
-  END IF;
-
+  -- Tenant role assignments (no ON CONFLICT — partial unique index not supported).
+  -- Platform roles such as SUPER_ADMIN are assigned via platform_user_role.
   IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010002'::uuid AND role_id = '00000000-0000-0000-0000-000000000302'::uuid AND deleted_at IS NULL) THEN
     INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
     VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid, '00000000-0000-0000-0000-000000000302'::uuid, now());

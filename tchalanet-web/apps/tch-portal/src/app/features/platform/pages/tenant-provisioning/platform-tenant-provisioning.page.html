@@ -137,6 +137,37 @@
           [emptyLabel]="'platform.tenantProvisioning.health.fallback' | translate"
         />
 
+        @if (result()?.initialAdminEmail) {
+          <tch-admin-section-card
+            [title]="'platform.tenantProvisioning.result.initialAdmin' | translate"
+            icon="admin_panel_settings"
+          >
+            <dl class="tenant-provisioning__result">
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.adminEmail' | translate }}</dt>
+                <dd>{{ result()!.initialAdminEmail }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.adminStatus' | translate }}</dt>
+                <dd>{{ 'platform.tenantProvisioning.result.temporaryAccessCreated' | translate }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.temporaryPassword' | translate }}</dt>
+                <dd>
+                  @if (result()?.initialAdminTemporaryPassword) {
+                    <code>{{ result()!.initialAdminTemporaryPassword }}</code>
+                  } @else {
+                    {{ 'platform.tenantProvisioning.result.passwordConfiguredServerSide' | translate }}
+                  }
+                </dd>
+              </div>
+            </dl>
+            <p class="tenant-provisioning__supporting-text">
+              {{ 'platform.tenantProvisioning.result.adminNextInstruction' | translate }}
+            </p>
+          </tch-admin-section-card>
+        }
+
         @if (result()?.nextSteps?.length) {
           <tch-admin-section-card
             [title]="'platform.tenantProvisioning.result.nextSteps' | translate"
@@ -144,7 +175,7 @@
           >
             <ul class="tenant-provisioning__list">
               @for (step of result()!.nextSteps; track step) {
-                <li>{{ step }}</li>
+                <li>{{ stepLabelKey(step) | translate }}</li>
               }
             </ul>
           </tch-admin-section-card>

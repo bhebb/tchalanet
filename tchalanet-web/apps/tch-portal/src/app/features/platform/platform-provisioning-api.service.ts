@@ -36,6 +36,11 @@ export interface TenantProvisioningResultView {
     sections: Array<{ id: string; labelKey: string; status: string; route: string; issues: unknown[] }>;
   };
   initialAdminUserId?: string | null;
+  initialAdminEmail?: string | null;
+  initialAdminCredentialStatus?: string | null;
+  initialAdminTemporaryPassword?: string | null;
+  initialAdminMustChangePassword?: boolean | null;
+  initialAdminMustCompleteProfile?: boolean | null;
 }
 
 @Injectable({ providedIn: 'root' })

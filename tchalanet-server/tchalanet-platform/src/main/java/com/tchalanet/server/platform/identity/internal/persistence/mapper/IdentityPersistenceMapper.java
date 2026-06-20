@@ -42,7 +42,11 @@ public final class IdentityPersistenceMapper {
         e.getStatus(),
         e.getApprovedAt(),
         UserId.nullableOf(e.getApprovedBy()),
-        e.getLastLoginAt());
+        e.getLastLoginAt(),
+        e.isMustChangePassword(),
+        e.isMustCompleteProfile(),
+        e.getFirstLoginCompletedAt(),
+        e.getTemporaryCredentialIssuedAt());
   }
 
   public static void merge(AppUserJpaEntity e, AppUser user) {
@@ -60,6 +64,10 @@ public final class IdentityPersistenceMapper {
     e.setApprovedAt(user.approvedAt());
     e.setApprovedBy(user.approvedBy() == null ? null : user.approvedBy().value());
     e.setLastLoginAt(user.lastLoginAt());
+    e.setMustChangePassword(user.mustChangePassword());
+    e.setMustCompleteProfile(user.mustCompleteProfile());
+    e.setFirstLoginCompletedAt(user.firstLoginCompletedAt());
+    e.setTemporaryCredentialIssuedAt(user.temporaryCredentialIssuedAt());
   }
 
   public static UserPreference toPreference(UserPreferenceJpaEntity e) {

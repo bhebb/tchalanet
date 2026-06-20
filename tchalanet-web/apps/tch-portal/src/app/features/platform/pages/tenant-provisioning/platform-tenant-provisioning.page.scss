@@ -25,3 +25,30 @@
   padding-left: 1.25rem;
   color: var(--tch-color-on-surface);
 }
+
+.tenant-provisioning__result {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+
+  div {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  dt {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  code {
+    border-radius: 0.375rem;
+    background: var(--tch-color-surface-container-high);
+    padding: 0.25rem 0.5rem;
+  }
+}

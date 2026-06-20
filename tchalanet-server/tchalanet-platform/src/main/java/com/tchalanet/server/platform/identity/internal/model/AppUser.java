@@ -18,7 +18,11 @@ public record AppUser(
     UserStatus status,
     Instant approvedAt,
     UserId approvedBy,
-    Instant lastLoginAt) {
+    Instant lastLoginAt,
+    boolean mustChangePassword,
+    boolean mustCompleteProfile,
+    Instant firstLoginCompletedAt,
+    Instant temporaryCredentialIssuedAt) {
 
   public static AppUser createNew(
       UserId id,
@@ -44,7 +48,11 @@ public record AppUser(
         UserStatus.PENDING_APPROVAL,
         null,
         null,
-        now);
+        now,
+        false,
+        false,
+        null,
+        null);
   }
 
   public AppUser syncProfile(
@@ -68,7 +76,11 @@ public record AppUser(
         status,
         approvedAt,
         approvedBy,
-        lastLoginAt);
+        lastLoginAt,
+        mustChangePassword,
+        mustCompleteProfile,
+        firstLoginCompletedAt,
+        temporaryCredentialIssuedAt);
   }
 
   public AppUser touchLogin(Instant now) {
@@ -85,7 +97,55 @@ public record AppUser(
         status,
         approvedAt,
         approvedBy,
-        now);
+        now,
+        mustChangePassword,
+        mustCompleteProfile,
+        firstLoginCompletedAt,
+        temporaryCredentialIssuedAt);
+  }
+
+  public AppUser requireFirstLoginActivation(Instant temporaryCredentialIssuedAt) {
+    return new AppUser(
+        id,
+        keycloakSub,
+        username,
+        email,
+        phone,
+        firstName,
+        lastName,
+        displayName,
+        avatarUrl,
+        status,
+        approvedAt,
+        approvedBy,
+        lastLoginAt,
+        true,
+        true,
+        firstLoginCompletedAt,
+        temporaryCredentialIssuedAt);
+  }
+
+  public AppUser completeFirstLogin(String firstName, String lastName, String phone, Instant completedAt) {
+    var resolvedFirstName = firstName != null ? firstName : this.firstName;
+    var resolvedLastName = lastName != null ? lastName : this.lastName;
+    return new AppUser(
+        id,
+        keycloakSub,
+        username,
+        email,
+        phone != null ? phone : this.phone,
+        resolvedFirstName,
+        resolvedLastName,
+        buildDisplayName(resolvedFirstName, resolvedLastName, displayName),
+        avatarUrl,
+        status,
+        approvedAt,
+        approvedBy,
+        lastLoginAt,
+        false,
+        false,
+        completedAt,
+        temporaryCredentialIssuedAt);
   }
 
   public AppUser approve(Instant now, UserId approvedBy) {
@@ -114,10 +174,19 @@ public record AppUser(
         status,
         approvedAt,
         approvedBy,
-        lastLoginAt);
+        lastLoginAt,
+        mustChangePassword,
+        mustCompleteProfile,
+        firstLoginCompletedAt,
+        temporaryCredentialIssuedAt);
   }
 
   private static String nonBlankOr(String value, String fallback) {
     return value == null || value.isBlank() ? fallback : value;
+  }
+
+  private static String buildDisplayName(String firstName, String lastName, String fallback) {
+    var value = ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
+    return value.isBlank() ? fallback : value;
   }
 }

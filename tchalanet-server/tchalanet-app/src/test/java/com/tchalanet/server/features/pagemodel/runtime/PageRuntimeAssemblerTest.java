@@ -152,47 +152,8 @@ class PageRuntimeAssemblerTest {
             null,
             null,
             new PageModelDoc.Content(new PageModelDoc.Layout("GridLayout", List.of()), Map.of()));
-    var dynamic =
-        new PageDynamicPayload(
-            Map.of(
-                "shell.root",
-                Map.of(
-                    "fragment_type",
-                    "PrivateShell",
-                    "topAppBar",
-                    Map.of("title_key", "surface.platform_admin"),
-                    "navigationDrawer",
-                    Map.of(
-                        "sections",
-                        List.of(
-                            Map.of(
-                                "id",
-                                "platform",
-                                "label_key",
-                                "platform.nav.platform",
-                                "items",
-                                List.of(
-                                    Map.of(
-                                        "id",
-                                        "references",
-                                        "label_key",
-                                        "platform.nav.references",
-                                        "icon",
-                                        "category",
-                                        "children",
-                                        List.of(
-                                            Map.of(
-                                                "id",
-                                                "catalog-games",
-                                                "label_key",
-                                                "platform.nav.games",
-                                                "kind",
-                                                "internal",
-                                                "path",
-                                                "/app/platform/catalog/games")))))))))),
-            List.of());
 
-    var runtime = assembler.assemble(doc, dynamic);
+    var runtime = assembler.assemble(doc, null);
     String json = jsonUtils.toJson(runtime);
 
     assertThat(json)

@@ -4,5 +4,7 @@ public enum UserStatus {
   PENDING_APPROVAL,
   ACTIVE,
   SUSPENDED,
-  INVITED
+  INVITED,
+  BLOCKED,
+  DISABLED
 }

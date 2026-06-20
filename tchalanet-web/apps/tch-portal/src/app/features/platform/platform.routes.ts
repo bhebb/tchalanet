@@ -313,6 +313,11 @@ export const platformRoutes: Route[] = [
       import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
+    path: 'access/super-admins',
+    loadComponent: () =>
+      import('./pages/access/platform-super-admins.page').then(m => m.PlatformSuperAdminsPage),
+  },
+  {
     path: 'access/overrides',
     data: {
       titleKey: 'platform.nav.superAdminOverrides',

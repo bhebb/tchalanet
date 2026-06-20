@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TenantUserRoleService {
 
+  private static final String TENANT_ROLE_SCOPE = "TENANT";
+
   private final TenantUserRoleJpaAdapter tenantUserRoleAdapter;
   private final TenantUserRoleWriterPort tenantUserRoleWriter;
   private final AppRoleJpaRepository appRoleRepository;
@@ -37,7 +39,7 @@ public class TenantUserRoleService {
   @Deprecated
   @Transactional
   public void setTenantUserRole(SetTenantUserRoleRequest request) {
-    var roleEntity = appRoleRepository.findByCode(request.role().name())
+    var roleEntity = appRoleRepository.findActiveSystemRoleByCodeAndScope(request.role().name(), TENANT_ROLE_SCOPE)
         .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.role()));
     tenantUserRoleWriter.setUserRole(request.tenantId(), request.userId(), RoleId.of(roleEntity.getId()));
   }

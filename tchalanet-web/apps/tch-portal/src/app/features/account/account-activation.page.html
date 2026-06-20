@@ -1,0 +1,88 @@
+<tch-admin-page-shell
+  [title]="'account.activation.title' | translate"
+  [description]="'account.activation.description' | translate"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="account-activation">
+    <tch-admin-detail-layout>
+      <div main>
+        <tch-admin-section-card [title]="'account.activation.security.title' | translate" icon="lock_reset">
+          <div class="account-activation__grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.security.currentPassword' | translate }}</mat-label>
+              <input matInput type="password" formControlName="currentTemporaryPassword" autocomplete="current-password" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.security.newPassword' | translate }}</mat-label>
+              <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.security.confirmPassword' | translate }}</mat-label>
+              <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+              @if (state() === 'invalid' && form.value.newPassword !== form.value.confirmPassword) {
+                <mat-error>{{ 'account.activation.security.passwordMismatch' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card [title]="'account.activation.profile.title' | translate" icon="person">
+          <div class="account-activation__grid account-activation__grid--two">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.profile.firstName' | translate }}</mat-label>
+              <input matInput formControlName="firstName" autocomplete="given-name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.profile.lastName' | translate }}</mat-label>
+              <input matInput formControlName="lastName" autocomplete="family-name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'account.activation.profile.phoneNumber' | translate }}</mat-label>
+              <input matInput formControlName="phoneNumber" autocomplete="tel" />
+            </mat-form-field>
+          </div>
+        </tch-admin-section-card>
+      </div>
+
+      <div aside>
+        <tch-admin-section-card [title]="'account.activation.tenant.title' | translate" icon="domain">
+          <dl class="account-activation__summary">
+            <div>
+              <dt>{{ 'account.activation.tenant.name' | translate }}</dt>
+              <dd>{{ tenant()?.tenantName || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'account.activation.tenant.code' | translate }}</dt>
+              <dd>{{ tenant()?.tenantCode || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'account.activation.tenant.role' | translate }}</dt>
+              <dd>{{ 'TENANT_ADMIN' }}</dd>
+            </div>
+          </dl>
+        </tch-admin-section-card>
+      </div>
+
+      <div footer>
+        @if (submitError()) {
+          <tch-error-panel [title]="submitError()!" />
+        }
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="state() === 'submitting'">
+          @if (state() === 'submitting') {
+            <mat-spinner diameter="18" />
+            {{ 'account.activation.action.submitting' | translate }}
+          } @else {
+            <ng-container>
+              <mat-icon>check_circle</mat-icon>
+              {{ 'account.activation.action.submit' | translate }}
+            </ng-container>
+          }
+        </button>
+      </div>
+    </tch-admin-detail-layout>
+  </form>
+</tch-admin-page-shell>

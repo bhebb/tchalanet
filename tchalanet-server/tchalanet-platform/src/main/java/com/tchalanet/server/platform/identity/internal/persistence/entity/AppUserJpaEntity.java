@@ -55,4 +55,16 @@ public class AppUserJpaEntity extends BaseEntity {
 
   @Column(name = "last_login_at")
   private Instant lastLoginAt;
+
+  @Column(name = "must_change_password", nullable = false)
+  private boolean mustChangePassword;
+
+  @Column(name = "must_complete_profile", nullable = false)
+  private boolean mustCompleteProfile;
+
+  @Column(name = "first_login_completed_at")
+  private Instant firstLoginCompletedAt;
+
+  @Column(name = "temporary_credential_issued_at")
+  private Instant temporaryCredentialIssuedAt;
 }

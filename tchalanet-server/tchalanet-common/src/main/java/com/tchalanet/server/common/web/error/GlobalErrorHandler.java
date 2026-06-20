@@ -245,7 +245,7 @@ public class GlobalErrorHandler {
     ) {
         var detail = "Invalid value for '" + ex.getName() + "'";
         var cause = ex.getMostSpecificCause();
-        if (cause != null && cause.getMessage() != null) {
+        if (cause.getMessage() != null) {
             detail += ": " + cause.getMessage();
         }
 
