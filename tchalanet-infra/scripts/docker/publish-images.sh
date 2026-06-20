@@ -26,11 +26,9 @@ COMMON_COMPOSE_ENV="$INFRA_DIR/envs/common/compose.env"
 
 API_IMAGE_FULL="$REGISTRY/$ORG/tchalanet-api:$TAG"
 API_IMAGE_BASE_VAL="$REGISTRY/$ORG/tchalanet-api"
-KEYCLOAK_IMAGE_FULL="$REGISTRY/$ORG/tchalanet-keycloak:$TAG"
 
 echo "→ Publish images: org=$ORG tag=$TAG registry=$REGISTRY"
 echo "   API image: $API_IMAGE_FULL"
-echo "   Keycloak image: $KEYCLOAK_IMAGE_FULL"
 echo ""
 
 # 0) quick checks
@@ -127,21 +125,7 @@ echo "  - push $API_IMAGE_FULL"
 docker push "$API_IMAGE_FULL"
 popd >/dev/null
 
-# 2) Build Keycloak custom image (provider + themes)
-echo ""
-echo "→ Building Keycloak custom image"
-if [ -d "$INFRA_DIR/keycloak" ]; then
-  pushd "$INFRA_DIR/keycloak" >/dev/null
-  echo "  - docker build -t $KEYCLOAK_IMAGE_FULL ."
-  docker build -t "$KEYCLOAK_IMAGE_FULL" .
-  echo "  - push $KEYCLOAK_IMAGE_FULL"
-  docker push "$KEYCLOAK_IMAGE_FULL"
-  popd >/dev/null
-else
-  echo "  - no keycloak directory found at $INFRA_DIR/keycloak; skipping" >&2
-fi
-
-# 3) Update envs/common/compose.env
+# 2) Update envs/common/compose.env
 if [ -f "$COMMON_COMPOSE_ENV" ]; then
   echo ""
   echo "→ Updating $COMMON_COMPOSE_ENV"
@@ -162,20 +146,13 @@ if [ -f "$COMMON_COMPOSE_ENV" ]; then
     echo "API_IMAGE_BASE=$API_IMAGE_BASE_VAL" >> "$COMMON_COMPOSE_ENV"
   fi
 
-  # Update KEYCLOAK_IMAGE
-  if grep -qE '^KEYCLOAK_IMAGE=' "$COMMON_COMPOSE_ENV"; then
-    perl -0777 -pe "s|^KEYCLOAK_IMAGE=.*$|KEYCLOAK_IMAGE=$KEYCLOAK_IMAGE_FULL|m" -i "$COMMON_COMPOSE_ENV"
-  else
-    echo "KEYCLOAK_IMAGE=$KEYCLOAK_IMAGE_FULL" >> "$COMMON_COMPOSE_ENV"
-  fi
-
   echo "  - backup written to ${COMMON_COMPOSE_ENV}.bak"
-  echo "  - composition vars updated: IMAGE_TAG, API_IMAGE_BASE, KEYCLOAK_IMAGE"
+  echo "  - composition vars updated: IMAGE_TAG, API_IMAGE_BASE"
 else
   echo "❌ $COMMON_COMPOSE_ENV not found; cannot update compose env" >&2
 fi
 
-# 4) Print next steps for staging
+# 3) Print next steps for staging
 cat <<EOF
 
 ✅ Done: images pushed and $COMMON_COMPOSE_ENV updated (backup at ${COMMON_COMPOSE_ENV}.bak)
@@ -184,17 +161,20 @@ Next steps (on staging host):
   cd /opt/tchalanet-infra/compose
   # pull images and bring up; include the same compose files you use for staging
   docker compose -f docker-compose-project.yml \
-    -f docker-compose-keycloak.yml \
+    -f docker-compose-postgres.yml \
+    -f docker-compose-redis.yml \
     -f docker-compose-api.yml \
+    -f docker-compose-edge-service.yml \
     pull
 
   docker compose -f docker-compose-project.yml \
-    -f docker-compose-keycloak.yml \
+    -f docker-compose-postgres.yml \
+    -f docker-compose-redis.yml \
     -f docker-compose-api.yml \
-    up -d api keycloak
+    -f docker-compose-edge-service.yml \
+    up -d postgres redis api edge-service
 
 Tip: If you want full restart for all services, run the up -d without service names.
 EOF
 
 exit 0
-

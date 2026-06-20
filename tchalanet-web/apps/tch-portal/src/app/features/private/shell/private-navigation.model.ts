@@ -65,7 +65,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
           },
           {
             id: 'tenant-entitlements',
-            labelKey: 'platform.nav.entitlements',
+            labelKey: 'platform.nav.usageRights',
             icon: 'verified_user',
             destination: { kind: 'route', value: '/app/platform/entitlements' },
           },
@@ -204,6 +204,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'platform.nav.inAppNotifications',
             icon: 'notifications',
             destination: { kind: 'route', value: '/app/platform/communication/notifications' },
+          },
+          {
+            id: 'communication-contacts',
+            labelKey: 'platform.nav.contactManagement',
+            icon: 'contact_support',
+            destination: { kind: 'route', value: '/app/platform/communication/contacts' },
           },
           {
             id: 'communication-news',

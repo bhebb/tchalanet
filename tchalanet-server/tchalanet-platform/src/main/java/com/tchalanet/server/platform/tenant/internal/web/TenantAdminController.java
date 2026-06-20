@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform - Tenants")
 @RestController
 @RequestMapping("/platform/tenants")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class TenantAdminController {
 
@@ -40,6 +39,7 @@ public class TenantAdminController {
 
   @Operation(summary = "List all tenants with pagination")
   @GetMapping
+  @PreAuthorize("hasPermission(null, 'tenant.read')")
   public ApiResponse<TchPage<TenantConfigView>> list(
       @TchPaging(allowedSort = {"createdAt", "code", "name", "status"}, defaultSort = {"createdAt,desc"})
           TchPageRequest pageReq) {
@@ -47,35 +47,41 @@ public class TenantAdminController {
   }
 
   @GetMapping("/{id}")
+  @PreAuthorize("hasPermission(null, 'tenant.read')")
   public ApiResponse<TenantConfigView> get(@PathVariable TenantId id) {
     return ApiResponse.success(tenants.getTenantById(new GetTenantByIdRequest(id)));
   }
 
   @GetMapping("/by-code")
+  @PreAuthorize("hasPermission(null, 'tenant.read')")
   public ApiResponse<TenantConfigView> getByCode(@RequestParam("code") String code) {
     return ApiResponse.success(tenants.getTenantByCode(new GetTenantByCodeRequest(code)));
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("hasPermission(null, 'tenant.create')")
   public void create(@Valid @RequestBody CreateTenantRequest request) {
     tenants.createTenant(request);
   }
 
   @PostMapping("/{id}/activate")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'tenant.activate')")
   public void activate(@PathVariable TenantId id) {
     tenants.activateTenant(new ActivateTenantRequest(id));
   }
 
   @PostMapping("/{id}/suspend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'tenant.suspend')")
   public void suspend(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
     tenants.suspendTenant(new SuspendTenantRequest(id, body == null ? null : body.reason()));
   }
 
   @PostMapping("/{id}/archive")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PreAuthorize("hasPermission(null, 'tenant.update')")
   public void archive(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
     tenants.archiveTenant(new ArchiveTenantRequest(id, body == null ? null : body.reason()));
   }

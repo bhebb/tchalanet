@@ -31,9 +31,7 @@ generate_secret() {
 
 # Génération des secrets en variables pour réutilisation
 POSTGRES_PASSWORD="$(generate_secret 32)"
-KC_DB_PASSWORD="$(generate_secret 32)"
 APP_DB_PASSWORD="$(generate_secret 32)"
-KC_BOOTSTRAP_ADMIN_PASSWORD="$(generate_secret 24)"
 REDIS_PASSWORD="$(generate_secret 32)"
 
 echo "# ======================================"
@@ -49,16 +47,11 @@ echo ""
 
 echo "# === Base de données ==="
 echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
-echo "KC_DB_PASSWORD=$KC_DB_PASSWORD"
 echo "APP_DB_PASSWORD=$APP_DB_PASSWORD"
 echo ""
 
 echo "# === SPRING_DATASOURCE_PASSWORD ==="
 echo "SPRING_DATASOURCE_PASSWORD=$APP_DB_PASSWORD"
-echo ""
-
-echo "# === Keycloak ==="
-echo "KC_BOOTSTRAP_ADMIN_PASSWORD=$KC_BOOTSTRAP_ADMIN_PASSWORD"
 echo ""
 
 echo "# === Redis ==="
@@ -76,4 +69,3 @@ echo ""
 
 echo "# Secrets générés avec succès !"
 echo ""
-

@@ -2,7 +2,7 @@ server:
   port: 8083
 app:
   cors:
-    allowed-origins: https://app.localtest.me,https://auth.localtest.me,http://localhost:4200
+    allowed-origins: https://app.localtest.me,http://localhost:4200
   apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
   security:
     required-audience: ""
@@ -31,27 +31,13 @@ spring:
 
 tch:
   identity:
-    provider: ${TCH_IDENTITY_PROVIDER:firebase-emulator}
+    provider: ${TCH_IDENTITY_PROVIDER:firebase}
     firebase:
-      project-id: ${FIREBASE_PROJECT_ID:demo-tchalanet-local}
-      revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:off}
+#      project-id: ${FIREBASE_PROJECT_ID:demo-tchalanet-local}
+#      revocation-check-mode: ${FIREBASE_REVOCATION_CHECK_MODE:off}
       bootstrap:
         enabled: ${FIREBASE_BOOTSTRAP_ENABLED:true}
         auto-run-on-startup: ${FIREBASE_BOOTSTRAP_AUTO_RUN_ON_STARTUP:true}
-        default-user-password: ${FIREBASE_BOOTSTRAP_DEFAULT_USER_PASSWORD:Changeme1!}
-        users:
-          - super_admin
-          - admin
-          - cashier
-
-  admin:
-    server:
-      enabled: true
-      local-open: true
-
-  offlinesync:
-    enabled: ${TCH_OFFLINESYNC_ENABLED:true}
-
   communication:
     edge:
       hmac-secret: ${EDGE_HMAC_SECRET:tch-local-ide-edge-hmac-2026}

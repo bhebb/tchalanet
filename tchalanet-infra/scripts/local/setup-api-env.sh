@@ -69,13 +69,11 @@ SPRING_REDIS_PORT=6379
 SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-devredis}
 
 # ========================================
-# 🔐 Keycloak (Authentication)
+# 🔐 Authentication
 # ========================================
-SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://auth.localtest.me/realms/tchalanet
-KEYCLOAK_REALM=tchalanet
-KEYCLOAK_AUTH_SERVER_URL=https://auth.localtest.me
-KEYCLOAK_RESOURCE=tchalanet-api
-KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET:-change-me-in-production}
+TCH_IDENTITY_PROVIDER=${TCH_IDENTITY_PROVIDER:-firebase-emulator}
+FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-demo-tchalanet-local}
+FIREBASE_AUTH_EMULATOR_HOST=${FIREBASE_AUTH_EMULATOR_HOST:-localhost:9099}
 
 # ========================================
 # 📡 Edge Service

@@ -1,1 +1,0 @@
--- Deprecated by v0-seller-terminal-simplification: legacy outlet/terminal/session seed removed. No-op.

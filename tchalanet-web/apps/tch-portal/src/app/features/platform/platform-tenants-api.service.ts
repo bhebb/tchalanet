@@ -2,17 +2,23 @@ import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export type TenantStatus = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
+export type TenantStatus = 'ONBOARDING' | 'ACTIVE' | 'SUSPENDED' | 'DISABLED' | 'DRAFT' | 'ARCHIVED';
 export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
+export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
+export type TenantReadinessStatus = 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
 
 export interface TenantSummaryView {
-  id: string;
+  id?: string;
+  tenantId?: string;
   code: string;
   name: string;
-  type: TenantType;
-  timezone: string;
-  currency: string;
+  type?: TenantType | string | null;
+  timezone?: string | null;
+  currency?: string | null;
   status: TenantStatus;
+  profile?: TenantProvisioningProfile | null;
+  primaryAdminEmail?: string | null;
+  readinessStatus?: TenantReadinessStatus | null;
   createdAt: string;
 }
 
@@ -22,6 +28,15 @@ export interface TenantPageResponse {
   page: number;
   size: number;
   totalPages: number;
+}
+
+export interface TenantListQuery {
+  q?: string | null;
+  status?: string | null;
+  profile?: string | null;
+  page: number;
+  size: number;
+  sort?: string | null;
 }
 
 export interface CreateTenantRequest {
@@ -62,10 +77,15 @@ export interface TenantAdminView {
 export class PlatformTenantsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listTenants(params: { page: number; size: number }): Observable<TenantPageResponse> {
-    return this.backend.get<TenantPageResponse>(
-      `/platform/tenants?page=${params.page}&size=${params.size}`,
-    );
+  listTenants(params: TenantListQuery): Observable<TenantPageResponse> {
+    const query = new URLSearchParams();
+    query.set('page', String(params.page));
+    query.set('size', String(params.size));
+    if (params.q?.trim()) query.set('q', params.q.trim());
+    if (params.status) query.set('status', params.status);
+    if (params.profile) query.set('profile', params.profile);
+    if (params.sort) query.set('sort', params.sort);
+    return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`);
   }
 
   getTenant(id: string): Observable<TenantSummaryView> {

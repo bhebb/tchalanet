@@ -215,18 +215,21 @@
       "copyright": "© 2026 Tchalanet. Tous droits réservés.",
       "errors": {
         "accessDenied": "Connexion réussie, mais votre accès Tchalanet n'est pas encore autorisé.",
+        "emailLinkFailed": "Le lien de connexion est invalide ou expiré.",
         "invalidCredentials": "Adresse e-mail ou mot de passe invalide."
       },
       "form": {
         "authenticating": "Authentification…",
         "body": "Utilisez les identifiants associés à votre compte Tchalanet.",
         "email": "Adresse e-mail",
+        "emailLinkSent": "Lien de connexion envoyé. Ouvrez votre email sur cet appareil pour continuer.",
         "emailPlaceholder": "nom@organisation.com",
         "eyebrow": "Portail sécurisé",
         "hidePassword": "Masquer le mot de passe",
         "password": "Mot de passe",
         "remember": "Rester connecté sur cet appareil",
         "security": "Votre session est sécurisée par Firebase Authentication.",
+        "sendEmailLink": "Recevoir un lien de connexion",
         "showPassword": "Afficher le mot de passe",
         "submit": "Accéder à mon espace",
         "title": "Bon retour"
@@ -260,6 +263,11 @@
     "manage": "Gérer",
     "back": "Retour",
     "cancel": "Annuler",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "retry": "Réessayer",
+    "traceId": "Trace ID",
+    "not_available": "Non disponible",
     "validation": {
       "required": "Ce champ est obligatoire."
     }
@@ -590,12 +598,13 @@
       "tenantOnboarding": "Onboarding",
       "tenantAdmins": "Administrateurs",
       "subscriptions": "Abonnements",
-      "entitlements": "Entitlements",
+      "entitlements": "Droits d’usage",
+      "usageRights": "Droits d’usage",
       "references": "Référentiels",
       "games": "Jeux",
       "drawChannels": "Canaux de tirage",
       "resultSlots": "Slots de résultats",
-      "plansPricing": "Plans & pricing",
+      "plansPricing": "Plans et tarifs",
       "globalSettings": "Paramètres globaux",
       "themes": "Thèmes",
       "translations": "Traductions",
@@ -613,6 +622,7 @@
       "superAdminOverrides": "Overrides super admin",
       "communication": "Communication",
       "inAppNotifications": "Notifications in-app",
+      "contactManagement": "Gestion des contacts",
       "news": "Actualités",
       "reports": "Rapports",
       "platformReports": "Rapports plateforme"
@@ -653,7 +663,178 @@
     },
     "tenants": {
       "title": "Tenants",
-      "description": "Gestion des tenants Tchalanet"
+      "description": "Liste, filtre et suivi opérationnel des tenants Tchalanet.",
+      "loading": "Chargement des tenants...",
+      "pagination": "Page {{page}} / {{total}}",
+      "error": {
+        "load": "Erreur de chargement des tenants."
+      },
+      "action": {
+        "create": "Créer un tenant",
+        "applyFilters": "Filtrer",
+        "resetFilters": "Réinitialiser",
+        "openMenu": "Ouvrir les actions du tenant",
+        "viewDetails": "Voir détail"
+      },
+      "filter": {
+        "search": "Rechercher",
+        "status": "Statut",
+        "profile": "Profil",
+        "allStatuses": "Tous les statuts",
+        "allProfiles": "Tous les profils"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Code",
+        "status": "Statut",
+        "profile": "Profil",
+        "primaryAdmin": "Admin principal",
+        "readiness": "Readiness",
+        "createdAt": "Créé le"
+      },
+      "empty": {
+        "title": "Aucun tenant",
+        "message": "Créez le premier tenant pour commencer."
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Actif",
+        "suspended": "Suspendu",
+        "disabled": "Désactivé",
+        "draft": "Brouillon",
+        "archived": "Archivé"
+      },
+      "readiness": {
+        "ready": "Prêt",
+        "incomplete": "Incomplet",
+        "blocked": "Bloqué",
+        "missing": "Manquant",
+        "unknown": "Inconnu"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Réseau",
+        "ambulant": "Ambulant"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Loterie Haïti par défaut",
+        "demo": "Démo"
+      },
+      "profileDescription": {
+        "minimal": "Socle minimal, configuration manuelle ensuite.",
+        "defaultHaitiLottery": "Profil recommandé pour un tenant réel : jeux, tarifs et canaux Haïti.",
+        "demo": "Profil de démonstration réservé aux environnements non production."
+      },
+      "field": {
+        "code": "Code du tenant",
+        "name": "Nom",
+        "type": "Type",
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "initialAdminEmail": "Email de l’admin initial",
+        "profile": "Profil"
+      },
+      "validation": {
+        "code": "Format requis : lettres minuscules, chiffres, tirets (3-30 caractères).",
+        "required": "Champ requis.",
+        "email": "Adresse email invalide."
+      },
+      "create": {
+        "title": "Créer un tenant",
+        "description": "Provisionnez un tenant exploitable avec son socle initial de données.",
+        "adminHint": "Si vide, le tenant sera créé sans administrateur initial.",
+        "success": "Tenant provisionné avec succès.",
+        "error": "Erreur lors du provisionnement.",
+        "previewError": "Erreur lors du calcul du profil.",
+        "previewLoading": "Calcul du profil...",
+        "section": {
+          "identity": "Identité tenant",
+          "admin": "Admin initial",
+          "profile": "Profil de provisioning",
+          "preview": "Aperçu du provisioning"
+        },
+        "action": {
+          "preview": "Prévisualiser",
+          "provision": "Créer le tenant"
+        },
+        "preview": {
+          "profile": "Profil choisi",
+          "includedDomains": "Sera initialisé",
+          "notCopiedData": "Ne sera pas copié",
+          "expectedReadiness": "Readiness attendue",
+          "empty": "Remplissez le formulaire puis lancez la prévisualisation."
+        }
+      },
+      "detail": {
+        "title": "Détail tenant",
+        "description": "Vue minimale du tenant et de son provisioning.",
+        "loading": "Chargement du tenant...",
+        "error": "Erreur de chargement du tenant.",
+        "createdTitle": "Tenant créé",
+        "domainStatuses": "Domaines provisionnés",
+        "nextSteps": "Prochaines étapes",
+        "empty": {
+          "title": "Tenant introuvable",
+          "message": "Le détail de ce tenant n’est pas encore disponible."
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Identité tenant",
+          "pagemodels": "Pages initiales",
+          "theme": "Thème",
+          "settings": "Paramètres",
+          "i18n": "Traductions",
+          "games": "Jeux",
+          "pricing": "Tarifs",
+          "draw_channels": "Canaux de tirage",
+          "promotions_templates": "Modèles de promotions",
+          "limits_templates": "Modèles de limites",
+          "demo_users": "Utilisateurs de démo",
+          "demo_seller_terminals": "Vendeurs / terminaux de démo"
+        },
+        "data": {
+          "tickets": "Tickets",
+          "sales": "Ventes",
+          "payouts": "Paiements",
+          "audit": "Audit",
+          "notifications": "Notifications",
+          "stats": "Statistiques",
+          "ledger": "Grand livre"
+        },
+        "readiness": {
+          "identity": "Identité tenant",
+          "users": "Admin tenant",
+          "seller_terminals": "Vendeurs / terminaux",
+          "draw_channels": "Canaux de tirage",
+          "seller_rules": "Règles vendeur",
+          "limits": "Limites",
+          "odds": "Barèmes"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Créer l’admin initial",
+          "CONFIGURE_GAMES": "Configurer les jeux",
+          "CONFIGURE_DRAW_CHANNELS": "Configurer les canaux de tirage",
+          "CONFIGURE_SELLER_RULES": "Configurer les règles vendeur",
+          "CREATE_SELLER_TERMINAL": "Créer un vendeur / terminal",
+          "CONFIGURE_LIMITS": "Configurer les limites",
+          "CONFIGURE_ODDS": "Configurer les barèmes",
+          "VERIFY_DEMO_SETUP": "Vérifier les données de démo"
+        },
+        "statuses": {
+          "CREATED": "Créé",
+          "SEEDED_VIA_LISTENER": "Initialisé automatiquement",
+          "DEFAULT": "Valeurs par défaut",
+          "DEFAULT_LOTTERY": "Jeux loto par défaut",
+          "DEFAULT_HAITI": "Configuration Haïti par défaut",
+          "TEMPLATES_AVAILABLE": "Modèles disponibles",
+          "NONE": "Non configuré"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "Aucun admin initial ne sera créé."
+        }
+      }
     },
     "tenantProvisioning": {
       "title": "Provisionner un tenant",
@@ -737,7 +918,7 @@
       "type": "Type"
     },
     "action": {
-      "health": "Santé système",
+      "health": "Santé plateforme",
       "onboarding": "Onboarding",
       "settings": "Paramètres",
       "subscriptions": "Abonnements",
@@ -1563,6 +1744,13 @@
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
       "maryaj_gratis": "Maryaj gratis"
+    },
+    "platform": {
+      "create_tenant": "Créer un tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Abonnements",
+      "platform_health": "Santé plateforme",
+      "draw_results": "Résultats & tirages"
     }
   }
 }

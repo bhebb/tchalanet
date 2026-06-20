@@ -248,9 +248,8 @@ docker compose --env-file envs/staging/.env.merged \
   -f compose/docker-compose-project.yml \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
-  -f compose/docker-compose-keycloak.yml \
-  -f compose/docker-compose-unleash.yml \
   -f compose/docker-compose-api.yml \
+  -f compose/docker-compose-edge-service.yml \
   -f compose/docker-compose-traefik.yml pull
 
 # Up (détaché)
@@ -258,9 +257,8 @@ docker compose --env-file envs/staging/.env.merged \
   -f compose/docker-compose-project.yml \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
-  -f compose/docker-compose-keycloak.yml \
-  -f compose/docker-compose-unleash.yml \
   -f compose/docker-compose-api.yml \
+  -f compose/docker-compose-edge-service.yml \
   -f compose/docker-compose-traefik.yml up -d
 ```
 

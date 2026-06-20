@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# up-seq.sh — build/pull images puis start stack dans l'ordre avec attente Keycloak
+# up-seq.sh — build/pull images puis start stack dans l'ordre
 # Usage:
 #   ./scripts/utils/up-seq.sh                # ENV=dev implicite (build local par défaut)
 #   ./scripts/utils/up-seq.sh staging        # staging (pull par défaut)
@@ -72,8 +72,8 @@ if [[ "$LOCAL_BUILD" == "1" ]]; then
 fi
 
 FILES+=(
-  "compose/docker-compose-keycloak.yml"
   "compose/docker-compose-api.yml"
+  "compose/docker-compose-edge-service.yml"
 )
 
 # 3) validate files
@@ -102,12 +102,7 @@ for f in "${FILES[@]}"; do compose_files_args+=( -f "$f" ); done
 
 # 5) Build ou Pull
 if [[ "$LOCAL_BUILD" == "1" ]]; then
-  echo "→ [BUILD] Construction des images locales (Keycloak prioritaire)"
-  if ! "$DOCKER_BIN" compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel keycloak; then
-    echo "⚠️  Build Keycloak échoué, tentative build global" >&2
-    "$DOCKER_BIN" compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel || true
-  fi
-  echo "→ [BUILD] Build restant en parallèle"
+  echo "→ [BUILD] Construction des images locales"
   "$DOCKER_BIN" compose --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" build --parallel || true
 else
   echo "→ [PULL] Récupération des images pré-construites"
@@ -120,20 +115,10 @@ for svc in traefik postgres redis; do
   "$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
 done
 
-# 7) Up Keycloak
-echo "→ Up keycloak"
-"$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d keycloak || echo "⚠️  keycloak up non-zero" >&2
-
-# 8) Wait Keycloak realm
-REALM="${KC_REALM:-tchalanet}"
-KC_INTERNAL_URL="${KC_INTERNAL_URL:-http://keycloak:8080}"
-chmod +x scripts/utils/wait-keycloak.sh || true
-if ! scripts/utils/wait-keycloak.sh "$REALM" "$KC_INTERNAL_URL" 240; then
-  echo "❌ Realm '$REALM' non prêt" >&2; exit 1
-fi
-
-# 9) Up API
+# 7) Up API and Edge service
 echo "→ Up api"
 "$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api || echo "⚠️  api up non-zero" >&2
+echo "→ Up edge-service"
+"$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d edge-service || echo "⚠️  edge-service up non-zero" >&2
 
 echo "ℹ️  Stack initiale opérationnelle (LOCAL_BUILD=$LOCAL_BUILD)."

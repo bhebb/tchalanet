@@ -36,7 +36,6 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | MapStruct             | 1.6.3   |
 | QueryDSL              | 5.1.0   |
 | Caffeine              | 3.2.3   |
-| Keycloak admin        | 26.0.9  |
 | Firebase Admin        | 9.9.0   |
 | ShedLock              | 6.6.0   |
 | Testcontainers        | 1.21.4  |
@@ -118,8 +117,6 @@ Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
 | Traefik            | v3.7.0      |
 | PostgreSQL         | 18.4        |
 | Redis              | 8.6.3       |
-| Keycloak upstream  | 26.6.2      |
-| Tchalanet Keycloak | keycloak-26.6.2 |
 | Node (edge-service) | 24 LTS (alpine) |
 
 ---
@@ -127,5 +124,3 @@ Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
 ### Notes backend
 
 - `tchalanet-server/pom.xml` exige Java >= 25 via maven-enforcer.
-- Certains modules (ex: `tchalanet-infra/keycloak/tchalanet-keycloak-provider/pom.xml`) sont actuellement configurés pour Java 21.
-  - Toute homogénéisation Java 25 doit passer par une PR dédiée + build complet.

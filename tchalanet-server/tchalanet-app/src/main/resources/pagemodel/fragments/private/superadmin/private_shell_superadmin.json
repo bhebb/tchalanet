@@ -167,7 +167,7 @@
               { "id": "tenant-onboarding", "label_key": "platform.nav.tenantOnboarding", "path": "/app/platform/tenants/onboarding", "kind": "internal", "icon": "playlist_add_check" },
               { "id": "tenant-admins", "label_key": "platform.nav.tenantAdmins", "path": "/app/platform/tenant-admins", "kind": "internal", "icon": "admin_panel_settings" },
               { "id": "tenant-subscriptions", "label_key": "platform.nav.subscriptions", "path": "/app/platform/subscriptions", "kind": "internal", "icon": "workspace_premium" },
-              { "id": "tenant-entitlements", "label_key": "platform.nav.entitlements", "path": "/app/platform/entitlements", "kind": "internal", "icon": "verified_user" }
+              { "id": "tenant-entitlements", "label_key": "platform.nav.usageRights", "path": "/app/platform/entitlements", "kind": "internal", "icon": "verified_user" }
             ]
           },
           {
@@ -214,6 +214,7 @@
             "icon": "campaign",
             "children": [
               { "id": "communication-notifications", "label_key": "platform.nav.inAppNotifications", "path": "/app/platform/communication/notifications", "kind": "internal", "icon": "notifications" },
+              { "id": "communication-contacts", "label_key": "platform.nav.contactManagement", "path": "/app/platform/communication/contacts", "kind": "internal", "icon": "contact_support" },
               { "id": "communication-news", "label_key": "platform.nav.news", "path": "/app/platform/communication/news", "kind": "internal", "icon": "article" }
             ]
           },

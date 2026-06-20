@@ -9,6 +9,8 @@ export interface AuthLoginRequest {
 export interface AuthClient {
   isAuthenticated(): Promise<boolean>;
   login(request: AuthLoginRequest): Promise<void>;
+  sendPasswordlessLoginLink?(email: string): Promise<void>;
+  completePasswordlessLogin?(): Promise<boolean>;
   logout(): Promise<void>;
   getAccessToken(forceRefresh?: boolean): Promise<string | null>;
   getTokenExpiresAt(): Promise<string | undefined>;

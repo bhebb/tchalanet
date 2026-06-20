@@ -215,18 +215,21 @@
       "copyright": "© 2026 Tchalanet. Tout dwa rezève.",
       "errors": {
         "accessDenied": "Koneksyon an reyisi, men aksè Tchalanet ou poko otorize.",
+        "emailLinkFailed": "Lyen koneksyon an pa valid oswa li ekspire.",
         "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
       },
       "form": {
         "authenticating": "Otantifikasyon…",
         "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
         "email": "Adrès imèl",
+        "emailLinkSent": "Lyen koneksyon an voye. Louvri imel ou sou aparèy sa a pou kontinye.",
         "emailPlaceholder": "non@oganizasyon.com",
         "eyebrow": "Pòtay sekirize",
         "hidePassword": "Kache modpas la",
         "password": "Modpas",
         "remember": "Rete konekte sou aparèy sa a",
         "security": "Firebase Authentication pwoteje sesyon ou.",
+        "sendEmailLink": "Resevwa yon lyen koneksyon",
         "showPassword": "Montre modpas la",
         "submit": "Antre nan espas mwen",
         "title": "Byenveni ankò"
@@ -260,6 +263,11 @@
     "manage": "Jere",
     "back": "Retounen",
     "cancel": "Anile",
+    "next": "Pwochen",
+    "previous": "Anvan",
+    "retry": "Eseye ankò",
+    "traceId": "Trace ID",
+    "not_available": "Pa disponib",
     "validation": {
       "required": "Chan sa a obligatwa."
     }
@@ -590,7 +598,8 @@
       "tenantOnboarding": "Onboarding",
       "tenantAdmins": "Administratè",
       "subscriptions": "Abònman",
-      "entitlements": "Entitlements",
+      "entitlements": "Dwa itilizasyon",
+      "usageRights": "Dwa itilizasyon",
       "references": "Referansyèl",
       "games": "Jwèt",
       "drawChannels": "Kanal tiraj",
@@ -613,6 +622,7 @@
       "superAdminOverrides": "Overrides super admin",
       "communication": "Kominikasyon",
       "inAppNotifications": "Notifikasyon nan app",
+      "contactManagement": "Jesyon kontak",
       "news": "Nouvèl",
       "reports": "Rapò",
       "platformReports": "Rapò platfòm"
@@ -653,7 +663,178 @@
     },
     "tenants": {
       "title": "Tenant",
-      "description": "Jesyon tenant Tchalanet"
+      "description": "Lis, filtre, epi swiv tenant Tchalanet yo.",
+      "loading": "Chajman tenants...",
+      "pagination": "Paj {{page}} / {{total}}",
+      "error": {
+        "load": "Pa ka chaje tenants yo."
+      },
+      "action": {
+        "create": "Kreye tenant",
+        "applyFilters": "Filtre",
+        "resetFilters": "Reyinisyalize",
+        "openMenu": "Ouvri aksyon tenant lan",
+        "viewDetails": "Gade detay"
+      },
+      "filter": {
+        "search": "Chèche",
+        "status": "Estati",
+        "profile": "Pwofil",
+        "allStatuses": "Tout estati",
+        "allProfiles": "Tout pwofil"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Kòd",
+        "status": "Estati",
+        "profile": "Pwofil",
+        "primaryAdmin": "Admin prensipal",
+        "readiness": "Readiness",
+        "createdAt": "Kreye"
+      },
+      "empty": {
+        "title": "Pa gen tenant",
+        "message": "Kreye premye tenant lan pou kòmanse."
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Aktif",
+        "suspended": "Sispann",
+        "disabled": "Dezaktive",
+        "draft": "Bouyon",
+        "archived": "Achive"
+      },
+      "readiness": {
+        "ready": "Pare",
+        "incomplete": "Enkonplè",
+        "blocked": "Bloke",
+        "missing": "Manke",
+        "unknown": "Enkoni"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Rezo",
+        "ambulant": "Mobil"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Loteri Ayiti pa defo",
+        "demo": "Demo"
+      },
+      "profileDescription": {
+        "minimal": "Baz minimal, apre sa konfigirasyon manyèl.",
+        "defaultHaitiLottery": "Pwofil rekòmande pou yon tenant reyèl: jwèt, pri, ak kanal tiraj Ayiti.",
+        "demo": "Pwofil demonstrasyon pou anviwònman ki pa pwodiksyon."
+      },
+      "field": {
+        "code": "Kòd tenant",
+        "name": "Non",
+        "type": "Tip",
+        "timezone": "Fizo orè",
+        "currency": "Lajan",
+        "initialAdminEmail": "Imèl admin inisyal",
+        "profile": "Pwofil"
+      },
+      "validation": {
+        "code": "Fòma obligatwa: ti lèt, chif, tirè (3-30 karaktè).",
+        "required": "Chan obligatwa.",
+        "email": "Adrès imèl pa valid."
+      },
+      "create": {
+        "title": "Kreye tenant",
+        "description": "Pwovizyone yon tenant ki ka opere ak done inisyal li yo.",
+        "adminHint": "Si li vid, tenant lan ap kreye san administratè inisyal.",
+        "success": "Tenant lan pwovizyone avèk siksè.",
+        "error": "Pwovizyonman tenant lan echwe.",
+        "previewError": "Pa ka kalkile pwofil la.",
+        "previewLoading": "Kalkil pwofil la...",
+        "section": {
+          "identity": "Idantite tenant",
+          "admin": "Admin inisyal",
+          "profile": "Pwofil provisioning",
+          "preview": "Apèsi provisioning"
+        },
+        "action": {
+          "preview": "Preview",
+          "provision": "Kreye tenant"
+        },
+        "preview": {
+          "profile": "Pwofil chwazi",
+          "includedDomains": "Sa ki pral inisyalize",
+          "notCopiedData": "Sa ki pap kopye",
+          "expectedReadiness": "Readiness espere",
+          "empty": "Ranpli fòm lan, apre sa lanse preview la."
+        }
+      },
+      "detail": {
+        "title": "Detay tenant",
+        "description": "Vue minimal tenant lan ak provisioning li.",
+        "loading": "Chajman tenant...",
+        "error": "Pa ka chaje tenant lan.",
+        "createdTitle": "Tenant kreye",
+        "domainStatuses": "Domèn pwovizyone",
+        "nextSteps": "Pwochen etap",
+        "empty": {
+          "title": "Tenant pa jwenn",
+          "message": "Detay tenant sa a poko disponib."
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Idantite tenant",
+          "pagemodels": "Paj inisyal",
+          "theme": "Tèm",
+          "settings": "Paramèt",
+          "i18n": "Tradiksyon",
+          "games": "Jwèt",
+          "pricing": "Tarif",
+          "draw_channels": "Kanal tiraj",
+          "promotions_templates": "Modèl pwomosyon",
+          "limits_templates": "Modèl limit",
+          "demo_users": "Itilizatè demo",
+          "demo_seller_terminals": "Vandè / tèminal demo"
+        },
+        "data": {
+          "tickets": "Tikè",
+          "sales": "Vant",
+          "payouts": "Peman",
+          "audit": "Odit",
+          "notifications": "Notifikasyon",
+          "stats": "Estatistik",
+          "ledger": "Gran liv"
+        },
+        "readiness": {
+          "identity": "Idantite tenant",
+          "users": "Admin tenant",
+          "seller_terminals": "Vandè / tèminal",
+          "draw_channels": "Kanal tiraj",
+          "seller_rules": "Règ vandè",
+          "limits": "Limit",
+          "odds": "Barèm"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Kreye admin inisyal la",
+          "CONFIGURE_GAMES": "Konfigire jwèt yo",
+          "CONFIGURE_DRAW_CHANNELS": "Konfigire kanal tiraj yo",
+          "CONFIGURE_SELLER_RULES": "Konfigire règ vandè yo",
+          "CREATE_SELLER_TERMINAL": "Kreye yon vandè / tèminal",
+          "CONFIGURE_LIMITS": "Konfigire limit yo",
+          "CONFIGURE_ODDS": "Konfigire barèm yo",
+          "VERIFY_DEMO_SETUP": "Verifye done demo yo"
+        },
+        "statuses": {
+          "CREATED": "Kreye",
+          "SEEDED_VIA_LISTENER": "Inisyalize otomatikman",
+          "DEFAULT": "Valè pa defo",
+          "DEFAULT_LOTTERY": "Jwèt loto pa defo",
+          "DEFAULT_HAITI": "Konfigirasyon Ayiti pa defo",
+          "TEMPLATES_AVAILABLE": "Modèl disponib",
+          "NONE": "Pa konfigire"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "Pa gen admin inisyal k ap kreye."
+        }
+      }
     },
     "tenantProvisioning": {
       "title": "Pwovizyone yon tenant",
@@ -1563,6 +1744,13 @@
       "manage_limits": "Jere limit",
       "manage_odds": "Jere odds",
       "maryaj_gratis": "Maryaj gratis"
+    },
+    "platform": {
+      "create_tenant": "Kreye tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Abònman",
+      "platform_health": "Sante platfòm",
+      "draw_results": "Rezilta & tiraj"
     }
   }
 }

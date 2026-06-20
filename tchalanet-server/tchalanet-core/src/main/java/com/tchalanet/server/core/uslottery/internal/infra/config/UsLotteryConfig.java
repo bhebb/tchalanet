@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.uslottery.internal.infra.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +9,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @ConditionalOnProperty(
     prefix = "tch.us-lottery",
@@ -145,6 +148,7 @@ public class UsLotteryConfig {
         var p = props.getProviders() != null ? props.getProviders().get(OH_PROVIDER_KEY) : null;
         var baseUrl = p != null ? p.getAuthBaseUrl() : null;
 
+        log.info("Configuring Ohio auth RestClient with base URL: {} et prop:  {}", baseUrl, p);
         return factory.builder()
             .baseUrl(baseUrl)
             .defaultHeader("Accept", "application/json, text/plain, */*")

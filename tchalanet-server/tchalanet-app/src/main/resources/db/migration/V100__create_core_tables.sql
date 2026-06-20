@@ -83,7 +83,7 @@ CREATE TABLE app_user_external_identity (
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_app_user_external_identity__provider
-    CHECK (provider IN ('KEYCLOAK','FIREBASE','LOCAL_JWT','LOCAL_PERF')),
+    CHECK (provider IN ('FIREBASE','LOCAL_JWT','LOCAL_PERF')),
   CONSTRAINT uq_app_user_external_identity__provider_issuer_subject
     UNIQUE (provider, issuer, external_subject)
 );

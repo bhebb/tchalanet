@@ -3,7 +3,7 @@ set -euo pipefail
 
 FIREBASE_AUTH_BASE_URL="${FIREBASE_AUTH_BASE_URL:-http://localhost:9099/identitytoolkit.googleapis.com/v1}"
 FIREBASE_API_KEY="${FIREBASE_API_KEY:-demo-tchalanet-local}"
-FIREBASE_EMAIL="${FIREBASE_EMAIL:-admin@local}"
+FIREBASE_EMAIL="${FIREBASE_EMAIL:-admin@localtest.me}"
 FIREBASE_PASSWORD="${FIREBASE_PASSWORD:-Changeme1!}"
 FIREBASE_CREATE_USER="${FIREBASE_CREATE_USER:-false}"
 OUTPUT_EXPORT=false
@@ -15,7 +15,7 @@ Usage: scripts/firebase-id-token.sh [options]
 Generate a Firebase ID token. Defaults target the local Auth Emulator.
 
 Options:
-  --email EMAIL       Account email (default: admin@local)
+  --email EMAIL       Account email (default: admin@localtest.me)
   --password PASSWORD Account password (default: Changeme1!)
   --create            Create the account before returning its token
   --export            Print: export FIREBASE_ID_TOKEN='<token>'

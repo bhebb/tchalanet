@@ -23,12 +23,14 @@ export const platformRoutes: Route[] = [
   {
     path: 'tenants',
     loadComponent: () =>
-      import('./pages/tenants/platform-tenants.page').then(m => m.PlatformTenantsPage),
+      import('./pages/tenants/list/platform-tenants.page').then(m => m.PlatformTenantsPage),
   },
   {
     path: 'tenants/new',
     loadComponent: () =>
-      import('./pages/tenants/platform-tenant-create.page').then(m => m.PlatformTenantCreatePage),
+      import('./pages/tenants/create/platform-tenant-create.page').then(
+        m => m.PlatformTenantCreatePage,
+      ),
   },
   {
     path: 'tenants/onboarding',
@@ -38,21 +40,25 @@ export const platformRoutes: Route[] = [
       ),
   },
   {
-    path: 'tenants/:tenantId/admins',
-    loadComponent: () =>
-      import('./pages/tenants/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
-  },
-  {
     path: 'tenants/:tenantId/admins/new',
     loadComponent: () =>
-      import('./pages/tenants/platform-tenant-admin-create.page').then(
+      import('./pages/tenants/admin-create/platform-tenant-admin-create.page').then(
         m => m.PlatformTenantAdminCreatePage,
+      ),
+  },
+  {
+    path: 'tenants/:tenantId/admins',
+    loadComponent: () =>
+      import('./pages/tenants/admins/platform-tenant-admins.page').then(
+        m => m.PlatformTenantAdminsPage,
       ),
   },
   {
     path: 'tenants/:tenantId',
     loadComponent: () =>
-      import('./pages/tenants/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
+      import('./pages/tenants/detail/platform-tenant-detail.page').then(
+        m => m.PlatformTenantDetailPage,
+      ),
   },
   {
     path: 'tenant-provisioning',
@@ -71,7 +77,9 @@ export const platformRoutes: Route[] = [
   {
     path: 'tenant-admins',
     loadComponent: () =>
-      import('./pages/tenants/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
+      import('./pages/tenants/admins/platform-tenant-admins.page').then(
+        m => m.PlatformTenantAdminsPage,
+      ),
   },
   {
     path: 'subscriptions',
@@ -81,7 +89,7 @@ export const platformRoutes: Route[] = [
   {
     path: 'entitlements',
     data: {
-      titleKey: 'platform.nav.entitlements',
+      titleKey: 'platform.nav.usageRights',
       descriptionKey: 'platform.placeholder.descriptions.entitlements',
       icon: 'verified_user',
     },
@@ -271,6 +279,13 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('./pages/notifications/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
+      ),
+  },
+  {
+    path: 'communication/contacts',
+    loadComponent: () =>
+      import('./pages/contact-requests/platform-contact-requests.page').then(
+        m => m.PlatformContactRequestsPage,
       ),
   },
   {

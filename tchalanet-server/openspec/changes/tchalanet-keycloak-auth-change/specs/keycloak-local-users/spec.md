@@ -55,7 +55,7 @@ If the policy changes, update all seed users + every doc/script referencing the 
   {
     "username": "super_admin",
     "enabled": true,
-    "email": "super_admin@local",
+    "email": "super_admin@localtest.me",
     "firstName": "Super",
     "lastName": "Admin",
     "emailVerified": true,
@@ -72,7 +72,7 @@ If the policy changes, update all seed users + every doc/script referencing the 
   {
     "username": "admin",
     "enabled": true,
-    "email": "admin@local",
+    "email": "admin@localtest.me",
     "firstName": "Tenant",
     "lastName": "Admin",
     "emailVerified": true,
@@ -89,7 +89,7 @@ If the policy changes, update all seed users + every doc/script referencing the 
   {
     "username": "operator",
     "enabled": true,
-    "email": "operator@local",
+    "email": "operator@localtest.me",
     "firstName": "Operator",
     "lastName": "Tchalanet",
     "emailVerified": true,
@@ -106,7 +106,7 @@ If the policy changes, update all seed users + every doc/script referencing the 
   {
     "username": "cashier",
     "enabled": true,
-    "email": "cashier@local",
+    "email": "cashier@localtest.me",
     "firstName": "Marie",
     "lastName": "Joseph",
     "emailVerified": true,

@@ -71,8 +71,8 @@ public class TenantProvisioningOrchestrator {
     domainStatuses.put("games", profileGamesStatus(request.profile()));
     domainStatuses.put("pricing", profilePricingStatus(request.profile()));
     domainStatuses.put("draw_channels", profileDrawChannelsStatus(request.profile()));
-    domainStatuses.put("promotions", "TEMPLATES_AVAILABLE");
-    domainStatuses.put("limits", "TEMPLATES_AVAILABLE");
+    domainStatuses.put("promotions_templates", "TEMPLATES_AVAILABLE");
+    domainStatuses.put("limits_templates", "TEMPLATES_AVAILABLE");
 
     UUID tenantId = created.tenantId().value();
     final String[] initialAdminUserId = {null};
@@ -118,7 +118,7 @@ public class TenantProvisioningOrchestrator {
       case DEMO -> List.of(
           "tenant_identity", "pagemodels", "theme", "settings", "i18n",
           "games", "pricing", "draw_channels", "promotions_templates",
-          "limits_templates", "demo_users", "demo_outlets", "demo_terminals");
+          "limits_templates", "demo_users", "demo_seller_terminals");
     };
   }
 
@@ -131,14 +131,15 @@ public class TenantProvisioningOrchestrator {
 
   private static List<String> notCopiedData() {
     return List.of(
-        "tickets", "sales", "sessions", "payouts", "terminal_bindings",
-        "audit", "notifications", "stats", "ledger", "offline_submissions");
+        "tickets", "sales", "payouts", "audit", "notifications", "stats", "ledger");
   }
 
   private static List<String> expectedReadinessSections(TenantProvisioningProfile profile) {
     return switch (profile) {
-      case MINIMAL -> List.of("identity", "users", "outlets", "terminals", "games_pricing", "draws");
-      case DEFAULT_HAITI_LOTTERY -> List.of("identity", "users", "outlets", "terminals", "draws");
+      case MINIMAL -> List.of(
+          "identity", "users", "seller_terminals", "draw_channels", "seller_rules", "limits", "odds");
+      case DEFAULT_HAITI_LOTTERY -> List.of(
+          "identity", "users", "seller_terminals", "draw_channels", "seller_rules", "limits", "odds");
       case DEMO -> List.of("identity");
     };
   }
@@ -147,11 +148,13 @@ public class TenantProvisioningOrchestrator {
     boolean adminCreated = initialAdminEmail != null && !initialAdminEmail.isBlank();
     return switch (profile) {
       case MINIMAL -> adminCreated
-          ? List.of("CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL")
-          : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL");
+          ? List.of("CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS", "CREATE_SELLER_TERMINAL",
+              "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS")
+          : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS",
+              "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS");
       case DEFAULT_HAITI_LOTTERY -> adminCreated
-          ? List.of("CREATE_OUTLET", "CREATE_TERMINAL")
-          : List.of("CREATE_INITIAL_ADMIN", "CREATE_OUTLET", "CREATE_TERMINAL");
+          ? List.of("CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES")
+          : List.of("CREATE_INITIAL_ADMIN", "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES");
       case DEMO -> List.of("VERIFY_DEMO_SETUP");
     };
   }

@@ -25,12 +25,12 @@
 
 ## Phase 1 - Infrastructure cleanup
 
-- [ ] Remove Keycloak from the API compose `depends_on` chain.
-- [ ] Remove Keycloak issuer, audience, hostname, image, and bootstrap variables
+- [x] Remove Keycloak from the API compose `depends_on` chain.
+- [x] Remove Keycloak issuer, audience, hostname, image, and bootstrap variables
       from standard production and staging configuration.
-- [ ] Remove Keycloak from standard `up`, `up-all`, staging, production, and
+- [x] Remove Keycloak from standard `up`, `up-all`, staging, production, and
       local IDE targets.
-- [ ] Configure standard production and staging with
+- [x] Configure standard production and staging with
       `TCH_IDENTITY_PROVIDER=firebase`.
 - [ ] Add Firebase Authentication Emulator to local infrastructure.
 - [ ] Add explicit local-IDE commands/configuration for emulator mode and real
@@ -40,35 +40,35 @@
 - [ ] Configure deterministic local/E2E targets with
       `TCH_IDENTITY_PROVIDER=local-jwt`.
 - [ ] Inject Firebase Admin credentials through the approved secret mechanism.
-- [ ] Delete Keycloak compose services, images, scripts, targets, variables,
+- [x] Delete Keycloak compose services, images, scripts, targets, variables,
       database, and bootstrap setup.
-- [ ] Update infrastructure operations and troubleshooting documentation.
+- [x] Update infrastructure operations and troubleshooting documentation.
 
 ### Delivery check
 
-- [ ] Standard production/staging compose configuration contains no Keycloak
+- [x] Standard production/staging compose configuration contains no Keycloak
       service or dependency.
 - [ ] API boots successfully when no Keycloak host is resolvable.
 - [ ] Local/E2E topology boots with `local-jwt` and exercises the API.
 - [ ] Local IDE boots against Firebase Auth Emulator without Firebase private
       credentials.
 - [ ] Local IDE can switch to real Firebase staging without code changes.
-- [ ] No Keycloak infra target or service remains.
+- [x] No Keycloak infra target or service remains.
 
 ## Phase 2 - Server runtime cleanup
 
 - [x] Remove shared, dev, and local-IDE hardcoded Keycloak issuer/JWKS settings.
-- [ ] Remove Keycloak Spring Resource Server issuer URI, JWKS URI, audience,
+- [x] Remove Keycloak Spring Resource Server issuer URI, JWKS URI, audience,
       decoder, and realm configuration from standard profiles.
 - [x] Remove Keycloak bootstrap and admin-client configuration from standard
       profiles.
-- [ ] Ensure provider-specific decoders and beans load only for their provider.
+- [x] Ensure provider-specific decoders and beans load only for their provider.
 - [ ] Add explicit non-production `firebase-emulator` token verification mode.
 - [ ] Accept unsigned emulator ID tokens only from the configured emulator host
       and expected local project ID.
 - [ ] Reject emulator mode and emulator host configuration in production.
 - [x] Remove Keycloak as a default value from provider guards and conditions.
-- [ ] Make production startup reject `keycloak`, `local-jwt`, and `local-perf`.
+- [x] Make production startup reject `keycloak`, `local-jwt`, and `local-perf`.
 - [ ] Remove the absolute local Firebase credentials path and bundled secret
       fallback.
 - [x] Replace Keycloak-specific OpenAPI OAuth configuration with bearer-token
@@ -104,7 +104,7 @@
 - [ ] Audit bootstrap, link, unlink, disabled-user, and SUPER_ADMIN actions.
 - [ ] Remove Keycloak external identity mappings from fixtures and active data
       setup.
-- [ ] Remove Keycloak adapter, admin client, dependencies, and tests.
+- [x] Remove Keycloak adapter, admin client, dependencies, and tests.
 
 ### Delivery check
 
@@ -114,7 +114,7 @@
 - [ ] Firebase tenant-user and SUPER_ADMIN flows exercise normal context and RLS.
 - [ ] No provider-specific type leaks outside the identity adapter boundary.
 - [x] No executable Keycloak synchronization path remains.
-- [ ] Standard Spring Resource Server configuration contains no Keycloak
+- [x] Standard Spring Resource Server configuration contains no Keycloak
       resource, issuer, JWKS, audience, realm, or decoder setting.
 
 ## Phase 4 - Web Firebase completion and Keycloak cleanup
@@ -180,9 +180,9 @@
       users.
 - [ ] Document Firebase Admin secret injection, rotation, and incident response.
 - [ ] Document web and mobile token refresh, logout, 401, and 403 behavior.
-- [ ] Remove Keycloak from standard setup, operations, web, and mobile guides.
-- [ ] Remove obsolete Keycloak documentation from `tchalanet-server/docs`.
-- [ ] Add or update canonical Firebase and local-jwt implementation guidance in
+- [x] Remove Keycloak from standard setup, operations, web, and mobile guides.
+- [x] Remove obsolete Keycloak documentation from `tchalanet-server/docs`.
+- [x] Add or update canonical Firebase and local-jwt implementation guidance in
       `tchalanet-server/docs`.
 - [ ] Update MkDocs navigation and links without duplicating component details.
 

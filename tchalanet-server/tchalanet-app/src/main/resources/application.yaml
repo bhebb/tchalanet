@@ -31,7 +31,6 @@ tch:
         users:
           - super_admin
           - admin
-          - cashier
 
   runtime:
     zone-id: ${TCH_RUNTIME_ZONE_ID:UTC}
@@ -83,10 +82,6 @@ tch:
         - CapturePaymentCommand
         - FindTicketsBySessionQuery
         - GetSaleReceiptQuery
-
-  admin:
-    server:
-      enabled: ${TCH_ADMIN_SERVER_ENABLED:false}
 
   communication:
     edge:
@@ -140,27 +135,6 @@ tch:
         requests-per-second: 10
         burst: 20
 
-  offlinesync:
-    enabled: ${TCH_OFFLINESYNC_ENABLED:false}
-    upcoming-draws:
-      lookahead-days: ${TCH_OFFLINESYNC_UPCOMING_DRAWS_DAYS:3}
-      limit: ${TCH_OFFLINESYNC_UPCOMING_DRAWS_LIMIT:50}
-
-  limitpolicy:
-    offline:
-      enabled: ${TCH_LIMITPOLICY_OFFLINE_ENABLED:true}
-      batch-size: ${TCH_LIMITPOLICY_OFFLINE_BATCH_SIZE:50}
-      validity-duration: ${TCH_LIMITPOLICY_OFFLINE_VALIDITY:PT8H}
-      sync-accepted-extension: ${TCH_LIMITPOLICY_OFFLINE_SYNC_EXT:PT72H}
-      max-ticket-count: ${TCH_LIMITPOLICY_OFFLINE_MAX_TICKETS:50}
-      max-total-amount: ${TCH_LIMITPOLICY_OFFLINE_MAX_TOTAL:100000.00}
-      currency: ${TCH_LIMITPOLICY_OFFLINE_CURRENCY:HTG}
-
-  sales-session:
-    auto:
-      active: true
-      open-cron: "0 0 5 * * *"
-      close-cron: "0 0 20 * * *"
   batch:
     executor:
       core-pool-size: 4
@@ -173,10 +147,6 @@ tch:
 spring:
   application:
     name: tchalanet-api
-
-  boot:
-    admin:
-      context-path: /admin/ops
 
   profiles:
     group:

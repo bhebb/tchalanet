@@ -225,8 +225,10 @@ public class PlatformAdminDashboardPayloadAssembler {
   private QuickActionsPayload buildQuickActions() {
     return new QuickActionsPayload(List.of(
         new ActionItem("CREATE_TENANT",     "quickaction.platform.create_tenant",     "add_business",  "/app/platform/tenants/new"),
-        new ActionItem("PLATFORM_OVERVIEW", "quickaction.platform.overview",          "dashboard",     "/app/platform/overview"),
-        new ActionItem("OPS_HEALTH",        "quickaction.platform.ops_health",        "monitor_heart", "/app/platform/ops/health")));
+        new ActionItem("TENANT_ONBOARDING", "quickaction.platform.onboarding",        "playlist_add_check", "/app/platform/tenants/onboarding"),
+        new ActionItem("SUBSCRIPTIONS",     "quickaction.platform.subscriptions",     "workspace_premium", "/app/platform/subscriptions"),
+        new ActionItem("PLATFORM_HEALTH",   "quickaction.platform.platform_health",   "monitor_heart", "/app/platform/health"),
+        new ActionItem("DRAW_RESULTS",      "quickaction.platform.draw_results",      "fact_check", "/app/platform/ops/draw-results")));
   }
 
   public record Payload(

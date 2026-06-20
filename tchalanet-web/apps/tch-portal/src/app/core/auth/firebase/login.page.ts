@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -30,17 +30,33 @@ import { LanguageSwitcher } from '../../i18n';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   email = '';
   password = '';
   remember = true;
 
   readonly loading = signal(false);
   readonly errorKey = signal<string | null>(null);
+  readonly infoKey = signal<string | null>(null);
   readonly passwordVisible = signal(false);
 
   private readonly authSession = inject(AuthSessionService);
   private readonly router = inject(Router);
+
+  async ngOnInit(): Promise<void> {
+    this.loading.set(true);
+    this.errorKey.set(null);
+    try {
+      const session = await this.authSession.completePasswordlessLogin();
+      if (session?.authenticated) {
+        await this.router.navigateByUrl('/app');
+      }
+    } catch {
+      this.errorKey.set('auth.login.errors.emailLinkFailed');
+    } finally {
+      this.loading.set(false);
+    }
+  }
 
   togglePasswordVisibility(): void {
     this.passwordVisible.update(visible => !visible);
@@ -49,8 +65,16 @@ export class LoginPage {
   async submit(): Promise<void> {
     this.loading.set(true);
     this.errorKey.set(null);
+    this.infoKey.set(null);
+    const usePasswordlessLogin = !this.password.trim();
 
     try {
+      if (usePasswordlessLogin) {
+        await this.authSession.sendPasswordlessLoginLink(this.email);
+        this.infoKey.set('auth.login.form.emailLinkSent');
+        return;
+      }
+
       const session = await this.authSession.login(this.email, this.password, this.remember);
 
       if (!session.authenticated) {
@@ -60,7 +84,11 @@ export class LoginPage {
 
       await this.router.navigateByUrl('/app');
     } catch {
-      this.errorKey.set('auth.login.errors.invalidCredentials');
+      this.errorKey.set(
+        usePasswordlessLogin
+          ? 'auth.login.errors.emailLinkFailed'
+          : 'auth.login.errors.invalidCredentials',
+      );
     } finally {
       this.loading.set(false);
     }

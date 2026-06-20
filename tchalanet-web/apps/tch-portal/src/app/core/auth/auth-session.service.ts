@@ -69,6 +69,21 @@ export class AuthSessionService {
         return this.refreshSession(true);
     }
 
+    async sendPasswordlessLoginLink(email: string): Promise<void> {
+        if (!this.auth.sendPasswordlessLoginLink) {
+            throw new Error('Passwordless login is not supported by this auth client');
+        }
+        await this.auth.sendPasswordlessLoginLink(email);
+    }
+
+    async completePasswordlessLogin(): Promise<UserSession | null> {
+        if (!this.auth.completePasswordlessLogin) {
+            return null;
+        }
+        const completed = await this.auth.completePasswordlessLogin();
+        return completed ? this.refreshSession(true) : null;
+    }
+
     async logout(): Promise<void> {
         await this.auth.logout();
         this.setAnonymousSession();

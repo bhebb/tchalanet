@@ -215,18 +215,21 @@
       "copyright": "© 2026 Tchalanet. All rights reserved.",
       "errors": {
         "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
+        "emailLinkFailed": "The sign-in link is invalid or expired.",
         "invalidCredentials": "Invalid email address or password."
       },
       "form": {
         "authenticating": "Authenticating…",
         "body": "Use the credentials associated with your Tchalanet account.",
         "email": "Email address",
+        "emailLinkSent": "Sign-in link sent. Open your email on this device to continue.",
         "emailPlaceholder": "name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
         "password": "Password",
         "remember": "Stay signed in on this device",
         "security": "Your session is secured by Firebase Authentication.",
+        "sendEmailLink": "Get a sign-in link",
         "showPassword": "Show password",
         "submit": "Access my workspace",
         "title": "Welcome back"
@@ -260,6 +263,11 @@
     "manage": "Manage",
     "back": "Back",
     "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "retry": "Retry",
+    "traceId": "Trace ID",
+    "not_available": "Not available",
     "validation": {
       "required": "This field is required."
     }
@@ -591,6 +599,7 @@
       "tenantAdmins": "Administrators",
       "subscriptions": "Subscriptions",
       "entitlements": "Entitlements",
+      "usageRights": "Usage rights",
       "references": "Referentials",
       "games": "Games",
       "drawChannels": "Draw channels",
@@ -613,6 +622,7 @@
       "superAdminOverrides": "Super admin overrides",
       "communication": "Communication",
       "inAppNotifications": "In-app notifications",
+      "contactManagement": "Contact management",
       "news": "News",
       "reports": "Reports",
       "platformReports": "Platform reports"
@@ -653,7 +663,178 @@
     },
     "tenants": {
       "title": "Tenants",
-      "description": "Manage Tchalanet tenants"
+      "description": "List, filter, and monitor Tchalanet tenants.",
+      "loading": "Loading tenants...",
+      "pagination": "Page {{page}} / {{total}}",
+      "error": {
+        "load": "Unable to load tenants."
+      },
+      "action": {
+        "create": "Create tenant",
+        "applyFilters": "Filter",
+        "resetFilters": "Reset",
+        "openMenu": "Open tenant actions",
+        "viewDetails": "View details"
+      },
+      "filter": {
+        "search": "Search",
+        "status": "Status",
+        "profile": "Profile",
+        "allStatuses": "All statuses",
+        "allProfiles": "All profiles"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Code",
+        "status": "Status",
+        "profile": "Profile",
+        "primaryAdmin": "Primary admin",
+        "readiness": "Readiness",
+        "createdAt": "Created"
+      },
+      "empty": {
+        "title": "No tenants",
+        "message": "Create the first tenant to get started."
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Active",
+        "suspended": "Suspended",
+        "disabled": "Disabled",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "readiness": {
+        "ready": "Ready",
+        "incomplete": "Incomplete",
+        "blocked": "Blocked",
+        "missing": "Missing",
+        "unknown": "Unknown"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Network",
+        "ambulant": "Mobile"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Default Haiti lottery",
+        "demo": "Demo"
+      },
+      "profileDescription": {
+        "minimal": "Minimal baseline, then manual configuration.",
+        "defaultHaitiLottery": "Recommended profile for a real tenant: Haiti games, pricing, and draw channels.",
+        "demo": "Demo profile reserved for non-production environments."
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "initialAdminEmail": "Initial admin email",
+        "profile": "Profile"
+      },
+      "validation": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3-30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address."
+      },
+      "create": {
+        "title": "Create tenant",
+        "description": "Provision an operational tenant with its initial data baseline.",
+        "adminHint": "Leave empty to create the tenant without an initial administrator.",
+        "success": "Tenant provisioned successfully.",
+        "error": "Tenant provisioning failed.",
+        "previewError": "Unable to calculate the profile.",
+        "previewLoading": "Calculating profile...",
+        "section": {
+          "identity": "Tenant identity",
+          "admin": "Initial admin",
+          "profile": "Provisioning profile",
+          "preview": "Provisioning preview"
+        },
+        "action": {
+          "preview": "Preview",
+          "provision": "Create tenant"
+        },
+        "preview": {
+          "profile": "Selected profile",
+          "includedDomains": "Will be initialized",
+          "notCopiedData": "Will not be copied",
+          "expectedReadiness": "Expected readiness",
+          "empty": "Complete the form, then run the preview."
+        }
+      },
+      "detail": {
+        "title": "Tenant detail",
+        "description": "Minimal tenant and provisioning view.",
+        "loading": "Loading tenant...",
+        "error": "Unable to load tenant.",
+        "createdTitle": "Tenant created",
+        "domainStatuses": "Provisioned domains",
+        "nextSteps": "Next steps",
+        "empty": {
+          "title": "Tenant not found",
+          "message": "This tenant detail is not available yet."
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Tenant identity",
+          "pagemodels": "Initial pages",
+          "theme": "Theme",
+          "settings": "Settings",
+          "i18n": "Translations",
+          "games": "Games",
+          "pricing": "Pricing",
+          "draw_channels": "Draw channels",
+          "promotions_templates": "Promotion templates",
+          "limits_templates": "Limit templates",
+          "demo_users": "Demo users",
+          "demo_seller_terminals": "Demo sellers / terminals"
+        },
+        "data": {
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "payouts": "Payouts",
+          "audit": "Audit",
+          "notifications": "Notifications",
+          "stats": "Stats",
+          "ledger": "Ledger"
+        },
+        "readiness": {
+          "identity": "Tenant identity",
+          "users": "Tenant admin",
+          "seller_terminals": "Sellers / terminals",
+          "draw_channels": "Draw channels",
+          "seller_rules": "Seller rules",
+          "limits": "Limits",
+          "odds": "Odds"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Create initial admin",
+          "CONFIGURE_GAMES": "Configure games",
+          "CONFIGURE_DRAW_CHANNELS": "Configure draw channels",
+          "CONFIGURE_SELLER_RULES": "Configure seller rules",
+          "CREATE_SELLER_TERMINAL": "Create a seller / terminal",
+          "CONFIGURE_LIMITS": "Configure limits",
+          "CONFIGURE_ODDS": "Configure odds",
+          "VERIFY_DEMO_SETUP": "Verify demo data"
+        },
+        "statuses": {
+          "CREATED": "Created",
+          "SEEDED_VIA_LISTENER": "Initialized automatically",
+          "DEFAULT": "Default values",
+          "DEFAULT_LOTTERY": "Default lottery games",
+          "DEFAULT_HAITI": "Default Haiti setup",
+          "TEMPLATES_AVAILABLE": "Templates available",
+          "NONE": "Not configured"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "No initial admin will be created."
+        }
+      }
     },
     "tenantProvisioning": {
       "title": "Provision a tenant",
@@ -1563,6 +1744,13 @@
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",
       "maryaj_gratis": "Maryaj gratis"
+    },
+    "platform": {
+      "create_tenant": "Create tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Subscriptions",
+      "platform_health": "Platform health",
+      "draw_results": "Results & draws"
     }
   }
 }

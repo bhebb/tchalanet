@@ -2,7 +2,7 @@
 # service-up.sh - small helper to run docker-compose actions for a single service
 # Usage: service-up.sh <action> <service> [env]
 # action: up|down|logs|config
-# service: api|keycloak|postgres|redis|traefik|...
+# service: api|edge-service|postgres|redis|traefik|...
 # env: dev|staging|prod (default: dev)
 set -euo pipefail
 
@@ -10,7 +10,7 @@ if [ "$#" -lt 2 ]; then
   cat >&2 <<EOF
 Usage: $0 <action> <service> [env]
   action: up|down|logs|config
-  service: api|keycloak|postgres|redis|traefik|...
+  service: api|edge-service|postgres|redis|traefik|...
   env: dev|staging|prod (default: dev)
 Example:
   $0 config api dev   # print the composed config for API service in dev
@@ -44,13 +44,10 @@ PROFILES=""
 EXTRA_FILES=""
 case "$SERVICE" in
   api)
-    EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml $COMPOSE_DIR/docker-compose-redis.yml $COMPOSE_DIR/docker-compose-keycloak.yml"
+    EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml $COMPOSE_DIR/docker-compose-redis.yml $COMPOSE_DIR/docker-compose-edge-service.yml"
     if [ -f "$COMPOSE_DIR/docker-compose.local-build.yml" ]; then
       EXTRA_FILES="$EXTRA_FILES $COMPOSE_DIR/docker-compose.local-build.yml"
     fi
-    ;;
-  keycloak)
-    EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml"
     ;;
   redis)
     ;;

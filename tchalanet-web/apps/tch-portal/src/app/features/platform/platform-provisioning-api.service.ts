@@ -31,7 +31,7 @@ export interface TenantProvisioningResultView {
   nextSteps: string[];
   warnings: string[];
   readiness: {
-    status: 'READY' | 'INCOMPLETE' | 'MISSING' | 'UNKNOWN';
+    status: 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
     missingCount: number;
     sections: Array<{ id: string; labelKey: string; status: string; route: string; issues: unknown[] }>;
   };

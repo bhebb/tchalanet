@@ -8,7 +8,7 @@ Périmètres inclus :
 
 - Docker Compose (local, staging, prod)
 - Traefik (routing, TLS, middlewares)
-- Keycloak (realms, clients, rôles)
+- Firebase Auth runtime configuration and emulator mode
 - PostgreSQL (init, extensions, RLS bootstrap)
 - Redis configuration
 - Variables d'environnement et secrets Doppler

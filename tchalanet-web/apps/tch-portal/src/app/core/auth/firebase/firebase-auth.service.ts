@@ -3,8 +3,11 @@ import {
   Auth,
   browserLocalPersistence,
   browserSessionPersistence,
+  isSignInWithEmailLink,
+  sendSignInLinkToEmail,
   setPersistence,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
   signOut,
 } from '@angular/fire/auth';
 
@@ -12,6 +15,7 @@ import { AuthClient, AuthLoginRequest } from '../auth-client';
 
 @Injectable({ providedIn: 'root' })
 export class FirebaseAuthService implements AuthClient {
+  private readonly passwordlessEmailStorageKey = 'tchalanet.passwordlessLoginEmail';
   private readonly auth = inject(Auth);
 
   async isAuthenticated(): Promise<boolean> {
@@ -25,6 +29,30 @@ export class FirebaseAuthService implements AuthClient {
       request.remember ? browserLocalPersistence : browserSessionPersistence,
     );
     await signInWithEmailAndPassword(this.auth, request.username, request.password);
+  }
+
+  async sendPasswordlessLoginLink(email: string): Promise<void> {
+    const normalizedEmail = email.trim();
+    await sendSignInLinkToEmail(this.auth, normalizedEmail, {
+      url: `${globalThis.location.origin}/login`,
+      handleCodeInApp: true,
+    });
+    globalThis.localStorage?.setItem(this.passwordlessEmailStorageKey, normalizedEmail);
+  }
+
+  async completePasswordlessLogin(): Promise<boolean> {
+    if (!isSignInWithEmailLink(this.auth, globalThis.location.href)) {
+      return false;
+    }
+
+    const email = globalThis.localStorage?.getItem(this.passwordlessEmailStorageKey);
+    if (!email) {
+      throw new Error('Missing passwordless login email');
+    }
+
+    await signInWithEmailLink(this.auth, email, globalThis.location.href);
+    globalThis.localStorage?.removeItem(this.passwordlessEmailStorageKey);
+    return true;
   }
 
   async logout(): Promise<void> {

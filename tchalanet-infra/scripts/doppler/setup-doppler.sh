@@ -195,8 +195,6 @@ if [ "$ENV" != "skip" ]; then
 
         log "Ajout des secrets..."
         doppler secrets set POSTGRES_PASSWORD="$(openssl rand -base64 32)" --silent
-        doppler secrets set KC_DB_PASSWORD="$(openssl rand -base64 32)" --silent
-        doppler secrets set KC_BOOTSTRAP_ADMIN_PASSWORD="$(openssl rand -base64 24)" --silent
         doppler secrets set APP_DB_PASSWORD="$(openssl rand -base64 32)" --silent
         doppler secrets set REDIS_PASSWORD="$(openssl rand -base64 32)" --silent
         doppler secrets set GA_MEASUREMENT_ID="" --silent
@@ -307,4 +305,3 @@ echo "   → docker run ... doppler secrets download ..."
 echo ""
 
 success "Documentation complète: docs/DOPPLER-SETUP-GUIDE.md"
-

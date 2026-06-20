@@ -13,10 +13,17 @@ Status: ACTIVE draft. Use this skill for `tchalanet-web` screen work: create, re
 
 Before coding, load the applicable project docs and the full guide when the task is implementation or review of a real screen:
 
-- `WEB_ARCHITECTURE.md`
+- `docs/ARCHITECTURE.md`
 - `docs/conventions/style.md`
-- `docs/conventions/theme-convention.md`
-- `docs/conventions/web-naming.md`
+- `docs/conventions/theme.md`
+- `docs/conventions/access.md`
+- `docs/conventions/i18n.md`
+- `docs/conventions/state-management.md`
+- `docs/conventions/naming.md`
+- `docs/conventions/entitlements.md`
+- `docs/conventions/auth.md`
+- `docs/conventions/settings.md`
+- `docs/conventions/README.md`
 - Shell, PageModel, or runtime docs when routing/navigation is involved
 - Backend/API docs relevant to the screen contract
 - [references/screen-realization-guide.md](references/screen-realization-guide.md)
@@ -66,7 +73,7 @@ Before editing, identify:
 - actor and permission;
 - route/query/state/context inputs and refresh behavior;
 - design/capture/stitch source, if any;
-- components to reuse versus components to create;
+- components to reuse versus components to create (ui/theme, ui/styles, ui/components);
 - theme/style constraints and tokens;
 - API contract and UI/API matrix;
 - UI states;
