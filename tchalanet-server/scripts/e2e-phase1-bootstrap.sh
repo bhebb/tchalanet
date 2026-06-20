@@ -12,10 +12,9 @@ fi
 BASE_URL="${TCH_BASE_URL:-http://localhost:8083/api/v1}"
 SUPER_ADMIN_TOKEN="${TCH_SUPER_ADMIN_TOKEN:-}"
 SELLER_TOKEN="${TCH_SELLER_TOKEN:-}"
-AUTH_ISSUER_URI="${TCH_AUTH_ISSUER_URI:-https://auth.localtest.me/realms/tchalanet}"
-AUTH_TOKEN_URL="${TCH_KEYCLOAK_TOKEN_URL:-${TCH_AUTH_TOKEN_URL:-$AUTH_ISSUER_URI/protocol/openid-connect/token}}"
-AUTH_CLIENT_ID="${TCH_KEYCLOAK_CLIENT_ID:-${TCH_AUTH_CLIENT_ID:-tchalanet-swagger}}"
-AUTH_CLIENT_SECRET="${TCH_KEYCLOAK_CLIENT_SECRET:-${TCH_AUTH_CLIENT_SECRET:-}}"
+AUTH_TOKEN_URL="${TCH_AUTH_TOKEN_URL:-}"
+AUTH_CLIENT_ID="${TCH_AUTH_CLIENT_ID:-}"
+AUTH_CLIENT_SECRET="${TCH_AUTH_CLIENT_SECRET:-}"
 SUPER_ADMIN_USERNAME="${TCH_SUPER_ADMIN_USERNAME:-}"
 SUPER_ADMIN_PASSWORD="${TCH_SUPER_ADMIN_PASSWORD:-}"
 SELLER_USERNAME="${TCH_SELLER_USERNAME:-${TCH_BUYER_USERNAME:-}}"
@@ -143,7 +142,7 @@ fetch_oauth_token() {
     exit 1
   fi
   if [[ "$http_code" != "200" ]]; then
-    fail_with_response "Échec récupération token OAuth2 ($role_label). Vérifier dans Keycloak: realm tchalanet, client $AUTH_CLIENT_ID, Direct access grants activé, et Client authentication/secret si TCH_AUTH_CLIENT_SECRET est défini" "$http_code" "$output_file"
+    fail_with_response "Échec récupération token OAuth2 ($role_label). Vérifier TCH_AUTH_TOKEN_URL, TCH_AUTH_CLIENT_ID et TCH_AUTH_CLIENT_SECRET si requis." "$http_code" "$output_file"
   fi
 
   extract_access_token "$output_file"
@@ -160,6 +159,11 @@ resolve_token_if_missing() {
     return
   fi
   if [[ -z "$username" || -z "$password" ]]; then
+    print -r -- ""
+    return
+  fi
+  if [[ -z "$AUTH_TOKEN_URL" || -z "$AUTH_CLIENT_ID" ]]; then
+    print -u2 -- "[ERREUR] $token_name absent. Fournir le token directement ou définir TCH_AUTH_TOKEN_URL et TCH_AUTH_CLIENT_ID."
     print -r -- ""
     return
   fi
@@ -360,4 +364,3 @@ print -- "export TCH_TENANT_ID=\"$TENANT_ID\""
 print -- "export TCH_OUTLET_ID=\"$OUTLET_ID\""
 print -- "export TCH_TERMINAL_ID=\"$TERMINAL_ID\""
 print -- "export TCH_SESSION_ID=\"$SESSION_ID\""
-

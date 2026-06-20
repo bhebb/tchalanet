@@ -132,7 +132,11 @@ class CurrentUserProfileControllerTest {
         (short) 1,
         "fr",
         "America/Port-au-Prince",
-        "USD");
+        "USD",
+        false,
+        false,
+        null,
+        null);
   }
 
   private static UserProfileView userProfileView(UserId userId) {

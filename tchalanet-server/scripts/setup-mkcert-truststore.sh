@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-DOMAINS=(auth.localtest.me app.localtest.me api.localtest.me)
+DOMAINS=(app.localtest.me api.localtest.me)
 CERT_NAME="dev-local"
 
 TRUSTSTORE="local-truststore.jks"
@@ -57,7 +57,7 @@ say "[3/8] Génération certificat SAN mkcert pour: ${DOMAINS[*]}"
 # Génère un cert leaf (serveur) + clé privée pour tes domaines dev
 mkcert -cert-file "${CERT_NAME}.crt" -slotKey-file "${CERT_NAME}.key" "${DOMAINS[@]}"
 
-say "[4/8] Conversion en PKCS#12 (Keycloak / proxies) => ${CERT_NAME}.p12"
+say "[4/8] Conversion en PKCS#12 (Traefik / proxies) => ${CERT_NAME}.p12"
 openssl pkcs12 -export \
   -in "${CERT_NAME}.crt" \
   -inkey "${CERT_NAME}.key" \
@@ -101,7 +101,7 @@ EOF
 say "[8/8] Terminé ✅"
 say "Fichiers générés:"
 say "  - ${CERT_NAME}.crt / ${CERT_NAME}.key (cert local serveur)"
-say "  - ${CERT_NAME}.p12 (Keycloak / Traefik / proxies)"
+say "  - ${CERT_NAME}.p12 (Traefik / proxies)"
 say "  - ${TRUSTSTORE} (cacerts + mkcert-root)"
 say ""
 say "Utilisation:"

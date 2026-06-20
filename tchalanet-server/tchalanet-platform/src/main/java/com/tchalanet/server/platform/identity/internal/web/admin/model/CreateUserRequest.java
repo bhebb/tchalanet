@@ -1,8 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.web.admin.model;
 
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,7 +11,5 @@ public record CreateUserRequest(
     @Size(max = 16) @Pattern(regexp = "^\\+[1-9]\\d{7,14}$") String phone,
     @Size(max = 120) String firstName,
     @Size(max = 120) String lastName,
-    @NotNull TchRole role,
-    OutletId outletId,
-    TerminalId terminalId
+    @NotNull TchRole role
 ) {}

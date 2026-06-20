@@ -2,10 +2,7 @@ package com.tchalanet.server.core.promotion.api.model;
 
 import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.common.types.id.AgentZoneId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -19,9 +16,6 @@ public record PromotionEvaluationContext(
     List<AgentId> agentPath,
     AgentZoneId zoneId,
     List<AgentZoneId> zonePath,
-    OutletId outletId,
-    TerminalId terminalId,
-    SalesSessionId salesSessionId,
     UserId sellerUserId,
     BigDecimal paidTotal,
     String currency,

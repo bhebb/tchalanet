@@ -12,7 +12,7 @@ public record FirebaseBootstrapProperties(
       defaultUserPassword = "Changeme1!";
     }
     if (users == null || users.isEmpty()) {
-      users = List.of("super_admin", "admin", "cashier");
+      users = List.of("super_admi@localtest.me", "admin@localtest.me");
     }
   }
 }

@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
-import com.tchalanet.server.core.sales.api.event.payload.OfflineSaleRefPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketMoneyPayload;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
@@ -54,7 +53,6 @@ public record TicketPlacedEvent(
     TicketContextPayload context,
     TicketMoneyPayload money,
     List<TicketLinePlacedItem> lines,
-    OfflineSaleRefPayload offlineRef,       // null unless POS_OFFLINE_SYNCED,
     PromotionDecision promotionDecision
 ) implements DomainEvent {
     public static final int CURRENT_SCHEMA = 2;
@@ -67,11 +65,6 @@ public record TicketPlacedEvent(
         }
         if (lines == null || lines.isEmpty()) {
             throw new IllegalArgumentException("lines must not be empty");
-        }
-        boolean isOffline = saleChannel == TicketSaleChannel.POS_OFFLINE_SYNCED;
-        if (isOffline != (offlineRef != null)) {
-            throw new IllegalArgumentException(
-                "offlineRef must be present iff saleChannel == POS_OFFLINE_SYNCED");
         }
         lines = List.copyOf(lines);
     }

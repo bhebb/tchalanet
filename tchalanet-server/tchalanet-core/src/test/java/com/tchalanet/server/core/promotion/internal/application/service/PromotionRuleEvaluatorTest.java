@@ -1,7 +1,5 @@
 package com.tchalanet.server.core.promotion.internal.application.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
@@ -10,12 +8,15 @@ import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRule;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("PromotionRuleEvaluator")
 class PromotionRuleEvaluatorTest {
@@ -56,9 +57,6 @@ class PromotionRuleEvaluatorTest {
             List.of(),
             null,
             List.of(),
-            null,
-            null,
-            null,
             null,
             new BigDecimal("500"),
             "HTG",

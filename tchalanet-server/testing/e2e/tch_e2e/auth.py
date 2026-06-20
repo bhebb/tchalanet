@@ -120,17 +120,17 @@ def _local_identity(username: str) -> _LocalIdentity:
         os.environ.get("TCH_SUPER_ADMIN_USERNAME", "super_admin").lower(): (
             "SUPER_ADMIN",
             "00000000-0000-0000-0000-000000010001",
-            "super_admin@local",
+            "super_admin@localtest.me",
         ),
         os.environ.get("TCH_TENANT_ADMIN_USERNAME", "admin").lower(): (
             "TENANT_ADMIN",
             "00000000-0000-0000-0000-000000010002",
-            "admin@local",
+            "admin@localtest.me",
         ),
         os.environ.get("TCH_SELLER_USERNAME", "cashier").lower(): (
             "CASHIER",
             "00000000-0000-0000-0000-000000010003",
-            "cashier@local",
+            "cashier@localtest.me",
         ),
     }
     selected = defaults.get(normalized)

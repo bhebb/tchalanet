@@ -25,7 +25,9 @@ public record SellerTerminal(
     Instant blockedAt,
     UserId blockedBy,
     String blockedReason,
-    Instant disabledAt
+    Instant disabledAt,
+    boolean mustChangePin,
+    Instant pinResetAt
 ) {
     private static final BigDecimal MIN_RATE = BigDecimal.ZERO;
     private static final BigDecimal MAX_RATE = new BigDecimal("100.00");
@@ -45,7 +47,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             SellerTerminalStatus.PENDING, commissionRate,
-            null, null, null, null, null, null);
+            null, null, null, null, null, null,
+            false, null);
     }
 
     public SellerTerminal activate(Instant now) {
@@ -56,7 +59,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             SellerTerminalStatus.ACTIVE, commissionRate,
-            lastSeenAt, now, blockedAt, blockedBy, blockedReason, disabledAt);
+            lastSeenAt, now, blockedAt, blockedBy, blockedReason, disabledAt,
+            mustChangePin, pinResetAt);
     }
 
     public SellerTerminal block(UserId by, String reason, Instant now) {
@@ -67,7 +71,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             SellerTerminalStatus.BLOCKED, commissionRate,
-            lastSeenAt, activatedAt, now, by, reason, disabledAt);
+            lastSeenAt, activatedAt, now, by, reason, disabledAt,
+            mustChangePin, pinResetAt);
     }
 
     public SellerTerminal unblock(Instant now) {
@@ -77,7 +82,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             SellerTerminalStatus.ACTIVE, commissionRate,
-            lastSeenAt, activatedAt != null ? activatedAt : now, null, null, null, disabledAt);
+            lastSeenAt, activatedAt != null ? activatedAt : now, null, null, null, disabledAt,
+            mustChangePin, pinResetAt);
     }
 
     public SellerTerminal disable(Instant now) {
@@ -85,14 +91,35 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             SellerTerminalStatus.DISABLED, commissionRate,
-            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, now);
+            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, now,
+            mustChangePin, pinResetAt);
     }
 
     public SellerTerminal resetAccessMetadata() {
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             status, commissionRate,
-            null, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt);
+            null, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
+            mustChangePin, pinResetAt);
+    }
+
+    public SellerTerminal changePin() {
+        return new SellerTerminal(
+            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            status, commissionRate,
+            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
+            false, pinResetAt);
+    }
+
+    public SellerTerminal resetPin(Instant now) {
+        if (status == SellerTerminalStatus.DISABLED) {
+            throw new SellerTerminalStatusException(id, status, "Cannot reset PIN for a disabled terminal");
+        }
+        return new SellerTerminal(
+            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            status, commissionRate,
+            null, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
+            true, now);
     }
 
     public SellerTerminal updateProfile(
@@ -105,7 +132,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             status, commissionRate,
-            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt);
+            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
+            mustChangePin, pinResetAt);
     }
 
     public SellerTerminal updateCommissionRate(BigDecimal rate) {
@@ -113,7 +141,8 @@ public record SellerTerminal(
         return new SellerTerminal(
             id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
             status, rate,
-            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt);
+            lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
+            mustChangePin, pinResetAt);
     }
 
     public boolean canSell() {

@@ -72,7 +72,7 @@ header = encode({"alg": "HS256", "typ": "JWT"})
 payload = encode({
     "iss": issuer,
     "sub": subject,
-    "email": f"{username}@local",
+    "email": f"{username}@localtest.me",
     "email_verified": True,
     "preferred_username": username,
     "iat": now,

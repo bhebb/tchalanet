@@ -1,0 +1,75 @@
+package com.tchalanet.server.platform.accesscontrol.internal.persistence.repository;
+
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.PlatformUserRoleJpaEntity;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUserRoleJpaEntity, UUID> {
+
+  @Query("""
+      select r
+      from PlatformUserRoleJpaEntity r
+      where r.userId = :userId
+        and r.roleId = :roleId
+        and r.deletedAt is null
+      """)
+  Optional<PlatformUserRoleJpaEntity> findActiveAssignment(
+      @Param("userId") UUID userId,
+      @Param("roleId") UUID roleId);
+
+  @Modifying
+  @Query("""
+      update PlatformUserRoleJpaEntity r
+      set r.deletedAt = current_timestamp
+      where r.userId = :userId
+        and r.roleId = :roleId
+        and r.deletedAt is null
+      """)
+  int softDeleteAssignment(@Param("userId") UUID userId, @Param("roleId") UUID roleId);
+
+  /**
+   * One-shot platform-scope access snapshot for a user: each active platform role joined to its
+   * granted permissions (left join, so a role with no permissions still yields a row with a null
+   * permission code). Used by {@code AccessControlSnapshotResolver#resolvePlatform}.
+   */
+  @Query("""
+      select role.code as roleCode, rp.id.permissionCode as permissionCode
+      from PlatformUserRoleJpaEntity assignment
+      join AppRoleJpaEntity role on role.id = assignment.roleId
+      left join AppRolePermissionJpaEntity rp on rp.role.id = role.id
+      where assignment.userId = :userId
+        and assignment.deletedAt is null
+        and role.system = true
+        and role.active = true
+        and role.deletedAt is null
+        and role.scope = 'PLATFORM'
+      """)
+  List<RoleAccessRow> findPlatformRoleAccessRows(@Param("userId") UUID userId);
+
+  @Query(
+      value = """
+          select
+            u.id as "userId",
+            u.email::text as "email",
+            coalesce(nullif(u.display_name, ''), u.username, u.email::text) as "displayName",
+            u.status as "status",
+            pur.assigned_at as "assignedAt"
+          from platform_user_role pur
+          join app_role ar on ar.id = pur.role_id
+          join app_user u on u.id = pur.user_id
+          where pur.deleted_at is null
+            and ar.code = 'SUPER_ADMIN'
+            and ar.scope = 'PLATFORM'
+            and ar.tenant_id is null
+            and ar.active = true
+            and ar.deleted_at is null
+            and u.deleted_at is null
+          order by lower(coalesce(u.display_name, u.email::text, u.username))
+          """,
+      nativeQuery = true)
+  List<PlatformSuperAdminRow> listActiveSuperAdmins();
+}

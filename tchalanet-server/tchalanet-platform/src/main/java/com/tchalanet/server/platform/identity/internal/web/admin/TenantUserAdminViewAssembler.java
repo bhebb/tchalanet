@@ -54,8 +54,6 @@ public class TenantUserAdminViewAssembler {
         profile.status() == null ? null : profile.status().name(),
         null, // roles are in tenant_user_role — use /admin/access-control/users/{id}/roles
         membership == null || membership.status() == null ? null : membership.status().name(),
-        membership == null ? null : membership.outletId(),
-        membership == null ? null : membership.terminalId(),
         resolveSyncStatus(userId, membership),
         invitationStatus,
         createdAt,

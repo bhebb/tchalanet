@@ -47,6 +47,31 @@ describe('AuthSessionService', () => {
     });
   });
 
+  it('keeps an authenticated provider session restored after browser refresh', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue('2026-06-13T20:00:00.000Z');
+    runtime.initialize.mockReturnValue(of(bootstrap()));
+
+    const session = await TestBed.inject(AuthSessionService).refreshSession();
+
+    expect(auth.isAuthenticated).toHaveBeenCalledOnce();
+    expect(runtime.initialize).toHaveBeenCalledOnce();
+    expect(session.authenticated).toBe(true);
+    expect(session.roles).toEqual(['TENANT_ADMIN']);
+  });
+
+  it('does not bootstrap private runtime when provider session is anonymous', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(false);
+
+    const session = await TestBed.inject(AuthSessionService).refreshSession();
+
+    expect(session).toEqual({
+      authenticated: false,
+      roles: [],
+    });
+    expect(runtime.initialize).not.toHaveBeenCalled();
+  });
+
   it('delegates login credentials and persistence choice to the configured auth client', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
     vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
@@ -58,6 +83,21 @@ describe('AuthSessionService', () => {
       username: 'admin@example.com',
       password: 'secret',
       remember: false,
+    });
+  });
+
+  it('delegates logout and clears the application session', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    runtime.initialize.mockReturnValue(of(bootstrap()));
+    const service = TestBed.inject(AuthSessionService);
+    await service.refreshSession();
+
+    await service.logout();
+
+    expect(auth.logout).toHaveBeenCalledOnce();
+    expect(service.session()).toEqual({
+      authenticated: false,
+      roles: [],
     });
   });
 });

@@ -36,6 +36,11 @@ public final class ApiScopeResolver {
             return ApiScope.PUBLIC;
         }
 
+        // IDENTITY (authenticated account/self-service endpoints, no tenant required)
+        if (path.startsWith("/api/v1/identity")) {
+            return ApiScope.IDENTITY;
+        }
+
         // PLATFORM (no tenant)
         if (path.startsWith("/api/v1/platform")) {
             return ApiScope.PLATFORM;

@@ -124,34 +124,34 @@
             "titleKey": "dashboard.superadmin.quick_actions.title",
             "actions": [
               {
-                "id": "tenants",
-                "labelKey": "platform.action.tenants",
-                "icon": "apartment",
-                "destination": { "kind": "route", "value": "/app/platform/tenants" }
+                "id": "createTenant",
+                "labelKey": "quickaction.platform.create_tenant",
+                "icon": "add_business",
+                "destination": { "kind": "route", "value": "/app/platform/tenants/new" }
               },
               {
-                "id": "onboarding",
-                "labelKey": "platform.action.onboarding",
+                "id": "tenantOnboarding",
+                "labelKey": "quickaction.platform.onboarding",
                 "icon": "playlist_add_check",
-                "destination": { "kind": "route", "value": "/app/platform/tenant-onboarding" }
+                "destination": { "kind": "route", "value": "/app/platform/tenants/onboarding" }
               },
               {
                 "id": "subscriptions",
-                "labelKey": "platform.action.subscriptions",
+                "labelKey": "quickaction.platform.subscriptions",
                 "icon": "workspace_premium",
                 "destination": { "kind": "route", "value": "/app/platform/subscriptions" }
               },
               {
-                "id": "health",
-                "labelKey": "platform.action.health",
+                "id": "platformHealth",
+                "labelKey": "quickaction.platform.platform_health",
                 "icon": "monitor_heart",
-                "destination": { "kind": "route", "value": "/app/platform/ops/health" }
+                "destination": { "kind": "route", "value": "/app/platform/health" }
               },
               {
-                "id": "settings",
-                "labelKey": "platform.action.settings",
-                "icon": "settings",
-                "destination": { "kind": "route", "value": "/app/platform/settings" }
+                "id": "drawResults",
+                "labelKey": "quickaction.platform.draw_results",
+                "icon": "fact_check",
+                "destination": { "kind": "route", "value": "/app/platform/ops/draw-results" }
               }
             ]
           }

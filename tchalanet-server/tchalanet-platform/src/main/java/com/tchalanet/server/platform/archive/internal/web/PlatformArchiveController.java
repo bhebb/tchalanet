@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform - Archive")
 @RestController
 @RequestMapping("/platform/archive")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class PlatformArchiveController {
 

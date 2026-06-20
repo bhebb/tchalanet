@@ -317,7 +317,7 @@ public record TchRequestContext(
     }
 
     public OperationalContextHint operationalContextRequired() {
-        if (operationalContext == null || !operationalContext.hasPosFrame()) {
+        if (operationalContext == null) {
             throw ProblemRest.unprocessable("operational_context.required");
         }
         return operationalContext;

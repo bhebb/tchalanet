@@ -6,6 +6,8 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,26 @@ public class EffectiveTenantResolver {
         return resolveSingleMembership(userId);
     }
 
+    public EffectiveTenant resolveForAppUser(
+        HttpServletRequest request,
+        UserId userId,
+        boolean superAdmin,
+        Set<String> permissionKeys,
+        Collection<TenantId> tenantScopeIds
+    ) {
+        var overrideHeader = normalize(request.getHeader(TchHeaders.X_TCH_TENANT_OVERRIDE));
+
+        if (overrideHeader != null) {
+            return resolveOverride(request, userId, superAdmin, permissionKeys, overrideHeader);
+        }
+
+        if (superAdmin) {
+            return EffectiveTenant.none();
+        }
+
+        return resolveSingleMembership(tenantScopeIds);
+    }
+
     private EffectiveTenant resolveOverride(
         HttpServletRequest request,
         UserId userId,
@@ -103,6 +125,18 @@ public class EffectiveTenantResolver {
             throw ProblemRest.forbidden("tenant.ambiguous_membership");
         }
         return new EffectiveTenant(TenantId.of(tenantIds.getFirst()), false);
+    }
+
+    private EffectiveTenant resolveSingleMembership(Collection<TenantId> tenantIds) {
+        var distinct = tenantIds == null ? Set.<TenantId>of() : new LinkedHashSet<>(tenantIds);
+
+        if (distinct.isEmpty()) {
+            return EffectiveTenant.none();
+        }
+        if (distinct.size() > 1) {
+            throw ProblemRest.forbidden("tenant.ambiguous_membership");
+        }
+        return new EffectiveTenant(distinct.iterator().next(), false);
     }
 
     private static TenantId parseTenantId(String raw, String errorCode) {

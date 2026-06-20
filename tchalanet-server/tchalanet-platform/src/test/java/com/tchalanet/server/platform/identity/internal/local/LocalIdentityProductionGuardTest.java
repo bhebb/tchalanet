@@ -16,9 +16,10 @@ class LocalIdentityProductionGuardTest {
     "local-jwt, prod-ca",
     "local-perf, prod",
     "local-perf, production",
-    "local-perf, production-east"
+    "local-perf, production-east",
+    "keycloak, production"
   })
-  void rejectsLocalProviderInProduction(String provider, String profile) {
+  void rejectsForbiddenProviderInProduction(String provider, String profile) {
     var environment = new MockEnvironment();
     environment.setActiveProfiles(profile);
 
@@ -28,7 +29,7 @@ class LocalIdentityProductionGuardTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"local-jwt, dev", "local-perf, perf", "firebase, prod", "keycloak, production"})
+  @CsvSource({"local-jwt, dev", "local-perf, perf", "firebase, prod", "keycloak, dev"})
   void allowsExpectedProviderProfileCombinations(String provider, String profile) {
     var environment = new MockEnvironment();
     environment.setActiveProfiles(profile);

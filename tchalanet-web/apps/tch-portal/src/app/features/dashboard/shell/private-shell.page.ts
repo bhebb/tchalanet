@@ -78,7 +78,7 @@ import { AdminOverrideBanner } from '../../private/shared/admin-override-banner'
         <aside id="private-drawer" class="drawer">
           <tch-sidebar-nav
             [primary]="primary()"
-            [sections]="shell()?.navigationDrawer?.sections ?? []"
+            [sections]="shellSvc.navigation()"
             [secondary]="shell()?.navigationDrawer?.secondary ?? []"
           />
         </aside>
@@ -275,6 +275,8 @@ export class PrivateShellPage {
 
   readonly primary = computed(() => {
     const resolved = this.shell()?.navigationDrawer?.primary ?? [];
+    const sections = this.shell()?.navigationDrawer?.sections ?? [];
+    if (this.shell() && sections.length) return resolved;
     return resolved.length ? resolved : fallbackDestinations(this.auth.session().roles);
   });
 

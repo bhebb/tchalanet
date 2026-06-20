@@ -12,8 +12,9 @@ DOCKER_BIN="${DOCKER_BIN:-docker}"
   -f compose/docker-compose-project.yml \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
-  -f compose/docker-compose-keycloak.yml \
   -f compose/docker-compose-traefik.yml \
+  -f compose/docker-compose-api.yml \
+  -f compose/docker-compose-edge-service.yml \
   ps
 
 "$DOCKER_BIN" compose \
@@ -21,6 +22,7 @@ DOCKER_BIN="${DOCKER_BIN:-docker}"
   -f compose/docker-compose-project.yml \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
-  -f compose/docker-compose-keycloak.yml \
   -f compose/docker-compose-traefik.yml \
+  -f compose/docker-compose-api.yml \
+  -f compose/docker-compose-edge-service.yml \
   config >/dev/null

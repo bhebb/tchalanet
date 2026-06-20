@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.bootstrap;
+package com.tchalanet.server.features.bootstrap.privateruntime.app;
 
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
 import com.tchalanet.server.catalog.i18n.api.model.I18nBundleView;
@@ -12,8 +12,25 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
+
+import com.tchalanet.server.features.bootstrap.privateruntime.model.AuthenticatedUserView;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.EntitlementsView;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.PageModelRef;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateRuntimeStateResponse;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateRuntimeStatus;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeBootstrapNotice;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeBootstrapResponse;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeI18nBundle;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeNotificationSummary;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeReadinessView;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeSettingsView;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeThemeView;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.RuntimeVersionHints;
+import com.tchalanet.server.features.bootstrap.privateruntime.model.TenantContextView;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
-import com.tchalanet.server.platform.accesscontrol.api.model.request.GetEffectivePermissionsRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView.TenantAccessScopeView;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.identity.api.model.request.GetCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
@@ -51,24 +68,26 @@ public class RuntimeBootstrapService {
         if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
             return sellerTerminalBootstrap(ctx);
         }
-        PrivateBootstrapSpace space = resolveSpace(ctx);
         var notices = new ArrayList<RuntimeBootstrapNotice>();
 
         CurrentUserView currentUser = identityApi.getCurrentUser(
             new GetCurrentUserRequest(ctx.currentUserIdRequired()));
+        AccessSnapshotView accessSnapshot = accessControlApi.resolveUserAccess(ctx.currentUserIdRequired());
+        PrivateBootstrapSpace space = resolveSpace(ctx, accessSnapshot);
 
         TenantContextView tenantCtx = resolveTenantContext(ctx, space);
-        EntitlementsView entitlements = resolveEntitlements(ctx, currentUser);
+        EntitlementsView entitlements = resolveEntitlements(ctx, accessSnapshot, space);
         RuntimeSettingsView settings = resolveSettings(ctx, currentUser, space);
         RuntimeThemeView theme = resolveTheme(ctx, settings.locale(), space, notices);
         RuntimeI18nBundle i18n = resolveI18n(settings.locale(), space, notices);
         RuntimeReadinessView readiness = readinessFacade.readiness(ctx, space);
         RuntimeNotificationSummary notifications = resolveNotifications(ctx, currentUser, notices);
         PageModelRef pageModelRef = pageModelRefResolver.resolve(space);
+        String entryRoute = resolveEntryRoute(currentUser, accessSnapshot, pageModelRef);
 
         return new RuntimeBootstrapResponse(
             space,
-            buildUserView(currentUser, space),
+            buildUserView(currentUser, accessSnapshot, space),
             tenantCtx,
             settings,
             theme,
@@ -77,6 +96,7 @@ public class RuntimeBootstrapService {
             readiness,
             notifications,
             pageModelRef,
+            entryRoute,
             notices.isEmpty() ? null : notices);
     }
 
@@ -84,11 +104,12 @@ public class RuntimeBootstrapService {
         if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
             return sellerTerminalState(ctx);
         }
-        PrivateBootstrapSpace space = resolveSpace(ctx);
         var notices = new ArrayList<RuntimeBootstrapNotice>();
 
         CurrentUserView currentUser = identityApi.getCurrentUser(
             new GetCurrentUserRequest(ctx.currentUserIdRequired()));
+        AccessSnapshotView accessSnapshot = accessControlApi.resolveUserAccess(ctx.currentUserIdRequired());
+        PrivateBootstrapSpace space = resolveSpace(ctx, accessSnapshot);
 
         RuntimeReadinessView readiness = readinessFacade.readiness(ctx, space);
         RuntimeNotificationSummary notifications = resolveNotifications(ctx, currentUser, notices);
@@ -121,7 +142,11 @@ public class RuntimeBootstrapService {
             List.of("ACTOR_SELLER_TERMINAL"),
             space,
             "fr",
-            "UTC");
+            "UTC",
+            false,
+            false,
+            null,
+            null);
         var tenantCtx = resolveTenantContext(ctx, space);
         var entitlements = new EntitlementsView(List.of("ACTOR_SELLER_TERMINAL"), List.of());
         var features = resolveFeatureFlags(ctx, space);
@@ -134,7 +159,7 @@ public class RuntimeBootstrapService {
         var pageModelRef = pageModelRefResolver.resolve(space);
         return new RuntimeBootstrapResponse(
             space, user, tenantCtx, settings, theme, i18n, entitlements, readiness,
-            RuntimeNotificationSummary.empty(), pageModelRef,
+            RuntimeNotificationSummary.empty(), pageModelRef, pageModelRef.route(),
             notices.isEmpty() ? null : notices);
     }
 
@@ -152,9 +177,18 @@ public class RuntimeBootstrapService {
 
     // ── space resolution ──────────────────────────────────────────────────────
 
-    private PrivateBootstrapSpace resolveSpace(TchRequestContext ctx) {
+    private PrivateBootstrapSpace resolveSpace(TchRequestContext ctx, AccessSnapshotView accessSnapshot) {
+        if (accessSnapshot.platform() != null && accessSnapshot.platform().superAdmin()) {
+            return PrivateBootstrapSpace.PLATFORM;
+        }
+        if (hasTenantRole(accessSnapshot, "TENANT_OWNER") || hasTenantRole(accessSnapshot, "TENANT_ADMIN")) {
+            return PrivateBootstrapSpace.ADMIN;
+        }
+        if (hasTenantRole(accessSnapshot, "OPERATOR") || hasTenantRole(accessSnapshot, "CASHIER")) {
+            return PrivateBootstrapSpace.CASHIER;
+        }
         TchRole role = ctx.currentRole();
-        if (role == null) throw ProblemRest.forbidden("runtime.bootstrap.no_role");
+        if (role == null) return PrivateBootstrapSpace.ADMIN;
         return switch (role) {
             case SUPER_ADMIN  -> PrivateBootstrapSpace.PLATFORM;
             case TENANT_ADMIN -> PrivateBootstrapSpace.ADMIN;
@@ -163,12 +197,19 @@ public class RuntimeBootstrapService {
         };
     }
 
+    private boolean hasTenantRole(AccessSnapshotView accessSnapshot, String roleCode) {
+        return accessSnapshot.tenantScopes() != null
+            && accessSnapshot.tenantScopes().stream()
+                .anyMatch(scope -> scope.roleCodes() != null && scope.roleCodes().contains(roleCode));
+    }
+
     // ── tenant context ────────────────────────────────────────────────────────
 
     private TenantContextView resolveTenantContext(TchRequestContext ctx, PrivateBootstrapSpace space) {
         if (space == PrivateBootstrapSpace.PLATFORM) return null;
 
-        var tenantId = ctx.effectiveTenantIdRequired();
+        var tenantId = ctx.effectiveTenantIdOrNull();
+        if (tenantId == null) return null;
         return tenantLookup.findById(tenantId)
             .map(t -> new TenantContextView(
                 t.tenantId().value().toString(),
@@ -182,10 +223,9 @@ public class RuntimeBootstrapService {
 
     // ── user view ─────────────────────────────────────────────────────────────
 
-    private AuthenticatedUserView buildUserView(CurrentUserView user, PrivateBootstrapSpace space) {
-        List<String> roles = user.tenantId() != null
-            ? List.of(space.name())
-            : List.of("SUPER_ADMIN");
+    private AuthenticatedUserView buildUserView(
+        CurrentUserView user, AccessSnapshotView accessSnapshot, PrivateBootstrapSpace space) {
+        List<String> roles = rolesForSpace(accessSnapshot, space);
         return new AuthenticatedUserView(
             user.id() != null ? user.id().value().toString() : null,
             user.username(),
@@ -194,28 +234,85 @@ public class RuntimeBootstrapService {
             roles,
             space,
             user.locale(),
-            user.timeZone());
+            user.timeZone(),
+            user.mustChangePassword(),
+            user.mustCompleteProfile(),
+            user.firstLoginCompletedAt(),
+            user.temporaryCredentialIssuedAt());
+    }
+
+    private String resolveEntryRoute(
+        CurrentUserView user, AccessSnapshotView accessSnapshot, PageModelRef pageModelRef) {
+        if (user.mustChangePassword() || user.mustCompleteProfile()) {
+            return "/app/account/activation";
+        }
+        if (accessSnapshot.platform() != null && accessSnapshot.platform().superAdmin()) {
+            return "/app/platform";
+        }
+        if (accessSnapshot.tenantScopes() != null && accessSnapshot.tenantScopes().size() > 1) {
+            return "/app/select-tenant";
+        }
+        if (accessSnapshot.tenantScopes() != null
+            && accessSnapshot.tenantScopes().size() == 1
+            && isTenantAdminScope(accessSnapshot.tenantScopes().getFirst())) {
+            return "/app/admin";
+        }
+        if (accessSnapshot.tenantScopes() == null || accessSnapshot.tenantScopes().isEmpty()) {
+            return "/app/access-not-configured";
+        }
+        return pageModelRef.route();
     }
 
     // ── entitlements ──────────────────────────────────────────────────────────
 
-    private EntitlementsView resolveEntitlements(TchRequestContext ctx, CurrentUserView user) {
-        var systemRoles = ctx.systemRoles() != null
-            ? ctx.systemRoles().stream().map(TchRole::name).toList()
-            : List.<String>of();
-
-        if (ctx.userId() == null || ctx.tenantId() == null) {
-            return new EntitlementsView(systemRoles, List.of());
+    private EntitlementsView resolveEntitlements(
+        TchRequestContext ctx, AccessSnapshotView accessSnapshot, PrivateBootstrapSpace space) {
+        var roles = rolesForSpace(accessSnapshot, space);
+        if (space == PrivateBootstrapSpace.PLATFORM) {
+            return new EntitlementsView(
+                roles,
+                accessSnapshot.platform() == null
+                    ? List.of()
+                    : List.copyOf(accessSnapshot.platform().permissionKeys()));
         }
 
-        try {
-            var perms = accessControlApi.getEffectivePermissions(
-                new GetEffectivePermissionsRequest(ctx.userId(), ctx.tenantId()));
-            return new EntitlementsView(systemRoles, List.copyOf(perms.permissionCodes()));
-        } catch (Exception e) {
-            log.warn("runtime.bootstrap: failed to load permissions for user {}", ctx.userId(), e);
-            return new EntitlementsView(systemRoles, List.of());
+        var tenantScope = tenantScopeForContext(ctx, accessSnapshot);
+        return new EntitlementsView(
+            roles,
+            tenantScope == null ? List.of() : List.copyOf(tenantScope.permissionKeys()));
+    }
+
+    private List<String> rolesForSpace(AccessSnapshotView accessSnapshot, PrivateBootstrapSpace space) {
+        if (space == PrivateBootstrapSpace.PLATFORM && accessSnapshot.platform() != null) {
+            return List.copyOf(accessSnapshot.platform().roleCodes());
         }
+        if (accessSnapshot.tenantScopes() == null) {
+            return List.of();
+        }
+        return accessSnapshot.tenantScopes().stream()
+            .flatMap(scope -> scope.roleCodes().stream())
+            .distinct()
+            .toList();
+    }
+
+    private TenantAccessScopeView tenantScopeForContext(
+        TchRequestContext ctx, AccessSnapshotView accessSnapshot) {
+        if (accessSnapshot.tenantScopes() == null || accessSnapshot.tenantScopes().isEmpty()) {
+            return null;
+        }
+        var tenantId = ctx.effectiveTenantIdOrNull();
+        if (tenantId == null) {
+            return accessSnapshot.tenantScopes().size() == 1 ? accessSnapshot.tenantScopes().getFirst() : null;
+        }
+        return accessSnapshot.tenantScopes().stream()
+            .filter(scope -> tenantId.equals(scope.tenantId()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private boolean isTenantAdminScope(TenantAccessScopeView scope) {
+        return scope.roleCodes() != null
+            && (scope.roleCodes().contains("TENANT_OWNER") || scope.roleCodes().contains("TENANT_ADMIN"));
     }
 
     // ── settings ──────────────────────────────────────────────────────────────

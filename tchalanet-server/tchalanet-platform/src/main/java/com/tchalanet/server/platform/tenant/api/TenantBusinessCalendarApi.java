@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenant.api;
 
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
 
@@ -25,7 +24,6 @@ public interface TenantBusinessCalendarApi {
 
     TenantBusinessDayView resolveBusinessDay(
         TenantId tenantId,
-        OutletId outletId,      // nullable — null = tenant-level check only
         LocalDate businessDate
     );
 }

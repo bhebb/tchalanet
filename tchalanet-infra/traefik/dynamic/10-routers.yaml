@@ -8,14 +8,6 @@ http:
       tls: { }
       middlewares: [ secure-headers@file ]
 
-    # Keycloak SSO
-    keycloak:
-      rule: Host(`auth.localtest.me`)
-      entryPoints: [ websecure, mobile-https ]
-      service: keycloak-svc
-      tls: { }
-      middlewares: [ kc-iframe@file, gzip@file ]
-
     # Backend API
     api:
       rule: Host(`api.localtest.me`)
@@ -49,10 +41,6 @@ http:
       middlewares: [ secure-headers@file, gzip@file ]
 
   services:
-    keycloak-svc:
-      loadBalancer:
-        servers:
-          - url: "http://keycloak:8080"
     api-svc:
       loadBalancer:
         servers:

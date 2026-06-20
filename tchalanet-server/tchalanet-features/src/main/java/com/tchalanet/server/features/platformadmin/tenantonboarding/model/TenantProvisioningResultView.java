@@ -18,4 +18,9 @@ public record TenantProvisioningResultView(
     List<String> nextSteps,
     List<String> warnings,
     TenantReadinessView readiness,
-    String initialAdminUserId) {}
+    String initialAdminUserId,
+    String initialAdminEmail,
+    String initialAdminCredentialStatus,
+    String initialAdminTemporaryPassword,
+    Boolean initialAdminMustChangePassword,
+    Boolean initialAdminMustCompleteProfile) {}

@@ -4,10 +4,8 @@
       "title": "Administration",
       "description": "Tenant administration overview",
       "kpi": {
-        "sellers": "Sellers",
-        "outlets": "Outlets",
-        "terminals": "Terminals",
-        "openSessions": "Open Sessions"
+        "openConnections": "Open Connections",
+        "seller_terminals": "Seller-terminals"
       },
       "onboarding": {
         "title": "Onboarding"
@@ -29,112 +27,44 @@
       "title": "Users",
       "description": "Manage users"
     },
-    "sellers": {
-      "title": "Sellers",
-      "description": "Manage seller terminals",
-      "search_placeholder": "Search sellers…",
-      "load_error": "Could not load sellers.",
-      "empty": {
-        "title": "No sellers",
-        "message": "Add your first seller terminal to get started."
-      },
-      "new": {
-        "title": "New seller",
-        "action": "Add a seller",
-        "description": "Fill in the information to create a new vendor.",
-        "submit": "Create vendor"
-      },
-      "detail": {
-        "title": "Seller detail"
-      },
-      "status": {
-        "ALL": "All",
-        "ACTIVE": "Active",
-        "PENDING": "Pending",
-        "BLOCKED": "Blocked",
-        "DISABLED": "Disabled"
-      },
-      "section": {
-        "identity": "Vendor information",
-        "assignment": "Assignment",
-        "commission": "Commission",
-        "security": "Secure access",
-        "security_desc": "This PIN will be used by the vendor to log in to their terminal."
-      },
-      "field": {
-        "display_name": "Display name",
-        "phone": "Phone",
-        "first_name": "First name",
-        "last_name": "Last name",
-        "terminal_code": "Terminal code",
-        "terminal_code_hint": "Unique terminal identifier (e.g. VND-001)",
-        "commission_rate": "Commission rate",
-        "commission_rate_hint": "Leave blank to use the tenant default rate.",
-        "commission_rate_error": "Rate must be between 0 and 100.",
-        "pin": "PIN (4 digits)",
-        "pin_required": "PIN is required and must contain 4 digits."
-      }
-    },
-    "outlets": {
-      "title": "Outlets",
-      "description": "Manage points of sale"
-    },
-    "terminals": {
-      "title": "Terminals",
-      "description": "Manage terminals"
-    },
-    "sessions": {
-      "title": "Sessions",
-      "description": "Manage cashier sessions"
+    "connections": {
+      "title": "Connections",
+      "description": "Manage cashier connections"
     },
     "settings": {
       "title": "Settings",
       "description": "Tenant configuration"
     },
-    "seller": {
+    "seller-terminal": {
       "email": "Email",
-      "error": "Seller onboarding failed.",
+      "error": "Seller-terminal onboarding failed.",
       "firstName": "First name",
       "lastName": "Last name",
-      "outletId": "Outlet",
       "phone": "Phone",
-      "submit": "Create seller",
-      "success": "Seller created:",
-      "terminalId": "Terminal",
-      "title": "Seller onboarding"
+      "submit": "Create seller-terminal",
+      "success": "Seller-terminal created:",
+      "title": "Seller-terminal onboarding",
+      "sellerTerminalId": "Seller-terminal"
     },
     "action": {
-      "outlets": "Outlets",
-      "sessions": "Sessions",
       "settings": "Settings",
-      "terminals": "Terminals",
-      "users": "Users"
+      "users": "Users",
+      "seller_terminals": "Seller-terminals"
     },
     "kpi": {
-      "openSessions": {
-        "label": "Open sessions"
-      },
-      "outlets": {
-        "label": "Outlets"
-      },
-      "sellers": {
-        "label": "Sellers"
-      },
-      "terminals": {
-        "label": "Terminals"
+      "openConnections": {
+        "label": "Active seller-terminals"
       },
       "sales_today": {
         "label": "Today's sales"
-      },
-      "active_seller_terminals": {
-        "label": "Active sellers"
       },
       "payout_due": {
         "label": "Payout due"
       },
       "notifications": {
         "label": "Notifications"
-      }
+      },
+      "active_seller_terminals": "Active seller-terminals"
     },
     "draws": {
       "title": "Draws"
@@ -183,6 +113,52 @@
       "support": {
         "title": "Support"
       }
+    },
+    "sellerTerminals": {
+      "title": "Seller-terminals",
+      "description": "Manage seller-terminals",
+      "search_placeholder": "Search seller-terminals…",
+      "load_error": "Could not load seller-terminals.",
+      "empty": {
+        "title": "No seller-terminals",
+        "message": "Add your first seller-terminal to get started."
+      },
+      "new": {
+        "title": "New seller-terminal",
+        "action": "Add a seller-terminal",
+        "description": "Fill in the information to create a new seller-terminal.",
+        "submit": "Create seller-terminal"
+      },
+      "detail": {
+        "title": "Seller-terminal detail"
+      },
+      "status": {
+        "ALL": "All",
+        "ACTIVE": "Active",
+        "PENDING": "Pending",
+        "BLOCKED": "Blocked",
+        "DISABLED": "Disabled"
+      },
+      "section": {
+        "identity": "Seller-terminal information",
+        "assignment": "Assignment",
+        "commission": "Commission",
+        "security": "Secure access",
+        "security_desc": "This PIN will be used by the seller-terminal to log in."
+      },
+      "field": {
+        "display_name": "Display name",
+        "phone": "Phone",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "commission_rate": "Commission rate",
+        "commission_rate_hint": "Leave blank to use the tenant default rate.",
+        "commission_rate_error": "Rate must be between 0 and 100.",
+        "pin": "PIN (6 chiffres)",
+        "pin_required": "PIN is required and must contain 6 digits.",
+        "seller_terminal_code": "Seller-terminal code",
+        "seller_terminal_code_hint": "Unique seller-terminal identifier (e.g. ST-001)"
+      }
     }
   },
   "app": {
@@ -206,7 +182,7 @@
         "body": "Manage sales, draws, and your network from one secure operational workspace.",
         "capabilities": {
           "operations": "Real-time operation monitoring",
-          "sales": "Centralized sales and sessions",
+          "sales": "Centralized sales and connections",
           "security": "Protected and traceable access"
         },
         "eyebrow": "Lottery network",
@@ -215,18 +191,21 @@
       "copyright": "© 2026 Tchalanet. All rights reserved.",
       "errors": {
         "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
+        "emailLinkFailed": "The sign-in link is invalid or expired.",
         "invalidCredentials": "Invalid email address or password."
       },
       "form": {
         "authenticating": "Authenticating…",
         "body": "Use the credentials associated with your Tchalanet account.",
         "email": "Email address",
+        "emailLinkSent": "Sign-in link sent. Open your email on this device to continue.",
         "emailPlaceholder": "name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
         "password": "Password",
         "remember": "Stay signed in on this device",
-        "security": "Your session is secured by Firebase Authentication.",
+        "security": "Your connection is secured by Firebase Authentication.",
+        "sendEmailLink": "Get a sign-in link",
         "showPassword": "Show password",
         "submit": "Access my workspace",
         "title": "Welcome back"
@@ -260,6 +239,11 @@
     "manage": "Manage",
     "back": "Back",
     "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "retry": "Retry",
+    "traceId": "Trace ID",
+    "not_available": "Not available",
     "validation": {
       "required": "This field is required."
     }
@@ -318,10 +302,10 @@
         "title": "Commission",
         "default_rate": "Tenant default rate",
         "default_not_set": "Not configured",
-        "seller_terminals": "Sellers",
         "at_default": "At default rate",
         "custom": "Custom rate",
-        "rate_range": "Range"
+        "rate_range": "Range",
+        "seller_terminals": "Seller-terminals"
       },
       "kpis": {
         "title": "Key metrics"
@@ -490,9 +474,6 @@
       "dashboard": "Dashboard",
       "onboarding": "Onboarding",
       "users": "Users",
-      "sellers": "Sellers",
-      "seller_add": "Add seller",
-      "seller_active": "Active sellers",
       "controls": "Controls",
       "commission": "Commissions",
       "odds": "Odds",
@@ -508,14 +489,15 @@
       "my_space": "My workspace",
       "my_account": "My account",
       "support": "Support",
-      "outlets": "Outlets",
-      "terminals": "Terminals",
-      "sessions": "Sessions",
+      "connections": "Connections",
       "settings": "Settings",
       "spaceTitle": "Admin",
       "all_draws": "All draws",
       "upcoming_draws": "Upcoming draws",
-      "past_draws": "Past draws"
+      "past_draws": "Past draws",
+      "seller_terminals": "Seller-terminals",
+      "seller_terminal_add": "Add seller-terminal",
+      "seller_terminal_active": "Active seller-terminals"
     },
     "cashier": {
       "section": {
@@ -531,9 +513,7 @@
     "dashboard": "Dashboard",
     "tenant_overview": "Overview",
     "users": "Users",
-    "outlets": "Outlets",
-    "terminals": "Terminals",
-    "sessions": "Sessions",
+    "connections": "Connections",
     "tickets_sales": "Tickets & sales",
     "draws": "Draws",
     "games_pricing": "Games & pricing",
@@ -546,7 +526,7 @@
     "quick_sale": "Quick sale",
     "tickets": "Tickets",
     "verify_ticket": "Verify ticket",
-    "session": "Session",
+    "connection": "Connection",
     "tenants": "Tenants",
     "tenant_onboarding": "Tenant onboarding",
     "subscriptions": "Subscriptions",
@@ -576,9 +556,66 @@
       "platform": "Platform",
       "operations": "Operations",
       "global_configuration": "Global configuration"
-    }
+    },
+    "seller_terminals": "Seller-terminals"
   },
   "platform": {
+    "nav": {
+      "platform": "Platform",
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "health": "Platform health",
+      "tenantsGroup": "Tenants",
+      "tenants": "All tenants",
+      "createTenant": "Create tenant",
+      "tenantOnboarding": "Onboarding",
+      "tenantAdmins": "Administrators",
+      "subscriptions": "Subscriptions",
+      "entitlements": "Entitlements",
+      "usageRights": "Usage rights",
+      "references": "Referentials",
+      "games": "Games",
+      "drawChannels": "Draw channels",
+      "resultSlots": "Result slots",
+      "plansPricing": "Plans & pricing",
+      "globalSettings": "Global settings",
+      "themes": "Themes",
+      "translations": "Translations",
+      "pageModelTemplates": "Page templates",
+      "operations": "Operations",
+      "drawResults": "Results & draws",
+      "providers": "Providers",
+      "schedulers": "Scheduled tasks",
+      "cache": "Cache",
+      "archives": "Archives",
+      "audit": "Audit",
+      "accessRights": "Access & rights",
+      "permissions": "Permissions",
+      "roles": "Roles",
+      "superAdminOverrides": "Super admin overrides",
+      "communication": "Communication",
+      "inAppNotifications": "In-app notifications",
+      "contactManagement": "Contact management",
+      "news": "News",
+      "reports": "Reports",
+      "platformReports": "Platform reports",
+      "superAdmins": "Super admins"
+    },
+    "placeholder": {
+      "title": "Screen in preparation",
+      "description": "This feature will be available in a future iteration.",
+      "message": "This feature will be available in a future iteration.",
+      "descriptions": {
+        "entitlements": "Manage functional rights available per tenant.",
+        "providers": "Monitor draw providers and connectors.",
+        "archives": "Browse and control platform archives.",
+        "games": "Global catalog of games available on the platform.",
+        "resultSlots": "Catalog of result slots and publishing windows.",
+        "permissions": "Manage platform permissions.",
+        "roles": "Manage platform roles.",
+        "overrides": "Manage super admin overrides."
+      }
+    },
     "dashboard": {
       "title": "Platform",
       "description": "Overview of Tchalanet infrastructure",
@@ -600,11 +637,267 @@
     },
     "tenants": {
       "title": "Tenants",
-      "description": "Manage Tchalanet tenants"
+      "description": "List, filter, and monitor Tchalanet tenants.",
+      "loading": "Loading tenants...",
+      "pagination": "Page {{page}} / {{total}}",
+      "error": {
+        "load": "Unable to load tenants."
+      },
+      "action": {
+        "create": "Create tenant",
+        "applyFilters": "Filter",
+        "resetFilters": "Reset",
+        "openMenu": "Open tenant actions",
+        "viewDetails": "View details"
+      },
+      "filter": {
+        "search": "Search",
+        "status": "Status",
+        "profile": "Profile",
+        "allStatuses": "All statuses",
+        "allProfiles": "All profiles"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Code",
+        "status": "Status",
+        "profile": "Profile",
+        "primaryAdmin": "Primary admin",
+        "readiness": "Readiness",
+        "createdAt": "Created"
+      },
+      "empty": {
+        "title": "No tenants",
+        "message": "Create the first tenant to get started."
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Active",
+        "suspended": "Suspended",
+        "disabled": "Disabled",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "readiness": {
+        "ready": "Ready",
+        "incomplete": "Incomplete",
+        "blocked": "Blocked",
+        "missing": "Missing",
+        "unknown": "Unknown"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Network",
+        "ambulant": "Mobile"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Default Haiti lottery",
+        "demo": "Demo"
+      },
+      "profileDescription": {
+        "minimal": "Minimal baseline, then manual configuration.",
+        "defaultHaitiLottery": "Recommended profile for a real tenant: Haiti games, pricing, and draw channels.",
+        "demo": "Demo profile reserved for non-production environments."
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "initialAdminEmail": "Initial admin email",
+        "profile": "Profile"
+      },
+      "validation": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3-30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address."
+      },
+      "create": {
+        "title": "Create tenant",
+        "description": "Provision an operational tenant with its initial data baseline.",
+        "adminHint": "Leave empty to create the tenant without an initial administrator.",
+        "success": "Tenant provisioned successfully.",
+        "error": "Tenant provisioning failed.",
+        "previewError": "Unable to calculate the profile.",
+        "previewLoading": "Calculating profile...",
+        "section": {
+          "identity": "Tenant identity",
+          "admin": "Initial admin",
+          "profile": "Provisioning profile",
+          "preview": "Provisioning preview"
+        },
+        "action": {
+          "preview": "Preview",
+          "provision": "Create tenant"
+        },
+        "preview": {
+          "profile": "Selected profile",
+          "includedDomains": "Will be initialized",
+          "notCopiedData": "Will not be copied",
+          "expectedReadiness": "Expected readiness",
+          "empty": "Complete the form, then run the preview."
+        }
+      },
+      "detail": {
+        "title": "Tenant detail",
+        "description": "Minimal tenant and provisioning view.",
+        "loading": "Loading tenant...",
+        "error": "Unable to load tenant.",
+        "createdTitle": "Tenant created",
+        "domainStatuses": "Provisioned domains",
+        "nextSteps": "Next steps",
+        "empty": {
+          "title": "Tenant not found",
+          "message": "This tenant detail is not available yet."
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Tenant identity",
+          "pagemodels": "Initial pages",
+          "theme": "Theme",
+          "settings": "Settings",
+          "i18n": "Translations",
+          "games": "Games",
+          "pricing": "Pricing",
+          "draw_channels": "Draw channels",
+          "promotions_templates": "Promotion templates",
+          "limits_templates": "Limit templates",
+          "demo_users": "Demo users",
+          "demo_seller_terminals": "Demo seller-terminals"
+        },
+        "data": {
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "payouts": "Payouts",
+          "audit": "Audit",
+          "notifications": "Notifications",
+          "stats": "Stats",
+          "ledger": "Ledger"
+        },
+        "readiness": {
+          "identity": "Tenant identity",
+          "users": "Tenant admin",
+          "draw_channels": "Draw channels",
+          "limits": "Limits",
+          "odds": "Odds",
+          "seller_terminals": "Seller-terminals",
+          "seller_rules": "Seller-terminal rules"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Create initial admin",
+          "CONFIGURE_GAMES": "Configure games",
+          "CONFIGURE_DRAW_CHANNELS": "Configure draw channels",
+          "CONFIGURE_SELLER_RULES": "Configure seller-terminal rules",
+          "CREATE_SELLER_TERMINAL": "Create a seller-terminal",
+          "CONFIGURE_LIMITS": "Configure limits",
+          "CONFIGURE_ODDS": "Configure odds",
+          "VERIFY_DEMO_SETUP": "Verify demo data"
+        },
+        "statuses": {
+          "CREATED": "Created",
+          "SEEDED_VIA_LISTENER": "Initialized automatically",
+          "DEFAULT": "Default values",
+          "DEFAULT_LOTTERY": "Default lottery games",
+          "DEFAULT_HAITI": "Default Haiti setup",
+          "TEMPLATES_AVAILABLE": "Templates available",
+          "NONE": "Not configured"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "No initial admin will be created."
+        }
+      }
     },
     "tenantProvisioning": {
-      "title": "Tenant Provisioning",
-      "description": "Provision a new tenant"
+      "title": "Provision a tenant",
+      "description": "Create a tenant, apply an initial profile, and prepare its configuration.",
+      "backToTenants": "Back to tenants",
+      "section": {
+        "identity": "Identity & classification",
+        "regional": "Regional settings",
+        "profile": "Provisioning profile",
+        "initialAdmin": "Initial admin"
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Display name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "profile": "Profile",
+        "initialAdminEmail": "Initial admin email"
+      },
+      "hint": {
+        "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
+      },
+      "error": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3–30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address."
+      },
+      "action": {
+        "cancel": "Cancel",
+        "submit": "Provision tenant",
+        "submitting": "Provisioning..."
+      },
+      "identityCard": {
+        "eyebrow": "Tenant identity",
+        "fallbackTitle": "New tenant",
+        "unassignedCode": "unassigned"
+      },
+      "health": {
+        "title": "Configuration health",
+        "eyebrow": "Readiness",
+        "loading": "Calculating profile...",
+        "fallback": "To validate"
+      },
+      "result": {
+        "nextSteps": "Next steps",
+        "warnings": "Warnings",
+        "initialAdmin": "Initial admin",
+        "adminEmail": "Email",
+        "adminStatus": "Status",
+        "temporaryAccessCreated": "Temporary access created",
+        "temporaryPassword": "Temporary password",
+        "passwordConfiguredServerSide": "Temporary password set by server configuration.",
+        "adminNextInstruction": "Ask the admin to sign in. They must change their password and complete their profile before accessing /app/admin."
+      },
+      "domain": {
+        "tenantIdentity": "Tenant identity",
+        "pagemodels": "Initial pages",
+        "theme": "Theme",
+        "settings": "Settings",
+        "i18n": "Translations",
+        "games": "Games",
+        "pricing": "Pricing",
+        "drawChannels": "Draw channels",
+        "promotionsTemplates": "Promotion templates",
+        "limitsTemplates": "Limit templates",
+        "demoUsers": "Demo users",
+        "demoSellerTerminals": "Demo seller-terminals"
+      },
+      "status": {
+        "created": "Created",
+        "seeded": "Seeded",
+        "default": "Default",
+        "defaultLottery": "Default lottery",
+        "defaultHaiti": "Default Haiti",
+        "templatesAvailable": "Templates available",
+        "none": "None",
+        "planned": "Planned",
+        "expected": "Expected"
+      },
+      "step": {
+        "createInitialAdmin": "Create initial admin",
+        "configureGames": "Configure games",
+        "configureDrawChannels": "Configure draw channels",
+        "configureLimits": "Configure limits",
+        "configureOdds": "Configure odds",
+        "verifyDemoSetup": "Verify demo data",
+        "createSellerTerminal": "Create a seller-terminal"
+      }
     },
     "contactRequests": {
       "title": "Contact Requests",
@@ -784,7 +1077,7 @@
       "access": "Manager access",
       "demo": "Request a demo",
       "discover": "Discover manager space",
-      "description": "For points of sale, sellers and network managers. Sell tickets, track sessions, verify results and consult your reports.",
+      "description": "For points of sale, seller-terminals and network managers. Sell tickets, track connections, verify results and consult your reports.",
       "title": "Manager space",
       "eyebrow": "For managers"
     },
@@ -792,22 +1085,22 @@
       "access": "Manager access",
       "demo": "Request a demo",
       "discover": "Discover manager space",
-      "description": "For points of sale, sellers and network managers. Sell tickets, track sessions, verify results and consult your reports.",
+      "description": "For points of sale, seller-terminals and network managers. Sell tickets, track connections, verify results and consult your reports.",
       "title": "Manager space",
       "eyebrow": "For managers",
       "hero_aria": "Operators section",
-      "hero_title": "Manage your sellers, tickets and reports with greater clarity.",
-      "hero_body": "Tchalanet helps borlette banks, points of sale and seller networks issue tickets, track sessions, verify results and consult activity reports.",
+      "hero_title": "Manage your seller-terminals, tickets and reports with greater clarity.",
+      "hero_body": "Tchalanet helps borlette banks, points of sale and seller-terminal networks issue tickets, track connections, verify results and consult activity reports.",
       "hero_stat_tickets": "Tickets today",
-      "hero_stat_sessions": "Open sessions",
-      "hero_stat_agents": "Active sellers",
+      "hero_stat_connections": "Active seller-terminals",
+      "hero_stat_agents": "Active seller-terminals",
       "hero_stat_payments": "Payments to track",
       "cta_demo": "Request a demo",
       "cta_plans": "Discover features",
       "benefits_title": "What Tchalanet brings to your operations",
-      "benefits_body": "An infrastructure built for points of sale and seller networks day to day.",
-      "benefit_agents_title": "Sellers and terminals",
-      "benefit_agents_body": "Assign sellers to authorized points of sale and terminals.",
+      "benefits_body": "An infrastructure built for points of sale and seller-terminal networks day to day.",
+      "benefit_agents_title": "Seller-terminals and seller-terminals",
+      "benefit_agents_body": "Assign seller-terminals to authorized points of sale and seller-terminals.",
       "benefit_tickets_title": "Ticket sale and printing",
       "benefit_tickets_body": "Issue tickets with QR/public code to make verification easy.",
       "benefit_verify_title": "Public verification",
@@ -817,12 +1110,12 @@
       "benefit_payments_title": "Payments and tracking",
       "benefit_payments_body": "Identify payable tickets and keep a record of payments.",
       "benefit_reports_title": "Activity reports",
-      "benefit_reports_body": "Consult sales, sessions and your network's performance.",
+      "benefit_reports_body": "Consult sales, connections and your network's performance.",
       "workflow_title": "How it works",
       "step1_title": "Configure",
-      "step1_body": "Add points of sale, terminals and sellers.",
+      "step1_body": "Add points of sale, seller-terminals and seller-terminals.",
       "step2_title": "Sell",
-      "step2_body": "Issue tickets from authorized terminals.",
+      "step2_body": "Issue tickets from authorized seller-terminals.",
       "step3_title": "Verify",
       "step3_body": "Tickets can be verified by QR or public code.",
       "step4_title": "Track",
@@ -831,7 +1124,7 @@
       "plans_body": "Choose the level of support suited to your network.",
       "plan_trial_title": "Trial",
       "plan_trial_price": "Available",
-      "plan_trial_body": "Test Tchalanet with a few sellers before a full deployment.",
+      "plan_trial_body": "Test Tchalanet with a few seller-terminals before a full deployment.",
       "plan_trial_cta": "Request a trial",
       "plan_essential_title": "Point of sale",
       "plan_essential_price": "On request",
@@ -839,7 +1132,7 @@
       "plan_essential_cta": "Request a demo",
       "plan_network_title": "Network",
       "plan_network_price": "On request",
-      "plan_network_body": "For multiple sellers, terminals, or points of sale.",
+      "plan_network_body": "For multiple seller-terminals, seller-terminals, or points of sale.",
       "plan_network_cta": "Request a demo",
       "plan_operator_title": "Custom",
       "plan_operator_price": "Based on configuration",
@@ -853,8 +1146,8 @@
       "feat_sell": "ticket sale and printing",
       "feat_verify_qr": "public verification by QR or code",
       "feat_access_results": "results access",
-      "feat_vendor_basic": "basic seller setup",
-      "feat_agent_mgmt": "seller, terminal, and session management",
+      "feat_vendor_basic": "basic seller-terminal setup",
+      "feat_agent_mgmt": "seller-terminal, seller-terminal-terminal, and connection management",
       "feat_reports_full": "activity reports",
       "feat_payments": "payment tracking",
       "feat_pos_config": "per-point-of-sale configuration",
@@ -863,11 +1156,11 @@
       "feat_reports_consolidated": "consolidated reports",
       "feat_integration": "integration support",
       "access_title": "Controlled access for every organization",
-      "access_body": "Each user only sees the features authorized by their role, their point of sale, their terminal and the active plan.",
+      "access_body": "Each user only sees the features authorized by their role, their point of sale, their seller-terminal-terminal and the active plan.",
       "access_rights_title": "User roles",
-      "access_rights_body": "Admin, supervisor, seller or cashier based on your needs.",
-      "access_subscription_title": "Authorized terminals",
-      "access_subscription_body": "Sales are linked to controlled terminals and sessions.",
+      "access_rights_body": "Admin, supervisor, seller-terminal or cashier based on your needs.",
+      "access_subscription_title": "Authorized seller-terminals",
+      "access_subscription_body": "Sales are linked to controlled seller-terminals and connections.",
       "access_plan_title": "Plans and limits",
       "access_plan_body": "Access and limits are applied based on your configuration.",
       "form_title": "Request a demonstration",
@@ -881,23 +1174,23 @@
       "form_city_label": "City / area",
       "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
       "form_message_label": "Optional message",
-      "form_message_placeholder": "Ex: I have 3 sellers in Carrefour and I want to manage my daily draws.",
+      "form_message_placeholder": "Ex: I have 3 seller-terminals in Carrefour and I want to manage my daily draws.",
       "form_cta": "Request a demo",
       "form_sending": "Sending...",
       "form_sent": "Request sent!",
       "faq_title": "Frequently asked questions",
       "faq_trial_q": "How does the trial period work?",
-      "faq_trial_a": "The trial period lets you test the application with a limited number of sellers or terminals depending on the available plan.",
-      "faq_terminals_q": "How many sellers or terminals can I use?",
-      "faq_terminals_a": "Limits depend on the chosen plan. Contact us to find the configuration suited to your network.",
+      "faq_trial_a": "The trial period lets you test the application with a limited number of seller-terminals depending on the available plan.",
       "faq_verify_q": "How do customers verify a ticket?",
       "faq_verify_a": "Each ticket has a public code or QR allowing anyone to check its status without accessing the manager space.",
       "faq_expired_q": "What happens if my access is suspended?",
       "faq_expired_a": "Features are limited until regularized. Contact the team to reactivate your access.",
       "faq_multipos_q": "Can I manage multiple points of sale?",
       "faq_multipos_a": "Yes. The Network and Custom plans allow you to configure multiple points of sale and centralize reports.",
-      "faq_mobile_q": "Can my sellers use Tchalanet on mobile?",
-      "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized sellers."
+      "faq_mobile_q": "Can my seller-terminals use Tchalanet on mobile?",
+      "faq_mobile_a": "Yes. The Tchalanet POS app is available on mobile for authorized seller-terminals.",
+      "faq_seller_terminals_q": "How many seller-terminals can I use?",
+      "faq_seller_terminals_a": "Limits depend on the chosen plan. Contact us to find the configuration suited to your network."
     },
     "check": {
       "code_hint": "The code format appears at the bottom of your printed receipt.",
@@ -1276,12 +1569,12 @@
         "tickets": "Tickets"
       },
       "blocked": {
-        "title": "Session blocked",
-        "message": "Your session is currently blocked. Contact your supervisor."
+        "title": "Connection blocked",
+        "message": "Your connection is currently blocked. Contact your supervisor."
       }
     },
-    "session": {
-      "title": "Session",
+    "connection": {
+      "title": "Connection",
       "openedAt": "Opened at"
     },
     "draw": {
@@ -1298,7 +1591,7 @@
       "title": "Quick Actions",
       "newTicket": "New Ticket",
       "history": "History",
-      "closeSession": "Close Session"
+      "closeConnection": "Close Connection"
     },
     "sell": {
       "title": "New Ticket",
@@ -1445,7 +1738,7 @@
     "tenant_admin": "Administration"
   },
   "cta": {
-    "close_session": "Close session",
+    "close_connection": "Close connection",
     "sell_ticket": "Sell a ticket",
     "verify_ticket": "Verify a ticket"
   },
@@ -1460,12 +1753,58 @@
   },
   "quickaction": {
     "admin": {
-      "add_seller_terminal": "Add seller",
-      "active_seller_terminals": "Active sellers",
       "daily_report": "Today's report",
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",
-      "maryaj_gratis": "Maryaj gratis"
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Add seller-terminal",
+      "active_seller_terminals": "Active seller-terminals"
+    },
+    "platform": {
+      "create_tenant": "Create tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Subscriptions",
+      "platform_health": "Platform health",
+      "draw_results": "Results & draws"
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Account activation",
+      "description": "Change the temporary password and complete your profile before entering the admin space.",
+      "security": {
+        "title": "Security",
+        "currentPassword": "Temporary password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "passwordMismatch": "Passwords do not match."
+      },
+      "profile": {
+        "title": "Profile",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phoneNumber": "Optional phone number"
+      },
+      "tenant": {
+        "title": "Tenant access",
+        "name": "Tenant",
+        "code": "Code",
+        "role": "Role"
+      },
+      "action": {
+        "submit": "Activate my account",
+        "submitting": "Activating"
+      }
+    }
+  },
+  "sellerTerminal": {
+    "activation": {
+      "title": "Seller-terminal activation",
+      "description": "The seller-terminal must change its temporary PIN before selling.",
+      "pin": {
+        "title": "Temporary PIN",
+        "pendingBackend": "PIN change will be enabled with the seller-terminal V0 endpoint."
+      }
     }
   }
 }

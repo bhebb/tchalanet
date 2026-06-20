@@ -11,7 +11,6 @@ export interface SellerTerminalSummaryRow {
   phoneNumber?: string | null;
   status: SellerTerminalStatus;
   commissionRate?: number | null;
-  outletId?: { value: string } | null;
   lastSeenAt?: string | null;
   activatedAt?: string | null;
   todayTicketCount?: number | null;
@@ -31,7 +30,6 @@ export interface CreateSellerTerminalRequest {
   phoneNumber?: string | null;
   commissionRate?: number | null;
   initialPin: string;
-  outletId?: string | null;
 }
 
 export interface UpdateSellerTerminalRequest {
@@ -40,6 +38,25 @@ export interface UpdateSellerTerminalRequest {
   lastName?: string | null;
   phoneNumber?: string | null;
   commissionRate?: number | null;
+}
+
+export type PinResetReason =
+  | 'PIN_LOST'
+  | 'SELLER_CHANGED'
+  | 'SUSPECTED_COMPROMISE'
+  | 'ADMIN_CORRECTION'
+  | 'OTHER';
+
+export interface ResetSellerTerminalPinRequest {
+  reason: PinResetReason;
+}
+
+export interface ResetSellerTerminalPinResponse {
+  sellerTerminalId: string;
+  terminalCode: string;
+  temporaryPin: string;
+  mustChangePin: boolean;
+  pinResetAt: string;
 }
 
 export interface TchPage<T> {
@@ -99,5 +116,9 @@ export class SellerTerminalApi {
 
   resetAccess(id: string, newPin: string): Observable<void> {
     return this.backend.patch<void>(`/admin/seller-terminals/${id}/reset-access`, { newPin });
+  }
+
+  resetPin(id: string, req: ResetSellerTerminalPinRequest): Observable<ResetSellerTerminalPinResponse> {
+    return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req);
   }
 }

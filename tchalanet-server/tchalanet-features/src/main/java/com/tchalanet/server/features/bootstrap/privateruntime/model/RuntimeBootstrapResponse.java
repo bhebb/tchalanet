@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.bootstrap;
+package com.tchalanet.server.features.bootstrap.privateruntime.model;
 
 import jakarta.annotation.Nullable;
 import java.util.List;
@@ -14,5 +14,6 @@ public record RuntimeBootstrapResponse(
     RuntimeReadinessView readiness,
     RuntimeNotificationSummary notifications,
     PageModelRef pageModelRef,
+    String entryRoute,
     @Nullable List<RuntimeBootstrapNotice> notices
 ) {}

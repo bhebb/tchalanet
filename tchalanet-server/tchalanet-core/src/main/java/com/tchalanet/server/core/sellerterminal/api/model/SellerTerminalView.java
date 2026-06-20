@@ -28,5 +28,8 @@ public record SellerTerminalView(
     Instant blockedAt,
     UserId blockedBy,
     String blockedReason,
-    Instant disabledAt
+    Instant disabledAt,
+    // pin state
+    boolean mustChangePin,
+    Instant pinResetAt
 ) {}

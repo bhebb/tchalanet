@@ -1,0 +1,67 @@
+@use 'index' as ui;
+
+.tenants-page {
+  &__filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    width: 100%;
+
+    @include ui.up(medium) {
+      grid-template-columns: minmax(14rem, 1fr) minmax(10rem, 12rem) minmax(12rem, 14rem) auto;
+      align-items: start;
+    }
+  }
+
+  &__search {
+    min-width: 0;
+  }
+
+  &__filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    @include ui.up(medium) {
+      padding-top: 0.25rem;
+    }
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      min-width: 58rem;
+    }
+  }
+
+  &__tenant-cell {
+    display: grid;
+    gap: 0.125rem;
+
+    strong {
+      color: var(--tch-color-on-surface);
+      font-weight: 700;
+    }
+
+    span {
+      color: var(--tch-color-on-surface-variant);
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__trace {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+    margin: 0.75rem 0 0;
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+}

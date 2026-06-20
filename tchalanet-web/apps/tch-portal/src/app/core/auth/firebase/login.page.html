@@ -80,7 +80,6 @@
               [type]="passwordVisible() ? 'text' : 'password'"
               name="password"
               autocomplete="current-password"
-              required
               [(ngModel)]="password"
             />
             <button
@@ -108,6 +107,13 @@
             </p>
           }
 
+          @if (infoKey(); as info) {
+            <p class="login-card__info" role="status">
+              <mat-icon aria-hidden="true">mark_email_read</mat-icon>
+              <span>{{ info | translate }}</span>
+            </p>
+          }
+
           <button
             mat-flat-button
             class="login-card__submit"
@@ -115,11 +121,13 @@
             [disabled]="loading() || loginForm.invalid"
           >
             @if (loading()) {
-              <mat-icon class="login-card__spinner" aria-hidden="true">progress_activity</mat-icon>
+              <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
+                progress_activity
+              </span>
               {{ 'auth.login.form.authenticating' | translate }}
             } @else {
-              {{ 'auth.login.form.submit' | translate }}
-              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+              {{ (password.trim() ? 'auth.login.form.submit' : 'auth.login.form.sendEmailLink') | translate }}
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             }
           </button>
         </form>

@@ -12,7 +12,6 @@ import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -217,7 +216,6 @@ class TicketCommandMutationCoverageTest {
             new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
             List.of(line()),
             TicketSaleChannel.POS_ONLINE,
-            null,
             true,
             ApprovalRequestId.of(UUID.fromString("30000000-0000-0000-0000-000000000001")),
             USER,
@@ -232,7 +230,6 @@ class TicketCommandMutationCoverageTest {
             new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
             List.of(line()),
             TicketSaleChannel.POS_ONLINE,
-            null,
             false,
             null,
             USER,

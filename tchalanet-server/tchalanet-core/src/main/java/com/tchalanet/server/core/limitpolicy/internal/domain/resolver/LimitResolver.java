@@ -52,9 +52,6 @@ public class LimitResolver {
             case LimitScopeRef.SellerTerminalScope sellerTerminalScope ->
                 sellerTerminalScope.sellerTerminalId() != null && sellerTerminalScope.sellerTerminalId().equals(sellerTerminalScope.sellerTerminalId()) ? 60 : -1;
 
-            case LimitScopeRef.OutletScope outlet ->
-                ctx.outletId() != null && ctx.outletId().equals(outlet.outletId()) ? 50 : -1;
-
             case LimitScopeRef.DrawChannelScope channel ->
                 ctx.drawChannelId() != null && ctx.drawChannelId().equals(channel.drawChannelId()) ? 30 : -1;
 

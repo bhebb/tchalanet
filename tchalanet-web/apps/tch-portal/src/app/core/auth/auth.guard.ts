@@ -26,6 +26,10 @@ export const spaceDispatchGuard: CanActivateFn = async (): Promise<UrlTree> => {
     return router.parseUrl('/login');
   }
 
+  if (session.entryRoute) {
+    return router.parseUrl(session.entryRoute);
+  }
+
   if (session.roles.includes('SUPER_ADMIN')) {
     return router.parseUrl('/app/platform');
   }
@@ -40,7 +44,7 @@ export const spaceDispatchGuard: CanActivateFn = async (): Promise<UrlTree> => {
 };
 
 export function roleGuard(requiredRole: UserRole): CanActivateFn {
-  return async (): Promise<boolean | UrlTree> => {
+  return async (_route, state): Promise<boolean | UrlTree> => {
     const auth = inject(AuthSessionService);
     const router = inject(Router);
     const session = await auth.refreshSession();
@@ -49,6 +53,17 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
       return router.parseUrl('/login');
     }
 
-    return auth.hasRole(requiredRole) ? true : router.parseUrl('/forbidden');
+    if (!auth.hasRole(requiredRole)) {
+      return router.parseUrl('/forbidden');
+    }
+
+    if (
+      session.entryRoute === '/app/account/activation' &&
+      state.url !== '/app/account/activation'
+    ) {
+      return router.parseUrl('/app/account/activation');
+    }
+
+    return true;
   };
 }

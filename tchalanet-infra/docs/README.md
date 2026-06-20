@@ -38,7 +38,6 @@
 ## Reference
 
 - **[reference/](reference/)** — Additional reference material
-- **[ACTION-REALM-REGEN.md](ACTION-REALM-REGEN.md)** — How to regenerate the Keycloak realm export
 - **[BUILD-LOCAL-VS-PUBLISHED.md](BUILD-LOCAL-VS-PUBLISHED.md)** — Local build vs published image trade-offs
 - **[VITE-ALLOWED-HOSTS.md](VITE-ALLOWED-HOSTS.md)** — Vite dev server allowed hosts for local SSL
 

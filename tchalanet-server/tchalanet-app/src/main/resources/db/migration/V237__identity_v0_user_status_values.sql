@@ -1,0 +1,5 @@
+ALTER TABLE app_user DROP CONSTRAINT IF EXISTS chk_app_user__status;
+
+ALTER TABLE app_user
+  ADD CONSTRAINT chk_app_user__status
+  CHECK (status IN ('INVITED','PENDING_APPROVAL','ACTIVE','SUSPENDED','BLOCKED','DISABLED'));

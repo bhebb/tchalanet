@@ -2,9 +2,7 @@ package com.tchalanet.server.platform.identity.internal.persistence.mapper;
 
 import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
@@ -44,7 +42,11 @@ public final class IdentityPersistenceMapper {
         e.getStatus(),
         e.getApprovedAt(),
         UserId.nullableOf(e.getApprovedBy()),
-        e.getLastLoginAt());
+        e.getLastLoginAt(),
+        e.isMustChangePassword(),
+        e.isMustCompleteProfile(),
+        e.getFirstLoginCompletedAt(),
+        e.getTemporaryCredentialIssuedAt());
   }
 
   public static void merge(AppUserJpaEntity e, AppUser user) {
@@ -62,6 +64,10 @@ public final class IdentityPersistenceMapper {
     e.setApprovedAt(user.approvedAt());
     e.setApprovedBy(user.approvedBy() == null ? null : user.approvedBy().value());
     e.setLastLoginAt(user.lastLoginAt());
+    e.setMustChangePassword(user.mustChangePassword());
+    e.setMustCompleteProfile(user.mustCompleteProfile());
+    e.setFirstLoginCompletedAt(user.firstLoginCompletedAt());
+    e.setTemporaryCredentialIssuedAt(user.temporaryCredentialIssuedAt());
   }
 
   public static UserPreference toPreference(UserPreferenceJpaEntity e) {
@@ -78,8 +84,6 @@ public final class IdentityPersistenceMapper {
     return new TenantMembership(
         TenantId.of(e.getTenantId()),
         UserId.of(e.getUserId()),
-        OutletId.nullableOf(e.getOutletId()),
-        TerminalId.nullableOf(e.getTerminalId()),
         e.getStatus() == null ? TenantUserStatus.ACTIVE : e.getStatus(),
         Boolean.TRUE.equals(e.getIsOwner()));
   }

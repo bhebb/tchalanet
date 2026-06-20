@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Notifications")
-@PreAuthorize("hasAuthority('TENANT_ADMIN') or hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('SUPER_ADMIN')")
 public class AdminNotificationController {
 
   private final NotificationService notificationService;

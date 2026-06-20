@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.adapter;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.BootstrapAccessControlRequest;
@@ -19,11 +20,16 @@ import com.tchalanet.server.platform.accesscontrol.api.model.request.SetTenantUs
 import com.tchalanet.server.platform.accesscontrol.api.model.request.UpdateRoleRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.BootstrapAccessControlResult;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPermissionsResult;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView.PlatformAccessView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView.SellerTerminalAccessScopeView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.AccessSnapshotView.TenantAccessScopeView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.EffectivePermissionsView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.PermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RolePermissionView;
 import com.tchalanet.server.platform.accesscontrol.api.model.view.RoleView;
 import com.tchalanet.server.platform.accesscontrol.internal.service.AccessControlBootstrapService;
+import com.tchalanet.server.platform.accesscontrol.internal.service.AccessControlSnapshotResolver;
 import com.tchalanet.server.platform.accesscontrol.internal.service.EffectivePermissionService;
 import com.tchalanet.server.platform.accesscontrol.internal.service.PermissionRegistryService;
 import com.tchalanet.server.platform.accesscontrol.internal.service.RoleCatalogService;
@@ -49,6 +55,7 @@ public class AccessControlApiAdapter implements AccessControlApi {
   private final TenantUserRoleService tenantUserRoles;
   private final UserPermissionOverrideService userOverrides;
   private final AccessControlBootstrapService bootstrapService;
+  private final AccessControlSnapshotResolver snapshotResolver;
 
   // ─── Permission evaluation ────────────────────────────────────────────────
 
@@ -60,6 +67,34 @@ public class AccessControlApiAdapter implements AccessControlApi {
   @Override
   public EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request) {
     return effectivePermissions.getEffectivePermissions(request);
+  }
+
+  @Override
+  public AccessSnapshotView resolveUserAccess(UserId userId) {
+    var snapshot = snapshotResolver.resolveUserAccess(userId);
+    var platform = new PlatformAccessView(
+        snapshot.platform().superAdmin(),
+        snapshot.platform().roleCodes(),
+        snapshot.platform().permissionKeys());
+    var tenantScopes = snapshot.tenantScopes().stream()
+        .map(scope -> new TenantAccessScopeView(
+            scope.tenantId(),
+            scope.tenantCode(),
+            scope.tenantName(),
+            scope.tenantStatus(),
+            scope.roleCodes(),
+            scope.permissionKeys()))
+        .toList();
+    var sellerScope = snapshot.sellerTerminalScope() == null
+        ? null
+        : new SellerTerminalAccessScopeView(
+            snapshot.sellerTerminalScope().sellerTerminalId(),
+            snapshot.sellerTerminalScope().tenantId(),
+            snapshot.sellerTerminalScope().tenantCode(),
+            snapshot.sellerTerminalScope().terminalCode(),
+            snapshot.sellerTerminalScope().status(),
+            snapshot.sellerTerminalScope().permissionKeys());
+    return new AccessSnapshotView(snapshot.userId(), platform, tenantScopes, sellerScope);
   }
 
   // ─── Catalog reads ────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 app:
   cors:
-    allowed-origins: https://test.tchalanet.com,https://auth.stg.tchalanet.com,https://stg.tchalanet.com,https://api.stg.tchalanet.com
+    allowed-origins: https://test.tchalanet.com,https://stg.tchalanet.com,https://api.stg.tchalanet.com
   apiBaseUrl: ${APP_API_BASEURL:https://api.stg.tchalanet.com}
 
 management:

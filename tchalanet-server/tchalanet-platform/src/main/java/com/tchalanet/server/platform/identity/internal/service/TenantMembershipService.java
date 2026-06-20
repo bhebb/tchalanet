@@ -1,9 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.time.TimeProvider;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -37,10 +35,10 @@ public class TenantMembershipService {
     return memberships.findCreatedAt(tenantId, userId);
   }
 
-  public void assign(TenantId tenantId, UserId userId, OutletId outletId, TerminalId terminalId, boolean owner) {
+  public void assign(TenantId tenantId, UserId userId, boolean owner) {
     var membership = memberships.findByTenantAndUser(tenantId, userId)
         .orElseGet(() -> TenantMembership.active(tenantId, userId));
-    memberships.upsert(membership.assign(outletId, terminalId, owner));
+    memberships.upsert(membership.assign(owner));
   }
 
   public void unassign(TenantId tenantId, UserId userId) {

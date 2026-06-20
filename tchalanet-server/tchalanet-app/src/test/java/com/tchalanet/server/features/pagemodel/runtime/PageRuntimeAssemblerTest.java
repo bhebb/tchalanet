@@ -136,4 +136,31 @@ class PageRuntimeAssemblerTest {
         .doesNotContain("\"path\"")
         .doesNotContain("\"kind\":\"internal\"");
   }
+
+  @Test
+  void assemblesGroupedPlatformNavigationChildren() {
+    var doc =
+        new PageModelDoc(
+            new PageModelDoc.Meta(
+                "private.dashboard.super_admin",
+                "private",
+                "dashboard",
+                "super_admin",
+                2,
+                List.of("fr"),
+                "fr"),
+            null,
+            null,
+            new PageModelDoc.Content(new PageModelDoc.Layout("GridLayout", List.of()), Map.of()));
+
+    var runtime = assembler.assemble(doc, null);
+    String json = jsonUtils.toJson(runtime);
+
+    assertThat(json)
+        .contains("\"labelKey\":\"platform.nav.references\"")
+        .contains("\"labelKey\":\"platform.nav.games\"")
+        .contains("\"value\":\"/app/platform/catalog/games\"")
+        .contains("\"children\"")
+        .doesNotContain("\"labelKey\":\"catalog\"");
+  }
 }

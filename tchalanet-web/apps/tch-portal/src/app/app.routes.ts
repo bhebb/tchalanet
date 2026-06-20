@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
-import { roleGuard, spaceDispatchGuard } from './core/auth/auth.guard';
+import { authGuard, roleGuard, spaceDispatchGuard } from './core/auth/auth.guard';
+import { AccessStatePage } from './core/auth/access-state.page';
 import { ForbiddenPage } from './core/auth/forbidden.page';
 import { NotFoundPage } from '@tch/web';
 
@@ -20,11 +21,47 @@ export const appRoutes: Route[] = [
     component: ForbiddenPage,
   },
   {
+    path: 'app/access-denied',
+    component: ForbiddenPage,
+  },
+  {
+    path: 'app/access-not-configured',
+    canActivate: [authGuard],
+    component: AccessStatePage,
+    data: {
+      title: 'Accès non configuré',
+      body: "Votre compte existe, mais aucun accès plateforme ou tenant n'est encore configuré.",
+    },
+  },
+  {
+    path: 'app/select-tenant',
+    canActivate: [authGuard],
+    component: AccessStatePage,
+    data: {
+      title: 'Sélection tenant',
+      body: 'Plusieurs contextes tenant sont disponibles. La sélection dédiée sera branchée ici.',
+    },
+  },
+  {
     // Post-login dispatcher: always redirects to the role-appropriate space.
     path: 'app',
     pathMatch: 'full',
     canActivate: [spaceDispatchGuard],
     children: [],
+  },
+  {
+    path: 'app/account/activation',
+    canActivate: [roleGuard('TENANT_ADMIN')],
+    loadComponent: () =>
+      import('./features/account/account-activation.page').then(m => m.AccountActivationPage),
+  },
+  {
+    path: 'app/seller-terminal/activation',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/seller-terminal/seller-terminal-activation.page').then(
+        m => m.SellerTerminalActivationPage,
+      ),
   },
   {
     path: 'app/platform',

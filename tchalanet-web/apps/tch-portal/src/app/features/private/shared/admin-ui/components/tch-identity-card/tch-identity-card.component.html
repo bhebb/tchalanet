@@ -1,0 +1,36 @@
+<article class="tch-identity-card">
+  <div class="tch-identity-card__top">
+    <span class="tch-identity-card__eyebrow">{{ eyebrow() }}</span>
+    @if (icon()) {
+      <span class="tch-identity-card__icon material-symbols-outlined" aria-hidden="true">
+        {{ icon() }}
+      </span>
+    }
+  </div>
+
+  <h2 class="tch-identity-card__title">{{ title() }}</h2>
+
+  @if (code()) {
+    <div class="tch-identity-card__code">
+      <span class="tch-identity-card__badge">ID</span>
+      <span>{{ code() }}</span>
+    </div>
+  }
+
+  @if (status()) {
+    <div class="tch-identity-card__status">
+      <tch-admin-status-pill [label]="status()!" [tone]="statusTone()" />
+    </div>
+  }
+
+  @if (meta().length) {
+    <dl class="tch-identity-card__meta">
+      @for (item of meta(); track item.label) {
+        <div class="tch-identity-card__meta-item">
+          <dt>{{ item.label }}</dt>
+          <dd>{{ item.value || '—' }}</dd>
+        </div>
+      }
+    </dl>
+  }
+</article>

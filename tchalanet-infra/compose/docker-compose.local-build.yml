@@ -10,18 +10,6 @@ services:
         IMAGE_TAG: ${IMAGE_TAG:-local-build}
     image: ${API_IMAGE_BASE:-ghcr.io/bhebb/tchalanet-api}:${IMAGE_TAG:-local-build}
     pull_policy: never
-    extra_hosts:
-      - "auth.localtest.me:host-gateway"
-
-  keycloak:
-    build:
-      context: ../keycloak
-      dockerfile: Dockerfile
-      args:
-        MAVEN_ARGS: -DskipTests
-        IMAGE_TAG: ${IMAGE_TAG:-local-build}
-    image: tchl/keycloak:${IMAGE_TAG:-local-build}
-    pull_policy: never
 
 # Ne touchons pas aux env_file définis dans les fichiers compose principaux :
 # les containers continueront de lire ../envs/${ENV}/.env.merged au runtime.

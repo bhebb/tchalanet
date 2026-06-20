@@ -54,7 +54,6 @@ public class EvaluateLimitPolicyQueryHandler
         return switch (scope) {
             case LimitScopeRef.TenantScope ignored -> "TENANT";
             case LimitScopeRef.DrawChannelScope ignored -> "DRAW_CHANNEL";
-            case LimitScopeRef.OutletScope ignored -> "OUTLET";
             case LimitScopeRef.AgentScope ignored -> "AGENT";
             case LimitScopeRef.SellerTerminalScope ignored -> "SELLER_TERMINAL";
         };

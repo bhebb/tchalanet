@@ -20,6 +20,8 @@ import com.tchalanet.server.features.cashier.home.model.CashierReadinessResponse
 import com.tchalanet.server.features.cashier.home.model.HomeAction;
 import com.tchalanet.server.features.cashier.home.model.HomeHeader;
 import com.tchalanet.server.features.cashier.home.model.HomeNavigationItem;
+import com.tchalanet.server.features.cashier.home.model.HomeRequiredStep;
+import com.tchalanet.server.features.cashier.home.model.HomeRequiredStepType;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -94,9 +96,16 @@ public class CashierHomeService {
     var terminal = queryBus.ask(new GetSellerTerminalQuery(
         ctx.effectiveTenantIdRequired(), sellerTerminalId));
     var canSell = terminal.status() == SellerTerminalStatus.ACTIVE;
-    var primaryDraw = primaryDraw(ctx);
+    HomeRequiredStep requiredStep = null;
+    if (terminal.mustChangePin()) {
+      requiredStep = new HomeRequiredStep(
+          HomeRequiredStepType.MUST_CHANGE_PIN,
+          "Changement de PIN requis",
+          "Vous devez changer votre PIN temporaire avant de continuer.");
+    }
+    var primaryDraw = requiredStep != null ? null : primaryDraw(ctx);
     var operationalCtx = new CashierHomeOperationalContext(
-        canSell, true, "SELLER_TERMINAL",
+        canSell && requiredStep == null, true, "SELLER_TERMINAL",
         sellerTerminalId,
         terminal.displayName(),
         List.of()
@@ -104,7 +113,7 @@ public class CashierHomeService {
     return new CashierHomeResponse(
         surface, VERSION,
         HomeHeader.of("Bonjour", terminal.displayName()),
-        null,
+        requiredStep,
         operationalCtx,
         null,
         primaryDraw,

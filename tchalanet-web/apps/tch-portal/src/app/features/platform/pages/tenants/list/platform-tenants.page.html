@@ -1,0 +1,169 @@
+<tch-admin-page-shell
+  [title]="'platform.tenants.title' | translate"
+  [description]="'platform.tenants.description' | translate"
+>
+  <div actions>
+    <a mat-flat-button color="primary" routerLink="/app/platform/tenants/new">
+      <span class="material-symbols-outlined" aria-hidden="true">add_business</span>
+      {{ 'platform.tenants.action.create' | translate }}
+    </a>
+  </div>
+
+  <tch-admin-crud-shell>
+    <ng-container toolbar>
+      <form class="tenants-page__filters" [formGroup]="filters" (ngSubmit)="applyFilters()">
+        <mat-form-field appearance="outline" class="tenants-page__search">
+          <mat-label>{{ 'platform.tenants.filter.search' | translate }}</mat-label>
+          <input matInput formControlName="q" type="search" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'platform.tenants.filter.status' | translate }}</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">{{ 'platform.tenants.filter.allStatuses' | translate }}</mat-option>
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'platform.tenants.filter.profile' | translate }}</mat-label>
+          <mat-select formControlName="profile">
+            <mat-option value="">{{ 'platform.tenants.filter.allProfiles' | translate }}</mat-option>
+            @for (profile of profiles; track profile) {
+              <mat-option [value]="profile">{{ profileLabel(profile) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="tenants-page__filter-actions">
+          <button mat-flat-button color="primary" type="submit">
+            {{ 'platform.tenants.action.applyFilters' | translate }}
+          </button>
+          <button mat-button type="button" (click)="resetFilters()">
+            {{ 'platform.tenants.action.resetFilters' | translate }}
+          </button>
+        </div>
+      </form>
+    </ng-container>
+
+    <ng-container content>
+      @if (loading()) {
+        <tch-loading [label]="'platform.tenants.loading' | translate" />
+      } @else if (errorTitle()) {
+        <tch-error-panel
+          [title]="errorTitle()!"
+          [message]="errorDetail() ?? ''"
+          [showRetry]="true"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="loadPage()"
+        />
+        @if (traceId()) {
+          <p class="tenants-page__trace">
+            {{ 'common.traceId' | translate }}: {{ traceId() }}
+          </p>
+        }
+      } @else if (items().length === 0) {
+        <tch-admin-empty-state
+          icon="business"
+          [title]="'platform.tenants.empty.title' | translate"
+          [message]="'platform.tenants.empty.message' | translate"
+        />
+      } @else {
+        <div class="tenants-page__table">
+          <table mat-table [dataSource]="items()">
+            <ng-container matColumnDef="tenant">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.tenant' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="tenants-page__tenant-cell">
+                  <strong>{{ row.name }}</strong>
+                  <span>{{ tenantType(row) }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="code">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.code' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <code>{{ row.code }}</code>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.status' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [label]="statusLabel(row.status)" [tone]="statusTone(row.status)" />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="profile">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.profile' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ profileLabel(row.profile) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="admin">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.primaryAdmin' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.primaryAdminEmail || ('common.not_available' | translate) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="readiness">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.readiness' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill
+                  [label]="readinessLabel(row.readinessStatus)"
+                  [tone]="readinessTone(row.readinessStatus)"
+                />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.createdAt' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.createdAt | date: 'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button
+                  mat-icon-button
+                  [matMenuTriggerFor]="rowMenu"
+                  [matMenuTriggerData]="{ row }"
+                  [attr.aria-label]="'platform.tenants.action.openMenu' | translate"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+
+          <mat-menu #rowMenu="matMenu">
+            <ng-template matMenuContent let-row="row">
+              <a mat-menu-item [routerLink]="[tenantId(row)]">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                {{ 'platform.tenants.action.viewDetails' | translate }}
+              </a>
+            </ng-template>
+          </mat-menu>
+        </div>
+      }
+    </ng-container>
+
+    <ng-container footer>
+      <div class="tenants-page__pagination">
+        <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          {{ 'common.previous' | translate }}
+        </button>
+        <span>{{ 'platform.tenants.pagination' | translate: { page: page() + 1, total: totalPages() } }}</span>
+        <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+          {{ 'common.next' | translate }}
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+      </div>
+    </ng-container>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

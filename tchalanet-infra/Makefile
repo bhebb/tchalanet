@@ -25,7 +25,7 @@ help:
 	@echo "  local-ide-up          P0 (Traefik+Postgres+Firebase Auth Emulator) — API runs in IDE"
 	@echo "  up-firebase-emulator  Start Firebase Auth Emulator (:9099)"
 	@echo "  down-firebase-emulator Stop Firebase Auth Emulator"
-	@echo "  local-ide-up-redis    P0+ (adds Redis)"
+	@echo "  local-ide-up-redis    P0+ (adds Redis, OTel, Edge) — API runs in IDE"
 	@echo "  local-api-up          P0+ + API in Docker"
 	@echo "  local-api-smoke       Health check: P0 + Redis + API"
 	@echo "  local-product-up      Full stack: API + Edge + Web"
@@ -36,9 +36,7 @@ help:
 	@echo "  p0-plus-up / p0-plus-down"
 	@echo ""
 	@echo "Local build (from source):"
-	@echo "  rebuild-keycloak      Build tchl/keycloak:local-dev from keycloak/"
 	@echo "  rebuild-api           Build API image from ../tchalanet-server"
-	@echo "  ensure-keycloak-image Build keycloak image only if absent"
 	@echo ""
 	@echo "Environment:"
 	@echo "  env-merge             Merge .env files → envs/\$ENV/.env.merged"
@@ -93,17 +91,12 @@ render-traefik:
 	@chmod +x ./scripts/utils/pre-render-traefik.sh || true
 	@./scripts/utils/pre-render-traefik.sh $(if $(filter $(ENV),stg staging),staging.yaml,$(if $(filter $(ENV),prod production),prod.yaml,dev.yaml))
 
-# 2) Génère le realm JSON Keycloak (désactive le scope custom par défaut)
-get-realm:
-	@chmod +x ./scripts/keycloak/get-realm.sh || true
-	@ENABLE_TCH_SCOPE=0 ./scripts/keycloak/get-realm.sh $(if $(filter $(ENV),stg staging),staging,$(if $(filter $(ENV),prod production),prod,dev))
-
 # 3) (Local) génère les certs mkcert si absents
 mkcert-local:
 	@[ -f ./traefik/certs/local-cert.pem ] && [ -f ./traefik/certs/local-key.pem ] \
 	 || { echo "→ Generating mkcert dev certs"; mkdir -p ./traefik/certs; mkcert -install >/dev/null; \
 	      mkcert -key-file ./traefik/certs/local-key.pem -cert-file ./traefik/certs/local-cert.pem \
-	      traefik.localtest.me auth.localtest.me api.localtest.me flags.localtest.me stats.localtest.me app.localtest.me mob.localtest.me; }
+	      traefik.localtest.me api.localtest.me flags.localtest.me stats.localtest.me app.localtest.me mob.localtest.me; }
 
 # Force la régénération des certificats locaux mkcert (dev)
 mkcert-recreate:
@@ -125,25 +118,24 @@ up: env-merge render-traefik ensure-exec networks
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up postgres $(ENV)
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up redis $(ENV)
 
-# Full (local): merge env -> render traefik -> mkcert (si local) -> get-realm -> up seq
-up-all: env-merge render-traefik mkcert-local get-realm ensure-exec networks
+# Full (local): merge env -> render traefik -> mkcert (si local) -> up seq
+up-all: env-merge render-traefik mkcert-local ensure-exec networks
 	@chmod +x scripts/utils/up-seq.sh || true
 	@scripts/utils/up-seq.sh $(ENV)
 
 # Staging/Prod: ajoute acme-perms
 up-staging: ENV=staging
-up-staging: env-merge render-traefik certs-staging acme-perms get-realm ensure-exec networks
+up-staging: env-merge render-traefik certs-staging acme-perms ensure-exec networks
 	@chmod +x scripts/utils/up-seq.sh || true
 	@scripts/utils/up-seq.sh $(ENV)
 
 up-prod: ENV=prod
-up-prod: env-merge render-traefik acme-perms get-realm ensure-exec networks
+up-prod: env-merge render-traefik acme-perms ensure-exec networks
 	@chmod +x scripts/utils/up-seq.sh || true
 	@scripts/utils/up-seq.sh $(ENV)
 
 down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
@@ -151,7 +143,6 @@ down:
 down-all:
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
@@ -159,12 +150,6 @@ down-all:
 # ============================================================================
 # Rebuild local (dev) - Build images avec Dockerfile locaux
 # ============================================================================
-
-rebuild-keycloak: env-merge get-realm
-	@echo "→ Rebuild de l'image Keycloak locale..."
-	@docker compose -f compose/docker-compose-project.yml \
-	                -f compose/docker-compose.local-build.yml up -d --build keycloak
-	@echo "✅ Keycloak rebuilé et redémarré"
 
 rebuild-api: env-merge ensure-exec networks
 	@echo "→ Build du JAR Spring Boot..."
@@ -179,8 +164,8 @@ rebuild-edge: env-merge ensure-exec networks
 	                -f compose/docker-compose-edge-service.yml up -d --build edge-service
 	@echo "✅ Edge rebuildé et redémarré"
 
-rebuild-all: rebuild-api rebuild-keycloak
-	@echo "✅ API et Keycloak rebuildés"
+rebuild-all: rebuild-api rebuild-edge
+	@echo "✅ API et Edge rebuildés"
 
 # ============================================================================
 
@@ -191,7 +176,6 @@ up-edge:   env-merge ensure-exec networks
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml up -d edge-service
 down-edge: env-merge ensure-exec
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service
-up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
 
 # ─── Observability (OTel Collector + Jaeger) ─────────────────────────────────
 up-otel: networks
@@ -276,14 +260,13 @@ doppler-download-prod:
 	@$(MAKE) doppler-download ENV=prod
 
 # ============================================================================
-# P0 strict — Traefik + PostgreSQL + Keycloak
+# P0 strict — Traefik + PostgreSQL
 # ============================================================================
 
-p0-up: env-merge render-traefik mkcert-local get-realm ensure-exec networks ensure-keycloak-image
+p0-up: env-merge render-traefik mkcert-local ensure-exec networks
 	@echo "→ P0 up ENV=$(ENV)"
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up traefik $(ENV)
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up postgres $(ENV)
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
 
 p0-smoke:
 	@echo "→ Smoke P0 ENV=$(ENV)"
@@ -292,12 +275,9 @@ p0-smoke:
 	@docker exec $$(docker ps --filter "name=.*postgres.*$(ENV)" --format "{{.Names}}" | head -1) \
 	  pg_isready -U $${POSTGRES_USER:-postgres} \
 	  || { echo "❌ PostgreSQL KO"; exit 1; }
-	@curl -sf --max-time 10 https://auth.localtest.me/realms/tchalanet/.well-known/openid-configuration > /dev/null \
-	  || { echo "❌ Keycloak KO"; exit 1; }
 	@echo "✅ P0 smoke OK"
 
 p0-down:
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
 
@@ -317,23 +297,13 @@ p0-plus-down:
 # Modes locaux
 # ============================================================================
 
-# Ensure Keycloak image exists for local dev
-ensure-keycloak-image:
-	@if ! docker image inspect tchl/keycloak:local-dev >/dev/null 2>&1; then \
-		echo "→ Keycloak image not found, building..."; \
-		docker build --progress=plain -t tchl/keycloak:local-dev -f keycloak/Dockerfile keycloak/; \
-		echo "✅ Keycloak image built"; \
-	else \
-		echo "✓ Keycloak image exists: tchl/keycloak:local-dev"; \
-	fi
-
 # local-ide : API dans l'IDE, infra P0 et Firebase Auth Emulator dans Docker
-local-ide-up: ensure-keycloak-image p0-up up-firebase-emulator
+local-ide-up: p0-up up-firebase-emulator
 
-# local-ide avec Redis
-local-ide-up-redis: ensure-keycloak-image p0-plus-up up-firebase-emulator
+# local-ide avec Redis, observabilité et Edge. Firebase Emulator reste séparé.
+local-ide-up-redis: p0-plus-up up-otel up-edge
 
-local-ide-down: down-firebase-emulator p0-down
+local-ide-down: down-edge down-otel down-firebase-emulator p0-down
 
 # local-api : API dans Docker (P0+ + API)
 local-api-up: p0-plus-up
@@ -393,15 +363,14 @@ smoke-staging:
 	@ENV=staging ./scripts/utils/smoke-staging.sh
 
 .PHONY: help
-.PHONY: ensure-exec print-env networks render-traefik get-realm mkcert-local mkcert-recreate certs-staging acme-perms
+.PHONY: ensure-exec print-env networks render-traefik mkcert-local mkcert-recreate certs-staging acme-perms
 .PHONY: env-merge
 .PHONY: up up-all up-staging up-prod down down-all
-.PHONY: rebuild-keycloak rebuild-api rebuild-edge rebuild-all
-.PHONY: up-api down-api up-edge down-edge up-keycloak ps
+.PHONY: rebuild-api rebuild-edge rebuild-all
+.PHONY: up-api down-api up-edge down-edge ps
 .PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
 .PHONY: doppler-download doppler-download-staging doppler-download-prod
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
-.PHONY: ensure-keycloak-image
 .PHONY: local-ide-up local-ide-up-redis local-ide-down
 .PHONY: local-api-up local-api-down local-api-logs local-api-smoke
 .PHONY: local-product-up local-product-down

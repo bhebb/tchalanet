@@ -46,4 +46,13 @@ public record ResolvedAccessContext(
     public boolean isSystem() {
         return actorType == TchActorType.SYSTEM;
     }
+
+    /**
+     * Identity-only context for IDENTITY and PUBLIC scopes: the user is authenticated but no
+     * DB-backed role or tenant resolution is needed for the request.
+     */
+    public static ResolvedAccessContext identityOnly(UserId userId) {
+        return new ResolvedAccessContext(
+            TchActorType.APP_USER, userId, null, null, false, false, Set.of(), Set.of());
+    }
 }

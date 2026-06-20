@@ -18,8 +18,16 @@ export interface ActionItem {
   readonly activeMatch?: 'exact' | 'prefix' | string | null;
   readonly disabled?: boolean;
   readonly reasonKey?: string | null;
-  readonly badge?: unknown;
+  readonly badge?: AdminNavBadge | null;
   readonly children?: readonly ActionItem[];
+  readonly requiredPermissions?: readonly string[];
+  readonly featureFlag?: string | null;
+}
+
+export interface AdminNavBadge {
+  readonly kind: 'count' | 'status' | string;
+  readonly value: string | number;
+  readonly severity?: 'info' | 'success' | 'warning' | 'danger' | string;
 }
 
 export interface NavigationSection {

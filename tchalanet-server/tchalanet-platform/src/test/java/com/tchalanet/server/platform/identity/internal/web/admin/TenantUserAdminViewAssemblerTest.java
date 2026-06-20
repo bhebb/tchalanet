@@ -8,9 +8,7 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
@@ -55,13 +53,11 @@ class TenantUserAdminViewAssemblerTest {
   void loadComposesView() {
     var tenantId = TenantId.of(UUID.randomUUID());
     var userId = UserId.of(UUID.randomUUID());
-    var outletId = OutletId.of(UUID.randomUUID());
-    var terminalId = TerminalId.of(UUID.randomUUID());
     var ctx = context(tenantId);
     var createdAt = Instant.parse("2026-01-02T03:04:05Z");
 
     when(memberships.findByTenantAndUser(tenantId, userId))
-        .thenReturn(Optional.of(TenantMembership.active(tenantId, userId).assign(outletId, terminalId, false)));
+        .thenReturn(Optional.of(TenantMembership.active(tenantId, userId).assign(false)));
     when(externalIdentities.hasIdentity(userId)).thenReturn(true);
     when(profiles.getUserProfile(userId))
         .thenReturn(
@@ -87,8 +83,6 @@ class TenantUserAdminViewAssemblerTest {
     assertThat(response.status()).isEqualTo("ACTIVE");
     assertThat(response.role()).isNull(); // roles are served by /admin/access-control/users/{id}/roles
     assertThat(response.membershipStatus()).isEqualTo("ACTIVE");
-    assertThat(response.outletId()).isEqualTo(outletId);
-    assertThat(response.terminalId()).isEqualTo(terminalId);
     assertThat(response.externalIdentitySyncStatus()).isEqualTo(ExternalIdentitySyncStatus.SYNCED);
     assertThat(response.invitationStatus()).isEqualTo(InvitationStatus.SENT);
     assertThat(response.createdAt()).isEqualTo(createdAt);

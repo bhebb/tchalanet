@@ -52,7 +52,11 @@ public class CurrentUserProfileService {
         pref == null ? null : pref.density(),
         firstNonBlank(prefLocale, requestLocale, "fr"),
         firstNonBlank(prefTimeZone, tenantTimeZone, "America/Port-au-Prince"),
-        firstNonBlank(prefCurrency, tenantCurrency, "USD"));
+        firstNonBlank(prefCurrency, tenantCurrency, "USD"),
+        user.mustChangePassword(),
+        user.mustCompleteProfile(),
+        user.firstLoginCompletedAt() == null ? null : user.firstLoginCompletedAt().toString(),
+        user.temporaryCredentialIssuedAt() == null ? null : user.temporaryCredentialIssuedAt().toString());
   }
 
   public UserProfileView getUserProfile(UserId userId) {

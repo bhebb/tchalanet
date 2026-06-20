@@ -97,7 +97,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 #### 🔐 Sécurité / Contexte / RLS
 
 - `context.md` — `TchRequestContext`
-- `identity-providers.md` — Firebase, Keycloak, local JWT/perf, provisioning et tests
+- `identity-providers.md` — Firebase, Firebase Emulator, local JWT/perf, provisioning et tests
 - `security_permissions.md` — permissions & rôles
 - `rls.md` — Row Level Security (dernière ligne de défense)
 

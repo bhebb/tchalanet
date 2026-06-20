@@ -33,6 +33,21 @@ export interface TenantProvisioningResultView {
   readonly initialAdminUserId?: string;
 }
 
+export interface PlatformSuperAdminView {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly status: string;
+  readonly assignedAt: string;
+}
+
+export interface CreatePlatformSuperAdminRequest {
+  readonly email: string;
+  readonly displayName: string;
+  readonly phoneNumber?: string | null;
+  readonly sendInvite: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PlatformAdminApi {
   private readonly backend = inject(TchBackendClient);
@@ -49,5 +64,25 @@ export class PlatformAdminApi {
       '/platform/tenant-onboarding/provision',
       request,
     );
+  }
+
+  listSuperAdmins(): Observable<PlatformSuperAdminView[]> {
+    return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins');
+  }
+
+  createSuperAdmin(request: CreatePlatformSuperAdminRequest): Observable<PlatformSuperAdminView> {
+    return this.backend.post<PlatformSuperAdminView>('/platform/super-admins', request);
+  }
+
+  revokeSuperAdmin(userId: string): Observable<void> {
+    return this.backend.delete<void>(`/platform/super-admins/${userId}`);
+  }
+
+  suspendSuperAdmin(userId: string): Observable<void> {
+    return this.backend.patch<void>(`/platform/super-admins/${userId}/suspend`, {});
+  }
+
+  reactivateSuperAdmin(userId: string): Observable<void> {
+    return this.backend.patch<void>(`/platform/super-admins/${userId}/reactivate`, {});
   }
 }

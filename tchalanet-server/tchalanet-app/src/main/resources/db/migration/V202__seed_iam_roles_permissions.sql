@@ -126,42 +126,42 @@ BEGIN
   -- super_admin
   INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010001'::uuid,
-          'super_admin', 'super_admin@local', 'Super Admin', 'ACTIVE', now(), now())
+          'super_admin', 'super_admin@localtest.me', 'Super Admin', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
-    username = 'super_admin', email = 'super_admin@local',
+    username = 'super_admin', email = 'super_admin@localtest.me',
     display_name = 'Super Admin', status = 'ACTIVE', updated_at = now();
 
   -- admin (TENANT_ADMIN)
   INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010002'::uuid,
-          'admin', 'admin@local', 'Admin', 'ACTIVE', now(), now())
+          'admin', 'admin@localtest.me', 'Admin', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
-    username = 'admin', email = 'admin@local',
+    username = 'admin', email = 'admin@localtest.me',
     display_name = 'Admin', status = 'ACTIVE', updated_at = now();
 
   -- cashier
   INSERT INTO app_user (id, username, email, display_name, status, created_at, updated_at)
   VALUES ('00000000-0000-0000-0000-000000010003'::uuid,
-          'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now())
+          'cashier', 'cashier@localtest.me', 'Cashier', 'ACTIVE', now(), now())
   ON CONFLICT (id) DO UPDATE SET
-    username = 'cashier', email = 'cashier@local',
+    username = 'cashier', email = 'cashier@localtest.me',
     display_name = 'Cashier', status = 'ACTIVE', updated_at = now();
 
   INSERT INTO app_user_external_identity (
     app_user_id, provider, issuer, external_subject, email_snapshot, created_at, updated_at)
   VALUES
     ('00000000-0000-0000-0000-000000010001'::uuid, 'LOCAL_JWT', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
+     '00000000-0000-0000-0000-000000010001', 'super_admin@localtest.me', now(), now()),
     ('00000000-0000-0000-0000-000000010002'::uuid, 'LOCAL_JWT', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
+     '00000000-0000-0000-0000-000000010002', 'admin@localtest.me', now(), now()),
     ('00000000-0000-0000-0000-000000010003'::uuid, 'LOCAL_JWT', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now()),
+     '00000000-0000-0000-0000-000000010003', 'cashier@localtest.me', now(), now()),
     ('00000000-0000-0000-0000-000000010001'::uuid, 'LOCAL_PERF', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010001', 'super_admin@local', now(), now()),
+     '00000000-0000-0000-0000-000000010001', 'super_admin@localtest.me', now(), now()),
     ('00000000-0000-0000-0000-000000010002'::uuid, 'LOCAL_PERF', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010002', 'admin@local', now(), now()),
+     '00000000-0000-0000-0000-000000010002', 'admin@localtest.me', now(), now()),
     ('00000000-0000-0000-0000-000000010003'::uuid, 'LOCAL_PERF', 'tchalanet-local',
-     '00000000-0000-0000-0000-000000010003', 'cashier@local', now(), now())
+     '00000000-0000-0000-0000-000000010003', 'cashier@localtest.me', now(), now())
   ON CONFLICT (provider, issuer, external_subject) DO NOTHING;
 
   IF t_id IS NULL THEN
@@ -186,12 +186,8 @@ BEGIN
   VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, false, now(), now())
   ON CONFLICT (tenant_id, user_id) DO NOTHING;
 
-  -- Role assignments via tenant_user_role (no ON CONFLICT — partial unique index not supported)
-  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010001'::uuid AND role_id = '00000000-0000-0000-0000-000000000301'::uuid AND deleted_at IS NULL) THEN
-    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
-    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, '00000000-0000-0000-0000-000000000301'::uuid, now());
-  END IF;
-
+  -- Tenant role assignments (no ON CONFLICT — partial unique index not supported).
+  -- Platform roles such as SUPER_ADMIN are assigned via platform_user_role.
   IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010002'::uuid AND role_id = '00000000-0000-0000-0000-000000000302'::uuid AND deleted_at IS NULL) THEN
     INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
     VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid, '00000000-0000-0000-0000-000000000302'::uuid, now());

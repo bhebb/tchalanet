@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 final class LocalIdentityProductionGuard {
 
-  private static final Set<String> LOCAL_PROVIDERS = Set.of("local-jwt", "local-perf");
+  private static final Set<String> FORBIDDEN_PRODUCTION_PROVIDERS = Set.of("local-jwt", "local-perf", "keycloak");
 
   private final String provider;
   private final Environment environment;
@@ -23,12 +23,15 @@ final class LocalIdentityProductionGuard {
 
   @PostConstruct
   void validate() {
-    if (LOCAL_PROVIDERS.contains(provider)
-        && Arrays.stream(environment.getActiveProfiles())
-            .map(String::toLowerCase)
-            .anyMatch(profile -> profile.contains("prod"))) {
+    if (isProductionProfile() && FORBIDDEN_PRODUCTION_PROVIDERS.contains(provider)) {
       throw new IllegalStateException(
-          "Local identity provider '" + provider + "' is forbidden in production");
+          "Identity provider '" + provider + "' is forbidden in production");
     }
+  }
+
+  private boolean isProductionProfile() {
+    return Arrays.stream(environment.getActiveProfiles())
+        .map(String::toLowerCase)
+        .anyMatch(profile -> profile.contains("prod"));
   }
 }

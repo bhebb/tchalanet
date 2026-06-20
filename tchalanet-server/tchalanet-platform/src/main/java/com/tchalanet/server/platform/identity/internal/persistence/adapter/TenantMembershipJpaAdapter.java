@@ -47,8 +47,6 @@ public class TenantMembershipJpaAdapter {
             .orElseGet(TenantUserJpaEntity::new);
     entity.setTenantId(membership.tenantId().value());
     entity.setUserId(membership.userId().value());
-    entity.setOutletId(membership.outletId() == null ? null : membership.outletId().value());
-    entity.setTerminalId(membership.terminalId() == null ? null : membership.terminalId().value());
     entity.setStatus(membership.status());
     entity.setIsOwner(membership.owner());
     return IdentityPersistenceMapper.toMembership(repository.save(entity));

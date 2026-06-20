@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.bootstrap;
+package com.tchalanet.server.features.bootstrap.privateruntime.model;
 
 import java.util.List;
 
@@ -10,5 +10,9 @@ public record AuthenticatedUserView(
     List<String> roles,
     PrivateBootstrapSpace defaultSpace,
     String preferredLocale,
-    String preferredTimezone
+    String preferredTimezone,
+    boolean mustChangePassword,
+    boolean mustCompleteProfile,
+    String firstLoginCompletedAt,
+    String temporaryCredentialIssuedAt
 ) {}

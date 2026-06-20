@@ -71,11 +71,15 @@ public class TenantProvisioningOrchestrator {
     domainStatuses.put("games", profileGamesStatus(request.profile()));
     domainStatuses.put("pricing", profilePricingStatus(request.profile()));
     domainStatuses.put("draw_channels", profileDrawChannelsStatus(request.profile()));
-    domainStatuses.put("promotions", "TEMPLATES_AVAILABLE");
-    domainStatuses.put("limits", "TEMPLATES_AVAILABLE");
+    domainStatuses.put("promotions_templates", "TEMPLATES_AVAILABLE");
+    domainStatuses.put("limits_templates", "TEMPLATES_AVAILABLE");
 
     UUID tenantId = created.tenantId().value();
     final String[] initialAdminUserId = {null};
+    final String[] initialAdminCredentialStatus = {null};
+    final String[] initialAdminTemporaryPassword = {null};
+    final Boolean[] initialAdminMustChangePassword = {null};
+    final Boolean[] initialAdminMustCompleteProfile = {null};
 
     // Run in new tenant context for RLS — creates admin + computes readiness.
     TenantReadinessView readiness = TchContextScope.runStartupTenantResult(
@@ -91,6 +95,12 @@ public class TenantProvisioningOrchestrator {
                 null,
                 TchRole.TENANT_ADMIN);
             initialAdminUserId[0] = adminResult.userId().value().toString();
+            initialAdminCredentialStatus[0] = adminResult.temporaryCredentialIssued()
+                ? "TEMPORARY_PASSWORD_ISSUED"
+                : (adminResult.created() ? "TEMPORARY_CREDENTIAL_NOT_RETURNED" : "EXISTING_USER_ATTACHED");
+            initialAdminTemporaryPassword[0] = adminResult.temporaryPassword();
+            initialAdminMustChangePassword[0] = Boolean.TRUE;
+            initialAdminMustCompleteProfile[0] = Boolean.TRUE;
           }
           return readinessAssembler.assemble(TchContext.currentOrNull());
         });
@@ -103,7 +113,12 @@ public class TenantProvisioningOrchestrator {
         nextSteps(request.profile(), request.initialAdminEmail()),
         warnings(request),
         readiness,
-        initialAdminUserId[0]);
+        initialAdminUserId[0],
+        blankToNull(request.initialAdminEmail()),
+        initialAdminCredentialStatus[0],
+        initialAdminTemporaryPassword[0],
+        initialAdminMustChangePassword[0],
+        initialAdminMustCompleteProfile[0]);
   }
 
   // --- profile descriptors --------------------------------------------------
@@ -118,7 +133,7 @@ public class TenantProvisioningOrchestrator {
       case DEMO -> List.of(
           "tenant_identity", "pagemodels", "theme", "settings", "i18n",
           "games", "pricing", "draw_channels", "promotions_templates",
-          "limits_templates", "demo_users", "demo_outlets", "demo_terminals");
+          "limits_templates", "demo_users", "demo_seller_terminals");
     };
   }
 
@@ -131,14 +146,15 @@ public class TenantProvisioningOrchestrator {
 
   private static List<String> notCopiedData() {
     return List.of(
-        "tickets", "sales", "sessions", "payouts", "terminal_bindings",
-        "audit", "notifications", "stats", "ledger", "offline_submissions");
+        "tickets", "sales", "payouts", "audit", "notifications", "stats", "ledger");
   }
 
   private static List<String> expectedReadinessSections(TenantProvisioningProfile profile) {
     return switch (profile) {
-      case MINIMAL -> List.of("identity", "users", "outlets", "terminals", "games_pricing", "draws");
-      case DEFAULT_HAITI_LOTTERY -> List.of("identity", "users", "outlets", "terminals", "draws");
+      case MINIMAL -> List.of(
+          "identity", "users", "seller_terminals", "draw_channels", "seller_rules", "limits", "odds");
+      case DEFAULT_HAITI_LOTTERY -> List.of(
+          "identity", "users", "seller_terminals", "draw_channels", "seller_rules", "limits", "odds");
       case DEMO -> List.of("identity");
     };
   }
@@ -147,11 +163,13 @@ public class TenantProvisioningOrchestrator {
     boolean adminCreated = initialAdminEmail != null && !initialAdminEmail.isBlank();
     return switch (profile) {
       case MINIMAL -> adminCreated
-          ? List.of("CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL")
-          : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL");
+          ? List.of("CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS", "CREATE_SELLER_TERMINAL",
+              "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS")
+          : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CONFIGURE_DRAW_CHANNELS",
+              "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES", "CONFIGURE_LIMITS", "CONFIGURE_ODDS");
       case DEFAULT_HAITI_LOTTERY -> adminCreated
-          ? List.of("CREATE_OUTLET", "CREATE_TERMINAL")
-          : List.of("CREATE_INITIAL_ADMIN", "CREATE_OUTLET", "CREATE_TERMINAL");
+          ? List.of("CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES")
+          : List.of("CREATE_INITIAL_ADMIN", "CREATE_SELLER_TERMINAL", "CONFIGURE_SELLER_RULES");
       case DEMO -> List.of("VERIFY_DEMO_SETUP");
     };
   }
@@ -166,5 +184,9 @@ public class TenantProvisioningOrchestrator {
 
   private static String profileDrawChannelsStatus(TenantProvisioningProfile profile) {
     return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT_HAITI";
+  }
+
+  private static String blankToNull(String value) {
+    return value == null || value.isBlank() ? null : value.trim();
   }
 }

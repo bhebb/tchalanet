@@ -1,0 +1,54 @@
+.tenant-provisioning {
+  display: block;
+}
+
+.tenant-provisioning__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.tenant-provisioning__grid--two {
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.tenant-provisioning__field {
+  width: 100%;
+}
+
+.tenant-provisioning__supporting-text {
+  margin: 0.25rem 0 1rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tenant-provisioning__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--tch-color-on-surface);
+}
+
+.tenant-provisioning__result {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+
+  div {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  dt {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  code {
+    border-radius: 0.375rem;
+    background: var(--tch-color-surface-container-high);
+    padding: 0.25rem 0.5rem;
+  }
+}

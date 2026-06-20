@@ -2,6 +2,7 @@ package com.tchalanet.server.common.mapper;
 
 import com.tchalanet.server.common.time.DaysOfWeekFormatter;
 import com.tchalanet.server.common.types.id.AddressId;
+import com.tchalanet.server.common.types.id.AppliedPromotionId;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelGameId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
@@ -9,43 +10,27 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.I18nOverrideId;
-import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.NotificationPreferenceId;
-import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
-import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
-import com.tchalanet.server.common.types.id.OfflineCodeId;
-import com.tchalanet.server.common.types.id.OfflineSubmissionId;
-import com.tchalanet.server.common.types.id.OfflineGrantId;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
+import com.tchalanet.server.common.types.id.PlanId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
-import com.tchalanet.server.common.types.id.PromotionRuleId;
-import com.tchalanet.server.common.types.id.SalesZoneId;
-import com.tchalanet.server.common.types.id.SellerId;
-import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
-import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
-import com.tchalanet.server.common.types.id.AppliedPromotionId;
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.PromotionQuotaId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.PageModelTemplateId;
-import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.common.types.id.PlanId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.RoleId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SalesZoneId;
+import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
+import com.tchalanet.server.common.types.id.SellerId;
 import com.tchalanet.server.common.types.id.SettingId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.ReconciliationRunId;
-import com.tchalanet.server.common.types.id.ReconciliationCheckResultId;
-import com.tchalanet.server.common.types.id.ReconciliationAnomalyId;
-import com.tchalanet.server.common.types.id.ReconciliationRepairActionId;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -129,24 +114,6 @@ public class CommonIdMapper {
         return DrawResultId.nullableOf(id);
     }
 
-    // OutletId
-    public UUID mapFromOutletId(OutletId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OutletId mapToOutletId(UUID id) {
-        return OutletId.nullableOf(id);
-    }
-
-    // TerminalId
-    public UUID mapFromTerminalId(TerminalId id) {
-        return id == null ? null : id.value();
-    }
-
-    public TerminalId mapToTerminalId(UUID id) {
-        return TerminalId.nullableOf(id);
-    }
-
     // TicketId
     public UUID mapFromTicketId(TicketId id) {
         return id == null ? null : id.value();
@@ -156,24 +123,6 @@ public class CommonIdMapper {
         return TicketId.nullableOf(id);
     }
 
-    // PayoutId
-    public UUID mapFromPayoutId(PayoutId id) {
-        return id == null ? null : id.value();
-    }
-
-    public PayoutId mapToPayoutId(UUID id) {
-        return PayoutId.nullableOf(id);
-    }
-
-    // LedgerEntryId
-    public UUID mapFromLedgerEntryId(LedgerEntryId id) {
-        return id == null ? null : id.value();
-    }
-
-    public LedgerEntryId mapToLedgerEntryId(UUID id) {
-        return LedgerEntryId.nullableOf(id);
-    }
-
     // ApprovalRequestId
     public UUID mapFromApprovalRequestId(ApprovalRequestId id) {
         return id == null ? null : id.value();
@@ -181,51 +130,6 @@ public class CommonIdMapper {
 
     public ApprovalRequestId mapToApprovalRequestId(UUID id) {
         return ApprovalRequestId.nullableOf(id);
-    }
-
-    // OfflineSyncBatchId
-    public UUID mapFromOfflineSyncBatchId(OfflineSyncBatchId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OfflineSyncBatchId mapToOfflineSyncBatchId(UUID id) {
-        return OfflineSyncBatchId.nullableOf(id);
-    }
-
-    // OfflineCodeBatchId
-    public UUID mapFromOfflineCodeBatchId(OfflineCodeBatchId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OfflineCodeBatchId mapToOfflineCodeBatchId(UUID id) {
-        return OfflineCodeBatchId.nullableOf(id);
-    }
-
-    // OfflineCodeId
-    public UUID mapFromOfflineCodeId(OfflineCodeId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OfflineCodeId mapToOfflineCodeId(UUID id) {
-        return OfflineCodeId.nullableOf(id);
-    }
-
-    // OfflineCodeId
-    public UUID mapFromOfflineGrantId(OfflineGrantId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OfflineGrantId mapToOfflineGrantId(UUID id) {
-        return OfflineGrantId.nullableOf(id);
-    }
-
-    // OfflineCodeId
-    public UUID mapFromOfflineSubmissionId(OfflineSubmissionId id) {
-        return id == null ? null : id.value();
-    }
-
-    public OfflineSubmissionId mapToOfflineSubmissionId(UUID id) {
-        return OfflineSubmissionId.nullableOf(id);
     }
 
     // PromotionAttemptId
@@ -253,15 +157,6 @@ public class CommonIdMapper {
 
     public SellerId mapToSellerId(UUID id) {
         return SellerId.nullableOf(id);
-    }
-
-    // SellerOutletAssignmentId
-    public UUID mapFromSellerOutletAssignmentId(SellerOutletAssignmentId id) {
-        return id == null ? null : id.value();
-    }
-
-    public SellerOutletAssignmentId mapToSellerOutletAssignmentId(UUID id) {
-        return SellerOutletAssignmentId.nullableOf(id);
     }
 
     // SellerCommissionPolicyId
@@ -325,15 +220,6 @@ public class CommonIdMapper {
 
     public PlanId mapToPlanId(UUID id) {
         return PlanId.nullableOf(id);
-    }
-
-    // SessionId
-    public UUID mapFromSessionId(SalesSessionId id) {
-        return id == null ? null : id.value();
-    }
-
-    public SalesSessionId mapToSessionId(UUID id) {
-        return SalesSessionId.nullableOf(id);
     }
 
     // ThemePresetId
@@ -466,36 +352,4 @@ public class CommonIdMapper {
         return (days == null || days.isBlank()) ? List.of() : DaysOfWeekFormatter.parse(days);
     }
 
-    // Reconciliation IDs
-    public UUID mapFromReconciliationRunId(ReconciliationRunId id) {
-        return id == null ? null : id.value();
-    }
-
-    public ReconciliationRunId mapToReconciliationRunId(UUID id) {
-        return ReconciliationRunId.nullableOf(id);
-    }
-
-    public UUID mapFromReconciliationCheckResultId(ReconciliationCheckResultId id) {
-        return id == null ? null : id.value();
-    }
-
-    public ReconciliationCheckResultId mapToReconciliationCheckResultId(UUID id) {
-        return ReconciliationCheckResultId.nullableOf(id);
-    }
-
-    public UUID mapFromReconciliationAnomalyId(ReconciliationAnomalyId id) {
-        return id == null ? null : id.value();
-    }
-
-    public ReconciliationAnomalyId mapToReconciliationAnomalyId(UUID id) {
-        return ReconciliationAnomalyId.nullableOf(id);
-    }
-
-    public UUID mapFromReconciliationRepairActionId(ReconciliationRepairActionId id) {
-        return id == null ? null : id.value();
-    }
-
-    public ReconciliationRepairActionId mapToReconciliationRepairActionId(UUID id) {
-        return ReconciliationRepairActionId.nullableOf(id);
-    }
 }

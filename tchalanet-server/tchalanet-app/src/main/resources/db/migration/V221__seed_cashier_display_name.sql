@@ -4,7 +4,7 @@
 -- COALESCE(app_user.display_name, app_user.email). The seed cashier had
 -- display_name='Cashier' (a role-like placeholder) and NULL first/last names, so
 -- receipts printed "Cashier" instead of a person. In real onboarding these come
--- from Keycloak (given_name/family_name) via identity sync; this seeds sensible
+-- from the external identity provider via identity sync; this seeds sensible
 -- dev values consistent with CurrentUserProfileService (displayName = first+last).
 --
 -- Guarded on the seed cashier; idempotent (only overwrites the placeholder).

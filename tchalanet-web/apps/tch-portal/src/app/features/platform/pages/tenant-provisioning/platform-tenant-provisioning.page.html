@@ -1,0 +1,215 @@
+<tch-admin-page-shell
+  [title]="'platform.tenantProvisioning.title' | translate"
+  [description]="'platform.tenantProvisioning.description' | translate"
+>
+  <a actions mat-button routerLink="../tenants">
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+    {{ 'platform.tenantProvisioning.backToTenants' | translate }}
+  </a>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="tenant-provisioning">
+    <tch-admin-detail-layout>
+      <div main>
+        <tch-admin-section-card
+          [title]="'platform.tenantProvisioning.section.identity' | translate"
+          icon="badge"
+        >
+          <div class="tenant-provisioning__grid">
+            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+              <mat-label>{{ 'platform.tenantProvisioning.field.code' | translate }}</mat-label>
+              <input matInput formControlName="code" placeholder="pap-central" />
+              @if (form.controls.code.invalid && form.controls.code.touched) {
+                <mat-error>{{ 'platform.tenantProvisioning.error.code' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+              <mat-label>{{ 'platform.tenantProvisioning.field.name' | translate }}</mat-label>
+              <input matInput formControlName="name" />
+              @if (form.controls.name.invalid && form.controls.name.touched) {
+                <mat-error>{{ 'platform.tenantProvisioning.error.required' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+              <mat-label>{{ 'platform.tenantProvisioning.field.type' | translate }}</mat-label>
+              <mat-select formControlName="type">
+                @for (tenantType of tenantTypes; track tenantType.value) {
+                  <mat-option [value]="tenantType.value">{{ tenantType.label }}</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.type.invalid && form.controls.type.touched) {
+                <mat-error>{{ 'platform.tenantProvisioning.error.required' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card
+          [title]="'platform.tenantProvisioning.section.regional' | translate"
+          icon="public"
+        >
+          <div class="tenant-provisioning__grid tenant-provisioning__grid--two">
+            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+              <mat-label>{{ 'platform.tenantProvisioning.field.timezone' | translate }}</mat-label>
+              <mat-select formControlName="timezone">
+                @for (timezone of timezones; track timezone) {
+                  <mat-option [value]="timezone">{{ timezone }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="tenant-provisioning__field">
+              <mat-label>{{ 'platform.tenantProvisioning.field.currency' | translate }}</mat-label>
+              <mat-select formControlName="currency">
+                @for (currency of currencies; track currency) {
+                  <mat-option [value]="currency">{{ currency }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card
+          [title]="'platform.tenantProvisioning.section.profile' | translate"
+          icon="rocket_launch"
+        >
+          <mat-form-field appearance="outline" class="tenant-provisioning__field">
+            <mat-label>{{ 'platform.tenantProvisioning.field.profile' | translate }}</mat-label>
+            <mat-select formControlName="profile">
+              @for (profile of profiles; track profile.value) {
+                <mat-option [value]="profile.value">{{ profile.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (selectedProfileDesc()) {
+            <p class="tenant-provisioning__supporting-text">{{ selectedProfileDesc() }}</p>
+          }
+
+          @if (preview()?.includedDomains?.length) {
+            <mat-chip-set aria-label="Domaines inclus">
+              @for (domain of preview()!.includedDomains; track domain) {
+                <mat-chip>{{ domain }}</mat-chip>
+              }
+            </mat-chip-set>
+          }
+        </tch-admin-section-card>
+
+        <tch-admin-section-card
+          [title]="'platform.tenantProvisioning.section.initialAdmin' | translate"
+          icon="admin_panel_settings"
+        >
+          <mat-form-field appearance="outline" class="tenant-provisioning__field">
+            <mat-label>
+              {{ 'platform.tenantProvisioning.field.initialAdminEmail' | translate }}
+            </mat-label>
+            <input matInput formControlName="initialAdminEmail" type="email" />
+            @if (form.controls.initialAdminEmail.invalid && form.controls.initialAdminEmail.touched) {
+              <mat-error>{{ 'platform.tenantProvisioning.error.email' | translate }}</mat-error>
+            }
+            <mat-hint>{{ 'platform.tenantProvisioning.hint.initialAdminEmail' | translate }}</mat-hint>
+          </mat-form-field>
+        </tch-admin-section-card>
+      </div>
+
+      <div aside>
+        <tch-identity-card
+          [eyebrow]="'platform.tenantProvisioning.identityCard.eyebrow' | translate"
+          [title]="form.controls.name.value || ('platform.tenantProvisioning.identityCard.fallbackTitle' | translate)"
+          [code]="form.controls.code.value || ('platform.tenantProvisioning.identityCard.unassignedCode' | translate)"
+          [status]="result()?.readiness?.status || 'DRAFT'"
+          [statusTone]="result() ? 'success' : 'neutral'"
+          icon="shield"
+          [meta]="identityMeta()"
+        />
+
+        <tch-admin-provisioning-health-card
+          [title]="'platform.tenantProvisioning.health.title' | translate"
+          [eyebrow]="'platform.tenantProvisioning.health.eyebrow' | translate"
+          [loading]="previewLoading()"
+          [loadingLabel]="'platform.tenantProvisioning.health.loading' | translate"
+          [error]="previewError()"
+          [readinessLabel]="readinessLabel()"
+          [readinessTone]="readinessTone()"
+          [progress]="healthProgress()"
+          [items]="healthItems()"
+          [emptyLabel]="'platform.tenantProvisioning.health.fallback' | translate"
+        />
+
+        @if (result()?.initialAdminEmail) {
+          <tch-admin-section-card
+            [title]="'platform.tenantProvisioning.result.initialAdmin' | translate"
+            icon="admin_panel_settings"
+          >
+            <dl class="tenant-provisioning__result">
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.adminEmail' | translate }}</dt>
+                <dd>{{ result()!.initialAdminEmail }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.adminStatus' | translate }}</dt>
+                <dd>{{ 'platform.tenantProvisioning.result.temporaryAccessCreated' | translate }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'platform.tenantProvisioning.result.temporaryPassword' | translate }}</dt>
+                <dd>
+                  @if (result()?.initialAdminTemporaryPassword) {
+                    <code>{{ result()!.initialAdminTemporaryPassword }}</code>
+                  } @else {
+                    {{ 'platform.tenantProvisioning.result.passwordConfiguredServerSide' | translate }}
+                  }
+                </dd>
+              </div>
+            </dl>
+            <p class="tenant-provisioning__supporting-text">
+              {{ 'platform.tenantProvisioning.result.adminNextInstruction' | translate }}
+            </p>
+          </tch-admin-section-card>
+        }
+
+        @if (result()?.nextSteps?.length) {
+          <tch-admin-section-card
+            [title]="'platform.tenantProvisioning.result.nextSteps' | translate"
+            icon="task_alt"
+          >
+            <ul class="tenant-provisioning__list">
+              @for (step of result()!.nextSteps; track step) {
+                <li>{{ stepLabelKey(step) | translate }}</li>
+              }
+            </ul>
+          </tch-admin-section-card>
+        }
+
+        @if (result()?.warnings?.length || preview()?.warnings?.length) {
+          <tch-admin-section-card
+            [title]="'platform.tenantProvisioning.result.warnings' | translate"
+            icon="warning"
+          >
+            <ul class="tenant-provisioning__list">
+              @for (warning of result()?.warnings || preview()?.warnings || []; track warning) {
+                <li>{{ warning }}</li>
+              }
+            </ul>
+          </tch-admin-section-card>
+        }
+      </div>
+
+      <div footer>
+        @if (submitError()) {
+          <tch-error-panel [title]="submitError()!" />
+        }
+        <a mat-button routerLink="../tenants">
+          {{ 'platform.tenantProvisioning.action.cancel' | translate }}
+        </a>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || submitting()">
+          @if (submitting()) {
+            {{ 'platform.tenantProvisioning.action.submitting' | translate }}
+          } @else {
+            {{ 'platform.tenantProvisioning.action.submit' | translate }}
+          }
+        </button>
+      </div>
+    </tch-admin-detail-layout>
+  </form>
+</tch-admin-page-shell>

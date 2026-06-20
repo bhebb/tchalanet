@@ -15,6 +15,9 @@ public interface UserPermissionOverrideJpaRepository
   List<UserPermissionOverrideJpaEntity> findActiveByTenantAndUser(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
+  @Query("select o from UserPermissionOverrideJpaEntity o where o.userId = :userId and o.deletedAt is null")
+  List<UserPermissionOverrideJpaEntity> findActiveByUser(@Param("userId") UUID userId);
+
   @Modifying
   @Query("update UserPermissionOverrideJpaEntity o set o.deletedAt = current_timestamp where o.tenantId = :tenantId and o.userId = :userId and o.permissionCode = :code and o.deletedAt is null")
   int softDelete(

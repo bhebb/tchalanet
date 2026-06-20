@@ -13,6 +13,7 @@ export interface RuntimeBootstrapResponse {
   readonly readiness: RuntimeReadinessView;
   readonly notifications: RuntimeNotificationSummary;
   readonly pageModelRef: PageModelRef;
+  readonly entryRoute?: string | null;
   readonly notices?: readonly RuntimeBootstrapNotice[] | null;
 }
 
@@ -25,6 +26,10 @@ export interface AuthenticatedUserView {
   readonly defaultSpace: PrivateSpace;
   readonly preferredLocale: string | null;
   readonly preferredTimezone: string | null;
+  readonly mustChangePassword?: boolean;
+  readonly mustCompleteProfile?: boolean;
+  readonly firstLoginCompletedAt?: string | null;
+  readonly temporaryCredentialIssuedAt?: string | null;
 }
 
 export interface TenantContextView {

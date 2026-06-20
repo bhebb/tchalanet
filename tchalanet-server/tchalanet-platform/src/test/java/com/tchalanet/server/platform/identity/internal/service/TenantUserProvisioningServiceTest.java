@@ -6,15 +6,12 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
@@ -40,16 +37,14 @@ class TenantUserProvisioningServiceTest {
     var tenantId = TenantId.of(UUID.randomUUID());
     var actor = UserId.of(UUID.randomUUID());
     var createdUserId = UserId.of(UUID.randomUUID());
-    var outletId = OutletId.of(UUID.randomUUID());
-    var terminalId = TerminalId.of(UUID.randomUUID());
     when(userAdminService.createUser(any(), any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean(), any()))
         .thenReturn(new CreateUserResult(createdUserId));
 
     var result = service.provisionTenantUser(
-        tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", outletId, terminalId, TchRole.CASHIER);
+        tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", TchRole.CASHIER);
 
     assertThat(result.userId()).isEqualTo(createdUserId);
-    verify(memberships).assign(tenantId, createdUserId, outletId, terminalId, false);
+    verify(memberships).assign(tenantId, createdUserId, false);
 
     var roleReq = ArgumentCaptor.forClass(AssignRoleToUserRequest.class);
     verify(accessControlApi).assignRoleToUser(roleReq.capture());
@@ -70,9 +65,9 @@ class TenantUserProvisioningServiceTest {
         .thenReturn(new CreateUserResult(createdUserId));
 
     service.provisionTenantUser(
-        tenantId, actor, "member@tchalanet.test", null, "Mem", "Ber", null, null, null);
+        tenantId, actor, "member@tchalanet.test", null, "Mem", "Ber", null);
 
-    verify(memberships).assign(tenantId, createdUserId, null, null, false);
+    verify(memberships).assign(tenantId, createdUserId, false);
     verifyNoInteractions(accessControlApi);
   }
 
@@ -86,7 +81,7 @@ class TenantUserProvisioningServiceTest {
 
     service.provisionTenantUser(tenantId, "acme", "admin@tchalanet.test", "Ada", "Min", TchRole.TENANT_ADMIN);
 
-    verify(memberships).assign(tenantId, createdUserId, null, null, false);
+    verify(memberships).assign(tenantId, createdUserId, false);
     verify(accessControlApi).assignRoleToUser(any(AssignRoleToUserRequest.class));
   }
 }

@@ -4,8 +4,7 @@ unset PGDATABASE PGUSER PGSERVICE PGSERVICEFILE || true
 
 echo "[init] Starting database initialization..."
 
-# Required v0
-required=(KC_DB_NAME KC_DB_USERNAME KC_DB_PASSWORD APP_DB_NAME APP_DB_USER APP_DB_PASSWORD)
+required=(APP_DB_NAME APP_DB_USER APP_DB_PASSWORD)
 missing=()
 for v in "${required[@]}"; do
   [ -z "${!v-}" ] && missing+=("$v")
@@ -20,7 +19,6 @@ echo "[init] All required environment variables present"
 
 escape_sql() { printf "%s" "$1" | sed "s/'/''/g"; }
 
-KC_PW=$(escape_sql "${KC_DB_PASSWORD}")
 APP_PW=$(escape_sql "${APP_DB_PASSWORD}")
 
 create_user_and_db() {
@@ -52,8 +50,6 @@ EOSQL
   echo "[init] $label database and user ready"
 }
 
-# v0 required
-create_user_and_db "${KC_DB_USERNAME}" "${KC_PW}" "${KC_DB_NAME}" "Keycloak"
 create_user_and_db "${APP_DB_USER}" "${APP_PW}" "${APP_DB_NAME}" "Application"
 
 echo "[init] Database initialization completed successfully"

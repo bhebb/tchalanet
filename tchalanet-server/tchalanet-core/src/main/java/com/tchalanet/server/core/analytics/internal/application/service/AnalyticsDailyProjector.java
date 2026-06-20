@@ -3,8 +3,6 @@ package com.tchalanet.server.core.analytics.internal.application.service;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsDimensionType;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
@@ -73,36 +71,6 @@ public class AnalyticsDailyProjector {
             -1, 1, 0, 0, 0, 0, 0, 0);
         upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
             -1, 1, 0, 0, 0, 0, 0, 0);
-    }
-
-    // ── payout paid ───────────────────────────────────────────────────────────
-
-    /**
-     * Apply delta for a payout actually paid to a ticket holder.
-     *
-     * <p>Increments {@code payouts_paid_cents} for PLATFORM + TENANT dimensions
-     * using the {@code payoutAmount} carried in the event.
-     */
-    public void applyPayoutPaid(TicketPayoutPaidRecordedEvent event, LocalDate refDate) {
-        long payoutCents = toCents(event.payoutAmount() != null ? event.payoutAmount() : BigDecimal.ZERO);
-        UUID tenantId = event.tenantId().value();
-
-        upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
-            0, 0, 0, 0, 0, payoutCents, 0, 0);
-        upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
-            0, 0, 0, 0, 0, payoutCents, 0, 0);
-    }
-
-    // ── payout reversed ──────────────────────────────────────────────────────
-
-    public void applyPayoutReversed(TicketPayoutReversedRecordedEvent event, LocalDate refDate) {
-        long payoutCents = toCents(event.payoutAmount() != null ? event.payoutAmount() : BigDecimal.ZERO);
-        UUID tenantId = event.tenantId().value();
-
-        upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
-            0, 0, 0, 0, 0, -payoutCents, 0, 0);
-        upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
-            0, 0, 0, 0, 0, -payoutCents, 0, 0);
     }
 
     // ── ticket settled (resulted) ─────────────────────────────────────────────
