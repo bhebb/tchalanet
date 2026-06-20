@@ -1,14 +1,15 @@
 # Sell Ticket — Flow
 
 > Le flow le plus critique du système. Toute vente passe par ce pipeline.  
-> Domaine pivot : `core.sales` · Référence : `core/sales/DOMAIN_SALES.md`
+> Domaine pivot : `core.sales` · Référence : `core/sales/DOMAIN_SALES.md`  
+> **Acteur** : `SELLER_TERMINAL` (ou `APP_USER` avec Admin POS sélection)
 
 ---
 
 ## Vue d'ensemble
 
 ```
-Vendeur POS
+SellerTerminal POS
     │
     ├─ Preview ─────────────────── Validation read-only + promotion PROPOSED (pas d'effet)
     │                              → Décision: ACCEPTABLE / REQUIRES_CHANGES / REJECTED_FINAL
@@ -318,7 +319,8 @@ Si LOST :
 
 - Domaine : `core/sales/DOMAIN_SALES.md`
 - Intégration mobile : `features.cashier/MOBILE_FLOW.md`
-- Session POS requise : [session-opening](./session-opening.md)
+- SellerTerminal provisioning : [seller-onboarding](./seller-onboarding.md)
+- Auth POS : [authentication-flow §4](../../01-architecture/flows/authentication-flow.md#4-path-seller_terminal)
 - Settlement après tirage : [settlement](./settlement.md)
 - Payout terrain : [payout-field-flow](./payout-field-flow.md)
 - Vérification ticket public : [verify-ticket](./verify-ticket.md)

@@ -12,7 +12,8 @@
 Le Request Context (`TchRequestContext`) est le contexte universel d'exécution.
 
 Il existe pour **tous** les flows d'entrée :
-- utilisateur connecté (Seller, Admin, Super-admin)
+- utilisateur connecté (`APP_USER` : Admin, Super-admin)
+- SellerTerminal POS (`SELLER_TERMINAL`)
 - public anonyme
 - batch / scheduler
 - startup / seed
@@ -115,22 +116,26 @@ X-Tch-Override-Reason: Support / correction / investigation
 Résout : `actorUserId`, `appUserId`, rôles/authorities, `isSystem`, `isSuperAdmin`.
 
 Distingue :
-- `actor` = qui exécute maintenant
-- `seller` = qui a initié une action terrain originale (différent pour offline replay)
+- `actor` = qui exécute maintenant (`APP_USER` ou `SELLER_TERMINAL` ou `SYSTEM`)
+- `sellerTerminalId` = l'acteur terrain original (préservé pour offline replay et audit)
 
 ```
 Offline replay :
-  actorUserId  = SYSTEM
-  sellerUserId = cashier original (préservé pour audit métier)
+  actorType      = SYSTEM
+  sellerTerminalId = SellerTerminal original (préservé pour audit métier)
 ```
 
 ### `OperationalContextResolver`
 
-Attache les informations opérationnelles si elles existent dans les headers :
-`terminalId`, `outletId`, `salesSessionId`, `source`
+Pour un acteur `SELLER_TERMINAL` : l'Operational Context est intrinsèque — `sellerTerminalId` est résolu
+depuis le contexte d'authentification Firebase. Pas de headers séparés requis.
+
+Pour un acteur `APP_USER` en mode Admin POS : l'Operational Context vient de la sélection explicite.
 
 **Ne fait pas la validation métier lourde à ce stade.**  
 Règle : *Operational request context is attached early. Operational context is validated late, per action.*
+
+Voir : `tchalanet-server/docs/conventions/context/operational-context.md`
 
 ---
 
@@ -178,7 +183,7 @@ Les events doivent porter les faits nécessaires :
 ```
 tenantId          — si tenant-scoped
 actorUserId       — si actor-sensible
-sellerUserId      — si seller-sensible (ex. offline replay)
+sellerTerminalId  — si seller-terminal-sensible (ex. offline replay)
 correlationId     — si traçabilité requise
 occurredAt        — toujours pour replay
 ```

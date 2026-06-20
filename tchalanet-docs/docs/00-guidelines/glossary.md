@@ -1,6 +1,6 @@
 # Glossaire métier Tchalanet
 
-**Version**: 1.0.0 | **Date**: 2026-01-17
+**Version**: 2.0.0 | **Date**: 2026-06-20
 
 **Ubiquitous Language** — Termes partagés entre business, dev, mobile, backend
 
@@ -50,23 +50,31 @@ Paiement effectué (cash, mobile money, transfer). Statut : `POSTED`, `REVERSED`
 
 ### Ledger (Journal comptable)
 
-Journal append-only des écritures comptables. Chaque entrée référence un événement (TICKET, PAYOUT, SESSION).
+Journal append-only des écritures comptables. Chaque entrée référence un événement (TICKET, PAYOUT).
 
 ### Settlement (Règlement ticket)
 
 Opération de calcul des gains après un draw. Ticket passe de `ISSUED` à `SETTLED`.
 
+### SellerTerminal
+
+**Acteur de vente unique.** Remplace les anciens concepts Seller + Terminal + SalesSession qui sont retirés.
+
+Un SellerTerminal est :
+- une identité d'authentification Firebase permanente (PIN-based)
+- une unité de vente et de facturation
+- un acteur opérationnel autonome : il n'a pas besoin d'une session ouverte pour vendre
+
+Un SellerTerminal peut être associé optionnellement à un `Outlet` (groupement géographique).
+
+> **Termes retirés** : `Terminal` (hardware), `SalesSession` (session POS), `Seller` (machann/vendeur séparé), `Cashier` (rôle/flow).  
+> Ne pas utiliser ces termes dans le nouveau code ou les nouvelles docs.
+
 ### Outlet (Point de vente)
 
-Lieu physique où les tickets sont émis (POS).
+Groupement géographique optionnel pour les SellerTerminals. Un SellerTerminal peut être rattaché à un Outlet ou opérer sans Outlet.
 
-### Terminal
-
-Équipement physique (imprimante, tablette) utilisé pour émettre tickets.
-
-### Session (POS)
-
-Session de caisse d'un terminal. Utilisée pour réconciliation comptable.
+L'Outlet n'est plus un prérequis opérationnel — c'était une contrainte de l'ancien modèle Seller+Terminal+Session.
 
 ### Limit Policy
 
@@ -86,15 +94,27 @@ Catalogue global des types de slots de résultats (ex: "first", "second", "bonus
 
 ### Role
 
-Rôle utilisateur (ex: `TENANT_ADMIN`, `POS_OPERATOR`, `SUPER_ADMIN`).
+Rôle utilisateur applicable aux `APP_USER` (ex: `TENANT_ADMIN`, `SUPER_ADMIN`).  
+Les `SELLER_TERMINAL` n'ont pas de rôles — leurs permissions sont attachées directement à l'entité.
 
 ### Permission
 
-Permission fine-grained (ex: `ticket.issue`, `payout.approve`). Évaluée par `TchPermissionEvaluator`.
+Permission fine-grained (ex: `ticket.sell`, `payout.approve`). Évaluée par `TchPermissionEvaluator`.
 
 ### Context (Request Context)
 
-Contexte de requête HTTP contenant tenant, user, roles, deleted_visibility. Source de vérité pour RLS.
+Contexte de requête HTTP contenant tenant, acteur, actorType, roles/permissions, deleted_visibility.  
+Source de vérité pour RLS et business logic.
+
+### TchActorType
+
+Type d'acteur dans le `TchRequestContext` :
+
+| Valeur | Description |
+|---|---|
+| `APP_USER` | Utilisateur humain (web, mobile admin) — mappé depuis Firebase vers `app_user` |
+| `SELLER_TERMINAL` | Terminal de vente — mappé depuis Firebase vers `seller_terminal` |
+| `SYSTEM` | Batch/scheduler — jamais produit par HTTP |
 
 ### RLS (Row-Level Security)
 
@@ -107,6 +127,14 @@ Suppression logique via `deleted_at`. Visibilité contrôlée par `deleted_visib
 ---
 
 ## Workflows
+
+### SellerTerminal Provisioning (Création)
+
+1. Admin tenant crée le SellerTerminal (code, nom, PIN initial)
+2. Backend provisionne l'identité Firebase (email fictif + PIN)
+3. SellerTerminal créé : statut `ACTIVE`, `mustChangePin = true`
+4. Admin remet le PIN temporaire au vendeur physiquement
+5. Vendeur se connecte, change son PIN
 
 ### Sell Ticket (Vente ticket)
 
@@ -162,9 +190,17 @@ Owns: Draw lifecycle, results, slots
 
 Owns: Limit policies, validation rules
 
+### core.sellerterminal
+
+Owns: SellerTerminal lifecycle, Firebase provisioning, PIN management, statut
+
 ### core.accesscontrol
 
-Owns: Roles, permissions, user management
+Owns: Roles, permissions, user management (APP_USER uniquement)
+
+### features.cashier
+
+Owns: POS home BFF, readiness check, cashier flow (sans session ni binding)
 
 ### features.pagemodel
 
@@ -184,6 +220,13 @@ Owns: Reference data (game codes, bet types, result slots)
 - `CANCELLED` → annulé (avant settlement)
 - `SETTLED` → gains calculés, figé
 - `EXPIRED` → hors validité
+
+### SellerTerminal
+
+- `ACTIVE` → terminal actif, peut vendre
+- `INACTIVE` → inactif (créé mais pas encore activé)
+- `BLOCKED` → bloqué temporairement (par admin)
+- `DISABLED` → désactivé définitivement
 
 ### Payout Claim
 
@@ -255,7 +298,7 @@ Request pagination avec `@TchPaging` annotation.
 
 ### Typed ID Wrapper
 
-Record encapsulant UUID (ex: `TenantId`, `TicketId`). Utilisé partout sauf persistence.
+Record encapsulant UUID (ex: `TenantId`, `TicketId`, `SellerTerminalId`). Utilisé partout sauf persistence.
 
 ### BaseTenantEntity
 
@@ -281,4 +324,4 @@ JPA base class pour entités globales/platform (no tenant_id).
 ---
 
 **Maintenu par** : équipe Tchalanet  
-**Dernière mise à jour** : 2026-01-17
+**Dernière mise à jour** : 2026-06-20

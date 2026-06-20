@@ -1,106 +1,108 @@
-# Seller Onboarding — Flow
+# SellerTerminal Provisioning — Flow
 
-> Processus de création et d'activation d'un seller (machann/vendeur transactionnel).  
-> Domaine canonique : `tchalanet-server/openspec/changes/tchalanet-commercial-network-v1/docs/domains/DOMAIN_SELLER.md`  
-> Décision : `tchalanet-commercial-network-v1/docs/decisions/ADR-SELLER-OUTLET-PROMOTION-V1.md`
+> Processus de création et d'activation d'un SellerTerminal.  
+> Remplace l'ancien "Seller Onboarding" (Seller + Terminal + Session séparés — retirés).  
+> Domaine canonique : `tchalanet-server/tchalanet-core/.../sellerterminal/`
 
 ---
 
 ## Concepts clés
 
 ```
-User     = authentification (Keycloak)
-Seller   = identité métier / machann / vendeur transactionnel
-Outlet   = canal, lieu, institution de vente
-Cashier  = écran/flow POS
+SellerTerminal = acteur de vente unique (identité Firebase + droits de vente + unité de facturation)
+Outlet         = groupement géographique optionnel
 ```
 
-Un seller peut exister avant d'avoir un login user. Un user peut être lié à un seller existant après coup.
+Un SellerTerminal n'a pas besoin d'un Outlet pour vendre.  
+Un SellerTerminal n'a pas besoin d'une session ouverte pour vendre.
 
 ---
 
-## Flow : Création seller
+## Flow : Création par l'admin
 
 ```
-Admin tenant crée le seller
-  └─ POST /admin/sellers
-     → Seller créé : ACTIVE
-     → seller_id, display_name, code (optionnel), user_id (optionnel)
+Admin tenant crée le SellerTerminal
+  └─ POST /api/v1/admin/seller-terminals
+     body: { terminalCode, displayName, firstName, lastName, phoneNumber, commissionRate, initialPin }
+     → SellerTerminalId retourné
+     → Identité Firebase provisionnée (email fictif : <terminalCode>@<tenant>.tchalanet)
+     → seller_terminal créé : statut ACTIVE, mustChangePin = true
+```
+
+**L'admin remet le `initialPin` au vendeur physiquement (hors système).**
+
+---
+
+## Flow : Premier login du SellerTerminal
+
+```
+1. Le vendeur ouvre l'app POS mobile.
+
+2. Il s'authentifie avec :
+   - Email : <terminalCode>@<tenant>.tchalanet
+   - PIN : le PIN temporaire remis par l'admin
+
+3. Firebase valide le PIN → retourne un id_token.
+
+4. L'app envoie GET /api/v1/tenant/seller-terminal/me
+   → { ..., mustChangePin: true, ... }
+
+5. L'app envoie GET /api/v1/tenant/cashier/home
+   → { requiredStep: { type: "MUST_CHANGE_PIN", ... }, canSell: false }
+
+6. L'app force la navigation vers l'écran "Changer PIN".
+
+7. Le vendeur saisit un nouveau PIN.
+   POST /api/v1/tenant/seller-terminal/me/change-pin
+   body: { newPin: "<6 chiffres>" }
+   → Firebase password mis à jour
+   → mustChangePin = false
+
+8. GET /api/v1/tenant/cashier/home → prêt à vendre
 ```
 
 ---
 
-## Flow : Lier un user au seller
+## Flow : Reset PIN par l'admin
 
 ```
-Admin lie un user existant au seller
-  └─ PATCH /admin/sellers/{sellerId}/user
-     → seller.user_id = userId
-     → Le user peut maintenant s'authentifier comme seller
-```
+Admin constate qu'un vendeur a perdu son PIN ou qu'un changement de vendeur a lieu.
 
----
+POST /api/v1/admin/seller-terminals/{id}/pin-reset
+body: { reason: "PIN_LOST" | "SELLER_CHANGED" | "SUSPECTED_COMPROMISE" | "ADMIN_CORRECTION" | "OTHER" }
 
-## Flow : Assigner un outlet au seller
+→ Réponse (une seule fois) : { temporaryPin: "<6 chiffres>", mustChangePin: true, ... }
+→ Firebase password réinitialisé
+→ mustChangePin = true
 
-```
-Admin assigne le seller à un outlet
-  └─ POST /admin/sellers/{sellerId}/outlet-assignments
-     → SellerOutletAssignment créé (ACTIVE)
-     → Historisé : starts_at = maintenant
-
-Changement d'outlet :
-  → Ancien assignment fermé (ends_at, ENDED)
-  → Nouvel assignment ouvert
-  → Les anciens tickets gardent le seller_assignment_id original
+L'admin remet le nouveau PIN au vendeur hors système.
+Le vendeur suit le flow "Premier login" (étapes 4–8) pour changer son PIN.
 ```
 
 ---
 
-## Flow : Seller prêt à vendre
-
-Une fois le seller créé et assigné à un outlet, pour pouvoir vendre :
-
-1. User du seller se connecte (Keycloak)
-   - Voir [role-flows](./role-login-flow.visual.html) — Seller POS
-2. Terminal bindé à l'appareil
-   - Voir [terminal-binding](./terminal-binding.md)
-3. Session POS ouverte
-   - Voir [session-opening](./session-opening.md) *(TODO)*
-4. Opération `sell` disponible
-
----
-
-## États du seller
+## États du SellerTerminal
 
 | Statut | Signification |
 |---|---|
-| `ACTIVE` | Seller actif, peut vendre |
-| `SUSPENDED` | Temporairement suspendu |
-| `INACTIVE` | Désactivé |
-
----
-
-## États d'un assignment outlet
-
-| Statut | Signification |
-|---|---|
-| `ACTIVE` | Assignment courant |
-| `ENDED` | Clôturé (changement d'outlet ou fin) |
-| `SUSPENDED` | Suspendu temporairement |
+| `ACTIVE` | Actif, peut vendre |
+| `INACTIVE` | Inactif (cas historique) |
+| `BLOCKED` | Bloqué temporairement par admin (réversible) |
+| `DISABLED` | Désactivé définitivement |
 
 ---
 
 ## Invariants
 
-- Un seller peut être sans user — il peut exister pour représenter un point de vente sans login.
-- Un seller peut avoir plusieurs assignments outlet dans l'historique, un seul ACTIVE à la fois.
-- La commission est snapshotée dans `sales` au moment de la vente — pas recalculée.
+- `mustChangePin = true` bloque toutes les actions de vente.
+- Le PIN temporaire n'est jamais stocké en clair en DB ni loggué.
+- Le PIN est retourné **une seule fois** dans la réponse de `/pin-reset` puis effacé.
+- Un SellerTerminal `DISABLED` ne peut pas être réactivé via `/pin-reset` (409).
+- Un SellerTerminal sans identité Firebase ne peut pas faire `/pin-reset` (409).
 
 ---
 
 ## Sous-flows référencés
 
-- Après seller actif + outlet assigné → [terminal-binding](./terminal-binding.md)
-- Après binding terminal → [session-opening](./session-opening.md) *(TODO)*
-- Après session → [sell-ticket](./sell-ticket.md)
+- Auth POS → [authentication-flow](../../01-architecture/flows/authentication-flow.md#4-path-seller_terminal)
+- Vente ticket → [sell-ticket](./sell-ticket.md)

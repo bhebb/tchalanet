@@ -1,117 +1,160 @@
 # Authentication Flow — Tchalanet Server
 
 > **Status**: NORMATIVE  
-> **Scope**: `tchalanet-server` — authentication, identity bootstrap, request context, RLS context  
-> **Audience**: backend developers, reviewers, agents IA, web/mobile integrators  
-> **Last reviewed**: 2026-04-28
+> **Scope**: `tchalanet-server` — authentification, identity bootstrap, request context, RLS  
+> **Audience**: backend developers, reviewers, agents IA, web/mobile/POS integrators  
+> **Last reviewed**: 2026-06-20
 
 ---
 
-## 1. Purpose
+## 1. Vue d'ensemble
 
-This document defines the canonical authentication and request-context flow for Tchalanet.
+Tchalanet utilise **Firebase** comme fournisseur d'identité unique pour tous les acteurs.  
+Il n'y a pas de Keycloak ni d'autre IdP en production.
 
-It covers:
+Deux types d'acteurs coexistent dans le même pipeline :
 
-- Keycloak JWT authentication;
-- API scope resolution;
-- local `app_user` bootstrap;
-- `TchRequestContext` construction;
-- super-admin tenant/deleted-visibility overrides;
-- RLS context propagation.
-
-It does **not** define fine-grained permissions. See `permission-flow.md`.
+| Acteur | Firebase UID mappé vers | Authority Spring | Accès |
+|---|---|---|---|
+| `APP_USER` | `app_user.firebase_uid` | `ACTOR_APP_USER` | Web (portail admin), Mobile (gestionnaire) |
+| `SELLER_TERMINAL` | `seller_terminal.firebase_uid` | `ACTOR_SELLER_TERMINAL` | POS mobile (Flutter) |
 
 ---
 
-## 2. High-level pipeline
+## 2. Pipeline global
 
 ```text
-Client Web / Mobile / POS
-  ↓ Authorization: Bearer <jwt>
+Client (web / mobile POS)
+  ↓ Authorization: Bearer <firebase-id-token>
 Spring Security Resource Server
-  ↓ validates JWT signature / issuer / audience
-UserBootstrapFilter
-  ↓ guarantees app_user exists + validates status
+  ↓ JwtDecoder (Firebase public keys)
+  ↓ IdentityProviderApi.mapVerifiedToken()    → résout le type d'acteur
+TchAccessContextPipelineFilter
+  ↓ BootstrappedActor → ACTOR_*, ROLE_*, PERM_* authorities
 TchContextFilter
-  ↓ builds TchRequestContext + MDC + ThreadLocal
+  ↓ construit TchRequestContext
 Controller / CommandBus / QueryBus
-  ↓ business/application flow
+  ↓ business logic
 RlsAwareDataSource
-  ↓ applies PostgreSQL session variables
-PostgreSQL RLS policies
+  ↓ applique variables PostgreSQL de session
+PostgreSQL RLS
 ```
 
 ---
 
-## 3. Current implementation summary
+## 3. Path APP_USER (portail web / mobile gestionnaire)
 
-Current code already has:
+### 3.1 Authentification
 
-- `SecurityConfig` as OAuth2 Resource Server;
-- JWT audience validation via `app.security.required-audience`;
-- Keycloak role extraction from `realm_access.roles` and root `roles`;
-- `TchContextFilter` that resolves:
-  - `ApiScope`,
-  - tenant code / tenant UUID,
-  - Keycloak subject,
-  - system/custom roles,
-  - `appUserId` lookup when already present,
-  - deleted visibility,
-  - MDC;
-- `TchContext` as ThreadLocal;
-- `TchContextResolver` helper;
-- `@CurrentContext` argument resolver.
+1. L'utilisateur s'authentifie via Firebase (email/password, Google, etc.).
+2. Firebase retourne un `id_token` (JWT signé Firebase).
+3. Le client envoie `Authorization: Bearer <id_token>`.
 
-Current implementation includes `UserBootstrapFilter`, which creates/synchronizes `app_user`
-before `TchContextFilter` builds the request context.
+### 3.2 Bootstrap côté serveur
+
+`TchAccessContextPipelineFilter` :
+1. Vérifie la signature JWT Firebase.
+2. Extrait `firebase_uid` (= `sub`).
+3. Cherche `app_user` par `firebase_uid` — crée si absent (premier login).
+4. Valide le statut `app_user` (`ACTIVE`, sinon 403).
+5. Charge roles et permissions depuis `platform.accesscontrol`.
+6. Publie authorities : `ACTOR_APP_USER`, `ROLE_<code>`, `PERM_<key>`.
+
+### 3.3 TchRequestContext résultant
+
+```
+actorType       = APP_USER
+appUserId       = <UUID app_user>
+sellerTerminalId = null
+roleCodes       = {"TENANT_ADMIN", ...}
+permissionKeys  = {"seller_terminal.manage", ...}
+```
+
+### 3.4 Endpoints accessibles
+
+```text
+/api/v1/admin/**       → tenant admin (scope ADMIN)
+/api/v1/platform/**    → super admin seulement
+/api/v1/public/**      → anonyme + authentifié
+```
 
 ---
 
-## 4. SecurityConfig responsibility
+## 4. Path SELLER_TERMINAL (POS mobile Flutter)
 
-`SecurityConfig` is responsible for **authentication only**.
+### 4.1 Authentification
 
-It must:
+1. Le SellerTerminal est provisionné par un admin tenant avec un PIN initial.
+2. `SellerTerminalIdentityProvisioningApi` crée un utilisateur Firebase avec email fictif et PIN comme password.
+3. Le SellerTerminal se connecte via Firebase avec `terminalCode@tenant.tchalanet` + PIN.
+4. Firebase retourne un `id_token`.
+5. Le POS mobile envoie `Authorization: Bearer <id_token>`.
 
-- disable server-side sessions;
-- validate JWT issuer and audience;
-- convert Keycloak roles into Spring authorities;
-- allow public endpoints;
-- require authentication for tenant/admin APIs;
-- restrict platform APIs to `SUPER_ADMIN` where appropriate.
+### 4.2 Premier login — changement de PIN obligatoire
 
-It must not:
+Quand `mustChangePin = true` (après provisioning ou reset admin) :
+- `GET /tenant/seller-terminal/me` expose `mustChangePin: true`
+- `GET /tenant/cashier/home` retourne `requiredStep: MUST_CHANGE_PIN`
+- Les actions de vente sont bloquées jusqu'à `POST /tenant/seller-terminal/me/change-pin`
 
-- decide fine-grained business permissions;
-- parse tenant payload from request bodies;
-- replace `TchRequestContext`;
-- perform application-user synchronization.
+### 4.3 Bootstrap côté serveur
 
-### 4.1 Coarse-grained authorization only
+`TchAccessContextPipelineFilter` :
+1. Vérifie la signature JWT Firebase.
+2. Extrait `firebase_uid` (= `sub`).
+3. Cherche `seller_terminal` par `firebase_uid`.
+4. Valide statut (`ACTIVE`, sinon 403 ; `BLOCKED` → 403 ; `DISABLED` → 403).
+5. Charge permissions du SellerTerminal.
+6. Publie authorities : `ACTOR_SELLER_TERMINAL`, `PERM_<key>`.
 
-Spring Security request matchers are allowed only as coarse gates.
+### 4.4 TchRequestContext résultant
 
-Examples:
+```
+actorType        = SELLER_TERMINAL
+sellerTerminalId = <UUID seller_terminal>
+appUserId        = null
+roleCodes        = {}     (les SellerTerminals n'ont pas de rôles)
+permissionKeys   = {"ticket.sell", ...}
+```
+
+### 4.5 Endpoints accessibles
+
+```text
+/api/v1/tenant/seller-terminal/**   → profil, change-pin
+/api/v1/tenant/cashier/**           → home POS, sell, payout
+/api/v1/public/**                   → vérification ticket
+```
+
+L'endpoint `/api/v1/admin/**` est interdit aux SellerTerminals.
+
+---
+
+## 5. SecurityConfig — responsabilités
+
+`SecurityConfig` est responsable de **l'authentification uniquement** :
+- désactiver sessions serveur
+- valider JWT Firebase (signature, issuer, audience)
+- déléguer la conversion à `IdentityProviderApi`
+- laisser `TchAccessContextPipelineFilter` construire les authorities
+
+Ne pas placer de logique métier dans `SecurityConfig`.
+
+### 5.1 Autorisation coarse-grained
 
 ```java
 .requestMatchers("/api/v1/public/**").permitAll()
 .requestMatchers("/api/v1/tenant/**").authenticated()
 .requestMatchers("/api/v1/admin/**").authenticated()
-.requestMatchers("/api/v1/platform/**").hasRole("SUPER_ADMIN")
+.requestMatchers("/api/v1/platform/**").hasAuthority("ACTOR_APP_USER")
 ```
 
-Fine-grained permissions belong to `core.accesscontrol` through method security.
+Les permissions fines appartiennent à `core.accesscontrol` via method security.
 
 ---
 
-## 5. ApiScope
+## 6. ApiScope
 
-### 5.1 Definition
-
-`ApiScope` represents the **technical execution context** of an HTTP request.
-
-It is derived from the API path only.
+`ApiScope` est dérivé du chemin de la requête uniquement :
 
 ```text
 PUBLIC    → /api/v1/public/**
@@ -121,380 +164,92 @@ PLATFORM  → /api/v1/platform/**
 SDR       → /api/v1/_sdr/**
 ```
 
-`ApiScope` is **not** a user role and **not** a permission.
-
-### 5.2 Purpose
-
-`ApiScope` determines:
-
-- whether a tenant is required;
-- whether a default tenant may be used;
-- which RLS session variables are applied;
-- how observability/audit should categorize the request.
-
-### 5.3 Target adjustment
-
-Current `ApiScopeResolver` maps `/api/v1/admin/**` to `TENANT`.
-
-Target design:
-
-- keep `ADMIN` as a distinct `ApiScope`;
-- treat `ADMIN` as tenant-scoped;
-- require tenant for `ADMIN` just like `TENANT`;
-- keep the distinction for logging, audit, permissions and RLS policy clarity.
+`ApiScope` n'est pas un rôle utilisateur.
 
 ---
 
-## 6. UserBootstrapFilter (NEW)
+## 7. TchRequestContext
 
-### 6.1 Purpose
+Champs clés :
 
-`UserBootstrapFilter` guarantees that every authenticated Keycloak user has a local `app_user` representation before `TchContextFilter` builds the request context.
-
-```text
-Keycloak JWT sub
-  ↓
-app_user.keycloak_sub
-  ↓
-appUserId available in TchRequestContext
-```
-
-### 6.2 Position
-
-```text
-Spring Security JWT authentication
-  ↓
-UserBootstrapFilter        @Order(LOWEST_PRECEDENCE - 60)
-  ↓
-TchContextFilter           @Order(LOWEST_PRECEDENCE - 50)
-```
-
-The exact order value may be adjusted, but the rule is strict:
-
-> `UserBootstrapFilter` must run after JWT authentication and before `TchContextFilter`.
-
-### 6.3 Responsibilities
-
-The filter must:
-
-- skip public requests without a JWT;
-- read JWT claims:
-  - `sub`,
-  - `email`,
-  - `preferred_username`,
-  - `name`,
-  - `locale`;
-- create `app_user` if missing;
-- update identity fields that come from JWT;
-- update `last_login_at`;
-- validate local user status;
-- use `rawDataSource` because `app_user` is global/bootstrap data;
-- run in an isolated transaction;
-- never execute business logic.
-
-### 6.4 Status behavior
-
-| `app_user.status`  | Behavior                                                    |
-| ------------------ | ----------------------------------------------------------- |
-| `ACTIVE`           | continue                                                    |
-| `PENDING_APPROVAL` | `403 user.pending_approval`                                 |
-| `INVITED`          | `403 user.must_complete_profile` or profile-completion flow |
-| `SUSPENDED`        | `403 user.suspended`                                        |
-
-### 6.5 Design constraints
-
-`UserBootstrapFilter` must not:
-
-- resolve tenant business data;
-- build `TchRequestContext`;
-- use RLS-protected repositories;
-- call `core.accesscontrol`;
-- rely on controller code.
-
----
-
-## 7. TchContextFilter
-
-### 7.1 Purpose
-
-`TchContextFilter` is the single source of truth for request context initialization.
-
-It builds and publishes `TchRequestContext`.
-
-Current implementation already resolves most context fields and publishes:
-
-- request attribute `REQUEST_CONTEXT`;
-- `TchContext` ThreadLocal;
-- MDC fields.
-
-### 7.2 Responsibilities
-
-`TchContextFilter` must:
-
-- resolve `ApiScope`;
-- extract Keycloak subject from JWT;
-- extract tenant code from JWT claim `tenant_code`;
-- collect system roles (`TchRole`) and custom roles;
-- resolve tenant context via catalog/bootstrap lookup;
-- apply super-admin tenant override when allowed;
-- resolve deleted visibility when allowed;
-- attach `appUserId` guaranteed by `UserBootstrapFilter`;
-- set `TchContext`;
-- set request attribute `REQUEST_CONTEXT`;
-- populate MDC;
-- always clear ThreadLocal and MDC in `finally`.
-
-### 7.3 TchRequestContext fields of interest
-
-Current `TchRequestContext` includes:
-
-- `originalTenantCode`;
-- `originalTenantUuid`;
-- `effectiveTenantCode`;
-- `effectiveTenantUuid`;
-- `keycloakUserId`;
-- `appUserId`;
-- `systemRoles`;
-- `customRoles`;
-- `locale`;
-- `requestId`;
-- `clientIp`;
-- `userAgent`;
-- `tenantOverridden`;
-- `deletedVisibility`;
-- `apiScope`;
-- `idempotencyKey`;
-- typed `tenantId`;
-- `tenantZoneId`;
-- `tenantCurrency`.
-
-Current helper methods include:
-
-- `tenantUuid()`;
-- `tenantId()`;
-- `tenantIdSafe()`;
-- `userId()`;
-- `userUuid()`;
-- `currentUserIdRequired()`;
-- `deletedVisibilitySafe()`;
-- `isSuperAdmin()`;
-- `withTenantContext(...)`;
-- `withAppUserId(...)`.
-
-### 7.4 Bootstrap contract
-
-With `UserBootstrapFilter` in place:
-
-- `appUserId` is guaranteed for authenticated non-public requests;
-- `currentUserIdRequired()` should represent an exceptional bootstrap failure, not a normal user flow;
-- `TchContextFilter` treats missing `app_user` as an internal/bootstrap error on protected endpoints.
+| Champ | APP_USER | SELLER_TERMINAL |
+|---|---|---|
+| `actorType` | `APP_USER` | `SELLER_TERMINAL` |
+| `appUserId` | UUID | null |
+| `sellerTerminalId` | null | UUID |
+| `roleCodes` | {"TENANT_ADMIN", ...} | {} |
+| `permissionKeys` | {"seller_terminal.manage", ...} | {"ticket.sell", ...} |
+| `externalSubject` | firebase_uid | firebase_uid |
+| `tenantId` | depuis JWT claim | depuis seller_terminal.tenant_id |
 
 ---
 
 ## 8. Tenant resolution
 
-### 8.1 Rules
+Le tenant ne vient **jamais** du payload client :
 
-The client never provides the source-of-truth tenant in body payloads.
-
-Tenant comes from:
-
-1. JWT claim `tenant_code`;
-2. default tenant for allowed public endpoints;
-3. super-admin override via header.
-
-### 8.2 Tenant required by scope
-
-| Scope      | Tenant required? | Notes                      |
-| ---------- | ---------------: | -------------------------- |
-| `PUBLIC`   |               no | may use default tenant     |
-| `TENANT`   |              yes | user tenant context        |
-| `ADMIN`    |              yes | tenant-scoped backoffice   |
-| `PLATFORM` |               no | platform/cross-tenant APIs |
-| `SDR`      | depends endpoint | internal/admin only        |
-
-If tenant is required and missing/unknown, the request must fail before controller execution.
+| Acteur | Source du tenant |
+|---|---|
+| `APP_USER` | JWT claim `tenant_code` |
+| `SELLER_TERMINAL` | `seller_terminal.tenant_id` (DB lookup) |
+| `SUPER_ADMIN` | Header `X-Tenant-Id` (override explicite) |
 
 ---
 
-## 9. Super Admin and sensitive overrides
+## 9. Super Admin et overrides sensibles
 
-### 9.1 Definition
+| Header | Signification | Autorisé pour |
+|---|---|---|
+| `X-Tenant-Id` | override tenant effectif | `SUPER_ADMIN` uniquement |
+| `X-Deleted-Visibility` | visibilité soft-deleted | `SUPER_ADMIN` uniquement |
 
-`isSuperAdmin` means:
-
-```java
-ctx.systemRoles().contains(TchRole.SUPER_ADMIN)
-```
-
-or:
-
-```java
-ctx.isSuperAdmin()
-```
-
-It is a user capability, not an API scope.
-
-### 9.2 Sensitive headers
-
-| Header                 | Meaning                              | Allowed for        |
-| ---------------------- | ------------------------------------ | ------------------ |
-| `X-Tenant-Id`          | override effective tenant            | `SUPER_ADMIN` only |
-| `X-Deleted-Visibility` | control soft-deleted rows visibility | `SUPER_ADMIN` only |
-
-`X-Deleted-Visibility` values:
-
-```text
-active   → active rows only (default)
-deleted  → deleted rows only
-all      → active + deleted rows
-```
-
-### 9.3 Target rule
-
-If a non-super-admin sends a sensitive override header:
-
-- return `403`;
-- do not silently ignore;
-- log and audit the attempt.
-
-### 9.4 Header-only recommendation
-
-Target design should prefer headers only:
-
-- `X-Tenant-Id`;
-- `X-Deleted-Visibility`.
-
-Avoid query params for these controls because URLs are more likely to leak in logs, browser history, analytics and shared links.
-
-### 9.5 Web and mobile usage
-
-Normal web/mobile apps must not send override headers.
-
-Only platform backoffice UI for `SUPER_ADMIN` may send:
-
-- `X-Tenant-Id` from a controlled tenant selector;
-- `X-Deleted-Visibility` from a controlled deleted-visibility selector.
-
-POS/mobile seller flows must never send these headers.
+Un non-super-admin qui envoie ces headers reçoit `403`.
 
 ---
 
 ## 10. RLS integration
 
-### 10.1 Purpose
+`RlsAwareDataSource` applique avant toute instruction SQL :
 
-RLS is the final tenant-isolation enforcement layer.
-
-Application code sets context. PostgreSQL enforces isolation.
-
-### 10.2 Session variables
-
-`RlsAwareDataSource` must apply session variables before any SQL statement:
-
-```text
-app.current_tenant
-app.deleted_visibility
-app.api_scope
-app.is_super_admin
-```
-
-Existing implementation may currently set only a subset. Target design is the full set above.
-
-### 10.3 Canonical mapping
-
-| Variable                 | Source                                  |
-| ------------------------ | --------------------------------------- |
-| `app.current_tenant`     | `ctx.tenantIdSafe()` / effective tenant |
-| `app.deleted_visibility` | `ctx.deletedVisibilitySafe()`           |
-| `app.api_scope`          | `ctx.apiScope()`                        |
-| `app.is_super_admin`     | `ctx.isSuperAdmin()`                    |
-
-### 10.4 Reset rule
-
-Connection cleanup must reset RLS variables before returning the connection to the pool.
-
-At minimum:
-
-```text
-app.current_tenant = ''
-app.deleted_visibility = 'active'
-app.api_scope = 'public'
-app.is_super_admin = 'false'
-```
+| Variable | Source |
+|---|---|
+| `app.current_tenant` | `ctx.tenantIdSafe()` |
+| `app.deleted_visibility` | `ctx.deletedVisibilitySafe()` |
+| `app.api_scope` | `ctx.apiScope()` |
+| `app.is_super_admin` | `ctx.isSuperAdmin()` |
 
 ---
 
-## 11. Web/mobile client contract
+## 11. Contrat client HTTP
 
-### 11.1 Standard clients
-
-Standard web/mobile/POS requests send:
+### Client standard (web/mobile gestionnaire + POS)
 
 ```http
-Authorization: Bearer <jwt>
+Authorization: Bearer <firebase-id-token>
 X-Request-ID: <uuid>              optional
-Idempotency-Key: <uuid>           required for critical commands
+Idempotency-Key: <uuid>           requis pour commandes critiques
 ```
 
-They must not send:
-
+Ne pas envoyer :
 ```http
 X-Tenant-Id
 X-Deleted-Visibility
 ```
 
-### 11.2 Platform backoffice client
-
-Platform UI for `SUPER_ADMIN` may send:
+### Client Platform (SUPER_ADMIN uniquement)
 
 ```http
 X-Tenant-Id: <tenantCode|tenantUuid>
 X-Deleted-Visibility: active|deleted|all
 ```
 
-All such requests must be auditable.
-
 ---
 
-## 12. Non-HTTP contexts
+## 12. Règles absolues
 
-For startup, batch and async flows:
-
-- bind `TchRequestContext` manually with `TchContext.set(ctx)`;
-- clear it in `finally`;
-- do not depend on `SecurityContextHolder`.
-
-Current helper:
-
-- `TchContextRunner`;
-- `TchRequestContext.startupTenant(...)`.
-
-Target adjustment:
-
-- avoid `ZoneId.systemDefault()` for business semantics;
-- prefer tenant timezone or explicit UTC/default app zone.
-
----
-
-## 13. Absolute rules
-
-- Controllers must not parse JWT.
-- Controllers must not resolve tenant UUID.
-- Handlers must not use `SecurityContextHolder`.
-- Client payloads must not be trusted as tenant source of truth.
-- `app_user` bootstrap must bypass RLS but must remain technical, not business logic.
-- RLS is mandatory for tenant-scoped tables.
-
----
-
-## 14. Implementation checklist
-
-- [x] Introduce `UserBootstrapFilter`.
-- [x] Register it before `TchContextFilter`.
-- [x] Ensure `appUserId` is guaranteed on authenticated protected requests.
-- [x] Introduce `ADMIN` as a distinct `ApiScope`.
-- [x] Enforce `403` for non-super-admin override headers.
-- [x] Propagate `app.api_scope` and `app.is_super_admin` to RLS.
-- [x] Reset all RLS variables on connection close.
-- [ ] Document web/mobile header contract.
+- Les controllers ne parsent pas le JWT.
+- Les controllers ne résolvent pas le tenant UUID.
+- Les handlers n'utilisent pas `SecurityContextHolder`.
+- Le payload client n'est jamais la source de vérité du tenant.
+- Le PIN d'un SellerTerminal n'est jamais loggué ni stocké en clair en DB.
+- RLS est obligatoire pour toutes les tables tenant-scoped.
