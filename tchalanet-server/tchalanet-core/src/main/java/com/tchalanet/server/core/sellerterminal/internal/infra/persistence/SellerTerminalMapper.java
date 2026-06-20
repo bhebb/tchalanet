@@ -27,7 +27,9 @@ public class SellerTerminalMapper {
             e.getBlockedAt(),
             UserId.nullableOf(e.getBlockedBy()),
             e.getBlockedReason(),
-            e.getDisabledAt());
+            e.getDisabledAt(),
+            e.isMustChangePin(),
+            e.getPinResetAt());
     }
 
     public void updateEntity(SellerTerminalJpaEntity e, SellerTerminal t) {
@@ -46,6 +48,8 @@ public class SellerTerminalMapper {
         e.setBlockedBy(t.blockedBy() != null ? t.blockedBy().value() : null);
         e.setBlockedReason(t.blockedReason());
         e.setDisabledAt(t.disabledAt());
+        e.setMustChangePin(t.mustChangePin());
+        e.setPinResetAt(t.pinResetAt());
     }
 
     public SellerTerminalJpaEntity toNewEntity(SellerTerminal t) {

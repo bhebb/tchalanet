@@ -22,6 +22,11 @@ public interface SellerTerminalIdentityProvisionPort {
     );
 
     /**
+     * Returns true if this terminal has an external (Firebase) identity bound.
+     */
+    boolean hasExternalIdentity(SellerTerminalId id);
+
+    /**
      * Updates the Firebase password for an existing terminal.
      * Used by the reset-access flow.
      */

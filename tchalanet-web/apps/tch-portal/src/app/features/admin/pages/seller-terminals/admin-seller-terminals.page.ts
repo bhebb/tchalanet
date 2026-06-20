@@ -163,7 +163,14 @@ export class AdminSellerTerminalsPage implements OnInit {
   }
 
   openResetPin(row: SellerTerminalSummaryRow): void {
-    this.dialog.open(ResetPinDialog, { data: row, width: '420px' });
+    const ref = this.dialog.open(ResetPinDialog, {
+      data: row,
+      width: '480px',
+      disableClose: true,
+    });
+    ref.afterClosed().subscribe((result?: { reload: boolean }) => {
+      if (result?.reload) this.loadPage();
+    });
   }
 
   openDisable(row: SellerTerminalSummaryRow): void {

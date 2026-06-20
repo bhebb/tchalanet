@@ -99,9 +99,9 @@
                   Débloquer
                 </button>
               }
-              <button mat-menu-item (click)="openResetPin(row)">
-                <span class="material-symbols-outlined">key</span>
-                Reset PIN
+              <button mat-menu-item (click)="openResetPin(row)" [disabled]="row.status === 'DISABLED'">
+                <span class="material-symbols-outlined">lock_reset</span>
+                Réinitialiser PIN
               </button>
               @if (row.status !== 'DISABLED') {
                 <button mat-menu-item (click)="openDisable(row)">

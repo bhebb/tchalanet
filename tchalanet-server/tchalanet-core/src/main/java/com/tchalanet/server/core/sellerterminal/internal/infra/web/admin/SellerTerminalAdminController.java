@@ -13,8 +13,11 @@ import com.tchalanet.server.core.sellerterminal.api.command.BlockSellerTerminalC
 import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.DisableSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.ResetSellerTerminalAccessCommand;
+import com.tchalanet.server.core.sellerterminal.api.command.ResetSellerTerminalPinCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UnblockSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommand;
+import com.tchalanet.server.core.sellerterminal.api.model.PinResetReason;
+import com.tchalanet.server.core.sellerterminal.api.model.ResetSellerTerminalPinView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
@@ -187,7 +190,7 @@ public class SellerTerminalAdminController {
 
     @PatchMapping("/{id}/reset-access")
     @RequiresPermission("seller_terminal.reset_access")
-    @Operation(summary = "Reset PIN for a seller terminal")
+    @Operation(summary = "Reset PIN for a seller terminal (admin provides PIN)")
     @AuditLog(
         entity = AuditEntityType.SELLER_TERMINAL,
         action = AuditAction.SELLER_TERMINAL_RESET_ACCESS,
@@ -203,8 +206,32 @@ public class SellerTerminalAdminController {
             ctx.currentUserIdRequired()));
     }
 
+    @PostMapping("/{id}/pin-reset")
+    @RequiresPermission("seller_terminal.pin.reset")
+    @Operation(summary = "Reset PIN for a seller terminal — backend generates temporary PIN")
+    @AuditLog(
+        entity = AuditEntityType.SELLER_TERMINAL,
+        action = AuditAction.SELLER_TERMINAL_PIN_RESET,
+        idExpression = "#id.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<ResetSellerTerminalPinView> resetPin(
+        @CurrentContext TchRequestContext ctx,
+        @PathVariable SellerTerminalId id,
+        @Valid @RequestBody PinResetRequest request
+    ) {
+        var result = commandBus.execute(new ResetSellerTerminalPinCommand(
+            ctx.effectiveTenantIdRequired(), id,
+            request.reason(),
+            ctx.currentUserIdRequired()));
+        return ApiResponse.success(result);
+    }
+
     public record ResetPinRequest(
         @jakarta.validation.constraints.Pattern(
             regexp = "\\d{6}", message = "PIN must be exactly 6 digits")
         String newPin) {}
+
+    public record PinResetRequest(
+        @jakarta.validation.constraints.NotNull
+        PinResetReason reason) {}
 }

@@ -20,6 +20,9 @@
     {"code": "seller_terminal.sell", "label": "Sell via seller terminal", "category": "seller_terminal", "system": true, "active": true},
     {"code": "seller_terminal.ticket.read_own", "label": "Read own seller terminal tickets", "category": "seller_terminal", "system": true, "active": true},
     {"code": "seller_terminal.ticket.reprint_own", "label": "Reprint own seller terminal tickets", "category": "seller_terminal", "system": true, "active": true},
+    {"code": "seller_terminal.manage", "label": "Manage seller terminals", "category": "seller_terminal", "system": true, "active": true},
+    {"code": "seller_terminal.block", "label": "Block/unblock seller terminals", "category": "seller_terminal", "system": true, "active": true},
+    {"code": "seller_terminal.pin.reset", "label": "Reset seller terminal PIN", "category": "seller_terminal", "system": true, "active": true},
     {"code": "report.read", "label": "Read reports", "category": "report", "system": true, "active": true},
     {"code": "audit.read", "label": "Read audit", "category": "audit", "system": true, "active": true}
   ],
@@ -55,7 +58,10 @@
         "user.permission.manage",
         "role.read",
         "permission.read",
-        "report.read"
+        "report.read",
+        "seller_terminal.manage",
+        "seller_terminal.block",
+        "seller_terminal.pin.reset"
       ]
     },
     {

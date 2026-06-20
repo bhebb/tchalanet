@@ -17,7 +17,8 @@ public final class SellerTerminalViews {
             t.phoneNumber(), t.addressId(),
             t.status(), t.commissionRate(),
             t.lastSeenAt(), t.activatedAt(),
-            t.blockedAt(), t.blockedBy(), t.blockedReason(), t.disabledAt());
+            t.blockedAt(), t.blockedBy(), t.blockedReason(), t.disabledAt(),
+            t.mustChangePin(), t.pinResetAt());
     }
 
     public static SellerTerminalSummaryRow summary(SellerTerminal t) {

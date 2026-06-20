@@ -86,4 +86,14 @@ public class SellerTerminalJpaEntity extends BaseTenantEntity {
     @Audited(withModifiedFlag = true)
     @Column(name = "disabled_at")
     private Instant disabledAt;
+
+    // ── PIN reset state (audited) ─────────────────────────────────────────────
+
+    @Audited(withModifiedFlag = true)
+    @Column(name = "must_change_pin", nullable = false)
+    private boolean mustChangePin = false;
+
+    @Audited(withModifiedFlag = true)
+    @Column(name = "pin_reset_at")
+    private Instant pinResetAt;
 }

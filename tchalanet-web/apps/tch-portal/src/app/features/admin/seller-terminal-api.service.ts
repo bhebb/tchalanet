@@ -40,6 +40,25 @@ export interface UpdateSellerTerminalRequest {
   commissionRate?: number | null;
 }
 
+export type PinResetReason =
+  | 'PIN_LOST'
+  | 'SELLER_CHANGED'
+  | 'SUSPECTED_COMPROMISE'
+  | 'ADMIN_CORRECTION'
+  | 'OTHER';
+
+export interface ResetSellerTerminalPinRequest {
+  reason: PinResetReason;
+}
+
+export interface ResetSellerTerminalPinResponse {
+  sellerTerminalId: string;
+  terminalCode: string;
+  temporaryPin: string;
+  mustChangePin: boolean;
+  pinResetAt: string;
+}
+
 export interface TchPage<T> {
   items: T[];
   total: number;
@@ -97,5 +116,9 @@ export class SellerTerminalApi {
 
   resetAccess(id: string, newPin: string): Observable<void> {
     return this.backend.patch<void>(`/admin/seller-terminals/${id}/reset-access`, { newPin });
+  }
+
+  resetPin(id: string, req: ResetSellerTerminalPinRequest): Observable<ResetSellerTerminalPinResponse> {
+    return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req);
   }
 }

@@ -93,6 +93,8 @@ public enum AuditAction {
     SELLER_TERMINAL_UNBLOCK,
     SELLER_TERMINAL_DISABLE,
     SELLER_TERMINAL_RESET_ACCESS,
+    SELLER_TERMINAL_PIN_RESET,
+    SELLER_TERMINAL_PIN_CHANGE,
     SELLER_TERMINAL_COMMISSION_CHANGE,
 
     // ── Identity/access (canonical: ROLE_ASSIGN) ─────────────────────────

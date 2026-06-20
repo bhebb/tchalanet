@@ -42,6 +42,7 @@ public final class PermissionKeys {
   public static final String SELLER_TERMINAL_MANAGE = "seller_terminal.manage";
   public static final String SELLER_TERMINAL_BLOCK = "seller_terminal.block";
   public static final String SELLER_TERMINAL_RESET_ACCESS = "seller_terminal.reset_access";
+  public static final String SELLER_TERMINAL_PIN_RESET = "seller_terminal.pin.reset";
   public static final String SELLER_TERMINAL_OPERATIONAL_CONTEXT_READ =
       "seller_terminal.operational_context.read";
   public static final String SELLER_TERMINAL_ME_READ = "seller_terminal.me.read";

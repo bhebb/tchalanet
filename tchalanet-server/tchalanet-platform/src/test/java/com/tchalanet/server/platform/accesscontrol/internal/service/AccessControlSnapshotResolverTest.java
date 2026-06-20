@@ -6,9 +6,11 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.UserPermissionOverrideJpaEntity;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.PlatformUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.RoleAccessRow;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserAccessRow;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserAccessSnapshotJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserPermissionOverrideJpaRepository;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +26,8 @@ class AccessControlSnapshotResolverTest {
     private static final UserId USER = UserId.of(UUID.randomUUID());
     private static final TenantId TENANT = TenantId.of(UUID.randomUUID());
 
+    @Mock private PlatformUserRoleJpaRepository platformUserRoleRepository;
+    @Mock private UserAccessSnapshotJpaRepository userAccessSnapshotRepository;
     @Mock private TenantUserRoleJpaRepository tenantUserRoleRepository;
     @Mock private UserPermissionOverrideJpaRepository overrideRepository;
 
@@ -31,12 +35,14 @@ class AccessControlSnapshotResolverTest {
 
     @BeforeEach
     void setUp() {
-        resolver = new AccessControlSnapshotResolver(tenantUserRoleRepository, overrideRepository);
+        resolver = new AccessControlSnapshotResolver(
+            platformUserRoleRepository, userAccessSnapshotRepository,
+            tenantUserRoleRepository, overrideRepository);
     }
 
     @Test
     void resolvePlatform_collectsRolesAndPermissions_andDetectsSuperAdmin() {
-        when(tenantUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
+        when(platformUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
             .thenReturn(List.of(
                 row("SUPER_ADMIN", "platform.tenant.override"),
                 row("SUPER_ADMIN", "platform.ops.run")));
@@ -51,7 +57,7 @@ class AccessControlSnapshotResolverTest {
 
     @Test
     void resolvePlatform_roleWithoutPermissions_yieldsRoleAndNoPermission() {
-        when(tenantUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
+        when(platformUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
             .thenReturn(List.of(row("SUPER_ADMIN", null)));
 
         var access = resolver.resolvePlatform(USER);
@@ -62,7 +68,7 @@ class AccessControlSnapshotResolverTest {
 
     @Test
     void resolvePlatform_noPlatformRoles_isNotSuperAdmin() {
-        when(tenantUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
+        when(platformUserRoleRepository.findPlatformRoleAccessRows(USER.value()))
             .thenReturn(List.of());
 
         var access = resolver.resolvePlatform(USER);
@@ -104,7 +110,7 @@ class AccessControlSnapshotResolverTest {
 
     @Test
     void resolveUserAccess_buildsGlobalSnapshotAndAppliesTenantOverrides() {
-        when(tenantUserRoleRepository.findUserAccessRows(USER.value()))
+        when(userAccessSnapshotRepository.findUserAccessRows(USER.value()))
             .thenReturn(List.of(
                 accessRow(null, null, null, null, "PLATFORM", "SUPER_ADMIN", "platform.tenant.override"),
                 accessRow(TENANT.value(), "demo", "Demo", "ACTIVE", "TENANT", "TENANT_ADMIN", "ticket.read"),

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUserRoleJpaEntity, UUID> {
 
   @Query("""
@@ -31,6 +30,25 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
         and r.deletedAt is null
       """)
   int softDeleteAssignment(@Param("userId") UUID userId, @Param("roleId") UUID roleId);
+
+  /**
+   * One-shot platform-scope access snapshot for a user: each active platform role joined to its
+   * granted permissions (left join, so a role with no permissions still yields a row with a null
+   * permission code). Used by {@code AccessControlSnapshotResolver#resolvePlatform}.
+   */
+  @Query("""
+      select role.code as roleCode, rp.id.permissionCode as permissionCode
+      from PlatformUserRoleJpaEntity assignment
+      join AppRoleJpaEntity role on role.id = assignment.roleId
+      left join AppRolePermissionJpaEntity rp on rp.role.id = role.id
+      where assignment.userId = :userId
+        and assignment.deletedAt is null
+        and role.system = true
+        and role.active = true
+        and role.deletedAt is null
+        and role.scope = 'PLATFORM'
+      """)
+  List<RoleAccessRow> findPlatformRoleAccessRows(@Param("userId") UUID userId);
 
   @Query(
       value = """

@@ -3,9 +3,11 @@ package com.tchalanet.server.platform.accesscontrol.internal.service;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.UserPermissionOverrideJpaEntity;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.PlatformUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.RoleAccessRow;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserAccessRow;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserAccessSnapshotJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserPermissionOverrideJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccessControlSnapshotResolver {
 
+    private final PlatformUserRoleJpaRepository platformUserRoleRepository;
+    private final UserAccessSnapshotJpaRepository userAccessSnapshotRepository;
     private final TenantUserRoleJpaRepository tenantUserRoleRepository;
     private final UserPermissionOverrideJpaRepository overrideRepository;
 
@@ -80,13 +84,18 @@ public class AccessControlSnapshotResolver {
         Set<String> permissionKeys) {
     }
 
+    /**
+     * Full access snapshot for runtime/bootstrap only (login, first-login activation, browser
+     * refresh). Loads all tenant contexts in a single UNION query — do NOT call this on every
+     * API request. Use {@link #resolvePlatform} or {@link #resolveTenant} for request filters.
+     */
     @Transactional(readOnly = true)
     public AccessSnapshot resolveUserAccess(UserId userId) {
         var platformRoleCodes = new HashSet<String>();
         var platformPermissionKeys = new HashSet<String>();
         var tenantAccumulators = new LinkedHashMap<UUID, TenantAccessAccumulator>();
         SellerTerminalAccessScope sellerTerminalScope = null;
-        var rows = tenantUserRoleRepository.findUserAccessRows(userId.value());
+        var rows = userAccessSnapshotRepository.findUserAccessRows(userId.value());
         for (var row : rows) {
             var scope = row.getScope();
             if ("PLATFORM".equals(scope)) {
@@ -122,7 +131,7 @@ public class AccessControlSnapshotResolver {
     public PlatformAccess resolvePlatform(UserId userId) {
         var roleCodes = new HashSet<String>();
         var permissionKeys = new HashSet<String>();
-        collectRows(tenantUserRoleRepository.findPlatformRoleAccessRows(userId.value()), roleCodes, permissionKeys);
+        collectRows(platformUserRoleRepository.findPlatformRoleAccessRows(userId.value()), roleCodes, permissionKeys);
         return new PlatformAccess(
             roleCodes.contains("SUPER_ADMIN"), Set.copyOf(roleCodes), Set.copyOf(permissionKeys));
     }

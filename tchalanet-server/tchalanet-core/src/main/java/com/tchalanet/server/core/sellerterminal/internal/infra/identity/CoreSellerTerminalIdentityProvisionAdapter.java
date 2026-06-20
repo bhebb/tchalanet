@@ -48,6 +48,11 @@ class CoreSellerTerminalIdentityProvisionAdapter implements SellerTerminalIdenti
     }
 
     @Override
+    public boolean hasExternalIdentity(SellerTerminalId id) {
+        return identityRepo.existsBySellerTerminalId(id.value());
+    }
+
+    @Override
     public void resetPin(SellerTerminalId id, TenantId tenantId, String newPin) {
         var identity = identityRepo.findBySellerTerminalId(id.value())
             .orElseThrow(() -> new IllegalStateException(

@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
@@ -54,11 +53,10 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
 
         ResolvedAccessContext resolved;
 
-        if (bootstrappedActor.isAppUser()) {
-            resolved = resolveAppUser(request, bootstrappedActor);
-            if (resolved == null) return; // 403 already written
-        } else if (bootstrappedActor.isSellerTerminal()) {
+        if (bootstrappedActor.isSellerTerminal()) {
             resolved = resolveSellerTerminal(request, bootstrappedActor);
+        } else if (bootstrappedActor.isAppUser()) {
+            resolved = resolveAppUser(request, bootstrappedActor);
         } else {
             throw ProblemRest.forbidden("unknown.actor_type");
         }
@@ -68,78 +66,40 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
     }
 
     // package-private for unit testing (avoids @Transactional proxy issue on private)
-    ResolvedAccessContext resolveAppUser(
-        HttpServletRequest request,
-        BootstrappedActor actor) {
-
+    ResolvedAccessContext resolveAppUser(HttpServletRequest request, BootstrappedActor actor) {
         var userId = actor.appUserId();
         var scope = ApiScopeResolver.resolve(request);
 
-        // 1. Global DB-backed access snapshot. ApiScopeResolver still decides the current request
-        //    scope; the snapshot supplies the user's possible platform/tenant access contexts.
-        var snapshot = snapshotResolver.resolveUserAccess(userId);
-        var platform = snapshot.platform();
-        var superAdmin = platform.superAdmin();
-
-        var roleCodes = new HashSet<>(platform.roleCodes());
-        var permissionKeys = new HashSet<>(platform.permissionKeys());
-        var tenantScopeIds = snapshot.tenantScopes().stream()
-            .map(AccessControlSnapshotResolver.TenantAccessScope::tenantId)
-            .toList();
-
-        if (scope == ApiScope.IDENTITY) {
+        // ADMIN / TENANT: primary business API — most frequent path.
+        if (scope == ApiScope.ADMIN || scope == ApiScope.TENANT) {
+            var platform = snapshotResolver.resolvePlatform(userId);
+            var effectiveTenant = effectiveTenantResolver.resolveForAppUser(
+                request, userId, platform.superAdmin(), platform.permissionKeys());
+            var effectiveTenantId = effectiveTenant.tenantId();
+            var roleCodes = new HashSet<>(platform.roleCodes());
+            var permissionKeys = new HashSet<>(platform.permissionKeys());
+            if (effectiveTenantId != null) {
+                var tenantAccess = snapshotResolver.resolveTenant(userId, effectiveTenantId);
+                roleCodes.addAll(tenantAccess.roleCodes());
+                permissionKeys.addAll(tenantAccess.permissionKeys());
+            }
             return new ResolvedAccessContext(
-                TchActorType.APP_USER,
-                userId,
-                null,
-                null,
-                superAdmin,
-                false,
-                roleCodes,
-                permissionKeys
-            );
+                TchActorType.APP_USER, userId, null, effectiveTenantId,
+                platform.superAdmin(), effectiveTenant.tenantOverride(),
+                roleCodes, permissionKeys);
         }
 
-        // 2. Effective tenant + override decided centrally: a normal user's tenant comes from their
-        //    single active membership; a SUPER_ADMIN gets a tenant only via an explicit override.
-        var effectiveTenant = effectiveTenantResolver.resolveForAppUser(
-            request, userId, superAdmin, platform.permissionKeys(), tenantScopeIds);
-        var effectiveTenantId = effectiveTenant.tenantId();
-        var tenantOverride = effectiveTenant.tenantOverride();
-
-        // 3. Tenant-scope roles + effective permissions for TENANT and ADMIN scopes.
-        if (effectiveTenantId != null && (scope == ApiScope.TENANT || scope == ApiScope.ADMIN)) {
-            var tenant = findTenantScope(snapshot.tenantScopes(), effectiveTenantId);
-
-            if (tenant == null && !tenantOverride) {
-                throw ProblemRest.forbidden("tenant.no_membership");
-            }
-
-            if (tenant != null) {
-                roleCodes.addAll(tenant.roleCodes());
-                permissionKeys.addAll(tenant.permissionKeys());
-            }
+        // PLATFORM: platform roles only, no tenant context.
+        if (scope == ApiScope.PLATFORM) {
+            var platform = snapshotResolver.resolvePlatform(userId);
+            return new ResolvedAccessContext(
+                TchActorType.APP_USER, userId, null, null,
+                platform.superAdmin(), false,
+                platform.roleCodes(), platform.permissionKeys());
         }
 
-        return new ResolvedAccessContext(
-            TchActorType.APP_USER,
-            userId,
-            null,
-            effectiveTenantId,
-            superAdmin,
-            tenantOverride,
-            roleCodes,
-            permissionKeys
-        );
-    }
-
-    private AccessControlSnapshotResolver.TenantAccessScope findTenantScope(
-        List<AccessControlSnapshotResolver.TenantAccessScope> tenantScopes,
-        com.tchalanet.server.common.types.id.TenantId tenantId) {
-        return tenantScopes.stream()
-            .filter(scope -> scope.tenantId().equals(tenantId))
-            .findFirst()
-            .orElse(null);
+        // IDENTITY / PUBLIC: authenticated user only — no DB queries needed.
+        return ResolvedAccessContext.identityOnly(userId);
     }
 
     // package-private for unit testing
