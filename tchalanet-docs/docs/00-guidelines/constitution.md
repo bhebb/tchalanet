@@ -30,7 +30,7 @@
 ### Infra
 
 - **PostgreSQL** (RLS multi-tenant)
-- **Keycloak** (auth centralisée)
+- **Firebase** (auth centralisée — APP_USER et SELLER_TERMINAL)
 - **Docker Compose** (dev local)
 - **Traefik** (reverse proxy)
 

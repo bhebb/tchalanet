@@ -1,14 +1,15 @@
 # Sell Ticket — Flow
 
 > Le flow le plus critique du système. Toute vente passe par ce pipeline.  
-> Domaine pivot : `core.sales` · Référence : `core/sales/DOMAIN_SALES.md`
+> Domaine pivot : `core.sales` · Référence : `core/sales/DOMAIN_SALES.md`  
+> **Acteur** : `SELLER_TERMINAL` (ou `APP_USER` avec Admin POS sélection)
 
 ---
 
 ## Vue d'ensemble
 
 ```
-Vendeur POS
+SellerTerminal POS
     │
     ├─ Preview ─────────────────── Validation read-only + promotion PROPOSED (pas d'effet)
     │                              → Décision: ACCEPTABLE / REQUIRES_CHANGES / REJECTED_FINAL
@@ -21,7 +22,7 @@ Vendeur POS
     │
     ├─ Cancel ───────────────────── Fenêtre 3 min après vente
     │
-    └─ Post-sell ────────────────── ResultedEvent → Settlement → Payout claim
+    └─ Post-sell ────────────────── ResultedEvent → Settlement
 ```
 
 ---
@@ -45,7 +46,7 @@ Un ticket `SOLD` + `WON` + `PAYOUT_PENDING` = gagnant, paiement à effectuer.
 
 ```
 POST /tenant/cashier/tickets/preview
-  { terminalId, drawId, drawChannelId, currency, lines:[...] }
+  { sellerTerminalId, drawId, drawChannelId, currency, lines:[...] }
   → SaleAcceptanceEvaluator.evaluatePreview()
 ```
 
@@ -55,7 +56,7 @@ POST /tenant/cashier/tickets/preview
 |---|---|---|
 | `ACCEPTABLE` | Panier valide, vente autorisée | Activer "Vendre" |
 | `REQUIRES_CHANGES` | Approbation requise (mise > autonomie) | Afficher `sellerInstruction`, modifier |
-| `REJECTED_FINAL` | Tirage fermé, session invalide | Bloquer |
+| `REJECTED_FINAL` | Tirage fermé | Bloquer |
 
 > ⚠ Preview ne réserve pas l'exposition. Un sell peut encore retourner `EXPOSURE_CHANGED` si une autre vente arrive entre preview et sell.
 
@@ -66,14 +67,13 @@ POST /tenant/cashier/tickets/preview
 ```
 POST /tenant/cashier/tickets/sell
 Idempotency-Key: <uuid-v4>
-{ terminalId, drawId, drawChannelId, currency, lines:[...], promotionChoiceInput?: {...} }
+{ sellerTerminalId, drawId, drawChannelId, currency, lines:[...], promotionChoiceInput?: {...} }
 ```
 
 ### Pipeline interne (`SalePreparationOrchestrator`, `@TchTx`)
 
 ```
-1. validateSession()            → session OPEN + outlet non bloqué
-2. DrawCutoffRule()             → now < draw.cutoffAt
+1. DrawCutoffRule()             → now < draw.cutoffAt
 3. normalize + toTicketLines()  → snapshot odds via PricingCatalog
 4. saleChargeCalculator()       → charges initiales (ex: frais SMS)
 5. SalePromotionEvaluator       → EvaluatePromotionQuery → core.promotion
@@ -85,13 +85,13 @@ Idempotency-Key: <uuid-v4>
    ├─ BOOST_ODDS      → remplace les odds sur les lignes concernées
    └─ WAIVE_CHARGE    → annule une charge (ex: frais SMS waivés)
 
-7. saleLimitAutonomyEvaluator   → évalue les limites sur les LIGNES FINALES (après promo)
+7. SaleLimitEvaluator           → évalue les limites sur les LIGNES FINALES (après promo)
    ├─ EvaluateLimitPolicyQuery → notices WARN / BLOCK
-   └─ ResolveAutonomyPolicy    → BLOCK → PENDING_APPROVAL si requireApprovalOnBlock
+   └─ Si BLOCK + requireApprovalOnBlock → PENDING_APPROVAL
 
 8. Selon outcome :
-   ├─ BLOCK sans autonomy → 422 limitBlocked
-   ├─ BLOCK avec autonomy → TicketSaleFactory.newPendingApprovalTicket()
+   ├─ BLOCK → 422 limitBlocked
+   ├─ BLOCK + approval → TicketSaleFactory.newPendingApprovalTicket()
    │                        → save → 202 ACCEPTED (notice APPROVAL_REQUIRED)
    └─ OK → TicketSaleFactory.newSoldTicket()
            → save → AppliedPromotionSnapshotWriterPort.save()
@@ -217,7 +217,7 @@ C'est la preuve offline client. Disponible avant print/send.
 
 ```
 POST /tenant/tickets/{id}/approve   [TENANT_ADMIN, SUPER_ADMIN]
-  → re-valide cutoff + session
+  → re-valide cutoff
   → Ticket: PENDING_APPROVAL → SOLD
   → TicketPlacedEvent publié
 
@@ -234,11 +234,10 @@ POST /tenant/tickets/{id}/reject    [TENANT_ADMIN, SUPER_ADMIN]
 
 ```
 POST /tenant/cashier/tickets/{id}/cancel
-{ terminalId, reason }
+{ sellerTerminalId, reason }
 → Ticket: SOLD → VOID
 → TicketCancelledEvent (AfterCommit)
    → core.limitpolicy : libère l'exposition
-   → core.session : décrémente les totaux
    → features.stats : met à jour les agrégats
 ```
 
@@ -251,12 +250,10 @@ Au-delà → `REJECTED` + issue `CANCEL_WINDOW_EXPIRED`.
 
 | Event | Producteur | Consommateurs |
 |---|---|---|
-| `TicketPlacedEvent` | `SellTicketCommandHandler` · `ApproveTicketSaleCommandHandler` | `core.limitpolicy` (exposure), `core.session` (totaux), `core.ledger` (écriture comptable), `features.stats` (×2) |
-| `TicketCancelledEvent` | `CancelSaleCommandHandler` | `core.limitpolicy`, `core.session`, `features.stats` |
+| `TicketPlacedEvent` | `SellTicketCommandHandler` · `ApproveTicketSaleCommandHandler` | `core.limitpolicy` (exposure), `features.stats` (×2) |
+| `TicketCancelledEvent` | `CancelSaleCommandHandler` | `core.limitpolicy`, `features.stats` |
 | `TicketResultedEvent` | `RecordDrawTicketsResultCommandHandler` | `features.stats`, `core.sales` → settlement |
-| `TicketWinningSettlementCreatedEvent` | `core.sales` | `core.payout` → `OpenPayoutClaimFromSettlementCommand` |
-
-> `SalesLedgerListener` consomme `TicketPlacedEvent` en `@EventListener` synchrone (dans la TX) — anomalie connue, les exceptions sont loguées mais silencieusement ignorées.
+| `TicketWinningSettlementCreatedEvent` | `core.sales` | claim de gain (non documenté) |
 
 ---
 
@@ -272,16 +269,15 @@ DrawResultAppliedEvent
     → TicketResultedEvent publié
 
 Si WON :
-  → TicketWinningSettlementCreatedEvent
-  → core.payout : OpenPayoutClaimFromSettlementCommand
-  → PayoutClaim OPEN → vendeur peut payer
+  → TicketWinningSettlementCreatedEvent publié
+  → TicketSettlementStatus: PAYOUT_PENDING
 
 Si LOST :
   → TicketSettlementStatus: NO_PAYOUT
   → Cycle terminé
 ```
 
-→ Voir flow complet : [settlement](./settlement.md) · [payout-field-flow](./payout-field-flow.md)
+→ Voir flow complet : [settlement](./settlement.md)
 
 ---
 
@@ -289,9 +285,6 @@ Si LOST :
 
 | Anomalie | Impact | Statut |
 |---|---|---|
-| `SalesLedgerListener` synchrone (dans TX) | Exception ledger ignorée silencieusement | Connu |
-| `outlet bloqué → 500` au lieu de `403/422` | Message d'erreur technique exposé | Connu |
-| `PENDING_APPROVAL` : `outletId/agentId` null si session non retrouvée à l'approve | Données audit incomplètes | Connu |
 | `DrawSalesGuardPort` = NoOp | Annulation draw sans vérification des tickets vendus | À corriger |
 | Vérification "single gameCode per ticket" après save | Rollback nécessaire si lignes mixtes | Connu (MVP) |
 
@@ -302,14 +295,10 @@ Si LOST :
 | Domaine | Rôle dans le flow |
 |---|---|
 | `core.sales` | Pivot : commande, factory, persistence, events |
-| `core.session` | Validation session ouverte |
-| `core.outlet` | Vérification outlet non bloqué |
 | `core.draw` | Vérification cutoff |
 | `catalog.pricing` | Snapshot odds |
 | `core.limitpolicy` | Évaluation seuils, application exposure post-event |
-| `core.autonomy` | Décision BLOCK → PENDING_APPROVAL |
-| `core.ledger` | Écriture comptable (event listener) |
-| `core.payout` | Claim de paiement post-settlement |
+| `core.promotion` | Évaluation et effets promotion |
 | `features.stats` | Agrégats temps réel |
 
 ---
@@ -318,8 +307,8 @@ Si LOST :
 
 - Domaine : `core/sales/DOMAIN_SALES.md`
 - Intégration mobile : `features.cashier/MOBILE_FLOW.md`
-- Session POS requise : [session-opening](./session-opening.md)
+- SellerTerminal provisioning : [seller-onboarding](./seller-onboarding.md)
+- Auth POS : [authentication-flow §4](../../01-architecture/flows/authentication-flow.md#4-path-seller_terminal)
 - Settlement après tirage : [settlement](./settlement.md)
-- Payout terrain : [payout-field-flow](./payout-field-flow.md)
 - Vérification ticket public : [verify-ticket](./verify-ticket.md)
 - Audit pipeline : `tchalanet-server/docs/audit/2026-04-26-sales-pipeline-audit.md`

@@ -32,7 +32,8 @@ Ne valide pas l'état métier des ressources cibles (voir core).
 | Déprécié | `setTenantUserRole` → utiliser `assignRoleToUser` |
 
 **Constantes** — `platform/accesscontrol/api/PermissionKeys.java` : la source unique des codes
-de permission (`user.role.assign`, `user.permission.manage`, `platform.ops.execute`, `terminal.bind`…).
+de permission (`user.role.assign`, `user.permission.manage`, `platform.ops.execute`,
+`seller_terminal.manage`, `seller_terminal.block`, `seller_terminal.pin.reset`…).
 Les `@PreAuthorize("hasPermission('…')")` doivent référencer ces clés, jamais des littéraux ad hoc.
 
 **Intégration Spring Security** :
@@ -72,8 +73,17 @@ elles se recalculent depuis rôle + overrides.
 
 ## Autorités et rôles applicatifs (invariant cross-module)
 
-Firebase authentifie l'identité externe uniquement. Les rôles, autorités, permissions fines et
-overrides sont résolus depuis Tchalanet; aucun rôle n'est miroité vers Firebase.
+Firebase authentifie l'identité externe pour TOUS les acteurs (APP_USER et SELLER_TERMINAL).
+Les rôles, autorités, permissions fines et overrides sont résolus depuis Tchalanet.
+Aucun rôle n'est miroité vers Firebase.
+
+**Les `SELLER_TERMINAL` n'ont pas de rôles** (`roleCodes = {}`). Leur autorisation repose sur :
+- l'authority `ACTOR_SELLER_TERMINAL` (autorisation coarse-grained)
+- les permissions directement accordées à l'entité (ex: `ticket.sell`)
+- le statut (`ACTIVE`) et le flag `mustChangePin = false`
+
+`platform.accesscontrol` gère les rôles et permissions des `APP_USER` uniquement.
+La validation d'un `SELLER_TERMINAL` se fait via `core.sellerterminal`.
 
 
 ## Deny-Safe Evaluation
@@ -92,11 +102,12 @@ Ne jamais faire confiance aux tenantId issus du payload HTTP comme source d'auto
 ## Ce que AccessControl ne fait pas
 
 Ne valide pas :
-- l'état métier (payout, ticket, terminal, etc.)
+- l'état métier (payout, ticket, sellerterminal, etc.)
 - les eligibility business (offline, limits, draw, etc.)
-- le **contexte opérationnel** (terminal/outlet/session) — une action sensible exige
-  `permission + contexte opérationnel de confiance + validation terminal/outlet/session`.
+- le **contexte opérationnel** — pour un `SELLER_TERMINAL`, le contexte est intrinsèque
+  (acteur = contexte) ; pour un `APP_USER` en Admin POS, il faut une sélection explicite.
   Il n'existe pas de permission `operational-context.valid`.
+  Voir : `docs/conventions/context/operational-context.md`.
 
 Ces checks relèvent des validateurs/handlers du domaine core.
 

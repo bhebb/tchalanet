@@ -221,7 +221,7 @@ class CashierTicketsServiceTest {
             TchActorType.SELLER_TERMINAL,
             sellerTerminalId,
             Set.of(),
-            Set.of("seller_terminal.ticket.read_own"),
+            Set.of("ticket.read_own"),
             null
         );
     }

@@ -43,11 +43,10 @@ Consequences:
 
 Current code already has:
 
-- `TchRole` system roles:
+- `TchRole` system roles (applicable to `APP_USER` only — `SELLER_TERMINAL` has no roles):
   - `SUPER_ADMIN`,
   - `TENANT_ADMIN`,
   - `OPERATOR`,
-  - `CASHIER`,
   - `SYSTEM`;
 - `MethodSecurityConfig` registering `TchPermissionEvaluator`;
 - `TchPermissionEvaluator` calling `QueryBus`;
@@ -216,17 +215,22 @@ The web/evaluator path must only expose allow/deny behavior, not internal decisi
 
 ### 8.1 System roles
 
-`TchRole` contains platform/system-level roles:
+`TchRole` contains platform/system-level roles for `APP_USER` actors:
 
 ```java
 SUPER_ADMIN
 TENANT_ADMIN
 OPERATOR
-CASHIER
 SYSTEM
 ```
 
-These roles come from Keycloak and are stored in `TchRequestContext.systemRoles()`.
+Les rôles sont résolus depuis les tables Tchalanet (`tenant_user_role`) après authentification Firebase.  
+`TchRequestContext.roleCodes()` est la source canonique (remplace l'ancien `systemRoles()`).
+
+**`SELLER_TERMINAL` n'a pas de rôles.** Son accès repose sur :
+- l'authority Spring `ACTOR_SELLER_TERMINAL`
+- les permissions directement accordées à l'entité
+- le statut (`ACTIVE`) et `mustChangePin = false`
 
 ### 8.2 Roles are not permissions
 
@@ -237,10 +241,10 @@ Permissions are action-level requirements.
 Examples:
 
 ```text
-Role:       CASHIER
-Permission: sale.create
-Permission: ticket.print
-Permission: session.open
+Role (APP_USER):  TENANT_ADMIN
+Permission:       seller_terminal.manage
+Permission:       seller_terminal.pin.reset
+Permission:       ticket.read
 ```
 
 A controller should require permissions, not roles.
@@ -284,71 +288,24 @@ Rules:
 
 ---
 
-## 10. V1 strategy — role-derived permissions
+## 10. V1 strategy — DB-driven RBAC (current)
 
-V1 may derive permissions from system roles without full DB-driven RBAC.
+Les permissions sont stockées en DB (`permission`, `role_permission`, `tenant_user_role`)
+et chargées via `AccessControlSnapshotResolver` à chaque requête authentifiée.
 
-Example baseline:
+La matrice de référence : `tchalanet-server/src/main/resources/access-control/default-role-permissions.v1.json`
 
-| Role           | Permissions                                        |
-| -------------- | -------------------------------------------------- |
-| `SUPER_ADMIN`  | all permissions, including `platform.*`            |
-| `TENANT_ADMIN` | tenant/admin permissions                           |
-| `OPERATOR`     | outlet/session/report/sale operational permissions |
-| `CASHIER`      | sale/ticket/session basic permissions              |
+| Rôle (APP_USER) | Permissions clés |
+|---|---|
+| `SUPER_ADMIN` | Toutes, dont `platform.*` |
+| `TENANT_ADMIN` | `seller_terminal.manage`, `seller_terminal.block`, `seller_terminal.pin.reset`, `user.role.assign`, `outlet.manage`, `report.read`… |
+| `OPERATOR` | `ticket.read`, `ticket.print`, `report.read`… |
 
-Example mapping:
+**`SELLER_TERMINAL`** — pas de rôles, permissions résolues directement depuis l'entité.
 
-```text
-SUPER_ADMIN
-  → *
-
-TENANT_ADMIN
-  → tenant.config.manage
-  → user.manage
-  → outlet.admin
-  → terminal.admin
-  → report.read
-
-OPERATOR
-  → sale.create
-  → ticket.read
-  → ticket.print
-  → session.open
-  → session.close
-  → report.read
-
-CASHIER
-  → sale.create
-  → ticket.read
-  → ticket.print
-  → session.open
-  → session.close
-```
-
-The mapping lives in `core.accesscontrol`, not in controllers or `SecurityConfig`.
+The mapping lives in `platform.accesscontrol`, not in controllers or `SecurityConfig`.
 
 ---
-
-## 11. V2 strategy — DB-driven permissions
-
-V2 may introduce DB-driven RBAC.
-
-Candidate tables:
-
-```text
-permission
-app_role
-role_permission
-tenant_user_role
-```
-
-Rules:
-
-- DB is source of truth for custom tenant roles;
-- Keycloak remains source of authentication and system role bootstrap;
-- `CheckUserPermissionsQuery` contract should remain stable;
-- changing role assignments must invalidate permission cache after commit.
 
 ---
 

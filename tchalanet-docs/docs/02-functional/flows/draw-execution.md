@@ -130,10 +130,11 @@ Scheduler SettleDrawCommand
   → RESULTED → SETTLED
   → Pour chaque ticket du draw : WON ou LOST calculé
   → DrawSettledEvent publié (AfterCommit)
-     → core.payout : OpenPayoutClaimFromSettlementCommand (si WON)
-     → features.stats, notifications, cache
+        → features.stats, notifications, cache
   → draw.locked = false
 ```
+
+Note : `DrawSettledEvent` déclenche l'ouverture de claims de gain pour les tickets gagnants (domaine non documenté).
 
 **Fenêtres settle (timezone NY) :** `12:00-15:00, 20:00-23:30`
 
@@ -178,7 +179,7 @@ Ops : CorrectAppliedDrawResultCommand
      → Re-trigger settlement pipeline avec le nouveau résultat
 ```
 
-> ⚠ Interdit si le draw est déjà SETTLED — les payouts ont été émis.  
+> ⚠ Interdit si le draw est déjà SETTLED — le settlement est définitif.  
 > ⚠ `DrawSalesGuardPort` actuellement NoOp (TODO: implémenter RealDrawSalesGuardAdapter).
 
 ---
@@ -261,7 +262,7 @@ Il **exige** un `reason` non vide. Il est **toujours audité** (`@AuditedForceCo
 | `DrawClosedEvent` | `core.draw` | `core.sales` (refuse vente), cache |
 | `DrawResultAppliedEvent` | `core.draw` | `core.sales` (settle tickets), stats, cache |
 | `DrawResultCorrectedEvent` | `core.draw` | `core.drawresult` (mark OVERRIDDEN) |
-| `DrawSettledEvent` | `core.draw` | `core.payout`, stats, notifications, cache |
+| `DrawSettledEvent` | `core.draw` | stats, notifications, cache |
 | `DrawCancelledEvent` | `core.draw` | `core.sales` (refund), stats, notifications |
 | `DrawResultIngestedEvent` | `core.drawresult` | `core.draw` (accélère apply — optionnel) |
 
@@ -282,7 +283,6 @@ Idempotence garantie par `processed_event` ou contraintes métier.
 | `catalog.drawchannel` | Canaux de vente tenant (timezone, cutoff_sec) |
 | `catalog.game` | Définition des jeux disponibles par canal |
 | `core.sales` | Tickets vendus sur le draw |
-| `core.payout` | Claims de paiement après settlement |
 | `features.ops` | Orchestration manuelle + gates |
 
 ---
@@ -293,5 +293,4 @@ Idempotence garantie par `processed_event` ou contraintes métier.
 - Domaine drawresult : `core/drawresult/DOMAIN_DRAWRESULT.md`
 - Settlement tickets : [settlement](./settlement.md)
 - Vente ticket : [sell-ticket](./sell-ticket.md)
-- Réconciliation : [reconciliation](./reconciliation.md)
 - API ops : `POST /platform/ops/draws/{generate|open-due|close-due|apply}` · `POST /platform/ops/draw-results/{fetch|refresh|override|manual}`

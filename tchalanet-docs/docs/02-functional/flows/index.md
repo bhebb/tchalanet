@@ -10,7 +10,7 @@ Ces workflows décrivent les parcours utilisateur de bout en bout (UI → Backen
 
 ### [Vente ticket (Sell Ticket)](sell-ticket.md)
 
-POS / Web / Mobile → Backend (sales + limits + ledger) → DB  
+POS / Web / Mobile → Backend (sales + limits) → DB  
 États : choix numéros → validation limites → émission → impression
 
 ### [Vérification ticket publique (Verify Ticket)](verify-ticket.md)

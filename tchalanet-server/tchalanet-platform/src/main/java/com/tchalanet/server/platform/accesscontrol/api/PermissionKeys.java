@@ -38,18 +38,17 @@ public final class PermissionKeys {
   public static final String ROLE_PERMISSION_MANAGE = "role.permission.manage";
   public static final String PERMISSION_READ      = "permission.read";
 
-  // Seller terminals
+  // Seller terminals — admin
   public static final String SELLER_TERMINAL_MANAGE = "seller_terminal.manage";
   public static final String SELLER_TERMINAL_BLOCK = "seller_terminal.block";
   public static final String SELLER_TERMINAL_RESET_ACCESS = "seller_terminal.reset_access";
   public static final String SELLER_TERMINAL_PIN_RESET = "seller_terminal.pin.reset";
   public static final String SELLER_TERMINAL_OPERATIONAL_CONTEXT_READ =
       "seller_terminal.operational_context.read";
+
+  // Seller terminals — POS self (hardcoded for SELLER_TERMINAL actor)
   public static final String SELLER_TERMINAL_ME_READ = "seller_terminal.me.read";
-  public static final String SELLER_TERMINAL_SELL = "seller_terminal.sell";
-  public static final String SELLER_TERMINAL_TICKET_READ_OWN = "seller_terminal.ticket.read_own";
-  public static final String SELLER_TERMINAL_TICKET_REPRINT_OWN =
-      "seller_terminal.ticket.reprint_own";
+  public static final String SELLER_TERMINAL_PIN_CHANGE = "seller_terminal.pin.change";
 
   // Settings / pricing
   public static final String SETTINGS_READ        = "settings.read";
@@ -78,10 +77,15 @@ public final class PermissionKeys {
   // Tickets
   public static final String TICKET_SELL          = "ticket.sell";
   public static final String TICKET_READ          = "ticket.read";
+  public static final String TICKET_READ_OWN      = "ticket.read_own";
+  public static final String TICKET_REPRINT_OWN   = "ticket.reprint_own";
   public static final String TICKET_PRINT         = "ticket.print";
   public static final String TICKET_RESEND        = "ticket.resend";
   public static final String TICKET_VERIFY        = "ticket.verify";
   public static final String TICKET_CANCEL_OWN    = "ticket.cancel-own";
+
+  // Cashier / POS (hardcoded for SELLER_TERMINAL actor)
+  public static final String CASHIER_HOME_READ    = "cashier.home.read";
 
   // Sync
   public static final String SYNC_READ            = "sync.read";

@@ -33,10 +33,9 @@ Dashboard
 Aperçu du tenant
 
 Administration
-  Utilisateurs           /app/admin/users         → core.tenantuser / platform.identity
-  Points de vente        /app/admin/outlets        → core.outlet
-  Terminaux              /app/admin/terminals      → core.terminal
-  Sessions               /app/admin/sessions       → core.session
+  Utilisateurs           /app/admin/users               → core.tenantuser / platform.identity
+  Seller-terminals       /app/admin/seller-terminals     → core.sellerterminal
+  Points de vente        /app/admin/outlets              → core.outlet (groupement optionnel)
 
 Jeux & ventes
   Tickets / Ventes       /app/admin/sales          → core.sales
@@ -95,8 +94,8 @@ La readiness est structurelle — elle vérifie la complétude de la configurati
 | Section | Ce qui est vérifié |
 |---|---|
 | Utilisateurs | Au moins un admin actif |
-| Points de vente | Au moins un outlet actif |
-| Terminaux | Au moins un terminal actif/bindable |
+| Seller-terminals | Au moins un SellerTerminal actif |
+| Points de vente | Outlet configuré si utilisé (optionnel) |
 | Jeux & prix | Jeux activés, pricing couvert |
 | Tirages | Draw channels configurés |
 | Limites | Templates ou policies actives |

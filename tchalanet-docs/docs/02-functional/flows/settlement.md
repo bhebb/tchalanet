@@ -1,14 +1,14 @@
 # Settlement — Flow
 
 > Traitement des tickets gagnants après publication du résultat d'un tirage.  
-> Domaine : `core.sales` · `core.payout` · `core.drawresult`  
+> Domaine : `core.sales` · `core.drawresult`  
 > Déclencheur : event-driven, batch-assisted
 
 ---
 
 ## Pourquoi
 
-Quand un résultat de tirage est publié, chaque ticket vendu pour ce tirage doit être "résulté" (winner ou non-winner). Les tickets gagnants reçoivent un settlement — un enregistrement comptable et l'ouverture d'un PayoutClaim pour permettre le paiement terrain.
+Quand un résultat de tirage est publié, chaque ticket vendu pour ce tirage doit être "résulté" (winner ou non-winner). Les tickets gagnants reçoivent un settlement — un enregistrement comptable et la création d'un claim de gain pour le paiement terrain.
 
 Le settlement est automatique — il n'est pas déclenché manuellement par un opérateur.
 
@@ -51,10 +51,8 @@ core.sales reçoit l'event
                → TicketWinningSettlementCreatedEvent
                → TicketSettlementStatus: PAYOUT_PENDING
 
-core.payout écoute TicketWinningSettlementCreatedEvent
-  └─ OpenPayoutClaimFromSettlementCommand
-       → PayoutClaim créé (status: OPEN)
-       → Vendeur peut exécuter le paiement
+Événement publié : TicketWinningSettlementCreatedEvent
+  → ouverture d'un claim de gain (domaine non documenté)
 ```
 
 ---
@@ -69,8 +67,7 @@ core.payout écoute TicketWinningSettlementCreatedEvent
 | `drawId` | Tirage résulté |
 | `amountCents` | Gain calculé |
 | `currency` | Devise du tenant |
-| `sellingOutletId` | Outlet de la vente (pour routing du paiement) |
-| `sellingSessionId` | Session de la vente (pour audit) |
+| `sellerTerminalId` | SellerTerminal qui a vendu le ticket |
 
 ---
 
@@ -96,27 +93,13 @@ Le re-settlement d'un tirage déjà settled est géré — les tickets déjà `P
 ## Invariants
 
 - Un ticket ne peut être résulté qu'une fois par tirage (idempotency via `sourceEventId`)
-- `OpenPayoutClaimFromSettlementCommand.sourceEventId` garantit l'idempotency du claim
+- L'idempotency du claim de gain est garantie par `sourceEventId` côté consommateur
 - Après `PAID`, le ticket ne peut pas revenir `PAYOUT_PENDING` — reversal → `REVERSED`
 - Le settlement est **lecture-seule** vis-à-vis du ticket original — il ne modifie pas les lignes
-
----
-
-## Réconciliation post-settlement
-
-Après settlement, `core.reconciliation` vérifie la cohérence :
-- Nombre de gagnants vs attendu
-- Total payout vs calculé
-- Claims sans paiement, paiements sans claim
-
-→ Voir [reconciliation](./reconciliation.md)
 
 ---
 
 ## Références
 
 - Domaine sales : `core/sales/DOMAIN_SALES.md`
-- Domaine payout : `core/payout/DOMAIN_PAYOUT.md`
 - Pipeline résultats tirage : [draw-execution](./draw-execution.md)
-- Payout terrain : [payout-field-flow](./payout-field-flow.md)
-- Réconciliation : [reconciliation](./reconciliation.md)

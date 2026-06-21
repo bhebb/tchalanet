@@ -30,7 +30,7 @@ Objectif :
 
 ### [Domains (Domaines métier)](domains/index.md)
 
-Bounded contexts critiques : sales, payout, ledger, draws, limits, accesscontrol, pagemodel
+Bounded contexts critiques : sales, draws, limits, accesscontrol, sellerterminal, catalog
 
 ### [Features (BFF)](features/index.md)
 
@@ -38,7 +38,7 @@ Orchestration côté serveur pour pages/web mobile (PageModel, PublicDraw, News,
 
 ### [Flows (Workflows transverses)](flows/index.md)
 
-Workflows utilisateur croisant plusieurs modules : vente ticket, vérification publique, réclamation gain, exécution tirage
+Workflows utilisateur croisant plusieurs modules : vente ticket, vérification publique, exécution tirage
 
 ---
 

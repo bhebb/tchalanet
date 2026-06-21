@@ -31,9 +31,11 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
 
     static final Set<String> SELLER_TERMINAL_PERMISSIONS = Set.of(
         "seller_terminal.me.read",
-        "seller_terminal.sell",
-        "seller_terminal.ticket.read_own",
-        "seller_terminal.ticket.reprint_own"
+        "seller_terminal.pin.change",
+        "cashier.home.read",
+        "ticket.sell",
+        "ticket.read_own",
+        "ticket.reprint_own"
     );
 
     private final AccessControlSnapshotResolver snapshotResolver;
@@ -141,7 +143,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + roleCode));
         }
 
-        // DB-owned permission authorities (PERM_seller_terminal.sell, PERM_ticket.void, etc.)
+        // DB-owned permission authorities (PERM_ticket.sell, PERM_ticket.void, etc.)
         for (var permKey : resolved.permissionKeys()) {
             authorities.add(new SimpleGrantedAuthority("PERM_" + permKey));
         }

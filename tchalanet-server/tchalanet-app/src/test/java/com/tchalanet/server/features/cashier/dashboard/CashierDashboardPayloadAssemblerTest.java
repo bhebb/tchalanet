@@ -163,7 +163,7 @@ class CashierDashboardPayloadAssemblerTest {
         actorType,
         terminalId,
         Set.of(),
-        Set.of("seller_terminal.sell"),
+        Set.of("ticket.sell"),
         null);
   }
 }

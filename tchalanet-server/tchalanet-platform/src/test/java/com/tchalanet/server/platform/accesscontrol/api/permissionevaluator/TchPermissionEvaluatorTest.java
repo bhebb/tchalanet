@@ -64,20 +64,20 @@ class TchPermissionEvaluatorTest {
         assertThat(evaluator.hasPermission(auth(), null, "payout:approve")).isFalse();
     }
 
-    // §9.2 — seller_terminal.sell works for active seller terminal.
+    // §9.2 — ticket.sell works for active seller terminal.
 
     @Test
     void sellerTerminalSell_presentInPermissions_returnsTrue() {
-        var evaluator = evaluator(contextWith(Set.of("seller_terminal.sell")));
+        var evaluator = evaluator(contextWith(Set.of("ticket.sell")));
 
-        assertThat(evaluator.hasPermission(auth(), null, "seller_terminal.sell")).isTrue();
+        assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isTrue();
     }
 
     @Test
     void sellerTerminalSell_absentFromPermissions_returnsFalse() {
         var evaluator = evaluator(contextWith(Set.of()));
 
-        assertThat(evaluator.hasPermission(auth(), null, "seller_terminal.sell")).isFalse();
+        assertThat(evaluator.hasPermission(auth(), null, "ticket.sell")).isFalse();
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

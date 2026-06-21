@@ -2,7 +2,7 @@
 
 ## Rôle
 
-Intégrations externes (Keycloak, PSP, providers data).
+Intégrations externes (Firebase, PSP, providers data de résultats).
 
 ## Cross-apps
 

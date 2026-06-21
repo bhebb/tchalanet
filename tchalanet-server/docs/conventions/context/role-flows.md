@@ -1,9 +1,9 @@
-# Role Flows — Contexte par rôle
+# Role Flows — Contexte par acteur
 
 > **Statut** : NORMATIVE  
 > **Scope** : `tchalanet-server` — référence croisée tous composants  
 > **Règle** : Un flow compose des sous-flows par liens. Il ne les recopie pas.  
-> **Dernière mise à jour** : 2026-05-31
+> **Dernière mise à jour** : 2026-06-20
 
 ---
 
@@ -13,146 +13,116 @@ Un flow ne redécrit pas en détail un sous-flow déjà documenté ailleurs.
 Il nomme le sous-flow, indique pourquoi il est requis, pointe vers la source canonique,  
 et précise uniquement ce qui est spécifique au flow courant.
 
-**Interdit :**
-```
-Seller POS flow:
-1. Décrire toute la création du seller.
-2. Décrire toute la procédure de binding terminal.
-3. Décrire toute l'ouverture de session.
-4. Puis décrire sell.
-```
-
-**Correct :**
-```
-Seller POS flow:
-1. Request Context construit.
-2. Seller actif — voir seller-onboarding.md
-3. Terminal bindé et trusted — voir terminal-binding.md
-4. Session POS ouverte — voir session-opening.md
-5. Ce flow valide seulement que seller/terminal/outlet/session correspondent pour l'action.
-```
-
 ---
 
 ## Sous-flows canoniques
 
 | Sous-flow | Source canonique |
 |---|---|
-| Création / onboarding seller | `tchalanet-docs/docs/02-functional/flows/seller-onboarding.md` |
-| Terminal binding / device trust | `tchalanet-docs/docs/02-functional/flows/terminal-binding.md` |
-| Ouverture de session POS | `tchalanet-docs/docs/02-functional/flows/session-opening.md` |
-| Sélection Admin POS | `tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md` |
-| Vérification ticket public | `tchalanet-docs/docs/02-functional/flows/verify-ticket.md` |
+| Provisioning SellerTerminal | `tchalanet-docs/docs/02-functional/flows/seller-onboarding.md` |
 | Vente ticket | `tchalanet-docs/docs/02-functional/flows/sell-ticket.md` |
 | Payout terrain | `tchalanet-docs/docs/02-functional/flows/payout-field-flow.md` |
 | Offline grant / sync | `tchalanet-docs/docs/02-functional/flows/offline-sync.md` |
+| Sélection Admin POS | `tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md` |
+| Vérification ticket public | `tchalanet-docs/docs/02-functional/flows/verify-ticket.md` |
 | Pipeline résultats | `tchalanet-docs/docs/02-functional/flows/draw-execution.md` |
 | Settlement | `tchalanet-docs/docs/02-functional/flows/settlement.md` |
 | Réconciliation | `tchalanet-docs/docs/02-functional/flows/reconciliation.md` |
 
 ---
 
-## Rôle : Seller (POS)
+## Acteur : SellerTerminal (POS)
 
-**Prérequis avant d'arriver au flow d'action :**
+`TchActorType.SELLER_TERMINAL` — identifié par `ACTOR_SELLER_TERMINAL`.
 
-1. Request Context construit — `TchContextFilter`
-2. App user bootstrappé — `UserBootstrapFilter`
-3. Seller actif et onboardé → voir [seller-onboarding](../../../02-functional/flows/seller-onboarding.md)
-4. Terminal bindé et trusted → voir [terminal-binding](../../../02-functional/flows/terminal-binding.md)
-5. Session POS ouverte → voir [session-opening](../../../02-functional/flows/session-opening.md)
+**Prérequis avant toute action POS :**
 
-**Pour chaque action sensible (sell, payout, offline grant, offline sync) :**
+1. Firebase id_token valide → `IdentityProviderApi.mapVerifiedToken()` résout le `seller_terminal`
+2. `TchAccessContextPipelineFilter` : statut `ACTIVE` (sinon 403), `mustChangePin` vérifié
+3. `TchRequestContext` construit avec `actorType=SELLER_TERMINAL`, `sellerTerminalId`, `permissionKeys`
+4. Si `mustChangePin = true` → seul `POST /me/change-pin` est autorisé ; toutes les actions de vente sont bloquées
+
+**Pour les actions sensibles (sell, payout, offline) :**
 
 ```
-device proof signature                             [core.terminal — TerminalDeviceProofGate]
-  → headers X-Terminal-{Id,Binding-Id,Nonce,Signed-At,Signature} présents
-  → VerifyTerminalDeviceProofQuery → Trusted ou Rejected
-trusted operational context requis
-  → terminal existe / tenant / non bloqué          [core.terminal]
-  → outlet existe / tenant / actif                 [core.outlet]
-  → session existe / ouverte / match               [core.session]
-  → permission accordée                            [platform.accesscontrol]
-  → gates action-specific                          [core.sales / core.payout]
+actorType = SELLER_TERMINAL
+  → sellerTerminalId résolu (non null)
+  → statut seller_terminal = ACTIVE
+  → mustChangePin = false
+  → permission accordée (ex: ticket.sell, payout.execute)
+  → gates action-specific (cutoff, limits, promotions, idempotency)
 ```
 
-Device proof requis en V1 : `POST /tenant/tickets`, `POST /tenant/payouts/{id}/execute`, `POST /tenant/offline/grants`, `POST /tenant/offline/sync`.  
-Voir `DOMAIN_TERMINAL.md §Device Proof` et `TerminalSignaturePayloadCanonicalizerV1`.
+Il n'y a **pas** de terminal binding, pas de session POS, pas d'outlet requis.  
+Le SellerTerminal est lui-même le contexte opérationnel.
 
-Voir fail-fast order complet : [`operational-context.md`](./operational-context.md#fail-fast-order)
+**Aucun `OperationalContext` (Terminal/Outlet/Session) n'est requis.**
 
 ---
 
-## Rôle : Tenant Admin (normal)
+## Acteur : Tenant Admin (APP_USER)
+
+`TchActorType.APP_USER` avec `roleCodes` contenant `TENANT_ADMIN`.
 
 **Prérequis :**
 
-1. Request Context construit — scope `ADMIN`
-2. Tenant requis depuis contexte authentifié
-3. Pas d'Operational Context requis
+1. Firebase id_token valide → `app_user` résolu
+2. `TchAccessContextPipelineFilter` : statut `app_user = ACTIVE`, roles/permissions chargés
+3. `TchRequestContext` : scope `ADMIN`, `actorType=APP_USER`, `roleCodes={"TENANT_ADMIN"}`, `permissionKeys`
 
 **Actions disponibles selon permissions :**
-- Gestion users → `tenant user management`
-- Gestion outlets → `outlet management`
-- Gestion terminals → `terminal management`
-- Settings → `settings management`
-
-Pas d'accès POS sans sélection explicite.
+- Gestion SellerTerminals → `seller_terminal.manage`, `seller_terminal.block`, `seller_terminal.pin.reset`
+- Gestion users → `user.manage`
+- Gestion outlets → `outlet.manage`
+- Settings → `settings.manage`
 
 ---
 
-## Rôle : Admin en mode POS
+## Acteur : Admin en mode POS
 
-**Prérequis supplémentaires par rapport à Admin normal :**
+Un `TENANT_ADMIN` peut accéder aux fonctions POS en sélectionnant explicitement un SellerTerminal.
 
-1. Request Context construit — scope `ADMIN`
-2. Sélection POS explicite — `POST /tenant/me/operational-context/select`  
-   Source : `ADMIN_SELECTION` — **pas automatique**
-3. Mêmes validations terminal/outlet/session que Seller ensuite
+**Prérequis supplémentaires :**
+
+1. Même prérequis que Tenant Admin normal
+2. Sélection POS explicite — `POST /tenant/cashier/operational-context/select`
+3. SellerTerminal sélectionné : actif et non bloqué
 
 → Voir [admin-pos-selection](../../../02-functional/flows/admin-pos-selection.md)
 
 ---
 
-## Rôle : Super-admin
+## Acteur : Super-admin
+
+`TchActorType.APP_USER` avec `roleCodes` contenant `SUPER_ADMIN`.
 
 **Prérequis :**
 
-1. Request Context construit — scope `SUPER_ADMIN`
+1. Firebase id_token valide → `app_user` résolu avec rôle `SUPER_ADMIN`
 2. Override tenant explicite si nécessaire :
    ```
-   X-Tch-Tenant-Override: <tenant-code-or-id>
-   X-Tch-Override-Reason: <raison obligatoire>
+   X-Tenant-Id: <tenant-code-or-id>
    ```
 3. Audit obligatoire — chaque override est tracé
-4. Pas d'Operational Context POS sauf sélection explicite
 
 **Actions disponibles :**
 - Platform ops
-- Tenant override
+- Override tenant
 - Platform audit
 
-→ Voir tenant policy : [`request-context.md`](./request-context.md#tenant-policy-par-scope)
+→ Voir [`request-context.md`](./request-context.md#tenant-policy-par-scope)
 
 ---
 
-## Rôle : System / Batch
+## Acteur : System / Batch
 
 **Prérequis :**
 
-1. Pas de HTTP request — pas de `TchContextFilter`
+1. Pas de HTTP request — pas de pipeline filter
 2. Contexte construit explicitement via `BatchTchContextBinder`
-3. `actorUserId` = `SYSTEM`
+3. `actorType = SYSTEM`
 4. Tenant explicite si job tenant-scoped
-5. Pas d'Operational Context sauf cas très spécifique documenté
-
-**Cas particulier — Offline replay :**
-```
-actorUserId  = SYSTEM
-sellerUserId = cashier original (préservé pour audit métier)
-```
-
-→ Voir [`request-context.md §Batch / Scheduler`](./request-context.md#batch--scheduler)
+5. Pas de SellerTerminal context sauf cas documenté
 
 Sous-flows :
 - Batch execution
@@ -163,14 +133,13 @@ Sous-flows :
 
 ---
 
-## Rôle : Public (anonymous)
+## Acteur : Public (anonymous)
 
 **Prérequis :**
 
-1. Request Context construit — scope `PUBLIC`
+1. `TchRequestContext` construit — scope `PUBLIC`
 2. Tenant public par défaut (`tchalanet`)
-3. JWT optionnel → préférer tenant JWT si présent
-4. Pas d'Operational Context
+3. JWT optionnel
 
 **Actions disponibles :**
 - Vérification ticket public → voir [verify-ticket](../../../02-functional/flows/verify-ticket.md)
@@ -181,11 +150,11 @@ Sous-flows :
 
 ## Matrice de synthèse
 
-| Rôle | Request Context | Operational Context | Actions clés |
-|---|---|---|---|
-| Seller POS | `TENANT` | Requis (trusted) | Sell, payout, offline |
-| Tenant Admin | `ADMIN` | Non requis | Gestion users/outlets/settings |
-| Admin POS | `ADMIN` | Requis (ADMIN_SELECTION) | Sell, payout via sélection explicite |
-| Super-admin | `SUPER_ADMIN` | Non requis (sauf sélection) | Platform ops, override tenant |
-| System/Batch | `SYSTEM` ou `TENANT` | Non requis | Batch, scheduler, replay |
-| Public | `PUBLIC` | Non requis | Verify ticket, draw results |
+| Acteur | TchActorType | Firebase → | Request Context | Actions clés |
+|---|---|---|---|---|
+| SellerTerminal POS | `SELLER_TERMINAL` | `seller_terminal` | `TENANT`, sellerTerminalId | Sell, payout, offline |
+| Tenant Admin | `APP_USER` | `app_user` | `ADMIN`, roleCodes | Gestion SellerTerminals, users, settings |
+| Admin POS | `APP_USER` | `app_user` | `ADMIN`, sélection explicite | Sell via sélection SellerTerminal |
+| Super-admin | `APP_USER` | `app_user` | `PLATFORM`, override tenant | Platform ops, override |
+| System/Batch | `SYSTEM` | — | Construit explicitement | Batch, scheduler, replay |
+| Public | — | — | `PUBLIC` | Verify ticket, draw results |
