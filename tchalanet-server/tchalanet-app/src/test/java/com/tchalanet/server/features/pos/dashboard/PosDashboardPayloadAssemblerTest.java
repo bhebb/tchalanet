@@ -12,7 +12,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -145,7 +144,7 @@ class PosDashboardPayloadAssemblerTest {
         hasTenantId ? tenantId.value() : null,
         UUID.randomUUID().toString(),
         hasUserId ? userId.value() : null,
-        Set.of(TchRole.CASHIER),
+        Set.of(),
         Set.of(),
         Locale.FRANCE,
         "req-test",

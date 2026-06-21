@@ -218,7 +218,7 @@ X-Tch-Client-Type         WEB           → résoudre comme APP_USER (même rés
 (absent)                                → résoudre comme APP_USER
 ```
 
-**Ce header est un hint de sélection, pas une preuve d'identité.** Il ne donne aucun accès. L'accès est prouvé par le firebase JWT + le mapping en DB. Un client qui envoie `POS` sans avoir de mapping `seller_terminal.firebase_uid` reçoit 403.
+**Ce header est un hint de sélection, pas une preuve d'identité.** Il ne donne aucun accès. L'accès est prouvé par le firebase JWT + le mapping en DB (`seller_terminal_external_identity`). Un client qui envoie `POS` sans mapping reçoit 403.
 
 ---
 

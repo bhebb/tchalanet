@@ -1,12 +1,10 @@
 package com.tchalanet.server.features.pos.dashboard;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
-import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -30,7 +28,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-@PageModelAllowedRoles(TchRole.CASHIER)
 public class PosWebDashboardProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "cashier_dashboard";

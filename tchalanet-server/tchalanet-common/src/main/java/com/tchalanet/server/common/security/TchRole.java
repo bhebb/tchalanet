@@ -25,8 +25,10 @@ public enum TchRole {
     TENANT_ADMIN,
 
     /**
-     * Legacy role kept for compatibility while cashier flows migrate to SellerTerminal.
+     * Legacy role. Retired — SellerTerminal is represented by TchActorType.SELLER_TERMINAL, not a role.
+     * @deprecated will be removed after web/mobile guards are updated
      */
+    @Deprecated(forRemoval = true)
     CASHIER,
 
     /**

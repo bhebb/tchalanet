@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
@@ -154,7 +153,7 @@ class PosHomeServiceTest {
             tenantId.value(),
             UUID.randomUUID().toString(),
             userId.value(),
-            Set.of(TchRole.CASHIER),
+            Set.of(),
             Set.of(),
             Locale.FRANCE,
             "req-test",

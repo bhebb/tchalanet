@@ -10,7 +10,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -211,7 +210,7 @@ class PosTicketsServiceTest {
         return new TchRequestContext(
             "tenant-demo", tenantId.value(), "tenant-demo", tenantId.value(),
             UUID.randomUUID().toString(), userId.value(),
-            Set.of(TchRole.CASHIER), Set.of(),
+            Set.of(), Set.of(),
             Locale.FRANCE, "req-test", "127.0.0.1", null, false, null, "active",
             ApiScope.TENANT, null, tenantId,
             java.time.ZoneId.of("America/Port-au-Prince"),

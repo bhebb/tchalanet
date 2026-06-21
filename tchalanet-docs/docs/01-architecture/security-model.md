@@ -18,7 +18,7 @@
 | `TchActorType` | Source de l'identité | Authority Spring |
 |---|---|---|
 | `APP_USER` | Firebase UID → `app_user.firebase_uid` | `ACTOR_APP_USER` |
-| `SELLER_TERMINAL` | Firebase UID → `seller_terminal.firebase_uid` | `ACTOR_SELLER_TERMINAL` |
+| `SELLER_TERMINAL` | Firebase UID → `seller_terminal_external_identity(provider, issuer, subject)` | `ACTOR_SELLER_TERMINAL` |
 
 > **Pas de Keycloak.** L'ancien flow Keycloak JWT a été remplacé par Firebase pour tous les acteurs.
 

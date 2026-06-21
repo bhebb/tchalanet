@@ -10,7 +10,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -25,7 +24,6 @@ import com.tchalanet.server.platform.communication.api.model.value.Communication
 import com.tchalanet.server.platform.communication.api.model.value.MessageId;
 import java.time.ZoneId;
 import java.util.Currency;
-import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -98,7 +96,7 @@ class PosTicketReceiptServiceTest {
         TENANT_ID.value(),
         "keycloak-user",
         USER_ID.value(),
-        EnumSet.of(TchRole.CASHIER),
+        Set.of(),
         Set.of(),
         Locale.CANADA_FRENCH,
         "req-1",
