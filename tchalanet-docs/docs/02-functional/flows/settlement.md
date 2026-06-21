@@ -8,7 +8,7 @@
 
 ## Pourquoi
 
-Quand un résultat de tirage est publié, chaque ticket vendu pour ce tirage doit être "résulté" (winner ou non-winner). Les tickets gagnants reçoivent un settlement — un enregistrement comptable et l'ouverture d'un PayoutClaim pour permettre le paiement terrain.
+Quand un résultat de tirage est publié, chaque ticket vendu pour ce tirage doit être "résulté" (winner ou non-winner). Les tickets gagnants reçoivent un settlement — un enregistrement comptable et la création d'un claim de gain pour le paiement terrain.
 
 Le settlement est automatique — il n'est pas déclenché manuellement par un opérateur.
 
@@ -52,7 +52,7 @@ core.sales reçoit l'event
                → TicketSettlementStatus: PAYOUT_PENDING
 
 Événement publié : TicketWinningSettlementCreatedEvent
-  → ouverture d'un claim de paiement (traité par core.payout — non documenté)
+  → ouverture d'un claim de gain (domaine non documenté)
 ```
 
 ---
@@ -93,7 +93,7 @@ Le re-settlement d'un tirage déjà settled est géré — les tickets déjà `P
 ## Invariants
 
 - Un ticket ne peut être résulté qu'une fois par tirage (idempotency via `sourceEventId`)
-- `OpenPayoutClaimFromSettlementCommand.sourceEventId` garantit l'idempotency du claim
+- L'idempotency du claim de gain est garantie par `sourceEventId` côté consommateur
 - Après `PAID`, le ticket ne peut pas revenir `PAYOUT_PENDING` — reversal → `REVERSED`
 - Le settlement est **lecture-seule** vis-à-vis du ticket original — il ne modifie pas les lignes
 

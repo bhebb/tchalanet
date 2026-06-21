@@ -36,22 +36,6 @@ Code court signé permettant vérification publique d'un ticket sans exposer ID 
 
 Transaction d'émission d'un ticket. Montant payé par le client.
 
-### Payout (Paiement gagnant)
-
-Règlement d'un gain. Composé d'un **Claim** (montant dû) et de **Payments** (paiements effectués, possiblement split).
-
-### Claim
-
-Demande de paiement (montant dû). Statut : `OPEN`, `PARTIALLY_PAID`, `PAID`, `VOIDED`.
-
-### Payment
-
-Paiement effectué (cash, mobile money, transfer). Statut : `POSTED`, `REVERSED`.
-
-### Ledger (Journal comptable)
-
-Journal append-only des écritures comptables. Chaque entrée référence un événement (TICKET, PAYOUT).
-
 ### Settlement (Règlement ticket)
 
 Opération de calcul des gains après un draw. Ticket passe de `ISSUED` à `SETTLED`.
@@ -65,16 +49,8 @@ Un SellerTerminal est :
 - une unité de vente et de facturation
 - un acteur opérationnel autonome : il n'a pas besoin d'une session ouverte pour vendre
 
-Un SellerTerminal peut être associé optionnellement à un `Outlet` (groupement géographique).
-
-> **Termes retirés** : `Terminal` (hardware), `SalesSession` (session POS), `Seller` (machann/vendeur séparé), `Cashier` (rôle/flow).  
+> **Termes retirés** : `Terminal` (hardware), `SalesSession` (session POS), `Seller` (machann/vendeur séparé), `Cashier` (rôle/flow), `Outlet` (groupement géographique).  
 > Ne pas utiliser ces termes dans le nouveau code ou les nouvelles docs.
-
-### Outlet (Point de vente)
-
-Groupement géographique optionnel pour les SellerTerminals. Un SellerTerminal peut être rattaché à un Outlet ou opérer sans Outlet.
-
-L'Outlet n'est plus un prérequis opérationnel — c'était une contrainte de l'ancien modèle Seller+Terminal+Session.
 
 ### Limit Policy
 
@@ -99,7 +75,7 @@ Les `SELLER_TERMINAL` n'ont pas de rôles — leurs permissions sont attachées 
 
 ### Permission
 
-Permission fine-grained (ex: `ticket.sell`, `payout.approve`). Évaluée par `TchPermissionEvaluator`.
+Permission fine-grained (ex: `ticket.sell`, `seller_terminal.manage`). Évaluée par `TchPermissionEvaluator`.
 
 ### Context (Request Context)
 
@@ -140,9 +116,8 @@ Suppression logique via `deleted_at`. Visibilité contrôlée par `deleted_visib
 
 1. Client choisit numéros
 2. POS valide limites (Limit Policy)
-3. Backend émet ticket (`ISSUED`)
-4. Ledger enregistre vente
-5. Ticket imprimé
+3. Backend émet ticket (`SOLD`)
+4. Ticket imprimé
 
 ### Verify Ticket (Vérification publique)
 
@@ -150,21 +125,12 @@ Suppression logique via `deleted_at`. Visibilité contrôlée par `deleted_visib
 2. Backend valide signature
 3. Retourne statut ticket (VALID / CANCELLED / PENDING_SYNC / EXPIRED)
 
-### Claim Payout (Réclamation gain)
-
-1. Ticket est `SETTLED` avec winning amount > 0
-2. Système ouvre Payout Claim (`OPEN`)
-3. Opérateur effectue Payment(s) (possiblement split)
-4. Claim passe `PARTIALLY_PAID` → `PAID`
-5. Ledger enregistre paiements
-
 ### Draw Execution (Exécution tirage)
 
 1. Draw planifié (scheduled)
 2. Système ou admin déclenche tirage
 3. Résultats publiés (slots + numéros gagnants)
 4. Tickets associés sont settled (calcul gains)
-5. Payout Claims créés pour gagnants
 
 ---
 
@@ -173,14 +139,6 @@ Suppression logique via `deleted_at`. Visibilité contrôlée par `deleted_visib
 ### core.sales
 
 Owns: Ticket lifecycle, emission, annulation, limits validation
-
-### core.payout
-
-Owns: Payout Claims, Payments, split payments
-
-### core.ledger
-
-Owns: Ledger entries (append-only), balances
 
 ### core.draws
 
@@ -223,22 +181,10 @@ Owns: Reference data (game codes, bet types, result slots)
 
 ### SellerTerminal
 
+- `PENDING` → créé, identité Firebase non encore liée
 - `ACTIVE` → terminal actif, peut vendre
-- `INACTIVE` → inactif (créé mais pas encore activé)
 - `BLOCKED` → bloqué temporairement (par admin)
 - `DISABLED` → désactivé définitivement
-
-### Payout Claim
-
-- `OPEN` → dû, rien payé
-- `PARTIALLY_PAID` → partiellement payé
-- `PAID` → totalement payé
-- `VOIDED` → annulé (fraude, correction)
-
-### Payment
-
-- `POSTED` → paiement enregistré
-- `REVERSED` → paiement annulé (reversal)
 
 ---
 

@@ -38,9 +38,8 @@ Règle :
 ## Catalogue complet des domaines
 
 - [AccessControl](accesscontrol.md) — Rôles, permissions, évaluation fine-grained par tenant.
-- [Address](address.md) — Adresses (tenant/outlet/user), validations basiques.
+- [Address](address.md) — Adresses (tenant/user), validations basiques.
 - [Audit](audit.md) — Audit applicatif (audit_event) + historique Envers.
-- [Autonomy](autonomy.md) — Niveaux d’autonomie (NONE|PARTIAL|FULL) influençant validations.
 - [Catalog](catalog.md) — Référentiels (read-mostly) : game, pricing, drawresult, resultslot.
 - [Draw](draw.md) — Tirages (planification/états) + trigger/ingestion settlement.
 - [DrawResult (Catalog)](drawresult.md) — Référentiel des résultats publiés.
@@ -50,13 +49,11 @@ Règle :
 - [Haiti](haiti.md) — Projection lots haïtiens + catalog Tchala.
 - [Limits](limits.md) — Limites de vente (period/scope/dimension).
 - [Notification](notification.md) — Notifications tenant, ack.
-- [Outlet](outlet.md) — Points de vente (PDV), groupement optionnel par tenant.
 - [SellerTerminal](terminal.md) — Acteur de vente unique (remplace Terminal + Session + Seller).
 - [Pricing (Catalog)](pricing.md) — Référentiel de pricing (multipliers, odds).
 - [ResultSlot (Catalog)](resultslot.md) — Slots globaux (provider/timezone/drawTime/daysOfWeek).
 - [Sales](sales.md) — Tickets: émission, annulation, statut public.
-- [Session](session.md) — **RETIRÉ** — sessions POS supprimées (voir SellerTerminal).
-- [Settings](settings.md) — App settings (registry + values) par tenant/outlet.
+- [Settings](settings.md) — App settings (registry + values) par tenant.
 - [Tenant](tenant.md) — Identité/état du tenant, configuration globale.
 - [Theme](theme.md) — Thèmes visuels (publication, audit, versioning) par tenant.
 - [US Lottery](uslottery.md) — Providers US (pick3/pick4), normalisation.
