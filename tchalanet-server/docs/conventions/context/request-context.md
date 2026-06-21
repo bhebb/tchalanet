@@ -7,6 +7,97 @@
 
 ---
 
+## Identité vs Autorisation — séparation des responsabilités
+
+Ces deux notions sont intentionnellement séparées dans Tchalanet.
+
+### Identité (Firebase)
+
+L'identity provider répond à une seule question : **est-ce que ce token est authentique et de qui ?**
+
+Firebase retourne un `firebase_uid` et un token vérifié cryptographiquement. C'est tout. Firebase ne sait pas si l'acteur est bloqué, quel tenant il appartient à, ni quels droits il a. C'est intentionnel.
+
+```
+Firebase → firebase_uid vérifié (authentification)
+                ↓
+     IdentityProviderApi.mapVerifiedToken()
+                ↓
+        TchActorIdentity (qui appelle ?)
+```
+
+### Autorisation (Tchalanet DB)
+
+Tchalanet résout ensuite, indépendamment du token : **que peut faire cet acteur ?**
+
+```
+TchActorIdentity (firebase_uid)
+        ↓
+ActorContextResolver    → résout l'entité : app_user ou seller_terminal
+        ↓
+ActorAuthorizationContextResolver → charge rôles + permissions depuis DB
+        ↓
+TchRequestContext       → source de vérité pour toute décision d'autorisation
+```
+
+**Conséquence clé** : les droits sont toujours DB-side. Un changement de rôle ou un blocage prend effet à la prochaine requête sans renouveler le token Firebase.
+
+---
+
+## Acteur vs Rôle — deux niveaux distincts
+
+### `TchActorType` — qui appelle au niveau machine
+
+```java
+APP_USER         // humain connecté (admin, super-admin, operateur)
+SELLER_TERMINAL  // terminal POS physique
+SYSTEM           // batch, scheduler, event replay interne
+```
+
+`actorType` détermine **comment** l'autorisation est évaluée, pas **ce qu'il peut faire** directement.
+
+### Rôle (`TchRole`) — attribut organisationnel, APP_USER uniquement
+
+```java
+SUPER_ADMIN   // admin cross-tenant, accès platform
+TENANT_ADMIN  // admin d'un tenant
+OPERATOR      // superviseur opérationnel interne
+SYSTEM        // technique — ne correspond pas à un humain
+```
+
+Les rôles sont des étiquettes coarsées sur un `APP_USER`. Ils servent à dériver des permissions via la matrice `role_permission`.
+
+**`SELLER_TERMINAL` n'a pas de rôle.** Son autorisation est évaluée directement depuis :
+- son statut (`ACTIVE` / `BLOCKED` / `PENDING` / `DISABLED`)
+- son flag `mustChangePin`
+- ses permissions directes (accordées à l'entité, pas via un rôle)
+- l'authority Spring `ACTOR_SELLER_TERMINAL` publiée par le pipeline
+
+---
+
+## SellerTerminal — identité machine, pas identité personne
+
+C'est la distinction la plus importante du modèle.
+
+Un `SellerTerminal` est une **identité POS physique**, pas un utilisateur humain.
+
+```
+terminal "TERM-0042" appartient au tenant "haitiloto"
+  ↳ authentifié via  :  term-0042@haitiloto.tchalanet  /  PIN 6 chiffres
+  ↳ lié à Firebase   :  firebase_uid = "abc123..."
+  ↳ transactions      :  scoped à TERM-0042, pas à une personne
+```
+
+**Le terminal peut changer de mains.** Seller A gère TERM-0042 pendant 3 mois, Seller B prend sa place. C'est normal et attendu :
+- l'identité Firebase reste celle de TERM-0042 (pas de la personne)
+- le tenant sait qui possède ce terminal, pas qui l'utilise à l'instant T
+- les limites, tickets, audits sont tous attachés à TERM-0042
+
+**Le PIN est la clé de délégation opérationnelle.** Quand un terminal change de mains, l'admin reset le PIN via `POST /admin/seller-terminals/{id}/pin-reset` → `mustChangePin=true`. Le nouvel opérateur change le PIN au premier login. L'identité du terminal dans Tchalanet ne change pas.
+
+> Ce modèle est similaire à une caisse enregistreuse physique : la caisse a une identité fiscale (numéro de série), pas l'employé qui l'opère. Ce qui compte pour le comptable, c'est la caisse 42, pas qui était derrière le comptoir.
+
+---
+
 ## Définition
 
 Le Request Context (`TchRequestContext`) est le contexte universel d'exécution.
@@ -214,13 +305,10 @@ public ApiResponse<SellTicketResponse> sell(
     @CurrentContext TchRequestContext ctx,
     @Valid @RequestBody SellTicketRequest request) {
 
-    var op = ctx.trustedOperationalContextRequired();
     var command = new SellTicketCommand(
         ctx.effectiveTenantIdRequired(),
-        ctx.actorUserIdRequired(),
-        op.terminalId(),
-        op.outletId(),
-        op.salesSessionId(),
+        ctx.sellerTerminalIdRequired(),   // résolu depuis Firebase UID (SELLER_TERMINAL)
+                                          // ou sélection explicite Admin POS (APP_USER)
         request.lines(),
         request.idempotencyKey()
     );
