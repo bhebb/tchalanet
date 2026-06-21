@@ -1,8 +1,10 @@
-# Réconciliation — Flow
+# Réconciliation — NON DOCUMENTÉ
 
-> Vérification de cohérence post-tirage entre tickets, résultats, claims et paiements.  
-> Domaine : `core.reconciliation`  
-> Déclencheur : scheduler quotidien ou manuel par ops
+> **Statut** : NON DOCUMENTÉ — slice suspendue des docs actifs  
+> **Raison** : `core.reconciliation` et `core.payout` ne sont pas documentés pour le moment. Le contenu ci-dessous est conservé pour référence future.  
+> **Ne pas référencer** ce flow dans le nouveau code ou les nouvelles docs.
+
+---
 
 ---
 

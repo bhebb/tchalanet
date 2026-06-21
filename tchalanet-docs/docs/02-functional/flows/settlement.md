@@ -1,7 +1,7 @@
 # Settlement — Flow
 
 > Traitement des tickets gagnants après publication du résultat d'un tirage.  
-> Domaine : `core.sales` · `core.payout` · `core.drawresult`  
+> Domaine : `core.sales` · `core.drawresult`  
 > Déclencheur : event-driven, batch-assisted
 
 ---
@@ -51,10 +51,8 @@ core.sales reçoit l'event
                → TicketWinningSettlementCreatedEvent
                → TicketSettlementStatus: PAYOUT_PENDING
 
-core.payout écoute TicketWinningSettlementCreatedEvent
-  └─ OpenPayoutClaimFromSettlementCommand
-       → PayoutClaim créé (status: OPEN)
-       → Vendeur peut exécuter le paiement
+Événement publié : TicketWinningSettlementCreatedEvent
+  → ouverture d'un claim de paiement (traité par core.payout — non documenté)
 ```
 
 ---
@@ -69,8 +67,7 @@ core.payout écoute TicketWinningSettlementCreatedEvent
 | `drawId` | Tirage résulté |
 | `amountCents` | Gain calculé |
 | `currency` | Devise du tenant |
-| `sellingOutletId` | Outlet de la vente (pour routing du paiement) |
-| `sellingSessionId` | Session de la vente (pour audit) |
+| `sellerTerminalId` | SellerTerminal qui a vendu le ticket |
 
 ---
 
@@ -102,21 +99,7 @@ Le re-settlement d'un tirage déjà settled est géré — les tickets déjà `P
 
 ---
 
-## Réconciliation post-settlement
-
-Après settlement, `core.reconciliation` vérifie la cohérence :
-- Nombre de gagnants vs attendu
-- Total payout vs calculé
-- Claims sans paiement, paiements sans claim
-
-→ Voir [reconciliation](./reconciliation.md)
-
----
-
 ## Références
 
 - Domaine sales : `core/sales/DOMAIN_SALES.md`
-- Domaine payout : `core/payout/DOMAIN_PAYOUT.md`
 - Pipeline résultats tirage : [draw-execution](./draw-execution.md)
-- Payout terrain : [payout-field-flow](./payout-field-flow.md)
-- Réconciliation : [reconciliation](./reconciliation.md)

@@ -85,8 +85,8 @@ Le vendeur suit le flow "Premier login" (étapes 4–8) pour changer son PIN.
 
 | Statut | Signification |
 |---|---|
+| `PENDING` | Créé, identité Firebase non encore liée |
 | `ACTIVE` | Actif, peut vendre |
-| `INACTIVE` | Inactif (cas historique) |
 | `BLOCKED` | Bloqué temporairement par admin (réversible) |
 | `DISABLED` | Désactivé définitivement |
 

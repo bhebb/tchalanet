@@ -1,8 +1,10 @@
-# Offline Grant et Sync — Flow
+# Offline Grant et Sync — NON DOCUMENTÉ
 
-> Ventes réalisées sans connectivité réseau, soumises et validées lors de la reconnexion.  
-> Domaine : `core.offlinesync`  
-> Feature : `features.cashier.offline` · `FEATURE_CASHIER_OFFLINE.md`
+> **Statut** : NON DOCUMENTÉ — slice suspendue des docs actifs  
+> **Raison** : `core.offlinesync` n'est pas documenté pour le moment. Le contenu ci-dessous est conservé pour référence future mais peut être inexact.  
+> **Ne pas référencer** ce flow dans le nouveau code ou les nouvelles docs.
+
+---
 
 ---
 

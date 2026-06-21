@@ -1,8 +1,10 @@
-# Payout Terrain — Flow
+# Payout Terrain — NON DOCUMENTÉ
 
-> Processus de paiement d'un ticket gagnant par un vendeur sur le terrain.  
-> Domaine : `core.payout` · `core.sales`  
-> Feature : `features.cashier`
+> **Statut** : NON DOCUMENTÉ — slice suspendue des docs actifs  
+> **Raison** : `core.payout` n'est pas documenté pour le moment. Le contenu ci-dessous est conservé pour référence future mais peut être inexact (acteur `CASHIER` → `SELLER_TERMINAL`, `terminalId`/`sessionId` retirés).  
+> **Ne pas référencer** ce flow dans le nouveau code ou les nouvelles docs.
+
+---
 
 ---
 
