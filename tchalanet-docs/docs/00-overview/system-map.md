@@ -44,7 +44,7 @@ graph TD
 
 ## Isolation multi-tenant
 
-Chaque tenant est isolé via PostgreSQL Row-Level Security (RLS). Le contexte opérationnel (tenant, outlet, terminal) est résolu à chaque requête.
+Chaque tenant est isolé via PostgreSQL Row-Level Security (RLS). Le tenant et l'acteur (`APP_USER` ou `SELLER_TERMINAL`) sont résolus à chaque requête via Firebase JWT.
 
 Voir [Modèle de sécurité](../01-architecture/security-model.md).
 

@@ -10,18 +10,18 @@ Tchalanet is a multi-tenant lottery and borlette platform. It enables organizati
 to run lottery networks with multiple tenants, each operating their own terminal
 network, draw schedule, promotions, and payout operations.
 
-Ticket sales happen on Flutter mobile POS terminals operated by cashiers (sellers),
+Ticket sales happen on Flutter mobile POS terminals operated by SellerTerminals,
 online or offline. Draws are scheduled and results are ingested from external
 providers. Winners claim payouts at field terminals.
 
 ## Who uses it
 
-| Role | What they do |
+| Actor | What they do |
 | --- | --- |
-| **Cashier (Seller)** | Sells tickets from a POS terminal at an outlet |
-| **Admin POS** | Manages outlet operations, approves large sales |
-| **Tenant admin** | Configures draws, promotions, limits, and reporting |
-| **Super-admin** | Manages tenants and cross-tenant operations |
+| **SellerTerminal** | Sells tickets from a POS device — authenticated via Firebase PIN |
+| **Tenant admin** | Manages seller-terminals, draws, promotions, limits, and reporting |
+| **Admin POS** | Tenant admin who selected a SellerTerminal to perform POS operations |
+| **Super-admin** | Manages tenants and cross-tenant platform operations |
 | **End customer** | Buys tickets, checks results publicly |
 
 ## Main capabilities

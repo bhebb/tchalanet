@@ -4,13 +4,16 @@
 Guide opératoire des providers, variables et tests :
 `docs/conventions/identity-providers.md`.
 
+> **Note** : Ce module gère uniquement les `APP_USER`. L'identité des `SELLER_TERMINAL`
+> est gérée par `core.sellerterminal` via `SellerTerminalIdentityProvisionPort`.
+
 ## Rôle
 
 Gérer les profils utilisateurs dans le contexte tenant, mapper une identité externe vérifiée vers
 un utilisateur applicatif, et exposer le contexte utilisateur aux autres modules.
 
-**Ce module fait** :
-- Mapping provider-neutral d'un token déjà vérifié vers `ExternalAuthenticatedUser`
+**Ce module fait** (pour les `APP_USER` uniquement) :
+- Mapping provider-neutral d'un token Firebase déjà vérifié vers `ExternalAuthenticatedUser`
 - Résolution et bootstrap d'un `UserId` depuis l'identité externe
 - Lecture profil utilisateur courant et lookup par UUID
 - Exposition des infos utilisateur (`CurrentUserView`, `AppUserView`, `UserProfileView`)
@@ -25,14 +28,14 @@ un utilisateur applicatif, et exposer le contexte utilisateur aux autres modules
 - Configuration tenant (→ `platform.tenantconfig`)
 - Contexte opérationnel (terminal/outlet/session) — reste hors identity
 
-La vérification externe est exposée par `IdentityProviderApi`. Le chemin Keycloak actif mappe le
-JWT déjà vérifié sans seconde vérification. Le bootstrap résout ensuite l'utilisateur via
-`app_user_external_identity`. Les sujets Keycloak existants sont backfillés avec l'issuer sentinelle
-`legacy:keycloak`, puis liés à l'issuer réel lors de leur première authentification vérifiée.
-`app_user` ne contient aucun identifiant fournisseur. Pour Keycloak, l'identifiant utilisateur est
-stocké dans `app_user_external_identity.external_subject` avec `provider=KEYCLOAK`. Les noms
-`KeycloakUserSub` encore exposés dans quelques APIs sont transitoires et ne représentent plus une
-colonne de `app_user`.
+La vérification externe est exposée par `IdentityProviderApi`. Le provider actif est Firebase.
+Le JWT Firebase est vérifié puis mappé vers `ExternalAuthenticatedUser`.
+Le bootstrap résout ensuite l'utilisateur via `app_user_external_identity`.
+`app_user` ne contient aucun identifiant fournisseur direct — le lien vers Firebase UID
+est dans `app_user_external_identity.external_subject` avec `provider=FIREBASE`.
+
+Les références `KeycloakUserSub` encore présentes dans quelques APIs sont des artefacts
+de migration — elles représentent le `external_subject` indépendamment du provider.
 
 Le provider actif est sélectionné par `tch.identity.provider`. En mode `firebase`, le decoder
 valide la signature via le JWKS Google officiel, l'expiration, l'issuer
