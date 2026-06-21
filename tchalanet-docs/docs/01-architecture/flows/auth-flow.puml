@@ -14,15 +14,15 @@ participant "Spring Security\nBearerTokenFilter" as SPRING #LightBlue
 participant "TchAccess\nPipelineFilter" as PIPE #LightYellow
 participant "TchContext\nFilter" as CTX #LightYellow
 participant "Controller /\nCommandBus" as SVC #LightGreen
-database "Firebase\n(JWT keys)" as FB #LightGray
+database "Identity Provider\n(Firebase — V0)" as FB #LightGray
 database "Tchalanet DB" as DB #LightGray
 
 == 1 · Toutes les requêtes : vérification JWT ==
 
-CLIENT -> SPRING : Authorization: Bearer <firebase-jwt>\n[X-Tch-Client-Type: POS]  ← SELLER_TERMINAL uniquement
+CLIENT -> SPRING : Authorization: Bearer <id-token>  (Firebase V0)\n[X-Tch-Client-Type: POS]  ← SELLER_TERMINAL uniquement
 SPRING -> FB : vérifie signature + exp + iss
-FB --> SPRING : ✓ JWT valide
-SPRING -> SPRING : convert() → ExternalAuthenticatedUser\nstocké dans JwtAuthenticationToken.details\nautorities = []  (vide ici)
+FB --> SPRING : ✓ token valide → subject + issuer
+SPRING -> SPRING : convert() → ExternalAuthenticatedUser(provider, issuer, subject)\nstocké dans JwtAuthenticationToken.details\nautorities = []  (vide ici)
 
 == 2 · PUBLIC  (/api/v1/public/**) ==
 
@@ -34,7 +34,7 @@ CTX -> SVC : TchRequestContext\n· scope = PUBLIC\n· tenantId = default\n· act
 == 3 · IDENTITY  (authentifié, scope public/identity) ==
 
 SPRING -> PIPE
-PIPE -> DB : findByFirebaseUid → app_user  (statut ACTIVE ?)
+PIPE -> DB : findByExternalIdentity(provider, issuer, subject)\n→ app_user_external_identity → app_user  (statut ACTIVE ?)
 DB --> PIPE : ✓ app_user
 PIPE -> PIPE : ResolvedAccessContext.identityOnly(userId)\n→ pas de rôles / permissions chargés
 PIPE -> CTX
@@ -45,7 +45,7 @@ CTX -> SVC : TchRequestContext\n· scope = PUBLIC\n· actorType = APP_USER\n· a
 
 alt APP_USER  (X-Tch-Client-Type absent ou WEB)
     SPRING -> PIPE
-    PIPE -> DB : findByFirebaseUid → app_user  (statut ACTIVE ?)
+    PIPE -> DB : findByExternalIdentity(provider, issuer, subject)\n→ app_user_external_identity → app_user  (statut ACTIVE ?)
     DB --> PIPE : ✓ app_user
     PIPE -> DB : AccessControlSnapshotResolver\n· resolvePlatform(userId)\n· resolveTenant(userId, effectiveTenantId)
     DB --> PIPE : roleCodes + permissionKeys
@@ -57,24 +57,24 @@ alt APP_USER  (X-Tch-Client-Type absent ou WEB)
     CTX -> SVC : TchRequestContext\n· actorType = APP_USER\n· appUserId = UUID\n· roleCodes = {TENANT_ADMIN, …}\n· permissionKeys = {seller_terminal.manage, …}
 
 else SELLER_TERMINAL  (X-Tch-Client-Type: POS)
-    note over PIPE : Pas de fallback vers APP_USER !\n403 si firebase_uid introuvable\ndans seller_terminal
+    note over PIPE : Pas de fallback vers APP_USER !\n403 si subject introuvable\ndans seller_terminal_external_identity
     SPRING -> PIPE
-    PIPE -> DB : findByExternalIdentity(provider, issuer, firebase_uid)\n→ seller_terminal  (statut ACTIVE ?)
+    PIPE -> DB : findByExternalIdentity(provider, issuer, subject)\n→ seller_terminal_external_identity → seller_terminal  (statut ACTIVE ?)
     DB --> PIPE : ✓ sellerTerminalId + tenantId
-    PIPE -> PIPE : SELLER_TERMINAL_PERMISSIONS (hardcodées)\n· seller_terminal.me.read\n· seller_terminal.sell\n· seller_terminal.ticket.read_own\n· seller_terminal.ticket.reprint_own
-    PIPE -> SPRING : enrichit JwtAuthenticationToken\n· ACTOR_SELLER_TERMINAL\n· PERM_seller_terminal.sell, …
+    PIPE -> PIPE : SELLER_TERMINAL_PERMISSIONS (hardcodées)\n· seller_terminal.me.read\n· seller_terminal.pin.change\n· pos.home.read\n· ticket.sell\n· ticket.read_own\n· ticket.reprint_own
+    PIPE -> SPRING : enrichit JwtAuthenticationToken\n· ACTOR_SELLER_TERMINAL\n· PERM_ticket.sell, PERM_pos.home.read, …
     PIPE -> CTX
     CTX -> CTX : handleResolvedAccess()
     note over CTX : X-Tenant-Id / X-Tch-Tenant-Override\ninterdit → 403 si présents
     CTX -> DB : hydrateResolvedTenant()  (tenant from DB, jamais from header)
     CTX -> CTX : bind RLS
-    CTX -> SVC : TchRequestContext\n· actorType = SELLER_TERMINAL\n· sellerTerminalId = UUID\n· roleCodes = {}\n· permissionKeys = {seller_terminal.sell, …}
+    CTX -> SVC : TchRequestContext\n· actorType = SELLER_TERMINAL\n· sellerTerminalId = UUID\n· roleCodes = {}\n· permissionKeys = {ticket.sell, pos.home.read, …}
 end
 
 == 5 · PLATFORM  (/api/v1/platform/**) ==
 
 SPRING -> PIPE
-PIPE -> DB : findByFirebaseUid → app_user
+PIPE -> DB : findByExternalIdentity(provider, issuer, subject)\n→ app_user_external_identity → app_user
 DB --> PIPE : ✓ app_user
 PIPE -> DB : resolvePlatform(userId) uniquement\n(pas de tenant résolu)
 DB --> PIPE : roleCodes platform + permissionKeys platform

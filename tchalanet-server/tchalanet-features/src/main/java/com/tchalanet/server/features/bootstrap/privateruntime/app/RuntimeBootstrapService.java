@@ -184,7 +184,7 @@ public class RuntimeBootstrapService {
         if (hasTenantRole(accessSnapshot, "TENANT_OWNER") || hasTenantRole(accessSnapshot, "TENANT_ADMIN")) {
             return PrivateBootstrapSpace.ADMIN;
         }
-        if (hasTenantRole(accessSnapshot, "OPERATOR") || hasTenantRole(accessSnapshot, "CASHIER")) {
+        if (hasTenantRole(accessSnapshot, "OPERATOR")) {
             return PrivateBootstrapSpace.CASHIER;
         }
         TchRole role = ctx.currentRole();
@@ -192,7 +192,7 @@ public class RuntimeBootstrapService {
         return switch (role) {
             case SUPER_ADMIN  -> PrivateBootstrapSpace.PLATFORM;
             case TENANT_ADMIN -> PrivateBootstrapSpace.ADMIN;
-            case OPERATOR, CASHIER -> PrivateBootstrapSpace.CASHIER;
+            case OPERATOR -> PrivateBootstrapSpace.CASHIER;
             default -> throw ProblemRest.forbidden("runtime.bootstrap.unsupported_role");
         };
     }

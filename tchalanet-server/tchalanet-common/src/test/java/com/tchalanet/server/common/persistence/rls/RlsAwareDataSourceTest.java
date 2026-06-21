@@ -77,7 +77,7 @@ class RlsAwareDataSourceTest {
         tenantUuid,
         "external-subject",
         UUID.randomUUID(),
-        superAdmin ? Set.of(TchRole.SUPER_ADMIN) : Set.of(TchRole.CASHIER),
+        superAdmin ? Set.of(TchRole.SUPER_ADMIN) : Set.of(),
         Set.of(),
         Locale.CANADA_FRENCH,
         "request-id",

@@ -109,23 +109,21 @@ class FeatureArchitectureTest {
   }
 
   @Test
-  void cashierMustNotDependOnReceiptFeatures() {
+  void cashierPackageMustNotExist() {
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.features.cashier..")
-        .should().dependOnClassesThat().resideInAnyPackage(
-            "com.tchalanet.server.features.receipt..",
-            "com.tchalanet.server.features.ticketreceipt..")
-        .because("cashier may inline receipt actions through core.sales/common.document, not another feature slice");
+        .should().exist()
+        .because("features.cashier is retired — POS functionality lives in features.pos");
 
     rule.check(classes);
   }
 
   @Test
-  void cashierFeaturesMustNotImportCoreSalesInternals() {
+  void posFeatureMustNotImportCoreSalesInternals() {
     ArchRule rule = noClasses()
-        .that().resideInAPackage("com.tchalanet.server.features.cashier..")
+        .that().resideInAPackage("com.tchalanet.server.features.pos..")
         .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core.sales.internal..")
-        .because("features.cashier must only use core.sales public API (commands, queries, models) via CommandBus/QueryBus");
+        .because("features.pos must only use core.sales public API (commands, queries, models) via CommandBus/QueryBus");
 
     rule.check(classes);
   }

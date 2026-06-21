@@ -11,7 +11,6 @@ import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
@@ -114,7 +113,7 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
             TENANT_ID.value(),
             "10000000-0000-0000-0000-000000000001",
             UUID.fromString("10000000-0000-0000-0000-000000000001"),
-            Set.of(TchRole.CASHIER),
+            Set.of(),
             Set.of(),
             locale,
             "req-1",

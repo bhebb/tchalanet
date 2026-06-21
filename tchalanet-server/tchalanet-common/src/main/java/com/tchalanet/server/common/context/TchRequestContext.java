@@ -108,7 +108,7 @@ public record TchRequestContext(
 
     /**
      * Rôle principal courant dérivé de systemRoles, avec priorité :
-     * SUPER_ADMIN > TENANT_ADMIN > OPERATOR > CASHIER > SYSTEM.
+     * SUPER_ADMIN > TENANT_ADMIN > OPERATOR > SYSTEM.
      */
     public TchRole currentRole() {
         if (systemRoles == null || systemRoles.isEmpty()) {
@@ -125,10 +125,6 @@ public record TchRequestContext(
 
         if (systemRoles.contains(TchRole.OPERATOR)) {
             return TchRole.OPERATOR;
-        }
-
-        if (systemRoles.contains(TchRole.CASHIER)) {
-            return TchRole.CASHIER;
         }
 
         if (systemRoles.contains(TchRole.SYSTEM)) {
@@ -290,10 +286,6 @@ public record TchRequestContext(
         return apiScope;
     }
 
-    public boolean isCashier() {
-        return systemRoles != null && systemRoles.contains(TchRole.CASHIER);
-    }
-
     public boolean isOperator() {
         return systemRoles != null && systemRoles.contains(TchRole.OPERATOR);
     }
@@ -303,7 +295,7 @@ public record TchRequestContext(
     }
 
     public boolean isOperationalRole() {
-        return isCashier() || isOperator();
+        return isOperator();
     }
 
     public boolean hasPermissionClaim(String permission) {

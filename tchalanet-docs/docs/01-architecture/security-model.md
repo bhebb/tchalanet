@@ -17,20 +17,22 @@
 
 | `TchActorType` | Source de l'identité | Authority Spring |
 |---|---|---|
-| `APP_USER` | Firebase UID → `app_user.firebase_uid` | `ACTOR_APP_USER` |
-| `SELLER_TERMINAL` | Firebase UID → `seller_terminal.firebase_uid` | `ACTOR_SELLER_TERMINAL` |
+| `APP_USER` | `ExternalAuthenticatedUser(provider, issuer, subject)` → `app_user_external_identity` | `ACTOR_APP_USER` |
+| `SELLER_TERMINAL` | `ExternalAuthenticatedUser(provider, issuer, subject)` → `seller_terminal_external_identity` | `ACTOR_SELLER_TERMINAL` |
 
+> **Provider actif V0 : Firebase.** Le subject est le Firebase UID. Tchalanet reste provider-neutral : aucune colonne `firebase_uid` dans les tables métier — le subject vit dans `*_external_identity`.  
 > **Pas de Keycloak.** L'ancien flow Keycloak JWT a été remplacé par Firebase pour tous les acteurs.
 
 ### Pipeline d'authentification
 
 ```
 Client (web / mobile / POS)
-  ↓ Authorization: Bearer <firebase-id-token>
+  ↓ Authorization: Bearer <provider-id-token>
 Spring Security Resource Server
-  ↓ JwtDecoder (Firebase public keys)
+  ↓ JwtDecoder (Firebase public keys en V0)
 IdentityProviderApi.mapVerifiedToken()
-  ↓ résout APP_USER ou SELLER_TERMINAL depuis firebase_uid
+  ↓ ExternalAuthenticatedUser(provider, issuer, subject)
+  ↓ résout APP_USER ou SELLER_TERMINAL via *_external_identity
 TchAccessContextPipelineFilter
   ↓ charge roles, permissions, sellerTerminalId
 TchContextFilter

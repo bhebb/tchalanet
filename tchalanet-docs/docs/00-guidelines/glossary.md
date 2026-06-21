@@ -150,15 +150,15 @@ Owns: Limit policies, validation rules
 
 ### core.sellerterminal
 
-Owns: SellerTerminal lifecycle, Firebase provisioning, PIN management, statut
+Owns: SellerTerminal lifecycle, PIN management, statut (provisioning identity via platform.identity)
 
 ### core.accesscontrol
 
 Owns: Roles, permissions, user management (APP_USER uniquement)
 
-### features.cashier
+### features.pos
 
-Owns: POS home BFF, readiness check, cashier flow (sans session ni binding)
+Owns: POS home BFF, readiness check, vente ticket, reprint, draws POS (acteur SELLER_TERMINAL)
 
 ### features.pagemodel
 
