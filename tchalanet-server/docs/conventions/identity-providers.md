@@ -41,6 +41,37 @@ Le PIN est géré via Firebase Authentication password API. Il n'est jamais stoc
 
 Voir flow complet : `tchalanet-docs/docs/02-functional/flows/seller-onboarding.md`
 
+## Ajouter un nouveau provider — contrat neutre
+
+`IdentityProviderApi` est l'unique port d'identité. Tout provider doit l'implémenter :
+
+```java
+public interface IdentityProviderApi {
+    // Valide le token externe et retourne un contexte d'identité brut
+    VerifiedIdentity verifyToken(String rawToken);
+
+    // Mappe l'identité brute vers un acteur Tchalanet (APP_USER ou SELLER_TERMINAL)
+    TchActorIdentity mapVerifiedToken(VerifiedIdentity identity);
+
+    // (SellerTerminal uniquement) Réinitialise le PIN dans le provider
+    void resetPin(String externalUid, String newPin);
+}
+```
+
+**Règles pour un nouveau provider** :
+
+| Règle | Détail |
+|---|---|
+| Implémenter `IdentityProviderApi` | Pas d'accès direct à Spring Security ou aux repositories |
+| Nommer l'implémentation `<Name>IdentityProviderAdapter` | Ex : `OidcIdentityProviderAdapter`, `EntraIdentityProviderAdapter` |
+| Activer via `TCH_IDENTITY_PROVIDER=<name>` | Configuration Spring conditionnelle (`@ConditionalOnProperty`) |
+| Interdire en production si non certifié | Ajouter vérification dans `SecurityConfig.assertProductionSafe()` |
+| Ne jamais stocker le token externe | Seul `TchRequestContext` est persisté en mémoire de requête |
+
+Le reste du pipeline (résolution tenant, RLS, `TchRequestContext`) est **provider-agnostique** — il consomme `TchActorIdentity` sans connaître Firebase ou autre.
+
+---
+
 ## Local IDE
 
 ```bash

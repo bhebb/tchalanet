@@ -28,10 +28,8 @@ providers. Winners claim payouts at field terminals.
 
 - **Ticket sales** — online and offline sales on Flutter terminals
 - **Draws** — scheduled draw lifecycle; result ingestion from external providers
-- **Payouts** — field payout by cashiers after ticket verification
 - **Promotions** — campaign engine: free lines, odds boost, charge waiver
 - **Multi-tenant isolation** — full data isolation via Postgres RLS
-- **Reconciliation** — daily sales vs. draw result reconciliation
 - **Analytics** — real-time stats and tenant reporting dashboards
 
 ## Where to go next

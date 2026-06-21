@@ -27,10 +27,6 @@ Règle :
 
 ### [Sales (Ventes)](sales.md)
 
-### [Payout (Paiements gagnants)](payout.md)
-
-### [Ledger (Journal comptable)](ledger.md)
-
 ### [Limits (Limites métier)](limits.md)
 
 ### [AccessControl (Contrôle d'accès)](accesscontrol.md)
@@ -52,14 +48,11 @@ Règle :
 - [FeatureFlags](featureflags.md) — Flags de fonctionnalités (lecture contrôlée).
 - [Game (Catalog)](game.md) — Référentiel des jeux et bet types.
 - [Haiti](haiti.md) — Projection lots haïtiens + catalog Tchala.
-- [Ledger](ledger.md) — Journal comptable append-only, idempotence.
-- [Limits](limits.md) — Limites de vente/payout (period/scope/dimension).
+- [Limits](limits.md) — Limites de vente (period/scope/dimension).
 - [Notification](notification.md) — Notifications tenant, ack.
-- [OfflineSync](offlinesync.md) — Synchronisation offline des ventes.
 - [Outlet](outlet.md) — Points de vente (PDV), groupement optionnel par tenant.
 - [SellerTerminal](terminal.md) — Acteur de vente unique (remplace Terminal + Session + Seller).
 - [Pricing (Catalog)](pricing.md) — Référentiel de pricing (multipliers, odds).
-- [Payout](payout.md) — Claims & payments (split, reversal) avec idempotence.
 - [ResultSlot (Catalog)](resultslot.md) — Slots globaux (provider/timezone/drawTime/daysOfWeek).
 - [Sales](sales.md) — Tickets: émission, annulation, statut public.
 - [Session](session.md) — **RETIRÉ** — sessions POS supprimées (voir SellerTerminal).

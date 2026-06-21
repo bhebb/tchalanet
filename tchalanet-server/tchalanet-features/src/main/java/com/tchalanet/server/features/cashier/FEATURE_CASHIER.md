@@ -2,7 +2,7 @@
 
 > **Surface** : POS mobile / web cashier — BFF vendeur transactionnel  
 > **Scope** : `features.cashier` — orchestration, pas de logique métier propre  
-> **Domaines appelés** : `core.sales`, `core.sellerterminal`, `core.payout`, `core.offlinesync`, `catalog.game`, `catalog.drawchannel`  
+> **Domaines appelés** : `core.sales`, `core.sellerterminal`, `catalog.game`, `catalog.drawchannel`  
 > **Acteur** : `SELLER_TERMINAL` (ou `APP_USER` avec Admin POS sélection)
 
 ---
@@ -81,13 +81,6 @@ POST /tenant/cashier/tickets/{id}/send         ← email / SMS
 **Verify** — accepte `https://tchalanet.com/v/TCH-8F4K-29PL` ou `TCH-8F4K-29PL`  
 → Retourne statut, sévérité, clés i18n, actions (`EXECUTE_PAYOUT`, etc.)
 
-### Offline
-
-```http
-GET  /tenant/cashier/offline/grant/current    ← grant offline actif
-POST /tenant/cashier/offline/submissions      ← soumettre ventes offline
-```
-
 ### Admin POS — sélection explicite (APP_USER only)
 
 ```http
@@ -114,20 +107,10 @@ DELETE /tenant/cashier/operational-context
 
 ---
 
-## Badges non-bloquants sur la home
-
-`CashierReadinessResponse` — visible sur la home mais n'empêche pas la vente :
-
-| Badge | Cause | Action |
-|---|---|---|
-| `PREVIOUS_UNPAID_PAYOUTS` | Claims OPEN antérieurs | `VIEW_PAYOUTS_TO_PROCESS` |
-
----
-
 ## Frontières
 
 `features.cashier` ne doit pas :
-- calculer les invariants de vente, limite, payout ou settlement
+- calculer les invariants de vente, limite ou settlement
 - écrire directement dans les repositories `core.*`
 - appeler `tchalanet-edge-service` directement
 - dupliquer la logique métier de `core.sales`
