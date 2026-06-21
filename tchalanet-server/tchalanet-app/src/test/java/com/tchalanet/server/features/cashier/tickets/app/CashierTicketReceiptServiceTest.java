@@ -113,7 +113,7 @@ class CashierTicketReceiptServiceTest {
         ZoneId.of("America/Toronto"),
         Currency.getInstance("CAD"),
         null,
-        TchActorType.SELLER_TERMINAL, SELLER_TERMINAL_ID, Set.of(), Set.of("seller_terminal.ticket.reprint_own"), null);
+        TchActorType.SELLER_TERMINAL, SELLER_TERMINAL_ID, Set.of(), Set.of("ticket.reprint_own"), null);
   }
 
   private static final class CapturingQueryBus implements QueryBus {

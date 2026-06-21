@@ -124,9 +124,11 @@ appUserId        = null
 roleCodes        = {}     (les SellerTerminals n'ont pas de rôles)
 permissionKeys   = {
     "seller_terminal.me.read",
-    "seller_terminal.sell",
-    "seller_terminal.ticket.read_own",
-    "seller_terminal.ticket.reprint_own"
+    "seller_terminal.pin.change",
+    "cashier.home.read",
+    "ticket.sell",
+    "ticket.read_own",
+    "ticket.reprint_own"
 }
 ```
 
@@ -136,7 +138,7 @@ Ces permissions sont **hardcodées** dans `AccessResolutionStepImpl.SELLER_TERMI
 
 ```text
 /api/v1/tenant/seller-terminal/**   → profil, change-pin
-/api/v1/tenant/cashier/**           → home POS, sell, payout
+/api/v1/tenant/cashier/**           → home POS, sell, ticket read/reprint
 /api/v1/public/**                   → vérification ticket
 ```
 
@@ -193,7 +195,7 @@ Champs clés :
 | `appUserId` | UUID | null |
 | `sellerTerminalId` | null | UUID |
 | `roleCodes` | {"TENANT_ADMIN", ...} | {} |
-| `permissionKeys` | {"seller_terminal.manage", ...} | {"seller_terminal.sell", "seller_terminal.ticket.read_own", ...} |
+| `permissionKeys` | {"seller_terminal.manage", ...} | {"ticket.sell", "ticket.read_own", "cashier.home.read", ...} |
 | `externalSubject` | firebase_uid | firebase_uid |
 | `tenantId` | depuis JWT claim | depuis seller_terminal.tenant_id |
 

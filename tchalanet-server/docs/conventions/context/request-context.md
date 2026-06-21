@@ -172,15 +172,17 @@ Spring Security ─────────────────────�
             → enrichit Spring auth :
                 ACTOR_SELLER_TERMINAL
                 PERM_seller_terminal.me.read
-                PERM_seller_terminal.sell
-                PERM_seller_terminal.ticket.read_own
-                PERM_seller_terminal.ticket.reprint_own
+                PERM_seller_terminal.pin.change
+                PERM_cashier.home.read
+                PERM_ticket.sell
+                PERM_ticket.read_own
+                PERM_ticket.reprint_own
 
         APP_USER :
             → AccessControlSnapshotResolver.resolvePlatform(userId) + resolveTenant(userId, tenantId)
             → ResolvedAccessContext(APP_USER, userId, effectiveTenantId, roleCodes, permissionKeys)
             → enrichit Spring auth :
-                ACTOR_APP_USER + ROLE_TENANT_ADMIN + PERM_seller_terminal.manage …
+                ACTOR_APP_USER + ROLE_TENANT_ADMIN + PERM_ticket.sell …
 
         → RESOLVED_ACCESS stocké en request attr
 
@@ -227,9 +229,11 @@ Les permissions d'un SELLER_TERMINAL ne sont pas chargées depuis la DB. Elles s
 ```java
 static final Set<String> SELLER_TERMINAL_PERMISSIONS = Set.of(
     "seller_terminal.me.read",
-    "seller_terminal.sell",
-    "seller_terminal.ticket.read_own",
-    "seller_terminal.ticket.reprint_own"
+    "seller_terminal.pin.change",
+    "cashier.home.read",
+    "ticket.sell",
+    "ticket.read_own",
+    "ticket.reprint_own"
 );
 ```
 

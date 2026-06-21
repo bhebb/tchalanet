@@ -48,8 +48,9 @@ class AccessResolutionStepSellerTerminalTest {
         assertThat(resolved.sellerTerminalId()).isEqualTo(TERMINAL);
         assertThat(resolved.permissionKeys()).isEqualTo(AccessResolutionStepImpl.SELLER_TERMINAL_PERMISSIONS);
         assertThat(resolved.permissionKeys())
-            .contains("seller_terminal.me.read", "seller_terminal.sell",
-                "seller_terminal.ticket.read_own", "seller_terminal.ticket.reprint_own");
+            .contains("seller_terminal.me.read", "seller_terminal.pin.change",
+                "cashier.home.read", "ticket.sell",
+                "ticket.read_own", "ticket.reprint_own");
     }
 
     @Test
