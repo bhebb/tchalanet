@@ -88,7 +88,13 @@ permissionKeys  = {"seller_terminal.manage", ...}
 2. `SellerTerminalIdentityProvisioningApi` crée un utilisateur Firebase avec email fictif et PIN comme password.
 3. Le SellerTerminal se connecte via Firebase avec `terminalCode@tenant.tchalanet` + PIN.
 4. Firebase retourne un `id_token`.
-5. Le POS mobile envoie `Authorization: Bearer <id_token>`.
+5. Le POS mobile envoie :
+```http
+Authorization: Bearer <id_token>
+X-Tch-Client-Type: POS
+```
+
+`X-Tch-Client-Type: POS` est **obligatoire**. Sans ce header, le serveur tente de résoudre le token comme un `APP_USER` — le `firebase_uid` n'étant pas dans `app_user`, la réponse est `403 external_identity.not_linked`. Ce header est un hint de sélection du resolver, pas une preuve d'accès.
 
 ### 4.2 Premier login — changement de PIN obligatoire
 
@@ -100,12 +106,14 @@ Quand `mustChangePin = true` (après provisioning ou reset admin) :
 ### 4.3 Bootstrap côté serveur
 
 `TchAccessContextPipelineFilter` :
-1. Vérifie la signature JWT Firebase.
-2. Extrait `firebase_uid` (= `sub`).
-3. Cherche `seller_terminal` par `firebase_uid`.
-4. Valide statut (`ACTIVE`, sinon 403 ; `BLOCKED` → 403 ; `DISABLED` → 403).
-5. Charge permissions du SellerTerminal.
-6. Publie authorities : `ACTOR_SELLER_TERMINAL`, `PERM_<key>`.
+1. Vérifie la signature JWT Firebase (Spring Security).
+2. `X-Tch-Client-Type: POS` → `UserBootstrapFilterImpl` prend le chemin SELLER_TERMINAL.
+3. Cherche `seller_terminal` par `firebase_uid` (`provider` + `issuer` + `subject`).
+   - absent → `403 terminal.external_identity_not_linked`
+   - `!isActive()` → `403 terminal.not_active`
+4. Tente X-Tenant-Id / X-Tch-Tenant-Override → `403 terminal.tenant_selection_not_allowed`
+5. Tenant effectif = `seller_terminal.tenant_id` (DB), jamais depuis un header.
+6. Publie authorities : `ACTOR_SELLER_TERMINAL` + permissions hardcodées (pas depuis DB).
 
 ### 4.4 TchRequestContext résultant
 
@@ -114,8 +122,15 @@ actorType        = SELLER_TERMINAL
 sellerTerminalId = <UUID seller_terminal>
 appUserId        = null
 roleCodes        = {}     (les SellerTerminals n'ont pas de rôles)
-permissionKeys   = {"ticket.sell", ...}
+permissionKeys   = {
+    "seller_terminal.me.read",
+    "seller_terminal.sell",
+    "seller_terminal.ticket.read_own",
+    "seller_terminal.ticket.reprint_own"
+}
 ```
+
+Ces permissions sont **hardcodées** dans `AccessResolutionStepImpl.SELLER_TERMINAL_PERMISSIONS`, pas chargées depuis la DB.
 
 ### 4.5 Endpoints accessibles
 
@@ -178,7 +193,7 @@ Champs clés :
 | `appUserId` | UUID | null |
 | `sellerTerminalId` | null | UUID |
 | `roleCodes` | {"TENANT_ADMIN", ...} | {} |
-| `permissionKeys` | {"seller_terminal.manage", ...} | {"ticket.sell", ...} |
+| `permissionKeys` | {"seller_terminal.manage", ...} | {"seller_terminal.sell", "seller_terminal.ticket.read_own", ...} |
 | `externalSubject` | firebase_uid | firebase_uid |
 | `tenantId` | depuis JWT claim | depuis seller_terminal.tenant_id |
 
@@ -222,18 +237,27 @@ Un non-super-admin qui envoie ces headers reçoit `403`.
 
 ## 11. Contrat client HTTP
 
-### Client standard (web/mobile gestionnaire + POS)
+### Client APP_USER (web/mobile gestionnaire)
 
 ```http
 Authorization: Bearer <firebase-id-token>
-X-Request-ID: <uuid>              optional
-Idempotency-Key: <uuid>           requis pour commandes critiques
+X-Request-ID: <uuid>              (optionnel)
+Idempotency-Key: <uuid>           (requis pour commandes critiques)
 ```
 
-Ne pas envoyer :
+### Client SELLER_TERMINAL (POS Flutter)
+
 ```http
-X-Tenant-Id
-X-Deleted-Visibility
+Authorization: Bearer <firebase-id-token>
+X-Tch-Client-Type: POS            (OBLIGATOIRE — sélectionne le resolver SELLER_TERMINAL)
+Idempotency-Key: <uuid>           (requis pour /cashier/tickets/sell)
+```
+
+Ne jamais envoyer depuis un POS :
+```http
+X-Tenant-Id           → 403 terminal.tenant_selection_not_allowed
+X-Tch-Tenant-Override → 403 terminal.tenant_selection_not_allowed
+X-Deleted-Visibility  → ignoré / refusé
 ```
 
 ### Client Platform (SUPER_ADMIN uniquement)

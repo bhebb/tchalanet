@@ -123,44 +123,136 @@ Il répond à :
 
 ---
 
-## Pipeline HTTP
+## Pipeline HTTP — séquence réelle des filtres
 
 ```
-BearerTokenAuthenticationFilter
-  -> IdentityProviderApi (maps already verified token to ExternalAuthenticatedUser)
-  -> UserBootstrapFilter
-  -> TchContextFilter
-       -> ApiScopeResolver
-       -> TenantContextResolver
-       -> ActorContextResolver
-       -> ActorAuthorizationContextResolver ← remplace les hints token par rôles/permissions DB
-       -> OperationalContextResolver      ← attache l'operational context si présent (ne valide pas)
-       -> TchContextBinder.bind(finalCtx) ← bind request attribute, ThreadLocal, MDC, RLS
+Client  ──────────────────────────────────────────────────────────────────────
+        Authorization: Bearer <firebase-jwt>
+        X-Tch-Client-Type: POS          ← SELLER_TERMINAL uniquement (hint, ne donne pas accès)
+        [X-Tenant-Id]                   ← APP_USER seulement (interdit pour SELLER_TERMINAL)
+
+Spring Security ───────────────────────────────────────────────────────────────
+  BearerTokenAuthenticationFilter
+    → JWT decode (signature Firebase vérifée)
+    → SecurityConfig.convert()
+        → IdentityProviderApi.mapVerifiedToken(VerifiedExternalToken)
+        → ExternalAuthenticatedUser stocké dans JwtAuthenticationToken.details
+        → JwtAuthenticationToken.authorities = []  (vide ici — populé plus tard)
+
+  SensitiveIdentityVerificationFilter          (opérations sensibles uniquement : PIN change etc.)
+
+  TchAccessContextPipelineFilter               (skippé pour /public/**, /actuator/health, /swagger-ui)
+    ↓
+    1. IdentityBootstrapStep.bootstrap()       [= UserBootstrapFilterImpl]
+        → lit ExternalAuthenticatedUser depuis JwtAuthenticationToken.details
+        → lit X-Tch-Client-Type (ExpectedActorTypeResolver)
+
+        SI X-Tch-Client-Type == "POS"  → SELLER_TERMINAL path :
+            SellerTerminalIdentityLookup.findByExternalIdentity(provider, issuer, firebase_uid)
+            → absent : 403 "terminal.external_identity_not_linked"
+            → !isActive() : 403 "terminal.not_active"
+            → BootstrappedActor.sellerTerminal(sellerTerminalId, tenantId, ...) → request attr
+
+        SINON                          → APP_USER path :
+            ExternalIdentityAppUserResolver.resolve(externalUser)
+            → absent : 403 "external_identity.not_linked"
+            → status != ACTIVE : 403 "user.not_active"
+            → BootstrappedActor.appUser(appUserId, ...) → request attr
+
+        ⚠ PAS de fallback entre les deux : une requête POS sans mapping terminal
+          ne tombe pas sur APP_USER — elle reçoit 403.
+
+    2. AccessResolutionStep.resolve()          [= AccessResolutionStepImpl]
+        → lit BootstrappedActor depuis request attr
+
+        SELLER_TERMINAL :
+            → rejette X-Tenant-Id et X-Tch-Tenant-Override : 403 "terminal.tenant_selection_not_allowed"
+            → ResolvedAccessContext(SELLER_TERMINAL, sellerTerminalId, tenantId_from_DB,
+                                    SELLER_TERMINAL_PERMISSIONS)  ← permissions hardcodées, pas DB
+            → enrichit Spring auth :
+                ACTOR_SELLER_TERMINAL
+                PERM_seller_terminal.me.read
+                PERM_seller_terminal.sell
+                PERM_seller_terminal.ticket.read_own
+                PERM_seller_terminal.ticket.reprint_own
+
+        APP_USER :
+            → AccessControlSnapshotResolver.resolvePlatform(userId) + resolveTenant(userId, tenantId)
+            → ResolvedAccessContext(APP_USER, userId, effectiveTenantId, roleCodes, permissionKeys)
+            → enrichit Spring auth :
+                ACTOR_APP_USER + ROLE_TENANT_ADMIN + PERM_seller_terminal.manage …
+
+        → RESOLVED_ACCESS stocké en request attr
+
+  TchContextFilter                             (before AuthorizationFilter)
+    → lit RESOLVED_ACCESS depuis request attr
+
+    SI présent (authentifié) — handleResolvedAccess() :
+        → vérifie X-Tch-Override-Reason si superAdmin override
+        → contextFactory.createFromResolvedAccess(req, scope, resolvedAccess)
+        → tenantContextResolver.hydrateResolvedTenant() ← métadonnées tenant seulement (code/tz/currency)
+        → contextBinder.bind()  ← RLS actif à partir d'ici
+        → OperationalContextResolver.resolve() ou OperationalContextHeaderParser.parseHint()
+        → contextBinder.bind()  ← bind final avec operational context
+        → chain.doFilter()
+
+    SI absent (public/anonyme) — handlePublicOrLegacy() :
+        → tenant public par défaut si allowed
+        → actorContextResolver.attachBootstrappedAppUserId()  ← chemin legacy/public
+        → chain.doFilter()
+
+  AuthorizationFilter
+    → Spring évalue @PreAuthorize("hasPermission(null, '...')") via les authorities enrichies
 ```
 
-### Responsabilités
+### Header critique — `X-Tch-Client-Type: POS`
 
-**`BearerTokenAuthenticationFilter`**
-- Authentification Spring / provider configuré
-- Ne construit pas le contexte Tchalanet complet
+Ce header est **requis** pour toute requête SELLER_TERMINAL. Il indique au `UserBootstrapFilterImpl` quel resolver utiliser.
 
-**`UserBootstrapFilter`**
-- Consomme `ExternalAuthenticatedUser` et résout l'utilisateur applicatif
-- Enrichit : `appUserId`, `actorUserId`, statut user
-- Ne décide pas : tenant effectif, scope API, override tenant, operational context
+```
+Header                    Valeur        Effet
+X-Tch-Client-Type         POS           → résoudre comme SELLER_TERMINAL
+X-Tch-Client-Type         WEB           → résoudre comme APP_USER (même résultat qu'absent)
+(absent)                                → résoudre comme APP_USER
+```
 
-**`ActorAuthorizationContextResolver`**
-- Charge les rôles et permissions effectives depuis les tables Tchalanet
-- Remplace les rôles/permissions hints du token avant l'exécution des handlers
-- Refuse implicitement toute élévation non confirmée; un override `SUPER_ADMIN` non confirmé est
-  rejeté explicitement par `TchContextFilter`
+**Ce header est un hint de sélection, pas une preuve d'identité.** Il ne donne aucun accès. L'accès est prouvé par le firebase JWT + le mapping en DB. Un client qui envoie `POS` sans avoir de mapping `seller_terminal.firebase_uid` reçoit 403.
 
-**`TchContextFilter`**
-- Point central de construction du `TchRequestContext` HTTP
-- Résout scope, tenant effectif, acteur
-- Attache l'operational request context si présent en headers
-- Bind en request attribute, ThreadLocal, MDC, bridge RLS/datasource
-- Nettoie le ThreadLocal et MDC en `finally`
+---
+
+### Permissions SELLER_TERMINAL — hardcodées
+
+Les permissions d'un SELLER_TERMINAL ne sont pas chargées depuis la DB. Elles sont définies statiquement dans `AccessResolutionStepImpl` :
+
+```java
+static final Set<String> SELLER_TERMINAL_PERMISSIONS = Set.of(
+    "seller_terminal.me.read",
+    "seller_terminal.sell",
+    "seller_terminal.ticket.read_own",
+    "seller_terminal.ticket.reprint_own"
+);
+```
+
+Si un endpoint requiert une permission différente pour un SellerTerminal, elle doit être ajoutée ici.
+
+---
+
+### Champs deprecated dans `TchRequestContext`
+
+Ces champs sont encore présents dans le record mais ne doivent plus être utilisés :
+
+```java
+// @deprecated — use actorType() + externalSubject() instead
+String keycloakUserId
+
+// @deprecated — use roleCodes() instead
+Set<TchRole> systemRoles
+
+// @deprecated — use permissionKeys() instead
+Set<String> customRoles
+```
+
+`ActorContextResolver.attachBootstrappedAppUserId()` vérifie encore `keycloakUserId()` — c'est du code legacy sur le chemin public uniquement (`handlePublicOrLegacy`). Nouveau code : toujours `actorType()`, `roleCodes()`, `permissionKeys()`.
 
 ---
 
@@ -204,27 +296,25 @@ X-Tch-Override-Reason: Support / correction / investigation
 
 ### `ActorContextResolver`
 
-Résout : `actorUserId`, `appUserId`, rôles/authorities, `isSystem`, `isSuperAdmin`.
+Utilisé uniquement dans le chemin `handlePublicOrLegacy` (public/anonyme). Pour les requêtes authentifiées, l'acteur est résolu par `AccessResolutionStepImpl` via `BootstrappedActor`.
 
-Distingue :
-- `actor` = qui exécute maintenant (`APP_USER` ou `SELLER_TERMINAL` ou `SYSTEM`)
-- `sellerTerminalId` = l'acteur terrain original (préservé pour offline replay et audit)
-
-```
-Offline replay :
-  actorType      = SYSTEM
-  sellerTerminalId = SellerTerminal original (préservé pour audit métier)
-```
+Dans le chemin legacy il attache `appUserId` depuis l'attribut `BOOTSTRAPPED_APP_USER_ID` posé par `UserBootstrapFilterImpl`.
 
 ### `OperationalContextResolver`
 
-Pour un acteur `SELLER_TERMINAL` : l'Operational Context est intrinsèque — `sellerTerminalId` est résolu
-depuis le contexte d'authentification Firebase. Pas de headers séparés requis.
+Résout le contexte opérationnel **après** que le RLS est bindé (pour permettre les lookups DB si nécessaire).
 
-Pour un acteur `APP_USER` en mode Admin POS : l'Operational Context vient de la sélection explicite.
+Pour `SELLER_TERMINAL` : `sellerTerminalId` est déjà dans `TchRequestContext` depuis `ResolvedAccessContext`. Pas de header séparé.
 
-**Ne fait pas la validation métier lourde à ce stade.**  
-Règle : *Operational request context is attached early. Operational context is validated late, per action.*
+Pour `APP_USER` Admin POS : sélection explicite via `POST /cashier/operational-context/select`.  
+L'`X-Tch-Operational-Source` header peut indiquer la source de l'operational context (`ADMIN_SELECTION`, `CLIENT_CLAIM`, etc.).
+
+**Ne valide pas le contexte opérationnel à ce stade.** La validation métier est faite par action.
+
+```
+X-Tch-Operational-Source: ADMIN_SELECTION   ← APP_USER a sélectionné un SellerTerminal
+X-Tch-Operational-Source: CLIENT_CLAIM      ← claim client (trust = WEAK)
+```
 
 Voir : `tchalanet-server/docs/conventions/context/operational-context.md`
 
@@ -253,7 +343,7 @@ Il construit explicitement un contexte via `BatchTchContextBinder` :
 
 ```java
 batchContextBinder.runWithTenantContext(tenantId, jobRunId, () -> {
-    commandBus.execute(new RunTenantReconciliationCommand(businessDate));
+    commandBus.execute(new RunTenantDrawSettlementCommand(businessDate));
 });
 ```
 
