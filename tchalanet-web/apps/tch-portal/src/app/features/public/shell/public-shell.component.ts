@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { LabelPipe } from '@tch/page-model';
 import { PublicFooter } from '@tch/web';
 import { AppRuntimeStore } from '../../../core/runtime';
-import { ShellFeedbackOutletComponent } from '../../../shared/feedback/shell-feedback-outlet.component';
+import { ShellFeedbackOutletComponent } from '../../../core/feedback/shell-feedback-outlet.component';
 import { PublicHeader } from './public-header';
 import { PublicShellService } from './public-shell.service';
 

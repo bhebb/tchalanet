@@ -1,0 +1,10 @@
+@use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+
+.draws-page {
+  &__table {
+    overflow-x: auto;
+    padding: 1rem 0;
+
+    table { width: 100%; }
+  }
+}

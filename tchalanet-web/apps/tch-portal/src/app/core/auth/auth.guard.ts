@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 
-import { UserRole } from '../../shared/types';
 import { AuthSessionService } from './auth-session.service';
+import { UserRole } from './auth.types';
 
 export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => {
   const auth = inject(AuthSessionService);

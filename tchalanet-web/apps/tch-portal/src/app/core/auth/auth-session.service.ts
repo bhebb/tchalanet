@@ -1,9 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import { UserRole, UserSession } from '../../shared/types';
 import { PrivateRuntimeInitializer } from '../runtime';
 import { AUTH_CLIENT } from './auth-client';
+import { UserRole, UserSession } from './auth.types';
 
 const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
 

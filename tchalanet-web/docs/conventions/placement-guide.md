@@ -161,7 +161,7 @@ Routes connect pages to stores/providers.
 Example:
 
 ```ts
-export const cashierRoutes: Routes = [
+export const sellerTerminalRoutes: Routes = [
   {
     path: '',
     providers: [CashierOperationalContextStore],
