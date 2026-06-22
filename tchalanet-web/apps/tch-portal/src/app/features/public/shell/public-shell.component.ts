@@ -44,7 +44,7 @@ import { PublicShellService } from './public-shell.service';
       padding: 0.625rem 0.875rem;
       border-radius: var(--tch-radius-md, 8px);
       background: var(--tch-color-accent);
-      color: var(--tch-on-color-accent);
+      color: var(--tch-color-on-accent);
       text-decoration: none;
       font-weight: var(--tch-weight-extra-bold, 800);
       transition: transform var(--tch-duration-short, 200ms) var(--tch-ease-standard-decelerate);

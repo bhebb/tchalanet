@@ -1,0 +1,25 @@
+<div class="admin-next-steps-card">
+  <p class="admin-next-steps-card__title">{{ title() }}</p>
+  <ul class="admin-next-steps-card__list">
+    @for (step of steps(); track step.label) {
+      <li class="admin-next-steps-card__step">
+        @if (step.routerLink) {
+          <a [routerLink]="step.routerLink" class="admin-next-steps-card__link">
+            <span class="material-symbols-outlined admin-next-steps-card__icon" aria-hidden="true">{{ step.icon }}</span>
+            {{ step.label }}
+          </a>
+        } @else if (step.href) {
+          <a [href]="step.href" class="admin-next-steps-card__link">
+            <span class="material-symbols-outlined admin-next-steps-card__icon" aria-hidden="true">{{ step.icon }}</span>
+            {{ step.label }}
+          </a>
+        } @else {
+          <span class="admin-next-steps-card__link">
+            <span class="material-symbols-outlined admin-next-steps-card__icon" aria-hidden="true">{{ step.icon }}</span>
+            {{ step.label }}
+          </span>
+        }
+      </li>
+    }
+  </ul>
+</div>

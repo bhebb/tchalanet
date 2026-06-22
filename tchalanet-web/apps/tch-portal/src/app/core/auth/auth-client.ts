@@ -11,6 +11,7 @@ export interface AuthClient {
   login(request: AuthLoginRequest): Promise<void>;
   sendPasswordlessLoginLink?(email: string): Promise<void>;
   completePasswordlessLogin?(): Promise<boolean>;
+  sendPasswordResetEmail?(email: string): Promise<void>;
   changePassword?(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
   getAccessToken(forceRefresh?: boolean): Promise<string | null>;

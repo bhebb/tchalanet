@@ -161,6 +161,7 @@
       "errors": {
         "accessDenied": "Connexion réussie, mais votre accès Tchalanet n'est pas encore autorisé.",
         "emailLinkFailed": "Le lien de connexion est invalide ou expiré.",
+        "emailRequired": "Veuillez entrer votre adresse e-mail.",
         "invalidCredentials": "Adresse e-mail ou mot de passe invalide."
       },
       "form": {
@@ -168,6 +169,8 @@
         "body": "Utilisez les identifiants associés à votre compte Tchalanet.",
         "email": "Adresse e-mail",
         "emailLinkSent": "Lien de connexion envoyé. Ouvrez votre email sur cet appareil pour continuer.",
+        "forgotPassword": "Mot de passe oublié ?",
+        "resetEmailSent": "Un lien de réinitialisation a été envoyé à votre adresse e-mail.",
         "emailPlaceholder": "nom@organisation.com",
         "eyebrow": "Portail sécurisé",
         "hidePassword": "Masquer le mot de passe",
@@ -176,7 +179,7 @@
         "security": "Votre connexion est sécurisée par Firebase Authentication.",
         "sendEmailLink": "Recevoir un lien de connexion",
         "showPassword": "Afficher le mot de passe",
-        "submit": "Accéder à mon espace",
+        "submit": "Se connecter",
         "title": "Bon retour"
       },
       "links": {
@@ -215,7 +218,8 @@
     "not_available": "Non disponible",
     "validation": {
       "required": "Ce champ est obligatoire."
-    }
+    },
+    "not_set": "Non renseigné"
   },
   "dashboard": {
     "actions": {
@@ -611,14 +615,23 @@
       "loading": "Chargement des tenants...",
       "pagination": "Page {{page}} / {{total}}",
       "error": {
-        "load": "Erreur de chargement des tenants."
+        "load": "Erreur de chargement des tenants.",
+        "suspend": "Erreur lors de la suspension du tenant.",
+        "reactivate": "Erreur lors de la réactivation du tenant.",
+        "archive": "Erreur lors de l'archivage du tenant.",
+        "activate": "Erreur lors de l'activation du tenant."
       },
       "action": {
         "create": "Créer un tenant",
         "applyFilters": "Filtrer",
         "resetFilters": "Réinitialiser",
         "openMenu": "Ouvrir les actions du tenant",
-        "viewDetails": "Voir détail"
+        "viewDetails": "Voir le tenant",
+        "suspend": "Suspendre",
+        "reactivate": "Réactiver",
+        "archive": "Archiver",
+        "backToList": "Retour à la liste",
+        "activate": "Activer"
       },
       "filter": {
         "search": "Rechercher",
@@ -634,11 +647,18 @@
         "profile": "Profil",
         "primaryAdmin": "Admin principal",
         "readiness": "Readiness",
-        "createdAt": "Créé le"
+        "createdAt": "Créé le",
+        "updatedAt": "Dernière modification",
+        "type": "Type",
+        "currency": "Devise"
       },
       "empty": {
         "title": "Aucun tenant",
-        "message": "Créez le premier tenant pour commencer."
+        "message": "Créez le premier tenant pour commencer.",
+        "filtered": {
+          "title": "Aucun résultat",
+          "message": "Aucun tenant ne correspond aux filtres sélectionnés."
+        }
       },
       "status": {
         "onboarding": "Onboarding",
@@ -653,7 +673,7 @@
         "incomplete": "Incomplet",
         "blocked": "Bloqué",
         "missing": "Manquant",
-        "unknown": "Inconnu"
+        "unknown": "À compléter"
       },
       "type": {
         "borlette": "Borlette",
@@ -712,7 +732,7 @@
       },
       "detail": {
         "title": "Détail tenant",
-        "description": "Vue minimale du tenant et de son provisioning.",
+        "description": "Identité, région, commerce et profil du tenant.",
         "loading": "Chargement du tenant...",
         "error": "Erreur de chargement du tenant.",
         "createdTitle": "Tenant créé",
@@ -721,6 +741,21 @@
         "empty": {
           "title": "Tenant introuvable",
           "message": "Le détail de ce tenant n’est pas encore disponible."
+        },
+        "section": {
+          "identity": "Identité",
+          "region": "Région",
+          "commerce": "Commerce",
+          "profile": "Profil & Readiness"
+        },
+        "field": {
+          "type": "Type"
+        },
+        "identityCard": {
+          "eyebrow": "Tenant"
+        },
+        "action": {
+          "viewAdmins": "Voir les administrateurs"
         }
       },
       "provisioning": {
@@ -778,7 +813,20 @@
         "warnings": {
           "INITIAL_ADMIN_EMAIL_MISSING": "Aucun admin initial ne sera créé."
         }
-      }
+      },
+      "confirm": {
+        "suspend": "Voulez-vous suspendre {{name}} ? Les vendeurs ne pourront plus se connecter.",
+        "reactivate": "Voulez-vous réactiver {{name}} ?",
+        "archive": "Voulez-vous archiver {{name}} ? Cette action est difficile à annuler.",
+        "reasonLabel": "Motif",
+        "activate": "Voulez-vous activer {{name}} ?"
+      },
+      "success": {
+        "suspended": "Tenant suspendu.",
+        "reactivated": "Tenant réactivé.",
+        "archived": "Tenant archivé."
+      },
+      "paginationTotal": "{{count}} tenant(s)"
     },
     "tenantProvisioning": {
       "title": "Provisionner un tenant",
@@ -787,6 +835,7 @@
       "section": {
         "identity": "Identité & classification",
         "regional": "Paramètres régionaux",
+        "commercial": "Paramètres commerciaux",
         "profile": "Profil de provisioning",
         "initialAdmin": "Admin initial"
       },
@@ -796,21 +845,41 @@
         "type": "Type",
         "timezone": "Fuseau horaire",
         "currency": "Devise",
+        "defaultCommissionRate": "Commission par défaut",
         "profile": "Profil",
         "initialAdminEmail": "Email de l'admin initial"
       },
       "hint": {
+        "defaultCommissionRate": "Commission appliquée par défaut aux seller-terminals qui n'ont pas de taux spécifique.",
         "initialAdminEmail": "Si vide, le tenant sera créé sans administrateur initial."
       },
       "error": {
         "code": "Format requis : lettres minuscules, chiffres, tirets (3–30 caractères).",
         "required": "Champ requis.",
-        "email": "Adresse email invalide."
+        "email": "Adresse email invalide.",
+        "commissionRate": "La commission doit être comprise entre 0 et 100 %.",
+        "submitTitle": "Provisionnement impossible"
+      },
+      "loading": {
+        "title": "Provisionnement du tenant en cours…",
+        "message": "Création du tenant, application du profil initial et préparation de la configuration."
       },
       "action": {
         "cancel": "Annuler",
         "submit": "Provisionner le tenant",
-        "submitting": "Provisionnement..."
+        "submitting": "Provisionnement…",
+        "backToList": "Retour à la liste",
+        "completeRequired": "Complétez les champs requis pour continuer",
+        "viewTenant": "Voir le tenant",
+        "addAdmin": "Ajouter un administrateur",
+        "createAnother": "Créer un autre tenant"
+      },
+      "warning": {
+        "initialAdminMissing": "Admin initial non renseigné. Le tenant pourra être créé, mais un administrateur devra être ajouté ensuite.",
+        "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du tenant.",
+        "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du tenant.",
+        "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
+        "fallback": "Un point de configuration demande une vérification."
       },
       "identityCard": {
         "eyebrow": "Identité du tenant",
@@ -868,6 +937,10 @@
         "configureOdds": "Configurer les barèmes",
         "verifyDemoSetup": "Vérifier les données de démo",
         "createSellerTerminal": "Créer un seller-terminal"
+      },
+      "success": {
+        "title": "Tenant provisionné avec succès",
+        "message": "Le tenant {{code}} a été créé et est prêt pour la configuration."
       }
     },
     "contactRequests": {
@@ -1651,7 +1724,7 @@
       }
     },
     "pa": {
-      "day": {
+      "mid": {
         "label": "Pennsylvania — Jour"
       },
       "eve": {

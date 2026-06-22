@@ -80,6 +80,7 @@
               [type]="passwordVisible() ? 'text' : 'password'"
               name="password"
               autocomplete="current-password"
+              required
               [(ngModel)]="password"
             />
             <button
@@ -96,9 +97,18 @@
             </button>
           </mat-form-field>
 
-          <mat-checkbox name="remember" [(ngModel)]="remember">
-            {{ 'auth.login.form.remember' | translate }}
-          </mat-checkbox>
+          <div class="login-card__remember-row">
+            <mat-checkbox name="remember" [(ngModel)]="remember">
+              {{ 'auth.login.form.remember' | translate }}
+            </mat-checkbox>
+            <button
+              type="button"
+              class="login-card__forgot"
+              (click)="forgotPassword()"
+            >
+              {{ 'auth.login.form.forgotPassword' | translate }}
+            </button>
+          </div>
 
           @if (errorKey(); as error) {
             <p class="login-card__error" role="alert">
@@ -115,8 +125,7 @@
           }
 
           <button
-            mat-flat-button
-            class="login-card__submit"
+            class="login-submit"
             type="submit"
             [disabled]="loading() || loginForm.invalid"
           >
@@ -126,7 +135,7 @@
               </span>
               {{ 'auth.login.form.authenticating' | translate }}
             } @else {
-              {{ (password.trim() ? 'auth.login.form.submit' : 'auth.login.form.sendEmailLink') | translate }}
+              {{ 'auth.login.form.submit' | translate }}
               <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             }
           </button>

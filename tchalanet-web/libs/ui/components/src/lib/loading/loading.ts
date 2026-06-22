@@ -10,7 +10,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     </div>
   `,
   styles: [`
-    :host { --comp-loading-track: var(--tch-color-surface-container-high); --comp-loading-active: var(--tch-color-primary); }
+    :host { --comp-loading-track: var(--tch-color-surface-container-high); --comp-loading-active: var(--tch-color-accent); }
     .loading { display: grid; justify-items: center; gap: .75rem; padding: 2rem 1rem; color: var(--tch-color-on-surface-variant); }
     .loading__spinner { width: 2rem; height: 2rem; border: 3px solid var(--comp-loading-track); border-top-color: var(--comp-loading-active); border-radius: 50%; animation: spin .8s linear infinite; }
     p { margin: 0; }

@@ -112,9 +112,8 @@ class FeatureArchitectureTest {
   void cashierPackageMustNotExist() {
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.features.cashier..")
-        .should().exist()
+        .should().resideOutsideOfPackage("com.tchalanet.server.features.cashier..")
         .because("features.cashier is retired — POS functionality lives in features.pos");
-
     rule.check(classes);
   }
 

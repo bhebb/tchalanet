@@ -38,15 +38,19 @@ import { TchCard } from '@tch/ui/components';
 
       tch-card {
         --tch-radius-lg: var(--tch-radius-2xl, 1.5rem);
+        --comp-card-bg: var(--tch-color-surface);
         padding: 0;
         overflow: hidden;
+        box-shadow: 0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent),
+                    0 0 0 1px color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
+        border: none;
       }
 
       .section-card__header {
         display: flex;
         align-items: center;
         gap: 0.625rem;
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
       }
 

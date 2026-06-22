@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
-export type TenantStatus = 'ONBOARDING' | 'ACTIVE' | 'SUSPENDED' | 'DISABLED' | 'DRAFT' | 'ARCHIVED';
+export type TenantStatus = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED' | 'ARCHIVED';
 export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
 export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
 export type TenantReadinessStatus = 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
@@ -16,10 +16,25 @@ export interface TenantSummaryView {
   timezone?: string | null;
   currency?: string | null;
   status: TenantStatus;
+  defaultCommissionRate?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+/** Full tenant view returned by GET /platform/tenants/:id */
+export interface TenantDetailView extends TenantSummaryView {
   profile?: TenantProvisioningProfile | null;
   primaryAdminEmail?: string | null;
   readinessStatus?: TenantReadinessStatus | null;
-  createdAt: string;
+  activeThemeId?: string | null;
+  themeCode?: string | null;
+  address?: {
+    country?: string | null;
+    city?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    postalCode?: string | null;
+  } | null;
 }
 
 export interface TenantPageResponse {
@@ -33,7 +48,6 @@ export interface TenantPageResponse {
 export interface TenantListQuery {
   q?: string | null;
   status?: string | null;
-  profile?: string | null;
   page: number;
   size: number;
   sort?: string | null;
@@ -83,13 +97,17 @@ export class PlatformTenantsApi {
     query.set('size', String(params.size));
     if (params.q?.trim()) query.set('q', params.q.trim());
     if (params.status) query.set('status', params.status);
-    if (params.profile) query.set('profile', params.profile);
     if (params.sort) query.set('sort', params.sort);
     return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`);
   }
 
-  getTenant(id: string): Observable<TenantSummaryView> {
-    return this.backend.get<TenantSummaryView>(`/platform/tenants/${id}`);
+  getTenant(id: string): Observable<TenantDetailView> {
+    // Guard against missing route params: never hit `/platform/tenants/null` — fail fast
+    // client-side so the caller shows a clear "no tenant selected" state instead of a 500.
+    if (!isValidId(id)) {
+      return throwError(() => new Error('Aucun tenant sélectionné.'));
+    }
+    return this.backend.get<TenantDetailView>(`/platform/tenants/${id}`);
   }
 
   createTenant(req: CreateTenantRequest): Observable<TenantSummaryView> {
@@ -119,4 +137,9 @@ export class PlatformTenantsApi {
   createTenantAdmin(tenantId: string, req: CreateTenantAdminRequest): Observable<TenantAdminView> {
     return this.backend.post<TenantAdminView>(`/platform/tenants/${tenantId}/admins`, req);
   }
+}
+
+/** A usable path segment: not empty and not a stringified null/undefined from a missing route param. */
+function isValidId(id: string | null | undefined): id is string {
+  return !!id && id !== 'null' && id !== 'undefined';
 }

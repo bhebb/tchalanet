@@ -98,7 +98,7 @@
 
 .rules-page__primary-link {
   background: var(--tch-color-accent, var(--mat-sys-tertiary));
-  color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
+  color: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
 }
 
 .rules-page__secondary-link {
@@ -295,7 +295,7 @@
   border-radius: var(--tch-radius-pill, 9999px);
   padding: 0.25rem 0.625rem;
   background: var(--tch-color-accent, var(--mat-sys-tertiary));
-  color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
+  color: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
   font-size: var(--tch-font-size-label-sm, 0.75rem);
   font-weight: 800;
 }
@@ -693,7 +693,7 @@
   min-height: 2.5rem;
   border-radius: var(--tch-radius-pill, 9999px);
   background: var(--tch-color-accent, var(--mat-sys-tertiary));
-  color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
+  color: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
   font-family: var(--tch-font-family-mono, monospace);
   font-weight: 800;
 }

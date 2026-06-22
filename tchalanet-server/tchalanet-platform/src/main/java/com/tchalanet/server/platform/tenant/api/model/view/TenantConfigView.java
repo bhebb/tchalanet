@@ -7,6 +7,8 @@ import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 import tools.jackson.databind.JsonNode;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
 
@@ -25,5 +27,8 @@ public record TenantConfigView(
     ThemePresetId activeThemeId,      // ID for reference/operations
     String activeThemeCode,            // code for display (e.g. "modern-light")
     AddressView address,
-    JsonNode internalSettings
+    JsonNode internalSettings,
+    BigDecimal defaultCommissionRate,
+    Instant createdAt,
+    Instant updatedAt
 ) {}

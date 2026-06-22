@@ -15,6 +15,7 @@ import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 public class TenantProvisioningOrchestrator {
 
   private final TenantConfigApi tenantConfigApi;
+  private final TenantPersistenceAdapter tenantPersistence;
   private final TenantReadinessAssembler readinessAssembler;
   private final IdentityApi identityApi;
 
@@ -59,8 +61,14 @@ public class TenantProvisioningOrchestrator {
         null,
         Boolean.FALSE));
 
-    TenantConfigView created = tenantConfigApi.getTenantByCode(
+    var created = tenantConfigApi.getTenantByCode(
         new GetTenantByCodeRequest(request.code()));
+
+    //todo pass dans create tenant
+    // Persist the default commission rate on the freshly-created tenant. The column + adapter
+    // already exist (tenant-admin commission flow); the create command does not carry it.
+    tenantPersistence.updateDefaultCommissionRate(
+        created.tenantId(), request.defaultCommissionRate());
 
     Map<String, String> domainStatuses = new LinkedHashMap<>();
     domainStatuses.put("tenant_identity", "CREATED");
@@ -109,6 +117,7 @@ public class TenantProvisioningOrchestrator {
         tenantId.toString(),
         created.code(),
         request.profile(),
+        request.defaultCommissionRate(),
         Map.copyOf(domainStatuses),
         nextSteps(request.profile(), request.initialAdminEmail()),
         warnings(request),

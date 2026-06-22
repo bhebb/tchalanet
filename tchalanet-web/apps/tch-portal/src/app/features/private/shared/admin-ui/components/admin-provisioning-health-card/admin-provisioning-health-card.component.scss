@@ -93,3 +93,21 @@
   font-size: 0.875rem;
   color: var(--comp-health-muted);
 }
+
+.admin-provisioning-health-card__toggle {
+  align-self: start;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--tch-color-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: start;
+}
+
+.admin-provisioning-health-card__toggle:hover {
+  text-decoration: underline;
+}

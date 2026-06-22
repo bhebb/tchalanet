@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.tchalanet.server.common.exception.TchNotFoundException;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,6 +36,18 @@ public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID
         return findByIdActive(id)
             .orElseThrow(() -> new TchNotFoundException(id.toString(), "Tenant not found"));
     }
+
+    @Query("""
+        select t from TenantJpaEntity t
+        where t.deletedAt is null
+          and (:status is null or t.status = :status)
+          and (:q is null or lower(t.code) like :q or lower(t.name) like :q)
+        """)
+    Page<TenantJpaEntity> search(
+        @Param("q") String q,
+        @Param("status") TenantStatus status,
+        Pageable pageable
+    );
 
     @Modifying
     @Query("UPDATE TenantJpaEntity t SET t.defaultCommissionRate = :rate WHERE t.id = :id AND t.deletedAt IS NULL")

@@ -12,6 +12,7 @@ import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIntern
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalCommunicationConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class TenantApiAdapter implements TenantConfigApi {
     }
 
     @Override
-    public List<TenantConfigView> listTenants(ListTenantsRequest request) {
+    public List<TenantSummaryView> listTenants(ListTenantsRequest request) {
         return service.listTenants(request).items();
     }
 

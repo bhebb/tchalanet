@@ -1,0 +1,49 @@
+:host {
+  --comp-next-steps-bg: var(--tch-color-surface-container);
+  --comp-next-steps-fg: var(--tch-color-on-surface);
+  --comp-next-steps-accent: var(--tch-color-primary);
+  display: block;
+}
+
+.admin-next-steps-card {
+  background: var(--comp-next-steps-bg);
+  border-radius: var(--tch-radius-lg, 12px);
+  padding: 1rem 1.25rem;
+}
+
+.admin-next-steps-card__title {
+  margin: 0 0 0.75rem;
+  font-size: var(--tch-font-size-label-md, 0.875rem);
+  font-weight: 600;
+  color: var(--comp-next-steps-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-next-steps-card__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.125rem;
+}
+
+.admin-next-steps-card__link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--tch-radius-md, 8px);
+  color: var(--comp-next-steps-accent);
+  font-size: var(--tch-font-size-body-md, 1rem);
+  text-decoration: none;
+
+  &:hover {
+    background: color-mix(in oklab, var(--comp-next-steps-accent) 8%, transparent);
+  }
+}
+
+.admin-next-steps-card__icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}

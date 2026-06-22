@@ -87,7 +87,14 @@ export class AuthSessionService {
         return completed ? this.refreshSession(true) : null;
     }
 
-    async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    async sendPasswordResetEmail(email: string): Promise<void> {
+    if (!this.auth.sendPasswordResetEmail) {
+      throw new Error('Password reset is not supported by this auth client');
+    }
+    await this.auth.sendPasswordResetEmail(email);
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
         if (!this.auth.changePassword) {
             throw new Error('Password change is not supported by this auth client');
         }

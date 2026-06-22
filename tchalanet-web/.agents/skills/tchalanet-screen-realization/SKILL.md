@@ -27,6 +27,7 @@ Before coding, load the applicable project docs and the full guide when the task
 - Shell, PageModel, or runtime docs when routing/navigation is involved
 - Backend/API docs relevant to the screen contract
 - [references/screen-realization-guide.md](references/screen-realization-guide.md)
+- [references/admin-page-patterns.md](references/admin-page-patterns.md) — patterns opérationnels par type de page (création, liste, actions confirmées), pièges récurrents, décisions retenues
 
 If a referenced document is missing, say so briefly and continue from the closest available project convention.
 

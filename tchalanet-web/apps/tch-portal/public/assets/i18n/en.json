@@ -192,6 +192,7 @@
       "errors": {
         "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
         "emailLinkFailed": "The sign-in link is invalid or expired.",
+        "emailRequired": "Please enter your email address.",
         "invalidCredentials": "Invalid email address or password."
       },
       "form": {
@@ -199,6 +200,8 @@
         "body": "Use the credentials associated with your Tchalanet account.",
         "email": "Email address",
         "emailLinkSent": "Sign-in link sent. Open your email on this device to continue.",
+        "forgotPassword": "Forgot password?",
+        "resetEmailSent": "A password reset link has been sent to your email address.",
         "emailPlaceholder": "name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
@@ -207,7 +210,7 @@
         "security": "Your connection is secured by Firebase Authentication.",
         "sendEmailLink": "Get a sign-in link",
         "showPassword": "Show password",
-        "submit": "Access my workspace",
+        "submit": "Sign in",
         "title": "Welcome back"
       },
       "links": {
@@ -246,7 +249,8 @@
     "not_available": "Not available",
     "validation": {
       "required": "This field is required."
-    }
+    },
+    "not_set": "Not set"
   },
   "dashboard": {
     "actions": {
@@ -641,14 +645,23 @@
       "loading": "Loading tenants...",
       "pagination": "Page {{page}} / {{total}}",
       "error": {
-        "load": "Unable to load tenants."
+        "load": "Unable to load tenants.",
+        "suspend": "Error suspending tenant.",
+        "reactivate": "Error reactivating tenant.",
+        "archive": "Error archiving tenant.",
+        "activate": "Error activating the tenant."
       },
       "action": {
         "create": "Create tenant",
         "applyFilters": "Filter",
         "resetFilters": "Reset",
         "openMenu": "Open tenant actions",
-        "viewDetails": "View details"
+        "viewDetails": "View tenant",
+        "suspend": "Suspend",
+        "reactivate": "Reactivate",
+        "archive": "Archive",
+        "backToList": "Back to list",
+        "activate": "Activate"
       },
       "filter": {
         "search": "Search",
@@ -664,11 +677,18 @@
         "profile": "Profile",
         "primaryAdmin": "Primary admin",
         "readiness": "Readiness",
-        "createdAt": "Created"
+        "createdAt": "Created",
+        "updatedAt": "Last modified",
+        "type": "Type",
+        "currency": "Currency"
       },
       "empty": {
         "title": "No tenants",
-        "message": "Create the first tenant to get started."
+        "message": "Create the first tenant to get started.",
+        "filtered": {
+          "title": "No results",
+          "message": "No tenants match the selected filters."
+        }
       },
       "status": {
         "onboarding": "Onboarding",
@@ -683,7 +703,7 @@
         "incomplete": "Incomplete",
         "blocked": "Blocked",
         "missing": "Missing",
-        "unknown": "Unknown"
+        "unknown": "To complete"
       },
       "type": {
         "borlette": "Borlette",
@@ -742,7 +762,7 @@
       },
       "detail": {
         "title": "Tenant detail",
-        "description": "Minimal tenant and provisioning view.",
+        "description": "Identity, region, commerce and profile of the tenant.",
         "loading": "Loading tenant...",
         "error": "Unable to load tenant.",
         "createdTitle": "Tenant created",
@@ -751,6 +771,21 @@
         "empty": {
           "title": "Tenant not found",
           "message": "This tenant detail is not available yet."
+        },
+        "section": {
+          "identity": "Identity",
+          "region": "Region",
+          "commerce": "Commerce",
+          "profile": "Profile & Readiness"
+        },
+        "field": {
+          "type": "Type"
+        },
+        "identityCard": {
+          "eyebrow": "Tenant"
+        },
+        "action": {
+          "viewAdmins": "View administrators"
         }
       },
       "provisioning": {
@@ -808,7 +843,20 @@
         "warnings": {
           "INITIAL_ADMIN_EMAIL_MISSING": "No initial admin will be created."
         }
-      }
+      },
+      "confirm": {
+        "suspend": "Do you want to suspend {{name}}? Sellers will no longer be able to log in.",
+        "reactivate": "Do you want to reactivate {{name}}?",
+        "archive": "Do you want to archive {{name}}? This action is difficult to undo.",
+        "reasonLabel": "Reason",
+        "activate": "Do you want to activate {{name}}?"
+      },
+      "success": {
+        "suspended": "Tenant suspended.",
+        "reactivated": "Tenant reactivated.",
+        "archived": "Tenant archived."
+      },
+      "paginationTotal": "{{count}} tenant(s)"
     },
     "tenantProvisioning": {
       "title": "Provision a tenant",
@@ -817,6 +865,7 @@
       "section": {
         "identity": "Identity & classification",
         "regional": "Regional settings",
+        "commercial": "Commercial settings",
         "profile": "Provisioning profile",
         "initialAdmin": "Initial admin"
       },
@@ -826,21 +875,41 @@
         "type": "Type",
         "timezone": "Timezone",
         "currency": "Currency",
+        "defaultCommissionRate": "Default commission",
         "profile": "Profile",
         "initialAdminEmail": "Initial admin email"
       },
       "hint": {
+        "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
         "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
       },
       "error": {
         "code": "Required format: lowercase letters, numbers, hyphens (3–30 characters).",
         "required": "Required field.",
-        "email": "Invalid email address."
+        "email": "Invalid email address.",
+        "commissionRate": "Commission must be between 0 and 100%.",
+        "submitTitle": "Provisioning failed"
+      },
+      "loading": {
+        "title": "Tenant provisioning in progress…",
+        "message": "Creating the tenant, applying the initial profile, and preparing the configuration."
       },
       "action": {
         "cancel": "Cancel",
         "submit": "Provision tenant",
-        "submitting": "Provisioning..."
+        "submitting": "Provisioning…",
+        "backToList": "Back to list",
+        "completeRequired": "Complete the required fields to continue",
+        "viewTenant": "View tenant",
+        "addAdmin": "Add an administrator",
+        "createAnother": "Create another tenant"
+      },
+      "warning": {
+        "initialAdminMissing": "No initial admin provided. The tenant can still be created, but an administrator will need to be added later.",
+        "existingUserAttached": "An existing user was attached as the tenant administrator.",
+        "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
+        "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
+        "fallback": "A configuration point needs verification."
       },
       "identityCard": {
         "eyebrow": "Tenant identity",
@@ -897,6 +966,10 @@
         "configureOdds": "Configure odds",
         "verifyDemoSetup": "Verify demo data",
         "createSellerTerminal": "Create a seller-terminal"
+      },
+      "success": {
+        "title": "Tenant provisioned successfully",
+        "message": "Tenant {{code}} has been created and is ready for configuration."
       }
     },
     "contactRequests": {
@@ -1680,7 +1753,7 @@
       }
     },
     "pa": {
-      "day": {
+      "mid": {
         "label": "Pennsylvania - Midday"
       },
       "eve": {

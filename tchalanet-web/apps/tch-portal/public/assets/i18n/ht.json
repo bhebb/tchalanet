@@ -159,6 +159,7 @@
       "errors": {
         "accessDenied": "Koneksyon an reyisi, men aksè Tchalanet ou poko otorize.",
         "emailLinkFailed": "Lyen koneksyon an pa valid oswa li ekspire.",
+        "emailRequired": "Tanpri antre adrès imèl ou.",
         "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
       },
       "form": {
@@ -166,6 +167,8 @@
         "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
         "email": "Adrès imèl",
         "emailLinkSent": "Lyen koneksyon an voye. Louvri imel ou sou aparèy sa a pou kontinye.",
+        "forgotPassword": "Modpas bliye ?",
+        "resetEmailSent": "Yon lyen reyinisyalizasyon voye nan adrès imèl ou.",
         "emailPlaceholder": "non@oganizasyon.com",
         "eyebrow": "Pòtay sekirize",
         "hidePassword": "Kache modpas la",
@@ -174,7 +177,7 @@
         "security": "Firebase Authentication pwoteje koneksyon ou.",
         "sendEmailLink": "Resevwa yon lyen koneksyon",
         "showPassword": "Montre modpas la",
-        "submit": "Antre nan espas mwen",
+        "submit": "Konekte",
         "title": "Byenveni ankò"
       },
       "links": {
@@ -213,7 +216,8 @@
     "not_available": "Pa disponib",
     "validation": {
       "required": "Chan sa a obligatwa."
-    }
+    },
+    "not_set": "Pa renseye"
   },
   "dashboard": {
     "actions": {
@@ -608,14 +612,23 @@
       "loading": "Chajman tenants...",
       "pagination": "Paj {{page}} / {{total}}",
       "error": {
-        "load": "Pa ka chaje tenants yo."
+        "load": "Pa ka chaje tenants yo.",
+        "suspend": "Erè pandan sispansyon tenant lan.",
+        "reactivate": "Erè pandan reaktivasyon tenant lan.",
+        "archive": "Erè pandan achivaj tenant lan.",
+        "activate": "Erè pandan aktivasyon tenant an."
       },
       "action": {
         "create": "Kreye tenant",
         "applyFilters": "Filtre",
         "resetFilters": "Reyinisyalize",
         "openMenu": "Ouvri aksyon tenant lan",
-        "viewDetails": "Gade detay"
+        "viewDetails": "Wè tenant an",
+        "suspend": "Sispann",
+        "reactivate": "Reaktive",
+        "archive": "Achive",
+        "backToList": "Retounen nan lis la",
+        "activate": "Aktive"
       },
       "filter": {
         "search": "Chèche",
@@ -631,11 +644,18 @@
         "profile": "Pwofil",
         "primaryAdmin": "Admin prensipal",
         "readiness": "Readiness",
-        "createdAt": "Kreye"
+        "createdAt": "Kreye",
+        "updatedAt": "Dènyè modifikasyon",
+        "type": "Tip",
+        "currency": "Monè"
       },
       "empty": {
         "title": "Pa gen tenant",
-        "message": "Kreye premye tenant lan pou kòmanse."
+        "message": "Kreye premye tenant lan pou kòmanse.",
+        "filtered": {
+          "title": "Pa gen rezilta",
+          "message": "Pa gen okenn tenant ki koresponn ak filtre yo chwazi."
+        }
       },
       "status": {
         "onboarding": "Onboarding",
@@ -650,7 +670,7 @@
         "incomplete": "Enkonplè",
         "blocked": "Bloke",
         "missing": "Manke",
-        "unknown": "Enkoni"
+        "unknown": "Pou konplete"
       },
       "type": {
         "borlette": "Borlette",
@@ -709,7 +729,7 @@
       },
       "detail": {
         "title": "Detay tenant",
-        "description": "Vue minimal tenant lan ak provisioning li.",
+        "description": "Idantite, rejyon, komès ak pwofil tenant an.",
         "loading": "Chajman tenant...",
         "error": "Pa ka chaje tenant lan.",
         "createdTitle": "Tenant kreye",
@@ -718,6 +738,21 @@
         "empty": {
           "title": "Tenant pa jwenn",
           "message": "Detay tenant sa a poko disponib."
+        },
+        "section": {
+          "identity": "Idantite",
+          "region": "Rejyon",
+          "commerce": "Komès",
+          "profile": "Pwofil & Readiness"
+        },
+        "field": {
+          "type": "Tip"
+        },
+        "identityCard": {
+          "eyebrow": "Tenant"
+        },
+        "action": {
+          "viewAdmins": "Wè administratè yo"
         }
       },
       "provisioning": {
@@ -775,7 +810,20 @@
         "warnings": {
           "INITIAL_ADMIN_EMAIL_MISSING": "Pa gen admin inisyal k ap kreye."
         }
-      }
+      },
+      "confirm": {
+        "suspend": "Ou vle sispann {{name}} ? Vandè yo p ap ka konekte ankò.",
+        "reactivate": "Ou vle reaktive {{name}} ?",
+        "archive": "Ou vle achive {{name}} ? Aksyon sa a difisil pou defèt.",
+        "reasonLabel": "Rezon",
+        "activate": "Ou vle aktive {{name}} ?"
+      },
+      "success": {
+        "suspended": "Tenant sispann.",
+        "reactivated": "Tenant reaktive.",
+        "archived": "Tenant achive."
+      },
+      "paginationTotal": "{{count}} tenant(s)"
     },
     "tenantProvisioning": {
       "title": "Pwovizyone yon tenant",
@@ -784,6 +832,7 @@
       "section": {
         "identity": "Idantite & klasifikasyon",
         "regional": "Paramèt rejyonal",
+        "commercial": "Paramèt komèsyal",
         "profile": "Pwofil provisioning",
         "initialAdmin": "Admin inisyal"
       },
@@ -793,21 +842,41 @@
         "type": "Tip",
         "timezone": "Fizo orè",
         "currency": "Lajan",
+        "defaultCommissionRate": "Komisyon pa defo",
         "profile": "Pwofil",
         "initialAdminEmail": "Imèl admin inisyal"
       },
       "hint": {
+        "defaultCommissionRate": "Komisyon yo aplike pa defo sou seller-terminal ki pa gen yon to espesifik.",
         "initialAdminEmail": "Si li vid, tenant lan ap kreye san administratè inisyal."
       },
       "error": {
         "code": "Fòma obligatwa: ti lèt, chif, tirè (3–30 karaktè).",
         "required": "Chan obligatwa.",
-        "email": "Adrès imèl pa valid."
+        "email": "Adrès imèl pa valid.",
+        "commissionRate": "Komisyon an dwe ant 0 ak 100 %.",
+        "submitTitle": "Pwovizyonman enposib"
+      },
+      "loading": {
+        "title": "Pwovizyonman tenant an ap fèt…",
+        "message": "Kreyasyon tenant an, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
       },
       "action": {
         "cancel": "Anile",
         "submit": "Pwovizyone tenant lan",
-        "submitting": "Pwovizyonman..."
+        "submitting": "Pwovizyonman…",
+        "backToList": "Retounen nan lis la",
+        "completeRequired": "Ranpli chan obligatwa yo pou kontinye",
+        "viewTenant": "Gade tenant lan",
+        "addAdmin": "Ajoute yon administratè",
+        "createAnother": "Kreye yon lòt tenant"
+      },
+      "warning": {
+        "initialAdminMissing": "Pa gen admin inisyal. Tenant lan ka kreye, men yon administratè ap dwe ajoute apre.",
+        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè tenant lan.",
+        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay tenant lan.",
+        "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
+        "fallback": "Yon pwen konfigirasyon mande verifikasyon."
       },
       "identityCard": {
         "eyebrow": "Idantite tenant lan",
@@ -865,6 +934,10 @@
         "configureLimits": "Konfigire limit yo",
         "configureOdds": "Konfigire barèm yo",
         "verifyDemoSetup": "Verifye done demo yo"
+      },
+      "success": {
+        "title": "Tenant pwovizyone avèk siksè",
+        "message": "Tenant {{code}} te kreye epi li prèt pou konfigirasyon."
       }
     },
     "contactRequests": {
@@ -1648,7 +1721,7 @@
       }
     },
     "pa": {
-      "day": {
+      "mid": {
         "label": "Pennsylvania — Jour"
       },
       "eve": {

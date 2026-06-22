@@ -7,11 +7,26 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ThemeDensity, ThemeMode, ThemeStore } from '@tch/ui/theme';
+import {
+  AdminEmptyState,
+  TchActionButton,
+  TchConfirmDialog,
+  TchConfirmDialogData,
+  TchErrorPanel,
+  TchLoading,
+  TchNotice,
+  TchStatusBadge,
+  TchSubmitButton,
+} from '@tch/ui/components';
 
+import { AdminSectionCardComponent } from '../private/shared/admin-ui/admin-section-card.component';
+import { AdminNextStepsCardComponent } from '../private/shared/admin-ui/components/admin-next-steps-card/admin-next-steps-card.component';
+import { TchIdentityCardComponent } from '../private/shared/admin-ui/components/tch-identity-card/tch-identity-card.component';
 import { purgeOidcBrowserCache } from './purge-oidc-cache';
 
 interface Swatch {
@@ -53,6 +68,16 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
     MatFormFieldModule,
     MatInputModule,
     MatSlideToggleModule,
+    AdminEmptyState,
+    AdminNextStepsCardComponent,
+    AdminSectionCardComponent,
+    TchActionButton,
+    TchErrorPanel,
+    TchIdentityCardComponent,
+    TchLoading,
+    TchNotice,
+    TchStatusBadge,
+    TchSubmitButton,
   ],
   template: `
     @if (devMode) {
@@ -64,6 +89,7 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
         <aside class="panel" role="dialog" aria-label="Theme sandbox">
           <header class="panel__bar">
             <strong>🧪 Theme sandbox</strong>
+            <button type="button" class="panel__close" (click)="toggle()" aria-label="Fermer">✕</button>
             <label>
               Preset
               <select [ngModel]="theme.activeTheme().activePresetKey" (ngModelChange)="setPreset($event)">
@@ -135,6 +161,92 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
               <mat-chip>Chip B</mat-chip>
             </mat-chip-set>
           </section>
+
+          <section class="block">
+            <h4>UI Kit — Messaging</h4>
+            <tch-notice type="info"><strong>Info</strong> — statut du tenant.</tch-notice>
+            <tch-notice type="success"><strong>Succès</strong> — action effectuée.</tch-notice>
+            <tch-notice type="warning"><strong>Attention</strong> — maintenance prévue.</tch-notice>
+            <tch-notice type="error"><strong>Erreur</strong> — connexion échouée.</tch-notice>
+            <div class="row">
+              <button mat-stroked-button (click)="openConfirm('standard')">Dialog confirm</button>
+              <button mat-stroked-button (click)="openConfirm('destructive')">Dialog destructif</button>
+              <button mat-stroked-button (click)="openConfirm('sensitive')">Dialog sensible</button>
+            </div>
+          </section>
+
+          <section class="block">
+            <h4>UI Kit — Boutons</h4>
+            <p class="kit-caption">Submit (full-width, mobile)</p>
+            <div class="kit-stack">
+              <tch-submit-button label="Provisionner" [loading]="submitLoading()" (click)="pingSubmit()" />
+              <tch-submit-button label="Désactivé" [disabled]="true" />
+              <tch-submit-button label="Secondaire (block)" variant="secondary" />
+            </div>
+            <p class="kit-caption">Action (compact, inline)</p>
+            <div class="row">
+              <button tch-action variant="primary">Primary</button>
+              <button tch-action variant="secondary">Secondary</button>
+              <button tch-action variant="tertiary">Tertiary</button>
+            </div>
+          </section>
+
+          <section class="block">
+            <h4>UI Kit — Statuts</h4>
+            <div class="row">
+              <tch-status-badge status="ready" label="Prêt" />
+              <tch-status-badge status="pending" label="En attente" />
+              <tch-status-badge status="warning" label="Alerte" />
+              <tch-status-badge status="blocked" label="Bloqué" />
+              <tch-status-badge status="missing" label="Manquant" />
+            </div>
+          </section>
+
+          <section class="block">
+            <h4>UI Kit — États</h4>
+            <tch-loading label="Chargement…" />
+            <tch-error-panel
+              title="Échec du chargement"
+              message="Impossible de joindre le serveur."
+              retryLabel="Réessayer"
+              [showRetry]="true"
+            />
+            <tch-admin-empty-state
+              icon="inbox"
+              title="Aucun tenant"
+              message="Commencez par provisionner un tenant."
+              actionLabel="Onboarding"
+            />
+          </section>
+
+          <section class="block">
+            <h4>UI Kit — Cards</h4>
+            <p class="kit-caption">IdentityCard — default</p>
+            <tch-identity-card
+              eyebrow="Identité du tenant"
+              title="Grand Pari Haïti"
+              code="GPH-7729-LOT"
+              status="DRAFT"
+              statusTone="neutral"
+              icon="shield"
+              [meta]="identityMeta"
+            />
+            <p class="kit-caption">IdentityCard — compact (right rail)</p>
+            <tch-identity-card
+              variant="compact"
+              eyebrow="Identité du tenant"
+              title="Grand Pari Haïti"
+              code="GPH-7729-LOT"
+              status="DRAFT"
+              statusTone="neutral"
+              icon="shield"
+              [meta]="identityMeta"
+            />
+            <tch-admin-section-card title="Paramètres régionaux" icon="public">
+              <p style="margin: 0; color: var(--tch-color-on-surface-variant)">Contenu de section.</p>
+            </tch-admin-section-card>
+            <tch-admin-next-steps-card [steps]="nextSteps" />
+          </section>
         </aside>
       }
     }
@@ -156,13 +268,15 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
       }
       .panel {
         position: fixed;
-        right: 1rem;
-        bottom: 4rem;
+        left: 50%;
+        bottom: 1rem;
+        transform: translateX(-50%);
         z-index: var(--tch-z-toast, 60);
-        width: min(92vw, 26rem);
-        max-height: 80dvh;
+        width: min(100% - 2rem, 960px);
+        max-height: min(92dvh, 960px);
         overflow: auto;
-        padding: 1rem;
+        overscroll-behavior: contain;
+        padding: 1.25rem;
         border: 1px solid var(--tch-color-outline);
         border-radius: var(--tch-radius-lg);
         background: var(--tch-color-surface);
@@ -170,11 +284,27 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
         box-shadow: var(--tch-elevation-3);
       }
       .panel__bar {
+        position: sticky;
+        top: -1.25rem;
+        z-index: 1;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 0.75rem;
+        margin: -1.25rem -1.25rem 0.75rem;
+        padding: 0.75rem 1.25rem;
+        background: var(--tch-color-surface);
+        border-bottom: 1px solid var(--tch-color-outline-variant);
+      }
+      .panel__close {
+        margin-left: auto;
+        width: 2rem;
+        height: 2rem;
+        border-radius: var(--tch-radius-pill);
+        border: 1px solid var(--tch-color-outline);
+        background: var(--tch-color-surface-container-high);
+        color: var(--tch-color-on-surface);
+        cursor: pointer;
       }
       .panel__bar label {
         display: inline-flex;
@@ -240,17 +370,82 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
       p {
         margin: 0.25rem 0;
       }
+      .kit-stack {
+        display: grid;
+        gap: 0.5rem;
+        margin: 0.4rem 0;
+      }
+      .kit-caption {
+        margin: 0.6rem 0 0.2rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tch-color-on-surface-variant);
+      }
+      tch-notice {
+        display: block;
+        margin-bottom: 0.4rem;
+      }
+      tch-identity-card,
+      tch-admin-section-card,
+      tch-admin-next-steps-card,
+      tch-admin-empty-state,
+      tch-error-panel {
+        display: block;
+        margin-bottom: 0.6rem;
+      }
     `,
   ],
 })
 export class ThemeSandboxComponent {
   private readonly document = inject(DOCUMENT);
+  private readonly dialog = inject(MatDialog);
   readonly theme = inject(ThemeStore);
   readonly devMode = isDevMode();
   readonly modes: readonly ThemeMode[] = ['light', 'dark', 'system'];
   readonly densities: readonly ThemeDensity[] = ['comfortable', 'compact', 'dense'];
   readonly open = signal(this.restoreOpen());
   private readonly tick = signal(0);
+
+  /** UI-kit showcase sample data. */
+  readonly submitLoading = signal(false);
+  readonly identityMeta = [
+    { label: 'Type', value: 'BORLETTE' },
+    { label: 'Devise', value: 'HTG' },
+    { label: 'Fuseau', value: 'America/Port-au-Prince' },
+  ];
+  readonly nextSteps = [
+    { icon: 'person_add', label: 'Ajouter un admin tenant' },
+    { icon: 'casino', label: 'Configurer les tirages' },
+    { icon: 'point_of_sale', label: 'Créer un seller-terminal' },
+  ];
+
+  /** Briefly flip the submit button into its loading state for the demo. */
+  pingSubmit(): void {
+    this.submitLoading.set(true);
+    setTimeout(() => this.submitLoading.set(false), 1500);
+  }
+
+  openConfirm(mode: 'standard' | 'destructive' | 'sensitive'): void {
+    const base: TchConfirmDialogData = {
+      title:
+        mode === 'sensitive' ? 'Accéder à ce tenant en mode support ?' : 'Confirmer l’action ?',
+      message:
+        mode === 'sensitive'
+          ? 'Vous allez accéder à l’espace admin de ce tenant avec vos droits superadmin. Cette action sera auditée.'
+          : 'Cette opération sera appliquée immédiatement.',
+      confirmLabel: mode === 'destructive' ? 'Suspendre' : 'Confirmer',
+      cancelLabel: 'Annuler',
+      destructive: mode === 'destructive' || mode === 'sensitive',
+      sensitive: mode === 'sensitive',
+      requireReason: mode === 'sensitive',
+      reasonLabel: mode === 'sensitive' ? 'Motif de l’accès' : undefined,
+      auditLabel: mode === 'sensitive' ? 'Action de support sécurisée' : undefined,
+      icon: mode === 'sensitive' ? 'admin_panel_settings' : undefined,
+    };
+    this.dialog.open(TchConfirmDialog, { data: base });
+  }
 
   readonly swatches = computed<readonly Swatch[]>(() => {
     this.tick(); // recompute when controls change / refresh

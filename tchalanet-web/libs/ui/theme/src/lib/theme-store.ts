@@ -101,12 +101,21 @@ export class ThemeStore {
   }
 
   private apply(theme: RuntimeTheme): void {
-    const preset = this.repository.get(theme.activePresetKey);
-    const defaultPreset = this.repository.defaultPreset();
-    const presetCss = preset?.css ?? aliasPresetCss(defaultPreset.css, defaultPreset.id, theme.activePresetKey);
+    let resolved = theme;
+    let preset = this.repository.get(theme.activePresetKey);
+    if (!preset) {
+      // Unknown preset code (e.g. the seeded `tchalanet_default`, which has no registry entry):
+      // adopt the default preset's identity so brand tokens (--tch-*) AND Material system tokens
+      // (--mat-sys-*) both resolve. The previous aliasing path rewrote the CSS selector but never
+      // matched the injected `data-preset`, leaving the private shell completely unthemed
+      // (white identity card, native form fields, no gold nav). Backend token overrides are
+      // preserved — they re-apply under the resolved preset id.
+      preset = this.repository.defaultPreset();
+      resolved = { ...theme, activePresetKey: preset.id };
+    }
 
-    this.activeThemeSignal.set(theme);
-    this.dom.apply(theme, presetCss);
+    this.activeThemeSignal.set(resolved);
+    this.dom.apply(resolved, preset.css);
   }
 
   private defaultRuntimeTheme(): RuntimeTheme {
@@ -179,10 +188,6 @@ function normalizeMode(value: string | null | undefined): ThemeMode {
 
 function systemPrefersDark(): boolean {
   return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-}
-
-function aliasPresetCss(css: string, sourceId: string, targetId: string): string {
-  return css.split(`[data-preset='${sourceId}']`).join(`[data-preset='${targetId}']`);
 }
 
 function normalizePresetKey(value: string): string {

@@ -19,6 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         <button
           type="submit"
           mat-flat-button
+          class="form-actions__submit"
           [disabled]="submitDisabled() || submitPending()"
         >
           @if (submitPending()) {
@@ -47,6 +48,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         align-items: center;
         gap: 0.5rem;
         margin-left: auto;
+      }
+
+      /* Primary submit = navy, per the brand role mapping. */
+      .form-actions__submit {
+        --mdc-filled-button-container-color: var(--tch-color-primary);
+        --mdc-filled-button-label-text-color: var(--tch-color-on-primary);
       }
 
       mat-spinner {

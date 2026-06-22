@@ -6,6 +6,7 @@ import {
   EmailAuthProvider,
   isSignInWithEmailLink,
   reauthenticateWithCredential,
+  sendPasswordResetEmail,
   sendSignInLinkToEmail,
   setPersistence,
   signInWithEmailAndPassword,
@@ -56,6 +57,10 @@ export class FirebaseAuthService implements AuthClient {
     await signInWithEmailLink(this.auth, email, globalThis.location.href);
     globalThis.localStorage?.removeItem(this.passwordlessEmailStorageKey);
     return true;
+  }
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    await sendPasswordResetEmail(this.auth, email.trim());
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {

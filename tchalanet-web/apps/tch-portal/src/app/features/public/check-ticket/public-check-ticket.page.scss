@@ -136,7 +136,7 @@
         border: 0;
         border-radius: var(--tch-radius-control, 8px);
         background: var(--tch-color-accent, var(--mat-sys-tertiary));
-        color: var(--tch-on-color-accent, var(--mat-sys-on-tertiary));
+        color: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
         transform: translateY(-50%);
         cursor: pointer;
       }

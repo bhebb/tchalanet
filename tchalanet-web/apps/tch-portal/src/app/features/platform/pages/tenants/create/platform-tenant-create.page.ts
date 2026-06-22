@@ -228,6 +228,8 @@ export class PlatformTenantCreatePage implements OnInit, OnDestroy {
       type: v.type,
       timezone: v.timezone,
       currency: v.currency,
+      // Deprecated create page (superseded by Onboarding): send the default commission.
+      defaultCommissionRate: 15,
       profile: v.profile,
       initialAdminEmail: v.initialAdminEmail || null,
     };

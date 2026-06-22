@@ -101,8 +101,12 @@ import { AdminOverrideBanner } from '../../private/shared/admin-override-banner'
       }
 
       .top-app-bar {
+        position: sticky;
+        top: 0;
+        z-index: var(--tch-z-header, 100);
         align-items: center;
         border-bottom: 1px solid var(--comp-private-border);
+        background: var(--tch-color-surface, #fff);
         display: flex;
         justify-content: space-between;
         min-height: 4rem;
@@ -205,7 +209,7 @@ import { AdminOverrideBanner } from '../../private/shared/admin-override-banner'
           width: min(82vw, 18rem);
           transform: translateX(-100%);
           transition: transform 0.2s ease;
-          z-index: 60;
+          z-index: var(--tch-z-drawer, 300);
           overflow-y: auto;
           box-shadow: var(--tch-elevation-2, 0 8px 24px rgba(0, 0, 0, 0.18));
         }
@@ -218,7 +222,7 @@ import { AdminOverrideBanner } from '../../private/shared/admin-override-banner'
           display: block;
           position: fixed;
           inset: 0;
-          z-index: 55;
+          z-index: calc(var(--tch-z-drawer, 300) - 10);
           background: color-mix(in oklab, #000 45%, transparent);
         }
       }
