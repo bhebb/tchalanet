@@ -68,11 +68,18 @@
   --tch-touch-target: 48px;
   --tch-border-width: 1px;
 
-  /* Stacking — single source for z-index, no magic numbers in components. */
-  --tch-z-header: 30;
-  --tch-z-drawer: 40;
-  --tch-z-overlay: 50;
-  --tch-z-toast: 60;
+  /* Stacking — single source for z-index, no magic numbers in components.
+     Aligned with CDK overlay default (1000) so Material dropdowns/dialogs are
+     always above shell chrome without !important hacks. */
+  --tch-z-base: 0;
+  --tch-z-sticky: 20;
+  --tch-z-header: 100;
+  --tch-z-sidebar: 120;
+  --tch-z-drawer: 300;
+  --tch-z-dropdown: 600;
+  --tch-z-overlay: 1000;   /* matches CDK overlay default */
+  --tch-z-dialog: 1100;
+  --tch-z-toast: 1200;
 
   /* Scrim for overlays/backdrops (readable over light or dark content). */
   --tch-color-scrim: rgb(0 0 0 / 0.45);
@@ -127,7 +134,7 @@
   --tch-color-status-blocked: #dc2626;
   --tch-color-status-missing: #64748b;
   --tch-color-accent: #fecb00;
-  --tch-on-color-accent: #241a00;
+  --tch-color-on-accent: #241a00;
   /* M3 tertiary role — same as accent at first-paint. */
   --tch-color-tertiary: #fecb00;
   --tch-color-on-tertiary: #241a00;

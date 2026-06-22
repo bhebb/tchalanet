@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           @if (description()) {
             <p class="page-shell__description">{{ description() }}</p>
           }
+          <ng-content select="[meta]" />
         </div>
         <div class="page-shell__actions">
           <ng-content select="[actions]" />
@@ -24,6 +25,14 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
   styles: [
     `
+      :host {
+        display: block;
+        min-height: 100%;
+        background: var(--tch-color-surface-container-low, #f4f4f8);
+        padding: 2rem;
+        box-sizing: border-box;
+      }
+
       .page-shell__header {
         display: flex;
         align-items: flex-start;

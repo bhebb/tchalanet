@@ -1,5 +1,186 @@
 .tenant-provisioning {
+  position: relative;
   display: block;
+}
+
+/* Content-projection wrappers: transparent boxes so their children are direct
+   grid/flex items of __main, __aside, and __footer respectively. */
+[main] {
+  display: grid;
+  gap: 2rem;
+}
+
+[aside] {
+  display: grid;
+  gap: 1.5rem;
+}
+
+[footer] {
+  display: contents;
+}
+
+.tenant-provisioning__page-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: start center;
+  padding-top: 8rem;
+  background: color-mix(in oklab, var(--tch-color-surface, #fffbff) 72%, transparent);
+  backdrop-filter: blur(2px);
+  border-radius: var(--tch-radius-xl, 1.25rem);
+  pointer-events: all;
+}
+
+.tenant-provisioning__page-loader-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 32rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg, 1rem);
+  background: var(--tch-color-surface-container-lowest);
+  box-shadow: var(--tch-elevation-3);
+  color: var(--tch-color-on-surface);
+
+  strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  span {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+}
+
+.tenant-provisioning__success-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tenant-provisioning__notice-list {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.tenant-provisioning__spinner {
+  display: inline-block;
+  margin-right: 0.375rem;
+  vertical-align: middle;
+}
+
+/* Footer disabled-submit hint — sits at the left, actions stay right. */
+.tenant-provisioning__submit-hint {
+  margin-right: auto;
+  align-self: center;
+  font-size: 0.8125rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+/* Post-success reset action — pushed to the far left, separated from nav actions. */
+.tenant-provisioning__action-reset {
+  margin-right: auto;
+}
+
+.tenant-provisioning__domain-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+}
+
+.tenant-provisioning__domain-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent);
+  color: var(--tch-color-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.tenant-provisioning__type-group {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tenant-provisioning__type-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tenant-provisioning__type-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.tenant-provisioning__type-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  border: 1.5px solid var(--tch-color-outline-variant, #c8c5d0);
+  border-radius: var(--tch-radius-lg, 1rem);
+  background: var(--tch-color-surface-container-lowest);
+  box-shadow: var(--tch-elevation-1);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  text-align: center;
+
+  &:hover {
+    border-color: var(--tch-color-primary);
+    background: color-mix(in oklab, var(--tch-color-primary) 5%, var(--tch-color-surface-container-lowest));
+  }
+
+  &.is-selected {
+    border-color: var(--tch-color-primary);
+    border-width: 2px;
+    background: color-mix(in oklab, var(--tch-color-primary) 12%, var(--tch-color-surface-container-lowest));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tch-color-primary) 24%, transparent);
+  }
+}
+
+.tenant-provisioning__type-icon {
+  font-size: 1.75rem;
+  color: var(--tch-color-on-surface-variant);
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  transition: color 150ms ease;
+
+  .tenant-provisioning__type-tile.is-selected & {
+    color: var(--tch-color-primary);
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+.tenant-provisioning__type-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--tch-color-on-surface);
+  line-height: 1.2;
+
+  .tenant-provisioning__type-tile.is-selected & {
+    color: var(--tch-color-primary);
+    font-weight: 600;
+  }
+}
+
+.tenant-provisioning__type-error {
+  font-size: 0.75rem;
+  color: var(--tch-color-error);
 }
 
 .tenant-provisioning__grid {
@@ -13,6 +194,10 @@
 
 .tenant-provisioning__field {
   width: 100%;
+}
+
+.tenant-provisioning__field--narrow {
+  max-width: 16rem;
 }
 
 .tenant-provisioning__supporting-text {

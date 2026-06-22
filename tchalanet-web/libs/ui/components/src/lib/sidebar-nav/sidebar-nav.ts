@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -103,7 +103,8 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
     h2 { margin: .5rem .75rem 0; color: var(--tch-color-on-surface-variant); font-size: .75rem; text-transform: uppercase; }
     a, .sidebar__group-toggle { display: flex; align-items: center; gap: .625rem; min-height: 2.75rem; padding-inline: .75rem; border-radius: var(--tch-radius-md); color: inherit; text-decoration: none; min-width: 0; }
     .sidebar__group-toggle { width: 100%; border: 0; background: transparent; font: inherit; cursor: pointer; text-align: start; }
-    a:hover, a.is-active, .sidebar__group-toggle:hover { background: var(--tch-color-surface-container-high); color: var(--tch-color-primary); }
+    a:hover, .sidebar__group-toggle:hover { background: var(--tch-color-surface-container-high); color: var(--tch-color-primary); }
+    a.is-active, a.is-active:hover { background: var(--tch-color-accent); color: var(--tch-color-on-accent); font-weight: 600; }
     .sidebar__group-toggle.is-active-group { background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent); color: var(--tch-color-primary); font-weight: 700; }
     .material-symbols-outlined { font-size: 1.375rem; flex: none; }
     .sidebar__group-label, .sidebar__label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
@@ -141,8 +142,22 @@ export class TchSidebarNav {
     { initialValue: this.router.url },
   );
 
-  /** Explicit open/close overrides from clicking a parent. Absent → follows the active route. */
-  private readonly overrides = signal<ReadonlyMap<string, boolean>>(new Map());
+  /**
+   * Manual accordion state from clicking a parent:
+   *  - `undefined` → follow the active route (the active group is open);
+   *  - `null`      → user collapsed everything;
+   *  - `<id>`      → user opened exactly that group (accordion: only one open).
+   * Reset to `undefined` whenever the active route group changes, so navigation re-opens
+   * the relevant group.
+   */
+  private readonly openOverride = signal<string | null | undefined>(undefined);
+
+  constructor() {
+    effect(() => {
+      this.activeGroupId(); // re-run when the route's active group changes
+      untracked(() => this.openOverride.set(undefined));
+    });
+  }
 
   private readonly activeGroupId = computed(() => {
     const groups = [
@@ -163,11 +178,11 @@ export class TchSidebarNav {
     return best?.id ?? null;
   });
 
-  /** A group is open when the user opened it, else when one of its children is the active route. */
+  /** Follows the active route by default; once the user toggles, their choice wins (accordion). */
   isOpen(item: ActionItem): boolean {
-    if (this.isActiveGroup(item)) return true;
-    const override = this.overrides().get(item.id);
-    return override ?? false;
+    const override = this.openOverride();
+    if (override === undefined) return this.isActiveGroup(item);
+    return override === item.id;
   }
 
   isActiveGroup(item: ActionItem): boolean {
@@ -175,10 +190,9 @@ export class TchSidebarNav {
   }
 
   toggle(item: ActionItem): void {
-    if (this.isActiveGroup(item)) return;
-    const next = new Map(this.overrides());
-    next.set(item.id, !this.isOpen(item));
-    this.overrides.set(next);
+    // Collapsing the currently-open group (including the active one) closes everything;
+    // otherwise open this group exclusively.
+    this.openOverride.set(this.isOpen(item) ? null : item.id);
   }
 
   onItemClick(event: Event, item: ActionItem): void {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import {
@@ -31,6 +31,12 @@ export class AdminProvisioningHealthCardComponent {
   readonly progress = input<number | null>(null);
   readonly items = input<readonly AdminProvisioningHealthItem[]>([]);
   readonly emptyLabel = input('Aucun élément à afficher.');
+  /** Collapse the list past this many items in the (narrow) right rail. 0 disables collapsing. */
+  readonly collapsibleAfter = input(5);
+  readonly showAllLabel = input('Voir tous les détails');
+  readonly showLessLabel = input('Réduire');
+
+  protected readonly expanded = signal(false);
 
   readonly progressValue = computed(() => {
     const value = this.progress();
@@ -39,4 +45,22 @@ export class AdminProvisioningHealthCardComponent {
     }
     return Math.min(100, Math.max(0, value));
   });
+
+  /** Items shown now: all when expanded or under the limit, else the first N. */
+  readonly visibleItems = computed(() => {
+    const items = this.items();
+    const limit = this.collapsibleAfter();
+    if (limit <= 0 || this.expanded() || items.length <= limit) return items;
+    return items.slice(0, limit);
+  });
+
+  readonly hiddenCount = computed(() => {
+    const limit = this.collapsibleAfter();
+    if (limit <= 0) return 0;
+    return Math.max(0, this.items().length - limit);
+  });
+
+  toggle(): void {
+    this.expanded.update(value => !value);
+  }
 }

@@ -10,6 +10,8 @@ export interface TchIdentityCardMeta {
   readonly value: string | number | null | undefined;
 }
 
+export type TchIdentityCardVariant = 'default' | 'compact';
+
 @Component({
   selector: 'tch-identity-card',
   standalone: true,
@@ -17,6 +19,7 @@ export interface TchIdentityCardMeta {
   imports: [AdminStatusPillComponent],
   templateUrl: './tch-identity-card.component.html',
   styleUrls: ['./tch-identity-card.component.scss'],
+  host: { '[class.is-compact]': "variant() === 'compact'" },
 })
 export class TchIdentityCardComponent {
   readonly eyebrow = input.required<string>();
@@ -26,4 +29,6 @@ export class TchIdentityCardComponent {
   readonly statusTone = input<AdminStatusTone>('neutral');
   readonly meta = input<readonly TchIdentityCardMeta[]>([]);
   readonly icon = input<string | null>(null);
+  /** `compact` = denser layout for the desktop right rail. */
+  readonly variant = input<TchIdentityCardVariant>('default');
 }

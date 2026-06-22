@@ -1,7 +1,9 @@
 :host {
   --comp-detail-gap: 1.5rem;
-  --comp-detail-aside-width: 18rem;
+  --comp-detail-aside-width: var(--tch-admin-aside-width, 340px);
+  --comp-detail-max: var(--tch-admin-detail-max, 1320px);
   --comp-detail-footer-border: var(--tch-color-outline-variant);
+  --comp-detail-footer-bg: var(--tch-color-surface-container-low, #f3f3f6);
 
   display: block;
 }
@@ -10,12 +12,16 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--comp-detail-gap);
+  width: min(100%, var(--comp-detail-max));
+  margin-inline: auto;
+  align-items: start;
 }
 
 .admin-detail-layout__main {
   min-width: 0;
   display: grid;
   gap: 1.25rem;
+  overflow: visible;
 }
 
 .admin-detail-layout__aside {
@@ -23,25 +29,59 @@
   display: grid;
   gap: 1rem;
   align-content: start;
+  overflow: visible;
 }
 
+/* Form actions live at the bottom of the MAIN column (never under the aside). */
 .admin-detail-layout__footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 0.75rem;
-  padding-top: 1rem;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--comp-detail-footer-border);
 }
 
 @media (min-width: 840px) {
   .admin-detail-layout {
     grid-template-columns: minmax(0, 1fr) minmax(16rem, var(--comp-detail-aside-width));
-    align-items: start;
+  }
+
+  .admin-detail-layout__aside {
+    position: sticky;
+    top: calc(var(--tch-private-topbar-height, 64px) + 1rem);
+    max-height: calc(100dvh - var(--tch-private-topbar-height, 64px) - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Keep the actions visible while scrolling a long form — sticky to the bottom of the
+     main column, not floating over the whole page. */
+  .admin-detail-layout__footer {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--tch-z-sticky, 20);
+    margin-top: 0.25rem;
+    padding-bottom: 0.75rem;
+    background: var(--comp-detail-footer-bg);
+  }
+}
+
+/* Mobile/tablet: rail drops under the form, actions stack full-width. */
+@media (max-width: 839px) {
+  .admin-detail-layout__aside {
+    order: -1;
+    position: static;
   }
 
   .admin-detail-layout__footer {
-    grid-column: 1 / -1;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .admin-detail-layout__footer > * {
+    width: 100%;
   }
 }

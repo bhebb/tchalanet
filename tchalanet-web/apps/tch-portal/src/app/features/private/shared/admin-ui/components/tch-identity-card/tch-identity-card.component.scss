@@ -94,3 +94,29 @@
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
 }
+
+/* Compact — denser layout for the desktop right rail. */
+:host(.is-compact) {
+  --comp-identity-radius: var(--tch-radius-lg, 0.75rem);
+}
+:host(.is-compact) .tch-identity-card {
+  gap: 0.625rem;
+  padding: 1rem;
+}
+:host(.is-compact) .tch-identity-card__title {
+  font-size: 1.125rem;
+}
+:host(.is-compact) .tch-identity-card__icon {
+  font-size: 1.25rem;
+}
+:host(.is-compact) .tch-identity-card__code {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+:host(.is-compact) .tch-identity-card__meta {
+  gap: 0.5rem;
+  padding-top: 0.625rem;
+}
+:host(.is-compact) .tch-identity-card__meta-item dd {
+  font-size: 0.8125rem;
+}

@@ -233,6 +233,40 @@
   color: var(--tch-color-on-surface-variant);
 }
 
+.login-card__remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.login-card__forgot {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tch-color-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--tch-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--tch-color-on-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tch-color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
 .login-card__error,
 .login-card__info {
   display: flex;
@@ -263,14 +297,41 @@
   flex: none;
 }
 
-.login-card__submit {
+.login-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
-  min-height: 3.5rem;
-  margin-top: 1rem;
-  @include ui.rounded(var(--tch-radius-pill));
-  color: var(--tch-color-on-tertiary);
-  background: var(--comp-login-accent);
-  font-weight: var(--tch-weight-bold);
+  height: 3rem;
+  margin-top: 0.25rem;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--tch-color-primary) 24%, transparent);
+  transition: background 120ms ease;
+}
+
+.login-submit:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--tch-color-primary) 92%, black);
+}
+
+.login-submit:disabled {
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-on-surface-variant);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.login-submit .material-symbols-outlined {
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .login-card__spinner {

@@ -5,6 +5,8 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.request.ActivateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ArchiveTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
@@ -13,6 +15,7 @@ import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdReque
 import com.tchalanet.server.platform.tenant.api.model.request.ListTenantsRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.SuspendTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,13 +40,19 @@ public class TenantAdminController {
 
   private final TenantConfigService tenants;
 
-  @Operation(summary = "List all tenants with pagination")
+  @Operation(summary = "List tenants with search, status filter and pagination")
   @GetMapping
   @PreAuthorize("hasPermission(null, 'tenant.read')")
-  public ApiResponse<TchPage<TenantConfigView>> list(
-      @TchPaging(allowedSort = {"createdAt", "code", "name", "status"}, defaultSort = {"createdAt,desc"})
-          TchPageRequest pageReq) {
-    return ApiResponse.success(tenants.listTenants(new ListTenantsRequest(pageReq.pageable())));
+  public ApiResponse<TchPage<TenantSummaryView>> list(
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) TenantStatus status,
+      @TchPaging(
+          allowedSort = {"createdAt", "updatedAt", "code", "name", "status", "type", "currency"},
+          defaultSort = {"updatedAt,desc"}
+      ) TchPageRequest pageReq) {
+    return ApiResponse.success(tenants.listTenants(
+        new ListTenantsRequest(pageReq.pageable(), TchSearchQuery.of(q), status)
+    ));
   }
 
   @GetMapping("/{id}")

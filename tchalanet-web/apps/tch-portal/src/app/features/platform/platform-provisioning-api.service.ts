@@ -11,6 +11,8 @@ export interface TenantProvisioningRequest {
   type: TenantType;
   timezone: string;
   currency: string;
+  /** Default seller-terminal commission rate (percent, 0–100). */
+  defaultCommissionRate: number;
   profile: TenantProvisioningProfile;
   initialAdminEmail?: string | null;
 }
@@ -27,6 +29,7 @@ export interface TenantProvisioningResultView {
   tenantId: string;
   tenantCode: string;
   profile: TenantProvisioningProfile;
+  defaultCommissionRate?: number;
   domainStatuses: Record<string, string>;
   nextSteps: string[];
   warnings: string[];

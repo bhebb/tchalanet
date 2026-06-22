@@ -22,11 +22,12 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'tertiary';
         --comp-action-bg: var(--tch-color-secondary-container);
         --comp-action-fg: var(--tch-color-on-secondary-container);
         --comp-action-outline: var(--tch-color-outline);
+        font-family: var(--tch-font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-height: var(--tch-touch-target, 48px);
-        padding: 0 1.25rem;
+        padding: 0 1.5rem;
         border-radius: var(--tch-radius-control, 8px);
         font-weight: 600;
         font-size: 1rem;
@@ -71,6 +72,15 @@ export type ActionButtonVariant = 'primary' | 'secondary' | 'tertiary';
         background: transparent;
         color: var(--tch-color-primary);
         border: 1px solid var(--comp-action-outline);
+      }
+      /* Explicit, legible disabled state (placed last to win over variants). */
+      :host:disabled,
+      :host[disabled] {
+        background: var(--tch-color-surface-container-high);
+        color: var(--tch-color-on-surface-variant);
+        border-color: transparent;
+        opacity: 1;
+        pointer-events: none;
       }
     `,
   ],

@@ -1,0 +1,64 @@
+@if (data.sensitive) {
+  <div class="tch-confirm-dialog__security">
+    <span class="tch-confirm-dialog__security-title">
+      <span class="material-symbols-outlined" aria-hidden="true">security</span>
+      {{ data.auditLabel ?? 'Action sécurisée' }}
+    </span>
+    <span class="tch-confirm-dialog__audit-badge">AUDITÉ</span>
+  </div>
+}
+
+<h2 mat-dialog-title class="tch-confirm-dialog__title">{{ data.title }}</h2>
+
+<mat-dialog-content class="tch-confirm-dialog__content">
+  <div class="tch-confirm-dialog__body">
+    @if (data.icon) {
+      <span class="tch-confirm-dialog__icon material-symbols-outlined" aria-hidden="true">
+        {{ data.icon }}
+      </span>
+    }
+    <p class="tch-confirm-dialog__message">{{ data.message }}</p>
+  </div>
+
+  @if (data.requireReason) {
+    <div class="tch-confirm-dialog__field">
+      <label class="tch-confirm-dialog__label" [attr.for]="reasonId">
+        {{ data.reasonLabel ?? 'Motif' }}
+      </label>
+      <textarea
+        [id]="reasonId"
+        class="tch-confirm-dialog__textarea"
+        [(ngModel)]="reason"
+        [attr.minlength]="reasonMin()"
+        placeholder="Indiquer le motif de cette action..."
+      ></textarea>
+      <span class="tch-confirm-dialog__hint">{{ reasonHint() }}</span>
+    </div>
+  }
+
+  @if (data.sensitive) {
+    <div class="tch-confirm-dialog__check">
+      <mat-checkbox [(ngModel)]="acknowledged">
+        {{
+          data.confirmCheckboxLabel ??
+            'Je confirme que cette action est nécessaire et que toutes mes actions seront tracées.'
+        }}
+      </mat-checkbox>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="tch-confirm-dialog__actions">
+  <button mat-button (click)="cancel()">
+    {{ data.cancelLabel ?? 'Annuler' }}
+  </button>
+  <button
+    mat-flat-button
+    class="tch-confirm-dialog__confirm"
+    [class.tch-confirm-dialog__confirm--destructive]="data.destructive"
+    [disabled]="!canConfirm()"
+    (click)="confirm()"
+  >
+    {{ data.confirmLabel }}
+  </button>
+</mat-dialog-actions>

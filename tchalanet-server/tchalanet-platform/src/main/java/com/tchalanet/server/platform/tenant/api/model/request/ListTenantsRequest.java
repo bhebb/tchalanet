@@ -1,17 +1,15 @@
 package com.tchalanet.server.platform.tenant.api.model.request;
 
-import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Query: List all tenants with pagination.
- * Per command_query_handlers.md + pagination.md:
- * - Implements Query<TchPage<TenantConfigView>>
- * - Used by platform admins to browse all tenants
- * - Superadmins see all, tenant admins may see filtered (policy-defined)
- * - Returns TchPage (not Spring Page) per pagination.md
- * - Accepts Pageable (from @TchPaging TchPageRequest)
+ * Query: List tenants with pagination, free-text search and status filter.
+ * search.likePattern() matches against code + name (case-insensitive).
  */
 public record ListTenantsRequest(
-    Pageable pageable  // from TchPageRequest
+    Pageable pageable,
+    TchSearchQuery search,
+    TenantStatus status
 ) {}

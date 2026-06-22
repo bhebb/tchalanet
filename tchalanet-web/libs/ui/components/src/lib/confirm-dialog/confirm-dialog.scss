@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  width: min(540px, calc(100vw - 3rem));
+  font-family: var(--tch-font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+}
+
+/* Security banner — navy, contained (robust across MatDialog padding versions). */
+.tch-confirm-dialog__security {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--tch-radius-md, 8px);
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+}
+
+.tch-confirm-dialog__security-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tch-confirm-dialog__security-title .material-symbols-outlined {
+  font-size: 1.125rem;
+}
+
+.tch-confirm-dialog__audit-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--tch-radius-sm, 4px);
+  background: var(--tch-color-accent);
+  color: var(--tch-color-on-accent);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.tch-confirm-dialog__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--tch-font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: var(--tch-font-size-title-md, 1.125rem);
+  font-weight: 600;
+}
+
+.tch-confirm-dialog__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tch-confirm-dialog__icon {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tch-radius-lg, 12px);
+  background: color-mix(in oklab, var(--tch-color-accent) 16%, transparent);
+  color: var(--tch-color-on-accent);
+  font-size: 1.5rem;
+  font-variation-settings: 'FILL' 1;
+}
+
+.tch-confirm-dialog__message {
+  margin: 0 0 0.25rem;
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-body-md, 1rem);
+  line-height: 1.5;
+}
+
+/* Reason field — plain label + textarea (avoids the native-fieldset look). */
+.tch-confirm-dialog__field {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: 1rem;
+}
+
+.tch-confirm-dialog__label {
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tch-confirm-dialog__textarea {
+  width: 100%;
+  min-height: 7rem;
+  resize: vertical;
+  box-sizing: border-box;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg, 12px);
+  background: var(--tch-color-surface-container-lowest);
+  color: var(--tch-color-on-surface);
+  padding: 0.875rem 1rem;
+  font: inherit;
+}
+
+.tch-confirm-dialog__textarea::placeholder {
+  color: color-mix(in oklab, var(--tch-color-on-surface-variant) 70%, transparent);
+}
+
+.tch-confirm-dialog__textarea:focus-visible {
+  outline: 2px solid var(--tch-color-primary);
+  outline-offset: 1px;
+  border-color: var(--tch-color-primary);
+}
+
+.tch-confirm-dialog__hint {
+  justify-self: end;
+  font-size: 0.6875rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+/* Confirmation acknowledgement — required in sensitive mode. */
+.tch-confirm-dialog__check {
+  margin-top: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--tch-radius-lg, 12px);
+  background: var(--tch-color-surface-container-low);
+
+  // Tame the oversized grey checkbox ripple and use navy for the checked state.
+  --mdc-checkbox-state-layer-size: 32px;
+  --mdc-checkbox-selected-icon-color: var(--tch-color-primary);
+  --mdc-checkbox-selected-focus-icon-color: var(--tch-color-primary);
+  --mdc-checkbox-selected-hover-icon-color: var(--tch-color-primary);
+  --mdc-checkbox-selected-pressed-icon-color: var(--tch-color-primary);
+}
+
+.tch-confirm-dialog__check .mdc-label {
+  font-family: var(--tch-font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: var(--tch-font-size-body-sm, 0.875rem);
+  line-height: 1.4;
+  color: var(--tch-color-on-surface-variant);
+  white-space: normal;
+}
+
+.tch-confirm-dialog__actions {
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+}
+
+/* Confirm = navy primary by default; error for destructive actions. */
+.tch-confirm-dialog__confirm {
+  --mdc-filled-button-container-color: var(--tch-color-primary);
+  --mdc-filled-button-label-text-color: var(--tch-color-on-primary);
+}
+
+.tch-confirm-dialog__confirm--destructive {
+  --mdc-filled-button-container-color: var(--tch-color-error);
+  --mdc-filled-button-label-text-color: var(--tch-color-on-error);
+}
+
+/* Legible disabled state (Material's default is too pale). */
+.tch-confirm-dialog__confirm:disabled {
+  --mdc-filled-button-disabled-container-color: var(--tch-color-surface-container-high);
+  --mdc-filled-button-disabled-label-text-color: var(--tch-color-on-surface-variant);
+}

@@ -27,8 +27,11 @@ import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalCommuni
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantRuntimeView;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
+import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaEntity;
+import com.tchalanet.server.platform.tenant.internal.persistence.TenantJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +42,7 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -67,6 +71,7 @@ public class TenantConfigService {
     private final ThemeCatalog themeCatalog;
     private final AddressApi addressApi;
     private final TenantPersistenceAdapter tenants;
+    private final TenantJpaRepository tenantRepository;
     private final DomainEventPublisher publisher;
     private final Clock clock;
     private final IdGenerator idGenerator;
@@ -167,8 +172,21 @@ public class TenantConfigService {
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found with code: " + code)));
     }
 
-    public TchPage<TenantConfigView> listTenants(ListTenantsRequest request) {
-        return TchPageMapper.map(tenantRegistry.listTenants(PageRequest.of(request.pageable().getPageNumber(), request.pageable().getPageSize())), registry -> toView(registry, false));
+    public TchPage<TenantSummaryView> listTenants(ListTenantsRequest request) {
+        var page = tenantRepository.search(
+            request.search().likePattern(),
+            request.status(),
+            request.pageable()
+        );
+        return TchPageMapper.map(page, this::toSummaryView);
+    }
+
+    private TenantSummaryView toSummaryView(TenantJpaEntity e) {
+        return new TenantSummaryView(
+            e.getId(), e.getCode(), e.getName(), e.getType(), e.getStatus(),
+            e.getCurrency(), e.getTimezone(), e.getDefaultCommissionRate(),
+            e.getCreatedAt(), e.getUpdatedAt()
+        );
     }
 
     @Transactional
@@ -311,6 +329,10 @@ public class TenantConfigService {
             includeDetails
                 ? tenants.findByIdActive(registry.tenantId()).map(TenantConfig::config).orElse(null)
                 : null;
+        var jpa = tenantRepository.findById(registry.tenantId().value());
+        BigDecimal defaultCommissionRate = jpa.map(TenantJpaEntity::getDefaultCommissionRate).orElse(null);
+        Instant createdAt = jpa.map(TenantJpaEntity::getCreatedAt).orElse(null);
+        Instant updatedAt = jpa.map(TenantJpaEntity::getUpdatedAt).orElse(null);
         return new TenantConfigView(
             registry.tenantId(),
             registry.code(),
@@ -322,7 +344,10 @@ public class TenantConfigService {
             registry.activeThemeId().orElse(null),
             themeCode,
             address,
-            internalSettings);
+            internalSettings,
+            defaultCommissionRate,
+            createdAt,
+            updatedAt);
     }
 
     private void publishStatus(

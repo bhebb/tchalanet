@@ -10,10 +10,13 @@
   /* Legacy alias of the standard on-surface role: derive it so a tenant override on
      --tch-color-on-surface cascades here too. New code should use --tch-color-on-surface. */
   --tch-color-foreground: var(--tch-color-on-surface);
-  --tch-color-primary: var(--mat-sys-primary);
-  --tch-color-primary-strong: var(--mat-sys-primary-container);
-  --tch-color-primary-contrast: var(--mat-sys-on-primary);
-  --tch-color-on-primary: var(--mat-sys-on-primary);
+  /* Brand-critical roles keep a hex fallback: if the preset CSS (--mat-sys-*) ever fails to apply
+     (e.g. an unknown preset code that left the shell unthemed), components still render in brand
+     colours instead of collapsing to an empty value (white card, invisible accents). */
+  --tch-color-primary: var(--mat-sys-primary, #1a1b4b);
+  --tch-color-primary-strong: var(--mat-sys-primary-container, #2e3192);
+  --tch-color-primary-contrast: var(--mat-sys-on-primary, #ffffff);
+  --tch-color-on-primary: var(--mat-sys-on-primary, #ffffff);
   --tch-color-primary-container: var(--mat-sys-primary-container);
   --tch-color-on-primary-container: var(--mat-sys-on-primary-container);
   --tch-color-primary-fixed: var(--mat-sys-primary-fixed);
@@ -75,8 +78,8 @@
   --tch-header-fg: var(--tch-header-fg-base);
   --tch-footer-bg: var(--tch-footer-bg-base);
   --tch-footer-fg: var(--tch-footer-fg-base);
-  --tch-color-accent: var(--tch-accent-bg-base);
-  --tch-on-color-accent: var(--tch-accent-fg-base);
+  --tch-color-accent: var(--tch-accent-bg-base, #fecb00);
+  --tch-color-on-accent: var(--tch-accent-fg-base, #241a00);
   /* M3 tertiary role alias — same value as accent, exposed under the standard M3 role name. */
   --tch-color-tertiary: var(--tch-accent-bg-base);
   --tch-color-on-tertiary: var(--tch-accent-fg-base);
@@ -102,7 +105,7 @@
   --mat-sys-tertiary: #fecb00;
   --mat-sys-on-tertiary: #241a00;
   --tch-color-accent: #fecb00;
-  --tch-on-color-accent: #241a00;
+  --tch-color-on-accent: #241a00;
 
   /* Surfaces & content. */
   --mat-sys-background: #f9f9fc;

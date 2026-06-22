@@ -1,5 +1,158 @@
-// Global Material harmonization belongs here. Keep component-specific overrides out.
+// Global Material harmonization. Component-specific overrides go here, not in feature files.
+// Component-level Material tokens are not emitted by the preset registry (it only captures
+// --mat-sys-*). These bridges ensure correct colors before and after preset injection.
+
+// ── Native control font inheritance ──────────────────────────────────────────
+button,
+input,
+textarea,
+select,
+optgroup {
+  font-family: inherit;
+}
+
+// ── Brand font on Material surfaces (catch-all) ───────────────────────────────
+.mat-mdc-button-base,
+.mat-mdc-dialog-container,
+.mat-mdc-dialog-title,
+.mat-mdc-chip,
+.mat-mdc-form-field,
+.mat-mdc-select,
+.mat-mdc-menu-content,
+.mat-mdc-menu-item,
+.mat-mdc-option,
+.mat-mdc-checkbox,
+.mat-mdc-table,
+.mat-mdc-cell,
+.mat-mdc-header-cell,
+.mat-mdc-footer-cell {
+  font-family: var(--tch-font-family, 'Plus Jakarta Sans', system-ui, sans-serif) !important;
+}
+
+// ── Focus ring ────────────────────────────────────────────────────────────────
 .mat-mdc-button-base:focus-visible {
   outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid currentcolor;
   outline-offset: var(--tch-focus-ring-offset, 2px);
+}
+
+// ── CDK overlay container ─────────────────────────────────────────────────────
+.cdk-overlay-container {
+  z-index: var(--tch-z-overlay, 1000);
+}
+
+.mat-mdc-menu-panel {
+  border-radius: var(--tch-radius-lg, 12px) !important;
+  box-shadow: var(--tch-elevation-3) !important;
+}
+
+.mat-mdc-select-panel {
+  max-height: 20rem !important;
+}
+
+// ── mat-option interactive states ─────────────────────────────────────────────
+// Using oklab for perceptually uniform navy tints. Explicit class overrides
+// are more reliable than M3 token layers here (token cascade is unpredictable
+// after preset injection; setting raw on-surface creates 100%-opaque black).
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: color-mix(
+    in oklab,
+    var(--tch-color-primary, #1a1b4b) 6%,
+    var(--tch-color-surface-container-lowest, #faf9fd)
+  );
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background: color-mix(
+    in oklab,
+    var(--tch-color-primary, #1a1b4b) 12%,
+    var(--tch-color-surface-container-lowest, #faf9fd)
+  );
+  color: var(--tch-color-primary, #1a1b4b);
+  // font-weight only in the panel (not on the trigger label) — specificity is fine
+  // since .mat-select__trigger does not carry this class.
+  font-weight: 600;
+}
+
+.mat-mdc-option.mdc-list-item--selected .mat-pseudo-checkbox {
+  color: var(--tch-color-primary, #1a1b4b);
+}
+
+.mat-mdc-option.mdc-list-item--with-one-line.cdk-keyboard-focused,
+.mat-mdc-option.mdc-list-item--with-one-line.cdk-program-focused {
+  background: color-mix(
+    in oklab,
+    var(--tch-color-primary, #1a1b4b) 10%,
+    var(--tch-color-surface-container-lowest, #faf9fd)
+  );
+}
+
+// ── mat-table row hover ───────────────────────────────────────────────────────
+// M3 uses ::before pseudo-element for state layers. We target it directly
+// so the hover colour is not covered by the state-layer overlay.
+.mat-mdc-row {
+  cursor: default;
+  transition: background 120ms ease;
+
+  &.tenants-page__row,
+  &[routerlink] {
+    cursor: pointer;
+
+    &:hover,
+    &:hover > .mat-mdc-cell {
+      background: color-mix(
+        in oklab,
+        var(--tch-color-primary, #1a1b4b) 8%,
+        var(--tch-color-surface, #fcf8fd)
+      ) !important;
+    }
+
+    &:hover::before {
+      display: none;
+    }
+  }
+}
+
+// ── Material component token bridges ──────────────────────────────────────────
+// mat.theme() generates these component tokens, but the preset registry only
+// captures --mat-sys-* tokens. These mappings fill the gap so components always
+// pick up the right color from the active preset.
+.tch-theme {
+  // Typography
+  --mat-dialog-subhead-font: var(--tch-font-family);
+  --mat-dialog-supporting-text-font: var(--tch-font-family);
+  --mdc-text-button-label-text-font: var(--tch-font-family);
+  --mdc-filled-button-label-text-font: var(--tch-font-family);
+  --mdc-outlined-button-label-text-font: var(--tch-font-family);
+  --mdc-protected-button-label-text-font: var(--tch-font-family);
+  --mat-form-field-container-text-font: var(--tch-font-family);
+  --mdc-outlined-text-field-label-text-font: var(--tch-font-family);
+  --mat-select-trigger-text-font: var(--tch-font-family);
+  --mat-option-label-text-font: var(--tch-font-family);
+  --mat-menu-item-label-text-font: var(--tch-font-family);
+  --mdc-form-field-label-text-font: var(--tch-font-family);
+
+  // Form field
+  --mat-form-field-error-text-color: var(--mat-sys-error, var(--tch-color-error, #ba1a1a));
+
+  // Select panel
+  --mat-select-panel-background-color: var(--mat-sys-surface-container, var(--tch-color-surface, #fcf8fd));
+
+  // Menu panel
+  --mat-menu-container-color: var(--mat-sys-surface-container, var(--tch-color-surface, #fcf8fd));
+  --mat-menu-item-label-text-color: var(--mat-sys-on-surface, var(--tch-color-on-surface, #1c1b1f));
+  --mat-menu-item-icon-color: var(--mat-sys-on-surface-variant, var(--tch-color-on-surface-variant, #46464f));
+  --mat-menu-item-hover-state-layer-color: color-mix(in oklab, var(--tch-color-primary, #1a1b4b) 6%, transparent);
+
+  // Options — label color only; interactive states are handled by explicit CSS above.
+  --mat-option-label-text-color: var(--mat-sys-on-surface, var(--tch-color-on-surface, #1c1b1f));
+  // Neutralize M3's default token-based state layers so the explicit rules above win cleanly.
+  --mat-option-hover-state-layer-color: transparent;
+  --mat-option-focus-state-layer-color: transparent;
+  --mat-option-selected-state-layer-color: transparent;
+  --mat-list-active-indicator-color: transparent;
+
+  // Table row hover — drive the M3 state layer with navy tint
+  --mat-table-row-item-hover-state-layer-color: var(--tch-color-primary, #1a1b4b);
+  --mat-table-row-item-hover-state-layer-opacity: 0.08;
 }

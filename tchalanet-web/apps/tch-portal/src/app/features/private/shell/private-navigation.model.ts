@@ -40,12 +40,6 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             activeMatch: 'exact',
           },
           {
-            id: 'tenant-create',
-            labelKey: 'platform.nav.createTenant',
-            icon: 'add_business',
-            destination: { kind: 'route', value: '/app/platform/tenants/new' },
-          },
-          {
             id: 'tenant-onboarding',
             labelKey: 'platform.nav.tenantOnboarding',
             icon: 'playlist_add_check',

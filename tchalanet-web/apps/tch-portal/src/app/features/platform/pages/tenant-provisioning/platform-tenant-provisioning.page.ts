@@ -8,19 +8,19 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { EMPTY, Subject, catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs';
 
-import { TchErrorPanel } from '@tch/ui/components';
+import { TchActionButton, TchErrorPanel, TchNotice, TchSubmitButton } from '@tch/ui/components';
 import { AdminDetailLayoutComponent } from '../../../private/shared/admin-ui/components/admin-detail-layout/admin-detail-layout.component';
+import { AdminNextStepsCardComponent, AdminNextStep } from '../../../private/shared/admin-ui/components/admin-next-steps-card/admin-next-steps-card.component';
 import { AdminPageShellComponent } from '../../../private/shared/admin-ui/admin-page-shell.component';
 import { AdminProvisioningHealthCardComponent } from '../../../private/shared/admin-ui/components/admin-provisioning-health-card/admin-provisioning-health-card.component';
 import { AdminSectionCardComponent } from '../../../private/shared/admin-ui/admin-section-card.component';
@@ -35,10 +35,10 @@ import {
   TenantType,
 } from '../../platform-provisioning-api.service';
 
-const TENANT_TYPES: { value: TenantType; label: string }[] = [
-  { value: 'BORLETTE', label: 'Borlette' },
-  { value: 'RESEAU', label: 'Réseau' },
-  { value: 'AMBULANT', label: 'Ambulant' },
+const TENANT_TYPES: { value: TenantType; label: string; icon: string }[] = [
+  { value: 'BORLETTE', label: 'Borlette', icon: 'storefront' },
+  { value: 'RESEAU', label: 'Réseau', icon: 'hub' },
+  { value: 'AMBULANT', label: 'Ambulant', icon: 'directions_walk' },
 ];
 
 const PROFILES: { value: TenantProvisioningProfile; label: string; description: string }[] = [
@@ -90,6 +90,25 @@ const STEP_LABEL_KEYS: Record<string, string> = {
   VERIFY_DEMO_SETUP: 'platform.tenantProvisioning.step.verifyDemoSetup',
 };
 
+// Backend warning codes → human messages. Never surface a raw code in the UI.
+const WARNING_LABEL_KEYS: Record<string, string> = {
+  INITIAL_ADMIN_EMAIL_MISSING: 'platform.tenantProvisioning.warning.initialAdminMissing',
+  EXISTING_USER_ATTACHED: 'platform.tenantProvisioning.warning.existingUserAttached',
+  TEMPORARY_CREDENTIAL_NOT_RETURNED: 'platform.tenantProvisioning.warning.temporaryCredentialNotReturned',
+  TEMPORARY_PASSWORD_ISSUED: 'platform.tenantProvisioning.warning.temporaryPasswordIssued',
+};
+
+const STEP_ICONS: Record<string, string> = {
+  CREATE_INITIAL_ADMIN: 'admin_panel_settings',
+  CONFIGURE_GAMES: 'casino',
+  CONFIGURE_DRAW_CHANNELS: 'schedule',
+  CREATE_SELLER_TERMINAL: 'point_of_sale',
+  CONFIGURE_SELLER_RULES: 'tune',
+  CONFIGURE_LIMITS: 'speed',
+  CONFIGURE_ODDS: 'percent',
+  VERIFY_DEMO_SETUP: 'checklist',
+};
+
 @Component({
   selector: 'tch-platform-tenant-provisioning-page',
   standalone: true,
@@ -101,22 +120,26 @@ const STEP_LABEL_KEYS: Record<string, string> = {
     AdminPageShellComponent,
     AdminSectionCardComponent,
     AdminDetailLayoutComponent,
+    AdminNextStepsCardComponent,
     TchIdentityCardComponent,
     AdminProvisioningHealthCardComponent,
+    TchActionButton,
     TchErrorPanel,
+    TchNotice,
+    TchSubmitButton,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatChipsModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './platform-tenant-provisioning.page.html',
   styleUrls: ['./platform-tenant-provisioning.page.scss'],
 })
 export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   private readonly api = inject(PlatformProvisioningApi);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
@@ -128,6 +151,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   readonly currencies = CURRENCIES;
 
   readonly submitting = signal(false);
+  readonly submitted = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly previewLoading = signal(false);
   readonly previewError = signal<string | null>(null);
@@ -140,6 +164,10 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     type: ['' as TenantType, Validators.required],
     timezone: ['America/Port-au-Prince', Validators.required],
     currency: ['HTG', Validators.required],
+    defaultCommissionRate: [
+      15,
+      [Validators.required, Validators.min(0), Validators.max(100)],
+    ],
     profile: ['DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile, Validators.required],
     initialAdminEmail: ['', [Validators.email]],
   });
@@ -152,10 +180,15 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
 
   readonly identityMeta = computed(() => {
     this.formRevision();
+    const commission = this.form.controls.defaultCommissionRate.value;
     return [
       { label: 'Type', value: this.form.controls.type.value || '—' },
       { label: 'Devise', value: this.form.controls.currency.value || '—' },
       { label: 'Fuseau', value: this.form.controls.timezone.value || '—' },
+      {
+        label: 'Commission',
+        value: commission === null || commission === undefined ? '—' : `${commission} %`,
+      },
       { label: 'Profil', value: this.form.controls.profile.value || '—' },
     ];
   });
@@ -218,14 +251,61 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     return [...domains, ...sections];
   });
 
+  readonly previewDomainLabels = computed(() => {
+    const preview = this.preview();
+    if (!preview?.includedDomains?.length) return [];
+    return preview.includedDomains.map(domain =>
+      this.label(DOMAIN_LABEL_KEYS[domain] ?? domain),
+    );
+  });
+
+  readonly nextStepsItems = computed((): AdminNextStep[] => {
+    const result = this.result();
+    if (!result?.nextSteps?.length) return [];
+    return result.nextSteps.map(step => ({
+      icon: STEP_ICONS[step] ?? 'arrow_forward',
+      label: this.translate.instant(STEP_LABEL_KEYS[step] ?? step),
+      routerLink: step === 'CREATE_INITIAL_ADMIN' && result.tenantId
+        ? ['/app/platform/tenants', result.tenantId, 'admins', 'new']
+        : undefined,
+    }));
+  });
+
+  readonly successNotices = computed(() => {
+    const result = this.result();
+    if (!result) return null;
+    const warnings = result.warnings ?? [];
+    return { tenantCode: result.tenantCode, warnings };
+  });
+
   ngOnInit(): void {
     this.form.valueChanges
-      .pipe(debounceTime(500), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.formRevision.update(value => value + 1);
-        if (this.form.valid) {
-          this.loadPreview();
-        }
+      .pipe(
+        // Keep the live identity card in sync on every keystroke...
+        tap(() => this.formRevision.update(value => value + 1)),
+        debounceTime(500),
+        // ...but only preview a complete, valid request.
+        filter(() => this.form.valid && !this.submitted()),
+        tap(() => {
+          this.previewLoading.set(true);
+          this.previewError.set(null);
+        }),
+        // switchMap cancels an in-flight preview when the form changes again → no stale result.
+        switchMap(() =>
+          this.api.preview(this.requestFromForm()).pipe(
+            catchError((err: unknown) => {
+              const problem = (err as { error?: { title?: string } })?.error;
+              this.previewError.set(problem?.title ?? 'Erreur lors du calcul du profil.');
+              this.previewLoading.set(false);
+              return EMPTY;
+            }),
+          ),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(preview => {
+        this.preview.set(preview);
+        this.previewLoading.set(false);
       });
   }
 
@@ -251,14 +331,8 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     return 'neutral';
   }
 
-  stepLabelKey(step: string): string {
-    return STEP_LABEL_KEYS[step] ?? step;
-  }
-
-  private label(keyOrValue: string): string {
-    return keyOrValue.startsWith('platform.')
-      ? this.translate.instant(keyOrValue)
-      : keyOrValue;
+  navigateToList(): void {
+    void this.router.navigate(['/app/platform/tenants']);
   }
 
   submit(): void {
@@ -274,29 +348,13 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       next: result => {
         this.submitting.set(false);
         this.result.set(result);
-        this.snackBar.open('Tenant provisionné avec succès.', 'OK', { duration: 4000 });
+        this.submitted.set(true);
+        this.form.disable();
       },
       error: (err: unknown) => {
         this.submitting.set(false);
         const problem = (err as { error?: { title?: string } })?.error;
         this.submitError.set(problem?.title ?? 'Erreur lors du provisionnement.');
-      },
-    });
-  }
-
-  private loadPreview(): void {
-    this.previewLoading.set(true);
-    this.previewError.set(null);
-
-    this.api.preview(this.requestFromForm()).subscribe({
-      next: preview => {
-        this.preview.set(preview);
-        this.previewLoading.set(false);
-      },
-      error: (err: unknown) => {
-        const problem = (err as { error?: { title?: string } })?.error;
-        this.previewError.set(problem?.title ?? 'Erreur lors du calcul du profil.');
-        this.previewLoading.set(false);
       },
     });
   }
@@ -309,8 +367,55 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       type: value.type!,
       timezone: value.timezone!,
       currency: value.currency!,
+      defaultCommissionRate: value.defaultCommissionRate!,
       profile: value.profile!,
       initialAdminEmail: value.initialAdminEmail || null,
     };
+  }
+
+  private label(keyOrValue: string): string {
+    return keyOrValue.startsWith('platform.')
+      ? this.translate.instant(keyOrValue)
+      : keyOrValue;
+  }
+
+  /** Map a backend warning code to a human message; raw codes never reach the UI. */
+  warningLabel(code: string): string {
+    const key = WARNING_LABEL_KEYS[code];
+    return key
+      ? this.translate.instant(key)
+      : this.translate.instant('platform.tenantProvisioning.warning.fallback');
+  }
+
+  /** Route to the freshly-created tenant's detail page, when the id is known. */
+  tenantDetailLink(): string[] | null {
+    const id = this.result()?.tenantId;
+    return id ? ['/app/platform/tenants', id] : null;
+  }
+
+  tenantAdminsLink(): string[] | null {
+    const id = this.result()?.tenantId;
+    return id ? ['/app/platform/tenants', id, 'admins'] : null;
+  }
+
+  /** Reset for "create another tenant" — explicit, never a silent reset. */
+  startAnother(): void {
+    this.result.set(null);
+    this.preview.set(null);
+    this.previewError.set(null);
+    this.submitError.set(null);
+    this.submitted.set(false);
+    this.form.enable();
+    this.form.reset({
+      code: '',
+      name: '',
+      type: '' as TenantType,
+      timezone: 'America/Port-au-Prince',
+      currency: 'HTG',
+      defaultCommissionRate: 15,
+      profile: 'DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile,
+      initialAdminEmail: '',
+    });
+    this.formRevision.update(value => value + 1);
   }
 }

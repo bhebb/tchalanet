@@ -60,20 +60,8 @@ export const platformRoutes: Route[] = [
         m => m.PlatformTenantDetailPage,
       ),
   },
-  {
-    path: 'tenant-provisioning',
-    loadComponent: () =>
-      import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
-        m => m.PlatformTenantProvisioningPage,
-      ),
-  },
-  {
-    path: 'tenant-onboarding',
-    loadComponent: () =>
-      import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
-        m => m.PlatformTenantProvisioningPage,
-      ),
-  },
+  { path: 'tenant-provisioning', redirectTo: 'tenants/onboarding', pathMatch: 'full' },
+  { path: 'tenant-onboarding', redirectTo: 'tenants/onboarding', pathMatch: 'full' },
   {
     path: 'tenant-admins',
     loadComponent: () =>
