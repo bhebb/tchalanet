@@ -1,0 +1,42 @@
+<div class="gp-summary">
+
+  <tch-card class="gp-summary__kpi gp-summary__kpi--ready">
+    <div class="gp-summary__kpi-icon">
+      <span class="material-symbols-outlined">check_circle</span>
+    </div>
+    <div class="gp-summary__kpi-body">
+      <span class="gp-summary__kpi-label">Jeux actifs</span>
+      <span class="gp-summary__kpi-value">
+        {{ activeCount() }}
+        <span class="gp-summary__kpi-total">/ {{ totalCount() }}</span>
+      </span>
+    </div>
+  </tch-card>
+
+  <tch-card class="gp-summary__kpi gp-summary__kpi--warning">
+    <div class="gp-summary__kpi-icon">
+      <span class="material-symbols-outlined">pending_actions</span>
+    </div>
+    <div class="gp-summary__kpi-body">
+      <span class="gp-summary__kpi-label">À configurer</span>
+      <span class="gp-summary__kpi-value">
+        {{ todoCount() }}
+        <span class="gp-summary__kpi-sub">{{ todoCount() > 1 ? 'jeux en attente' : 'jeu en attente' }}</span>
+      </span>
+    </div>
+  </tch-card>
+
+  <tch-card class="gp-summary__kpi gp-summary__kpi--neutral">
+    <div class="gp-summary__kpi-icon">
+      <span class="material-symbols-outlined">dashboard_customize</span>
+    </div>
+    <div class="gp-summary__kpi-body">
+      <span class="gp-summary__kpi-label">Disponibles</span>
+      <span class="gp-summary__kpi-value">
+        {{ availableCount() }}
+        <span class="gp-summary__kpi-sub">{{ availableCount() > 1 ? 'nouvelles options' : 'nouvelle option' }}</span>
+      </span>
+    </div>
+  </tch-card>
+
+</div>

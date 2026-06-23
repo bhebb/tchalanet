@@ -1,0 +1,49 @@
+<tch-admin-page-shell
+  title="Jeux & tarifs"
+  description="Sélectionnez les jeux disponibles dans votre espace et vérifiez les barèmes appliqués."
+>
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/setup" class="gp-page__back-btn">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Configuration générale
+    </a>
+    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (pageState() === 'loading') {
+    <tch-loading label="Chargement des jeux…" />
+  } @else if (pageState() === 'error') {
+    <tch-error-panel
+      [title]="pageError()!"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (games().length === 0) {
+    <tch-admin-empty-state
+      icon="casino"
+      title="Aucun jeu disponible"
+      message="Contactez Tchalanet pour activer un catalogue de jeux."
+    />
+  } @else {
+
+    <!-- KPI summary -->
+    <tch-games-pricing-summary [games]="games()" />
+
+    <!-- Game cards grid -->
+    <div class="gp-page__grid">
+      @for (game of games(); track game.gameCode) {
+        <tch-tenant-game-card
+          [game]="game"
+          (activate)="onActivate($event)"
+          (disable)="onDisable($event)"
+          (configure)="onConfigure($event)"
+        />
+      }
+    </div>
+
+  }
+</tch-admin-page-shell>

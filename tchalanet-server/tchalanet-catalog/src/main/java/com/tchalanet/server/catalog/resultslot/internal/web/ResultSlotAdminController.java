@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/result-slots")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Result Slots")
 public class ResultSlotAdminController {
 

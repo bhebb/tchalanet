@@ -32,7 +32,7 @@ import java.util.Map;
  *
  * <p>Security: SUPER_ADMIN only.
  */
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @RestController
 @RequestMapping("/platform/i18n-overrides")
 @RequiredArgsConstructor
@@ -99,7 +99,7 @@ public class PlatformI18nOverridesController {
 
     @Operation(summary = "Global i18n stats (SUPER_ADMIN)")
     @GetMapping("/overview")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ApiResponse<I18nGlobalOverviewView> overview() {
         var stats = i18nOverridesCatalog.keyStats();
         return ApiResponse.success(new I18nGlobalOverviewView(
@@ -109,7 +109,7 @@ public class PlatformI18nOverridesController {
 
     @Operation(summary = "Resolve i18n bundle cross-tenant (SUPER_ADMIN)")
     @GetMapping("/resolve")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ApiResponse<Map<String, String>> resolvePlatform(
         @RequestParam String locale,
         @RequestParam(required = false) com.tchalanet.server.common.types.id.TenantId tenantId) {

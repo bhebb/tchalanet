@@ -1,0 +1,198 @@
+.ple {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  // ── Column grid ────────────────────────────────────────────────────────────
+  &__header,
+  &__row,
+  &__add-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 100px 48px;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  &__header {
+    padding: 0 0.5rem;
+  }
+
+  &__col {
+    &--num { min-width: 0; }
+    &--stake { text-align: right; }
+    &--action { justify-self: end; }
+  }
+
+  // ── Header labels ──────────────────────────────────────────────────────────
+  &__header .ple__col {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+
+  // ── Existing line rows ─────────────────────────────────────────────────────
+  &__row {
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: var(--tch-color-surface-container-low, #f5f3f7);
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  }
+
+  &__ball {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+    box-shadow: inset -3px -3px 6px rgba(0, 0, 0, 0.08), inset 3px 3px 6px rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    color: var(--tch-color-primary-container, #141545);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  &__bet-type {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tch-color-on-surface, #1a1c1e);
+  }
+
+  &__amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tch-color-primary-container, #141545);
+  }
+
+  &__delete-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms, color 150ms;
+
+    span { font-size: 1.125rem; }
+
+    &:hover {
+      background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 10%, transparent);
+      color: var(--tch-color-error, #ba1a1a);
+    }
+  }
+
+  // ── Add row ────────────────────────────────────────────────────────────────
+  &__add-row {
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    border: 2px solid var(--tch-color-primary-container, #141545);
+    background: var(--tch-color-surface-container-lowest, #fff);
+    box-shadow: 0 2px 8px rgba(20, 21, 69, 0.08);
+
+    &--first {
+      border-color: var(--tch-color-outline-variant, #c7c5d0);
+      border-style: dashed;
+      box-shadow: none;
+    }
+  }
+
+  &__input-ball-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__input-icon {
+    font-size: 1.125rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    flex-shrink: 0;
+  }
+
+  &__num-input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tch-color-on-surface, #1a1c1e);
+    outline: none;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+
+    &::placeholder { font-weight: 400; font-family: inherit; color: var(--tch-color-outline, #777680); }
+  }
+
+  &__type-select {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tch-color-on-surface, #1a1c1e);
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  &__stake-input {
+    width: 100%;
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875rem;
+    background: var(--tch-color-surface-container, #edeef1);
+    color: var(--tch-color-on-surface, #1a1c1e);
+    outline: none;
+
+    &:focus { border-color: var(--tch-color-primary-container, #141545); }
+  }
+
+  &__add-btn {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: var(--tch-color-primary-container, #141545);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: opacity 150ms;
+
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+    &:not(:disabled):hover { opacity: 0.85; }
+  }
+
+  // ── Error / hint ────────────────────────────────────────────────────────────
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--tch-color-error, #ba1a1a);
+    margin: 0;
+
+    span { font-size: 1rem; }
+  }
+
+  &__empty-hint {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    text-align: center;
+  }
+}

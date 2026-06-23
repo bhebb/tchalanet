@@ -1,0 +1,89 @@
+@let p = provider();
+
+<tch-card class="pcard pcard--{{ p.tenantStatus | lowercase }} pcard--readiness-{{ p.readiness.status | lowercase }}">
+
+  <!-- Header -->
+  <div class="pcard__header">
+    <div class="pcard__identity">
+      <div class="pcard__avatar">{{ p.providerCode }}</div>
+      <div class="pcard__title-group">
+        <div class="pcard__name-row">
+          <h3 class="pcard__name">{{ p.providerLabel }}</h3>
+          <tch-admin-status-pill [label]="statusLabel()" [tone]="statusTone()" />
+        </div>
+        <div class="pcard__meta">
+          <span class="material-symbols-outlined pcard__tz-icon">schedule</span>
+          <span class="pcard__tz">{{ p.timezone }}</span>
+        </div>
+        @if (acquisitionSubline()) {
+          <p class="pcard__subline">{{ acquisitionSubline() }}</p>
+        }
+      </div>
+    </div>
+    <tch-draw-channel-source-badge [acquisition]="p.resultAcquisition" />
+  </div>
+
+  <!-- Slots -->
+  @if (p.slots.length > 0) {
+    <div class="pcard__slots">
+      <p class="pcard__slots-title">Créneaux horaires</p>
+      <div class="pcard__slots-list">
+        @for (slot of p.slots; track slot.slotKey; let i = $index) {
+          <tch-draw-channel-slot-row
+            [slot]="slot"
+            [index]="i"
+            [resultsAvailable]="false"
+            (viewResults)="onViewSlotResults($event)"
+            (configure)="toggleSlot.emit($event)"
+          />
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="pcard__no-slots">
+      <span class="material-symbols-outlined">block</span>
+      Non disponible pour cet espace
+    </div>
+  }
+
+  <!-- Footer -->
+  <div class="pcard__footer">
+    <div class="pcard__readiness">
+      @if (p.defaultSalesCutoffMinutes) {
+        <p class="pcard__cutoff">
+          <span class="material-symbols-outlined">info</span>
+          Fermeture vente : {{ p.defaultSalesCutoffMinutes }} min avant tirage
+        </p>
+      } @else if (p.tenantStatus !== 'UNAVAILABLE') {
+        <p class="pcard__cutoff pcard__cutoff--missing">
+          <span class="material-symbols-outlined">info</span>
+          Fermeture vente : Non définie
+        </p>
+      }
+      <p class="pcard__readiness-label pcard__readiness-label--{{ p.readiness.status | lowercase }}">
+        <span class="material-symbols-outlined">
+          @switch (p.readiness.status) {
+            @case ('READY')   { task_alt }
+            @case ('WARNING') { warning }
+            @case ('TODO')    { error }
+            @case ('BLOCKED') { block }
+          }
+        </span>
+        {{ p.readiness.label }}
+      </p>
+    </div>
+
+    @if (p.tenantStatus !== 'UNAVAILABLE') {
+      <div class="pcard__actions">
+        <!-- TODO(results): enable once /app/admin/results is implemented -->
+        <button mat-stroked-button [disabled]="true">
+          Tous les résultats
+        </button>
+        <button mat-flat-button color="primary" (click)="configure.emit(p)">
+          Configurer
+        </button>
+      </div>
+    }
+  </div>
+
+</tch-card>

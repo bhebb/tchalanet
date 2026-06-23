@@ -148,6 +148,14 @@ public class AddressCrudService implements AddressApi {
    * @return address view if found and not deleted
    */
   @Override
+  public Optional<AddressView> findPrimaryByTenantId(TenantId tenantId) {
+    Objects.requireNonNull(tenantId, "tenantId");
+    return persistenceAdapter.findActiveIdByTenant(tenantId)
+        .flatMap(id -> persistenceAdapter.findById(tenantId, id))
+        .map(addressMapper::toView);
+  }
+
+  @Override
   public Optional<AddressView> get(TenantId tenantId, AddressId id) {
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(id, "id");

@@ -14,6 +14,7 @@ import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeReq
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ListTenantsRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.SuspendTenantRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdentityRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
@@ -26,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -95,5 +97,14 @@ public class TenantAdminController {
     tenants.archiveTenant(new ArchiveTenantRequest(id, body == null ? null : body.reason()));
   }
 
+  @PutMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Update identity fields of a tenant")
+  @PreAuthorize("hasPermission(null, 'tenant.update')")
+  public void update(@PathVariable TenantId id, @Valid @RequestBody UpdateTenantIdentityBody body) {
+    tenants.updateTenantIdentity(new UpdateTenantIdentityRequest(id, body.name(), body.timezone(), body.currency()));
+  }
+
   public record ReasonRequest(String reason) {}
+  public record UpdateTenantIdentityBody(String name, String timezone, String currency) {}
 }

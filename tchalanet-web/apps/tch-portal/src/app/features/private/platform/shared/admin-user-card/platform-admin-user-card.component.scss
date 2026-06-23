@@ -1,0 +1,117 @@
+.admin-user-card__layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-user-card__card {
+  background: var(--tch-color-surface);
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg, 1rem);
+  padding: 1.5rem;
+}
+
+.admin-user-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-user-card__avatar {
+  font-size: 3rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.admin-user-card__identity {
+  flex: 1;
+}
+
+.admin-user-card__name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--tch-color-on-surface);
+}
+
+.admin-user-card__email {
+  font-size: 0.875rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.admin-user-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-user-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-user-card__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.admin-user-card__link {
+  color: var(--tch-color-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover { text-decoration: underline; }
+}
+
+.admin-user-card__code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.admin-user-card__card--actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-user-card__actions-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tch-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.admin-user-card__action-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.admin-user-card__nav-link {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--tch-color-primary);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}

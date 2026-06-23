@@ -1,0 +1,86 @@
+@let u = user();
+
+<div class="admin-user-card__layout">
+  <div class="admin-user-card__card">
+    <div class="admin-user-card__header">
+      <span class="material-symbols-outlined admin-user-card__avatar">account_circle</span>
+      <div class="admin-user-card__identity">
+        <div class="admin-user-card__name">{{ u.displayName || u.email || '—' }}</div>
+        @if (u.displayName && u.email) {
+          <div class="admin-user-card__email">{{ u.email }}</div>
+        }
+      </div>
+      <tch-status-badge [status]="statusBadge(u.status)" [label]="u.status" />
+    </div>
+
+    <div class="admin-user-card__fields">
+      <div class="admin-user-card__field">
+        <span class="admin-user-card__label">Email</span>
+        <span>{{ u.email || '—' }}</span>
+      </div>
+
+      <div class="admin-user-card__field">
+        <span class="admin-user-card__label">Assigné le</span>
+        <span>{{ u.assignedAt | date: 'dd MMM y, HH:mm' }}</span>
+      </div>
+
+      @if (u.tenantId) {
+        <div class="admin-user-card__field">
+          <span class="admin-user-card__label">Tenant</span>
+          <a class="admin-user-card__link" [routerLink]="['/app/platform/tenants', u.tenantId]">
+            {{ u.tenantName || u.tenantCode || u.tenantId }}
+            @if (u.tenantCode) {
+              <span class="admin-user-card__code">{{ u.tenantCode }}</span>
+            }
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="admin-user-card__card admin-user-card__card--actions">
+    <div class="admin-user-card__actions-title">Actions</div>
+
+    @if (!u.tenantId) {
+      <button mat-flat-button color="primary" class="admin-user-card__action-btn" (click)="assignTenant.emit()">
+        <span class="material-symbols-outlined">business</span>
+        Assigner à un tenant
+      </button>
+    }
+
+    <button mat-stroked-button class="admin-user-card__action-btn" (click)="confirmResetPassword()">
+      <span class="material-symbols-outlined">lock_reset</span>
+      Réinitialiser le mot de passe
+    </button>
+
+    @if (canActivate(u.status)) {
+      <button mat-stroked-button class="admin-user-card__action-btn" (click)="confirmActivate()">
+        <span class="material-symbols-outlined">check_circle</span>
+        Activer
+      </button>
+    }
+
+    @if (canBlock(u.status)) {
+      <button mat-stroked-button color="warn" class="admin-user-card__action-btn" (click)="confirmBlock()">
+        <span class="material-symbols-outlined">block</span>
+        Bloquer
+      </button>
+    }
+
+    @if (canArchive(u.status)) {
+      <button mat-stroked-button color="warn" class="admin-user-card__action-btn" (click)="confirmArchive()">
+        <span class="material-symbols-outlined">archive</span>
+        Archiver
+      </button>
+    }
+
+    @if (u.tenantId) {
+      <div class="admin-user-card__nav-link">
+        <a [routerLink]="['/app/platform/tenants', u.tenantId, 'admins']">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          Gérer dans le tenant
+        </a>
+      </div>
+    }
+  </div>
+</div>

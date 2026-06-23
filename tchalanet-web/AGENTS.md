@@ -31,6 +31,7 @@ Conventions (load the relevant file for your task — do not load all):
 | Creating/moving files or components | `docs/conventions/placement-guide.md` |
 | Naming files, classes, selectors | `docs/conventions/naming.md` |
 | Adding a feature (route, page, service) | `docs/conventions/feature-playbook.md` |
+| Feature folder structure (pages/components/data-access) | `docs/conventions/feature-structure.md` |
 | HTTP calls, backend client, errors | `docs/conventions/http-api.md` |
 | Styles, CSS tokens, SCSS | `docs/conventions/style.md` + `docs/conventions/theme.md` |
 | i18n keys and translation files | `docs/conventions/i18n.md` |

@@ -1,0 +1,32 @@
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--tch-radius-pill, 9999px);
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  white-space: nowrap;
+
+  &__icon {
+    font-size: 1.125rem;
+    font-family: 'Material Symbols Outlined';
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  &--ok,
+  &--manual {
+    background: var(--tch-color-surface-container, #edeef1);
+    color: var(--tch-color-on-surface, #1a1c1e);
+  }
+
+  &--warning {
+    background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 12%, transparent);
+    color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 80%, #000 20%);
+  }
+
+  &--error {
+    background: var(--tch-color-error-container, #ffdad6);
+    color: var(--tch-color-on-error-container, #93000a);
+  }
+}

@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { GamesAdminApiService, GameSettings, TenantGameView } from '../../../games-admin-api.service';
+import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from '../../../games-admin-api.service';
 
 @Component({
   selector: 'tch-game-settings-dialog',
@@ -22,25 +22,45 @@ import { GamesAdminApiService, GameSettings, TenantGameView } from '../../../gam
     MatInputModule,
   ],
   template: `
-    <h2 mat-dialog-title>Paramètres — {{ data.game.displayName }}</h2>
+    <h2 mat-dialog-title>Paramètres — {{ data.game.displayName ?? data.game.catalogName }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="game-settings-dialog__form">
-        <mat-checkbox formControlName="visibleInPos">Visible au POS</mat-checkbox>
-
         <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>Mise minimum</mat-label>
-          <input matInput type="number" formControlName="minStake" />
+          <mat-label>Nom affiché</mat-label>
+          <input matInput formControlName="displayName" [placeholder]="data.game.catalogName" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>Mise maximum</mat-label>
-          <input matInput type="number" formControlName="maxStake" />
-        </mat-form-field>
+        <div class="game-settings-dialog__row">
+          <mat-form-field appearance="outline" class="game-settings-dialog__field">
+            <mat-label>Mise minimum</mat-label>
+            <input matInput type="number" formControlName="minStake" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="game-settings-dialog__field">
+            <mat-label>Mise maximum</mat-label>
+            <input matInput type="number" formControlName="maxStake" />
+          </mat-form-field>
+        </div>
 
         <mat-form-field appearance="outline" class="game-settings-dialog__field">
           <mat-label>Ordre d'affichage</mat-label>
           <input matInput type="number" formControlName="displayOrder" />
         </mat-form-field>
+
+        <mat-checkbox formControlName="visibleInPos">Visible au POS</mat-checkbox>
+        <mat-checkbox formControlName="availabilityEnabled">Restreindre les horaires de vente</mat-checkbox>
+
+        @if (form.value.availabilityEnabled) {
+          <div class="game-settings-dialog__row">
+            <mat-form-field appearance="outline" class="game-settings-dialog__field">
+              <mat-label>Heure de début (HH:mm)</mat-label>
+              <input matInput formControlName="startLocalTime" placeholder="08:00" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="game-settings-dialog__field">
+              <mat-label>Heure de fin (HH:mm)</mat-label>
+              <input matInput formControlName="endLocalTime" placeholder="20:00" />
+            </mat-form-field>
+          </div>
+        }
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -54,8 +74,9 @@ import { GamesAdminApiService, GameSettings, TenantGameView } from '../../../gam
     </mat-dialog-actions>
   `,
   styles: [`
-    .game-settings-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; min-width: 320px; }
+    .game-settings-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; min-width: 360px; }
     .game-settings-dialog__field { width: 100%; }
+    .game-settings-dialog__row { display: flex; gap: 0.75rem; }
     .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
@@ -70,25 +91,33 @@ export class GameSettingsDialog {
   readonly submitting = signal(false);
 
   readonly form = this.fb.group({
-    visibleInPos: [this.data.game.settings?.visibleInPos ?? true],
-    minStake: [this.data.game.settings?.minStake ?? null],
-    maxStake: [this.data.game.settings?.maxStake ?? null],
-    displayOrder: [this.data.game.settings?.displayOrder ?? null],
+    displayName: [this.data.game.displayName ?? ''],
+    visibleInPos: [this.data.game.visibleInPos],
+    minStake: [this.data.game.minStake],
+    maxStake: [this.data.game.maxStake],
+    displayOrder: [this.data.game.displayOrder],
+    availabilityEnabled: [this.data.game.availabilityEnabled],
+    startLocalTime: [this.data.game.startLocalTime ?? ''],
+    endLocalTime: [this.data.game.endLocalTime ?? ''],
   });
 
   submit(): void {
     if (this.submitting()) return;
     this.submitting.set(true);
 
-    const v = this.form.value;
-    const settings: GameSettings = {
-      visibleInPos: v.visibleInPos ?? true,
-      minStake: v.minStake ?? undefined,
-      maxStake: v.maxStake ?? undefined,
-      displayOrder: v.displayOrder ?? undefined,
+    const v = this.form.getRawValue();
+    const req: UpdateGameSettingsRequest = {
+      displayName: v.displayName || null,
+      visibleInPos: v.visibleInPos,
+      minStake: v.minStake,
+      maxStake: v.maxStake,
+      displayOrder: v.displayOrder,
+      availabilityEnabled: v.availabilityEnabled,
+      startLocalTime: v.availabilityEnabled ? (v.startLocalTime || null) : null,
+      endLocalTime: v.availabilityEnabled ? (v.endLocalTime || null) : null,
     };
 
-    this.api.updateGameSettings(this.data.game.gameCode, settings).subscribe({
+    this.api.updateGameSettings(this.data.game.gameCode, req).subscribe({
       next: () => {
         this.submitting.set(false);
         this.snackBar.open('Paramètres mis à jour.', 'OK', { duration: 3000 });

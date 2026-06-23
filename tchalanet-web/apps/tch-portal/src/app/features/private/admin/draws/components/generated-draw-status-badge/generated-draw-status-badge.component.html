@@ -1,0 +1,11 @@
+@let m = meta();
+
+<span class="status-badge status-badge--{{ m.variant }}">
+  @if (m.icon) {
+    <span class="material-symbols-outlined status-badge__icon">{{ m.icon }}</span>
+  }
+  @if (m.pulse) {
+    <span class="status-badge__dot"></span>
+  }
+  {{ m.label }}
+</span>

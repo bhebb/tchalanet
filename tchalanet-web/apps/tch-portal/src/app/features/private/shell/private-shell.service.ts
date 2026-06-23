@@ -1,4 +1,4 @@
-import { Injectable, Signal, computed, inject } from '@angular/core';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, defer, filter, of, shareReplay } from 'rxjs';
@@ -20,14 +20,27 @@ export class PrivateShellService {
   private readonly api = inject(PageModelApi);
   private readonly router = inject(Router);
 
-  readonly page$ = defer(() =>
-    this.auth.session().roles.includes('SUPER_ADMIN')
+  readonly shellLoadError = signal(false);
+
+  readonly page$ = defer(() => {
+    const url = this.router.url;
+    // Use URL as primary signal — prevents role-dual users (SUPER_ADMIN + TENANT_ADMIN)
+    // from seeing the platform shell when they navigate to /app/admin.
+    if (url.startsWith('/app/platform')) return this.api.getPlatformPage();
+    if (url.startsWith('/app/admin') || url.startsWith('/app/cashier')) return this.api.getTenantPage();
+    // /app/profile and other shared routes: fall back to role
+    return this.auth.session().roles.includes('SUPER_ADMIN')
       ? this.api.getPlatformPage()
-      : this.api.getTenantPage(),
-  ).pipe(shareReplay(1));
+      : this.api.getTenantPage();
+  }).pipe(shareReplay(1));
 
   readonly page = toSignal<PageRuntimeResponse | undefined>(
-    this.page$.pipe(catchError(() => of(undefined))),
+    this.page$.pipe(
+      catchError(() => {
+        this.shellLoadError.set(true);
+        return of(undefined);
+      }),
+    ),
     { initialValue: undefined },
   );
 

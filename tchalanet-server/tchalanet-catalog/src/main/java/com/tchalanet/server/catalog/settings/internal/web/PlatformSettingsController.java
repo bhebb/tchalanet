@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/platform/settings")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Settings", description = "Platform admin CRUD for application settings")
 public class PlatformSettingsController {

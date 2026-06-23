@@ -1,0 +1,33 @@
+<div class="dc-summary">
+  <tch-card class="dc-summary__card dc-summary__card--total">
+    <span class="material-symbols-outlined dc-summary__icon">map</span>
+    <div class="dc-summary__content">
+      <span class="dc-summary__label">States dispos</span>
+      <span class="dc-summary__value">{{ totalCount() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="dc-summary__card dc-summary__card--active">
+    <span class="material-symbols-outlined dc-summary__icon">check_circle</span>
+    <div class="dc-summary__content">
+      <span class="dc-summary__label">States actifs</span>
+      <span class="dc-summary__value">{{ activeCount() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="dc-summary__card dc-summary__card--channels">
+    <span class="material-symbols-outlined dc-summary__icon">confirmation_number</span>
+    <div class="dc-summary__content">
+      <span class="dc-summary__label">DrawChannels actifs</span>
+      <span class="dc-summary__value">{{ activeChannels() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="dc-summary__card dc-summary__card--todo">
+    <span class="material-symbols-outlined dc-summary__icon">error_outline</span>
+    <div class="dc-summary__content">
+      <span class="dc-summary__label">À configurer</span>
+      <span class="dc-summary__value">{{ todoCount() }}</span>
+    </div>
+  </tch-card>
+</div>

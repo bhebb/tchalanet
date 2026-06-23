@@ -7,19 +7,28 @@ export const adminRoutes: Route[] = [
       import('../shell/page-model-host/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
   {
-    path: 'onboarding',
-    loadComponent: () =>
-      import('./pages/onboarding/admin-onboarding.page').then(m => m.AdminOnboardingPage),
+    path: 'setup',
+    loadChildren: () =>
+      import('./setup/admin-setup.routes').then(m => m.adminSetupRoutes),
   },
+  {
+    path: 'business-profile',
+    loadChildren: () =>
+      import('./business-profile/admin-business-profile.routes').then(
+        m => m.adminBusinessProfileRoutes,
+      ),
+  },
+  { path: 'onboarding', redirectTo: 'setup', pathMatch: 'full' },
+  { path: 'complete-config', redirectTo: 'setup', pathMatch: 'full' },
   {
     path: 'users',
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
   },
   {
     path: 'seller-terminals',
-    loadComponent: () =>
-      import('./pages/seller-terminals/admin-seller-terminals.page').then(
-        m => m.AdminSellerTerminalsPage,
+    loadChildren: () =>
+      import('./seller-terminals/admin-seller-terminals.routes').then(
+        m => m.adminSellerTerminalsRoutes,
       ),
   },
   {
@@ -29,8 +38,8 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'games-pricing',
-    loadComponent: () =>
-      import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
+    loadChildren: () =>
+      import('./games-pricing/admin-games-pricing.routes').then(m => m.adminGamesPricingRoutes),
   },
   {
     path: 'business-days',
@@ -85,8 +94,13 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'draws',
-    loadComponent: () =>
-      import('./pages/draws/admin-draws.page').then(m => m.AdminDrawsPage),
+    loadChildren: () =>
+      import('./draws/admin-generated-draws.routes').then(m => m.adminGeneratedDrawsRoutes),
+  },
+  {
+    path: 'draw-channels',
+    loadChildren: () =>
+      import('./draw-channels/admin-draw-channels.routes').then(m => m.adminDrawChannelsRoutes),
   },
   {
     path: 'draw-results',
@@ -150,17 +164,17 @@ export const adminRoutes: Route[] = [
   {
     path: 'settings',
     loadComponent: () =>
-      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+      import('./setup/pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
   },
   {
     path: 'settings/runtime',
     loadComponent: () =>
-      import('./pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
+      import('./setup/pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
   },
   {
     path: 'settings/config',
     loadComponent: () =>
-      import('./pages/settings/admin-config.page').then(m => m.AdminConfigPage),
+      import('./setup/pages/settings/admin-config.page').then(m => m.AdminConfigPage),
   },
   {
     path: 'i18n',
@@ -168,27 +182,15 @@ export const adminRoutes: Route[] = [
       import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
     data: { titleKey: 'nav.translations', icon: 'translate' },
   },
-  {
-    path: 'appearance',
-    loadComponent: () =>
-      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
-  },
+  { path: 'appearance', redirectTo: 'settings', pathMatch: 'full' },
   {
     path: 'pagemodels',
     loadComponent: () =>
       import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
     data: { titleKey: 'nav.pagemodels', icon: 'dashboard_customize' },
   },
-  {
-    path: 'more',
-    loadComponent: () =>
-      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
-  },
-  {
-    path: 'more/space',
-    loadComponent: () =>
-      import('./pages/onboarding/admin-onboarding.page').then(m => m.AdminOnboardingPage),
-  },
+  { path: 'more', redirectTo: 'settings', pathMatch: 'full' },
+  { path: 'more/space', redirectTo: 'setup', pathMatch: 'full' },
   {
     path: 'more/account',
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),

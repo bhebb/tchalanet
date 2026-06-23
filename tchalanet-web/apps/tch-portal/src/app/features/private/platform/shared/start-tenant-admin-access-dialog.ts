@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 
 import { SupportAccessStore } from '../../../../core/access/support-access.store';
 import { PlatformTenantAdminAccessApi } from '../platform-tenant-admin-access-api.service';
-import type { TenantStatus } from '../platform-tenants-api.service';
+import type { TenantStatus } from '../tenants/data-access/platform-tenants-api.service';
 
 export interface StartTenantAdminAccessDialogData {
   tenantId: string;

@@ -1,0 +1,35 @@
+<div class="gd-summary">
+
+  <tch-card class="gd-summary__kpi gd-summary__kpi--total">
+    <span class="material-symbols-outlined gd-summary__icon">calendar_today</span>
+    <div class="gd-summary__content">
+      <span class="gd-summary__label">Tirages aujourd'hui</span>
+      <span class="gd-summary__value">{{ todayCount() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="gd-summary__kpi gd-summary__kpi--open">
+    <span class="material-symbols-outlined gd-summary__icon">shopping_cart</span>
+    <div class="gd-summary__content">
+      <span class="gd-summary__label">Ouverts à la vente</span>
+      <span class="gd-summary__value">{{ salesOpenCount() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="gd-summary__kpi gd-summary__kpi--expected">
+    <span class="material-symbols-outlined gd-summary__icon">hourglass_empty</span>
+    <div class="gd-summary__content">
+      <span class="gd-summary__label">Résultats attendus</span>
+      <span class="gd-summary__value">{{ expectedCount() }}</span>
+    </div>
+  </tch-card>
+
+  <tch-card class="gd-summary__kpi gd-summary__kpi--confirmed">
+    <span class="material-symbols-outlined gd-summary__icon">verified</span>
+    <div class="gd-summary__content">
+      <span class="gd-summary__label">Résultats confirmés</span>
+      <span class="gd-summary__value">{{ confirmedCount() }}</span>
+    </div>
+  </tch-card>
+
+</div>

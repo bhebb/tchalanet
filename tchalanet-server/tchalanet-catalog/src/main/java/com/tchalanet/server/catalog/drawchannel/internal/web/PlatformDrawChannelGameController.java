@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/draw-channels/{channelId}/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Draw Channel Games")
 public class PlatformDrawChannelGameController {
 

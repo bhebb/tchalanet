@@ -2,26 +2,43 @@ import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export interface GameSettings {
-  visibleInPos?: boolean;
-  minStake?: number;
-  maxStake?: number;
-  enabledDrawSlots?: string[];
-  displayOrder?: number;
-}
-
 export interface TenantGameView {
-  gameCode: string;
-  displayName: string;
-  enabled: boolean;
-  settings: GameSettings;
+  readonly gameCode: string;
+  readonly catalogName: string;
+  readonly category: string | null;
+  readonly displayName: string | null;
+  readonly enabled: boolean;
+  readonly visibleInPos: boolean;
+  readonly displayOrder: number;
+  readonly minStake: number | null;
+  readonly maxStake: number | null;
+  readonly availabilityEnabled: boolean;
+  readonly availabilityDays: string | null;
+  readonly startLocalTime: string | null;
+  readonly endLocalTime: string | null;
+  readonly readyForSale: boolean;
 }
 
 export interface CatalogGameView {
-  gameCode: string;
-  displayName: string;
-  category: string;
-  description?: string;
+  readonly gameCode: string;
+  readonly name: string;
+  readonly category: string;
+  readonly catalogActive: boolean;
+  readonly enabledForTenant: boolean;
+  readonly canEnable: boolean;
+  readonly disabledReason: string | null;
+}
+
+export interface UpdateGameSettingsRequest {
+  displayName?: string | null;
+  displayOrder?: number | null;
+  visibleInPos?: boolean | null;
+  minStake?: number | null;
+  maxStake?: number | null;
+  availabilityEnabled?: boolean | null;
+  availabilityDays?: string | null;
+  startLocalTime?: string | null;
+  endLocalTime?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -44,7 +61,7 @@ export class GamesAdminApiService {
     return this.backend.post<void>(`/admin/games/${gameCode}/disable`, {});
   }
 
-  updateGameSettings(gameCode: string, settings: GameSettings): Observable<void> {
-    return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, settings);
+  updateGameSettings(gameCode: string, req: UpdateGameSettingsRequest): Observable<void> {
+    return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, req);
   }
 }

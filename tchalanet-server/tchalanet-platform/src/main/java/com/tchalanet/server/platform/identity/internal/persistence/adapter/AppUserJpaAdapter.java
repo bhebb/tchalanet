@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -140,6 +141,19 @@ public class AppUserJpaAdapter {
 
         var rows = typed.getResultList().stream().map(this::toUser).toList();
         return new PageImpl<>(rows, pageable, entityManager.createQuery(countQuery).getSingleResult());
+    }
+
+    public List<AppUser> findUnassigned(String q, int page, int size) {
+        String nameLike = (q == null || q.isBlank()) ? null : "%" + q.trim().toLowerCase() + "%";
+        int offset = page * size;
+        return repository.findUnassigned(nameLike, size, offset)
+            .stream().map(this::toUser).toList();
+    }
+
+    public Optional<String> findExternalSubject(UserId userId, IdentityProviderType provider) {
+        return externalIdentities
+            .findFirstByAppUserIdAndProvider(userId.value(), provider)
+            .map(AppUserExternalIdentityJpaEntity::getExternalSubject);
     }
 
     public KeycloakUserSub findKeycloakSub(UserId userId) {

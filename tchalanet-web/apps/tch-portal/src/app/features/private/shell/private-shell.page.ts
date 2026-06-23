@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -67,7 +67,7 @@ import { AdminOverrideBanner } from '../shared/admin-override-banner';
           </button>
           <tch-user-menu
             [name]="userName()"
-            (profile)="comingSoon()"
+            (profile)="openProfile()"
             (settings)="comingSoon()"
             (logout)="logout()"
           />
@@ -281,13 +281,25 @@ export class PrivateShellPage {
     const resolved = this.shell()?.navigationDrawer?.primary ?? [];
     const sections = this.shell()?.navigationDrawer?.sections ?? [];
     if (this.shell() && sections.length) return resolved;
-    return resolved.length ? resolved : fallbackDestinations(this.auth.session().roles);
+    // sections empty → sections-based fallback handles nav exclusively, primary must be []
+    return [];
   });
 
   readonly unreadCount = computed(() => this.bootstrapStore.unreadCount());
 
   constructor() {
     this.runtime.initPrivateRuntime();
+
+    effect(() => {
+      if (this.shellSvc.shellLoadError()) {
+        this.feedback.add({
+          severity: 'warn',
+          title: this.i18n.instant('shell.error.backendUnavailable.title'),
+          message: this.i18n.instant('shell.error.backendUnavailable.message'),
+        });
+      }
+    });
+
     // Close the mobile drawer after any navigation (tapping a nav link).
     this.router.events
       .pipe(
@@ -316,6 +328,10 @@ export class PrivateShellPage {
       title: this.i18n.instant('common.coming_soon'),
       message: '',
     });
+  }
+
+  openProfile(): void {
+    void this.router.navigate(['/app/profile']);
   }
 
   logout(): void {

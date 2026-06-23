@@ -22,51 +22,16 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'tenants',
-    loadComponent: () =>
-      import('./pages/tenants/list/platform-tenants.page').then(m => m.PlatformTenantsPage),
-  },
-  {
-    path: 'tenants/new',
-    loadComponent: () =>
-      import('./pages/tenants/create/platform-tenant-create.page').then(
-        m => m.PlatformTenantCreatePage,
-      ),
-  },
-  {
-    path: 'tenants/onboarding',
-    loadComponent: () =>
-      import('./pages/tenant-provisioning/platform-tenant-provisioning.page').then(
-        m => m.PlatformTenantProvisioningPage,
-      ),
-  },
-  {
-    path: 'tenants/:tenantId/admins/new',
-    loadComponent: () =>
-      import('./pages/tenants/admin-create/platform-tenant-admin-create.page').then(
-        m => m.PlatformTenantAdminCreatePage,
-      ),
-  },
-  {
-    path: 'tenants/:tenantId/admins',
-    loadComponent: () =>
-      import('./pages/tenants/admins/platform-tenant-admins.page').then(
-        m => m.PlatformTenantAdminsPage,
-      ),
-  },
-  {
-    path: 'tenants/:tenantId',
-    loadComponent: () =>
-      import('./pages/tenants/detail/platform-tenant-detail.page').then(
-        m => m.PlatformTenantDetailPage,
-      ),
+    loadChildren: () =>
+      import('./tenants/platform-tenants.routes').then(m => m.platformTenantRoutes),
   },
   { path: 'tenant-provisioning', redirectTo: 'tenants/onboarding', pathMatch: 'full' },
   { path: 'tenant-onboarding', redirectTo: 'tenants/onboarding', pathMatch: 'full' },
   {
     path: 'tenant-admins',
-    loadComponent: () =>
-      import('./pages/tenants/admins/platform-tenant-admins.page').then(
-        m => m.PlatformTenantAdminsPage,
+    loadChildren: () =>
+      import('./tenant-admins/platform-tenant-admins.routes').then(
+        m => m.platformTenantAdminsRoutes,
       ),
   },
   {
@@ -301,10 +266,11 @@ export const platformRoutes: Route[] = [
       import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
-    path: 'access/super-admins',
-    loadComponent: () =>
-      import('./pages/access/platform-super-admins.page').then(m => m.PlatformSuperAdminsPage),
+    path: 'super-admins',
+    loadChildren: () =>
+      import('./super-admins/platform-super-admins.routes').then(m => m.platformSuperAdminsRoutes),
   },
+  { path: 'access/super-admins', redirectTo: 'super-admins', pathMatch: 'full' },
   {
     path: 'access/overrides',
     data: {

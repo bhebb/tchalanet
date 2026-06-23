@@ -31,6 +31,10 @@ public final class PermissionKeys {
   public static final String USER_MEMBERSHIP_MANAGE = "user.membership.manage";
   public static final String USER_ROLE_ASSIGN     = "user.role.assign";
   public static final String USER_PERMISSION_MANAGE = "user.permission.manage";
+  public static final String USER_ACTIVATE        = "user.activate";
+  public static final String USER_SUSPEND         = "user.suspend";
+  public static final String USER_ARCHIVE         = "user.archive";
+  public static final String USER_PASSWORD_RESET  = "user.password.reset";
 
   // Access control
   public static final String ROLE_READ            = "role.read";

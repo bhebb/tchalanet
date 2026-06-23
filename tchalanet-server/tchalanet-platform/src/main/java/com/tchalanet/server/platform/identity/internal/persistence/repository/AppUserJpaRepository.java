@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,4 +70,39 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
                 """,
         nativeQuery = true)
     long countActiveTenantUsers(@Param("tenantId") UUID tenantId);
+
+    @Query(
+        value =
+            """
+                select u.*
+                from app_user u
+                where u.deleted_at is null
+                  and not exists (
+                    select 1 from tenant_user_role tur
+                    where tur.user_id = u.id and tur.deleted_at is null
+                  )
+                  and (:q is null or lower(coalesce(u.display_name, u.email::text, u.username)) like :q)
+                order by lower(coalesce(u.display_name, u.email::text, u.username))
+                limit :size offset :offset
+                """,
+        nativeQuery = true)
+    List<AppUserJpaEntity> findUnassigned(
+        @Param("q") String q,
+        @Param("size") int size,
+        @Param("offset") int offset);
+
+    @Query(
+        value =
+            """
+                select count(*)
+                from app_user u
+                where u.deleted_at is null
+                  and not exists (
+                    select 1 from tenant_user_role tur
+                    where tur.user_id = u.id and tur.deleted_at is null
+                  )
+                  and (:q is null or lower(coalesce(u.display_name, u.email::text, u.username)) like :q)
+                """,
+        nativeQuery = true)
+    long countUnassigned(@Param("q") String q);
 }

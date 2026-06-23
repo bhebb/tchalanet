@@ -1,0 +1,79 @@
+<div class="ssc">
+
+  <!-- Navy header -->
+  <div class="ssc__header">
+    <div class="ssc__check-ring">
+      <span class="material-symbols-outlined ssc__check-icon">check_circle</span>
+    </div>
+    <h2 class="ssc__title">Seller-terminal créé avec succès !</h2>
+    <p class="ssc__description">
+      Le nouveau point de vente est désormais actif sur le réseau.
+    </p>
+  </div>
+
+  <!-- Credentials -->
+  <div class="ssc__body">
+
+    <div class="ssc__credentials">
+      <!-- Code terminal -->
+      <div class="ssc__cred-card">
+        <span class="ssc__cred-label">Code terminal</span>
+        <div class="ssc__cred-value-row">
+          <span class="ssc__cred-value ssc__cred-value--mono">{{ result().terminalCode }}</span>
+          <button mat-icon-button class="ssc__copy-btn" (click)="copyCredentials()" aria-label="Copier le code terminal">
+            <span class="material-symbols-outlined">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PIN initial -->
+      <div class="ssc__cred-card">
+        <span class="ssc__cred-label">PIN initial</span>
+        <div class="ssc__cred-value-row">
+          <span class="ssc__cred-value ssc__cred-value--mono ssc__cred-value--pin">
+            {{ showPin() ? result().initialPin : '•'.repeat(result().initialPin.length) }}
+          </span>
+          <button mat-icon-button class="ssc__copy-btn" (click)="togglePin()" [attr.aria-label]="showPin() ? 'Masquer le PIN' : 'Afficher le PIN'">
+            <span class="material-symbols-outlined">{{ showPin() ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notice -->
+    <div class="ssc__notice">
+      <span class="material-symbols-outlined ssc__notice-icon">info</span>
+      <p class="ssc__notice-text">
+        Veuillez communiquer ces identifiants au vendeur.
+        Le PIN initial devra être modifié lors de la première connexion.
+        <strong>Il ne sera plus affiché après la fermeture de cet écran.</strong>
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="ssc__actions">
+      <div class="ssc__actions-row">
+        <button mat-flat-button color="primary" class="ssc__cta" (click)="openPos.emit(result())">
+          <span class="material-symbols-outlined">launch</span>
+          Ouvrir le Web POS
+        </button>
+        <button mat-stroked-button class="ssc__copy-all" (click)="copyCredentials()">
+          <span class="material-symbols-outlined">{{ copied() ? 'check' : 'content_copy' }}</span>
+          {{ copied() ? 'Copié !' : 'Copier' }}
+        </button>
+      </div>
+
+      <div class="ssc__actions-secondary">
+        <button mat-button (click)="createAnother.emit()">
+          <span class="material-symbols-outlined">add</span>
+          Créer un autre seller-terminal
+        </button>
+        <button mat-button (click)="backToList.emit()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Retour à la liste des terminaux
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

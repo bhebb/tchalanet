@@ -8,7 +8,7 @@ import { NotFoundPage } from '@tch/web';
 export const appRoutes: Route[] = [
   {
     path: 'login',
-    loadComponent: () => import('./core/auth/firebase/login.page').then(m => m.LoginPage),
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes),
   },
   {
     path: 'public',
@@ -52,8 +52,8 @@ export const appRoutes: Route[] = [
   {
     path: 'app/account/activation',
     canActivate: [roleGuard('TENANT_ADMIN')],
-    loadComponent: () =>
-      import('./features/private/account/account-activation.page').then(m => m.AccountActivationPage),
+    loadChildren: () =>
+      import('./features/private/account/account.routes').then(m => m.accountRoutes),
   },
   {
     path: 'app/seller-terminal/activation',
@@ -62,6 +62,14 @@ export const appRoutes: Route[] = [
       import('./features/private/seller-terminal/seller-terminal-activation.page').then(
         m => m.SellerTerminalActivationPage,
       ),
+  },
+  {
+    path: 'app/profile',
+    loadComponent: () =>
+      import('./features/private/shell/private-shell.page').then(m => m.PrivateShellPage),
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/private/profile/profile.routes').then(m => m.profileRoutes),
   },
   {
     path: 'app/platform',

@@ -122,6 +122,58 @@
         "title": "Sipò"
       }
     },
+    "setup": {
+      "progress": {
+        "title": "{{completed}} / {{total}} etap obligatwa konplète"
+      },
+      "advancedSettings": {
+        "title": "Paramèt avanse",
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt tenant lan.",
+        "action": "Ouvri paramèt"
+      }
+    },
+    "businessProfile": {
+      "title": "Espas antrepriz mwen",
+      "description": "Idantite ak koordinasyon antrepriz ou.",
+      "loading": "Chajman...",
+      "error": {
+        "load": "Enposib pou chaje enfòmasyon antrepriz la."
+      },
+      "section": {
+        "identity": "Idantite",
+        "region": "Rejyon",
+        "commercial": "Paramèt komèsyal",
+        "address": "Adrès"
+      },
+      "commercial": {
+        "description": "Itilize pou seller-terminals ki pa gen to spesifik."
+      },
+      "field": {
+        "name": "Non",
+        "code": "Kòd",
+        "type": "Tip",
+        "status": "Estati",
+        "timezone": "Fizo orè",
+        "currency": "Deviz",
+        "commission": "Komisyon pa defò"
+      },
+      "identityCard": {
+        "eyebrow": "Antrepriz mwen"
+      },
+      "identity": {
+        "saved": "Enfòmasyon yo mete ajou avèk siksè."
+      },
+      "address": {
+        "empty": "Pa gen adrès anrejistre.",
+        "edit": "Modifye adrès",
+        "add": "Ajoute adrès",
+        "saved": "Adrès anrejistre avèk siksè."
+      },
+      "error": {
+        "load": "Enposib pou chaje enfòmasyon antrepriz la.",
+        "save": "Enposib pou sove chanjman yo."
+      }
+    },
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Jere seller-terminals",
@@ -217,7 +269,12 @@
     "validation": {
       "required": "Chan sa a obligatwa."
     },
-    "not_set": "Pa renseye"
+    "not_set": "Pa renseye",
+    "edit": "Modifye",
+    "view": "Wè",
+    "save": "Anregistre",
+    "saving": "Ap anregistre...",
+    "refresh": "Aktyalize"
   },
   "dashboard": {
     "actions": {
@@ -461,6 +518,7 @@
       "my_account": "Kont mwen",
       "support": "Sipò",
       "settings": "Paramèt",
+      "businessProfile": "Espas antrepriz mwen",
       "spaceTitle": "Admin",
       "all_draws": "Tout tiraj yo",
       "upcoming_draws": "Tiraj kap vini",
@@ -752,7 +810,9 @@
           "eyebrow": "Tenant"
         },
         "action": {
-          "viewAdmins": "Wè administratè yo"
+          "viewAdmins": "Wè administratè yo",
+          "updateSuccess": "Enfòmasyon yo mete ajou avèk siksè.",
+          "updateError": "Enposib pou sove chanjman yo."
         }
       },
       "provisioning": {
@@ -823,7 +883,27 @@
         "reactivated": "Tenant reaktive.",
         "archived": "Tenant achive."
       },
-      "paginationTotal": "{{count}} tenant(s)"
+      "paginationTotal": "{{count}} tenant(s)",
+      "admin": {
+        "pageTitle": "Ajoute yon admin",
+        "pageTitleWithTenant": "Ajoute admin — {{name}}",
+        "loading": "Ap chaje...",
+        "section": "Enfòmasyon administratè",
+        "field": {
+          "email": "Imèl",
+          "firstName": "Prenon",
+          "lastName": "Non fanmi (opsyonèl)",
+          "phone": "Telefòn (opsyonèl)"
+        },
+        "error": {
+          "email": "Imèl valid obligatwa.",
+          "firstName": "Prenon obligatwa.",
+          "create": "Erè pandan kreyasyon."
+        },
+        "roleInfo": "Wòl: TENANT_ADMIN",
+        "submit": "Kreye administratè",
+        "success": "Administratè kreye avèk siksè."
+      }
     },
     "tenantProvisioning": {
       "title": "Pwovizyone yon tenant",
@@ -1787,7 +1867,43 @@
     "logo_alt": "Logo Tchalanet"
   },
   "profile": {
-    "avatar_alt": "Avata itilizatè"
+    "avatar_alt": "Avata itilizatè",
+    "title": "Pwofil mwen",
+    "description": "Jere enfòmasyon pèsonèl ou ak preferans ou.",
+    "loading": "Ap chaje pwofil...",
+    "empty": {
+      "title": "Pwofil pa jwenn",
+      "message": "Pa kapab chaje enfòmasyon pwofil."
+    },
+    "section": {
+      "identity": "Idantite",
+      "preferences": "Preferans",
+      "access": "Aksè"
+    },
+    "field": {
+      "displayName": "Non ki afiche",
+      "email": "Imèl",
+      "username": "Non itilizatè",
+      "firstName": "Prenon",
+      "lastName": "Non fanmi",
+      "phone": "Telefòn",
+      "role": "Wòl"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Tèm",
+        "system": "Sistèm",
+        "light": "Klè",
+        "dark": "Fonse"
+      },
+      "locale": "Lokalizasyon",
+      "timeZone": "Zòn tan",
+      "currency": "Lajan"
+    },
+    "error": {
+      "load": "Erè pandan chajman pwofil.",
+      "save": "Erè pandan anregistreman."
+    }
   },
   "readiness": {
     "noIssues": "Pa gen pwoblèm"

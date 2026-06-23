@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/platform/plans")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlanAdminController {
 
     private final PlanAdminService planAdminService;

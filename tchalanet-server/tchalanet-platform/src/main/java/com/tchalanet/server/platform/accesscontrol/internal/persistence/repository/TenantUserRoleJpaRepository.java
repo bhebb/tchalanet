@@ -56,4 +56,95 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
     @Query("update TenantUserRoleJpaEntity r set r.deletedAt = current_timestamp where r.tenantId = :tenantId and r.userId = :userId and r.roleId = :roleId and r.deletedAt is null")
     int softDeleteAssignment(
         @Param("tenantId") UUID tenantId, @Param("userId") UUID userId, @Param("roleId") UUID roleId);
+
+    /**
+     * Global TENANT_ADMIN search across all tenants (SUPER_ADMIN only).
+     * Filters by display_name/email ILIKE when :nameLike is not null.
+     */
+    @Query(value = """
+        select
+          u.id                                                              as "userId",
+          u.email::text                                                     as "email",
+          coalesce(nullif(u.display_name,''), u.username, u.email::text)   as "displayName",
+          u.status                                                          as "status",
+          tur.tenant_id                                                     as "tenantId",
+          t.name                                                            as "tenantName",
+          t.code                                                            as "tenantCode",
+          tur.assigned_at                                                   as "assignedAt"
+        from tenant_user_role tur
+        join app_role ar on ar.id = tur.role_id
+          and ar.code = 'TENANT_ADMIN'
+          and ar.scope = 'TENANT'
+          and ar.active = true
+          and ar.deleted_at is null
+        join app_user u on u.id = tur.user_id and u.deleted_at is null
+        join tenant t on t.id = tur.tenant_id and t.deleted_at is null
+        where tur.deleted_at is null
+          and (cast(:nameLike as text) is null
+               or lower(coalesce(u.display_name, '')) like :nameLike
+               or lower(u.email::text)                like :nameLike)
+        order by
+          case when cast(:sortDir as text) = 'asc' then
+            case cast(:sortField as text)
+              when 'status'    then u.status
+              when 'createdAt' then to_char(tur.assigned_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+              else lower(coalesce(nullif(u.display_name, ''), u.email::text))
+            end
+          end asc  nulls last,
+          case when cast(:sortDir as text) = 'desc' then
+            case cast(:sortField as text)
+              when 'status'    then u.status
+              when 'createdAt' then to_char(tur.assigned_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+              else lower(coalesce(nullif(u.display_name, ''), u.email::text))
+            end
+          end desc nulls last
+        limit :limit offset :offset
+        """, nativeQuery = true)
+    List<TenantAdminGlobalRow> searchTenantAdmins(
+        @Param("nameLike")  String nameLike,
+        @Param("sortField") String sortField,
+        @Param("sortDir")   String sortDir,
+        @Param("limit")     int limit,
+        @Param("offset")    int offset);
+
+    @Query(value = """
+        select
+          u.id                                                              as "userId",
+          u.email::text                                                     as "email",
+          coalesce(nullif(u.display_name,''), u.username, u.email::text)   as "displayName",
+          u.status                                                          as "status",
+          tur.tenant_id                                                     as "tenantId",
+          t.name                                                            as "tenantName",
+          t.code                                                            as "tenantCode",
+          tur.assigned_at                                                   as "assignedAt"
+        from tenant_user_role tur
+        join app_role ar on ar.id = tur.role_id
+          and ar.code = 'TENANT_ADMIN'
+          and ar.scope = 'TENANT'
+          and ar.active = true
+          and ar.deleted_at is null
+        join app_user u on u.id = tur.user_id and u.deleted_at is null
+        join tenant t on t.id = tur.tenant_id and t.deleted_at is null
+        where tur.deleted_at is null
+          and u.id = :userId
+        limit 1
+        """, nativeQuery = true)
+    Optional<TenantAdminGlobalRow> findTenantAdminByUserId(@Param("userId") UUID userId);
+
+    @Query(value = """
+        select count(*)
+        from tenant_user_role tur
+        join app_role ar on ar.id = tur.role_id
+          and ar.code = 'TENANT_ADMIN'
+          and ar.scope = 'TENANT'
+          and ar.active = true
+          and ar.deleted_at is null
+        join app_user u on u.id = tur.user_id and u.deleted_at is null
+        join tenant t on t.id = tur.tenant_id and t.deleted_at is null
+        where tur.deleted_at is null
+          and (cast(:nameLike as text) is null
+               or lower(coalesce(u.display_name, '')) like :nameLike
+               or lower(u.email::text)                like :nameLike)
+        """, nativeQuery = true)
+    long countTenantAdmins(@Param("nameLike") String nameLike);
 }

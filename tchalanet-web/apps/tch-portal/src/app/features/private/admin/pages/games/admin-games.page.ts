@@ -39,7 +39,7 @@ export class AdminGamesPage implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly gameColumns = ['gameCode', 'displayName', 'enabled', 'settings'];
-  readonly catalogColumns = ['gameCode', 'displayName', 'category', 'description', 'activate'];
+  readonly catalogColumns = ['gameCode', 'name', 'category', 'activate'];
 
   readonly loadingGames = signal(false);
   readonly errorGames = signal<string | null>(null);
@@ -78,8 +78,8 @@ export class AdminGamesPage implements OnInit {
     });
   }
 
-  isEnabled(gameCode: string): boolean {
-    return this.games().some(g => g.gameCode === gameCode && g.enabled);
+  isEnabled(game: CatalogGameView): boolean {
+    return game.enabledForTenant;
   }
 
   toggleGame(game: TenantGameView): void {

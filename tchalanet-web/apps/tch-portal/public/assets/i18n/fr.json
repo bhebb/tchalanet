@@ -25,6 +25,129 @@
       "title": "Onboarding",
       "description": "Étapes d'onboarding tenant"
     },
+    "setup": {
+      "title": "Configuration de votre espace",
+      "description": "Complétez les étapes essentielles pour démarrer vos ventes.",
+      "loading": "Chargement...",
+      "error": {
+        "load": "Impossible de charger la configuration."
+      },
+      "progress": {
+        "title": "{{completed}} / {{total}} étapes requises complétées",
+        "subtitle": "Complétez les sections essentielles pour créer votre premier seller-terminal."
+      },
+      "blocking": "Requis",
+      "optional": "Optionnel",
+      "operational": "Opérationnel",
+      "blockingStep": {
+        "identity": "Identité du compte",
+        "address": "Adresse du tenant",
+        "games_pricing": "Jeux & tarifs",
+        "draws": "Canaux de tirages"
+      },
+      "section": {
+        "identity": "Identité",
+        "identityDesc": "Compte actif et identité du tenant vérifiés.",
+        "address": "Adresse",
+        "addressHint": "Ajoutez l'adresse physique de votre tenant.",
+        "addressCta": "Ajouter l'adresse",
+        "games": "Jeux & tarifs",
+        "gamesDesc": "Vérifiez et confirmez les jeux et tarifs de vente disponibles.",
+        "gamesCta": "Configurer les jeux",
+        "drawChannels": "Canaux de tirage",
+        "drawChannelsDesc": "Activez et configurez les créneaux de tirage et sources de résultats.",
+        "drawChannelsCta": "Configurer les canaux",
+        "generatedDraws": "Tirages générés",
+        "generatedDrawsDesc": "Suivez les tirages générés, saisissez les résultats et gérez les publications.",
+        "generatedDrawsCta": "Gérer les tirages",
+        "theme": "Apparence",
+        "themeDesc": "Choisissez le thème visuel de votre espace.",
+        "themeCta": "Choisir le thème",
+        "promotions": "Maryaj Gratis",
+        "promotionsDesc": "Activez et configurez la promotion Maryaj Gratis.",
+        "promotionsCta": "Configurer",
+        "sellerTerminal": "Seller-terminal",
+        "sellerTerminalReady": "Toutes les étapes requises sont complétées. Créez votre premier point de vente.",
+        "sellerTerminalCta": "Créer un seller-terminal",
+        "sellerTerminalLocked": "Complétez d'abord les étapes requises ci-dessous."
+      },
+      "address": {
+        "line1": "Adresse (ligne 1)",
+        "line2": "Adresse (ligne 2) — optionnel",
+        "city": "Ville",
+        "country": "Pays (2 lettres)",
+        "error": {
+          "save": "Impossible de sauvegarder l'adresse."
+        }
+      },
+      "advancedSettings": {
+        "title": "Paramètres avancés",
+        "description": "Langue, reçu, communication et règles métier peuvent être ajustés dans les paramètres du tenant.",
+        "action": "Ouvrir les paramètres"
+      }
+    },
+    "completeTenantConfig": {
+      "title": "Configuration du tenant",
+      "description": "Vérifiez et complétez la configuration de votre espace. Les valeurs par défaut sont déjà pré-remplies.",
+      "loading": "Chargement de la configuration...",
+      "error": {
+        "load": "Erreur lors du chargement de la configuration."
+      },
+      "summary": {
+        "title": "{{count}} / {{total}} sections configurées",
+        "hint": "Vérifiez les sections incomplètes avant de créer votre premier seller-terminal."
+      },
+      "section": {
+        "locale": "Langue & région",
+        "localeDesc": "Langue et localisation par défaut du tenant.",
+        "communication": "Communication ticket",
+        "communicationDesc": "Canaux de livraison du ticket acheteur (SMS, WhatsApp, Email).",
+        "document": "Reçus & documents",
+        "documentDesc": "Configuration du reçu imprimé.",
+        "rules": "Calendrier commercial",
+        "rulesDesc": "Règles d'ouverture et jours de fermeture."
+      },
+      "field": {
+        "defaultLanguage": "Langue par défaut",
+        "defaultLocale": "Locale",
+        "supportedLanguages": "Langues supportées",
+        "fallbackLanguage": "Langue de repli",
+        "receipt": {
+          "enabled": "Reçu activé",
+          "displayName": "Nom d'affichage",
+          "headerMessage": "Message d'en-tête",
+          "footerMessage": "Message de pied",
+          "defaultPaperSize": "Format papier",
+          "showQrCode": "Afficher QR code",
+          "showSellerName": "Afficher vendeur",
+          "showOutletName": "Afficher terminal"
+        },
+        "calendar": {
+          "defaultOpen": "Ouvert par défaut",
+          "holidaySalesAllowed": "Ventes les jours fériés",
+          "closedWeekdays": "Jours de fermeture",
+          "noClosed": "Aucun jour fermé"
+        }
+      },
+      "paidBy": {
+        "buyer": "payé par l'acheteur",
+        "tenant": "payé par le tenant",
+        "platform": "payé par la plateforme"
+      },
+      "empty": {
+        "title": "Non configuré",
+        "locale": "La configuration de langue sera disponible prochainement.",
+        "document": "Aucune configuration de reçu trouvée.",
+        "rules": "Aucune règle calendrier trouvée."
+      },
+      "action": {
+        "sellerTerminals": "Seller-terminals"
+      },
+      "cta": {
+        "ready": "La configuration est prête. Créez votre premier seller-terminal pour commencer à vendre.",
+        "createSellerTerminal": "Créer un seller-terminal"
+      }
+    },
     "users": {
       "title": "Utilisateurs",
       "description": "Gestion des utilisateurs"
@@ -124,10 +247,75 @@
         "title": "Support"
       }
     },
+    "businessProfile": {
+      "title": "Mon espace entreprise",
+      "description": "Informations d'identité et coordonnées de votre entreprise.",
+      "loading": "Chargement...",
+      "error": {
+        "load": "Impossible de charger les informations de l'entreprise.",
+        "save": "Impossible de sauvegarder les modifications."
+      },
+      "section": {
+        "identity": "Identité",
+        "region": "Région",
+        "commercial": "Paramètres commerciaux",
+        "address": "Adresse"
+      },
+      "commercial": {
+        "description": "Utilisée par les seller-terminals qui n'ont pas de taux spécifique."
+      },
+      "field": {
+        "name": "Nom",
+        "code": "Code",
+        "type": "Type",
+        "status": "Statut",
+        "timezone": "Fuseau horaire",
+        "currency": "Devise",
+        "commission": "Commission par défaut"
+      },
+      "identityCard": {
+        "eyebrow": "Mon entreprise"
+      },
+      "identity": {
+        "saved": "Informations mises à jour avec succès."
+      },
+      "address": {
+        "empty": "Aucune adresse enregistrée.",
+        "edit": "Modifier l'adresse",
+        "add": "Ajouter l'adresse",
+        "saved": "Adresse enregistrée avec succès."
+      }
+    },
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Gestion des seller-terminals",
       "search_placeholder": "Rechercher un seller-terminal…"
+    },
+    "gamesPricing": {
+      "title": "Jeux & tarifs",
+      "description": "Sélectionnez les jeux disponibles dans votre espace et vérifiez les barèmes appliqués.",
+      "summary": {
+        "active": "Jeux actifs",
+        "todo": "À configurer",
+        "available": "Disponibles"
+      },
+      "card": {
+        "odds": "Odds / Barème",
+        "limits": "Limites",
+        "activate": "Activer",
+        "reactivate": "Réactiver",
+        "disable": "Désactiver",
+        "configure": "Configurer",
+        "modify": "Modifier",
+        "limitesMissing": "Limites manquantes",
+        "comingSoon": "Bientôt disponible",
+        "standardDefault": "Standard (défaut)"
+      },
+      "empty": {
+        "title": "Aucun jeu disponible",
+        "message": "Contactez Tchalanet pour activer un catalogue de jeux."
+      },
+      "backToSetup": "Configuration générale"
     }
   },
   "app": {
@@ -190,6 +378,53 @@
     },
     "logout": "Déconnexion"
   },
+  "profile": {
+    "avatar_alt": "Avatar utilisateur",
+    "title": "Mon profil",
+    "description": "Gérez vos informations personnelles et préférences.",
+    "loading": "Chargement du profil...",
+    "empty": {
+      "title": "Profil introuvable",
+      "message": "Impossible de charger les informations du profil."
+    },
+    "section": {
+      "identity": "Identité",
+      "preferences": "Préférences",
+      "access": "Accès"
+    },
+    "field": {
+      "displayName": "Nom affiché",
+      "email": "Email",
+      "username": "Nom d'utilisateur",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "phone": "Téléphone",
+      "role": "Rôle"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Thème",
+        "system": "Système",
+        "light": "Clair",
+        "dark": "Sombre"
+      },
+      "locale": "Locale",
+      "timeZone": "Fuseau horaire",
+      "currency": "Devise"
+    },
+    "error": {
+      "load": "Erreur lors du chargement du profil.",
+      "save": "Erreur lors de l'enregistrement."
+    }
+  },
+  "shell": {
+    "error": {
+      "backendUnavailable": {
+        "title": "Serveur temporairement indisponible",
+        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
+      }
+    }
+  },
   "common": {
     "error": {
       "title": "Erreur"
@@ -219,7 +454,23 @@
     "validation": {
       "required": "Ce champ est obligatoire."
     },
-    "not_set": "Non renseigné"
+    "not_set": "Non renseigné",
+    "yes": "Oui",
+    "no": "Non",
+    "weekday": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "edit": "Modifier",
+    "view": "Voir",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "refresh": "Actualiser"
   },
   "dashboard": {
     "actions": {
@@ -457,6 +708,7 @@
       "active_promotions": "Promotions actives",
       "today_report": "Rapport du jour",
       "export_print": "Export / impression",
+      "setup": "Configuration",
       "more": "Plus",
       "general_configuration": "Configuration générale",
       "my_space": "Mon espace",
@@ -464,11 +716,14 @@
       "support": "Support",
       "connexions": "Connexions",
       "settings": "Paramètres",
+      "businessProfile": "Mon espace entreprise",
       "spaceTitle": "Admin",
       "all_draws": "Tous les tirages",
       "upcoming_draws": "Tirages à venir",
       "past_draws": "Tirages passés",
-      "seller_terminals": "Seller-terminals",
+      "seller_terminals": "Vendeurs",
+      "seller_terminal_list": "Liste vendeurs",
+      "seller_terminal_new": "Nouveau vendeur",
       "seller_terminal_add": "Ajouter seller-terminal",
       "seller_terminal_active": "Seller-terminals actifs"
     },
@@ -650,7 +905,9 @@
         "createdAt": "Créé le",
         "updatedAt": "Dernière modification",
         "type": "Type",
-        "currency": "Devise"
+        "currency": "Devise",
+        "name": "Nom",
+        "email": "Email"
       },
       "empty": {
         "title": "Aucun tenant",
@@ -746,16 +1003,82 @@
           "identity": "Identité",
           "region": "Région",
           "commerce": "Commerce",
-          "profile": "Profil & Readiness"
+          "profile": "Profil & readiness",
+          "address": "Adresse"
         },
         "field": {
-          "type": "Type"
+          "type": "Type",
+          "country": "Pays",
+          "city": "Ville",
+          "addressLine": "Adresse",
+          "postalCode": "Code postal",
+          "theme": "Thème actif"
         },
         "identityCard": {
           "eyebrow": "Tenant"
         },
         "action": {
-          "viewAdmins": "Voir les administrateurs"
+          "viewAdmins": "Voir les administrateurs",
+          "activate": "Activer",
+          "activateError": "Erreur lors de l'activation.",
+          "suspend": "Suspendre",
+          "suspendError": "Erreur lors de la suspension.",
+          "addAdmin": "Ajouter un administrateur",
+          "updateSuccess": "Informations mises à jour avec succès.",
+          "updateError": "Impossible de sauvegarder les modifications."
+        },
+        "tab": {
+          "overview": "Aperçu",
+          "admins": "Administrateurs",
+          "configuration": "Configuration",
+          "subscription": "Abonnement",
+          "entitlements": "Droits d'usage",
+          "sellerTerminals": "Seller-terminals",
+          "audit": "Audit"
+        },
+        "address": {
+          "empty": "Adresse non renseignée."
+        },
+        "admins": {
+          "loading": "Chargement des administrateurs…",
+          "error": "Erreur lors du chargement des administrateurs.",
+          "empty": {
+            "title": "Aucun administrateur",
+            "message": "Ce tenant n'a pas encore d'administrateur."
+          }
+        },
+        "config": {
+          "empty": {
+            "title": "Configuration non renseignée",
+            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+          },
+          "section": {
+            "locale": "Langue & région",
+            "calendar": "Calendrier commercial",
+            "communication": "Communication ticket",
+            "receipt": "Reçu / documents"
+          },
+          "field": {
+            "defaultLanguage": "Langue par défaut",
+            "defaultLocale": "Locale par défaut",
+            "supportedLanguages": "Langues supportées",
+            "fallbackLanguage": "Langue de secours",
+            "defaultOpen": "Ouvert par défaut",
+            "holidaySalesAllowed": "Vente les jours fériés",
+            "closedWeekdays": "Jours fermés",
+            "receiptDisplayName": "Nom affiché",
+            "headerMessage": "Message d'en-tête",
+            "footerMessage": "Message de pied",
+            "paperSize": "Format papier",
+            "showQrCode": "Afficher QR code",
+            "showSellerName": "Afficher nom vendeur",
+            "showPotentialPayout": "Afficher gain potentiel"
+          },
+          "paidBy": {
+            "buyer": "Payé par l'acheteur",
+            "tenant": "Payé par le tenant",
+            "platform": "Payé par la plateforme"
+          }
         }
       },
       "provisioning": {
@@ -826,7 +1149,110 @@
         "reactivated": "Tenant réactivé.",
         "archived": "Tenant archivé."
       },
-      "paginationTotal": "{{count}} tenant(s)"
+      "paginationTotal": "{{count}} tenant(s)",
+      "adminStatus": {
+        "active": "Actif",
+        "pending": "En attente",
+        "disabled": "Désactivé",
+        "invited": "Invité"
+      },
+      "admin": {
+        "pageTitle": "Ajouter un admin",
+        "pageTitleWithTenant": "Ajouter un admin — {{name}}",
+        "loading": "Chargement...",
+        "section": "Informations administrateur",
+        "field": {
+          "email": "Email",
+          "firstName": "Prénom",
+          "lastName": "Nom de famille (optionnel)",
+          "phone": "Téléphone (optionnel)"
+        },
+        "error": {
+          "email": "Email valide requis.",
+          "firstName": "Prénom requis.",
+          "create": "Erreur lors de la création."
+        },
+        "roleInfo": "Rôle assigné : TENANT_ADMIN",
+        "submit": "Créer l'administrateur",
+        "success": "Administrateur créé avec succès."
+      }
+    },
+    "tenantAdmins": {
+      "title": "Administrateurs tenant",
+      "description": "Consultez et gérez les administrateurs de chaque tenant.",
+      "loading": "Chargement des administrateurs...",
+      "filter": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom ou email..."
+      },
+      "column": {
+        "admin": "Administrateur",
+        "tenant": "Tenant",
+        "status": "Statut",
+        "assignedAt": "Affecté le"
+      },
+      "status": {
+        "active": "Actif",
+        "pending": "En attente",
+        "suspended": "Bloqué",
+        "inactive": "Inactif",
+        "archived": "Archivé"
+      },
+      "action": {
+        "openMenu": "Ouvrir le menu",
+        "viewDetail": "Voir le détail",
+        "resetPassword": "Réinitialiser le mot de passe",
+        "activate": "Activer",
+        "block": "Bloquer",
+        "archive": "Archiver",
+        "manageAdmins": "Gérer les admins",
+        "addAdmin": "Ajouter un admin",
+        "resetFilters": "Réinitialiser les filtres"
+      },
+      "confirm": {
+        "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
+        "activate": "Activer le compte de {{ name }} ?",
+        "block": "Bloquer le compte de {{ name }} ? Cet administrateur ne pourra plus se connecter.",
+        "archive": "Archiver le compte de {{ name }} ? Cette action est irréversible."
+      },
+      "success": {
+        "resetPassword": "Lien de réinitialisation envoyé."
+      },
+      "error": {
+        "load": "Impossible de charger les administrateurs.",
+        "resetPassword": "Échec de l'envoi du lien de réinitialisation.",
+        "activate": "Échec de l'activation du compte.",
+        "block": "Échec du blocage du compte.",
+        "archive": "Échec de l'archivage du compte."
+      },
+      "empty": {
+        "title": "Aucun administrateur trouvé",
+        "message": "Aucun administrateur ne correspond à vos critères.",
+        "filtered": {
+          "title": "Aucun résultat",
+          "message": "Aucun administrateur ne correspond à votre recherche."
+        }
+      },
+      "detail": {
+        "title": "Détail administrateur",
+        "description": "Informations et actions sur cet administrateur tenant.",
+        "back": "Retour à la liste",
+        "loading": "Chargement...",
+        "error": {
+          "load": "Impossible de charger cet administrateur."
+        },
+        "field": {
+          "tenant": "Tenant",
+          "email": "Email",
+          "assignedAt": "Affecté le"
+        },
+        "actions": {
+          "title": "Actions",
+          "manageInTenant": "Gérer dans le tenant"
+        }
+      },
+      "pagination": "Page {{page}} / {{total}}",
+      "paginationTotal": "{{count}} administrateur(s)"
     },
     "tenantProvisioning": {
       "title": "Provisionner un tenant",
@@ -941,6 +1367,11 @@
       "success": {
         "title": "Tenant provisionné avec succès",
         "message": "Le tenant {{code}} a été créé et est prêt pour la configuration."
+      },
+      "typeDescription": {
+        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
+        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
+        "ambulant": "Vendeur indépendant ou petite activité mobile."
       }
     },
     "contactRequests": {
@@ -1789,9 +2220,6 @@
   "brand": {
     "logo_alt": "Logo Tchalanet"
   },
-  "profile": {
-    "avatar_alt": "Avatar utilisateur"
-  },
   "readiness": {
     "noIssues": "Aucun problème"
   },
@@ -1848,6 +2276,152 @@
       "pin": {
         "title": "PIN temporaire",
         "pendingBackend": "Le changement de PIN sera activé avec le endpoint seller-terminal V0."
+      }
+    }
+  },
+  "admin": {
+    "drawChannels": {
+      "title": "Tirages",
+      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
+      "summary": {
+        "availableStates": "States dispos",
+        "activeStates": "States actifs",
+        "activeChannels": "DrawChannels actifs",
+        "todo": "À configurer"
+      },
+      "filters": {
+        "all": "Tous",
+        "active": "Actifs",
+        "todo": "À configurer",
+        "inactive": "Inactifs",
+        "sourceError": "Erreur source"
+      },
+      "search": {
+        "placeholder": "Rechercher un state..."
+      },
+      "acquisition": {
+        "auto": "Acquisition auto",
+        "manual": "Saisie manuelle",
+        "unconfigured": "Mode résultat à définir",
+        "error": "Source en erreur",
+        "last": "Dernière",
+        "next": "Prochaine",
+        "lastManualEntry": "Dernière saisie"
+      },
+      "slots": {
+        "title": "Créneaux horaires"
+      },
+      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
+      "salesCutoffMissing": "Fermeture vente : Non définie",
+      "actions": {
+        "configure": "Configurer",
+        "results": "Résultats",
+        "viewAllResults": "Tous les résultats"
+      },
+      "readiness": {
+        "ready": "Prêt pour la vente",
+        "todo": "Configuration incomplète",
+        "sourceWarning": "Vente configurée · Source à vérifier"
+      }
+    },
+    "generatedDraws": {
+      "title": "Tirages générés",
+      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "summary": {
+        "today": "Aujourd'hui",
+        "salesOpen": "Vente ouverte",
+        "resultsExpected": "Résultats attendus",
+        "confirmed": "Confirmés"
+      },
+      "datePresets": {
+        "today": "Aujourd'hui",
+        "tomorrow": "Demain",
+        "thisWeek": "Cette semaine"
+      },
+      "statusFilters": {
+        "all": "Tous les statuts",
+        "open": "Ouverts à la vente",
+        "expected": "Résultats attendus",
+        "missing": "Résultats manquants",
+        "confirmed": "Confirmés",
+        "sourceError": "Erreur source"
+      },
+      "salesStatus": {
+        "UPCOMING": "À venir",
+        "OPEN": "Vente ouverte",
+        "CLOSED": "Vente fermée",
+        "CANCELLED": "Annulé"
+      },
+      "resultStatus": {
+        "NOT_DUE": "Pas attendu",
+        "EXPECTED": "Attendu",
+        "MISSING": "Manquant",
+        "PROVISIONAL": "Provisoire",
+        "CONFIRMED": "Confirmé",
+        "SOURCE_ERROR": "Erreur source"
+      },
+      "publicationStatus": {
+        "PUBLISHED": "Publié"
+      },
+      "actions": {
+        "refresh": "Actualiser",
+        "planNextDraws": "Planifier les prochains tirages",
+        "configureDrawChannels": "Configurer les canaux de tirage",
+        "enterResult": "Saisir résultat",
+        "viewResult": "Voir résultat",
+        "verify": "Vérifier",
+        "viewDetails": "Voir détails"
+      }
+    },
+    "pos": {
+      "title": "Vente ticket",
+      "changeDraw": "Changer de tirage",
+      "live": "Live",
+      "draw": {
+        "closesIn": "S'arrête dans {{time}}"
+      },
+      "games": {
+        "borlette": "Borlette",
+        "loto3": "Loto 3",
+        "loto4": "Loto 4",
+        "maryaj": "Maryaj"
+      },
+      "lines": {
+        "title": "Sélection des numéros",
+        "number": "Numéro",
+        "type": "Type",
+        "stake": "Mise (HTG)",
+        "add": "Ajouter",
+        "clear": "Vider la liste"
+      },
+      "betType": {
+        "direct": "Direct",
+        "boul": "Boul",
+        "maryaj": "Maryaj"
+      },
+      "actions": {
+        "confirm": "Confirmer la vente",
+        "confirming": "Confirmation...",
+        "print": "Imprimer",
+        "details": "Détails",
+        "newTicket": "Nouveau ticket"
+      },
+      "ticket": {
+        "preparing": "Ticket en préparation",
+        "sold": "Ticket vendu",
+        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+      },
+      "activity": {
+        "title": "Activité du terminal",
+        "salesToday": "Ventes du jour",
+        "ticketsToday": "Tickets émis"
+      },
+      "error": {
+        "noOpenDraw": "Aucun tirage ouvert à la vente.",
+        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
+        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
+        "invalidStake": "La mise doit être supérieure à 0 HTG.",
+        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
     }
   }

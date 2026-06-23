@@ -249,22 +249,29 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         activeMatch: 'exact',
       },
       {
+        id: 'setup',
+        labelKey: 'nav.admin.general_configuration',
+        icon: 'checklist',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+      },
+      {
         id: 'sellerTerminals',
         labelKey: 'nav.admin.seller_terminals',
         icon: 'point_of_sale',
         destination: { kind: 'route', value: '/app/admin/seller-terminals' },
         children: [
           {
-            id: 'sellerTerminalAdd',
-            labelKey: 'nav.admin.seller_terminal_add',
-            icon: 'add_circle',
+            id: 'sellerTerminalList',
+            labelKey: 'nav.admin.seller_terminal_list',
+            icon: 'list',
             destination: { kind: 'route', value: '/app/admin/seller-terminals' },
+            activeMatch: 'exact',
           },
           {
-            id: 'sellerTerminalActive',
-            labelKey: 'nav.admin.seller_terminal_active',
-            icon: 'check_circle',
-            destination: { kind: 'route', value: '/app/admin/seller-terminals?status=active' },
+            id: 'sellerTerminalNew',
+            labelKey: 'nav.admin.seller_terminal_new',
+            icon: 'add_circle',
+            destination: { kind: 'route', value: '/app/admin/seller-terminals/new' },
           },
         ],
       },
@@ -380,8 +387,14 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         destination: { kind: 'route', value: '/app/admin/more' },
         children: [
           {
-            id: 'generalConfiguration',
-            labelKey: 'nav.admin.general_configuration',
+            id: 'businessProfile',
+            labelKey: 'nav.admin.businessProfile',
+            icon: 'domain',
+            destination: { kind: 'route', value: '/app/admin/business-profile' },
+          },
+          {
+            id: 'adminSettings',
+            labelKey: 'nav.admin.settings',
             icon: 'settings',
             destination: { kind: 'route', value: '/app/admin/settings' },
           },

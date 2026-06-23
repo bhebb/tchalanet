@@ -1,0 +1,20 @@
+.gp-page {
+  &__back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    .material-symbols-outlined { font-size: 1.125rem; }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
