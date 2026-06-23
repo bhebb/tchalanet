@@ -137,7 +137,8 @@
       "description": "Idantite ak koordinasyon antrepriz ou.",
       "loading": "Chajman...",
       "error": {
-        "load": "Enposib pou chaje enfòmasyon antrepriz la."
+        "load": "Enposib pou chaje enfòmasyon antrepriz la.",
+        "save": "Enposib pou sove chanjman yo."
       },
       "section": {
         "identity": "Idantite",
@@ -168,10 +169,6 @@
         "edit": "Modifye adrès",
         "add": "Ajoute adrès",
         "saved": "Adrès anrejistre avèk siksè."
-      },
-      "error": {
-        "load": "Enposib pou chaje enfòmasyon antrepriz la.",
-        "save": "Enposib pou sove chanjman yo."
       }
     },
     "sellerTerminals": {
@@ -525,7 +522,12 @@
       "past_draws": "Tiraj pase",
       "seller_terminals": "Seller-terminals",
       "seller_terminal_add": "Ajoute seller-terminal",
-      "seller_terminal_active": "Seller-terminals aktif"
+      "seller_terminal_active": "Seller-terminals aktif",
+      "seller_terminal_list": "Lis",
+      "seller_terminal_new": "Nouvo vandè",
+      "draw_sales_matrix": "Matris tiraj",
+      "games_pricing": "Jwèt & pri",
+      "limits_rules": "Gid règleman"
     },
     "cashier": {
       "section": {

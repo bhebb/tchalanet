@@ -6,7 +6,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelGameM
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameRepository;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.sql.Timestamp;
@@ -33,10 +33,10 @@ public class DrawChannelGameAdminService {
   @Transactional
   @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
   public com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse upsert(
-      TenantId tenantId, DrawChannelId channelId, GameId gameId, boolean enabled, JsonNode flags) {
+      TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId, boolean enabled, JsonNode flags) {
 
-    var existing = repository.findByTenantIdAndDrawChannelIdAndGameIdAndDeletedAtIsNull(
-        tenantId.value(), channelId.value(), gameId.value());
+    var existing = repository.findByTenantIdAndDrawChannelIdAndTenantGameIdAndDeletedAtIsNull(
+        tenantId.value(), channelId.value(), tenantGameId.value());
 
     var normalizedFlags = flags;
     if (normalizedFlags == null) normalizedFlags = jsonUtils.emptyObjectNode();
@@ -54,7 +54,7 @@ public class DrawChannelGameAdminService {
       e.setId(UUID.randomUUID());
       e.setTenantId(tenantId.value());
       e.setDrawChannelId(channelId.value());
-      e.setGameId(gameId.value());
+      e.setTenantGameId(tenantGameId.value());
       e.setEnabled(enabled);
       e.setFlags(normalizedFlags);
       e.setCreatedAt(Instant.now());
@@ -68,8 +68,10 @@ public class DrawChannelGameAdminService {
   @Transactional
   @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
   public com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse update(
-      DrawChannelId channelId, GameId gameId, com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelGameRequest req) {
-    var existing = repository.findByTenantIdAndDrawChannelIdAndGameIdAndDeletedAtIsNull(null, channelId.value(), gameId.value())
+      TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId,
+      com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelGameRequest req) {
+    var existing = repository.findByTenantIdAndDrawChannelIdAndTenantGameIdAndDeletedAtIsNull(
+            tenantId.value(), channelId.value(), tenantGameId.value())
         .orElseThrow(() -> new IllegalArgumentException("Association not found"));
 
     if (req.enabled() != null) existing.setEnabled(req.enabled());
@@ -85,8 +87,9 @@ public class DrawChannelGameAdminService {
 
   @Transactional
   @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
-  public void softDelete(DrawChannelId channelId, GameId gameId) {
-    var existing = repository.findByTenantIdAndDrawChannelIdAndGameIdAndDeletedAtIsNull(null, channelId.value(), gameId.value());
+  public void softDelete(TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId) {
+    var existing = repository.findByTenantIdAndDrawChannelIdAndTenantGameIdAndDeletedAtIsNull(
+        tenantId.value(), channelId.value(), tenantGameId.value());
     if (existing.isPresent()) {
       var e = existing.get();
       e.setDeletedAt(Instant.now());
@@ -101,18 +104,17 @@ public class DrawChannelGameAdminService {
       TenantId tenantId, DrawChannelId channelId, List<com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawChannelGameRequest> items) {
     if (items == null || items.isEmpty()) return List.of();
 
-    // Prepare batch values
-    String sql = "INSERT INTO draw_channel_game (id, tenant_id, draw_channel_id, game_id, enabled, flags, created_at, updated_at, version) VALUES ";
+    String sql = "INSERT INTO draw_channel_game (id, tenant_id, draw_channel_id, tenant_game_id, enabled, flags, created_at, updated_at, version) VALUES ";
     StringBuilder sb = new StringBuilder(sql);
     List<Object> params = new ArrayList<>();
     int idx = 0;
     for (var it : items) {
       if (idx > 0) sb.append(',');
       sb.append("(?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?)");
-      params.add(UUID.randomUUID()); // id
+      params.add(UUID.randomUUID());
       params.add(tenantId.value());
       params.add(channelId.value());
-      params.add(it.gameId().value());
+      params.add(it.tenantGameId().value());
       params.add(it.enabled());
       params.add(jsonUtils.toJson(it.flags() == null ? jsonUtils.emptyObjectNode() : it.flags()));
       Timestamp now = Timestamp.from(Instant.now());
@@ -122,13 +124,12 @@ public class DrawChannelGameAdminService {
       idx++;
     }
 
-    sb.append(" ON CONFLICT (tenant_id, draw_channel_id, game_id) DO UPDATE SET enabled = EXCLUDED.enabled, flags = EXCLUDED.flags, updated_at = now(), version = draw_channel_game.version + 1 WHERE draw_channel_game.deleted_at IS NULL");
+    sb.append(" ON CONFLICT (tenant_id, draw_channel_id, tenant_game_id) DO UPDATE SET enabled = EXCLUDED.enabled, flags = EXCLUDED.flags, updated_at = now(), version = draw_channel_game.version + 1 WHERE draw_channel_game.deleted_at IS NULL");
 
     jdbc.update(sb.toString(), params.toArray());
 
-    // fetch saved entities
-    var gameIds = items.stream().map(i -> i.gameId().value()).distinct().collect(Collectors.toList());
-    var saved = repository.findByTenantIdAndDrawChannelIdAndGameIdInAndDeletedAtIsNull(tenantId.value(), channelId.value(), gameIds);
+    var tenantGameIds = items.stream().map(i -> i.tenantGameId().value()).distinct().collect(Collectors.toList());
+    var saved = repository.findByTenantIdAndDrawChannelIdAndTenantGameIdInAndDeletedAtIsNull(tenantId.value(), channelId.value(), tenantGameIds);
     return mapper.toResponses(saved);
   }
 }

@@ -34,6 +34,7 @@ import {
 import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialog';
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
+import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dialog';
 
 @Component({
   selector: 'tch-admin-seller-terminals-page',
@@ -179,6 +180,10 @@ export class AdminSellerTerminalsPage implements OnInit {
     ref.afterClosed().subscribe((result?: { reload: boolean }) => {
       if (result?.reload) this.loadPage();
     });
+  }
+
+  openLimits(row: SellerTerminalSummaryRow): void {
+    this.dialog.open(SellerTerminalLimitsDialog, { data: row, width: '780px' });
   }
 
   openDisable(row: SellerTerminalSummaryRow): void {

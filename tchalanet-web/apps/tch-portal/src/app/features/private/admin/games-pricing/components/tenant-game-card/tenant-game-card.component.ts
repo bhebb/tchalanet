@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TchCard, TchStatusBadge, BadgeStatus } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { TenantGamePricingView, TenantGameStatus, ReadinessStatus } from '../../data-access/admin-games-pricing.models';
@@ -29,7 +32,7 @@ const READINESS_BADGE: Record<ReadinessStatus, BadgeStatus> = {
   selector: 'tch-tenant-game-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LowerCasePipe, MatButtonModule, TchCard, TchStatusBadge, AdminStatusPillComponent],
+  imports: [LowerCasePipe, RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, TchCard, TchStatusBadge, AdminStatusPillComponent],
   templateUrl: './tenant-game-card.component.html',
   styleUrls: ['./tenant-game-card.component.scss'],
 })

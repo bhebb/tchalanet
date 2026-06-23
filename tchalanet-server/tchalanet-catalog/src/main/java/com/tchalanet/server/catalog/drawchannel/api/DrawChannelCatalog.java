@@ -35,6 +35,12 @@ public interface DrawChannelCatalog {
   List<DrawChannelSummaryView> listAll(TenantId tenantId, Boolean activeOnly);
 
   /**
+   * List all draw channels with full view (includes resultSlotId, cutoffSec, etc.) for the tenant.
+   * Use this instead of listAll() when the BFF needs the full DrawChannelView to avoid N+1.
+   */
+  List<DrawChannelView> listAllFull(TenantId tenantId);
+
+  /**
    * Find a single draw channel by its typed id within the tenant scope.
    *
    * Contract:

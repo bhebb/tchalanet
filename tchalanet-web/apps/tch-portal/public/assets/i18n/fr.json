@@ -1,321 +1,148 @@
 {
   "admin": {
-    "dashboard": {
-      "title": "Administration",
-      "description": "Vue d'ensemble de l'administration tenant",
-      "kpi": {
-        "sellers": "Seller-terminals",
-        "outlets": "Seller-terminals",
-        "seller-terminals": "Seller-terminals",
-        "openConnexions": "Seller-terminals actifs"
-      },
-      "onboarding": {
-        "title": "Onboarding"
-      },
-      "attention": {
-        "title": "Attention requise"
-      },
-      "recentSales": {
-        "title": "Ventes récentes",
-        "description": "Dernières ventes de tickets",
-        "empty": "Aucune vente récente."
-      }
-    },
-    "onboarding": {
-      "title": "Onboarding",
-      "description": "Étapes d'onboarding tenant"
-    },
-    "setup": {
-      "title": "Configuration de votre espace",
-      "description": "Complétez les étapes essentielles pour démarrer vos ventes.",
-      "loading": "Chargement...",
-      "error": {
-        "load": "Impossible de charger la configuration."
-      },
-      "progress": {
-        "title": "{{completed}} / {{total}} étapes requises complétées",
-        "subtitle": "Complétez les sections essentielles pour créer votre premier seller-terminal."
-      },
-      "blocking": "Requis",
-      "optional": "Optionnel",
-      "operational": "Opérationnel",
-      "blockingStep": {
-        "identity": "Identité du compte",
-        "address": "Adresse du tenant",
-        "games_pricing": "Jeux & tarifs",
-        "draws": "Canaux de tirages"
-      },
-      "section": {
-        "identity": "Identité",
-        "identityDesc": "Compte actif et identité du tenant vérifiés.",
-        "address": "Adresse",
-        "addressHint": "Ajoutez l'adresse physique de votre tenant.",
-        "addressCta": "Ajouter l'adresse",
-        "games": "Jeux & tarifs",
-        "gamesDesc": "Vérifiez et confirmez les jeux et tarifs de vente disponibles.",
-        "gamesCta": "Configurer les jeux",
-        "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Activez et configurez les créneaux de tirage et sources de résultats.",
-        "drawChannelsCta": "Configurer les canaux",
-        "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Suivez les tirages générés, saisissez les résultats et gérez les publications.",
-        "generatedDrawsCta": "Gérer les tirages",
-        "theme": "Apparence",
-        "themeDesc": "Choisissez le thème visuel de votre espace.",
-        "themeCta": "Choisir le thème",
-        "promotions": "Maryaj Gratis",
-        "promotionsDesc": "Activez et configurez la promotion Maryaj Gratis.",
-        "promotionsCta": "Configurer",
-        "sellerTerminal": "Seller-terminal",
-        "sellerTerminalReady": "Toutes les étapes requises sont complétées. Créez votre premier point de vente.",
-        "sellerTerminalCta": "Créer un seller-terminal",
-        "sellerTerminalLocked": "Complétez d'abord les étapes requises ci-dessous."
-      },
-      "address": {
-        "line1": "Adresse (ligne 1)",
-        "line2": "Adresse (ligne 2) — optionnel",
-        "city": "Ville",
-        "country": "Pays (2 lettres)",
-        "error": {
-          "save": "Impossible de sauvegarder l'adresse."
-        }
-      },
-      "advancedSettings": {
-        "title": "Paramètres avancés",
-        "description": "Langue, reçu, communication et règles métier peuvent être ajustés dans les paramètres du tenant.",
-        "action": "Ouvrir les paramètres"
-      }
-    },
-    "completeTenantConfig": {
-      "title": "Configuration du tenant",
-      "description": "Vérifiez et complétez la configuration de votre espace. Les valeurs par défaut sont déjà pré-remplies.",
-      "loading": "Chargement de la configuration...",
-      "error": {
-        "load": "Erreur lors du chargement de la configuration."
-      },
+    "drawChannels": {
+      "title": "Tirages",
+      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
       "summary": {
-        "title": "{{count}} / {{total}} sections configurées",
-        "hint": "Vérifiez les sections incomplètes avant de créer votre premier seller-terminal."
+        "availableStates": "States dispos",
+        "activeStates": "States actifs",
+        "activeChannels": "DrawChannels actifs",
+        "todo": "À configurer"
       },
-      "section": {
-        "locale": "Langue & région",
-        "localeDesc": "Langue et localisation par défaut du tenant.",
-        "communication": "Communication ticket",
-        "communicationDesc": "Canaux de livraison du ticket acheteur (SMS, WhatsApp, Email).",
-        "document": "Reçus & documents",
-        "documentDesc": "Configuration du reçu imprimé.",
-        "rules": "Calendrier commercial",
-        "rulesDesc": "Règles d'ouverture et jours de fermeture."
-      },
-      "field": {
-        "defaultLanguage": "Langue par défaut",
-        "defaultLocale": "Locale",
-        "supportedLanguages": "Langues supportées",
-        "fallbackLanguage": "Langue de repli",
-        "receipt": {
-          "enabled": "Reçu activé",
-          "displayName": "Nom d'affichage",
-          "headerMessage": "Message d'en-tête",
-          "footerMessage": "Message de pied",
-          "defaultPaperSize": "Format papier",
-          "showQrCode": "Afficher QR code",
-          "showSellerName": "Afficher vendeur",
-          "showOutletName": "Afficher terminal"
-        },
-        "calendar": {
-          "defaultOpen": "Ouvert par défaut",
-          "holidaySalesAllowed": "Ventes les jours fériés",
-          "closedWeekdays": "Jours de fermeture",
-          "noClosed": "Aucun jour fermé"
-        }
-      },
-      "paidBy": {
-        "buyer": "payé par l'acheteur",
-        "tenant": "payé par le tenant",
-        "platform": "payé par la plateforme"
-      },
-      "empty": {
-        "title": "Non configuré",
-        "locale": "La configuration de langue sera disponible prochainement.",
-        "document": "Aucune configuration de reçu trouvée.",
-        "rules": "Aucune règle calendrier trouvée."
-      },
-      "action": {
-        "sellerTerminals": "Seller-terminals"
-      },
-      "cta": {
-        "ready": "La configuration est prête. Créez votre premier seller-terminal pour commencer à vendre.",
-        "createSellerTerminal": "Créer un seller-terminal"
-      }
-    },
-    "users": {
-      "title": "Utilisateurs",
-      "description": "Gestion des utilisateurs"
-    },
-    "connexions": {
-      "title": "Seller-terminals",
-      "description": "Gestion des seller-terminals"
-    },
-    "settings": {
-      "title": "Paramètres",
-      "description": "Configuration du tenant"
-    },
-    "seller": {
-      "email": "E-mail",
-      "error": "Échec de l'onboarding du seller-terminal.",
-      "firstName": "Prénom",
-      "lastName": "Nom",
-      "outletId": "Seller-terminal",
-      "phone": "Téléphone",
-      "submit": "Créer le seller-terminal",
-      "success": "Seller-terminal créé :",
-      "seller-terminalId": "Seller-terminal",
-      "title": "Onboarding seller-terminal"
-    },
-    "action": {
-      "connexions": "Seller-terminals",
-      "settings": "Paramètres",
-      "users": "Utilisateurs",
-      "seller_terminals": "Seller-terminals"
-    },
-    "kpi": {
-      "openConnexions": {
-        "label": "Seller-terminals actifs"
-      },
-      "outlets": {
-        "label": "Seller-terminals"
-      },
-      "sellers": {
-        "label": "Seller-terminals"
-      },
-      "sales_today": {
-        "label": "Ventes aujourd'hui"
-      },
-      "payout_due": {
-        "label": "À payer"
-      },
-      "notifications": {
-        "label": "Notifications"
-      },
-      "active_seller_terminals": "Seller-terminals actifs"
-    },
-    "draws": {
-      "title": "Tirages"
-    },
-    "controls": {
-      "title": "Contrôles",
-      "commission": {
-        "title": "Commissions"
-      },
-      "limits": {
-        "title": "Limites"
-      },
-      "odds": {
-        "title": "Cotes"
-      },
-      "bonuses": {
-        "title": "Bonus"
-      }
-    },
-    "promotions": {
-      "title": "Promotions",
-      "maryaj_gratis": {
-        "title": "Maryaj Gratis"
-      },
-      "active": {
-        "title": "Promotions actives"
-      }
-    },
-    "reports": {
-      "title": "Rapports",
-      "today": {
-        "title": "Rapport du jour"
-      },
-      "export": {
-        "title": "Export et impression"
-      }
-    },
-    "more": {
-      "title": "Plus",
-      "space": {
-        "title": "Mon espace"
-      },
-      "account": {
-        "title": "Mon compte"
-      },
-      "support": {
-        "title": "Support"
-      }
-    },
-    "businessProfile": {
-      "title": "Mon espace entreprise",
-      "description": "Informations d'identité et coordonnées de votre entreprise.",
-      "loading": "Chargement...",
-      "error": {
-        "load": "Impossible de charger les informations de l'entreprise.",
-        "save": "Impossible de sauvegarder les modifications."
-      },
-      "section": {
-        "identity": "Identité",
-        "region": "Région",
-        "commercial": "Paramètres commerciaux",
-        "address": "Adresse"
-      },
-      "commercial": {
-        "description": "Utilisée par les seller-terminals qui n'ont pas de taux spécifique."
-      },
-      "field": {
-        "name": "Nom",
-        "code": "Code",
-        "type": "Type",
-        "status": "Statut",
-        "timezone": "Fuseau horaire",
-        "currency": "Devise",
-        "commission": "Commission par défaut"
-      },
-      "identityCard": {
-        "eyebrow": "Mon entreprise"
-      },
-      "identity": {
-        "saved": "Informations mises à jour avec succès."
-      },
-      "address": {
-        "empty": "Aucune adresse enregistrée.",
-        "edit": "Modifier l'adresse",
-        "add": "Ajouter l'adresse",
-        "saved": "Adresse enregistrée avec succès."
-      }
-    },
-    "sellerTerminals": {
-      "title": "Seller-terminals",
-      "description": "Gestion des seller-terminals",
-      "search_placeholder": "Rechercher un seller-terminal…"
-    },
-    "gamesPricing": {
-      "title": "Jeux & tarifs",
-      "description": "Sélectionnez les jeux disponibles dans votre espace et vérifiez les barèmes appliqués.",
-      "summary": {
-        "active": "Jeux actifs",
+      "filters": {
+        "all": "Tous",
+        "active": "Actifs",
         "todo": "À configurer",
-        "available": "Disponibles"
+        "inactive": "Inactifs",
+        "sourceError": "Erreur source"
       },
-      "card": {
-        "odds": "Odds / Barème",
-        "limits": "Limites",
-        "activate": "Activer",
-        "reactivate": "Réactiver",
-        "disable": "Désactiver",
+      "search": {
+        "placeholder": "Rechercher un state..."
+      },
+      "acquisition": {
+        "auto": "Acquisition auto",
+        "manual": "Saisie manuelle",
+        "unconfigured": "Mode résultat à définir",
+        "error": "Source en erreur",
+        "last": "Dernière",
+        "next": "Prochaine",
+        "lastManualEntry": "Dernière saisie"
+      },
+      "slots": {
+        "title": "Créneaux horaires"
+      },
+      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
+      "salesCutoffMissing": "Fermeture vente : Non définie",
+      "actions": {
         "configure": "Configurer",
-        "modify": "Modifier",
-        "limitesMissing": "Limites manquantes",
-        "comingSoon": "Bientôt disponible",
-        "standardDefault": "Standard (défaut)"
+        "results": "Résultats",
+        "viewAllResults": "Tous les résultats"
       },
-      "empty": {
-        "title": "Aucun jeu disponible",
-        "message": "Contactez Tchalanet pour activer un catalogue de jeux."
+      "readiness": {
+        "ready": "Prêt pour la vente",
+        "todo": "Configuration incomplète",
+        "sourceWarning": "Vente configurée · Source à vérifier"
+      }
+    },
+    "generatedDraws": {
+      "title": "Tirages générés",
+      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "summary": {
+        "today": "Aujourd'hui",
+        "salesOpen": "Vente ouverte",
+        "resultsExpected": "Résultats attendus",
+        "confirmed": "Confirmés"
       },
-      "backToSetup": "Configuration générale"
+      "datePresets": {
+        "today": "Aujourd'hui",
+        "tomorrow": "Demain",
+        "thisWeek": "Cette semaine"
+      },
+      "statusFilters": {
+        "all": "Tous les statuts",
+        "open": "Ouverts à la vente",
+        "expected": "Résultats attendus",
+        "missing": "Résultats manquants",
+        "confirmed": "Confirmés",
+        "sourceError": "Erreur source"
+      },
+      "salesStatus": {
+        "UPCOMING": "À venir",
+        "OPEN": "Vente ouverte",
+        "CLOSED": "Vente fermée",
+        "CANCELLED": "Annulé"
+      },
+      "resultStatus": {
+        "NOT_DUE": "Pas attendu",
+        "EXPECTED": "Attendu",
+        "MISSING": "Manquant",
+        "PROVISIONAL": "Provisoire",
+        "CONFIRMED": "Confirmé",
+        "SOURCE_ERROR": "Erreur source"
+      },
+      "publicationStatus": {
+        "PUBLISHED": "Publié"
+      },
+      "actions": {
+        "refresh": "Actualiser",
+        "planNextDraws": "Planifier les prochains tirages",
+        "configureDrawChannels": "Configurer les canaux de tirage",
+        "enterResult": "Saisir résultat",
+        "viewResult": "Voir résultat",
+        "verify": "Vérifier",
+        "viewDetails": "Voir détails"
+      }
+    },
+    "pos": {
+      "title": "Vente ticket",
+      "changeDraw": "Changer de tirage",
+      "live": "Live",
+      "draw": {
+        "closesIn": "S'arrête dans {{time}}"
+      },
+      "games": {
+        "borlette": "Borlette",
+        "loto3": "Loto 3",
+        "loto4": "Loto 4",
+        "maryaj": "Maryaj"
+      },
+      "lines": {
+        "title": "Sélection des numéros",
+        "number": "Numéro",
+        "type": "Type",
+        "stake": "Mise (HTG)",
+        "add": "Ajouter",
+        "clear": "Vider la liste"
+      },
+      "betType": {
+        "direct": "Direct",
+        "boul": "Boul",
+        "maryaj": "Maryaj"
+      },
+      "actions": {
+        "confirm": "Confirmer la vente",
+        "confirming": "Confirmation...",
+        "print": "Imprimer",
+        "details": "Détails",
+        "newTicket": "Nouveau ticket"
+      },
+      "ticket": {
+        "preparing": "Ticket en préparation",
+        "sold": "Ticket vendu",
+        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+      },
+      "activity": {
+        "title": "Activité du terminal",
+        "salesToday": "Ventes du jour",
+        "ticketsToday": "Tickets émis"
+      },
+      "error": {
+        "noOpenDraw": "Aucun tirage ouvert à la vente.",
+        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
+        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
+        "invalidStake": "La mise doit être supérieure à 0 HTG.",
+        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+      }
     }
   },
   "app": {
@@ -725,7 +552,10 @@
       "seller_terminal_list": "Liste vendeurs",
       "seller_terminal_new": "Nouveau vendeur",
       "seller_terminal_add": "Ajouter seller-terminal",
-      "seller_terminal_active": "Seller-terminals actifs"
+      "seller_terminal_active": "Seller-terminals actifs",
+      "draw_sales_matrix": "Matrice tirages",
+      "games_pricing": "Jeux & tarifs",
+      "limits_rules": "Guide des règles"
     },
     "cashier": {
       "section": {
@@ -2276,152 +2106,6 @@
       "pin": {
         "title": "PIN temporaire",
         "pendingBackend": "Le changement de PIN sera activé avec le endpoint seller-terminal V0."
-      }
-    }
-  },
-  "admin": {
-    "drawChannels": {
-      "title": "Tirages",
-      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
-      "summary": {
-        "availableStates": "States dispos",
-        "activeStates": "States actifs",
-        "activeChannels": "DrawChannels actifs",
-        "todo": "À configurer"
-      },
-      "filters": {
-        "all": "Tous",
-        "active": "Actifs",
-        "todo": "À configurer",
-        "inactive": "Inactifs",
-        "sourceError": "Erreur source"
-      },
-      "search": {
-        "placeholder": "Rechercher un state..."
-      },
-      "acquisition": {
-        "auto": "Acquisition auto",
-        "manual": "Saisie manuelle",
-        "unconfigured": "Mode résultat à définir",
-        "error": "Source en erreur",
-        "last": "Dernière",
-        "next": "Prochaine",
-        "lastManualEntry": "Dernière saisie"
-      },
-      "slots": {
-        "title": "Créneaux horaires"
-      },
-      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
-      "salesCutoffMissing": "Fermeture vente : Non définie",
-      "actions": {
-        "configure": "Configurer",
-        "results": "Résultats",
-        "viewAllResults": "Tous les résultats"
-      },
-      "readiness": {
-        "ready": "Prêt pour la vente",
-        "todo": "Configuration incomplète",
-        "sourceWarning": "Vente configurée · Source à vérifier"
-      }
-    },
-    "generatedDraws": {
-      "title": "Tirages générés",
-      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
-      "summary": {
-        "today": "Aujourd'hui",
-        "salesOpen": "Vente ouverte",
-        "resultsExpected": "Résultats attendus",
-        "confirmed": "Confirmés"
-      },
-      "datePresets": {
-        "today": "Aujourd'hui",
-        "tomorrow": "Demain",
-        "thisWeek": "Cette semaine"
-      },
-      "statusFilters": {
-        "all": "Tous les statuts",
-        "open": "Ouverts à la vente",
-        "expected": "Résultats attendus",
-        "missing": "Résultats manquants",
-        "confirmed": "Confirmés",
-        "sourceError": "Erreur source"
-      },
-      "salesStatus": {
-        "UPCOMING": "À venir",
-        "OPEN": "Vente ouverte",
-        "CLOSED": "Vente fermée",
-        "CANCELLED": "Annulé"
-      },
-      "resultStatus": {
-        "NOT_DUE": "Pas attendu",
-        "EXPECTED": "Attendu",
-        "MISSING": "Manquant",
-        "PROVISIONAL": "Provisoire",
-        "CONFIRMED": "Confirmé",
-        "SOURCE_ERROR": "Erreur source"
-      },
-      "publicationStatus": {
-        "PUBLISHED": "Publié"
-      },
-      "actions": {
-        "refresh": "Actualiser",
-        "planNextDraws": "Planifier les prochains tirages",
-        "configureDrawChannels": "Configurer les canaux de tirage",
-        "enterResult": "Saisir résultat",
-        "viewResult": "Voir résultat",
-        "verify": "Vérifier",
-        "viewDetails": "Voir détails"
-      }
-    },
-    "pos": {
-      "title": "Vente ticket",
-      "changeDraw": "Changer de tirage",
-      "live": "Live",
-      "draw": {
-        "closesIn": "S'arrête dans {{time}}"
-      },
-      "games": {
-        "borlette": "Borlette",
-        "loto3": "Loto 3",
-        "loto4": "Loto 4",
-        "maryaj": "Maryaj"
-      },
-      "lines": {
-        "title": "Sélection des numéros",
-        "number": "Numéro",
-        "type": "Type",
-        "stake": "Mise (HTG)",
-        "add": "Ajouter",
-        "clear": "Vider la liste"
-      },
-      "betType": {
-        "direct": "Direct",
-        "boul": "Boul",
-        "maryaj": "Maryaj"
-      },
-      "actions": {
-        "confirm": "Confirmer la vente",
-        "confirming": "Confirmation...",
-        "print": "Imprimer",
-        "details": "Détails",
-        "newTicket": "Nouveau ticket"
-      },
-      "ticket": {
-        "preparing": "Ticket en préparation",
-        "sold": "Ticket vendu",
-        "codeGeneratedAfterConfirm": "Code généré après confirmation"
-      },
-      "activity": {
-        "title": "Activité du terminal",
-        "salesToday": "Ventes du jour",
-        "ticketsToday": "Tickets émis"
-      },
-      "error": {
-        "noOpenDraw": "Aucun tirage ouvert à la vente.",
-        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
-        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
-        "invalidStake": "La mise doit être supérieure à 0 HTG.",
-        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
     }
   }

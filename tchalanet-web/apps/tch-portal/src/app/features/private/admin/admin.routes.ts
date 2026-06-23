@@ -42,6 +42,11 @@ export const adminRoutes: Route[] = [
       import('./games-pricing/admin-games-pricing.routes').then(m => m.adminGamesPricingRoutes),
   },
   {
+    path: 'draw-sales-matrix',
+    loadComponent: () =>
+      import('./draw-sales-matrix/pages/admin-draw-sales-matrix.page').then(m => m.AdminDrawSalesMatrixPage),
+  },
+  {
     path: 'business-days',
     loadComponent: () =>
       import('./pages/business-days/admin-business-days.page').then(m => m.AdminBusinessDaysPage),
@@ -69,7 +74,17 @@ export const adminRoutes: Route[] = [
   {
     path: 'controls/limits',
     loadComponent: () =>
-      import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
+      import('./pages/limits/admin-limits.page').then(m => m.AdminLimitsPage),
+  },
+  {
+    path: 'limits',
+    loadComponent: () =>
+      import('./pages/limits/admin-limits.page').then(m => m.AdminLimitsPage),
+  },
+  {
+    path: 'limits/rules',
+    loadComponent: () =>
+      import('./pages/limits/admin-limits-rules.page').then(m => m.AdminLimitsRulesPage),
   },
   {
     path: 'controls/odds',
@@ -84,11 +99,6 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'pricing',
-    loadComponent: () =>
-      import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
-  },
-  {
-    path: 'limits',
     loadComponent: () =>
       import('./pages/pricing/admin-pricing.page').then(m => m.AdminPricingPage),
   },

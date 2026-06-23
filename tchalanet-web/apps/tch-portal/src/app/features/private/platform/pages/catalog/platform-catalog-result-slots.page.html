@@ -1,0 +1,76 @@
+<tch-admin-page-shell title="Slots de résultats" description="Référentiel global des créneaux de tirage (slots).">
+  <div actions>
+    <button mat-flat-button color="primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      Nouveau slot
+    </button>
+  </div>
+
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar searchPlaceholder="Rechercher..." [searchValue]="''" (searchChange)="load()">
+        <button mat-stroked-button (click)="load()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <div content>
+      @if (loading()) {
+        <tch-loading label="Chargement..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (slots().length === 0) {
+        <tch-admin-empty-state icon="view_timeline" title="Aucun slot" message="Créez le premier slot de résultat." />
+      } @else {
+        <table mat-table [dataSource]="slots()">
+          <ng-container matColumnDef="slotKey">
+            <th mat-header-cell *matHeaderCellDef>Clé</th>
+            <td mat-cell *matCellDef="let row"><code>{{ row.slotKey }}</code></td>
+          </ng-container>
+          <ng-container matColumnDef="provider">
+            <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+            <td mat-cell *matCellDef="let row">{{ row.provider ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="drawTime">
+            <th mat-header-cell *matHeaderCellDef>Heure</th>
+            <td mat-cell *matCellDef="let row">{{ row.drawTime }}</td>
+          </ng-container>
+          <ng-container matColumnDef="daysOfWeek">
+            <th mat-header-cell *matHeaderCellDef>Jours</th>
+            <td mat-cell *matCellDef="let row">{{ row.daysOfWeek ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="timezone">
+            <th mat-header-cell *matHeaderCellDef>Timezone</th>
+            <td mat-cell *matCellDef="let row">{{ row.timezone ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.active) {
+                <button mat-icon-button title="Désactiver" (click)="disable(row)">
+                  <span class="material-symbols-outlined">block</span>
+                </button>
+              }
+              <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      }
+    </div>
+
+    <div footer>
+      <span>{{ slots().length }} slot(s)</span>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

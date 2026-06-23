@@ -51,7 +51,10 @@ public class TenantGameAdminService {
         var saved = persistence.save(tenantGame);
         AfterCommit.run(() -> eventPublisher.publishEvent(
             new TenantGameEnabledEvent(saved.tenantGameId(), saved.tenantId(), saved.gameCode(), Instant.now(), "system")));
-        return new EnableTenantGameResult(saved.tenantGameId(), saved.gameId(), saved.gameCode(), saved.enabled());
+        return new EnableTenantGameResult(
+            saved.tenantGameId(), saved.gameId(), saved.gameCode(), saved.enabled(),
+            saved.visibleInPos(), saved.displayName(), saved.displayOrder(),
+            saved.minStake(), saved.maxStake());
     }
 
     @Transactional

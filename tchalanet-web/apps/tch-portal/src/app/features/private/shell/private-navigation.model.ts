@@ -306,6 +306,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'settings',
             destination: { kind: 'route', value: '/app/admin/draws/config/channels' },
           },
+          {
+            id: 'drawSalesMatrix',
+            labelKey: 'nav.admin.draw_sales_matrix',
+            icon: 'grid_view',
+            destination: { kind: 'route', value: '/app/admin/draw-sales-matrix' },
+          },
         ],
       },
       {
@@ -325,6 +331,27 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.limits',
             icon: 'shield',
             destination: { kind: 'route', value: '/app/admin/controls/limits' },
+            children: [
+              {
+                id: 'limits-config',
+                labelKey: 'nav.limits',
+                icon: 'shield',
+                destination: { kind: 'route', value: '/app/admin/controls/limits' },
+                activeMatch: 'exact' as const,
+              },
+              {
+                id: 'limits-rules',
+                labelKey: 'nav.admin.limits_rules',
+                icon: 'help_outline',
+                destination: { kind: 'route', value: '/app/admin/limits/rules' },
+              },
+            ],
+          },
+          {
+            id: 'gamesPricing',
+            labelKey: 'nav.admin.games_pricing',
+            icon: 'casino',
+            destination: { kind: 'route', value: '/app/admin/games-pricing' },
           },
           {
             id: 'baremes',

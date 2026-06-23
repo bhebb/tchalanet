@@ -1,10 +1,10 @@
 package com.tchalanet.server.catalog.drawchannel.api.model;
 
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 
 public record GameSummaryView(
-    GameId gameId,
+    TenantGameId tenantGameId,
     String gameCode,
     boolean enabled,
     JsonNode flags) {}

@@ -159,7 +159,7 @@ export const platformRoutes: Route[] = [
   {
     path: 'catalog/themes',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+      import('./pages/catalog/platform-catalog-themes.page').then(m => m.PlatformCatalogThemesPage),
   },
   {
     path: 'referentials',
@@ -168,13 +168,13 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'catalog/games',
-    data: {
-      titleKey: 'platform.nav.games',
-      descriptionKey: 'platform.placeholder.descriptions.games',
-      icon: 'casino',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/catalog/platform-catalog-games.page').then(m => m.PlatformCatalogGamesPage),
+  },
+  {
+    path: 'catalog/pricing',
+    loadComponent: () =>
+      import('./pages/catalog/platform-catalog-pricing.page').then(m => m.PlatformCatalogPricingPage),
   },
   {
     path: 'catalog/draw-channels',
@@ -183,18 +183,13 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'catalog/result-slots',
-    data: {
-      titleKey: 'platform.nav.resultSlots',
-      descriptionKey: 'platform.placeholder.descriptions.resultSlots',
-      icon: 'view_timeline',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/catalog/platform-catalog-result-slots.page').then(m => m.PlatformCatalogResultSlotsPage),
   },
   {
     path: 'catalog/plans-pricing',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+      import('./pages/catalog/platform-catalog-plans.page').then(m => m.PlatformCatalogPlansPage),
   },
   {
     path: 'i18n',

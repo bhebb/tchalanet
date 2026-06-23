@@ -129,7 +129,8 @@
       "description": "Your company identity and contact information.",
       "loading": "Loading...",
       "error": {
-        "load": "Could not load business information."
+        "load": "Could not load business information.",
+        "save": "Could not save changes."
       },
       "section": {
         "identity": "Identity",
@@ -160,10 +161,6 @@
         "edit": "Edit address",
         "add": "Add address",
         "saved": "Address saved successfully."
-      },
-      "error": {
-        "load": "Could not load business information.",
-        "save": "Could not save changes."
       }
     },
     "sellerTerminals": {
@@ -559,7 +556,12 @@
       "past_draws": "Past draws",
       "seller_terminals": "Seller-terminals",
       "seller_terminal_add": "Add seller-terminal",
-      "seller_terminal_active": "Active seller-terminals"
+      "seller_terminal_active": "Active seller-terminals",
+      "seller_terminal_list": "List",
+      "seller_terminal_new": "New seller terminal",
+      "draw_sales_matrix": "Draw sales matrix",
+      "games_pricing": "Games & pricing",
+      "limits_rules": "Rules guide"
     },
     "cashier": {
       "section": {

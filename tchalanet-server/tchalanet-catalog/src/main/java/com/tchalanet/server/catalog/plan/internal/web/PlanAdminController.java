@@ -1,17 +1,20 @@
 package com.tchalanet.server.catalog.plan.internal.web;
 
+import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.write.PlanAdminService;
 import com.tchalanet.server.common.types.id.PlanId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -21,7 +24,20 @@ import java.util.Map;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class PlanAdminController {
 
+    private final PlanCatalog planCatalog;
     private final PlanAdminService planAdminService;
+
+    @GetMapping
+    public ApiResponse<List<PlanView>> list() {
+        return ApiResponse.success(planCatalog.listActive());
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<PlanView> get(@PathVariable PlanId id) {
+        return ApiResponse.success(
+            planCatalog.findById(id)
+                .orElseThrow(() -> ProblemRest.notFound("Plan not found", id)));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

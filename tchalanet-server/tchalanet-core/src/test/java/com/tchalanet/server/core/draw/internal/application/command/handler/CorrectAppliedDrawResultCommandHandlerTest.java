@@ -101,6 +101,7 @@ class CorrectAppliedDrawResultCommandHandlerTest {
             @Override public List<com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView> listGamesByChannel(TenantId tenantId, DrawChannelId channelId) { return List.of(); }
             @Override public List<com.tchalanet.server.catalog.drawchannel.api.model.ChannelGamesView> listChannelGames(TenantId tenantId) { return List.of(); }
             @Override public List<com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelCalendarRow> listCalendarRows(TenantId tenantId, Boolean activeOnly, Boolean enabledOnly) { return List.of(); }
+            @Override public List<DrawChannelView> listAllFull(TenantId tenantId) { return List.of(); }
             @Override public com.tchalanet.server.common.web.paging.TchPage<DrawChannelView> search(com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria criteria, com.tchalanet.server.common.web.paging.TchPageRequest pageReq) { return com.tchalanet.server.common.web.paging.TchPage.of(List.of(), 0, 20, 0, 0, true, false, false); }
         };
 

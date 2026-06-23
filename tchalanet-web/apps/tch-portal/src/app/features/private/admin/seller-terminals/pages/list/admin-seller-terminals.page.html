@@ -155,6 +155,10 @@
                   Désactiver
                 </button>
               }
+              <button mat-menu-item (click)="openLimits(row)">
+                <span class="material-symbols-outlined">shield</span>
+                Limites
+              </button>
               <button mat-menu-item [routerLink]="['/app/admin/tickets']" [queryParams]="{ sellerTerminalId: row.id.value }">
                 <span class="material-symbols-outlined">receipt_long</span>
                 Voir tickets

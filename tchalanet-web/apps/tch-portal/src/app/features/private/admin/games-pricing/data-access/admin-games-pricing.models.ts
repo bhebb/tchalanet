@@ -16,6 +16,7 @@ export interface TenantGameLimitView {
 
 export interface TenantGamePricingView {
   readonly gameCode: string;
+  readonly tenantGameId: string | null;
   readonly gameName: string;
   readonly catalogStatus: CatalogStatus;
   readonly tenantStatus: TenantGameStatus;
