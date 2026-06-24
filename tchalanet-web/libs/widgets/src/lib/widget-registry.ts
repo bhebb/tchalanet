@@ -9,7 +9,7 @@ import { QuickActionsWidget } from './widgets/quick-actions.widget';
 import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
 import { FaqWidget } from './widgets/faq.widget';
 import { FeatureGridWidget } from './widgets/feature-grid.widget';
-import { HeroWidget } from './widgets/hero.widget';
+import { HeroWidget } from './widgets/public/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { OperatorCtaWidget } from './widgets/operator-cta.widget';
