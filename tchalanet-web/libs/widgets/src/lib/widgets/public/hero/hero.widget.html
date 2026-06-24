@@ -12,8 +12,8 @@
         <a
           tch-action
           variant="primary"
+          class="hero-widget__action hero-widget__action--primary"
           [attr.href]="href(action)"
-          style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
         >
           {{ action.label ?? (action.labelKey | tchLabel) }}
         </a>
@@ -22,8 +22,8 @@
         <a
           tch-action
           variant="tertiary"
+          class="hero-widget__action hero-widget__action--secondary"
           [attr.href]="href(action)"
-          style="color: var(--tch-color-on-primary, #fff); --comp-action-outline: color-mix(in oklab, var(--tch-color-on-primary, #fff) 40%, transparent);"
         >
           {{ action.label ?? (action.labelKey | tchLabel) }}
         </a>
