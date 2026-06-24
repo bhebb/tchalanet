@@ -62,6 +62,8 @@
     "block": "Bloquer",
     "unblock": "Réactiver",
     "close": "Fermer",
-    "open": "Ouvrir"
+    "open": "Ouvrir",
+    "status": "Statut",
+    "actionLabel": "Action"
   }
 }

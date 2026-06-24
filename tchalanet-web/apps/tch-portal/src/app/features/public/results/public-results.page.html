@@ -77,7 +77,7 @@
             </label>
             @if (hasActiveFilters()) {
               <button type="button" class="results-page__clear" (click)="clearFilters()">
-                {{ 'public.results.list.clear_filters' | translate }}
+                {{ 'common.resetFilters' | translate }}
               </button>
             }
           </div>
@@ -95,7 +95,7 @@
               <span class="material-symbols-outlined">cloud_off</span>
               <p>{{ 'public.results.load_error' | translate }}</p>
               <button type="button" (click)="result.reload()">
-                {{ 'public.results.retry' | translate }}
+                {{ 'common.retry' | translate }}
               </button>
             </div>
           } @else if (rows().length) {
@@ -105,15 +105,15 @@
                 <thead>
                   <tr>
                     <th scope="col">{{ 'public.results.table.date' | translate }}</th>
-                    <th scope="col">{{ 'public.results.table.draw' | translate }}</th>
+                    <th scope="col">{{ 'domain.entity.draw' | translate }}</th>
                     <th scope="col" class="results-page__th--right">
                       {{ 'public.results.table.time' | translate }}
                     </th>
-                    <th scope="col">{{ 'public.results.table.status' | translate }}</th>
+                    <th scope="col">{{ 'common.status' | translate }}</th>
                     <th scope="col">{{ 'public.results.table.numbers' | translate }}</th>
                     <th scope="col">
                       <span class="visually-hidden">{{
-                        'public.results.table.action' | translate
+                        'common.actionLabel' | translate
                       }}</span>
                     </th>
                   </tr>
@@ -154,7 +154,7 @@
                           class="results-page__detail-link"
                           [routerLink]="['/public/results', row.drawResultId]"
                         >
-                          {{ 'public.results.detail' | translate }}
+                          {{ 'common.details' | translate }}
                           <span class="material-symbols-outlined" aria-hidden="true"
                             >arrow_forward</span
                           >
@@ -198,7 +198,7 @@
                     class="results-page__detail-link"
                     [routerLink]="['/public/results', row.drawResultId]"
                   >
-                    {{ 'public.results.detail' | translate }}
+                    {{ 'common.details' | translate }}
                     <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                   </a>
                 </div>
@@ -212,7 +212,7 @@
             >
               @if (hasActiveFilters()) {
                 <button type="button" class="results-page__clear" (click)="clearFilters()">
-                  {{ 'public.results.list.clear_filters' | translate }}
+                  {{ 'common.resetFilters' | translate }}
                 </button>
               }
             </tch-public-empty-state>

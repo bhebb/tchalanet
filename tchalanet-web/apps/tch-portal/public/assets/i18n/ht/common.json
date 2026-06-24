@@ -62,6 +62,8 @@
     "block": "Bloke",
     "unblock": "Debloke",
     "close": "Fèmen",
-    "open": "Louvri"
+    "open": "Louvri",
+    "status": "Estati",
+    "actionLabel": "Aksyon"
   }
 }

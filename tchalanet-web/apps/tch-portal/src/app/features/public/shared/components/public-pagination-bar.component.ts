@@ -38,7 +38,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             (click)="pageChange.emit(page() - 1)"
           >
             <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-            <span>{{ 'public.shared.pagination.prev' | translate }}</span>
+            <span>{{ 'common.previous' | translate }}</span>
           </button>
           <span class="pub-pag-bar__info">{{ page() + 1 }} / {{ totalPages() }}</span>
           <button
@@ -47,7 +47,7 @@ import { TranslatePipe } from '@ngx-translate/core';
             [disabled]="page() >= totalPages() - 1"
             (click)="pageChange.emit(page() + 1)"
           >
-            <span>{{ 'public.shared.pagination.next' | translate }}</span>
+            <span>{{ 'common.next' | translate }}</span>
             <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
           </button>
         </nav>
