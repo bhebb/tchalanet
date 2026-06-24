@@ -46,6 +46,19 @@
     "close": "Close",
     "open": "Open",
     "reset": "Reset",
-    "all": "All"
+    "all": "All",
+    "sending": "Sending...",
+    "field": {
+      "name": "Name",
+      "fullName": "Full name",
+      "phoneWhatsapp": "Phone / WhatsApp",
+      "phoneOrEmail": "Phone or email",
+      "emailOptional": "Email address (optional)",
+      "organizationOptional": "Organization (optional)",
+      "city": "City",
+      "country": "Country",
+      "message": "Message",
+      "messageOptional": "Message optional"
+    }
   }
 }

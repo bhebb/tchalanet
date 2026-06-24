@@ -66,6 +66,19 @@
     "status": "Estati",
     "actionLabel": "Aksyon",
     "reset": "Reyajiste",
-    "all": "Tout"
+    "all": "Tout",
+    "sending": "Ap voye...",
+    "field": {
+      "name": "Non",
+      "fullName": "Non konplè",
+      "phoneWhatsapp": "Telefòn / WhatsApp",
+      "phoneOrEmail": "Telefòn oswa email",
+      "emailOptional": "Adrès email (opsyonèl)",
+      "organizationOptional": "Òganizasyon (opsyonèl)",
+      "city": "Vil",
+      "country": "Peyi",
+      "message": "Mesaj",
+      "messageOptional": "Mesaj opsyonèl"
+    }
   }
 }

@@ -46,6 +46,19 @@
     "close": "Fermer",
     "open": "Ouvrir",
     "reset": "Réinitialiser",
-    "all": "Tout"
+    "all": "Tout",
+    "sending": "Envoi en cours...",
+    "field": {
+      "name": "Nom",
+      "fullName": "Nom complet",
+      "phoneWhatsapp": "Téléphone / WhatsApp",
+      "phoneOrEmail": "Téléphone ou email",
+      "emailOptional": "Adresse email (optionnel)",
+      "organizationOptional": "Organisation (optionnel)",
+      "city": "Ville",
+      "country": "Pays",
+      "message": "Message",
+      "messageOptional": "Message optionnel"
+    }
   }
 }
