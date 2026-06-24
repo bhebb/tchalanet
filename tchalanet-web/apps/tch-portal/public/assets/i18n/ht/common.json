@@ -82,6 +82,10 @@
       "email": "Adrès email",
       "password": "Modpas"
     },
-    "authenticating": "Otantifikasyon..."
+    "authenticating": "Otantifikasyon...",
+    "alphaNavAria": "Navigasyon alfabetik",
+    "paginationAria": "Paginasyon",
+    "searchLoadError": "Chajman an echwe. Tanpri eseye ankò.",
+    "searchEmpty": "Pa gen rezilta pou rechèch sa a."
   }
 }

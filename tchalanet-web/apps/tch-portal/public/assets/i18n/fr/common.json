@@ -82,6 +82,10 @@
       "email": "Adresse email",
       "password": "Mot de passe"
     },
-    "authenticating": "Authentification..."
+    "authenticating": "Authentification...",
+    "alphaNavAria": "Navigation alphabétique",
+    "paginationAria": "Pagination",
+    "searchLoadError": "Erreur lors du chargement. Veuillez réessayer.",
+    "searchEmpty": "Aucun résultat pour cette recherche."
   }
 }

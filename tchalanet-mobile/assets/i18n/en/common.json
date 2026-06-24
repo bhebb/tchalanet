@@ -62,6 +62,10 @@
       "email": "Email address",
       "password": "Password"
     },
-    "authenticating": "Authenticating..."
+    "authenticating": "Authenticating...",
+    "alphaNavAria": "Alphabetical navigation",
+    "paginationAria": "Pagination",
+    "searchLoadError": "Failed to load. Please try again.",
+    "searchEmpty": "No results for this search."
   }
 }

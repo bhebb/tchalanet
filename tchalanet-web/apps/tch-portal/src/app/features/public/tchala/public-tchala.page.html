@@ -31,7 +31,7 @@
             <p class="tchala-page__status">{{ 'common.loading' | translate }}</p>
           } @else if (resource.error()) {
             <p class="tchala-page__status tchala-page__status--error">
-              {{ 'public.tchala.search_error' | translate }}
+              {{ 'common.searchLoadError' | translate }}
             </p>
           } @else if (entries().length > 0) {
             <div class="tchala-page__grid" role="list">
@@ -62,7 +62,7 @@
           } @else {
             <tch-public-empty-state
               icon="auto_stories"
-              [title]="'public.tchala.empty' | translate"
+              [title]="'common.searchEmpty' | translate"
             />
           }
         </ng-container>
