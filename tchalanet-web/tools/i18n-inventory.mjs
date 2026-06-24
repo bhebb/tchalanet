@@ -74,8 +74,10 @@ const forbiddenPrefixesByBundle = {
     'public.tchala.numbers_label',
     'public.tchala.suggest.numbers_label',
     'public.rules.calc_amount_label',
+    'public.rules.calc_gain_label',
     'public.rules.simulation.bet_option_label',
     'public.rules.simulation.multiplier_label',
+    'public.rules.simulation.total_gain_label',
   ],
 };
 

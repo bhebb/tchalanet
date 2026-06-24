@@ -178,6 +178,12 @@
         "multiplier": "Multiplier",
         "stake": "Stake (HTG)"
       }
+    },
+    "payout": {
+      "field": {
+        "estimatedGain": "Estimated gain",
+        "totalEstimatedGain": "Total estimated gain"
+      }
     }
   }
 }

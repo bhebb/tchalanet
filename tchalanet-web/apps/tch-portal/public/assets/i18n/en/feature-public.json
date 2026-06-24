@@ -446,7 +446,6 @@
       "badge": "Indicative",
       "cta_note": "Indicative simulation available depending on configured games.",
       "cta_rules": "View rules",
-      "calc_gain_label": "Estimated gain",
       "calc_game_aria": "Select game type",
       "calc_note": "Indicative — not guaranteed",
       "disclaimer": "Indicative simulation. The payable amount depends on the real ticket, point-of-sale rules, draw status, and confirmed results. This simulation does not guarantee payment.",
@@ -563,8 +562,7 @@
         "multiplier_custom_badge": "custom",
         "multiplier_note": "The multiplier is indicative and may vary according to tenant rules.",
         "borlette_gain_line": "Borlette gain",
-        "maryaj_gratis_gain_line": "Maryaj gratis bonus",
-        "total_gain_label": "Estimated total gain"
+        "maryaj_gratis_gain_line": "Maryaj gratis bonus"
       },
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis is available according to the game rules and active catalog."

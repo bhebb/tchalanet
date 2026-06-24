@@ -218,7 +218,7 @@
           </div>
           <div class="rules-page__fich-total">
             <span class="rules-page__fich-eyebrow"
-              >{{ 'public.rules.simulation.total_gain_label' | tchLabel }}</span
+              >{{ 'domain.payout.field.totalEstimatedGain' | tchLabel }}</span
             >
             <span class="rules-page__fich-amount" aria-hidden="true"
               >{{ potentialGain() | number:'1.0-0' }}<small> HTG</small></span
@@ -229,7 +229,7 @@
         <div
           class="rules-page__fich"
           aria-live="polite"
-          [attr.aria-label]="('public.rules.calc_gain_label' | tchLabel) + ': ' + (potentialGain() | number:'1.0-0') + ' HTG'"
+          [attr.aria-label]="('domain.payout.field.estimatedGain' | tchLabel) + ': ' + (potentialGain() | number:'1.0-0') + ' HTG'"
         >
           <div class="rules-page__fich-punch rules-page__fich-punch--left" aria-hidden="true"></div>
           <div
@@ -237,7 +237,7 @@
             aria-hidden="true"
           ></div>
           <span class="rules-page__fich-eyebrow"
-            >{{ 'public.rules.calc_gain_label' | tchLabel }}</span
+            >{{ 'domain.payout.field.estimatedGain' | tchLabel }}</span
           >
           <span class="rules-page__fich-amount" aria-hidden="true">
             {{ potentialGain() | number:'1.0-0' }}<small> HTG</small>

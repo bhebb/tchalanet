@@ -178,6 +178,12 @@
         "multiplier": "Miltiplikatè",
         "stake": "Miz (HTG)"
       }
+    },
+    "payout": {
+      "field": {
+        "estimatedGain": "Benefis estime",
+        "totalEstimatedGain": "Benefis total estime"
+      }
     }
   }
 }

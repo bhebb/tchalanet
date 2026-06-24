@@ -445,7 +445,6 @@
       "badge": "Endikatif",
       "cta_note": "Simulasyon endikatif disponib dapre jeu ki konfigire yo.",
       "cta_rules": "Konsulte règ yo",
-      "calc_gain_label": "Estimasyon gain",
       "calc_game_aria": "Chwazi kalite jwèt la",
       "calc_note": "Endikatif — pa garanti",
       "disclaimer": "Similasyon endikatif. Montan ki peyab la depann de tikè reyèl la, règ seller-terminals lan, estati tiraj la, ak rezilta konfime yo. Similasyon sa a pa garanti peman.",
@@ -562,8 +561,7 @@
         "multiplier_custom_badge": "pèsonalize",
         "multiplier_note": "Miltiplikatè a se yon endikasyon epi li ka chanje selon règ tenant lan.",
         "borlette_gain_line": "Gany Borlette",
-        "maryaj_gratis_gain_line": "Bonis Maryaj gratis",
-        "total_gain_label": "Estimasyon gany total"
+        "maryaj_gratis_gain_line": "Bonis Maryaj gratis"
       },
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis disponib selon règ jwèt la ak katalòg aktif la."

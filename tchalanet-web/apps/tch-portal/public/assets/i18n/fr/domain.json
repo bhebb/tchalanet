@@ -178,6 +178,12 @@
         "multiplier": "Multiplicateur",
         "stake": "Mise (HTG)"
       }
+    },
+    "payout": {
+      "field": {
+        "estimatedGain": "Gain estimé",
+        "totalEstimatedGain": "Gain total estimé"
+      }
     }
   }
 }

@@ -442,7 +442,6 @@
       "badge": "Indicatif",
       "cta_note": "Simulation indicative disponible selon les jeux configurés.",
       "cta_rules": "Consulter les règles",
-      "calc_gain_label": "Gain estimé",
       "calc_game_aria": "Sélectionner le type de jeu",
       "calc_note": "Indicatif — non garanti",
       "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du seller-terminal, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
@@ -559,8 +558,7 @@
         "multiplier_custom_badge": "personnalisé",
         "multiplier_note": "Le multiplicateur est indicatif et peut varier selon les règles du tenant.",
         "borlette_gain_line": "Gain Borlette",
-        "maryaj_gratis_gain_line": "Bonus Maryaj gratis",
-        "total_gain_label": "Gain total estimé"
+        "maryaj_gratis_gain_line": "Bonus Maryaj gratis"
       },
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis est disponible selon les règles du jeu et le catalogue actif."
