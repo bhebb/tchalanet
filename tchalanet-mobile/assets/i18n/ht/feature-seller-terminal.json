@@ -1,0 +1,16 @@
+{
+  "pos": {
+    "dashboard": {
+      "title": "Tchalanet POS"
+    },
+    "session": {
+      "card_title": "Sesyon",
+      "user": "Itilizatè",
+      "name": "Non",
+      "tenant": "Tenant",
+      "roles": "Wòl",
+      "no_roles": "Pa gen wòl ki detekte",
+      "token_expiry": "Ekspirasyon token"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "login": {
+      "title": "Tchalanet POS",
+      "operator_title": "Aksè operatè",
+      "subtitle": "Konekte ak kont Tchalanet ou",
+      "pos_subtitle": "Idantifye tèt ou pou antre nan tèminal vant lan",
+      "button": "Konekte",
+      "loading": "Koneksyon an kou…",
+      "error": "Koneksyon an pa mache. Eseye ankò.",
+      "email": "Imèl operatè",
+      "email_hint": "non@ajans.com",
+      "password": "Modpas",
+      "password_show": "Montre modpas la",
+      "password_hide": "Kache modpas la",
+      "blocked": "Aksè bloke?",
+      "required": "Chan sa a obligatwa",
+      "invalid_email": "Antre yon imèl ki valab",
+      "secure_environment": "Anviwònman sekirize",
+      "terminal_title": "Aksè tèminal",
+      "terminal_code": "Kòd tèminal",
+      "terminal_code_hint": "egz. TCH-001",
+      "pin": "Kòd PIN",
+      "terminal_mode": "Mòd tèminal POS",
+      "terminal_binding_notice": "Apre koneksyon an, sistèm nan ap verifye aparèy la ak tèminal ki asosye a."
+    },
+    "logout": "Dekonekte",
+    "forbidden": {
+      "title": "Aksè refize",
+      "message": "Ou pa gen otorizasyon ki nesesè pou antre sou paj sa a.",
+      "back": "Retounen nan koneksyon"
+    }
+  }
+}

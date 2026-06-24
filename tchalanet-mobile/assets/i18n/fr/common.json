@@ -1,0 +1,54 @@
+{
+  "notifications": {
+    "center": {
+      "title": "Notifications",
+      "open": "Ouvrir les notifications",
+      "refresh": "Actualiser les notifications",
+      "empty": {
+        "unread": "Vous n'avez aucune nouvelle notification.",
+        "read": "Vous n'avez aucune notification lue.",
+        "archived": "Vous n'avez aucune notification archivée."
+      },
+      "load_error": "Impossible de charger les notifications.",
+      "load_more_error": "Impossible de charger plus de notifications.",
+      "action_error": "Impossible de mettre à jour la notification.",
+      "load_more": "Charger plus"
+    },
+    "status": {
+      "unread": "Non lues",
+      "read": "Lues",
+      "archived": "Archivées"
+    },
+    "action": {
+      "mark_read": "Marquer comme lue",
+      "archive": "Archiver",
+      "open": "Ouvrir"
+    },
+    "severity": {
+      "info": "Information",
+      "warning": "Attention",
+      "error": "Erreur",
+      "critical": "Critique"
+    }
+  },
+  "common": {
+    "loading": "Chargement…",
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne"
+    },
+    "notification": {
+      "dismiss": "Fermer la notification",
+      "copy_support_reference": "Copier la référence support"
+    },
+    "error": {
+      "network": "Impossible de se connecter au serveur",
+      "timeout": "Délai de connexion dépassé",
+      "unknown": "Une erreur inattendue s'est produite"
+    },
+    "retry": "Réessayer"
+  },
+  "app": {
+    "name": "Tchalanet POS"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "login": {
+      "title": "Tchalanet POS",
+      "operator_title": "Operator access",
+      "subtitle": "Sign in with your Tchalanet account",
+      "pos_subtitle": "Identify yourself to access the sales terminal",
+      "button": "Sign in",
+      "loading": "Signing in…",
+      "error": "Sign-in failed. Try again.",
+      "email": "Operator email",
+      "email_hint": "name@agency.com",
+      "password": "Password",
+      "password_show": "Show password",
+      "password_hide": "Hide password",
+      "blocked": "Access blocked?",
+      "required": "This field is required",
+      "invalid_email": "Enter a valid email",
+      "secure_environment": "Secure environment",
+      "terminal_title": "Terminal access",
+      "terminal_code": "Terminal code",
+      "terminal_code_hint": "e.g. TCH-001",
+      "pin": "PIN code",
+      "terminal_mode": "POS terminal mode",
+      "terminal_binding_notice": "After sign-in, the system will verify this device and its assigned terminal."
+    },
+    "logout": "Sign out",
+    "forbidden": {
+      "title": "Access denied",
+      "message": "You do not have the required permissions to access this page.",
+      "back": "Back to sign in"
+    }
+  }
+}

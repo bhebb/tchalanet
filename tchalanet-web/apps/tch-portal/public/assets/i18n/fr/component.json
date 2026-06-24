@@ -1,0 +1,64 @@
+{
+  "readiness": {
+    "noIssues": "Aucun problème"
+  },
+  "layout": {
+    "public_home": {
+      "contact_cta": "Contact",
+      "draws": "Tirages",
+      "features": "Fonctionnalités",
+      "hero": "Hero",
+      "news": "Actualités",
+      "plans": "Plans",
+      "tchala": "Tchala",
+      "rules": "Règles"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Indicateurs",
+        "commission": "Configuration des commissions",
+        "quick_actions": "Actions rapides",
+        "readiness_alerts": "État & alertes"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Actions rapides",
+      "readiness_alerts": "État & alertes"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Indicateurs",
+      "quick_actions": "Actions rapides",
+      "tenants_alerts": "Tenants & alertes"
+    }
+  },
+  "widget": {
+    "error": "Ce contenu est momentanément indisponible.",
+    "invalid": "Widget invalide.",
+    "unsupported": "Type de widget non pris en charge."
+  },
+  "shell": {
+    "error": {
+      "backendUnavailable": {
+        "title": "Serveur temporairement indisponible",
+        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
+      }
+    }
+  },
+  "quickaction": {
+    "admin": {
+      "daily_report": "Rapport du jour",
+      "manage_limits": "Gérer limites",
+      "manage_odds": "Gérer odds",
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Ajouter seller-terminal",
+      "active_seller_terminals": "Seller-terminals actifs"
+    },
+    "platform": {
+      "create_tenant": "Créer un tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Abonnements",
+      "platform_health": "Santé plateforme",
+      "draw_results": "Résultats & tirages"
+    }
+  }
+}

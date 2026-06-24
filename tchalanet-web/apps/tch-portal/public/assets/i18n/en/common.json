@@ -1,0 +1,64 @@
+{
+  "error": {
+    "generic": "Local error.",
+    "network": "Local connection unavailable.",
+    "not_found": "Local page not found."
+  },
+  "common": {
+    "error": {
+      "title": "Error"
+    },
+    "disabled": "disabled",
+    "enabled": "enabled",
+    "loading": "Loading…",
+    "notFound": {
+      "back": "Back to home",
+      "message": "The requested page could not be found.",
+      "title": "Page not found"
+    },
+    "unknown": "Unknown",
+    "placeholder": {
+      "title": "Screen in preparation",
+      "message": "This feature will be connected in a future release."
+    },
+    "coming_soon": "Coming soon",
+    "manage": "Manage",
+    "back": "Back",
+    "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "retry": "Retry",
+    "traceId": "Trace ID",
+    "not_available": "Not available",
+    "validation": {
+      "required": "This field is required."
+    },
+    "not_set": "Not set",
+    "edit": "Edit",
+    "view": "View",
+    "save": "Save",
+    "saving": "Saving...",
+    "refresh": "Refresh",
+    "yes": "Oui",
+    "no": "Non",
+    "weekday": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    }
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "My dashboard"
+    },
+    "name": "Tchalanet"
+  }
+}

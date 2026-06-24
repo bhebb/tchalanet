@@ -1,0 +1,59 @@
+{
+  "cashier": {
+    "dashboard": {
+      "title": "Tablo debò",
+      "description": "Aktivite vant ou",
+      "action": {
+        "newTicket": "Nouvo tikè"
+      },
+      "kpi": {
+        "todaySales": "Vant jodi a",
+        "commission": "Komisyon",
+        "tickets": "Tikè"
+      },
+      "blocked": {
+        "title": "Koneksyon bloke",
+        "message": "Koneksyon ou bloke kounye a. Kontakte sipèvizè ou."
+      }
+    },
+    "session": {
+      "title": "Koneksyon",
+      "openedAt": "Louvri a"
+    },
+    "draw": {
+      "title": "Tiraj kounya"
+    },
+    "printer": {
+      "title": "Enprimant"
+    },
+    "tickets": {
+      "title": "Tikè resan",
+      "print": "Enprime"
+    },
+    "quickActions": {
+      "title": "Aksyon rapid",
+      "newTicket": "Nouvo tikè",
+      "history": "Istwa",
+      "closeSession": "Fèmen koneksyon",
+      "closeConnexion": "Fermer la connexion"
+    },
+    "sell": {
+      "title": "Nouvo tikè",
+      "description": "Emet yon nouvo tikè"
+    },
+    "connexion": {
+      "title": "Connexion",
+      "openedAt": "Ouverte à"
+    }
+  },
+  "sellerTerminal": {
+    "activation": {
+      "title": "Aktivasyon seller-terminal",
+      "description": "Seller-terminal la dwe chanje PIN tanporè li anvan li ka vann.",
+      "pin": {
+        "title": "PIN temporaire",
+        "pendingBackend": "Chanjman PIN lan ap aktive ak endpoint seller-terminal V0 la."
+      }
+    }
+  }
+}

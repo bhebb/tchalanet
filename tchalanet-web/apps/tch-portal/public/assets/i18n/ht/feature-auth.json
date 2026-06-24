@@ -1,0 +1,120 @@
+{
+  "profile": {
+    "avatar_alt": "Avata itilizatè",
+    "title": "Pwofil mwen",
+    "description": "Jere enfòmasyon pèsonèl ou ak preferans ou.",
+    "loading": "Ap chaje pwofil...",
+    "empty": {
+      "title": "Pwofil pa jwenn",
+      "message": "Pa kapab chaje enfòmasyon pwofil."
+    },
+    "section": {
+      "identity": "Idantite",
+      "preferences": "Preferans",
+      "access": "Aksè"
+    },
+    "field": {
+      "displayName": "Non ki afiche",
+      "email": "Imèl",
+      "username": "Non itilizatè",
+      "firstName": "Prenon",
+      "lastName": "Non fanmi",
+      "phone": "Telefòn",
+      "role": "Wòl"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Tèm",
+        "system": "Sistèm",
+        "light": "Klè",
+        "dark": "Fonse"
+      },
+      "locale": "Lokalizasyon",
+      "timeZone": "Zòn tan",
+      "currency": "Lajan"
+    },
+    "error": {
+      "load": "Erè pandan chajman pwofil.",
+      "save": "Erè pandan anregistreman."
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Aktivasyon kont",
+      "description": "Chanje modpas tanporè a epi ranpli pwofil ou avan ou antre nan espas admin nan.",
+      "security": {
+        "title": "Sekirite",
+        "currentPassword": "Modpas tanporè",
+        "newPassword": "Nouvo modpas",
+        "confirmPassword": "Konfime modpas la",
+        "passwordMismatch": "Modpas yo pa menm."
+      },
+      "profile": {
+        "title": "Pwofil",
+        "firstName": "Prenon",
+        "lastName": "Non",
+        "phoneNumber": "Telefòn opsyonèl"
+      },
+      "tenant": {
+        "title": "Aksè tenant",
+        "name": "Tenant",
+        "code": "Kòd",
+        "role": "Wòl"
+      },
+      "action": {
+        "submit": "Aktive kont mwen",
+        "submitting": "Aktivasyon ap fèt"
+      }
+    }
+  },
+  "auth": {
+    "forbidden": {
+      "back": "Retounen nan paj piblik la",
+      "body": "Wòl ou genyen kounye a pa pèmèt ou antre nan espas sa a.",
+      "title": "Aksè entèdi"
+    },
+    "login": {
+      "brand": {
+        "body": "Jere vant, tiraj ak rezo ou nan yon sèl espas operasyon ki an sekirite.",
+        "capabilities": {
+          "operations": "Swivi operasyon yo an tan reyèl",
+          "sales": "Vant ak koneksyon santralize",
+          "security": "Aksè pwoteje ak trasabl"
+        },
+        "eyebrow": "Rezo lotri",
+        "title": "Rezo ou. Yon sèl vizyon."
+      },
+      "copyright": "© 2026 Tchalanet. Tout dwa rezève.",
+      "errors": {
+        "accessDenied": "Koneksyon an reyisi, men aksè Tchalanet ou poko otorize.",
+        "emailLinkFailed": "Lyen koneksyon an pa valid oswa li ekspire.",
+        "emailRequired": "Tanpri antre adrès imèl ou.",
+        "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
+      },
+      "form": {
+        "authenticating": "Otantifikasyon…",
+        "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
+        "email": "Adrès imèl",
+        "emailLinkSent": "Lyen koneksyon an voye. Louvri imel ou sou aparèy sa a pou kontinye.",
+        "forgotPassword": "Modpas bliye ?",
+        "resetEmailSent": "Yon lyen reyinisyalizasyon voye nan adrès imèl ou.",
+        "emailPlaceholder": "non@oganizasyon.com",
+        "eyebrow": "Pòtay sekirize",
+        "hidePassword": "Kache modpas la",
+        "password": "Modpas",
+        "remember": "Rete konekte sou aparèy sa a",
+        "security": "Firebase Authentication pwoteje koneksyon ou.",
+        "sendEmailLink": "Resevwa yon lyen koneksyon",
+        "showPassword": "Montre modpas la",
+        "submit": "Konekte",
+        "title": "Byenveni ankò"
+      },
+      "links": {
+        "help": "Èd",
+        "privacy": "Konfidansyalite",
+        "terms": "Kondisyon itilizasyon"
+      }
+    },
+    "logout": "Dekonekte"
+  }
+}

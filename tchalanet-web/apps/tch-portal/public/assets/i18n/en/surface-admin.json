@@ -1,0 +1,10 @@
+{
+  "surface": {
+    "cashier": "Cashier",
+    "platform_admin": "Platform",
+    "tenant_admin": "Administration"
+  },
+  "nav": {
+    "pagemodels": "Modèles de pages"
+  }
+}

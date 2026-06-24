@@ -80,6 +80,7 @@ export const appConfig: ApplicationConfig = {
       useValue: {
         assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
         assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
+        bundles: PORTAL_I18N_CONFIG.bundles,
       },
     },
   ],

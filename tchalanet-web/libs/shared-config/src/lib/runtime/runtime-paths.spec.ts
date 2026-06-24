@@ -16,6 +16,19 @@ describe('runtime paths', () => {
   it('keeps i18n loader config local-only (i18n is delivered via bootstrap)', () => {
     expect(PORTAL_I18N_CONFIG.assetsPrefix).toBe('/assets/i18n/');
     expect(PORTAL_I18N_CONFIG.assetsSuffix).toBe('.json');
+    expect(PORTAL_I18N_CONFIG.bundles).toEqual([
+      'common',
+      'domain',
+      'component',
+      'surface-admin',
+      'surface-platform',
+      'surface-seller-terminal',
+      'feature-auth',
+      'feature-public',
+      'feature-admin',
+      'feature-platform',
+      'feature-seller-terminal',
+    ]);
     expect('backendPath' in PORTAL_I18N_CONFIG).toBe(false);
   });
 

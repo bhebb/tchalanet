@@ -1,0 +1,54 @@
+{
+  "notifications": {
+    "center": {
+      "title": "Notifikasyon",
+      "open": "Louvri notifikasyon yo",
+      "refresh": "Rafrechi notifikasyon yo",
+      "empty": {
+        "unread": "Ou pa gen nouvo notifikasyon.",
+        "read": "Ou pa gen notifikasyon ou deja li.",
+        "archived": "Ou pa gen notifikasyon achive."
+      },
+      "load_error": "Nou pa kapab chaje notifikasyon yo.",
+      "load_more_error": "Nou pa kapab chaje plis notifikasyon.",
+      "action_error": "Nou pa kapab mete notifikasyon an ajou.",
+      "load_more": "Chaje plis"
+    },
+    "status": {
+      "unread": "Nouvo",
+      "read": "Li",
+      "archived": "Achive"
+    },
+    "action": {
+      "mark_read": "Make kòm li",
+      "archive": "Achive",
+      "open": "Louvri"
+    },
+    "severity": {
+      "info": "Enfòmasyon",
+      "warning": "Atansyon",
+      "error": "Erè",
+      "critical": "Kritik"
+    }
+  },
+  "common": {
+    "loading": "Chajman an kou…",
+    "status": {
+      "online": "Anliy",
+      "offline": "San koneksyon"
+    },
+    "notification": {
+      "dismiss": "Fèmen notifikasyon an",
+      "copy_support_reference": "Kopye referans pou sipò"
+    },
+    "error": {
+      "network": "Nou pa kapab konekte ak sèvè a",
+      "timeout": "Tan koneksyon an fini",
+      "unknown": "Gen yon erè nou pa t atann"
+    },
+    "retry": "Eseye ankò"
+  },
+  "app": {
+    "name": "Tchalanet POS"
+  }
+}

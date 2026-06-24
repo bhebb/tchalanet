@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import {
   Auth,
   browserLocalPersistence,
-  browserSessionPersistence,
   EmailAuthProvider,
   isSignInWithEmailLink,
   reauthenticateWithCredential,
@@ -22,16 +21,18 @@ export class FirebaseAuthService implements AuthClient {
   private readonly passwordlessEmailStorageKey = 'tchalanet.passwordlessLoginEmail';
   private readonly auth = inject(Auth);
 
+  constructor() {
+    // Business admin tool: always persist sessions in localStorage so users
+    // stay logged in across tab close and browser restart.
+    void this.auth.authStateReady().then(() => setPersistence(this.auth, browserLocalPersistence));
+  }
+
   async isAuthenticated(): Promise<boolean> {
     await this.auth.authStateReady();
     return this.auth.currentUser !== null;
   }
 
   async login(request: AuthLoginRequest): Promise<void> {
-    await setPersistence(
-      this.auth,
-      request.remember ? browserLocalPersistence : browserSessionPersistence,
-    );
     await signInWithEmailAndPassword(this.auth, request.username, request.password);
   }
 

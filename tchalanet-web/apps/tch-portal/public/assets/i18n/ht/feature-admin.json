@@ -1,0 +1,455 @@
+{
+  "admin": {
+    "dashboard": {
+      "title": "Administrasyon",
+      "description": "Rezime administrasyon tenant",
+      "kpi": {
+        "sellers": "Seller-terminal",
+        "outlets": "Seller-terminals",
+        "terminals": "Seller-terminal",
+        "openSessions": "Seller-terminals aktif"
+      },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "attention": {
+        "title": "Atansyon nesesè"
+      },
+      "recentSales": {
+        "title": "Vant resan",
+        "description": "Dènye vant tikè",
+        "empty": "Pa gen vant resan."
+      }
+    },
+    "onboarding": {
+      "title": "Onboarding",
+      "description": "Etap onboarding tenant"
+    },
+    "users": {
+      "title": "Itilizatè",
+      "description": "Jesyon itilizatè"
+    },
+    "settings": {
+      "title": "Paramèt",
+      "description": "Konfigirasyon tenant"
+    },
+    "seller": {
+      "email": "Imèl",
+      "error": "Onboarding seller-terminal a echwe.",
+      "firstName": "Prenon",
+      "lastName": "Non",
+      "outletId": "Seller-terminals",
+      "phone": "Telefòn",
+      "submit": "Kreye seller-terminal",
+      "success": "Seller-terminal kreye:",
+      "terminalId": "Seller-terminal",
+      "title": "Onboarding seller-terminal"
+    },
+    "action": {
+      "settings": "Paramèt",
+      "users": "Itilizatè",
+      "seller_terminals": "Seller-terminals"
+    },
+    "kpi": {
+      "openSessions": {
+        "label": "Seller-terminals aktif"
+      },
+      "outlets": {
+        "label": "Seller-terminals"
+      },
+      "sellers": {
+        "label": "Seller-terminal"
+      },
+      "terminals": {
+        "label": "Seller-terminal"
+      },
+      "sales_today": {
+        "label": "Vant jodi a"
+      },
+      "payout_due": {
+        "label": "Pou peye"
+      },
+      "notifications": {
+        "label": "Notifikasyon"
+      },
+      "active_seller_terminals": "Seller-terminals aktif"
+    },
+    "draws": {
+      "title": "Tirèy"
+    },
+    "controls": {
+      "title": "Kontwòl",
+      "commission": {
+        "title": "Komisyon"
+      },
+      "limits": {
+        "title": "Limit"
+      },
+      "odds": {
+        "title": "Kòt"
+      },
+      "bonuses": {
+        "title": "Bonis"
+      }
+    },
+    "promotions": {
+      "title": "Pwomosyon",
+      "maryaj_gratis": {
+        "title": "Maryaj Gratis"
+      },
+      "active": {
+        "title": "Pwomosyon aktif"
+      }
+    },
+    "reports": {
+      "title": "Rapò",
+      "today": {
+        "title": "Rapò jodi a"
+      },
+      "export": {
+        "title": "Ekspò ak enpresyon"
+      }
+    },
+    "more": {
+      "title": "Plis",
+      "space": {
+        "title": "Espas mwen"
+      },
+      "account": {
+        "title": "Kont mwen"
+      },
+      "support": {
+        "title": "Sipò"
+      }
+    },
+    "setup": {
+      "progress": {
+        "title": "{{completed}} / {{total}} etap obligatwa konplète",
+        "subtitle": "Suivi de l'état de préparation"
+      },
+      "advancedSettings": {
+        "title": "Paramèt avanse",
+        "description": "Lang, resi, kominikasyon ak règ biznis ka ajiste nan paramèt tenant lan.",
+        "action": "Ouvri paramèt"
+      },
+      "title": "Configuration du tenant",
+      "optional": "Optionnel",
+      "operational": "Opérationnel",
+      "section": {
+        "identity": "Identité",
+        "address": "Adresse",
+        "addressHint": "Adresse physique du tenant",
+        "addressCta": "Configurer l'adresse",
+        "games": "Jeux",
+        "gamesDesc": "Jeux disponibles",
+        "gamesCta": "Configurer les jeux",
+        "drawChannels": "Tirages",
+        "drawChannelsDesc": "Tirage disponibles",
+        "drawChannelsCta": "Configurer les tirages",
+        "generatedDraws": "Tirages générés",
+        "generatedDrawsDesc": "Tirages générés pour les canaux",
+        "generatedDrawsCta": "Vérifiez les tirages générés et leur état de vente",
+        "promotions": "Promotions",
+        "promotionsDesc": "Promotions disponibles",
+        "promotionsCta": "Configurer les promotions",
+        "users": "Utilisateurs",
+        "theme": "Apparence",
+        "themeDesc": "Personnalisation de l'apparence",
+        "themeCta": "Configurer l'apparence",
+        "sellerTerminal": "Vendeurs",
+        "sellerTerminalDesc": "Vendeurs disponibles",
+        "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
+        "identityDesc": "Informations principales de votre entreprise.",
+        "sellerTerminalCta": "Configurer les vendeurs",
+        "sellerTerminalReady": "Vendeurs prêts"
+      },
+      "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
+      "status": {
+        "notStarted": "Non commencé",
+        "inProgress": "En cours",
+        "completed": "Terminé"
+      },
+      "advancedSettings.title": "Paramètres avancés",
+      "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
+      "advancedSettings.action": "Configurer les paramètres avancés",
+      "blockingStep": {
+        "address": "Adresse",
+        "games": "Jeux",
+        "drawChannels": "Tirages",
+        "generatedDraws": "Tirages générés"
+      },
+      "address": {
+        "city": "Ville",
+        "country": "Pays",
+        "error": {
+          "save": "Impossible d’enregistrer l’adresse."
+        },
+        "line1": "Adresse ligne 1",
+        "line2": "Adresse ligne 2"
+      },
+      "blocking": "Complétez les étapes requises pour continuer.",
+      "error": {
+        "load": "Impossible de charger la configuration."
+      },
+      "loading": "Chargement de la configuration..."
+    },
+    "businessProfile": {
+      "title": "Espas antrepriz mwen",
+      "description": "Idantite ak koordinasyon antrepriz ou.",
+      "loading": "Chajman...",
+      "error": {
+        "load": "Enposib pou chaje enfòmasyon antrepriz la.",
+        "save": "Enposib pou sove chanjman yo."
+      },
+      "section": {
+        "identity": "Idantite",
+        "region": "Rejyon",
+        "commercial": "Paramèt komèsyal",
+        "address": "Adrès"
+      },
+      "commercial": {
+        "description": "Itilize pou seller-terminals ki pa gen to spesifik."
+      },
+      "field": {
+        "name": "Non",
+        "code": "Kòd",
+        "type": "Tip",
+        "status": "Estati",
+        "timezone": "Fizo orè",
+        "currency": "Deviz",
+        "commission": "Komisyon pa defò"
+      },
+      "identityCard": {
+        "eyebrow": "Antrepriz mwen"
+      },
+      "identity": {
+        "saved": "Enfòmasyon yo mete ajou avèk siksè."
+      },
+      "address": {
+        "empty": "Pa gen adrès anrejistre.",
+        "edit": "Modifye adrès",
+        "add": "Ajoute adrès",
+        "saved": "Adrès anrejistre avèk siksè."
+      }
+    },
+    "sellerTerminals": {
+      "title": "Seller-terminals",
+      "description": "Jere seller-terminals",
+      "search_placeholder": "Chèche seller-terminal…"
+    },
+    "drawChannels": {
+      "title": "Tirages",
+      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
+      "summary": {
+        "availableStates": "States dispos",
+        "activeStates": "States actifs",
+        "activeChannels": "DrawChannels actifs",
+        "todo": "À configurer"
+      },
+      "filters": {
+        "all": "Tous",
+        "active": "Actifs",
+        "todo": "À configurer",
+        "inactive": "Inactifs",
+        "sourceError": "Erreur source"
+      },
+      "search": {
+        "placeholder": "Rechercher un state..."
+      },
+      "acquisition": {
+        "auto": "Acquisition auto",
+        "manual": "Saisie manuelle",
+        "unconfigured": "Mode résultat à définir",
+        "error": "Source en erreur",
+        "last": "Dernière",
+        "next": "Prochaine",
+        "lastManualEntry": "Dernière saisie"
+      },
+      "slots": {
+        "title": "Créneaux horaires"
+      },
+      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
+      "salesCutoffMissing": "Fermeture vente : Non définie",
+      "actions": {
+        "configure": "Configurer",
+        "results": "Résultats",
+        "viewAllResults": "Tous les résultats"
+      },
+      "readiness": {
+        "ready": "Prêt pour la vente",
+        "todo": "Configuration incomplète",
+        "sourceWarning": "Vente configurée · Source à vérifier"
+      }
+    },
+    "generatedDraws": {
+      "title": "Tirages générés",
+      "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "summary": {
+        "today": "Aujourd'hui",
+        "salesOpen": "Vente ouverte",
+        "resultsExpected": "Résultats attendus",
+        "confirmed": "Confirmés"
+      },
+      "datePresets": {
+        "today": "Aujourd'hui",
+        "tomorrow": "Demain",
+        "thisWeek": "Cette semaine"
+      },
+      "statusFilters": {
+        "all": "Tous les statuts",
+        "open": "Ouverts à la vente",
+        "expected": "Résultats attendus",
+        "missing": "Résultats manquants",
+        "confirmed": "Confirmés",
+        "sourceError": "Erreur source"
+      },
+      "salesStatus": {
+        "UPCOMING": "À venir",
+        "OPEN": "Vente ouverte",
+        "CLOSED": "Vente fermée",
+        "CANCELLED": "Annulé"
+      },
+      "resultStatus": {
+        "NOT_DUE": "Pas attendu",
+        "EXPECTED": "Attendu",
+        "MISSING": "Manquant",
+        "PROVISIONAL": "Provisoire",
+        "CONFIRMED": "Confirmé",
+        "SOURCE_ERROR": "Erreur source"
+      },
+      "publicationStatus": {
+        "PUBLISHED": "Publié"
+      },
+      "actions": {
+        "refresh": "Actualiser",
+        "planNextDraws": "Planifier les prochains tirages",
+        "configureDrawChannels": "Configurer les canaux de tirage",
+        "enterResult": "Saisir résultat",
+        "viewResult": "Voir résultat",
+        "verify": "Vérifier",
+        "viewDetails": "Voir détails"
+      }
+    },
+    "pos": {
+      "title": "Vente ticket",
+      "changeDraw": "Changer de tirage",
+      "live": "Live",
+      "draw": {
+        "closesIn": "S'arrête dans {{time}}"
+      },
+      "games": {
+        "borlette": "Borlette",
+        "loto3": "Loto 3",
+        "loto4": "Loto 4",
+        "maryaj": "Maryaj"
+      },
+      "lines": {
+        "title": "Sélection des numéros",
+        "number": "Numéro",
+        "type": "Type",
+        "stake": "Mise (HTG)",
+        "add": "Ajouter",
+        "clear": "Vider la liste"
+      },
+      "betType": {
+        "direct": "Direct",
+        "boul": "Boul",
+        "maryaj": "Maryaj"
+      },
+      "actions": {
+        "confirm": "Confirmer la vente",
+        "confirming": "Confirmation...",
+        "print": "Imprimer",
+        "details": "Détails",
+        "newTicket": "Nouveau ticket"
+      },
+      "ticket": {
+        "preparing": "Ticket en préparation",
+        "sold": "Ticket vendu",
+        "codeGeneratedAfterConfirm": "Code généré après confirmation"
+      },
+      "activity": {
+        "title": "Activité du terminal",
+        "salesToday": "Ventes du jour",
+        "ticketsToday": "Tickets émis"
+      },
+      "error": {
+        "noOpenDraw": "Aucun tirage ouvert à la vente.",
+        "drawClosed": "Ce tirage est maintenant fermé à la vente. Choisissez un autre tirage ouvert.",
+        "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
+        "invalidStake": "La mise doit être supérieure à 0 HTG.",
+        "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+      }
+    }
+  },
+  "dashboard": {
+    "actions": {
+      "logout": "Dekonekte",
+      "publicHome": "Akèy piblik"
+    },
+    "fields": {
+      "roles": "Wòl",
+      "settings": "Paramèt",
+      "tenant": "Tenant",
+      "user": "Itilizatè"
+    },
+    "rolesEmpty": "Pa gen wòl detekte",
+    "tenantMissing": "Pa detekte",
+    "titles": {
+      "admin": "Tablo admin tenant",
+      "cashier": "Tablo kesye",
+      "platform": "Tablo platfòm"
+    },
+    "cashier": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "readiness": {
+        "title": "Eta pòs la"
+      }
+    },
+    "superadmin": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "kpis": {
+        "title": "Endikatè"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "tenants": {
+        "title": "Tenant"
+      }
+    },
+    "tenant_admin": {
+      "alerts": {
+        "empty": "Pa gen alèt",
+        "title": "Alèt"
+      },
+      "commission": {
+        "title": "Komisyon",
+        "default_rate": "To pa defò tenant lan",
+        "default_not_set": "Pa konfigire",
+        "at_default": "To pa defò",
+        "custom": "To pèsonalize",
+        "rate_range": "Fotchèt",
+        "seller_terminals": "Seller-terminals"
+      },
+      "kpis": {
+        "title": "Endikatè"
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "readiness": {
+        "title": "Eta operasyonèl"
+      }
+    }
+  }
+}

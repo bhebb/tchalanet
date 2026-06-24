@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "login": {
+      "title": "Tchalanet POS",
+      "operator_title": "Accès opérateur",
+      "subtitle": "Connectez-vous avec votre compte Tchalanet",
+      "pos_subtitle": "Identifiez-vous pour accéder au terminal de vente",
+      "button": "Se connecter",
+      "loading": "Connexion…",
+      "error": "La connexion a échoué. Réessayez.",
+      "email": "Email opérateur",
+      "email_hint": "nom@agence.com",
+      "password": "Mot de passe",
+      "password_show": "Afficher le mot de passe",
+      "password_hide": "Masquer le mot de passe",
+      "blocked": "Accès bloqué ?",
+      "required": "Ce champ est obligatoire",
+      "invalid_email": "Saisissez un email valide",
+      "secure_environment": "Environnement sécurisé",
+      "terminal_title": "Accès terminal",
+      "terminal_code": "Code terminal",
+      "terminal_code_hint": "ex. TCH-001",
+      "pin": "Code PIN",
+      "terminal_mode": "Mode terminal POS",
+      "terminal_binding_notice": "Après connexion, le système vérifiera cet appareil et son terminal associé."
+    },
+    "logout": "Déconnexion",
+    "forbidden": {
+      "title": "Accès refusé",
+      "message": "Vous n'avez pas les droits nécessaires pour accéder à cette page.",
+      "back": "Retour à la connexion"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "surface": {
+    "cashier": "Kesye",
+    "platform_admin": "Platfòm",
+    "tenant_admin": "Administrasyon"
+  },
+  "nav": {
+    "pagemodels": "Modèles de pages"
+  }
+}

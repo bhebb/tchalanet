@@ -2,7 +2,12 @@
 
 ## Status
 
-In Progress
+**Superseded — tous les slices absorbés ailleurs.**
+
+- Slices 5–6 (admin tenant) → superseded par `admin-tenant-sidenav-v0`
+- Slices 1–4 (platform/superadmin) → superseded par `admin-superadmin-sidenav-v0`
+
+Ce change peut être archivé.
 
 ## Why
 

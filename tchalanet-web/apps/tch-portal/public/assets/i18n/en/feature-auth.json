@@ -1,0 +1,120 @@
+{
+  "profile": {
+    "avatar_alt": "User avatar",
+    "title": "My profile",
+    "description": "Manage your personal information and preferences.",
+    "loading": "Loading profile...",
+    "empty": {
+      "title": "Profile not found",
+      "message": "Unable to load profile information."
+    },
+    "section": {
+      "identity": "Identity",
+      "preferences": "Preferences",
+      "access": "Access"
+    },
+    "field": {
+      "displayName": "Display name",
+      "email": "Email",
+      "username": "Username",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "role": "Role"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Theme",
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "locale": "Locale",
+      "timeZone": "Time zone",
+      "currency": "Currency"
+    },
+    "error": {
+      "load": "Error loading profile.",
+      "save": "Error saving changes."
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Account activation",
+      "description": "Change the temporary password and complete your profile before entering the admin space.",
+      "security": {
+        "title": "Security",
+        "currentPassword": "Temporary password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "passwordMismatch": "Passwords do not match."
+      },
+      "profile": {
+        "title": "Profile",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phoneNumber": "Optional phone number"
+      },
+      "tenant": {
+        "title": "Tenant access",
+        "name": "Tenant",
+        "code": "Code",
+        "role": "Role"
+      },
+      "action": {
+        "submit": "Activate my account",
+        "submitting": "Activating"
+      }
+    }
+  },
+  "auth": {
+    "forbidden": {
+      "back": "Back to public home",
+      "body": "Your current role does not allow access to this surface.",
+      "title": "Forbidden"
+    },
+    "login": {
+      "brand": {
+        "body": "Manage sales, draws, and your network from one secure operational workspace.",
+        "capabilities": {
+          "operations": "Real-time operation monitoring",
+          "sales": "Centralized sales and connections",
+          "security": "Protected and traceable access"
+        },
+        "eyebrow": "Lottery network",
+        "title": "Your network. One clear view."
+      },
+      "copyright": "© 2026 Tchalanet. All rights reserved.",
+      "errors": {
+        "accessDenied": "Sign-in succeeded, but your Tchalanet access is not authorized yet.",
+        "emailLinkFailed": "The sign-in link is invalid or expired.",
+        "emailRequired": "Please enter your email address.",
+        "invalidCredentials": "Invalid email address or password."
+      },
+      "form": {
+        "authenticating": "Authenticating…",
+        "body": "Use the credentials associated with your Tchalanet account.",
+        "email": "Email address",
+        "emailLinkSent": "Sign-in link sent. Open your email on this device to continue.",
+        "forgotPassword": "Forgot password?",
+        "resetEmailSent": "A password reset link has been sent to your email address.",
+        "emailPlaceholder": "name@organization.com",
+        "eyebrow": "Secure portal",
+        "hidePassword": "Hide password",
+        "password": "Password",
+        "remember": "Stay signed in on this device",
+        "security": "Your connection is secured by Firebase Authentication.",
+        "sendEmailLink": "Get a sign-in link",
+        "showPassword": "Show password",
+        "submit": "Sign in",
+        "title": "Welcome back"
+      },
+      "links": {
+        "help": "Help",
+        "privacy": "Privacy",
+        "terms": "Terms of use"
+      }
+    },
+    "logout": "Log out"
+  }
+}
