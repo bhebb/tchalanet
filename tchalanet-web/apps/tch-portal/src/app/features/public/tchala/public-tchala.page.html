@@ -28,7 +28,7 @@
         <!-- Content slot -->
         <ng-container content>
           @if (resource.isLoading()) {
-            <p class="tchala-page__status">{{ 'public.tchala.searching' | translate }}</p>
+            <p class="tchala-page__status">{{ 'common.loading' | translate }}</p>
           } @else if (resource.error()) {
             <p class="tchala-page__status tchala-page__status--error">
               {{ 'public.tchala.search_error' | translate }}
