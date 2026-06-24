@@ -1,0 +1,15 @@
+<section class="features">
+  <h2 class="features__title">{{ titleKey() | tchLabel }}</h2>
+  <tch-public-card-grid class="features__grid">
+    @for (item of items(); track item.id ?? $index) {
+      <tch-public-card density="compact">
+        <h3 class="features__name">{{ item.title ?? (item.title_key | tchLabel) }}</h3>
+        @if (item.description || item.description_key) {
+          <p class="features__desc">
+            {{ item.description ?? (item.description_key | tchLabel) }}
+          </p>
+        }
+      </tch-public-card>
+    }
+  </tch-public-card-grid>
+</section>

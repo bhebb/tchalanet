@@ -1,0 +1,25 @@
+.features {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.features__grid {
+  --pub-card-grid-min: 220px;
+}
+
+.features__title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.features__name {
+  margin: 0;
+  color: var(--tch-color-primary, var(--mat-sys-primary));
+  font-size: 1rem;
+}
+
+.features__desc {
+  margin: 0;
+  opacity: 0.85;
+}

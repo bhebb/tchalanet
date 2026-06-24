@@ -8,7 +8,7 @@ import { KpiGridWidget } from './widgets/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/quick-actions.widget';
 import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
 import { FaqWidget } from './widgets/faq.widget';
-import { FeatureGridWidget } from './widgets/feature-grid.widget';
+import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
 import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';

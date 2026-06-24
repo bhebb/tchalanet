@@ -1,4 +1,4 @@
-import { FeatureGridWidget } from './widgets/feature-grid.widget';
+import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
 import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
