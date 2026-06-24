@@ -3,16 +3,14 @@ import { WIDGET_REGISTRY as WIDGET_REGISTRY_TOKEN } from '@tch/page-model';
 
 import { AlertsWidget } from './widgets/alerts.widget';
 import { CommissionSummaryWidget } from './widgets/commission-summary.widget';
-import { ContactCtaWidget } from './widgets/contact-cta.widget';
 import { KpiGridWidget } from './widgets/kpi-grid.widget';
-import { QuickActionsWidget } from './widgets/quick-actions.widget';
-import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
+import { ContactCtaWidget } from './widgets/public/contact-cta/contact-cta.widget';
 import { FaqWidget } from './widgets/public/faq/faq.widget';
 import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
 import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/public/how-it-works/how-it-works.widget';
-import { NewsTickerWidget } from './widgets/news-ticker.widget';
-import { OperatorCtaWidget } from './widgets/operator-cta.widget';
+import { NewsTickerWidget } from './widgets/public/news-ticker/news-ticker.widget';
+import { OperatorCtaWidget } from './widgets/public/operator-cta/operator-cta.widget';
 import { PlansWidget } from './widgets/public/plans/plans.widget';
 import { PublicBusinessAccessControlWidget } from './widgets/public/business-access-control/business-access-control.widget';
 import { PublicBusinessFeaturesWidget } from './widgets/public/business-features/business-features.widget';
@@ -21,9 +19,11 @@ import { PublicBusinessLeadFormWidget } from './widgets/public/business-lead-for
 import { PublicBusinessPlansWidget } from './widgets/public/business-plans/business-plans.widget';
 import { PublicBusinessProcessWidget } from './widgets/public/business-process/business-process.widget';
 import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
-import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
+import { RulesSimulationWidget } from './widgets/public/rules-simulation/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
+import { QuickActionsWidget } from './widgets/quick-actions.widget';
+import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
 
 /**
  * Maps a backend widget `type` string to its Angular component. The key is the real backend type

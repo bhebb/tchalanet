@@ -1,0 +1,48 @@
+<tch-card class="news">
+  <div class="news__header">
+    <h2 class="news__title">{{ titleKey() | tchLabel }}</h2>
+    @if (subtitleKey(); as sk) {
+      <p class="news__subtitle">{{ sk | tchLabel }}</p>
+    }
+  </div>
+
+  @if (items().length) {
+    <ul class="news__list" role="list">
+      @for (item of items(); track item.id ?? $index) {
+        <li class="news__item">
+          <span class="news__label">{{ item.title ?? (item.title_key | tchLabel) }}</span>
+          <span class="news__meta">
+            @if (item.source) {
+              <span class="news__source">{{ item.source }}</span>
+            }
+            @if (item.date) {
+              <time class="news__date">{{ item.date }}</time>
+            }
+          </span>
+        </li>
+      }
+    </ul>
+    <div class="news__footer">
+      @if (externalSourceNoteKey(); as nk) {
+        <p class="news__source-note">{{ nk | tchLabel }}</p>
+      }
+      @if (seeAllAction(); as action) {
+        <a tch-action variant="tertiary" class="news__see-all" [attr.href]="href(action)">
+          {{ labelKey(action) | tchLabel }}
+        </a>
+      }
+    </div>
+  } @else {
+    <div class="news__empty-state">
+      <p class="news__empty-body">{{ 'home.news.empty_body' | tchLabel }}</p>
+      @if (seeAllAction(); as action) {
+        <a tch-action variant="tertiary" class="news__see-all" [attr.href]="href(action)">
+          {{ labelKey(action) | tchLabel }}
+        </a>
+      }
+      @if (externalSourceNoteKey(); as nk) {
+        <p class="news__source-note">{{ nk | tchLabel }}</p>
+      }
+    </div>
+  }
+</tch-card>

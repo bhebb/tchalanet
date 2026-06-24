@@ -1,0 +1,28 @@
+<section class="operator">
+  <div class="operator__text">
+    @if (eyebrowKey(); as ek) {
+      <span class="operator__eyebrow">{{ ek | tchLabel }}</span>
+    }
+    <h2 class="operator__title">{{ titleKey() | tchLabel }}</h2>
+    <p class="operator__body">{{ descriptionKey() | tchLabel }}</p>
+  </div>
+  <div class="operator__side">
+    <div class="operator__actions">
+      @if (primaryAction(); as action) {
+        <a tch-action class="operator__btn-primary" [attr.href]="href(action)">
+          {{ labelKey(action) | tchLabel }}
+        </a>
+      }
+      @if (secondaryAction(); as action) {
+        <a tch-action class="operator__btn-secondary" [attr.href]="href(action)">
+          {{ labelKey(action) | tchLabel }}
+        </a>
+      }
+    </div>
+    @if (tertiaryAction(); as action) {
+      <a class="operator__access-link" [attr.href]="href(action)">
+        {{ labelKey(action) | tchLabel }}
+      </a>
+    }
+  </div>
+</section>

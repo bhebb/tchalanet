@@ -1,0 +1,24 @@
+<section class="contact-cta">
+  <h2 class="contact-cta__title">{{ titleKey() | tchLabel }}</h2>
+  <p class="contact-cta__body">{{ bodyKey() | tchLabel }}</p>
+  <div class="contact-cta__actions">
+    @if (primaryAction(); as action) {
+      <a tch-action variant="primary" [attr.href]="href(action)">
+        {{ labelKey(action) | tchLabel }}
+      </a>
+    } @else {
+      <a tch-action variant="primary" href="/public/contact">
+        {{ 'public.contact_cta.cta' | tchLabel }}
+      </a>
+    }
+    @if (helpAction(); as action) {
+      <a tch-action variant="tertiary" [attr.href]="href(action)">
+        {{ labelKey(action) | tchLabel }}
+      </a>
+    } @else {
+      <a tch-action variant="tertiary" href="/public/help">
+        {{ 'public.contact_cta.help' | tchLabel }}
+      </a>
+    }
+  </div>
+</section>

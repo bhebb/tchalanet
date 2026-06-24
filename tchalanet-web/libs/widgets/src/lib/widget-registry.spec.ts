@@ -1,7 +1,7 @@
 import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
 import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/public/how-it-works/how-it-works.widget';
-import { NewsTickerWidget } from './widgets/news-ticker.widget';
+import { NewsTickerWidget } from './widgets/public/news-ticker/news-ticker.widget';
 import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
 import { PlansWidget } from './widgets/public/plans/plans.widget';
