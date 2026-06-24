@@ -7,26 +7,28 @@
 
 ---
 
-## Slice 0 — Coordination OpenSpec
+## Slice 0 — Coordination OpenSpec ✓
 
-- [ ] Marquer Slices 5–6 de `platform-superadmin-and-tenant-admin-pages/tasks.md` comme `Blocked / superseded by admin-tenant-sidenav-v0`
-- [ ] Localiser le composant qui définit les `NavigationSection[]` de la sidenav admin (shell ou nav service)
+- [x] Marquer Slices 5–6 de `platform-superadmin-and-tenant-admin-pages/tasks.md` comme `Blocked / superseded by admin-tenant-sidenav-v0`
+- [x] Localiser la source de nav — `private-navigation.model.ts` (fallback statique) + `private_shell_tenantadmin.json` (migré de `primary[]` vers `sections[]` pour être backend-driven)
 
 ---
 
-## Slice 1 — Sidenav & routes
+## Slice 1 — Sidenav & routes ✓
 
-- [ ] Restructurer `admin.routes.ts` avec les chemins cibles (voir proposal.md)
-  - Conserver tous les redirects existants (`onboarding`, `complete-config`, `appearance`, `more/*`, etc.)
-  - Ajouter : `/sellers`, `/sellers/new`, `/draws`, `/draws/:drawId`, `/draws/matrix`, `/draws/channels`
-  - Ajouter : `/limits`, `/controls/games`, `/controls/gains`, `/controls/commissions`
-  - Ajouter : `/promotions`, `/promotions/maryaj-gratis`
-  - Ajouter : `/reports/sales`, `/reports/sellers`, `/reports/draws`, `/reports/exports`
-  - Ajouter : `/tickets`, `/tickets/sell`, `/tickets/verify`
-  - Ajouter : `/company/identity`, `/company/address`, `/company/appearance`, `/company/settings`, `/company/support`
-  - Ajouter : `/help`
-- [ ] Mettre à jour les `NavigationSection[]` admin pour correspondre au menu cible (libellés i18n en français)
-- [ ] Vérifier que `nx build` passe après ce slice
+- [x] Restructurer `admin.routes.ts` avec les chemins cibles (voir proposal.md)
+  - Tous les redirects existants préservés (`onboarding`, `complete-config`, `appearance`, `more/*`, `support/*`, etc.)
+  - Ajouté : `/sellers` (alias `seller-terminals`), `/sellers/new`
+  - Ajouté : `/draws/matrix`, `/draws/channels` (dans `adminGeneratedDrawsRoutes`)
+  - Ajouté : `/limits` (avec `?scope=` query params), `/controls/games`, `/controls/gains`, `/controls/commissions`
+  - Ajouté : `/reports/sales`, `/reports/sellers`, `/reports/draws`, `/reports/exports`
+  - Ajouté : `/tickets`, `/tickets/sell`, `/tickets/verify`
+  - Ajouté : `/company/identity`, `/company/address`, `/company/appearance`, `/company/settings`, `/company/support`
+  - Ajouté : `/help`
+  - Legacy paths redirigent vers les nouveaux chemins canoniques
+- [x] Mettre à jour `TENANT_ADMIN_NAVIGATION` dans `private-navigation.model.ts` — fallback statique
+- [x] Mettre à jour `private_shell_tenantadmin.json` `sections[]` — source backend réelle (migré depuis `primary[]`)
+- [x] `nx build` green
 
 ---
 

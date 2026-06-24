@@ -61,4 +61,24 @@ export const platformOperationsRoutes: Route[] = [
     loadComponent: () =>
       import('../pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
   },
+  {
+    path: 'communication-tests',
+    data: {
+      titleKey: 'platform.nav.communicationTests',
+      descriptionKey: 'platform.placeholder.descriptions.communicationTests',
+      icon: 'send',
+    },
+    loadComponent: () =>
+      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'identity-sync',
+    data: {
+      titleKey: 'platform.nav.identitySync',
+      descriptionKey: 'platform.placeholder.descriptions.identitySync',
+      icon: 'sync_alt',
+    },
+    loadComponent: () =>
+      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
 ];

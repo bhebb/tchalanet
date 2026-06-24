@@ -8,4 +8,18 @@ export const adminGeneratedDrawsRoutes: Route[] = [
         m => m.AdminGeneratedDrawsPage,
       ),
   },
+  {
+    path: 'matrix',
+    loadComponent: () =>
+      import('../draw-sales-matrix/pages/admin-draw-sales-matrix.page').then(
+        m => m.AdminDrawSalesMatrixPage,
+      ),
+  },
+  {
+    path: 'channels',
+    loadComponent: () =>
+      import('../draw-channels/pages/overview/admin-draw-channels.page').then(
+        m => m.AdminDrawChannelsPage,
+      ),
+  },
 ];
