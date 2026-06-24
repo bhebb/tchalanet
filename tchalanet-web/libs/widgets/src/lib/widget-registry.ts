@@ -18,7 +18,7 @@ import { PublicBusinessAccessControlWidget } from './widgets/public-business-acc
 import { PublicBusinessFeaturesWidget } from './widgets/public-business-features.widget';
 import { PublicBusinessHeroWidget } from './widgets/public/business-hero/business-hero.widget';
 import { PublicBusinessLeadFormWidget } from './widgets/public/business-lead-form/business-lead-form.widget';
-import { PublicBusinessPlansWidget } from './widgets/public-business-plans.widget';
+import { PublicBusinessPlansWidget } from './widgets/public/business-plans/business-plans.widget';
 import { PublicBusinessProcessWidget } from './widgets/public-business-process.widget';
 import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';

@@ -1,0 +1,40 @@
+<section class="pbplans">
+  <div class="pbplans__header">
+    <h2 class="pbplans__title">{{ titleKey() | tchLabel }}</h2>
+    @if (subtitleKey(); as sk) {
+      <p class="pbplans__subtitle">{{ sk | tchLabel }}</p>
+    }
+  </div>
+
+  <ul class="pbplans__grid" role="list">
+    @for (plan of plans(); track plan.id) {
+      <li class="pbplans__plan" [class.pbplans__plan--highlighted]="plan.highlighted">
+        @if (plan.badgeKey) {
+          <span class="pbplans__badge">{{ plan.badgeKey | tchLabel }}</span>
+        }
+        <div class="pbplans__plan-header">
+          <h3 class="pbplans__plan-name">{{ plan.nameKey | tchLabel }}</h3>
+          <p class="pbplans__plan-price">{{ plan.priceKey | tchLabel }}</p>
+          <p class="pbplans__plan-desc">{{ plan.descriptionKey | tchLabel }}</p>
+        </div>
+        <ul class="pbplans__features" role="list">
+          @for (feat of plan.features; track feat) {
+            <li class="pbplans__feature">
+              <span class="pbplans__feature-icon material-symbols-outlined" aria-hidden="true">check</span>
+              <span>{{ feat | tchLabel }}</span>
+            </li>
+          }
+        </ul>
+        @if (plan.action; as action) {
+          <a
+            class="pbplans__cta"
+            [class.pbplans__cta--primary]="action.style === 'primary'"
+            [attr.href]="href(action)"
+          >
+            {{ action.labelKey | tchLabel }}
+          </a>
+        }
+      </li>
+    }
+  </ul>
+</section>
