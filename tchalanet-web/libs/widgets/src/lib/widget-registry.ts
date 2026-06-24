@@ -23,7 +23,7 @@ import { PublicBusinessProcessWidget } from './widgets/public-business-process.w
 import { PublicDrawResultsWidget } from './widgets/public-draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/tchala-search.widget';
-import { TicketVerificationWidget } from './widgets/ticket-verification.widget';
+import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
 
 /**
  * Maps a backend widget `type` string to its Angular component. The key is the real backend type
