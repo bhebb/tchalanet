@@ -1,0 +1,15 @@
+<section class="pbprocess">
+  <h2 class="pbprocess__title">{{ titleKey() | tchLabel }}</h2>
+
+  <ol class="pbprocess__steps" role="list">
+    @for (step of steps(); track step.id) {
+      <li class="pbprocess__step">
+        <div class="pbprocess__step-number" aria-hidden="true">{{ step.number }}</div>
+        <div class="pbprocess__step-body">
+          <h3 class="pbprocess__step-title">{{ step.titleKey | tchLabel }}</h3>
+          <p class="pbprocess__step-desc">{{ step.descriptionKey | tchLabel }}</p>
+        </div>
+      </li>
+    }
+  </ol>
+</section>

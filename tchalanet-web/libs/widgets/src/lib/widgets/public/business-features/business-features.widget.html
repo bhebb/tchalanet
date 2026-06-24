@@ -1,0 +1,18 @@
+<section class="pbfeatures" [id]="sectionId()">
+  <div class="pbfeatures__header">
+    <h2 class="pbfeatures__title">{{ titleKey() | tchLabel }}</h2>
+    @if (subtitleKey(); as sk) {
+      <p class="pbfeatures__subtitle">{{ sk | tchLabel }}</p>
+    }
+  </div>
+
+  <ul class="pbfeatures__grid" role="list">
+    @for (item of items(); track item.id) {
+      <li class="pbfeatures__item">
+        <span class="pbfeatures__icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+        <h3 class="pbfeatures__item-title">{{ item.titleKey | tchLabel }}</h3>
+        <p class="pbfeatures__item-desc">{{ item.descriptionKey | tchLabel }}</p>
+      </li>
+    }
+  </ul>
+</section>

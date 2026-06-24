@@ -14,12 +14,12 @@ import { HowItWorksWidget } from './widgets/public/how-it-works/how-it-works.wid
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { OperatorCtaWidget } from './widgets/operator-cta.widget';
 import { PlansWidget } from './widgets/public/plans/plans.widget';
-import { PublicBusinessAccessControlWidget } from './widgets/public-business-access-control.widget';
-import { PublicBusinessFeaturesWidget } from './widgets/public-business-features.widget';
+import { PublicBusinessAccessControlWidget } from './widgets/public/business-access-control/business-access-control.widget';
+import { PublicBusinessFeaturesWidget } from './widgets/public/business-features/business-features.widget';
 import { PublicBusinessHeroWidget } from './widgets/public/business-hero/business-hero.widget';
 import { PublicBusinessLeadFormWidget } from './widgets/public/business-lead-form/business-lead-form.widget';
 import { PublicBusinessPlansWidget } from './widgets/public/business-plans/business-plans.widget';
-import { PublicBusinessProcessWidget } from './widgets/public-business-process.widget';
+import { PublicBusinessProcessWidget } from './widgets/public/business-process/business-process.widget';
 import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
