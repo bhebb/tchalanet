@@ -344,7 +344,15 @@
       "security_title": "Résultat sécurisé",
       "status_label": "Statut du ticket",
       "verify_another": "Vérifier un autre ticket",
-      "visual_badge": "Ticket vérifiable"
+      "visual_badge": "Ticket vérifiable",
+      "receipt": {
+        "code": "Code",
+        "date": "Date",
+        "outlet": "PDV",
+        "drawDate": "Date tir.",
+        "totalStake": "Total mise",
+        "gain": "Gain"
+      }
     },
     "markdown": {
       "error": "Impossible de charger ce contenu. Veuillez réessayer.",

@@ -348,7 +348,15 @@
       "security_title": "Secured result",
       "status_label": "Ticket status",
       "verify_another": "Verify another ticket",
-      "visual_badge": "Verifiable ticket"
+      "visual_badge": "Verifiable ticket",
+      "receipt": {
+        "code": "Code",
+        "date": "Date",
+        "outlet": "Outlet",
+        "drawDate": "Draw date",
+        "totalStake": "Total stake",
+        "gain": "Gain"
+      }
     },
     "markdown": {
       "error": "Unable to load this content. Please try again.",

@@ -163,14 +163,14 @@
                 </div>
 
                 <dl class="check-result__receipt-meta">
-                  <div><dt>CODE:</dt><dd>{{ code() }}</dd></div>
-                  <div><dt>DATE:</dt><dd>{{ receiptDate() }}</dd></div>
+                  <div><dt>{{ 'public.check.receipt.code' | translate }}:</dt><dd>{{ code() }}</dd></div>
+                  <div><dt>{{ 'public.check.receipt.date' | translate }}:</dt><dd>{{ receiptDate() }}</dd></div>
                   @if (resultData()?.outlet?.name; as outlet) {
-                    <div><dt>PDV:</dt><dd>{{ outlet }}</dd></div>
+                    <div><dt>{{ 'public.check.receipt.outlet' | translate }}:</dt><dd>{{ outlet }}</dd></div>
                   }
                   @if (resultDraw(); as draw) {
-                    <div><dt>TIRAGE:</dt><dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd></div>
-                    <div><dt>DATE TIR.:</dt><dd>{{ draw.drawDate }}</dd></div>
+                    <div><dt>{{ 'domain.entity.draw' | translate }}:</dt><dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd></div>
+                    <div><dt>{{ 'public.check.receipt.drawDate' | translate }}:</dt><dd>{{ draw.drawDate }}</dd></div>
                   }
                 </dl>
 
@@ -196,13 +196,13 @@
                   <div class="check-result__receipt-rule"></div>
                   <dl class="check-result__receipt-meta check-result__receipt-total">
                     <div>
-                      <dt>TOTAL MISE:</dt>
+                      <dt>{{ 'public.check.receipt.totalStake' | translate }}:</dt>
                       <dd>{{ total.amount | number:'1.0-0' }} {{ total.currency.value }}</dd>
                     </div>
                     @if (resultData()?.winningAmount; as win) {
                       @if (!win.zero) {
                         <div class="check-result__receipt-gain">
-                          <dt>GAIN:</dt>
+                          <dt>{{ 'public.check.receipt.gain' | translate }}:</dt>
                           <dd>{{ win.amount | number:'1.0-0' }} {{ win.currency.value }}</dd>
                         </div>
                       }

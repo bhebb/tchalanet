@@ -347,7 +347,15 @@
       "security_title": "Rezilta sekirize",
       "status_label": "Estati tikè a",
       "verify_another": "Verifye yon lòt tikè",
-      "visual_badge": "Tikè verifyab"
+      "visual_badge": "Tikè verifyab",
+      "receipt": {
+        "code": "Kòd",
+        "date": "Dat",
+        "outlet": "Pwen vant",
+        "drawDate": "Dat tiraj",
+        "totalStake": "Total paryaj",
+        "gain": "Gany"
+      }
     },
     "markdown": {
       "error": "Enposib chaje kontni sa a. Tanpri eseye ankò.",
