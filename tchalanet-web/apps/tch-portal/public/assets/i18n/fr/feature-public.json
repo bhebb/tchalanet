@@ -18,10 +18,6 @@
       "ticket_helper": "Entrez votre code public pour consulter le statut de votre ticket.",
       "title": "Bienvenue"
     },
-    "nav": {
-      "check_ticket": "Ticket",
-      "results": "Résultats locaux"
-    },
     "news": {
       "empty": "Aucune actualité pour le moment.",
       "empty_body": "Les actualités seront bientôt disponibles.",

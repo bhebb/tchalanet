@@ -18,10 +18,6 @@
       "ticket_helper": "Enter your public code to check the status of your ticket.",
       "title": "Welcome"
     },
-    "nav": {
-      "check_ticket": "Ticket",
-      "results": "Local results"
-    },
     "news": {
       "empty": "No news yet.",
       "empty_body": "News will be available soon.",

@@ -48,6 +48,9 @@ const allowedTopLevelByBundle = {
   'feature-platform': new Set(['platform']),
   'feature-seller-terminal': new Set(['cashier', 'sellerTerminal']),
 };
+const forbiddenPrefixesByBundle = {
+  'feature-public': ['home.nav.'],
+};
 
 function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -95,11 +98,13 @@ async function localeBundleDiagnostics(locale) {
   const seen = new Map();
   const duplicates = [];
   const invalidTopLevels = [];
+  const forbiddenKeys = [];
 
   for (const bundle of bundles) {
     const file = path.join(i18nRoot, locale, `${bundle}.json`);
     const data = await readJson(file);
     const allowedTopLevels = allowedTopLevelByBundle[bundle] ?? new Set();
+    const forbiddenPrefixes = forbiddenPrefixesByBundle[bundle] ?? [];
 
     for (const topLevel of Object.keys(data)) {
       if (!allowedTopLevels.has(topLevel)) {
@@ -108,6 +113,12 @@ async function localeBundleDiagnostics(locale) {
     }
 
     for (const key of flatten(data)) {
+      for (const forbiddenPrefix of forbiddenPrefixes) {
+        if (key.startsWith(forbiddenPrefix)) {
+          forbiddenKeys.push(`${bundle}.json:${key}`);
+        }
+      }
+
       const existing = seen.get(key);
       if (existing) {
         duplicates.push(`${key} (${existing}, ${bundle}.json)`);
@@ -117,7 +128,7 @@ async function localeBundleDiagnostics(locale) {
     }
   }
 
-  return { duplicates, invalidTopLevels };
+  return { duplicates, invalidTopLevels, forbiddenKeys };
 }
 
 async function walk(dir, files = []) {
@@ -189,7 +200,8 @@ for (const locale of locales) {
   console.log(
     `- ${locale}: ${declaredByLocale.get(locale).size} keys, ${missing.length} missing vs fr, ` +
       `${diagnostics.duplicates.length} duplicate declarations, ` +
-      `${diagnostics.invalidTopLevels.length} invalid bundle roots`,
+      `${diagnostics.invalidTopLevels.length} invalid bundle roots, ` +
+      `${diagnostics.forbiddenKeys.length} forbidden keys`,
   );
 }
 console.log(`- referenced but missing: ${missingReferences.length}`);
@@ -216,6 +228,13 @@ for (const [locale, diagnostics] of diagnosticsByLocale.entries()) {
       console.log(`  ${invalid}`);
     }
   }
+
+  if (diagnostics.forbiddenKeys.length > 0) {
+    console.log(`\nForbidden keys (${locale}):`);
+    for (const forbidden of diagnostics.forbiddenKeys.slice(0, 100)) {
+      console.log(`  ${forbidden}`);
+    }
+  }
 }
 
 if (
@@ -223,7 +242,10 @@ if (
   (missingReferences.length > 0 ||
     [...missingByLocale.values()].some(keys => keys.length > 0) ||
     [...diagnosticsByLocale.values()].some(
-      diagnostics => diagnostics.duplicates.length > 0 || diagnostics.invalidTopLevels.length > 0,
+      diagnostics =>
+        diagnostics.duplicates.length > 0 ||
+        diagnostics.invalidTopLevels.length > 0 ||
+        diagnostics.forbiddenKeys.length > 0,
     ))
 ) {
   process.exitCode = 1;
