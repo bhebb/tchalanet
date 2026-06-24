@@ -58,7 +58,10 @@
       "city": "City",
       "country": "Country",
       "message": "Message",
-      "messageOptional": "Message optional"
-    }
+      "messageOptional": "Message optional",
+      "email": "Email address",
+      "password": "Password"
+    },
+    "authenticating": "Authenticating..."
   }
 }

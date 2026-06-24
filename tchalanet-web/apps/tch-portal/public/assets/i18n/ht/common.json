@@ -78,7 +78,10 @@
       "city": "Vil",
       "country": "Peyi",
       "message": "Mesaj",
-      "messageOptional": "Mesaj opsyonèl"
-    }
+      "messageOptional": "Mesaj opsyonèl",
+      "email": "Adrès email",
+      "password": "Modpas"
+    },
+    "authenticating": "Otantifikasyon..."
   }
 }

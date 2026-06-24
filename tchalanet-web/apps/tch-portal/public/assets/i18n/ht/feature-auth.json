@@ -92,16 +92,13 @@
         "invalidCredentials": "Adrès imèl oswa modpas la pa valab."
       },
       "form": {
-        "authenticating": "Otantifikasyon…",
         "body": "Itilize idantifyan ki asosye ak kont Tchalanet ou.",
-        "email": "Adrès imèl",
         "emailLinkSent": "Lyen koneksyon an voye. Louvri imel ou sou aparèy sa a pou kontinye.",
         "forgotPassword": "Modpas bliye ?",
         "resetEmailSent": "Yon lyen reyinisyalizasyon voye nan adrès imèl ou.",
         "emailPlaceholder": "non@oganizasyon.com",
         "eyebrow": "Pòtay sekirize",
         "hidePassword": "Kache modpas la",
-        "password": "Modpas",
         "remember": "Rete konekte sou aparèy sa a",
         "security": "Firebase Authentication pwoteje koneksyon ou.",
         "sendEmailLink": "Resevwa yon lyen koneksyon",
