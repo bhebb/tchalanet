@@ -1,0 +1,69 @@
+<div class="latest-results-widget__header">
+  <tch-section-header
+    [title]="titleKey() | tchLabel"
+    [subtitle]="'public.results.subtitle' | tchLabel"
+  >
+    <a tch-action variant="tertiary" slot="action" [attr.href]="moreHref()">
+      {{ moreLabelKey | tchLabel }}
+    </a>
+  </tch-section-header>
+</div>
+
+@if (slotsWithCountdown().length) {
+  <ul class="latest-results-widget__list" role="list">
+    @for (slot of slotsWithCountdown(); track slot.drawResultId ?? slot.slotKey ?? $index) {
+      <li>
+        <tch-card class="latest-results-widget__item">
+          <div class="latest-results-widget__item-top">
+            <div class="latest-results-widget__item-meta">
+              <h3 class="latest-results-widget__item-name">
+                {{ (slot.drawChannelLabelKey || slot.label || slot.slotKey || slot.provider) | tchLabel }}
+              </h3>
+              <p class="latest-results-widget__item-slot-key">{{ slot.slotKey }}</p>
+              <time class="latest-results-widget__item-date">
+                {{ slot.resultDate || slot.latest?.resultDate || slot.next?.localDate || '' }}{{ slotTime(slot) ? ' · ' + slotTime(slot) : '' }}
+              </time>
+            </div>
+            <tch-status-badge
+              [status]="slotBadgeStatus(slot)"
+              [label]="slotStatusLabel(slot) | tchLabel"
+            />
+          </div>
+
+          @if (numbers(slot).length) {
+            <div class="latest-results-widget__numbers" aria-label="Numéros tirés">
+              @for (n of numbers(slot); track $index) {
+                <span class="latest-results-widget__number">{{ n }}</span>
+              }
+            </div>
+          } @else {
+            <p class="latest-results-widget__no-numbers">
+              {{ 'public.results.numbers_pending' | tchLabel }}
+            </p>
+          }
+
+          @if (slot.isAwaiting) {
+            <p class="latest-results-widget__awaiting">
+              {{ 'public.results.awaiting' | tchLabel }}
+            </p>
+          } @else if (slot.countdown) {
+            <div class="latest-results-widget__next-draw">
+              <span class="latest-results-widget__next-label">
+                {{ 'public.results.next_in' | tchLabel }}
+              </span>
+              <time class="latest-results-widget__countdown">{{ slot.countdown }}</time>
+            </div>
+          }
+
+          @if (detailHref(slot); as href) {
+            <a tch-action variant="tertiary" class="latest-results-widget__detail-link" [attr.href]="href">
+              {{ 'common.details' | tchLabel }}
+            </a>
+          }
+        </tch-card>
+      </li>
+    }
+  </ul>
+} @else {
+  <p class="latest-results-widget__empty">{{ 'public.results.empty' | tchLabel }}</p>
+}

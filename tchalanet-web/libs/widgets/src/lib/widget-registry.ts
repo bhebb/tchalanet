@@ -20,7 +20,7 @@ import { PublicBusinessHeroWidget } from './widgets/public/business-hero/busines
 import { PublicBusinessLeadFormWidget } from './widgets/public-business-lead-form.widget';
 import { PublicBusinessPlansWidget } from './widgets/public-business-plans.widget';
 import { PublicBusinessProcessWidget } from './widgets/public-business-process.widget';
-import { PublicDrawResultsWidget } from './widgets/public-draw-results.widget';
+import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
