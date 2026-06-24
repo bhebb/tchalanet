@@ -1,7 +1,7 @@
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { catchError, defer, filter, of, shareReplay } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 
 import { NavigationSection } from '@tch/api';
 import { PageModelApi, PageRuntimeResponse, PrivateShellRuntime } from '@tch/page-model';
@@ -22,17 +22,23 @@ export class PrivateShellService {
 
   readonly shellLoadError = signal(false);
 
-  readonly page$ = defer(() => {
-    const url = this.router.url;
-    // Use URL as primary signal — prevents role-dual users (SUPER_ADMIN + TENANT_ADMIN)
-    // from seeing the platform shell when they navigate to /app/admin.
-    if (url.startsWith('/app/platform')) return this.api.getPlatformPage();
-    if (url.startsWith('/app/admin') || url.startsWith('/app/cashier')) return this.api.getTenantPage();
-    // /app/profile and other shared routes: fall back to role
-    return this.auth.session().roles.includes('SUPER_ADMIN')
-      ? this.api.getPlatformPage()
-      : this.api.getTenantPage();
-  }).pipe(shareReplay(1));
+  // Re-fetch the shell whenever the space changes (platform ↔ admin/cashier).
+  // shareReplay(1) without defer avoids stale cache across logout/re-login cycles.
+  readonly page$ = this.router.events.pipe(
+    filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+    startWith(null),
+    map(() => this.router.url),
+    distinctUntilChanged((a, b) => urlToSpace(a) === urlToSpace(b)),
+    switchMap(url => {
+      if (url.startsWith('/app/platform')) return this.api.getPlatformPage();
+      if (url.startsWith('/app/admin') || url.startsWith('/app/cashier')) return this.api.getTenantPage();
+      // /app/profile and other shared routes: fall back to role
+      return this.auth.session().roles.includes('SUPER_ADMIN')
+        ? this.api.getPlatformPage()
+        : this.api.getTenantPage();
+    }),
+    shareReplay(1),
+  );
 
   readonly page = toSignal<PageRuntimeResponse | undefined>(
     this.page$.pipe(
@@ -70,4 +76,8 @@ export class PrivateShellService {
     if (space === 'admin') return TENANT_ADMIN_NAVIGATION;
     return CASHIER_NAVIGATION;
   });
+}
+
+function urlToSpace(url: string): 'platform' | 'other' {
+  return url.startsWith('/app/platform') ? 'platform' : 'other';
 }

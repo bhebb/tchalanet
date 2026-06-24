@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { PrivateRuntimeInitializer } from '../runtime';
 import { AUTH_CLIENT } from './auth-client';
@@ -53,9 +54,15 @@ export class AuthSessionService {
 
             this.sessionState.set(session);
             return session;
-        } catch {
-            // Firebase OK, mais Tchalanet refuse: pas de AppUser mapping, rôle absent, tenant absent, etc.
-            return this.setAnonymousSession();
+        } catch (err) {
+            // 401/403 = Tchalanet refuses access (no AppUser mapping, missing role/tenant).
+            // Force logout — the Firebase token is valid but this user has no platform access.
+            if (isAccessDenied(err) || !this.sessionState().authenticated) {
+                return this.setAnonymousSession();
+            }
+            // Network error, timeout, 5xx: transient failure.
+            // Keep the last known session alive — do not kick the user out on a server hiccup.
+            return this.sessionState();
         }
     }
 
@@ -115,6 +122,10 @@ export class AuthSessionService {
         this.sessionState.set(session);
         return session;
     }
+}
+
+function isAccessDenied(err: unknown): boolean {
+    return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
 }
 
 function normalizeRoles(roles: readonly string[] | undefined): readonly UserRole[] {

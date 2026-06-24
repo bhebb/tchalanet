@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +16,6 @@ import { LanguageSwitcher } from '../../../core/i18n';
   imports: [
     FormsModule,
     LanguageSwitcher,
-    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -31,7 +29,6 @@ import { LanguageSwitcher } from '../../../core/i18n';
 export class LoginPage {
   email = '';
   password = '';
-  remember = true;
 
   readonly loading = signal(false);
   readonly errorKey = signal<string | null>(null);
@@ -49,7 +46,7 @@ export class LoginPage {
     this.errorKey.set(null);
 
     try {
-      const session = await this.authSession.login(this.email, this.password, this.remember);
+      const session = await this.authSession.login(this.email, this.password);
 
       if (!session.authenticated) {
         this.errorKey.set('auth.login.errors.accessDenied');
