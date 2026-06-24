@@ -41,6 +41,23 @@
         "lastUpdate": "Dernière mise à jour",
         "publicReference": "Référence publique"
       }
+    },
+    "draw": {
+      "provider": {
+        "newYork": "New York",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "texas": "Texas"
+      },
+      "slotType": {
+        "mid": "Midi",
+        "eve": "Soir",
+        "late": "Nuit"
+      },
+      "field": {
+        "provider": "Province / état",
+        "slotType": "Type de tirage"
+      }
     }
   }
 }

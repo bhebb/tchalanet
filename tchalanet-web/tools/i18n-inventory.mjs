@@ -58,6 +58,18 @@ const forbiddenPrefixesByBundle = {
     'public.results.supported_source',
     'public.results.last_update',
     'public.results.public_reference',
+    'public.results.filters.new_york',
+    'public.results.filters.florida',
+    'public.results.filters.georgia',
+    'public.results.filters.texas',
+    'public.results.filters.provider',
+    'public.results.filters.slot_type',
+    'public.results.filters.slot_all',
+    'public.results.filters.slot_mid',
+    'public.results.filters.slot_eve',
+    'public.results.filters.slot_late',
+    'public.results.filters.from',
+    'public.results.filters.to',
   ],
 };
 

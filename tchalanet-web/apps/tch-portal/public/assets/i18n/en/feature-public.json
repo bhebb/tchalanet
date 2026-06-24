@@ -401,19 +401,7 @@
       },
       "filters": {
         "aria": "Result filters",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "more": "More filters",
-        "new_york": "New York",
-        "texas": "Texas",
-        "provider": "State / provider",
-        "slot_type": "Draw type",
-        "slot_all": "All",
-        "slot_mid": "Midday",
-        "slot_eve": "Evening",
-        "slot_late": "Night",
-        "from": "From",
-        "to": "To"
+        "more": "More filters"
       },
       "latest_title": "Latest draws",
       "list": {

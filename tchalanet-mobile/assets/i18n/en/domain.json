@@ -41,6 +41,23 @@
         "lastUpdate": "Last update",
         "publicReference": "Public reference"
       }
+    },
+    "draw": {
+      "provider": {
+        "newYork": "New York",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "texas": "Texas"
+      },
+      "slotType": {
+        "mid": "Midday",
+        "eve": "Evening",
+        "late": "Night"
+      },
+      "field": {
+        "provider": "Province / state",
+        "slotType": "Draw type"
+      }
     }
   }
 }

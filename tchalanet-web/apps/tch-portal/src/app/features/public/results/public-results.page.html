@@ -23,7 +23,7 @@
           <div
             class="results-page__filter-row"
             role="group"
-            [attr.aria-label]="'public.results.filters.provider' | translate"
+            [attr.aria-label]="'domain.draw.field.provider' | translate"
           >
             @for (p of providerFilters; track p.id) {
               <button
@@ -41,7 +41,7 @@
           <div
             class="results-page__filter-row"
             role="group"
-            [attr.aria-label]="'public.results.filters.slot_type' | translate"
+            [attr.aria-label]="'domain.draw.field.slotType' | translate"
           >
             @for (s of slotTypeFilters; track s.id) {
               <button
@@ -58,7 +58,7 @@
           <!-- Date range -->
           <div class="results-page__filter-dates">
             <label class="results-page__date-label">
-              <span>{{ 'public.results.filters.from' | translate }}</span>
+              <span>{{ 'common.dateRange.from' | translate }}</span>
               <input
                 class="results-page__date-input"
                 type="date"
@@ -67,7 +67,7 @@
               />
             </label>
             <label class="results-page__date-label">
-              <span>{{ 'public.results.filters.to' | translate }}</span>
+              <span>{{ 'common.dateRange.to' | translate }}</span>
               <input
                 class="results-page__date-input"
                 type="date"

@@ -397,19 +397,7 @@
       },
       "filters": {
         "aria": "Filtres de résultats",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "more": "Plus de filtres",
-        "new_york": "New York",
-        "texas": "Texas",
-        "provider": "Province / état",
-        "slot_type": "Type de tirage",
-        "slot_all": "Tous",
-        "slot_mid": "Midi",
-        "slot_eve": "Soir",
-        "slot_late": "Nuit",
-        "from": "Du",
-        "to": "Au"
+        "more": "Plus de filtres"
       },
       "latest_title": "Derniers tirages",
       "list": {

@@ -66,6 +66,10 @@
     "alphaNavAria": "Navigation alphabétique",
     "paginationAria": "Pagination",
     "searchLoadError": "Erreur lors du chargement. Veuillez réessayer.",
-    "searchEmpty": "Aucun résultat pour cette recherche."
+    "searchEmpty": "Aucun résultat pour cette recherche.",
+    "dateRange": {
+      "from": "Du",
+      "to": "Au"
+    }
   }
 }

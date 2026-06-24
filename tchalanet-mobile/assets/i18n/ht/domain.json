@@ -41,6 +41,23 @@
         "lastUpdate": "Dènye mizajou",
         "publicReference": "Referans piblik"
       }
+    },
+    "draw": {
+      "provider": {
+        "newYork": "New York",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "texas": "Texas"
+      },
+      "slotType": {
+        "mid": "Midi",
+        "eve": "Swa",
+        "late": "Nwit"
+      },
+      "field": {
+        "provider": "Pwovens / eta",
+        "slotType": "Kalite tiraj"
+      }
     }
   }
 }

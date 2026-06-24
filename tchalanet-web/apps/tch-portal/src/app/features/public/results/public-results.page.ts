@@ -166,16 +166,16 @@ export class PublicResultsPage {
 
   readonly providerFilters: readonly { readonly id: ProviderKey; readonly labelKey: string }[] = [
     { id: 'all', labelKey: 'common.all' },
-    { id: 'ny', labelKey: 'public.results.filters.new_york' },
-    { id: 'fl', labelKey: 'public.results.filters.florida' },
-    { id: 'ga', labelKey: 'public.results.filters.georgia' },
-    { id: 'tx', labelKey: 'public.results.filters.texas' },
+    { id: 'ny', labelKey: 'domain.draw.provider.newYork' },
+    { id: 'fl', labelKey: 'domain.draw.provider.florida' },
+    { id: 'ga', labelKey: 'domain.draw.provider.georgia' },
+    { id: 'tx', labelKey: 'domain.draw.provider.texas' },
   ];
 
   readonly slotTypeFilters: readonly { readonly id: SlotTypeKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'public.results.filters.slot_all' },
-    { id: 'mid', labelKey: 'public.results.filters.slot_mid' },
-    { id: 'eve', labelKey: 'public.results.filters.slot_eve' },
-    { id: 'late', labelKey: 'public.results.filters.slot_late' },
+    { id: 'all', labelKey: 'common.all' },
+    { id: 'mid', labelKey: 'domain.draw.slotType.mid' },
+    { id: 'eve', labelKey: 'domain.draw.slotType.eve' },
+    { id: 'late', labelKey: 'domain.draw.slotType.late' },
   ];
 }

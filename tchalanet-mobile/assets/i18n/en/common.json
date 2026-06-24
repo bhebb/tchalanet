@@ -66,6 +66,10 @@
     "alphaNavAria": "Alphabetical navigation",
     "paginationAria": "Pagination",
     "searchLoadError": "Failed to load. Please try again.",
-    "searchEmpty": "No results for this search."
+    "searchEmpty": "No results for this search.",
+    "dateRange": {
+      "from": "From",
+      "to": "To"
+    }
   }
 }

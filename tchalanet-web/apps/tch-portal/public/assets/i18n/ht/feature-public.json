@@ -400,19 +400,7 @@
       },
       "filters": {
         "aria": "Filtè rezilta",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "more": "Plis filtè",
-        "new_york": "New York",
-        "texas": "Texas",
-        "provider": "Eta / founisè",
-        "slot_type": "Kalite tiraj",
-        "slot_all": "Tout",
-        "slot_mid": "Midi",
-        "slot_eve": "Swa",
-        "slot_late": "Nwit",
-        "from": "Depi",
-        "to": "Jiska"
+        "more": "Plis filtè"
       },
       "latest_title": "Dènye tiraj",
       "list": {

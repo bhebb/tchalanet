@@ -66,6 +66,10 @@
     "alphaNavAria": "Navigasyon alfabetik",
     "paginationAria": "Paginasyon",
     "searchLoadError": "Chajman an echwe. Tanpri eseye ankò.",
-    "searchEmpty": "Pa gen rezilta pou rechèch sa a."
+    "searchEmpty": "Pa gen rezilta pou rechèch sa a.",
+    "dateRange": {
+      "from": "Soti",
+      "to": "Jiska"
+    }
   }
 }
