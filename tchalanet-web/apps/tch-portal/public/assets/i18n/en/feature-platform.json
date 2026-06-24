@@ -675,6 +675,74 @@
       },
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
+    },
+    "i18nOverrides": {
+      "title": "Translations",
+      "description": "Manage translation overrides by locale and level.",
+      "action": {
+        "add": "Add",
+        "refresh": "Refresh",
+        "edit": "Edit",
+        "delete": "Delete",
+        "create": "Create",
+        "save": "Save",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "confirmDelete": "Delete translation \"{{key}}\" ({{locale}})?"
+      },
+      "kpi": {
+        "keys": "Keys",
+        "locales": "Locales",
+        "overrides": "Overrides"
+      },
+      "filter": {
+        "searchPlaceholder": "i18n key...",
+        "locale": "Locale",
+        "allLocales": "All",
+        "level": "Level",
+        "allLevels": "All"
+      },
+      "state": {
+        "loading": "Loading translations...",
+        "emptyTitle": "No overrides",
+        "emptyMessage": "No translation override matches this filter."
+      },
+      "column": {
+        "locale": "Locale",
+        "level": "Level",
+        "key": "Key",
+        "value": "Value",
+        "surface": "Surface",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "pagination": {
+        "count": "{{count}} override(s)",
+        "page": "Page {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Add translation",
+        "editTitle": "Edit translation",
+        "defaultSurface": "Default (INTERNAL)",
+        "unchangedSurface": "Unchanged",
+        "keyLabel": "Key (i18nKey)",
+        "keyPlaceholder": "ex: common.welcomeTitle",
+        "valueLabel": "Value (i18nValue)",
+        "tenantIdLabel": "Tenant ID (required for TENANT level)",
+        "required": "Required."
+      },
+      "feedback": {
+        "created": "Translation created.",
+        "updated": "Translation updated.",
+        "deleted": "Translation deleted.",
+        "loadError": "Unable to load translations.",
+        "deleteError": "Unable to delete the translation.",
+        "genericError": "Unable to save the translation."
+      }
     }
   }
 }

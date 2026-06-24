@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
@@ -43,6 +44,7 @@ import { EditI18nOverrideDialog } from '../../components/dialogs/edit-i18n-overr
     MatSelectModule,
     MatTableModule,
     ReactiveFormsModule,
+    TranslatePipe,
   ],
   templateUrl: './platform-catalog-i18n-overrides.page.html',
   styleUrls: ['./platform-catalog-i18n-overrides.page.scss'],
@@ -51,6 +53,7 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   private readonly api = inject(PlatformI18nApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = ['locale', 'level', 'i18nKey', 'i18nValue', 'surface', 'active', 'actions'];
   readonly locales = COMMON_LOCALES;
@@ -94,7 +97,10 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(
+          (err as { error?: { title?: string } })?.error?.title ??
+            this.translate.instant('platform.i18nOverrides.feedback.loadError'),
+        );
         this.loading.set(false);
       },
     });
@@ -110,7 +116,7 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
     const ref = this.dialog.open(CreateI18nOverrideDialog, { width: '540px' });
     ref.afterClosed().subscribe((created: I18nOverrideView | { __error: string } | null) => {
       if (created && '__error' in created) { this.showError(created.__error); return; }
-      if (created) { this.snackBar.open('Traduction créée.', 'OK', { duration: 4000 }); this.load(); this.api.getOverview().subscribe({ next: o => this.overview.set(o) }); }
+      if (created) { this.snackBar.open(this.translate.instant('platform.i18nOverrides.feedback.created'), 'OK', { duration: 4000 }); this.load(); this.api.getOverview().subscribe({ next: o => this.overview.set(o) }); }
     });
   }
 
@@ -118,20 +124,20 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
     const ref = this.dialog.open(EditI18nOverrideDialog, { data: override, width: '520px' });
     ref.afterClosed().subscribe((updated: I18nOverrideView | { __error: string } | null) => {
       if (updated && '__error' in updated) { this.showError(updated.__error); return; }
-      if (updated) { this.snackBar.open('Traduction mise à jour.', 'OK', { duration: 4000 }); this.load(); }
+      if (updated) { this.snackBar.open(this.translate.instant('platform.i18nOverrides.feedback.updated'), 'OK', { duration: 4000 }); this.load(); }
     });
   }
 
   deleteOverride(override: I18nOverrideView): void {
-    if (!confirm(`Supprimer la traduction « ${override.i18nKey} » (${override.locale}) ?`)) return;
+    if (!confirm(this.translate.instant('platform.i18nOverrides.action.confirmDelete', { key: override.i18nKey, locale: override.locale }))) return;
     this.api.deleteOverride(override.id).subscribe({
       next: () => {
-        this.snackBar.open('Traduction supprimée.', 'OK', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('platform.i18nOverrides.feedback.deleted'), 'OK', { duration: 4000 });
         this.load();
         this.api.getOverview().subscribe({ next: o => this.overview.set(o) });
       },
       error: (err: unknown) => {
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur lors de la suppression.', 'OK', { duration: 5000 });
+        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('platform.i18nOverrides.feedback.deleteError'), 'OK', { duration: 5000 });
       },
     });
   }

@@ -675,6 +675,74 @@
       "totalTenants": {
         "label": "Total tenants"
       }
+    },
+    "i18nOverrides": {
+      "title": "Traductions",
+      "description": "Gérez les overrides de traduction par locale et niveau.",
+      "action": {
+        "add": "Ajouter",
+        "refresh": "Actualiser",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "create": "Créer",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "retry": "Réessayer",
+        "confirmDelete": "Supprimer la traduction « {{key}} » ({{locale}}) ?"
+      },
+      "kpi": {
+        "keys": "Clés",
+        "locales": "Locales",
+        "overrides": "Overrides"
+      },
+      "filter": {
+        "searchPlaceholder": "Clé i18n...",
+        "locale": "Locale",
+        "allLocales": "Toutes",
+        "level": "Niveau",
+        "allLevels": "Tous"
+      },
+      "state": {
+        "loading": "Chargement des traductions...",
+        "emptyTitle": "Aucun override",
+        "emptyMessage": "Aucune traduction surchargée ne correspond à ce filtre."
+      },
+      "column": {
+        "locale": "Locale",
+        "level": "Niveau",
+        "key": "Clé",
+        "value": "Valeur",
+        "surface": "Surface",
+        "active": "Actif",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "pagination": {
+        "count": "{{count}} override(s)",
+        "page": "Page {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Ajouter une traduction",
+        "editTitle": "Modifier la traduction",
+        "defaultSurface": "Par défaut (INTERNAL)",
+        "unchangedSurface": "Inchangé",
+        "keyLabel": "Clé (i18nKey)",
+        "keyPlaceholder": "ex. common.welcomeTitle",
+        "valueLabel": "Valeur (i18nValue)",
+        "tenantIdLabel": "Tenant ID (requis pour niveau TENANT)",
+        "required": "Requis."
+      },
+      "feedback": {
+        "created": "Traduction créée.",
+        "updated": "Traduction mise à jour.",
+        "deleted": "Traduction supprimée.",
+        "loadError": "Impossible de charger les traductions.",
+        "deleteError": "Impossible de supprimer la traduction.",
+        "genericError": "Impossible d’enregistrer la traduction."
+      }
     }
   }
 }

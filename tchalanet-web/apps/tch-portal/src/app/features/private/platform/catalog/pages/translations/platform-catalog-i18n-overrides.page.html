@@ -1,8 +1,11 @@
-<tch-admin-page-shell title="Traductions (i18n overrides)" description="Gérez les overrides de traduction par locale et niveau.">
+<tch-admin-page-shell
+  [title]="'platform.i18nOverrides.title' | translate"
+  [description]="'platform.i18nOverrides.description' | translate"
+>
   <div actions>
     <button mat-flat-button color="primary" (click)="openCreate()">
       <span class="material-symbols-outlined">add</span>
-      Ajouter
+      {{ 'platform.i18nOverrides.action.add' | translate }}
     </button>
   </div>
 
@@ -10,15 +13,15 @@
     <div class="catalog-i18n-page__kpi-row">
       <div class="catalog-i18n-page__kpi-chip">
         <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalKeys }}</span>
-        <span class="catalog-i18n-page__kpi-label">Clés</span>
+        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.keys' | translate }}</span>
       </div>
       <div class="catalog-i18n-page__kpi-chip">
         <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalLocales }}</span>
-        <span class="catalog-i18n-page__kpi-label">Locales</span>
+        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.locales' | translate }}</span>
       </div>
       <div class="catalog-i18n-page__kpi-chip">
         <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalOverrides }}</span>
-        <span class="catalog-i18n-page__kpi-label">Overrides</span>
+        <span class="catalog-i18n-page__kpi-label">{{ 'platform.i18nOverrides.kpi.overrides' | translate }}</span>
       </div>
     </div>
   }
@@ -26,21 +29,21 @@
   <tch-admin-crud-shell>
     <div toolbar>
       <tch-admin-data-toolbar
-        searchPlaceholder="Clé i18n..."
+        [searchPlaceholder]="'platform.i18nOverrides.filter.searchPlaceholder' | translate"
         [searchValue]="keyFilter()"
         (searchChange)="onKeyFilter($event)"
       >
         <mat-form-field appearance="outline">
-          <mat-label>Locale</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.filter.locale' | translate }}</mat-label>
           <mat-select [value]="localeFilter()" (valueChange)="onLocaleChange($event)">
-            <mat-option value="">Toutes</mat-option>
+            <mat-option value="">{{ 'platform.i18nOverrides.filter.allLocales' | translate }}</mat-option>
             @for (loc of locales; track loc) { <mat-option [value]="loc">{{ loc }}</mat-option> }
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Niveau</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.filter.level' | translate }}</mat-label>
           <mat-select [value]="levelFilter()" (valueChange)="onLevelChange($event)">
-            <mat-option value="">Tous</mat-option>
+            <mat-option value="">{{ 'platform.i18nOverrides.filter.allLevels' | translate }}</mat-option>
             @for (l of levels; track l) { <mat-option [value]="l">{{ l }}</mat-option> }
           </mat-select>
         </mat-form-field>
@@ -52,50 +55,57 @@
 
     <div content>
       @if (loading()) {
-        <tch-loading label="Chargement..." />
+        <tch-loading [label]="'platform.i18nOverrides.state.loading' | translate" />
       } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+        <tch-error-panel [title]="error()!" [showRetry]="true" [retryLabel]="'platform.i18nOverrides.action.retry' | translate" (retry)="load()" />
       } @else if (overrides().length === 0) {
-        <tch-admin-empty-state icon="translate" title="Aucun override" message="Aucune traduction surchargée pour ce filtre." />
+        <tch-admin-empty-state
+          icon="translate"
+          [title]="'platform.i18nOverrides.state.emptyTitle' | translate"
+          [message]="'platform.i18nOverrides.state.emptyMessage' | translate"
+        />
       } @else {
         <div class="catalog-i18n-page__table">
           <table mat-table [dataSource]="overrides()">
             <ng-container matColumnDef="locale">
-              <th mat-header-cell *matHeaderCellDef>Locale</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.locale' | translate }}</th>
               <td mat-cell *matCellDef="let row"><span class="chip">{{ row.locale }}</span></td>
             </ng-container>
             <ng-container matColumnDef="level">
-              <th mat-header-cell *matHeaderCellDef>Niveau</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.level' | translate }}</th>
               <td mat-cell *matCellDef="let row">
                 <tch-admin-status-pill [tone]="row.level === 'GLOBAL' ? 'info' : 'neutral'" [label]="row.level" />
               </td>
             </ng-container>
             <ng-container matColumnDef="i18nKey">
-              <th mat-header-cell *matHeaderCellDef>Clé</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.key' | translate }}</th>
               <td mat-cell *matCellDef="let row"><code>{{ row.i18nKey }}</code></td>
             </ng-container>
             <ng-container matColumnDef="i18nValue">
-              <th mat-header-cell *matHeaderCellDef>Valeur</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.value' | translate }}</th>
               <td mat-cell *matCellDef="let row" class="catalog-i18n-page__value-cell">{{ row.i18nValue.length > 70 ? row.i18nValue.slice(0, 70) + '…' : row.i18nValue }}</td>
             </ng-container>
             <ng-container matColumnDef="surface">
-              <th mat-header-cell *matHeaderCellDef>Surface</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.surface' | translate }}</th>
               <td mat-cell *matCellDef="let row">{{ row.surface }}</td>
             </ng-container>
             <ng-container matColumnDef="active">
-              <th mat-header-cell *matHeaderCellDef>Actif</th>
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.i18nOverrides.column.active' | translate }}</th>
               <td mat-cell *matCellDef="let row">
-                <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
+                <tch-admin-status-pill
+                  [tone]="row.active ? 'success' : 'neutral'"
+                  [label]="(row.active ? 'platform.i18nOverrides.status.active' : 'platform.i18nOverrides.status.inactive') | translate"
+                />
               </td>
             </ng-container>
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
                 <div class="catalog-i18n-page__actions">
-                  <button mat-icon-button (click)="openEdit(row)" title="Modifier">
+                  <button mat-icon-button (click)="openEdit(row)" [title]="'platform.i18nOverrides.action.edit' | translate">
                     <span class="material-symbols-outlined">edit</span>
                   </button>
-                  <button mat-icon-button color="warn" (click)="deleteOverride(row)" title="Supprimer">
+                  <button mat-icon-button color="warn" (click)="deleteOverride(row)" [title]="'platform.i18nOverrides.action.delete' | translate">
                     <span class="material-symbols-outlined">delete</span>
                   </button>
                 </div>
@@ -109,12 +119,12 @@
     </div>
 
     <div footer>
-      <span class="catalog-i18n-page__footer-count">{{ totalElements() }} override(s)</span>
+      <span class="catalog-i18n-page__footer-count">{{ 'platform.i18nOverrides.pagination.count' | translate: { count: totalElements() } }}</span>
       <div class="catalog-i18n-page__pagination">
         <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
-        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <span>{{ 'platform.i18nOverrides.pagination.page' | translate: { page: page() + 1, total: totalPages() } }}</span>
         <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
           <span class="material-symbols-outlined">chevron_right</span>
         </button>

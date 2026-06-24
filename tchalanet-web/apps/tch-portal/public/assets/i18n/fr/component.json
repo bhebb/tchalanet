@@ -62,9 +62,9 @@
     }
   },
   "error": {
-    "generic": "Erreur locale.",
-    "network": "Connexion locale indisponible.",
-    "not_found": "Page locale introuvable."
+    "generic": "La demande n’a pas pu être traitée. Réessayez ou contactez le support si le problème persiste.",
+    "network": "L’application ne parvient pas à joindre le service Tchalanet. Vérifiez la connexion, puis réessayez.",
+    "not_found": "Cette page ou cette ressource n’existe pas, ou vous n’y avez plus accès."
   },
   "app": {
     "brand": "Tchalanet",

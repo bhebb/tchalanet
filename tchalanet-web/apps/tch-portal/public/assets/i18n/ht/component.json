@@ -62,9 +62,9 @@
     }
   },
   "error": {
-    "generic": "Erè lokal.",
-    "network": "Koneksyon lokal pa disponib.",
-    "not_found": "Paj lokal pa jwenn."
+    "generic": "Demann lan pa t ka trete. Eseye ankò oswa kontakte sipò si pwoblèm nan kontinye.",
+    "network": "Aplikasyon an pa ka jwenn sèvis Tchalanet la. Verifye koneksyon an, epi eseye ankò.",
+    "not_found": "Paj oswa resous sa a pa egziste, oswa ou pa gen aksè ankò."
   },
   "app": {
     "brand": "Tchalanet",

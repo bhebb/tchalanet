@@ -675,6 +675,74 @@
       },
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
+    },
+    "i18nOverrides": {
+      "title": "Tradiksyon",
+      "description": "Jere chanjman tradiksyon yo pa lang ak nivo.",
+      "action": {
+        "add": "Ajoute",
+        "refresh": "Rafrechi",
+        "edit": "Modifye",
+        "delete": "Efase",
+        "create": "Kreye",
+        "save": "Anrejistre",
+        "cancel": "Anile",
+        "retry": "Eseye ankò",
+        "confirmDelete": "Efase tradiksyon \"{{key}}\" ({{locale}})?"
+      },
+      "kpi": {
+        "keys": "Kle",
+        "locales": "Lang",
+        "overrides": "Chanjman"
+      },
+      "filter": {
+        "searchPlaceholder": "Kle i18n...",
+        "locale": "Lang",
+        "allLocales": "Tout",
+        "level": "Nivo",
+        "allLevels": "Tout"
+      },
+      "state": {
+        "loading": "Chajman tradiksyon yo...",
+        "emptyTitle": "Pa gen chanjman",
+        "emptyMessage": "Pa gen okenn tradiksyon chanje pou filtè sa a."
+      },
+      "column": {
+        "locale": "Lang",
+        "level": "Nivo",
+        "key": "Kle",
+        "value": "Valè",
+        "surface": "Sifas",
+        "active": "Aktif",
+        "actions": "Aksyon"
+      },
+      "status": {
+        "active": "Aktif",
+        "inactive": "Inaktif"
+      },
+      "pagination": {
+        "count": "{{count}} chanjman",
+        "page": "Paj {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Ajoute tradiksyon",
+        "editTitle": "Modifye tradiksyon",
+        "defaultSurface": "Pa defo (INTERNAL)",
+        "unchangedSurface": "Pa chanje",
+        "keyLabel": "Kle (i18nKey)",
+        "keyPlaceholder": "egz: common.welcomeTitle",
+        "valueLabel": "Valè (i18nValue)",
+        "tenantIdLabel": "Tenant ID (obligatwa pou nivo TENANT)",
+        "required": "Obligatwa."
+      },
+      "feedback": {
+        "created": "Tradiksyon kreye.",
+        "updated": "Tradiksyon mete ajou.",
+        "deleted": "Tradiksyon efase.",
+        "loadError": "Pa ka chaje tradiksyon yo.",
+        "deleteError": "Pa ka efase tradiksyon an.",
+        "genericError": "Pa ka anrejistre tradiksyon an."
+      }
     }
   }
 }

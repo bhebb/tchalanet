@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
   I18nOverrideLevel,
@@ -26,55 +27,55 @@ export const SURFACES: I18nSurface[] = [
   selector: 'tch-create-i18n-override-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslatePipe],
   template: `
-    <h2 mat-dialog-title>Ajouter une traduction</h2>
+    <h2 mat-dialog-title>{{ 'platform.i18nOverrides.dialog.createTitle' | translate }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="form">
         <div class="row">
           <mat-form-field appearance="outline">
-            <mat-label>Locale</mat-label>
+            <mat-label>{{ 'platform.i18nOverrides.filter.locale' | translate }}</mat-label>
             <mat-select formControlName="locale">
               @for (loc of locales; track loc) { <mat-option [value]="loc">{{ loc }}</mat-option> }
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Niveau</mat-label>
+            <mat-label>{{ 'platform.i18nOverrides.filter.level' | translate }}</mat-label>
             <mat-select formControlName="level">
               @for (l of levels; track l) { <mat-option [value]="l">{{ l }}</mat-option> }
             </mat-select>
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline">
-          <mat-label>Surface</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.column.surface' | translate }}</mat-label>
           <mat-select formControlName="surface">
-            <mat-option value="">— par défaut (INTERNAL) —</mat-option>
+            <mat-option value="">{{ 'platform.i18nOverrides.dialog.defaultSurface' | translate }}</mat-option>
             @for (s of surfaces; track s) { <mat-option [value]="s">{{ s }}</mat-option> }
           </mat-select>
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Clé (i18nKey)</mat-label>
-          <input matInput formControlName="i18nKey" placeholder="ex: common.welcome_title" />
-          @if (form.controls.i18nKey.invalid && form.controls.i18nKey.touched) { <mat-error>Requis.</mat-error> }
+          <mat-label>{{ 'platform.i18nOverrides.dialog.keyLabel' | translate }}</mat-label>
+          <input matInput formControlName="i18nKey" [placeholder]="'platform.i18nOverrides.dialog.keyPlaceholder' | translate" />
+          @if (form.controls.i18nKey.invalid && form.controls.i18nKey.touched) { <mat-error>{{ 'platform.i18nOverrides.dialog.required' | translate }}</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Valeur (i18nValue)</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.dialog.valueLabel' | translate }}</mat-label>
           <textarea matInput formControlName="i18nValue" rows="4"></textarea>
-          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>Requis.</mat-error> }
+          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>{{ 'platform.i18nOverrides.dialog.required' | translate }}</mat-error> }
         </mat-form-field>
         @if (form.controls.level.value === 'TENANT') {
           <mat-form-field appearance="outline">
-            <mat-label>Tenant ID (requis pour niveau TENANT)</mat-label>
+            <mat-label>{{ 'platform.i18nOverrides.dialog.tenantIdLabel' | translate }}</mat-label>
             <input matInput formControlName="tenantId" />
           </mat-form-field>
         }
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">Annuler</button>
+      <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">{{ 'platform.i18nOverrides.action.cancel' | translate }}</button>
       <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
         @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
-        Créer
+        {{ 'platform.i18nOverrides.action.create' | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -90,6 +91,7 @@ export class CreateI18nOverrideDialog {
   private readonly dialogRef = inject(MatDialogRef<CreateI18nOverrideDialog>);
   private readonly api = inject(PlatformI18nApi);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly locales = COMMON_LOCALES;
   readonly levels = LEVELS;
@@ -119,7 +121,7 @@ export class CreateI18nOverrideDialog {
     this.submitting.set(true);
     this.api.createOverride(req).subscribe({
       next: (created: I18nOverrideView) => { this.submitting.set(false); this.dialogRef.close(created); },
-      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
+      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('platform.i18nOverrides.feedback.genericError') }); },
     });
   }
 }

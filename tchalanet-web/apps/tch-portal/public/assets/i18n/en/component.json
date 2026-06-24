@@ -62,9 +62,9 @@
     }
   },
   "error": {
-    "generic": "Local error.",
-    "network": "Local connection unavailable.",
-    "not_found": "Local page not found."
+    "generic": "The request could not be completed. Please try again or contact support if the problem continues.",
+    "network": "The app cannot reach the Tchalanet service. Check your connection, then retry.",
+    "not_found": "This page or resource does not exist, or you no longer have access to it."
   },
   "app": {
     "brand": "Tchalanet",

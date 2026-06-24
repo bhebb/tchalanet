@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
   I18nOverrideView,
@@ -19,36 +20,36 @@ import { SURFACES } from './create-i18n-override.dialog';
   selector: 'tch-edit-i18n-override-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslatePipe],
   template: `
-    <h2 mat-dialog-title>Modifier la traduction</h2>
+    <h2 mat-dialog-title>{{ 'platform.i18nOverrides.dialog.editTitle' | translate }}</h2>
     <mat-dialog-content>
       <div class="meta">
-        <span class="label">Locale</span><span>{{ data.locale }}</span>
-        <span class="label">Clé</span><span class="mono">{{ data.i18nKey }}</span>
-        <span class="label">Niveau</span><span>{{ data.level }}</span>
-        <span class="label">Surface</span><span>{{ data.surface }}</span>
+        <span class="label">{{ 'platform.i18nOverrides.column.locale' | translate }}</span><span>{{ data.locale }}</span>
+        <span class="label">{{ 'platform.i18nOverrides.column.key' | translate }}</span><span class="mono">{{ data.i18nKey }}</span>
+        <span class="label">{{ 'platform.i18nOverrides.column.level' | translate }}</span><span>{{ data.level }}</span>
+        <span class="label">{{ 'platform.i18nOverrides.column.surface' | translate }}</span><span>{{ data.surface }}</span>
       </div>
       <form [formGroup]="form" class="form">
         <mat-form-field appearance="outline">
-          <mat-label>Valeur</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.column.value' | translate }}</mat-label>
           <textarea matInput formControlName="i18nValue" rows="4"></textarea>
-          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>Requis.</mat-error> }
+          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>{{ 'platform.i18nOverrides.dialog.required' | translate }}</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Surface</mat-label>
+          <mat-label>{{ 'platform.i18nOverrides.column.surface' | translate }}</mat-label>
           <mat-select formControlName="surface">
-            <mat-option value="">— inchangé —</mat-option>
+            <mat-option value="">{{ 'platform.i18nOverrides.dialog.unchangedSurface' | translate }}</mat-option>
             @for (s of surfaces; track s) { <mat-option [value]="s">{{ s }}</mat-option> }
           </mat-select>
         </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">Annuler</button>
+      <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">{{ 'platform.i18nOverrides.action.cancel' | translate }}</button>
       <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
         @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
-        Enregistrer
+        {{ 'platform.i18nOverrides.action.save' | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -67,6 +68,7 @@ export class EditI18nOverrideDialog {
   private readonly dialogRef = inject(MatDialogRef<EditI18nOverrideDialog>);
   private readonly api = inject(PlatformI18nApi);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly surfaces = SURFACES;
   readonly submitting = signal(false);
@@ -86,7 +88,7 @@ export class EditI18nOverrideDialog {
     this.submitting.set(true);
     this.api.updateOverride(this.data.id, req).subscribe({
       next: (updated: I18nOverrideView) => { this.submitting.set(false); this.dialogRef.close(updated); },
-      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
+      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('platform.i18nOverrides.feedback.genericError') }); },
     });
   }
 }
