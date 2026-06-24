@@ -134,7 +134,7 @@ async function walk(dir, files = []) {
 
 function collectReferences(source) {
   const references = new Set();
-  const translatePipe = /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*translate/g;
+  const translatePipe = /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*(?:translate|tchLabel)/g;
   const translateInstant = /\.instant\(\s*['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]/g;
   const routeKey = /\b(?:titleKey|descriptionKey|labelKey|messageKey|bodyKey|eyebrowKey|fileKey)\s*:\s*['"`]([^'"`]+)['"`]/g;
   for (const pattern of [translatePipe, translateInstant, routeKey]) {

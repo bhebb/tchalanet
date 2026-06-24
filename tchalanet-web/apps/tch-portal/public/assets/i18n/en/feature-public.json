@@ -571,7 +571,8 @@
         },
         "maryaj_gratis": {
           "title": "Maryaj gratis"
-        }
+        },
+        "bet_options_title": "Bet options"
       },
       "hero_caption": "Public visual preview without result promise.",
       "hero_image_alt": "Person consulting a Tchalanet mobile service",
@@ -605,7 +606,8 @@
         "search_label": "Search a Tchala reference",
         "search_placeholder": "Search water, dog, money…",
         "subtitle": "An indicative list of cultural references. These associations do not guarantee any result.",
-        "title": "Tchala references"
+        "title": "Tchala references",
+        "see_all": "View all Tchala references"
       },
       "verify_link": "Verify a ticket",
       "title": "Game rules and simulation",
@@ -640,7 +642,18 @@
       "simulation": {
         "number_a_label": "Numéro A",
         "number_b_label": "Numéro B",
-        "number_field_label": "Numéro"
+        "bet_option_label": "Bet option",
+        "multiplier_label": "Multiplier",
+        "gain_for_100": "Gain for 100 HTG",
+        "mariage_different_note": "For Mariage, choose two different numbers according to the displayed rules.",
+        "multiplier_custom_badge": "custom",
+        "multiplier_note": "The multiplier is indicative and may vary according to tenant rules.",
+        "borlette_gain_line": "Borlette gain",
+        "maryaj_gratis_gain_line": "Maryaj gratis bonus",
+        "total_gain_label": "Estimated total gain"
+      },
+      "maryaj_gratis": {
+        "availability_note": "Maryaj gratis is available according to the game rules and active catalog."
       }
     },
     "ticket": {

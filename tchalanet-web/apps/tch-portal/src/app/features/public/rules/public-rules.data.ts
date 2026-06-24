@@ -1,9 +1,9 @@
 import type { NumberFieldDef, PublicRuleGame, PublicTchalaEntry } from './public-rules.model';
 
-const FIELD_2: NumberFieldDef = { id: 'number', labelKey: 'public.rules.simulation.number_field_label', minLength: 2, maxLength: 2, pattern: '^[0-9]{2}$' };
-const FIELD_3: NumberFieldDef = { id: 'number', labelKey: 'public.rules.simulation.number_field_label', minLength: 3, maxLength: 3, pattern: '^[0-9]{3}$' };
-const FIELD_4: NumberFieldDef = { id: 'number', labelKey: 'public.rules.simulation.number_field_label', minLength: 4, maxLength: 4, pattern: '^[0-9]{4}$' };
-const FIELD_5: NumberFieldDef = { id: 'number', labelKey: 'public.rules.simulation.number_field_label', minLength: 5, maxLength: 5, pattern: '^[0-9]{5}$' };
+const FIELD_2: NumberFieldDef = { id: 'number', labelKey: 'domain.entity.number', minLength: 2, maxLength: 2, pattern: '^[0-9]{2}$' };
+const FIELD_3: NumberFieldDef = { id: 'number', labelKey: 'domain.entity.number', minLength: 3, maxLength: 3, pattern: '^[0-9]{3}$' };
+const FIELD_4: NumberFieldDef = { id: 'number', labelKey: 'domain.entity.number', minLength: 4, maxLength: 4, pattern: '^[0-9]{4}$' };
+const FIELD_5: NumberFieldDef = { id: 'number', labelKey: 'domain.entity.number', minLength: 5, maxLength: 5, pattern: '^[0-9]{5}$' };
 
 export const PUBLIC_RULE_GAMES: readonly PublicRuleGame[] = [
   {

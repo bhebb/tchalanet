@@ -44,6 +44,7 @@
     "block": "Bloquer",
     "unblock": "Réactiver",
     "close": "Fermer",
-    "open": "Ouvrir"
+    "open": "Ouvrir",
+    "reset": "Réinitialiser"
   }
 }

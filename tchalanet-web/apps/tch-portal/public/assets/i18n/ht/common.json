@@ -64,6 +64,7 @@
     "close": "Fèmen",
     "open": "Louvri",
     "status": "Estati",
-    "actionLabel": "Aksyon"
+    "actionLabel": "Aksyon",
+    "reset": "Reyajiste"
   }
 }

@@ -570,7 +570,8 @@
         },
         "maryaj_gratis": {
           "title": "Maryaj gratis"
-        }
+        },
+        "bet_options_title": "Opsyon paryaj"
       },
       "hero_caption": "Apèsi vizyèl piblik, san pwomès rezilta.",
       "hero_image_alt": "Moun k ap konsilte yon sèvis mobil Tchalanet",
@@ -604,7 +605,8 @@
         "search_label": "Chèche yon repè Tchala",
         "search_placeholder": "Chèche dlo, chen, lajan…",
         "subtitle": "Yon lis endikatif repè kiltirèl. Asosyasyon sa yo pa garanti okenn rezilta.",
-        "title": "Repè Tchala"
+        "title": "Repè Tchala",
+        "see_all": "Gade tout repè Tchala yo"
       },
       "verify_link": "Verifye yon tikè",
       "title": "Règ jwèt ak similasyon",
@@ -639,7 +641,18 @@
       "simulation": {
         "number_a_label": "Numéro A",
         "number_b_label": "Numéro B",
-        "number_field_label": "Numéro"
+        "bet_option_label": "Opsyon paryaj",
+        "multiplier_label": "Miltiplikatè",
+        "gain_for_100": "Gany pou 100 HTG",
+        "mariage_different_note": "Pou Maryaj, chwazi de nimewo diferan selon règ ki parèt yo.",
+        "multiplier_custom_badge": "pèsonalize",
+        "multiplier_note": "Miltiplikatè a se yon endikasyon epi li ka chanje selon règ tenant lan.",
+        "borlette_gain_line": "Gany Borlette",
+        "maryaj_gratis_gain_line": "Bonis Maryaj gratis",
+        "total_gain_label": "Estimasyon gany total"
+      },
+      "maryaj_gratis": {
+        "availability_note": "Maryaj gratis disponib selon règ jwèt la ak katalòg aktif la."
       }
     },
     "ticket": {

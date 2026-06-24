@@ -64,6 +64,7 @@
     "close": "Fermer",
     "open": "Ouvrir",
     "status": "Statut",
-    "actionLabel": "Action"
+    "actionLabel": "Action",
+    "reset": "Réinitialiser"
   }
 }

@@ -125,7 +125,8 @@
       "game": "Game",
       "games": "Games",
       "result": "Result",
-      "results": "Results"
+      "results": "Results",
+      "number": "Number"
     }
   }
 }
