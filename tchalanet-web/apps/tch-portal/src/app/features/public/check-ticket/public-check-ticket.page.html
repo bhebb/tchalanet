@@ -16,9 +16,9 @@
             </div>
           </div>
           <div class="check-page__intro">
-            <p class="check-page__eyebrow">{{ 'public.ticket.eyebrow' | translate }}</p>
-            <h1 id="check-title">{{ 'public.ticket.title' | translate }}</h1>
-            <p>{{ 'public.ticket.description' | translate }}</p>
+            <p class="check-page__eyebrow">{{ 'public.check.eyebrow' | translate }}</p>
+            <h1 id="check-title">{{ 'public.check.title' | translate }}</h1>
+            <p>{{ 'public.check.description' | translate }}</p>
           </div>
         </section>
 
@@ -29,7 +29,7 @@
               <form class="check-page__form" (submit)="submit($event)">
                 <div class="check-page__field">
                   <label class="check-page__label" for="public-ticket-code">
-                    {{ 'public.ticket.code_label' | translate }}
+                    {{ 'domain.ticket.field.publicCode' | translate }}
                   </label>
                   <div class="check-page__input-wrap">
                     <input
@@ -40,17 +40,17 @@
                       inputmode="text"
                       maxlength="9"
                       [value]="code()"
-                      [placeholder]="'public.ticket.placeholder' | translate"
+                      [placeholder]="'public.check.placeholder' | translate"
                       (input)="updateCode($event)"
                     />
                     <button
                       class="check-page__scan-button"
                       type="button"
-                      [attr.aria-label]="'public.ticket.scan_qr' | translate"
+                      [attr.aria-label]="'public.check.scan_qr' | translate"
                     >
                       <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
                       <span class="check-page__scan-label" aria-hidden="true">
-                        {{ 'public.ticket.scan_qr' | translate }}
+                        {{ 'public.check.scan_qr' | translate }}
                       </span>
                     </button>
                   </div>
@@ -65,7 +65,7 @@
                   type="submit"
                   style="--comp-action-bg: var(--tch-color-accent, #fecb00); --comp-action-fg: #1a1a1a;"
                 >
-                  {{ 'public.ticket.cta' | translate }}
+                  {{ 'public.check.cta' | translate }}
                 </button>
               </form>
             }

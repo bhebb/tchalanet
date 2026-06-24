@@ -306,7 +306,13 @@
         "drawDate": "Dat tiraj",
         "totalStake": "Total paryaj",
         "gain": "Gany"
-      }
+      },
+      "cta": "Verifye kounye a",
+      "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
+      "eyebrow": "Verifikasyon piblik tikè",
+      "placeholder": "AB12-CD34",
+      "scan_qr": "Eskane QR",
+      "title": "Verifye yon tikè"
     },
     "markdown": {
       "error": "Enposib chaje kontni sa a. Tanpri eseye ankò.",
@@ -593,17 +599,6 @@
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis disponib selon règ jwèt la ak katalòg aktif la."
       }
-    },
-    "ticket": {
-      "code_label": "Kòd piblik tikè a",
-      "cta": "Verifye kounye a",
-      "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
-      "eyebrow": "Verifikasyon piblik tikè",
-      "help": "Ki kote pou jwenn kòd piblik la?",
-      "placeholder": "AB12-CD34",
-      "scan_qr": "Eskane QR",
-      "title": "Verifye yon tikè",
-      "status_pending": "Ap tann"
     },
     "tchala": {
       "eyebrow": "Diksyonè rèv",

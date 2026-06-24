@@ -49,7 +49,7 @@ const allowedTopLevelByBundle = {
   'feature-seller-terminal': new Set(['cashier', 'sellerTerminal']),
 };
 const forbiddenPrefixesByBundle = {
-  'feature-public': ['home.nav.'],
+  'feature-public': ['home.nav.', 'public.ticket.'],
 };
 
 function isPlainObject(value) {

@@ -303,7 +303,13 @@
         "drawDate": "Date tir.",
         "totalStake": "Total mise",
         "gain": "Gain"
-      }
+      },
+      "cta": "Vérifier maintenant",
+      "description": "Entrez votre code public pour consulter le statut de votre ticket.",
+      "eyebrow": "Vérification publique du ticket",
+      "placeholder": "AB12-CD34",
+      "scan_qr": "Scanner QR",
+      "title": "Vérifier un ticket"
     },
     "markdown": {
       "error": "Impossible de charger ce contenu. Veuillez réessayer.",
@@ -590,17 +596,6 @@
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis est disponible selon les règles du jeu et le catalogue actif."
       }
-    },
-    "ticket": {
-      "code_label": "Code public du ticket",
-      "cta": "Vérifier maintenant",
-      "description": "Entrez votre code public pour consulter le statut de votre ticket.",
-      "eyebrow": "Vérification publique du ticket",
-      "help": "Où trouver le code public ?",
-      "placeholder": "AB12-CD34",
-      "scan_qr": "Scanner QR",
-      "title": "Vérifier un ticket",
-      "status_pending": "En attente"
     },
     "tchala": {
       "eyebrow": "Dictionnaire des rêves",

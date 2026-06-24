@@ -307,7 +307,13 @@
         "drawDate": "Draw date",
         "totalStake": "Total stake",
         "gain": "Gain"
-      }
+      },
+      "cta": "Verify now",
+      "description": "Enter your public code to consult your ticket status.",
+      "eyebrow": "Public ticket verification",
+      "placeholder": "AB12-CD34",
+      "scan_qr": "Scan QR",
+      "title": "Verify a ticket"
     },
     "markdown": {
       "error": "Unable to load this content. Please try again.",
@@ -594,17 +600,6 @@
       "maryaj_gratis": {
         "availability_note": "Maryaj gratis is available according to the game rules and active catalog."
       }
-    },
-    "ticket": {
-      "code_label": "Public ticket code",
-      "cta": "Verify now",
-      "description": "Enter your public code to consult your ticket status.",
-      "eyebrow": "Public ticket verification",
-      "help": "Where can I find the public code?",
-      "placeholder": "AB12-CD34",
-      "scan_qr": "Scan QR",
-      "title": "Verify a ticket",
-      "status_pending": "Pending"
     },
     "tchala": {
       "eyebrow": "Dream Dictionary",

@@ -127,6 +127,11 @@
       "result": "Result",
       "results": "Results",
       "number": "Number"
+    },
+    "ticket": {
+      "field": {
+        "publicCode": "Public ticket code"
+      }
     }
   }
 }

@@ -19,6 +19,11 @@
       "result": "Rezilta",
       "results": "Rezilta yo",
       "number": "Nimewo"
+    },
+    "ticket": {
+      "field": {
+        "publicCode": "Kòd piblik tikè a"
+      }
     }
   }
 }
