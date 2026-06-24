@@ -232,6 +232,7 @@
       "form_message_placeholder": "Ex: I have 3 seller-terminals in Carrefour and I want to manage my daily draws.",
       "form_cta": "Request a demo",
       "form_sent": "Request sent!",
+      "form_error": "Unable to send the request. Check your information and try again.",
       "faq_title": "Frequently asked questions",
       "faq_trial_q": "How does the trial period work?",
       "faq_trial_a": "The trial period lets you test the application with a limited number of seller-terminals depending on the available plan.",

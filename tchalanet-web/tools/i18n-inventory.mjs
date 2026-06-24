@@ -21,6 +21,7 @@ const bundles = [
 const i18nRoot = path.join(root, 'apps/tch-portal/public/assets/i18n');
 const scanRoots = [
   path.join(root, 'apps/tch-portal/src/app'),
+  path.join(root, 'libs/widgets/src'),
   path.join(root, 'apps/tch-portal/public/assets/config'),
 ];
 const scanExtensions = new Set(['.ts', '.html', '.json']);

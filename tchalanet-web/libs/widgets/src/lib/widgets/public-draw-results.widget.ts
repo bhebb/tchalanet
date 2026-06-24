@@ -137,7 +137,7 @@ interface DrawSlotView extends DrawResultItem {
 
               @if (detailHref(slot); as href) {
                 <a tch-action variant="tertiary" class="latest-results-widget__detail-link" [attr.href]="href">
-                  {{ 'public.results.detail' | tchLabel }}
+                  {{ 'common.details' | tchLabel }}
                 </a>
               }
             </tch-card>
@@ -435,10 +435,10 @@ export class PublicDrawResultsWidget {
     if (!this.numbers(slot).length) return 'public.results.awaiting';
     const s = slot.status ?? slot.latest?.status;
     switch (s) {
-      case 'CONFIRMED':  return 'public.results.status.CONFIRMED';
-      case 'OVERRIDDEN': return 'public.results.status.OVERRIDDEN';
-      case 'ERROR':      return 'public.results.status.ERROR';
-      default:           return 'public.results.status.PROVISIONAL';
+      case 'CONFIRMED':  return 'domain.result.status.CONFIRMED';
+      case 'OVERRIDDEN': return 'domain.result.status.OVERRIDDEN';
+      case 'ERROR':      return 'domain.result.status.ERROR';
+      default:           return 'domain.result.status.PROVISIONAL';
     }
   }
 

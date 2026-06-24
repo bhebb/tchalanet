@@ -231,6 +231,7 @@
       "form_message_placeholder": "Ex: J'ai 3 seller-terminals à Carrefour et je cherche à gérer mes tirages quotidiens.",
       "form_cta": "Demander une démo",
       "form_sent": "Demande envoyée !",
+      "form_error": "Impossible d'envoyer la demande. Vérifiez vos informations et réessayez.",
       "faq_title": "Questions fréquentes",
       "faq_trial_q": "Comment fonctionne la période d'essai ?",
       "faq_trial_a": "La période d'essai vous permet de tester l'application avec un nombre limité de seller-terminals ou seller-terminals selon le plan disponible.",

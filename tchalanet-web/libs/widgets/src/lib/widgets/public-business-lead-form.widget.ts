@@ -241,7 +241,7 @@ export class PublicBusinessLeadFormWidget {
   readonly titleKey = computed(() => stringProp(this.config(), 'titleKey') ?? '');
   readonly subtitleKey = computed(() => stringProp(this.config(), 'subtitleKey'));
   readonly submitLabelKey = computed(() => stringProp(this.config(), 'submitLabelKey') ?? 'public.operator.form_cta');
-  readonly sendingLabelKey = computed(() => stringProp(this.config(), 'sendingLabelKey') ?? 'public.operator.form_sending');
+  readonly sendingLabelKey = computed(() => stringProp(this.config(), 'sendingLabelKey') ?? 'common.sending');
   readonly sentLabelKey = computed(() => stringProp(this.config(), 'sentLabelKey') ?? 'public.operator.form_sent');
 
   readonly fields = computed<FormFieldDef[]>(() => {

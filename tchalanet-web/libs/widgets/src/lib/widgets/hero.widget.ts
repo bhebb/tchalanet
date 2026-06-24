@@ -60,10 +60,10 @@ import { TchActionButton } from '@tch/ui/components';
     <div class="hero-widget__visual" aria-hidden="true">
       <div class="hero-widget__ticket-card">
         <div class="hero-widget__ticket-header">
-          <span class="hero-widget__ticket-label">{{ 'public.ticket.code_label' | tchLabel }}</span>
+          <span class="hero-widget__ticket-label">{{ 'domain.ticket.field.publicCode' | tchLabel }}</span>
           <span class="hero-widget__ticket-qr-icon" aria-hidden="true">▣</span>
         </div>
-        <div class="hero-widget__ticket-code">{{ ticketCodeLiteral() ?? ('public.ticket.placeholder' | tchLabel) }}</div>
+        <div class="hero-widget__ticket-code">{{ ticketCodeLiteral() ?? ('public.check.placeholder' | tchLabel) }}</div>
         <div class="hero-widget__ticket-status-row">
           <span class="hero-widget__ticket-badge">{{ statusLabelKey() | tchLabel }}</span>
         </div>
@@ -288,10 +288,10 @@ export class HeroWidget {
     () => stringValue(this.visual()?.['ticketCode']),
   );
   readonly statusLabelKey = computed(
-    () => stringValue(this.visual()?.['statusLabelKey']) ?? 'public.ticket.status_pending',
+    () => stringValue(this.visual()?.['statusLabelKey']) ?? 'ticket.status.pending',
   );
   readonly helperTextKey = computed(
-    () => stringValue(this.visual()?.['helperTextKey']) ?? 'public.ticket.description',
+    () => stringValue(this.visual()?.['helperTextKey']) ?? 'public.check.description',
   );
 
   private readonly allActions = computed(() =>

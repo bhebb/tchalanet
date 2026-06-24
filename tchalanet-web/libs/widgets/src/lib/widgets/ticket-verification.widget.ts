@@ -12,7 +12,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
   template: `
     <tch-card class="check-ticket-widget">
       <div class="check-ticket-widget__copy">
-        <p class="check-ticket-widget__eyebrow">{{ 'public.ticket.eyebrow' | tchLabel }}</p>
+        <p class="check-ticket-widget__eyebrow">{{ 'public.check.eyebrow' | tchLabel }}</p>
         <h2 class="check-ticket-widget__title">{{ titleKey() | tchLabel }}</h2>
         <p class="check-ticket-widget__description">{{ descriptionKey() | tchLabel }}</p>
       </div>
@@ -20,7 +20,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
       <form class="check-ticket-widget__form" action="#" (submit)="$event.preventDefault()">
         <div class="check-ticket-widget__field">
           <label class="check-ticket-widget__label" for="check-ticket-code">
-            {{ 'public.ticket.code_label' | tchLabel }}
+            {{ 'domain.ticket.field.publicCode' | tchLabel }}
           </label>
           <div class="check-ticket-widget__input-row">
             <input
@@ -32,7 +32,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
               inputmode="text"
               maxlength="9"
               [value]="code()"
-              [placeholder]="'public.ticket.placeholder' | tchLabel"
+              [placeholder]="'public.check.placeholder' | tchLabel"
               (input)="onCodeInput($event)"
             />
             <a
@@ -42,7 +42,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
               [attr.href]="path()"
               aria-label="Scanner QR"
             >
-              {{ 'public.ticket.scan_qr' | tchLabel }}
+              {{ 'public.check.scan_qr' | tchLabel }}
             </a>
           </div>
         </div>
@@ -60,7 +60,7 @@ import { TchActionButton, TchCard } from '@tch/ui/components';
         </div>
 
         <a class="check-ticket-widget__help" href="/public/help">
-          {{ 'public.ticket.help' | tchLabel }}
+          {{ 'public.check.help_title' | tchLabel }}
         </a>
       </form>
     </tch-card>
@@ -202,13 +202,13 @@ export class TicketVerificationWidget {
   readonly widgetId = input<string>('');
 
   readonly titleKey = computed(
-    () => stringProp(this.config(), 'titleKey') ?? 'public.ticket.title',
+    () => stringProp(this.config(), 'titleKey') ?? 'public.check.title',
   );
   readonly descriptionKey = computed(
-    () => stringProp(this.config(), 'descriptionKey') ?? 'public.ticket.description',
+    () => stringProp(this.config(), 'descriptionKey') ?? 'public.check.description',
   );
   readonly ctaKey = computed(
-    () => stringProp(this.config(), 'ctaKey') ?? 'public.ticket.cta',
+    () => stringProp(this.config(), 'ctaKey') ?? 'public.check.cta',
   );
   readonly path = computed(() =>
     toPublicPath(stringProp(this.config(), 'path') ?? '/public/check-ticket'),
