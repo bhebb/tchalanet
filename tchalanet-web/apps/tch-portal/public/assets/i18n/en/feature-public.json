@@ -111,7 +111,6 @@
   "public": {
     "help": {
       "cat_aria": "Help categories",
-      "cat_games": "Games",
       "cat_payments": "Payments",
       "cat_security": "Security",
       "cat_withdrawals": "Withdrawals",
@@ -364,10 +363,7 @@
     },
     "news": {
       "feed_aria": "News feed",
-      "filter_all": "All",
       "filter_aria": "Filter news",
-      "filter_promo": "Promotions",
-      "filter_results": "Results",
       "filter_system": "System",
       "filter_tchala": "Tchala",
       "title": "News",

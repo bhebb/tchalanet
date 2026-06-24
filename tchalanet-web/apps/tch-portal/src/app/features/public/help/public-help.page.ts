@@ -18,7 +18,7 @@ const HELP_CATEGORIES: readonly HelpCategory[] = [
   { icon: 'payments',             labelKey: 'public.help.cat_payments' },
   { icon: 'account_balance_wallet', labelKey: 'public.help.cat_withdrawals' },
   { icon: 'security',             labelKey: 'public.help.cat_security' },
-  { icon: 'casino',               labelKey: 'public.help.cat_games' },
+  { icon: 'casino',               labelKey: 'domain.entity.games' },
 ];
 
 @Component({

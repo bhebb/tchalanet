@@ -111,7 +111,6 @@
   "public": {
     "help": {
       "cat_aria": "Kategori èd",
-      "cat_games": "Jwèt",
       "cat_payments": "Peman",
       "cat_security": "Sekirite",
       "cat_withdrawals": "Retrè",
@@ -363,10 +362,7 @@
     },
     "news": {
       "feed_aria": "Fil nouvèl",
-      "filter_all": "Tout",
       "filter_aria": "Filtre nouvèl",
-      "filter_promo": "Pwomosyon",
-      "filter_results": "Rezilta",
       "filter_system": "Sistèm",
       "filter_tchala": "Tchala",
       "title": "Nouvèl",

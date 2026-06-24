@@ -65,6 +65,7 @@
     "open": "Open",
     "status": "Status",
     "actionLabel": "Action",
-    "reset": "Reset"
+    "reset": "Reset",
+    "all": "All"
   }
 }

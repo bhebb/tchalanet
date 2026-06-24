@@ -65,6 +65,7 @@
     "open": "Ouvrir",
     "status": "Statut",
     "actionLabel": "Action",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "all": "Tout"
   }
 }

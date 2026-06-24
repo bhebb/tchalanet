@@ -110,7 +110,6 @@
   "public": {
     "help": {
       "cat_aria": "Catégories d'aide",
-      "cat_games": "Jeux",
       "cat_payments": "Paiements",
       "cat_security": "Sécurité",
       "cat_withdrawals": "Retraits",
@@ -360,10 +359,7 @@
     },
     "news": {
       "feed_aria": "Fil d'actualités",
-      "filter_all": "Tout",
       "filter_aria": "Filtrer les actualités",
-      "filter_promo": "Promotions",
-      "filter_results": "Résultats",
       "filter_system": "Système",
       "filter_tchala": "Tchala",
       "title": "Actualités",
