@@ -416,7 +416,6 @@
     },
     "results": {
       "all": "All draws",
-      "detail": "View detail",
       "detail_eyebrow": "Result status",
       "detail_status": {
         "CONFIRMED": {
@@ -444,7 +443,6 @@
         "updated_at": "May 20, 2024 · 14:42"
       },
       "filters": {
-        "all": "All results",
         "aria": "Result filters",
         "florida": "Florida",
         "georgia": "Georgia",
@@ -460,7 +458,6 @@
         "from": "From",
         "to": "To"
       },
-      "game": "Game",
       "latest_title": "Latest draws",
       "last_update": "Last update",
       "list": {
@@ -494,10 +491,7 @@
       "numbers_pending": "Numbers pending publication.",
       "loading": "Loading draws…",
       "load_error": "Unable to load results. Please check your connection.",
-      "retry": "Retry",
       "pagination": {
-        "prev": "Previous",
-        "next": "Next",
         "total": "result(s)",
         "per_page": "Per page"
       },
@@ -505,11 +499,8 @@
       "awaiting": "Awaiting results",
       "table": {
         "date": "Date",
-        "draw": "Draw",
         "time": "Time",
-        "status": "Status",
-        "numbers": "Numbers",
-        "action": "Action"
+        "numbers": "Numbers"
       },
       "copy_ref": "Copy reference",
       "copied": "Copied!"
@@ -729,9 +720,7 @@
     "shared": {
       "pagination": {
         "aria": "Pagination",
-        "next": "Suivant",
         "per_page": "Par page",
-        "prev": "Précédent",
         "total": "Total"
       }
     }

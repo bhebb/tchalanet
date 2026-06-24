@@ -415,7 +415,6 @@
     },
     "results": {
       "all": "Tout tiraj",
-      "detail": "Gade detay",
       "detail_eyebrow": "Estati rezilta",
       "detail_status": {
         "CONFIRMED": {
@@ -443,7 +442,6 @@
         "updated_at": "20 me 2024 · 14:42"
       },
       "filters": {
-        "all": "Tout rezilta yo",
         "aria": "Filtè rezilta",
         "florida": "Florida",
         "georgia": "Georgia",
@@ -459,7 +457,6 @@
         "from": "Depi",
         "to": "Jiska"
       },
-      "game": "Jwèt",
       "latest_title": "Dènye tiraj",
       "last_update": "Dènye mizajou",
       "list": {
@@ -493,10 +490,7 @@
       "numbers_pending": "Nimewo ap tann piblikasyon.",
       "loading": "Ap chaje tiraj yo…",
       "load_error": "Nou pa ka chaje rezilta yo. Verifye koneksyon ou.",
-      "retry": "Eseye ankò",
       "pagination": {
-        "prev": "Anvan",
-        "next": "Apre",
         "total": "rezilta",
         "per_page": "Pa paj"
       },
@@ -504,11 +498,8 @@
       "awaiting": "Ap tann rezilta yo",
       "table": {
         "date": "Dat",
-        "draw": "Tiraj",
         "time": "Lè",
-        "status": "Estati",
-        "numbers": "Nimewo",
-        "action": "Aksyon"
+        "numbers": "Nimewo"
       },
       "copy_ref": "Kopye referans",
       "copied": "Kopye !"
@@ -728,9 +719,7 @@
     "shared": {
       "pagination": {
         "aria": "Pagination",
-        "next": "Suivant",
         "per_page": "Par page",
-        "prev": "Précédent",
         "total": "Total"
       }
     }

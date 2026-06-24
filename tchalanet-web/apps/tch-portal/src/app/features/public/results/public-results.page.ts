@@ -168,7 +168,7 @@ export class PublicResultsPage {
   // ── Static filter definitions ───────────────────────────────────────────────
 
   readonly providerFilters: readonly { readonly id: ProviderKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'public.results.filters.all' },
+    { id: 'all', labelKey: 'common.all' },
     { id: 'ny', labelKey: 'public.results.filters.new_york' },
     { id: 'fl', labelKey: 'public.results.filters.florida' },
     { id: 'ga', labelKey: 'public.results.filters.georgia' },

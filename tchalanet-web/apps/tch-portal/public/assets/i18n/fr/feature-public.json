@@ -412,7 +412,6 @@
     },
     "results": {
       "all": "Tous les résultats",
-      "detail": "Voir détail",
       "detail_eyebrow": "Statut du résultat",
       "detail_status": {
         "CONFIRMED": {
@@ -440,7 +439,6 @@
         "updated_at": "20 mai 2024 · 14:42"
       },
       "filters": {
-        "all": "Tout",
         "aria": "Filtres de résultats",
         "florida": "Florida",
         "georgia": "Georgia",
@@ -456,7 +454,6 @@
         "from": "Du",
         "to": "Au"
       },
-      "game": "Jeu",
       "latest_title": "Derniers tirages",
       "last_update": "Dernière mise à jour",
       "list": {
@@ -490,10 +487,7 @@
       "numbers_pending": "Numéros en attente de publication.",
       "loading": "Chargement des tirages…",
       "load_error": "Impossible de charger les résultats. Vérifiez votre connexion.",
-      "retry": "Réessayer",
       "pagination": {
-        "prev": "Précédent",
-        "next": "Suivant",
         "total": "résultat(s)",
         "per_page": "Par page"
       },
@@ -501,11 +495,8 @@
       "awaiting": "En attente des résultats",
       "table": {
         "date": "Date",
-        "draw": "Tirage",
         "time": "Heure",
-        "status": "Statut",
-        "numbers": "Numéros",
-        "action": "Action"
+        "numbers": "Numéros"
       },
       "copy_ref": "Copier la référence",
       "copied": "Copié !"
@@ -725,9 +716,7 @@
     "shared": {
       "pagination": {
         "aria": "Pagination",
-        "next": "Suivant",
         "per_page": "Par page",
-        "prev": "Précédent",
         "total": "Total"
       }
     }
