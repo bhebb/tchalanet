@@ -1,1 +1,23 @@
-{}
+{
+  "domain": {
+    "entity": {
+      "draw": "Tiraj",
+      "draws": "Tiraj yo",
+      "seller": "Vandè",
+      "sellers": "Vandè yo",
+      "sellerTerminal": "Tèminal vandè",
+      "sellerTerminals": "Tèminal vandè yo",
+      "odds": "Barèm",
+      "promotion": "Pwomosyon",
+      "promotions": "Pwomosyon yo",
+      "tenant": "Tenant",
+      "tenants": "Tenant yo",
+      "ticket": "Tikè",
+      "tickets": "Tikè yo",
+      "game": "Jwèt",
+      "games": "Jwèt yo",
+      "result": "Rezilta",
+      "results": "Rezilta yo"
+    }
+  }
+}

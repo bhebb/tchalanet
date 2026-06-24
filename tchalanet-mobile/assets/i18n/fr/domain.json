@@ -1,1 +1,23 @@
-{}
+{
+  "domain": {
+    "entity": {
+      "draw": "Tirage",
+      "draws": "Tirages",
+      "seller": "Vendeur",
+      "sellers": "Vendeurs",
+      "sellerTerminal": "Terminal vendeur",
+      "sellerTerminals": "Terminaux vendeurs",
+      "odds": "Barèmes",
+      "promotion": "Promotion",
+      "promotions": "Promotions",
+      "tenant": "Tenant",
+      "tenants": "Tenants",
+      "ticket": "Ticket",
+      "tickets": "Tickets",
+      "game": "Jeu",
+      "games": "Jeux",
+      "result": "Résultat",
+      "results": "Résultats"
+    }
+  }
+}

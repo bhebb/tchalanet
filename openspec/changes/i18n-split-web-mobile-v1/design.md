@@ -27,6 +27,11 @@ feature-seller-terminal
 
 The order is common-to-specific. Later bundles override earlier bundles when the same key exists.
 
+Generic actions and states are shared through `common.*`; product nouns and business
+vocabulary are shared through `domain.entity.*`. Feature and surface bundles should not
+copy generic labels such as add, save, edit, delete, cancel, view, draw, seller,
+seller-terminal, odds, or promotion unless the visible wording intentionally differs.
+
 ## Runtime merge
 
 Web loads the configured bundle list for the selected locale, deep-merges objects, and exposes the result to `ngx-translate`. Backend/bootstrap messages are still merged afterwards through `TranslateService.setTranslation(..., true)`.

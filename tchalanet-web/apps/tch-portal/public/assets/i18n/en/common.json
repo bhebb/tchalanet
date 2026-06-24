@@ -44,6 +44,24 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche"
-    }
+    },
+    "add": "Add",
+    "create": "Create",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "resetFilters": "Reset",
+    "details": "Details",
+    "export": "Export",
+    "print": "Print",
+    "verify": "Verify",
+    "confirm": "Confirm",
+    "archive": "Archive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "block": "Block",
+    "unblock": "Unblock",
+    "close": "Close",
+    "open": "Open"
   }
 }

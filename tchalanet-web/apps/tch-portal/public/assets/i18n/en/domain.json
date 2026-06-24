@@ -106,5 +106,26 @@
         "label": "New Jersey - Evening"
       }
     }
+  },
+  "domain": {
+    "entity": {
+      "draw": "Draw",
+      "draws": "Draws",
+      "seller": "Seller",
+      "sellers": "Sellers",
+      "sellerTerminal": "Seller terminal",
+      "sellerTerminals": "Seller terminals",
+      "odds": "Odds",
+      "promotion": "Promotion",
+      "promotions": "Promotions",
+      "tenant": "Tenant",
+      "tenants": "Tenants",
+      "ticket": "Ticket",
+      "tickets": "Tickets",
+      "game": "Game",
+      "games": "Games",
+      "result": "Result",
+      "results": "Results"
+    }
   }
 }

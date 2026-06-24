@@ -44,6 +44,24 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche"
-    }
+    },
+    "add": "Ajoute",
+    "create": "Kreye",
+    "delete": "Efase",
+    "search": "Chèche",
+    "filter": "Filtre",
+    "resetFilters": "Reyajiste",
+    "details": "Detay",
+    "export": "Ekspòte",
+    "print": "Enprime",
+    "verify": "Verifye",
+    "confirm": "Konfime",
+    "archive": "Achive",
+    "activate": "Aktive",
+    "deactivate": "Dezaktive",
+    "block": "Bloke",
+    "unblock": "Debloke",
+    "close": "Fèmen",
+    "open": "Louvri"
   }
 }

@@ -44,6 +44,24 @@
     "view": "Voir",
     "save": "Enregistrer",
     "saving": "Enregistrement...",
-    "refresh": "Actualiser"
+    "refresh": "Actualiser",
+    "add": "Ajouter",
+    "create": "Créer",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "resetFilters": "Réinitialiser",
+    "details": "Détails",
+    "export": "Exporter",
+    "print": "Imprimer",
+    "verify": "Vérifier",
+    "confirm": "Confirmer",
+    "archive": "Archiver",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "block": "Bloquer",
+    "unblock": "Réactiver",
+    "close": "Fermer",
+    "open": "Ouvrir"
   }
 }
