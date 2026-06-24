@@ -325,17 +325,19 @@ libs/widgets/src/lib/widgets/<surface>/<widget-name>/
   <widget-name>.widget.scss
 ```
 
-`<surface>` peut être `public`, `admin`, `platform`, `seller-terminal` ou `shared`.
-Les widgets très simples peuvent rester à plat pendant la migration, mais tout widget avec template
-ou SCSS substantiel doit être dans son dossier.
+`<surface>` reprend la taxonomie i18n/PageModel : `public`, `surface-admin`,
+`surface-platform`, `surface-seller-terminal` ou `shared`.
+
+Tout widget concret doit vivre dans son dossier. Le registry reste synchrone : les widgets sont
+rendus par PageModel, pas par lazy route.
 
 Exemples :
 
 ```text
 public/hero/hero.widget.ts
 public/results-preview/results-preview.widget.ts
-shared/kpi-grid/kpi-grid.widget.ts
-admin/commission-summary/commission-summary.widget.ts
+surface-admin/kpi-grid/kpi-grid.widget.ts
+surface-admin/commission-summary/commission-summary.widget.ts
 ```
 
 Types :

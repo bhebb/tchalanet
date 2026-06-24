@@ -82,7 +82,7 @@ orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
 | PageModel runtime API contract              | `libs/page-model`                                                                        |
 | PageModel API client                        | `libs/page-model`                                                                        |
 | PageModel renderer                          | `libs/page-model`                                                                        |
-| Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/` for significant widgets    |
+| Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/`                            |
 | PageModel editor screen                     | `apps/tch-portal/src/app/features/platform/page-models`                                  |
 | Auth session store                          | app `core/auth` now, future `shared-auth`                                                |
 | Auth guards                                 | app `core/auth` now, future `shared-auth`                                                |
@@ -304,6 +304,24 @@ Current:
 libs/widgets
 ```
 
+Concrete widgets follow the same surface taxonomy as i18n bundles:
+
+```text
+libs/widgets/src/lib/widgets/public/<widget-name>/
+libs/widgets/src/lib/widgets/surface-admin/<widget-name>/
+libs/widgets/src/lib/widgets/surface-platform/<widget-name>/
+libs/widgets/src/lib/widgets/surface-seller-terminal/<widget-name>/
+libs/widgets/src/lib/widgets/shared/<widget-name>/
+```
+
+Each concrete widget folder uses separate files:
+
+```text
+<widget-name>.widget.ts
+<widget-name>.widget.html
+<widget-name>.widget.scss
+```
+
 Rules:
 
 ```text
@@ -311,6 +329,7 @@ Widget = props + dynamic data + local error
 Widget does not call HTTP directly
 Widget does not receive full PageRuntimeResponse
 Widget type maps directly from backend type string
+Widget registry imports stay synchronous; widgets are rendered through PageModel, not lazy routes
 ```
 
 ---
