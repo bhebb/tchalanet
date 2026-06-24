@@ -1,0 +1,16 @@
+<section class="tchala">
+  @if (badgeKey(); as bk) {
+    <span class="tchala__badge">{{ bk | tchLabel }}</span>
+  }
+  <h2 class="tchala__title">{{ titleKey() | tchLabel }}</h2>
+  <p class="tchala__body">{{ subtitleKey() | tchLabel }}</p>
+  @if (ctaAction(); as action) {
+    <a tch-action class="tchala__cta" [attr.href]="href(action)">
+      {{ labelKey(action) | tchLabel }}
+    </a>
+  } @else {
+    <a tch-action class="tchala__cta" href="/public/tchala">
+      {{ 'home.tchala.discover' | tchLabel }}
+    </a>
+  }
+</section>

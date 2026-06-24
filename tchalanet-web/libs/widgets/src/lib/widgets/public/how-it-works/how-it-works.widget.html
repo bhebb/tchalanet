@@ -1,0 +1,15 @@
+<section class="how">
+  <h2>{{ titleKey() | tchLabel }}</h2>
+  <p>{{ descriptionKey() | tchLabel }}</p>
+  <ol class="how__steps">
+    @for (step of steps(); track step.titleKey) {
+      <li>
+        <span>{{ $index + 1 }}</span>
+        <div>
+          <h3>{{ step.titleKey | tchLabel }}</h3>
+          <p>{{ step.textKey | tchLabel }}</p>
+        </div>
+      </li>
+    }
+  </ol>
+</section>

@@ -7,10 +7,10 @@ import { ContactCtaWidget } from './widgets/contact-cta.widget';
 import { KpiGridWidget } from './widgets/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/quick-actions.widget';
 import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
-import { FaqWidget } from './widgets/faq.widget';
+import { FaqWidget } from './widgets/public/faq/faq.widget';
 import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
 import { HeroWidget } from './widgets/public/hero/hero.widget';
-import { HowItWorksWidget } from './widgets/how-it-works.widget';
+import { HowItWorksWidget } from './widgets/public/how-it-works/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { OperatorCtaWidget } from './widgets/operator-cta.widget';
 import { PlansWidget } from './widgets/public/plans/plans.widget';
@@ -22,7 +22,7 @@ import { PublicBusinessPlansWidget } from './widgets/public/business-plans/busin
 import { PublicBusinessProcessWidget } from './widgets/public-business-process.widget';
 import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-results.widget';
 import { RulesSimulationWidget } from './widgets/rules-simulation.widget';
-import { TchalaSearchWidget } from './widgets/tchala-search.widget';
+import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
 
 /**

@@ -1,0 +1,24 @@
+<section class="faq">
+  <h2 class="faq__title">{{ titleKey() | tchLabel }}</h2>
+
+  <dl class="faq__list">
+    @for (item of items(); track item.id) {
+      <div class="faq__item" [class.faq__item--open]="isOpen(item.id)">
+        <dt>
+          <button
+            class="faq__question"
+            type="button"
+            [attr.aria-expanded]="isOpen(item.id)"
+            (click)="toggle(item.id)"
+          >
+            <span>{{ item.qKey | tchLabel }}</span>
+            <span class="faq__chevron material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </button>
+        </dt>
+        @if (isOpen(item.id)) {
+          <dd class="faq__answer">{{ item.aKey | tchLabel }}</dd>
+        }
+      </div>
+    }
+  </dl>
+</section>
