@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/platform/catalog/theme-presets")
 @RequiredArgsConstructor
-@PreAuthorize("hasPermission('catalog.theme.manage')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class ThemeAdminController {
 
     private final ThemePresetAdminService admin;

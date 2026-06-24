@@ -7,18 +7,18 @@
   </div>
 
   @if (overview()) {
-    <div class="i18n-page__kpi-row">
-      <div class="i18n-page__kpi-chip">
-        <span class="i18n-page__kpi-value">{{ overview()!.summary.totalKeys }}</span>
-        <span class="i18n-page__kpi-label">Clés</span>
+    <div class="catalog-i18n-page__kpi-row">
+      <div class="catalog-i18n-page__kpi-chip">
+        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalKeys }}</span>
+        <span class="catalog-i18n-page__kpi-label">Clés</span>
       </div>
-      <div class="i18n-page__kpi-chip">
-        <span class="i18n-page__kpi-value">{{ overview()!.summary.totalLocales }}</span>
-        <span class="i18n-page__kpi-label">Locales</span>
+      <div class="catalog-i18n-page__kpi-chip">
+        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalLocales }}</span>
+        <span class="catalog-i18n-page__kpi-label">Locales</span>
       </div>
-      <div class="i18n-page__kpi-chip">
-        <span class="i18n-page__kpi-value">{{ overview()!.summary.totalOverrides }}</span>
-        <span class="i18n-page__kpi-label">Overrides</span>
+      <div class="catalog-i18n-page__kpi-chip">
+        <span class="catalog-i18n-page__kpi-value">{{ overview()!.summary.totalOverrides }}</span>
+        <span class="catalog-i18n-page__kpi-label">Overrides</span>
       </div>
     </div>
   }
@@ -58,7 +58,7 @@
       } @else if (overrides().length === 0) {
         <tch-admin-empty-state icon="translate" title="Aucun override" message="Aucune traduction surchargée pour ce filtre." />
       } @else {
-        <div class="i18n-page__table">
+        <div class="catalog-i18n-page__table">
           <table mat-table [dataSource]="overrides()">
             <ng-container matColumnDef="locale">
               <th mat-header-cell *matHeaderCellDef>Locale</th>
@@ -76,7 +76,7 @@
             </ng-container>
             <ng-container matColumnDef="i18nValue">
               <th mat-header-cell *matHeaderCellDef>Valeur</th>
-              <td mat-cell *matCellDef="let row" class="i18n-page__value-cell">{{ row.i18nValue.length > 70 ? row.i18nValue.slice(0, 70) + '…' : row.i18nValue }}</td>
+              <td mat-cell *matCellDef="let row" class="catalog-i18n-page__value-cell">{{ row.i18nValue.length > 70 ? row.i18nValue.slice(0, 70) + '…' : row.i18nValue }}</td>
             </ng-container>
             <ng-container matColumnDef="surface">
               <th mat-header-cell *matHeaderCellDef>Surface</th>
@@ -91,7 +91,7 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
-                <div class="i18n-page__actions">
+                <div class="catalog-i18n-page__actions">
                   <button mat-icon-button (click)="openEdit(row)" title="Modifier">
                     <span class="material-symbols-outlined">edit</span>
                   </button>
@@ -109,8 +109,8 @@
     </div>
 
     <div footer>
-      <span class="i18n-page__footer-count">{{ totalElements() }} override(s)</span>
-      <div class="i18n-page__pagination">
+      <span class="catalog-i18n-page__footer-count">{{ totalElements() }} override(s)</span>
+      <div class="catalog-i18n-page__pagination">
         <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
           <span class="material-symbols-outlined">chevron_left</span>
         </button>

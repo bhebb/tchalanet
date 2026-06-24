@@ -383,7 +383,7 @@ CREATE TABLE draw_channel_game (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   draw_channel_id uuid NOT NULL REFERENCES draw_channel(id),
-  game_id uuid NOT NULL REFERENCES game(id),
+  tenant_game_id uuid NOT NULL REFERENCES tenant_game(id),
   enabled boolean NOT NULL DEFAULT true,
   flags jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz DEFAULT now(),
@@ -393,7 +393,7 @@ CREATE TABLE draw_channel_game (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_draw_channel_game__tenant_channel_game UNIQUE (tenant_id, draw_channel_id, game_id)
+  CONSTRAINT uq_draw_channel_game UNIQUE (tenant_id, draw_channel_id, tenant_game_id)
 );
 
 CREATE TABLE draw_result (

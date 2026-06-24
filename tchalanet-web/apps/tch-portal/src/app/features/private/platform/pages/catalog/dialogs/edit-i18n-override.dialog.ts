@@ -19,31 +19,21 @@ import { SURFACES } from './create-i18n-override.dialog';
   selector: 'tch-edit-i18n-override-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
   template: `
     <h2 mat-dialog-title>Modifier la traduction</h2>
     <mat-dialog-content>
-      <div class="edit-i18n-dialog__meta">
-        <span class="edit-i18n-dialog__label">Locale</span><span>{{ data.locale }}</span>
-        <span class="edit-i18n-dialog__label">Clé</span><span class="mono">{{ data.i18nKey }}</span>
-        <span class="edit-i18n-dialog__label">Niveau</span><span>{{ data.level }}</span>
-        <span class="edit-i18n-dialog__label">Surface</span><span>{{ data.surface }}</span>
+      <div class="meta">
+        <span class="label">Locale</span><span>{{ data.locale }}</span>
+        <span class="label">Clé</span><span class="mono">{{ data.i18nKey }}</span>
+        <span class="label">Niveau</span><span>{{ data.level }}</span>
+        <span class="label">Surface</span><span>{{ data.surface }}</span>
       </div>
-      <form [formGroup]="form" class="edit-i18n-dialog__form">
+      <form [formGroup]="form" class="form">
         <mat-form-field appearance="outline">
           <mat-label>Valeur</mat-label>
           <textarea matInput formControlName="i18nValue" rows="4"></textarea>
-          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Surface</mat-label>
@@ -53,9 +43,6 @@ import { SURFACES } from './create-i18n-override.dialog';
           </mat-select>
         </mat-form-field>
       </form>
-      @if (error()) {
-        <div class="edit-i18n-dialog__error">{{ error() }}</div>
-      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">Annuler</button>
@@ -66,11 +53,11 @@ import { SURFACES } from './create-i18n-override.dialog';
     </mat-dialog-actions>
   `,
   styles: [`
-    .edit-i18n-dialog__meta { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; }
-    .edit-i18n-dialog__label { color: var(--tch-color-on-surface-variant); font-weight: 500; }
+    .meta { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; }
+    .label { color: var(--tch-color-on-surface-variant); font-weight: 500; }
     .mono { font-family: monospace; }
-    .edit-i18n-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
-    .edit-i18n-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
+    .form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+    .error-banner { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
     .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
@@ -83,7 +70,6 @@ export class EditI18nOverrideDialog {
 
   readonly surfaces = SURFACES;
   readonly submitting = signal(false);
-  readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
     i18nValue: [this.data.i18nValue, Validators.required],
@@ -98,14 +84,9 @@ export class EditI18nOverrideDialog {
       surface: (v.surface || undefined) as I18nSurface | undefined,
     };
     this.submitting.set(true);
-    this.error.set(null);
-    this.api.updateOverride(this.data.id.value, req).subscribe({
-      next: (updated) => { this.submitting.set(false); this.dialogRef.close(updated); },
-      error: (err: unknown) => {
-        this.submitting.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur lors de la mise à jour.');
-      },
+    this.api.updateOverride(this.data.id, req).subscribe({
+      next: (updated: I18nOverrideView) => { this.submitting.set(false); this.dialogRef.close(updated); },
+      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }

@@ -24,41 +24,27 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
   selector: 'tch-create-setting-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
   template: `
     <h2 mat-dialog-title>Nouveau paramètre</h2>
     <mat-dialog-content>
-      <form [formGroup]="form" class="create-setting-dialog__form">
+      <form [formGroup]="form" class="form">
         <mat-form-field appearance="outline">
           <mat-label>Namespace</mat-label>
           <input matInput formControlName="namespace" placeholder="ex: pos.behavior" />
-          @if (form.controls.namespace.invalid && form.controls.namespace.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.namespace.invalid && form.controls.namespace.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Clé</mat-label>
           <input matInput formControlName="settingKey" placeholder="ex: require_open_session" />
-          @if (form.controls.settingKey.invalid && form.controls.settingKey.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.settingKey.invalid && form.controls.settingKey.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Valeur</mat-label>
           <textarea matInput formControlName="settingValue" rows="3"></textarea>
-          @if (form.controls.settingValue.invalid && form.controls.settingValue.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.settingValue.invalid && form.controls.settingValue.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
-        <div class="create-setting-dialog__row">
+        <div class="row">
           <mat-form-field appearance="outline">
             <mat-label>Type</mat-label>
             <mat-select formControlName="valueType">
@@ -83,9 +69,6 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
           <input matInput formControlName="tenantId" />
         </mat-form-field>
       </form>
-      @if (error()) {
-        <div class="create-setting-dialog__error">{{ error() }}</div>
-      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">Annuler</button>
@@ -96,9 +79,9 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
     </mat-dialog-actions>
   `,
   styles: [`
-    .create-setting-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
-    .create-setting-dialog__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .create-setting-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
+    .form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .error-banner { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
     .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
@@ -112,7 +95,6 @@ export class CreateSettingDialog {
   readonly levels = SETTING_LEVELS;
   readonly exposures = EXPOSURES;
   readonly submitting = signal(false);
-  readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
     namespace: ['', Validators.required],
@@ -137,14 +119,9 @@ export class CreateSettingDialog {
       tenantId: v.tenantId || undefined,
     };
     this.submitting.set(true);
-    this.error.set(null);
     this.api.createSetting(req).subscribe({
-      next: (created) => { this.submitting.set(false); this.dialogRef.close(created); },
-      error: (err: unknown) => {
-        this.submitting.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur lors de la création.');
-      },
+      next: (created: SettingView) => { this.submitting.set(false); this.dialogRef.close(created); },
+      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }

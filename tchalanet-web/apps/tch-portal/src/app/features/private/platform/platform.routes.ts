@@ -34,11 +34,7 @@ export const platformRoutes: Route[] = [
         m => m.platformTenantAdminsRoutes,
       ),
   },
-  {
-    path: 'subscriptions',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
-  },
+  { path: 'subscriptions', redirectTo: 'catalog/plans-pricing', pathMatch: 'full' },
   {
     path: 'entitlements',
     data: {
@@ -102,28 +98,20 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'ops/archives',
-    data: {
-      titleKey: 'platform.nav.archives',
-      descriptionKey: 'platform.placeholder.descriptions.archives',
-      icon: 'inventory_2',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },
   {
     path: 'ops/audit',
     loadComponent: () => import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
   },
   {
-    path: 'draws',
+    path: 'ops/draws',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
   },
-  {
-    path: 'draw-channels',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
-  },
+  { path: 'draws', redirectTo: 'ops/draws', pathMatch: 'full' },
+  { path: 'draw-channels', redirectTo: 'ops/draws', pathMatch: 'full' },
   {
     path: 'ops/draw-results',
     loadComponent: () =>
@@ -134,38 +122,27 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
   },
+  { path: 'ops/draw-lifecycle', redirectTo: 'ops/draws', pathMatch: 'full' },
   {
-    path: 'ops/draw-lifecycle',
+    path: '_ops/draw-lifecycle',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draw-lifecycle.page').then(
         m => m.PlatformOpsDrawLifecyclePage,
       ),
   },
   {
-    path: 'settings',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
-  },
-  {
     path: 'catalog/settings',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
+      import('./pages/catalog/platform-catalog-settings.page').then(m => m.PlatformCatalogSettingsPage),
   },
-  {
-    path: 'theme-presets',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
-  },
+  { path: 'settings', redirectTo: 'catalog/settings', pathMatch: 'full' },
+  { path: 'theme-presets', redirectTo: 'catalog/themes', pathMatch: 'full' },
   {
     path: 'catalog/themes',
     loadComponent: () =>
       import('./pages/catalog/platform-catalog-themes.page').then(m => m.PlatformCatalogThemesPage),
   },
-  {
-    path: 'referentials',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-settings.page').then(m => m.PlatformOpsSettingsPage),
-  },
+  { path: 'referentials', redirectTo: 'catalog/games', pathMatch: 'full' },
   {
     path: 'catalog/games',
     loadComponent: () =>
@@ -179,7 +156,7 @@ export const platformRoutes: Route[] = [
   {
     path: 'catalog/draw-channels',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
+      import('./pages/catalog/platform-catalog-draw-channels.page').then(m => m.PlatformCatalogDrawChannelsPage),
   },
   {
     path: 'catalog/result-slots',
@@ -192,25 +169,17 @@ export const platformRoutes: Route[] = [
       import('./pages/catalog/platform-catalog-plans.page').then(m => m.PlatformCatalogPlansPage),
   },
   {
-    path: 'i18n',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
-  },
-  {
     path: 'catalog/translations',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-i18n.page').then(m => m.PlatformOpsI18nPage),
+      import('./pages/catalog/platform-catalog-i18n-overrides.page').then(m => m.PlatformCatalogI18nOverridesPage),
   },
-  {
-    path: 'pagemodels',
-    loadComponent: () =>
-      import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
-  },
+  { path: 'i18n', redirectTo: 'catalog/translations', pathMatch: 'full' },
   {
     path: 'catalog/page-model-templates',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-pagemodels.page').then(m => m.PlatformOpsPageModelsPage),
+      import('./pages/catalog/platform-catalog-page-model-templates.page').then(m => m.PlatformCatalogPageModelTemplatesPage),
   },
+  { path: 'pagemodels', redirectTo: 'catalog/page-model-templates', pathMatch: 'full' },
   {
     path: 'audit',
     loadComponent: () => import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),

@@ -180,7 +180,7 @@ export interface DrawResultOpsResponse {
 }
 
 export interface TchPage<T> {
-  content: T[];
+  items: T[];
   totalElements: number;
   totalPages: number;
   number: number;
@@ -189,6 +189,29 @@ export interface TchPage<T> {
 
 // ── Draw Lifecycle (admin/draws) ─────────────────────────────────────────────
 
+/** Matches DrawSummaryResponse Java record (nested channel + slot objects). */
+export interface DrawView {
+  id: string;
+  tenantId: string;
+  channel: { id: string; code: string; name: string };
+  slot: { id: string; key: string; label: string | null; timezone: string | null; drawTime: string | null };
+  drawDate: string;
+  scheduledAt: string;
+  cutoffAt: string;
+  status: string;
+  active: boolean;
+  lastResult: {
+    id: string;
+    occurredAt: string;
+    status: string;
+    lot1: string | null;
+    lot2: string | null;
+    lot3: string | null;
+    lot4: string | null;
+  } | null;
+}
+
+/** @deprecated Use DrawView — field names were incorrect */
 export interface DrawSummaryResponse {
   drawId: string;
   channelCode: string;
@@ -198,6 +221,29 @@ export interface DrawSummaryResponse {
   openedAt?: string | null;
   closedAt?: string | null;
   settledAt?: string | null;
+}
+
+export interface CancelDrawRequest {
+  reasonCode: string;
+  reasonLabel?: string;
+  force?: boolean;
+}
+
+export interface CorrectDrawResultRequest {
+  correctedDrawResultId: string;
+  reason: string;
+  idempotencyKey: string;
+  force?: boolean;
+}
+
+// ── Batch Executions ─────────────────────────────────────────────────────────
+
+export interface ExecutionResponse {
+  execution_id: number;
+  job_key: string;
+  status: string;
+  started_at: string;
+  ended_at?: string | null;
 }
 
 // ── Cache ────────────────────────────────────────────────────────────────────
@@ -222,6 +268,12 @@ export class PlatformOpsApi {
 
   startJob(jobKey: string, req: StartJobRequest): Observable<StartJobResponse> {
     return this.backend.post<StartJobResponse>(`/platform/ops/batch/jobs/${jobKey}:start`, req);
+  }
+
+  listExecutions(jobKey: string, limit = 20): Observable<ExecutionResponse[]> {
+    return this.backend.get<ExecutionResponse[]>(
+      `/platform/ops/batch/executions?job_key=${encodeURIComponent(jobKey)}&limit=${limit}`,
+    );
   }
 
   // Batch Gates
@@ -297,7 +349,7 @@ export class PlatformOpsApi {
   }
 
   // Draw Lifecycle (per-draw admin actions)
-  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPage<DrawSummaryResponse>> {
+  listDraws(params: { status?: string; from?: string; to?: string; resultSlotKey?: string; page?: number; size?: number }): Observable<TchPage<DrawView>> {
     const q = new URLSearchParams(
       Object.fromEntries(
         Object.entries(params)
@@ -305,31 +357,40 @@ export class PlatformOpsApi {
           .map(([k, v]) => [k, String(v)]),
       ),
     ).toString();
-    return this.backend.get<TchPage<DrawSummaryResponse>>(`/admin/draws${q ? '?' + q : ''}`);
+    return this.backend.get<TchPage<DrawView>>(`/admin/draws${q ? '?' + q : ''}`);
   }
 
-  cancelDraw(drawId: string, reason: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/cancel`, { reason });
+  /** @deprecated Use listDraws */
+  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPage<DrawView>> {
+    return this.listDraws(params);
   }
 
-  lockDraw(drawId: string, reason?: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/lock`, { reason });
+  cancelDraw(drawId: string, req: CancelDrawRequest): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/cancel`, req);
   }
 
-  unlockDraw(drawId: string, reason?: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/unlock`, { reason });
+  lockDraw(drawId: string, reason?: string): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/lock`, { reason });
   }
 
-  settleDraw(drawId: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/settle`, {});
+  unlockDraw(drawId: string, reason?: string): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/unlock`, { reason });
   }
 
-  archiveDraw(drawId: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/archive`, {});
+  settleDraw(drawId: string, reason?: string): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/settle`, { reason });
   }
 
-  rescheduleDraw(drawId: string, newScheduledAt: string): Observable<DrawSummaryResponse> {
-    return this.backend.post<DrawSummaryResponse>(`/admin/draws/${drawId}/reschedule`, { newScheduledAt });
+  archiveDraw(drawId: string, reason?: string, force?: boolean): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/archive`, { reason, force });
+  }
+
+  rescheduleDraw(drawId: string, scheduledAt: string, cutoffAt: string, reason: string, force?: boolean): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/reschedule`, { scheduledAt, cutoffAt, reason, force });
+  }
+
+  correctDrawResult(drawId: string, req: CorrectDrawResultRequest): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/results/correct`, req);
   }
 
   // Cache

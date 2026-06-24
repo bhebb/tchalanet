@@ -80,7 +80,7 @@ CREATE TABLE draw_channel_game_aud
     revtype         smallint,
     tenant_id       uuid,
     draw_channel_id uuid,
-    game_id         uuid,
+    tenant_game_id  uuid,
     enabled         boolean,
     flags           jsonb,
     created_at      timestamptz,

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { TchPage as TchPageResult } from './platform-ops-api.service';
 
 export interface PageModelTemplateView {
-  id: { value: string };
+  id: string;
   code: string;
   logicalId: string;
   scope: string;

@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -13,6 +15,7 @@ import { AdminStatusPillComponent } from '../../../shared/admin-ui/admin-status-
 import {
   PlatformOpsApi,
   JobInfoResponse,
+  ExecutionResponse,
 } from '../../platform-ops-api.service';
 import { UpdateGateDialog } from './dialogs/update-gate.dialog';
 import { StartJobDialog } from './dialogs/start-job.dialog';
@@ -27,6 +30,7 @@ export interface GateRow {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
     AdminStatusPillComponent,
@@ -34,6 +38,7 @@ export interface GateRow {
     TchErrorPanel,
     MatButtonModule,
     MatIconModule,
+    MatSelectModule,
     MatTableModule,
     MatTabsModule,
   ],
@@ -47,6 +52,7 @@ export class PlatformOpsBatchPage implements OnInit {
 
   readonly jobColumns = ['job_key', 'display_name', 'scope', 'actions'];
   readonly gateColumns = ['jobKey', 'enabled', 'actions'];
+  readonly execColumns = ['execution_id', 'job_key', 'status', 'started_at', 'ended_at'];
 
   readonly loadingJobs = signal(false);
   readonly errorJobs = signal<string | null>(null);
@@ -58,6 +64,11 @@ export class PlatformOpsBatchPage implements OnInit {
   readonly gateRows = computed<GateRow[]>(() =>
     Object.entries(this.gatesMap()).map(([jobKey, enabled]) => ({ jobKey, enabled })),
   );
+
+  readonly selectedExecJobKey = signal<string>('');
+  readonly loadingExec = signal(false);
+  readonly errorExec = signal<string | null>(null);
+  readonly executions = signal<ExecutionResponse[]>([]);
 
   ngOnInit(): void {
     this.loadJobs();
@@ -103,6 +114,26 @@ export class PlatformOpsBatchPage implements OnInit {
         this.snackBar.open(`Gate ${row.jobKey} mis à jour.`, 'OK', { duration: 3000 });
         this.loadGates();
       }
+    });
+  }
+
+  selectExecJob(jobKey: string): void {
+    this.selectedExecJobKey.set(jobKey);
+    if (jobKey) this.loadExecutions();
+  }
+
+  loadExecutions(): void {
+    const jobKey = this.selectedExecJobKey();
+    if (!jobKey) return;
+    this.loadingExec.set(true);
+    this.errorExec.set(null);
+    this.api.listExecutions(jobKey, 50).subscribe({
+      next: v => { this.executions.set(v); this.loadingExec.set(false); },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.errorExec.set(pd?.title ?? 'Erreur.');
+        this.loadingExec.set(false);
+      },
     });
   }
 }

@@ -36,7 +36,7 @@ import java.util.List;
 @Tag(name = "Admin • Games")
 @RestController
 @RequestMapping("/admin/games")
-@PreAuthorize("hasPermission('tenantgame.read')")
+@PreAuthorize("hasPermission(null, 'tenantgame.read')")
 @RequiredArgsConstructor
 public class TenantGameAdminController {
 

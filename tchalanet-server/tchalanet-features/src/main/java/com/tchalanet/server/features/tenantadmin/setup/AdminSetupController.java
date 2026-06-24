@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Admin • Setup")
 @RestController
 @RequestMapping("/admin/setup")
-@PreAuthorize("hasPermission('tenantgame.read')")
+@PreAuthorize("hasPermission(null, 'tenantgame.read')")
 @RequiredArgsConstructor
 public class AdminSetupController {
 

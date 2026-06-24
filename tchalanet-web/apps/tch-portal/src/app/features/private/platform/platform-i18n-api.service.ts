@@ -9,9 +9,9 @@ export type I18nSurface =
   | 'AUTH' | 'CASHIER' | 'TENANT_ADMIN' | 'PLATFORM_ADMIN' | 'COMMON_PRIVATE_ERROR' | 'INTERNAL';
 
 export interface I18nOverrideView {
-  id: { value: string };
+  id: string;
   level: I18nOverrideLevel;
-  tenantId?: { value: string } | null;
+  tenantId?: string | null;
   surface: I18nSurface;
   locale: string;
   i18nKey: string;

@@ -29,6 +29,8 @@ export interface GeneratedDrawView {
   readonly publicationStatus?: GeneratedDrawPublicationStatus | null;
   readonly numbers?: string[] | null;
   readonly sourceError?: { readonly message: string; readonly occurredAt?: string | null } | null;
+  /** Raw backend DrawStatus — used to determine available lifecycle actions. */
+  readonly lifecycleStatus?: string;
 }
 
 export interface GeneratedDrawGroup {
@@ -75,3 +77,5 @@ export interface SaveDrawResultRequest {
   readonly note: string;
   readonly mode: DrawResultSaveMode;
 }
+
+export type DrawLifecycleAction = 'cancel' | 'lock' | 'unlock' | 'archive';

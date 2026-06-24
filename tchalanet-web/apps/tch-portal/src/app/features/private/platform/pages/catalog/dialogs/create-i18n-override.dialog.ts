@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import {
-  I18nGlobalOverviewView,
   I18nOverrideLevel,
   I18nOverrideView,
   I18nSurface,
@@ -27,20 +26,12 @@ export const SURFACES: I18nSurface[] = [
   selector: 'tch-create-i18n-override-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
   template: `
     <h2 mat-dialog-title>Ajouter une traduction</h2>
     <mat-dialog-content>
-      <form [formGroup]="form" class="create-i18n-dialog__form">
-        <div class="create-i18n-dialog__row">
+      <form [formGroup]="form" class="form">
+        <div class="row">
           <mat-form-field appearance="outline">
             <mat-label>Locale</mat-label>
             <mat-select formControlName="locale">
@@ -64,16 +55,12 @@ export const SURFACES: I18nSurface[] = [
         <mat-form-field appearance="outline">
           <mat-label>Clé (i18nKey)</mat-label>
           <input matInput formControlName="i18nKey" placeholder="ex: common.welcome_title" />
-          @if (form.controls.i18nKey.invalid && form.controls.i18nKey.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.i18nKey.invalid && form.controls.i18nKey.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Valeur (i18nValue)</mat-label>
           <textarea matInput formControlName="i18nValue" rows="4"></textarea>
-          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) {
-            <mat-error>Requis.</mat-error>
-          }
+          @if (form.controls.i18nValue.invalid && form.controls.i18nValue.touched) { <mat-error>Requis.</mat-error> }
         </mat-form-field>
         @if (form.controls.level.value === 'TENANT') {
           <mat-form-field appearance="outline">
@@ -82,9 +69,6 @@ export const SURFACES: I18nSurface[] = [
           </mat-form-field>
         }
       </form>
-      @if (error()) {
-        <div class="create-i18n-dialog__error">{{ error() }}</div>
-      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button [mat-dialog-close]="null" [disabled]="submitting()">Annuler</button>
@@ -95,9 +79,9 @@ export const SURFACES: I18nSurface[] = [
     </mat-dialog-actions>
   `,
   styles: [`
-    .create-i18n-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
-    .create-i18n-dialog__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .create-i18n-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
+    .form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .error-banner { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm, 0.5rem); font-size: 0.875rem; margin-top: 0.5rem; }
     .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
@@ -111,7 +95,6 @@ export class CreateI18nOverrideDialog {
   readonly levels = LEVELS;
   readonly surfaces = SURFACES;
   readonly submitting = signal(false);
-  readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
     locale: ['fr', Validators.required],
@@ -134,14 +117,9 @@ export class CreateI18nOverrideDialog {
       tenantId: v.tenantId || undefined,
     };
     this.submitting.set(true);
-    this.error.set(null);
     this.api.createOverride(req).subscribe({
-      next: (created) => { this.submitting.set(false); this.dialogRef.close(created); },
-      error: (err: unknown) => {
-        this.submitting.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur lors de la création.');
-      },
+      next: (created: I18nOverrideView) => { this.submitting.set(false); this.dialogRef.close(created); },
+      error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }

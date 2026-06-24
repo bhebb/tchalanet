@@ -6,12 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
-import { DrawSummaryResponse } from '../../../platform-ops-api.service';
+import { DrawView } from '../../../platform-ops-api.service';
 
 export type DrawAction = 'cancel' | 'lock' | 'unlock' | 'settle' | 'archive' | 'reschedule';
 
 export interface ActionDialogData {
-  draw: DrawSummaryResponse;
+  draw: DrawView;
   action: DrawAction;
 }
 
@@ -42,7 +42,7 @@ export const ACTION_LABELS: Record<DrawAction, string> = {
     MatInputModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ actionLabel }} — {{ data.draw.channelName }}</h2>
+    <h2 mat-dialog-title>{{ actionLabel }} — {{ data.draw.channel.name }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="lifecycle-action-dialog__form">
         @if (data.action === 'reschedule') {

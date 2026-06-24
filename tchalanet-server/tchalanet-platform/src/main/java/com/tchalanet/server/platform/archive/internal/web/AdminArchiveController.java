@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Admin - Archive")
 @RestController
 @RequestMapping("/admin/archive")
-@PreAuthorize("hasPermission('archive.read')")
+@PreAuthorize("hasPermission(null, 'archive.read')")
 @RequiredArgsConstructor
 public class AdminArchiveController {
 

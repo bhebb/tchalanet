@@ -29,7 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/platform/catalog/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasPermission('catalog.game.manage')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class GameAdminController {
 
   private final GameCatalog gameCatalog;

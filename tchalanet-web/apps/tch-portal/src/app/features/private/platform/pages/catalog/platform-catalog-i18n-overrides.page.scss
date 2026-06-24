@@ -1,6 +1,6 @@
 @use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
-.settings-page {
+.catalog-i18n-page {
   &__kpi-row {
     display: flex;
     gap: 1rem;
@@ -33,9 +33,7 @@
   &__table {
     overflow-x: auto;
 
-    table {
-      width: 100%;
-    }
+    table { width: 100%; }
 
     code {
       font-family: monospace;
@@ -50,7 +48,7 @@
     white-space: nowrap;
 
     @include ui.up(medium) {
-      max-width: 280px;
+      max-width: 320px;
     }
   }
 

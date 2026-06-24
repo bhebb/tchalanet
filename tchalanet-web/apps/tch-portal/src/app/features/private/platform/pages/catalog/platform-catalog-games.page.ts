@@ -28,7 +28,15 @@ import {
   selector: 'tch-create-game-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatSelectModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatSelectModule,
+  ],
   template: `
     <h2 mat-dialog-title>Nouveau jeu</h2>
     <mat-dialog-content>
@@ -36,12 +44,16 @@ import {
         <mat-form-field appearance="outline">
           <mat-label>Code</mat-label>
           <input matInput formControlName="code" placeholder="ex: BORLETTE" />
-          @if (form.controls.code.invalid && form.controls.code.touched) { <mat-error>Requis.</mat-error> }
+          @if (form.controls.code.invalid && form.controls.code.touched) {
+            <mat-error>Requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Nom</mat-label>
           <input matInput formControlName="name" />
-          @if (form.controls.name.invalid && form.controls.name.touched) { <mat-error>Requis.</mat-error> }
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <mat-error>Requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Catégorie</mat-label>
@@ -61,7 +73,14 @@ import {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">Créer</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="form.invalid || saving()"
+        (click)="save()"
+      >
+        Créer
+      </button>
     </mat-dialog-actions>
   `,
 })
@@ -92,7 +111,7 @@ export class CreateGameDialog {
     };
     this.api.createGame(req).subscribe({
       next: created => this.ref.close(created),
-      error: () => { this.saving.set(false); },
+      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }
@@ -102,7 +121,15 @@ export class CreateGameDialog {
   selector: 'tch-edit-game-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatSelectModule],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatSelectModule,
+  ],
   template: `
     <h2 mat-dialog-title>Modifier — {{ game().name }}</h2>
     <mat-dialog-content>
@@ -129,7 +156,14 @@ export class CreateGameDialog {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">Enregistrer</button>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="form.invalid || saving()"
+        (click)="save()"
+      >
+        Enregistrer
+      </button>
     </mat-dialog-actions>
   `,
 })
@@ -150,17 +184,27 @@ export class EditGameDialog {
 
   init(g: CatalogGameView): void {
     this.game.set(g);
-    this.form.patchValue({ name: g.name, category: g.category ?? '', sortOrder: g.sortOrder, active: g.active });
+    this.form.patchValue({
+      name: g.name,
+      category: g.category ?? '',
+      sortOrder: g.sortOrder,
+      active: g.active,
+    });
   }
 
   save(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
     const v = this.form.getRawValue();
-    const req: UpdateGameRequest = { name: v.name, category: v.category || null, sortOrder: v.sortOrder, active: v.active };
-    this.api.updateGame(this.game().id.value, req).subscribe({
+    const req: UpdateGameRequest = {
+      name: v.name,
+      category: v.category || null,
+      sortOrder: v.sortOrder,
+      active: v.active,
+    };
+    this.api.updateGame(this.game().id, req).subscribe({
       next: updated => this.ref.close(updated),
-      error: () => { this.saving.set(false); },
+      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }
@@ -200,32 +244,52 @@ export class PlatformCatalogGamesPage implements OnInit {
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
 
-  ngOnInit(): void { this.load(); }
+  private showError(msg: string): void {
+    this.error.set(msg);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+  }
+
+  ngOnInit(): void {
+    this.load();
+  }
 
   load(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api.listGames({ q: this.search() || undefined, page: this.page(), size: 20 }).subscribe({
       next: p => {
-        this.games.set(p.content);
+        this.games.set(p.items);
         this.totalElements.set(p.totalElements);
         this.totalPages.set(p.totalPages || 1);
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(
+          (err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.',
+        );
         this.loading.set(false);
       },
     });
   }
 
-  onSearch(v: string): void { this.search.set(v); this.page.set(0); this.load(); }
-  prevPage(): void { this.page.set(this.page() - 1); this.load(); }
-  nextPage(): void { this.page.set(this.page() + 1); this.load(); }
+  onSearch(v: string): void {
+    this.search.set(v);
+    this.page.set(0);
+    this.load();
+  }
+  prevPage(): void {
+    this.page.set(this.page() - 1);
+    this.load();
+  }
+  nextPage(): void {
+    this.page.set(this.page() + 1);
+    this.load();
+  }
 
   openCreate(): void {
     const ref = this.dialog.open(CreateGameDialog, { width: '480px' });
-    ref.afterClosed().subscribe((created: CatalogGameView | null) => {
+    ref.afterClosed().subscribe((created: CatalogGameView | { __error: string } | null) => {
+      if (created && '__error' in created) { this.showError(created.__error); return; }
       if (created) { this.snackBar.open('Jeu créé.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
@@ -233,27 +297,42 @@ export class PlatformCatalogGamesPage implements OnInit {
   openEdit(game: CatalogGameView): void {
     const ref = this.dialog.open(EditGameDialog, { width: '480px' });
     (ref.componentInstance as EditGameDialog).init(game);
-    ref.afterClosed().subscribe((updated: CatalogGameView | null) => {
+    ref.afterClosed().subscribe((updated: CatalogGameView | { __error: string } | null) => {
+      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
       if (updated) { this.snackBar.open('Jeu mis à jour.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
 
   deactivate(game: CatalogGameView): void {
     if (!confirm(`Désactiver « ${game.name} » ?`)) return;
-    this.api.deactivateGame(game.id.value).subscribe({
-      next: () => { this.snackBar.open('Jeu désactivé.', 'OK', { duration: 4000 }); this.load(); },
+    this.api.deactivateGame(game.id).subscribe({
+      next: () => {
+        this.snackBar.open('Jeu désactivé.', 'OK', { duration: 4000 });
+        this.load();
+      },
       error: (err: unknown) => {
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 5000 });
+        this.snackBar.open(
+          (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.',
+          'OK',
+          { duration: 5000 },
+        );
       },
     });
   }
 
   delete(game: CatalogGameView): void {
     if (!confirm(`Supprimer définitivement « ${game.name} » ?`)) return;
-    this.api.deleteGame(game.id.value).subscribe({
-      next: () => { this.snackBar.open('Jeu supprimé.', 'OK', { duration: 4000 }); this.load(); },
+    this.api.deleteGame(game.id).subscribe({
+      next: () => {
+        this.snackBar.open('Jeu supprimé.', 'OK', { duration: 4000 });
+        this.load();
+      },
       error: (err: unknown) => {
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 5000 });
+        this.snackBar.open(
+          (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.',
+          'OK',
+          { duration: 5000 },
+        );
       },
     });
   }

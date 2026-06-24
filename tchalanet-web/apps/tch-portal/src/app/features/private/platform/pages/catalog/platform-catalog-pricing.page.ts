@@ -104,7 +104,7 @@ export class CreatePricingDialog {
     };
     this.api.createPricing(req).subscribe({
       next: created => this.ref.close(created),
-      error: () => { this.saving.set(false); },
+      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }
@@ -163,9 +163,9 @@ export class EditPricingDialog {
     this.saving.set(true);
     const v = this.form.getRawValue();
     const req: UpdatePricingRequest = { odds: v.odds, betOption: v.betOption, active: v.active };
-    this.api.updatePricing(this.row()!.id.value, req).subscribe({
+    this.api.updatePricing(this.row()!.id, req).subscribe({
       next: updated => this.ref.close(updated),
-      error: () => { this.saving.set(false); },
+      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
   }
 }
@@ -214,6 +214,11 @@ export class PlatformCatalogPricingPage implements OnInit {
     return r;
   });
 
+  private showError(msg: string): void {
+    this.error.set(msg);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+  }
+
   ngOnInit(): void { this.load(); }
 
   load(): void {
@@ -233,7 +238,8 @@ export class PlatformCatalogPricingPage implements OnInit {
 
   openCreate(): void {
     const ref = this.dialog.open(CreatePricingDialog, { width: '500px' });
-    ref.afterClosed().subscribe((created: CatalogPricingView | null) => {
+    ref.afterClosed().subscribe((created: CatalogPricingView | { __error: string } | null) => {
+      if (created && '__error' in created) { this.showError(created.__error); return; }
       if (created) { this.snackBar.open('Cote créée.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
@@ -241,14 +247,15 @@ export class PlatformCatalogPricingPage implements OnInit {
   openEdit(row: CatalogPricingView): void {
     const ref = this.dialog.open(EditPricingDialog, { width: '440px' });
     (ref.componentInstance as EditPricingDialog).init(row);
-    ref.afterClosed().subscribe((updated: CatalogPricingView | null) => {
+    ref.afterClosed().subscribe((updated: CatalogPricingView | { __error: string } | null) => {
+      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
       if (updated) { this.snackBar.open('Cote mise à jour.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
 
   delete(row: CatalogPricingView): void {
     if (!confirm(`Supprimer la cote ${row.gameCode} / ${row.betType} ?`)) return;
-    this.api.deletePricing(row.id.value).subscribe({
+    this.api.deletePricing(row.id).subscribe({
       next: () => { this.snackBar.open('Cote supprimée.', 'OK', { duration: 4000 }); this.load(); },
       error: (err: unknown) => {
         this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 5000 });
@@ -258,6 +265,6 @@ export class PlatformCatalogPricingPage implements OnInit {
 
   tenantLabel(row: CatalogPricingView): string {
     if (!row.tenantId) return 'Global';
-    return row.tenantId.value.slice(0, 8) + '…';
+    return row.tenantId.slice(0, 8) + '…';
   }
 }

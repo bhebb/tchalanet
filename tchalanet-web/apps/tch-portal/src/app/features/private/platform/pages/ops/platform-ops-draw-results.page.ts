@@ -55,7 +55,7 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   readonly displayedColumns = ['slotKey', 'occurredAt', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
-  readonly page = signal<{ content: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
+  readonly page = signal<{ items: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
   readonly actionLoading = signal(false);

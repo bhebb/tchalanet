@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -32,7 +26,7 @@ import { EditSettingDialog } from './dialogs/edit-setting.dialog';
 import { DeleteSettingDialog } from './dialogs/delete-setting.dialog';
 
 @Component({
-  selector: 'tch-platform-ops-settings-page',
+  selector: 'tch-platform-catalog-settings-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -51,10 +45,10 @@ import { DeleteSettingDialog } from './dialogs/delete-setting.dialog';
     MatTableModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './platform-ops-settings.page.html',
-  styleUrls: ['./platform-ops-settings.page.scss'],
+  templateUrl: './platform-catalog-settings.page.html',
+  styleUrls: ['./platform-catalog-settings.page.scss'],
 })
-export class PlatformOpsSettingsPage implements OnInit {
+export class PlatformCatalogSettingsPage implements OnInit {
   private readonly api = inject(PlatformSettingsApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -73,6 +67,11 @@ export class PlatformOpsSettingsPage implements OnInit {
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
 
+  private showError(msg: string): void {
+    this.error.set(msg);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+  }
+
   ngOnInit(): void {
     this.load();
     this.api.getOverview().subscribe({ next: s => this.stats.set(s) });
@@ -89,14 +88,13 @@ export class PlatformOpsSettingsPage implements OnInit {
       size: 20,
     }).subscribe({
       next: p => {
-        this.settings.set(p.content);
+        this.settings.set(p.items);
         this.totalElements.set(p.totalElements);
         this.totalPages.set(p.totalPages || 1);
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
         this.loading.set(false);
       },
     });
@@ -110,18 +108,16 @@ export class PlatformOpsSettingsPage implements OnInit {
 
   openCreate(): void {
     const ref = this.dialog.open(CreateSettingDialog, { width: '560px' });
-    ref.afterClosed().subscribe((created: SettingView | null) => {
-      if (created) {
-        this.snackBar.open('Paramètre créé.', 'OK', { duration: 4000 });
-        this.load();
-        this.api.getOverview().subscribe({ next: s => this.stats.set(s) });
-      }
+    ref.afterClosed().subscribe((created: SettingView | { __error: string } | null) => {
+      if (created && '__error' in created) { this.showError(created.__error); return; }
+      if (created) { this.snackBar.open('Paramètre créé.', 'OK', { duration: 4000 }); this.load(); this.api.getOverview().subscribe({ next: s => this.stats.set(s) }); }
     });
   }
 
   openEdit(setting: SettingView): void {
     const ref = this.dialog.open(EditSettingDialog, { data: setting, width: '520px' });
-    ref.afterClosed().subscribe((updated: SettingView | null) => {
+    ref.afterClosed().subscribe((updated: SettingView | { __error: string } | null) => {
+      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
       if (updated) { this.snackBar.open('Paramètre mis à jour.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
@@ -130,15 +126,14 @@ export class PlatformOpsSettingsPage implements OnInit {
     const ref = this.dialog.open(DeleteSettingDialog, { data: setting, width: '420px' });
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
-      this.api.deleteSetting(setting.id.value).subscribe({
+      this.api.deleteSetting(setting.id).subscribe({
         next: () => {
           this.snackBar.open('Paramètre supprimé.', 'OK', { duration: 4000 });
           this.load();
           this.api.getOverview().subscribe({ next: s => this.stats.set(s) });
         },
         error: (err: unknown) => {
-          const pd = (err as { error?: { title?: string } })?.error;
-          this.snackBar.open(pd?.title ?? 'Erreur lors de la suppression.', 'OK', { duration: 5000 });
+          this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur lors de la suppression.', 'OK', { duration: 5000 });
         },
       });
     });

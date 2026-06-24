@@ -13,11 +13,6 @@
       Actions
     </button>
     <mat-menu #actionsMenu="matMenu">
-      <!-- TODO(permissions): restrict planNextDraws to support/advanced-admin role -->
-      <button mat-menu-item [disabled]="planning()" (click)="onPlanNextDraws()">
-        <span class="material-symbols-outlined">event_available</span>
-        Planifier les prochains tirages
-      </button>
       <button mat-menu-item (click)="onConfigureDrawChannels()">
         <span class="material-symbols-outlined">event_repeat</span>
         Configurer les canaux de tirage
@@ -82,9 +77,6 @@
               <button mat-stroked-button (click)="onConfigureDrawChannels()">
                 Configurer les canaux de tirage
               </button>
-              <button mat-flat-button color="primary" [disabled]="planning()" (click)="onPlanNextDraws()">
-                Planifier les prochains tirages
-              </button>
             </div>
           </tch-admin-empty-state>
         } @else {
@@ -97,6 +89,10 @@
             (viewResult)="onViewResult($event)"
             (viewDetails)="onViewDetails($event)"
             (verifySource)="onVerifySource($event)"
+            (lockDraw)="onLockDraw($event)"
+            (unlockDraw)="onUnlockDraw($event)"
+            (cancelDraw)="onCancelDraw($event)"
+            (archiveDraw)="onArchiveDraw($event)"
             (nextPage)="onNextPage()"
             (prevPage)="onPrevPage()"
           />

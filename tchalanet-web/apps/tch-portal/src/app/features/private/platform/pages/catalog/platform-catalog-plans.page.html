@@ -57,6 +57,9 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
+              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
               @if (row.active) {
                 <button mat-icon-button title="Désactiver" (click)="deactivate(row)">
                   <span class="material-symbols-outlined">block</span>

@@ -47,16 +47,14 @@ import {
           <mat-label>Max slots</mat-label>
           <input matInput type="number" formControlName="maxSlots" min="1" />
         </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Raison (requis si force=true)</mat-label>
+          <input matInput formControlName="reason" />
+          @if (form.controls.reason.invalid && form.controls.reason.touched) {
+            <mat-error>Raison requise.</mat-error>
+          }
+        </mat-form-field>
         <mat-checkbox formControlName="force">Forcer l'écrasement</mat-checkbox>
-        @if (form.controls.force.value) {
-          <mat-form-field appearance="outline">
-            <mat-label>Raison (requis si force=true)</mat-label>
-            <input matInput formControlName="reason" />
-            @if (form.controls.reason.invalid && form.controls.reason.touched) {
-              <mat-error>Raison requise.</mat-error>
-            }
-          </mat-form-field>
-        }
         <mat-checkbox formControlName="dryRun">Dry-run (simuler sans écrire)</mat-checkbox>
         <mat-checkbox formControlName="includeRaw">Persister le payload brut</mat-checkbox>
       </form>
@@ -93,7 +91,7 @@ import {
   `],
 })
 export class FetchResultsDialog {
-  protected readonly data = inject<{ title: string; mode: 'fetch' | 'refresh'; onSuccess: () => void }>(MAT_DIALOG_DATA);
+  protected readonly data = inject<{ title: string; mode: 'fetch' | 'refresh'; slotKeys?: string[]; onSuccess: () => void }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<FetchResultsDialog>);
   private readonly api = inject(PlatformOpsApi);
   private readonly fb = inject(FormBuilder);
@@ -107,7 +105,7 @@ export class FetchResultsDialog {
   readonly form = this.fb.group({
     baseDate: [''],
     daysBack: [0],
-    slotKeys: [''],
+    slotKeys: [this.data.slotKeys ? this.data.slotKeys.join(', ') : ''],
     maxSlots: [200],
     force: [false],
     reason: [''],

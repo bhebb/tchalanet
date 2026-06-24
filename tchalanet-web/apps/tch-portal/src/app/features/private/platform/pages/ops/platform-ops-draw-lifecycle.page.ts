@@ -21,13 +21,12 @@ import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-s
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../shared/admin-ui/admin-status-pill.component';
 import {
-  DrawSummaryResponse,
+  DrawView,
   PlatformOpsApi,
 } from '../../platform-ops-api.service';
 import {
   DrawLifecycleActionDialog,
   DrawAction,
-  ActionDialogData,
   ActionDialogResult,
   ACTION_LABELS,
 } from './dialogs/draw-lifecycle-action.dialog';
@@ -107,14 +106,14 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   readonly loading = signal(false);
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
-  readonly draws = signal<DrawSummaryResponse[]>([]);
+  readonly draws = signal<DrawView[]>([]);
   readonly search = signal('');
   readonly statusFilter = signal('');
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
   readonly dryRun = signal(false);
-  readonly filteredDraws = signal<DrawSummaryResponse[]>([]);
+  readonly filteredDraws = signal<DrawView[]>([]);
 
   toneForStatus = toneForStatus;
   actionsForStatus = actionsForStatus;
@@ -131,7 +130,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
       .listDrawsForLifecycle({ status: this.statusFilter() || undefined, page: this.page(), size: 20 })
       .subscribe({
         next: page => {
-          this.draws.set(page.content);
+          this.draws.set(page.items);
           this.totalElements.set(page.totalElements);
           this.totalPages.set(page.totalPages || 1);
           this.applySearch();
@@ -169,18 +168,18 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   private applySearch(): void {
     const q = this.search().toLowerCase();
     this.filteredDraws.set(
-      q ? this.draws().filter(d => d.channelCode.toLowerCase().includes(q) || d.channelName.toLowerCase().includes(q)) : this.draws(),
+      q ? this.draws().filter(d => d.channel.code.toLowerCase().includes(q) || d.channel.name.toLowerCase().includes(q)) : this.draws(),
     );
   }
 
-  openAction(draw: DrawSummaryResponse, action: DrawAction): void {
+  openAction(draw: DrawView, action: DrawAction): void {
     if (this.dryRun()) {
-      this.snackBar.open(`DryRun: ${ACTION_LABELS[action]} serait exécuté sur ${draw.channelName}`, 'OK', { duration: 4000 });
+      this.snackBar.open(`DryRun: ${ACTION_LABELS[action]} serait exécuté sur ${draw.channel.name}`, 'OK', { duration: 4000 });
       return;
     }
 
     const ref = this.dialog.open(DrawLifecycleActionDialog, {
-      data: { draw, action } satisfies ActionDialogData,
+      data: { draw, action },
       width: '460px',
     });
 
@@ -190,28 +189,28 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     });
   }
 
-  private executeAction(draw: DrawSummaryResponse, action: DrawAction, result: ActionDialogResult): void {
+  private executeAction(draw: DrawView, action: DrawAction, result: ActionDialogResult): void {
     this.busy.set(true);
     let call$;
 
     switch (action) {
       case 'cancel':
-        call$ = this.api.cancelDraw(draw.drawId, result.reason!);
+        call$ = this.api.cancelDraw(draw.id, { reasonCode: result.reason ?? 'ADMIN_REQUEST' });
         break;
       case 'lock':
-        call$ = this.api.lockDraw(draw.drawId, result.reason);
+        call$ = this.api.lockDraw(draw.id, result.reason);
         break;
       case 'unlock':
-        call$ = this.api.unlockDraw(draw.drawId, result.reason);
+        call$ = this.api.unlockDraw(draw.id, result.reason);
         break;
       case 'settle':
-        call$ = this.api.settleDraw(draw.drawId);
+        call$ = this.api.settleDraw(draw.id);
         break;
       case 'archive':
-        call$ = this.api.archiveDraw(draw.drawId);
+        call$ = this.api.archiveDraw(draw.id);
         break;
       case 'reschedule':
-        call$ = this.api.rescheduleDraw(draw.drawId, result.newScheduledAt!);
+        call$ = this.api.rescheduleDraw(draw.id, result.newScheduledAt!, result.newScheduledAt!, result.reason ?? 'reprogrammé');
         break;
     }
 

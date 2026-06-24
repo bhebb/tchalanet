@@ -17,7 +17,7 @@
     <tch-loading label="Chargement..." />
   } @else if (error()) {
     <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-  } @else if (page()?.content?.length === 0) {
+  } @else if (page()?.items?.length === 0) {
     <tch-admin-empty-state
       icon="receipt_long"
       title="Aucun résultat"
@@ -27,7 +27,7 @@
     <tch-admin-crud-shell>
       <ng-container content>
         <div class="draw-results-page__table">
-          <table mat-table [dataSource]="page()?.content ?? []">
+          <table mat-table [dataSource]="page()?.items ?? []">
             <ng-container matColumnDef="slotKey">
               <th mat-header-cell *matHeaderCellDef>Slot</th>
               <td mat-cell *matCellDef="let row"><code>{{ row.slotKey }}</code></td>

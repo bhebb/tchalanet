@@ -8,7 +8,7 @@ export type SettingLevel = 'GLOBAL' | 'TENANT' | 'OUTLET' | 'TERMINAL';
 export type SettingExposure = 'INTERNAL' | 'PUBLIC_RUNTIME' | 'TENANT_RUNTIME' | 'ADMIN_RUNTIME';
 
 export interface SettingView {
-  id: { value: string };
+  id: string;
   namespace: string;
   settingKey: string;
   settingValue: string;

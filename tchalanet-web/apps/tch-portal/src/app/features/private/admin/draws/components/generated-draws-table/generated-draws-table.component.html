@@ -29,10 +29,14 @@
               <!-- Tirage -->
               <td class="gdt__td">
                 <div class="gdt__draw-cell">
+                  <!-- Provider logo slot: swap <img> in once assets are available -->
+                  <div class="gdt__provider-logo" [attr.data-provider]="draw.providerCode" [title]="draw.providerLabel">
+                    <span class="gdt__provider-code">{{ draw.providerCode }}</span>
+                  </div>
                   <span class="gdt__accent gdt__accent--{{ accentColor(draw) }}"></span>
                   <div>
                     <p class="gdt__draw-label">{{ draw.label }}</p>
-                    <p class="gdt__draw-sub">{{ draw.providerLabel }} · {{ draw.slotLabel }}</p>
+                    <p class="gdt__draw-sub">{{ draw.slotLabel }}</p>
                   </div>
                 </div>
               </td>
@@ -81,32 +85,44 @@
 
               <!-- Actions -->
               <td class="gdt__td gdt__td--right">
-                @switch (draw.resultStatus) {
-                  @case ('MISSING') {
-                    <button mat-flat-button color="primary" class="gdt__action-btn"
-                      (click)="enterResult.emit(draw)">
-                      Saisir résultat
+                <div class="gdt__actions">
+                  @switch (draw.resultStatus) {
+                    @case ('MISSING') {
+                      <button mat-flat-button color="primary" class="gdt__action-btn"
+                        (click)="enterResult.emit(draw)">
+                        Saisir résultat
+                      </button>
+                    }
+                    @case ('CONFIRMED') {
+                      <button mat-stroked-button class="gdt__action-btn"
+                        (click)="viewResult.emit(draw)">
+                        Voir résultat
+                      </button>
+                    }
+                    @case ('SOURCE_ERROR') {
+                      <button mat-stroked-button color="warn" class="gdt__action-btn"
+                        (click)="verifySource.emit(draw)">
+                        Vérifier
+                      </button>
+                    }
+                    @default {
+                      <button mat-stroked-button class="gdt__action-btn"
+                        (click)="viewDetails.emit(draw)">
+                        Voir détails
+                      </button>
+                    }
+                  }
+
+                  <!-- Lifecycle action menu -->
+                  @if (lifecycleActions(draw).length > 0) {
+                    <button mat-icon-button class="gdt__more-btn"
+                      [matMenuTriggerFor]="rowMenu"
+                      [matMenuTriggerData]="{ draw: draw }"
+                      aria-label="Plus d'actions">
+                      <mat-icon>more_vert</mat-icon>
                     </button>
                   }
-                  @case ('CONFIRMED') {
-                    <button mat-stroked-button class="gdt__action-btn"
-                      (click)="viewResult.emit(draw)">
-                      Voir résultat
-                    </button>
-                  }
-                  @case ('SOURCE_ERROR') {
-                    <button mat-stroked-button color="warn" class="gdt__action-btn"
-                      (click)="verifySource.emit(draw)">
-                      Vérifier
-                    </button>
-                  }
-                  @default {
-                    <button mat-stroked-button class="gdt__action-btn"
-                      (click)="viewDetails.emit(draw)">
-                      Voir détails
-                    </button>
-                  }
-                }
+                </div>
               </td>
 
             </tr>
@@ -115,6 +131,20 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Row lifecycle menu (shared template, data injected per trigger) -->
+  <mat-menu #rowMenu="matMenu">
+    <ng-template matMenuContent let-draw="draw">
+      @for (action of lifecycleActions(draw); track action) {
+        <button mat-menu-item
+          [style.color]="action === 'cancel' ? 'var(--tch-color-error)' : null"
+          (click)="onLifecycleAction(draw, action)">
+          <mat-icon>{{ lifecycleIcon(action) }}</mat-icon>
+          <span>{{ lifecycleLabel(action) }}</span>
+        </button>
+      }
+    </ng-template>
+  </mat-menu>
 
   <!-- Footer -->
   <div class="gdt__footer">

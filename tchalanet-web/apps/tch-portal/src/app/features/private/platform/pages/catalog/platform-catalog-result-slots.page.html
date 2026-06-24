@@ -1,5 +1,21 @@
 <tch-admin-page-shell title="Slots de résultats" description="Référentiel global des créneaux de tirage (slots).">
   <div actions>
+    @if (selectedSlotKeys().length > 0) {
+      <span style="font-size:0.875rem;color:var(--tch-color-on-surface-variant);margin-right:0.5rem">
+        {{ selectedSlotKeys().length }} sélectionné(s)
+      </span>
+      <button mat-flat-button color="primary" (click)="openFetch()" style="margin-right:0.5rem">
+        <span class="material-symbols-outlined">download</span>
+        Fetch
+      </button>
+      <button mat-stroked-button (click)="openApply()" style="margin-right:0.5rem">
+        <span class="material-symbols-outlined">sync</span>
+        Apply
+      </button>
+      <button mat-icon-button (click)="selectedSlotKeys.set([])" title="Désélectionner tout">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    }
     <button mat-flat-button color="primary" (click)="openCreate()">
       <span class="material-symbols-outlined">add</span>
       Nouveau slot
@@ -8,7 +24,7 @@
 
   <tch-admin-crud-shell>
     <div toolbar>
-      <tch-admin-data-toolbar searchPlaceholder="Rechercher..." [searchValue]="''" (searchChange)="load()">
+      <tch-admin-data-toolbar searchPlaceholder="Filtrer par clé..." [searchValue]="q()" (searchChange)="onSearch($event)">
         <button mat-stroked-button (click)="load()">
           <span class="material-symbols-outlined">refresh</span>
         </button>
@@ -22,8 +38,22 @@
         <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
       } @else if (slots().length === 0) {
         <tch-admin-empty-state icon="view_timeline" title="Aucun slot" message="Créez le premier slot de résultat." />
+      } @else if (filteredSlots().length === 0) {
+        <tch-admin-empty-state icon="search_off" title="Aucun résultat" message="Aucun slot ne correspond au filtre." />
       } @else {
-        <table mat-table [dataSource]="slots()">
+        <table mat-table [dataSource]="filteredSlots()">
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef style="width:48px">
+              <mat-checkbox
+                [checked]="filteredSlots().length > 0 && filteredSlots().every(s => isSelected(s.slotKey))"
+                [indeterminate]="selectedSlotKeys().length > 0 && !filteredSlots().every(s => isSelected(s.slotKey))"
+                (change)="toggleAll()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row" style="width:48px">
+              <mat-checkbox [checked]="isSelected(row.slotKey)" (change)="toggleSlot(row.slotKey)"></mat-checkbox>
+            </td>
+          </ng-container>
           <ng-container matColumnDef="slotKey">
             <th mat-header-cell *matHeaderCellDef>Clé</th>
             <td mat-cell *matCellDef="let row"><code>{{ row.slotKey }}</code></td>
@@ -53,6 +83,9 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
+              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
               @if (row.active) {
                 <button mat-icon-button title="Désactiver" (click)="disable(row)">
                   <span class="material-symbols-outlined">block</span>
@@ -70,7 +103,7 @@
     </div>
 
     <div footer>
-      <span>{{ slots().length }} slot(s)</span>
+      <span>{{ filteredSlots().length }} / {{ slots().length }} slot(s){{ selectedSlotKeys().length > 0 ? ' · ' + selectedSlotKeys().length + ' sélectionné(s)' : '' }}</span>
     </div>
   </tch-admin-crud-shell>
 </tch-admin-page-shell>

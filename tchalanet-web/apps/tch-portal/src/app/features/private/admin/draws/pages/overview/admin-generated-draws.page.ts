@@ -1,6 +1,18 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DrawResultDrawerComponent } from '../../components/draw-result-drawer/draw-result-drawer.component';
@@ -13,6 +25,7 @@ import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empt
 
 import { AdminGeneratedDrawsApiService } from '../../data-access/admin-generated-draws-api.service';
 import {
+  DrawLifecycleAction,
   GeneratedDrawView,
   GeneratedDrawGroup,
   DatePreset,
@@ -20,6 +33,7 @@ import {
 } from '../../data-access/admin-generated-draws.models';
 import { GeneratedDrawsSummaryComponent } from '../../components/generated-draws-summary/generated-draws-summary.component';
 import { GeneratedDrawsTableComponent } from '../../components/generated-draws-table/generated-draws-table.component';
+import { AdminDrawLifecycleDialog } from './dialogs/admin-draw-lifecycle.dialog';
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -31,7 +45,12 @@ const TODAY = new Date().toISOString().slice(0, 10);
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
+    ReactiveFormsModule,
     MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
     MatMenuModule,
     AdminPageShellComponent,
     AdminCrudShellComponent,
@@ -49,6 +68,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 export class AdminGeneratedDrawsPage implements OnInit {
   private readonly api      = inject(AdminGeneratedDrawsApiService);
   private readonly router   = inject(Router);
+  private readonly dialog   = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly today = TODAY;
@@ -58,7 +78,7 @@ export class AdminGeneratedDrawsPage implements OnInit {
   readonly allDraws      = signal<GeneratedDrawView[]>([]);
   readonly totalElements = signal<number>(0);
   readonly page          = signal<number>(0);
-  readonly planning      = signal<boolean>(false);
+  readonly busy          = signal<boolean>(false);
   readonly selectedDraw  = signal<GeneratedDrawView | null>(null);
 
   readonly datePreset    = signal<DatePreset>('TODAY');
@@ -132,24 +152,6 @@ export class AdminGeneratedDrawsPage implements OnInit {
     this.load();
   }
 
-  onPlanNextDraws(): void {
-    this.planning.set(true);
-    this.api.planNextDraws({ daysAhead: 7 }).subscribe({
-      next: result => {
-        this.planning.set(false);
-        this.snackBar.open(
-          `${result.createdCount} tirage(s) planifié(s) du ${result.rangeStart} au ${result.rangeEnd}.`,
-          'OK', { duration: 5000 },
-        );
-        this.load();
-      },
-      error: () => {
-        this.planning.set(false);
-        this.snackBar.open('Erreur lors de la planification.', 'OK', { duration: 4000 });
-      },
-    });
-  }
-
   onEnterResult(draw: GeneratedDrawView): void  { this.selectedDraw.set(draw); }
   onViewResult(draw: GeneratedDrawView): void   { this.selectedDraw.set(draw); }
   onVerifySource(draw: GeneratedDrawView): void  { this.selectedDraw.set(draw); }
@@ -172,4 +174,65 @@ export class AdminGeneratedDrawsPage implements OnInit {
 
   onNextPage(): void { this.page.update(p => p + 1); this.load(); }
   onPrevPage(): void { this.page.update(p => Math.max(0, p - 1)); this.load(); }
+
+  // ── Lifecycle actions ──────────────────────────────────────────────────────
+
+  onLockDraw(draw: GeneratedDrawView): void   { this.openLifecycleDialog(draw, 'lock'); }
+  onUnlockDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'unlock'); }
+  onCancelDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'cancel'); }
+  onArchiveDraw(draw: GeneratedDrawView): void { this.openLifecycleDialog(draw, 'archive'); }
+
+  private openLifecycleDialog(draw: GeneratedDrawView, action: DrawLifecycleAction): void {
+    const ref = this.dialog.open(AdminDrawLifecycleDialog, {
+      data: { draw, action },
+      width: '420px',
+    });
+
+    ref.afterClosed().subscribe((result: { reason?: string } | null) => {
+      if (result == null) return;
+      this.executeLifecycleAction(draw, action, result.reason);
+    });
+  }
+
+  private executeLifecycleAction(
+    draw: GeneratedDrawView,
+    action: DrawLifecycleAction,
+    reason?: string,
+  ): void {
+    this.busy.set(true);
+    let call$;
+
+    switch (action) {
+      case 'cancel':
+        call$ = this.api.cancelDraw(draw.drawId, reason ?? 'ADMIN_REQUEST');
+        break;
+      case 'lock':
+        call$ = this.api.lockDraw(draw.drawId, reason);
+        break;
+      case 'unlock':
+        call$ = this.api.unlockDraw(draw.drawId, reason);
+        break;
+      case 'archive':
+        call$ = this.api.archiveDraw(draw.drawId, reason);
+        break;
+    }
+
+    call$.subscribe({
+      next: updated => {
+        this.busy.set(false);
+        this.allDraws.update(draws =>
+          draws.map(d => d.drawId === updated.drawId ? updated : d),
+        );
+        const labels: Record<DrawLifecycleAction, string> = {
+          cancel: 'Annulé', lock: 'Verrouillé', unlock: 'Déverrouillé', archive: 'Archivé',
+        };
+        this.snackBar.open(`Tirage ${labels[action]} avec succès.`, 'OK', { duration: 4000 });
+      },
+      error: (err: unknown) => {
+        this.busy.set(false);
+        const msg = (err as { error?: { title?: string } })?.error?.title ?? "Erreur lors de l'opération.";
+        this.snackBar.open(msg, 'OK', { duration: 5000 });
+      },
+    });
+  }
 }

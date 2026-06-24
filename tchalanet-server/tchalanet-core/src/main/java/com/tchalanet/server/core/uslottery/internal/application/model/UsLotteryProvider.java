@@ -12,5 +12,6 @@ public enum UsLotteryProvider {
   MO,
   IL,
   MI,
-  OH
+  OH,
+  MN
 }

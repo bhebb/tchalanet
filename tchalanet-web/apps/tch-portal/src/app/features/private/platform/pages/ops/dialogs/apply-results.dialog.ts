@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -30,6 +30,10 @@ import {
     <mat-dialog-content>
       <form [formGroup]="form" class="apply-results-dialog__form">
         <mat-form-field appearance="outline">
+          <mat-label>Slot keys (optionnel, virgule-séparé)</mat-label>
+          <input matInput formControlName="slotKeys" placeholder="NY_MID, FL_EVE" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
           <mat-label>Date de base (YYYY-MM-DD, optionnel)</mat-label>
           <input matInput formControlName="baseDate" />
         </mat-form-field>
@@ -37,14 +41,16 @@ import {
           <mat-label>Jours en arrière</mat-label>
           <input matInput type="number" formControlName="daysBack" min="0" />
         </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Max slots</mat-label>
+          <input matInput type="number" formControlName="maxSlots" min="1" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Raison (optionnel)</mat-label>
+          <input matInput formControlName="reason" />
+        </mat-form-field>
         <mat-checkbox formControlName="dryRun">Dry-run</mat-checkbox>
-        <mat-checkbox formControlName="force">Forcer</mat-checkbox>
-        @if (form.controls.force.value) {
-          <mat-form-field appearance="outline">
-            <mat-label>Raison</mat-label>
-            <input matInput formControlName="reason" />
-          </mat-form-field>
-        }
+        <mat-checkbox formControlName="force">Forcer l'écrasement</mat-checkbox>
       </form>
       @if (result()) {
         <div class="apply-results-dialog__result">
@@ -75,6 +81,7 @@ import {
 })
 export class ApplyResultsDialog {
   readonly dialogRef = inject(MatDialogRef<ApplyResultsDialog>);
+  protected readonly data = inject<{ slotKeys?: string[] } | null>(MAT_DIALOG_DATA, { optional: true });
   private readonly api = inject(PlatformOpsApi);
   private readonly fb = inject(FormBuilder);
 
@@ -83,11 +90,13 @@ export class ApplyResultsDialog {
   readonly result = signal<{ inserted: number; updated: number; notFound: number; errors: number } | null>(null);
 
   readonly form = this.fb.group({
+    slotKeys: [this.data?.slotKeys ? this.data.slotKeys.join(', ') : ''],
     baseDate: [''],
     daysBack: [0],
+    maxSlots: [200],
+    reason: [''],
     dryRun: [true],
     force: [false],
-    reason: [''],
   });
 
   submit(): void {
@@ -96,6 +105,8 @@ export class ApplyResultsDialog {
     const req: ApplyExternalResultsRequest = {
       baseDate: v.baseDate || undefined,
       daysBack: v.daysBack ?? 0,
+      slotKeys: v.slotKeys ? v.slotKeys.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+      maxSlots: v.maxSlots ?? 200,
       dryRun: v.dryRun ?? true,
       force: v.force ?? false,
       reason: v.reason || undefined,

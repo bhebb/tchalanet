@@ -126,6 +126,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         icon: 'manufacturing',
         children: [
           {
+            id: 'ops-draws',
+            labelKey: 'platform.nav.draws',
+            icon: 'event',
+            destination: { kind: 'route', value: '/app/platform/ops/draws' },
+          },
+          {
             id: 'ops-draw-results',
             labelKey: 'platform.nav.drawResults',
             icon: 'fact_check',
@@ -138,10 +144,10 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/platform/ops/providers' },
           },
           {
-            id: 'ops-schedulers',
-            labelKey: 'platform.nav.schedulers',
+            id: 'ops-batch',
+            labelKey: 'platform.nav.scheduledTasks',
             icon: 'schedule',
-            destination: { kind: 'route', value: '/app/platform/ops/schedulers' },
+            destination: { kind: 'route', value: '/app/platform/ops/batch' },
           },
           {
             id: 'ops-cache',

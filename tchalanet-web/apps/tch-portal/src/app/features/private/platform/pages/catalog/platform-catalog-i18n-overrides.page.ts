@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,7 +25,7 @@ import { CreateI18nOverrideDialog, COMMON_LOCALES, LEVELS } from './dialogs/crea
 import { EditI18nOverrideDialog } from './dialogs/edit-i18n-override.dialog';
 
 @Component({
-  selector: 'tch-platform-ops-i18n-page',
+  selector: 'tch-platform-catalog-i18n-overrides-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -50,10 +44,10 @@ import { EditI18nOverrideDialog } from './dialogs/edit-i18n-override.dialog';
     MatTableModule,
     ReactiveFormsModule,
   ],
-  templateUrl: './platform-ops-i18n.page.html',
-  styleUrls: ['./platform-ops-i18n.page.scss'],
+  templateUrl: './platform-catalog-i18n-overrides.page.html',
+  styleUrls: ['./platform-catalog-i18n-overrides.page.scss'],
 })
-export class PlatformOpsI18nPage implements OnInit {
+export class PlatformCatalogI18nOverridesPage implements OnInit {
   private readonly api = inject(PlatformI18nApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -73,6 +67,11 @@ export class PlatformOpsI18nPage implements OnInit {
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
 
+  private showError(msg: string): void {
+    this.error.set(msg);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+  }
+
   ngOnInit(): void {
     this.load();
     this.api.getOverview().subscribe({ next: o => this.overview.set(o) });
@@ -89,14 +88,13 @@ export class PlatformOpsI18nPage implements OnInit {
       size: 20,
     }).subscribe({
       next: p => {
-        this.overrides.set(p.content);
+        this.overrides.set(p.items);
         this.totalElements.set(p.totalElements);
         this.totalPages.set(p.totalPages || 1);
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
         this.loading.set(false);
       },
     });
@@ -110,32 +108,30 @@ export class PlatformOpsI18nPage implements OnInit {
 
   openCreate(): void {
     const ref = this.dialog.open(CreateI18nOverrideDialog, { width: '540px' });
-    ref.afterClosed().subscribe((created: I18nOverrideView | null) => {
-      if (created) {
-        this.snackBar.open('Traduction créée.', 'OK', { duration: 4000 });
-        this.load();
-        this.api.getOverview().subscribe({ next: o => this.overview.set(o) });
-      }
+    ref.afterClosed().subscribe((created: I18nOverrideView | { __error: string } | null) => {
+      if (created && '__error' in created) { this.showError(created.__error); return; }
+      if (created) { this.snackBar.open('Traduction créée.', 'OK', { duration: 4000 }); this.load(); this.api.getOverview().subscribe({ next: o => this.overview.set(o) }); }
     });
   }
 
   openEdit(override: I18nOverrideView): void {
     const ref = this.dialog.open(EditI18nOverrideDialog, { data: override, width: '520px' });
-    ref.afterClosed().subscribe((updated: I18nOverrideView | null) => {
+    ref.afterClosed().subscribe((updated: I18nOverrideView | { __error: string } | null) => {
+      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
       if (updated) { this.snackBar.open('Traduction mise à jour.', 'OK', { duration: 4000 }); this.load(); }
     });
   }
 
   deleteOverride(override: I18nOverrideView): void {
-    this.api.deleteOverride(override.id.value).subscribe({
+    if (!confirm(`Supprimer la traduction « ${override.i18nKey} » (${override.locale}) ?`)) return;
+    this.api.deleteOverride(override.id).subscribe({
       next: () => {
         this.snackBar.open('Traduction supprimée.', 'OK', { duration: 4000 });
         this.load();
         this.api.getOverview().subscribe({ next: o => this.overview.set(o) });
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.snackBar.open(pd?.title ?? 'Erreur lors de la suppression.', 'OK', { duration: 5000 });
+        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur lors de la suppression.', 'OK', { duration: 5000 });
       },
     });
   }
