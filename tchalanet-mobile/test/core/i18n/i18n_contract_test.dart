@@ -12,6 +12,7 @@ void main() {
     'common': {'common'},
     'domain': {'domain'},
     'component': {'component', 'notifications'},
+    'surface-public': {'surface'},
     'surface-admin': {'surface'},
     'surface-platform': {'surface'},
     'surface-seller-terminal': {'app', 'surface'},

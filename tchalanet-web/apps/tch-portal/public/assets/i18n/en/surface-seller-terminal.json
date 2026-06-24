@@ -1,1 +1,13 @@
-{}
+{
+  "nav": {
+    "cashier": {
+      "section": {
+        "cashier": "Cashier"
+      },
+      "dashboard": "Dashboard",
+      "sell": "New Ticket",
+      "spaceTitle": "Cashier"
+    },
+    "quick_sale": "Quick sale"
+  }
+}

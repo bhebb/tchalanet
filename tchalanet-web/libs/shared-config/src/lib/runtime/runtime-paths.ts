@@ -19,6 +19,7 @@ export const PORTAL_I18N_CONFIG = {
         'common',
         'domain',
         'component',
+        'surface-public',
         'surface-admin',
         'surface-platform',
         'surface-seller-terminal',

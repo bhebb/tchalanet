@@ -1,0 +1,73 @@
+{
+  "brand": {
+    "logo_alt": "Logo Tchalanet"
+  },
+  "footer": {
+    "check_ticket": "Vérification de tickets",
+    "results": "Résultats",
+    "support": "Aide",
+    "social": {
+      "x": "X (ex-Twitter)",
+      "linkedin": "LinkedIn",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
+    },
+    "release_notes": "Notes de version"
+  },
+  "legal": {
+    "privacy": "Confidentialité",
+    "terms": "Conditions d’utilisation"
+  },
+  "public": {
+    "footer": {
+      "description": "Infrastructure digitale pour la gestion professionnelle des tickets, tirages et opérations de loterie.",
+      "legal": {
+        "compliance": "Conformité",
+        "privacy": "Confidentialité",
+        "title": "Légal",
+        "terms": "Conditions d’utilisation"
+      },
+      "solutions": {
+        "check_ticket": "Vérification de tickets",
+        "operators": "Pour gestionnaires",
+        "pos_management": "Gestion des seller-terminals",
+        "title": "Solutions",
+        "ticket_verification": "Vérification de ticket"
+      },
+      "status": {
+        "operational": "Systèmes opérationnels"
+      },
+      "support": {
+        "contact": "Contact",
+        "help": "Aide",
+        "results": "Résultats",
+        "rules": "Règles",
+        "status": "État du système",
+        "title": "Support",
+        "system_status": "État du système"
+      }
+    },
+    "nav": {
+      "check_ticket": "Vérifier un ticket",
+      "help": "Aide",
+      "home": "Accueil",
+      "login": "Connexion",
+      "main": "Navigation principale",
+      "menu": "Ouvrir le menu",
+      "menu_close": "Fermer le menu",
+      "menu_open": "Ouvrir le menu",
+      "managers": "Pour gestionnaires",
+      "operators": "Pour opérateurs",
+      "operators_short": "Opérateurs",
+      "results": "Résultats",
+      "rules": "Règles",
+      "skip": "Aller au contenu",
+      "verify_short": "Vérifier"
+    }
+  },
+  "nav": {
+    "check_ticket": "Vérifier un ticket",
+    "results": "Résultats"
+  }
+}

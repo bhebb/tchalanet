@@ -1,0 +1,73 @@
+{
+  "brand": {
+    "logo_alt": "Tchalanet logo"
+  },
+  "footer": {
+    "check_ticket": "Ticket verification",
+    "results": "Results",
+    "support": "Help",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "x": "X (formerly Twitter)",
+      "youtube": "YouTube"
+    },
+    "release_notes": "Release notes"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Terms of use"
+  },
+  "public": {
+    "footer": {
+      "description": "Digital infrastructure for professional management of tickets, draws, and lottery operations.",
+      "legal": {
+        "compliance": "Compliance",
+        "privacy": "Privacy",
+        "title": "Legal",
+        "terms": "Terms of use"
+      },
+      "solutions": {
+        "check_ticket": "Ticket verification",
+        "operators": "For managers",
+        "pos_management": "Point of sale management",
+        "title": "Solutions",
+        "ticket_verification": "Ticket verification"
+      },
+      "status": {
+        "operational": "Systems operational"
+      },
+      "support": {
+        "contact": "Contact",
+        "help": "Help",
+        "results": "Results",
+        "rules": "Rules",
+        "status": "System status",
+        "title": "Support",
+        "system_status": "System status"
+      }
+    },
+    "nav": {
+      "check_ticket": "Verify a ticket",
+      "help": "Help",
+      "home": "Home",
+      "login": "Login",
+      "main": "Main navigation",
+      "menu": "Open menu",
+      "menu_close": "Close menu",
+      "menu_open": "Open menu",
+      "managers": "For managers",
+      "operators": "For operators",
+      "operators_short": "Operators",
+      "results": "Results",
+      "rules": "Rules",
+      "skip": "Skip to content",
+      "verify_short": "Verify"
+    }
+  },
+  "nav": {
+    "check_ticket": "Check a ticket",
+    "results": "Results"
+  }
+}

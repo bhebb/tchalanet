@@ -20,6 +20,7 @@ describe('runtime paths', () => {
       'common',
       'domain',
       'component',
+      'surface-public',
       'surface-admin',
       'surface-platform',
       'surface-seller-terminal',
