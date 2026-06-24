@@ -445,7 +445,6 @@
       "badge": "Endikatif",
       "cta_note": "Simulasyon endikatif disponib dapre jeu ki konfigire yo.",
       "cta_rules": "Konsulte règ yo",
-      "calc_amount_label": "Miz (HTG)",
       "calc_gain_label": "Estimasyon gain",
       "calc_game_aria": "Chwazi kalite jwèt la",
       "calc_note": "Endikatif — pa garanti",
@@ -558,8 +557,6 @@
       "simulation": {
         "number_a_label": "Numéro A",
         "number_b_label": "Numéro B",
-        "bet_option_label": "Opsyon paryaj",
-        "multiplier_label": "Miltiplikatè",
         "gain_for_100": "Gany pou 100 HTG",
         "mariage_different_note": "Pou Maryaj, chwazi de nimewo diferan selon règ ki parèt yo.",
         "multiplier_custom_badge": "pèsonalize",

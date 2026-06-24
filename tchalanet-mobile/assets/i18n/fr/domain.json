@@ -63,6 +63,13 @@
       "field": {
         "associatedNumbers": "Numéros associés"
       }
+    },
+    "bet": {
+      "field": {
+        "option": "Option de pari",
+        "multiplier": "Multiplicateur",
+        "stake": "Mise (HTG)"
+      }
     }
   }
 }

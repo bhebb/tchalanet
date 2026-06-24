@@ -65,8 +65,8 @@
           <table class="rules-page__bet-table" role="table">
             <thead>
               <tr>
-                <th scope="col">{{ 'public.rules.simulation.bet_option_label' | tchLabel }}</th>
-                <th scope="col">{{ 'public.rules.simulation.multiplier_label' | tchLabel }}</th>
+                <th scope="col">{{ 'domain.bet.field.option' | tchLabel }}</th>
+                <th scope="col">{{ 'domain.bet.field.multiplier' | tchLabel }}</th>
                 <th scope="col">{{ 'public.rules.simulation.gain_for_100' | tchLabel }}</th>
               </tr>
             </thead>
@@ -117,7 +117,7 @@
         <div
           class="rules-page__sim-options"
           role="group"
-          [attr.aria-label]="'public.rules.simulation.bet_option_label' | tchLabel"
+          [attr.aria-label]="'domain.bet.field.option' | tchLabel"
         >
           @for (opt of activeGame().betOptions; track opt.id) {
           <button
@@ -149,7 +149,7 @@
         </div>
 
         <label class="rules-page__amount-label">
-          <span>{{ 'public.rules.calc_amount_label' | tchLabel }}</span>
+          <span>{{ 'domain.bet.field.stake' | tchLabel }}</span>
           <div class="rules-page__amount-wrap">
             <span class="rules-page__currency" aria-hidden="true">HTG</span>
             <input
@@ -166,7 +166,7 @@
         <div class="rules-page__multiplier-wrap">
           <label class="rules-page__multiplier-label">
             <span class="rules-page__multiplier-label-row">
-              {{ 'public.rules.simulation.multiplier_label' | tchLabel }} @if (isMultiplierCustom())
+              {{ 'domain.bet.field.multiplier' | tchLabel }} @if (isMultiplierCustom())
               {
               <span class="rules-page__custom-badge"
                 >{{ 'public.rules.simulation.multiplier_custom_badge' | tchLabel }}</span

@@ -63,6 +63,13 @@
       "field": {
         "associatedNumbers": "Associated numbers"
       }
+    },
+    "bet": {
+      "field": {
+        "option": "Bet option",
+        "multiplier": "Multiplier",
+        "stake": "Stake (HTG)"
+      }
     }
   }
 }

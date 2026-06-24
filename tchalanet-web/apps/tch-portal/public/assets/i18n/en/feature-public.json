@@ -446,7 +446,6 @@
       "badge": "Indicative",
       "cta_note": "Indicative simulation available depending on configured games.",
       "cta_rules": "View rules",
-      "calc_amount_label": "Bet (HTG)",
       "calc_gain_label": "Estimated gain",
       "calc_game_aria": "Select game type",
       "calc_note": "Indicative — not guaranteed",
@@ -559,8 +558,6 @@
       "simulation": {
         "number_a_label": "Numéro A",
         "number_b_label": "Numéro B",
-        "bet_option_label": "Bet option",
-        "multiplier_label": "Multiplier",
         "gain_for_100": "Gain for 100 HTG",
         "mariage_different_note": "For Mariage, choose two different numbers according to the displayed rules.",
         "multiplier_custom_badge": "custom",

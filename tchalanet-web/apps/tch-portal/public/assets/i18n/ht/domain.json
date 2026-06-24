@@ -171,6 +171,13 @@
       "field": {
         "associatedNumbers": "Nimewo ki asosye"
       }
+    },
+    "bet": {
+      "field": {
+        "option": "Opsyon paryaj",
+        "multiplier": "Miltiplikatè",
+        "stake": "Miz (HTG)"
+      }
     }
   }
 }
