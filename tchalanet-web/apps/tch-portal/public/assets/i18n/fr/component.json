@@ -60,5 +60,20 @@
       "platform_health": "Santé plateforme",
       "draw_results": "Résultats & tirages"
     }
+  },
+  "error": {
+    "generic": "Erreur locale.",
+    "network": "Connexion locale indisponible.",
+    "not_found": "Page locale introuvable."
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "Mon espace"
+    },
+    "name": "Tchalanet"
   }
 }

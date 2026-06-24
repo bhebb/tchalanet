@@ -60,5 +60,20 @@
         "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
       }
     }
+  },
+  "error": {
+    "generic": "Erè lokal.",
+    "network": "Koneksyon lokal pa disponib.",
+    "not_found": "Paj lokal pa jwenn."
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "Espas mwen"
+    },
+    "name": "Tchalanet"
   }
 }

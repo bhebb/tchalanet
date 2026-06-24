@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Erreur locale.",
-    "network": "Connexion locale indisponible.",
-    "not_found": "Page locale introuvable."
-  },
   "common": {
     "error": {
       "title": "Erreur"
@@ -50,15 +45,5 @@
     "save": "Enregistrer",
     "saving": "Enregistrement...",
     "refresh": "Actualiser"
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "Mon espace"
-    },
-    "name": "Tchalanet"
   }
 }

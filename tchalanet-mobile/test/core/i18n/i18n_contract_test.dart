@@ -8,6 +8,19 @@ import 'package:tchalanet_mobile/core/i18n/i18n_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  const allowedTopLevelByBundle = {
+    'common': {'common'},
+    'domain': {'domain'},
+    'component': {'component', 'notifications'},
+    'surface-admin': {'surface'},
+    'surface-platform': {'surface'},
+    'surface-seller-terminal': {'app', 'surface'},
+    'feature-auth': {'auth', 'feature'},
+    'feature-public': {'feature'},
+    'feature-admin': {'feature'},
+    'feature-platform': {'feature'},
+    'feature-seller-terminal': {'feature', 'pos'},
+  };
 
   test('Haitian Creole is the default locale', () {
     expect(defaultLocale, 'ht');
@@ -61,6 +74,55 @@ void main() {
     expect(bundles['ht'], bundles['fr']);
     expect(bundles['ht'], bundles['en']);
   });
+
+  test('local bundles do not declare duplicate keys across files', () async {
+    for (final locale in supportedLocaleCodes) {
+      final seen = <String, String>{};
+      final duplicates = <String>[];
+
+      for (final bundle in localI18nBundles) {
+        final raw = await rootBundle.loadString(
+          'assets/i18n/$locale/$bundle.json',
+        );
+        final keys = flattenTranslationTree(
+          jsonDecode(raw) as Map<String, dynamic>,
+        ).keys;
+
+        for (final key in keys) {
+          final previousBundle = seen[key];
+          if (previousBundle != null) {
+            duplicates.add('$key ($previousBundle, $bundle)');
+          } else {
+            seen[key] = bundle;
+          }
+        }
+      }
+
+      expect(duplicates, isEmpty, reason: 'Duplicate i18n keys in $locale');
+    }
+  });
+
+  test(
+    'local bundle top-level namespaces stay in their owning files',
+    () async {
+      for (final locale in supportedLocaleCodes) {
+        for (final bundle in localI18nBundles) {
+          final raw = await rootBundle.loadString(
+            'assets/i18n/$locale/$bundle.json',
+          );
+          final data = jsonDecode(raw) as Map<String, dynamic>;
+          final allowed = allowedTopLevelByBundle[bundle]!;
+          final invalid = data.keys.where((key) => !allowed.contains(key));
+
+          expect(
+            invalid,
+            isEmpty,
+            reason: '$locale/$bundle.json has top-level keys outside $allowed',
+          );
+        }
+      }
+    },
+  );
 
   test('flattenTranslationTree exposes nested leaves as dot keys', () {
     expect(

@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Erè lokal.",
-    "network": "Koneksyon lokal pa disponib.",
-    "not_found": "Paj lokal pa jwenn."
-  },
   "common": {
     "error": {
       "title": "Erè"
@@ -50,15 +45,5 @@
       "saturday": "Samedi",
       "sunday": "Dimanche"
     }
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "Espas mwen"
-    },
-    "name": "Tchalanet"
   }
 }

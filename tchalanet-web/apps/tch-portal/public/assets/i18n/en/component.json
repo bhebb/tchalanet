@@ -60,5 +60,20 @@
         "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
       }
     }
+  },
+  "error": {
+    "generic": "Local error.",
+    "network": "Local connection unavailable.",
+    "not_found": "Local page not found."
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "My dashboard"
+    },
+    "name": "Tchalanet"
   }
 }

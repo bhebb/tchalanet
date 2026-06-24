@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Local error.",
-    "network": "Local connection unavailable.",
-    "not_found": "Local page not found."
-  },
   "common": {
     "error": {
       "title": "Error"
@@ -50,15 +45,5 @@
       "saturday": "Samedi",
       "sunday": "Dimanche"
     }
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "My dashboard"
-    },
-    "name": "Tchalanet"
   }
 }

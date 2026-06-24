@@ -33,6 +33,19 @@ const ignoredReferencedPrefixes = [
 ];
 
 const checkMode = process.argv.includes('--check');
+const allowedTopLevelByBundle = {
+  common: new Set(['common']),
+  domain: new Set(['catalog', 'domain', 'draw_channel', 'ticket']),
+  component: new Set(['app', 'component', 'error', 'layout', 'quickaction', 'readiness', 'shell', 'widget']),
+  'surface-admin': new Set(['nav', 'surface']),
+  'surface-platform': new Set(['surface']),
+  'surface-seller-terminal': new Set(['surface']),
+  'feature-auth': new Set(['account', 'auth', 'profile']),
+  'feature-public': new Set(['brand', 'cta', 'dashboard', 'footer', 'home', 'legal', 'nav', 'public', 'theme']),
+  'feature-admin': new Set(['admin', 'dashboard', 'feature']),
+  'feature-platform': new Set(['platform']),
+  'feature-seller-terminal': new Set(['cashier', 'sellerTerminal']),
+};
 
 function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -74,6 +87,35 @@ async function localeKeys(locale) {
     deepMerge(merged, await readJson(file));
   }
   return flatten(merged);
+}
+
+async function localeBundleDiagnostics(locale) {
+  const seen = new Map();
+  const duplicates = [];
+  const invalidTopLevels = [];
+
+  for (const bundle of bundles) {
+    const file = path.join(i18nRoot, locale, `${bundle}.json`);
+    const data = await readJson(file);
+    const allowedTopLevels = allowedTopLevelByBundle[bundle] ?? new Set();
+
+    for (const topLevel of Object.keys(data)) {
+      if (!allowedTopLevels.has(topLevel)) {
+        invalidTopLevels.push(`${bundle}.json:${topLevel}`);
+      }
+    }
+
+    for (const key of flatten(data)) {
+      const existing = seen.get(key);
+      if (existing) {
+        duplicates.push(`${key} (${existing}, ${bundle}.json)`);
+      } else {
+        seen.set(key, `${bundle}.json`);
+      }
+    }
+  }
+
+  return { duplicates, invalidTopLevels };
 }
 
 async function walk(dir, files = []) {
@@ -122,8 +164,10 @@ function difference(left, right) {
 }
 
 const declaredByLocale = new Map();
+const diagnosticsByLocale = new Map();
 for (const locale of locales) {
   declaredByLocale.set(locale, await localeKeys(locale));
+  diagnosticsByLocale.set(locale, await localeBundleDiagnostics(locale));
 }
 
 const canonical = declaredByLocale.get('fr');
@@ -139,7 +183,12 @@ const unused = difference(canonical, references);
 console.log(`i18n inventory (${canonical.size} declared fr keys, ${references.size} referenced keys)`);
 for (const locale of locales) {
   const missing = missingByLocale.get(locale);
-  console.log(`- ${locale}: ${declaredByLocale.get(locale).size} keys, ${missing.length} missing vs fr`);
+  const diagnostics = diagnosticsByLocale.get(locale);
+  console.log(
+    `- ${locale}: ${declaredByLocale.get(locale).size} keys, ${missing.length} missing vs fr, ` +
+      `${diagnostics.duplicates.length} duplicate declarations, ` +
+      `${diagnostics.invalidTopLevels.length} invalid bundle roots`,
+  );
 }
 console.log(`- referenced but missing: ${missingReferences.length}`);
 console.log(`- declared but not referenced: ${unused.length}`);
@@ -151,6 +200,29 @@ if (missingReferences.length > 0) {
   }
 }
 
-if (checkMode && (missingReferences.length > 0 || [...missingByLocale.values()].some(keys => keys.length > 0))) {
+for (const [locale, diagnostics] of diagnosticsByLocale.entries()) {
+  if (diagnostics.duplicates.length > 0) {
+    console.log(`\nDuplicate declarations (${locale}):`);
+    for (const duplicate of diagnostics.duplicates.slice(0, 100)) {
+      console.log(`  ${duplicate}`);
+    }
+  }
+
+  if (diagnostics.invalidTopLevels.length > 0) {
+    console.log(`\nInvalid bundle roots (${locale}):`);
+    for (const invalid of diagnostics.invalidTopLevels.slice(0, 100)) {
+      console.log(`  ${invalid}`);
+    }
+  }
+}
+
+if (
+  checkMode &&
+  (missingReferences.length > 0 ||
+    [...missingByLocale.values()].some(keys => keys.length > 0) ||
+    [...diagnosticsByLocale.values()].some(
+      diagnostics => diagnostics.duplicates.length > 0 || diagnostics.invalidTopLevels.length > 0,
+    ))
+) {
   process.exitCode = 1;
 }
