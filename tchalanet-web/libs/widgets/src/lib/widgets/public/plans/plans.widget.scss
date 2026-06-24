@@ -1,0 +1,24 @@
+.plans {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.plans__grid {
+  --pub-card-grid-min: 200px;
+}
+
+.plans__title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.plans__name {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.plans__price {
+  font-weight: 700;
+  color: var(--tch-color-primary, var(--mat-sys-primary));
+}

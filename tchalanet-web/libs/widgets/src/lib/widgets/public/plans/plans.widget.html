@@ -1,0 +1,17 @@
+<section class="plans">
+  <h2 class="plans__title">{{ titleKey() | tchLabel }}</h2>
+  @if (plans().length) {
+    <tch-public-card-grid class="plans__grid">
+      @for (plan of plans(); track plan.id ?? plan.code ?? $index) {
+        <tch-public-card [tone]="plan.highlighted ? 'primary' : 'default'">
+          <h3 class="plans__name">{{ plan.name || (plan.nameKey | tchLabel) || plan.code }}</h3>
+          @if (plan.price !== null && plan.price !== undefined) {
+            <span class="plans__price">{{ plan.price }}</span>
+          }
+        </tch-public-card>
+      }
+    </tch-public-card-grid>
+  } @else {
+    <p class="plans__empty">{{ 'home.plans.empty' | tchLabel }}</p>
+  }
+</section>

@@ -13,7 +13,7 @@ import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { OperatorCtaWidget } from './widgets/operator-cta.widget';
-import { PlansWidget } from './widgets/plans.widget';
+import { PlansWidget } from './widgets/public/plans/plans.widget';
 import { PublicBusinessAccessControlWidget } from './widgets/public-business-access-control.widget';
 import { PublicBusinessFeaturesWidget } from './widgets/public-business-features.widget';
 import { PublicBusinessHeroWidget } from './widgets/public/business-hero/business-hero.widget';

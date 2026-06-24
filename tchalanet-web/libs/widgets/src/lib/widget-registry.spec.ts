@@ -4,7 +4,7 @@ import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { PublicDrawResultsWidget } from './widgets/public-draw-results.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
-import { PlansWidget } from './widgets/plans.widget';
+import { PlansWidget } from './widgets/public/plans/plans.widget';
 import { resolveWidget } from './widget-registry';
 
 describe('resolveWidget', () => {
