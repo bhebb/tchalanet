@@ -31,6 +31,15 @@
         "PROVISIONAL": "Ap tann konfirmasyon",
         "OVERRIDDEN": "Rezilta korije",
         "ERROR": "Erè rezilta"
+      },
+      "field": {
+        "date": "Dat",
+        "time": "Lè",
+        "numbers": "Nimewo",
+        "drawDateTime": "Dat ak lè tiraj la",
+        "supportedSource": "Sous ki sipòte",
+        "lastUpdate": "Dènye mizajou",
+        "publicReference": "Referans piblik"
       }
     }
   }

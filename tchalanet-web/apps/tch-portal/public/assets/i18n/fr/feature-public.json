@@ -389,7 +389,6 @@
           "title": "Résultat en erreur"
         }
       },
-      "draw_datetime": "Date et heure du tirage",
       "empty": "Aucun résultat disponible pour le moment.",
       "fallback": {
         "draw_date": "20 mai 2024",
@@ -413,7 +412,6 @@
         "to": "Au"
       },
       "latest_title": "Derniers tirages",
-      "last_update": "Dernière mise à jour",
       "list": {
         "accent_label": "Référence",
         "clear_filters": "Effacer les filtres",
@@ -428,13 +426,11 @@
         "updated": "Mis à jour selon les sources prises en charge.",
         "yesterday": "Hier"
       },
-      "public_reference": "Référence publique",
       "receipt_note": "Résultat affiché à titre de consultation publique.",
       "receipt_title": "Détail du tirage",
       "related_title": "Résultats liés",
       "status_label": "Statut du résultat",
       "subtitle": "Résultats confirmés selon les sources prises en charge.",
-      "supported_source": "Source prise en charge",
       "verify_ticket": "Vérifier un ticket",
       "numbers_pending": "Numéros en attente de publication.",
       "loading": "Chargement des tirages…",
@@ -445,11 +441,6 @@
       },
       "next_in": "Prochain tirage dans",
       "awaiting": "En attente des résultats",
-      "table": {
-        "date": "Date",
-        "time": "Heure",
-        "numbers": "Numéros"
-      },
       "copy_ref": "Copier la référence",
       "copied": "Copié !"
     },

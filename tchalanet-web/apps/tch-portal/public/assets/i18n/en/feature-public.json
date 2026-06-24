@@ -393,7 +393,6 @@
           "title": "Result error"
         }
       },
-      "draw_datetime": "Draw date and time",
       "empty": "No result is available for now.",
       "fallback": {
         "draw_date": "May 20, 2024",
@@ -417,7 +416,6 @@
         "to": "To"
       },
       "latest_title": "Latest draws",
-      "last_update": "Last update",
       "list": {
         "accent_label": "Reference",
         "clear_filters": "Clear filters",
@@ -432,13 +430,11 @@
         "updated": "Updated according to supported sources.",
         "yesterday": "Yesterday"
       },
-      "public_reference": "Public reference",
       "receipt_note": "Result shown for public consultation.",
       "receipt_title": "Draw detail",
       "related_title": "Related results",
       "status_label": "Result status",
       "subtitle": "Confirmed results according to supported sources.",
-      "supported_source": "Supported source",
       "verify_ticket": "Verify a ticket",
       "numbers_pending": "Numbers pending publication.",
       "loading": "Loading draws…",
@@ -449,11 +445,6 @@
       },
       "next_in": "Next draw in",
       "awaiting": "Awaiting results",
-      "table": {
-        "date": "Date",
-        "time": "Time",
-        "numbers": "Numbers"
-      },
       "copy_ref": "Copy reference",
       "copied": "Copied!"
     },

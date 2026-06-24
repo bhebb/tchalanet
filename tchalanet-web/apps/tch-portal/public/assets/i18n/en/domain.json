@@ -139,6 +139,15 @@
         "PROVISIONAL": "Awaiting confirmation",
         "OVERRIDDEN": "Corrected results",
         "ERROR": "Result error"
+      },
+      "field": {
+        "date": "Date",
+        "time": "Time",
+        "numbers": "Numbers",
+        "drawDateTime": "Draw date and time",
+        "supportedSource": "Supported source",
+        "lastUpdate": "Last update",
+        "publicReference": "Public reference"
       }
     }
   }

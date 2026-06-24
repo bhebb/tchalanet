@@ -31,6 +31,15 @@
         "PROVISIONAL": "En attente de confirmation",
         "OVERRIDDEN": "Résultats corrigés",
         "ERROR": "Résultat en erreur"
+      },
+      "field": {
+        "date": "Date",
+        "time": "Heure",
+        "numbers": "Numéros",
+        "drawDateTime": "Date et heure du tirage",
+        "supportedSource": "Source prise en charge",
+        "lastUpdate": "Dernière mise à jour",
+        "publicReference": "Référence publique"
       }
     }
   }

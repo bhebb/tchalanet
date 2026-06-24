@@ -46,7 +46,7 @@
           <div class="result-detail__card-header">
             <div>
               <p class="result-detail__meta-label">
-                {{ 'public.results.draw_datetime' | translate }}
+                {{ 'domain.result.field.drawDateTime' | translate }}
               </p>
               <h2 id="result-numbers-title">
                 {{ result().resultDate }} · {{ hhmm(result().drawTime) }}
@@ -71,17 +71,17 @@
 
           <dl class="result-detail__meta">
             <div class="result-detail__meta-row">
-              <dt>{{ 'public.results.supported_source' | translate }}</dt>
+              <dt>{{ 'domain.result.field.supportedSource' | translate }}</dt>
               <dd>{{ result().sourceLabel }}</dd>
             </div>
             @if (result().publishedAt) {
               <div class="result-detail__meta-row">
-                <dt>{{ 'public.results.last_update' | translate }}</dt>
+                <dt>{{ 'domain.result.field.lastUpdate' | translate }}</dt>
                 <dd>{{ fmtIso(result().publishedAt) }}</dd>
               </div>
             }
             <div class="result-detail__meta-row">
-              <dt>{{ 'public.results.public_reference' | translate }}</dt>
+              <dt>{{ 'domain.result.field.publicReference' | translate }}</dt>
               <dd class="result-detail__ref-id">
                 <span class="result-detail__ref-short" [title]="result().drawResultId">
                   {{ shortId(result().drawResultId) }}
@@ -112,7 +112,7 @@
               <strong>{{ channelLabel() | translate }}</strong>
             </div>
             <div>
-              <span>{{ 'public.results.draw_datetime' | translate }}</span>
+              <span>{{ 'domain.result.field.drawDateTime' | translate }}</span>
               <strong>{{ result().resultDate }} · {{ hhmm(result().drawTime) }}</strong>
             </div>
             <div>

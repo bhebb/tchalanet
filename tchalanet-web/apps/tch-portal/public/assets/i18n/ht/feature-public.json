@@ -392,7 +392,6 @@
           "title": "Erè rezilta"
         }
       },
-      "draw_datetime": "Dat ak lè tiraj la",
       "empty": "Pa gen rezilta disponib pou kounye a.",
       "fallback": {
         "draw_date": "20 me 2024",
@@ -416,7 +415,6 @@
         "to": "Jiska"
       },
       "latest_title": "Dènye tiraj",
-      "last_update": "Dènye mizajou",
       "list": {
         "accent_label": "Referans",
         "clear_filters": "Efase filtè yo",
@@ -431,13 +429,11 @@
         "updated": "Mizajou selon sous ki sipòte yo.",
         "yesterday": "Yè"
       },
-      "public_reference": "Referans piblik",
       "receipt_note": "Rezilta afiche pou konsiltasyon piblik.",
       "receipt_title": "Detay tiraj",
       "related_title": "Rezilta ki gen rapò",
       "status_label": "Estati rezilta",
       "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
-      "supported_source": "Sous ki sipòte",
       "verify_ticket": "Verifye yon tikè",
       "numbers_pending": "Nimewo ap tann piblikasyon.",
       "loading": "Ap chaje tiraj yo…",
@@ -448,11 +444,6 @@
       },
       "next_in": "Pwochen tiraj nan",
       "awaiting": "Ap tann rezilta yo",
-      "table": {
-        "date": "Dat",
-        "time": "Lè",
-        "numbers": "Nimewo"
-      },
       "copy_ref": "Kopye referans",
       "copied": "Kopye !"
     },
