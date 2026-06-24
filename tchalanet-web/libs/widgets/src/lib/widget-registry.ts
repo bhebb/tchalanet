@@ -1,9 +1,6 @@
 import { Provider, Type } from '@angular/core';
 import { WIDGET_REGISTRY as WIDGET_REGISTRY_TOKEN } from '@tch/page-model';
 
-import { AlertsWidget } from './widgets/alerts.widget';
-import { CommissionSummaryWidget } from './widgets/commission-summary.widget';
-import { KpiGridWidget } from './widgets/kpi-grid.widget';
 import { ContactCtaWidget } from './widgets/public/contact-cta/contact-cta.widget';
 import { FaqWidget } from './widgets/public/faq/faq.widget';
 import { FeatureGridWidget } from './widgets/public/feature-grid/feature-grid.widget';
@@ -22,8 +19,11 @@ import { PublicDrawResultsWidget } from './widgets/public/draw-results/draw-resu
 import { RulesSimulationWidget } from './widgets/public/rules-simulation/rules-simulation.widget';
 import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
-import { QuickActionsWidget } from './widgets/quick-actions.widget';
-import { ReadinessSummaryWidget } from './widgets/readiness-summary.widget';
+import { AlertsWidget } from './widgets/surface-admin/alerts/alerts.widget';
+import { CommissionSummaryWidget } from './widgets/surface-admin/commission-summary/commission-summary.widget';
+import { KpiGridWidget } from './widgets/surface-admin/kpi-grid/kpi-grid.widget';
+import { QuickActionsWidget } from './widgets/surface-admin/quick-actions/quick-actions.widget';
+import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summary/readiness-summary.widget';
 
 /**
  * Maps a backend widget `type` string to its Angular component. The key is the real backend type

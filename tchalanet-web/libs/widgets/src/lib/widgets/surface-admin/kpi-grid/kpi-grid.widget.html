@@ -1,0 +1,20 @@
+<div class="kpi-grid">
+  <h2 class="kpi-grid__title">{{ titleKey() | tchLabel }}</h2>
+  <div class="kpi-grid__items">
+    @for (item of items(); track item.id) {
+      <div class="kpi-card">
+        @if (item.icon) {
+          <span class="kpi-card__icon material-symbols-outlined" aria-hidden="true">
+            {{ item.icon }}
+          </span>
+        }
+        <span class="kpi-card__label">{{ item.labelKey | tchLabel }}</span>
+        @if (resolvedValue(item); as val) {
+          <span class="kpi-card__value">{{ val }}</span>
+        } @else {
+          <span class="kpi-card__value kpi-card__value--placeholder">—</span>
+        }
+      </div>
+    }
+  </div>
+</div>

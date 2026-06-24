@@ -1,0 +1,16 @@
+<div class="readiness">
+  <h2 class="readiness__title">{{ titleKey() | tchLabel }}</h2>
+
+  @if (checks().length) {
+    <ul class="readiness__list">
+      @for (check of checks(); track check.code) {
+        <li class="readiness__item readiness__item--{{ check.status | lowercase }}">
+          <span class="readiness__status-dot" aria-hidden="true"></span>
+          <span class="readiness__label">{{ check.labelKey | tchLabel }}</span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="readiness__empty">{{ 'readiness.noIssues' | tchLabel }}</p>
+  }
+</div>
