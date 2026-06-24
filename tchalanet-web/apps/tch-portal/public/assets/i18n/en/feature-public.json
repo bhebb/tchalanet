@@ -436,12 +436,6 @@
       "receipt_note": "Result shown for public consultation.",
       "receipt_title": "Draw detail",
       "related_title": "Related results",
-      "status": {
-        "CONFIRMED": "Confirmed results",
-        "PROVISIONAL": "Awaiting confirmation",
-        "OVERRIDDEN": "Corrected results",
-        "ERROR": "Result error"
-      },
       "status_label": "Result status",
       "subtitle": "Confirmed results according to supported sources.",
       "supported_source": "Supported source",

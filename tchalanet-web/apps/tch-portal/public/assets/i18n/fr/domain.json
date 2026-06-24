@@ -132,6 +132,14 @@
       "field": {
         "publicCode": "Code public du ticket"
       }
+    },
+    "result": {
+      "status": {
+        "CONFIRMED": "Résultats confirmés",
+        "PROVISIONAL": "En attente de confirmation",
+        "OVERRIDDEN": "Résultats corrigés",
+        "ERROR": "Résultat en erreur"
+      }
     }
   }
 }

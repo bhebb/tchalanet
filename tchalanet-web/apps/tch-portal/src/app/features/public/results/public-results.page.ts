@@ -140,22 +140,19 @@ export class PublicResultsPage {
   /**
    * Status label rules aligned with DrawResultStatus enum:
    * - No numbers → "En attente des résultats"
-   * - CONFIRMED  → "Résultats confirmés"
-   * - OVERRIDDEN → "Résultats corrigés"
-   * - ERROR      → "Résultat en erreur"
-   * - PROVISIONAL (or unknown) → "En attente de confirmation"
+   * - CONFIRMED/OVERRIDDEN/ERROR/PROVISIONAL → shared result domain statuses
    */
   statusLabel(row: PublicDrawResultRow): string {
     if (!row.numbers.length) return 'public.results.awaiting';
     switch (row.status) {
       case 'CONFIRMED':
-        return 'public.results.status.CONFIRMED';
+        return 'domain.result.status.CONFIRMED';
       case 'OVERRIDDEN':
-        return 'public.results.status.OVERRIDDEN';
+        return 'domain.result.status.OVERRIDDEN';
       case 'ERROR':
-        return 'public.results.status.ERROR';
+        return 'domain.result.status.ERROR';
       default:
-        return 'public.results.status.PROVISIONAL';
+        return 'domain.result.status.PROVISIONAL';
     }
   }
 

@@ -432,12 +432,6 @@
       "receipt_note": "Résultat affiché à titre de consultation publique.",
       "receipt_title": "Détail du tirage",
       "related_title": "Résultats liés",
-      "status": {
-        "CONFIRMED": "Résultats confirmés",
-        "PROVISIONAL": "En attente de confirmation",
-        "OVERRIDDEN": "Résultats corrigés",
-        "ERROR": "Résultat en erreur"
-      },
       "status_label": "Statut du résultat",
       "subtitle": "Résultats confirmés selon les sources prises en charge.",
       "supported_source": "Source prise en charge",

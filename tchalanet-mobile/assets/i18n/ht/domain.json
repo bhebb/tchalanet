@@ -24,6 +24,14 @@
       "field": {
         "publicCode": "Kòd piblik tikè a"
       }
+    },
+    "result": {
+      "status": {
+        "CONFIRMED": "Rezilta konfime",
+        "PROVISIONAL": "Ap tann konfirmasyon",
+        "OVERRIDDEN": "Rezilta korije",
+        "ERROR": "Erè rezilta"
+      }
     }
   }
 }

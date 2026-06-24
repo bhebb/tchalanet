@@ -435,12 +435,6 @@
       "receipt_note": "Rezilta afiche pou konsiltasyon piblik.",
       "receipt_title": "Detay tiraj",
       "related_title": "Rezilta ki gen rapò",
-      "status": {
-        "CONFIRMED": "Rezilta konfime",
-        "PROVISIONAL": "Ap tann konfirmasyon",
-        "OVERRIDDEN": "Rezilta korije",
-        "ERROR": "Erè rezilta"
-      },
       "status_label": "Estati rezilta",
       "subtitle": "Rezilta konfime selon sous ki sipòte yo.",
       "supported_source": "Sous ki sipòte",

@@ -65,7 +65,7 @@ export class PublicResultDetailPage {
   readonly statusView = computed(() => resultStatusView(this.result().status));
 
   statusLabel(status: ResultStatus): string {
-    return `public.results.status.${status}`;
+    return `domain.result.status.${status}`;
   }
 
   /** Strips seconds from a time string: "14:30:00" → "14:30". */
@@ -108,4 +108,3 @@ export class PublicResultDetailPage {
     }
   }
 }
-
