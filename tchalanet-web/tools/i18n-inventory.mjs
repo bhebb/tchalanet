@@ -70,6 +70,9 @@ const forbiddenPrefixesByBundle = {
     'public.results.filters.slot_late',
     'public.results.filters.from',
     'public.results.filters.to',
+    'public.rules.tchala.numbers_label',
+    'public.tchala.numbers_label',
+    'public.tchala.suggest.numbers_label',
   ],
 };
 

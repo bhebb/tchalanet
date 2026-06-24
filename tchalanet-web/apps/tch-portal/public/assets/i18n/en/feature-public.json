@@ -520,7 +520,6 @@
         },
         "eyebrow": "Tchala",
         "jump_link": "View Tchala",
-        "numbers_label": "Associated numbers",
         "search_label": "Search a Tchala reference",
         "search_placeholder": "Search water, dog, money…",
         "subtitle": "An indicative list of cultural references. These associations do not guarantee any result.",
@@ -580,7 +579,6 @@
       "subtitle": "Explore traditional correspondences between dreams, symbols and lucky numbers. An indicative cultural experience inspired by the Haitian tradition.",
       "search_label": "Search a dream",
       "search_placeholder": "Search water, dog, travel…",
-      "numbers_label": "Associated numbers",
       "note_title": "Indicative cultural references",
       "note_body": "These associations are drawn from the Haitian Tchala tradition and are presented for informational purposes only. They do not constitute a guarantee of results.",
       "suggest": {
@@ -589,7 +587,6 @@
         "lead_short": "A missing word?",
         "dream_label": "Dream or symbol",
         "dream_placeholder": "e.g. Toad",
-        "numbers_label": "Associated numbers",
         "numbers_placeholder": "e.g. 12 45",
         "numbers_hint": "Separate numbers with a space or comma (0–99).",
         "note_label": "Note (optional)",

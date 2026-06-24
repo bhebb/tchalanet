@@ -50,7 +50,7 @@
                   </div>
                   <div
                     class="tchala-page__numbers"
-                    [attr.aria-label]="'public.tchala.numbers_label' | translate"
+                    [attr.aria-label]="'domain.tchala.field.associatedNumbers' | translate"
                   >
                     @for (num of entry.numbers; track num) {
                       <span>{{ num }}</span>
@@ -145,7 +145,7 @@
 
                     <div class="tchala-page__suggest-field">
                       <label class="tchala-page__suggest-label" for="suggest-numbers">
-                        {{ 'public.tchala.suggest.numbers_label' | translate
+                        {{ 'domain.tchala.field.associatedNumbers' | translate
                         }}<span aria-hidden="true"> *</span>
                       </label>
                       <input

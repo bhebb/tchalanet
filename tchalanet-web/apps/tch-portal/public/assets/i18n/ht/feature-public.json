@@ -519,7 +519,6 @@
         },
         "eyebrow": "Tchala",
         "jump_link": "Gade Tchala",
-        "numbers_label": "Nimewo ki asosye",
         "search_label": "Chèche yon repè Tchala",
         "search_placeholder": "Chèche dlo, chen, lajan…",
         "subtitle": "Yon lis endikatif repè kiltirèl. Asosyasyon sa yo pa garanti okenn rezilta.",
@@ -579,7 +578,6 @@
       "subtitle": "Eksplore korèspondans tradisyonèl ant rèv, senbòl ak nimewo chans. Yon eksperyans kiltirèl endikatif enspire pa tradisyon ayisyen an.",
       "search_label": "Chèche yon rèv",
       "search_placeholder": "Chèche dlo, chyen, vwayaj…",
-      "numbers_label": "Nimewo ki asosye",
       "note_title": "Repè kiltirèl endikatif",
       "note_body": "Asosyasyon sa yo soti nan tradisyon Tchala ayisyen an epi yo prezante a tit endikatif sèlman. Yo pa konsitye yon garanti rezilta.",
       "suggest": {
@@ -588,7 +586,6 @@
         "lead_short": "Yon mo manke ?",
         "dream_label": "Rèv oswa senbòl",
         "dream_placeholder": "ex. Krapo",
-        "numbers_label": "Nimewo ki asosye",
         "numbers_placeholder": "ex. 12 45",
         "numbers_hint": "Separe nimewo yo ak yon espas oswa yon vigil (0–99).",
         "note_label": "Nòt (opsyonèl)",

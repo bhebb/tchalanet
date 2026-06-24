@@ -58,6 +58,11 @@
         "provider": "Province / état",
         "slotType": "Type de tirage"
       }
+    },
+    "tchala": {
+      "field": {
+        "associatedNumbers": "Numéros associés"
+      }
     }
   }
 }

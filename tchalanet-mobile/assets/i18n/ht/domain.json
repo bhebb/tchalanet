@@ -58,6 +58,11 @@
         "provider": "Pwovens / eta",
         "slotType": "Kalite tiraj"
       }
+    },
+    "tchala": {
+      "field": {
+        "associatedNumbers": "Nimewo ki asosye"
+      }
     }
   }
 }

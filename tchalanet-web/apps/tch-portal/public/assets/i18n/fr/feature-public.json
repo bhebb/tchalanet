@@ -516,7 +516,6 @@
         },
         "eyebrow": "Tchala",
         "jump_link": "Voir Tchala",
-        "numbers_label": "Numéros associés",
         "search_label": "Rechercher un repère Tchala",
         "search_placeholder": "Rechercher eau, chien, argent…",
         "subtitle": "Une liste indicative de repères culturels. Ces associations ne garantissent aucun résultat.",
@@ -576,7 +575,6 @@
       "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne.",
       "search_label": "Rechercher un rêve",
       "search_placeholder": "Rechercher eau, chien, voyage…",
-      "numbers_label": "Numéros associés",
       "note_title": "Repères culturels indicatifs",
       "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
       "suggest": {
@@ -585,7 +583,6 @@
         "lead_short": "Un mot manque ?",
         "dream_label": "Rêve ou symbole",
         "dream_placeholder": "ex. Crapaud",
-        "numbers_label": "Numéros associés",
         "numbers_placeholder": "ex. 12 45",
         "numbers_hint": "Séparez les numéros par un espace ou une virgule (0–99).",
         "note_label": "Note (facultatif)",
