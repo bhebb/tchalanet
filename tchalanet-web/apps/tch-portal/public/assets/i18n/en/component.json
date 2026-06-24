@@ -1,0 +1,64 @@
+{
+  "readiness": {
+    "noIssues": "No issues"
+  },
+  "layout": {
+    "public_home": {
+      "contact_cta": "Contact",
+      "draws": "Draws",
+      "features": "Features",
+      "hero": "Hero",
+      "news": "News",
+      "plans": "Plans",
+      "tchala": "Tchala",
+      "rules": "Rules"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Key metrics",
+        "commission": "Commission settings",
+        "quick_actions": "Quick actions",
+        "readiness_alerts": "Readiness & alerts"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Quick actions",
+      "readiness_alerts": "Readiness & alerts"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Key metrics",
+      "quick_actions": "Quick actions",
+      "tenants_alerts": "Tenants & alerts"
+    }
+  },
+  "widget": {
+    "error": "This content is temporarily unavailable.",
+    "invalid": "Invalid widget.",
+    "unsupported": "Unsupported widget type."
+  },
+  "quickaction": {
+    "admin": {
+      "daily_report": "Today's report",
+      "manage_limits": "Manage limits",
+      "manage_odds": "Manage odds",
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Add seller-terminal",
+      "active_seller_terminals": "Active seller-terminals"
+    },
+    "platform": {
+      "create_tenant": "Create tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Subscriptions",
+      "platform_health": "Platform health",
+      "draw_results": "Results & draws"
+    }
+  },
+  "shell": {
+    "error": {
+      "backendUnavailable": {
+        "title": "Serveur temporairement indisponible",
+        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
+      }
+    }
+  }
+}

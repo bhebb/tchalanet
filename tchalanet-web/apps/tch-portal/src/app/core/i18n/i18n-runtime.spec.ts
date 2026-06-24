@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
 
-import { normalizeBackendTranslations } from './merged-translate-loader';
+import { mergeTranslationTrees, normalizeBackendTranslations } from './merged-translate-loader';
 import { I18nActions } from './store/i18n.actions';
 import { I18nEffects } from './store/i18n.effects';
 import { i18nFeature } from './store/i18n.reducer';
@@ -81,6 +81,51 @@ describe('i18n runtime', () => {
       'common.ok': 'OK',
       'home.title': 'Accueil',
       'shared.cta': 'Entrer',
+    });
+  });
+
+  it('deep-merges local bundle trees in configured order', () => {
+    const translations = mergeTranslationTrees([
+      {
+        common: {
+          action: {
+            save: 'Save',
+            refresh: 'Refresh',
+          },
+        },
+        feature: {
+          dashboard: {
+            title: 'Dashboard',
+          },
+        },
+      },
+      {
+        common: {
+          action: {
+            save: 'Save now',
+          },
+        },
+        feature: {
+          dashboard: {
+            subtitle: 'Today',
+          },
+        },
+      },
+    ]);
+
+    expect(translations).toEqual({
+      common: {
+        action: {
+          save: 'Save now',
+          refresh: 'Refresh',
+        },
+      },
+      feature: {
+        dashboard: {
+          title: 'Dashboard',
+          subtitle: 'Today',
+        },
+      },
     });
   });
 });

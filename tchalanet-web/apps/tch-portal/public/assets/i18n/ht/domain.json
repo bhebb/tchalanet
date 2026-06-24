@@ -1,0 +1,110 @@
+{
+  "catalog": {
+    "game": {
+      "HT_BOLET": "Bolèt",
+      "HT_MARYAJ": "Maryaj",
+      "HT_MARYAJ_GRATUIT": "Maryaj Gratis",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "bet_type": {
+      "MATCH_1_2D": "1ye nimewo",
+      "MATCH_2_2D": "2yèm nimewo",
+      "MATCH_3_2D": "3yèm nimewo",
+      "MARRIAGE_2D2D": "Maryaj",
+      "MARRIAGE_2D": "Maryaj",
+      "LOTTO3_3D": "Loto 3 chif",
+      "LOTTO4_PATTERN": "Loto 4 chif",
+      "LOTTO5_PATTERN": "Loto 5 chif"
+    },
+    "option": {
+      "Exact": "Egzak",
+      "EXACT": "Egzak",
+      "Any": "Nenpòt lòd",
+      "ANY": "Nenpòt lòd",
+      "Front": "Devan",
+      "Back": "Dèyè"
+    }
+  },
+  "ticket": {
+    "status": {
+      "pending": "An atant"
+    }
+  },
+  "draw_channel": {
+    "ny": {
+      "mid": {
+        "label": "New York — Midi"
+      },
+      "eve": {
+        "label": "New York — Swa"
+      }
+    },
+    "fl": {
+      "mid": {
+        "label": "Florida — Midi"
+      },
+      "eve": {
+        "label": "Florida — Swa"
+      }
+    },
+    "ga": {
+      "mid": {
+        "label": "Georgia — Midi"
+      },
+      "eve": {
+        "label": "Georgia — Swa"
+      },
+      "late": {
+        "label": "Georgia — Nwit"
+      }
+    },
+    "tx": {
+      "1000": {
+        "label": "Texas — 10:00"
+      },
+      "1227": {
+        "label": "Texas — 12:27"
+      },
+      "1800": {
+        "label": "Texas — 18:00"
+      },
+      "2212": {
+        "label": "Texas — 22:12"
+      }
+    },
+    "mi": {
+      "mid": {
+        "label": "Michigan — Midi"
+      },
+      "eve": {
+        "label": "Michigan — Aswè"
+      }
+    },
+    "pa": {
+      "mid": {
+        "label": "Pennsylvania — Jour"
+      },
+      "eve": {
+        "label": "Pennsylvania — Aswè"
+      }
+    },
+    "ca": {
+      "mid": {
+        "label": "California — Midi"
+      },
+      "eve": {
+        "label": "California — Aswè"
+      }
+    },
+    "nj": {
+      "mid": {
+        "label": "New Jersey — Midi"
+      },
+      "eve": {
+        "label": "New Jersey — Aswè"
+      }
+    }
+  }
+}

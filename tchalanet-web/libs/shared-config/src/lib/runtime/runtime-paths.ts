@@ -15,6 +15,19 @@ export const PORTAL_I18N_CONFIG = {
     defaultLang: 'fr',
     assetsPrefix: '/assets/i18n/',
     assetsSuffix: '.json',
+    bundles: [
+        'common',
+        'domain',
+        'component',
+        'surface-admin',
+        'surface-platform',
+        'surface-seller-terminal',
+        'feature-auth',
+        'feature-public',
+        'feature-admin',
+        'feature-platform',
+        'feature-seller-terminal',
+    ],
 } as const;
 
 export const AUTH_CONFIG = {

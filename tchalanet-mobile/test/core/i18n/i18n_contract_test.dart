@@ -30,15 +30,71 @@ void main() {
     },
   );
 
-  test('local bundles expose the same keys', () async {
+  test('local bundle files are aligned across locales', () async {
+    for (final locale in supportedLocaleCodes) {
+      for (final bundle in localI18nBundles) {
+        final raw = await rootBundle.loadString(
+          'assets/i18n/$locale/$bundle.json',
+        );
+        expect(jsonDecode(raw), isA<Map<String, dynamic>>());
+      }
+    }
+  });
+
+  test('local bundles expose the same flattened keys', () async {
     final bundles = <String, Set<String>>{};
 
     for (final locale in supportedLocaleCodes) {
-      final raw = await rootBundle.loadString('assets/i18n/$locale.json');
-      bundles[locale] = (jsonDecode(raw) as Map<String, dynamic>).keys.toSet();
+      final merged = <String, dynamic>{};
+      for (final bundle in localI18nBundles) {
+        final raw = await rootBundle.loadString(
+          'assets/i18n/$locale/$bundle.json',
+        );
+        deepMergeTranslationTree(
+          merged,
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      }
+      bundles[locale] = flattenTranslationTree(merged).keys.toSet();
     }
 
     expect(bundles['ht'], bundles['fr']);
     expect(bundles['ht'], bundles['en']);
   });
+
+  test('flattenTranslationTree exposes nested leaves as dot keys', () {
+    expect(
+      flattenTranslationTree({
+        'common': {
+          'action': {'save': 'Save'},
+        },
+        'feature': {
+          'login': {'title': 'Welcome'},
+        },
+      }),
+      {'common.action.save': 'Save', 'feature.login.title': 'Welcome'},
+    );
+  });
+
+  test(
+    'deepMergeTranslationTree keeps nested values and lets later bundles win',
+    () {
+      final target = {
+        'common': {
+          'action': {'save': 'Save', 'cancel': 'Cancel'},
+        },
+      };
+
+      deepMergeTranslationTree(target, {
+        'common': {
+          'action': {'save': 'Save now'},
+        },
+      });
+
+      expect(flattenTranslationTree(target), {
+        'common.action.save': 'Save now',
+        'common.action.cancel': 'Cancel',
+      });
+    },
+  );
 }

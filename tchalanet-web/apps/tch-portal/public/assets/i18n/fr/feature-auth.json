@@ -1,0 +1,120 @@
+{
+  "profile": {
+    "avatar_alt": "Avatar utilisateur",
+    "title": "Mon profil",
+    "description": "Gérez vos informations personnelles et préférences.",
+    "loading": "Chargement du profil...",
+    "empty": {
+      "title": "Profil introuvable",
+      "message": "Impossible de charger les informations du profil."
+    },
+    "section": {
+      "identity": "Identité",
+      "preferences": "Préférences",
+      "access": "Accès"
+    },
+    "field": {
+      "displayName": "Nom affiché",
+      "email": "Email",
+      "username": "Nom d'utilisateur",
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "phone": "Téléphone",
+      "role": "Rôle"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Thème",
+        "system": "Système",
+        "light": "Clair",
+        "dark": "Sombre"
+      },
+      "locale": "Locale",
+      "timeZone": "Fuseau horaire",
+      "currency": "Devise"
+    },
+    "error": {
+      "load": "Erreur lors du chargement du profil.",
+      "save": "Erreur lors de l'enregistrement."
+    }
+  },
+  "account": {
+    "activation": {
+      "title": "Activation du compte",
+      "description": "Changez le mot de passe temporaire et complétez votre profil avant d’entrer dans l’espace admin.",
+      "security": {
+        "title": "Sécurité",
+        "currentPassword": "Mot de passe temporaire",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "passwordMismatch": "Les mots de passe ne correspondent pas."
+      },
+      "profile": {
+        "title": "Profil",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "phoneNumber": "Téléphone optionnel"
+      },
+      "tenant": {
+        "title": "Accès tenant",
+        "name": "Tenant",
+        "code": "Code",
+        "role": "Rôle"
+      },
+      "action": {
+        "submit": "Activer mon compte",
+        "submitting": "Activation en cours"
+      }
+    }
+  },
+  "auth": {
+    "forbidden": {
+      "back": "Retour à l'accueil public",
+      "body": "Votre rôle actuel ne permet pas d'accéder à cette surface.",
+      "title": "Accès interdit"
+    },
+    "login": {
+      "brand": {
+        "body": "Pilotez les ventes, les tirages et votre réseau depuis un espace opérationnel sécurisé.",
+        "capabilities": {
+          "operations": "Suivi des opérations en temps réel",
+          "sales": "Ventes et connexions centralisées",
+          "security": "Accès protégé et traçable"
+        },
+        "eyebrow": "Réseau de loterie",
+        "title": "Votre réseau. Une seule vision."
+      },
+      "copyright": "© 2026 Tchalanet. Tous droits réservés.",
+      "errors": {
+        "accessDenied": "Connexion réussie, mais votre accès Tchalanet n'est pas encore autorisé.",
+        "emailLinkFailed": "Le lien de connexion est invalide ou expiré.",
+        "emailRequired": "Veuillez entrer votre adresse e-mail.",
+        "invalidCredentials": "Adresse e-mail ou mot de passe invalide."
+      },
+      "form": {
+        "authenticating": "Authentification…",
+        "body": "Utilisez les identifiants associés à votre compte Tchalanet.",
+        "email": "Adresse e-mail",
+        "emailLinkSent": "Lien de connexion envoyé. Ouvrez votre email sur cet appareil pour continuer.",
+        "forgotPassword": "Mot de passe oublié ?",
+        "resetEmailSent": "Un lien de réinitialisation a été envoyé à votre adresse e-mail.",
+        "emailPlaceholder": "nom@organisation.com",
+        "eyebrow": "Portail sécurisé",
+        "hidePassword": "Masquer le mot de passe",
+        "password": "Mot de passe",
+        "remember": "Rester connecté sur cet appareil",
+        "security": "Votre connexion est sécurisée par Firebase Authentication.",
+        "sendEmailLink": "Recevoir un lien de connexion",
+        "showPassword": "Afficher le mot de passe",
+        "submit": "Se connecter",
+        "title": "Bon retour"
+      },
+      "links": {
+        "help": "Aide",
+        "privacy": "Confidentialité",
+        "terms": "Conditions d'utilisation"
+      }
+    },
+    "logout": "Déconnexion"
+  }
+}

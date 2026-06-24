@@ -1,0 +1,680 @@
+{
+  "platform": {
+    "nav": {
+      "platform": "Platform",
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "health": "Platform health",
+      "tenantsGroup": "Tenants",
+      "tenants": "All tenants",
+      "createTenant": "Create tenant",
+      "tenantOnboarding": "Onboarding",
+      "tenantAdmins": "Administrators",
+      "subscriptions": "Subscriptions",
+      "entitlements": "Entitlements",
+      "usageRights": "Usage rights",
+      "references": "Referentials",
+      "games": "Games",
+      "drawChannels": "Draw channels",
+      "resultSlots": "Result slots",
+      "plansPricing": "Plans & pricing",
+      "globalSettings": "Global settings",
+      "themes": "Themes",
+      "translations": "Translations",
+      "pageModelTemplates": "Page templates",
+      "operations": "Operations",
+      "drawResults": "Results & draws",
+      "providers": "Providers",
+      "schedulers": "Scheduled tasks",
+      "cache": "Cache",
+      "archives": "Archives",
+      "audit": "Audit",
+      "accessRights": "Access & rights",
+      "permissions": "Permissions",
+      "roles": "Roles",
+      "superAdminOverrides": "Super admin overrides",
+      "communication": "Communication",
+      "inAppNotifications": "In-app notifications",
+      "contactManagement": "Contact management",
+      "news": "News",
+      "reports": "Reports",
+      "platformReports": "Platform reports",
+      "superAdmins": "Super admins",
+      "supportTenant": "Tenant support",
+      "draws": "Draws",
+      "scheduledTasks": "Scheduled tasks",
+      "drawChannelGames": "Draw channel games",
+      "resultSlotCalendars": "Result slot calendars",
+      "plans": "Plans",
+      "pricing": "Pricing",
+      "communicationTests": "Communication tests",
+      "identitySync": "Identity sync",
+      "supportAndContent": "Support & content",
+      "contactRequests": "Contact messages",
+      "contactConfig": "Contact config",
+      "tchala": "Tchala",
+      "tchalaSuggestions": "Suggestions",
+      "tchalaImport": "Import",
+      "tchalaCleanup": "Cleanup",
+      "accessSecurity": "Access & security",
+      "users": "Users",
+      "backendKeys": "Backend signing keys"
+    },
+    "placeholder": {
+      "title": "Screen in preparation",
+      "description": "This feature will be available in a future iteration.",
+      "message": "This feature will be available in a future iteration.",
+      "descriptions": {
+        "entitlements": "Manage functional rights available per tenant.",
+        "providers": "Monitor draw providers and connectors.",
+        "archives": "Browse and control platform archives.",
+        "games": "Global catalog of games available on the platform.",
+        "resultSlots": "Catalog of result slots and publishing windows.",
+        "permissions": "Manage platform permissions.",
+        "roles": "Manage platform roles.",
+        "overrides": "Manage super admin overrides.",
+        "supportTenant": "Select a tenant to access its admin interface in support mode.",
+        "communicationTests": "Test communication channels (email, Slack, notifications).",
+        "identitySync": "Sync Firebase identities with the platform.",
+        "contactConfig": "Configure global contact channels and messages.",
+        "tchalaSuggestions": "Manage dream suggestions pending approval.",
+        "tchalaImport": "Import Tchala entries from a file.",
+        "tchalaCleanup": "Merge or delete duplicate Tchala entries.",
+        "users": "Manage platform users.",
+        "backendKeys": "Backend signing keys — read only.",
+        "drawChannelGames": "Associate games with draw channels.",
+        "resultSlotCalendars": "Manage result slot calendars.",
+        "platformReports": "Aggregated platform reports."
+      }
+    },
+    "dashboard": {
+      "title": "Platform",
+      "description": "Overview of Tchalanet infrastructure",
+      "kpi": {
+        "activeTenants": "Active Tenants",
+        "receivedContacts": "Contact Requests",
+        "pendingNotifications": "Pending Notifications",
+        "degradedServices": "Degraded Services"
+      },
+      "provisioning": {
+        "title": "Recent Provisioning"
+      },
+      "integrity": {
+        "title": "Operational Integrity"
+      },
+      "contacts": {
+        "title": "Recent Contact Requests"
+      }
+    },
+    "tenants": {
+      "title": "Tenants",
+      "description": "List, filter, and monitor Tchalanet tenants.",
+      "loading": "Loading tenants...",
+      "pagination": "Page {{page}} / {{total}}",
+      "error": {
+        "load": "Unable to load tenants.",
+        "suspend": "Error suspending tenant.",
+        "reactivate": "Error reactivating tenant.",
+        "archive": "Error archiving tenant.",
+        "activate": "Error activating the tenant."
+      },
+      "action": {
+        "create": "Create tenant",
+        "applyFilters": "Filter",
+        "resetFilters": "Reset",
+        "openMenu": "Open tenant actions",
+        "viewDetails": "View tenant",
+        "suspend": "Suspend",
+        "reactivate": "Reactivate",
+        "archive": "Archive",
+        "backToList": "Back to list",
+        "activate": "Activate"
+      },
+      "filter": {
+        "search": "Search",
+        "status": "Status",
+        "profile": "Profile",
+        "allStatuses": "All statuses",
+        "allProfiles": "All profiles"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Code",
+        "status": "Status",
+        "profile": "Profile",
+        "primaryAdmin": "Primary admin",
+        "readiness": "Readiness",
+        "createdAt": "Created",
+        "updatedAt": "Last modified",
+        "type": "Type",
+        "currency": "Currency",
+        "name": "Nom",
+        "email": "Email"
+      },
+      "empty": {
+        "title": "No tenants",
+        "message": "Create the first tenant to get started.",
+        "filtered": {
+          "title": "No results",
+          "message": "No tenants match the selected filters."
+        }
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Active",
+        "suspended": "Suspended",
+        "disabled": "Disabled",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "readiness": {
+        "ready": "Ready",
+        "incomplete": "Incomplete",
+        "blocked": "Blocked",
+        "missing": "Missing",
+        "unknown": "To complete"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Network",
+        "ambulant": "Mobile"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Default Haiti lottery",
+        "demo": "Demo"
+      },
+      "profileDescription": {
+        "minimal": "Minimal baseline, then manual configuration.",
+        "defaultHaitiLottery": "Recommended profile for a real tenant: Haiti games, pricing, and draw channels.",
+        "demo": "Demo profile reserved for non-production environments."
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "initialAdminEmail": "Initial admin email",
+        "profile": "Profile"
+      },
+      "validation": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3-30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address."
+      },
+      "create": {
+        "title": "Create tenant",
+        "description": "Provision an operational tenant with its initial data baseline.",
+        "adminHint": "Leave empty to create the tenant without an initial administrator.",
+        "success": "Tenant provisioned successfully.",
+        "error": "Tenant provisioning failed.",
+        "previewError": "Unable to calculate the profile.",
+        "previewLoading": "Calculating profile...",
+        "section": {
+          "identity": "Tenant identity",
+          "admin": "Initial admin",
+          "profile": "Provisioning profile",
+          "preview": "Provisioning preview"
+        },
+        "action": {
+          "preview": "Preview",
+          "provision": "Create tenant"
+        },
+        "preview": {
+          "profile": "Selected profile",
+          "includedDomains": "Will be initialized",
+          "notCopiedData": "Will not be copied",
+          "expectedReadiness": "Expected readiness",
+          "empty": "Complete the form, then run the preview."
+        }
+      },
+      "detail": {
+        "title": "Tenant detail",
+        "description": "Identity, region, commerce and profile of the tenant.",
+        "loading": "Loading tenant...",
+        "error": "Unable to load tenant.",
+        "createdTitle": "Tenant created",
+        "domainStatuses": "Provisioned domains",
+        "nextSteps": "Next steps",
+        "empty": {
+          "title": "Tenant not found",
+          "message": "This tenant detail is not available yet."
+        },
+        "section": {
+          "identity": "Identity",
+          "region": "Region",
+          "commerce": "Commerce",
+          "profile": "Profile & Readiness",
+          "address": "Adresse"
+        },
+        "field": {
+          "type": "Type",
+          "country": "Pays",
+          "city": "Ville",
+          "addressLine": "Adresse",
+          "postalCode": "Code postal",
+          "theme": "Thème actif"
+        },
+        "identityCard": {
+          "eyebrow": "Tenant"
+        },
+        "action": {
+          "viewAdmins": "View administrators",
+          "updateSuccess": "Information updated successfully.",
+          "updateError": "Could not save changes.",
+          "activate": "Activer",
+          "activateError": "Erreur lors de l'activation.",
+          "suspend": "Suspendre",
+          "suspendError": "Erreur lors de la suspension.",
+          "addAdmin": "Ajouter un administrateur"
+        },
+        "tab": {
+          "overview": "Aperçu",
+          "admins": "Administrateurs",
+          "configuration": "Configuration",
+          "subscription": "Abonnement",
+          "entitlements": "Droits d'usage",
+          "sellerTerminals": "Seller-terminals",
+          "audit": "Audit"
+        },
+        "address": {
+          "empty": "Adresse non renseignée."
+        },
+        "admins": {
+          "loading": "Chargement des administrateurs…",
+          "error": "Erreur lors du chargement des administrateurs.",
+          "empty": {
+            "title": "Aucun administrateur",
+            "message": "Ce tenant n'a pas encore d'administrateur."
+          }
+        },
+        "config": {
+          "empty": {
+            "title": "Configuration non renseignée",
+            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+          },
+          "section": {
+            "locale": "Langue & région",
+            "calendar": "Calendrier commercial",
+            "communication": "Communication ticket",
+            "receipt": "Reçu / documents"
+          },
+          "field": {
+            "defaultLanguage": "Langue par défaut",
+            "defaultLocale": "Locale par défaut",
+            "supportedLanguages": "Langues supportées",
+            "fallbackLanguage": "Langue de secours",
+            "defaultOpen": "Ouvert par défaut",
+            "holidaySalesAllowed": "Vente les jours fériés",
+            "closedWeekdays": "Jours fermés",
+            "receiptDisplayName": "Nom affiché",
+            "headerMessage": "Message d'en-tête",
+            "footerMessage": "Message de pied",
+            "paperSize": "Format papier",
+            "showQrCode": "Afficher QR code",
+            "showSellerName": "Afficher nom vendeur",
+            "showPotentialPayout": "Afficher gain potentiel"
+          },
+          "paidBy": {
+            "buyer": "Payé par l'acheteur",
+            "tenant": "Payé par le tenant",
+            "platform": "Payé par la plateforme"
+          }
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Tenant identity",
+          "pagemodels": "Initial pages",
+          "theme": "Theme",
+          "settings": "Settings",
+          "i18n": "Translations",
+          "games": "Games",
+          "pricing": "Pricing",
+          "draw_channels": "Draw channels",
+          "promotions_templates": "Promotion templates",
+          "limits_templates": "Limit templates",
+          "demo_users": "Demo users",
+          "demo_seller_terminals": "Demo seller-terminals"
+        },
+        "data": {
+          "tickets": "Tickets",
+          "sales": "Sales",
+          "payouts": "Payouts",
+          "audit": "Audit",
+          "notifications": "Notifications",
+          "stats": "Stats",
+          "ledger": "Ledger"
+        },
+        "readiness": {
+          "identity": "Tenant identity",
+          "users": "Tenant admin",
+          "draw_channels": "Draw channels",
+          "limits": "Limits",
+          "odds": "Odds",
+          "seller_terminals": "Seller-terminals",
+          "seller_rules": "Seller-terminal rules"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Create initial admin",
+          "CONFIGURE_GAMES": "Configure games",
+          "CONFIGURE_DRAW_CHANNELS": "Configure draw channels",
+          "CONFIGURE_SELLER_RULES": "Configure seller-terminal rules",
+          "CREATE_SELLER_TERMINAL": "Create a seller-terminal",
+          "CONFIGURE_LIMITS": "Configure limits",
+          "CONFIGURE_ODDS": "Configure odds",
+          "VERIFY_DEMO_SETUP": "Verify demo data"
+        },
+        "statuses": {
+          "CREATED": "Created",
+          "SEEDED_VIA_LISTENER": "Initialized automatically",
+          "DEFAULT": "Default values",
+          "DEFAULT_LOTTERY": "Default lottery games",
+          "DEFAULT_HAITI": "Default Haiti setup",
+          "TEMPLATES_AVAILABLE": "Templates available",
+          "NONE": "Not configured"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "No initial admin will be created."
+        }
+      },
+      "confirm": {
+        "suspend": "Do you want to suspend {{name}}? Sellers will no longer be able to log in.",
+        "reactivate": "Do you want to reactivate {{name}}?",
+        "archive": "Do you want to archive {{name}}? This action is difficult to undo.",
+        "reasonLabel": "Reason",
+        "activate": "Do you want to activate {{name}}?"
+      },
+      "success": {
+        "suspended": "Tenant suspended.",
+        "reactivated": "Tenant reactivated.",
+        "archived": "Tenant archived."
+      },
+      "paginationTotal": "{{count}} tenant(s)",
+      "admin": {
+        "pageTitle": "Add admin",
+        "pageTitleWithTenant": "Add admin — {{name}}",
+        "loading": "Loading...",
+        "section": "Administrator information",
+        "field": {
+          "email": "Email",
+          "firstName": "First name",
+          "lastName": "Last name (optional)",
+          "phone": "Phone (optional)"
+        },
+        "error": {
+          "email": "Valid email required.",
+          "firstName": "First name required.",
+          "create": "Error creating administrator."
+        },
+        "roleInfo": "Assigned role: TENANT_ADMIN",
+        "submit": "Create administrator",
+        "success": "Administrator created successfully."
+      },
+      "adminStatus": {
+        "active": "Actif",
+        "pending": "En attente",
+        "disabled": "Désactivé",
+        "invited": "Invité"
+      }
+    },
+    "tenantProvisioning": {
+      "title": "Provision a tenant",
+      "description": "Create a tenant, apply an initial profile, and prepare its configuration.",
+      "backToTenants": "Back to tenants",
+      "section": {
+        "identity": "Identity & classification",
+        "regional": "Regional settings",
+        "commercial": "Commercial settings",
+        "profile": "Provisioning profile",
+        "initialAdmin": "Initial admin"
+      },
+      "field": {
+        "code": "Tenant code",
+        "name": "Display name",
+        "type": "Type",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "defaultCommissionRate": "Default commission",
+        "profile": "Profile",
+        "initialAdminEmail": "Initial admin email"
+      },
+      "hint": {
+        "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
+        "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
+      },
+      "error": {
+        "code": "Required format: lowercase letters, numbers, hyphens (3–30 characters).",
+        "required": "Required field.",
+        "email": "Invalid email address.",
+        "commissionRate": "Commission must be between 0 and 100%.",
+        "submitTitle": "Provisioning failed"
+      },
+      "loading": {
+        "title": "Tenant provisioning in progress…",
+        "message": "Creating the tenant, applying the initial profile, and preparing the configuration."
+      },
+      "action": {
+        "cancel": "Cancel",
+        "submit": "Provision tenant",
+        "submitting": "Provisioning…",
+        "backToList": "Back to list",
+        "completeRequired": "Complete the required fields to continue",
+        "viewTenant": "View tenant",
+        "addAdmin": "Add an administrator",
+        "createAnother": "Create another tenant"
+      },
+      "warning": {
+        "initialAdminMissing": "No initial admin provided. The tenant can still be created, but an administrator will need to be added later.",
+        "existingUserAttached": "An existing user was attached as the tenant administrator.",
+        "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
+        "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
+        "fallback": "A configuration point needs verification."
+      },
+      "identityCard": {
+        "eyebrow": "Tenant identity",
+        "fallbackTitle": "New tenant",
+        "unassignedCode": "unassigned"
+      },
+      "health": {
+        "title": "Configuration health",
+        "eyebrow": "Readiness",
+        "loading": "Calculating profile...",
+        "fallback": "To validate"
+      },
+      "result": {
+        "nextSteps": "Next steps",
+        "warnings": "Warnings",
+        "initialAdmin": "Initial admin",
+        "adminEmail": "Email",
+        "adminStatus": "Status",
+        "temporaryAccessCreated": "Temporary access created",
+        "temporaryPassword": "Temporary password",
+        "passwordConfiguredServerSide": "Temporary password set by server configuration.",
+        "adminNextInstruction": "Ask the admin to sign in. They must change their password and complete their profile before accessing /app/admin."
+      },
+      "domain": {
+        "tenantIdentity": "Tenant identity",
+        "pagemodels": "Initial pages",
+        "theme": "Theme",
+        "settings": "Settings",
+        "i18n": "Translations",
+        "games": "Games",
+        "pricing": "Pricing",
+        "drawChannels": "Draw channels",
+        "promotionsTemplates": "Promotion templates",
+        "limitsTemplates": "Limit templates",
+        "demoUsers": "Demo users",
+        "demoSellerTerminals": "Demo seller-terminals"
+      },
+      "status": {
+        "created": "Created",
+        "seeded": "Seeded",
+        "default": "Default",
+        "defaultLottery": "Default lottery",
+        "defaultHaiti": "Default Haiti",
+        "templatesAvailable": "Templates available",
+        "none": "None",
+        "planned": "Planned",
+        "expected": "Expected"
+      },
+      "step": {
+        "createInitialAdmin": "Create initial admin",
+        "configureGames": "Configure games",
+        "configureDrawChannels": "Configure draw channels",
+        "configureLimits": "Configure limits",
+        "configureOdds": "Configure odds",
+        "verifyDemoSetup": "Verify demo data",
+        "createSellerTerminal": "Create a seller-terminal",
+        "configureSellerRules": "Configurer les règles seller-terminal"
+      },
+      "success": {
+        "title": "Tenant provisioned successfully",
+        "message": "Tenant {{code}} has been created and is ready for configuration."
+      },
+      "typeDescription": {
+        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
+        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
+        "ambulant": "Vendeur indépendant ou petite activité mobile."
+      }
+    },
+    "contactRequests": {
+      "title": "Contact Requests",
+      "description": "Manage incoming contact requests"
+    },
+    "news": {
+      "title": "News",
+      "description": "Manage platform news"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Manage platform notifications"
+    },
+    "ops": {
+      "title": "Ops",
+      "description": "Service status and operational monitoring"
+    },
+    "onboarding": {
+      "adminCreated": "Tenant admin created",
+      "code": "Tenant code",
+      "currency": "Currency",
+      "domains": "Included domains",
+      "error": "Operation failed.",
+      "initialAdminEmail": "First admin email",
+      "name": "Tenant name",
+      "preview": "Preview",
+      "previewResult": "Preview",
+      "profile": "Profile",
+      "provision": "Provision",
+      "success": "Tenant provisioned",
+      "timezone": "Timezone",
+      "title": "Tenant provisioning",
+      "type": "Type"
+    },
+    "action": {
+      "health": "System health",
+      "onboarding": "Onboarding",
+      "settings": "Settings",
+      "subscriptions": "Subscriptions",
+      "tenants": "Tenants"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Active subscriptions"
+      },
+      "activeTenants": {
+        "label": "Active tenants"
+      },
+      "pendingOnboarding": {
+        "label": "Pending onboarding"
+      },
+      "suspendedTenants": {
+        "label": "Suspended tenants"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenants with issues"
+      },
+      "totalTenants": {
+        "label": "Total tenants"
+      }
+    },
+    "tenantAdmins": {
+      "title": "Administrateurs tenant",
+      "description": "Consultez et gérez les administrateurs de chaque tenant.",
+      "loading": "Chargement des administrateurs...",
+      "filter": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom ou email..."
+      },
+      "column": {
+        "admin": "Administrateur",
+        "tenant": "Tenant",
+        "status": "Statut",
+        "assignedAt": "Affecté le"
+      },
+      "status": {
+        "active": "Actif",
+        "pending": "En attente",
+        "suspended": "Bloqué",
+        "inactive": "Inactif",
+        "archived": "Archivé"
+      },
+      "action": {
+        "openMenu": "Ouvrir le menu",
+        "viewDetail": "Voir le détail",
+        "resetPassword": "Réinitialiser le mot de passe",
+        "activate": "Activer",
+        "block": "Bloquer",
+        "archive": "Archiver",
+        "manageAdmins": "Gérer les admins",
+        "addAdmin": "Ajouter un admin",
+        "resetFilters": "Réinitialiser les filtres"
+      },
+      "confirm": {
+        "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
+        "activate": "Activer le compte de {{ name }} ?",
+        "block": "Bloquer le compte de {{ name }} ? Cet administrateur ne pourra plus se connecter.",
+        "archive": "Archiver le compte de {{ name }} ? Cette action est irréversible."
+      },
+      "success": {
+        "resetPassword": "Lien de réinitialisation envoyé."
+      },
+      "error": {
+        "load": "Impossible de charger les administrateurs.",
+        "resetPassword": "Échec de l'envoi du lien de réinitialisation.",
+        "activate": "Échec de l'activation du compte.",
+        "block": "Échec du blocage du compte.",
+        "archive": "Échec de l'archivage du compte."
+      },
+      "empty": {
+        "title": "Aucun administrateur trouvé",
+        "message": "Aucun administrateur ne correspond à vos critères.",
+        "filtered": {
+          "title": "Aucun résultat",
+          "message": "Aucun administrateur ne correspond à votre recherche."
+        }
+      },
+      "detail": {
+        "title": "Détail administrateur",
+        "description": "Informations et actions sur cet administrateur tenant.",
+        "back": "Retour à la liste",
+        "loading": "Chargement...",
+        "error": {
+          "load": "Impossible de charger cet administrateur."
+        },
+        "field": {
+          "tenant": "Tenant",
+          "email": "Email",
+          "assignedAt": "Affecté le"
+        },
+        "actions": {
+          "title": "Actions",
+          "manageInTenant": "Gérer dans le tenant"
+        }
+      },
+      "pagination": "Page {{page}} / {{total}}",
+      "paginationTotal": "{{count}} administrateur(s)"
+    }
+  }
+}

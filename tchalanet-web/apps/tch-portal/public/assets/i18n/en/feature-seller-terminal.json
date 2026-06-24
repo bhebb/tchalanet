@@ -1,0 +1,59 @@
+{
+  "cashier": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Your sales activity",
+      "action": {
+        "newTicket": "New Ticket"
+      },
+      "kpi": {
+        "todaySales": "Today's Sales",
+        "commission": "Commission",
+        "tickets": "Tickets"
+      },
+      "blocked": {
+        "title": "Connection blocked",
+        "message": "Your connection is currently blocked. Contact your supervisor."
+      }
+    },
+    "connection": {
+      "title": "Connection",
+      "openedAt": "Opened at"
+    },
+    "draw": {
+      "title": "Current Draw"
+    },
+    "printer": {
+      "title": "Printer"
+    },
+    "tickets": {
+      "title": "Recent Tickets",
+      "print": "Print"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newTicket": "New Ticket",
+      "history": "History",
+      "closeConnection": "Close Connection",
+      "closeConnexion": "Fermer la connexion"
+    },
+    "sell": {
+      "title": "New Ticket",
+      "description": "Issue a new ticket"
+    },
+    "connexion": {
+      "title": "Connexion",
+      "openedAt": "Ouverte à"
+    }
+  },
+  "sellerTerminal": {
+    "activation": {
+      "title": "Seller-terminal activation",
+      "description": "The seller-terminal must change its temporary PIN before selling.",
+      "pin": {
+        "title": "Temporary PIN",
+        "pendingBackend": "PIN change will be enabled with the seller-terminal V0 endpoint."
+      }
+    }
+  }
+}

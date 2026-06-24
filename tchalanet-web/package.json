@@ -9,6 +9,7 @@
     "lint": "nx run tch-portal:lint",
     "format": "prettier --write .",
     "test": "nx run tch-portal:test",
+    "i18n:inventory": "node tools/i18n-inventory.mjs",
     "theme:generate": "node libs/ui/theme/tools/generate-theme-registry.mjs",
     "tokens:generate": "node libs/ui/theme/tools/generate-token-manifest.mjs",
     "fonts:material-symbols": "node tools/build-material-symbols-font.mjs"

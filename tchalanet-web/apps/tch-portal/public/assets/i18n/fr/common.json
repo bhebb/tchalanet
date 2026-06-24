@@ -1,0 +1,64 @@
+{
+  "error": {
+    "generic": "Erreur locale.",
+    "network": "Connexion locale indisponible.",
+    "not_found": "Page locale introuvable."
+  },
+  "common": {
+    "error": {
+      "title": "Erreur"
+    },
+    "disabled": "désactivé",
+    "enabled": "activé",
+    "loading": "Chargement…",
+    "notFound": {
+      "back": "Retour à l'accueil",
+      "message": "La page demandée est introuvable.",
+      "title": "Page introuvable"
+    },
+    "unknown": "Inconnu",
+    "placeholder": {
+      "title": "Écran en préparation",
+      "message": "Cette fonctionnalité sera disponible prochainement."
+    },
+    "coming_soon": "Bientôt disponible",
+    "manage": "Gérer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "retry": "Réessayer",
+    "traceId": "Trace ID",
+    "not_available": "Non disponible",
+    "validation": {
+      "required": "Ce champ est obligatoire."
+    },
+    "not_set": "Non renseigné",
+    "yes": "Oui",
+    "no": "Non",
+    "weekday": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "edit": "Modifier",
+    "view": "Voir",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "refresh": "Actualiser"
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "Mon espace"
+    },
+    "name": "Tchalanet"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "pos": {
+    "dashboard": {
+      "title": "Tchalanet POS"
+    },
+    "session": {
+      "card_title": "Session",
+      "user": "User",
+      "name": "Name",
+      "tenant": "Tenant",
+      "roles": "Roles",
+      "no_roles": "No roles detected",
+      "token_expiry": "Token expiry"
+    }
+  }
+}

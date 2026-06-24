@@ -1,0 +1,64 @@
+{
+  "readiness": {
+    "noIssues": "Pa gen pwoblèm"
+  },
+  "layout": {
+    "public_home": {
+      "contact_cta": "Kontak",
+      "draws": "Tiraj",
+      "features": "Fonksyonalite",
+      "hero": "Hero",
+      "news": "Nouvèl",
+      "plans": "Plan",
+      "tchala": "Tchala",
+      "rules": "Règ yo"
+    },
+    "dashboard": {
+      "tenant_admin": {
+        "kpis": "Endikatè",
+        "commission": "Konfigirasyon komisyon",
+        "quick_actions": "Aksyon rapid",
+        "readiness_alerts": "Eta & alèt"
+      }
+    },
+    "private_dashboard_cashier": {
+      "quick_actions": "Aksyon rapid",
+      "readiness_alerts": "Eta & alèt"
+    },
+    "private_dashboard_superadmin": {
+      "kpis": "Endikatè",
+      "quick_actions": "Aksyon rapid",
+      "tenants_alerts": "Tenant & alèt"
+    }
+  },
+  "widget": {
+    "error": "Kontni sa a pa disponib pou kounye a.",
+    "invalid": "Widget envalid.",
+    "unsupported": "Tip widget pa sipòte."
+  },
+  "quickaction": {
+    "admin": {
+      "daily_report": "Rapò jodi a",
+      "manage_limits": "Jere limit",
+      "manage_odds": "Jere odds",
+      "maryaj_gratis": "Maryaj gratis",
+      "add_seller_terminal": "Ajoute seller-terminal",
+      "active_seller_terminals": "Seller-terminals aktif"
+    },
+    "platform": {
+      "create_tenant": "Kreye tenant",
+      "onboarding": "Onboarding",
+      "subscriptions": "Abònman",
+      "platform_health": "Sante platfòm",
+      "draw_results": "Rezilta & tiraj"
+    }
+  },
+  "shell": {
+    "error": {
+      "backendUnavailable": {
+        "title": "Serveur temporairement indisponible",
+        "message": "La navigation et certaines fonctionnalités peuvent être limitées. Votre session Firebase reste active."
+      }
+    }
+  }
+}

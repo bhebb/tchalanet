@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { TranslateLoader } from '@ngx-translate/core';
 import { ApiResponse } from '@tch/api';
-import { Observable, catchError, of } from 'rxjs';
-import { TranslationTree } from './i18n.types';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
+import { TranslationTree, TranslationValue } from './i18n.types';
 
 
 export interface I18nBundleResponse {
@@ -15,6 +15,7 @@ export interface I18nBundleResponse {
 export interface MergedTranslateLoaderOptions {
   readonly assetsPrefix: string;
   readonly assetsSuffix: string;
+  readonly bundles: readonly string[];
 }
 
 export const MERGED_TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
@@ -22,7 +23,8 @@ export const MERGED_TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslat
 );
 
 /**
- * Local-only translate loader. It loads the bundled `fr/en/ht` fallback for a language.
+ * Local-only translate loader. It loads the ordered bundled `fr/en/ht` fallback
+ * files for a language and deep-merges them into one translation tree.
  *
  * Backend translations are no longer fetched here: they are delivered inside the runtime bootstrap
  * response (`/public/runtime/bootstrap`, `/runtime/private`) and overlaid on top via
@@ -35,12 +37,39 @@ export class MergedTranslateLoader implements TranslateLoader {
   private readonly options = inject(MERGED_TRANSLATE_LOADER_OPTIONS);
 
   getTranslation(lang: string): Observable<TranslationTree> {
-    return this.http
-      .get<TranslationTree>(
-        `${this.options.assetsPrefix}${encodeURIComponent(lang)}${this.options.assetsSuffix}`,
-      )
-      .pipe(catchError(() => of<TranslationTree>({})));
+    const encodedLang = encodeURIComponent(lang);
+    const requests = this.options.bundles.map(bundle =>
+      this.http
+        .get<TranslationTree>(
+          `${this.options.assetsPrefix}${encodedLang}/${encodeURIComponent(bundle)}${this.options.assetsSuffix}`,
+        )
+        .pipe(catchError(() => of<TranslationTree>({}))),
+    );
+
+    return forkJoin(requests).pipe(map(bundles => mergeTranslationTrees(bundles)));
   }
+}
+
+export function mergeTranslationTrees(trees: readonly TranslationTree[]): TranslationTree {
+  return trees.reduce<TranslationTree>((merged, tree) => mergeTwoTranslationTrees(merged, tree), {});
+}
+
+function mergeTwoTranslationTrees(left: TranslationTree, right: TranslationTree): TranslationTree {
+  const merged: Record<string, TranslationValue> = { ...left };
+
+  for (const [key, rightValue] of Object.entries(right)) {
+    const leftValue = merged[key];
+    if (isPlainRecord(leftValue) && isPlainRecord(rightValue)) {
+      merged[key] = mergeTwoTranslationTrees(
+        leftValue as TranslationTree,
+        rightValue as TranslationTree,
+      );
+    } else {
+      merged[key] = rightValue;
+    }
+  }
+
+  return merged;
 }
 
 /**
@@ -94,4 +123,8 @@ function isApiResponse(value: unknown): value is ApiResponse<I18nBundleResponse>
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return isRecord(value) && Object.getPrototypeOf(value) === Object.prototype;
 }

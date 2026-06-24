@@ -1,0 +1,110 @@
+{
+  "catalog": {
+    "game": {
+      "HT_BOLET": "Bolet",
+      "HT_MARYAJ": "Mariage",
+      "HT_MARYAJ_GRATUIT": "Mariage Gratuit",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "bet_type": {
+      "MATCH_1_2D": "1er lot",
+      "MATCH_2_2D": "2e lot",
+      "MATCH_3_2D": "3e lot",
+      "MARRIAGE_2D2D": "Mariage",
+      "MARRIAGE_2D": "Mariage",
+      "LOTTO3_3D": "Loto 3 chiffres",
+      "LOTTO4_PATTERN": "Loto 4 chiffres",
+      "LOTTO5_PATTERN": "Loto 5 chiffres"
+    },
+    "option": {
+      "Exact": "Exact",
+      "EXACT": "Exact",
+      "Any": "Tout ordre",
+      "ANY": "Tout ordre",
+      "Front": "Avant",
+      "Back": "Arrière"
+    }
+  },
+  "ticket": {
+    "status": {
+      "pending": "En attente"
+    }
+  },
+  "draw_channel": {
+    "ny": {
+      "mid": {
+        "label": "New York — Midi"
+      },
+      "eve": {
+        "label": "New York — Soir"
+      }
+    },
+    "fl": {
+      "mid": {
+        "label": "Florida — Midi"
+      },
+      "eve": {
+        "label": "Florida — Soir"
+      }
+    },
+    "ga": {
+      "mid": {
+        "label": "Georgia — Midi"
+      },
+      "eve": {
+        "label": "Georgia — Soir"
+      },
+      "late": {
+        "label": "Georgia — Nuit"
+      }
+    },
+    "tx": {
+      "1000": {
+        "label": "Texas — 10:00"
+      },
+      "1227": {
+        "label": "Texas — 12:27"
+      },
+      "1800": {
+        "label": "Texas — 18:00"
+      },
+      "2212": {
+        "label": "Texas — 22:12"
+      }
+    },
+    "mi": {
+      "mid": {
+        "label": "Michigan — Midi"
+      },
+      "eve": {
+        "label": "Michigan — Soir"
+      }
+    },
+    "pa": {
+      "mid": {
+        "label": "Pennsylvania — Jour"
+      },
+      "eve": {
+        "label": "Pennsylvania — Soir"
+      }
+    },
+    "ca": {
+      "mid": {
+        "label": "California — Midi"
+      },
+      "eve": {
+        "label": "California — Soir"
+      }
+    },
+    "nj": {
+      "mid": {
+        "label": "New Jersey — Midi"
+      },
+      "eve": {
+        "label": "New Jersey — Soir"
+      }
+    }
+  }
+}

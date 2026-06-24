@@ -1,0 +1,64 @@
+{
+  "error": {
+    "generic": "Erè lokal.",
+    "network": "Koneksyon lokal pa disponib.",
+    "not_found": "Paj lokal pa jwenn."
+  },
+  "common": {
+    "error": {
+      "title": "Erè"
+    },
+    "disabled": "dezaktive",
+    "enabled": "aktive",
+    "loading": "Ap chaje…",
+    "notFound": {
+      "back": "Retounen akèy",
+      "message": "Nou pa jwenn paj ou mande a.",
+      "title": "Paj pa jwenn"
+    },
+    "unknown": "Enkoni",
+    "placeholder": {
+      "title": "Ekran ap prepare",
+      "message": "Fonksyonalite sa a pral disponib byento."
+    },
+    "coming_soon": "Talè konsa",
+    "manage": "Jere",
+    "back": "Retounen",
+    "cancel": "Anile",
+    "next": "Pwochen",
+    "previous": "Anvan",
+    "retry": "Eseye ankò",
+    "traceId": "Trace ID",
+    "not_available": "Pa disponib",
+    "validation": {
+      "required": "Chan sa a obligatwa."
+    },
+    "not_set": "Pa renseye",
+    "edit": "Modifye",
+    "view": "Wè",
+    "save": "Anregistre",
+    "saving": "Ap anregistre...",
+    "refresh": "Aktyalize",
+    "yes": "Oui",
+    "no": "Non",
+    "weekday": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    }
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "Espas mwen"
+    },
+    "name": "Tchalanet"
+  }
+}
