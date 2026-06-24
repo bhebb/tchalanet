@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Assigner à un tenant</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="assign-tenant-dialog__field">
+    <mat-label>Rechercher un tenant</mat-label>
+    <input
+      matInput
+      [formControl]="search"
+      [matAutocomplete]="auto"
+      placeholder="Nom ou code du tenant…"
+      autocomplete="off"
+    />
+    @if (loading()) {
+      <mat-spinner matSuffix diameter="18" />
+    }
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayFn"
+      (optionSelected)="select($event.option.value)"
+    >
+      @for (opt of options(); track opt.id) {
+        <mat-option [value]="opt">
+          <span>{{ opt.name }}</span>
+          <span class="assign-tenant-dialog__code">{{ opt.code }}</span>
+        </mat-option>
+      }
+      @if (!loading() && options().length === 0 && search.value) {
+        <mat-option disabled>Aucun résultat</mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Annuler</button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="!selected()"
+    (click)="confirm()"
+  >
+    Assigner
+  </button>
+</mat-dialog-actions>

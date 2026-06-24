@@ -12,13 +12,14 @@ import org.mapstruct.Mapping;
 public interface DrawChannelGameMapper {
 
   @Mapping(source = "drawChannelId", target = "drawChannelId")
+  @Mapping(source = "tenantGameId", target = "tenantGameId")
   DrawChannelGameView toView(DrawChannelGameEntity e);
 
   List<DrawChannelGameView> toViews(List<DrawChannelGameEntity> list);
 
   @Mapping(source = "id", target = "id")
   @Mapping(source = "drawChannelId", target = "drawChannelId")
-  @Mapping(source = "gameId", target = "gameId")
+  @Mapping(source = "tenantGameId", target = "tenantGameId")
   DrawChannelGameResponse toResponse(DrawChannelGameEntity e);
 
   List<DrawChannelGameResponse> toResponses(List<DrawChannelGameEntity> list);

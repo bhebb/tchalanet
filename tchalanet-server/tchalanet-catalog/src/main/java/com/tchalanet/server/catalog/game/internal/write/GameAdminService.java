@@ -6,6 +6,10 @@ import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaRepository;
 import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +25,12 @@ public class GameAdminService {
     private final GameJpaRepository repository;
     private final GameMapper mapper;
     private final JdbcTemplate jdbc;
+
+    @Transactional(readOnly = true)
+    public TchPage<GameView> search(Boolean active, TchSearchQuery search, TchPageRequest pageReq) {
+        var page = repository.searchLive(active, search.likePattern(), pageReq.pageable());
+        return TchPageMapper.map(page, mapper::toView);
+    }
 
     @Transactional
     @CacheEvict(cacheNames = {GameCacheNames.ACTIVE_GAMES, GameCacheNames.GAME_BY_CODE, GameCacheNames.GAME_BY_ID}, allEntries = true)

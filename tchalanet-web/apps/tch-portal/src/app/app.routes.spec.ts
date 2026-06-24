@@ -1,7 +1,7 @@
 import { appRoutes } from './app.routes';
-import { adminRoutes } from './features/admin/admin.routes';
-import { cashierRoutes } from './features/cashier/cashier.routes';
-import { platformRoutes } from './features/platform/platform.routes';
+import { adminRoutes } from './features/private/admin/admin.routes';
+import { sellerTerminalRoutes } from './features/private/seller-terminal/seller-terminal.routes';
+import { platformRoutes } from './features/private/platform/platform.routes';
 
 describe('appRoutes', () => {
   describe('private spaces use lazy loading', () => {
@@ -62,7 +62,7 @@ describe('appRoutes', () => {
 
   describe('cashierRoutes', () => {
     it('declares dashboard and sell routes', () => {
-      const paths = cashierRoutes.map(r => r.path);
+      const paths = sellerTerminalRoutes.map(r => r.path);
       expect(paths).toEqual(expect.arrayContaining(['', 'sell']));
     });
   });

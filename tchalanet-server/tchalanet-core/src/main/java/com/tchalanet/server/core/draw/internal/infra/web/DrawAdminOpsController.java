@@ -2,6 +2,8 @@ package com.tchalanet.server.core.draw.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -12,6 +14,7 @@ import com.tchalanet.server.core.draw.api.command.*;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.internal.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.internal.infra.web.model.*;
+import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCommand;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -55,7 +58,6 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Cancel a draw")
     @PostMapping("/{drawId}/cancel")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_CANCEL,
@@ -98,7 +100,6 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Lock a draw")
     @PostMapping("/{drawId}/lock")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_LOCK,
@@ -115,7 +116,6 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Unlock a draw")
     @PostMapping("/{drawId}/unlock")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_UNLOCK,
@@ -132,7 +132,6 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Archive a draw")
     @PostMapping("/{drawId}/archive")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_ARCHIVE,
@@ -167,6 +166,36 @@ public class DrawAdminOpsController {
         @RequestBody @Valid SettleDrawRequest request) {
 
         commandBus.execute(new SettleDrawCommand(drawId, request.reason(), request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Record a manual draw result (TENANT_ADMIN+)")
+    @PostMapping("/{drawId}/manual-result")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_MANUAL,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> manualResult(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid AdminDrawManualResultRequest request,
+        @CurrentContext TchRequestContext ctx) {
+
+        var draw = queryBus.ask(new GetDrawByIdQuery(drawId));
+        var recordedBy = request.recordedBy() != null ? request.recordedBy() : ctx.externalSubject();
+
+        commandBus.execute(new RecordManualDrawResultCommand(
+            draw.tenantId(),
+            draw.drawDate(),
+            draw.resultSlotKey(),
+            recordedBy,
+            request.notes(),
+            request.pick3(),
+            request.pick4(),
+            request.force(),
+            request.reason(),
+            request.observeTrustPolicy()));
 
         return ApiResponse.success(reload(drawId));
     }

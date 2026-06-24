@@ -27,6 +27,7 @@ import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
 import com.tchalanet.server.common.types.id.SellerId;
 import com.tchalanet.server.common.types.id.SettingId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
@@ -52,6 +53,15 @@ public class CommonIdMapper {
 
     public TenantId mapToTenantId(UUID id) {
         return TenantId.nullableOf(id);
+    }
+
+    // TenantGameId
+    public UUID mapFromTenantGameId(TenantGameId id) {
+        return id == null ? null : id.value();
+    }
+
+    public TenantGameId mapToTenantGameId(UUID id) {
+        return TenantGameId.nullableOf(id);
     }
 
 

@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.game.internal.web;
 
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.web.model.GameCreateRequest;
 import com.tchalanet.server.catalog.game.internal.web.model.GameUpdateRequest;
@@ -8,6 +9,11 @@ import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,10 +29,27 @@ import java.util.Map;
 @RestController
 @RequestMapping("/platform/catalog/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasPermission('catalog.game.manage')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class GameAdminController {
 
+  private final GameCatalog gameCatalog;
   private final GameAdminService gameAdminService;
+
+  @GetMapping
+  public ApiResponse<TchPage<GameView>> list(
+      @RequestParam(required = false) Boolean active,
+      @RequestParam(required = false) String q,
+      @TchPaging(allowedSort = {"sortOrder", "name", "code", "createdAt"}, defaultSort = {"sortOrder,ASC"})
+      TchPageRequest pageReq) {
+    return ApiResponse.success(gameAdminService.search(active, TchSearchQuery.of(q), pageReq));
+  }
+
+  @GetMapping("/{id}")
+  public ApiResponse<GameView> get(@PathVariable GameId id) {
+    return ApiResponse.success(
+        gameCatalog.findById(id)
+            .orElseThrow(() -> ProblemRest.notFound("Game not found", id)));
+  }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)

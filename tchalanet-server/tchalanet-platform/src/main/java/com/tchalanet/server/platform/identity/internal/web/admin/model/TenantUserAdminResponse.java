@@ -17,5 +17,9 @@ public record TenantUserAdminResponse(
     Instant createdAt,
     String firstName,
     String lastName,
-    String displayName
+    String displayName,
+    // Populated for SUPER_ADMIN cross-tenant requests (null for tenant-scoped requests)
+    String tenantId,
+    String tenantName,
+    String tenantCode
 ) {}

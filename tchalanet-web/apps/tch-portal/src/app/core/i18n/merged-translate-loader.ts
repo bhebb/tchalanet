@@ -3,8 +3,8 @@ import { Injectable, InjectionToken, inject } from '@angular/core';
 import { TranslateLoader } from '@ngx-translate/core';
 import { ApiResponse } from '@tch/api';
 import { Observable, catchError, of } from 'rxjs';
+import { TranslationTree } from './i18n.types';
 
-import { TranslationTree } from '../../shared/types';
 
 export interface I18nBundleResponse {
   readonly locale?: string;

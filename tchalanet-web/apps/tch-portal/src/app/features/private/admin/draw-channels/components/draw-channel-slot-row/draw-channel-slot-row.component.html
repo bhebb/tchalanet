@@ -1,0 +1,38 @@
+@let s = slot();
+
+<div class="slot-row" [class.slot-row--inactive]="!s.enabled" [class.slot-row--needs-config]="s.enabled && !s.drawTime">
+
+  <div class="slot-row__left">
+    <span class="slot-row__index">{{ (index() + 1).toString().padStart(2, '0') }}</span>
+    <span class="slot-row__label">{{ s.label }}</span>
+  </div>
+
+  <div class="slot-row__right">
+    @if (s.drawTime) {
+      <code class="slot-row__time">{{ s.drawTime | slice:0:5 }}</code>
+    } @else {
+      <span class="slot-row__time slot-row__time--missing">—</span>
+    }
+
+    @if (s.enabled && s.drawTime) {
+      <span class="slot-row__status slot-row__status--active">
+        <span class="material-symbols-outlined">toggle_on</span>
+      </span>
+      @if (resultsAvailable()) {
+        <button mat-button class="slot-row__results-btn" (click)="viewResults.emit(s)">
+          Résultats
+        </button>
+      }
+    } @else if (s.enabled && !s.drawTime) {
+      <span class="slot-row__config-hint">Configuration requise</span>
+      <button mat-icon-button class="slot-row__edit-btn" (click)="configure.emit(s)" aria-label="Configurer">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+    } @else {
+      <span class="slot-row__status slot-row__status--off">
+        <span class="material-symbols-outlined">toggle_off</span>
+      </span>
+    }
+  </div>
+
+</div>

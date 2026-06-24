@@ -65,7 +65,7 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
     @Override
     public SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate) {
         if (tenantDefaultRate == null) {
-            Object[] row = repository.commissionStatsNoDefault(tenantId.value());
+            Object[] row = (Object[]) repository.commissionStatsNoDefault(tenantId.value());
             if (row == null || row[0] == null) return SellerTerminalCommissionStatsView.empty();
             long total = ((Number) row[0]).longValue();
             BigDecimal min = row[1] != null ? (BigDecimal) row[1] : null;
@@ -74,7 +74,7 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
             return new SellerTerminalCommissionStatsView(total, 0L, total, min, max, avg);
         }
 
-        Object[] row = repository.commissionStats(tenantId.value(), tenantDefaultRate);
+        Object[] row = (Object[]) repository.commissionStats(tenantId.value(), tenantDefaultRate);
         if (row == null || row[0] == null) return SellerTerminalCommissionStatsView.empty();
 
         long total = ((Number) row[0]).longValue();

@@ -9,7 +9,7 @@ import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
-import { apiFeedbackInterceptor } from './shared/api/api-feedback.interceptor';
+import { apiFeedbackInterceptor } from '../../../../libs/api/src/lib/http/api-feedback.interceptor';
 import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';

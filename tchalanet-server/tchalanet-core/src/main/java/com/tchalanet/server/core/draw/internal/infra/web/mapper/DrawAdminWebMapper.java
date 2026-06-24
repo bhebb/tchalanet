@@ -18,6 +18,7 @@ import java.util.Map;
 public interface DrawAdminWebMapper {
 
     @Mapping(target = "id", source = "drawId")
+    @Mapping(target = "tenantId", expression = "java(drawSummary.tenantId().value().toString())")
     @Mapping(target = "channel.id", expression = "java(drawSummary.drawChannelId().value().toString())")
     @Mapping(target = "channel.code", source = "drawChannelCode")
     @Mapping(target = "channel.name", source = "drawChannelLabel")
@@ -27,7 +28,7 @@ public interface DrawAdminWebMapper {
     @Mapping(target = "slot.timezone", source = "resultTimezone")
     @Mapping(target = "slot.drawTime", source = "resultDrawTime")
     @Mapping(target = "lastResult", source = "result")
-    @Mapping(target = "next", constant = "false") // Need logic if still used
+    @Mapping(target = "next", constant = "false")
     @Mapping(target = "active", source = "drawChannelActive")
     DrawSummaryResponse toDrawSummaryResponse(DrawSummary drawSummary);
 

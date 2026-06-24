@@ -9,7 +9,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawCha
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/draw-channels/{channelId}/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Draw Channel Games")
 public class PlatformDrawChannelGameController {
 
@@ -37,18 +37,18 @@ public class PlatformDrawChannelGameController {
     return ApiResponse.success(list);
   }
 
-  @Operation(summary = "Attach or update a game to a channel (upsert)")
+  @Operation(summary = "Attach or update a tenant game to a channel (upsert)")
   @PostMapping
   public ApiResponse<DrawChannelGameResponse> upsert(
       @PathVariable DrawChannelId channelId,
       @RequestBody CreateDrawChannelGameRequest req,
       @CurrentContext TchRequestContext ctx) {
     var tenantId = ctx.tenantId();
-    var res = admin.upsert(tenantId, channelId, req.gameId(), req.enabled(), req.flags());
+    var res = admin.upsert(tenantId, channelId, req.tenantGameId(), req.enabled(), req.flags());
     return ApiResponse.success(res);
   }
 
-  @Operation(summary = "Bulk upsert games for a channel")
+  @Operation(summary = "Bulk upsert tenant games for a channel")
   @PostMapping("/bulk")
   public ApiResponse<List<DrawChannelGameResponse>> bulkUpsert(
       @PathVariable DrawChannelId channelId,
@@ -60,21 +60,23 @@ public class PlatformDrawChannelGameController {
   }
 
   @Operation(summary = "Update an existing association")
-  @PutMapping("/{gameId}")
+  @PutMapping("/{tenantGameId}")
   public ApiResponse<DrawChannelGameResponse> update(
       @PathVariable DrawChannelId channelId,
-      @PathVariable GameId gameId,
+      @PathVariable TenantGameId tenantGameId,
       @RequestBody UpdateDrawChannelGameRequest req,
       @CurrentContext TchRequestContext ctx) {
-    var res = admin.update(channelId, gameId, req);
+    var res = admin.update(ctx.tenantId(), channelId, tenantGameId, req);
     return ApiResponse.success(res);
   }
 
   @Operation(summary = "Soft-delete association")
-  @DeleteMapping("/{gameId}")
+  @DeleteMapping("/{tenantGameId}")
   public ApiResponse<Void> delete(
-      @PathVariable DrawChannelId channelId, @PathVariable GameId gameId) {
-    admin.softDelete(channelId, gameId);
+      @PathVariable DrawChannelId channelId,
+      @PathVariable TenantGameId tenantGameId,
+      @CurrentContext TchRequestContext ctx) {
+    admin.softDelete(ctx.tenantId(), channelId, tenantGameId);
     return ApiResponse.success(null);
   }
 }

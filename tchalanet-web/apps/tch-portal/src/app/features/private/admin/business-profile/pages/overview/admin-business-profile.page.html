@@ -1,0 +1,271 @@
+<tch-admin-page-shell
+  [title]="'admin.businessProfile.title' | translate"
+  [description]="'admin.businessProfile.description' | translate"
+>
+  <div actions>
+    <button mat-stroked-button [disabled]="loading()" (click)="load()">
+      <mat-icon>refresh</mat-icon>
+      {{ 'common.refresh' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading [label]="'admin.businessProfile.loading' | translate" />
+  } @else if (error()) {
+    <tch-error-panel
+      [title]="error()!"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="load()"
+    />
+  } @else if (header()) {
+
+    <tch-admin-detail-layout>
+      <div main class="biz-profile__main">
+
+        <!-- Identité -->
+        <tch-admin-section-card
+          [title]="'admin.businessProfile.section.identity' | translate"
+          icon="badge"
+        >
+          @if (identityFormState() === 'success') {
+            <tch-notice type="success" class="biz-profile__notice">
+              {{ 'admin.businessProfile.identity.saved' | translate }}
+            </tch-notice>
+          }
+          @if (!showIdentityForm()) {
+            <dl class="biz-profile__facts">
+              <div>
+                <dt>{{ 'admin.businessProfile.field.name' | translate }}</dt>
+                <dd>{{ header()!.tenantName || ('common.not_available' | translate) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.businessProfile.field.code' | translate }}</dt>
+                <dd><code>{{ header()!.tenantCode || ('common.not_available' | translate) }}</code></dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.businessProfile.field.type' | translate }}</dt>
+                <dd>{{ typeLabel(header()!.tenantType) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.businessProfile.field.status' | translate }}</dt>
+                <dd>
+                  <tch-status-badge
+                    [label]="statusLabel(header()!.tenantStatus)"
+                    [status]="statusBadge(header()!.tenantStatus)"
+                  />
+                </dd>
+              </div>
+            </dl>
+            <button mat-stroked-button class="biz-profile__cta" (click)="openIdentityForm()">
+              {{ 'common.edit' | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="identityForm" (ngSubmit)="submitIdentity()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.field.name' | translate }}</mat-label>
+                <input matInput formControlName="name" />
+              </mat-form-field>
+              @if (identityFormError()) {
+                <tch-notice type="error">{{ identityFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="identityFormState() === 'submitting'" (click)="cancelIdentityForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="identityFormState() === 'submitting'">
+                  {{ identityFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
+        <!-- Région -->
+        <tch-admin-section-card
+          [title]="'admin.businessProfile.section.region' | translate"
+          icon="public"
+        >
+          @if (regionFormState() === 'success') {
+            <tch-notice type="success" class="biz-profile__notice">
+              {{ 'admin.businessProfile.identity.saved' | translate }}
+            </tch-notice>
+          }
+          @if (!showRegionForm()) {
+            <dl class="biz-profile__facts">
+              <div>
+                <dt>{{ 'admin.businessProfile.field.timezone' | translate }}</dt>
+                <dd>{{ header()!.timezone || ('common.not_available' | translate) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.businessProfile.field.currency' | translate }}</dt>
+                <dd>{{ header()!.currency || ('common.not_available' | translate) }}</dd>
+              </div>
+            </dl>
+            <button mat-stroked-button class="biz-profile__cta" (click)="openRegionForm()">
+              {{ 'common.edit' | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="regionForm" (ngSubmit)="submitRegion()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.field.timezone' | translate }}</mat-label>
+                <input matInput formControlName="timezone" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.field.currency' | translate }}</mat-label>
+                <input matInput formControlName="currency" maxlength="10" />
+              </mat-form-field>
+              @if (regionFormError()) {
+                <tch-notice type="error">{{ regionFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="regionFormState() === 'submitting'" (click)="cancelRegionForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="regionFormState() === 'submitting'">
+                  {{ regionFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
+        <!-- Paramètres commerciaux -->
+        <tch-admin-section-card
+          [title]="'admin.businessProfile.section.commercial' | translate"
+          icon="percent"
+        >
+          @if (commissionFormState() === 'success') {
+            <tch-notice type="success" class="biz-profile__notice">
+              {{ 'admin.businessProfile.identity.saved' | translate }}
+            </tch-notice>
+          }
+          <p class="biz-profile__section-desc">{{ 'admin.businessProfile.commercial.description' | translate }}</p>
+          @if (!showCommissionForm()) {
+            <dl class="biz-profile__facts">
+              <div>
+                <dt>{{ 'admin.businessProfile.field.commission' | translate }}</dt>
+                <dd>{{ commissionRate() != null ? (commissionRate() + ' %') : ('common.not_available' | translate) }}</dd>
+              </div>
+            </dl>
+            <button mat-stroked-button class="biz-profile__cta" (click)="openCommissionForm()">
+              {{ 'common.edit' | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="commissionForm" (ngSubmit)="submitCommission()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field biz-profile__form-field--sm">
+                <mat-label>{{ 'admin.businessProfile.field.commission' | translate }}</mat-label>
+                <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
+                <span matTextSuffix>%</span>
+              </mat-form-field>
+              @if (commissionFormError()) {
+                <tch-notice type="error">{{ commissionFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="commissionFormState() === 'submitting'" (click)="cancelCommissionForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="commissionFormState() === 'submitting'">
+                  {{ commissionFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
+        <!-- Adresse -->
+        <tch-admin-section-card
+          [title]="'admin.businessProfile.section.address' | translate"
+          icon="location_on"
+        >
+          @if (addressFormState() === 'success') {
+            <tch-notice type="success" class="biz-profile__notice">
+              {{ 'admin.businessProfile.address.saved' | translate }}
+            </tch-notice>
+          }
+          @if (!showAddressForm()) {
+            @if (hasAddress()) {
+              <dl class="biz-profile__facts">
+                @if (header()!.address!.line1) {
+                  <div>
+                    <dt>{{ 'admin.setup.address.line1' | translate }}</dt>
+                    <dd>{{ header()!.address!.line1 }}</dd>
+                  </div>
+                }
+                @if (header()!.address!.line2) {
+                  <div>
+                    <dt>{{ 'admin.setup.address.line2' | translate }}</dt>
+                    <dd>{{ header()!.address!.line2 }}</dd>
+                  </div>
+                }
+                @if (header()!.address!.city) {
+                  <div>
+                    <dt>{{ 'admin.setup.address.city' | translate }}</dt>
+                    <dd>{{ header()!.address!.city }}</dd>
+                  </div>
+                }
+                @if (header()!.address!.country) {
+                  <div>
+                    <dt>{{ 'admin.setup.address.country' | translate }}</dt>
+                    <dd>{{ header()!.address!.country }}</dd>
+                  </div>
+                }
+              </dl>
+            } @else {
+              <p class="biz-profile__empty-hint">{{ 'admin.businessProfile.address.empty' | translate }}</p>
+            }
+            <button mat-stroked-button class="biz-profile__cta" (click)="openAddressForm()">
+              {{ (hasAddress() ? 'common.edit' : 'admin.businessProfile.address.add') | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="addressForm" (ngSubmit)="submitAddress()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.setup.address.line1' | translate }}</mat-label>
+                <input matInput formControlName="line1" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.setup.address.line2' | translate }}</mat-label>
+                <input matInput formControlName="line2" />
+              </mat-form-field>
+              <div class="biz-profile__form-row">
+                <mat-form-field appearance="outline" class="biz-profile__form-field">
+                  <mat-label>{{ 'admin.setup.address.city' | translate }}</mat-label>
+                  <input matInput formControlName="city" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="biz-profile__form-field biz-profile__form-field--sm">
+                  <mat-label>{{ 'admin.setup.address.country' | translate }}</mat-label>
+                  <input matInput formControlName="country" maxlength="2" />
+                </mat-form-field>
+              </div>
+              @if (addressFormError()) {
+                <tch-notice type="error">{{ addressFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="addressFormState() === 'submitting'" (click)="cancelAddressForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="addressFormState() === 'submitting'">
+                  {{ addressFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
+      </div>
+
+      <div aside>
+        <tch-identity-card
+          variant="compact"
+          [eyebrow]="'admin.businessProfile.identityCard.eyebrow' | translate"
+          [title]="header()!.tenantName ?? ('common.not_available' | translate)"
+          [code]="header()!.tenantCode"
+          [status]="statusLabel(header()!.tenantStatus)"
+          [statusTone]="statusTone(header()!.tenantStatus)"
+          icon="business"
+          [meta]="identityMeta()"
+        />
+      </div>
+    </tch-admin-detail-layout>
+  }
+</tch-admin-page-shell>

@@ -25,6 +25,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import com.tchalanet.server.common.types.id.SellerTerminalId;
+
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_ACT_AS_TERMINAL;
 import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
 
 @Component
@@ -58,7 +61,10 @@ public class TchContextFilter extends OncePerRequestFilter {
 
             handlePublicOrLegacy(req, res, chain);
 
-        } finally {
+        } finally
+
+
+        {
             contextBinder.clear(req);
         }
     }
@@ -98,6 +104,20 @@ public class TchContextFilter extends OncePerRequestFilter {
                 ? OperationalContextHeaderParser.parseHint(req::getHeader)
                 : resolver.resolve(ctx, req::getHeader)
         );
+
+        // Admin-to-seller-terminal bridge: inject sellerTerminalId when a TENANT_ADMIN (or
+        // SUPER_ADMIN) sends X-Tch-Act-As-Terminal so that POS cashier services work as if the
+        // admin IS that terminal.  The header value must be a valid seller terminal UUID.
+        var actAsTerminal = req.getHeader(X_TCH_ACT_AS_TERMINAL);
+        if (actAsTerminal != null && !actAsTerminal.isBlank()
+                && (ctx.isTenantAdmin() || ctx.isSuperAdmin())) {
+            try {
+                ctx = ctx.withSellerTerminalId(SellerTerminalId.of(java.util.UUID.fromString(actAsTerminal.trim())));
+            } catch (IllegalArgumentException ignored) {
+                // Malformed UUID — ignore; downstream sellerTerminalIdRequired() will reject.
+                log.warn("X-Tch-Act-As-Terminal header is not a valid UUID: '{}'", actAsTerminal);
+            }
+        }
 
         contextBinder.bind(req, ctx);
 

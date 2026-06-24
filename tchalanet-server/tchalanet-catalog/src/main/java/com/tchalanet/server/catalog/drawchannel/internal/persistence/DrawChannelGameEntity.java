@@ -21,10 +21,10 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uq_draw_channel_game",
-            columnNames = {"tenant_id", "draw_channel_id", "game_id"}),
+            columnNames = {"tenant_id", "draw_channel_id", "tenant_game_id"}),
     indexes = {
-      @Index(name = "ix_dcg_tenant_channel", columnList = "tenant_id, draw_channel_id"),
-      @Index(name = "ix_dcg_tenant_game", columnList = "tenant_id, game_id")
+      @Index(name = "ix_dcg_tenant_channel",     columnList = "tenant_id, draw_channel_id"),
+      @Index(name = "ix_dcg_tenant_tenant_game", columnList = "tenant_id, tenant_game_id")
     })
 @Getter
 @Setter
@@ -33,8 +33,8 @@ public class DrawChannelGameEntity extends BaseTenantEntity {
   @Column(name = "draw_channel_id", nullable = false)
   private UUID drawChannelId;
 
-  @Column(name = "game_id", nullable = false)
-  private UUID gameId;
+  @Column(name = "tenant_game_id", nullable = false)
+  private UUID tenantGameId;
 
   @Column(name = "enabled", nullable = false)
   private boolean enabled = true;

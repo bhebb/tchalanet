@@ -11,4 +11,7 @@ public interface AddressApi {
     AddressId upsertTenantPrimary(TenantId tenantId, AddressInput input);
 
     Optional<AddressView> get(TenantId tenantId, AddressId id);
+
+    /** Returns the single active address for a tenant, or empty if none. */
+    Optional<AddressView> findPrimaryByTenantId(TenantId tenantId);
 }

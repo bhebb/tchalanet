@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 public record DrawSummaryResponse(
     DrawId id,
+    String tenantId,
 
     DrawChannelSummaryResponse channel,
     ResultSlotSummaryResponse slot,

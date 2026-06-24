@@ -1,0 +1,96 @@
+<tch-admin-page-shell title="Cotes & pricing" description="Référentiel global des cotes de la plateforme, par jeu et type de pari.">
+  <div actions>
+    <button mat-flat-button color="primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      Nouvelle cote
+    </button>
+  </div>
+
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar
+        searchPlaceholder="Filtrer par jeu (BORLETTE…)"
+        [searchValue]="gameFilter()"
+        (searchChange)="onGameFilter($event)"
+      >
+        <mat-form-field appearance="outline" style="min-width:180px">
+          <mat-label>Type de pari</mat-label>
+          <mat-select [value]="betTypeFilter()" (valueChange)="onBetTypeFilter($event)">
+            <mat-option value="">Tous</mat-option>
+            @for (bt of betTypes; track bt) { <mat-option [value]="bt">{{ bt }}</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button (click)="load()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <div content>
+      @if (loading()) {
+        <tch-loading label="Chargement..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (rows().length === 0) {
+        <tch-admin-empty-state icon="percent" title="Aucune cote" message="Créez la première cote du catalogue." />
+      } @else {
+        <table mat-table [dataSource]="rows()">
+          <ng-container matColumnDef="gameCode">
+            <th mat-header-cell *matHeaderCellDef>Jeu</th>
+            <td mat-cell *matCellDef="let row"><code>{{ row.gameCode }}</code></td>
+          </ng-container>
+          <ng-container matColumnDef="betType">
+            <th mat-header-cell *matHeaderCellDef>Type de pari</th>
+            <td mat-cell *matCellDef="let row"><span class="chip">{{ row.betType }}</span></td>
+          </ng-container>
+          <ng-container matColumnDef="betOption">
+            <th mat-header-cell *matHeaderCellDef>Option</th>
+            <td mat-cell *matCellDef="let row">{{ row.betOption ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="odds">
+            <th mat-header-cell *matHeaderCellDef>Cote</th>
+            <td mat-cell *matCellDef="let row"><strong>{{ row.odds }}</strong></td>
+          </ng-container>
+          <ng-container matColumnDef="tenantId">
+            <th mat-header-cell *matHeaderCellDef>Tenant</th>
+            <td mat-cell *matCellDef="let row">
+              @if (!row.tenantId) {
+                <span class="chip chip--muted">Global</span>
+              } @else {
+                <code title="{{ row.tenantId.value }}">{{ tenantLabel(row) }}</code>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      }
+    </div>
+
+    <div footer>
+      <span>{{ rows().length }} cote(s) {{ allRows().length !== rows().length ? '(filtré sur ' + allRows().length + ')' : '' }}</span>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>
+
+<style>
+.chip { font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: var(--tch-surface-variant, #f0f0f0); font-family: monospace; }
+.chip--muted { color: var(--tch-text-secondary, #666); }
+</style>

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/tenant/settings")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Tenant • Settings", description = "Tenant access to resolved application settings")
 public class TenantSettingsController {
 

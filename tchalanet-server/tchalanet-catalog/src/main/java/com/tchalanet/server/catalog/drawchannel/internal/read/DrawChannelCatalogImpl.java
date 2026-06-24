@@ -10,8 +10,8 @@ import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannel
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameRepository;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -87,14 +87,13 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_TENANT_GAME_MAP, key = "#tenantId.value()")
   public List<ChannelGamesView> listChannelGames(TenantId tenantId) {
-    // Query should already be RLS-scoped.
     List<Object[]> rows = gameRepository.findChannelCodeAndGameRows();
     Map<String, List<GameSummaryView>> map = new HashMap<>();
 
     for (Object[] r : rows) {
       String code = (String) r[0];
       String gameCode = (String) r[1];
-      UUID gameUuid = (UUID) r[2];
+      UUID tenantGameUuid = (UUID) r[2];
       Boolean enabled = (r[3] == null) ? Boolean.FALSE : (Boolean) r[3];
 
       Object rawFlags = r[4];
@@ -104,7 +103,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
       else flags = jsonUtils.parse(rawFlags.toString());
 
       map.computeIfAbsent(code, k -> new ArrayList<>())
-          .add(new GameSummaryView(GameId.nullableOf(gameUuid), gameCode, enabled, flags));
+          .add(new GameSummaryView(TenantGameId.nullableOf(tenantGameUuid), gameCode, enabled, flags));
     }
 
     List<ChannelGamesView> result = new ArrayList<>();
@@ -118,17 +117,48 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   @Cacheable(value = DrawChannelCacheNames.CALENDAR_ROWS,
       key = "#tenantId.value() + ':' + #activeOnly + ':' + #enabledOnly")
   public List<DrawChannelCalendarRow> listCalendarRows(TenantId tenantId, Boolean activeOnly, Boolean enabledOnly) {
-    // NOTE: With your current implementation, this returns one row per channel.
-    // Real calendar rows ideally come from a join query (draw_channel + draw_channel_game [+ tenant_game])
-    // to populate tenantGameId + enabled accurately.
+    List<Object[]> rows = gameRepository.findCalendarRows();
+    List<DrawChannelCalendarRow> result = new ArrayList<>();
 
-    List<DrawChannelEntity> entities =
-        Boolean.TRUE.equals(activeOnly)
-            ? repository.findByActiveTrueOrderBySortOrderAsc()
-            : repository.findAllByOrderBySortOrderAsc();
+    for (Object[] r : rows) {
+      String code         = (String) r[0];
+      // r[1] = game_code (not used in row)
+      UUID tenantGameUuid = (UUID) r[2];
+      // r[3] = tg.id (same as tenant_game_id, redundant)
+      UUID channelUuid    = (UUID) r[4];
+      UUID resultSlotUuid = (UUID) r[5];
+      String timezone     = (String) r[6];
+      LocalTime drawTime  = r[7] == null ? null : (r[7] instanceof java.sql.Time t ? t.toLocalTime() : LocalTime.parse(r[7].toString()));
+      LocalTime salesOpen = r[8] == null ? null : (r[8] instanceof java.sql.Time t ? t.toLocalTime() : LocalTime.parse(r[8].toString()));
+      int cutoffSec       = r[9] == null ? 0 : ((Number) r[9]).intValue();
+      String daysOfWeek   = (String) r[10];
+      String defaultSrc   = (String) r[11];
+      boolean channelActive = r[12] != null && (Boolean) r[12];
+      boolean dcgEnabled    = r[13] != null && (Boolean) r[13];
+      int sortOrder         = r[14] == null ? 0 : ((Number) r[14]).intValue();
+      UUID dependsOn        = (UUID) r[15];
 
-    // enabledOnly cannot be applied correctly without a join -> keep behavior stable for now.
-    return entities.stream().map(this::toRowPlaceholder).toList();
+      if (Boolean.TRUE.equals(activeOnly) && !channelActive) continue;
+      if (Boolean.TRUE.equals(enabledOnly) && !dcgEnabled) continue;
+
+      result.add(new DrawChannelCalendarRow(
+          DrawChannelId.of(channelUuid),
+          TenantGameId.of(tenantGameUuid),
+          code,
+          timezone,
+          drawTime,
+          salesOpen,
+          cutoffSec,
+          daysOfWeek,
+          ResultSlotId.of(resultSlotUuid),
+          defaultSrc,
+          channelActive,
+          dcgEnabled,
+          sortOrder,
+          dependsOn == null ? null : DrawChannelId.of(dependsOn)
+      ));
+    }
+    return result;
   }
 
   @Override
@@ -187,6 +217,14 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     return spec;
   }
 
+  @Override
+  public List<DrawChannelView> listAllFull(TenantId tenantId) {
+    return repository.findAllByOrderBySortOrderAsc()
+        .stream()
+        .map(mapper::toView)
+        .toList();
+  }
+
   private DrawChannelSummaryView toLightSummary(DrawChannelEntity e) {
     ZoneId zone;
     try {
@@ -209,25 +247,4 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     );
   }
 
-  /**
-   * Placeholder row: correct tenantGameId/enabled requires a join query.
-   */
-  private DrawChannelCalendarRow toRowPlaceholder(DrawChannelEntity e) {
-    return new DrawChannelCalendarRow(
-        DrawChannelId.of(e.getId()),
-        null,
-        e.getCode(),
-        e.getTimezone(),
-        e.getDrawTime(),
-        e.getSalesOpenTime(),
-        e.getCutoffSec(),
-        e.getDaysOfWeek(),
-        ResultSlotId.of(e.getResultSlotId()),
-        null,
-        e.isActive(),
-        true, // DO NOT lie by copying active; real enabled is per draw_channel_game
-        e.getSortOrder(),
-        null
-    );
-  }
 }

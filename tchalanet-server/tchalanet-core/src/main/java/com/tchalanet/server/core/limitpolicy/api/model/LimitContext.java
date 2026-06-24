@@ -2,6 +2,7 @@ package com.tchalanet.server.core.limitpolicy.api.model;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public record LimitContext(
     TenantId tenantId,
     UserId userId,
+    SellerTerminalId sellerTerminalId,
     DrawId drawId,
     DrawChannelId drawChannelId,
     Instant now,
@@ -37,6 +39,10 @@ public record LimitContext(
 
         if (drawChannelId != null) {
             scopes.add(LimitScopeRef.drawChannel(drawChannelId));
+        }
+
+        if (sellerTerminalId != null) {
+            scopes.add(LimitScopeRef.sellerTerminal(sellerTerminalId));
         }
 
         if (userId != null) {

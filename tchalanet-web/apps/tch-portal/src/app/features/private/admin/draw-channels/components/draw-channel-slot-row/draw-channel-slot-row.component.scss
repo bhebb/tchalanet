@@ -1,0 +1,90 @@
+.slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: var(--tch-radius-lg, 0.75rem);
+  background: var(--tch-color-surface-container-low, #f3f3f6);
+
+  &--inactive { opacity: 0.55; }
+
+  &--needs-config {
+    background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 8%, transparent);
+    border: 2px dashed color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 40%, transparent);
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__index {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--tch-radius-pill, 9999px);
+    background: var(--tch-color-secondary-container, #fecb02);
+    color: var(--tch-color-on-secondary-container, #6e5700);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &--inactive &__index,
+  &--needs-config &__index {
+    background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 15%, transparent);
+    color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 80%, #000 20%);
+  }
+
+  &__label {
+    font-size: var(--tch-font-size-body-md, 1rem);
+    font-weight: 600;
+    color: var(--tch-color-on-surface, #1a1c1e);
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__time {
+    font-size: 0.875rem;
+    font-weight: 700;
+    background: var(--tch-color-surface-variant, #e2e2e5);
+    color: var(--tch-color-on-surface, #1a1c1e);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--tch-radius, 0.25rem);
+
+    &--missing {
+      background: transparent;
+      color: var(--tch-color-on-surface-variant, #46464f);
+    }
+  }
+
+  &__toggle-on { color: var(--tch-color-status-ready, #10b981); }
+  &__toggle-off { color: var(--tch-color-on-surface-variant, #46464f); opacity: 0.4; }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-size: 1.5rem;
+  }
+
+  &__config-hint {
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: 700;
+    color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 80%, #000 20%);
+  }
+
+  &__results-btn {
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: 700;
+    padding: 0 0.5rem;
+    min-width: auto;
+    line-height: 1.75rem;
+  }
+}

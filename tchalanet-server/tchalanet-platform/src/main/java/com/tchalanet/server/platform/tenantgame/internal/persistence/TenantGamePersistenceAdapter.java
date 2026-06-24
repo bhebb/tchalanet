@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.tenantgame.internal.persistence;
 
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantgame.internal.mapper.TenantGameMapper;
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGame;
@@ -29,6 +30,11 @@ public class TenantGamePersistenceAdapter {
             entity = mapper.toEntity(tenantGame);
         }
         return mapper.toDomain(repository.save(entity));
+    }
+
+    public Optional<TenantGame> findByTenantGameId(TenantId tenantId, TenantGameId tenantGameId) {
+        return repository.findByIdAndTenantId(tenantGameId.value(), tenantId.value())
+            .map(mapper::toDomain);
     }
 
     public Optional<TenantGame> findByTenantIdAndGameCode(TenantId tenantId, String gameCode) {

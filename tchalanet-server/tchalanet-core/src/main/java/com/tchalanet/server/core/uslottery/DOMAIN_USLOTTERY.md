@@ -65,7 +65,7 @@ External → Provider → External
 ## 5. Providers
 
 Enum:
-UsLotteryProvider { NY, FL, GA, TN, TX }
+UsLotteryProvider { NY, FL, GA, TN, TX, PA, NJ, CA, MO, IL, MI, OH, MN }
 
 Clients:
 
@@ -74,6 +74,12 @@ Clients:
 - GeorgiaDrawResultsClient
 - TexasDrawResultsClient
 - TennesseeDrawResultsClient
+- PennsylvaniaDrawResultsClient
+- NewJerseyDrawResultsClient
+- CaliforniaDrawResultsClient
+- MichiganDrawResultsClient
+- OhioDrawResultsClient
+- MinnesotaDrawResultsClient
 
 Mappers:
 
@@ -82,6 +88,12 @@ Mappers:
 - GeorgiaDrawResultsMapper
 - TexasDrawResultsMapper
 - TennesseeDrawResultsMapper
+- PennsylvaniaDrawResultsMapper
+- NewJerseyDrawResultsMapper
+- CaliforniaDrawResultsMapper
+- MichiganDrawResultsMapper
+- OhioDrawResultsMapper
+- MinnesotaDrawResultsMapper
 
 ---
 
@@ -91,6 +103,7 @@ NY: NUMBERS, WIN4
 FL: PICK3, PICK4  
 GA: PICK3, PICK4  
 TX: PICK3, DAILY4
+MN: PICK3 (No Pick4 -> No Lot2, No Lot3 in Haiti)
 
 → gameCode is the ONLY key
 

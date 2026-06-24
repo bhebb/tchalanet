@@ -20,7 +20,7 @@ Ce change implémente les deux surfaces en priorité P0 : les pages platform sup
 - `platform-ops-api.service.ts` — batch jobs, gates, executions, draws ops, draw-results, cache
 
 **State** :
-- `core/tenant-admin-access/tenant-admin-access.store.ts` — état override support (sessionId, tenantId, mode, actorRole)
+- `core/tenant-admin-access/support-access.store.ts` — état override support (sessionId, tenantId, mode, actorRole)
 
 **Composants partagés** (dans `features/private/shared/`) :
 - `admin-override-banner.ts` — bannière support affichée dans tout `/app/admin/**`
@@ -67,7 +67,7 @@ Ce change implémente les deux surfaces en priorité P0 : les pages platform sup
 - `apps/tch-portal/src/app/features/platform/` — nouveau contenu majeur
 - `apps/tch-portal/src/app/features/admin/` — nouvelles pages + services
 - `apps/tch-portal/src/app/features/private/shared/` — bannière + pipe
-- `apps/tch-portal/src/app/core/` — nouveau store `TenantAdminAccessStore`
+- `apps/tch-portal/src/app/core/` — nouveau store `SupportAccessStore`
 - Aucune lib Nx créée (tout reste dans l'app)
 
 ## Non-goals

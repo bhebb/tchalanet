@@ -1,7 +1,8 @@
 package com.tchalanet.server.features.tenantadmin.overview;
 
-import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSection;
+import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
+import com.tchalanet.server.platform.address.api.model.AddressView;
 import java.util.List;
 
 /**
@@ -24,7 +25,8 @@ public record TenantAdminOverviewView(
     TenantHeader header,
     TenantReadinessStatus status,
     int missingCount,
-    List<TenantReadinessSection> sections) {
+    List<TenantReadinessSection> sections,
+    TenantSetupView setup) {
 
   public record TenantHeader(
       String tenantId,
@@ -33,5 +35,6 @@ public record TenantAdminOverviewView(
       String timezone,
       String currency,
       String tenantType,
-      String tenantStatus) {}
+      String tenantStatus,
+      AddressView address) {}
 }

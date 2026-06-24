@@ -87,6 +87,11 @@ public class FirebaseUserProvisionService implements IdentityProvisioningApi {
     }
   }
 
+  @Override
+  public void resetPassword(String externalSubject, String newPassword) {
+    resetPasswordForUid(externalSubject, newPassword);
+  }
+
   public void resetPasswordForUid(String uid, String newPassword) {
     var firebaseAuth = requiredFirebaseAuth();
     try {

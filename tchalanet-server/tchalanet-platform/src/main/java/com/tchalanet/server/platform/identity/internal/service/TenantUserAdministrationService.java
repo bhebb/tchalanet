@@ -131,7 +131,7 @@ public class TenantUserAdministrationService {
         saved.id(),
         saved.mustChangePassword(),
         saved.mustCompleteProfile(),
-        "/app/admin");
+        "/app/admin/onboarding");
   }
 
   public void approveUser(UserId userId, UserId approvedBy) {

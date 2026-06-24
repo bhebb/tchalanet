@@ -1,0 +1,67 @@
+.gp-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+
+  &__kpi {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+
+    &--ready   { --kpi-color: var(--tch-color-status-ready, #10b981); }
+    &--warning { --kpi-color: var(--tch-color-status-warning, #f59e0b); }
+    &--neutral { --kpi-color: var(--tch-color-secondary, #745b00); }
+  }
+
+  &__kpi-icon {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in oklab, var(--kpi-color) 12%, transparent);
+    color: var(--kpi-color);
+
+    .material-symbols-outlined {
+      font-size: 1.25rem;
+      font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  }
+
+  &__kpi-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__kpi-label {
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+
+  &__kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--tch-color-on-surface, #1a1c1e);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+  }
+
+  &__kpi-total,
+  &__kpi-sub {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+}

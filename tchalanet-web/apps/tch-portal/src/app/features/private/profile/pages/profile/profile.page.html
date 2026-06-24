@@ -1,0 +1,180 @@
+<tch-admin-page-shell
+  [title]="'profile.title' | translate"
+  [description]="'profile.description' | translate"
+>
+  @if (loading()) {
+    <tch-loading [label]="'profile.loading' | translate" />
+  } @else if (loadError()) {
+    <tch-error-panel
+      [title]="loadError()!"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="load()"
+    />
+  } @else if (!profile()) {
+    <tch-admin-empty-state
+      icon="account_circle"
+      [title]="'profile.empty.title' | translate"
+      [message]="'profile.empty.message' | translate"
+    />
+  } @else {
+    <div class="profile__grid">
+
+      <!-- ══ IDENTITÉ ══ -->
+      <tch-admin-section-card [title]="'profile.section.identity' | translate" icon="badge">
+
+        @if (!showIdentityForm()) {
+          <dl class="profile__facts">
+            <div>
+              <dt>{{ 'profile.field.displayName' | translate }}</dt>
+              <dd>{{ displayName() }}</dd>
+            </div>
+            @if (profile()!.email) {
+              <div>
+                <dt>{{ 'profile.field.email' | translate }}</dt>
+                <dd>{{ profile()!.email }}</dd>
+              </div>
+            }
+            @if (profile()!.username && profile()!.username !== profile()!.email) {
+              <div>
+                <dt>{{ 'profile.field.username' | translate }}</dt>
+                <dd>{{ profile()!.username }}</dd>
+              </div>
+            }
+            @if (profile()!.firstName || profile()!.lastName) {
+              <div>
+                <dt>{{ 'profile.field.firstName' | translate }}</dt>
+                <dd>{{ profile()!.firstName || ('common.not_set' | translate) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'profile.field.lastName' | translate }}</dt>
+                <dd>{{ profile()!.lastName || ('common.not_set' | translate) }}</dd>
+              </div>
+            }
+          </dl>
+          <div class="profile__card-actions">
+            <button mat-stroked-button (click)="openIdentityForm()">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              {{ 'common.edit' | translate }}
+            </button>
+          </div>
+        } @else {
+          <form [formGroup]="identityForm" (ngSubmit)="submitIdentity()" class="profile__form">
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.field.firstName' | translate }}</mat-label>
+              <input matInput formControlName="firstName" autocomplete="given-name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.field.lastName' | translate }}</mat-label>
+              <input matInput formControlName="lastName" autocomplete="family-name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.field.phone' | translate }}</mat-label>
+              <input matInput formControlName="phone" type="tel" autocomplete="tel" />
+            </mat-form-field>
+
+            @if (identityError()) {
+              <tch-notice type="error">{{ identityError() }}</tch-notice>
+            }
+
+            <div class="profile__form-actions">
+              <button mat-button type="button" (click)="cancelIdentityForm()">
+                {{ 'common.cancel' | translate }}
+              </button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="identityState() === 'submitting'">
+                {{ (identityState() === 'submitting' ? 'common.saving' : 'common.save') | translate }}
+              </button>
+            </div>
+          </form>
+        }
+      </tch-admin-section-card>
+
+      <!-- ══ PRÉFÉRENCES ══ -->
+      <tch-admin-section-card [title]="'profile.section.preferences' | translate" icon="tune">
+
+        @if (!showPrefsForm()) {
+          <dl class="profile__facts">
+            <div>
+              <dt>{{ 'profile.pref.themeMode.label' | translate }}</dt>
+              <dd>
+                @if (profile()!.preferences?.themeMode) {
+                  {{ ('profile.pref.themeMode.' + profile()!.preferences!.themeMode!.toLowerCase()) | translate }}
+                } @else {
+                  {{ 'common.not_set' | translate }}
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'profile.pref.locale' | translate }}</dt>
+              <dd>{{ profile()!.preferences?.locale || ('common.not_set' | translate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'profile.pref.timeZone' | translate }}</dt>
+              <dd>{{ profile()!.preferences?.timeZone || ('common.not_set' | translate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'profile.pref.currency' | translate }}</dt>
+              <dd>{{ profile()!.preferences?.currency || ('common.not_set' | translate) }}</dd>
+            </div>
+          </dl>
+          <div class="profile__card-actions">
+            <button mat-stroked-button (click)="openPrefsForm()">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              {{ 'common.edit' | translate }}
+            </button>
+          </div>
+        } @else {
+          <form [formGroup]="prefsForm" (ngSubmit)="submitPrefs()" class="profile__form">
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.pref.themeMode.label' | translate }}</mat-label>
+              <mat-select formControlName="themeMode">
+                <mat-option value="">{{ 'common.not_set' | translate }}</mat-option>
+                @for (mode of themeModes; track mode.value) {
+                  <mat-option [value]="mode.value">{{ mode.labelKey | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.pref.locale' | translate }}</mat-label>
+              <input matInput formControlName="locale" placeholder="fr-HT, en-US…" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.pref.timeZone' | translate }}</mat-label>
+              <input matInput formControlName="timeZone" placeholder="America/Port-au-Prince" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="profile__form-field">
+              <mat-label>{{ 'profile.pref.currency' | translate }}</mat-label>
+              <input matInput formControlName="currency" placeholder="HTG, USD…" maxlength="3" />
+            </mat-form-field>
+
+            @if (prefsError()) {
+              <tch-notice type="error">{{ prefsError() }}</tch-notice>
+            }
+
+            <div class="profile__form-actions">
+              <button mat-button type="button" (click)="cancelPrefsForm()">
+                {{ 'common.cancel' | translate }}
+              </button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="prefsState() === 'submitting'">
+                {{ (prefsState() === 'submitting' ? 'common.saving' : 'common.save') | translate }}
+              </button>
+            </div>
+          </form>
+        }
+      </tch-admin-section-card>
+
+      <!-- ══ RÔLE / ACCÈS ══ -->
+      <tch-admin-section-card [title]="'profile.section.access' | translate" icon="shield">
+        <dl class="profile__facts">
+          @for (role of profile()!.roles; track role) {
+            <div>
+              <dt>{{ 'profile.field.role' | translate }}</dt>
+              <dd><code>{{ role }}</code></dd>
+            </div>
+          }
+        </dl>
+      </tch-admin-section-card>
+
+    </div>
+  }
+</tch-admin-page-shell>

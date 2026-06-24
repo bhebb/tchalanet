@@ -1,19 +1,27 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitLineContext;
+import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +45,7 @@ public class SalePreparationOrchestrator {
     private final TchTimeProvider tchTimeProvider;
     private final PosSaleContextResolver posSaleContextResolver;
     private final SaleMoneyCalculator saleMoneyCalculator;
+    private final QueryBus queryBus;
 
     public PreparedSale prepareSale(
         SellTicketCommand command,
@@ -70,13 +79,54 @@ public class SalePreparationOrchestrator {
         var paidLines = ticketLinePreparationService.toTicketLines(tenantId, mergedLines, command.currency());
         var charges = saleChargeCalculator.compute(tenantId, command);
         var money = saleMoneyCalculator.compute(paidLines, charges, command);
-        var policyDecision = SalePolicyDecision.allowed(new LimitEvaluationView(null, List.of()));
+        var policyDecision = evaluateLimits(command, ctx, tenantId, now, paidLines);
+
+        if (policyDecision.limits().outcome() == BreachOutcome.BLOCK) {
+            throw ProblemRest.forbidden("limits.blocked");
+        }
 
         return new PreparedSale(
             draw, now, mergedLines, paidLines, charges, money,
             policyDecision.limits(), policyDecision.autonomy(),
-            false, null, null, null,
+            policyDecision.requiresApproval(), policyDecision.approvalLevel(), null, null,
             List.of()
         );
+    }
+
+    private SalePolicyDecision evaluateLimits(
+        SellTicketCommand command,
+        TchRequestContext ctx,
+        TenantId tenantId,
+        Instant now,
+        List<TicketLine> paidLines
+    ) {
+        var limitLines = paidLines.stream()
+            .map(line -> new LimitLineContext(
+                line.betType(),
+                line.selection().key().value(),
+                toCents(line.stakeAmount().amount()),
+                toCents(line.potentialPayoutAmount().amount())))
+            .toList();
+
+        var limitCtx = new LimitContext(
+            tenantId,
+            null,
+            ctx.sellerTerminalId(),
+            command.drawId(),
+            command.drawChannelId(),
+            now,
+            limitLines);
+
+        var eval = queryBus.ask(new EvaluateLimitPolicyQuery(limitCtx));
+
+        return switch (eval.outcome()) {
+            case BLOCK            -> SalePolicyDecision.allowed(eval); // blocked handled by caller
+            case REQUIRE_APPROVAL -> SalePolicyDecision.requiresApproval(eval, AutonomyLevel.NONE);
+            case WARN, ALLOW      -> SalePolicyDecision.allowed(eval);
+        };
+    }
+
+    private static long toCents(BigDecimal amount) {
+        return amount.movePointRight(2).longValue();
     }
 }

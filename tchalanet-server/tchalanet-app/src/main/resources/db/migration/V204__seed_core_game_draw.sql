@@ -203,7 +203,11 @@ WITH src AS (
 
                  ('MO_EVE','MO','America/Chicago','21:00','MON-SUN', false, 121,
                   '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
-                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb)
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+
+                 ('MN_EVE','MN','America/Chicago','18:17','MON-SUN', true, 130,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot4":"PICK3_FIRST2"}}'::jsonb)
 
          ) AS v(slot_key, provider, timezone, draw_time, days_of_week, active, sort_order, source_cfg, projection_cfg)
 )
@@ -278,7 +282,8 @@ WITH t AS (
                    ('HT_IL_MID', 'Haïti • Illinois • Midday',      'IL_MID', 300, 'MON-SUN', true, 110),
                    ('HT_IL_EVE', 'Haïti • Illinois • Evening',     'IL_EVE', 300, 'MON-SUN', true, 111),
                    ('HT_MO_MID', 'Haïti • Missouri • Midday',      'MO_MID', 300, 'MON-SUN', true, 120),
-                   ('HT_MO_EVE', 'Haïti • Missouri • Evening',     'MO_EVE', 300, 'MON-SUN', true, 121)
+                   ('HT_MO_EVE', 'Haïti • Missouri • Evening',     'MO_EVE', 300, 'MON-SUN', true, 121),
+                   ('HT_MN_EVE', 'Haïti • Minnesota • Evening',    'MN_EVE', 300, 'MON-SUN', true, 130)
               ) AS v(code, name, slot_key, cutoff_sec, days_of_week, active, sort_order)
      ),
      rows AS (
@@ -340,31 +345,33 @@ WITH t AS (
            AND deleted_at IS NULL
      ),
      games AS (
-         SELECT id AS game_id
-         FROM game
-          WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
-           AND deleted_at IS NULL
+         SELECT tg.id AS tenant_game_id
+         FROM tenant_game tg
+         JOIN game g ON g.id = tg.game_id
+          WHERE g.code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+           AND tg.tenant_id = (SELECT tenant_id FROM t)
+           AND tg.deleted_at IS NULL
      ),
      pairs AS (
          SELECT
              gen_random_uuid() AS id,
              (SELECT tenant_id FROM t) AS tenant_id,
              c.draw_channel_id,
-             g.game_id,
+             g.tenant_game_id,
              true AS enabled,
              '{}'::jsonb AS flags
          FROM channels c
                   CROSS JOIN games g
      )
 INSERT INTO draw_channel_game (
-  id, tenant_id, draw_channel_id, game_id,
+  id, tenant_id, draw_channel_id, tenant_game_id,
   enabled, flags, created_at, updated_at, version
 )
 SELECT
-    id, tenant_id, draw_channel_id, game_id,
+    id, tenant_id, draw_channel_id, tenant_game_id,
     enabled, flags, now(), now(), 0
 FROM pairs
-    ON CONFLICT (tenant_id, draw_channel_id, game_id) DO UPDATE
+    ON CONFLICT (tenant_id, draw_channel_id, tenant_game_id) DO UPDATE
                                                              SET enabled    = EXCLUDED.enabled,
                                                              flags      = EXCLUDED.flags,
                                                              updated_at = now(),

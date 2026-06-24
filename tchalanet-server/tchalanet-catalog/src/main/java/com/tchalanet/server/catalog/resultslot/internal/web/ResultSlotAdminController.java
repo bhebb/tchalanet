@@ -6,6 +6,7 @@ import com.tchalanet.server.catalog.resultslot.internal.write.ResultSlotAdminSer
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/result-slots")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Result Slots")
 public class ResultSlotAdminController {
 
@@ -29,6 +30,14 @@ public class ResultSlotAdminController {
   @GetMapping("/active")
   public ApiResponse<List<ResultSlotView>> listActive() {
     return ApiResponse.success(catalog.listActive());
+  }
+
+  @Operation(summary = "Get result slot by id (platform)")
+  @GetMapping("/{id}")
+  public ApiResponse<ResultSlotView> getById(@PathVariable ResultSlotId id) {
+    return ApiResponse.success(
+        catalog.findById(id)
+            .orElseThrow(() -> ProblemRest.notFound("Result slot not found", id)));
   }
 
   @Operation(summary = "Get result slot by key (platform)")

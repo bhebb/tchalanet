@@ -1,0 +1,84 @@
+<tch-admin-page-shell title="Jeux" description="Gestion des jeux activés pour ce tenant.">
+  <mat-tab-group>
+    <mat-tab label="Jeux activés">
+      @if (loadingGames()) {
+        <tch-loading label="Chargement..." />
+      } @else if (errorGames()) {
+        <tch-error-panel [title]="errorGames()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadGames()" />
+      } @else if (games().length === 0) {
+        <tch-admin-empty-state icon="casino" title="Aucun jeu activé" message="Activez des jeux depuis le catalogue." />
+      } @else {
+        <div class="games-page__table">
+          <table mat-table [dataSource]="games()">
+            <ng-container matColumnDef="gameCode">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row">{{ row.gameCode }}</td>
+            </ng-container>
+            <ng-container matColumnDef="displayName">
+              <th mat-header-cell *matHeaderCellDef>Nom</th>
+              <td mat-cell *matCellDef="let row">{{ row.displayName ?? row.catalogName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="enabled">
+              <th mat-header-cell *matHeaderCellDef>Activé</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button [color]="row.enabled ? 'warn' : 'primary'" (click)="toggleGame(row)">
+                  {{ row.enabled ? 'Désactiver' : 'Activer' }}
+                </button>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="settings">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button (click)="openSettings(row)">
+                  <span class="material-symbols-outlined">tune</span>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="gameColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: gameColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-tab>
+
+    <mat-tab label="Catalogue">
+      @if (loadingCatalog()) {
+        <tch-loading label="Chargement..." />
+      } @else if (errorCatalog()) {
+        <tch-error-panel [title]="errorCatalog()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadCatalog()" />
+      } @else if (catalog().length === 0) {
+        <tch-admin-empty-state icon="inventory" title="Catalogue vide" message="Aucun jeu disponible dans le catalogue." />
+      } @else {
+        <div class="games-page__table">
+          <table mat-table [dataSource]="catalog()">
+            <ng-container matColumnDef="gameCode">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row">{{ row.gameCode }}</td>
+            </ng-container>
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Nom</th>
+              <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+              <td mat-cell *matCellDef="let row">{{ row.category }}</td>
+            </ng-container>
+            <ng-container matColumnDef="activate">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                @if (!isEnabled(row)) {
+                  <button mat-stroked-button color="primary" [disabled]="!row.canEnable" (click)="enableFromCatalog(row)">
+                    <span class="material-symbols-outlined">add</span>
+                    Activer
+                  </button>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="catalogColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: catalogColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-tab>
+  </mat-tab-group>
+</tch-admin-page-shell>

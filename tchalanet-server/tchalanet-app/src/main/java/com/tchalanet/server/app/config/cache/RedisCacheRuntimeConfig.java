@@ -84,6 +84,8 @@ public class RedisCacheRuntimeConfig {
                                         .allowIfSubType("com.tchalanet.server.")
                                         .allowIfSubType("java.time.")
                                         .allowIfSubType("java.util.")
+                                        .allowIfSubType("java.math.")
+                                        .allowIfSubType("org.springframework.cache.interceptor.SimpleKey")
                                         .allowIfSubType("tools.jackson.")
                                         .build(),
                                     DefaultTyping.NON_FINAL_AND_RECORDS,

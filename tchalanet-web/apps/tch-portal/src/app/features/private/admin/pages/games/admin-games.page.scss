@@ -1,0 +1,10 @@
+@use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+
+.games-page {
+  &__table {
+    overflow-x: auto;
+    margin-top: 1rem;
+
+    table { width: 100%; }
+  }
+}

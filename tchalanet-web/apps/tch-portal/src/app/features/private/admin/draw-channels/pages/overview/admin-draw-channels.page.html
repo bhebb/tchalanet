@@ -1,0 +1,80 @@
+<tch-admin-page-shell
+  title="Tirages"
+  description="Configurez les états, sources de résultats et créneaux actifs pour votre espace."
+>
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/setup" class="dc-page__back-btn">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Configuration générale
+    </a>
+    <a mat-stroked-button routerLink="/app/admin/draws">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      Voir les tirages générés
+    </a>
+    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (pageState() === 'loading') {
+    <tch-loading label="Chargement des tirages…" />
+  } @else if (pageState() === 'error') {
+    <tch-error-panel
+      [title]="pageError()!"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else {
+
+    <!-- KPI summary -->
+    <tch-draw-channels-summary [providers]="allProviders()" />
+
+    <!-- Filter bar -->
+    <div class="dc-page__filters">
+      <div class="dc-page__filter-chips">
+        @for (f of filters; track f.key) {
+          <button
+            class="dc-page__chip"
+            [class.dc-page__chip--active]="activeFilter() === f.key"
+            (click)="activeFilter.set(f.key)"
+          >{{ f.label }}</button>
+        }
+      </div>
+      <input
+        class="dc-page__search"
+        type="search"
+        placeholder="Rechercher un state…"
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value)"
+      />
+    </div>
+
+    <!-- Results count -->
+    <p class="dc-page__count">
+      Affichage de <strong>{{ filteredProviders().length }}</strong> provider{{ filteredProviders().length !== 1 ? 's' : '' }}
+    </p>
+
+    <!-- Provider cards grid -->
+    @if (filteredProviders().length === 0) {
+      <tch-admin-empty-state
+        icon="confirmation_number"
+        title="Aucun résultat"
+        message="Modifiez le filtre ou la recherche pour afficher des providers."
+      />
+    } @else {
+      <div class="dc-page__grid">
+        @for (provider of filteredProviders(); track provider.providerCode) {
+          <tch-draw-channel-provider-card
+            [provider]="provider"
+            (configure)="onConfigure($event)"
+            (viewProviderResults)="onViewProviderResults($event)"
+            (viewSlotResults)="onViewSlotResults($event)"
+          />
+        }
+      </div>
+    }
+
+  }
+</tch-admin-page-shell>

@@ -8,7 +8,7 @@ import { NotFoundPage } from '@tch/web';
 export const appRoutes: Route[] = [
   {
     path: 'login',
-    loadComponent: () => import('./core/auth/firebase/login.page').then(m => m.LoginPage),
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes),
   },
   {
     path: 'public',
@@ -52,37 +52,45 @@ export const appRoutes: Route[] = [
   {
     path: 'app/account/activation',
     canActivate: [roleGuard('TENANT_ADMIN')],
-    loadComponent: () =>
-      import('./features/account/account-activation.page').then(m => m.AccountActivationPage),
+    loadChildren: () =>
+      import('./features/private/account/account.routes').then(m => m.accountRoutes),
   },
   {
     path: 'app/seller-terminal/activation',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/seller-terminal/seller-terminal-activation.page').then(
+      import('./features/private/seller-terminal/seller-terminal-activation.page').then(
         m => m.SellerTerminalActivationPage,
       ),
   },
   {
+    path: 'app/profile',
+    loadComponent: () =>
+      import('./features/private/shell/private-shell.page').then(m => m.PrivateShellPage),
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/private/profile/profile.routes').then(m => m.profileRoutes),
+  },
+  {
     path: 'app/platform',
     loadComponent: () =>
-      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
+      import('./features/private/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('SUPER_ADMIN')],
-    loadChildren: () => import('./features/platform/platform.routes').then(m => m.platformRoutes),
+    loadChildren: () => import('./features/private/platform/platform.routes').then(m => m.platformRoutes),
   },
   {
     path: 'app/admin',
     loadComponent: () =>
-      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
+      import('./features/private/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('TENANT_ADMIN')],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+    loadChildren: () => import('./features/private/admin/admin.routes').then(m => m.adminRoutes),
   },
   {
     path: 'app/cashier',
     loadComponent: () =>
-      import('./features/dashboard/shell/private-shell.page').then(m => m.PrivateShellPage),
+      import('./features/private/shell/private-shell.page').then(m => m.PrivateShellPage),
     canActivate: [roleGuard('CASHIER')],
-    loadChildren: () => import('./features/cashier/cashier.routes').then(m => m.cashierRoutes),
+    loadChildren: () => import('./features/private/seller-terminal/seller-terminal.routes').then(m => m.sellerTerminalRoutes),
   },
   {
     path: '',

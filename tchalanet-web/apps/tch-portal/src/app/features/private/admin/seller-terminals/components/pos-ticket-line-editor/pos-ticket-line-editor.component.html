@@ -1,0 +1,107 @@
+<div class="ple">
+
+  <!-- Column headers -->
+  @if (lines().length > 0) {
+    <div class="ple__header">
+      <span class="ple__col ple__col--num">Numéro</span>
+      <span class="ple__col ple__col--type">Type</span>
+      <span class="ple__col ple__col--stake">Mise (HTG)</span>
+      <span class="ple__col ple__col--action"></span>
+    </div>
+  }
+
+  <!-- Existing lines -->
+  @for (line of lines(); track line.localId) {
+    <div class="ple__row">
+      <div class="ple__col ple__col--num">
+        <div class="ple__ball">{{ line.selection }}</div>
+      </div>
+      <div class="ple__col ple__col--type">
+        <span class="ple__bet-type">{{ betTypeLabels[line.betType] }}</span>
+      </div>
+      <div class="ple__col ple__col--stake">
+        <span class="ple__amount">{{ line.stakeAmount | number:'1.2-2' }}</span>
+      </div>
+      <div class="ple__col ple__col--action">
+        <button
+          type="button"
+          class="ple__delete-btn"
+          (click)="lineRemoved.emit(line.localId)"
+          aria-label="Supprimer cette ligne"
+        >
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Quick-add row -->
+  <div class="ple__add-row" [class.ple__add-row--first]="lines().length === 0">
+    <div class="ple__col ple__col--num">
+      <div class="ple__input-ball-wrap">
+        <span class="material-symbols-outlined ple__input-icon">keyboard</span>
+        <input
+          class="ple__num-input"
+          type="text"
+          inputmode="numeric"
+          placeholder="Numéro..."
+          [ngModel]="draftSelection()"
+          (ngModelChange)="draftSelection.set($event)"
+          (keydown)="onDraftKeydown($event)"
+          autocomplete="off"
+          maxlength="4"
+        />
+      </div>
+    </div>
+
+    <div class="ple__col ple__col--type">
+      <select
+        class="ple__type-select"
+        [ngModel]="draftBetType()"
+        (ngModelChange)="draftBetType.set($event)"
+      >
+        @for (bt of betTypes; track bt) {
+          <option [value]="bt">{{ betTypeLabels[bt] }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="ple__col ple__col--stake">
+      <input
+        class="ple__stake-input"
+        type="number"
+        inputmode="decimal"
+        placeholder="Mise"
+        min="1"
+        step="5"
+        [ngModel]="draftStake()"
+        (ngModelChange)="draftStake.set($event ? +$event : null)"
+        (keydown)="onDraftKeydown($event)"
+      />
+    </div>
+
+    <div class="ple__col ple__col--action">
+      <button
+        type="button"
+        class="ple__add-btn"
+        [disabled]="!canAdd()"
+        (click)="addLine()"
+      >
+        Ajouter
+      </button>
+    </div>
+  </div>
+
+  <!-- Inline add error -->
+  @if (addError()) {
+    <p class="ple__error">
+      <span class="material-symbols-outlined">error</span>
+      {{ addError() }}
+    </p>
+  }
+
+  <!-- Empty hint -->
+  @if (lines().length === 0) {
+    <p class="ple__empty-hint">Saisissez un numéro, choisissez un type et une mise, puis cliquez sur Ajouter.</p>
+  }
+</div>

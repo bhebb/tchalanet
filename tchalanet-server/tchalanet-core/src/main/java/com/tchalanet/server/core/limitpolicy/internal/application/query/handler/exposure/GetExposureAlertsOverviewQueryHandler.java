@@ -88,10 +88,10 @@ public class GetExposureAlertsOverviewQueryHandler
             }
         }
 
-        //todo add seller termina
         return new LimitContext(
             q.tenantId(),
             userId,
+            null, // sellerTerminalId — not applicable for exposure alerts overview
             q.drawId(),
             drawChannelId,
             now,

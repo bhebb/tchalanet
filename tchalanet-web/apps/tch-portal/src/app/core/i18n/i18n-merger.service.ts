@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { TranslationTree, TranslationValue } from './i18n.types';
 
-import { TranslationTree, TranslationValue } from '../../shared/types';
 
 type FlatTranslations = Record<string, TranslationValue>;
 

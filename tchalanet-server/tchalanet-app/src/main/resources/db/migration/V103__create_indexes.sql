@@ -36,6 +36,7 @@ CREATE INDEX ix_tenant_game__tenant_enabled ON tenant_game (tenant_id, enabled) 
 -- ─── Game / draw catalog ────────────────────────────────────────────
 CREATE INDEX ix_result_slot__active_sort ON result_slot (active, sort_order);
 CREATE INDEX ix_draw_channel__tenant_active ON draw_channel (tenant_id, active) WHERE deleted_at IS NULL;
+CREATE INDEX ix_dcg_tenant_tenant_game ON draw_channel_game (tenant_id, tenant_game_id);
 CREATE INDEX ix_draw_channel_game__tenant_channel ON draw_channel_game (tenant_id, draw_channel_id) WHERE deleted_at IS NULL;
 
 -- ─── Draw lifecycle ─────────────────────────────────────────────────

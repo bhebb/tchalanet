@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TchBackendClient } from '@tch/api';
 
-import { TenantAdminAccessStore } from '../../../core/tenant-admin-access/tenant-admin-access.store';
+import { SupportAccessStore } from '../../../core/access/support-access.store';
 
 @Component({
   selector: 'tch-admin-override-banner',
@@ -92,7 +92,7 @@ import { TenantAdminAccessStore } from '../../../core/tenant-admin-access/tenant
   ],
 })
 export class AdminOverrideBanner {
-  protected readonly store = inject(TenantAdminAccessStore);
+  protected readonly store = inject(SupportAccessStore);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly backend = inject(TchBackendClient);

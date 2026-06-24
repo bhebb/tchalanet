@@ -126,6 +126,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         icon: 'manufacturing',
         children: [
           {
+            id: 'ops-draws',
+            labelKey: 'platform.nav.draws',
+            icon: 'event',
+            destination: { kind: 'route', value: '/app/platform/ops/draws' },
+          },
+          {
             id: 'ops-draw-results',
             labelKey: 'platform.nav.drawResults',
             icon: 'fact_check',
@@ -138,10 +144,10 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/platform/ops/providers' },
           },
           {
-            id: 'ops-schedulers',
-            labelKey: 'platform.nav.schedulers',
+            id: 'ops-batch',
+            labelKey: 'platform.nav.scheduledTasks',
             icon: 'schedule',
-            destination: { kind: 'route', value: '/app/platform/ops/schedulers' },
+            destination: { kind: 'route', value: '/app/platform/ops/batch' },
           },
           {
             id: 'ops-cache',
@@ -249,22 +255,29 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         activeMatch: 'exact',
       },
       {
+        id: 'setup',
+        labelKey: 'nav.admin.general_configuration',
+        icon: 'checklist',
+        destination: { kind: 'route', value: '/app/admin/setup' },
+      },
+      {
         id: 'sellerTerminals',
         labelKey: 'nav.admin.seller_terminals',
         icon: 'point_of_sale',
         destination: { kind: 'route', value: '/app/admin/seller-terminals' },
         children: [
           {
-            id: 'sellerTerminalAdd',
-            labelKey: 'nav.admin.seller_terminal_add',
-            icon: 'add_circle',
+            id: 'sellerTerminalList',
+            labelKey: 'nav.admin.seller_terminal_list',
+            icon: 'list',
             destination: { kind: 'route', value: '/app/admin/seller-terminals' },
+            activeMatch: 'exact',
           },
           {
-            id: 'sellerTerminalActive',
-            labelKey: 'nav.admin.seller_terminal_active',
-            icon: 'check_circle',
-            destination: { kind: 'route', value: '/app/admin/seller-terminals?status=active' },
+            id: 'sellerTerminalNew',
+            labelKey: 'nav.admin.seller_terminal_new',
+            icon: 'add_circle',
+            destination: { kind: 'route', value: '/app/admin/seller-terminals/new' },
           },
         ],
       },
@@ -299,6 +312,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'settings',
             destination: { kind: 'route', value: '/app/admin/draws/config/channels' },
           },
+          {
+            id: 'drawSalesMatrix',
+            labelKey: 'nav.admin.draw_sales_matrix',
+            icon: 'grid_view',
+            destination: { kind: 'route', value: '/app/admin/draw-sales-matrix' },
+          },
         ],
       },
       {
@@ -318,6 +337,27 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.limits',
             icon: 'shield',
             destination: { kind: 'route', value: '/app/admin/controls/limits' },
+            children: [
+              {
+                id: 'limits-config',
+                labelKey: 'nav.limits',
+                icon: 'shield',
+                destination: { kind: 'route', value: '/app/admin/controls/limits' },
+                activeMatch: 'exact' as const,
+              },
+              {
+                id: 'limits-rules',
+                labelKey: 'nav.admin.limits_rules',
+                icon: 'help_outline',
+                destination: { kind: 'route', value: '/app/admin/limits/rules' },
+              },
+            ],
+          },
+          {
+            id: 'gamesPricing',
+            labelKey: 'nav.admin.games_pricing',
+            icon: 'casino',
+            destination: { kind: 'route', value: '/app/admin/games-pricing' },
           },
           {
             id: 'baremes',
@@ -380,8 +420,14 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         destination: { kind: 'route', value: '/app/admin/more' },
         children: [
           {
-            id: 'generalConfiguration',
-            labelKey: 'nav.admin.general_configuration',
+            id: 'businessProfile',
+            labelKey: 'nav.admin.businessProfile',
+            icon: 'domain',
+            destination: { kind: 'route', value: '/app/admin/business-profile' },
+          },
+          {
+            id: 'adminSettings',
+            labelKey: 'nav.admin.settings',
             icon: 'settings',
             destination: { kind: 'route', value: '/app/admin/settings' },
           },

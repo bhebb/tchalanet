@@ -23,7 +23,7 @@ import java.util.List;
 @Tag(name = "Platform • Pricing", description = "Platform CRUD for pricing odds definitions")
 @RestController
 @RequestMapping("/platform/pricing")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class PricingAdminController {
 

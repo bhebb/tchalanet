@@ -7,7 +7,7 @@
 
 ## Slice 1 — Infrastructure transverse
 
-- [ ] `TenantAdminAccessStore` — signal store dans `core/tenant-admin-access/`
+- [ ] `SupportAccessStore` — signal store dans `core/tenant-admin-access/`
 - [ ] `SensitiveDataMaskPipe` — masque phone/email/amount en mode support
 - [ ] `AdminOverrideBanner` — bannière SUPPORT_OVERRIDE / SUPPORT_READONLY dans `features/private/shared/`
 - [ ] Intégrer `AdminOverrideBanner` dans le shell privé (`PrivateShellPage` ou `PrivateShellComponent`)

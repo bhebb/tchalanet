@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/access-control")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Access Control")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_ADMIN', 'SUPER_ADMIN')")
 public class AccessControlAdminController {
 
   private final AccessControlApi accessControlApi;
@@ -163,7 +163,7 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Bootstrap access-control matrix (platform ops)")
   @PostMapping("/bootstrap/{mode}")
-  @PreAuthorize("hasAnyAuthority('SUPER_ADMIN') and hasPermission('platform.ops.execute')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission('platform.ops.execute')")
   @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SYSTEM, idExpression = "'access-control-bootstrap'")
   public ApiResponse<BootstrapAccessControlResult> bootstrap(@PathVariable String mode) {
     var request = new BootstrapAccessControlRequest(

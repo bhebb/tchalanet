@@ -14,6 +14,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/platform/settings")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Settings", description = "Platform admin CRUD for application settings")
 public class PlatformSettingsController {
@@ -48,6 +49,7 @@ public class PlatformSettingsController {
       @RequestParam(required = false) SettingExposure exposure,
       @RequestParam(required = false) UUID tenantId,
       @RequestParam(required = false) Boolean active,
+      @TchPaging(allowedSort = {"namespace", "settingKey", "level", "exposure", "active"})
       TchPageRequest pageRequest) {
 
     var criteria = new SearchSettingsAdminCriteria(

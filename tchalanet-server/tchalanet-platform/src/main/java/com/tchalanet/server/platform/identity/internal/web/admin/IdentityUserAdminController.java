@@ -24,6 +24,7 @@ import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityL
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
+import com.tchalanet.server.platform.accesscontrol.internal.service.PlatformUserRoleService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.CreateUserRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.LinkExternalIdentityRequest;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.ZoneId;
@@ -54,7 +56,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/identity/users")
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_ADMIN','SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Identity Users")
 public class IdentityUserAdminController {
@@ -65,20 +67,40 @@ public class IdentityUserAdminController {
     private final ExternalIdentityLinkService externalIdentities;
     private final AccessControlApi accessControlApi;
     private final TenantUserProvisioningService provisioning;
+    private final PlatformUserRoleService platformUserRoles;
     private final TenantUserAdminViewAssembler view;
 
     @GetMapping
-    @Operation(summary = "List identity users for current tenant")
+    @Operation(summary = "List identity users. SUPER_ADMIN without tenant context → cross-tenant global list.")
     public ApiResponse<TchPage<TenantUserAdminResponse>> list(
-        @CurrentContext TchRequestContext ctx, @TchPaging TchPageRequest pageReq) {
+        @CurrentContext TchRequestContext ctx,
+        @TchPaging TchPageRequest pageReq,
+        @RequestParam(required = false) String q,
+        @RequestParam(required = false) String sort) {
+        if (ctx.isSuperAdmin() && !ctx.hasTenant()) {
+            int page = pageReq.pageable().getPageNumber();
+            int size = pageReq.pageable().getPageSize();
+            var rows = platformUserRoles.searchTenantAdmins(q, page, size, sort);
+            long total = platformUserRoles.countTenantAdmins(q);
+            int totalPages = size == 0 ? 1 : (int) Math.ceil((double) total / size);
+            boolean hasNext = (long) (page + 1) * size < total;
+            return ApiResponse.success(TchPage.of(
+                rows.stream().map(view::fromGlobalRow).toList(),
+                page, size, total, totalPages, !hasNext, hasNext, page > 0));
+        }
         var page = memberships.list(ctx.tenantId(), pageReq);
         return ApiResponse.success(TchPageMapper.map(page, row -> view.load(ctx, row.id(), InvitationStatus.NOT_SENT, row.createdAt())));
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "Get identity user details")
+    @Operation(summary = "Get identity user details. SUPER_ADMIN without tenant context → cross-tenant lookup.")
     public ApiResponse<TenantUserAdminResponse> getUser(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
+        if (ctx.isSuperAdmin() && !ctx.hasTenant()) {
+            var row = platformUserRoles.findTenantAdmin(userId)
+                .orElseThrow(() -> ProblemRest.notFound("Tenant admin not found: " + userId));
+            return ApiResponse.success(view.fromGlobalRow(row));
+        }
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
@@ -176,7 +198,7 @@ public class IdentityUserAdminController {
     @DeleteMapping("/{userId}/membership")
     @Operation(summary = "Remove tenant membership")
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
-    public ApiResponse<TenantUserAdminResponse> deleteMembership(
+    public ApiResponse<TenantUserAdminResponse>     deleteMembership(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
         view.assertTenantScoped(ctx, userId);
         memberships.unassign(ctx.tenantId(), userId);
@@ -194,36 +216,6 @@ public class IdentityUserAdminController {
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
         accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), userId, req.role().name(), ctx.currentUserIdRequired()));
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
-    }
-
-    @PostMapping("/{userId}/suspend")
-    @Operation(summary = "Suspend identity user")
-    @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
-    public ApiResponse<TenantUserAdminResponse> suspend(
-        @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        view.assertTenantScoped(ctx, userId);
-        users.suspendUser(userId);
-        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
-    }
-
-    @PostMapping("/{userId}/reactivate")
-    @Operation(summary = "Reactivate identity user")
-    @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
-    public ApiResponse<TenantUserAdminResponse> reactivate(
-        @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        view.assertTenantScoped(ctx, userId);
-        users.reactivateUser(userId);
-        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
-    }
-
-    @PostMapping("/{userId}/send-invitation")
-    @Operation(summary = "Send invitation to identity user")
-    @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
-    public ApiResponse<TenantUserAdminResponse> sendInvitation(
-        @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        view.assertTenantScoped(ctx, userId);
-        users.sendInvitation(userId);
-        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.SENT, null));
     }
 
     private static void forbidSuperAdminAssignmentForTenantAdmin(TchRequestContext ctx, TchRole role) {

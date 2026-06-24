@@ -1,0 +1,54 @@
+@if (draw(); as d) {
+  <div class="pos-draw">
+    <div class="pos-draw__meta">
+      <div class="pos-draw__info">
+        <span class="pos-draw__label">{{ d.label }}</span>
+        @if (timeRemainingLabel(); as t) {
+          <span class="pos-draw__time" [class.pos-draw__time--closing]="d.status === 'CLOSING_SOON'">
+            S'arrête dans <strong>{{ t }}</strong>
+          </span>
+        }
+        <span class="pos-draw__scheduled">
+          Tirage : {{ d.scheduledAt | date:'HH:mm' }} ({{ d.scheduledAt | date:'dd/MM' }})
+        </span>
+      </div>
+
+      <div class="pos-draw__badges">
+        @if (isSalesOpen()) {
+          <span class="pos-draw__live-badge">
+            <span class="pos-draw__live-dot"></span>
+            Live
+          </span>
+        } @else {
+          <span class="pos-draw__closed-badge">Fermé</span>
+        }
+      </div>
+    </div>
+
+    @if (otherDraws().length > 0) {
+      <button mat-button class="pos-draw__change-btn" [matMenuTriggerFor]="drawMenu">
+        <span class="material-symbols-outlined">swap_horiz</span>
+        Changer de tirage
+      </button>
+
+      <mat-menu #drawMenu="matMenu">
+        @for (other of otherDraws(); track other.drawId) {
+          <button mat-menu-item (click)="selectDraw(other)">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ other.label }}
+          </button>
+        }
+      </mat-menu>
+    }
+  </div>
+} @else {
+  <div class="pos-draw pos-draw--empty">
+    <span class="material-symbols-outlined pos-draw__empty-icon">event_busy</span>
+    <p class="pos-draw__empty-title">Aucun tirage ouvert à la vente.</p>
+    <p class="pos-draw__empty-hint">Vérifiez les tirages générés ou les canaux de tirage.</p>
+    <div class="pos-draw__empty-actions">
+      <a mat-stroked-button routerLink="/app/admin/draws">Voir les tirages générés</a>
+      <a mat-button routerLink="/app/admin/draw-channels">Configurer les canaux</a>
+    </div>
+  </div>
+}

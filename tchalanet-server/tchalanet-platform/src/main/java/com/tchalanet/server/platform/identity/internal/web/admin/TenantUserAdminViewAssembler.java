@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.identity.internal.web.admin;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantAdminGlobalRow;
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.ExternalIdentityLinkService;
@@ -29,18 +29,34 @@ public class TenantUserAdminViewAssembler {
   private final TenantMembershipService memberships;
   private final ExternalIdentityLinkService externalIdentities;
 
-  /** Fails with 403 when the target user is not a member of the request's effective tenant. */
+  /**
+   * Fails with 403 when the target user is not a member of the effective tenant.
+   * SUPER_ADMIN without tenant context bypasses this check (global action).
+   */
   public void assertTenantScoped(TchRequestContext ctx, UserId userId) {
+    if (ctx.isSuperAdmin() && !ctx.hasTenant()) return;
     if (memberships.findByTenantAndUser(ctx.tenantId(), userId).isEmpty()) {
       throw ProblemRest.forbidden("User is outside effective tenant scope");
     }
   }
 
-  /** Loads and maps the full admin response for a tenant-scoped user. */
+  /**
+   * Loads and maps the full admin response for a user.
+   * When SUPER_ADMIN has no tenant context, membership info is omitted (profile only).
+   */
   public TenantUserAdminResponse load(
       TchRequestContext ctx, UserId userId, InvitationStatus invitationStatus, Instant createdAtOverride) {
     assertTenantScoped(ctx, userId);
     var profile = profiles.getUserProfile(userId);
+    if (ctx.isSuperAdmin() && !ctx.hasTenant()) {
+      return new TenantUserAdminResponse(
+          profile.id(), profile.username(), profile.email(), profile.phone(),
+          profile.status() == null ? null : profile.status().name(),
+          null, null, ExternalIdentitySyncStatus.NOT_REQUIRED,
+          invitationStatus, createdAtOverride,
+          profile.firstName(), profile.lastName(), profile.displayName(),
+          null, null, null);
+    }
     var membership = memberships.findByTenantAndUser(ctx.tenantId(), userId).orElse(null);
     var createdAt =
         createdAtOverride != null
@@ -59,7 +75,18 @@ public class TenantUserAdminViewAssembler {
         createdAt,
         profile.firstName(),
         profile.lastName(),
-        profile.displayName());
+        profile.displayName(),
+        null, null, null);
+  }
+
+  /** Builds a cross-tenant response from a native SQL projection row (SUPER_ADMIN global list/detail). */
+  public TenantUserAdminResponse fromGlobalRow(TenantAdminGlobalRow r) {
+    return new TenantUserAdminResponse(
+        UserId.of(r.getUserId()), null, r.getEmail(), null, r.getStatus(),
+        null, null, ExternalIdentitySyncStatus.NOT_REQUIRED, InvitationStatus.NOT_SENT,
+        r.getAssignedAt(), null, null, r.getDisplayName(),
+        r.getTenantId() != null ? r.getTenantId().toString() : null,
+        r.getTenantName(), r.getTenantCode());
   }
 
   private ExternalIdentitySyncStatus resolveSyncStatus(

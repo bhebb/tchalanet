@@ -200,6 +200,20 @@ public record TchRequestContext(
         );
     }
 
+    /**
+     * Return a new context with the given sellerTerminalId injected.
+     * Used by the admin-to-seller-terminal bridge (X-Tch-Act-As-Terminal header).
+     */
+    public TchRequestContext withSellerTerminalId(SellerTerminalId terminal) {
+        return new TchRequestContext(
+            originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
+            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
+            apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
+            actorType, terminal, roleCodes, permissionKeys, externalSubject
+        );
+    }
+
     public TchRequestContext withIdempotencyKey(String key) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,

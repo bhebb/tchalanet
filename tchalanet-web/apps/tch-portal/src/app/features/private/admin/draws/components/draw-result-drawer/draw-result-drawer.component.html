@@ -1,0 +1,300 @@
+<!-- Backdrop -->
+<div class="drd-backdrop" (click)="onClose()" aria-hidden="true"></div>
+
+<!-- Drawer panel -->
+<aside class="drd-panel" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+
+  <!-- ── Sticky header ──────────────────────────────────────────────────── -->
+  <header class="drd-header">
+    <div class="drd-header__top">
+      <div class="drd-header__titles">
+        <h2 class="drd-header__title">{{ title() }}</h2>
+        <p class="drd-header__subtitle">{{ subtitle() }}</p>
+      </div>
+      <button mat-icon-button class="drd-header__close" (click)="onClose()" aria-label="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="drd-header__badges">
+      <tch-generated-draw-status-badge type="sales" [status]="draw().salesStatus" />
+      <span class="drd-mode-chip">{{ draw().resultMode === 'AUTO' ? 'Auto' : 'Manuel' }}</span>
+      @if (draw().publicationStatus === 'PUBLISHED') {
+        <tch-generated-draw-status-badge type="publication" status="PUBLISHED" />
+      }
+    </div>
+  </header>
+
+  <!-- ── Scrollable body ────────────────────────────────────────────────── -->
+  <div class="drd-body">
+
+    <!-- Draw details compact block -->
+    <dl class="drd-details">
+      <div class="drd-details__row">
+        <dt>Provider</dt>
+        <dd>{{ draw().providerLabel }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Slot</dt>
+        <dd>{{ draw().slotLabel }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Date</dt>
+        <dd>{{ draw().businessDate | date:'d MMMM yyyy':'':'fr' }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Heure</dt>
+        <dd>{{ draw().scheduledAt.slice(11, 16) }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Draw ID</dt>
+        <dd class="drd-details__mono">#{{ draw().drawId.toUpperCase() }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Mode résultat</dt>
+        <dd>{{ draw().resultMode === 'AUTO' ? 'Automatique' : 'Manuel' }}</dd>
+      </div>
+      <div class="drd-details__row">
+        <dt>Vente</dt>
+        <dd>{{ salesStatusLabel() }}</dd>
+      </div>
+    </dl>
+
+    <!-- ── CAS C : Source error ──────────────────────────────────────── -->
+    @if (isSourceError()) {
+      <div class="drd-source-error">
+        <div class="drd-source-error__header">
+          <span class="material-symbols-outlined">error</span>
+          Erreur source détectée
+        </div>
+        @if (draw().sourceError; as err) {
+          <p class="drd-source-error__message">{{ err.message }}</p>
+          @if (err.occurredAt) {
+            <p class="drd-source-error__meta">
+              Dernière tentative :
+              <strong>{{ err.occurredAt | date:'dd/MM HH:mm':'':'fr' }}</strong>
+            </p>
+          }
+        }
+        <p class="drd-source-error__hint">
+          La source automatique n'a pas pu récupérer le résultat.
+          Vous pouvez saisir le résultat manuellement ci-dessous.
+        </p>
+      </div>
+    }
+
+    <!-- ── CAS B : Lecture (confirmed / provisional) ─────────────────── -->
+    @if (isLecture()) {
+      <div class="drd-result-read">
+        <div class="drd-result-read__header">
+          <span class="drd-result-read__label">Numéros gagnants</span>
+          <span class="drd-result-read__badge drd-result-read__badge--confirmed">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ draw().resultStatus === 'PROVISIONAL' ? 'Provisoire' : 'Confirmé' }}
+          </span>
+        </div>
+        <div class="drd-balls">
+          @for (n of draw().numbers; track $index) {
+            <span class="drd-ball drd-ball--confirmed">{{ n }}</span>
+          }
+        </div>
+        @if (draw().publicationStatus === 'PUBLISHED') {
+          <div class="drd-result-read__pub">
+            <span class="material-symbols-outlined">public</span>
+            Publié sur la page publique des résultats
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── CAS A/D : Saisie / Modification ───────────────────────────── -->
+    @if (isEditing()) {
+
+      @if (isModifying() && draw().numbers?.length) {
+        <div class="drd-previous">
+          <span class="drd-previous__label">Résultat actuel</span>
+          <div class="drd-balls drd-balls--sm">
+            @for (n of draw().numbers; track $index) {
+              <span class="drd-ball drd-ball--sm">{{ n }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <form class="drd-form" [formGroup]="form" (ngSubmit)="$event.preventDefault()">
+
+        <!-- Number inputs -->
+        <div class="drd-form__section">
+          <h3 class="drd-form__section-title">Numéros gagnants</h3>
+          <p class="drd-form__section-hint">3 numéros · 2 chiffres chacun (00–99)</p>
+
+          <div class="drd-balls-input">
+            <div class="drd-ball-field">
+              <input
+                id="drd-n1"
+                class="drd-ball-input"
+                type="tel"
+                inputmode="numeric"
+                maxlength="2"
+                placeholder="--"
+                formControlName="n1"
+                autocomplete="off"
+                (input)="onNumberInput($event, n2Ref())"
+              />
+              @if (fieldError('n1'); as err) {
+                <span class="drd-ball-error" role="alert">{{ err }}</span>
+              }
+            </div>
+
+            <div class="drd-ball-field">
+              <input
+                id="drd-n2"
+                class="drd-ball-input"
+                type="tel"
+                inputmode="numeric"
+                maxlength="2"
+                placeholder="--"
+                formControlName="n2"
+                autocomplete="off"
+                (input)="onNumberInput($event, n3Ref())"
+                #n2Input
+              />
+              @if (fieldError('n2'); as err) {
+                <span class="drd-ball-error" role="alert">{{ err }}</span>
+              }
+            </div>
+
+            <div class="drd-ball-field">
+              <input
+                id="drd-n3"
+                class="drd-ball-input"
+                type="tel"
+                inputmode="numeric"
+                maxlength="2"
+                placeholder="--"
+                formControlName="n3"
+                autocomplete="off"
+                #n3Input
+              />
+              @if (fieldError('n3'); as err) {
+                <span class="drd-ball-error" role="alert">{{ err }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Note / Audit reason -->
+        <div class="drd-form__section">
+          <label class="drd-form__label" for="drd-note">
+            Note / Raison
+            @if (noteRequired()) {
+              <span class="drd-form__required" aria-label="requis">*</span>
+            } @else {
+              <span class="drd-form__optional">— optionnel</span>
+            }
+          </label>
+          <textarea
+            id="drd-note"
+            class="drd-form__textarea"
+            formControlName="note"
+            rows="3"
+            placeholder="Ex : saisie manuelle après fermeture du tirage, correction source, erreur API…"
+          ></textarea>
+          @if (fieldError('note'); as err) {
+            <span class="drd-form__field-error" role="alert">{{ err }}</span>
+          }
+          <p class="drd-form__audit-hint">
+            <span class="material-symbols-outlined">history_edu</span>
+            Cette note sera conservée dans le journal d'audit.
+          </p>
+        </div>
+
+        <!-- Public visibility notice -->
+        <div class="drd-notice">
+          <span class="material-symbols-outlined">public</span>
+          <p>
+            Un résultat <strong>confirmé et publié</strong> sera immédiatement visible
+            sur la page publique des résultats.
+          </p>
+        </div>
+
+      </form>
+    }
+
+    <!-- Success state -->
+    @if (state() === 'success') {
+      <div class="drd-success">
+        <span class="material-symbols-outlined drd-success__icon">check_circle</span>
+        <p class="drd-success__msg">{{ successMessage() }}</p>
+        <p class="drd-success__hint">Vous pouvez fermer ce panneau.</p>
+      </div>
+    }
+
+    <!-- Error state -->
+    @if (state() === 'error') {
+      <div class="drd-err-msg">
+        <span class="material-symbols-outlined">error</span>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    }
+
+  </div>
+
+  <!-- ── Sticky footer ──────────────────────────────────────────────────── -->
+  <footer class="drd-footer">
+    @if (state() === 'saving') {
+      <p class="drd-footer__saving">
+        <span class="material-symbols-outlined drd-footer__spin">progress_activity</span>
+        Enregistrement en cours…
+      </p>
+    } @else if (state() === 'success') {
+      <button mat-flat-button color="primary" (click)="onClose()">Fermer</button>
+    } @else {
+
+      @if (isEditing()) {
+        <button mat-button (click)="onClose()">Annuler</button>
+        <div class="drd-footer__right">
+          <button mat-stroked-button (click)="onSave('provisional')">
+            Enregistrer provisoire
+          </button>
+          <button mat-flat-button color="primary" (click)="onSave('confirmed')">
+            Confirmer et publier
+          </button>
+        </div>
+      }
+
+      @if (isLecture()) {
+        @if (isProvisional()) {
+          <button mat-button (click)="onClose()">Fermer</button>
+          <div class="drd-footer__right">
+            <button mat-stroked-button (click)="onModify()">Modifier</button>
+            <button mat-flat-button color="primary" (click)="onModify()">
+              Confirmer et publier
+            </button>
+          </div>
+        } @else {
+          <div class="drd-footer__right">
+            <button mat-stroked-button (click)="onClose()">Fermer</button>
+            <button mat-flat-button color="primary" (click)="onModify()">
+              Modifier le résultat
+            </button>
+          </div>
+        }
+      }
+
+      @if (isSourceError()) {
+        <button mat-stroked-button (click)="onClose()">Fermer</button>
+        <div class="drd-footer__right">
+          <button mat-stroked-button disabled title="Bientôt disponible">
+            Réessayer la vérification
+          </button>
+          <button mat-flat-button color="primary" (click)="onEnterManually()">
+            Saisir manuellement
+          </button>
+        </div>
+      }
+
+    }
+  </footer>
+
+</aside>

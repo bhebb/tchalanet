@@ -114,6 +114,55 @@
         "title": "Support"
       }
     },
+    "setup": {
+      "progress": {
+        "title": "{{completed}} / {{total}} required steps completed"
+      },
+      "advancedSettings": {
+        "title": "Advanced settings",
+        "description": "Language, receipt, communication and business rules can be adjusted in tenant settings.",
+        "action": "Open settings"
+      }
+    },
+    "businessProfile": {
+      "title": "My Business",
+      "description": "Your company identity and contact information.",
+      "loading": "Loading...",
+      "error": {
+        "load": "Could not load business information.",
+        "save": "Could not save changes."
+      },
+      "section": {
+        "identity": "Identity",
+        "region": "Region",
+        "commercial": "Business settings",
+        "address": "Address"
+      },
+      "commercial": {
+        "description": "Applied to seller-terminals that don't have a specific rate."
+      },
+      "field": {
+        "name": "Name",
+        "code": "Code",
+        "type": "Type",
+        "status": "Status",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "commission": "Default commission"
+      },
+      "identityCard": {
+        "eyebrow": "My company"
+      },
+      "identity": {
+        "saved": "Information updated successfully."
+      },
+      "address": {
+        "empty": "No address on file.",
+        "edit": "Edit address",
+        "add": "Add address",
+        "saved": "Address saved successfully."
+      }
+    },
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Manage seller-terminals",
@@ -250,7 +299,12 @@
     "validation": {
       "required": "This field is required."
     },
-    "not_set": "Not set"
+    "not_set": "Not set",
+    "edit": "Edit",
+    "view": "View",
+    "save": "Save",
+    "saving": "Saving...",
+    "refresh": "Refresh"
   },
   "dashboard": {
     "actions": {
@@ -495,13 +549,19 @@
       "support": "Support",
       "connections": "Connections",
       "settings": "Settings",
+      "businessProfile": "My Business",
       "spaceTitle": "Admin",
       "all_draws": "All draws",
       "upcoming_draws": "Upcoming draws",
       "past_draws": "Past draws",
       "seller_terminals": "Seller-terminals",
       "seller_terminal_add": "Add seller-terminal",
-      "seller_terminal_active": "Active seller-terminals"
+      "seller_terminal_active": "Active seller-terminals",
+      "seller_terminal_list": "List",
+      "seller_terminal_new": "New seller terminal",
+      "draw_sales_matrix": "Draw sales matrix",
+      "games_pricing": "Games & pricing",
+      "limits_rules": "Rules guide"
     },
     "cashier": {
       "section": {
@@ -785,7 +845,9 @@
           "eyebrow": "Tenant"
         },
         "action": {
-          "viewAdmins": "View administrators"
+          "viewAdmins": "View administrators",
+          "updateSuccess": "Information updated successfully.",
+          "updateError": "Could not save changes."
         }
       },
       "provisioning": {
@@ -856,7 +918,27 @@
         "reactivated": "Tenant reactivated.",
         "archived": "Tenant archived."
       },
-      "paginationTotal": "{{count}} tenant(s)"
+      "paginationTotal": "{{count}} tenant(s)",
+      "admin": {
+        "pageTitle": "Add admin",
+        "pageTitleWithTenant": "Add admin — {{name}}",
+        "loading": "Loading...",
+        "section": "Administrator information",
+        "field": {
+          "email": "Email",
+          "firstName": "First name",
+          "lastName": "Last name (optional)",
+          "phone": "Phone (optional)"
+        },
+        "error": {
+          "email": "Valid email required.",
+          "firstName": "First name required.",
+          "create": "Error creating administrator."
+        },
+        "roleInfo": "Assigned role: TENANT_ADMIN",
+        "submit": "Create administrator",
+        "success": "Administrator created successfully."
+      }
     },
     "tenantProvisioning": {
       "title": "Provision a tenant",
@@ -1819,7 +1901,43 @@
     "logo_alt": "Tchalanet logo"
   },
   "profile": {
-    "avatar_alt": "User avatar"
+    "avatar_alt": "User avatar",
+    "title": "My profile",
+    "description": "Manage your personal information and preferences.",
+    "loading": "Loading profile...",
+    "empty": {
+      "title": "Profile not found",
+      "message": "Unable to load profile information."
+    },
+    "section": {
+      "identity": "Identity",
+      "preferences": "Preferences",
+      "access": "Access"
+    },
+    "field": {
+      "displayName": "Display name",
+      "email": "Email",
+      "username": "Username",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "role": "Role"
+    },
+    "pref": {
+      "themeMode": {
+        "label": "Theme",
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "locale": "Locale",
+      "timeZone": "Time zone",
+      "currency": "Currency"
+    },
+    "error": {
+      "load": "Error loading profile.",
+      "save": "Error saving changes."
+    }
   },
   "readiness": {
     "noIssues": "No issues"

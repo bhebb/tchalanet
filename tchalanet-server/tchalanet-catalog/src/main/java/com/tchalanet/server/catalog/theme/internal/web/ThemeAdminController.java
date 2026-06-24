@@ -8,6 +8,7 @@ import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService.ThemePresetUpdateRequest;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/platform/catalog/theme-presets")
 @RequiredArgsConstructor
-@PreAuthorize("hasPermission('catalog.theme.manage')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class ThemeAdminController {
 
     private final ThemePresetAdminService admin;
@@ -26,6 +27,13 @@ public class ThemeAdminController {
     @GetMapping
     public ApiResponse<List<ThemePresetView>> listActive() {
         return ApiResponse.success(themeCatalog.listActive());
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<ThemePresetView> get(@PathVariable ThemePresetId id) {
+        return ApiResponse.success(
+            themeCatalog.findById(id)
+                .orElseThrow(() -> ProblemRest.notFound("Theme not found", id)));
     }
 
     @GetMapping("/overview")
