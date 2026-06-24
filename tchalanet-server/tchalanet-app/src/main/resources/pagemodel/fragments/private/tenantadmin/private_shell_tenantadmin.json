@@ -91,21 +91,6 @@
           "children": []
         },
         {
-          "id": "settings",
-          "type": "destination",
-          "label_key": "nav.settings",
-          "label": null,
-          "path": "/app/settings",
-          "kind": "internal",
-          "icon": "settings",
-          "image": null,
-          "active_match": "prefix",
-          "disabled": false,
-          "reason_key": null,
-          "badge": null,
-          "children": []
-        },
-        {
           "id": "logout",
           "type": "destination",
           "label_key": "auth.logout",
@@ -141,345 +126,308 @@
         "loading": "eager"
       }
     },
-    "primary": [
+    "primary": [],
+    "sections": [
       {
-        "id": "dashboard",
-        "type": "destination",
-        "label_key": "nav.dashboard",
+        "id": "admin",
+        "label_key": "nav.admin.section.admin",
         "label": null,
-        "path": "/app/admin",
-        "kind": "internal",
-        "icon": "dashboard",
-        "image": null,
-        "active_match": "exact",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": []
-      },
-      {
-        "id": "setup",
-        "type": "destination",
-        "label_key": "nav.admin.general_configuration",
-        "label": null,
-        "path": "/app/admin/complete-config",
-        "kind": "internal",
-        "icon": "checklist",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": []
-      },
-      {
-        "id": "sellers",
-        "type": "destination",
-        "label_key": "nav.admin.sellers",
-        "label": null,
-        "path": "/app/admin/sellers",
-        "kind": "internal",
-        "icon": "point_of_sale",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
+        "items": [
           {
-            "id": "sellerAdd",
-            "type": "destination",
-            "label_key": "nav.admin.seller_add",
-            "label": null,
-            "path": "/app/admin/sellers/new",
+            "id": "dashboard",
+            "label_key": "nav.dashboard",
+            "icon": "dashboard",
+            "path": "/app/admin",
             "kind": "internal",
-            "icon": "person_add",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "active_match": "exact"
           },
           {
-            "id": "sellerActive",
-            "type": "destination",
-            "label_key": "nav.admin.seller_active",
-            "label": null,
-            "path": "/app/admin/sellers?status=active",
-            "kind": "internal",
-            "icon": "check_circle",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "draws",
-        "type": "destination",
-        "label_key": "nav.draws",
-        "label": null,
-        "path": "/app/admin/draws",
-        "kind": "internal",
-        "icon": "event",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
-          {
-            "id": "allDraws",
-            "type": "destination",
-            "label_key": "nav.admin.all_draws",
-            "label": null,
-            "path": "/app/admin/draws",
-            "kind": "internal",
-            "icon": "list",
-            "image": null,
-            "active_match": "exact",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "setup",
+            "label_key": "nav.admin.general_configuration",
+            "icon": "checklist",
+            "path": "/app/admin/setup",
+            "kind": "internal"
           },
           {
-            "id": "upcomingDraws",
-            "type": "destination",
-            "label_key": "nav.admin.upcoming_draws",
-            "label": null,
-            "path": "/app/admin/draws?status=upcoming",
-            "kind": "internal",
-            "icon": "event_upcoming",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "sellers",
+            "label_key": "nav.admin.sellers",
+            "icon": "point_of_sale",
+            "children": [
+              {
+                "id": "sellers-list",
+                "label_key": "nav.admin.sellers_list",
+                "path": "/app/admin/sellers",
+                "kind": "internal",
+                "icon": "list",
+                "active_match": "exact"
+              },
+              {
+                "id": "sellers-new",
+                "label_key": "nav.admin.sellers_new",
+                "path": "/app/admin/sellers/new",
+                "kind": "internal",
+                "icon": "add_circle"
+              }
+            ]
           },
           {
-            "id": "pastDraws",
-            "type": "destination",
-            "label_key": "nav.admin.past_draws",
-            "label": null,
-            "path": "/app/admin/draws?status=past",
-            "kind": "internal",
-            "icon": "history",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "controls",
-        "type": "destination",
-        "label_key": "nav.admin.controls",
-        "label": null,
-        "path": "/app/admin/controls",
-        "kind": "internal",
-        "icon": "tune",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
+            "id": "draws",
+            "label_key": "nav.draws",
+            "icon": "event",
+            "children": [
+              {
+                "id": "draws-all",
+                "label_key": "nav.admin.all_draws",
+                "path": "/app/admin/draws",
+                "kind": "internal",
+                "icon": "list",
+                "active_match": "exact"
+              },
+              {
+                "id": "draws-open",
+                "label_key": "nav.admin.draws_open",
+                "path": "/app/admin/draws?status=open",
+                "kind": "internal",
+                "icon": "event_available"
+              },
+              {
+                "id": "draws-past",
+                "label_key": "nav.admin.draws_past",
+                "path": "/app/admin/draws?status=past",
+                "kind": "internal",
+                "icon": "history"
+              },
+              {
+                "id": "draws-matrix",
+                "label_key": "nav.admin.draws_matrix",
+                "path": "/app/admin/draws/matrix",
+                "kind": "internal",
+                "icon": "grid_view"
+              },
+              {
+                "id": "draws-channels",
+                "label_key": "nav.admin.draws_channels",
+                "path": "/app/admin/draws/channels",
+                "kind": "internal",
+                "icon": "settings"
+              }
+            ]
+          },
           {
             "id": "limits",
-            "type": "destination",
-            "label_key": "nav.limits",
-            "label": null,
-            "path": "/app/admin/controls/limits",
-            "kind": "internal",
+            "label_key": "nav.admin.limits_section",
             "icon": "shield",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "children": [
+              {
+                "id": "limits-system",
+                "label_key": "nav.admin.limits_system",
+                "path": "/app/admin/limits?scope=system",
+                "kind": "internal",
+                "icon": "lock"
+              },
+              {
+                "id": "limits-global",
+                "label_key": "nav.admin.limits_global",
+                "path": "/app/admin/limits?scope=global",
+                "kind": "internal",
+                "icon": "tune"
+              },
+              {
+                "id": "limits-seller",
+                "label_key": "nav.admin.limits_seller",
+                "path": "/app/admin/limits?scope=seller",
+                "kind": "internal",
+                "icon": "person"
+              },
+              {
+                "id": "limits-number",
+                "label_key": "nav.admin.limits_number",
+                "path": "/app/admin/limits?scope=number",
+                "kind": "internal",
+                "icon": "pin"
+              },
+              {
+                "id": "limits-game",
+                "label_key": "nav.admin.limits_game",
+                "path": "/app/admin/limits?scope=game",
+                "kind": "internal",
+                "icon": "casino"
+              },
+              {
+                "id": "limits-draw",
+                "label_key": "nav.admin.limits_draw",
+                "path": "/app/admin/limits?scope=draw",
+                "kind": "internal",
+                "icon": "event"
+              }
+            ]
           },
           {
-            "id": "odds",
-            "type": "destination",
-            "label_key": "nav.admin.odds",
-            "label": null,
-            "path": "/app/admin/controls/odds",
-            "kind": "internal",
-            "icon": "percent",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "controls",
+            "label_key": "nav.admin.controls_sale",
+            "icon": "tune",
+            "children": [
+              {
+                "id": "controls-games",
+                "label_key": "nav.admin.controls_games",
+                "path": "/app/admin/controls/games",
+                "kind": "internal",
+                "icon": "casino"
+              },
+              {
+                "id": "controls-gains",
+                "label_key": "nav.admin.controls_gains",
+                "path": "/app/admin/controls/gains",
+                "kind": "internal",
+                "icon": "format_list_numbered"
+              },
+              {
+                "id": "controls-commissions",
+                "label_key": "nav.admin.controls_commissions",
+                "path": "/app/admin/controls/commissions",
+                "kind": "internal",
+                "icon": "percent"
+              }
+            ]
           },
           {
-            "id": "bonuses",
-            "type": "destination",
-            "label_key": "nav.admin.bonuses",
-            "label": null,
-            "path": "/app/admin/controls/bonuses",
-            "kind": "internal",
-            "icon": "payments",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "promotions",
-        "type": "destination",
-        "label_key": "nav.promotions",
-        "label": null,
-        "path": "/app/admin/promotions",
-        "kind": "internal",
-        "icon": "local_activity",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
-          {
-            "id": "maryajFree",
-            "type": "destination",
-            "label_key": "nav.admin.maryaj_free",
-            "label": null,
-            "path": "/app/admin/promotions/maryaj-gratis",
-            "kind": "internal",
-            "icon": "redeem",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "promotions",
+            "label_key": "nav.promotions",
+            "icon": "local_activity",
+            "children": [
+              {
+                "id": "promotions-maryaj",
+                "label_key": "nav.admin.maryaj_free",
+                "path": "/app/admin/promotions/maryaj-gratis",
+                "kind": "internal",
+                "icon": "redeem"
+              },
+              {
+                "id": "promotions-others",
+                "label_key": "nav.admin.active_promotions",
+                "path": "/app/admin/promotions",
+                "kind": "internal",
+                "icon": "campaign",
+                "active_match": "exact"
+              }
+            ]
           },
           {
-            "id": "activePromotions",
-            "type": "destination",
-            "label_key": "nav.admin.active_promotions",
-            "label": null,
-            "path": "/app/admin/promotions/active",
-            "kind": "internal",
-            "icon": "campaign",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "reports",
-        "type": "destination",
-        "label_key": "nav.reports",
-        "label": null,
-        "path": "/app/admin/reports",
-        "kind": "internal",
-        "icon": "analytics",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
-          {
-            "id": "todayReport",
-            "type": "destination",
-            "label_key": "nav.admin.today_report",
-            "label": null,
-            "path": "/app/admin/reports/today",
-            "kind": "internal",
-            "icon": "today",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "reports",
+            "label_key": "nav.reports",
+            "icon": "analytics",
+            "children": [
+              {
+                "id": "reports-sales",
+                "label_key": "nav.admin.reports_sales",
+                "path": "/app/admin/reports/sales",
+                "kind": "internal",
+                "icon": "today"
+              },
+              {
+                "id": "reports-sellers",
+                "label_key": "nav.admin.reports_sellers",
+                "path": "/app/admin/reports/sellers",
+                "kind": "internal",
+                "icon": "people"
+              },
+              {
+                "id": "reports-draws",
+                "label_key": "nav.admin.reports_draws",
+                "path": "/app/admin/reports/draws",
+                "kind": "internal",
+                "icon": "event_note"
+              },
+              {
+                "id": "reports-exports",
+                "label_key": "nav.admin.reports_exports",
+                "path": "/app/admin/reports/exports",
+                "kind": "internal",
+                "icon": "download"
+              }
+            ]
           },
           {
-            "id": "exportPrint",
-            "type": "destination",
-            "label_key": "nav.admin.export_print",
-            "label": null,
-            "path": "/app/admin/reports/export",
-            "kind": "internal",
-            "icon": "print",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
-          }
-        ]
-      },
-      {
-        "id": "more",
-        "type": "destination",
-        "label_key": "nav.admin.more",
-        "label": null,
-        "path": "/app/admin/more",
-        "kind": "internal",
-        "icon": "more_horiz",
-        "image": null,
-        "active_match": "prefix",
-        "disabled": false,
-        "reason_key": null,
-        "badge": null,
-        "children": [
-          {
-            "id": "generalConfiguration",
-            "type": "destination",
-            "label_key": "nav.admin.settings",
-            "label": null,
-            "path": "/app/admin/settings",
-            "kind": "internal",
-            "icon": "settings",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "tickets",
+            "label_key": "nav.admin.tickets_section",
+            "icon": "confirmation_number",
+            "children": [
+              {
+                "id": "tickets-list",
+                "label_key": "nav.admin.tickets_list",
+                "path": "/app/admin/tickets",
+                "kind": "internal",
+                "icon": "list",
+                "active_match": "exact"
+              },
+              {
+                "id": "tickets-sell",
+                "label_key": "nav.admin.tickets_sell",
+                "path": "/app/admin/tickets/sell",
+                "kind": "internal",
+                "icon": "point_of_sale"
+              },
+              {
+                "id": "tickets-verify",
+                "label_key": "nav.admin.tickets_verify",
+                "path": "/app/admin/tickets/verify",
+                "kind": "internal",
+                "icon": "verified"
+              }
+            ]
           },
           {
-            "id": "support",
-            "type": "destination",
-            "label_key": "nav.admin.support",
-            "label": null,
-            "path": "/app/admin/more/support",
-            "kind": "internal",
-            "icon": "support_agent",
-            "image": null,
-            "active_match": "prefix",
-            "disabled": false,
-            "reason_key": null,
-            "badge": null,
-            "children": []
+            "id": "company",
+            "label_key": "nav.admin.company",
+            "icon": "business",
+            "children": [
+              {
+                "id": "company-identity",
+                "label_key": "nav.admin.company_identity",
+                "path": "/app/admin/company/identity",
+                "kind": "internal",
+                "icon": "domain"
+              },
+              {
+                "id": "company-address",
+                "label_key": "nav.admin.company_address",
+                "path": "/app/admin/company/address",
+                "kind": "internal",
+                "icon": "location_on"
+              },
+              {
+                "id": "company-appearance",
+                "label_key": "nav.admin.company_appearance",
+                "path": "/app/admin/company/appearance",
+                "kind": "internal",
+                "icon": "palette"
+              },
+              {
+                "id": "company-settings",
+                "label_key": "nav.admin.company_settings",
+                "path": "/app/admin/company/settings",
+                "kind": "internal",
+                "icon": "settings"
+              },
+              {
+                "id": "company-support",
+                "label_key": "nav.admin.company_support",
+                "path": "/app/admin/company/support",
+                "kind": "internal",
+                "icon": "headset_mic"
+              }
+            ]
+          },
+          {
+            "id": "help",
+            "label_key": "nav.admin.help",
+            "icon": "help_outline",
+            "path": "/app/admin/help",
+            "kind": "internal"
           }
         ]
       }
     ],
-    "sections": [],
     "secondary": [],
     "actions": []
   },

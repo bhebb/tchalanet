@@ -55,7 +55,7 @@ export const platformRoutes: Route[] = [
     loadChildren: () =>
       import('./catalog/platform-catalog.routes').then(m => m.platformCatalogRoutes),
   },
-  { path: 'subscriptions', redirectTo: 'catalog/plans-pricing', pathMatch: 'full' },
+  { path: 'subscriptions', redirectTo: 'catalog/plans', pathMatch: 'full' },
   { path: 'settings', redirectTo: 'catalog/settings', pathMatch: 'full' },
   { path: 'theme-presets', redirectTo: 'catalog/themes', pathMatch: 'full' },
   { path: 'referentials', redirectTo: 'catalog/games', pathMatch: 'full' },
@@ -98,17 +98,71 @@ export const platformRoutes: Route[] = [
       import('./super-admins/platform-super-admins.routes').then(m => m.platformSuperAdminsRoutes),
   },
   { path: 'access/super-admins', redirectTo: 'super-admins', pathMatch: 'full' },
+  { path: 'access/overrides', redirectTo: 'super-admins', pathMatch: 'full' },
   {
-    path: 'access/overrides',
+    path: 'access/users',
     data: {
-      titleKey: 'platform.nav.superAdminOverrides',
-      descriptionKey: 'platform.placeholder.descriptions.overrides',
-      icon: 'security',
+      titleKey: 'platform.nav.users',
+      descriptionKey: 'platform.placeholder.descriptions.users',
+      icon: 'manage_accounts',
     },
     loadComponent: () =>
       import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
-  // ── Communication ──────────────────────────────────────────────────────────
+  {
+    path: 'access/backend-keys',
+    data: {
+      titleKey: 'platform.nav.backendKeys',
+      descriptionKey: 'platform.placeholder.descriptions.backendKeys',
+      icon: 'vpn_key',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  // ── Support tenant ─────────────────────────────────────────────────────────
+  {
+    path: 'support-tenant',
+    data: {
+      titleKey: 'platform.nav.supportTenant',
+      descriptionKey: 'platform.placeholder.descriptions.supportTenant',
+      icon: 'support_agent',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  // ── Tchala ─────────────────────────────────────────────────────────────────
+  {
+    path: 'tchala/suggestions',
+    data: {
+      titleKey: 'platform.nav.tchalaSuggestions',
+      descriptionKey: 'platform.placeholder.descriptions.tchalaSuggestions',
+      icon: 'lightbulb',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'tchala/import',
+    data: {
+      titleKey: 'platform.nav.tchalaImport',
+      descriptionKey: 'platform.placeholder.descriptions.tchalaImport',
+      icon: 'upload_file',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'tchala/cleanup',
+    data: {
+      titleKey: 'platform.nav.tchalaCleanup',
+      descriptionKey: 'platform.placeholder.descriptions.tchalaCleanup',
+      icon: 'auto_fix_high',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  { path: 'tchala', redirectTo: 'tchala/suggestions', pathMatch: 'full' },
+  // ── Communication / Support & contenu ──────────────────────────────────────
   {
     path: 'contact-requests',
     loadComponent: () =>
@@ -154,11 +208,26 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
   },
+  {
+    path: 'contact-config',
+    data: {
+      titleKey: 'platform.nav.contactConfig',
+      descriptionKey: 'platform.placeholder.descriptions.contactConfig',
+      icon: 'contact_mail',
+    },
+    loadComponent: () =>
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
   // ── Reports / misc ─────────────────────────────────────────────────────────
   {
     path: 'reports',
+    data: {
+      titleKey: 'platform.nav.platformReports',
+      descriptionKey: 'platform.placeholder.descriptions.platformReports',
+      icon: 'bar_chart',
+    },
     loadComponent: () =>
-      import('./operations/pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
     path: 'releases',

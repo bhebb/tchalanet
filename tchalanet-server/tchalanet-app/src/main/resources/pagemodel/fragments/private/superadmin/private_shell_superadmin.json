@@ -91,21 +91,6 @@
           "children": []
         },
         {
-          "id": "settings",
-          "type": "destination",
-          "label_key": "nav.settings",
-          "label": null,
-          "path": "/app/settings",
-          "kind": "internal",
-          "icon": "settings",
-          "image": null,
-          "active_match": "prefix",
-          "disabled": false,
-          "reason_key": null,
-          "badge": null,
-          "children": []
-        },
-        {
           "id": "logout",
           "type": "destination",
           "label_key": "auth.logout",
@@ -164,7 +149,7 @@
               {
                 "id": "platform-health",
                 "label_key": "platform.nav.health",
-                "path": "/app/platform/health",
+                "path": "/app/platform/ops/health",
                 "kind": "internal",
                 "icon": "monitor_heart"
               }
@@ -196,6 +181,13 @@
                 "path": "/app/platform/tenant-admins",
                 "kind": "internal",
                 "icon": "admin_panel_settings"
+              },
+              {
+                "id": "tenant-support",
+                "label_key": "platform.nav.supportTenant",
+                "path": "/app/platform/support-tenant",
+                "kind": "internal",
+                "icon": "support_agent"
               }
             ]
           },
@@ -212,23 +204,44 @@
                 "icon": "casino"
               },
               {
-                "id": "catalog-drawchannels",
+                "id": "catalog-draw-channels",
                 "label_key": "platform.nav.drawChannels",
                 "path": "/app/platform/catalog/draw-channels",
                 "kind": "internal",
                 "icon": "calendar_month"
               },
               {
-                "id": "catalog-resultslots",
+                "id": "catalog-draw-channel-games",
+                "label_key": "platform.nav.drawChannelGames",
+                "path": "/app/platform/catalog/draw-channel-games",
+                "kind": "internal",
+                "icon": "link"
+              },
+              {
+                "id": "catalog-result-slots",
                 "label_key": "platform.nav.resultSlots",
                 "path": "/app/platform/catalog/result-slots",
                 "kind": "internal",
                 "icon": "view_timeline"
               },
               {
-                "id": "catalog-plans-pricing",
-                "label_key": "platform.nav.plansPricing",
-                "path": "/app/platform/catalog/plans-pricing",
+                "id": "catalog-result-slot-calendars",
+                "label_key": "platform.nav.resultSlotCalendars",
+                "path": "/app/platform/catalog/result-slot-calendars",
+                "kind": "internal",
+                "icon": "event_note"
+              },
+              {
+                "id": "catalog-plans",
+                "label_key": "platform.nav.plans",
+                "path": "/app/platform/catalog/plans",
+                "kind": "internal",
+                "icon": "workspace_premium"
+              },
+              {
+                "id": "catalog-pricing",
+                "label_key": "platform.nav.pricing",
+                "path": "/app/platform/catalog/pricing",
                 "kind": "internal",
                 "icon": "payments"
               },
@@ -254,7 +267,7 @@
                 "icon": "translate"
               },
               {
-                "id": "catalog-pagemodel-templates",
+                "id": "catalog-page-model-templates",
                 "label_key": "platform.nav.pageModelTemplates",
                 "path": "/app/platform/catalog/page-model-templates",
                 "kind": "internal",
@@ -268,6 +281,13 @@
             "icon": "manufacturing",
             "children": [
               {
+                "id": "ops-draws",
+                "label_key": "platform.nav.draws",
+                "path": "/app/platform/ops/draws",
+                "kind": "internal",
+                "icon": "event"
+              },
+              {
                 "id": "ops-draw-results",
                 "label_key": "platform.nav.drawResults",
                 "path": "/app/platform/ops/draw-results",
@@ -275,16 +295,9 @@
                 "icon": "fact_check"
               },
               {
-                "id": "ops-providers",
-                "label_key": "platform.nav.providers",
-                "path": "/app/platform/ops/providers",
-                "kind": "internal",
-                "icon": "cloud_sync"
-              },
-              {
-                "id": "ops-schedulers",
-                "label_key": "platform.nav.schedulers",
-                "path": "/app/platform/ops/schedulers",
+                "id": "ops-batch",
+                "label_key": "platform.nav.scheduledTasks",
+                "path": "/app/platform/ops/batch",
                 "kind": "internal",
                 "icon": "schedule"
               },
@@ -303,6 +316,20 @@
                 "icon": "inventory_2"
               },
               {
+                "id": "ops-communication-tests",
+                "label_key": "platform.nav.communicationTests",
+                "path": "/app/platform/ops/communication-tests",
+                "kind": "internal",
+                "icon": "send"
+              },
+              {
+                "id": "ops-identity-sync",
+                "label_key": "platform.nav.identitySync",
+                "path": "/app/platform/ops/identity-sync",
+                "kind": "internal",
+                "icon": "sync_alt"
+              },
+              {
                 "id": "ops-audit",
                 "label_key": "platform.nav.audit",
                 "path": "/app/platform/ops/audit",
@@ -312,8 +339,71 @@
             ]
           },
           {
+            "id": "support-and-content",
+            "label_key": "platform.nav.supportAndContent",
+            "icon": "campaign",
+            "children": [
+              {
+                "id": "contact-requests",
+                "label_key": "platform.nav.contactRequests",
+                "path": "/app/platform/contact-requests",
+                "kind": "internal",
+                "icon": "contact_support"
+              },
+              {
+                "id": "news",
+                "label_key": "platform.nav.news",
+                "path": "/app/platform/news",
+                "kind": "internal",
+                "icon": "article"
+              },
+              {
+                "id": "notifications",
+                "label_key": "platform.nav.inAppNotifications",
+                "path": "/app/platform/notifications",
+                "kind": "internal",
+                "icon": "notifications"
+              },
+              {
+                "id": "contact-config",
+                "label_key": "platform.nav.contactConfig",
+                "path": "/app/platform/contact-config",
+                "kind": "internal",
+                "icon": "contact_mail"
+              }
+            ]
+          },
+          {
+            "id": "tchala",
+            "label_key": "platform.nav.tchala",
+            "icon": "auto_stories",
+            "children": [
+              {
+                "id": "tchala-suggestions",
+                "label_key": "platform.nav.tchalaSuggestions",
+                "path": "/app/platform/tchala/suggestions",
+                "kind": "internal",
+                "icon": "lightbulb"
+              },
+              {
+                "id": "tchala-import",
+                "label_key": "platform.nav.tchalaImport",
+                "path": "/app/platform/tchala/import",
+                "kind": "internal",
+                "icon": "upload_file"
+              },
+              {
+                "id": "tchala-cleanup",
+                "label_key": "platform.nav.tchalaCleanup",
+                "path": "/app/platform/tchala/cleanup",
+                "kind": "internal",
+                "icon": "auto_fix_high"
+              }
+            ]
+          },
+          {
             "id": "access",
-            "label_key": "platform.nav.accessRights",
+            "label_key": "platform.nav.accessSecurity",
             "icon": "shield",
             "children": [
               {
@@ -333,60 +423,32 @@
               {
                 "id": "access-super-admins",
                 "label_key": "platform.nav.superAdmins",
-                "path": "/app/platform/access/super-admins",
+                "path": "/app/platform/super-admins",
                 "kind": "internal",
                 "icon": "admin_panel_settings"
               },
               {
-                "id": "access-overrides",
-                "label_key": "platform.nav.superAdminOverrides",
-                "path": "/app/platform/access/overrides",
+                "id": "access-users",
+                "label_key": "platform.nav.users",
+                "path": "/app/platform/access/users",
                 "kind": "internal",
-                "icon": "security"
-              }
-            ]
-          },
-          {
-            "id": "communication",
-            "label_key": "platform.nav.communication",
-            "icon": "campaign",
-            "children": [
-              {
-                "id": "communication-notifications",
-                "label_key": "platform.nav.inAppNotifications",
-                "path": "/app/platform/communication/notifications",
-                "kind": "internal",
-                "icon": "notifications"
+                "icon": "manage_accounts"
               },
               {
-                "id": "communication-contacts",
-                "label_key": "platform.nav.contactManagement",
-                "path": "/app/platform/communication/contacts",
+                "id": "access-backend-keys",
+                "label_key": "platform.nav.backendKeys",
+                "path": "/app/platform/access/backend-keys",
                 "kind": "internal",
-                "icon": "contact_support"
-              },
-              {
-                "id": "communication-news",
-                "label_key": "platform.nav.news",
-                "path": "/app/platform/communication/news",
-                "kind": "internal",
-                "icon": "article"
+                "icon": "vpn_key"
               }
             ]
           },
           {
             "id": "reports",
-            "label_key": "platform.nav.reports",
+            "label_key": "platform.nav.platformReports",
             "icon": "bar_chart",
-            "children": [
-              {
-                "id": "platform-reports",
-                "label_key": "platform.nav.platformReports",
-                "path": "/app/platform/reports",
-                "kind": "internal",
-                "icon": "analytics"
-              }
-            ]
+            "path": "/app/platform/reports",
+            "kind": "internal"
           }
         ]
       }

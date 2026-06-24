@@ -7,11 +7,11 @@
 
 ---
 
-## Slice 0 — Coordination OpenSpec
+## Slice 0 — Coordination OpenSpec ✓
 
-- [ ] Marquer tous les Slices restants (1–4) de `platform-superadmin-and-tenant-admin-pages/tasks.md` comme `Blocked / superseded by admin-superadmin-sidenav-v0`
-- [ ] Localiser le composant qui définit les `NavigationSection[]` de la sidenav platform (shell ou nav service)
-- [ ] Inventorier les pages platform déjà existantes vs manquantes (grille dans proposal.md — État actuel)
+- [x] Marquer tous les Slices restants (1–4) de `platform-superadmin-and-tenant-admin-pages/tasks.md` comme `Blocked / superseded by admin-superadmin-sidenav-v0`
+- [x] Localiser le composant qui définit les `NavigationSection[]` — `private-navigation.model.ts` (fallback statique) + `private_shell_superadmin.json` (source backend réelle via `/platform/dashboard`)
+- [x] Inventorier les pages platform déjà existantes vs manquantes (grille dans proposal.md — État actuel)
 
 ---
 
@@ -31,27 +31,28 @@
 
 ---
 
-## Slice 2 — Sidenav & routes platform
+## Slice 2 — Sidenav & routes platform ✓
 
-- [ ] Restructurer `platform.routes.ts` selon la sidenav cible (proposal.md)
+- [x] Restructurer `platform.routes.ts` selon la sidenav cible (proposal.md)
   - Conserver tous les redirects existants (`tenant-provisioning`, `tenant-onboarding`, `health`, `draws`, `draw-channels`, `audit`, etc.)
   - Ajouter : `/platform/support-tenant`
   - Ajouter : `/platform/tchala/**`
   - Ajouter : `/platform/ops/communication-tests`, `/platform/ops/identity-sync`
   - Ajouter : `/platform/contact-config`
   - Ajouter : `/platform/access/users`, `/platform/access/backend-keys`
-  - Ajouter : `/platform/reports` (nouvelle page dédiée, pas redirect audit)
-  - Retirer `/platform/ops/providers` du rendu actif (garder route → placeholder caché)
-- [ ] Restructurer `platform-catalog.routes.ts`
-  - Splitter `plans-pricing` → `/catalog/plans` + garder `/catalog/pricing`
-  - Ajouter : `/catalog/draw-channel-games`
-  - Ajouter : `/catalog/result-slot-calendars`
-  - Conserver redirect `plans-pricing` → `plans`
-- [ ] Restructurer `platform-operations.routes.ts`
-  - Ajouter : `communication-tests`
-  - Ajouter : `identity-sync`
-- [ ] Mettre à jour les `NavigationSection[]` platform pour correspondre au menu cible
-- [ ] Vérifier `nx build` green après ce slice
+  - Ajouter : `/platform/reports` (placeholder dédié, plus de redirect audit)
+  - `/platform/ops/providers` : route conservée (placeholder), absent du menu
+- [x] Restructurer `platform-catalog.routes.ts`
+  - `/catalog/plans` (nouvelle route), redirect `plans-pricing` → `plans`
+  - Garder `/catalog/pricing` séparé
+  - Ajouter : `/catalog/draw-channel-games` (placeholder)
+  - Ajouter : `/catalog/result-slot-calendars` (placeholder)
+- [x] Restructurer `platform-operations.routes.ts`
+  - Ajouter : `communication-tests` (placeholder)
+  - Ajouter : `identity-sync` (placeholder)
+- [x] Mettre à jour `private-navigation.model.ts` (`PLATFORM_NAVIGATION`) — fallback statique
+- [x] Mettre à jour `private_shell_superadmin.json` `sections[]` — source backend réelle
+- [x] `nx build` green
 
 ---
 
