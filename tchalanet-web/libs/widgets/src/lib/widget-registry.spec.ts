@@ -1,5 +1,5 @@
 import { FeatureGridWidget } from './widgets/feature-grid.widget';
-import { HeroWidget } from './widgets/public/hero.widget';
+import { HeroWidget } from './widgets/public/hero/hero.widget';
 import { HowItWorksWidget } from './widgets/how-it-works.widget';
 import { NewsTickerWidget } from './widgets/news-ticker.widget';
 import { PublicDrawResultsWidget } from './widgets/public-draw-results.widget';

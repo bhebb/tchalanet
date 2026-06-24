@@ -82,7 +82,7 @@ orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
 | PageModel runtime API contract              | `libs/page-model`                                                                        |
 | PageModel API client                        | `libs/page-model`                                                                        |
 | PageModel renderer                          | `libs/page-model`                                                                        |
-| Widget registry / concrete widgets          | `libs/widgets`                                                                           |
+| Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/` for significant widgets    |
 | PageModel editor screen                     | `apps/tch-portal/src/app/features/platform/page-models`                                  |
 | Auth session store                          | app `core/auth` now, future `shared-auth`                                                |
 | Auth guards                                 | app `core/auth` now, future `shared-auth`                                                |

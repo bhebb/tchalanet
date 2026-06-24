@@ -316,15 +316,26 @@ Suffixe obligatoire :
 *.widget.ts
 ```
 
+Structure recommandée pour un widget significatif :
+
+```text
+libs/widgets/src/lib/widgets/<surface>/<widget-name>/
+  <widget-name>.widget.ts
+  <widget-name>.widget.html
+  <widget-name>.widget.scss
+```
+
+`<surface>` peut être `public`, `admin`, `platform`, `seller-terminal` ou `shared`.
+Les widgets très simples peuvent rester à plat pendant la migration, mais tout widget avec template
+ou SCSS substantiel doit être dans son dossier.
+
 Exemples :
 
 ```text
-hero.widget.ts
-kpi-grid.widget.ts
-alerts.widget.ts
-quick-actions.widget.ts
-public-draw-results.widget.ts
-ticket-verification.widget.ts
+public/hero/hero.widget.ts
+public/results-preview/results-preview.widget.ts
+shared/kpi-grid/kpi-grid.widget.ts
+admin/commission-summary/commission-summary.widget.ts
 ```
 
 Types :
