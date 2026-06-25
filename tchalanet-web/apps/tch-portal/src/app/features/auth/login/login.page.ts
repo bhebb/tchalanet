@@ -53,6 +53,11 @@ export class LoginPage implements OnInit {
     this.passwordVisible.update(visible => !visible);
   }
 
+  submitFromEnter(event: Event, form: NgForm): void {
+    event.preventDefault();
+    void this.submit(form);
+  }
+
   async submit(form: NgForm): Promise<void> {
     if (this.loading() || form.invalid) {
       form.control.markAllAsTouched();

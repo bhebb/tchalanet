@@ -66,6 +66,11 @@ export class ForgotPasswordPage implements OnInit {
     this.passwordVisible.update(v => !v);
   }
 
+  submitFromEnter(event: Event): void {
+    event.preventDefault();
+    this.submit();
+  }
+
   submit(): void {
     if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();
