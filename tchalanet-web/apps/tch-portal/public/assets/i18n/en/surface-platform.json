@@ -129,6 +129,27 @@
       "systemHealth": {
         "label": "Global state"
       },
+      "servicesUp": {
+        "label": "Services UP"
+      },
+      "schedulerFailed": {
+        "label": "Failed jobs"
+      },
+      "schedulerDisabled": {
+        "label": "Disabled gates"
+      },
+      "schedulerStale": {
+        "label": "Stale / non-run jobs"
+      },
+      "schedulerRegistered": {
+        "label": "Tracked jobs"
+      },
+      "resourceCritical": {
+        "label": "Critical resources"
+      },
+      "resourceWarning": {
+        "label": "Resources to watch"
+      },
       "pendingOnboarding": {
         "label": "To finish"
       }
@@ -155,6 +176,8 @@
     },
     "private_dashboard_superadmin_ops": {
       "health": "Platform health",
+      "resources": "Service resources",
+      "inbox": "Ops inbox",
       "actions": "Ops actions"
     }
   },
@@ -199,8 +222,48 @@
         "title": "Quick actions"
       },
       "ops": {
+        "overview": {
+          "title": "Platform ops"
+        },
         "health": {
           "title": "Platform health"
+        },
+        "scheduler": {
+          "title": "Jobs & schedulers"
+        },
+        "resources_kpi": {
+          "title": "Critical resources"
+        },
+        "resources": {
+          "title": "Service resources",
+          "empty": "Resource metrics unavailable.",
+          "critical": "critical",
+          "warning": "to watch",
+          "restarts": "Restarts",
+          "details": "View infra details"
+        },
+        "database": {
+          "title": "Database storage",
+          "empty": "Database capacity unavailable.",
+          "tables": "tables",
+          "indexes": "index"
+        },
+        "jobs": {
+          "title": "Schedulers to watch",
+          "empty": "No recent scheduler.",
+          "failed": "failed",
+          "disabled": "disabled",
+          "stale": "stale / non-run",
+          "history_unavailable": "history unavailable",
+          "details": "View ops tasks"
+        },
+        "notifications": {
+          "title": "In-app notifications",
+          "empty": "No unread notification."
+        },
+        "contacts": {
+          "title": "Received contacts",
+          "empty": "No received contact request."
         },
         "quick_actions": {
           "title": "Ops actions"
@@ -217,8 +280,9 @@
       "draw_results": "Review results",
       "public_content": "View content",
       "notifications": "Manage notifications",
-      "batch": "Open jobs",
+      "batch": "Open scheduled tasks",
       "cache": "Open cache",
+      "identity_sync": "Sync identity",
       "audit": "Open audit"
     }
   }

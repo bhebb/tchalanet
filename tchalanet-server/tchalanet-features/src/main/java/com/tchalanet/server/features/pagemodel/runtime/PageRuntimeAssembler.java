@@ -203,6 +203,9 @@ public class PageRuntimeAssembler {
   }
 
   private void normalizeDestination(Map<String, Object> value) {
+    if ("dynamic".equals(value.get("source")) && value.get("path") instanceof String) {
+      return;
+    }
     Object path = value.remove("path");
     Object href = value.remove("href");
     String kind = value.get("kind") instanceof String string ? string : null;

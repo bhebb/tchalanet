@@ -20,11 +20,15 @@ import { RulesSimulationWidget } from './widgets/public/rules-simulation/rules-s
 import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
 import { AlertsWidget } from './widgets/surface-admin/alerts/alerts.widget';
+import { BreakdownListWidget } from './widgets/surface-admin/breakdown-list/breakdown-list.widget';
 import { CommissionSummaryWidget } from './widgets/surface-admin/commission-summary/commission-summary.widget';
 import { KpiGridWidget } from './widgets/surface-admin/kpi-grid/kpi-grid.widget';
+import { OpsJobStatusListWidget } from './widgets/surface-admin/ops-job-status-list/ops-job-status-list.widget';
 import { QuickActionsWidget } from './widgets/surface-admin/quick-actions/quick-actions.widget';
 import { RankingListWidget } from './widgets/surface-admin/ranking-list/ranking-list.widget';
 import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summary/readiness-summary.widget';
+import { ResourceStatusListWidget } from './widgets/surface-admin/resource-status-list/resource-status-list.widget';
+import { TrendChartWidget } from './widgets/surface-admin/trend-chart/trend-chart.widget';
 
 /**
  * Maps a backend widget `type` string to its Angular component. The key is the real backend type
@@ -34,10 +38,14 @@ import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summar
  */
 export const WIDGET_REGISTRY: Readonly<Record<string, Type<unknown>>> = {
   KpiGridWidget,
+  OpsJobStatusListWidget,
   AlertsWidget,
+  BreakdownListWidget,
   CommissionSummaryWidget,
   ReadinessSummaryWidget,
+  ResourceStatusListWidget,
   RankingListWidget,
+  TrendChartWidget,
   QuickActionsWidget,
   HeroWidget,
   NewsTickerWidget,

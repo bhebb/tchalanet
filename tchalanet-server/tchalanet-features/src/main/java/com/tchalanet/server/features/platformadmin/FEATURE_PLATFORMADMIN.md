@@ -100,10 +100,9 @@ Voir flow complet : [`tenant-onboarding`](../../../../../../tchalanet-docs/docs/
 
 | Source | Provider | Surface |
 |---|---|---|
-| `superadmin_system_health` | `SuperAdminSystemHealthProvider` | Health check global |
-| `superadmin_batch_status` | `SuperAdminBatchStatusProvider` | Statut jobs/scheduler |
-| `superadmin_tenants` | `SuperAdminTenantsProvider` | KPIs tenants |
-| `superadmin_version` | `SuperAdminVersionProvider` | Versions runtime |
+| `platform_admin_dashboard` | `features.pagemodel.dynamic.providers.platformadmin.PlatformAdminDashboardProvider` | Dashboard platform |
+
+Les providers PageModel ne vivent pas dans `features.platformadmin`. Cette feature garde les endpoints platform classiques (`overview`, onboarding, tenant management), tandis que `features.pagemodel` compose le runtime PageModel.
 
 ---
 
@@ -113,6 +112,7 @@ Voir flow complet : [`tenant-onboarding`](../../../../../../tchalanet-docs/docs/
 - contenir de logique de validation métier des domaines
 - appeler directement les tables `core.*` ou `catalog.*`
 - inclure des KPIs temps-réel dans l'overview (dashboard uniquement)
+- contenir de providers/assemblers PageModel dashboard
 
 ---
 

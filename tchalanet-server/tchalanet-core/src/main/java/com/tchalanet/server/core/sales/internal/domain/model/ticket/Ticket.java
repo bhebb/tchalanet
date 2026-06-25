@@ -299,6 +299,24 @@ public record Ticket(
         return withSettlement(newSettlement).touchedBy(settledBy, now);
     }
 
+    /**
+     * Settle immediately after an official/corrected result is applied.
+     *
+     * <p>Tchalanet V1 has no separate seller payout action: a winning resulted ticket is treated as
+     * paid by the system at result application time. Corrections publish financial reversal events
+     * outside the aggregate and then re-apply this automatic settlement for the corrected outcome.
+     */
+    public Ticket autoSettleAfterResult(UserId settledBy, Instant now) {
+        if (lifecycle.result().status() == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalStateException(
+                "Ticket " + identity.id() + " is not yet resulted, cannot auto-settle");
+        }
+        SettlementLifecycle newSettlement = lifecycle.result().winningAmount().isZero()
+            ? lifecycle.settlement().settledWithoutPayout(settledBy, now)
+            : lifecycle.settlement().settledPendingPayout(settledBy, now).paid(settledBy, now);
+        return withSettlement(newSettlement).touchedBy(settledBy, now);
+    }
+
     public Ticket markPaid(UserId paidBy, Instant paidAt) {
         if (lifecycle.settlement().status() != TicketSettlementStatus.PAYOUT_PENDING) {
             throw new IllegalStateException(

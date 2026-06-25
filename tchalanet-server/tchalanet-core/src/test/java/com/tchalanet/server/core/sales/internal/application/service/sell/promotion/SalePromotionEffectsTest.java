@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
+import com.tchalanet.server.common.bus.Query;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -18,6 +20,9 @@ import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
+import com.tchalanet.server.core.pricing.api.model.OddsSource;
+import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsResolutionView;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
@@ -32,8 +37,6 @@ import com.tchalanet.server.core.sales.internal.application.service.sell.generat
 import com.tchalanet.server.core.sales.internal.application.service.sell.generation.RandomSelectionGenerator;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.internal.application.DefaultSelectionApi;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
@@ -52,6 +55,8 @@ class SalePromotionEffectsTest {
 
     private static final CurrencyCode HTG = CurrencyCode.of("HTG");
     private static final Instant NOW = Instant.parse("2026-05-21T10:00:00Z");
+    private static final SellerTerminalId SELLER_TERMINAL_ID =
+        SellerTerminalId.of(UUID.fromString("88000000-0000-0000-0000-000000000001"));
 
     private final PromotionChargeApplier chargeApplier = new PromotionChargeApplier();
     private final PromotionOddsBoostApplier oddsBoostApplier = new PromotionOddsBoostApplier();
@@ -74,27 +79,27 @@ class SalePromotionEffectsTest {
         }
     };
 
-    private static final PricingCatalog PRICING_STUB = new PricingCatalog() {
+    private static final QueryBus PRICING_QUERY_BUS = new QueryBus() {
         @Override
-        public BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption) {
-            return new BigDecimal("12.5");
-        }
-
-        @Override
-        public List<PricingOddsView> getOdds(TenantId tenantId) {
-            return List.of();
-        }
-
-        @Override
-        public com.tchalanet.server.catalog.pricing.api.model.PricingStatsView stats() {
-            return null;
+        @SuppressWarnings("unchecked")
+        public <R> R ask(Query<R> query) {
+            var q = (ResolveSellerTerminalOddsQuery) query;
+            return (R) new SellerTerminalOddsResolutionView(
+                q.gameCode(),
+                q.betType(),
+                q.betOption(),
+                new BigDecimal("12.5"),
+                null,
+                new BigDecimal("12.5"),
+                OddsSource.TENANT_DEFAULT
+            );
         }
     };
 
     private final PromotionTicketLineFactory lineFactory = new PromotionTicketLineFactory(
         () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
         SELECTION_STUB,
-        PRICING_STUB,
+        PRICING_QUERY_BUS,
         new PromotionSelectionResolver(new DefaultSelectionGenerationService(
             new RandomSelectionGenerator(),
             new DefaultSelectionApi()
@@ -118,7 +123,14 @@ class SalePromotionEffectsTest {
             var waivableEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
             var decision = decision(waivableEffect);
 
-            var result = applier.apply(decision, List.of(customerLine()), new ArrayList<>(List.of(smsCharge)), null, HTG);
+            var result = applier.apply(
+                decision,
+                List.of(customerLine()),
+                new ArrayList<>(List.of(smsCharge)),
+                null,
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             assertThat(result.charges()).hasSize(1);
             var waived = result.charges().get(0);
@@ -137,7 +149,14 @@ class SalePromotionEffectsTest {
             var waiveSmsEffect = effect(PromotionEffectType.WAIVE_CHARGE, null, "BUYER_SMS", null);
             var decision = decision(waiveSmsEffect);
 
-            var result = applier.apply(decision, List.of(customerLine()), new ArrayList<>(List.of(whatsappCharge)), null, HTG);
+            var result = applier.apply(
+                decision,
+                List.of(customerLine()),
+                new ArrayList<>(List.of(whatsappCharge)),
+                null,
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             assertThat(result.charges()).hasSize(1);
             assertThat(result.charges().get(0).type()).isEqualTo(TicketChargeType.BUYER_WHATSAPP);
@@ -159,7 +178,14 @@ class SalePromotionEffectsTest {
             var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0000"));
             var decision = decision(boostEffect);
 
-            var result = applier.apply(decision, new ArrayList<>(List.of(line)), List.of(), null, HTG);
+            var result = applier.apply(
+                decision,
+                new ArrayList<>(List.of(line)),
+                List.of(),
+                null,
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             assertThat(result.ticketLines()).hasSize(1);
             var boosted = result.ticketLines().get(0);
@@ -176,7 +202,14 @@ class SalePromotionEffectsTest {
             var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_MEGA_LOT", null, new BigDecimal("20.0000"));
             var decision = decision(boostEffect);
 
-            var result = applier.apply(decision, new ArrayList<>(List.of(line)), List.of(), null, HTG);
+            var result = applier.apply(
+                decision,
+                new ArrayList<>(List.of(line)),
+                List.of(),
+                null,
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             var unchanged = result.ticketLines().get(0);
             assertThat(unchanged.oddsSnapshot()).isEqualByComparingTo("12.5");
@@ -212,7 +245,14 @@ class SalePromotionEffectsTest {
             var decision = decision(freeEffectQ1);
             var paid = List.of(customerLine());
 
-            var result = applier.apply(decision, new ArrayList<>(paid), List.of(), command(), HTG);
+            var result = applier.apply(
+                decision,
+                new ArrayList<>(paid),
+                List.of(),
+                command(),
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             assertThat(result.ticketLines()).hasSize(2);
             var promoLine = result.ticketLines().get(1);
@@ -241,7 +281,14 @@ class SalePromotionEffectsTest {
             );
             var decision = decision(freeEffectQ1);
 
-            var result = applier.apply(decision, new ArrayList<>(List.of(customerLine())), List.of(), command(), HTG);
+            var result = applier.apply(
+                decision,
+                new ArrayList<>(List.of(customerLine())),
+                List.of(),
+                command(),
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             var promoLine = result.ticketLines().get(1);
             assertThat(promoLine.lineNumber()).isGreaterThan(customerLine().lineNumber());
@@ -263,7 +310,14 @@ class SalePromotionEffectsTest {
             );
 
             org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-                applier.apply(decision(freeEffect), new ArrayList<>(List.of(customerLine())), List.of(), command(), HTG))
+                applier.apply(
+                    decision(freeEffect),
+                    new ArrayList<>(List.of(customerLine())),
+                    List.of(),
+                    command(),
+                    SELLER_TERMINAL_ID,
+                    HTG
+                ))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("promotion.free_game_selection_required");
         }
@@ -294,6 +348,7 @@ class SalePromotionEffectsTest {
                     "77",
                     TicketLineSelectionSource.CUSTOMER_SELECTED
                 ))),
+                SELLER_TERMINAL_ID,
                 HTG
             );
 
@@ -327,7 +382,14 @@ class SalePromotionEffectsTest {
             var line = customerLine();
             var charge = new TicketCharge(TicketChargeType.BUYER_SMS, money("5"), ChargePaidBy.BUYER);
 
-            var result = applier.apply(notEligible, List.of(line), List.of(charge), null, HTG);
+            var result = applier.apply(
+                notEligible,
+                List.of(line),
+                List.of(charge),
+                null,
+                SELLER_TERMINAL_ID,
+                HTG
+            );
 
             assertThat(result.ticketLines()).hasSize(1);
             assertThat(result.charges()).hasSize(1);

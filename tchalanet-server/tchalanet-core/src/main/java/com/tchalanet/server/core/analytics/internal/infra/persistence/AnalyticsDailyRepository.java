@@ -72,18 +72,31 @@ public interface AnalyticsDailyRepository extends JpaRepository<AnalyticsDailyEn
       @Param("from") LocalDate from,
       @Param("to") LocalDate to);
 
-  /** SELLER dimension rows for a specific user+tenant+date. */
+  /** SELLER_TERMINAL dimension row for a specific terminal+tenant+date. */
   @Query("""
       SELECT a FROM AnalyticsDailyEntity a
-       WHERE a.dimensionType = 'SELLER'
+       WHERE a.dimensionType = 'SELLER_TERMINAL'
          AND a.tenantId = :tenantId
-         AND a.dimensionId = :sellerId
+         AND a.dimensionId = :sellerTerminalId
          AND a.refDate = :refDate
       """)
-  Optional<AnalyticsDailyEntity> findSellerRow(
+  Optional<AnalyticsDailyEntity> findSellerTerminalRow(
       @Param("tenantId") UUID tenantId,
-      @Param("sellerTerminalId1") UUID sellerId,
+      @Param("sellerTerminalId") UUID sellerTerminalId,
       @Param("refDate") LocalDate refDate);
+
+  /** SELLER_TERMINAL rows for tenant-admin seller commission/charge/promotion drilldowns. */
+  @Query("""
+      SELECT a FROM AnalyticsDailyEntity a
+       WHERE a.dimensionType = 'SELLER_TERMINAL'
+         AND a.tenantId = :tenantId
+         AND a.refDate BETWEEN :from AND :to
+       ORDER BY a.refDate DESC, a.sellerCommissionCents DESC, a.grossSalesCents DESC
+      """)
+  List<AnalyticsDailyEntity> findSellerTerminalRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to);
 
   /** Delete rows older than retention cutoff for purge. */
   @Transactional
@@ -122,6 +135,15 @@ interface AnalyticsDailyUpsertRepository {
       long stakeTotalDelta,
       long winningsCalcDelta,
       long payoutsPaidDelta,
+      long sellerCommissionDelta,
+      long buyerChargeDelta,
+      long sellerChargeDelta,
+      long tenantChargeDelta,
+      long waivedChargeDelta,
+      long promotionLineCountDelta,
+      long promotionPricedLineCountDelta,
+      long promotionPayoutBaseDelta,
+      long promotionPotentialPayoutDelta,
       long sessionsOpenedDelta,
       long sessionsClosedDelta);
 }
@@ -144,10 +166,17 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
       long ticketsSoldDelta, long ticketsCancelledDelta,
       long grossSalesDelta, long stakeTotalDelta,
       long winningsCalcDelta, long payoutsPaidDelta,
+      long sellerCommissionDelta,
+      long buyerChargeDelta, long sellerChargeDelta,
+      long tenantChargeDelta, long waivedChargeDelta,
+      long promotionLineCountDelta, long promotionPricedLineCountDelta,
+      long promotionPayoutBaseDelta, long promotionPotentialPayoutDelta,
       long sessionsOpenedDelta, long sessionsClosedDelta) {
 
     em.createNativeQuery("SELECT public.upsert_analytics_daily("
-            + ":dt, :dimId, :tid, :rd, :ts, :tc, :gs, :st, :wc, :pp, :so, :sc)")
+            + ":dt, :dimId, :tid, :rd, :ts, :tc, :gs, :st, :wc, :pp, :comm, "
+            + ":buyerCharge, :sellerCharge, :tenantCharge, :waivedCharge, "
+            + ":promoLineCount, :promoPricedLineCount, :promoBase, :promoPotential, :so, :sc)")
         .setParameter("dt",   dimensionType)
         .setParameter("dimId", dimensionId)
         .setParameter("tid",   tenantId)
@@ -158,6 +187,15 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
         .setParameter("st",    stakeTotalDelta)
         .setParameter("wc",    winningsCalcDelta)
         .setParameter("pp",    payoutsPaidDelta)
+        .setParameter("comm",  sellerCommissionDelta)
+        .setParameter("buyerCharge",  buyerChargeDelta)
+        .setParameter("sellerCharge", sellerChargeDelta)
+        .setParameter("tenantCharge", tenantChargeDelta)
+        .setParameter("waivedCharge", waivedChargeDelta)
+        .setParameter("promoLineCount", promotionLineCountDelta)
+        .setParameter("promoPricedLineCount", promotionPricedLineCountDelta)
+        .setParameter("promoBase", promotionPayoutBaseDelta)
+        .setParameter("promoPotential", promotionPotentialPayoutDelta)
         .setParameter("so",    sessionsOpenedDelta)
         .setParameter("sc",    sessionsClosedDelta)
         .getSingleResult();

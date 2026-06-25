@@ -7,6 +7,7 @@
       "descriptions": {
         "entitlements": "Gestion des droits fonctionnels disponibles par tenant.",
         "providers": "Surveillance des providers et connecteurs de tirage.",
+        "opsResources": "Détail des ressources services critiques et dégradées.",
         "archives": "Consultation et contrôle des archives plateforme.",
         "games": "Référentiel global des jeux disponibles sur la plateforme.",
         "resultSlots": "Référentiel des slots de résultats et fenêtres de publication.",

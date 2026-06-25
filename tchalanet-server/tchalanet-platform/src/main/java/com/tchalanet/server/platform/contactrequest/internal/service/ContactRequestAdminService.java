@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.contactrequest.internal.service;
 
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.platform.contactrequest.api.ContactRequestAdminApi;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestIntent;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestStatus;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestAdminDetailView;
@@ -18,10 +20,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
-public class ContactRequestAdminService {
+public class ContactRequestAdminService implements ContactRequestAdminApi {
 
     private final ContactRequestJpaRepository repository;
     private final ContactRequestMapper mapper;
+
+    public TchPage<ContactRequestSummaryView> list(
+        ContactRequestStatus status,
+        ContactRequestIntent intent,
+        TchPageRequest pageRequest
+    ) {
+        return list(status, intent, pageRequest.pageable());
+    }
 
     public TchPage<ContactRequestSummaryView> list(
         ContactRequestStatus status,

@@ -115,6 +115,11 @@ export const adminRoutes: Route[] = [
       import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
     data: { titleKey: 'nav.admin.reports_exports', icon: 'download' },
   },
+  {
+    path: 'reports/financials',
+    loadComponent: () =>
+      import('./financials/pages/admin-financials.page').then(m => m.AdminFinancialsPage),
+  },
   { path: 'reports', redirectTo: 'reports/sales', pathMatch: 'full' },
   { path: 'reports/today', redirectTo: 'reports/sales', pathMatch: 'full' },
   { path: 'reports/export', redirectTo: 'reports/exports', pathMatch: 'full' },

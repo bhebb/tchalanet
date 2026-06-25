@@ -17,20 +17,24 @@ import { RulesSimulationWidget } from './widgets/public/rules-simulation/rules-s
 import { TchalaSearchWidget } from './widgets/public/tchala-search/tchala-search.widget';
 import { TicketVerificationWidget } from './widgets/public/ticket-verification/ticket-verification.widget';
 import { AlertsWidget } from './widgets/surface-admin/alerts/alerts.widget';
+import { BreakdownListWidget } from './widgets/surface-admin/breakdown-list/breakdown-list.widget';
 import { CommissionSummaryWidget } from './widgets/surface-admin/commission-summary/commission-summary.widget';
 import { KpiGridWidget } from './widgets/surface-admin/kpi-grid/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/surface-admin/quick-actions/quick-actions.widget';
 import { RankingListWidget } from './widgets/surface-admin/ranking-list/ranking-list.widget';
 import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summary/readiness-summary.widget';
+import { TrendChartWidget } from './widgets/surface-admin/trend-chart/trend-chart.widget';
 import { resolveWidget } from './widget-registry';
 
 describe('resolveWidget', () => {
   it.each([
     ['KpiGridWidget', KpiGridWidget],
     ['AlertsWidget', AlertsWidget],
+    ['BreakdownListWidget', BreakdownListWidget],
     ['CommissionSummaryWidget', CommissionSummaryWidget],
     ['ReadinessSummaryWidget', ReadinessSummaryWidget],
     ['RankingListWidget', RankingListWidget],
+    ['TrendChartWidget', TrendChartWidget],
     ['QuickActionsWidget', QuickActionsWidget],
     ['HeroWidget', HeroWidget],
     ['NewsTickerWidget', NewsTickerWidget],

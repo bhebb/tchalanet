@@ -11,14 +11,16 @@ import java.time.LocalDate;
  * @param from           start of the date window (inclusive, UTC)
  * @param to             end of the date window (inclusive, UTC)
  * @param topTenantsLimit max tenant-rank rows to include (default 5)
+ * @param gameBreakdownLimit max game-breakdown rows to include (default 5)
  */
 public record GetPlatformDashboardStatsQuery(
     LocalDate from,
     LocalDate to,
-    int       topTenantsLimit
+    int       topTenantsLimit,
+    int       gameBreakdownLimit
 ) implements Query<PlatformDashboardStatsView> {
 
   public static GetPlatformDashboardStatsQuery today(LocalDate today) {
-    return new GetPlatformDashboardStatsQuery(today, today, 5);
+    return new GetPlatformDashboardStatsQuery(today, today, 5, 5);
   }
 }

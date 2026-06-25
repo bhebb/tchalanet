@@ -21,6 +21,13 @@ Pricing data is:
 - stable during a selling window
 - mutable only via admin configuration
 
+Seller-terminal-specific odds overrides do **not** live in this catalog. They are owned by
+`core.pricing`, which resolves effective sale odds with this precedence:
+
+```text
+seller-terminal override -> tenant default pricing catalog -> error
+```
+
 ---
 
 ## 2. Responsibilities
@@ -43,6 +50,7 @@ Pricing data is:
 - Validate tickets
 - Perform settlements
 - Emit domain events
+- Decide seller-terminal override precedence
 
 All monetary logic remains in **core.sales / core.payout**.
 
@@ -81,8 +89,14 @@ Pricing is consumed as **lookup data**.
 
 Typical usage:
 
-- resolve odds at ticket placement
-- resolve multipliers at payout computation
+- resolve tenant default odds;
+- provide fallback odds to `core.pricing`;
+- support admin screens for tenant default pricing.
+
+Ticket placement with a seller-terminal context should call
+`core.pricing.api.query.ResolveSellerTerminalOddsQuery`, not `PricingCatalog` directly. This
+includes promotion-created free game lines. That query returns tenant default odds, optional
+seller-terminal odds, effective odds and source.
 
 Read access must be:
 
@@ -120,6 +134,14 @@ Example usage (conceptual):
 pricingCatalog.oddsFor(tenantId, gameCode, betType, betOption);
 ```
 
+Example effective sale usage:
+
+```java
+queryBus.ask(new ResolveSellerTerminalOddsQuery(
+    tenantId, sellerTerminalId, gameCode, betType, betOption
+));
+```
+
 ---
 
 ## 5. Write access (admin only)
@@ -137,6 +159,10 @@ Write operations include:
 - soft-delete obsolete rows
 
 Changes are not retroactive by default — already sold tickets retain their pricing context.
+
+`core.sales` snapshots the resolved effective odds in `TicketLine.oddsSnapshot`. Result settlement
+and payout calculation read that snapshot and never re-resolve current pricing for historical
+tickets.
 
 ---
 
@@ -215,6 +241,7 @@ These belong to core or feature modules, not the Pricing catalog.
 | Tenancy        | Tenant-scoped            |
 | Caching        | ✅ Yes                   |
 | Paging         | ❌ No                    |
+| Seller override precedence | `core.pricing` |
 
 ---
 

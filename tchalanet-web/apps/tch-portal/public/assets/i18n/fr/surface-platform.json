@@ -129,6 +129,27 @@
       "systemHealth": {
         "label": "État global"
       },
+      "servicesUp": {
+        "label": "Services UP"
+      },
+      "schedulerFailed": {
+        "label": "Jobs failed"
+      },
+      "schedulerDisabled": {
+        "label": "Gates désactivés"
+      },
+      "schedulerStale": {
+        "label": "Jobs stale / non run"
+      },
+      "schedulerRegistered": {
+        "label": "Jobs suivis"
+      },
+      "resourceCritical": {
+        "label": "Ressources critiques"
+      },
+      "resourceWarning": {
+        "label": "Ressources à surveiller"
+      },
       "pendingOnboarding": {
         "label": "À finaliser"
       }
@@ -155,6 +176,8 @@
     },
     "private_dashboard_superadmin_ops": {
       "health": "Santé plateforme",
+      "resources": "Ressources services",
+      "inbox": "Inbox ops",
       "actions": "Actions ops"
     }
   },
@@ -199,8 +222,48 @@
         "title": "Actions rapides"
       },
       "ops": {
+        "overview": {
+          "title": "Ops plateforme"
+        },
         "health": {
           "title": "Santé plateforme"
+        },
+        "scheduler": {
+          "title": "Jobs & schedulers"
+        },
+        "resources_kpi": {
+          "title": "Ressources critiques"
+        },
+        "resources": {
+          "title": "Ressources services",
+          "empty": "Métriques ressources indisponibles.",
+          "critical": "critique",
+          "warning": "à surveiller",
+          "restarts": "Redémarrages",
+          "details": "Voir détails infra"
+        },
+        "database": {
+          "title": "Stockage base de données",
+          "empty": "Capacité base de données indisponible.",
+          "tables": "tables",
+          "indexes": "index"
+        },
+        "jobs": {
+          "title": "Schedulers à surveiller",
+          "empty": "Aucun scheduler récent.",
+          "failed": "failed",
+          "disabled": "désactivé",
+          "stale": "stale / non run",
+          "history_unavailable": "historique indisponible",
+          "details": "Voir les tâches ops"
+        },
+        "notifications": {
+          "title": "Notifications in-app",
+          "empty": "Aucune notification non lue."
+        },
+        "contacts": {
+          "title": "Contacts reçus",
+          "empty": "Aucune demande de contact reçue."
         },
         "quick_actions": {
           "title": "Actions ops"
@@ -217,8 +280,9 @@
       "draw_results": "Contrôler les résultats",
       "public_content": "Voir les contenus",
       "notifications": "Gérer les notifications",
-      "batch": "Ouvrir les tâches",
+      "batch": "Ouvrir les tâches planifiées",
       "cache": "Ouvrir le cache",
+      "identity_sync": "Synchroniser l’identité",
       "audit": "Ouvrir l’audit"
     }
   }

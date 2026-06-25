@@ -1,10 +1,10 @@
 .alerts {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 1rem;
   min-height: 100%;
-  padding: 1.5rem;
-  border-radius: var(--tch-radius-xl, 0.75rem);
+  padding: 1.25rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
   border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
   box-shadow: var(--tch-elevation-1, none);
@@ -13,8 +13,9 @@
 .alerts__title {
   margin: 0;
   font-size: var(--tch-font-size-title-md, 1rem);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  overflow-wrap: anywhere;
 }
 
 .alerts__list {
@@ -23,16 +24,19 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .alerts__item {
   display: flex;
-  gap: 0.625rem;
+  gap: 0.75rem;
+  min-width: 0;
   padding: 0.875rem 1rem;
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-left-width: 4px;
   border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
-  border-left: 3px solid var(--tch-color-outline, var(--mat-sys-outline));
+  border-left-color: var(--tch-color-outline, var(--mat-sys-outline));
 }
 
 .alerts__item--info {
@@ -62,17 +66,23 @@
 
 .alerts__alert-title {
   font-size: var(--tch-font-size-body-sm, 0.875rem);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  overflow-wrap: anywhere;
 }
 
 .alerts__message {
   font-size: var(--tch-font-size-body-sm, 0.875rem);
   color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  overflow-wrap: anywhere;
 }
 
 .alerts__empty {
   margin: 0;
+  padding: 1rem;
+  border: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
   font-size: var(--tch-font-size-body-sm, 0.875rem);
   color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
 }

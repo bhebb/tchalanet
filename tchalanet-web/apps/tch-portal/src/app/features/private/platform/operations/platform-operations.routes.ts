@@ -37,6 +37,16 @@ export const platformOperationsRoutes: Route[] = [
       import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
+    path: 'resources',
+    data: {
+      titleKey: 'dashboard.superadmin.ops.resources.title',
+      descriptionKey: 'platform.placeholder.descriptions.opsResources',
+      icon: 'memory',
+    },
+    loadComponent: () =>
+      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
     path: 'archives',
     loadComponent: () =>
       import('./pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),

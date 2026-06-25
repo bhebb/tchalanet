@@ -5,7 +5,10 @@ import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.job.gate.BatchGate;
+import com.tchalanet.server.common.job.history.BatchJobHistoryService;
+import com.tchalanet.server.common.job.history.BatchJobHistoryPurgeResult;
 import com.tchalanet.server.common.job.key.JobKey;
+import com.tchalanet.server.common.job.launch.BatchJobExecutionOperator;
 import com.tchalanet.server.common.job.launch.BatchJobStarter;
 import com.tchalanet.server.common.job.registry.RegisteredJob;
 import com.tchalanet.server.common.job.registry.TchJobRegistry;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -27,17 +31,23 @@ public class OpsBatchService {
     private final TchJobRegistry tchBatchJobRegistry;
     private final BatchGate gate;
     private final BatchJobStarter jobStarter;
+    private final BatchJobExecutionOperator jobExecutionOperator;
+    private final BatchJobHistoryService batchJobHistoryService;
     private final SettingRepository appSettingRepo;
 
     public OpsBatchService(
         TchJobRegistry tchBatchJobRegistry,
         BatchGate gate,
         BatchJobStarter jobStarter,
+        BatchJobExecutionOperator jobExecutionOperator,
+        BatchJobHistoryService batchJobHistoryService,
         SettingRepository appSettingRepo
     ) {
         this.tchBatchJobRegistry = tchBatchJobRegistry;
         this.gate = gate;
         this.jobStarter = jobStarter;
+        this.jobExecutionOperator = jobExecutionOperator;
+        this.batchJobHistoryService = batchJobHistoryService;
         this.appSettingRepo = appSettingRepo;
     }
 
@@ -161,7 +171,29 @@ public class OpsBatchService {
     }
 
     public ExecutionResponse getExecution(long executionId) {
-        throw batchHistoryNotExposed();
+        return batchJobHistoryService.getExecution(executionId)
+            .map(view -> new ExecutionResponse(
+                view.executionId(),
+                view.jobKey(),
+                view.status(),
+                view.startedAt(),
+                view.endedAt(),
+                view.context()))
+            .orElseThrow(() -> new NoSuchElementException("Batch execution not found: " + executionId));
+    }
+
+    public StartJobResponse restartExecution(long executionId) {
+        batchJobHistoryService.getExecution(executionId)
+            .orElseThrow(() -> new NoSuchElementException("Batch execution not found: " + executionId));
+
+        var execution = jobExecutionOperator.restart(executionId);
+
+        return new StartJobResponse(
+            null,
+            parseExecutionId(execution.jobExecutionId()),
+            execution.status(),
+            Instant.now()
+        );
     }
 
     public List<ExecutionResponse> listExecutions(String jobKeyStr, int limit) {
@@ -176,13 +208,29 @@ public class OpsBatchService {
         tchBatchJobRegistry.find(jobKey)
             .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
 
-        throw batchHistoryNotExposed();
+        return batchJobHistoryService.listExecutions(jobKey, limit).stream()
+            .map(view -> new ExecutionResponse(
+                view.executionId(),
+                view.jobKey(),
+                view.status(),
+                view.startedAt(),
+                view.endedAt(),
+                view.context()))
+            .toList();
     }
 
-    private static UnsupportedOperationException batchHistoryNotExposed() {
-        return new UnsupportedOperationException(
-            "Batch execution history is owned by app.batch runtime and is not exposed through common.job contracts yet"
-        );
+    public PurgeExecutionsResponse purgeExecutions(PurgeExecutionsRequest request) {
+        int retentionDays = request != null ? request.resolvedRetentionDays() : 7;
+        Instant cutoff = Instant.now().minus(Duration.ofDays(retentionDays));
+        BatchJobHistoryPurgeResult result = batchJobHistoryService.purgeBefore(cutoff);
+        return new PurgeExecutionsResponse(
+            result.cutoff(),
+            result.jobExecutionContextRows(),
+            result.stepExecutionContextRows(),
+            result.stepExecutionRows(),
+            result.jobExecutionParamRows(),
+            result.jobExecutionRows(),
+            result.jobInstanceRows());
     }
 
     private JobInfoResponse toJobInfoResponse(RegisteredJob registered) {

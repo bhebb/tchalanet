@@ -28,7 +28,9 @@ public record TicketMoneyPayload(
     public record ChargeItem(
         TicketChargeType type,
         Money amount,
-        ChargePaidBy paidBy
+        ChargePaidBy paidBy,
+        boolean waived,
+        String waivedEffectType
     ) {
     }
 }

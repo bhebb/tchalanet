@@ -18,7 +18,8 @@
         "kpis": "Key metrics",
         "commission": "Commission settings",
         "quick_actions": "Quick actions",
-        "readiness_alerts": "Readiness & alerts"
+        "readiness_alerts": "Readiness & alerts",
+        "sales_insights": "Sales & games"
       }
     },
     "private_dashboard_cashier": {

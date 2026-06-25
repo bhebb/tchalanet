@@ -50,6 +50,7 @@
 - [x] Restructurer `platform-operations.routes.ts`
   - Ajouter : `communication-tests` (placeholder)
   - Ajouter : `identity-sync` (placeholder)
+  - Ajouter : `resources` (placeholder détail infra depuis le dashboard Ops)
 - [x] Mettre à jour `private-navigation.model.ts` (`PLATFORM_NAVIGATION`) — fallback statique
 - [x] Mettre à jour `private_shell_superadmin.json` `sections[]` — source backend réelle
 - [x] `nx build` green
@@ -120,6 +121,43 @@
 - [x] Marquer `features.stats` comme legacy pour les nouveaux dashboards ; KPI/charts via `core.analytics.api`
 - [x] La route `/platform/ops/health` conserve `PlatformOpsPage` existante
 - [x] Documenter en follow-up le mode différé si un widget dashboard devient trop lent (`runtime.loadStrategy = deferred`, hors V0 sauf besoin immédiat)
+- [x] Ajouter au dashboard Ops un bloc P1 `Ressources services`
+  - KPI compact `Ressources critiques` / `Ressources à surveiller`
+  - Détail compact des services critiques ou dégradés
+  - Provider abstrait sans accès Docker socket direct ; V0 basé sur `PlatformHealthProbe`
+  - Erreur de collecte dégradée dans le widget, sans casser le dashboard
+- [x] Ajouter au dashboard Ops un résumé P0 `Jobs & schedulers`
+  - `Jobs failed` alimenté par un provider app basé sur Spring Batch history
+  - `Gates désactivés` alimenté par `BatchGate`
+  - `Jobs suivis` alimenté par `TchJobRegistry`
+  - Le PageModel dépend d'un provider abstrait, pas de Spring Batch directement
+- [x] Enrichir le dashboard Ops avec des signaux runtime exploitables
+  - Mémoire JVM : OK / warning / critical sans appel réseau
+  - Caches critiques plans : `active_plans`, `plan_by_code`, `plan_by_id`
+  - Identité : `firebase`, `firebase-emulator`, `local-jwt` avec garde prod/emulator
+  - Action rapide vers la synchronisation identité
+- [x] Ajouter les cache groups Ops V0
+  - Endpoint backend `DELETE /platform/ops/cache/groups/plans?reason=...`
+  - Groupe `plans` résolu côté serveur vers les cache names techniques
+  - Page cache : bouton confirmé `Vider caches plans`
+- [x] Enrichir la lecture Jobs & schedulers du dashboard Ops
+  - Widget compact `OpsJobStatusListWidget`
+  - Affiche les 5 derniers jobs batch issus du payload `schedulerSummary.items`
+  - Les jobs failed/disabled restent résumés dans les KPI
+  - Aucun appel Angular supplémentaire
+  - Source officielle : tables Spring Batch `batch.BATCH_*`, pas les événements `@TchJob`
+  - `draw:lifecycle:generate`, `draw:lifecycle:open`, `draw:lifecycle:close`, `draw:lifecycle:settle`, `results:external:fetch`, `results:external:apply` alimentent l'historique via `BatchJobStarter`
+  - Restart natif Spring Batch : `POST /platform/ops/batch/executions/{executionId}:restart`
+  - Purge prévue : `POST /platform/ops/batch/executions:purge` + purge automatique hebdo configurable
+- [x] Limiter le bloc `Ressources services` au résumé dashboard
+  - Top 3 services triés par gravité
+  - Mémoire utilisée / limite, restart count et OOM si présents
+  - Lien `Voir détails infra` vers `/app/platform/ops/resources`
+  - Les métriques indisponibles dégradent le widget sans casser le dashboard
+- [x] Ajouter les blocs Ops inbox V0
+  - Notifications in-app non lues via `platform.notification.api`
+  - Contacts admin reçus via `platform.contactrequest.api.ContactRequestAdminApi`
+  - Listes limitées à 5 entrées, sans appel Angular supplémentaire
 
 ---
 

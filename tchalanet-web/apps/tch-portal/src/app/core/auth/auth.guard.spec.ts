@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { UserRole, UserSession } from '../../shared/types';
 import { AuthSessionService } from './auth-session.service';
 import { spaceDispatchGuard } from './auth.guard';
+import { UserRole, UserSession } from './auth.types';
 
 describe('spaceDispatchGuard', () => {
   const auth = {

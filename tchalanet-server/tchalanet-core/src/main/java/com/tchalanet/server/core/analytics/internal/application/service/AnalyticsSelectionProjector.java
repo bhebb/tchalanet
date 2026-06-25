@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>Each placed ticket line is projected independently so dashboards can
  * display bet-type and selection-level stats without touching raw ticket tables.
- * Winnings are projected separately via {@code TicketResultedEvent} (handled by
+ * Winnings are projected separately via {@code TicketWinningSettlementCreatedEvent} (handled by
  * {@link AnalyticsDailyProjector} for now; selection-level winnings require a
  * future enrichment pass).
  */

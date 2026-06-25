@@ -444,6 +444,14 @@
       "kpis": {
         "title": "Endikatè"
       },
+      "sales_trend": {
+        "title": "Tandans lavant",
+        "empty": "Pa gen lavant pou peryòd sa a."
+      },
+      "game_breakdown": {
+        "title": "Lavant pa jwèt",
+        "empty": "Pa gen lavant pa jwèt disponib."
+      },
       "quick_actions": {
         "title": "Aksyon rapid"
       },

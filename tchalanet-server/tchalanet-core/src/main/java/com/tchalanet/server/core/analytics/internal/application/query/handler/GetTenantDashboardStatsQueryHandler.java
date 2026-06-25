@@ -8,6 +8,7 @@ import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView.Te
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
+import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsGameBreakdownReader;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class GetTenantDashboardStatsQueryHandler
     implements QueryHandler<GetTenantDashboardStatsQuery, TenantDashboardStatsView> {
 
   private final AnalyticsDailyRepository repo;
+  private final AnalyticsGameBreakdownReader gameBreakdownReader;
 
   @Override
   public TenantDashboardStatsView handle(GetTenantDashboardStatsQuery query) {
@@ -39,6 +41,15 @@ public class GetTenantDashboardStatsQueryHandler
     long   grossCents    = 0L;
     long   winningsCents = 0L;
     long   payoutsCents  = 0L;
+    long   commissionCents = 0L;
+    long   buyerChargeCents = 0L;
+    long   sellerChargeCents = 0L;
+    long   tenantChargeCents = 0L;
+    long   waivedChargeCents = 0L;
+    long   promotionLines = 0L;
+    long   promotionPricedLines = 0L;
+    long   promotionPayoutBaseCents = 0L;
+    long   promotionPotentialPayoutCents = 0L;
     long   sessions      = 0L;
 
     for (AnalyticsDailyEntity r : rows) {
@@ -46,6 +57,15 @@ public class GetTenantDashboardStatsQueryHandler
       grossCents    += r.getGrossSalesCents();
       winningsCents += r.getWinningsCalculatedCents();
       payoutsCents  += r.getPayoutsPaidCents();
+      commissionCents += r.getSellerCommissionCents();
+      buyerChargeCents += r.getBuyerChargeCents();
+      sellerChargeCents += r.getSellerChargeCents();
+      tenantChargeCents += r.getTenantChargeCents();
+      waivedChargeCents += r.getWaivedChargeCents();
+      promotionLines += r.getPromotionLineCount();
+      promotionPricedLines += r.getPromotionPricedLineCount();
+      promotionPayoutBaseCents += r.getPromotionPayoutBaseCents();
+      promotionPotentialPayoutCents += r.getPromotionPotentialPayoutCents();
       sessions      += r.getSessionsOpenedCount();
     }
 
@@ -54,15 +74,41 @@ public class GetTenantDashboardStatsQueryHandler
         fromCents(grossCents),
         fromCents(winningsCents),
         fromCents(payoutsCents),
-        fromCents(grossCents - winningsCents),
+        fromCents(commissionCents),
+        fromCents(buyerChargeCents),
+        fromCents(sellerChargeCents),
+        fromCents(tenantChargeCents),
+        fromCents(waivedChargeCents),
+        promotionLines,
+        promotionPricedLines,
+        fromCents(promotionPayoutBaseCents),
+        fromCents(promotionPotentialPayoutCents),
+        fromCents(grossCents - winningsCents - commissionCents - tenantChargeCents),
         sessions);
 
     List<TenantDailyPoint> daily = rows.stream()
         .map(r -> new TenantDailyPoint(r.getRefDate(),
-            r.getTicketsSoldCount(), fromCents(r.getGrossSalesCents())))
+            r.getTicketsSoldCount(),
+            fromCents(r.getGrossSalesCents()),
+            fromCents(r.getSellerCommissionCents()),
+            fromCents(r.getTenantChargeCents()),
+            r.getPromotionLineCount(),
+            fromCents(r.getPromotionPotentialPayoutCents()),
+            fromCents(r.getNetRevenueEstimatedCents())))
         .toList();
 
-    return new TenantDashboardStatsView(query.from(), query.to(), summary, daily, List.of());
+    List<TenantDashboardStatsView.TenantGameBreakdown> gameBreakdown = gameBreakdownReader
+        .findTenantGameBreakdown(tenantId, query.from(), query.to(), query.topGamesLimit())
+        .stream()
+        .map(row -> new TenantDashboardStatsView.TenantGameBreakdown(
+            row.gameCode(),
+            row.gameCode(),
+            row.ticketsSold(),
+            row.grossSales(),
+            row.netRevenueEstimated()))
+        .toList();
+
+    return new TenantDashboardStatsView(query.from(), query.to(), summary, daily, gameBreakdown);
   }
 
   private static BigDecimal fromCents(long cents) {

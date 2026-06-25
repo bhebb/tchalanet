@@ -10,7 +10,7 @@
   "isDefault": true,
   "level": "GLOBAL",
   "tenantId": null,
-  "description": "Superadmin dashboard V1: platform KPIs, alerts and quick actions (static binding).",
+  "description": "Superadmin dashboard V1: platform cockpit resolved by PageModel dynamic providers.",
   "model": {
     "meta": {
       "id": "private.dashboard.superadmin",
@@ -41,32 +41,58 @@
         "component": "GridLayout",
         "rows": [
           {
-            "id": "kpis",
+            "id": "platformKpis",
             "labelKey": "layout.private_dashboard_superadmin.kpis",
             "columns": [
               {
-                "span": 12,
-                "widgets": ["dashboard.superadmin.kpis"]
-              }
-            ]
-          },
-          {
-            "id": "tenantsAlerts",
-            "labelKey": "layout.private_dashboard_superadmin.tenants_alerts",
-            "columns": [
-              {
-                "span": 6,
+                "span": 3,
                 "widgets": ["dashboard.superadmin.tenants"]
               },
               {
-                "span": 6,
-                "widgets": ["dashboard.superadmin.alerts"]
+                "span": 3,
+                "widgets": ["dashboard.superadmin.platformSales"]
+              },
+              {
+                "span": 3,
+                "widgets": ["dashboard.superadmin.subscriptions"]
+              },
+              {
+                "span": 3,
+                "widgets": ["dashboard.superadmin.onboarding"]
               }
             ]
           },
           {
-            "id": "quickActions",
-            "labelKey": "layout.private_dashboard_superadmin.quick_actions",
+            "id": "platformSalesInsights",
+            "labelKey": "layout.private_dashboard_superadmin.sales_insights",
+            "columns": [
+              {
+                "span": 7,
+                "widgets": ["dashboard.superadmin.salesTrend"]
+              },
+              {
+                "span": 5,
+                "widgets": ["dashboard.superadmin.gameBreakdown"]
+              }
+            ]
+          },
+          {
+            "id": "platformInsights",
+            "labelKey": "layout.private_dashboard_superadmin.insights",
+            "columns": [
+              {
+                "span": 7,
+                "widgets": ["dashboard.superadmin.topTenants"]
+              },
+              {
+                "span": 5,
+                "widgets": ["dashboard.superadmin.publicContent"]
+              }
+            ]
+          },
+          {
+            "id": "contentActions",
+            "labelKey": "layout.private_dashboard_superadmin.content_actions",
             "columns": [
               {
                 "span": 12,
@@ -77,83 +103,207 @@
         ]
       },
       "widgets": {
-        "dashboard.superadmin.kpis": {
-          "type": "KpiGridWidget",
-          "binding": {
-            "mode": "static"
-          },
-          "props": {
-            "titleKey": "dashboard.superadmin.kpis.title",
-            "items": [
-              { "id": "totalTenants", "labelKey": "platform.kpi.totalTenants.label", "icon": "apartment" },
-              { "id": "activeTenants", "labelKey": "platform.kpi.activeTenants.label", "icon": "check_circle" },
-              { "id": "activeSubscriptions", "labelKey": "platform.kpi.activeSubscriptions.label", "icon": "workspace_premium" },
-              { "id": "pendingOnboarding", "labelKey": "platform.kpi.pendingOnboarding.label", "icon": "playlist_add_check" }
-            ]
-          }
-        },
         "dashboard.superadmin.tenants": {
           "type": "KpiGridWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
           },
           "props": {
             "titleKey": "dashboard.superadmin.tenants.title",
             "items": [
-              { "id": "suspendedTenants", "labelKey": "platform.kpi.suspendedTenants.label", "icon": "block" },
-              { "id": "tenantsWithIssues", "labelKey": "platform.kpi.tenantsWithIssues.label", "icon": "warning" }
+              {
+                "id": "total",
+                "labelKey": "platform.kpi.totalTenants.label",
+                "icon": "apartment",
+                "tone": "primary",
+                "value": { "source": "dynamic", "path": "total" }
+              },
+              {
+                "id": "active",
+                "labelKey": "platform.kpi.activeTenants.label",
+                "icon": "check_circle",
+                "tone": "success",
+                "value": { "source": "dynamic", "path": "active" }
+              },
+              {
+                "id": "suspended",
+                "labelKey": "platform.kpi.suspendedTenants.label",
+                "icon": "block",
+                "tone": "danger",
+                "value": { "source": "dynamic", "path": "suspended" }
+              }
             ]
           }
         },
-        "dashboard.superadmin.alerts": {
-          "type": "AlertsWidget",
+        "dashboard.superadmin.platformSales": {
+          "type": "KpiGridWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
           },
           "props": {
-            "titleKey": "dashboard.superadmin.alerts.title",
-            "emptyKey": "dashboard.superadmin.alerts.empty"
+            "titleKey": "dashboard.superadmin.sales.title",
+            "items": [
+              {
+                "id": "ticketsSoldToday",
+                "labelKey": "platform.kpi.ticketsSoldToday.label",
+                "icon": "confirmation_number",
+                "tone": "primary",
+                "value": { "source": "dynamic", "path": "ticketsSoldToday" }
+              },
+              {
+                "id": "grossSalesToday",
+                "labelKey": "platform.kpi.grossSalesToday.label",
+                "icon": "payments",
+                "tone": "accent",
+                "value": { "source": "dynamic", "path": "grossSalesToday" }
+              },
+              {
+                "id": "netToday",
+                "labelKey": "platform.kpi.netToday.label",
+                "icon": "trending_up",
+                "tone": "success",
+                "value": { "source": "dynamic", "path": "netToday" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.subscriptions": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.subscriptions.title",
+            "items": [
+              {
+                "id": "active",
+                "labelKey": "platform.kpi.activeSubscriptions.label",
+                "icon": "workspace_premium",
+                "tone": "accent",
+                "value": { "source": "dynamic", "path": "active" }
+              },
+              {
+                "id": "pastDue",
+                "labelKey": "platform.kpi.pastDueSubscriptions.label",
+                "icon": "warning",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "pastDue" }
+              },
+              {
+                "id": "total",
+                "labelKey": "platform.kpi.totalSubscriptions.label",
+                "icon": "analytics",
+                "tone": "neutral",
+                "value": { "source": "dynamic", "path": "total" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.onboarding": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.onboarding.title",
+            "items": [
+              {
+                "id": "count",
+                "labelKey": "platform.kpi.pendingOnboarding.label",
+                "icon": "playlist_add_check",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "count" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.publicContent": {
+          "type": "NewsTickerWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.public_content.title",
+            "subtitleKey": "dashboard.superadmin.public_content.subtitle",
+            "seeAllAction": {
+              "id": "publicContent",
+              "labelKey": "quickaction.platform.public_content",
+              "icon": "campaign",
+              "destination": { "kind": "route", "value": "/app/platform/news" }
+            }
+          }
+        },
+        "dashboard.superadmin.salesTrend": {
+          "type": "TrendChartWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.sales_trend.title",
+            "emptyKey": "dashboard.superadmin.sales_trend.empty",
+            "points": { "source": "dynamic", "path": "dailyBreakdown" },
+            "labelPath": "refDate",
+            "labelFormat": "date-short",
+            "valuePath": "grossSales"
+          }
+        },
+        "dashboard.superadmin.gameBreakdown": {
+          "type": "BreakdownListWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.game_breakdown.title",
+            "emptyKey": "dashboard.superadmin.game_breakdown.empty",
+            "items": { "source": "dynamic", "path": "gameBreakdown" },
+            "labelPath": "gameLabel",
+            "valuePath": "grossSales",
+            "valueFormat": "currency",
+            "currencyCode": "HTG"
+          }
+        },
+        "dashboard.superadmin.topTenants": {
+          "type": "RankingListWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.top_tenants.title",
+            "emptyKey": "dashboard.superadmin.top_tenants.empty",
+            "items": { "source": "dynamic", "path": "topTenants" },
+            "primaryPath": "tenantCode",
+            "metrics": [
+              {
+                "labelKey": "platform.metric.ticketsSold.label",
+                "path": "ticketsSold"
+              },
+              {
+                "labelKey": "platform.metric.grossSales.label",
+                "path": "grossSales"
+              },
+              {
+                "labelKey": "platform.metric.netRevenue.label",
+                "path": "netRevenue"
+              }
+            ]
           }
         },
         "dashboard.superadmin.quickActions": {
           "type": "QuickActionsWidget",
           "binding": {
-            "mode": "static"
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
           },
           "props": {
-            "titleKey": "dashboard.superadmin.quick_actions.title",
-            "actions": [
-              {
-                "id": "createTenant",
-                "labelKey": "quickaction.platform.create_tenant",
-                "icon": "add_business",
-                "destination": { "kind": "route", "value": "/app/platform/tenants/new" }
-              },
-              {
-                "id": "tenantOnboarding",
-                "labelKey": "quickaction.platform.onboarding",
-                "icon": "playlist_add_check",
-                "destination": { "kind": "route", "value": "/app/platform/tenants/onboarding" }
-              },
-              {
-                "id": "subscriptions",
-                "labelKey": "quickaction.platform.subscriptions",
-                "icon": "workspace_premium",
-                "destination": { "kind": "route", "value": "/app/platform/subscriptions" }
-              },
-              {
-                "id": "platformHealth",
-                "labelKey": "quickaction.platform.platform_health",
-                "icon": "monitor_heart",
-                "destination": { "kind": "route", "value": "/app/platform/health" }
-              },
-              {
-                "id": "drawResults",
-                "labelKey": "quickaction.platform.draw_results",
-                "icon": "fact_check",
-                "destination": { "kind": "route", "value": "/app/platform/ops/draw-results" }
-              }
-            ]
+            "titleKey": "dashboard.superadmin.quick_actions.title"
           }
         }
       }

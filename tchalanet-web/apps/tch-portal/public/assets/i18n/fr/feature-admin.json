@@ -321,6 +321,14 @@
       "kpis": {
         "title": "Indicateurs"
       },
+      "sales_trend": {
+        "title": "Tendance des ventes",
+        "empty": "Aucune vente sur cette période."
+      },
+      "game_breakdown": {
+        "title": "Ventes par jeu",
+        "empty": "Aucune vente par jeu disponible."
+      },
       "quick_actions": {
         "title": "Actions rapides"
       },

@@ -37,24 +37,37 @@ import { WidgetHostComponent } from './widget-host.component';
     `
       .page-model {
         display: grid;
-        gap: 1.5rem;
-        max-width: var(--tch-page-max, 1120px);
+        gap: 1.25rem;
+        max-width: 100%;
         margin: 0 auto;
-        padding: var(--tch-page-gutter, 1.5rem);
+        padding: 1rem;
       }
       .page-model__row {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
-        gap: 1.5rem;
+        gap: 1.25rem;
+        align-items: stretch;
       }
       .page-model__col {
         grid-column: span min(var(--col-span, 12), 12);
         display: grid;
-        gap: 1.5rem;
+        gap: 1.25rem;
+        min-width: 0;
       }
       @media (max-width: 767.98px) {
         .page-model__col {
           grid-column: span 12;
+        }
+      }
+      @media (min-width: 768px) {
+        .page-model {
+          max-width: min(var(--tch-page-max, 1280px), calc(100vw - 2rem));
+          padding: 1.5rem;
+        }
+      }
+      @media (min-width: 1200px) {
+        .page-model {
+          padding: 2rem;
         }
       }
     `,

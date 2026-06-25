@@ -12,7 +12,6 @@ import com.tchalanet.server.core.analytics.api.query.GetPlatformDashboardStatsQu
 import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
 import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
 import com.tchalanet.server.features.pagemodel.contract.ActionItem;
-import com.tchalanet.server.features.pagemodel.contract.AlertItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
 import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
@@ -23,25 +22,21 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
- * Loads the grouped payload for source {@code platform_admin_dashboard}.
+ * Loads the commercial grouped payload for source {@code platform_admin_dashboard}.
  * One assembly per request — memoized via {@code PageModelResolutionContext}.
  *
- * Grouped reads (target ≤ 5 per dashboard-overview-runtime-v1 §12):
- *   1. HealthEndpoint.health()                                     (in-process, no SQL)
- *   2. TenantCatalog.stats()                                       (tenant counts)
- *   3. QueryBus.ask(GetPlatformDashboardStatsQuery)                (analytics KPIs)
- *   4. QueryBus.ask(GetPlatformSubscriptionStatsQuery)             (subscriptions)
- *   5. TenantCatalog.listTenants(size=50) + PublicContentApi       (onboarding + content)
- *
- * Platform alerts placeholder: no cross-platform alert aggregate yet (TODO V2).
+ * Commercial reads:
+ *   1. TenantCatalog.stats()                        (tenant counts)
+ *   2. QueryBus.ask(GetPlatformDashboardStatsQuery) (sales KPIs, trends, top tenants)
+ *   3. QueryBus.ask(GetPlatformSubscriptionStatsQuery)
+ *   4. TenantCatalog.listTenants(size=50)           (onboarding)
+ *   5. PublicContentApi                             (public content preview)
  */
 @Component
 @RequiredArgsConstructor
@@ -53,51 +48,20 @@ public class PlatformAdminDashboardPayloadAssembler {
   private final TenantPreContextLookupApi tenantPreContextLookupApi;
   private final QueryBus queryBus;
   private final PublicContentApi publicContentApi;
-  /** Optional — adapter typically lives in the app layer (wraps actuator HealthEndpoint). */
-  private final ObjectProvider<PlatformHealthProbe> healthProbeProvider;
 
   public Payload assemble(TchRequestContext ctx) {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
-    PlatformHealthPayload health              = buildHealth();
     TenantKpiSummaryPayload tenants           = buildTenantsKpi(today);
+    PlatformSalesPayload sales                = buildPlatformSales(tenants);
+    TenantRankingPayload tenantRanking        = buildTenantRanking(tenants);
     SubscriptionSummaryPayload subscriptions  = buildSubscriptions();
     OnboardingAlertsPayload onboardingAlerts  = buildOnboardingAlerts();
-    PlatformAlertsPayload platformAlerts      = buildPlatformAlerts();
     PublicContentPayload publicContent        = buildPublicContent();
     QuickActionsPayload quickActions          = buildQuickActions();
 
-    return new Payload(health, tenants, subscriptions, onboardingAlerts,
-        platformAlerts, publicContent, quickActions);
-  }
-
-  /**
-   * Platform health snapshot from Spring Boot's {@link org.springframework.boot.actuate.health.}.
-   * No SQL — reads the in-process health registry the actuator already maintains.
-   */
-  @SuppressWarnings("unchecked")
-  private PlatformHealthPayload buildHealth() {
-    PlatformHealthProbe probe = healthProbeProvider.getIfAvailable();
-    if (probe == null) {
-      return new PlatformHealthPayload("UNKNOWN", Map.of());
-    }
-    try {
-      Map<String, Object> snapshot = probe.snapshot();
-      if (snapshot == null) {
-        return new PlatformHealthPayload("UNKNOWN", Map.of());
-      }
-      String global = snapshot.getOrDefault("global", "UNKNOWN").toString();
-      Object rawComponents = snapshot.get("components");
-      Map<String, String> components = Map.of();
-      if (rawComponents instanceof Map<?, ?> m) {
-        var typed = new java.util.LinkedHashMap<String, String>();
-        m.forEach((k, v) -> typed.put(String.valueOf(k), String.valueOf(v)));
-        components = java.util.Collections.unmodifiableMap(typed);
-      }
-      return new PlatformHealthPayload(global, components);
-    } catch (RuntimeException e) {
-      return new PlatformHealthPayload("UNKNOWN", Map.of());
-    }
+    return new Payload(tenants, sales, tenantRanking, subscriptions,
+        onboardingAlerts, publicContent, quickActions);
   }
 
   /**
@@ -105,6 +69,7 @@ public class PlatformAdminDashboardPayloadAssembler {
    * Two grouped reads bundled in one widget section.
    */
   private TenantKpiSummaryPayload buildTenantsKpi(LocalDate today) {
+    LocalDate from = today.minusDays(6);
     long total = 0L;
     long active = 0L;
     long suspended = 0L;
@@ -124,19 +89,27 @@ public class PlatformAdminDashboardPayloadAssembler {
     long ticketsSoldToday      = 0L;
     BigDecimal grossSalesToday = BigDecimal.ZERO;
     BigDecimal netToday        = BigDecimal.ZERO;
+    List<DailyTrendItem> dailyBreakdown = List.of();
+    List<GameBreakdownItem> gameBreakdown = List.of();
     List<TenantRankItem> topTenants = List.of();
 
     try {
       PlatformDashboardStatsView statsView =
-          queryBus.ask(GetPlatformDashboardStatsQuery.today(today));
+          queryBus.ask(new GetPlatformDashboardStatsQuery(from, today, 5, 5));
       if (statsView != null) {
         if (statsView.summary() != null) {
           if (total == 0L) total = statsView.summary().totalTenants();
-          ticketsSoldToday = statsView.summary().ticketsSold();
-          grossSalesToday  = statsView.summary().grossSales() != null
-              ? statsView.summary().grossSales() : BigDecimal.ZERO;
-          netToday         = statsView.summary().netRevenueEstimated() != null
-              ? statsView.summary().netRevenueEstimated() : BigDecimal.ZERO;
+        }
+        var todayPoint = statsView.dailyBreakdown() == null ? null : statsView.dailyBreakdown().stream()
+            .filter(p -> today.equals(p.refDate()))
+            .findFirst()
+            .orElse(null);
+        if (todayPoint != null) {
+          ticketsSoldToday = todayPoint.ticketsSold();
+          grossSalesToday  = todayPoint.grossSales() != null
+              ? todayPoint.grossSales() : BigDecimal.ZERO;
+          netToday         = todayPoint.netRevenueEstimated() != null
+              ? todayPoint.netRevenueEstimated() : BigDecimal.ZERO;
         }
         if (statsView.topTenants() != null) {
           topTenants = statsView.topTenants().stream()
@@ -147,6 +120,25 @@ public class PlatformAdminDashboardPayloadAssembler {
                   r.netRevenueEstimated() != null ? r.netRevenueEstimated() : BigDecimal.ZERO))
               .toList();
         }
+        if (statsView.dailyBreakdown() != null) {
+          dailyBreakdown = statsView.dailyBreakdown().stream()
+              .map(p -> new DailyTrendItem(
+                  p.refDate() != null ? p.refDate().toString() : "",
+                  p.ticketsSold(),
+                  p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
+                  p.netRevenueEstimated() != null ? p.netRevenueEstimated() : BigDecimal.ZERO))
+              .toList();
+        }
+        if (statsView.gameBreakdown() != null) {
+          gameBreakdown = statsView.gameBreakdown().stream()
+              .map(g -> new GameBreakdownItem(
+                  g.gameCode() != null ? g.gameCode() : "",
+                  g.gameLabel() != null ? g.gameLabel() : "",
+                  g.ticketsSold(),
+                  g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO,
+                  g.netRevenueEstimated() != null ? g.netRevenueEstimated() : BigDecimal.ZERO))
+              .toList();
+        }
       }
     } catch (RuntimeException e) {
       log.warn("platform_admin_dashboard: analytics KPIs unavailable — {}", e.getMessage());
@@ -154,7 +146,7 @@ public class PlatformAdminDashboardPayloadAssembler {
 
     return new TenantKpiSummaryPayload(
         total, active, suspended, onboarding, suspended,
-        ticketsSoldToday, grossSalesToday, netToday, topTenants);
+        ticketsSoldToday, grossSalesToday, netToday, dailyBreakdown, gameBreakdown, topTenants);
   }
 
   private SubscriptionSummaryPayload buildSubscriptions() {
@@ -169,6 +161,19 @@ public class PlatformAdminDashboardPayloadAssembler {
       log.warn("platform_admin_dashboard: subscription stats unavailable — {}", e.getMessage());
     }
     return SubscriptionSummaryPayload.empty();
+  }
+
+  private PlatformSalesPayload buildPlatformSales(TenantKpiSummaryPayload tenants) {
+    return new PlatformSalesPayload(
+        tenants.ticketsSoldToday(),
+        tenants.grossSalesToday(),
+        tenants.netToday(),
+        tenants.dailyBreakdown(),
+        tenants.gameBreakdown());
+  }
+
+  private TenantRankingPayload buildTenantRanking(TenantKpiSummaryPayload tenants) {
+    return new TenantRankingPayload(tenants.topTenants());
   }
 
   /**
@@ -197,11 +202,6 @@ public class PlatformAdminDashboardPayloadAssembler {
     return OnboardingAlertsPayload.empty();
   }
 
-  /** V1 placeholder: no cross-platform alerts aggregate yet (TODO V2). */
-  private PlatformAlertsPayload buildPlatformAlerts() {
-    return PlatformAlertsPayload.empty();
-  }
-
   private PublicContentPayload buildPublicContent() {
     try {
       List<PublicContentItemView> items =
@@ -227,29 +227,39 @@ public class PlatformAdminDashboardPayloadAssembler {
         new ActionItem("CREATE_TENANT",     "quickaction.platform.create_tenant",     "add_business",  "/app/platform/tenants/new"),
         new ActionItem("TENANT_ONBOARDING", "quickaction.platform.onboarding",        "playlist_add_check", "/app/platform/tenants/onboarding"),
         new ActionItem("SUBSCRIPTIONS",     "quickaction.platform.subscriptions",     "workspace_premium", "/app/platform/subscriptions"),
-        new ActionItem("PLATFORM_HEALTH",   "quickaction.platform.platform_health",   "monitor_heart", "/app/platform/health"),
-        new ActionItem("DRAW_RESULTS",      "quickaction.platform.draw_results",      "fact_check", "/app/platform/ops/draw-results")));
+        new ActionItem("PUBLIC_CONTENT",    "quickaction.platform.public_content",    "campaign", "/app/platform/news"),
+        new ActionItem("NOTIFICATIONS",     "quickaction.platform.notifications",     "notifications", "/app/platform/notifications")));
   }
 
   public record Payload(
-      PlatformHealthPayload health,
       TenantKpiSummaryPayload tenants,
+      PlatformSalesPayload sales,
+      TenantRankingPayload tenantRanking,
       SubscriptionSummaryPayload subscriptions,
       OnboardingAlertsPayload onboardingAlerts,
-      PlatformAlertsPayload platformAlerts,
       PublicContentPayload publicContent,
       QuickActionsPayload quickActions) {}
 
   // ---- surface-specific typed payload records ----
 
-  /** Platform health snapshot — global status + per-component status map. */
-  public record PlatformHealthPayload(
-      String global,
-      Map<String, String> components) {}
-
   /** Single tenant row in the "top tenants by volume" ranking. */
   public record TenantRankItem(
       String tenantCode,
+      long ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal netRevenue) {}
+
+  /** Daily platform trend point for chart widgets. */
+  public record DailyTrendItem(
+      String refDate,
+      long ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal netRevenue) {}
+
+  /** Game-level platform breakdown for chart/list widgets. */
+  public record GameBreakdownItem(
+      String gameCode,
+      String gameLabel,
       long ticketsSold,
       BigDecimal grossSales,
       BigDecimal netRevenue) {}
@@ -264,6 +274,20 @@ public class PlatformAdminDashboardPayloadAssembler {
       long ticketsSoldToday,
       BigDecimal grossSalesToday,
       BigDecimal netToday,
+      List<DailyTrendItem> dailyBreakdown,
+      List<GameBreakdownItem> gameBreakdown,
+      List<TenantRankItem> topTenants) {}
+
+  /** Platform sales analytics slice for KPI, chart and breakdown widgets. */
+  public record PlatformSalesPayload(
+      long ticketsSoldToday,
+      BigDecimal grossSalesToday,
+      BigDecimal netToday,
+      List<DailyTrendItem> dailyBreakdown,
+      List<GameBreakdownItem> gameBreakdown) {}
+
+  /** Dedicated top-tenants slice; avoids exposing the full platform KPI payload to ranking widgets. */
+  public record TenantRankingPayload(
       List<TenantRankItem> topTenants) {}
 
   /** Subscription counts across all tenants. {@code byPlan} is the raw catalog projection. */
@@ -297,13 +321,4 @@ public class PlatformAdminDashboardPayloadAssembler {
     }
   }
 
-  /** Platform-wide alerts placeholder (TODO V2 — no aggregate query yet). */
-  public record PlatformAlertsPayload(
-      List<AlertItem> items,
-      int count) {
-
-    public static PlatformAlertsPayload empty() {
-      return new PlatformAlertsPayload(List.of(), 0);
-    }
-  }
 }

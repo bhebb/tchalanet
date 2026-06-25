@@ -24,6 +24,15 @@ public record TenantDashboardStatsView(
       BigDecimal grossSales,
       BigDecimal winningsCalculated,
       BigDecimal payoutsPaid,
+      BigDecimal sellerCommission,
+      BigDecimal buyerCharges,
+      BigDecimal sellerCharges,
+      BigDecimal tenantCharges,
+      BigDecimal waivedCharges,
+      long promotionLines,
+      long promotionPricedLines,
+      BigDecimal promotionPayoutBase,
+      BigDecimal promotionPotentialPayout,
       BigDecimal netRevenueEstimated,
       long    sessionsOpened
   ) {}
@@ -32,13 +41,20 @@ public record TenantDashboardStatsView(
   public record TenantDailyPoint(
       LocalDate refDate,
       long      ticketsSold,
-      BigDecimal grossSales
+      BigDecimal grossSales,
+      BigDecimal sellerCommission,
+      BigDecimal tenantCharges,
+      long promotionLines,
+      BigDecimal promotionPotentialPayout,
+      BigDecimal netRevenueEstimated
   ) {}
 
   /** Per-game breakdown for the window. */
   public record TenantGameBreakdown(
       String    gameCode,
+      String    gameLabel,
       long      ticketsSold,
-      BigDecimal grossSales
+      BigDecimal grossSales,
+      BigDecimal netRevenueEstimated
   ) {}
 }

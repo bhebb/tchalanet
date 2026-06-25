@@ -48,7 +48,29 @@ GET  /platform/ops/batch/jobs/{jobKey}              ← métadonnées d'un job
 POST /platform/ops/batch/jobs/{jobKey}:start        ← démarrage manuel
 GET  /platform/ops/batch/executions?job_key=...     ← exécutions récentes
 GET  /platform/ops/batch/executions/{executionId}   ← détail exécution
+POST /platform/ops/batch/executions/{executionId}:restart ← restart Spring Batch
+POST /platform/ops/batch/executions:purge           ← purge historique (défaut: 7 jours)
 ```
+
+L'historique des exécutions vient des tables Spring Batch `batch.BATCH_*` via
+`common.job.history.BatchJobHistoryService`. Les controllers/features ne lisent
+pas Spring Batch directement.
+
+Le dashboard Ops utilise ce même historique comme source officielle pour
+`Jobs & schedulers`. Un scheduler n'apparaît donc dans les "derniers schedulers"
+que s'il lance un vrai job Spring Batch enregistré. Les jobs
+`draw:lifecycle:generate`, `draw:lifecycle:open`, `draw:lifecycle:close`,
+`draw:lifecycle:settle`, `results:external:fetch` et `results:external:apply`
+sont branchés via `BatchJobStarter`.
+
+Le restart utilise le mécanisme Spring Batch natif :
+`POST /platform/ops/batch/executions/{executionId}:restart`.
+Il s'applique aux exécutions restartables selon l'état Spring Batch.
+
+La purge est disponible en manuel via l'endpoint ci-dessus et en automatique via
+`tch.batch.history.purge-cron` (défaut hebdomadaire, dimanche 04:00 UTC),
+`tch.batch.history.retention-days` (défaut 7) et
+`tch.batch.history.purge-enabled`.
 
 ### Batch gates — activer/désactiver les schedulers
 

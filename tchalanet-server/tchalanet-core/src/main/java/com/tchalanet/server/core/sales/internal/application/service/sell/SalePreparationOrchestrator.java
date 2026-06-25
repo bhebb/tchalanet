@@ -76,7 +76,11 @@ public class SalePreparationOrchestrator {
     ) {
         var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
         var mergedLines = command.lines();
-        var paidLines = ticketLinePreparationService.toTicketLines(tenantId, mergedLines, command.currency());
+        var paidLines = ticketLinePreparationService.toTicketLines(
+            tenantId,
+            ctx.sellerTerminalIdRequired(),
+            mergedLines,
+            command.currency());
         var charges = saleChargeCalculator.compute(tenantId, command);
         var money = saleMoneyCalculator.compute(paidLines, charges, command);
         var policyDecision = evaluateLimits(command, ctx, tenantId, now, paidLines);

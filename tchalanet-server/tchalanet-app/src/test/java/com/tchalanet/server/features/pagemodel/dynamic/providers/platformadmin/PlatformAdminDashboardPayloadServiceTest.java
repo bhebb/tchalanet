@@ -36,7 +36,7 @@ class PlatformAdminDashboardPayloadServiceTest {
     @DisplayName("routes the ops logicalId to the ops assembler")
     void routesOpsLogicalId() {
         PlatformAdminOpsDashboardPayloadAssembler.Payload payload =
-            new PlatformAdminOpsDashboardPayloadAssembler.Payload(null, null);
+            new PlatformAdminOpsDashboardPayloadAssembler.Payload(null, null, null, null, null, null);
         when(opsAssembler.assemble(null)).thenReturn(payload);
 
         var resolved = service.assemble("private.dashboard.superadmin.ops", null);

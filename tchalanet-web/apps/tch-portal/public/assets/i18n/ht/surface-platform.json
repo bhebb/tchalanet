@@ -129,6 +129,27 @@
       "systemHealth": {
         "label": "Eta global"
       },
+      "servicesUp": {
+        "label": "Sèvis UP"
+      },
+      "schedulerFailed": {
+        "label": "Jobs echwe"
+      },
+      "schedulerDisabled": {
+        "label": "Gates dezaktive"
+      },
+      "schedulerStale": {
+        "label": "Jobs stale / pa janm kouri"
+      },
+      "schedulerRegistered": {
+        "label": "Jobs swiv"
+      },
+      "resourceCritical": {
+        "label": "Resous kritik"
+      },
+      "resourceWarning": {
+        "label": "Resous pou swiv"
+      },
       "pendingOnboarding": {
         "label": "Pou fini"
       }
@@ -155,6 +176,8 @@
     },
     "private_dashboard_superadmin_ops": {
       "health": "Sante platfòm",
+      "resources": "Resous sèvis yo",
+      "inbox": "Inbox ops",
       "actions": "Aksyon ops"
     }
   },
@@ -199,8 +222,48 @@
         "title": "Aksyon rapid"
       },
       "ops": {
+        "overview": {
+          "title": "Ops platfòm"
+        },
         "health": {
           "title": "Sante platfòm"
+        },
+        "scheduler": {
+          "title": "Jobs & schedulers"
+        },
+        "resources_kpi": {
+          "title": "Resous kritik"
+        },
+        "resources": {
+          "title": "Resous sèvis yo",
+          "empty": "Metrik resous yo pa disponib.",
+          "critical": "kritik",
+          "warning": "pou swiv",
+          "restarts": "Rekòmansman",
+          "details": "Gade detay infra"
+        },
+        "database": {
+          "title": "Depo baz done",
+          "empty": "Kapasite baz done pa disponib.",
+          "tables": "tab",
+          "indexes": "endèks"
+        },
+        "jobs": {
+          "title": "Schedulers pou siveye",
+          "empty": "Pa gen scheduler resan.",
+          "failed": "echwe",
+          "disabled": "dezaktive",
+          "stale": "stale / pa kouri",
+          "history_unavailable": "istorik pa disponib",
+          "details": "Gade travay ops yo"
+        },
+        "notifications": {
+          "title": "Notifikasyon in-app",
+          "empty": "Pa gen notifikasyon non li."
+        },
+        "contacts": {
+          "title": "Kontak resevwa",
+          "empty": "Pa gen demann kontak resevwa."
         },
         "quick_actions": {
           "title": "Aksyon ops"
@@ -217,8 +280,9 @@
       "draw_results": "Kontwole rezilta yo",
       "public_content": "Gade kontni yo",
       "notifications": "Jere notifikasyon",
-      "batch": "Louvri travay yo",
+      "batch": "Louvri travay planifye yo",
       "cache": "Louvri kach la",
+      "identity_sync": "Senkronize idantite",
       "audit": "Louvri audit"
     }
   }

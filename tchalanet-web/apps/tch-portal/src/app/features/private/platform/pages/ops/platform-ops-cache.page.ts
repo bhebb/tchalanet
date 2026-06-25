@@ -11,6 +11,7 @@ import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-she
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { PlatformOpsApi, CacheView } from '../../platform-ops-api.service';
 import { ClearAllCachesDialog } from './dialogs/clear-all-caches.dialog';
+import { ClearCacheGroupDialog } from './dialogs/clear-cache-group.dialog';
 
 @Component({
   selector: 'tch-platform-ops-cache-page',
@@ -75,6 +76,21 @@ export class PlatformOpsCachePage implements OnInit {
 
   openClearAll(): void {
     const ref = this.dialog.open(ClearAllCachesDialog, { width: '480px' });
+    ref.afterClosed().subscribe(ok => {
+      if (ok) this.load();
+    });
+  }
+
+  openClearPlans(): void {
+    const ref = this.dialog.open(ClearCacheGroupDialog, {
+      width: '480px',
+      data: {
+        group: 'plans',
+        title: 'Vider les caches plans',
+        description: 'Cette action vide uniquement les caches du catalogue des plans actifs et des plans par code/id.',
+        confirmLabel: 'Vider les caches plans',
+      },
+    });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.load();
     });

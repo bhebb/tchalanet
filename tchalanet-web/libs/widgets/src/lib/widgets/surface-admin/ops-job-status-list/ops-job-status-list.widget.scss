@@ -1,0 +1,151 @@
+.ops-job-status {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
+  box-shadow: var(--tch-elevation-1, none);
+}
+
+.ops-job-status__title {
+  margin: 0;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  font-size: var(--tch-font-size-title-md, 1rem);
+  font-weight: 700;
+}
+
+.ops-job-status__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ops-job-status__summary-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+}
+
+.ops-job-status__summary-item--critical {
+  color: var(--tch-color-error, var(--mat-sys-error));
+  background: color-mix(in oklab, var(--tch-color-error, var(--mat-sys-error)) 8%, transparent);
+}
+
+.ops-job-status__summary-item--warning {
+  color: var(--tch-color-status-warning, var(--mat-sys-tertiary));
+  background: color-mix(in oklab, var(--tch-color-status-warning, var(--mat-sys-tertiary)) 10%, transparent);
+}
+
+.ops-job-status__list {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ops-job-status__item {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-left: 4px solid var(--tch-color-outline, var(--mat-sys-outline));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+}
+
+.ops-job-status__item--ok {
+  border-left-color: var(--tch-color-status-ready, #10b981);
+}
+
+.ops-job-status__item--warning {
+  border-left-color: var(--tch-color-status-warning, var(--mat-sys-tertiary));
+}
+
+.ops-job-status__item--critical {
+  border-left-color: var(--tch-color-error, var(--mat-sys-error));
+  background: color-mix(in oklab, var(--tch-color-error, var(--mat-sys-error)) 6%, transparent);
+}
+
+.ops-job-status__main {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.ops-job-status__name {
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  font-size: var(--tch-font-size-body-md, 0.95rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.ops-job-status__key {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-family: var(--tch-font-family-mono, monospace);
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  overflow-wrap: anywhere;
+}
+
+.ops-job-status__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 600;
+}
+
+.ops-job-status__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--tch-radius-full, 999px);
+  background: var(--tch-color-surface-container-high, var(--mat-sys-surface-container-high));
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+}
+
+.ops-job-status__empty {
+  margin: 0;
+  padding: 1rem;
+  border: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: var(--tch-font-size-body-sm, 0.875rem);
+}
+
+.ops-job-status__details {
+  align-self: flex-start;
+  color: var(--tch-color-primary, var(--mat-sys-primary));
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ops-job-status__details:hover {
+  text-decoration: underline;
+}
+
+@container (min-width: 40rem) {
+  .ops-job-status__item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .ops-job-status__meta {
+    justify-content: flex-end;
+  }
+}

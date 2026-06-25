@@ -9,6 +9,8 @@
 | Domaine | Rôle | Doc focal |
 |---|---|---|
 | `core.sales` | Cycle de vie ticket, settlement, override, promotion offline | `src/main/java/.../core/sales/DOMAIN_SALES.md` |
+| `core.pricing` | Overrides odds seller-terminal + résolution odds effectifs | `src/main/java/.../core/pricing/DOMAIN_PRICING.md` |
+| `core.analytics` | Projections KPI, dashboards et rapports dérivés | `src/main/java/.../core/analytics/DOMAIN_ANALYTICS.md` |
 | `core.draw` | Cycle de vie draw (SCHEDULED → OPEN → CLOSED → RESULTED → SETTLED) | — |
 | `core.drawresult` | Ingestion résultats externes (providers normalisés) | — |
 | `core.payout` | Exécution payout après ticket gagnant | — |

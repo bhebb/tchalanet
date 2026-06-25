@@ -10,5 +10,6 @@ public record ExecutionResponse(
     String job_key,
     String status,
     Instant started_at,
-    Instant ended_at
+    Instant ended_at,
+    String context
 ) {}

@@ -11,7 +11,9 @@ import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
+import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
@@ -92,13 +94,22 @@ class TenantAdminDashboardPayloadAssemblerTest {
     void kpisFromStats() {
         LocalDate today = LocalDate.now();
         var summary = new TenantDashboardStatsView.TenantSummaryCard(
-            42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L);
+            42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,
+            BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+            0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO,
+            BigDecimal.ZERO, 0L);
         var dailyPoint = new TenantDashboardStatsView.TenantDailyPoint(
-            today, 42L, new BigDecimal("123.45"));
+            today, 42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO,
+            0L, BigDecimal.ZERO, new BigDecimal("100.00"));
+        var gameBreakdown = new TenantDashboardStatsView.TenantGameBreakdown(
+            "BORLETTE", "Borlette", 40L, new BigDecimal("120.00"), new BigDecimal("98.00"));
         var statsView = new TenantDashboardStatsView(today.minusDays(1), today, summary,
-            List.of(dailyPoint), List.of());
+            List.of(dailyPoint), List.of(gameBreakdown));
+        var kpisView = new TenantKpisView(
+            42L, new BigDecimal("123.45"), new BigDecimal("15.00"), new BigDecimal("108.45"), 0L, 0L);
 
         when(queryBus.ask(any(GetTenantDashboardStatsQuery.class))).thenReturn(statsView);
+        when(queryBus.ask(any(GetTenantKpisQuery.class))).thenReturn(kpisView);
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
@@ -112,6 +123,10 @@ class TenantAdminDashboardPayloadAssemblerTest {
         assertThat(payload.kpis().activeSellerTerminals()).isEqualTo(0L);
         assertThat(payload.kpis().openDraws()).isEqualTo(0L);
         assertThat(payload.kpis().pendingApprovals()).isEqualTo(0L);
+        assertThat(payload.salesTrend().points()).hasSize(1);
+        assertThat(payload.salesTrend().points().get(0).grossSales()).isEqualByComparingTo(new BigDecimal("123.45"));
+        assertThat(payload.gameBreakdown().items()).hasSize(1);
+        assertThat(payload.gameBreakdown().items().get(0).gameCode()).isEqualTo("BORLETTE");
     }
 
     @Test

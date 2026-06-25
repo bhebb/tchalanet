@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
  * Supported widget ids:
  *   - dashboard.tenantAdmin.header
  *   - dashboard.tenantAdmin.kpis
+ *   - dashboard.tenantAdmin.salesTrend
+ *   - dashboard.tenantAdmin.gameBreakdown
  *   - dashboard.tenantAdmin.readiness
  *   - dashboard.tenantAdmin.alerts
  *   - dashboard.tenantAdmin.operations
@@ -56,6 +58,8 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
     return switch (widgetId == null ? "" : widgetId) {
       case "dashboard.tenantAdmin.header" -> payload.header();
       case "dashboard.tenantAdmin.kpis" -> payload.kpis();
+      case "dashboard.tenantAdmin.salesTrend" -> payload.salesTrend();
+      case "dashboard.tenantAdmin.gameBreakdown" -> payload.gameBreakdown();
       case "dashboard.tenantAdmin.readiness" -> payload.readiness();
       case "dashboard.tenantAdmin.alerts" -> payload.alerts();
       case "dashboard.tenantAdmin.operations" -> payload.operations();

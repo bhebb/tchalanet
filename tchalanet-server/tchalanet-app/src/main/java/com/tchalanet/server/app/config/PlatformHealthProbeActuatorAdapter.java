@@ -1,8 +1,9 @@
 package com.tchalanet.server.app.config;
 
-import com.tchalanet.server.features.platformadmin.dashboard.PlatformHealthProbe;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin.PlatformHealthProbe;
 import org.springframework.boot.health.actuate.endpoint.HealthDescriptor;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.health.actuate.endpoint.IndicatedHealthDescriptor;
@@ -10,7 +11,7 @@ import org.springframework.boot.health.actuate.endpoint.SystemHealthDescriptor;
 import org.springframework.stereotype.Component;
 
 /**
- * Adapter: implements the {@link PlatformHealthProbe} port by reading Spring
+ * Adapter: implements the {@link} port by reading Spring
  * Boot Actuator's {@link HealthEndpoint}. Lives in the app layer so the
  * features module stays free of actuator dependencies.
  *
@@ -21,9 +22,11 @@ import org.springframework.stereotype.Component;
 public class PlatformHealthProbeActuatorAdapter implements PlatformHealthProbe {
 
   private final HealthEndpoint healthEndpoint;
+  private final AppProperties appProperties;
 
-  public PlatformHealthProbeActuatorAdapter(HealthEndpoint healthEndpoint) {
+  public PlatformHealthProbeActuatorAdapter(HealthEndpoint healthEndpoint, AppProperties appProperties) {
     this.healthEndpoint = healthEndpoint;
+    this.appProperties = appProperties;
   }
 
   @Override
@@ -38,6 +41,9 @@ public class PlatformHealthProbeActuatorAdapter implements PlatformHealthProbe {
     } else if (root instanceof IndicatedHealthDescriptor indicated) {
       components.put("global", indicated.getStatus().getCode());
     }
-    return Map.of("global", global, "components", components);
+    return Map.of(
+        "global", global,
+        "components", components,
+        "appVersion", appProperties.version() != null ? appProperties.version() : "unknown");
   }
 }

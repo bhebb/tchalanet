@@ -477,6 +477,14 @@
       "kpis": {
         "title": "Key metrics"
       },
+      "sales_trend": {
+        "title": "Sales trend",
+        "empty": "No sales for this period."
+      },
+      "game_breakdown": {
+        "title": "Sales by game",
+        "empty": "No game sales available."
+      },
       "quick_actions": {
         "title": "Quick actions"
       },

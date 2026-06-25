@@ -1,5 +1,9 @@
 <tch-admin-page-shell title="Gestion des caches" description="Visualisez et videz les caches applicatifs.">
   <div actions>
+    <button mat-stroked-button color="warn" (click)="openClearPlans()">
+      <span class="material-symbols-outlined">workspace_premium</span>
+      Vider caches plans
+    </button>
     <button mat-flat-button color="warn" (click)="openClearAll()">
       <span class="material-symbols-outlined">delete_sweep</span>
       Vider tous les caches

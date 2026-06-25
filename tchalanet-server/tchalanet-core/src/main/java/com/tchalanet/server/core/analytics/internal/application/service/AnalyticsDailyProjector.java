@@ -3,8 +3,14 @@ package com.tchalanet.server.core.analytics.internal.application.service;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsDimensionType;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
+import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,15 +53,26 @@ public class AnalyticsDailyProjector {
         }
 
         long stakeCents = toCents(event.money().stake().amount());
+        long sellerCommissionCents = toCents(event.context().sellerCommissionAmount());
+        var charges = ChargeTotals.from(event);
+        var promotions = PromotionTotals.from(event);
         UUID tenantId = event.tenantId().value();
 
         // Platform rollup
         upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
-            1, 0, stakeCents, stakeCents, 0, 0, 0, 0);
+            1, 0, stakeCents, stakeCents, 0, 0, sellerCommissionCents, charges, promotions, 0, 0);
 
         // Tenant
         upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
-            1, 0, stakeCents, stakeCents, 0, 0, 0, 0);
+            1, 0, stakeCents, stakeCents, 0, 0, sellerCommissionCents, charges, promotions, 0, 0);
+
+        if (event.context().sellerTerminalId() != null) {
+            upsert(AnalyticsDimensionType.SELLER_TERMINAL,
+                event.context().sellerTerminalId().value(),
+                tenantId,
+                refDate,
+                1, 0, stakeCents, stakeCents, 0, 0, sellerCommissionCents, charges, promotions, 0, 0);
+        }
     }
 
     // ── ticket cancelled ──────────────────────────────────────────────────────
@@ -68,21 +85,49 @@ public class AnalyticsDailyProjector {
         UUID tenantId = event.tenantId().value();
 
         upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
-            -1, 1, 0, 0, 0, 0, 0, 0);
+            -1, 1, 0, 0, 0, 0, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
         upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
-            -1, 1, 0, 0, 0, 0, 0, 0);
+            -1, 1, 0, 0, 0, 0, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
     }
 
-    // ── ticket settled (resulted) ─────────────────────────────────────────────
+    // ── winning settlement created ────────────────────────────────────────────
 
-    public void applyTicketSettled(TicketResultedEvent event, LocalDate refDate) {
-        long winningsCents = toCents(event.totalPayout() != null ? event.totalPayout() : BigDecimal.ZERO);
-        UUID tenantId = event.tenantId().value();
+    public void applyTicketWinningSettlementCreated(
+        TicketWinningSettlementCreatedEvent event,
+        LocalDate refDate) {
 
+        applyWinningsCalculatedDelta(event.tenantId().value(), refDate, event.amountCents());
+    }
+
+    public void applyTicketWinningSettlementReversed(
+        TicketWinningSettlementReversedEvent event,
+        LocalDate refDate) {
+
+        applyWinningsCalculatedDelta(event.tenantId().value(), refDate, -event.amountCents());
+    }
+
+    private void applyWinningsCalculatedDelta(UUID tenantId, LocalDate refDate, long winningsCentsDelta) {
         upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
-            0, 0, 0, 0, winningsCents, 0, 0, 0);
+            0, 0, 0, 0, winningsCentsDelta, 0, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
         upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
-            0, 0, 0, 0, winningsCents, 0, 0, 0);
+            0, 0, 0, 0, winningsCentsDelta, 0, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
+    }
+
+    // ── payout paid / reversed ────────────────────────────────────────────────
+
+    public void applyTicketPayoutPaid(TicketPayoutPaidEvent event, LocalDate refDate) {
+        applyPayoutPaidDelta(event.tenantId().value(), refDate, event.amountCents());
+    }
+
+    public void applyTicketPayoutReversed(TicketPayoutReversedEvent event, LocalDate refDate) {
+        applyPayoutPaidDelta(event.tenantId().value(), refDate, -event.amountCents());
+    }
+
+    private void applyPayoutPaidDelta(UUID tenantId, LocalDate refDate, long paidCentsDelta) {
+        upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
+            0, 0, 0, 0, 0, paidCentsDelta, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
+        upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
+            0, 0, 0, 0, 0, paidCentsDelta, 0, ChargeTotals.ZERO, PromotionTotals.ZERO, 0, 0);
     }
 
     // ── session opened ───────────────────────────────────────────────────────
@@ -101,6 +146,9 @@ public class AnalyticsDailyProjector {
         long stakeTotalDelta,
         long winningsCalcDelta,
         long payoutsPaidDelta,
+        long sellerCommissionDelta,
+        ChargeTotals charges,
+        PromotionTotals promotions,
         long sessionsOpenedDelta,
         long sessionsClosedDelta) {
 
@@ -109,10 +157,78 @@ public class AnalyticsDailyProjector {
             ticketsSoldDelta, ticketsCancelledDelta,
             grossSalesDelta, stakeTotalDelta,
             winningsCalcDelta, payoutsPaidDelta,
+            sellerCommissionDelta,
+            charges.buyerCents(),
+            charges.sellerCents(),
+            charges.tenantCents(),
+            charges.waivedCents(),
+            promotions.lineCount(),
+            promotions.pricedLineCount(),
+            promotions.payoutBaseCents(),
+            promotions.potentialPayoutCents(),
             sessionsOpenedDelta, sessionsClosedDelta);
     }
 
     private static long toCents(BigDecimal amount) {
         return amount == null ? 0L : amount.multiply(BigDecimal.valueOf(100)).longValue();
+    }
+
+    private record ChargeTotals(long buyerCents, long sellerCents, long tenantCents, long waivedCents) {
+        static final ChargeTotals ZERO = new ChargeTotals(0, 0, 0, 0);
+
+        static ChargeTotals from(TicketPlacedEvent event) {
+            long buyer = 0L;
+            long seller = 0L;
+            long tenant = 0L;
+            long waived = 0L;
+
+            for (var charge : event.money().charges()) {
+                long amount = toCents(charge.amount() != null ? charge.amount().amount() : null);
+                if (charge.waived()) {
+                    waived += amount;
+                    continue;
+                }
+
+                if (charge.paidBy() == ChargePaidBy.BUYER) {
+                    buyer += amount;
+                } else if (charge.paidBy() == ChargePaidBy.SELLER) {
+                    seller += amount;
+                } else if (charge.paidBy() == ChargePaidBy.TENANT) {
+                    tenant += amount;
+                }
+            }
+
+            return new ChargeTotals(buyer, seller, tenant, waived);
+        }
+    }
+
+    private record PromotionTotals(
+        long lineCount,
+        long pricedLineCount,
+        long payoutBaseCents,
+        long potentialPayoutCents
+    ) {
+        static final PromotionTotals ZERO = new PromotionTotals(0, 0, 0, 0);
+
+        static PromotionTotals from(TicketPlacedEvent event) {
+            long lineCount = 0L;
+            long pricedLineCount = 0L;
+            long payoutBase = 0L;
+            long potential = 0L;
+
+            for (var line : event.lines()) {
+                if (line.origin() == TicketLineOrigin.PROMOTION) {
+                    lineCount++;
+                    payoutBase += toCents(line.payoutBaseAmount() != null ? line.payoutBaseAmount().amount() : null);
+                    potential += toCents(
+                        line.potentialPayoutAmount() != null ? line.potentialPayoutAmount().amount() : null);
+                }
+                if (line.pricingSource() == TicketLinePricingSource.PROMOTION) {
+                    pricedLineCount++;
+                }
+            }
+
+            return new PromotionTotals(lineCount, pricedLineCount, payoutBase, potential);
+        }
     }
 }

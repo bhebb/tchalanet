@@ -192,11 +192,19 @@ public class SellTicketCommandHandler
     ) {
         var context = new TicketContextPayload(
             saved.context().drawId(),
-            saved.context().drawChannelId()
+            saved.context().drawChannelId(),
+            saved.context().sellerTerminalId(),
+            saved.context().sellerCommissionRateSnapshot(),
+            saved.context().sellerCommissionAmountSnapshot()
         );
 
         var chargeItems = saved.money().breakdown().charges().stream()
-            .map(c -> new TicketMoneyPayload.ChargeItem(c.type(), c.amount(), c.paidBy()))
+            .map(c -> new TicketMoneyPayload.ChargeItem(
+                c.type(),
+                c.amount(),
+                c.paidBy(),
+                c.isWaived(),
+                c.waivedEffectType()))
             .toList();
 
         var money = new TicketMoneyPayload(

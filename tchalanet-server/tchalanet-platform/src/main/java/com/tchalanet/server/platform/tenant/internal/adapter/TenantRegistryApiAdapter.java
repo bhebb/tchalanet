@@ -67,7 +67,10 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
 
     @Override
     public TenantStatsView stats() {
-        return new TenantStatsView(3, 2, 1);
+        return new TenantStatsView(
+            safeIntCount(reader.countAll()),
+            safeIntCount(reader.countByStatus(TenantStatus.ACTIVE.name())),
+            safeIntCount(reader.countByStatus(TenantStatus.SUSPENDED.name())));
     }
 
     private TenantContextLookupView toView(TenantBootstrapRow row) {
@@ -124,5 +127,10 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
 
     private String safe(String value, String fallback) {
         return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    private int safeIntCount(long value) {
+        if (value <= 0L) return 0;
+        return value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) value;
     }
 }

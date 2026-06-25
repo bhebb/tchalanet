@@ -87,13 +87,16 @@ public class TenantAdminDashboardPayloadAssembler {
         OperationsBundle ops = loadOperationsBundle(tenantId);
         CommercialBundle commercial = loadCommercialBundle(tenantId);
         TenantKpisView kpisView = loadActiveSellerTerminals(tenantId, tz);
+        TenantDashboardStatsView analytics = loadDashboardStats(tenantId, tz);
         long notifCount = loadNotificationCount(ctx);
 
         BigDecimal tenantDefaultRate = registry != null ? registry.defaultCommissionRate().orElse(null) : null;
         TenantCommissionSummaryPayload commission = loadCommissionSummary(tenantId, tenantDefaultRate);
 
         TenantDashboardHeaderPayload header = buildHeader(ctx, registry);
-        TenantKpiGridPayload kpis = buildKpis(ctx, kpisView, notifCount, tz);
+        TenantKpiGridPayload kpis = buildKpis(analytics, kpisView, notifCount, tz);
+        TenantSalesTrendPayload salesTrend = buildSalesTrend(analytics);
+        TenantGameBreakdownPayload gameBreakdown = buildGameBreakdown(analytics);
         TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial);
         TenantAlertsPayload alerts = buildAlerts(notifCount);
         TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
@@ -101,7 +104,8 @@ public class TenantAdminDashboardPayloadAssembler {
         PublicContentPayload publicContent = buildPublicContent();
         QuickActionsPayload quickActions = buildQuickActions();
 
-        return new Payload(header, kpis, readiness, alerts, operations, commercialSummary, commission, publicContent, quickActions);
+        return new Payload(header, kpis, salesTrend, gameBreakdown, readiness, alerts, operations,
+            commercialSummary, commission, publicContent, quickActions);
     }
 
     // ---------------------- grouped bundle loaders ----------------------
@@ -148,6 +152,17 @@ public class TenantAdminDashboardPayloadAssembler {
         }
     }
 
+    private TenantDashboardStatsView loadDashboardStats(TenantId tenantId, ZoneId tz) {
+        try {
+            LocalDate today = LocalDate.now(tz);
+            LocalDate from = today.minusDays(6);
+            return queryBus.ask(new GetTenantDashboardStatsQuery(tenantId, from, today, 5));
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load dashboard analytics — {}", e.getMessage());
+            return null;
+        }
+    }
+
     private long loadNotificationCount(TchRequestContext ctx) {
         try {
             if (ctx.userId() == null) return 0L;
@@ -166,47 +181,61 @@ public class TenantAdminDashboardPayloadAssembler {
         return new TenantDashboardHeaderPayload(ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "", registry != null && registry.name() != null ? registry.name() : "", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
     }
 
-    private TenantKpiGridPayload buildKpis(TchRequestContext ctx, TenantKpisView kpisView, long notifCount, ZoneId tz) {
+    private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView, long notifCount, ZoneId tz) {
         LocalDate today = LocalDate.now(tz);
         LocalDate yesterday = today.minusDays(1);
 
-        BigDecimal salesToday = BigDecimal.ZERO;
+        BigDecimal salesToday = kpisView.totalSales() != null ? kpisView.totalSales() : BigDecimal.ZERO;
         BigDecimal salesYesterday = BigDecimal.ZERO;
-        long ticketsToday = 0L;
+        long ticketsToday = kpisView.ticketsSold();
         long ticketsYesterday = 0L;
-        BigDecimal winningsToday = BigDecimal.ZERO;
-        BigDecimal payoutsToday = BigDecimal.ZERO;
-        BigDecimal netToday = BigDecimal.ZERO;
+        BigDecimal winningsToday = kpisView.totalPayout() != null ? kpisView.totalPayout() : BigDecimal.ZERO;
+        BigDecimal payoutsToday = kpisView.totalPayout() != null ? kpisView.totalPayout() : BigDecimal.ZERO;
+        BigDecimal netToday = kpisView.netRevenue() != null ? kpisView.netRevenue() : BigDecimal.ZERO;
 
-        try {
-            // One query covering yesterday+today — split by refDate from dailyBreakdown
-            TenantDashboardStatsView view = queryBus.ask(new GetTenantDashboardStatsQuery(ctx.tenantId(), yesterday, today, 5));
-            if (view != null) {
-                // today's row
-                var todayRow = view.dailyBreakdown() == null ? null : view.dailyBreakdown().stream().filter(p -> today.equals(p.refDate())).findFirst().orElse(null);
-                if (todayRow != null) {
-                    salesToday = todayRow.grossSales() != null ? todayRow.grossSales() : BigDecimal.ZERO;
-                    ticketsToday = todayRow.ticketsSold();
-                }
-                // yesterday's row
-                var yestRow = view.dailyBreakdown() == null ? null : view.dailyBreakdown().stream().filter(p -> yesterday.equals(p.refDate())).findFirst().orElse(null);
-                if (yestRow != null) {
-                    salesYesterday = yestRow.grossSales() != null ? yestRow.grossSales() : BigDecimal.ZERO;
-                    ticketsYesterday = yestRow.ticketsSold();
-                }
-                // summary-level for winnings / payouts / net (full window, use today row for single-day)
-                if (view.summary() != null) {
-                    winningsToday = view.summary().winningsCalculated() != null ? view.summary().winningsCalculated() : BigDecimal.ZERO;
-                    payoutsToday = view.summary().payoutsPaid() != null ? view.summary().payoutsPaid() : BigDecimal.ZERO;
-                    netToday = view.summary().netRevenueEstimated() != null ? view.summary().netRevenueEstimated() : BigDecimal.ZERO;
-                }
+        if (view != null) {
+            var yestRow = view.dailyBreakdown() == null ? null : view.dailyBreakdown().stream()
+                .filter(p -> yesterday.equals(p.refDate()))
+                .findFirst()
+                .orElse(null);
+            if (yestRow != null) {
+                salesYesterday = yestRow.grossSales() != null ? yestRow.grossSales() : BigDecimal.ZERO;
+                ticketsYesterday = yestRow.ticketsSold();
             }
-        } catch (RuntimeException e) {
-            log.warn("tenant_admin_dashboard: failed to load KPI stats — {}", e.getMessage());
         }
 
         long activeSellerTerminals = kpisView.activeCashiers(); // proxy V0: SELLER dim = seller_terminal
         return new TenantKpiGridPayload(salesToday, salesYesterday, ticketsToday, ticketsYesterday, winningsToday, payoutsToday, netToday, activeSellerTerminals, notifCount, 0L, 0L);
+    }
+
+    private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
+        if (view == null || view.dailyBreakdown() == null) {
+            return new TenantSalesTrendPayload(List.of());
+        }
+        List<TenantTrendItem> points = view.dailyBreakdown().stream()
+            .map(p -> new TenantTrendItem(
+                p.refDate() != null ? p.refDate().toString() : "",
+                p.refDate() != null ? p.refDate().toString() : "",
+                p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
+                p.netRevenueEstimated() != null ? p.netRevenueEstimated() : BigDecimal.ZERO,
+                p.ticketsSold()))
+            .toList();
+        return new TenantSalesTrendPayload(points);
+    }
+
+    private TenantGameBreakdownPayload buildGameBreakdown(TenantDashboardStatsView view) {
+        if (view == null || view.gameBreakdown() == null) {
+            return new TenantGameBreakdownPayload(List.of());
+        }
+        List<TenantGameBreakdownItem> items = view.gameBreakdown().stream()
+            .map(g -> new TenantGameBreakdownItem(
+                g.gameCode() != null ? g.gameCode() : "",
+                g.gameLabel() != null ? g.gameLabel() : g.gameCode(),
+                g.ticketsSold(),
+                g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO,
+                g.netRevenueEstimated() != null ? g.netRevenueEstimated() : BigDecimal.ZERO))
+            .toList();
+        return new TenantGameBreakdownPayload(items);
     }
 
     /**
@@ -283,13 +312,14 @@ public class TenantAdminDashboardPayloadAssembler {
     }
 
     public record Payload(TenantDashboardHeaderPayload header, TenantKpiGridPayload kpis,
+                          TenantSalesTrendPayload salesTrend, TenantGameBreakdownPayload gameBreakdown,
                           TenantReadinessSummaryPayload readiness, TenantAlertsPayload alerts,
                           TenantOperationsSummaryPayload operations, TenantCommercialSummaryPayload commercial,
                           TenantCommissionSummaryPayload commission, PublicContentPayload publicContent,
                           QuickActionsPayload quickActions) {
 
         public static Payload empty() {
-            return new Payload(new TenantDashboardHeaderPayload("", "", "", "UNKNOWN", "UNKNOWN", "UTC", ""), new TenantKpiGridPayload(BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, 0L, 0L), new TenantReadinessSummaryPayload("UNKNOWN", 0, List.of()), new TenantAlertsPayload(0, List.of()), new TenantOperationsSummaryPayload(new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)), new TenantCommercialSummaryPayload(new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)), TenantCommissionSummaryPayload.empty(), PublicContentPayload.empty(), QuickActionsPayload.empty());
+            return new Payload(new TenantDashboardHeaderPayload("", "", "", "UNKNOWN", "UNKNOWN", "UTC", ""), new TenantKpiGridPayload(BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, 0L, 0L), new TenantSalesTrendPayload(List.of()), new TenantGameBreakdownPayload(List.of()), new TenantReadinessSummaryPayload("UNKNOWN", 0, List.of()), new TenantAlertsPayload(0, List.of()), new TenantOperationsSummaryPayload(new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)), new TenantCommercialSummaryPayload(new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)), TenantCommissionSummaryPayload.empty(), PublicContentPayload.empty(), QuickActionsPayload.empty());
         }
     }
 
@@ -305,6 +335,20 @@ public class TenantAdminDashboardPayloadAssembler {
                                        BigDecimal netRevenueToday, long activeSellerTerminals,
                                        // V0 proxy: analytics_daily SELLER dim
                                        long notificationCount, long openDraws, long pendingApprovals) {
+    }
+
+    public record TenantSalesTrendPayload(List<TenantTrendItem> points) {
+    }
+
+    public record TenantTrendItem(String id, String label, BigDecimal grossSales, BigDecimal netRevenue,
+                                  long ticketsSold) {
+    }
+
+    public record TenantGameBreakdownPayload(List<TenantGameBreakdownItem> items) {
+    }
+
+    public record TenantGameBreakdownItem(String gameCode, String label, long ticketsSold, BigDecimal grossSales,
+                                          BigDecimal netRevenue) {
     }
 
     public record TenantReadinessSummaryPayload(String status, int missingCount, List<TenantReadinessIssue> topIssues) {
