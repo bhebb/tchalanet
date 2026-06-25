@@ -1,0 +1,84 @@
+@use 'breakpoints' as bp;
+
+.pbprocess {
+  padding: 3rem 1.25rem;
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+
+  @include bp.up(medium) {
+    padding: 4rem 2rem;
+  }
+
+  @include bp.up(expanded) {
+    padding: 5rem clamp(2rem, 6vw, 5rem);
+  }
+}
+
+.pbprocess__title {
+  margin: 0 0 2.5rem;
+  text-align: center;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+}
+
+.pbprocess__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+
+  @include bp.up(expanded) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+.pbprocess__step {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 2rem 1.75rem;
+  border-radius: var(--tch-radius-lg, 16px);
+  background: var(--tch-color-surface, var(--mat-sys-surface));
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  min-height: 10rem;
+
+  @include bp.up(expanded) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.pbprocess__step-number {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--tch-color-primary, var(--mat-sys-primary));
+  color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.pbprocess__step-body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pbprocess__step-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+}
+
+.pbprocess__step-desc {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+}

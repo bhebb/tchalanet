@@ -1,0 +1,57 @@
+<section class="pblead" [id]="sectionId()">
+  <div class="pblead__header">
+    <h2 class="pblead__title">{{ titleKey() | tchLabel }}</h2>
+    @if (subtitleKey(); as sk) {
+      <p class="pblead__subtitle">{{ sk | tchLabel }}</p>
+    }
+  </div>
+
+  @if (sendState() === 'sent') {
+    <div class="pblead__success" role="status">
+      <span class="pblead__success-icon material-symbols-outlined">check_circle</span>
+      <p>{{ sentLabelKey() | tchLabel }}</p>
+    </div>
+  } @else {
+    <form class="pblead__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="pblead__fields">
+        @for (field of fields(); track field.id) {
+          <div class="pblead__field">
+            <label class="pblead__label" [attr.for]="field.id">
+              {{ field.labelKey | tchLabel }}
+              @if (field.required) { <span class="pblead__required" aria-hidden="true">*</span> }
+            </label>
+            @if (field.type === 'textarea') {
+              <textarea
+                class="pblead__input pblead__input--textarea"
+                [id]="field.id"
+                [formControlName]="field.id"
+                [attr.placeholder]="field.placeholderKey | tchLabel"
+                rows="4"
+              ></textarea>
+            } @else {
+              <input
+                class="pblead__input"
+                type="text"
+                [id]="field.id"
+                [formControlName]="field.id"
+                [attr.placeholder]="field.placeholderKey | tchLabel"
+              />
+            }
+          </div>
+        }
+      </div>
+
+      @if (sendState() === 'error') {
+        <p class="pblead__error" role="alert">{{ 'public.operator.form_error' | tchLabel }}</p>
+      }
+
+      <button type="submit" class="pblead__submit" [disabled]="sendState() === 'sending'">
+        @if (sendState() === 'sending') {
+          {{ sendingLabelKey() | tchLabel }}
+        } @else {
+          {{ submitLabelKey() | tchLabel }}
+        }
+      </button>
+    </form>
+  }
+</section>

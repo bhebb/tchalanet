@@ -92,16 +92,13 @@
         "invalidCredentials": "Invalid email address or password."
       },
       "form": {
-        "authenticating": "Authenticating…",
         "body": "Use the credentials associated with your Tchalanet account.",
-        "email": "Email address",
         "emailLinkSent": "Sign-in link sent. Open your email on this device to continue.",
         "forgotPassword": "Forgot password?",
         "resetEmailSent": "A password reset link has been sent to your email address.",
         "emailPlaceholder": "name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
-        "password": "Password",
         "remember": "Stay signed in on this device",
         "security": "Your connection is secured by Firebase Authentication.",
         "sendEmailLink": "Get a sign-in link",

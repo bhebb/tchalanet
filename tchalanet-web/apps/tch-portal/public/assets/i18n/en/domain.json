@@ -106,5 +106,84 @@
         "label": "New Jersey - Evening"
       }
     }
+  },
+  "domain": {
+    "entity": {
+      "draw": "Draw",
+      "draws": "Draws",
+      "seller": "Seller",
+      "sellers": "Sellers",
+      "sellerTerminal": "Seller terminal",
+      "sellerTerminals": "Seller terminals",
+      "odds": "Odds",
+      "promotion": "Promotion",
+      "promotions": "Promotions",
+      "tenant": "Tenant",
+      "tenants": "Tenants",
+      "ticket": "Ticket",
+      "tickets": "Tickets",
+      "game": "Game",
+      "games": "Games",
+      "result": "Result",
+      "results": "Results",
+      "number": "Number"
+    },
+    "ticket": {
+      "field": {
+        "publicCode": "Public ticket code"
+      }
+    },
+    "result": {
+      "status": {
+        "CONFIRMED": "Confirmed results",
+        "PROVISIONAL": "Awaiting confirmation",
+        "OVERRIDDEN": "Corrected results",
+        "ERROR": "Result error"
+      },
+      "field": {
+        "date": "Date",
+        "time": "Time",
+        "numbers": "Numbers",
+        "drawDateTime": "Draw date and time",
+        "supportedSource": "Supported source",
+        "lastUpdate": "Last update",
+        "publicReference": "Public reference"
+      }
+    },
+    "draw": {
+      "provider": {
+        "newYork": "New York",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "texas": "Texas"
+      },
+      "slotType": {
+        "mid": "Midday",
+        "eve": "Evening",
+        "late": "Night"
+      },
+      "field": {
+        "provider": "Province / state",
+        "slotType": "Draw type"
+      }
+    },
+    "tchala": {
+      "field": {
+        "associatedNumbers": "Associated numbers"
+      }
+    },
+    "bet": {
+      "field": {
+        "option": "Bet option",
+        "multiplier": "Multiplier",
+        "stake": "Stake (HTG)"
+      }
+    },
+    "payout": {
+      "field": {
+        "estimatedGain": "Estimated gain",
+        "totalEstimatedGain": "Total estimated gain"
+      }
+    }
   }
 }

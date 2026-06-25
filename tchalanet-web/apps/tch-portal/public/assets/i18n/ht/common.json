@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Erè lokal.",
-    "network": "Koneksyon lokal pa disponib.",
-    "not_found": "Paj lokal pa jwenn."
-  },
   "common": {
     "error": {
       "title": "Erè"
@@ -49,16 +44,52 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche"
+    },
+    "add": "Ajoute",
+    "create": "Kreye",
+    "delete": "Efase",
+    "search": "Chèche",
+    "filter": "Filtre",
+    "resetFilters": "Reyajiste",
+    "details": "Detay",
+    "export": "Ekspòte",
+    "print": "Enprime",
+    "verify": "Verifye",
+    "confirm": "Konfime",
+    "archive": "Achive",
+    "activate": "Aktive",
+    "deactivate": "Dezaktive",
+    "block": "Bloke",
+    "unblock": "Debloke",
+    "close": "Fèmen",
+    "open": "Louvri",
+    "status": "Estati",
+    "actionLabel": "Aksyon",
+    "reset": "Reyajiste",
+    "all": "Tout",
+    "sending": "Ap voye...",
+    "field": {
+      "name": "Non",
+      "fullName": "Non konplè",
+      "phoneWhatsapp": "Telefòn / WhatsApp",
+      "phoneOrEmail": "Telefòn oswa email",
+      "emailOptional": "Adrès email (opsyonèl)",
+      "organizationOptional": "Òganizasyon (opsyonèl)",
+      "city": "Vil",
+      "country": "Peyi",
+      "message": "Mesaj",
+      "messageOptional": "Mesaj opsyonèl",
+      "email": "Adrès email",
+      "password": "Modpas"
+    },
+    "authenticating": "Otantifikasyon...",
+    "alphaNavAria": "Navigasyon alfabetik",
+    "paginationAria": "Paginasyon",
+    "searchLoadError": "Chajman an echwe. Tanpri eseye ankò.",
+    "searchEmpty": "Pa gen rezilta pou rechèch sa a.",
+    "dateRange": {
+      "from": "Soti",
+      "to": "Jiska"
     }
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "Espas mwen"
-    },
-    "name": "Tchalanet"
   }
 }

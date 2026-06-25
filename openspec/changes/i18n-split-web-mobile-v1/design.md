@@ -14,6 +14,7 @@ The canonical bundle order is:
 common
 domain
 component
+surface-public
 surface-admin
 surface-platform
 surface-seller-terminal
@@ -25,6 +26,11 @@ feature-seller-terminal
 ```
 
 The order is common-to-specific. Later bundles override earlier bundles when the same key exists.
+
+Generic actions and states are shared through `common.*`; product nouns and business
+vocabulary are shared through `domain.entity.*`. Feature and surface bundles should not
+copy generic labels such as add, save, edit, delete, cancel, view, draw, seller,
+seller-terminal, odds, or promotion unless the visible wording intentionally differs.
 
 ## Runtime merge
 

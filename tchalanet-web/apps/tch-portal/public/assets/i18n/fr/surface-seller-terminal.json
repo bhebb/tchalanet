@@ -1,1 +1,13 @@
-{}
+{
+  "nav": {
+    "cashier": {
+      "section": {
+        "cashier": "Caissier"
+      },
+      "dashboard": "Tableau de bord",
+      "sell": "Nouveau ticket",
+      "spaceTitle": "Caissier"
+    },
+    "quick_sale": "Vente rapide"
+  }
+}

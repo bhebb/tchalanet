@@ -143,6 +143,27 @@ feature-name/
 | `data-access/` | API services, models, stores locaux. Pas de composants UI.  |
 | `*.routes.ts`  | Routes internes de la feature.                              |
 
+## Cas particulier `features/public`
+
+`features/public` suit la même règle pour les pages publiques routées :
+
+```text
+features/public/
+  <public-feature>/
+    pages/        # cible quand la feature grossit
+    components/
+    data-access/
+    <public-feature>.routes.ts
+```
+
+Pendant la migration, les anciennes pages publiques peuvent encore être à plat dans
+`features/public/<page>/`, mais toute nouvelle feature publique significative doit converger vers
+`pages/components/data-access`.
+
+Les widgets PageModel rendus sur les pages publiques ne vont pas dans `features/public/components`.
+Ils restent dans `libs/widgets`, car ils appartiennent au registre PageModel et doivent rester
+portables entre pages/surfaces.
+
 ---
 
 # 4. Règle `.ts / .html / .scss`

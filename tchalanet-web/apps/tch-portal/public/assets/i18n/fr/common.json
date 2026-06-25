@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Erreur locale.",
-    "network": "Connexion locale indisponible.",
-    "not_found": "Page locale introuvable."
-  },
   "common": {
     "error": {
       "title": "Erreur"
@@ -49,16 +44,52 @@
     "view": "Voir",
     "save": "Enregistrer",
     "saving": "Enregistrement...",
-    "refresh": "Actualiser"
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
+    "refresh": "Actualiser",
+    "add": "Ajouter",
+    "create": "Créer",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "resetFilters": "Réinitialiser",
+    "details": "Détails",
+    "export": "Exporter",
+    "print": "Imprimer",
+    "verify": "Vérifier",
+    "confirm": "Confirmer",
+    "archive": "Archiver",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "block": "Bloquer",
+    "unblock": "Réactiver",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "status": "Statut",
+    "actionLabel": "Action",
+    "reset": "Réinitialiser",
+    "all": "Tout",
+    "sending": "Envoi en cours...",
+    "field": {
+      "name": "Nom",
+      "fullName": "Nom complet",
+      "phoneWhatsapp": "Téléphone / WhatsApp",
+      "phoneOrEmail": "Téléphone ou email",
+      "emailOptional": "Adresse email (optionnel)",
+      "organizationOptional": "Organisation (optionnel)",
+      "city": "Ville",
+      "country": "Pays",
+      "message": "Message",
+      "messageOptional": "Message optionnel",
+      "email": "Adresse email",
+      "password": "Mot de passe"
     },
-    "nav": {
-      "dashboard": "Mon espace"
-    },
-    "name": "Tchalanet"
+    "authenticating": "Authentification...",
+    "alphaNavAria": "Navigation alphabétique",
+    "paginationAria": "Pagination",
+    "searchLoadError": "Erreur lors du chargement. Veuillez réessayer.",
+    "searchEmpty": "Aucun résultat pour cette recherche.",
+    "dateRange": {
+      "from": "Du",
+      "to": "Au"
+    }
   }
 }

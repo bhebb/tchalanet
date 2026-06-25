@@ -7,6 +7,7 @@ const bundles = [
   'common',
   'domain',
   'component',
+  'surface-public',
   'surface-admin',
   'surface-platform',
   'surface-seller-terminal',
@@ -20,6 +21,7 @@ const bundles = [
 const i18nRoot = path.join(root, 'apps/tch-portal/public/assets/i18n');
 const scanRoots = [
   path.join(root, 'apps/tch-portal/src/app'),
+  path.join(root, 'libs/widgets/src'),
   path.join(root, 'apps/tch-portal/public/assets/config'),
 ];
 const scanExtensions = new Set(['.ts', '.html', '.json']);
@@ -33,6 +35,52 @@ const ignoredReferencedPrefixes = [
 ];
 
 const checkMode = process.argv.includes('--check');
+const allowedTopLevelByBundle = {
+  common: new Set(['common']),
+  domain: new Set(['catalog', 'domain', 'draw_channel', 'ticket']),
+  component: new Set(['app', 'component', 'error', 'layout', 'quickaction', 'readiness', 'shell', 'widget']),
+  'surface-public': new Set(['brand', 'footer', 'legal', 'nav', 'public']),
+  'surface-admin': new Set(['nav', 'surface']),
+  'surface-platform': new Set(['nav', 'platform', 'surface']),
+  'surface-seller-terminal': new Set(['nav', 'surface']),
+  'feature-auth': new Set(['account', 'auth', 'profile']),
+  'feature-public': new Set(['cta', 'dashboard', 'home', 'public', 'theme']),
+  'feature-admin': new Set(['admin', 'dashboard', 'feature']),
+  'feature-platform': new Set(['platform']),
+  'feature-seller-terminal': new Set(['cashier', 'sellerTerminal']),
+};
+const forbiddenPrefixesByBundle = {
+  'feature-public': [
+    'home.nav.',
+    'public.ticket.',
+    'public.results.status.',
+    'public.results.table.',
+    'public.results.draw_datetime',
+    'public.results.supported_source',
+    'public.results.last_update',
+    'public.results.public_reference',
+    'public.results.filters.new_york',
+    'public.results.filters.florida',
+    'public.results.filters.georgia',
+    'public.results.filters.texas',
+    'public.results.filters.provider',
+    'public.results.filters.slot_type',
+    'public.results.filters.slot_all',
+    'public.results.filters.slot_mid',
+    'public.results.filters.slot_eve',
+    'public.results.filters.slot_late',
+    'public.results.filters.from',
+    'public.results.filters.to',
+    'public.rules.tchala.numbers_label',
+    'public.tchala.numbers_label',
+    'public.tchala.suggest.numbers_label',
+    'public.rules.calc_amount_label',
+    'public.rules.calc_gain_label',
+    'public.rules.simulation.bet_option_label',
+    'public.rules.simulation.multiplier_label',
+    'public.rules.simulation.total_gain_label',
+  ],
+};
 
 function isPlainObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -76,6 +124,43 @@ async function localeKeys(locale) {
   return flatten(merged);
 }
 
+async function localeBundleDiagnostics(locale) {
+  const seen = new Map();
+  const duplicates = [];
+  const invalidTopLevels = [];
+  const forbiddenKeys = [];
+
+  for (const bundle of bundles) {
+    const file = path.join(i18nRoot, locale, `${bundle}.json`);
+    const data = await readJson(file);
+    const allowedTopLevels = allowedTopLevelByBundle[bundle] ?? new Set();
+    const forbiddenPrefixes = forbiddenPrefixesByBundle[bundle] ?? [];
+
+    for (const topLevel of Object.keys(data)) {
+      if (!allowedTopLevels.has(topLevel)) {
+        invalidTopLevels.push(`${bundle}.json:${topLevel}`);
+      }
+    }
+
+    for (const key of flatten(data)) {
+      for (const forbiddenPrefix of forbiddenPrefixes) {
+        if (key.startsWith(forbiddenPrefix)) {
+          forbiddenKeys.push(`${bundle}.json:${key}`);
+        }
+      }
+
+      const existing = seen.get(key);
+      if (existing) {
+        duplicates.push(`${key} (${existing}, ${bundle}.json)`);
+      } else {
+        seen.set(key, `${bundle}.json`);
+      }
+    }
+  }
+
+  return { duplicates, invalidTopLevels, forbiddenKeys };
+}
+
 async function walk(dir, files = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
@@ -90,7 +175,7 @@ async function walk(dir, files = []) {
 
 function collectReferences(source) {
   const references = new Set();
-  const translatePipe = /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*translate/g;
+  const translatePipe = /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*(?:translate|tchLabel)/g;
   const translateInstant = /\.instant\(\s*['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]/g;
   const routeKey = /\b(?:titleKey|descriptionKey|labelKey|messageKey|bodyKey|eyebrowKey|fileKey)\s*:\s*['"`]([^'"`]+)['"`]/g;
   for (const pattern of [translatePipe, translateInstant, routeKey]) {
@@ -122,8 +207,10 @@ function difference(left, right) {
 }
 
 const declaredByLocale = new Map();
+const diagnosticsByLocale = new Map();
 for (const locale of locales) {
   declaredByLocale.set(locale, await localeKeys(locale));
+  diagnosticsByLocale.set(locale, await localeBundleDiagnostics(locale));
 }
 
 const canonical = declaredByLocale.get('fr');
@@ -139,7 +226,13 @@ const unused = difference(canonical, references);
 console.log(`i18n inventory (${canonical.size} declared fr keys, ${references.size} referenced keys)`);
 for (const locale of locales) {
   const missing = missingByLocale.get(locale);
-  console.log(`- ${locale}: ${declaredByLocale.get(locale).size} keys, ${missing.length} missing vs fr`);
+  const diagnostics = diagnosticsByLocale.get(locale);
+  console.log(
+    `- ${locale}: ${declaredByLocale.get(locale).size} keys, ${missing.length} missing vs fr, ` +
+      `${diagnostics.duplicates.length} duplicate declarations, ` +
+      `${diagnostics.invalidTopLevels.length} invalid bundle roots, ` +
+      `${diagnostics.forbiddenKeys.length} forbidden keys`,
+  );
 }
 console.log(`- referenced but missing: ${missingReferences.length}`);
 console.log(`- declared but not referenced: ${unused.length}`);
@@ -151,6 +244,39 @@ if (missingReferences.length > 0) {
   }
 }
 
-if (checkMode && (missingReferences.length > 0 || [...missingByLocale.values()].some(keys => keys.length > 0))) {
+for (const [locale, diagnostics] of diagnosticsByLocale.entries()) {
+  if (diagnostics.duplicates.length > 0) {
+    console.log(`\nDuplicate declarations (${locale}):`);
+    for (const duplicate of diagnostics.duplicates.slice(0, 100)) {
+      console.log(`  ${duplicate}`);
+    }
+  }
+
+  if (diagnostics.invalidTopLevels.length > 0) {
+    console.log(`\nInvalid bundle roots (${locale}):`);
+    for (const invalid of diagnostics.invalidTopLevels.slice(0, 100)) {
+      console.log(`  ${invalid}`);
+    }
+  }
+
+  if (diagnostics.forbiddenKeys.length > 0) {
+    console.log(`\nForbidden keys (${locale}):`);
+    for (const forbidden of diagnostics.forbiddenKeys.slice(0, 100)) {
+      console.log(`  ${forbidden}`);
+    }
+  }
+}
+
+if (
+  checkMode &&
+  (missingReferences.length > 0 ||
+    [...missingByLocale.values()].some(keys => keys.length > 0) ||
+    [...diagnosticsByLocale.values()].some(
+      diagnostics =>
+        diagnostics.duplicates.length > 0 ||
+        diagnostics.invalidTopLevels.length > 0 ||
+        diagnostics.forbiddenKeys.length > 0,
+    ))
+) {
   process.exitCode = 1;
 }

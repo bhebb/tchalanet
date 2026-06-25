@@ -140,22 +140,19 @@ export class PublicResultsPage {
   /**
    * Status label rules aligned with DrawResultStatus enum:
    * - No numbers → "En attente des résultats"
-   * - CONFIRMED  → "Résultats confirmés"
-   * - OVERRIDDEN → "Résultats corrigés"
-   * - ERROR      → "Résultat en erreur"
-   * - PROVISIONAL (or unknown) → "En attente de confirmation"
+   * - CONFIRMED/OVERRIDDEN/ERROR/PROVISIONAL → shared result domain statuses
    */
   statusLabel(row: PublicDrawResultRow): string {
     if (!row.numbers.length) return 'public.results.awaiting';
     switch (row.status) {
       case 'CONFIRMED':
-        return 'public.results.status.CONFIRMED';
+        return 'domain.result.status.CONFIRMED';
       case 'OVERRIDDEN':
-        return 'public.results.status.OVERRIDDEN';
+        return 'domain.result.status.OVERRIDDEN';
       case 'ERROR':
-        return 'public.results.status.ERROR';
+        return 'domain.result.status.ERROR';
       default:
-        return 'public.results.status.PROVISIONAL';
+        return 'domain.result.status.PROVISIONAL';
     }
   }
 
@@ -168,17 +165,17 @@ export class PublicResultsPage {
   // ── Static filter definitions ───────────────────────────────────────────────
 
   readonly providerFilters: readonly { readonly id: ProviderKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'public.results.filters.all' },
-    { id: 'ny', labelKey: 'public.results.filters.new_york' },
-    { id: 'fl', labelKey: 'public.results.filters.florida' },
-    { id: 'ga', labelKey: 'public.results.filters.georgia' },
-    { id: 'tx', labelKey: 'public.results.filters.texas' },
+    { id: 'all', labelKey: 'common.all' },
+    { id: 'ny', labelKey: 'domain.draw.provider.newYork' },
+    { id: 'fl', labelKey: 'domain.draw.provider.florida' },
+    { id: 'ga', labelKey: 'domain.draw.provider.georgia' },
+    { id: 'tx', labelKey: 'domain.draw.provider.texas' },
   ];
 
   readonly slotTypeFilters: readonly { readonly id: SlotTypeKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'public.results.filters.slot_all' },
-    { id: 'mid', labelKey: 'public.results.filters.slot_mid' },
-    { id: 'eve', labelKey: 'public.results.filters.slot_eve' },
-    { id: 'late', labelKey: 'public.results.filters.slot_late' },
+    { id: 'all', labelKey: 'common.all' },
+    { id: 'mid', labelKey: 'domain.draw.slotType.mid' },
+    { id: 'eve', labelKey: 'domain.draw.slotType.eve' },
+    { id: 'late', labelKey: 'domain.draw.slotType.late' },
   ];
 }

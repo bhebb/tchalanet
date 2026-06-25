@@ -57,9 +57,15 @@
           <p>{{ 'auth.login.form.body' | translate }}</p>
         </header>
 
-        <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
+        <form
+          class="login-card__form"
+          (ngSubmit)="submit(loginForm)"
+          (keydown.enter)="submitFromEnter($event, loginForm)"
+          #loginForm="ngForm"
+          novalidate
+        >
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'auth.login.form.email' | translate }}</mat-label>
+            <mat-label>{{ 'common.field.email' | translate }}</mat-label>
             <mat-icon matPrefix aria-hidden="true">mail</mat-icon>
             <input
               matInput
@@ -73,7 +79,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'auth.login.form.password' | translate }}</mat-label>
+            <mat-label>{{ 'common.field.password' | translate }}</mat-label>
             <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
             <input
               matInput
@@ -119,7 +125,7 @@
               <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
                 progress_activity
               </span>
-              {{ 'auth.login.form.authenticating' | translate }}
+              {{ 'common.authenticating' | translate }}
             } @else {
               {{ 'auth.login.form.submit' | translate }}
               <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>

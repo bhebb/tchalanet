@@ -33,3 +33,14 @@ Each supported locale MUST provide the same required bundle filenames and final 
 - **WHEN** i18n contract validation runs
 - **THEN** each locale has the configured bundle files
 - **AND** each locale exposes the same final merged key set.
+
+### Requirement: Local bundle keys have one owning file by default
+
+Local bundles MUST NOT declare the same final translation key in multiple files unless the duplicate is an intentional, documented override. The `common.json` bundle MUST only own the `common.*` namespace.
+
+#### Scenario: Bundle ownership is checked
+
+- **GIVEN** a locale contains all configured local bundle files
+- **WHEN** i18n contract validation scans each file before merge
+- **THEN** no final key appears in more than one local bundle
+- **AND** `common.json` contains only top-level `common`.

@@ -1,0 +1,19 @@
+<section class="rules">
+  <div class="rules__intro">
+    <span class="rules__badge">{{ badgeKey() | tchLabel }}</span>
+    <h2 class="rules__title">{{ titleKey() | tchLabel }}</h2>
+    <p class="rules__body">{{ descriptionKey() | tchLabel }}</p>
+  </div>
+  <div class="rules__actions">
+    @if (primaryAction(); as action) {
+      <a tch-action variant="primary" [attr.href]="href(action)">
+        {{ labelKey(action) | tchLabel }}
+      </a>
+    } @else {
+      <a tch-action variant="primary" href="/public/rules">
+        {{ 'public.rules.cta_rules' | tchLabel }}
+      </a>
+    }
+    <p class="rules__cta-note">{{ ctaNoteKey() | tchLabel }}</p>
+  </div>
+</section>

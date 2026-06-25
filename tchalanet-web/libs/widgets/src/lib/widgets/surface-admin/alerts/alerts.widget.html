@@ -1,0 +1,21 @@
+<div class="alerts">
+  <h2 class="alerts__title">{{ titleKey() | tchLabel }}</h2>
+
+  @if (alerts().length) {
+    <ul class="alerts__list">
+      @for (alert of alerts(); track alert.id) {
+        <li class="alerts__item alerts__item--{{ alert.severity | lowercase }}">
+          <span class="alerts__severity-bar" aria-hidden="true"></span>
+          <div class="alerts__body">
+            <span class="alerts__alert-title">{{ alert.title }}</span>
+            @if (alert.message) {
+              <span class="alerts__message">{{ alert.message }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="alerts__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+</div>

@@ -1,1 +1,13 @@
-{}
+{
+  "nav": {
+    "cashier": {
+      "section": {
+        "cashier": "Kesye"
+      },
+      "dashboard": "Tablo debò",
+      "sell": "Nouvo tikè",
+      "spaceTitle": "Kesye"
+    },
+    "quick_sale": "Vant rapid"
+  }
+}

@@ -316,15 +316,28 @@ Suffixe obligatoire :
 *.widget.ts
 ```
 
+Structure recommandée pour un widget significatif :
+
+```text
+libs/widgets/src/lib/widgets/<surface>/<widget-name>/
+  <widget-name>.widget.ts
+  <widget-name>.widget.html
+  <widget-name>.widget.scss
+```
+
+`<surface>` reprend la taxonomie i18n/PageModel : `public`, `surface-admin`,
+`surface-platform`, `surface-seller-terminal` ou `shared`.
+
+Tout widget concret doit vivre dans son dossier. Le registry reste synchrone : les widgets sont
+rendus par PageModel, pas par lazy route.
+
 Exemples :
 
 ```text
-hero.widget.ts
-kpi-grid.widget.ts
-alerts.widget.ts
-quick-actions.widget.ts
-public-draw-results.widget.ts
-ticket-verification.widget.ts
+public/hero/hero.widget.ts
+public/results-preview/results-preview.widget.ts
+surface-admin/kpi-grid/kpi-grid.widget.ts
+surface-admin/commission-summary/commission-summary.widget.ts
 ```
 
 Types :

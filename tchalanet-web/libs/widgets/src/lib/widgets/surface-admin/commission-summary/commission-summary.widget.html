@@ -1,0 +1,44 @@
+<div class="commission-summary">
+  <div class="commission-summary__header">
+    <h2 class="commission-summary__title">{{ titleKey() | tchLabel }}</h2>
+    @if (manageLink()) {
+      <a class="commission-summary__manage-link" [routerLink]="manageLink()">
+        {{ 'common.manage' | tchLabel }}
+      </a>
+    }
+  </div>
+
+  <div class="commission-summary__body">
+    <div class="cs-default-rate">
+      <span class="cs-default-rate__label">{{ 'dashboard.tenant_admin.commission.default_rate' | tchLabel }}</span>
+      @if (tenantDefaultRate() !== null) {
+        <span class="cs-default-rate__value">{{ tenantDefaultRate() }}%</span>
+      } @else {
+        <span class="cs-default-rate__value cs-default-rate__value--unset">
+          {{ 'dashboard.tenant_admin.commission.default_not_set' | tchLabel }}
+        </span>
+      }
+    </div>
+
+    <div class="cs-stats">
+      <div class="cs-stat">
+        <span class="cs-stat__value">{{ totalSellerTerminals() }}</span>
+        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.seller_terminals' | tchLabel }}</span>
+      </div>
+      <div class="cs-stat">
+        <span class="cs-stat__value">{{ countAtDefaultRate() }}</span>
+        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.at_default' | tchLabel }}</span>
+      </div>
+      <div class="cs-stat">
+        <span class="cs-stat__value">{{ countWithCustomRate() }}</span>
+        <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.custom' | tchLabel }}</span>
+      </div>
+      @if (rateRange()) {
+        <div class="cs-stat">
+          <span class="cs-stat__value">{{ rateRange() }}</span>
+          <span class="cs-stat__label">{{ 'dashboard.tenant_admin.commission.rate_range' | tchLabel }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

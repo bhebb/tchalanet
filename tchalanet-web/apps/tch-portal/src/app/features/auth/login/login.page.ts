@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -26,22 +26,44 @@ import { LanguageSwitcher } from '../../../core/i18n';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   email = '';
   password = '';
 
   readonly loading = signal(false);
+  readonly checkingSession = signal(true);
   readonly errorKey = signal<string | null>(null);
   readonly passwordVisible = signal(false);
 
   private readonly authSession = inject(AuthSessionService);
   private readonly router = inject(Router);
 
+  async ngOnInit(): Promise<void> {
+    try {
+      const session = await this.authSession.refreshSession();
+      if (session.authenticated) {
+        await this.router.navigateByUrl('/app');
+      }
+    } finally {
+      this.checkingSession.set(false);
+    }
+  }
+
   togglePasswordVisibility(): void {
     this.passwordVisible.update(visible => !visible);
   }
 
-  async submit(): Promise<void> {
+  submitFromEnter(event: Event, form: NgForm): void {
+    event.preventDefault();
+    void this.submit(form);
+  }
+
+  async submit(form: NgForm): Promise<void> {
+    if (this.loading() || form.invalid) {
+      form.control.markAllAsTouched();
+      return;
+    }
+
     this.loading.set(true);
     this.errorKey.set(null);
 

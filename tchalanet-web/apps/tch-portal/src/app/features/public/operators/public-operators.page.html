@@ -149,7 +149,7 @@
         <form class="ops__form" (ngSubmit)="submitForm()">
           <div class="ops__form-row">
             <div class="ops__field">
-              <label class="ops__label" for="ops-name">{{ 'public.operator.form_name_label' | translate }}</label>
+              <label class="ops__label" for="ops-name">{{ 'common.field.name' | translate }}</label>
               <input id="ops-name" class="ops__input" type="text" [placeholder]="'public.operator.form_name_placeholder' | translate" autocomplete="name" />
             </div>
             <div class="ops__field">
@@ -159,7 +159,7 @@
           </div>
           <div class="ops__form-row">
             <div class="ops__field">
-              <label class="ops__label" for="ops-contact">{{ 'public.operator.form_contact_label' | translate }}</label>
+              <label class="ops__label" for="ops-contact">{{ 'common.field.phoneOrEmail' | translate }}</label>
               <input id="ops-contact" class="ops__input" type="text" [placeholder]="'public.operator.form_contact_placeholder' | translate" autocomplete="email" />
             </div>
             <div class="ops__field">
@@ -168,7 +168,7 @@
             </div>
           </div>
           <div class="ops__field">
-            <label class="ops__label" for="ops-message">{{ 'public.operator.form_message_label' | translate }}</label>
+            <label class="ops__label" for="ops-message">{{ 'common.field.messageOptional' | translate }}</label>
             <textarea id="ops-message" class="ops__input ops__textarea" rows="4" [placeholder]="'public.operator.form_message_placeholder' | translate"></textarea>
           </div>
           <button
@@ -178,7 +178,7 @@
             [disabled]="formState() === 'sending'"
           >
             @switch (formState()) {
-              @case ('sending') { {{ 'public.operator.form_sending' | translate }} }
+              @case ('sending') { {{ 'common.sending' | translate }} }
               @case ('sent') { {{ 'public.operator.form_sent' | translate }} }
               @default { {{ 'public.operator.form_cta' | translate }} }
             }

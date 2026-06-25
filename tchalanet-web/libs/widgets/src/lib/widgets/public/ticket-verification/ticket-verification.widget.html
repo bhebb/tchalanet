@@ -1,0 +1,53 @@
+<tch-card class="check-ticket-widget">
+  <div class="check-ticket-widget__copy">
+    <p class="check-ticket-widget__eyebrow">{{ 'public.check.eyebrow' | tchLabel }}</p>
+    <h2 class="check-ticket-widget__title">{{ titleKey() | tchLabel }}</h2>
+    <p class="check-ticket-widget__description">{{ descriptionKey() | tchLabel }}</p>
+  </div>
+
+  <form class="check-ticket-widget__form" action="#" (submit)="$event.preventDefault()">
+    <div class="check-ticket-widget__field">
+      <label class="check-ticket-widget__label" for="check-ticket-code">
+        {{ 'domain.ticket.field.publicCode' | tchLabel }}
+      </label>
+      <div class="check-ticket-widget__input-row">
+        <input
+          id="check-ticket-code"
+          class="check-ticket-widget__input"
+          name="code"
+          type="text"
+          autocomplete="off"
+          inputmode="text"
+          maxlength="9"
+          [value]="code()"
+          [placeholder]="'public.check.placeholder' | tchLabel"
+          (input)="onCodeInput($event)"
+        />
+        <a
+          tch-action
+          variant="secondary"
+          class="check-ticket-widget__scan-btn"
+          [attr.href]="path()"
+          aria-label="Scanner QR"
+        >
+          {{ 'public.check.scan_qr' | tchLabel }}
+        </a>
+      </div>
+    </div>
+
+    <div class="check-ticket-widget__actions">
+      <a
+        tch-action
+        variant="primary"
+        class="check-ticket-widget__submit"
+        [attr.href]="submitHref()"
+      >
+        {{ ctaKey() | tchLabel }}
+      </a>
+    </div>
+
+    <a class="check-ticket-widget__help" href="/public/help">
+      {{ 'public.check.help_title' | tchLabel }}
+    </a>
+  </form>
+</tch-card>

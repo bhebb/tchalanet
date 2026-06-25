@@ -1,0 +1,34 @@
+<div class="pbhero__content">
+  @if (eyebrowKey(); as ek) {
+    <p class="pbhero__eyebrow">{{ ek | tchLabel }}</p>
+  }
+  <h1 class="pbhero__title">{{ titleKey() | tchLabel }}</h1>
+  <p class="pbhero__description">{{ descriptionKey() | tchLabel }}</p>
+
+  <div class="pbhero__actions">
+    @if (primaryAction(); as action) {
+      <a class="pbhero__btn pbhero__btn--primary" [attr.href]="href(action)">
+        {{ action.labelKey | tchLabel }}
+      </a>
+    }
+    @if (secondaryAction(); as action) {
+      <a class="pbhero__btn pbhero__btn--secondary" [attr.href]="href(action)">
+        {{ action.labelKey | tchLabel }}
+      </a>
+    }
+  </div>
+</div>
+
+<div class="pbhero__visual" aria-hidden="true">
+  <div class="pbhero__stats-card">
+    @for (stat of stats(); track stat.id) {
+      <div class="pbhero__stat" [class.pbhero__stat--highlight]="stat.highlight">
+        <span class="pbhero__stat-icon material-symbols-outlined">{{ stat.icon }}</span>
+        <div class="pbhero__stat-text">
+          <span class="pbhero__stat-value">{{ stat.value }}</span>
+          <span class="pbhero__stat-label">{{ stat.labelKey | tchLabel }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,1 +1,81 @@
-{}
+{
+  "domain": {
+    "entity": {
+      "draw": "Tirage",
+      "draws": "Tirages",
+      "seller": "Vendeur",
+      "sellers": "Vendeurs",
+      "sellerTerminal": "Terminal vendeur",
+      "sellerTerminals": "Terminaux vendeurs",
+      "odds": "Barèmes",
+      "promotion": "Promotion",
+      "promotions": "Promotions",
+      "tenant": "Tenant",
+      "tenants": "Tenants",
+      "ticket": "Ticket",
+      "tickets": "Tickets",
+      "game": "Jeu",
+      "games": "Jeux",
+      "result": "Résultat",
+      "results": "Résultats",
+      "number": "Numéro"
+    },
+    "ticket": {
+      "field": {
+        "publicCode": "Code public du ticket"
+      }
+    },
+    "result": {
+      "status": {
+        "CONFIRMED": "Résultats confirmés",
+        "PROVISIONAL": "En attente de confirmation",
+        "OVERRIDDEN": "Résultats corrigés",
+        "ERROR": "Résultat en erreur"
+      },
+      "field": {
+        "date": "Date",
+        "time": "Heure",
+        "numbers": "Numéros",
+        "drawDateTime": "Date et heure du tirage",
+        "supportedSource": "Source prise en charge",
+        "lastUpdate": "Dernière mise à jour",
+        "publicReference": "Référence publique"
+      }
+    },
+    "draw": {
+      "provider": {
+        "newYork": "New York",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "texas": "Texas"
+      },
+      "slotType": {
+        "mid": "Midi",
+        "eve": "Soir",
+        "late": "Nuit"
+      },
+      "field": {
+        "provider": "Province / état",
+        "slotType": "Type de tirage"
+      }
+    },
+    "tchala": {
+      "field": {
+        "associatedNumbers": "Numéros associés"
+      }
+    },
+    "bet": {
+      "field": {
+        "option": "Option de pari",
+        "multiplier": "Multiplicateur",
+        "stake": "Mise (HTG)"
+      }
+    },
+    "payout": {
+      "field": {
+        "estimatedGain": "Gain estimé",
+        "totalEstimatedGain": "Gain total estimé"
+      }
+    }
+  }
+}

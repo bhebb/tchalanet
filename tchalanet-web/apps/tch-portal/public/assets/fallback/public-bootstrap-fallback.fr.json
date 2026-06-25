@@ -708,7 +708,7 @@
         "home.checkTicket": {
           "type": "TicketVerificationWidget",
           "props": {
-            "ctaKey": "public.ticket.cta",
+            "ctaKey": "public.check.cta",
             "titleKey": "home.check_ticket.title",
             "descriptionKey": "home.check_ticket.description",
             "destination": { "value": "/public/check-ticket", "kind": "route" }

@@ -1,36 +1,4 @@
 {
-  "notifications": {
-    "center": {
-      "title": "Notifications",
-      "open": "Ouvrir les notifications",
-      "refresh": "Actualiser les notifications",
-      "empty": {
-        "unread": "Vous n'avez aucune nouvelle notification.",
-        "read": "Vous n'avez aucune notification lue.",
-        "archived": "Vous n'avez aucune notification archivée."
-      },
-      "load_error": "Impossible de charger les notifications.",
-      "load_more_error": "Impossible de charger plus de notifications.",
-      "action_error": "Impossible de mettre à jour la notification.",
-      "load_more": "Charger plus"
-    },
-    "status": {
-      "unread": "Non lues",
-      "read": "Lues",
-      "archived": "Archivées"
-    },
-    "action": {
-      "mark_read": "Marquer comme lue",
-      "archive": "Archiver",
-      "open": "Ouvrir"
-    },
-    "severity": {
-      "info": "Information",
-      "warning": "Attention",
-      "error": "Erreur",
-      "critical": "Critique"
-    }
-  },
   "common": {
     "loading": "Chargement…",
     "status": {
@@ -46,9 +14,62 @@
       "timeout": "Délai de connexion dépassé",
       "unknown": "Une erreur inattendue s'est produite"
     },
-    "retry": "Réessayer"
-  },
-  "app": {
-    "name": "Tchalanet POS"
+    "retry": "Réessayer",
+    "manage": "Gérer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "edit": "Modifier",
+    "view": "Voir",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "refresh": "Actualiser",
+    "yes": "Oui",
+    "no": "Non",
+    "add": "Ajouter",
+    "create": "Créer",
+    "delete": "Supprimer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "resetFilters": "Réinitialiser",
+    "details": "Détails",
+    "export": "Exporter",
+    "print": "Imprimer",
+    "verify": "Vérifier",
+    "confirm": "Confirmer",
+    "archive": "Archiver",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "block": "Bloquer",
+    "unblock": "Réactiver",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "reset": "Réinitialiser",
+    "all": "Tout",
+    "sending": "Envoi en cours...",
+    "field": {
+      "name": "Nom",
+      "fullName": "Nom complet",
+      "phoneWhatsapp": "Téléphone / WhatsApp",
+      "phoneOrEmail": "Téléphone ou email",
+      "emailOptional": "Adresse email (optionnel)",
+      "organizationOptional": "Organisation (optionnel)",
+      "city": "Ville",
+      "country": "Pays",
+      "message": "Message",
+      "messageOptional": "Message optionnel",
+      "email": "Adresse email",
+      "password": "Mot de passe"
+    },
+    "authenticating": "Authentification...",
+    "alphaNavAria": "Navigation alphabétique",
+    "paginationAria": "Pagination",
+    "searchLoadError": "Erreur lors du chargement. Veuillez réessayer.",
+    "searchEmpty": "Aucun résultat pour cette recherche.",
+    "dateRange": {
+      "from": "Du",
+      "to": "Au"
+    }
   }
 }

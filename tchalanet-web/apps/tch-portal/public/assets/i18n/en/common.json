@@ -1,9 +1,4 @@
 {
-  "error": {
-    "generic": "Local error.",
-    "network": "Local connection unavailable.",
-    "not_found": "Local page not found."
-  },
   "common": {
     "error": {
       "title": "Error"
@@ -49,16 +44,52 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche"
+    },
+    "add": "Add",
+    "create": "Create",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "resetFilters": "Reset",
+    "details": "Details",
+    "export": "Export",
+    "print": "Print",
+    "verify": "Verify",
+    "confirm": "Confirm",
+    "archive": "Archive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "block": "Block",
+    "unblock": "Unblock",
+    "close": "Close",
+    "open": "Open",
+    "status": "Status",
+    "actionLabel": "Action",
+    "reset": "Reset",
+    "all": "All",
+    "sending": "Sending...",
+    "field": {
+      "name": "Name",
+      "fullName": "Full name",
+      "phoneWhatsapp": "Phone / WhatsApp",
+      "phoneOrEmail": "Phone or email",
+      "emailOptional": "Email address (optional)",
+      "organizationOptional": "Organization (optional)",
+      "city": "City",
+      "country": "Country",
+      "message": "Message",
+      "messageOptional": "Message optional",
+      "email": "Email address",
+      "password": "Password"
+    },
+    "authenticating": "Authenticating...",
+    "alphaNavAria": "Alphabetical navigation",
+    "paginationAria": "Pagination",
+    "searchLoadError": "Failed to load. Please try again.",
+    "searchEmpty": "No results for this search.",
+    "dateRange": {
+      "from": "From",
+      "to": "To"
     }
-  },
-  "app": {
-    "brand": "Tchalanet",
-    "footer": {
-      "copyright": "© Tchalanet"
-    },
-    "nav": {
-      "dashboard": "My dashboard"
-    },
-    "name": "Tchalanet"
   }
 }

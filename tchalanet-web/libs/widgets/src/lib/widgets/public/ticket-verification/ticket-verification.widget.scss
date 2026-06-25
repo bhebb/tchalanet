@@ -1,0 +1,120 @@
+@use 'mixins' as tch;
+@use 'breakpoints' as bp;
+
+tch-card.check-ticket-widget {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border-radius: var(--tch-radius-xl, 20px);
+
+  @include bp.up(medium) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+  }
+}
+
+.check-ticket-widget__copy {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.check-ticket-widget__eyebrow {
+  margin: 0;
+  color: var(--tch-color-primary, var(--mat-sys-primary));
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.check-ticket-widget__title {
+  margin: 0;
+  font-size: var(--tch-font-size-headline-mobile, 1.5rem);
+  line-height: var(--tch-line-height-headline-mobile, 2rem);
+  font-weight: 800;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+}
+
+.check-ticket-widget__description {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: var(--tch-font-size-body-md, 1rem);
+  line-height: 1.6;
+}
+
+.check-ticket-widget__form {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.check-ticket-widget__field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.check-ticket-widget__label {
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.check-ticket-widget__input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.check-ticket-widget__input {
+  min-height: var(--tch-touch-target, 48px);
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-control, 8px);
+  background: var(--tch-color-surface, var(--mat-sys-surface));
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  padding: 0 1rem;
+  font-family: var(--tch-font-family-mono, monospace);
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  @include tch.transition(border-color, standard, stay);
+
+  &:focus {
+    outline: none;
+    border-color: var(--tch-color-primary, var(--mat-sys-primary));
+  }
+
+  &::placeholder {
+    color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+    opacity: 0.6;
+    letter-spacing: 0.04em;
+  }
+}
+
+.check-ticket-widget__scan-btn {
+  white-space: nowrap;
+}
+
+.check-ticket-widget__actions {
+  display: grid;
+}
+
+.check-ticket-widget__submit {
+  --comp-action-bg: var(--tch-color-accent, var(--mat-sys-tertiary));
+  --comp-action-fg: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
+
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+.check-ticket-widget__help {
+  font-size: var(--tch-font-size-label-sm, 0.75rem);
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  @include tch.focus-visible;
+}

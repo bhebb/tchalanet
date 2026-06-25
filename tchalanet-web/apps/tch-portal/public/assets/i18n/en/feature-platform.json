@@ -1,65 +1,5 @@
 {
   "platform": {
-    "nav": {
-      "platform": "Platform",
-      "overview": "Overview",
-      "dashboard": "Dashboard",
-      "health": "Platform health",
-      "tenantsGroup": "Tenants",
-      "tenants": "All tenants",
-      "createTenant": "Create tenant",
-      "tenantOnboarding": "Onboarding",
-      "tenantAdmins": "Administrators",
-      "subscriptions": "Subscriptions",
-      "entitlements": "Entitlements",
-      "usageRights": "Usage rights",
-      "references": "Referentials",
-      "games": "Games",
-      "drawChannels": "Draw channels",
-      "resultSlots": "Result slots",
-      "plansPricing": "Plans & pricing",
-      "globalSettings": "Global settings",
-      "themes": "Themes",
-      "translations": "Translations",
-      "pageModelTemplates": "Page templates",
-      "operations": "Operations",
-      "drawResults": "Results & draws",
-      "providers": "Providers",
-      "schedulers": "Scheduled tasks",
-      "cache": "Cache",
-      "archives": "Archives",
-      "audit": "Audit",
-      "accessRights": "Access & rights",
-      "permissions": "Permissions",
-      "roles": "Roles",
-      "superAdminOverrides": "Super admin overrides",
-      "communication": "Communication",
-      "inAppNotifications": "In-app notifications",
-      "contactManagement": "Contact management",
-      "news": "News",
-      "reports": "Reports",
-      "platformReports": "Platform reports",
-      "superAdmins": "Super admins",
-      "supportTenant": "Tenant support",
-      "draws": "Draws",
-      "scheduledTasks": "Scheduled tasks",
-      "drawChannelGames": "Draw channel games",
-      "resultSlotCalendars": "Result slot calendars",
-      "plans": "Plans",
-      "pricing": "Pricing",
-      "communicationTests": "Communication tests",
-      "identitySync": "Identity sync",
-      "supportAndContent": "Support & content",
-      "contactRequests": "Contact messages",
-      "contactConfig": "Contact config",
-      "tchala": "Tchala",
-      "tchalaSuggestions": "Suggestions",
-      "tchalaImport": "Import",
-      "tchalaCleanup": "Cleanup",
-      "accessSecurity": "Access & security",
-      "users": "Users",
-      "backendKeys": "Backend signing keys"
-    },
     "placeholder": {
       "title": "Screen in preparation",
       "description": "This feature will be available in a future iteration.",
@@ -675,6 +615,74 @@
       },
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
+    },
+    "i18nOverrides": {
+      "title": "Translations",
+      "description": "Manage translation overrides by locale and level.",
+      "action": {
+        "add": "Add",
+        "refresh": "Refresh",
+        "edit": "Edit",
+        "delete": "Delete",
+        "create": "Create",
+        "save": "Save",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "confirmDelete": "Delete translation \"{{key}}\" ({{locale}})?"
+      },
+      "kpi": {
+        "keys": "Keys",
+        "locales": "Locales",
+        "overrides": "Overrides"
+      },
+      "filter": {
+        "searchPlaceholder": "i18n key...",
+        "locale": "Locale",
+        "allLocales": "All",
+        "level": "Level",
+        "allLevels": "All"
+      },
+      "state": {
+        "loading": "Loading translations...",
+        "emptyTitle": "No overrides",
+        "emptyMessage": "No translation override matches this filter."
+      },
+      "column": {
+        "locale": "Locale",
+        "level": "Level",
+        "key": "Key",
+        "value": "Value",
+        "surface": "Surface",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "pagination": {
+        "count": "{{count}} override(s)",
+        "page": "Page {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Add translation",
+        "editTitle": "Edit translation",
+        "defaultSurface": "Default (INTERNAL)",
+        "unchangedSurface": "Unchanged",
+        "keyLabel": "Key (i18nKey)",
+        "keyPlaceholder": "ex: common.welcomeTitle",
+        "valueLabel": "Value (i18nValue)",
+        "tenantIdLabel": "Tenant ID (required for TENANT level)",
+        "required": "Required."
+      },
+      "feedback": {
+        "created": "Translation created.",
+        "updated": "Translation updated.",
+        "deleted": "Translation deleted.",
+        "loadError": "Unable to load translations.",
+        "deleteError": "Unable to delete the translation.",
+        "genericError": "Unable to save the translation."
+      }
     }
   }
 }

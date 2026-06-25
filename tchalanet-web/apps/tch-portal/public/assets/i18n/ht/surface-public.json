@@ -1,0 +1,73 @@
+{
+  "brand": {
+    "logo_alt": "Logo Tchalanet"
+  },
+  "footer": {
+    "check_ticket": "Verifikasyon tikè",
+    "results": "Rezilta",
+    "support": "Èd",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "x": "X (ansyen Twitter)",
+      "youtube": "YouTube"
+    },
+    "release_notes": "Nòt vèsyon"
+  },
+  "legal": {
+    "privacy": "Konfidansyalite",
+    "terms": "Kondisyon itilizasyon"
+  },
+  "public": {
+    "footer": {
+      "description": "Enfrastrikti dijital pou jesyon pwofesyonèl tikè, tiraj ak operasyon lotri.",
+      "legal": {
+        "compliance": "Konfòmite",
+        "privacy": "Konfidansyalite",
+        "title": "Legal",
+        "terms": "Kondisyon itilizasyon"
+      },
+      "solutions": {
+        "check_ticket": "Verifikasyon tikè",
+        "operators": "Pou jeran yo",
+        "pos_management": "Jesyon seller-terminals",
+        "title": "Solisyon",
+        "ticket_verification": "Verifikasyon tikè"
+      },
+      "status": {
+        "operational": "Sistèm yo operasyonèl"
+      },
+      "support": {
+        "contact": "Kontak",
+        "help": "Èd",
+        "results": "Rezilta",
+        "rules": "Règ",
+        "status": "Eta sistèm nan",
+        "title": "Sipò",
+        "system_status": "Eta sistèm nan"
+      }
+    },
+    "nav": {
+      "check_ticket": "Verifye yon tikè",
+      "help": "Èd",
+      "home": "Akèy",
+      "login": "Konekte",
+      "main": "Navigasyon prensipal",
+      "menu": "Louvri meni an",
+      "menu_close": "Fèmen meni an",
+      "menu_open": "Louvri meni an",
+      "managers": "Pou jeran yo",
+      "operators": "Pou operatè",
+      "operators_short": "Operatè",
+      "results": "Rezilta",
+      "rules": "Règ yo",
+      "skip": "Ale nan kontni an",
+      "verify_short": "Verifye"
+    }
+  },
+  "nav": {
+    "check_ticket": "Verifye yon tikè",
+    "results": "Rezilta"
+  }
+}

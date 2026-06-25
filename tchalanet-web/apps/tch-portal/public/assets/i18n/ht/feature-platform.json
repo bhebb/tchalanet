@@ -1,65 +1,5 @@
 {
   "platform": {
-    "nav": {
-      "platform": "Platfòm",
-      "overview": "Apèsi",
-      "dashboard": "Tablo kontwòl",
-      "health": "Sante platfòm",
-      "tenantsGroup": "Tenants",
-      "tenants": "Tout tenants",
-      "createTenant": "Kreye tenant",
-      "tenantOnboarding": "Onboarding",
-      "tenantAdmins": "Administratè",
-      "subscriptions": "Abònman",
-      "entitlements": "Dwa itilizasyon",
-      "usageRights": "Dwa itilizasyon",
-      "references": "Referansyèl",
-      "games": "Jwèt",
-      "drawChannels": "Kanal tiraj",
-      "resultSlots": "Espas rezilta",
-      "plansPricing": "Plan & pri",
-      "globalSettings": "Paramèt global",
-      "themes": "Tèm",
-      "translations": "Tradiksyon",
-      "pageModelTemplates": "Modèl paj",
-      "operations": "Operasyon",
-      "drawResults": "Rezilta & tiraj",
-      "providers": "Providers",
-      "schedulers": "Travay planifye",
-      "cache": "Cache",
-      "archives": "Achiv",
-      "audit": "Odit",
-      "accessRights": "Aksè & dwa",
-      "permissions": "Pèmisyon",
-      "roles": "Wòl",
-      "superAdminOverrides": "Overrides super admin",
-      "communication": "Kominikasyon",
-      "inAppNotifications": "Notifikasyon nan app",
-      "contactManagement": "Jesyon kontak",
-      "news": "Nouvèl",
-      "reports": "Rapò",
-      "platformReports": "Rapò platfòm",
-      "superAdmins": "Super admins",
-      "supportTenant": "Support tenant",
-      "draws": "Tirages",
-      "scheduledTasks": "Tâches planifiées",
-      "drawChannelGames": "Jeux par canal",
-      "resultSlotCalendars": "Calendriers des slots",
-      "plans": "Plans",
-      "pricing": "Tarifs",
-      "communicationTests": "Tests communication",
-      "identitySync": "Synchronisation identité",
-      "supportAndContent": "Support & contenu",
-      "contactRequests": "Messages de contact",
-      "contactConfig": "Configuration contact",
-      "tchala": "Tchala",
-      "tchalaSuggestions": "Suggestions",
-      "tchalaImport": "Import",
-      "tchalaCleanup": "Nettoyage",
-      "accessSecurity": "Accès & sécurité",
-      "users": "Utilisateurs",
-      "backendKeys": "Clés publiques backend"
-    },
     "placeholder": {
       "title": "Ekran an preparasyon",
       "description": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
@@ -675,6 +615,74 @@
       },
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
+    },
+    "i18nOverrides": {
+      "title": "Tradiksyon",
+      "description": "Jere chanjman tradiksyon yo pa lang ak nivo.",
+      "action": {
+        "add": "Ajoute",
+        "refresh": "Rafrechi",
+        "edit": "Modifye",
+        "delete": "Efase",
+        "create": "Kreye",
+        "save": "Anrejistre",
+        "cancel": "Anile",
+        "retry": "Eseye ankò",
+        "confirmDelete": "Efase tradiksyon \"{{key}}\" ({{locale}})?"
+      },
+      "kpi": {
+        "keys": "Kle",
+        "locales": "Lang",
+        "overrides": "Chanjman"
+      },
+      "filter": {
+        "searchPlaceholder": "Kle i18n...",
+        "locale": "Lang",
+        "allLocales": "Tout",
+        "level": "Nivo",
+        "allLevels": "Tout"
+      },
+      "state": {
+        "loading": "Chajman tradiksyon yo...",
+        "emptyTitle": "Pa gen chanjman",
+        "emptyMessage": "Pa gen okenn tradiksyon chanje pou filtè sa a."
+      },
+      "column": {
+        "locale": "Lang",
+        "level": "Nivo",
+        "key": "Kle",
+        "value": "Valè",
+        "surface": "Sifas",
+        "active": "Aktif",
+        "actions": "Aksyon"
+      },
+      "status": {
+        "active": "Aktif",
+        "inactive": "Inaktif"
+      },
+      "pagination": {
+        "count": "{{count}} chanjman",
+        "page": "Paj {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Ajoute tradiksyon",
+        "editTitle": "Modifye tradiksyon",
+        "defaultSurface": "Pa defo (INTERNAL)",
+        "unchangedSurface": "Pa chanje",
+        "keyLabel": "Kle (i18nKey)",
+        "keyPlaceholder": "egz: common.welcomeTitle",
+        "valueLabel": "Valè (i18nValue)",
+        "tenantIdLabel": "Tenant ID (obligatwa pou nivo TENANT)",
+        "required": "Obligatwa."
+      },
+      "feedback": {
+        "created": "Tradiksyon kreye.",
+        "updated": "Tradiksyon mete ajou.",
+        "deleted": "Tradiksyon efase.",
+        "loadError": "Pa ka chaje tradiksyon yo.",
+        "deleteError": "Pa ka efase tradiksyon an.",
+        "genericError": "Pa ka anrejistre tradiksyon an."
+      }
     }
   }
 }

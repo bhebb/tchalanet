@@ -82,11 +82,11 @@ const NEWS_ITEMS: readonly NewsItem[] = [
 ];
 
 const FILTER_OPTIONS: readonly { id: NewsCategory; labelKey: string }[] = [
-  { id: 'all',     labelKey: 'public.news.filter_all' },
-  { id: 'results', labelKey: 'public.news.filter_results' },
+  { id: 'all',     labelKey: 'common.all' },
+  { id: 'results', labelKey: 'domain.entity.results' },
   { id: 'tchala',  labelKey: 'public.news.filter_tchala' },
   { id: 'system',  labelKey: 'public.news.filter_system' },
-  { id: 'promo',   labelKey: 'public.news.filter_promo' },
+  { id: 'promo',   labelKey: 'domain.entity.promotions' },
 ];
 
 @Component({

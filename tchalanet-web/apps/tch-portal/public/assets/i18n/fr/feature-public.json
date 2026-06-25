@@ -18,10 +18,6 @@
       "ticket_helper": "Entrez votre code public pour consulter le statut de votre ticket.",
       "title": "Bienvenue"
     },
-    "nav": {
-      "check_ticket": "Ticket",
-      "results": "Résultats locaux"
-    },
     "news": {
       "empty": "Aucune actualité pour le moment.",
       "empty_body": "Les actualités seront bientôt disponibles.",
@@ -38,216 +34,7 @@
       "badge": "Tradition",
       "discover": "Découvrir Tchala",
       "title": "Tchala",
-      "eyebrow": "Dictionnaire des rêves",
-      "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne.",
-      "search_placeholder": "Rechercher eau, chien, voyage…",
-      "search_label": "Rechercher un rêve",
-      "search_submit": "Chercher",
-      "all_label": "Tous",
-      "alpha_nav_aria": "Navigation alphabétique",
-      "numbers_label": "Numéros associés",
-      "searching": "Chargement…",
-      "search_error": "Erreur lors du chargement. Veuillez réessayer.",
-      "pagination_aria": "Pagination",
-      "prev_page": "Précédent",
-      "next_page": "Suivant",
-      "empty": "Aucun résultat pour cette recherche.",
-      "note_title": "Repères culturels indicatifs",
-      "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
-      "by_number_label": "Chercher par numéro",
-      "by_dream_label": "Chercher par rêve",
-      "suggest": {
-        "title": "Proposez une entrée Tchala",
-        "lead": "Vous connaissez une association rêve–numéro qui manque ? Proposez-la et notre équipe l'examinera.",
-        "lead_short": "Un mot manque ?",
-        "dream_label": "Rêve ou symbole",
-        "dream_placeholder": "ex. Crapaud",
-        "numbers_label": "Numéros associés",
-        "numbers_placeholder": "ex. 12 45",
-        "numbers_hint": "Séparez les numéros par un espace ou une virgule (0–99).",
-        "note_label": "Note (facultatif)",
-        "note_placeholder": "Contexte ou précision culturelle…",
-        "submit": "Proposer",
-        "success": "Merci ! Votre suggestion a été reçue et sera examinée.",
-        "suggest_again": "Proposer un autre mot",
-        "error": "Une erreur est survenue. Veuillez réessayer.",
-        "closed": "La boîte de suggestions est temporairement pleine. Revenez plus tard."
-      },
-      "dream": {
-        "poisson": "Poisson",
-        "serpent": "Serpent",
-        "argent": "Argent",
-        "mariage": "Mariage"
-      }
-    }
-  },
-  "brand": {
-    "logo_alt": "Logo Tchalanet"
-  },
-  "footer": {
-    "check_ticket": "Vérification de tickets",
-    "results": "Résultats",
-    "support": "Aide",
-    "social": {
-      "x": "X (ex-Twitter)",
-      "linkedin": "LinkedIn",
-      "facebook": "Facebook",
-      "instagram": "Instagram",
-      "youtube": "YouTube"
-    },
-    "release_notes": "Notes de version"
-  },
-  "legal": {
-    "privacy": "Confidentialité",
-    "terms": "Conditions d’utilisation"
-  },
-  "nav": {
-    "check_ticket": "Vérifier un ticket",
-    "results": "Résultats",
-    "platform": {
-      "section": {
-        "platform": "Plateforme"
-      },
-      "dashboard": "Tableau de bord",
-      "tenants": "Tenants",
-      "tenantProvisioning": "Provisionnement tenant",
-      "contactRequests": "Demandes de contact",
-      "news": "Actualités",
-      "notifications": "Notifications",
-      "ops": "Opérations",
-      "spaceTitle": "Plateforme"
-    },
-    "admin": {
-      "section": {
-        "admin": "Administration"
-      },
-      "dashboard": "Tableau de bord",
-      "onboarding": "Onboarding",
-      "users": "Utilisateurs",
-      "controls": "Contrôles",
-      "commission": "Commissions",
-      "odds": "Odds",
-      "baremes": "Barèmes",
-      "draw_channels": "Config canaux",
-      "bonuses": "Primes",
-      "maryaj_free": "Maryaj gratis",
-      "active_promotions": "Promotions actives",
-      "today_report": "Rapport du jour",
-      "export_print": "Export / impression",
-      "setup": "Configuration",
-      "more": "Plus",
-      "general_configuration": "Configuration générale",
-      "my_space": "Mon espace",
-      "my_account": "Mon compte",
-      "support": "Support",
-      "connexions": "Connexions",
-      "settings": "Paramètres",
-      "businessProfile": "Mon espace entreprise",
-      "spaceTitle": "Admin",
-      "all_draws": "Tous les tirages",
-      "upcoming_draws": "Tirages à venir",
-      "past_draws": "Tirages passés",
-      "seller_terminals": "Vendeurs",
-      "seller_terminal_list": "Liste vendeurs",
-      "seller_terminal_new": "Nouveau vendeur",
-      "seller_terminal_add": "Ajouter seller-terminal",
-      "seller_terminal_active": "Seller-terminals actifs",
-      "draw_sales_matrix": "Matrice tirages",
-      "games_pricing": "Jeux & tarifs",
-      "limits_rules": "Guide des règles",
-      "sellers": "Vendeurs",
-      "sellers_list": "Liste des vendeurs",
-      "sellers_new": "Nouveau vendeur",
-      "draws_open": "Tirages en cours",
-      "draws_past": "Tirages passés",
-      "draws_matrix": "Matrice des tirages",
-      "draws_channels": "Configuration des tirages",
-      "limits_section": "Limites",
-      "limits_system": "Limites système",
-      "limits_global": "Limite générale",
-      "limits_seller": "Par vendeur",
-      "limits_number": "Par numéro",
-      "limits_game": "Par jeu",
-      "limits_draw": "Par tirage",
-      "controls_sale": "Contrôles de vente",
-      "controls_games": "Jeux & tarifs",
-      "controls_gains": "Gains à payer",
-      "controls_commissions": "Commissions",
-      "reports_sales": "Ventes",
-      "reports_sellers": "Vendeurs",
-      "reports_draws": "Tirages",
-      "reports_exports": "Exportations",
-      "tickets_section": "Tickets",
-      "tickets_list": "Liste des tickets",
-      "tickets_sell": "Vendre",
-      "tickets_verify": "Vérifier",
-      "company": "Mon entreprise",
-      "company_identity": "Identité",
-      "company_address": "Adresse",
-      "company_appearance": "Apparence",
-      "company_settings": "Paramètres",
-      "company_support": "Support",
-      "help": "Aide"
-    },
-    "cashier": {
-      "section": {
-        "cashier": "Caissier"
-      },
-      "dashboard": "Tableau de bord",
-      "sell": "Nouveau ticket",
-      "spaceTitle": "Caissier"
-    },
-    "private": {
-      "ariaLabel": "Navigation privée"
-    },
-    "dashboard": "Tableau de bord",
-    "tenant_overview": "Vue d'ensemble",
-    "users": "Utilisateurs",
-    "outlets": "Seller-terminals",
-    "seller-terminals": "Seller-terminals",
-    "connexions": "Connexions",
-    "tickets_sales": "Tickets & ventes",
-    "draws": "Tirages",
-    "games_pricing": "Jeux & tarifs",
-    "limits": "Limites",
-    "promotions": "Promotions",
-    "settings": "Paramètres",
-    "translations": "Traductions",
-    "appearance": "Apparence",
-    "reports": "Rapports",
-    "quick_sale": "Vente rapide",
-    "tickets": "Tickets",
-    "verify_ticket": "Vérifier un ticket",
-    "connexion": "Connexion",
-    "tenants": "Tenants",
-    "tenant_onboarding": "Onboarding tenant",
-    "subscriptions": "Abonnements",
-    "platform_overview": "Vue plateforme",
-    "platform_health": "Santé plateforme",
-    "platform_reports": "Rapports plateforme",
-    "notifications": "Notifications",
-    "notifications_communications": "Notifications & communications",
-    "audit": "Audit",
-    "cache": "Cache",
-    "jobs_schedulers": "Tâches & planificateurs",
-    "referentials": "Référentiels",
-    "global_settings": "Paramètres globaux",
-    "global_translations": "Traductions globales",
-    "global_draw_channels": "Canaux de tirage globaux",
-    "theme_presets": "Thèmes",
-    "language": "Langue",
-    "theme_toggle": "Thème clair/sombre",
-    "profile": "Profil",
-    "toggle_menu": "Ouvrir/fermer le menu",
-    "section": {
-      "administration": "Administration",
-      "games_sales": "Jeux & ventes",
-      "business_rules": "Règles métier",
-      "personalization": "Personnalisation",
-      "reports": "Rapports",
-      "platform": "Plateforme",
-      "operations": "Opérations",
-      "global_configuration": "Configuration globale"
+      "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne."
     }
   },
   "cta": {
@@ -277,37 +64,8 @@
     }
   },
   "public": {
-    "footer": {
-      "description": "Infrastructure digitale pour la gestion professionnelle des tickets, tirages et opérations de loterie.",
-      "legal": {
-        "compliance": "Conformité",
-        "privacy": "Confidentialité",
-        "title": "Légal",
-        "terms": "Conditions d’utilisation"
-      },
-      "solutions": {
-        "check_ticket": "Vérification de tickets",
-        "operators": "Pour gestionnaires",
-        "pos_management": "Gestion des seller-terminals",
-        "title": "Solutions",
-        "ticket_verification": "Vérification de ticket"
-      },
-      "status": {
-        "operational": "Systèmes opérationnels"
-      },
-      "support": {
-        "contact": "Contact",
-        "help": "Aide",
-        "results": "Résultats",
-        "rules": "Règles",
-        "status": "État du système",
-        "title": "Support",
-        "system_status": "État du système"
-      }
-    },
     "help": {
       "cat_aria": "Catégories d'aide",
-      "cat_games": "Jeux",
       "cat_payments": "Paiements",
       "cat_security": "Sécurité",
       "cat_withdrawals": "Retraits",
@@ -371,23 +129,6 @@
         "title": "Derniers tirages",
         "subtitle": "Résultats confirmés selon les sources prises en charge."
       }
-    },
-    "nav": {
-      "check_ticket": "Vérifier un ticket",
-      "help": "Aide",
-      "home": "Accueil",
-      "login": "Connexion",
-      "main": "Navigation principale",
-      "menu": "Ouvrir le menu",
-      "menu_close": "Fermer le menu",
-      "menu_open": "Ouvrir le menu",
-      "managers": "Pour gestionnaires",
-      "operators": "Pour opérateurs",
-      "operators_short": "Opérateurs",
-      "results": "Résultats",
-      "rules": "Règles",
-      "skip": "Aller au contenu",
-      "verify_short": "Vérifier"
     },
     "manager": {
       "access": "Accès gestionnaire",
@@ -481,19 +222,16 @@
       "access_plan_body": "Les accès et limites sont appliqués selon votre configuration.",
       "form_title": "Demander une démonstration",
       "form_body": "Décrivez votre seller-terminal ou votre réseau. Nous vous recontacterons avec une démonstration adaptée.",
-      "form_name_label": "Nom",
       "form_name_placeholder": "Ex: Reginald Louisjuste",
       "form_org_label": "Organisation / seller-terminal",
       "form_org_placeholder": "Ex: Borlette Étoile du Nord",
-      "form_contact_label": "Téléphone ou email",
       "form_contact_placeholder": "contact@exemple.com",
       "form_city_label": "Ville / zone",
       "form_city_placeholder": "Ex: Carrefour, Cap-Haïtien…",
-      "form_message_label": "Message optionnel",
       "form_message_placeholder": "Ex: J'ai 3 seller-terminals à Carrefour et je cherche à gérer mes tirages quotidiens.",
       "form_cta": "Demander une démo",
-      "form_sending": "Envoi en cours...",
       "form_sent": "Demande envoyée !",
+      "form_error": "Impossible d'envoyer la demande. Vérifiez vos informations et réessayez.",
       "faq_title": "Questions fréquentes",
       "faq_trial_q": "Comment fonctionne la période d'essai ?",
       "faq_trial_a": "La période d'essai vous permet de tester l'application avec un nombre limité de seller-terminals ou seller-terminals selon le plan disponible.",
@@ -558,7 +296,21 @@
       "security_title": "Résultat sécurisé",
       "status_label": "Statut du ticket",
       "verify_another": "Vérifier un autre ticket",
-      "visual_badge": "Ticket vérifiable"
+      "visual_badge": "Ticket vérifiable",
+      "receipt": {
+        "code": "Code",
+        "date": "Date",
+        "outlet": "PDV",
+        "drawDate": "Date tir.",
+        "totalStake": "Total mise",
+        "gain": "Gain"
+      },
+      "cta": "Vérifier maintenant",
+      "description": "Entrez votre code public pour consulter le statut de votre ticket.",
+      "eyebrow": "Vérification publique du ticket",
+      "placeholder": "AB12-CD34",
+      "scan_qr": "Scanner QR",
+      "title": "Vérifier un ticket"
     },
     "markdown": {
       "error": "Impossible de charger ce contenu. Veuillez réessayer.",
@@ -566,10 +318,7 @@
     },
     "news": {
       "feed_aria": "Fil d'actualités",
-      "filter_all": "Tout",
       "filter_aria": "Filtrer les actualités",
-      "filter_promo": "Promotions",
-      "filter_results": "Résultats",
       "filter_system": "Système",
       "filter_tchala": "Tchala",
       "title": "Actualités",
@@ -622,7 +371,6 @@
     },
     "results": {
       "all": "Tous les résultats",
-      "detail": "Voir détail",
       "detail_eyebrow": "Statut du résultat",
       "detail_status": {
         "CONFIRMED": {
@@ -642,7 +390,6 @@
           "title": "Résultat en erreur"
         }
       },
-      "draw_datetime": "Date et heure du tirage",
       "empty": "Aucun résultat disponible pour le moment.",
       "fallback": {
         "draw_date": "20 mai 2024",
@@ -650,25 +397,10 @@
         "updated_at": "20 mai 2024 · 14:42"
       },
       "filters": {
-        "all": "Tout",
         "aria": "Filtres de résultats",
-        "florida": "Florida",
-        "georgia": "Georgia",
-        "more": "Plus de filtres",
-        "new_york": "New York",
-        "texas": "Texas",
-        "provider": "Province / état",
-        "slot_type": "Type de tirage",
-        "slot_all": "Tous",
-        "slot_mid": "Midi",
-        "slot_eve": "Soir",
-        "slot_late": "Nuit",
-        "from": "Du",
-        "to": "Au"
+        "more": "Plus de filtres"
       },
-      "game": "Jeu",
       "latest_title": "Derniers tirages",
-      "last_update": "Dernière mise à jour",
       "list": {
         "accent_label": "Référence",
         "clear_filters": "Effacer les filtres",
@@ -683,40 +415,21 @@
         "updated": "Mis à jour selon les sources prises en charge.",
         "yesterday": "Hier"
       },
-      "public_reference": "Référence publique",
       "receipt_note": "Résultat affiché à titre de consultation publique.",
       "receipt_title": "Détail du tirage",
       "related_title": "Résultats liés",
-      "status": {
-        "CONFIRMED": "Résultats confirmés",
-        "PROVISIONAL": "En attente de confirmation",
-        "OVERRIDDEN": "Résultats corrigés",
-        "ERROR": "Résultat en erreur"
-      },
       "status_label": "Statut du résultat",
       "subtitle": "Résultats confirmés selon les sources prises en charge.",
-      "supported_source": "Source prise en charge",
       "verify_ticket": "Vérifier un ticket",
       "numbers_pending": "Numéros en attente de publication.",
       "loading": "Chargement des tirages…",
       "load_error": "Impossible de charger les résultats. Vérifiez votre connexion.",
-      "retry": "Réessayer",
       "pagination": {
-        "prev": "Précédent",
-        "next": "Suivant",
         "total": "résultat(s)",
         "per_page": "Par page"
       },
       "next_in": "Prochain tirage dans",
       "awaiting": "En attente des résultats",
-      "table": {
-        "date": "Date",
-        "draw": "Tirage",
-        "time": "Heure",
-        "status": "Statut",
-        "numbers": "Numéros",
-        "action": "Action"
-      },
       "copy_ref": "Copier la référence",
       "copied": "Copié !"
     },
@@ -730,8 +443,6 @@
       "badge": "Indicatif",
       "cta_note": "Simulation indicative disponible selon les jeux configurés.",
       "cta_rules": "Consulter les règles",
-      "calc_amount_label": "Mise (HTG)",
-      "calc_gain_label": "Gain estimé",
       "calc_game_aria": "Sélectionner le type de jeu",
       "calc_note": "Indicatif — non garanti",
       "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du seller-terminal, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
@@ -773,7 +484,8 @@
         },
         "maryaj_gratis": {
           "title": "Maryaj gratis"
-        }
+        },
+        "bet_options_title": "Options de pari"
       },
       "hero_caption": "Aperçu visuel public, sans promesse de résultat.",
       "hero_image_alt": "Personne consultant un service mobile Tchalanet",
@@ -803,11 +515,11 @@
         },
         "eyebrow": "Tchala",
         "jump_link": "Voir Tchala",
-        "numbers_label": "Numéros associés",
         "search_label": "Rechercher un repère Tchala",
         "search_placeholder": "Rechercher eau, chien, argent…",
         "subtitle": "Une liste indicative de repères culturels. Ces associations ne garantissent aucun résultat.",
-        "title": "Repères Tchala"
+        "title": "Repères Tchala",
+        "see_all": "Voir tous les repères Tchala"
       },
       "verify_link": "Vérifier un ticket",
       "title": "Règles des jeux et simulation",
@@ -842,19 +554,16 @@
       "simulation": {
         "number_a_label": "Numéro A",
         "number_b_label": "Numéro B",
-        "number_field_label": "Numéro"
+        "gain_for_100": "Gain pour 100 HTG",
+        "mariage_different_note": "Pour Mariage, choisissez deux numéros différents selon les règles affichées.",
+        "multiplier_custom_badge": "personnalisé",
+        "multiplier_note": "Le multiplicateur est indicatif et peut varier selon les règles du tenant.",
+        "borlette_gain_line": "Gain Borlette",
+        "maryaj_gratis_gain_line": "Bonus Maryaj gratis"
+      },
+      "maryaj_gratis": {
+        "availability_note": "Maryaj gratis est disponible selon les règles du jeu et le catalogue actif."
       }
-    },
-    "ticket": {
-      "code_label": "Code public du ticket",
-      "cta": "Vérifier maintenant",
-      "description": "Entrez votre code public pour consulter le statut de votre ticket.",
-      "eyebrow": "Vérification publique du ticket",
-      "help": "Où trouver le code public ?",
-      "placeholder": "AB12-CD34",
-      "scan_qr": "Scanner QR",
-      "title": "Vérifier un ticket",
-      "status_pending": "En attente"
     },
     "tchala": {
       "eyebrow": "Dictionnaire des rêves",
@@ -862,15 +571,6 @@
       "subtitle": "Explorez les correspondances traditionnelles entre rêves, symboles et numéros de chance. Une expérience culturelle indicative inspirée de la tradition haïtienne.",
       "search_label": "Rechercher un rêve",
       "search_placeholder": "Rechercher eau, chien, voyage…",
-      "alpha_nav_aria": "Navigation alphabétique",
-      "all_label": "Tous",
-      "numbers_label": "Numéros associés",
-      "searching": "Chargement…",
-      "search_error": "Erreur lors du chargement. Veuillez réessayer.",
-      "pagination_aria": "Pagination",
-      "prev_page": "Précédent",
-      "next_page": "Suivant",
-      "empty": "Aucun résultat pour cette recherche.",
       "note_title": "Repères culturels indicatifs",
       "note_body": "Ces associations sont issues de la tradition du Tchala haïtien et sont présentées à titre indicatif. Elles ne constituent pas une garantie de résultat.",
       "suggest": {
@@ -879,7 +579,6 @@
         "lead_short": "Un mot manque ?",
         "dream_label": "Rêve ou symbole",
         "dream_placeholder": "ex. Crapaud",
-        "numbers_label": "Numéros associés",
         "numbers_placeholder": "ex. 12 45",
         "numbers_hint": "Séparez les numéros par un espace ou une virgule (0–99).",
         "note_label": "Note (facultatif)",
@@ -900,16 +599,8 @@
         "PARTNERSHIP": "Partenariat",
         "OTHER": "Autre"
       },
-      "full_name_label": "Nom complet",
-      "phone_label": "Téléphone / WhatsApp",
-      "email_label": "Adresse email (optionnel)",
-      "organization_label": "Organisation (optionnel)",
-      "city_label": "Ville",
-      "country_label": "Pays",
-      "message_label": "Message",
       "consent_label": "J'accepte d'être contacté par l'équipe Tchalanet",
       "submit_cta": "Envoyer ma demande",
-      "submitting": "Envoi en cours…",
       "success_title": "Demande reçue",
       "success_body": "Votre demande a été reçue. Notre équipe vous contactera bientôt.",
       "error_title": "Erreur",
@@ -922,9 +613,7 @@
     "shared": {
       "pagination": {
         "aria": "Pagination",
-        "next": "Suivant",
         "per_page": "Par page",
-        "prev": "Précédent",
         "total": "Total"
       }
     }

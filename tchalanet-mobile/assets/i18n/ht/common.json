@@ -1,36 +1,4 @@
 {
-  "notifications": {
-    "center": {
-      "title": "Notifikasyon",
-      "open": "Louvri notifikasyon yo",
-      "refresh": "Rafrechi notifikasyon yo",
-      "empty": {
-        "unread": "Ou pa gen nouvo notifikasyon.",
-        "read": "Ou pa gen notifikasyon ou deja li.",
-        "archived": "Ou pa gen notifikasyon achive."
-      },
-      "load_error": "Nou pa kapab chaje notifikasyon yo.",
-      "load_more_error": "Nou pa kapab chaje plis notifikasyon.",
-      "action_error": "Nou pa kapab mete notifikasyon an ajou.",
-      "load_more": "Chaje plis"
-    },
-    "status": {
-      "unread": "Nouvo",
-      "read": "Li",
-      "archived": "Achive"
-    },
-    "action": {
-      "mark_read": "Make kòm li",
-      "archive": "Achive",
-      "open": "Louvri"
-    },
-    "severity": {
-      "info": "Enfòmasyon",
-      "warning": "Atansyon",
-      "error": "Erè",
-      "critical": "Kritik"
-    }
-  },
   "common": {
     "loading": "Chajman an kou…",
     "status": {
@@ -46,9 +14,62 @@
       "timeout": "Tan koneksyon an fini",
       "unknown": "Gen yon erè nou pa t atann"
     },
-    "retry": "Eseye ankò"
-  },
-  "app": {
-    "name": "Tchalanet POS"
+    "retry": "Eseye ankò",
+    "manage": "Jere",
+    "back": "Retounen",
+    "cancel": "Anile",
+    "next": "Pwochen",
+    "previous": "Anvan",
+    "edit": "Modifye",
+    "view": "Wè",
+    "save": "Anrejistre",
+    "saving": "Anrejistreman...",
+    "refresh": "Rafrechi",
+    "yes": "Wi",
+    "no": "Non",
+    "add": "Ajoute",
+    "create": "Kreye",
+    "delete": "Efase",
+    "search": "Chèche",
+    "filter": "Filtre",
+    "resetFilters": "Reyajiste",
+    "details": "Detay",
+    "export": "Ekspòte",
+    "print": "Enprime",
+    "verify": "Verifye",
+    "confirm": "Konfime",
+    "archive": "Achive",
+    "activate": "Aktive",
+    "deactivate": "Dezaktive",
+    "block": "Bloke",
+    "unblock": "Debloke",
+    "close": "Fèmen",
+    "open": "Louvri",
+    "reset": "Reyajiste",
+    "all": "Tout",
+    "sending": "Ap voye...",
+    "field": {
+      "name": "Non",
+      "fullName": "Non konplè",
+      "phoneWhatsapp": "Telefòn / WhatsApp",
+      "phoneOrEmail": "Telefòn oswa email",
+      "emailOptional": "Adrès email (opsyonèl)",
+      "organizationOptional": "Òganizasyon (opsyonèl)",
+      "city": "Vil",
+      "country": "Peyi",
+      "message": "Mesaj",
+      "messageOptional": "Mesaj opsyonèl",
+      "email": "Adrès email",
+      "password": "Modpas"
+    },
+    "authenticating": "Otantifikasyon...",
+    "alphaNavAria": "Navigasyon alfabetik",
+    "paginationAria": "Paginasyon",
+    "searchLoadError": "Chajman an echwe. Tanpri eseye ankò.",
+    "searchEmpty": "Pa gen rezilta pou rechèch sa a.",
+    "dateRange": {
+      "from": "Soti",
+      "to": "Jiska"
+    }
   }
 }

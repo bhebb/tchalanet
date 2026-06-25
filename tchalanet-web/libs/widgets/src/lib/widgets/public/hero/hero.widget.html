@@ -1,0 +1,47 @@
+<div class="hero-widget__content">
+  @if (eyebrowKey()) {
+    <p class="hero-widget__eyebrow">{{ eyebrowKey() | tchLabel }}</p>
+  }
+  <h1 class="hero-widget__title">{{ titleKey() | tchLabel }}</h1>
+  @if (descriptionKey()) {
+    <p class="hero-widget__description">{{ descriptionKey() | tchLabel }}</p>
+  }
+  @if (primaryAction() || secondaryActions().length) {
+    <div class="hero-widget__actions">
+      @if (primaryAction(); as action) {
+        <a
+          tch-action
+          variant="primary"
+          class="hero-widget__action hero-widget__action--primary"
+          [attr.href]="href(action)"
+        >
+          {{ action.label ?? (action.labelKey | tchLabel) }}
+        </a>
+      }
+      @for (action of secondaryActions(); track action.id ?? action.labelKey) {
+        <a
+          tch-action
+          variant="tertiary"
+          class="hero-widget__action hero-widget__action--secondary"
+          [attr.href]="href(action)"
+        >
+          {{ action.label ?? (action.labelKey | tchLabel) }}
+        </a>
+      }
+    </div>
+  }
+</div>
+
+<div class="hero-widget__visual" aria-hidden="true">
+  <div class="hero-widget__ticket-card">
+    <div class="hero-widget__ticket-header">
+      <span class="hero-widget__ticket-label">{{ 'domain.ticket.field.publicCode' | tchLabel }}</span>
+      <span class="hero-widget__ticket-qr-icon" aria-hidden="true">▣</span>
+    </div>
+    <div class="hero-widget__ticket-code">{{ ticketCodeLiteral() ?? ('public.check.placeholder' | tchLabel) }}</div>
+    <div class="hero-widget__ticket-status-row">
+      <span class="hero-widget__ticket-badge">{{ statusLabelKey() | tchLabel }}</span>
+    </div>
+    <p class="hero-widget__ticket-note">{{ helperTextKey() | tchLabel }}</p>
+  </div>
+</div>

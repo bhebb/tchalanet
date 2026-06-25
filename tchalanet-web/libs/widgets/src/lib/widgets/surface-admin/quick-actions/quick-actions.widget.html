@@ -1,0 +1,26 @@
+<div class="quick-actions">
+  <h2 class="quick-actions__title">{{ titleKey() | tchLabel }}</h2>
+  <div class="quick-actions__grid">
+    @for (action of actions(); track action.id ?? action.labelKey) {
+      @if (routerPath(action); as path) {
+        <a class="qa-card" [routerLink]="path">
+          @if (action.icon) {
+            <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
+              {{ action.icon }}
+            </span>
+          }
+          <span class="qa-card__label">{{ action.labelKey | tchLabel }}</span>
+        </a>
+      } @else {
+        <a class="qa-card" [attr.href]="destinationHref(action.destination)">
+          @if (action.icon) {
+            <span class="qa-card__icon material-symbols-outlined" aria-hidden="true">
+              {{ action.icon }}
+            </span>
+          }
+          <span class="qa-card__label">{{ action.labelKey | tchLabel }}</span>
+        </a>
+      }
+    }
+  </div>
+</div>

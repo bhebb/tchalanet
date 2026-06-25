@@ -1,0 +1,18 @@
+<section class="pbaccess">
+  <div class="pbaccess__header">
+    <h2 class="pbaccess__title">{{ titleKey() | tchLabel }}</h2>
+    @if (descriptionKey(); as dk) {
+      <p class="pbaccess__desc">{{ dk | tchLabel }}</p>
+    }
+  </div>
+
+  <ul class="pbaccess__grid" role="list">
+    @for (item of items(); track item.id) {
+      <li class="pbaccess__item">
+        <span class="pbaccess__icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+        <h3 class="pbaccess__item-title">{{ item.titleKey | tchLabel }}</h3>
+        <p class="pbaccess__item-desc">{{ item.descriptionKey | tchLabel }}</p>
+      </li>
+    }
+  </ul>
+</section>
