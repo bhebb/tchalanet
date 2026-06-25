@@ -9,6 +9,7 @@
     "lint": "nx run tch-portal:lint",
     "format": "prettier --write .",
     "test": "nx run tch-portal:test",
+    "contracts:check": "pnpm i18n:inventory -- --check && pnpm widgets:contract",
     "i18n:inventory": "node tools/i18n-inventory.mjs",
     "widgets:contract": "node tools/widget-registry-contract.mjs",
     "theme:generate": "node libs/ui/theme/tools/generate-theme-registry.mjs",

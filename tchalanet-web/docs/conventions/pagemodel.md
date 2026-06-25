@@ -580,5 +580,7 @@ Before merging PageModel changes:
 * [ ] Unsupported widget fallback exists.
 * [ ] A widget failure cannot blank the page.
 * [ ] New concrete widgets are registered in `libs/widgets`.
+* [ ] Public fallback widget types pass `pnpm widgets:contract`.
+* [ ] i18n references pass `pnpm i18n:inventory -- --check`.
 * [ ] `libs/page-model` does not import `libs/widgets`.
 * [ ] No auth/theme/i18n/settings payload is embedded in PageModel.
