@@ -57,7 +57,7 @@
           <p>{{ 'auth.login.form.body' | translate }}</p>
         </header>
 
-        <form class="login-card__form" (ngSubmit)="submit()" #loginForm="ngForm">
+        <form class="login-card__form" (ngSubmit)="submit(loginForm)" #loginForm="ngForm" novalidate>
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.field.email' | translate }}</mat-label>
             <mat-icon matPrefix aria-hidden="true">mail</mat-icon>
@@ -113,7 +113,7 @@
           <button
             class="login-submit"
             type="submit"
-            [disabled]="loading() || loginForm.invalid"
+            [disabled]="checkingSession() || loading() || loginForm.invalid"
           >
             @if (loading()) {
               <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
