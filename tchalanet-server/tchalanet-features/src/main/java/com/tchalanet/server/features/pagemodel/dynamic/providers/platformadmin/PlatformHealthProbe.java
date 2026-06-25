@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.platformadmin.dashboard;
+package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import java.util.Map;
 

@@ -23,6 +23,7 @@ import { AlertsWidget } from './widgets/surface-admin/alerts/alerts.widget';
 import { CommissionSummaryWidget } from './widgets/surface-admin/commission-summary/commission-summary.widget';
 import { KpiGridWidget } from './widgets/surface-admin/kpi-grid/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/surface-admin/quick-actions/quick-actions.widget';
+import { RankingListWidget } from './widgets/surface-admin/ranking-list/ranking-list.widget';
 import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summary/readiness-summary.widget';
 
 /**
@@ -36,6 +37,7 @@ export const WIDGET_REGISTRY: Readonly<Record<string, Type<unknown>>> = {
   AlertsWidget,
   CommissionSummaryWidget,
   ReadinessSummaryWidget,
+  RankingListWidget,
   QuickActionsWidget,
   HeroWidget,
   NewsTickerWidget,

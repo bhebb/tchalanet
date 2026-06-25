@@ -1,0 +1,98 @@
+{
+  "code": "private.dashboard.superadmin.ops",
+  "logicalId": "private.dashboard.superadmin.ops",
+  "scope": "private",
+  "slug": "dashboard",
+  "name": "Superadmin ops dashboard",
+  "label": "Superadmin ops dashboard",
+  "schemaVersion": 2,
+  "schema": {},
+  "isDefault": true,
+  "level": "GLOBAL",
+  "tenantId": null,
+  "description": "Superadmin Ops dashboard V0: platform health and operational actions.",
+  "model": {
+    "meta": {
+      "id": "private.dashboard.superadmin.ops",
+      "scope": "private",
+      "slug": "dashboard",
+      "context": "private_dashboard_superadmin_ops",
+      "schemaVersion": 2,
+      "langs": ["fr", "en", "ht"],
+      "defaultLang": "fr"
+    },
+    "theme": {
+      "presetId": "tchalanet_default",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "component": "PrivateShell",
+      "binding": {
+        "mode": "dynamic",
+        "source": "jsonFile"
+      },
+      "props": {
+        "fileKey": "private_shell_superadmin"
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "opsHealth",
+            "labelKey": "layout.private_dashboard_superadmin_ops.health",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.superadmin.ops.health"]
+              }
+            ]
+          },
+          {
+            "id": "opsActions",
+            "labelKey": "layout.private_dashboard_superadmin_ops.actions",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.superadmin.ops.quickActions"]
+              }
+            ]
+          }
+        ]
+      },
+      "widgets": {
+        "dashboard.superadmin.ops.health": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.health.title",
+            "items": [
+              {
+                "id": "global",
+                "labelKey": "platform.kpi.systemHealth.label",
+                "icon": "monitor_heart",
+                "tone": "success",
+                "value": { "source": "dynamic", "path": "global" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.ops.quickActions": {
+          "type": "QuickActionsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.quick_actions.title"
+          }
+        }
+      }
+    }
+  }
+}

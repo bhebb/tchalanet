@@ -11,6 +11,9 @@ interface NewsItem {
   readonly title_key?: string;
   readonly date?: string;
   readonly source?: string;
+  readonly sourceType?: string;
+  readonly sourceUrl?: string;
+  readonly publishedAt?: string;
 }
 
 interface NewsDynamic {

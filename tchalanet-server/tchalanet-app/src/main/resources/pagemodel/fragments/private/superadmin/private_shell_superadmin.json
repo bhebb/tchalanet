@@ -134,24 +134,25 @@
         "label": null,
         "items": [
           {
-            "id": "overview",
-            "label_key": "platform.nav.overview",
+            "id": "dashboard",
+            "label_key": "platform.nav.dashboard",
             "icon": "space_dashboard",
             "children": [
               {
+                "id": "platform-health",
+                "label_key": "platform.nav.opsDashboard",
+                "path": "/app/platform",
+                "kind": "internal",
+                "icon": "monitor_heart",
+                "active_match": "exact"
+              },
+              {
                 "id": "platform-dashboard",
-                "label_key": "platform.nav.dashboard",
+                "label_key": "platform.nav.commercialDashboard",
                 "path": "/app/platform/dashboard",
                 "kind": "internal",
                 "icon": "dashboard",
                 "active_match": "exact"
-              },
-              {
-                "id": "platform-health",
-                "label_key": "platform.nav.health",
-                "path": "/app/platform/ops/health",
-                "kind": "internal",
-                "icon": "monitor_heart"
               }
             ]
           },

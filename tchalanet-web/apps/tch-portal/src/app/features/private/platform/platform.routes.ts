@@ -11,11 +11,6 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('../shell/page-model-host/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
-  {
-    path: 'overview',
-    loadComponent: () =>
-      import('../shell/page-model-host/private-dashboard.page').then(m => m.PrivateDashboardPage),
-  },
   // ── Tenants ────────────────────────────────────────────────────────────────
   {
     path: 'tenants',

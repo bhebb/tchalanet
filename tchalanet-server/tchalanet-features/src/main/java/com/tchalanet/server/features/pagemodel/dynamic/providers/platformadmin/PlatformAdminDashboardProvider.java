@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.platformadmin.dashboard;
+package com.tchalanet.server.features.pagemodel.dynamic.providers.platformadmin;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
  * Supported widget ids:
  *   - dashboard.superadmin.health
  *   - dashboard.superadmin.tenants
+ *   - dashboard.superadmin.platformSales
  *   - dashboard.superadmin.subscriptions
  *   - dashboard.superadmin.onboarding
  *   - dashboard.superadmin.alerts
@@ -54,6 +55,7 @@ public class PlatformAdminDashboardProvider implements PageModelDynamicProvider 
     return switch (widgetId == null ? "" : widgetId) {
       case "dashboard.superadmin.health" -> payload.health();
       case "dashboard.superadmin.tenants" -> payload.tenants();
+      case "dashboard.superadmin.platformSales" -> payload.tenants();
       case "dashboard.superadmin.subscriptions" -> payload.subscriptions();
       case "dashboard.superadmin.onboarding" -> payload.onboardingAlerts();
       case "dashboard.superadmin.alerts" -> payload.platformAlerts();

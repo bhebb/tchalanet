@@ -40,7 +40,9 @@
       "platform": "Plateforme",
       "overview": "Vue d’ensemble",
       "dashboard": "Tableau de bord",
+      "commercialDashboard": "Tableau de bord commercial",
       "health": "Santé plateforme",
+      "opsDashboard": "Ops plateforme",
       "tenantsGroup": "Tenants",
       "tenants": "Tous les tenants",
       "createTenant": "Créer un tenant",
@@ -95,6 +97,129 @@
       "accessSecurity": "Accès & sécurité",
       "users": "Utilisateurs",
       "backendKeys": "Clés publiques backend"
+    },
+    "kpi": {
+      "totalTenants": {
+        "label": "Tenants"
+      },
+      "activeTenants": {
+        "label": "Actifs"
+      },
+      "suspendedTenants": {
+        "label": "Suspendus"
+      },
+      "ticketsSoldToday": {
+        "label": "Tickets vendus"
+      },
+      "grossSalesToday": {
+        "label": "Ventes brutes"
+      },
+      "netToday": {
+        "label": "Net estimé"
+      },
+      "activeSubscriptions": {
+        "label": "Actifs"
+      },
+      "pastDueSubscriptions": {
+        "label": "En retard"
+      },
+      "totalSubscriptions": {
+        "label": "Total"
+      },
+      "systemHealth": {
+        "label": "État global"
+      },
+      "pendingOnboarding": {
+        "label": "À finaliser"
+      }
+    },
+    "metric": {
+      "ticketsSold": {
+        "label": "Tickets"
+      },
+      "grossSales": {
+        "label": "Ventes brutes"
+      },
+      "netRevenue": {
+        "label": "Net estimé"
+      }
+    }
+  },
+  "layout": {
+    "private_dashboard_superadmin": {
+      "kpis": "Indicateurs plateforme",
+      "platform_state": "État plateforme",
+      "sales_insights": "Ventes et jeux",
+      "insights": "Activité plateforme",
+      "content_actions": "Actions rapides"
+    },
+    "private_dashboard_superadmin_ops": {
+      "health": "Santé plateforme",
+      "actions": "Actions ops"
+    }
+  },
+  "dashboard": {
+    "superadmin": {
+      "tenants": {
+        "title": "Tenants"
+      },
+      "sales": {
+        "title": "Activité du jour"
+      },
+      "subscriptions": {
+        "title": "Abonnements"
+      },
+      "health": {
+        "title": "Santé système"
+      },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "alerts": {
+        "title": "Alertes plateforme",
+        "empty": "Aucune alerte plateforme."
+      },
+      "public_content": {
+        "title": "Actualités publiques",
+        "subtitle": "Derniers contenus publiés"
+      },
+      "sales_trend": {
+        "title": "Tendance des ventes",
+        "empty": "Aucune vente sur cette période."
+      },
+      "game_breakdown": {
+        "title": "Ventes par jeu",
+        "empty": "Aucune vente par jeu disponible."
+      },
+      "top_tenants": {
+        "title": "Top tenants",
+        "empty": "Aucune activité tenant pour cette période."
+      },
+      "quick_actions": {
+        "title": "Actions rapides"
+      },
+      "ops": {
+        "health": {
+          "title": "Santé plateforme"
+        },
+        "quick_actions": {
+          "title": "Actions ops"
+        }
+      }
+    }
+  },
+  "quickaction": {
+    "platform": {
+      "create_tenant": "Créer un tenant",
+      "onboarding": "Voir l’onboarding",
+      "subscriptions": "Gérer les abonnements",
+      "platform_health": "Ouvrir la santé plateforme",
+      "draw_results": "Contrôler les résultats",
+      "public_content": "Voir les contenus",
+      "notifications": "Gérer les notifications",
+      "batch": "Ouvrir les tâches",
+      "cache": "Ouvrir le cache",
+      "audit": "Ouvrir l’audit"
     }
   }
 }

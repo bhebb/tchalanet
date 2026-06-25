@@ -12,11 +12,11 @@
         <li class="news__item">
           <span class="news__label">{{ item.title ?? (item.title_key | tchLabel) }}</span>
           <span class="news__meta">
-            @if (item.source) {
-              <span class="news__source">{{ item.source }}</span>
+            @if (item.source ?? item.sourceType) {
+              <span class="news__source">{{ item.source ?? item.sourceType }}</span>
             }
-            @if (item.date) {
-              <time class="news__date">{{ item.date }}</time>
+            @if (item.date ?? item.publishedAt) {
+              <time class="news__date">{{ item.date ?? item.publishedAt }}</time>
             }
           </span>
         </li>

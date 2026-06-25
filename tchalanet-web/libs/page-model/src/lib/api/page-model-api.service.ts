@@ -17,9 +17,12 @@ export class PageModelApi {
     return this.backend.get<PageRuntimeResponse>('/public/managers', { params: langParams(lang) });
   }
 
-  getPlatformPage(lang?: string): Observable<PageRuntimeResponse> {
+  getPlatformPage(
+    logicalId = 'private.dashboard.superadmin',
+    lang?: string,
+  ): Observable<PageRuntimeResponse> {
     return this.backend.get<PageRuntimeResponse>('/platform/dashboard', {
-      params: langParams(lang),
+      params: logicalIdParams(logicalId, lang),
     });
   }
 
@@ -36,4 +39,12 @@ export class PageModelApi {
 
 function langParams(lang?: string): HttpParams | undefined {
   return lang ? new HttpParams().set('lang', lang) : undefined;
+}
+
+function logicalIdParams(logicalId: string, lang?: string): HttpParams {
+  let params = new HttpParams().set('logicalId', logicalId);
+  if (lang) {
+    params = params.set('lang', lang);
+  }
+  return params;
 }

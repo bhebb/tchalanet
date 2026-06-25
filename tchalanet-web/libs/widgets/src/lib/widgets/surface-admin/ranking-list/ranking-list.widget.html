@@ -1,0 +1,29 @@
+<div class="ranking-list">
+  <h2 class="ranking-list__title">{{ titleKey() | tchLabel }}</h2>
+
+  @if (items().length) {
+    <ol class="ranking-list__items">
+      @for (item of items(); track item.id; let rank = $index) {
+        <li class="ranking-list__item">
+          <span class="ranking-list__rank">{{ rank + 1 }}</span>
+          <div class="ranking-list__identity">
+            <span class="ranking-list__primary">{{ item.primary }}</span>
+            @if (item.secondary) {
+              <span class="ranking-list__secondary">{{ item.secondary }}</span>
+            }
+          </div>
+          <div class="ranking-list__metrics">
+            @for (metric of item.metrics; track metric.path) {
+              <span class="ranking-list__metric">
+                <span class="ranking-list__metric-value">{{ metricValue(item, metric) }}</span>
+                <span class="ranking-list__metric-label">{{ metric.labelKey | tchLabel }}</span>
+              </span>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="ranking-list__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+</div>

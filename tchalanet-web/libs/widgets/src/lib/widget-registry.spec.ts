@@ -20,6 +20,7 @@ import { AlertsWidget } from './widgets/surface-admin/alerts/alerts.widget';
 import { CommissionSummaryWidget } from './widgets/surface-admin/commission-summary/commission-summary.widget';
 import { KpiGridWidget } from './widgets/surface-admin/kpi-grid/kpi-grid.widget';
 import { QuickActionsWidget } from './widgets/surface-admin/quick-actions/quick-actions.widget';
+import { RankingListWidget } from './widgets/surface-admin/ranking-list/ranking-list.widget';
 import { ReadinessSummaryWidget } from './widgets/surface-admin/readiness-summary/readiness-summary.widget';
 import { resolveWidget } from './widget-registry';
 
@@ -29,6 +30,7 @@ describe('resolveWidget', () => {
     ['AlertsWidget', AlertsWidget],
     ['CommissionSummaryWidget', CommissionSummaryWidget],
     ['ReadinessSummaryWidget', ReadinessSummaryWidget],
+    ['RankingListWidget', RankingListWidget],
     ['QuickActionsWidget', QuickActionsWidget],
     ['HeroWidget', HeroWidget],
     ['NewsTickerWidget', NewsTickerWidget],

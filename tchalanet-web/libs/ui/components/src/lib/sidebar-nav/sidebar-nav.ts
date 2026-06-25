@@ -52,6 +52,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
                   <a
                     class="sidebar__child"
                     [class.is-disabled]="child.disabled"
+                    [class.is-active]="isActionActive(child)"
                     [routerLink]="actionRoute(child)"
                     [queryParams]="actionQueryParams(child)"
                     routerLinkActive="is-active"
@@ -77,6 +78,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
         } @else if (isRouteAction(item)) {
           <a [routerLink]="actionRoute(item)" [queryParams]="actionQueryParams(item)"
              [class.is-disabled]="item.disabled"
+             [class.is-active]="isActionActive(item)"
              routerLinkActive="is-active"
              [routerLinkActiveOptions]="{ exact: item.activeMatch === 'exact' }"
              [attr.aria-disabled]="item.disabled ? 'true' : null"
@@ -189,6 +191,11 @@ export class TchSidebarNav {
     return this.activeGroupId() === item.id;
   }
 
+  isActionActive(item: ActionItem): boolean {
+    const route = actionRoute(item);
+    return !!route && this.isRouteActive(item, route);
+  }
+
   toggle(item: ActionItem): void {
     // Collapsing the currently-open group (including the active one) closes everything;
     // otherwise open this group exclusively.
@@ -202,7 +209,11 @@ export class TchSidebarNav {
   }
 
   private isRouteActive(item: ActionItem, route: string): boolean {
-    const url = this.currentUrl().split('?')[0];
+    const url = this.activeComparableUrl();
     return item.activeMatch === 'exact' ? url === route : url.startsWith(route);
+  }
+
+  private activeComparableUrl(): string {
+    return this.currentUrl().split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
   }
 }

@@ -8,8 +8,8 @@ export const platformOperationsRoutes: Route[] = [
   },
   {
     path: 'health',
-    loadComponent: () =>
-      import('../pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
+    redirectTo: '/app/platform',
+    pathMatch: 'full',
   },
   {
     path: 'batch',

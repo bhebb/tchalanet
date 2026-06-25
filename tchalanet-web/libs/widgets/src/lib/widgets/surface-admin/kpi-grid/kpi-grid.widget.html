@@ -9,7 +9,8 @@
           </span>
         }
         <span class="kpi-card__label">{{ item.labelKey | tchLabel }}</span>
-        @if (resolvedValue(item); as val) {
+        @let val = resolvedValue(item);
+        @if (val !== undefined) {
           <span class="kpi-card__value">{{ val }}</span>
         } @else {
           <span class="kpi-card__value kpi-card__value--placeholder">—</span>

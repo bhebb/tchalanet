@@ -2,6 +2,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  min-height: 100%;
+  padding: 1.5rem;
+  border-radius: var(--tch-radius-xl, 0.75rem);
+  background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  box-shadow: var(--tch-elevation-1, none);
 }
 
 .alerts__title {
@@ -23,8 +29,8 @@
 .alerts__item {
   display: flex;
   gap: 0.625rem;
-  padding: 0.625rem 0.875rem;
-  border-radius: var(--tch-radius-sm, 8px);
+  padding: 0.875rem 1rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
   border-left: 3px solid var(--tch-color-outline, var(--mat-sys-outline));
 }

@@ -1,0 +1,123 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.ranking-list {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 12px);
+  background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  box-shadow: var(--tch-elevation-1, var(--mat-sys-level1));
+}
+
+.ranking-list__title {
+  margin: 0;
+  font-size: var(--tch-font-size-title-md, 1rem);
+  font-weight: 700;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+}
+
+.ranking-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ranking-list__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 4rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--tch-radius-md, 10px);
+  background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+}
+
+.ranking-list__rank {
+  width: 2rem;
+  height: 2rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: var(--tch-color-primary-container, var(--mat-sys-primary-container));
+  color: var(--tch-color-on-primary-container, var(--mat-sys-on-primary-container));
+  font-weight: 800;
+  font-size: 0.875rem;
+}
+
+.ranking-list__identity {
+  min-width: 0;
+  display: grid;
+  gap: 0.125rem;
+}
+
+.ranking-list__primary,
+.ranking-list__secondary,
+.ranking-list__metric-label,
+.ranking-list__metric-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-list__primary {
+  font-weight: 700;
+}
+
+.ranking-list__secondary,
+.ranking-list__metric-label {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+  font-size: 0.75rem;
+}
+
+.ranking-list__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ranking-list__metric {
+  min-width: 5rem;
+  display: grid;
+  gap: 0.125rem;
+  text-align: right;
+}
+
+.ranking-list__metric-value {
+  font-weight: 800;
+}
+
+.ranking-list__empty {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+}
+
+@media (max-width: 720px) {
+  .ranking-list {
+    padding: 1rem;
+  }
+
+  .ranking-list__item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .ranking-list__metrics {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .ranking-list__metric {
+    text-align: left;
+  }
+}

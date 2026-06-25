@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.pagemodel.dashboard;
 
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Platform PageModel controller — résolution du PageModel pour les super-admins.
- * [harden-pagemodel-security-v2 / D2] Le serveur résout le logicalId depuis le rôle SUPER_ADMIN.
- * Aucun logicalId arbitraire accepté.
+ * Platform PageModel controller — resolves an allowed PageModel for super-admins.
+ * The requested logicalId is still checked by PageModelAccessPolicy and by the
+ * dynamic provider dispatch.
  */
 @RestController
 @RequestMapping("/platform/dashboard")
@@ -26,14 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlatformPageModelController {
 
   private final DashboardPageModelService service;
-  private final PageModelTypeResolver typeResolver;
 
-  @Operation(summary = "Resolve platform (superadmin) page model by role (server-side resolution)")
+  @Operation(summary = "Resolve platform (superadmin) page model by logicalId")
   @GetMapping
   public ApiResponse<PageRuntimeResponse> platformPageModel(
+      @RequestParam(name = "logicalId") String logicalId,
       @RequestParam(name = "lang", required = false) String lang) {
-    var type = typeResolver.forDashboard(TchRole.SUPER_ADMIN);
     return ApiResponse.success(
-        service.resolve(type.logicalId(), Optional.empty(), Optional.ofNullable(lang)));
+        service.resolve(logicalId, Optional.empty(), Optional.ofNullable(lang)));
   }
 }

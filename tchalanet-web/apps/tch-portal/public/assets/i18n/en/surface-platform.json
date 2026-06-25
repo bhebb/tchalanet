@@ -40,7 +40,9 @@
       "platform": "Platform",
       "overview": "Overview",
       "dashboard": "Dashboard",
+      "commercialDashboard": "Commercial dashboard",
       "health": "Platform health",
+      "opsDashboard": "Platform ops",
       "tenantsGroup": "Tenants",
       "tenants": "All tenants",
       "createTenant": "Create tenant",
@@ -95,6 +97,129 @@
       "accessSecurity": "Access & security",
       "users": "Users",
       "backendKeys": "Backend signing keys"
+    },
+    "kpi": {
+      "totalTenants": {
+        "label": "Tenants"
+      },
+      "activeTenants": {
+        "label": "Active"
+      },
+      "suspendedTenants": {
+        "label": "Suspended"
+      },
+      "ticketsSoldToday": {
+        "label": "Tickets sold"
+      },
+      "grossSalesToday": {
+        "label": "Gross sales"
+      },
+      "netToday": {
+        "label": "Estimated net"
+      },
+      "activeSubscriptions": {
+        "label": "Active"
+      },
+      "pastDueSubscriptions": {
+        "label": "Past due"
+      },
+      "totalSubscriptions": {
+        "label": "Total"
+      },
+      "systemHealth": {
+        "label": "Global state"
+      },
+      "pendingOnboarding": {
+        "label": "To finish"
+      }
+    },
+    "metric": {
+      "ticketsSold": {
+        "label": "Tickets"
+      },
+      "grossSales": {
+        "label": "Gross sales"
+      },
+      "netRevenue": {
+        "label": "Estimated net"
+      }
+    }
+  },
+  "layout": {
+    "private_dashboard_superadmin": {
+      "kpis": "Platform indicators",
+      "platform_state": "Platform state",
+      "sales_insights": "Sales and games",
+      "insights": "Platform activity",
+      "content_actions": "Quick actions"
+    },
+    "private_dashboard_superadmin_ops": {
+      "health": "Platform health",
+      "actions": "Ops actions"
+    }
+  },
+  "dashboard": {
+    "superadmin": {
+      "tenants": {
+        "title": "Tenants"
+      },
+      "sales": {
+        "title": "Today activity"
+      },
+      "subscriptions": {
+        "title": "Subscriptions"
+      },
+      "health": {
+        "title": "System health"
+      },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "alerts": {
+        "title": "Platform alerts",
+        "empty": "No platform alerts."
+      },
+      "public_content": {
+        "title": "Public news",
+        "subtitle": "Latest published content"
+      },
+      "sales_trend": {
+        "title": "Sales trend",
+        "empty": "No sales for this period."
+      },
+      "game_breakdown": {
+        "title": "Sales by game",
+        "empty": "No game sales available."
+      },
+      "top_tenants": {
+        "title": "Top tenants",
+        "empty": "No tenant activity for this period."
+      },
+      "quick_actions": {
+        "title": "Quick actions"
+      },
+      "ops": {
+        "health": {
+          "title": "Platform health"
+        },
+        "quick_actions": {
+          "title": "Ops actions"
+        }
+      }
+    }
+  },
+  "quickaction": {
+    "platform": {
+      "create_tenant": "Create tenant",
+      "onboarding": "View onboarding",
+      "subscriptions": "Manage subscriptions",
+      "platform_health": "Open platform health",
+      "draw_results": "Review results",
+      "public_content": "View content",
+      "notifications": "Manage notifications",
+      "batch": "Open jobs",
+      "cache": "Open cache",
+      "audit": "Open audit"
     }
   }
 }

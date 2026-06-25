@@ -5,7 +5,36 @@ Les pages affichent un état placeholder ou désactivent l'action concernée.
 
 ## Dashboard superadmin
 
-Aucun BFF dashboard platform. Contournement V0 : appels parallèles indépendants.
+Le BFF PageModel dashboard existe déjà :
+
+```http
+GET /platform/dashboard
+```
+
+Il résout `private.dashboard.superadmin`, passe par `PageModelDynamicResolver`, puis par le provider `platform_admin_dashboard`.
+
+**Gap V0 réel** : le template superadmin doit être aligné avec le provider existant. Les widgets du cockpit doivent utiliser :
+
+```json
+{
+  "binding": {
+    "mode": "dynamic",
+    "source": "platform_admin_dashboard"
+  }
+}
+```
+
+**Pas de contournement Angular** : le frontend ne doit pas composer le cockpit avec des appels parallèles indépendants.
+
+**Risque performance** : si certains widgets deviennent trop lents, ajouter une évolution dédiée pour le mode différé (`runtime.loadStrategy = deferred` ou endpoint de résolution partielle de widgets). Hors scope V0 sauf blocage mesuré.
+
+## Stats legacy
+
+`features.stats` est considéré legacy pour les nouveaux dashboards. Ne pas l'utiliser pour alimenter `tenant_admin_dashboard` ou `platform_admin_dashboard`.
+
+**Source cible KPI/charts** : `core.analytics.api`.
+
+**Suivi hors V0** : plan de retrait ou d'archivage de `features.stats` après inventaire des endpoints encore consommés.
 
 ## Rapports platform
 

@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, distinctUntilChanged, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 
-import { NavigationSection } from '@tch/api';
+import { ActionItem, NavigationSection } from '@tch/api';
 import { PageModelApi, PageRuntimeResponse, PrivateShellRuntime } from '@tch/page-model';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
@@ -28,9 +28,9 @@ export class PrivateShellService {
     filter((e): e is NavigationEnd => e instanceof NavigationEnd),
     startWith(null),
     map(() => this.router.url),
-    distinctUntilChanged((a, b) => urlToSpace(a) === urlToSpace(b)),
+    distinctUntilChanged((a, b) => runtimeKey(a) === runtimeKey(b)),
     switchMap(url => {
-      if (url.startsWith('/app/platform')) return this.api.getPlatformPage();
+      if (url.startsWith('/app/platform')) return this.api.getPlatformPage(platformLogicalId(url));
       if (url.startsWith('/app/admin') || url.startsWith('/app/cashier')) return this.api.getTenantPage();
       // /app/profile and other shared routes: fall back to role
       return this.auth.session().roles.includes('SUPER_ADMIN')
@@ -70,7 +70,7 @@ export class PrivateShellService {
 
   readonly navigation: Signal<readonly NavigationSection[]> = computed(() => {
     const sections = this.shell()?.navigationDrawer?.sections;
-    if (sections?.length) return sections as NavigationSection[];
+    if (sections?.length) return canonicalizePlatformNavigation(sections as NavigationSection[]);
     const space = this.space();
     if (space === 'platform') return PLATFORM_NAVIGATION;
     if (space === 'admin') return TENANT_ADMIN_NAVIGATION;
@@ -78,6 +78,36 @@ export class PrivateShellService {
   });
 }
 
-function urlToSpace(url: string): 'platform' | 'other' {
-  return url.startsWith('/app/platform') ? 'platform' : 'other';
+function runtimeKey(url: string): string {
+  if (url.startsWith('/app/platform')) return `platform:${platformLogicalId(url)}`;
+  return 'other';
+}
+
+function platformLogicalId(url: string): string {
+  if (url.startsWith('/app/platform/dashboard')) return 'private.dashboard.superadmin';
+  return 'private.dashboard.superadmin.ops';
+}
+
+function canonicalizePlatformNavigation(
+  sections: readonly NavigationSection[],
+): readonly NavigationSection[] {
+  return sections.map(section => ({
+    ...section,
+    items: section.items.map(canonicalizePlatformAction),
+  }));
+}
+
+function canonicalizePlatformAction(item: ActionItem): ActionItem {
+  const children = item.children?.map(canonicalizePlatformAction);
+  const value = item.destination?.value;
+  const destination =
+    item.destination?.kind === 'route' && value === '/app/platform/ops/health'
+      ? { ...item.destination, value: '/app/platform' }
+      : item.destination;
+
+  return {
+    ...item,
+    destination,
+    children,
+  };
 }

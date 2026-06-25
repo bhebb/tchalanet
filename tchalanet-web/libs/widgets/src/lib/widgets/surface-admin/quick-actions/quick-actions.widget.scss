@@ -4,6 +4,12 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-height: 100%;
+  padding: 1.5rem;
+  border-radius: var(--tch-radius-xl, 0.75rem);
+  background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  box-shadow: var(--tch-elevation-1, none);
 }
 
 .quick-actions__title {
@@ -15,7 +21,7 @@
 
 .quick-actions__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   gap: 0.75rem;
 }
 
@@ -25,7 +31,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 0.75rem;
-  border-radius: var(--tch-radius-md, 12px);
+  min-height: 7.5rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
   border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
   text-decoration: none;
@@ -41,8 +48,15 @@
 }
 
 .qa-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
   font-size: 1.5rem;
   color: var(--tch-color-primary, var(--mat-sys-primary));
+  background: color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 10%, transparent);
 }
 
 .qa-card__label {

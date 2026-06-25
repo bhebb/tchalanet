@@ -65,14 +65,61 @@
 
 ---
 
-## Slice 4 — Vue d'ensemble (Dashboard + Santé)
+## Slice 4 — Vue d'ensemble PageModel (Dashboard + Santé)
 
-- [ ] Créer `platform-home.page.ts` — cockpit superadmin
-  - Widgets : tenants actifs, tirages du jour (tous tenants), jobs en erreur, résultats manquants, messages contact récents, alertes archive/cache
-  - Appels parallèles vers endpoints existants, skeleton/error par bloc
-  - Actions directes : [Voir tenants] [Voir opérations] [Voir messages support] [Voir jobs en erreur]
-- [ ] Brancher `/platform` et `/platform/dashboard` sur `PlatformHomePage` (remplace `PrivateDashboardPage`)
-- [ ] La route `/platform/ops/health` conserve `PlatformOpsPage` existante
+> Décision : le dashboard superadmin utilise le moteur PageModel runtime existant.
+> Pas de `PlatformHomePage` qui orchestre plusieurs appels Angular.
+> `/platform/dashboard?logicalId=...` résout le PageModel demandé et le provider `platform_admin_dashboard`.
+> `private.dashboard.superadmin` est le dashboard commercial ; `/platform` est l'entrée Ops par défaut.
+> Ops est l'accueil par défaut de l'espace superadmin.
+
+- [x] Mettre à jour le template backend `private.dashboard.superadmin.template.json`
+  - Tous les widgets cockpit utilisent `binding: { mode: "dynamic", source: "platform_admin_dashboard" }`
+  - Widget ids alignés avec `PlatformAdminDashboardProvider` :
+    - `dashboard.superadmin.tenants`
+    - `dashboard.superadmin.platformSales`
+    - `dashboard.superadmin.salesTrend`
+    - `dashboard.superadmin.gameBreakdown`
+    - `dashboard.superadmin.subscriptions`
+    - `dashboard.superadmin.onboarding`
+    - `dashboard.superadmin.publicContent`
+    - `dashboard.superadmin.topTenants`
+    - `dashboard.superadmin.quickActions`
+  - Shell via `jsonFile` + `private_shell_superadmin`
+  - Aucune donnée fake hardcodée dans le template
+- [x] Séparer le dashboard commercial de l'Ops côté provider
+  - `logicalId` obligatoire pour `platform_admin_dashboard`
+  - service de dispatch `logicalId -> assembler`
+  - `private.dashboard.superadmin` route vers l'assembler commercial
+  - l'assembler commercial ne construit plus `health` ni les alertes système
+- [x] Créer le dashboard Ops temporaire
+  - template `private.dashboard.superadmin.ops`
+  - `PlatformAdminOpsDashboardPayloadAssembler`
+  - `/app/platform` utilise le host PageModel Ops
+  - `/app/platform/ops/health` redirige vers `/app/platform`
+  - `/app/platform` charge le logicalId Ops par défaut
+  - frontend appelle `/platform/dashboard?logicalId=private.dashboard.superadmin.ops`
+- [x] Vérifier le template backend `private.dashboard.tenant_admin.template.json`
+  - Widgets admin tenant sur `tenant_admin_dashboard`
+  - Shell via `jsonFile` + `private_shell_tenant_admin`
+  - Sert de référence canonique admin tenant
+- [x] Garder `/platform` et `/platform/dashboard` branchés sur le renderer PageModel (`PrivateDashboardPage` ou successeur équivalent)
+- [x] Retirer `/platform/overview` de la route web et de la sidenav V0 ; `GET /platform/overview` reste backend structurel seulement
+- [x] Ne pas migrer seller-terminal/cashier dans ces templates : cashier web reste sur `/tenant/cashier/home` et `features.pos.home`
+- [x] Adapter/ajouter uniquement les widgets frontend nécessaires pour afficher les payloads retournés par `platform_admin_dashboard`
+  - `KpiGridWidget` accepte les valeurs `0` et les bindings dynamiques imbriqués
+  - `NewsTickerWidget` accepte le payload public content admin (`sourceType`, `sourceUrl`, `publishedAt`)
+  - `RankingListWidget` affiche `topTenants` sans nouveau call Angular
+  - `TrendChartWidget` existe pour les séries temporelles PageModel
+  - `BreakdownListWidget` existe pour les répartitions PageModel
+  - `AlertsWidget`, `QuickActionsWidget`, `KpiGridWidget` utilisent les surfaces/tokens cockpit
+- [x] Déplacer les providers/assemblers PageModel privés vers `features.pagemodel.dynamic.providers.*`
+  - `tenant_admin_dashboard` → `features.pagemodel.dynamic.providers.tenantadmin`
+  - `platform_admin_dashboard` → `features.pagemodel.dynamic.providers.platformadmin`
+  - Pas d'appel entre features depuis ces providers
+- [x] Marquer `features.stats` comme legacy pour les nouveaux dashboards ; KPI/charts via `core.analytics.api`
+- [x] La route `/platform/ops/health` conserve `PlatformOpsPage` existante
+- [x] Documenter en follow-up le mode différé si un widget dashboard devient trop lent (`runtime.loadStrategy = deferred`, hors V0 sauf besoin immédiat)
 
 ---
 
@@ -192,6 +239,16 @@
 - [ ] Créer le dialog `StartTenantAdminAccessDialog` (raison + checkbox + mode détecté par statut tenant) — absorbe Slice 3 de `platform-superadmin-and-tenant-admin-pages`
 - [ ] Pages accessibles depuis Support tenant (réutilisées, non dupliquées) :
   - Tirages, Vendeurs, Limites, Contrôles de vente, Promotions, Rapports, Tickets, Mon entreprise, Subscription
+
+## Slice 13 — Tenant Admin Financials
+
+- [x] Ajouter une page admin `reports/financials` pour les financials tenant.
+- [x] Appeler `GET /admin/financials/breakdown` via `TchBackendClient`, sans `tenantId` côté UI ; le tenant vient du contexte backend.
+- [x] Afficher résumé, lignes par tirage et lignes terminal vendeur × tirage.
+- [x] Afficher un empty state explicite pour un nouveau tenant sans ventes/projections.
+- [x] Ajouter les tests UI/API ciblés pour empty state et absence de `tenantId` client.
+- [ ] Validation web globale verte.
+  - Bloqué actuellement par dettes existantes hors tranche : tests navigation/auth/Firebase et warnings Angular globaux.
 
 ---
 
