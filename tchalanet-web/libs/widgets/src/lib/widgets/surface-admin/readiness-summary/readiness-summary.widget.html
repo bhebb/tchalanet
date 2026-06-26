@@ -4,9 +4,18 @@
   @if (checks().length) {
     <ul class="readiness__list">
       @for (check of checks(); track check.code) {
-        <li class="readiness__item readiness__item--{{ check.status | lowercase }}">
-          <span class="readiness__status-dot" aria-hidden="true"></span>
-          <span class="readiness__label">{{ check.labelKey | tchLabel }}</span>
+        <li>
+          @if (check.path) {
+            <a class="readiness__item readiness__item--{{ check.status | lowercase }}" [routerLink]="check.path">
+              <span class="readiness__status-dot" aria-hidden="true"></span>
+              <span class="readiness__label">{{ check.labelKey | tchLabel }}</span>
+            </a>
+          } @else {
+            <div class="readiness__item readiness__item--{{ check.status | lowercase }}">
+              <span class="readiness__status-dot" aria-hidden="true"></span>
+              <span class="readiness__label">{{ check.labelKey | tchLabel }}</span>
+            </div>
+          }
         </li>
       }
     </ul>

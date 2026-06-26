@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
 import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
@@ -30,6 +31,7 @@ public class SalePromotionEffectApplier {
         List<TicketLine> paidLines,
         List<TicketCharge> charges,
         SellTicketCommand command,
+        SellerTerminalId sellerTerminalId,
         CurrencyCode currency
     ) {
         if (decision == null || decision.status() != PromotionDecisionStatus.APPLIED) {
@@ -44,7 +46,8 @@ public class SalePromotionEffectApplier {
                 case WAIVE_CHARGE -> promotionChargeApplier.apply(finalCharges, effect, decision);
                 case BOOST_ODDS -> promotionOddsBoostApplier.apply(lines, effect, decision, currency);
                 case FREE_GAME_LINE ->
-                    lines.addAll(promotionTicketLineFactory.createLines(effect, decision, lines, command, currency));
+                    lines.addAll(promotionTicketLineFactory.createLines(
+                        effect, decision, lines, command, sellerTerminalId, currency));
             }
         }
 

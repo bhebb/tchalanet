@@ -61,6 +61,42 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
     @Query(
         value =
             """
+                select u.* from app_user u
+                join tenant_user tu on tu.user_id = u.id
+                join tenant_user_role tur on tur.user_id = u.id and tur.tenant_id = tu.tenant_id
+                join app_role ar on ar.id = tur.role_id
+                where tu.tenant_id = :tenantId
+                  and tu.deleted_at is null
+                  and tu.status = 'ACTIVE'
+                  and tur.deleted_at is null
+                  and ar.deleted_at is null
+                  and ar.active = true
+                  and ar.code = 'TENANT_ADMIN'
+                  and u.deleted_at is null
+                  and u.status = 'ACTIVE'
+                order by lower(coalesce(u.display_name, u.email::text, u.username))
+                """,
+        nativeQuery = true)
+    List<AppUserJpaEntity> findTenantAdminsForNotificationDelivery(@Param("tenantId") UUID tenantId);
+
+    @Query(
+        value =
+            """
+                select u.* from app_user u
+                join tenant_user tu on tu.user_id = u.id
+                where tu.tenant_id = :tenantId
+                  and tu.deleted_at is null
+                  and tu.status = 'ACTIVE'
+                  and u.deleted_at is null
+                  and u.status = 'ACTIVE'
+                order by lower(coalesce(u.display_name, u.email::text, u.username))
+                """,
+        nativeQuery = true)
+    List<AppUserJpaEntity> findTenantUsersForNotificationDelivery(@Param("tenantId") UUID tenantId);
+
+    @Query(
+        value =
+            """
                     select count(*) from app_user u
                     join tenant_user tu on tu.user_id = u.id
                     where tu.tenant_id = :tenantId

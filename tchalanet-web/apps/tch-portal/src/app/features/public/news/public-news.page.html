@@ -11,37 +11,51 @@
           class="news-page__filter-pill"
           [class.news-page__filter-pill--active]="activeFilter() === filter.id"
           (click)="setFilter(filter.id)"
-        >{{ filter.labelKey | translate }}</button>
+        >{{ filter.label }}</button>
       }
     </nav>
   </div>
 
   <div class="news-page__feed" role="feed" [attr.aria-label]="'public.news.feed_aria' | translate">
-    @for (item of filteredItems(); track item.id) {
-      <article
-        class="news-page__article"
-        [class.news-page__article--accent-primary]="item.accent === 'primary'"
-        [class.news-page__article--accent-secondary]="item.accent === 'secondary'"
-      >
-        <div class="news-page__thumb" [attr.aria-hidden]="true">
-          <span class="material-symbols-outlined">{{ item.icon }}</span>
-        </div>
-        <div class="news-page__body">
-          <div class="news-page__meta">
-            <span
-              class="news-page__category"
-              [class.news-page__category--primary]="item.categoryStyle === 'primary'"
-              [class.news-page__category--secondary]="item.categoryStyle === 'secondary'"
-              [class.news-page__category--neutral]="item.categoryStyle === 'neutral'"
-            >{{ item.categoryLabel }}</span>
-            <span class="news-page__time">{{ item.time }}</span>
+    @if (loading()) {
+      <tch-loading label="Chargement des actualités..." />
+    } @else if (error()) {
+      <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+    } @else {
+      @for (item of filteredItems(); track item.id) {
+        <article
+          class="news-page__article"
+          [class.news-page__article--accent-primary]="item.sourceType === 'INTERNAL'"
+          [class.news-page__article--accent-secondary]="item.sourceType === 'EXTERNAL_RSS'"
+        >
+          <div class="news-page__thumb" [attr.aria-hidden]="true">
+            <span class="material-symbols-outlined">{{ sourceIcon(item) }}</span>
           </div>
-          <h2 class="news-page__article-title">{{ item.title }}</h2>
-          <p class="news-page__excerpt">{{ item.excerpt }}</p>
-        </div>
-      </article>
-    } @empty {
-      <p class="news-page__empty">{{ 'public.news.empty' | translate }}</p>
+          <div class="news-page__body">
+            <div class="news-page__meta">
+              <span
+                class="news-page__category"
+                [class.news-page__category--primary]="item.sourceType === 'INTERNAL'"
+                [class.news-page__category--secondary]="item.sourceType === 'EXTERNAL_RSS'"
+              >{{ sourceLabel(item) }}</span>
+              <span class="news-page__time">
+                {{ item.publishedAt ? (item.publishedAt | date:'dd/MM/yy HH:mm') : '—' }}
+              </span>
+            </div>
+            <h2 class="news-page__article-title">{{ item.title }}</h2>
+            @if (item.content) {
+              <p class="news-page__excerpt">{{ item.content }}</p>
+            }
+            @if (item.sourceUrl) {
+              <a class="news-page__link" [href]="item.sourceUrl" target="_blank" rel="noopener">
+                Lire la source
+              </a>
+            }
+          </div>
+        </article>
+      } @empty {
+        <p class="news-page__empty">{{ 'public.news.empty' | translate }}</p>
+      }
     }
   </div>
 </div>

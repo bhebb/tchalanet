@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Ops controller for cache management (list, clear by name, clear all).
@@ -35,6 +38,8 @@ import java.util.List;
 @Tag(name = "Ops • Cache")
 public class CacheOpsController {
 
+    private static final Map<String, List<String>> CACHE_GROUPS = cacheGroups();
+
     private final CacheManager cacheManager;
 
     @GetMapping
@@ -46,6 +51,36 @@ public class CacheOpsController {
             .map(name -> new CacheView(name, 0L, null, null))
             .toList();
         return ApiResponse.success(views);
+    }
+
+    @DeleteMapping("/groups/{group}")
+    @Operation(summary = "Clear a named cache group")
+    @AuditLog(
+        entity = AuditEntityType.SYSTEM,
+        action = AuditAction.CACHE_CLEAR,
+        idExpression = "'group:' + #group",
+        detailsExpression = "#reason")
+    public ApiResponse<CacheGroupClearResult> clearCacheGroup(
+        @PathVariable String group,
+        @RequestParam(required = false) String reason) {
+        String normalizedGroup = normalizeGroup(group);
+        List<String> cacheNames = CACHE_GROUPS.get(normalizedGroup);
+        if (cacheNames == null) {
+            return ApiResponse.success(new CacheGroupClearResult(normalizedGroup, List.of(), List.of()));
+        }
+
+        List<String> cleared = new ArrayList<>();
+        List<String> missing = new ArrayList<>();
+        cacheNames.forEach(name -> {
+            var cache = cacheManager.getCache(name);
+            if (cache == null) {
+                missing.add(name);
+            } else {
+                cache.clear();
+                cleared.add(name);
+            }
+        });
+        return ApiResponse.success(new CacheGroupClearResult(normalizedGroup, List.copyOf(cleared), List.copyOf(missing)));
     }
 
     @DeleteMapping("/{cacheName}")
@@ -78,4 +113,19 @@ public class CacheOpsController {
         });
         return ApiResponse.success(null);
     }
+
+    private static Map<String, List<String>> cacheGroups() {
+        Map<String, List<String>> groups = new LinkedHashMap<>();
+        groups.put("plans", List.of(
+            "catalog:plan:active_plans",
+            "catalog:plan:plan_by_code",
+            "catalog:plan:plan_by_id"));
+        return Map.copyOf(groups);
+    }
+
+    private static String normalizeGroup(String group) {
+        return group == null ? "" : group.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public record CacheGroupClearResult(String group, List<String> cleared, List<String> missing) {}
 }

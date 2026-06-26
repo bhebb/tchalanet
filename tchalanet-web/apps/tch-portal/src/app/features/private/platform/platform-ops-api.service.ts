@@ -255,6 +255,12 @@ export interface CacheView {
   lastClearedAt?: string;
 }
 
+export interface CacheGroupClearResult {
+  group: string;
+  cleared: string[];
+  missing: string[];
+}
+
 // ── Service ──────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
@@ -404,5 +410,9 @@ export class PlatformOpsApi {
 
   clearAllCaches(reason: string): Observable<void> {
     return this.backend.delete<void>('/platform/ops/cache', { params: { reason } });
+  }
+
+  clearCacheGroup(group: string, reason: string): Observable<CacheGroupClearResult> {
+    return this.backend.delete<CacheGroupClearResult>(`/platform/ops/cache/groups/${group}`, { params: { reason } });
   }
 }

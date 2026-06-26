@@ -254,9 +254,48 @@
     "sellerTerminals": {
       "title": "Vendeurs"
     },
+    "kpi": {
+      "sales_today": {
+        "label": "Ventes du jour"
+      },
+      "tickets_sold": {
+        "label": "Tickets vendus"
+      },
+      "active_seller_terminals": {
+        "label": "Vendeurs actifs"
+      },
+      "open_draws": {
+        "label": "Tirages ouverts"
+      }
+    },
     "users": {
       "title": "Utilisateurs",
       "description": "Gérez les accès des utilisateurs de votre entreprise."
+    }
+  },
+  "readiness": {
+    "noIssues": "Aucun problème",
+    "identity": {
+      "missing": "Identité tenant à compléter"
+    },
+    "seller_terminals": {
+      "empty": "Aucun vendeur configuré",
+      "blocked": "Vendeurs bloqués à vérifier"
+    },
+    "games": {
+      "empty": "Jeux et prix à configurer"
+    },
+    "channels": {
+      "empty": "Canaux de tirage à configurer"
+    },
+    "draws": {
+      "results_pending": "Tirages fermés en attente de résultats"
+    },
+    "commission": {
+      "default_missing": "Taux de commission tenant à configurer"
+    },
+    "limits": {
+      "empty": "Limites de vente à configurer"
     }
   },
   "dashboard": {
@@ -280,6 +319,9 @@
     "cashier": {
       "alerts": {
         "empty": "Aucune alerte",
+        "blocked_seller_terminals": "Des vendeurs sont bloqués",
+        "closed_draws_pending_results": "Des tirages fermés attendent leurs résultats",
+        "unread_notifications": "Notifications non lues",
         "title": "Alertes"
       },
       "quick_actions": {
@@ -320,6 +362,14 @@
       },
       "kpis": {
         "title": "Indicateurs"
+      },
+      "sales_trend": {
+        "title": "Tendance des ventes",
+        "empty": "Aucune vente sur cette période."
+      },
+      "game_breakdown": {
+        "title": "Ventes par jeu",
+        "empty": "Aucune vente par jeu disponible."
       },
       "quick_actions": {
         "title": "Actions rapides"

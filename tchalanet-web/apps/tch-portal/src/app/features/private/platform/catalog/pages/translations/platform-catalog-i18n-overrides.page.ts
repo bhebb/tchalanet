@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
@@ -54,6 +55,7 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly displayedColumns = ['locale', 'level', 'i18nKey', 'i18nValue', 'surface', 'active', 'actions'];
   readonly locales = COMMON_LOCALES;
@@ -76,6 +78,7 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.keyFilter.set(this.route.snapshot.queryParamMap.get('key') ?? '');
     this.load();
     this.api.getOverview().subscribe({ next: o => this.overview.set(o) });
   }

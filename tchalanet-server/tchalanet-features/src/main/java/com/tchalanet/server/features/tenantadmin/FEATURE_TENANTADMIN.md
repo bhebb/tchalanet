@@ -53,6 +53,7 @@ Personnalisation
 
 Rapports
   Rapports               /app/admin/reports        → features.tenantadmin.reports
+  Financials             /app/admin/financials     → core.analytics
 ```
 
 ---
@@ -126,6 +127,27 @@ Les stats de vente officielles restent dans `core.sales`.
 - inclure des KPIs temps-réel dans l'overview
 - dupliquer les données du dashboard PageModel
 - posséder la logique de validation métier des domaines
+- contenir de providers/assemblers PageModel dashboard
+
+Les providers PageModel `tenant_admin_dashboard` vivent dans
+`features.pagemodel.dynamic.providers.tenantadmin`. Ils consomment les API `core`, `catalog` et
+`platform`, mais ne doivent pas appeler `features.tenantadmin`.
+
+### Financials
+
+`features.tenantadmin.financials` expose les drilldowns d'exploitation financière pour l'admin
+tenant. Il consomme `core.analytics.api.GetTenantFinancialBreakdownQuery` via `QueryBus` et ne lit
+jamais les tables analytics directement.
+
+La vue sépare:
+
+- commissions seller-terminal snapshotées;
+- charges buyer/seller/tenant/waived;
+- métriques promotions;
+- net revenue estimé et paid-basis.
+
+V1 expose les axes `jour`, `tirage`, `seller-terminal/jour` et `seller-terminal × tirage`.
+Le croisement exact vient de `analytics_seller_terminal_draw`, pas d'une extrapolation UI.
 
 ---
 

@@ -1,0 +1,342 @@
+{
+  "code": "private.dashboard.superadmin.ops",
+  "logicalId": "private.dashboard.superadmin.ops",
+  "scope": "private",
+  "slug": "dashboard",
+  "name": "Superadmin ops dashboard",
+  "label": "Superadmin ops dashboard",
+  "schemaVersion": 2,
+  "schema": {},
+  "isDefault": true,
+  "level": "GLOBAL",
+  "tenantId": null,
+  "description": "Superadmin Ops dashboard V0: platform health and operational actions.",
+  "model": {
+    "meta": {
+      "id": "private.dashboard.superadmin.ops",
+      "scope": "private",
+      "slug": "dashboard",
+      "context": "private_dashboard_superadmin_ops",
+      "schemaVersion": 2,
+      "langs": ["fr", "en", "ht"],
+      "defaultLang": "fr"
+    },
+    "theme": {
+      "presetId": "tchalanet_default",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "component": "PrivateShell",
+      "binding": {
+        "mode": "dynamic",
+        "source": "jsonFile"
+      },
+      "props": {
+        "fileKey": "private_shell_superadmin"
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "opsHealth",
+            "labelKey": "layout.private_dashboard_superadmin_ops.health",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.superadmin.ops.overview"]
+              }
+            ]
+          },
+          {
+            "id": "opsResources",
+            "labelKey": "layout.private_dashboard_superadmin_ops.resources",
+            "columns": [
+              {
+                "span": 4,
+                "widgets": ["dashboard.superadmin.ops.schedulerIssues"]
+              },
+              {
+                "span": 8,
+                "widgets": ["dashboard.superadmin.ops.resources"]
+              }
+            ]
+          },
+          {
+            "id": "opsDatabase",
+            "labelKey": "layout.private_dashboard_superadmin_ops.database",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.superadmin.ops.databaseCapacity"]
+              }
+            ]
+          },
+          {
+            "id": "opsInbox",
+            "labelKey": "layout.private_dashboard_superadmin_ops.inbox",
+            "columns": [
+              {
+                "span": 6,
+                "widgets": ["dashboard.superadmin.ops.notifications"]
+              },
+              {
+                "span": 6,
+                "widgets": ["dashboard.superadmin.ops.contactRequests"]
+              }
+            ]
+          },
+          {
+            "id": "opsActions",
+            "labelKey": "layout.private_dashboard_superadmin_ops.actions",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.superadmin.ops.quickActions"]
+              }
+            ]
+          }
+        ]
+      },
+      "widgets": {
+        "dashboard.superadmin.ops.overview": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.overview.title",
+            "variant": "compact",
+            "items": [
+              {
+                "id": "global",
+                "labelKey": "platform.kpi.systemHealth.label",
+                "icon": "monitor_heart",
+                "tone": "success",
+                "value": { "source": "dynamic", "path": "health.global" }
+              },
+              {
+                "id": "servicesUp",
+                "labelKey": "platform.kpi.servicesUp.label",
+                "icon": "dns",
+                "tone": "neutral",
+                "value": { "source": "dynamic", "path": "health.servicesUp" }
+              },
+              {
+                "id": "failed",
+                "labelKey": "platform.kpi.schedulerFailed.label",
+                "icon": "error",
+                "tone": "danger",
+                "value": { "source": "dynamic", "path": "schedulerSummary.failedCount" }
+              },
+              {
+                "id": "stale",
+                "labelKey": "platform.kpi.schedulerStale.label",
+                "icon": "running_with_errors",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "schedulerSummary.staleCount" }
+              },
+              {
+                "id": "disabled",
+                "labelKey": "platform.kpi.schedulerDisabled.label",
+                "icon": "toggle_off",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "schedulerSummary.disabledGateCount" }
+              },
+              {
+                "id": "registered",
+                "labelKey": "platform.kpi.schedulerRegistered.label",
+                "icon": "schedule",
+                "tone": "neutral",
+                "value": { "source": "dynamic", "path": "schedulerSummary.registeredCount" }
+              },
+              {
+                "id": "critical",
+                "labelKey": "platform.kpi.resourceCritical.label",
+                "icon": "memory",
+                "tone": "danger",
+                "value": { "source": "dynamic", "path": "resourceSummary.criticalCount" }
+              },
+              {
+                "id": "warning",
+                "labelKey": "platform.kpi.resourceWarning.label",
+                "icon": "warning",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "resourceSummary.warningCount" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.ops.health": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.health.title",
+            "items": [
+              {
+                "id": "global",
+                "labelKey": "platform.kpi.systemHealth.label",
+                "icon": "monitor_heart",
+                "tone": "success",
+                "value": { "source": "dynamic", "path": "global" }
+              },
+              {
+                "id": "servicesUp",
+                "labelKey": "platform.kpi.servicesUp.label",
+                "icon": "dns",
+                "tone": "neutral",
+                "value": { "source": "dynamic", "path": "servicesUp" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.ops.resourcesCritical": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.resources_kpi.title",
+            "items": [
+              {
+                "id": "critical",
+                "labelKey": "platform.kpi.resourceCritical.label",
+                "icon": "memory",
+                "tone": "danger",
+                "value": { "source": "dynamic", "path": "criticalCount" }
+              },
+              {
+                "id": "warning",
+                "labelKey": "platform.kpi.resourceWarning.label",
+                "icon": "warning",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "warningCount" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.ops.scheduler": {
+          "type": "KpiGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.scheduler.title",
+            "items": [
+              {
+                "id": "failed",
+                "labelKey": "platform.kpi.schedulerFailed.label",
+                "icon": "error",
+                "tone": "danger",
+                "value": { "source": "dynamic", "path": "failedCount" }
+              },
+              {
+                "id": "disabled",
+                "labelKey": "platform.kpi.schedulerDisabled.label",
+                "icon": "toggle_off",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "disabledGateCount" }
+              },
+              {
+                "id": "stale",
+                "labelKey": "platform.kpi.schedulerStale.label",
+                "icon": "running_with_errors",
+                "tone": "warning",
+                "value": { "source": "dynamic", "path": "staleCount" }
+              },
+              {
+                "id": "registered",
+                "labelKey": "platform.kpi.schedulerRegistered.label",
+                "icon": "schedule",
+                "tone": "neutral",
+                "value": { "source": "dynamic", "path": "registeredCount" }
+              }
+            ]
+          }
+        },
+        "dashboard.superadmin.ops.resources": {
+          "type": "ResourceStatusListWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.resources.title",
+            "emptyKey": "dashboard.superadmin.ops.resources.empty",
+            "maxItems": 3,
+            "detailsPath": "/app/platform/ops/resources",
+            "detailsLabelKey": "dashboard.superadmin.ops.resources.details"
+          }
+        },
+        "dashboard.superadmin.ops.databaseCapacity": {
+          "type": "ResourceStatusListWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.database.title",
+            "emptyKey": "dashboard.superadmin.ops.database.empty",
+            "serviceKeyPrefix": "database:schema:",
+            "detailsPath": "/app/platform/ops/resources",
+            "detailsLabelKey": "dashboard.superadmin.ops.resources.details"
+          }
+        },
+        "dashboard.superadmin.ops.schedulerIssues": {
+          "type": "OpsJobStatusListWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.jobs.title",
+            "emptyKey": "dashboard.superadmin.ops.jobs.empty",
+            "maxItems": 5,
+            "detailsPath": "/app/platform/ops/batch",
+            "detailsLabelKey": "dashboard.superadmin.ops.jobs.details"
+          }
+        },
+        "dashboard.superadmin.ops.notifications": {
+          "type": "AlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.notifications.title",
+            "emptyKey": "dashboard.superadmin.ops.notifications.empty"
+          }
+        },
+        "dashboard.superadmin.ops.contactRequests": {
+          "type": "AlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.contacts.title",
+            "emptyKey": "dashboard.superadmin.ops.contacts.empty"
+          }
+        },
+        "dashboard.superadmin.ops.quickActions": {
+          "type": "QuickActionsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "titleKey": "dashboard.superadmin.ops.quick_actions.title"
+          }
+        }
+      }
+    }
+  }
+}

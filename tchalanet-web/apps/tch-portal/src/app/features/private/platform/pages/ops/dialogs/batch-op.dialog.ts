@@ -50,7 +50,7 @@ export type AnyBatchResult = TenantBatchResponse<{ opened?: number; closed?: num
             <strong>{{ result()!.tenantsSucceeded }}</strong>/{{ result()!.tenantsRequested }} tenants OK
             @if (result()!.tenantsFailed > 0) { · <strong class="batch-op-dialog__err">{{ result()!.tenantsFailed }} échoué(s)</strong> }
           </p>
-          @if (result()!.tenants?.length) {
+          @if (result()!.tenants.length) {
             <table mat-table [dataSource]="result()!.tenants" class="batch-op-dialog__outcome-table">
               <ng-container matColumnDef="tenantId">
                 <th mat-header-cell *matHeaderCellDef>Tenant</th>

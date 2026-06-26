@@ -1,0 +1,199 @@
+<tch-admin-page-header
+  title="Financials"
+  description="Commissions, frais, promotions et revenu net par date, tirage et terminal vendeur."
+/>
+
+<section class="financials-controls" aria-label="Filtres financials">
+  <mat-form-field appearance="outline" class="financials-controls__field">
+    <mat-label>Du</mat-label>
+    <input
+      matInput
+      [matDatepicker]="fromPicker"
+      [ngModel]="fromDate()"
+      [max]="maxDate"
+      (ngModelChange)="onFromDateChange($event)"
+    />
+    <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+    <mat-datepicker #fromPicker />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="financials-controls__field">
+    <mat-label>Au</mat-label>
+    <input
+      matInput
+      [matDatepicker]="toPicker"
+      [ngModel]="toDate()"
+      [min]="fromDate()"
+      [max]="maxDate"
+      (ngModelChange)="onToDateChange($event)"
+    />
+    <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+    <mat-datepicker #toPicker />
+  </mat-form-field>
+
+  <button mat-stroked-button type="button" (click)="setToday()">
+    <mat-icon>today</mat-icon>
+    Aujourd'hui
+  </button>
+  <button mat-stroked-button type="button" (click)="setSevenDays()">
+    <mat-icon>date_range</mat-icon>
+    7 jours
+  </button>
+</section>
+
+@let vm = state();
+
+@switch (vm.status) {
+  @case ('loading') {
+    <tch-loading label="Chargement des financials…" />
+  }
+  @case ('error') {
+    <tch-error-panel title="Erreur" message="Impossible de charger les financials." />
+  }
+  @case ('ready') {
+    @if (hasNoData(vm.data)) {
+      <tch-admin-empty-state
+        icon="query_stats"
+        title="Aucune donnée financière"
+        message="Ce tenant n'a pas encore de ventes projetées sur cette période. Les données apparaîtront après les premières ventes et projections analytics."
+      />
+    } @else {
+      <section class="financials-summary" aria-label="Résumé financials">
+        <div class="financials-stat financials-stat--net">
+          <span class="financials-stat__label">Net estimé</span>
+          <span class="financials-stat__value">
+            {{ vm.data.summary.netRevenueEstimated | number:'1.2-2' }}
+          </span>
+        </div>
+        <div class="financials-stat">
+          <span class="financials-stat__label">Ventes</span>
+          <span class="financials-stat__value">{{ vm.data.summary.grossSales | number:'1.2-2' }}</span>
+        </div>
+        <div class="financials-stat">
+          <span class="financials-stat__label">Commissions</span>
+          <span class="financials-stat__value">
+            {{ vm.data.summary.sellerCommission | number:'1.2-2' }}
+          </span>
+        </div>
+        <div class="financials-stat">
+          <span class="financials-stat__label">Frais tenant</span>
+          <span class="financials-stat__value">{{ vm.data.summary.tenantCharges | number:'1.2-2' }}</span>
+        </div>
+        <div class="financials-stat">
+          <span class="financials-stat__label">Promotions</span>
+          <span class="financials-stat__value">
+            {{ vm.data.summary.promotionPotentialPayout | number:'1.2-2' }}
+          </span>
+        </div>
+      </section>
+
+      <mat-tab-group class="financials-tabs" animationDuration="120ms">
+        <mat-tab label="Par tirage">
+          @if (vm.data.drawRows.length === 0) {
+            <tch-admin-empty-state
+              icon="event_note"
+              title="Aucun tirage"
+              message="Aucune projection par tirage sur cette période."
+            />
+          } @else {
+            <div class="financials-table-wrap">
+              <table class="financials-table">
+                <thead>
+                  <tr>
+                    <th>Tirage</th>
+                    <th>Date</th>
+                    <th class="financials-table__num">Tickets</th>
+                    <th class="financials-table__num">Ventes</th>
+                    <th class="financials-table__num">Commissions</th>
+                    <th class="financials-table__num">Frais tenant</th>
+                    <th class="financials-table__num">Promo potentiel</th>
+                    <th class="financials-table__num">Net estimé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of vm.data.drawRows; track row.drawId) {
+                    <tr>
+                      <td>
+                        <span class="financials-table__primary">{{ drawLabel(row) }}</span>
+                        <span class="financials-table__secondary">{{ shortId(row.drawId) }}</span>
+                      </td>
+                      <td>{{ row.refDate | date:'yyyy-MM-dd' }}</td>
+                      <td class="financials-table__num">{{ row.ticketsSold | number }}</td>
+                      <td class="financials-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">
+                        {{ row.promotionPotentialPayout | number:'1.2-2' }}
+                      </td>
+                      <td
+                        class="financials-table__num financials-table__net"
+                        [class.financials-table__net--negative]="row.netRevenueEstimated < 0"
+                      >
+                        {{ row.netRevenueEstimated | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </mat-tab>
+
+        <mat-tab label="Terminal × tirage">
+          @if (vm.data.sellerTerminalDrawRows.length === 0) {
+            <tch-admin-empty-state
+              icon="point_of_sale"
+              title="Aucune donnée terminal"
+              message="Aucune projection par terminal vendeur et par tirage sur cette période."
+            />
+          } @else {
+            <div class="financials-table-wrap">
+              <table class="financials-table">
+                <thead>
+                  <tr>
+                    <th>Terminal</th>
+                    <th>Tirage</th>
+                    <th class="financials-table__num">Tickets</th>
+                    <th class="financials-table__num">Ventes</th>
+                    <th class="financials-table__num">Commissions</th>
+                    <th class="financials-table__num">Frais seller</th>
+                    <th class="financials-table__num">Frais tenant</th>
+                    <th class="financials-table__num">Promo potentiel</th>
+                    <th class="financials-table__num">Net estimé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of vm.data.sellerTerminalDrawRows; track row.sellerTerminalId + row.drawId) {
+                    <tr>
+                      <td>
+                        <span class="financials-table__primary">{{ shortId(row.sellerTerminalId) }}</span>
+                      </td>
+                      <td>
+                        <span class="financials-table__primary">{{ drawLabel(row) }}</span>
+                        <span class="financials-table__secondary">{{ row.refDate | date:'yyyy-MM-dd' }}</span>
+                      </td>
+                      <td class="financials-table__num">{{ row.ticketsSold | number }}</td>
+                      <td class="financials-table__num">{{ row.grossSales | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">{{ row.sellerCommission | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">{{ row.sellerCharges | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">{{ row.tenantCharges | number:'1.2-2' }}</td>
+                      <td class="financials-table__num">
+                        {{ row.promotionPotentialPayout | number:'1.2-2' }}
+                      </td>
+                      <td
+                        class="financials-table__num financials-table__net"
+                        [class.financials-table__net--negative]="row.netRevenueEstimated < 0"
+                      >
+                        {{ row.netRevenueEstimated | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </mat-tab>
+      </mat-tab-group>
+    }
+  }
+}

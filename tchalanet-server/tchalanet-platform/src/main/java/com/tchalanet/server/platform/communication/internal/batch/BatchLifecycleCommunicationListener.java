@@ -41,7 +41,7 @@ public class BatchLifecycleCommunicationListener {
 
     try {
       bindContext(event);
-      communicationApi.sendNow(toRequest(event));
+      communicationApi.enqueue(toRequest(event));
     } catch (Exception e) {
       log.warn(
           "batch.communication.enqueue.failed jobKey={} status={} code={}",

@@ -9,13 +9,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect } from '@tch/ui/components';
+import { Observable, map } from 'rxjs';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminDataToolbarComponent } from '../../../../shared/admin-ui/admin-data-toolbar.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent } from '../../../../shared/admin-ui/admin-status-pill.component';
+import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 import {
   BetType,
   CatalogPricingView,
@@ -35,7 +37,7 @@ export const BET_TYPES: BetType[] = [
   selector: 'tch-create-pricing-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, TchSearchSelect],
   template: `
     <h2 mat-dialog-title>Nouvelle cote</h2>
     <mat-dialog-content>
@@ -61,10 +63,15 @@ export const BET_TYPES: BetType[] = [
           <input matInput type="number" formControlName="odds" placeholder="ex: 55" />
           @if (form.controls.odds.invalid && form.controls.odds.touched) { <mat-error>Requis, > 0.</mat-error> }
         </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Tenant ID (laisser vide = global)</mat-label>
-          <input matInput formControlName="tenantId" placeholder="uuid facultatif" />
-        </mat-form-field>
+        <tch-search-select
+          label="Tenant"
+          placeholder="Laisser vide = global"
+          icon="apartment"
+          clearLabel="Global"
+          emptyLabel="Aucun tenant trouvé"
+          [searchFn]="searchTenants"
+          (valueChange)="selectTenant($event)"
+        />
         <mat-checkbox formControlName="active">Actif</mat-checkbox>
       </form>
     </mat-dialog-content>
@@ -76,6 +83,7 @@ export const BET_TYPES: BetType[] = [
 })
 export class CreatePricingDialog {
   private readonly api = inject(PlatformCatalogApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly ref = inject(MatDialogRef<CreatePricingDialog>);
   private readonly fb = inject(FormBuilder);
 
@@ -89,6 +97,18 @@ export class CreatePricingDialog {
     tenantId: [''],
     active: [true],
   });
+
+  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
+    );
+
+  selectTenant(option: TchSearchOption | null): void {
+    const tenant = option?.data as TenantSummaryView | undefined;
+    this.form.patchValue({
+      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
+    });
+  }
 
   save(): void {
     if (this.form.invalid) return;
@@ -106,6 +126,17 @@ export class CreatePricingDialog {
       next: created => this.ref.close(created),
       error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
+  }
+
+  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
+    return {
+      id: tenant.id ?? tenant.tenantId ?? tenant.code,
+      title: tenant.name,
+      subtitle: tenant.code,
+      badge: tenant.status,
+      icon: 'apartment',
+      data: tenant,
+    };
   }
 }
 

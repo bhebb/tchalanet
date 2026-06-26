@@ -27,4 +27,6 @@ public interface TenantRegistryReader {
     List<TenantBootstrapRow> listAll(int limit, int offset, String orderBy);
 
     long countAll();
+
+    long countByStatus(String status);
 }

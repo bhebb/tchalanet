@@ -7,7 +7,9 @@ import com.tchalanet.server.platform.notification.api.model.NotificationCategory
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
 import java.time.Instant;
+import java.util.Set;
 import tools.jackson.databind.JsonNode;
 
 public record Notification(
@@ -17,7 +19,7 @@ public record Notification(
     String sourceId,
     String dedupeKey,
     NotificationAudienceType audienceType,
-    String audienceValue,
+    Set<NotificationTarget> targets,
     NotificationSeverity severity,
     NotificationKind kind,
     NotificationCategory category,
@@ -28,8 +30,6 @@ public record Notification(
     JsonNode payload,
     NotificationAction action,
     NotificationStatus status,
-    Instant readAt,
-    Instant archivedAt,
     Instant expiresAt,
     Instant createdAt,
     Instant updatedAt) {}

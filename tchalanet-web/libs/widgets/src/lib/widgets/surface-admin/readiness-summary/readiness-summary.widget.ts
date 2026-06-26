@@ -1,5 +1,6 @@
 import { LowerCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { LabelPipe, WidgetConfig, isRecord, stringProp, stringValue } from '@tch/page-model';
 
@@ -8,12 +9,13 @@ interface ReadinessCheck {
   readonly labelKey: string;
   readonly status: 'READY' | 'MISSING' | 'BLOCKED' | 'WARNING' | string;
   readonly message?: string;
+  readonly path?: string;
 }
 
 @Component({
   selector: 'tch-readiness-summary-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe, LowerCasePipe],
+  imports: [LabelPipe, LowerCasePipe, RouterLink],
   templateUrl: './readiness-summary.widget.html',
   styleUrl: './readiness-summary.widget.scss',
 })
@@ -34,6 +36,7 @@ export class ReadinessSummaryWidget {
       labelKey: stringValue(item['labelKey']) ?? '',
       status: stringValue(item['status']) ?? 'READY',
       message: stringValue(item['message']),
+      path: stringValue(item['path']),
     }));
   });
 }

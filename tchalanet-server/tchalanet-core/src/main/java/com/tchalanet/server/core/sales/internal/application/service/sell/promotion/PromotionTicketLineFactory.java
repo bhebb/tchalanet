@@ -1,14 +1,16 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
@@ -18,6 +20,7 @@ import com.tchalanet.server.catalog.game.api.model.BetType;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +30,7 @@ public class PromotionTicketLineFactory {
 
     private final IdGenerator idGenerator;
     private final SelectionApi selectionApi;
-    private final PricingCatalog pricingCatalog;
+    private final QueryBus queryBus;
     private final PromotionSelectionResolver selectionResolver;
 
     public List<TicketLine> createLines(
@@ -35,6 +38,7 @@ public class PromotionTicketLineFactory {
         PromotionDecision decision,
         List<TicketLine> existingLines,
         SellTicketCommand command,
+        SellerTerminalId sellerTerminalId,
         CurrencyCode currency
     ) {
         if (effect.type() != PromotionEffectType.FREE_GAME_LINE) {
@@ -47,7 +51,7 @@ public class PromotionTicketLineFactory {
         var out = new ArrayList<TicketLine>();
 
         for (int i = 0; i < effect.quantity(); i++) {
-            out.add(createLine(effect, decision, command, currency, baseLineNumber + i + 1, i));
+            out.add(createLine(effect, decision, command, sellerTerminalId, currency, baseLineNumber + i + 1, i));
         }
 
         return List.copyOf(out);
@@ -57,6 +61,7 @@ public class PromotionTicketLineFactory {
         PromotionEffect effect,
         PromotionDecision decision,
         SellTicketCommand command,
+        SellerTerminalId sellerTerminalId,
         CurrencyCode currency,
         int lineNumber,
         int index
@@ -76,8 +81,20 @@ public class PromotionTicketLineFactory {
 
         var payoutBase = effect.amount().setScale(2, RoundingMode.UNNECESSARY);
 
-        var odds = pricingCatalog
-            .oddsFor(command.tenantId(), gameCode.name(), betType, betOption)
+        var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
+            command.tenantId(),
+            sellerTerminalId,
+            gameCode.name(),
+            betType.name(),
+            betOption));
+
+        var odds = Objects.requireNonNull(oddsResolution, "pricing odds resolution is required")
+            .effectiveOdds();
+        Objects.requireNonNull(odds, "pricing effective odds is required");
+        if (odds.signum() <= 0) {
+            throw new IllegalStateException("pricing effective odds must be positive");
+        }
+        odds = odds
             .setScale(4, RoundingMode.HALF_UP);
 
         var potential = payoutBase.multiply(odds).setScale(2, RoundingMode.HALF_UP);

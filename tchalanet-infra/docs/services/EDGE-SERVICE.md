@@ -5,6 +5,27 @@ Code source : `tchalanet-edge-service/` · Image buildée localement depuis `Doc
 
 ---
 
+## Notes déploiement production
+
+- L'API appelle toujours edge-service via le réseau Docker interne :
+  `TCH_EDGE_BASE_URL=http://edge-service:3000`.
+- `TCH_EDGE_HMAC_SECRET` côté API doit avoir exactement la même valeur que
+  `EDGE_HMAC_SECRET` côté edge-service. Spring accepte aussi `EDGE_HMAC_SECRET`
+  en fallback pour les runs locaux, mais la convention infra est de fournir
+  `TCH_EDGE_HMAC_SECRET` à l'API.
+- Ne pas exposer edge-service publiquement en staging/prod. Il n'est pas routé
+  par Traefik; seul le réseau Docker `back` doit le joindre.
+- En prod, garder les webhooks/providers dans `envs/prod/.secrets` ou le secret
+  manager. Ne jamais les mettre dans `envs/common/*.env`.
+- Pour Slack ops, configurer au minimum `SLACK_ENABLED=true` et
+  `SLACK_WEBHOOK_OPS_ALERTS`. Les jobs batch utilisent aussi
+  `SLACK_WEBHOOK_BATCH_DRAWS` lorsqu'ils ciblent le channel `batch-draws`.
+- Les messages applicatifs passent par `platform.communication` :
+  `outbound_message` → dispatcher retry → edge-service → provider.
+  Les appels directs à edge-service sont réservés aux tests opérés.
+
+---
+
 ## Démarrage rapide
 
 ```bash
@@ -45,6 +66,12 @@ make local-product-up ENV=dev
 - Port 3000 exposé uniquement sur le réseau Docker `back` (pas publié sur l'hôte)
 - Healthcheck sur `GET /ready`
 - Le backend (API) l'atteint via `http://edge-service:3000` sur le réseau `back`
+
+En `ENV=dev`, les targets `make up-edge`, `make rebuild-edge` et
+`make local-product-up` ajoutent automatiquement
+[`compose/docker-compose-edge-service-dev-local.yml`](../compose/docker-compose-edge-service-dev-local.yml).
+Cet overlay publie `127.0.0.1:3000`, pour permettre aux runs IDE et aux tests
+locaux d'appeler edge-service sans démarrer toute la stack.
 
 ---
 
@@ -91,6 +118,7 @@ Tous désactivés par défaut (`*_ENABLED=false`). Activer uniquement les canaux
 | `TWILIO_ACCOUNT_SID`        | -       | SID compte Twilio              |
 | `TWILIO_AUTH_TOKEN`         | -       | Token auth Twilio              |
 | `TWILIO_FROM`               | -       | Numéro Twilio expéditeur       |
+| `TWILIO_WHATSAPP_FROM`      | -       | Expéditeur WhatsApp Twilio (`whatsapp:+...`) |
 
 ---
 
@@ -120,10 +148,14 @@ openssl rand -base64 32
 # État du conteneur
 docker ps --filter name=edge-service
 
-# Health check
+# Health check depuis l'host en ENV=dev
 curl http://localhost:3000/ready   # si port exposé en dev-local
-# ou depuis l'intérieur du réseau :
+
+# Health check depuis l'intérieur du conteneur
 docker exec tchalanet-edge-service-dev wget -qO- http://127.0.0.1:3000/ready
+
+# Health check via nom DNS Docker depuis le réseau back
+docker exec tchalanet-edge-service-dev wget -qO- http://edge-service:3000/ready
 ```
 
 ---
@@ -140,6 +172,10 @@ docker exec tchalanet-edge-service-dev wget -qO- http://127.0.0.1:3000/ready
 
 Edge-service n'est pas exposé publiquement (pas de Traefik). Le backend l'appelle directement via le réseau Docker interne `back`.
 
+En local dev seulement, `docker-compose-edge-service-dev-local.yml` publie le port
+sur `127.0.0.1:3000`. Cette publication ne doit pas être utilisée en
+staging/prod.
+
 ---
 
 ## Voir aussi
@@ -147,3 +183,4 @@ Edge-service n'est pas exposé publiquement (pas de Traefik). Le backend l'appel
 - Code source et config providers : [`tchalanet-edge-service/README.md`](../../tchalanet-edge-service/README.md)
 - Exemples curl signés HMAC : [`tchalanet-edge-service/docs/internal-messages-hmac-curl.md`](../../tchalanet-edge-service/docs/internal-messages-hmac-curl.md)
 - Compose file : [`compose/docker-compose-edge-service.yml`](../compose/docker-compose-edge-service.yml)
+- Overlay local dev : [`compose/docker-compose-edge-service-dev-local.yml`](../compose/docker-compose-edge-service-dev-local.yml)

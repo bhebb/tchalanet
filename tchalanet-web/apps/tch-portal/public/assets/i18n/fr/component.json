@@ -18,7 +18,8 @@
         "kpis": "Indicateurs",
         "commission": "Configuration des commissions",
         "quick_actions": "Actions rapides",
-        "readiness_alerts": "État & alertes"
+        "readiness_alerts": "État & alertes",
+        "sales_insights": "Ventes & jeux"
       }
     },
     "private_dashboard_cashier": {

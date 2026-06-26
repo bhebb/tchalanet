@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.notification.api.model;
 
 public enum NotificationAudienceType {
-  USER,
-  ROLE,
-  TENANT,
-  OUTLET,
-  TERMINAL,
-  PLATFORM
+  SPECIFIC_ACTORS,
+  PLATFORM_ADMINS,
+  ALL_APP_USERS,
+  TENANT_ADMINS,
+  TENANT_APP_USERS,
+  TENANT_SELLER_TERMINALS
 }

@@ -1,20 +1,19 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { EMPTY, Subject, catchError, debounceTime, switchMap } from 'rxjs';
+import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import {
+  AdminListStatusOption,
+  AdminListSurface,
   BadgeStatus,
   TchActionButton,
   TchConfirmDialog,
@@ -24,7 +23,6 @@ import {
   TchStatusBadge,
 } from '@tch/ui/components';
 
-import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -46,19 +44,15 @@ const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'SUSPENDED', 'ARCHIVED'] as const;
     TranslatePipe,
     RouterLink,
     DatePipe,
-    ReactiveFormsModule,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
-    AdminCrudShellComponent,
+    AdminListSurface,
     TchLoading,
     TchErrorPanel,
     TchStatusBadge,
     TchActionButton,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatMenuModule,
-    MatSelectModule,
     MatSortModule,
     MatTableModule,
   ],
@@ -153,14 +147,11 @@ export class PlatformTenantsPage implements OnInit {
         this.loadPage();
       });
 
-    // Filter changes → navigate to page 0 (URL change triggers loadPage above)
-    this.filters.valueChanges
-      .pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.navigateWithFilters());
   }
 
   resetFilters(): void {
-    this.filters.reset({ q: '', status: '', sort: 'updatedAt,desc' });
+    this.filters.reset({ q: '', status: '', sort: 'updatedAt,desc' }, { emitEvent: false });
+    this.navigateWithFilters();
   }
 
   loadPage(): void {
@@ -299,6 +290,20 @@ export class PlatformTenantsPage implements OnInit {
 
   statusLabel(status: TenantStatus | string): string {
     return this.translate.instant(`platform.tenants.status.${status.toLowerCase()}`);
+  }
+
+  statusFilterOptions(): readonly AdminListStatusOption[] {
+    return this.statuses.map(status => ({ value: status, label: this.statusLabel(status) }));
+  }
+
+  onSearchFilter(q: string): void {
+    this.filters.patchValue({ q }, { emitEvent: false });
+    this.navigateWithFilters();
+  }
+
+  onStatusFilter(status: string): void {
+    this.filters.patchValue({ status }, { emitEvent: false });
+    this.navigateWithFilters();
   }
 
   onSortChange(sort: Sort): void {

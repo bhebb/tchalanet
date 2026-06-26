@@ -37,6 +37,7 @@ public class CreateSellerTerminalCommandHandler
             cmd.displayName(),
             cmd.firstName(),
             cmd.lastName(),
+            cmd.email(),
             cmd.phoneNumber(),
             cmd.addressId(),
             rate);

@@ -12,6 +12,7 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultProjectionByDrawIdQuery;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.api.command.result.RecordDrawTicketsResultResult;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
@@ -63,6 +64,7 @@ public class RecordDrawTicketsResultCommandHandler
 
         var resultedEvents = new java.util.ArrayList<TicketResultedEvent>();
         var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
+        var payoutPaidEvents = new java.util.ArrayList<TicketPayoutPaidEvent>();
         var affectedTicketIds = new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
         int skipped = 0;
 
@@ -86,7 +88,8 @@ public class RecordDrawTicketsResultCommandHandler
                 }
 
                 var lineResults = ticketWinningCalculator.computeLineResults(ticket, projection);
-                var updated = ticket.applyOfficialResult(lineResults, SYSTEM_ACTOR, now);
+                var updated = ticket.applyOfficialResult(lineResults, SYSTEM_ACTOR, now)
+                    .autoSettleAfterResult(SYSTEM_ACTOR, now);
                 var saved = ticketWriter.save(updated);
 
                 affectedTicketIds.add(saved.identity().id());
@@ -119,6 +122,17 @@ public class RecordDrawTicketsResultCommandHandler
                         saved.money().currency().code(),
                         saved.context().sellerTerminalId()
                     ));
+                    payoutPaidEvents.add(new TicketPayoutPaidEvent(
+                        EventId.of(idGenerator.newUuid()),
+                        now,
+                        saved.identity().tenantId(),
+                        saved.identity().id(),
+                        command.drawId(),
+                        winningAmount.movePointRight(2).longValueExact(),
+                        saved.money().currency().code(),
+                        saved.context().sellerTerminalId(),
+                        SYSTEM_ACTOR
+                    ));
                 }
             } catch (Exception ex) {
                 skipped++;
@@ -134,6 +148,7 @@ public class RecordDrawTicketsResultCommandHandler
         AfterCommit.run(() -> {
             resultedEvents.forEach(eventPublisher::publish);
             winningSettlementEvents.forEach(eventPublisher::publish);
+            payoutPaidEvents.forEach(eventPublisher::publish);
             salesTicketCacheEvictor.evictByDraw(command.drawId());
             affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);
         });

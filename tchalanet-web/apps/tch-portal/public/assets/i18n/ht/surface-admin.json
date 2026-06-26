@@ -70,6 +70,7 @@
       "reports_sales": "Ventes",
       "reports_sellers": "Vendeurs",
       "reports_draws": "Tirages",
+      "reports_financials": "Financials",
       "reports_exports": "Exportations",
       "tickets_section": "Tickets",
       "tickets_list": "Liste des tickets",
@@ -80,6 +81,7 @@
       "company_address": "Adresse",
       "company_appearance": "Apparence",
       "company_settings": "Paramètres",
+      "company_notifications": "Sant notifikasyon",
       "company_support": "Support",
       "help": "Aide"
     },

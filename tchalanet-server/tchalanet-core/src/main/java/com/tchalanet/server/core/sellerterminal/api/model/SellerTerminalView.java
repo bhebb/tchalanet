@@ -16,6 +16,7 @@ public record SellerTerminalView(
     String displayName,
     String firstName,
     String lastName,
+    String email,
     String phoneNumber,
     AddressId addressId,
     // control

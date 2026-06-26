@@ -4,6 +4,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestIntent;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestStatus;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestAdminDetailView;
@@ -39,6 +40,7 @@ public class PlatformContactRequestAdminController {
 
     @GetMapping
     public ApiResponse<TchPage<ContactRequestSummaryView>> list(
+        @RequestParam(required = false, name = "q") String q,
         @RequestParam(required = false) ContactRequestStatus status,
         @RequestParam(required = false) ContactRequestIntent intent,
         @TchPaging(
@@ -46,7 +48,7 @@ public class PlatformContactRequestAdminController {
             defaultSort = {"createdAt,desc"})
         TchPageRequest pageReq
     ) {
-        return ApiResponse.success(service.list(status, intent, pageReq.pageable()));
+        return ApiResponse.success(service.list(status, intent, TchSearchQuery.of(q), pageReq.pageable()));
     }
 
     @GetMapping("/{id}")

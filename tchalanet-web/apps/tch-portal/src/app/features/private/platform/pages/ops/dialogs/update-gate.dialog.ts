@@ -6,11 +6,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
+import { Observable, map } from 'rxjs';
 
 import {
   PlatformOpsApi,
   GateUpdateRequest,
 } from '../../../platform-ops-api.service';
+import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 
 @Component({
   selector: 'tch-update-gate-dialog',
@@ -24,6 +27,7 @@ import {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    TchSearchSelect,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.enable ? 'Activer' : 'Désactiver' }} gate</h2>
@@ -38,13 +42,15 @@ import {
           </mat-select>
         </mat-form-field>
         @if (form.controls.scope.value === 'TENANT') {
-          <mat-form-field appearance="outline">
-            <mat-label>Tenant ID</mat-label>
-            <input matInput formControlName="tenantId" />
-            @if (form.controls.tenantId.invalid && form.controls.tenantId.touched) {
-              <mat-error>Requis pour portée TENANT.</mat-error>
-            }
-          </mat-form-field>
+          <tch-search-select
+            label="Tenant"
+            placeholder="Nom ou code du tenant"
+            icon="apartment"
+            emptyLabel="Aucun tenant trouvé"
+            [error]="form.controls.tenantId.invalid && form.controls.tenantId.touched ? 'Requis pour portée TENANT.' : ''"
+            [searchFn]="searchTenants"
+            (valueChange)="selectTenant($event)"
+          />
         }
         <mat-form-field appearance="outline">
           <mat-label>Raison</mat-label>
@@ -79,6 +85,7 @@ export class UpdateGateDialog {
   protected readonly data = inject<{ jobKey: string; enable: boolean }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<UpdateGateDialog>);
   private readonly api = inject(PlatformOpsApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly fb = inject(FormBuilder);
 
   readonly submitting = signal(false);
@@ -89,6 +96,18 @@ export class UpdateGateDialog {
     tenantId: [''],
     reason: ['', Validators.required],
   });
+
+  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
+    );
+
+  selectTenant(option: TchSearchOption | null): void {
+    const tenant = option?.data as TenantSummaryView | undefined;
+    this.form.patchValue({
+      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) return;
@@ -115,5 +134,16 @@ export class UpdateGateDialog {
         this.error.set(pd?.title ?? 'Erreur lors de la mise à jour.');
       },
     });
+  }
+
+  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
+    return {
+      id: tenant.id ?? tenant.tenantId ?? tenant.code,
+      title: tenant.name,
+      subtitle: tenant.code,
+      badge: tenant.status,
+      icon: 'apartment',
+      data: tenant,
+    };
   }
 }

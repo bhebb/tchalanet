@@ -4,14 +4,16 @@
   @if (alerts().length) {
     <ul class="alerts__list">
       @for (alert of alerts(); track alert.id) {
-        <li class="alerts__item alerts__item--{{ alert.severity | lowercase }}">
-          <span class="alerts__severity-bar" aria-hidden="true"></span>
-          <div class="alerts__body">
-            <span class="alerts__alert-title">{{ alert.title }}</span>
-            @if (alert.message) {
-              <span class="alerts__message">{{ alert.message }}</span>
-            }
-          </div>
+        <li>
+          @if (alert.path) {
+            <a class="alerts__item alerts__item--{{ alert.severity | lowercase }}" [routerLink]="alert.path">
+              <ng-container [ngTemplateOutlet]="alertBody" [ngTemplateOutletContext]="{ alert: alert }" />
+            </a>
+          } @else {
+            <div class="alerts__item alerts__item--{{ alert.severity | lowercase }}">
+              <ng-container [ngTemplateOutlet]="alertBody" [ngTemplateOutletContext]="{ alert: alert }" />
+            </div>
+          }
         </li>
       }
     </ul>
@@ -19,3 +21,13 @@
     <p class="alerts__empty">{{ emptyKey() | tchLabel }}</p>
   }
 </div>
+
+<ng-template #alertBody let-alert="alert">
+  <span class="alerts__severity-bar" aria-hidden="true"></span>
+  <div class="alerts__body">
+    <span class="alerts__alert-title">{{ alert.title | tchLabel }}</span>
+    @if (alert.message) {
+      <span class="alerts__message">{{ alert.message }}</span>
+    }
+  </div>
+</ng-template>

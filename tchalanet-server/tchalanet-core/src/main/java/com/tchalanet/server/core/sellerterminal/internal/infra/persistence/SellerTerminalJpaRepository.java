@@ -6,14 +6,27 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 
 public interface SellerTerminalJpaRepository
     extends JpaRepository<SellerTerminalJpaEntity, UUID>,
             JpaSpecificationExecutor<SellerTerminalJpaEntity> {
 
     Optional<SellerTerminalJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
+
+    List<SellerTerminalJpaEntity> findByTenantIdAndStatusAndDeletedAtIsNull(
+        UUID tenantId,
+        SellerTerminalStatus status
+    );
+
+    List<SellerTerminalJpaEntity> findByTenantIdAndIdInAndDeletedAtIsNull(
+        UUID tenantId,
+        Collection<UUID> ids
+    );
 
     @Query("""
         SELECT

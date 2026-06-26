@@ -1,0 +1,282 @@
+<tch-admin-page-shell title="Centre de notifications">
+  <section class="notifications-summary" aria-label="Résumé notifications">
+    <div class="notifications-summary__metric">
+      <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+      <div>
+        <p>Non lues</p>
+        <strong>{{ unreadCount() }}</strong>
+      </div>
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="saving() || !hasUnread()"
+      (click)="markAllRead()"
+    >
+      <mat-icon>done_all</mat-icon>
+      Tout marquer lu
+    </button>
+
+    <button mat-flat-button type="button" [disabled]="saving()" (click)="showComposer.set(!showComposer())">
+      <mat-icon>add</mat-icon>
+      Nouvelle notification
+    </button>
+  </section>
+
+  @if (showComposer()) {
+    <section class="composer-card" aria-label="Créer une notification">
+      <header>
+        <h2>Nouvelle notification</h2>
+        <p>Annonce manuelle in-app pour votre tenant. Les notifications système se modifient dans les traductions.</p>
+      </header>
+
+      <form [formGroup]="composerForm" class="composer-form" (ngSubmit)="create()">
+        <mat-form-field appearance="outline">
+          <mat-label>Audience</mat-label>
+          <mat-select formControlName="audienceType">
+            <mat-option value="TENANT_ADMINS">Admins du tenant</mat-option>
+            <mat-option value="TENANT_APP_USERS">Utilisateurs du tenant</mat-option>
+            <mat-option value="TENANT_SELLER_TERMINALS">Seller-terminals</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sévérité</mat-label>
+          <mat-select formControlName="severity">
+            @for (severity of severities; track severity) {
+              <mat-option [value]="severity">{{ severity }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Catégorie</mat-label>
+          <mat-select formControlName="category">
+            @for (category of categories; track category) {
+              <mat-option [value]="category">{{ category }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-tab-group class="composer-form__locale-tabs" animationDuration="160ms">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <span class="composer-form__tab-label">
+                Français
+                <span
+                  class="material-symbols-outlined composer-form__tab-state"
+                  [class.composer-form__tab-state--ready]="composerForm.controls.titleFr.valid && composerForm.controls.bodyFr.valid"
+                  [class.composer-form__tab-state--todo]="composerForm.controls.titleFr.invalid || composerForm.controls.bodyFr.invalid"
+                  aria-hidden="true"
+                >
+                  {{ composerForm.controls.titleFr.valid && composerForm.controls.bodyFr.valid ? 'check_circle' : 'error' }}
+                </span>
+              </span>
+            </ng-template>
+
+            <section class="composer-form__locale" aria-label="Français">
+              <mat-form-field appearance="outline">
+                <mat-label>Titre</mat-label>
+                <input matInput formControlName="titleFr" maxlength="160" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Message</mat-label>
+                <textarea matInput formControlName="bodyFr" rows="4" maxlength="1000"></textarea>
+              </mat-form-field>
+            </section>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <span class="composer-form__tab-label">
+                Anglais
+                <span
+                  class="material-symbols-outlined composer-form__tab-state"
+                  [class.composer-form__tab-state--ready]="composerForm.controls.titleEn.valid && composerForm.controls.bodyEn.valid"
+                  [class.composer-form__tab-state--todo]="composerForm.controls.titleEn.invalid || composerForm.controls.bodyEn.invalid"
+                  aria-hidden="true"
+                >
+                  {{ composerForm.controls.titleEn.valid && composerForm.controls.bodyEn.valid ? 'check_circle' : 'error' }}
+                </span>
+              </span>
+            </ng-template>
+
+            <section class="composer-form__locale" aria-label="Anglais">
+              <mat-form-field appearance="outline">
+                <mat-label>Title</mat-label>
+                <input matInput formControlName="titleEn" maxlength="160" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Message</mat-label>
+                <textarea matInput formControlName="bodyEn" rows="4" maxlength="1000"></textarea>
+              </mat-form-field>
+            </section>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <span class="composer-form__tab-label">
+                Créole
+                <span
+                  class="material-symbols-outlined composer-form__tab-state"
+                  [class.composer-form__tab-state--ready]="composerForm.controls.titleHt.valid && composerForm.controls.bodyHt.valid"
+                  [class.composer-form__tab-state--todo]="composerForm.controls.titleHt.invalid || composerForm.controls.bodyHt.invalid"
+                  aria-hidden="true"
+                >
+                  {{ composerForm.controls.titleHt.valid && composerForm.controls.bodyHt.valid ? 'check_circle' : 'error' }}
+                </span>
+              </span>
+            </ng-template>
+
+            <section class="composer-form__locale" aria-label="Créole haïtien">
+              <mat-form-field appearance="outline">
+                <mat-label>Tit</mat-label>
+                <input matInput formControlName="titleHt" maxlength="160" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Mesaj</mat-label>
+                <textarea matInput formControlName="bodyHt" rows="4" maxlength="1000"></textarea>
+              </mat-form-field>
+            </section>
+          </mat-tab>
+        </mat-tab-group>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Lien d’action</mat-label>
+          <input matInput formControlName="actionUrl" placeholder="/app/admin/..." />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Canaux</mat-label>
+          <mat-select formControlName="channels" multiple>
+            @for (channel of channelOptions; track channel) {
+              <mat-option [value]="channel">{{ channel }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Destination externe</mat-label>
+          <input matInput formControlName="externalDestination" placeholder="email ou numéro pour test ciblé" />
+        </mat-form-field>
+
+        <div class="composer-actions">
+          <button mat-stroked-button type="button" (click)="showComposer.set(false)">Annuler</button>
+          <button mat-flat-button type="submit" [disabled]="saving() || composerForm.invalid">
+            <mat-icon>send</mat-icon>
+            Publier
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <tch-admin-crud-shell>
+    <div class="notifications-toolbar">
+      <mat-form-field appearance="outline">
+        <mat-label>Sévérité</mat-label>
+        <mat-select
+          [value]="severityFilter()"
+          (selectionChange)="severityFilter.set($event.value); applyFilters()"
+        >
+          <mat-option value="">Toutes</mat-option>
+          @for (severity of severities; track severity) {
+            <mat-option [value]="severity">{{ severity }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Catégorie</mat-label>
+        <mat-select
+          [value]="categoryFilter()"
+          (selectionChange)="categoryFilter.set($event.value); applyFilters()"
+        >
+          <mat-option value="">Toutes</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" (click)="resetFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Réinitialiser
+      </button>
+
+      <button mat-icon-button type="button" aria-label="Actualiser" (click)="load()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (error()) {
+      <tch-error-panel [message]="error()!" />
+    }
+
+    @if (loading()) {
+      <tch-loading label="Chargement des notifications..." />
+    } @else if (items().length === 0) {
+      <tch-admin-empty-state
+        icon="notifications"
+        title="Aucune notification"
+        message="Aucune notification ne correspond aux filtres sélectionnés."
+      />
+    } @else {
+      <table mat-table [dataSource]="items()" class="notifications-table">
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let item">{{ item.createdAt | date: 'dd/MM/yy HH:mm' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="severity">
+          <th mat-header-cell *matHeaderCellDef>Sévérité</th>
+          <td mat-cell *matCellDef="let item">
+            <tch-admin-status-pill [label]="item.severity" [tone]="severityTone(item.severity)" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Message</th>
+          <td mat-cell *matCellDef="let item">
+            <div class="notification-title">{{ titleOf(item) }}</div>
+            @if (messageOf(item)) {
+              <div class="notification-message">{{ messageOf(item) }}</div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+          <td mat-cell *matCellDef="let item">{{ item.category }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let item" class="notifications-table__actions">
+            <button mat-icon-button type="button" aria-label="Marquer comme lue" (click)="markRead(item)">
+              <mat-icon>done</mat-icon>
+            </button>
+            <button mat-icon-button type="button" aria-label="Fermer" (click)="dismiss(item)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    }
+
+    <div class="notifications-pagination">
+      <span>{{ total() }} notification(s)</span>
+      <button mat-icon-button type="button" [disabled]="page() === 0" (click)="prevPage()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+      <button mat-icon-button type="button" [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

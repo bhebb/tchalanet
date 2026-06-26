@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +35,7 @@ public class PublicContentAggregationService {
    * Pass {@code null} for surface to get all content (admin view).
    */
   public List<PublicContentItem> aggregateForSurface(PublicContentSurface surface, Instant now) {
-    Set<String> hiddenIds = Set.copyOf(hiddenService.getHiddenIds());
-    Predicate<PublicContentItem> notHidden = item -> !hiddenIds.contains(item.id());
+    Predicate<PublicContentItem> notHidden = item -> !hiddenService.isHidden(item);
 
     // Internal: published + surface match + not hidden
     var internal = internalService.findPublished(now).stream()

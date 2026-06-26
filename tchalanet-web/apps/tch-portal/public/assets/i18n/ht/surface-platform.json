@@ -40,7 +40,9 @@
       "platform": "Platfòm",
       "overview": "Apèsi",
       "dashboard": "Tablo kontwòl",
+      "commercialDashboard": "Tablo komèsyal",
       "health": "Sante platfòm",
+      "opsDashboard": "Ops platfòm",
       "tenantsGroup": "Tenants",
       "tenants": "Tout tenants",
       "createTenant": "Kreye tenant",
@@ -84,6 +86,7 @@
       "plans": "Plans",
       "pricing": "Tarifs",
       "communicationTests": "Tests communication",
+      "communicationOps": "Communication ops",
       "identitySync": "Synchronisation identité",
       "supportAndContent": "Support & contenu",
       "contactRequests": "Messages de contact",
@@ -95,6 +98,193 @@
       "accessSecurity": "Accès & sécurité",
       "users": "Utilisateurs",
       "backendKeys": "Clés publiques backend"
+    },
+    "kpi": {
+      "totalTenants": {
+        "label": "Tenants"
+      },
+      "activeTenants": {
+        "label": "Aktif"
+      },
+      "suspendedTenants": {
+        "label": "Sispann"
+      },
+      "ticketsSoldToday": {
+        "label": "Tikè vann"
+      },
+      "grossSalesToday": {
+        "label": "Lavant brit"
+      },
+      "netToday": {
+        "label": "Net estime"
+      },
+      "activeSubscriptions": {
+        "label": "Aktif"
+      },
+      "pastDueSubscriptions": {
+        "label": "An reta"
+      },
+      "totalSubscriptions": {
+        "label": "Total"
+      },
+      "systemHealth": {
+        "label": "Eta global"
+      },
+      "servicesUp": {
+        "label": "Sèvis UP"
+      },
+      "schedulerFailed": {
+        "label": "Jobs echwe"
+      },
+      "schedulerDisabled": {
+        "label": "Gates dezaktive"
+      },
+      "schedulerStale": {
+        "label": "Jobs stale / pa janm kouri"
+      },
+      "schedulerRegistered": {
+        "label": "Jobs swiv"
+      },
+      "resourceCritical": {
+        "label": "Resous kritik"
+      },
+      "resourceWarning": {
+        "label": "Resous pou swiv"
+      },
+      "pendingOnboarding": {
+        "label": "Pou fini"
+      }
+    },
+    "metric": {
+      "ticketsSold": {
+        "label": "Tikè"
+      },
+      "grossSales": {
+        "label": "Lavant brit"
+      },
+      "netRevenue": {
+        "label": "Net estime"
+      }
+    }
+  },
+  "layout": {
+    "private_dashboard_superadmin": {
+      "kpis": "Endikatè platfòm",
+      "platform_state": "Eta platfòm",
+      "sales_insights": "Lavant ak jwèt",
+      "insights": "Aktivite platfòm",
+      "content_actions": "Aksyon rapid"
+    },
+    "private_dashboard_superadmin_ops": {
+      "health": "Sante platfòm",
+      "resources": "Resous sèvis yo",
+      "inbox": "Inbox ops",
+      "actions": "Aksyon ops"
+    }
+  },
+  "dashboard": {
+    "superadmin": {
+      "tenants": {
+        "title": "Tenants"
+      },
+      "sales": {
+        "title": "Aktivite jodi a"
+      },
+      "subscriptions": {
+        "title": "Abònman"
+      },
+      "health": {
+        "title": "Sante sistèm"
+      },
+      "onboarding": {
+        "title": "Onboarding"
+      },
+      "alerts": {
+        "title": "Alèt platfòm",
+        "empty": "Pa gen alèt platfòm."
+      },
+      "public_content": {
+        "title": "Nouvèl piblik",
+        "subtitle": "Dènye kontni ki pibliye"
+      },
+      "sales_trend": {
+        "title": "Tandans lavant",
+        "empty": "Pa gen lavant pou peryòd sa a."
+      },
+      "game_breakdown": {
+        "title": "Lavant pa jwèt",
+        "empty": "Pa gen lavant pa jwèt disponib."
+      },
+      "top_tenants": {
+        "title": "Pi bon tenants",
+        "empty": "Pa gen aktivite tenant pou peryòd sa a."
+      },
+      "quick_actions": {
+        "title": "Aksyon rapid"
+      },
+      "ops": {
+        "overview": {
+          "title": "Ops platfòm"
+        },
+        "health": {
+          "title": "Sante platfòm"
+        },
+        "scheduler": {
+          "title": "Jobs & schedulers"
+        },
+        "resources_kpi": {
+          "title": "Resous kritik"
+        },
+        "resources": {
+          "title": "Resous sèvis yo",
+          "empty": "Metrik resous yo pa disponib.",
+          "critical": "kritik",
+          "warning": "pou swiv",
+          "restarts": "Rekòmansman",
+          "details": "Gade detay infra"
+        },
+        "database": {
+          "title": "Depo baz done",
+          "empty": "Kapasite baz done pa disponib.",
+          "tables": "tab",
+          "indexes": "endèks"
+        },
+        "jobs": {
+          "title": "Schedulers pou siveye",
+          "empty": "Pa gen scheduler resan.",
+          "failed": "echwe",
+          "disabled": "dezaktive",
+          "stale": "stale / pa kouri",
+          "history_unavailable": "istorik pa disponib",
+          "details": "Gade travay ops yo"
+        },
+        "notifications": {
+          "title": "Notifikasyon in-app",
+          "empty": "Pa gen notifikasyon non li."
+        },
+        "contacts": {
+          "title": "Kontak resevwa",
+          "empty": "Pa gen demann kontak resevwa."
+        },
+        "quick_actions": {
+          "title": "Aksyon ops"
+        }
+      }
+    }
+  },
+  "quickaction": {
+    "platform": {
+      "create_tenant": "Kreye tenant",
+      "onboarding": "Gade onboarding",
+      "subscriptions": "Jere abònman",
+      "platform_health": "Louvri sante platfòm",
+      "draw_results": "Kontwole rezilta yo",
+      "public_content": "Gade kontni yo",
+      "notifications": "Jere notifikasyon",
+      "batch": "Louvri travay planifye yo",
+      "cache": "Louvri kach la",
+      "identity_sync": "Senkronize idantite",
+      "audit": "Louvri audit"
     }
   }
 }

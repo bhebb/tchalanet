@@ -1,0 +1,54 @@
+<div class="ops-job-status">
+  @if (titleKey()) {
+    <h2 class="ops-job-status__title">{{ titleKey() | tchLabel }}</h2>
+  }
+
+  <div class="ops-job-status__summary">
+    <span class="ops-job-status__summary-item ops-job-status__summary-item--critical">
+      {{ summary().failedCount }} {{ 'dashboard.superadmin.ops.jobs.failed' | tchLabel }}
+    </span>
+    <span class="ops-job-status__summary-item ops-job-status__summary-item--warning">
+      {{ summary().disabledGateCount }} {{ 'dashboard.superadmin.ops.jobs.disabled' | tchLabel }}
+    </span>
+    <span class="ops-job-status__summary-item ops-job-status__summary-item--warning">
+      {{ summary().staleCount }} {{ 'dashboard.superadmin.ops.jobs.stale' | tchLabel }}
+    </span>
+    @if (!summary().historyAvailable) {
+      <span class="ops-job-status__summary-item ops-job-status__summary-item--warning">
+        {{ 'dashboard.superadmin.ops.jobs.history_unavailable' | tchLabel }}
+      </span>
+    }
+  </div>
+
+  @if (visibleJobs().length) {
+    <ul class="ops-job-status__list">
+      @for (job of visibleJobs(); track job.id) {
+        <li
+          [class.ops-job-status__item--ok]="job.severity === 'OK'"
+          class="ops-job-status__item"
+          [class.ops-job-status__item--warning]="job.severity === 'WARNING'"
+          [class.ops-job-status__item--critical]="job.severity === 'CRITICAL'"
+        >
+          <div class="ops-job-status__main">
+            <span class="ops-job-status__name">{{ job.displayName }}</span>
+            <span class="ops-job-status__key">
+              {{ job.context || job.jobKey }}
+            </span>
+          </div>
+          <div class="ops-job-status__meta">
+            <span class="ops-job-status__badge">{{ job.status }}</span>
+            <span>{{ job.scope }}</span>
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="ops-job-status__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+
+  @if (detailsPath()) {
+    <a class="ops-job-status__details" [routerLink]="detailsPath()">
+      {{ detailsLabelKey() | tchLabel }}
+    </a>
+  }
+</div>

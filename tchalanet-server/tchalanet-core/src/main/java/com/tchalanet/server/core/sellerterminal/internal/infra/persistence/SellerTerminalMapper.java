@@ -18,6 +18,7 @@ public class SellerTerminalMapper {
             e.getFirstName(),
             e.getLastName(),
             e.getDisplayName(),
+            e.getEmail(),
             e.getPhoneNumber(),
             AddressId.nullableOf(e.getAddressId()),
             e.getStatus(),
@@ -38,6 +39,7 @@ public class SellerTerminalMapper {
         e.setFirstName(t.firstName());
         e.setLastName(t.lastName());
         e.setDisplayName(t.displayName());
+        e.setEmail(t.email());
         e.setPhoneNumber(t.phoneNumber());
         e.setAddressId(t.addressId() != null ? t.addressId().value() : null);
         e.setStatus(t.status());

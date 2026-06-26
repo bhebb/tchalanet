@@ -26,7 +26,21 @@ describe('PageModelApi', () => {
     http.expectOne('/api/v1/tenant/dashboard').flush(response());
 
     api.getPlatformPage().subscribe();
-    http.expectOne('/api/v1/platform/dashboard').flush(response());
+    http
+      .expectOne(
+        '/api/v1/platform/dashboard?logicalId=private.dashboard.superadmin',
+      )
+      .flush(response());
+  });
+
+  it('can request a platform page by logicalId', () => {
+    api.getPlatformPage('private.dashboard.superadmin.ops').subscribe();
+
+    http
+      .expectOne(
+        '/api/v1/platform/dashboard?logicalId=private.dashboard.superadmin.ops',
+      )
+      .flush(response());
   });
 });
 

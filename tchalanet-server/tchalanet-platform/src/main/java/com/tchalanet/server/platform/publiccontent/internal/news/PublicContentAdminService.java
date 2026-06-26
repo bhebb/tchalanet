@@ -5,6 +5,7 @@ import com.tchalanet.server.platform.publiccontent.api.model.PublicContentStatus
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSurface;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -26,9 +27,16 @@ public class PublicContentAdminService {
   private final HiddenPublicContentService hiddenService;
   private final Clock clock;
 
-  /** List all internal + external items (admin view — no status/window/hidden filter). */
+  /** List internal items and visible external RSS items for admin management. */
   public List<PublicContentItem> listAll() {
-    return internalService.findAll();
+    var internal = internalService.findAll().stream()
+        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+        .toList();
+    var external = externalRssService.getExternalSnapshot().stream()
+        .filter(item -> !hiddenService.isHidden(item))
+        .sorted(Comparator.comparing(PublicContentItem::publishedAt).reversed())
+        .toList();
+    return java.util.stream.Stream.concat(internal.stream(), external.stream()).toList();
   }
 
   public PublicContentItem upsert(

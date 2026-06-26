@@ -26,3 +26,4 @@ export const SMS_PROVIDER = process.env['SMS_PROVIDER'] ?? 'twilio';
 export const TWILIO_ACCOUNT_SID = process.env['TWILIO_ACCOUNT_SID'] ?? '';
 export const TWILIO_AUTH_TOKEN = process.env['TWILIO_AUTH_TOKEN'] ?? '';
 export const TWILIO_FROM = process.env['TWILIO_FROM'] ?? '';
+export const TWILIO_WHATSAPP_FROM = process.env['TWILIO_WHATSAPP_FROM'] ?? '';

@@ -305,12 +305,31 @@ CREATE POLICY notification_rls_all ON notification
   )
   WITH CHECK (
     (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
-    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
-  );
+	    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+	  );
 
-ALTER TABLE notification_delivery ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_delivery FORCE ROW LEVEL SECURITY;
-CREATE POLICY notification_delivery_rls_all ON notification_delivery
+ALTER TABLE notification_translation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_translation FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_translation_rls_all ON notification_translation
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+	    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+	  );
+
+ALTER TABLE notification_publication ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_publication FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_publication_rls_all ON notification_publication
   FOR ALL
   USING (
     (
@@ -327,18 +346,81 @@ CREATE POLICY notification_delivery_rls_all ON notification_delivery
     OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
   );
 
-ALTER TABLE notification_preference ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notification_preference FORCE ROW LEVEL SECURITY;
-CREATE POLICY notification_preference_rls_all ON notification_preference
+ALTER TABLE notification_recipient ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_recipient FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_recipient_rls_all ON notification_recipient
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
+ALTER TABLE notification_user_state ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_user_state FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_user_state_rls_all ON notification_user_state
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
+ALTER TABLE notification_delivery_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_delivery_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_delivery_policy_rls_all ON notification_delivery_policy
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
+ALTER TABLE notification_trigger_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_trigger_log FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_trigger_log_rls_all ON notification_trigger_log
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
 
 ALTER TABLE notification_template ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notification_template FORCE ROW LEVEL SECURITY;

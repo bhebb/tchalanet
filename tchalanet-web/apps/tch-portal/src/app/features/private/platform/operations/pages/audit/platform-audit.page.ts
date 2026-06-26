@@ -9,12 +9,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Observable, map } from 'rxjs';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
+import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 import { AuditEntityType, AuditEventView, PlatformAuditApi } from '../../data-access/platform-audit-api.service';
 
 export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
@@ -37,6 +39,7 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSearchSelect,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -50,6 +53,7 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
 })
 export class PlatformAuditPage implements OnInit {
   private readonly api = inject(PlatformAuditApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
 
@@ -74,6 +78,11 @@ export class PlatformAuditPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+
+  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
+    );
 
   ngOnInit(): void { this.load(); }
 
@@ -108,6 +117,13 @@ export class PlatformAuditPage implements OnInit {
   applyFilters(): void { this.page.set(0); this.load(); }
 
   resetFilters(): void { this.filterForm.reset(); this.page.set(0); this.load(); }
+
+  selectTenantFilter(option: TchSearchOption | null): void {
+    const tenant = option?.data as TenantSummaryView | undefined;
+    this.filterForm.patchValue({
+      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
+    });
+  }
 
   prevPage(): void { this.page.set(this.page() - 1); this.load(); }
   nextPage(): void { this.page.set(this.page() + 1); this.load(); }
@@ -152,5 +168,16 @@ export class PlatformAuditPage implements OnInit {
     if (/CREATE|GENERATE|OPEN|REGISTER|ACTIVATE|RESTORE/.test(action)) return 'success';
     if (/UPDATE|STATE_CHANGE|OVERRIDE|CORRECT|SETTLE/.test(action)) return 'warning';
     return 'neutral';
+  }
+
+  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
+    return {
+      id: tenant.id ?? tenant.tenantId ?? tenant.code,
+      title: tenant.name,
+      subtitle: tenant.code,
+      badge: tenant.status,
+      icon: 'apartment',
+      data: tenant,
+    };
   }
 }

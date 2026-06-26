@@ -16,9 +16,21 @@ public interface ContactRequestJpaRepository extends JpaRepository<ContactReques
         WHERE c.deletedAt IS NULL
           AND (:status IS NULL OR c.status = :status)
           AND (:intent IS NULL OR c.intent = :intent)
+          AND (
+            :searchPattern IS NULL
+            OR lower(c.reference) LIKE :searchPattern
+            OR lower(c.fullName) LIKE :searchPattern
+            OR lower(c.phone) LIKE :searchPattern
+            OR lower(coalesce(c.email, '')) LIKE :searchPattern
+            OR lower(coalesce(c.organizationName, '')) LIKE :searchPattern
+            OR lower(coalesce(c.city, '')) LIKE :searchPattern
+            OR lower(coalesce(c.country, '')) LIKE :searchPattern
+            OR lower(c.message) LIKE :searchPattern
+          )
         """)
     Page<ContactRequestJpaEntity> search(
         @Param("status") ContactRequestStatus status,
         @Param("intent") ContactRequestIntent intent,
+        @Param("searchPattern") String searchPattern,
         Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.notification.internal.rule;
 
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
@@ -8,6 +9,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationSeverity
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 abstract class AbstractNotificationRule implements NotificationRule {
@@ -35,12 +37,13 @@ abstract class AbstractNotificationRule implements NotificationRule {
         eventId,
         tenantId,
         event.getClass().getSimpleName(),
+        sourceId(event, eventId),
         templateKey,
         severity,
         kind,
         category,
-        NotificationAudienceType.ROLE,
-        "TENANT_ADMIN",
+        NotificationAudienceType.TENANT_ADMINS,
+        Set.of(),
         variables(event),
         title,
         message,
@@ -61,16 +64,30 @@ abstract class AbstractNotificationRule implements NotificationRule {
         eventId,
         null,
         event.getClass().getSimpleName(),
+        sourceId(event, eventId),
         templateKey,
         severity,
         kind,
         category,
-        NotificationAudienceType.PLATFORM,
-        "platform",
+        NotificationAudienceType.PLATFORM_ADMINS,
+        Set.of(),
         variables(event),
         title,
         message,
         correlationKey);
+  }
+
+  private String sourceId(Object event, UUID eventId) {
+    if (eventId != null) {
+      return eventId.toString();
+    }
+    for (String methodName : java.util.List.of("sourceId", "id", "tenantId", "sellerTerminalId", "drawId", "ticketId")) {
+      var value = value(event, methodName);
+      if (value != null) {
+        return value.toString();
+      }
+    }
+    return Integer.toHexString(event.hashCode());
   }
 
   private TenantId tenantId(Object event) {
@@ -88,6 +105,9 @@ abstract class AbstractNotificationRule implements NotificationRule {
     var value = value(event, methodName);
     if (value instanceof UUID uuid) {
       return uuid;
+    }
+    if (value instanceof EventId eventId) {
+      return eventId.value();
     }
     if (value != null) {
       try {

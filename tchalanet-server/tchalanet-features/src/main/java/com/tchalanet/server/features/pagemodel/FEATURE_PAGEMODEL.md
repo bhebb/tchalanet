@@ -73,6 +73,42 @@ dynamic widgets and shell sections through `PageModelDynamicProvider`.
 - Les providers n'accèdent jamais directement aux repositories, JPA, SQL, tables métier
 - Les données tenant/actor viennent de `TchRequestContext` — le client ne fournit pas de tenant data dans les widget props
 
+## KPI/dashboard consumption
+
+PageModel dashboard providers are BFF assemblers. They consume KPI contracts and shape them for
+widgets; they do not define financial semantics.
+
+| Surface | Provider package | KPI source |
+|---|---|---|
+| Tenant admin | `dynamic.providers.tenantadmin` | `GetTenantDashboardStatsQuery`, `GetTenantKpisQuery`, seller terminal queries |
+| Platform admin | `dynamic.providers.platformadmin` | `GetPlatformDashboardStatsQuery`, health probe |
+| Cashier/POS | POS BFF, not PageModel mobile | `/tenant/cashier/home` and POS-specific providers |
+
+Financial widgets must use fields already exposed by `core.analytics.api`:
+
+- `grossSales`: approved ticket stake total, not buyer pass-through charges;
+- `winningsCalculated`: result-settlement amount;
+- `payoutsPaid`: ticket lifecycle paid amount;
+- `sellerCommission`: sale-time commission amount snapshot;
+- `buyerCharges`, `sellerCharges`, `tenantCharges`, `waivedCharges`: charge snapshots grouped by payer;
+- `promotionLines`, `promotionPricedLines`, `promotionPayoutBase`, `promotionPotentialPayout`:
+  promotion usage/exposure metrics;
+- `netRevenueEstimated` / `netRevenuePaidBasis`: analytics-derived net values.
+
+PageModel providers may:
+
+- choose time windows, limits and widget slices;
+- map analytics models into widget payload fields;
+- provide empty/loading/fallback payloads if analytics is temporarily unavailable.
+
+PageModel providers must not:
+
+- read `analytics_*`, `stats_*`, `ticket_*` or pricing tables directly;
+- recompute commissions from current seller/tenant rates;
+- recompute winnings from current odds;
+- treat buyer-paid charges as game revenue;
+- invent a new KPI formula outside `core.analytics`.
+
 ## JSON fragments
 
 Reusable navigation and shell payloads use the generic `json_file` source.
@@ -126,6 +162,8 @@ Fragments use camelCase API fields such as `labelKey`, `activeMatch`, `reasonKey
 | `superadmin_system_health` | `SuperAdminSystemHealthProvider` |
 | `superadmin_batch_status`  | `SuperAdminBatchStatusProvider`  |
 | `superadmin_tenants`       | `SuperAdminTenantsProvider`      |
+| `dashboard.tenantAdmin.*`  | `TenantAdminDashboardProvider`   |
+| `dashboard.platformAdmin.*` | `PlatformAdminDashboardProvider` |
 | `superadmin_version`       | `SuperAdminVersionProvider`      |
 
 ---

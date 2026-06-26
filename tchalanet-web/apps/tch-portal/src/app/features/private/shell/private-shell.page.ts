@@ -9,10 +9,12 @@ import { ThemeStore } from '@tch/ui/theme';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { I18nFacade, LanguageSwitcher } from '../../../core/i18n';
-import { AppRuntimeStore, PrivateBootstrapStore } from '../../../core/runtime';
+import { AppRuntimeStore } from '../../../core/runtime';
 import { ShellFeedbackOutletComponent } from '../../../core/feedback/shell-feedback-outlet.component';
 import { ShellFeedbackStore } from '../../../core/feedback/shell-feedback.store';
 import { ShellFeedbackVerbosity } from '../../../core/feedback/shell-feedback.model';
+import { PrivateNotificationBellComponent } from '../../../core/notifications/private-notification-bell.component';
+import { PrivateNotificationsStore } from '../../../core/notifications/private-notifications.store';
 import { PrivateShellService } from './private-shell.service';
 import { AdminOverrideBanner } from '../shared/admin-override-banner';
 
@@ -20,6 +22,7 @@ import { AdminOverrideBanner } from '../shared/admin-override-banner';
   imports: [
     AdminOverrideBanner,
     LanguageSwitcher,
+    PrivateNotificationBellComponent,
     RouterOutlet,
     ShellFeedbackOutletComponent,
     TchBrand,
@@ -48,11 +51,7 @@ import { AdminOverrideBanner } from '../shared/admin-override-banner';
           <strong>{{ titleKey() | translate }}</strong>
         }
         <div class="utilities">
-          @if (unreadCount() > 0) {
-            <span class="notif-badge" [attr.aria-label]="unreadCount() + ' notifications'">
-              {{ unreadCount() }}
-            </span>
-          }
+          <tch-private-notification-bell />
           <tch-language-switcher />
           <button
             type="button"
@@ -136,19 +135,6 @@ import { AdminOverrideBanner } from '../shared/admin-override-banner';
 
       .mode-toggle:hover {
         background: var(--tch-color-surface-container-high);
-      }
-
-      .notif-badge {
-        align-items: center;
-        background: var(--tch-color-error, #ba1a1a);
-        border-radius: 9999px;
-        color: var(--tch-color-on-error, #fff);
-        display: inline-flex;
-        font-size: 0.75rem;
-        font-weight: 700;
-        justify-content: center;
-        min-width: 1.5rem;
-        padding: 0.125rem 0.375rem;
       }
 
       .workspace {
@@ -238,7 +224,7 @@ import { AdminOverrideBanner } from '../shared/admin-override-banner';
 export class PrivateShellPage {
   private readonly auth = inject(AuthSessionService);
   private readonly runtime = inject(AppRuntimeStore);
-  private readonly bootstrapStore = inject(PrivateBootstrapStore);
+  private readonly notifications = inject(PrivateNotificationsStore);
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeStore);
   private readonly feedback = inject(ShellFeedbackStore);
@@ -285,10 +271,9 @@ export class PrivateShellPage {
     return [];
   });
 
-  readonly unreadCount = computed(() => this.bootstrapStore.unreadCount());
-
   constructor() {
     this.runtime.initPrivateRuntime();
+    this.notifications.loadLatest();
 
     effect(() => {
       if (this.shellSvc.shellLoadError()) {

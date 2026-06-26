@@ -2,11 +2,12 @@ package com.tchalanet.server.platform.notification.internal.event;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
-import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationIntent;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationRule;
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
+import com.tchalanet.server.platform.notification.internal.service.NotificationTriggerService;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class NotificationDomainEventRouter {
 
   private final List<NotificationRule> rules;
   private final NotificationService notificationService;
+  private final NotificationTriggerService triggerService;
   private final JsonUtils jsonUtils;
   private final ObjectProvider<ProcessedEventPort> processedEvents;
 
@@ -37,7 +39,7 @@ public class NotificationDomainEventRouter {
   }
 
   private void createIfNotProcessed(NotificationRule rule, NotificationIntent intent) {
-    if (!markProcessed(rule, intent)) {
+    if (!markTriggered(rule, intent)) {
       return;
     }
 
@@ -47,7 +49,7 @@ public class NotificationDomainEventRouter {
         intent.sourceEventId() == null ? null : intent.sourceEventId().toString(),
         intent.correlationKey(),
         intent.audienceType(),
-        intent.audienceValue(),
+        intent.targets(),
         intent.severity(),
         intent.kind(),
         intent.category(),
@@ -55,11 +57,34 @@ public class NotificationDomainEventRouter {
         intent.templateKey(),
         intent.title(),
         intent.message(),
+        null,
         jsonUtils.toJsonNode(intent.variables()),
         null,
         null,
         null,
         Set.of(NotificationChannel.WEB)));
+  }
+
+  private boolean markTriggered(NotificationRule rule, NotificationIntent intent) {
+    var sourceId = intent.sourceId();
+    if (sourceId == null || sourceId.isBlank()) {
+      sourceId =
+          intent.sourceEventId() == null
+              ? intent.correlationKey()
+              : intent.sourceEventId().toString();
+    }
+    if (sourceId == null || sourceId.isBlank()) {
+      sourceId = rule.handlerKey() + ":" + intent.sourceType();
+    }
+
+    var claimed =
+        triggerService.markTriggeredIfAbsent(
+            rule.handlerKey(), intent.sourceType(), sourceId, intent.tenantId());
+    if (!claimed) {
+      return false;
+    }
+
+    return markProcessed(rule, intent);
   }
 
   private boolean markProcessed(NotificationRule rule, NotificationIntent intent) {

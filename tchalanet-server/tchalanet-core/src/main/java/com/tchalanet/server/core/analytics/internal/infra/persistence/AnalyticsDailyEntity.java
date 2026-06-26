@@ -64,6 +64,33 @@ public class AnalyticsDailyEntity {
   @Column(name = "payouts_paid_cents", nullable = false)
   private long payoutsPaidCents;
 
+  @Column(name = "seller_commission_cents", nullable = false)
+  private long sellerCommissionCents;
+
+  @Column(name = "buyer_charge_cents", nullable = false)
+  private long buyerChargeCents;
+
+  @Column(name = "seller_charge_cents", nullable = false)
+  private long sellerChargeCents;
+
+  @Column(name = "tenant_charge_cents", nullable = false)
+  private long tenantChargeCents;
+
+  @Column(name = "waived_charge_cents", nullable = false)
+  private long waivedChargeCents;
+
+  @Column(name = "promotion_line_count", nullable = false)
+  private long promotionLineCount;
+
+  @Column(name = "promotion_priced_line_count", nullable = false)
+  private long promotionPricedLineCount;
+
+  @Column(name = "promotion_payout_base_cents", nullable = false)
+  private long promotionPayoutBaseCents;
+
+  @Column(name = "promotion_potential_payout_cents", nullable = false)
+  private long promotionPotentialPayoutCents;
+
   @Column(name = "net_revenue_estimated_cents", nullable = false)
   private long netRevenueEstimatedCents;
 

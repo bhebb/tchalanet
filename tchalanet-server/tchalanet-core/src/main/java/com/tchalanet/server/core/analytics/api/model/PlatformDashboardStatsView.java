@@ -14,6 +14,8 @@ public record PlatformDashboardStatsView(
     LocalDate from,
     LocalDate to,
     PlatformSummaryCard summary,
+    List<PlatformDailyPoint> dailyBreakdown,
+    List<PlatformGameBreakdown> gameBreakdown,
     List<TenantRankRow> topTenants
 ) {
 
@@ -23,6 +25,36 @@ public record PlatformDashboardStatsView(
       long       ticketsSold,
       BigDecimal grossSales,
       BigDecimal winningsCalculated,
+      BigDecimal payoutsPaid,
+      BigDecimal sellerCommission,
+      BigDecimal tenantCharges,
+      long promotionLines,
+      BigDecimal promotionPotentialPayout,
+      BigDecimal netRevenueEstimated,
+      BigDecimal netRevenuePaidBasis
+  ) {}
+
+  /** Single date point for trend widgets and platform reports. */
+  public record PlatformDailyPoint(
+      LocalDate  refDate,
+      long       ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal winningsCalculated,
+      BigDecimal payoutsPaid,
+      BigDecimal sellerCommission,
+      BigDecimal tenantCharges,
+      long promotionLines,
+      BigDecimal promotionPotentialPayout,
+      BigDecimal netRevenueEstimated,
+      BigDecimal netRevenuePaidBasis
+  ) {}
+
+  /** Per-game platform breakdown for the requested window (populated once GAME rows exist). */
+  public record PlatformGameBreakdown(
+      String     gameCode,
+      String     gameLabel,
+      long       ticketsSold,
+      BigDecimal grossSales,
       BigDecimal netRevenueEstimated
   ) {}
 

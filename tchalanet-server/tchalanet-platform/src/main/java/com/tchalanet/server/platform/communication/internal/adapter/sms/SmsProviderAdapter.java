@@ -4,12 +4,15 @@ import com.tchalanet.server.platform.communication.api.model.request.SendOutboun
 import com.tchalanet.server.platform.communication.api.model.result.SendOutboundMessageResult;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.internal.adapter.DeliveryProvider;
-import lombok.extern.slf4j.Slf4j;
+import com.tchalanet.server.platform.communication.internal.provider.EdgeCommunicationGateway;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
+@RequiredArgsConstructor
 public class SmsProviderAdapter implements DeliveryProvider {
+
+  private final EdgeCommunicationGateway edgeCommunicationGateway;
 
   @Override
   public boolean supports(CommunicationChannel channel) {
@@ -18,9 +21,6 @@ public class SmsProviderAdapter implements DeliveryProvider {
 
   @Override
   public SendOutboundMessageResult send(SendOutboundMessageRequest request) {
-    log.info("DEV sms delivery skipped recipient={} type={}",
-        request.recipient() == null ? null : request.recipient().to(),
-        request.type());
-    return SendOutboundMessageResult.skipped("dev-sms", "dev adapter");
+    return edgeCommunicationGateway.send(request);
   }
 }

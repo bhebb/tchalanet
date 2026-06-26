@@ -8,22 +8,23 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
     titleKey: 'platform.nav.platform',
     items: [
       {
-        id: 'overview',
-        labelKey: 'platform.nav.overview',
+        id: 'dashboard',
+        labelKey: 'platform.nav.dashboard',
         icon: 'space_dashboard',
         children: [
           {
-            id: 'platform-dashboard',
-            labelKey: 'platform.nav.dashboard',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/platform/dashboard' },
+            id: 'platform-health',
+            labelKey: 'platform.nav.opsDashboard',
+            icon: 'monitor_heart',
+            destination: { kind: 'route', value: '/app/platform' },
             activeMatch: 'exact',
           },
           {
-            id: 'platform-health',
-            labelKey: 'platform.nav.health',
-            icon: 'monitor_heart',
-            destination: { kind: 'route', value: '/app/platform/ops/health' },
+            id: 'platform-dashboard',
+            labelKey: 'platform.nav.commercialDashboard',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/platform/dashboard' },
+            activeMatch: 'exact',
           },
         ],
       },
@@ -484,6 +485,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/admin/reports/draws' },
           },
           {
+            id: 'reports-financials',
+            labelKey: 'nav.admin.reports_financials',
+            icon: 'query_stats',
+            destination: { kind: 'route', value: '/app/admin/reports/financials' },
+          },
+          {
             id: 'reports-exports',
             labelKey: 'nav.admin.reports_exports',
             icon: 'download',
@@ -547,6 +554,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.company_settings',
             icon: 'settings',
             destination: { kind: 'route', value: '/app/admin/company/settings' },
+          },
+          {
+            id: 'company-notifications',
+            labelKey: 'nav.admin.company_notifications',
+            icon: 'notifications',
+            destination: { kind: 'route', value: '/app/admin/notifications' },
           },
           {
             id: 'company-support',

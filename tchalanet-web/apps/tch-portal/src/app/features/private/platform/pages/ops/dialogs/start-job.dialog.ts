@@ -29,10 +29,10 @@ import {
     <h2 mat-dialog-title>Démarrer le job</h2>
     <mat-dialog-content>
       <p class="start-job-dialog__job-key"><strong>{{ data.job.job_key }}</strong> — {{ data.job.display_name }}</p>
-      @if (data.job.required_params?.length) {
+      @if (data.job.required_params.length) {
         <p class="start-job-dialog__hint">Paramètres requis: {{ data.job.required_params.join(', ') }}</p>
       }
-      @if (data.job.optional_params?.length) {
+      @if (data.job.optional_params.length) {
         <p class="start-job-dialog__hint">Paramètres optionnels: {{ data.job.optional_params.join(', ') }}</p>
       }
       <form [formGroup]="form" class="start-job-dialog__form">

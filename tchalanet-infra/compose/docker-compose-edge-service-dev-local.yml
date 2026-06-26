@@ -1,0 +1,6 @@
+# Local-dev overlay for tchalanet-edge-service only.
+# Allows IDE/local tools to call http://localhost:3000 without starting the full stack.
+services:
+  edge-service:
+    ports:
+      - "${TCH_EDGE_HOST_PORT:-127.0.0.1:3000}:3000"

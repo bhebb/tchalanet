@@ -77,6 +77,7 @@ class GetCurrentOperationalContextQueryHandlerTest {
                     "Seller terminal 001",
                     "Seller",
                     "Terminal",
+                    "test@test.com",
                     "+50900000000",
                     (AddressId) null,
                     new BigDecimal("15.00")).activate(java.time.Instant.EPOCH));

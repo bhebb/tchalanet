@@ -50,6 +50,7 @@
 - [x] Restructurer `platform-operations.routes.ts`
   - Ajouter : `communication-tests` (placeholder)
   - Ajouter : `identity-sync` (placeholder)
+  - Ajouter : `resources` (placeholder détail infra depuis le dashboard Ops)
 - [x] Mettre à jour `private-navigation.model.ts` (`PLATFORM_NAVIGATION`) — fallback statique
 - [x] Mettre à jour `private_shell_superadmin.json` `sections[]` — source backend réelle
 - [x] `nx build` green
@@ -65,14 +66,98 @@
 
 ---
 
-## Slice 4 — Vue d'ensemble (Dashboard + Santé)
+## Slice 4 — Vue d'ensemble PageModel (Dashboard + Santé)
 
-- [ ] Créer `platform-home.page.ts` — cockpit superadmin
-  - Widgets : tenants actifs, tirages du jour (tous tenants), jobs en erreur, résultats manquants, messages contact récents, alertes archive/cache
-  - Appels parallèles vers endpoints existants, skeleton/error par bloc
-  - Actions directes : [Voir tenants] [Voir opérations] [Voir messages support] [Voir jobs en erreur]
-- [ ] Brancher `/platform` et `/platform/dashboard` sur `PlatformHomePage` (remplace `PrivateDashboardPage`)
-- [ ] La route `/platform/ops/health` conserve `PlatformOpsPage` existante
+> Décision : le dashboard superadmin utilise le moteur PageModel runtime existant.
+> Pas de `PlatformHomePage` qui orchestre plusieurs appels Angular.
+> `/platform/dashboard?logicalId=...` résout le PageModel demandé et le provider `platform_admin_dashboard`.
+> `private.dashboard.superadmin` est le dashboard commercial ; `/platform` est l'entrée Ops par défaut.
+> Ops est l'accueil par défaut de l'espace superadmin.
+
+- [x] Mettre à jour le template backend `private.dashboard.superadmin.template.json`
+  - Tous les widgets cockpit utilisent `binding: { mode: "dynamic", source: "platform_admin_dashboard" }`
+  - Widget ids alignés avec `PlatformAdminDashboardProvider` :
+    - `dashboard.superadmin.tenants`
+    - `dashboard.superadmin.platformSales`
+    - `dashboard.superadmin.salesTrend`
+    - `dashboard.superadmin.gameBreakdown`
+    - `dashboard.superadmin.subscriptions`
+    - `dashboard.superadmin.onboarding`
+    - `dashboard.superadmin.publicContent`
+    - `dashboard.superadmin.topTenants`
+    - `dashboard.superadmin.quickActions`
+  - Shell via `jsonFile` + `private_shell_superadmin`
+  - Aucune donnée fake hardcodée dans le template
+- [x] Séparer le dashboard commercial de l'Ops côté provider
+  - `logicalId` obligatoire pour `platform_admin_dashboard`
+  - service de dispatch `logicalId -> assembler`
+  - `private.dashboard.superadmin` route vers l'assembler commercial
+  - l'assembler commercial ne construit plus `health` ni les alertes système
+- [x] Créer le dashboard Ops temporaire
+  - template `private.dashboard.superadmin.ops`
+  - `PlatformAdminOpsDashboardPayloadAssembler`
+  - `/app/platform` utilise le host PageModel Ops
+  - `/app/platform/ops/health` redirige vers `/app/platform`
+  - `/app/platform` charge le logicalId Ops par défaut
+  - frontend appelle `/platform/dashboard?logicalId=private.dashboard.superadmin.ops`
+- [x] Vérifier le template backend `private.dashboard.tenant_admin.template.json`
+  - Widgets admin tenant sur `tenant_admin_dashboard`
+  - Shell via `jsonFile` + `private_shell_tenant_admin`
+  - Sert de référence canonique admin tenant
+- [x] Garder `/platform` et `/platform/dashboard` branchés sur le renderer PageModel (`PrivateDashboardPage` ou successeur équivalent)
+- [x] Retirer `/platform/overview` de la route web et de la sidenav V0 ; `GET /platform/overview` reste backend structurel seulement
+- [x] Ne pas migrer seller-terminal/cashier dans ces templates : cashier web reste sur `/tenant/cashier/home` et `features.pos.home`
+- [x] Adapter/ajouter uniquement les widgets frontend nécessaires pour afficher les payloads retournés par `platform_admin_dashboard`
+  - `KpiGridWidget` accepte les valeurs `0` et les bindings dynamiques imbriqués
+  - `NewsTickerWidget` accepte le payload public content admin (`sourceType`, `sourceUrl`, `publishedAt`)
+  - `RankingListWidget` affiche `topTenants` sans nouveau call Angular
+  - `TrendChartWidget` existe pour les séries temporelles PageModel
+  - `BreakdownListWidget` existe pour les répartitions PageModel
+  - `AlertsWidget`, `QuickActionsWidget`, `KpiGridWidget` utilisent les surfaces/tokens cockpit
+- [x] Déplacer les providers/assemblers PageModel privés vers `features.pagemodel.dynamic.providers.*`
+  - `tenant_admin_dashboard` → `features.pagemodel.dynamic.providers.tenantadmin`
+  - `platform_admin_dashboard` → `features.pagemodel.dynamic.providers.platformadmin`
+  - Pas d'appel entre features depuis ces providers
+- [x] Marquer `features.stats` comme legacy pour les nouveaux dashboards ; KPI/charts via `core.analytics.api`
+- [x] La route `/platform/ops/health` conserve `PlatformOpsPage` existante
+- [x] Documenter en follow-up le mode différé si un widget dashboard devient trop lent (`runtime.loadStrategy = deferred`, hors V0 sauf besoin immédiat)
+- [x] Ajouter au dashboard Ops un bloc P1 `Ressources services`
+  - KPI compact `Ressources critiques` / `Ressources à surveiller`
+  - Détail compact des services critiques ou dégradés
+  - Provider abstrait sans accès Docker socket direct ; V0 basé sur `PlatformHealthProbe`
+  - Erreur de collecte dégradée dans le widget, sans casser le dashboard
+- [x] Ajouter au dashboard Ops un résumé P0 `Jobs & schedulers`
+  - `Jobs failed` alimenté par un provider app basé sur Spring Batch history
+  - `Gates désactivés` alimenté par `BatchGate`
+  - `Jobs suivis` alimenté par `TchJobRegistry`
+  - Le PageModel dépend d'un provider abstrait, pas de Spring Batch directement
+- [x] Enrichir le dashboard Ops avec des signaux runtime exploitables
+  - Mémoire JVM : OK / warning / critical sans appel réseau
+  - Caches critiques plans : `active_plans`, `plan_by_code`, `plan_by_id`
+  - Identité : `firebase`, `firebase-emulator`, `local-jwt` avec garde prod/emulator
+  - Action rapide vers la synchronisation identité
+- [x] Ajouter les cache groups Ops V0
+  - Endpoint backend `DELETE /platform/ops/cache/groups/plans?reason=...`
+  - Groupe `plans` résolu côté serveur vers les cache names techniques
+  - Page cache : bouton confirmé `Vider caches plans`
+- [x] Enrichir la lecture Jobs & schedulers du dashboard Ops
+  - Widget compact `OpsJobStatusListWidget`
+  - Affiche les 5 derniers jobs batch issus du payload `schedulerSummary.items`
+  - Les jobs failed/disabled restent résumés dans les KPI
+  - Aucun appel Angular supplémentaire
+  - Source officielle : tables Spring Batch `batch.BATCH_*`, pas les événements `@TchJob`
+  - `draw:lifecycle:generate`, `draw:lifecycle:open`, `draw:lifecycle:close`, `draw:lifecycle:settle`, `results:external:fetch`, `results:external:apply` alimentent l'historique via `BatchJobStarter`
+  - Restart natif Spring Batch : `POST /platform/ops/batch/executions/{executionId}:restart`
+  - Purge prévue : `POST /platform/ops/batch/executions:purge` + purge automatique hebdo configurable
+- [x] Limiter le bloc `Ressources services` au résumé dashboard
+  - Top 3 services triés par gravité
+  - Mémoire utilisée / limite, restart count et OOM si présents
+  - Lien `Voir détails infra` vers `/app/platform/ops/resources`
+  - Les métriques indisponibles dégradent le widget sans casser le dashboard
+- [x] Ajouter les blocs Ops inbox V0
+  - Notifications in-app non lues via `platform.notification.api`
+  - Contacts admin reçus via `platform.contactrequest.api.ContactRequestAdminApi`
+  - Listes limitées à 5 entrées, sans appel Angular supplémentaire
 
 ---
 
@@ -130,11 +215,23 @@
 
 > Contact-requests, News, Notifications — pages existantes à repositionner dans sidenav
 
-- [ ] Vérifier que `PlatformContactRequestsPage` et `PlatformNewsPage` et `PlatformNotificationsPage` sont fonctionnelles
-- [ ] Créer `pages/contact-config/platform-contact-config.page.ts` — configuration contact global
-  - Placeholder V0 avec message "Endpoint à venir" si gap backend confirmé
-  - Champs attendus : email support, téléphone, canaux de réception, message affiché page contact
-- [ ] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous une section cohérente dans la sidenav (conserver anciens paths comme redirects)
+- [x] Rendre `PlatformContactRequestsPage` fonctionnelle
+  - Liste `GET /platform/contact-requests`
+  - Filtres statut/type, pagination, détail `GET /platform/contact-requests/{id}`
+  - Actions V0 : changer le statut, modifier les notes internes
+- [x] Brancher `PlatformNewsPage`
+  - Source : `platform.publiccontent`
+  - Liste interne + RSS externe, internes affichées en priorité
+  - Création/modification news interne, publier/archiver, masquer RSS, refresh RSS
+- [x] Brancher `PlatformNotificationsPage`
+  - Source : `platform.notification`
+  - Liste persistée, filtres statut/sévérité/catégorie
+  - Composer notification système `PLATFORM`, canaux `WEB` + `IN_APP`
+  - Actions V0 : marquer comme lu, archiver
+- [x] Créer `pages/contact-config/platform-contact-config.page.ts` — configuration contact global
+  - Placeholder V0 dédié avec message "Endpoint à venir" car gap backend confirmé
+  - Champs attendus documentés : email support, téléphone, canaux de réception, message affiché page contact
+- [x] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous une section cohérente dans la sidenav (conserver anciens paths comme redirects)
 
 ---
 
@@ -192,6 +289,16 @@
 - [ ] Créer le dialog `StartTenantAdminAccessDialog` (raison + checkbox + mode détecté par statut tenant) — absorbe Slice 3 de `platform-superadmin-and-tenant-admin-pages`
 - [ ] Pages accessibles depuis Support tenant (réutilisées, non dupliquées) :
   - Tirages, Vendeurs, Limites, Contrôles de vente, Promotions, Rapports, Tickets, Mon entreprise, Subscription
+
+## Slice 13 — Tenant Admin Financials
+
+- [x] Ajouter une page admin `reports/financials` pour les financials tenant.
+- [x] Appeler `GET /admin/financials/breakdown` via `TchBackendClient`, sans `tenantId` côté UI ; le tenant vient du contexte backend.
+- [x] Afficher résumé, lignes par tirage et lignes terminal vendeur × tirage.
+- [x] Afficher un empty state explicite pour un nouveau tenant sans ventes/projections.
+- [x] Ajouter les tests UI/API ciblés pour empty state et absence de `tenantId` client.
+- [ ] Validation web globale verte.
+  - Bloqué actuellement par dettes existantes hors tranche : tests navigation/auth/Firebase et warnings Angular globaux.
 
 ---
 

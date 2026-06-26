@@ -3,7 +3,6 @@ package com.tchalanet.server.core.draw.internal.infra.scheduler;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.job.gate.BatchGate;
@@ -13,12 +12,9 @@ import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
-import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawProcessingCandidateReaderPort.DrawProcessingSlotDate;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
-import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +47,13 @@ public class DrawProcessingTickScheduler {
     private static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
     private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
     private static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
+    private static final String DATE = "date";
     private static final String DAYS_BACK = "days_back";
     private static final String MAX_DRAWS = "max_draws";
+    private static final String MAX_ITEMS = "max_items";
+    private static final String MAX_SLOTS = "max_slots";
+    private static final String SLOT_KEYS = "slot_keys";
 
-    private final CommandBus commandBus;
     private final BatchJobStarter batchJobStarter;
     private final BatchGate gate;
     private final TenantPreContextLookupApi tenantRegistry;
@@ -121,17 +120,17 @@ public class DrawProcessingTickScheduler {
 
         for (TenantId tenantId : tenants) {
             try {
-                binder.bindTenant(tenantId, "scheduler");
-                commandBus.execute(new CloseDueDrawsCommand(
-                    now,
-                    Math.max(1, cfg.getMaxItemsPerTick()),
-                    DEFAULT_DRY_RUN));
+                var execution = batchJobStarter.start(
+                    DRAW_CLOSE,
+                    closeParamsFor(tenantId, Math.max(1, cfg.getMaxItemsPerTick()), now));
+                log.info(
+                    "draw.processing.close job started tenantId={} executionId={}",
+                    tenantId,
+                    execution.jobExecutionId());
                 processed++;
             } catch (Exception ex) {
                 errors++;
                 log.warn("draw.processing.close tenant failed tenantId={} err={}", tenantId, ex.getMessage(), ex);
-            } finally {
-                clearContext("draw.processing.close", tenantId);
             }
         }
         return new StepSummary(processed, 0, errors, null);
@@ -152,17 +151,13 @@ public class DrawProcessingTickScheduler {
 
         for (SlotDate candidate : due) {
             try {
-                commandBus.execute(new FetchExternalResultsWindowCommand(
-                    null,
-                    candidate.drawDate(),
-                    0,
-                    List.of(candidate.slot().slotKey()),
-                    DEFAULT_FORCE,
-                    DEFAULT_DRY_RUN,
-                    1,
-                    null,
-                    false));
+                var execution = batchJobStarter.start(RESULTS_EXTERNAL_FETCH, fetchParamsFor(candidate, now));
                 duePolicy.markRun("fetch", candidate.slot().slotKey(), candidate.drawDate(), now);
+                log.info(
+                    "draw.processing.fetch job started slot={} drawDate={} executionId={}",
+                    candidate.slot().slotKey(),
+                    candidate.drawDate(),
+                    execution.jobExecutionId());
                 processed++;
             } catch (Exception ex) {
                 errors++;
@@ -252,16 +247,15 @@ public class DrawProcessingTickScheduler {
                         continue;
                     }
 
-                    commandBus.execute(
-                        new ApplyExternalResultsWindowCommand(
-                            tenantId,
-                            drawDate,
-                            0,
-                            slotKeys,
-                            DEFAULT_FORCE,
-                            DEFAULT_DRY_RUN,
-                            slotKeys.size(),
-                            null));
+                    var execution = batchJobStarter.start(
+                        RESULTS_EXTERNAL_APPLY,
+                        applyParamsFor(tenantId, drawDate, slotKeys, now));
+                    log.info(
+                        "draw.processing.apply job started tenantId={} drawDate={} slots={} executionId={}",
+                        tenantId,
+                        drawDate,
+                        slotKeys,
+                        execution.jobExecutionId());
 
                     processed++;
 
@@ -488,6 +482,42 @@ public class DrawProcessingTickScheduler {
         params.put(
             MAX_DRAWS,
             Integer.toString(Math.max(1, drawProperties.getScheduler().getProcessing().getSettle().getMaxItemsPerTick())));
+        params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
+        params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
+        return params;
+    }
+
+    private HashMap<String, String> closeParamsFor(TenantId tenantId, int maxItems, Instant now) {
+        var params = jobParams(tenantId, "draw-close", now);
+        params.put(MAX_ITEMS, Integer.toString(maxItems));
+        params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
+        return params;
+    }
+
+    private HashMap<String, String> fetchParamsFor(SlotDate candidate, Instant now) {
+        var params = new HashMap<String, String>();
+        params.put(JobParamKeys.REQUEST_ID, requestId("results-fetch", now));
+        params.put(JobParamKeys.ACTOR, "scheduler");
+        params.put(DATE, candidate.drawDate().toString());
+        params.put(DAYS_BACK, "0");
+        params.put(SLOT_KEYS, candidate.slot().slotKey());
+        params.put(MAX_SLOTS, "1");
+        params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
+        params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
+        return params;
+    }
+
+    private HashMap<String, String> applyParamsFor(
+        TenantId tenantId,
+        LocalDate drawDate,
+        List<String> slotKeys,
+        Instant now
+    ) {
+        var params = jobParams(tenantId, "results-apply", now);
+        params.put(DATE, drawDate.toString());
+        params.put(DAYS_BACK, "0");
+        params.put(SLOT_KEYS, String.join(",", slotKeys));
+        params.put(MAX_SLOTS, Integer.toString(Math.max(1, slotKeys.size())));
         params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
         params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
         return params;

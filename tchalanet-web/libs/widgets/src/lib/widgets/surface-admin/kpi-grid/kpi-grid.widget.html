@@ -1,20 +1,54 @@
-<div class="kpi-grid">
-  <h2 class="kpi-grid__title">{{ titleKey() | tchLabel }}</h2>
+<div class="kpi-grid" [class.kpi-grid--compact]="variant() === 'compact'">
+  @if (titleKey()) {
+    <h2 class="kpi-grid__title">{{ titleKey() | tchLabel }}</h2>
+  }
   <div class="kpi-grid__items">
-    @for (item of items(); track item.id) {
-      <div class="kpi-card">
-        @if (item.icon) {
-          <span class="kpi-card__icon material-symbols-outlined" aria-hidden="true">
-            {{ item.icon }}
-          </span>
-        }
-        <span class="kpi-card__label">{{ item.labelKey | tchLabel }}</span>
-        @if (resolvedValue(item); as val) {
-          <span class="kpi-card__value">{{ val }}</span>
-        } @else {
-          <span class="kpi-card__value kpi-card__value--placeholder">—</span>
-        }
-      </div>
+    @for (item of items(); track item.id; let index = $index) {
+      @if (item.route) {
+        <a
+          class="kpi-card"
+          [routerLink]="item.route"
+          [class.kpi-card--primary]="visualTone(item, index) === 'primary'"
+          [class.kpi-card--accent]="visualTone(item, index) === 'accent'"
+          [class.kpi-card--success]="visualTone(item, index) === 'success'"
+          [class.kpi-card--warning]="visualTone(item, index) === 'warning'"
+          [class.kpi-card--danger]="visualTone(item, index) === 'danger'"
+          [class.kpi-card--neutral]="visualTone(item, index) === 'neutral'"
+        >
+          <ng-container [ngTemplateOutlet]="cardBody" [ngTemplateOutletContext]="{ item: item }" />
+        </a>
+      } @else {
+        <div
+        class="kpi-card"
+        [class.kpi-card--primary]="visualTone(item, index) === 'primary'"
+        [class.kpi-card--accent]="visualTone(item, index) === 'accent'"
+        [class.kpi-card--success]="visualTone(item, index) === 'success'"
+        [class.kpi-card--warning]="visualTone(item, index) === 'warning'"
+        [class.kpi-card--danger]="visualTone(item, index) === 'danger'"
+        [class.kpi-card--neutral]="visualTone(item, index) === 'neutral'"
+      >
+          <ng-container [ngTemplateOutlet]="cardBody" [ngTemplateOutletContext]="{ item: item }" />
+        </div>
+      }
     }
   </div>
 </div>
+
+<ng-template #cardBody let-item="item">
+  <div class="kpi-card__top">
+    @if (item.icon) {
+      <span class="kpi-card__icon material-symbols-outlined" aria-hidden="true">
+        {{ item.icon }}
+      </span>
+    }
+  </div>
+  <div class="kpi-card__body">
+    <span class="kpi-card__label">{{ item.labelKey | tchLabel }}</span>
+    @let val = resolvedValue(item);
+    @if (val !== undefined) {
+      <span class="kpi-card__value">{{ val }}</span>
+    } @else {
+      <span class="kpi-card__value kpi-card__value--placeholder">—</span>
+    }
+  </div>
+</ng-template>

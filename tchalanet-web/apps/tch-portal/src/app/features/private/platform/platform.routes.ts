@@ -11,11 +11,6 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('../shell/page-model-host/private-dashboard.page').then(m => m.PrivateDashboardPage),
   },
-  {
-    path: 'overview',
-    loadComponent: () =>
-      import('../shell/page-model-host/private-dashboard.page').then(m => m.PrivateDashboardPage),
-  },
   // ── Tenants ────────────────────────────────────────────────────────────────
   {
     path: 'tenants',
@@ -210,13 +205,10 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'contact-config',
-    data: {
-      titleKey: 'platform.nav.contactConfig',
-      descriptionKey: 'platform.placeholder.descriptions.contactConfig',
-      icon: 'contact_mail',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/contact-config/platform-contact-config.page').then(
+        m => m.PlatformContactConfigPage,
+      ),
   },
   // ── Reports / misc ─────────────────────────────────────────────────────────
   {

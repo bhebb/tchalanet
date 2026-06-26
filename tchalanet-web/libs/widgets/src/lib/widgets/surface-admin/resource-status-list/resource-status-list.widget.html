@@ -1,0 +1,73 @@
+<div class="resource-status">
+  @if (titleKey()) {
+    <h2 class="resource-status__title">{{ titleKey() | tchLabel }}</h2>
+  }
+
+  <div class="resource-status__summary">
+    <span class="resource-status__summary-item resource-status__summary-item--critical">
+      {{ summary().criticalCount | number }}
+      {{ 'dashboard.superadmin.ops.resources.critical' | tchLabel }}
+    </span>
+    <span class="resource-status__summary-item resource-status__summary-item--warning">
+      {{ summary().warningCount | number }}
+      {{ 'dashboard.superadmin.ops.resources.warning' | tchLabel }}
+    </span>
+  </div>
+
+  @if (visibleServices().length) {
+    <ul class="resource-status__list">
+      @for (service of visibleServices(); track service.id) {
+        <li
+          class="resource-status__item"
+          [class.resource-status__item--ok]="service.severity === 'OK'"
+          [class.resource-status__item--warning]="service.severity === 'WARNING'"
+          [class.resource-status__item--critical]="service.severity === 'CRITICAL'"
+        >
+          <div class="resource-status__main">
+            <span class="resource-status__name">{{ service.displayName }}</span>
+            <span class="resource-status__message">{{ service.message }}</span>
+          </div>
+          <div class="resource-status__metrics">
+            <span class="resource-status__badge">{{ service.status }}</span>
+            @if (service.memoryPercent !== undefined) {
+              <span>{{ service.memoryPercent | number:'1.0-0' }}%</span>
+            }
+            @if (service.memoryUsedMb !== undefined && service.memoryLimitMb !== undefined) {
+              <span>
+                {{ service.memoryUsedMb | number:'1.0-0' }} MB /
+                {{ service.memoryLimitMb | number:'1.0-0' }} MB
+              </span>
+            }
+            @if (service.sizeMb !== undefined) {
+              <span class="resource-status__capacity">
+                {{ service.sizeMb | number:'1.0-0' }} MB
+                @if (service.tableCount !== undefined) {
+                  <span aria-hidden="true">·</span>
+                  {{ service.tableCount | number }} {{ 'dashboard.superadmin.ops.database.tables' | tchLabel }}
+                }
+                @if (service.indexSizeMb !== undefined) {
+                  <span aria-hidden="true">·</span>
+                  {{ service.indexSizeMb | number:'1.0-0' }} MB {{ 'dashboard.superadmin.ops.database.indexes' | tchLabel }}
+                }
+              </span>
+            }
+            @if (service.restartCount !== undefined) {
+              <span>{{ 'dashboard.superadmin.ops.resources.restarts' | tchLabel }} {{ service.restartCount }}</span>
+            }
+            @if (service.oomKilled) {
+              <span class="resource-status__oom">OOM</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="resource-status__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+
+  @if (detailsPath()) {
+    <a class="resource-status__details" [routerLink]="detailsPath()">
+      {{ detailsLabelKey() | tchLabel }}
+    </a>
+  }
+</div>

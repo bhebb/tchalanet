@@ -14,8 +14,6 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
-import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
-import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import {
   AdminOverviewApiService,
   TenantAdminOverviewView,
@@ -38,8 +36,6 @@ type PageState = 'loading' | 'ready' | 'error';
     MatIconModule,
     MatProgressBarModule,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
-    AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
   ],

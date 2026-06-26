@@ -3,12 +3,13 @@ import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type SellerTerminalStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'DISABLED';
+export type SellerTerminalStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'DISABLED';
 
 export interface SellerTerminalSummaryRow {
   id: { value: string };
   terminalCode: string;
   displayName: string;
+  email?: string | null;
   phoneNumber?: string | null;
   status: SellerTerminalStatus;
   commissionRate?: number | null;
@@ -46,6 +47,7 @@ export interface CreateSellerTerminalRequest {
   displayName: string;
   firstName?: string | null;
   lastName?: string | null;
+  email?: string | null;
   phoneNumber?: string | null;
   commissionRate?: number | null;
   initialPin: string;
@@ -65,6 +67,7 @@ export interface UpdateSellerTerminalRequest {
   displayName: string;
   firstName?: string | null;
   lastName?: string | null;
+  email?: string | null;
   phoneNumber?: string | null;
   commissionRate?: number | null;
 }
@@ -101,6 +104,7 @@ export interface ListSellerTerminalsParams {
   status?: SellerTerminalStatus | '';
   page?: number;
   size?: number;
+  tenantId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -118,8 +122,17 @@ export class SellerTerminalApi {
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
     const qs = p.toString();
+    const options = params.tenantId
+      ? {
+          asTenantAdmin: {
+            tenantId: params.tenantId,
+            reason: 'SUPER_ADMIN: list seller terminals for recipient picker',
+          },
+        }
+      : undefined;
     return this.backend.get<TchPage<SellerTerminalSummaryRow>>(
       `/admin/seller-terminals${qs ? `?${qs}` : ''}`,
+      options,
     );
   }
 

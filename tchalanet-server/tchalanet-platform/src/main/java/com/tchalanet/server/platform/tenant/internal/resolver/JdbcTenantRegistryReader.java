@@ -97,6 +97,19 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
         }
     }
 
+    public long countByStatus(String status) {
+        if (status == null || status.isBlank()) return 0L;
+        try {
+            Long v = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM tenant WHERE status = ? AND deleted_at IS NULL",
+                Long.class,
+                status);
+            return v == null ? 0L : v;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
     private TenantBootstrapRow map(ResultSet rs) throws SQLException {
         return new TenantBootstrapRow(
             (UUID) rs.getObject(1),

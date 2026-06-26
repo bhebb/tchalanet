@@ -1,0 +1,22 @@
+<div class="trend-chart">
+  <div class="trend-chart__header">
+    <h2 class="trend-chart__title">{{ titleKey() | tchLabel }}</h2>
+  </div>
+
+  @if (points().length > 1) {
+    <div class="trend-chart__plot" aria-hidden="true">
+      <div class="trend-chart__grid" aria-hidden="true"></div>
+      <svg class="trend-chart__svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polygon class="trend-chart__area" [attr.points]="areaPoints()" />
+        <polyline class="trend-chart__line" [attr.points]="linePoints()" />
+      </svg>
+    </div>
+    <div class="trend-chart__labels">
+      @for (point of points(); track point.id) {
+        <span class="trend-chart__label">{{ point.label }}</span>
+      }
+    </div>
+  } @else {
+    <p class="trend-chart__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+</div>

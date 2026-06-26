@@ -11,6 +11,7 @@ import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
 import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,12 @@ public interface IdentityApi {
     UserProfileView getUserProfile(GetUserProfileRequest request);
 
     Optional<AppUserView> findAppUser(UUID userId);
+
+    List<AppUserView> listPlatformAdminsForNotificationDelivery();
+
+    List<AppUserView> listTenantAdminsForNotificationDelivery(TenantId tenantId);
+
+    List<AppUserView> listTenantUsersForNotificationDelivery(TenantId tenantId);
 
     long countTenantUsers();
 

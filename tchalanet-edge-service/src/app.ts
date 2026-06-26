@@ -12,6 +12,7 @@ import {
   TWILIO_ACCOUNT_SID,
   TWILIO_AUTH_TOKEN,
   TWILIO_FROM,
+  TWILIO_WHATSAPP_FROM,
 } from './config/env.js';
 import { TicketDeliveryService } from './modules/delivery/application/ticket-delivery.service.js';
 import { deliveryRoutes } from './modules/delivery/http/delivery.routes.js';
@@ -30,13 +31,25 @@ export function buildApp() {
   const messageService = new SendMessageService([
     new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS),
     new BrevoEmailMessageSender(EMAIL_ENABLED, BREVO_API_KEY, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS),
-    new TwilioSmsMessageSender(SMS_ENABLED, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM),
+    new TwilioSmsMessageSender(
+      SMS_ENABLED,
+      TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN,
+      TWILIO_FROM,
+      TWILIO_WHATSAPP_FROM,
+    ),
   ]);
 
   const deliveryService = new TicketDeliveryService([
     new SlackMessageSender(SLACK_ENABLED, SLACK_WEBHOOKS),
     new BrevoEmailMessageSender(EMAIL_ENABLED, BREVO_API_KEY, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS),
-    new TwilioSmsMessageSender(SMS_ENABLED, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM),
+    new TwilioSmsMessageSender(
+      SMS_ENABLED,
+      TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN,
+      TWILIO_FROM,
+      TWILIO_WHATSAPP_FROM,
+    ),
   ]);
 
   app.register(errorHandlerPlugin);

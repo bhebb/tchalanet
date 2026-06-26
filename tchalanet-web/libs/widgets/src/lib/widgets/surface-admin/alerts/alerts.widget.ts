@@ -1,5 +1,6 @@
-import { LowerCasePipe } from '@angular/common';
+import { LowerCasePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { LabelPipe, WidgetConfig, isRecord, stringProp, stringValue } from '@tch/page-model';
 
@@ -7,13 +8,14 @@ interface AlertItem {
   readonly id: string;
   readonly title: string;
   readonly message?: string;
+  readonly path?: string;
   readonly severity: 'INFO' | 'WARN' | 'ERROR' | string;
 }
 
 @Component({
   selector: 'tch-alerts-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe, LowerCasePipe],
+  imports: [LabelPipe, LowerCasePipe, NgTemplateOutlet, RouterLink],
   templateUrl: './alerts.widget.html',
   styleUrl: './alerts.widget.scss',
 })
@@ -32,8 +34,9 @@ export class AlertsWidget {
     if (!Array.isArray(raw)) return [];
     return raw.filter(isRecord).map(item => ({
       id: stringValue(item['id']) ?? '',
-      title: stringValue(item['title']) ?? '',
+      title: stringValue(item['title']) ?? stringValue(item['messageKey']) ?? '',
       message: stringValue(item['message']),
+      path: stringValue(item['path']),
       severity: stringValue(item['severity']) ?? 'INFO',
     }));
   });

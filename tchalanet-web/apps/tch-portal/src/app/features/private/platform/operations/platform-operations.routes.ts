@@ -8,8 +8,8 @@ export const platformOperationsRoutes: Route[] = [
   },
   {
     path: 'health',
-    loadComponent: () =>
-      import('../pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
+    redirectTo: '/app/platform',
+    pathMatch: 'full',
   },
   {
     path: 'batch',
@@ -32,6 +32,16 @@ export const platformOperationsRoutes: Route[] = [
       titleKey: 'platform.nav.providers',
       descriptionKey: 'platform.placeholder.descriptions.providers',
       icon: 'cloud_sync',
+    },
+    loadComponent: () =>
+      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+  },
+  {
+    path: 'resources',
+    data: {
+      titleKey: 'dashboard.superadmin.ops.resources.title',
+      descriptionKey: 'platform.placeholder.descriptions.opsResources',
+      icon: 'memory',
     },
     loadComponent: () =>
       import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
@@ -63,13 +73,17 @@ export const platformOperationsRoutes: Route[] = [
   },
   {
     path: 'communication-tests',
-    data: {
-      titleKey: 'platform.nav.communicationTests',
-      descriptionKey: 'platform.placeholder.descriptions.communicationTests',
-      icon: 'send',
-    },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/communication/platform-communication.page').then(
+        m => m.PlatformCommunicationPage,
+      ),
+  },
+  {
+    path: 'communication',
+    loadComponent: () =>
+      import('./pages/communication/platform-communication.page').then(
+        m => m.PlatformCommunicationPage,
+      ),
   },
   {
     path: 'identity-sync',

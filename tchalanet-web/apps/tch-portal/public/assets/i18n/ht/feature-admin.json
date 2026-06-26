@@ -66,13 +66,21 @@
       "sales_today": {
         "label": "Vant jodi a"
       },
+      "tickets_sold": {
+        "label": "Tikè vann"
+      },
       "payout_due": {
         "label": "Pou peye"
       },
       "notifications": {
         "label": "Notifikasyon"
       },
-      "active_seller_terminals": "Seller-terminals aktif"
+      "active_seller_terminals": {
+        "label": "Vandè aktif"
+      },
+      "open_draws": {
+        "label": "Tiraj ouvè"
+      }
     },
     "draws": {
       "title": "Tirèy"
@@ -382,6 +390,31 @@
       }
     }
   },
+  "readiness": {
+    "noIssues": "Pa gen pwoblèm",
+    "identity": {
+      "missing": "Idantite tenant lan bezwen konplete"
+    },
+    "seller_terminals": {
+      "empty": "Pa gen vandè ki konfigire",
+      "blocked": "Vandè bloke pou verifye"
+    },
+    "games": {
+      "empty": "Jwèt ak pri yo bezwen konfigire"
+    },
+    "channels": {
+      "empty": "Chanèl tiraj yo bezwen konfigire"
+    },
+    "draws": {
+      "results_pending": "Tiraj fèmen ap tann rezilta"
+    },
+    "commission": {
+      "default_missing": "Taux komisyon tenant lan bezwen konfigire"
+    },
+    "limits": {
+      "empty": "Limit vant yo bezwen konfigire"
+    }
+  },
   "dashboard": {
     "actions": {
       "logout": "Dekonekte",
@@ -403,6 +436,9 @@
     "cashier": {
       "alerts": {
         "empty": "Pa gen alèt",
+        "blocked_seller_terminals": "Gen vandè ki bloke",
+        "closed_draws_pending_results": "Gen tiraj fèmen k ap tann rezilta",
+        "unread_notifications": "Notifikasyon ki poko li",
         "title": "Alèt"
       },
       "quick_actions": {
@@ -443,6 +479,14 @@
       },
       "kpis": {
         "title": "Endikatè"
+      },
+      "sales_trend": {
+        "title": "Tandans lavant",
+        "empty": "Pa gen lavant pou peryòd sa a."
+      },
+      "game_breakdown": {
+        "title": "Lavant pa jwèt",
+        "empty": "Pa gen lavant pa jwèt disponib."
       },
       "quick_actions": {
         "title": "Aksyon rapid"

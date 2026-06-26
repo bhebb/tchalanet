@@ -1,0 +1,38 @@
+<div class="breakdown-list">
+  <h2 class="breakdown-list__title">{{ titleKey() | tchLabel }}</h2>
+
+  @if (items().length) {
+    <div class="breakdown-list__total">
+      <span class="breakdown-list__total-value">
+        @if (valueFormat() === 'currency') {
+          {{ total() | currency: currencyCode() : 'symbol' : '1.0-0' }}
+        } @else {
+          {{ total() | number }}
+        }
+      </span>
+      <span class="breakdown-list__total-label">{{ 'common.total' | tchLabel }}</span>
+    </div>
+    <ul class="breakdown-list__items">
+      @for (item of items(); track item.id) {
+        <li class="breakdown-list__item">
+          <div class="breakdown-list__row">
+            <span class="breakdown-list__label">{{ item.label }}</span>
+            <span class="breakdown-list__value">
+              @if (valueFormat() === 'currency') {
+                {{ item.value | currency: currencyCode() : 'symbol' : '1.0-0' }}
+              } @else {
+                {{ item.value | number }}
+              }
+              · {{ percentage(item) }}%
+            </span>
+          </div>
+          <span class="breakdown-list__track" aria-hidden="true">
+            <span class="breakdown-list__bar" [style.width]="barWidth(item)"></span>
+          </span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="breakdown-list__empty">{{ emptyKey() | tchLabel }}</p>
+  }
+</div>

@@ -1,0 +1,112 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 22rem;
+  padding: 1.25rem;
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface-container-lowest));
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  box-shadow: var(--tch-elevation-1, var(--mat-sys-level1));
+}
+
+.breakdown-list__title {
+  margin: 0;
+  font-size: var(--tch-font-size-title-md, 1rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.breakdown-list__total {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+  border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+}
+
+.breakdown-list__total-value {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.breakdown-list__total-label,
+.breakdown-list__value,
+.breakdown-list__empty {
+  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+}
+
+.breakdown-list__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.breakdown-list__item {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.breakdown-list__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.breakdown-list__label,
+.breakdown-list__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breakdown-list__label {
+  font-weight: 700;
+}
+
+.breakdown-list__value {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown-list__track {
+  height: 0.625rem;
+  overflow: hidden;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: var(--tch-color-surface-container-high, var(--mat-sys-surface-container-high));
+}
+
+.breakdown-list__bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--tch-color-secondary-container, var(--mat-sys-secondary-container)),
+    var(--tch-color-primary-container, var(--mat-sys-primary))
+  );
+}
+
+.breakdown-list__empty {
+  margin: auto 0;
+  padding: 2rem;
+  border: 1px dashed var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+  border-radius: var(--tch-radius-lg, 0.5rem);
+  background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+}

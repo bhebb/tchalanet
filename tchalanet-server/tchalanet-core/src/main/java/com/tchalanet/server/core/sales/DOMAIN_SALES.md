@@ -21,7 +21,7 @@
 - Ouverture/fermeture des draws (`core.draw`).
 - Ingestion des résultats externes (`core.drawresult`).
 - Évaluation des limites & autonomie (`core.limitpolicy`, `core.autonomy`) — sales **consomme** via `QueryBus` + service.
-- Pricing (`catalog.pricing`).
+- Pricing owner (`catalog.pricing` et `core.pricing`) — sales résout puis snapshot les valeurs effectives.
 - Écritures comptables (`core.ledger`) — sales émet l'event ; ledger consomme.
 - Exécution du payout (`core.payout`) — sales expose `Ticket.markPayoutPaid()`, `core.payout` l'invoque via ses handlers.
 
@@ -38,9 +38,9 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 - Identité : `id (TicketId)`, `tenantId`, `terminalId`, `sessionId (nullable — backfills)`, `drawId`, `ticketCode` (per-tenant unique), `publicCode` (NOT NULL en DB, globalement unique)
 - Money : `currency`, `totalAmount`, `winningAmount (nullable)`
 - Statuts (split status pattern, 3 enums distincts) :
-  - `TicketSaleStatus` : `SOLD`, `PENDING_APPROVAL`, `VOID`, `REJECTED`
-  - `TicketResultStatus` : `NOT_RESULTED`, `WON`, `LOST`, `OVERRIDDEN`
-  - `TicketSettlementStatus` : `UNSETTLED`, `SETTLED`
+  - `TicketSaleStatus` : `PENDING_APPROVAL`, `REJECTED`, `APPROVED`, `CANCELLED`, `VOIDED`
+  - `TicketResultStatus` : `NOT_RESULTED`, `PENDING`, `WON`, `LOST`, `VOID`, `OVERRIDDEN`
+  - `TicketSettlementStatus` : `NOT_SETTLED`, `PAYOUT_PENDING`, `SETTLED`, `NO_PAYOUT`, `PAID`, `REVERSED`
 - Audit : `createdAt`, `updatedAt`, `resultedAt (nullable)`
 - Approval : `approvalRequestId (ApprovalRequestId nullable)` — placeholder UUID aléatoire typé (`// TODO: integrate approval domain later`)
 - Lignes : `List<TicketLine>` (>= 1)
@@ -50,10 +50,12 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 - `lines` non vide.
 - Si `resultStatus == NOT_RESULTED` → `winningAmount` et `resultedAt` doivent être `null` ; `settlementStatus` ne peut pas être `SETTLED`.
 - Sinon → `winningAmount >= 0` et `resultedAt` non null.
-- `voidTicket` autorisé uniquement depuis `SOLD` ou `PENDING_APPROVAL`.
-- `markResulted` exige `saleStatus == SOLD`.
+- `voidTicket` autorisé uniquement depuis une vente annulable.
+- `markResulted` exige `saleStatus == APPROVED`.
 - `forceResult(payout, resultStatus, when)` refuse si `saleStatus == VOID`.
 - `settle/markAsPaid/markPayoutPaid` exigent `resultStatus != NOT_RESULTED`.
+- L'application d'un résultat officiel auto-settle les tickets : gagnants en `PAID`,
+  perdants/no-payout en `NO_PAYOUT`. Le seller terminal ne fait pas d'action manuelle "paid" en V1.
 
 **Invariants SQL miroirs** (`V9__core_ticket.sql`) :
 
@@ -66,6 +68,33 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 - `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `potentialPayout (scale 2)`, `betType`, `betOption (Short nullable)`.
 - `betOption` est validé via `catalog.game.api.model.BetOption`: absent pour les 2D simples, requis pour Maryaj, Loto 3, Loto 4 et Loto 5.
 - Invariants compact constructor : montants > 0, cohérence `potentialPayout == round(stake × oddsSnapshot, 2, HALF_UP)`.
+
+### Snapshots financiers de vente
+
+La vente fige les faits financiers au moment du ticket. Ces snapshots sont la source pour le
+settlement et analytics; ils ne doivent pas être recalculés depuis la configuration courante.
+
+| Snapshot | Source de résolution | Utilisation |
+|---|---|---|
+| `TicketLine.oddsSnapshot` | `ResolveSellerTerminalOddsQuery`: override seller-terminal puis tenant default, y compris pour les lignes gratuites de promotion | Calcul `potentialPayout` et gain après résultat |
+| `TicketContext.sellerCommissionRateSnapshot` | taux effectif du seller terminal au moment de la vente | Audit/explanation |
+| `TicketContext.sellerCommissionAmountSnapshot` | `stake * rate / 100`, arrondi scale 2 | Analytics commissions par jour/tirage/seller terminal |
+| `TicketMoneyBreakdown.charges` | `SaleChargeCalculator` + promotions charge waiver | Ticket total, print, analytics frais |
+
+La commission reste configurée en pourcentage, mais les stats additionnent le montant snapshoté.
+Changer le taux tenant ou terminal n'altère jamais un ticket déjà vendu.
+
+### Charges
+
+`TicketCharge` porte `type`, `amount`, `paidBy` et éventuellement une promotion de waiver.
+
+- `paidBy=BUYER` non waived : ajouté au total payé par le client.
+- `paidBy=SELLER` : hors total client, coût absorbé par le seller terminal.
+- `paidBy=TENANT` : hors total client, coût d'exploitation tenant.
+- `waived` : montant original conservé pour audit/print/promotion, mais exclu du total client.
+
+Analytics projette ces catégories séparément (`buyerCharges`, `sellerCharges`, `tenantCharges`,
+`waivedCharges`). Le net tenant soustrait `tenantCharges`, pas les frais payés par le client.
 
 ### `TicketVerificationResult` (record exposé en public)
 
@@ -105,9 +134,12 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 
 ### Services applicatifs
 
-- `TicketSalePolicy` (`domain/service/`) : orchestration sell (session, cutoff, limits, autonomy, odds).
+- `TicketSalePolicy` (`domain/service/`) : orchestration sell (session, cutoff, limits, autonomy).
 - `DrawCutoffRule` (`application/rule/`) : `requireBeforeCutoff(drawId)` via `GetDrawQuery`.
-- `TicketLinePreparationService` (`application/service/`) : normalize + merge + odds → `TicketLine[]`.
+- `TicketLinePreparationService` (`application/service/`) : normalize + odds effectifs → `TicketLine[]`.
+- `SaleChargeCalculator` (`application/service/`) : matérialise les frais de communication selon
+  policy tenant et `ChargePaidBy`.
+- `SaleMoneyCalculator` (`application/service/`) : `total = stake + buyer-facing non-waived charges`.
 - `TicketSaleFactory` (`domain/service/`) : génération codes (`TicketNumberGeneratorPort`, `TicketPublicCodeGeneratorPort`) + factory `Ticket.sell()` ou `Ticket.pendingApproval()`.
 - `TicketWinningCalculator` (`domain/service/`) : switch sur `BetType` ; résout `BetOption` pour les familles à options ; lit/derive les faits ordonnés depuis `DrawResultProjection` (`lot1/lot2/lot3/lot4`, paires dérivées, pick3/pick4 quand disponibles).
 
@@ -164,7 +196,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 | Event                         | Producer (sales)                                              | Champs clés                                                                                                                        |
 | ----------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, outletId, agentId, terminalId, sessionId, drawId, drawChannelId, gameCode, stakeCents, currencyCode, lines[]` |
+| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `tenantId, ticketId, drawId, drawChannelId, sellerTerminalId, sellerCommissionRate/Amount, money{stake,total,potentialPayout,charges[]}, lines[]` |
 | `TicketCancelledEvent`        | `CancelSaleCommandHandler`                                    | `tenantId, ticketId, terminalId, sessionId, performedBy (UUID brut), reason, totalStakeCents, currency, drawId`                    |
 | `TicketResultedEvent`         | `RecordDrawTicketsResultCommandHandler`                       | `tenantId, ticketId, resultStatus, settlementStatus, totalPayout`                                                                  |
 | `TicketResultOverriddenEvent` | `OverrideTicketResultCommandHandler`                          | `tenantId, ticketId, drawId, winningAmount, resultStatus, reason, performedBy (UUID brut)`                                         |
@@ -193,7 +225,8 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `core.audit`          | Handler direct           | `AuditLoggingCommandHandler` (instance, pas via bus)                                                                           |
 | sales → `core.ledger`         | Port-in direct           | `RecordLedgerFromSalesPort` (depuis `SalesLedgerListener`)                                                                     |
 | sales → `core.accesscontrol`  | Annotation               | `@RequiresPermission`                                                                                                          |
-| sales → `catalog.pricing`     | API                      | `PricingCatalog.oddsFor(...)`                                                                                                  |
+| sales → `core.pricing`        | Query                    | `ResolveSellerTerminalOddsQuery` pour odds effectifs seller-terminal override → tenant default                                 |
+| `core.pricing` → `catalog.pricing` | API                 | `PricingCatalog.oddsFor(...)` pour le tenant default                                                                           |
 | sales → `catalog.settings`    | API                      | `SettingsCatalog.resolve(...)` (visibilité publique)                                                                           |
 | sales → `catalog.drawchannel` | View                     | `DrawChannelView`                                                                                                              |
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWriterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                         |
@@ -420,6 +453,11 @@ gameCode=HT_MARYAJ_GRATUIT, origin=PROMOTION, pricingSource=PROMOTION,
 selectionSource=AUTO_GENERATED, stakeAmount=0, lineTotal=0,
 payoutBaseAmount=montant effet, promotionDecisionId.
 ```
+
+Même avec `stakeAmount=0`, la ligne promotionnelle snapshot l'odd effectif via
+`ResolveSellerTerminalOddsQuery`. Le montant de gain potentiel est donc
+`payoutBaseAmount * oddsSnapshot`, et le settlement futur ne relit jamais les
+odds courants.
 
 Maryaj gratuit automatique = **online only** V1 (pas de ligne gratuite via
 `core.offlinesync` tant que la préparation signée côté device n'existe pas).

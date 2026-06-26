@@ -30,7 +30,7 @@ public class GetCashierDashboardStatsQueryHandler
   @Override
   public CashierDashboardStatsView handle(GetCashierDashboardStatsQuery query) {
     Optional<AnalyticsDailyEntity> row =
-        repo.findSellerRow(query.tenantId().value(), query.sellerId().value(), query.refDate());
+        repo.findSellerTerminalRow(query.tenantId().value(), query.sellerId().value(), query.refDate());
 
     CashierSummaryCard today = row
         .map(r -> new CashierSummaryCard(

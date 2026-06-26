@@ -5,8 +5,8 @@ import com.tchalanet.server.platform.notification.api.model.NotificationSeverity
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import java.util.Optional;
 
 public record ListNotificationsRequest(
@@ -16,4 +16,5 @@ public record ListNotificationsRequest(
     Optional<NotificationCategory> category,
     Optional<NotificationKind> kind,
     Optional<NotificationSeverity> severity,
+    TchSearchQuery search,
     TchPageRequest pageRequest) {}

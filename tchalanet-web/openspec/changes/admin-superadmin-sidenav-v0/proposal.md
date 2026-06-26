@@ -35,9 +35,9 @@ avec un contexte tenant explicite et un bandeau permanent.
 
 ```
 Platform
-├── Vue d'ensemble
-│   ├── Tableau de bord             /platform
-│   └── Santé système               /platform/ops/health
+├── Tableau de bord
+│   ├── Ops plateforme              /platform
+│   └── Tableau de bord commercial  /platform/dashboard
 │
 ├── Tenants
 │   ├── Liste des tenants           /platform/tenants
@@ -125,9 +125,227 @@ Avant ce change, la situation est :
 
 **Rapports platform** : nouvelle page dédiée, pas un redirect vers audit.
 
-**Tableau de bord** : remplace `PrivateDashboardPage` par une vraie page cockpit superadmin.
+**Tableau de bord** : reste rendu par le moteur PageModel runtime. `/platform/dashboard` retourne un `PageRuntimeResponse` issu du template `private.dashboard.superadmin`, avec les `dynamic` résolus côté backend. Le frontend ne compose pas le cockpit avec des appels Angular parallèles.
+
+`/platform/dashboard` exige un paramètre `logicalId`. Le provider `platform_admin_dashboard` délègue à un service de résolution qui sélectionne l'assembler correspondant :
+
+- `private.dashboard.superadmin` → dashboard commercial superadmin V0 ;
+- `private.dashboard.superadmin.ops` → dashboard Ops temporaire.
+
+Le dashboard Ops utilise le même moteur PageModel et le même provider, mais un assembler séparé. Si d'autres pages platform arrivent, elles ajoutent un `logicalId` et un assembler dédié ; si la liste grandit, le switch pourra devenir un registry.
+
+Le dashboard commercial ne construit pas les données Ops (`health`, alertes système). La route `/platform` est l'entrée "Ops plateforme" par défaut.
+
+Dans l'UI superadmin, Ops est l'accueil par défaut (`/app/platform`) et la première entrée du groupe "Tableau de bord". Le commercial reste disponible via `/app/platform/dashboard`. Les anciens chemins comme `/app/platform/ops/health` peuvent rediriger vers l'accueil Ops, mais ne doivent pas être l'URL canonique de la sidenav.
+
+**Overview platform** : retiré de l'UI V0. `GET /platform/overview` peut rester côté backend comme endpoint structurel, mais la route web `/platform/overview` et l'entrée sidenav "Vue d'ensemble" ne doivent pas servir le cockpit. Le groupement de navigation s'appelle "Dashboard".
 
 **Tchala** : section dédiée, même si les endpoints sont en `/admin/tchala/**`. Le superadmin y accède globalement.
+
+## PageModel runtime — séparation bootstrap / dashboard
+
+Le runtime privé conserve deux appels conceptuels :
+
+| Appel | Responsabilité | Ne doit pas contenir |
+|---|---|---|
+| Bootstrap privé (`/tenant/runtime/bootstrap`) | Initialisation session/app : utilisateur, rôles, espace, tenant actif, thème, locale, settings, notifications résumé, `pageModelRef` | KPI, charts, listes métier, dashboard data |
+| Dashboard PageModel (`/platform/dashboard`, `/tenant/dashboard`) | Résolution d'une page runtime : `meta`, `shell`, `content`, `dynamic` | Initialisation session/app, logique auth, settings globaux |
+
+Le moteur est unique : public, dashboard superadmin et dashboard admin tenant utilisent tous le contrat `PageRuntimeResponse`. La différence vient du `logicalId`, du template effectif et des `PageModelDynamicProvider`.
+
+```text
+Template/PageModelDoc
+  -> binding.mode/source
+  -> PageModelDynamicResolver
+  -> PageModelDynamicProvider
+  -> PageRuntimeAssembler
+  -> PageRuntimeResponse
+  -> Frontend PageModel Engine
+```
+
+Les fragments `jsonFile` servent aux morceaux de structure/configuration (`header`, `footer`, `shell`, fragments publics). Les sources métier (`tenant_admin_dashboard`, `platform_admin_dashboard`, `public_draw_results`, etc.) alimentent `dynamic.widgets`.
+
+Les providers/assemblers PageModel doivent vivre dans `features.pagemodel.dynamic.providers.*`. Ils peuvent consommer `core.*.api`, `catalog.*.api` et `platform.*.api`, mais ne doivent pas appeler `features.tenantadmin`, `features.platformadmin`, `features.reporting` ou `features.stats`.
+
+`features.stats` est legacy pour les nouveaux dashboards. Les KPI/charts business viennent de `core.analytics.api`. `features.reporting` reste réservé aux rapports filtrables/exportables.
+
+### Charte cockpit
+
+La charte UI fournie pour les dashboards admin est une direction visuelle, pas du HTML à copier. Le web doit réutiliser `libs/ui/theme`, `libs/ui/styles`, `libs/ui/components` et les widgets PageModel existants.
+
+Principes à reprendre :
+
+- surface claire, fond `--tch-color-background`, widgets sur `--tch-color-surface-container-lowest`;
+- grille compacte type bento, sections KPI puis charts/listes/actions;
+- typographie Plus Jakarta Sans via tokens `--tch-*`;
+- accent gold via `--tch-color-accent` / containers existants, pas Tailwind;
+- Material Symbols uniquement via les composants existants;
+- pas d'assets externes, pas de script Tailwind, pas de background décoratif hors tokens;
+- charts/tableaux seulement quand un widget PageModel dédié existe ou est ajouté dans `libs/widgets`.
+- les listes de classement utilisent `RankingListWidget` avec un `items` binding (ex. `topTenants`), pas une page Angular dédiée.
+- les séries temporelles utilisent `TrendChartWidget`; les répartitions utilisent `BreakdownListWidget`.
+
+### Templates privés canoniques V0
+
+Deux templates dashboard privés sont dans le périmètre de ce change :
+
+| Template | Endpoint runtime | Source dynamic | Usage |
+|---|---|---|---|
+| `private.dashboard.tenant_admin` | `/tenant/dashboard` | `tenant_admin_dashboard` | Dashboard admin tenant |
+| `private.dashboard.superadmin` | `/platform/dashboard` | `platform_admin_dashboard` | Dashboard superadmin/platform |
+
+`seller-terminal` / `cashier` ne fait pas partie de ces deux templates dashboard. Le cashier web garde son runtime dédié `features.pos.home` via `/tenant/cashier/home`.
+
+#### Admin tenant — modèle attendu
+
+```json
+{
+  "logicalId": "private.dashboard.tenant_admin",
+  "scope": "private",
+  "slug": "dashboard",
+  "model": {
+    "meta": {
+      "id": "private.dashboard.tenant_admin",
+      "context": "private_dashboard_tenant_admin"
+    },
+    "shell": {
+      "component": "PrivateShell",
+      "binding": { "mode": "dynamic", "source": "jsonFile" },
+      "props": { "fileKey": "private_shell_tenant_admin" }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          { "id": "kpis", "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.kpis"] }] },
+          { "id": "readinessAlerts", "columns": [
+            { "span": 6, "widgets": ["dashboard.tenantAdmin.readiness"] },
+            { "span": 6, "widgets": ["dashboard.tenantAdmin.alerts"] }
+          ] },
+          { "id": "commission", "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.commission"] }] },
+          { "id": "quickActions", "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.quickActions"] }] }
+        ]
+      },
+      "widgets": {
+        "dashboard.tenantAdmin.kpis": {
+          "type": "KpiGridWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" }
+        },
+        "dashboard.tenantAdmin.readiness": {
+          "type": "ReadinessSummaryWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" }
+        },
+        "dashboard.tenantAdmin.alerts": {
+          "type": "AlertsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" }
+        },
+        "dashboard.tenantAdmin.commission": {
+          "type": "CommissionSummaryWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" }
+        },
+        "dashboard.tenantAdmin.quickActions": {
+          "type": "QuickActionsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin_dashboard" }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Superadmin — modèle attendu
+
+```json
+{
+  "logicalId": "private.dashboard.superadmin",
+  "scope": "private",
+  "slug": "dashboard",
+  "model": {
+    "meta": {
+      "id": "private.dashboard.superadmin",
+      "context": "private_dashboard_superadmin"
+    },
+    "shell": {
+      "component": "PrivateShell",
+      "binding": { "mode": "dynamic", "source": "jsonFile" },
+      "props": { "fileKey": "private_shell_superadmin" }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          { "id": "platformKpis", "columns": [
+            { "span": 4, "widgets": ["dashboard.superadmin.tenants"] },
+            { "span": 4, "widgets": ["dashboard.superadmin.platformSales"] },
+            { "span": 4, "widgets": ["dashboard.superadmin.subscriptions"] }
+          ] },
+          { "id": "platformState", "columns": [
+            { "span": 4, "widgets": ["dashboard.superadmin.health"] },
+            { "span": 4, "widgets": ["dashboard.superadmin.onboarding"] },
+            { "span": 4, "widgets": ["dashboard.superadmin.alerts"] }
+          ] },
+          { "id": "platformInsights", "columns": [
+            { "span": 7, "widgets": ["dashboard.superadmin.topTenants"] },
+            { "span": 5, "widgets": ["dashboard.superadmin.publicContent"] }
+          ] },
+          { "id": "contentActions", "columns": [
+            { "span": 12, "widgets": ["dashboard.superadmin.quickActions"] }
+          ] }
+        ]
+      },
+      "widgets": {
+        "dashboard.superadmin.health": {
+          "type": "ReadinessSummaryWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.tenants": {
+          "type": "KpiGridWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.platformSales": {
+          "type": "KpiGridWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.subscriptions": {
+          "type": "KpiGridWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.onboarding": {
+          "type": "AlertsWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.alerts": {
+          "type": "AlertsWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.publicContent": {
+          "type": "NewsTickerWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.topTenants": {
+          "type": "RankingListWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        },
+        "dashboard.superadmin.quickActions": {
+          "type": "QuickActionsWidget",
+          "binding": { "mode": "dynamic", "source": "platform_admin_dashboard" }
+        }
+      }
+    }
+  }
+}
+```
+
+Le premier rendu doit rester rapide. Si un widget devient coûteux, le template doit pouvoir le déclarer comme différé dans une évolution dédiée (`runtime.loadStrategy = deferred`) sans déplacer la composition dans Angular.
+
+### Gap charts plateforme
+
+`PlatformDashboardStatsView` expose aujourd'hui `summary` et `topTenants`. Il ne fournit pas encore :
+
+- `dailyBreakdown` pour alimenter `TrendChartWidget`;
+- `gameBreakdown` ou équivalent plateforme pour alimenter `BreakdownListWidget`.
+
+Ces widgets existent côté web, mais ils ne doivent pas être branchés dans `private.dashboard.superadmin` tant que `core.analytics.api` n'a pas ajouté ces projections. À l'inverse, le dashboard admin tenant peut réutiliser ces widgets dès que son provider expose explicitement les séries/répartitions déjà disponibles côté `TenantDashboardStatsView`.
 
 ## Infrastructure transverse (absorbée de platform-superadmin-and-tenant-admin-pages)
 
@@ -169,7 +387,7 @@ export interface PlatformActionDefinition {
 - `features/private/platform/shared/platform-action.model.ts`
 
 **Vue d'ensemble** :
-- `platform-home.page.ts` — cockpit superadmin avec widgets KPI
+- Template `private.dashboard.superadmin` — cockpit superadmin via PageModel runtime
 
 **Support tenant** :
 - `platform/support-tenant/platform-support-tenant.page.ts` — sélecteur tenant + shell de réutilisation
@@ -205,7 +423,7 @@ export interface PlatformActionDefinition {
 
 ### Fichiers modifiés
 
-- `platform.routes.ts` — restructuration majeure + nouvelles routes
+- `platform.routes.ts` — restructuration majeure + nouvelles routes, `/platform` et `/platform/dashboard` restent branchés sur le renderer PageModel
 - `platform-catalog.routes.ts` — split plans-pricing, ajouter draw-channel-games, result-slot-calendars
 - `platform-operations.routes.ts` — ajouter communication-tests, identity-sync, retirer providers du rendu actif
 - Shell privé — intégrer `AdminOverrideBanner`
@@ -220,7 +438,7 @@ export interface PlatformActionDefinition {
 ## Non-goals V0
 
 - Pas de gestion des Providers (section retirée du menu, route conservée en hidden)
-- Pas de BFF platform dashboard (appels parallèles comme admin-tenant-sidenav-v0)
+- Pas de nouvelle page Angular dashboard qui orchestre les domaines. Le cockpit utilise le BFF PageModel existant (`/platform/dashboard`) et `platform_admin_dashboard`.
 - Pas d'audit viewer complet (pagination, filtres avancés)
 - Pas de NgRx (signals + store service)
 - Pas de gestion des gaps backend listés dans `gaps-backend.md`
