@@ -1,8 +1,8 @@
-# PLATFORM_COMMUNICATION — External delivery: email, SMS, Slack, push
+# PLATFORM_COMMUNICATION — External delivery: email, SMS, WhatsApp, Slack, push
 
 ## Status
 
-**NORMATIVE — proposed**
+**NORMATIVE — V0 target**
 
 
 ## Rôle
@@ -10,6 +10,7 @@
 `platform.communication` gère la livraison externe :
 - email
 - SMS
+- WhatsApp
 - alertes Slack internes
 - webhooks Slack tenant (optionnel)
 - push provider (à venir)
@@ -21,6 +22,8 @@ Ce module ne prend pas de décision métier : il délivre les intentions produ
 enqueue is the normal path.
 sendNow is the controlled exception.
 
+`platform.communication` is also the only owner of external delivery requested by notification publications. `platform.notification` owns the inbox; communication owns provider-facing delivery.
+
 ## Surface API
 
 - `CommunicationApi` (Java) :
@@ -30,6 +33,7 @@ sendNow is the controlled exception.
 ## Intégration
 
 - Les modules platform/core publient des intentions de communication via `enqueue`
+- `NotificationPublishedEvent` peut produire des messages externes quand une politique demande `EMAIL`, `SMS`, `WHATSAPP` ou `SLACK`
 - `sendNow` réservé aux cas d’exception (ne pas bloquer les transactions métier)
 - Les tentatives, statuts et erreurs sont tracés
 
@@ -39,6 +43,8 @@ sendNow is the controlled exception.
 - Les providers peuvent être lents/indisponibles : retry/backoff obligatoire
 - Les livraisons sont asynchrones par défaut
 - Les templates sont gérés côté platform
+- `IN_APP` est ignoré par communication et reste dans `platform.notification`
+- Les lignes `notification_recipient` et `notification_user_state` ne sont jamais des statuts de livraison provider
 
 ## Module organization
 
@@ -67,10 +73,7 @@ platform/communication/
       DeliveryRetryPlanner.java
     rule/
       CommunicationRule.java
-      PayoutCommunicationRule.java
-      OfflineSyncCommunicationRule.java
-      TenantUserCommunicationRule.java
-      TenantLifecycleCommunicationRule.java
+      NotificationPublishedCommunicationRule.java
       BatchAlertCommunicationRule.java
       OpsCommunicationRule.java
     event/
@@ -83,6 +86,8 @@ platform/communication/
         SmsProviderAdapter.java
       slack/
         SlackProviderAdapter.java
+      whatsapp/
+        WhatsappProviderAdapter.java
       push/
         PushProviderAdapter.java
     persistence/
@@ -214,7 +219,7 @@ CREATE TABLE tenant_communication_settings (
 
 ## Event contract
 
-`platform.communication` consumes the same event families as `platform.notification`, but maps them to external messages.
+`platform.communication` consumes explicit communication requests and supported events, including notification publication events for external channels.
 
 Every rule produces normalized `CommunicationIntent`:
 
@@ -241,6 +246,9 @@ EMAIL:
 SMS:
   customer-facing short receipts, OTP, urgent payout/ticket messages, opt-in required.
 
+WHATSAPP:
+  tenant/customer opt-in only. Usually receipt/help flows. Never default for broad seller-terminal fanout until recipient lookup and consent are explicit.
+
 SLACK_INTERNAL:
   Tchalanet/platform ops only: failures, fraud, provider down, provisioning failed, cache clear all.
 
@@ -250,6 +258,25 @@ SLACK_TENANT_WEBHOOK:
 PUSH:
   later, usually notification wake-up. Source of truth remains notification center.
 ```
+
+## Notification publication bridge
+
+`platform.notification` emits `NotificationPublishedEvent` after commit when a notification publication is created or republished.
+
+The communication bridge rule:
+
+- ignores `IN_APP`;
+- maps `EMAIL`, `SMS`, `WHATSAPP` and `SLACK` to outbound messages;
+- resolves destination addresses, phone numbers, Slack targets and future provider destinations inside the communication boundary;
+- batches large audiences when necessary;
+- writes `outbound_message` through `CommunicationApi.enqueue(...)`;
+- uses stable correlation keys: `notification:{publicationId}:{channel}:{destination}`;
+- never writes notification-owned inbox state;
+- never blocks the committed in-app notification when dispatch or provider delivery later fails.
+
+No external message is created if the notification transaction rolls back, because the bridge runs after commit.
+
+Seller-terminal SMS/WhatsApp fanout requires a public recipient lookup and opt-in model before broad activation. Until then, seller-terminal notifications stay in-app unless an explicit destination is available.
 
 ## Batch alert refactor
 
@@ -341,6 +368,10 @@ Every outbound message that comes from an event must have a stable `correlationK
 Examples:
 
 ```text
+notification:{publicationId}:email:{email}
+notification:{publicationId}:sms:{phone}
+notification:{publicationId}:whatsapp:{phone}
+notification:{publicationId}:slack:{workspaceOrChannel}
 ticket:{ticketId}:receipt:sms
 payout:{payoutId}:paid:email
 payout:{payoutId}:paid:sms
@@ -353,10 +384,11 @@ tenant:{tenantId}:admin:{userId}:invited:email
 ## Rules
 
 - Provider adapters are internal only.
-- No module outside `platform.communication.internal` may import Slack/email/SMS provider classes.
+- No module outside `platform.communication.internal` may import Slack/email/SMS/WhatsApp provider classes.
 - `enqueue` is the default for all event-driven and automatic communication.
 - `sendNow` is only for ops tests/diagnostics.
 - Tenant Slack is opt-in.
 - Internal Slack is for Tchalanet/platform ops.
 - Message templates are not PageTemplates.
 - `common` never contains message templates, channels, providers or communication delivery logic.
+- Notification publication bridge code must live in `platform.communication`, not in notification services/controllers.

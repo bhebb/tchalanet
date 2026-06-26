@@ -1,7 +1,10 @@
 # platform-communication Specification
 
 ## Purpose
-TBD - created by archiving change introduce-platform-communication. Update Purpose after archive.
+
+`platform.communication` owns external message delivery through email, SMS, WhatsApp, Slack and future push providers.
+
+The capability turns communication intents and supported events into outbound messages, records delivery attempts and retries provider delivery. It does not own in-app notification state.
 ## Requirements
 ### Requirement: Communication capability
 
@@ -11,6 +14,7 @@ Supported initial channels:
 
 - EMAIL
 - SMS
+- WHATSAPP
 - SLACK_INTERNAL
 - SLACK_TENANT_WEBHOOK
 
@@ -22,7 +26,7 @@ Future channel:
 
 - **GIVEN** a backend module needs to deliver an external message
 - **WHEN** it uses `platform.communication.api.CommunicationApi`
-- **THEN** it can target email, SMS, internal Slack or tenant Slack without importing provider adapters
+- **THEN** it can target email, SMS, WhatsApp, internal Slack or tenant Slack without importing provider adapters
 
 ### Requirement: Enqueue by default
 
@@ -76,9 +80,31 @@ Event-driven outbound messages SHALL include a stable `correlationKey`.
 - **WHEN** the same event is consumed again
 - **THEN** no duplicate SMS message is created
 
+### Requirement: Notification publication bridge
+
+The system SHALL process external channels requested by notification publications through `platform.communication`.
+
+#### Scenario: Ignore in-app notification channel
+
+- **GIVEN** a `NotificationPublishedEvent` contains `IN_APP`
+- **WHEN** the communication bridge evaluates the publication
+- **THEN** no outbound message is created for `IN_APP`
+
+#### Scenario: Create external message from notification publication
+
+- **GIVEN** a `NotificationPublishedEvent` contains `EMAIL`
+- **WHEN** the communication bridge resolves an email destination
+- **THEN** it enqueues an outbound message with correlation key `notification:{publicationId}:email:{destination}`
+
+#### Scenario: Notification transaction rolls back
+
+- **GIVEN** a notification publication transaction rolls back
+- **WHEN** after-commit listeners would normally run
+- **THEN** no outbound communication message is created
+
 ### Requirement: Provider adapters are internal
 
-Provider classes for Slack, email, SMS and push SHALL live under `platform.communication.internal.adapter` and SHALL NOT be imported from other modules.
+Provider classes for Slack, email, SMS, WhatsApp and push SHALL live under `platform.communication.internal.adapter` and SHALL NOT be imported from other modules.
 
 #### Scenario: Batch wants Slack alert
 
@@ -97,4 +123,3 @@ Tenant Slack delivery SHALL be disabled unless tenant communication settings exp
 - **WHEN** communication rule evaluates the event
 - **THEN** no tenant Slack outbound message is created
 - **AND** internal Slack may still be created for platform ops if policy requires it
-
