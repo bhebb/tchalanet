@@ -1,5 +1,10 @@
 @use 'mixins' as tch;
 
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .quick-actions {
   display: flex;
   flex-direction: column;

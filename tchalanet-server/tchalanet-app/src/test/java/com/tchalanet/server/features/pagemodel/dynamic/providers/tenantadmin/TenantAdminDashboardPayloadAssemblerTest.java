@@ -14,6 +14,8 @@ import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
@@ -110,6 +112,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
         when(queryBus.ask(any(GetTenantDashboardStatsQuery.class))).thenReturn(statsView);
         when(queryBus.ask(any(GetTenantKpisQuery.class))).thenReturn(kpisView);
+        when(queryBus.ask(any(ListDrawsQuery.class))).thenReturn(drawPageWithTotal(3L));
         when(tenantCatalog.findById(tenantId)).thenReturn(Optional.empty());
         when(queryBus.ask(any(ListSellerTerminalsQuery.class))).thenReturn(emptyPage());
         when(gameCatalog.listActive()).thenReturn(List.of());
@@ -121,7 +124,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
         assertThat(payload.kpis().salesToday()).isEqualByComparingTo(new BigDecimal("123.45"));
         assertThat(payload.kpis().ticketCountToday()).isEqualTo(42L);
         assertThat(payload.kpis().activeSellerTerminals()).isEqualTo(0L);
-        assertThat(payload.kpis().openDraws()).isEqualTo(0L);
+        assertThat(payload.kpis().openDraws()).isEqualTo(3L);
         assertThat(payload.kpis().pendingApprovals()).isEqualTo(0L);
         assertThat(payload.salesTrend().points()).hasSize(1);
         assertThat(payload.salesTrend().points().get(0).grossSales()).isEqualByComparingTo(new BigDecimal("123.45"));
@@ -141,7 +144,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
         var payload = assembler.assemble(context(tenantId));
 
         assertThat(payload.readiness().status()).isEqualTo("MISSING");
-        assertThat(payload.readiness().missingCount()).isEqualTo(5);
+        assertThat(payload.readiness().missingCount()).isEqualTo(6);
     }
 
     @Test
@@ -159,12 +162,12 @@ class TenantAdminDashboardPayloadAssemblerTest {
         assertThat(payload.operations().outlets().status()).isEqualTo("PARKED");
         assertThat(payload.operations().outlets().count()).isZero();
         assertThat(payload.operations().terminals().count()).isEqualTo(3L);
-        assertThat(payload.operations().users().count()).isEqualTo(1);
+        assertThat(payload.operations().users().count()).isZero();
         assertThat(payload.commercial().gamesPricing().count()).isEqualTo(1);
         assertThat(payload.commercial().drawChannels().count()).isEqualTo(2);
 
         // Single bundle invocation — each grouped read called exactly once per assemble.
-        verify(queryBus, times(1)).ask(any(ListSellerTerminalsQuery.class));
+        verify(queryBus, times(2)).ask(any(ListSellerTerminalsQuery.class));
         verify(gameCatalog, times(1)).listActive();
         verify(drawChannelCatalog, times(1)).listAll(any(), any());
     }
@@ -214,6 +217,10 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     @SuppressWarnings("unchecked")
     private TchPage<SellerTerminalSummaryRow> pageWithTotal(long total) {
+        return new TchPage<>(List.of(), 0, 1, total, 1, true, false, false);
+    }
+
+    private TchPage<DrawSummary> drawPageWithTotal(long total) {
         return new TchPage<>(List.of(), 0, 1, total, 1, true, false, false);
     }
 }

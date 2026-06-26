@@ -58,13 +58,21 @@
       "sales_today": {
         "label": "Today's sales"
       },
+      "tickets_sold": {
+        "label": "Tickets sold"
+      },
       "payout_due": {
         "label": "Payout due"
       },
       "notifications": {
         "label": "Notifications"
       },
-      "active_seller_terminals": "Active seller-terminals"
+      "active_seller_terminals": {
+        "label": "Active sellers"
+      },
+      "open_draws": {
+        "label": "Open draws"
+      }
     },
     "draws": {
       "title": "Draws"
@@ -415,6 +423,31 @@
       }
     }
   },
+  "readiness": {
+    "noIssues": "No issues",
+    "identity": {
+      "missing": "Tenant identity needs completion"
+    },
+    "seller_terminals": {
+      "empty": "No sellers configured",
+      "blocked": "Blocked sellers need review"
+    },
+    "games": {
+      "empty": "Games and pricing need configuration"
+    },
+    "channels": {
+      "empty": "Draw channels need configuration"
+    },
+    "draws": {
+      "results_pending": "Closed draws are waiting for results"
+    },
+    "commission": {
+      "default_missing": "Tenant commission rate needs configuration"
+    },
+    "limits": {
+      "empty": "Sales limits need configuration"
+    }
+  },
   "dashboard": {
     "actions": {
       "logout": "Logout",
@@ -436,6 +469,9 @@
     "cashier": {
       "alerts": {
         "empty": "No alerts",
+        "blocked_seller_terminals": "Some sellers are blocked",
+        "closed_draws_pending_results": "Some closed draws are waiting for results",
+        "unread_notifications": "Unread notifications",
         "title": "Alerts"
       },
       "quick_actions": {

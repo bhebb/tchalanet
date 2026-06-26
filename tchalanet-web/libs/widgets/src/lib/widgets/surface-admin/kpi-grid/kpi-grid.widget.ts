@@ -1,4 +1,6 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import {
   LabelPipe,
@@ -14,6 +16,7 @@ interface KpiItem {
   readonly labelKey: string;
   readonly icon?: string;
   readonly tone?: string;
+  readonly route?: string;
   /** Raw config value: a literal, or a `{ source:'dynamic', path }` binding into the payload. */
   readonly value?: unknown;
 }
@@ -21,7 +24,7 @@ interface KpiItem {
 @Component({
   selector: 'tch-kpi-grid-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LabelPipe],
+  imports: [LabelPipe, NgTemplateOutlet, RouterLink],
   templateUrl: './kpi-grid.widget.html',
   styleUrl: './kpi-grid.widget.scss',
 })
@@ -41,6 +44,7 @@ export class KpiGridWidget {
       labelKey: stringValue(item['labelKey']) ?? '',
       icon: stringValue(item['icon']),
       tone: stringValue(item['tone']),
+      route: stringValue(item['route']),
       value: item['value'],
     }));
   });

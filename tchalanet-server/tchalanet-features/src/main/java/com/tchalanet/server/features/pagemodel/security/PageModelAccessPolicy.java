@@ -25,7 +25,7 @@ public class PageModelAccessPolicy {
     private static final Map<String, Set<TchRole>> POLICIES =
         Map.of(
             "private.dashboard.cashier.web", Set.of(TchRole.CASHIER),
-            "private.dashboard.tenant_admin", Set.of(TchRole.TENANT_ADMIN),
+            "private.dashboard.tenant_admin", Set.of(TchRole.TENANT_OWNER, TchRole.TENANT_ADMIN),
             "private.dashboard.superadmin", Set.of(TchRole.SUPER_ADMIN),
             "private.dashboard.superadmin.ops", Set.of(TchRole.SUPER_ADMIN));
 

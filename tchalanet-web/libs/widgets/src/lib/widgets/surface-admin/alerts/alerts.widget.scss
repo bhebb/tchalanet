@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .alerts {
   display: flex;
   flex-direction: column;
@@ -37,6 +42,12 @@
   border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
   border-left-color: var(--tch-color-outline, var(--mat-sys-outline));
+  color: inherit;
+  text-decoration: none;
+}
+
+a.alerts__item {
+  cursor: pointer;
 }
 
 .alerts__item--info {

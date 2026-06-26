@@ -110,10 +110,34 @@
           "props": {
             "titleKey": "dashboard.tenant_admin.kpis.title",
             "items": [
-              { "id": "salesToday",            "labelKey": "admin.kpi.sales_today.label",             "icon": "payments",        "tone": "accent"  },
-              { "id": "activeSellerTerminals", "labelKey": "admin.kpi.active_seller_terminals.label", "icon": "point_of_sale",  "tone": "success" },
-              { "id": "winningsToday",         "labelKey": "admin.kpi.payout_due.label",              "icon": "account_balance","tone": "warning" },
-              { "id": "notificationCount",     "labelKey": "admin.kpi.notifications.label",           "icon": "notifications",  "tone": "primary" }
+              {
+                "id": "salesToday",
+                "labelKey": "admin.kpi.sales_today.label",
+                "icon": "payments",
+                "tone": "accent",
+                "route": "/app/admin/reports/sales"
+              },
+              {
+                "id": "ticketCountToday",
+                "labelKey": "admin.kpi.tickets_sold.label",
+                "icon": "confirmation_number",
+                "tone": "neutral",
+                "route": "/app/admin/tickets"
+              },
+              {
+                "id": "activeSellerTerminals",
+                "labelKey": "admin.kpi.active_seller_terminals.label",
+                "icon": "point_of_sale",
+                "tone": "success",
+                "route": "/app/admin/sellers?status=active"
+              },
+              {
+                "id": "openDraws",
+                "labelKey": "admin.kpi.open_draws.label",
+                "icon": "event_available",
+                "tone": "primary",
+                "route": "/app/admin/draws?status=OPEN"
+              }
             ]
           }
         },

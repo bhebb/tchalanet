@@ -13,7 +13,15 @@ import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.model.TenantKpisView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.ListDrawsQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalCommissionStatsView;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalCommissionStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
@@ -55,8 +63,8 @@ import java.util.List;
  * 3. operations bundle (seller terminals + sellers, 2 calls grouped)    → readiness + operations
  * 4. commercial bundle (games + draw channels, 2 calls grouped)         → commercial
  * <p>
- * Alerts / kpi.openDraws / kpi.activeSessions / kpi.pendingApprovals are V1
- * placeholders — no tenant-wide aggregate query exists yet (TODO V2).
+ * Tenant operational problems stay summarized here; detailed remediation belongs to the feature
+ * pages linked from the widgets.
  */
 @Component
 @RequiredArgsConstructor
@@ -88,17 +96,19 @@ public class TenantAdminDashboardPayloadAssembler {
         CommercialBundle commercial = loadCommercialBundle(tenantId);
         TenantKpisView kpisView = loadActiveSellerTerminals(tenantId, tz);
         TenantDashboardStatsView analytics = loadDashboardStats(tenantId, tz);
+        long openDraws = loadOpenDrawCount();
+        long closedDraws = loadDrawCount(DrawStatus.CLOSED);
         long notifCount = loadNotificationCount(ctx);
 
         BigDecimal tenantDefaultRate = registry != null ? registry.defaultCommissionRate().orElse(null) : null;
         TenantCommissionSummaryPayload commission = loadCommissionSummary(tenantId, tenantDefaultRate);
 
         TenantDashboardHeaderPayload header = buildHeader(ctx, registry);
-        TenantKpiGridPayload kpis = buildKpis(analytics, kpisView, notifCount, tz);
+        TenantKpiGridPayload kpis = buildKpis(analytics, kpisView, openDraws, notifCount, tz);
         TenantSalesTrendPayload salesTrend = buildSalesTrend(analytics);
         TenantGameBreakdownPayload gameBreakdown = buildGameBreakdown(analytics);
-        TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial);
-        TenantAlertsPayload alerts = buildAlerts(notifCount);
+        TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial, commission, closedDraws);
+        TenantAlertsPayload alerts = buildAlerts(notifCount, ops.blockedSellerTerminalCount(), closedDraws);
         TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
         TenantCommercialSummaryPayload commercialSummary = buildCommercialSummary(commercial);
         PublicContentPayload publicContent = buildPublicContent();
@@ -112,6 +122,7 @@ public class TenantAdminDashboardPayloadAssembler {
 
     private OperationsBundle loadOperationsBundle(TenantId tenantId) {
         long sellerTerminalCount;
+        long blockedSellerTerminalCount;
         try {
             TchPage<SellerTerminalSummaryRow> page = queryBus.ask(new ListSellerTerminalsQuery(tenantId, SellerTerminalSearchCriteria.empty(), new TchPageRequest(PageRequest.of(0, 1))));
             sellerTerminalCount = page != null ? page.totalElements() : 0L;
@@ -119,8 +130,15 @@ public class TenantAdminDashboardPayloadAssembler {
             sellerTerminalCount = 0L;
         }
 
+        try {
+            var criteria = new SellerTerminalSearchCriteria(null, SellerTerminalStatus.BLOCKED);
+            TchPage<SellerTerminalSummaryRow> page = queryBus.ask(new ListSellerTerminalsQuery(tenantId, criteria, new TchPageRequest(PageRequest.of(0, 1))));
+            blockedSellerTerminalCount = page != null ? page.totalElements() : 0L;
+        } catch (RuntimeException e) {
+            blockedSellerTerminalCount = 0L;
+        }
 
-        return new OperationsBundle(sellerTerminalCount);
+        return new OperationsBundle(sellerTerminalCount, blockedSellerTerminalCount);
     }
 
     private CommercialBundle loadCommercialBundle(TenantId tenantId) {
@@ -138,7 +156,17 @@ public class TenantAdminDashboardPayloadAssembler {
             channels = List.of();
         }
 
-        return new CommercialBundle(games, channels);
+        long enabledLimitCount;
+        try {
+            ListLimitAssignmentsView assignments = queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
+            enabledLimitCount = assignments != null && assignments.items() != null
+                ? assignments.items().stream().filter(ListLimitAssignmentsView.Item::enabled).count()
+                : 0L;
+        } catch (RuntimeException e) {
+            enabledLimitCount = 0L;
+        }
+
+        return new CommercialBundle(games, channels, enabledLimitCount);
     }
 
     private TenantKpisView loadActiveSellerTerminals(TenantId tenantId, ZoneId tz) {
@@ -163,6 +191,21 @@ public class TenantAdminDashboardPayloadAssembler {
         }
     }
 
+    private long loadOpenDrawCount() {
+        return loadDrawCount(DrawStatus.OPEN);
+    }
+
+    private long loadDrawCount(DrawStatus status) {
+        try {
+            DrawSearchCriteria criteria = new DrawSearchCriteria(null, status, null, null, null, null, null);
+            TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, PageRequest.of(0, 1)));
+            return page != null ? page.totalElements() : 0L;
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load {} draws — {}", status, e.getMessage());
+            return 0L;
+        }
+    }
+
     private long loadNotificationCount(TchRequestContext ctx) {
         try {
             if (ctx.userId() == null) return 0L;
@@ -181,7 +224,7 @@ public class TenantAdminDashboardPayloadAssembler {
         return new TenantDashboardHeaderPayload(ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "", registry != null && registry.name() != null ? registry.name() : "", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
     }
 
-    private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView, long notifCount, ZoneId tz) {
+    private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView, long openDraws, long notifCount, ZoneId tz) {
         LocalDate today = LocalDate.now(tz);
         LocalDate yesterday = today.minusDays(1);
 
@@ -205,7 +248,7 @@ public class TenantAdminDashboardPayloadAssembler {
         }
 
         long activeSellerTerminals = kpisView.activeCashiers(); // proxy V0: SELLER dim = seller_terminal
-        return new TenantKpiGridPayload(salesToday, salesYesterday, ticketsToday, ticketsYesterday, winningsToday, payoutsToday, netToday, activeSellerTerminals, notifCount, 0L, 0L);
+        return new TenantKpiGridPayload(salesToday, salesYesterday, ticketsToday, ticketsYesterday, winningsToday, payoutsToday, netToday, activeSellerTerminals, openDraws, notifCount, 0L);
     }
 
     private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
@@ -243,7 +286,7 @@ public class TenantAdminDashboardPayloadAssembler {
      * READY when identity present + outlets + terminals + sellers + (games OR channels) configured.
      * PARTIAL if at least one configured. MISSING if none. UNKNOWN if no tenant.
      */
-    private TenantReadinessSummaryPayload buildReadinessSummary(TenantContextLookupView registry, OperationsBundle ops, CommercialBundle commercial) {
+    private TenantReadinessSummaryPayload buildReadinessSummary(TenantContextLookupView registry, OperationsBundle ops, CommercialBundle commercial, TenantCommissionSummaryPayload commission, long closedDraws) {
         List<TenantReadinessIssue> issues = new ArrayList<>();
         int missing = 0;
 
@@ -263,19 +306,72 @@ public class TenantAdminDashboardPayloadAssembler {
             issues.add(new TenantReadinessIssue("draws", "readiness.channels.empty", "/app/admin/draws"));
             missing++;
         }
+        if (ops.blockedSellerTerminalCount() > 0L) {
+            issues.add(new TenantReadinessIssue("seller_terminals_blocked", "readiness.seller_terminals.blocked", "/app/admin/sellers?status=BLOCKED"));
+        }
+        if (closedDraws > 0L) {
+            issues.add(new TenantReadinessIssue("draws_pending_results", "readiness.draws.results_pending", "/app/admin/draws?status=CLOSED"));
+        }
+        if (commission.tenantDefaultRate() == null) {
+            issues.add(new TenantReadinessIssue("commission", "readiness.commission.default_missing", "/app/admin/controls/commissions"));
+            missing++;
+        }
+        if (commercial.enabledLimitCount() == 0L) {
+            issues.add(new TenantReadinessIssue("limits", "readiness.limits.empty", "/app/admin/limits"));
+            missing++;
+        }
 
         TenantReadinessStatus status;
-        if (missing == 0) status = TenantReadinessStatus.READY;
-        else if (missing >= 6) status = TenantReadinessStatus.MISSING;
-        else status = TenantReadinessStatus.PARTIAL;
+        if (missing == 0) {
+            status = TenantReadinessStatus.READY;
+        } else if (registry == null
+            && ops.sellerTerminalCount() == 0L
+            && commercial.games().isEmpty()
+            && commercial.channels().isEmpty()
+            && commission.tenantDefaultRate() == null
+            && commercial.enabledLimitCount() == 0L) {
+            status = TenantReadinessStatus.MISSING;
+        } else {
+            status = TenantReadinessStatus.PARTIAL;
+        }
 
         TenantReadinessSummary summary = new TenantReadinessSummary(status, missing, issues.stream().limit(4).toList());
+        List<ReadinessCheckItem> checks = summary.topIssues().stream()
+            .map(issue -> new ReadinessCheckItem(
+                issue.section(),
+                issue.messageKey(),
+                "WARNING",
+                null,
+                issue.route()))
+            .toList();
 
-        return new TenantReadinessSummaryPayload(summary.status().name(), summary.missingCount(), summary.topIssues());
+        return new TenantReadinessSummaryPayload(summary.status().name(), summary.missingCount(), checks);
     }
 
-    private TenantAlertsPayload buildAlerts(long notifCount) {
-        return new TenantAlertsPayload((int) Math.min(notifCount, Integer.MAX_VALUE), List.of());
+    private TenantAlertsPayload buildAlerts(long notifCount, long blockedSellerTerminalCount, long closedDraws) {
+        List<AlertItem> items = new ArrayList<>();
+        if (blockedSellerTerminalCount > 0L) {
+            items.add(new AlertItem(
+                "blocked-seller-terminals",
+                "dashboard.tenant_admin.alerts.blocked_seller_terminals",
+                "WARN",
+                "/app/admin/sellers?status=BLOCKED"));
+        }
+        if (closedDraws > 0L) {
+            items.add(new AlertItem(
+                "closed-draws-pending-results",
+                "dashboard.tenant_admin.alerts.closed_draws_pending_results",
+                "WARN",
+                "/app/admin/draws?status=CLOSED"));
+        }
+        if (notifCount > 0) {
+            items.add(new AlertItem(
+                "unread-notifications",
+                "dashboard.tenant_admin.alerts.unread_notifications",
+                "INFO",
+                "/app/admin/company/support"));
+        }
+        return new TenantAlertsPayload((int) Math.min(notifCount, Integer.MAX_VALUE), items);
     }
 
     private TenantOperationsSummaryPayload buildOperationsSummary(OperationsBundle ops) {
@@ -334,7 +430,7 @@ public class TenantAdminDashboardPayloadAssembler {
                                        long ticketCountYesterday, BigDecimal winningsToday, BigDecimal payoutsToday,
                                        BigDecimal netRevenueToday, long activeSellerTerminals,
                                        // V0 proxy: analytics_daily SELLER dim
-                                       long notificationCount, long openDraws, long pendingApprovals) {
+                                       long openDraws, long notificationCount, long pendingApprovals) {
     }
 
     public record TenantSalesTrendPayload(List<TenantTrendItem> points) {
@@ -351,10 +447,13 @@ public class TenantAdminDashboardPayloadAssembler {
                                           BigDecimal netRevenue) {
     }
 
-    public record TenantReadinessSummaryPayload(String status, int missingCount, List<TenantReadinessIssue> topIssues) {
+    public record TenantReadinessSummaryPayload(String status, int missingCount, List<ReadinessCheckItem> checks) {
     }
 
-    public record TenantAlertsPayload(int unreadCount, List<AlertItem> topWarnings) {
+    public record ReadinessCheckItem(String code, String labelKey, String status, String message, String path) {
+    }
+
+    public record TenantAlertsPayload(int unreadCount, List<AlertItem> items) {
     }
 
     /**
@@ -387,12 +486,12 @@ public class TenantAdminDashboardPayloadAssembler {
     /**
      * Grouped operational data — loaded once, shared by readiness + kpis + operations builders.
      */
-    record OperationsBundle(long sellerTerminalCount) {
+    record OperationsBundle(long sellerTerminalCount, long blockedSellerTerminalCount) {
     }
 
     /**
      * Grouped commercial data — loaded once, shared by readiness + commercial builders.
      */
-    record CommercialBundle(List<GameView> games, List<DrawChannelSummaryView> channels) {
+    record CommercialBundle(List<GameView> games, List<DrawChannelSummaryView> channels, long enabledLimitCount) {
     }
 }

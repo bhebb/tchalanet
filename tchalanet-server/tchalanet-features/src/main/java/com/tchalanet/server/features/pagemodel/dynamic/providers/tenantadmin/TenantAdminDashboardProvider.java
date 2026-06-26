@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-@PageModelAllowedRoles(TchRole.TENANT_ADMIN)
+@PageModelAllowedRoles({TchRole.TENANT_OWNER, TchRole.TENANT_ADMIN})
 public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "tenant_admin_dashboard";

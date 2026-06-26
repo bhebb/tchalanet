@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
 .readiness {
   display: flex;
   flex-direction: column;
@@ -28,6 +33,10 @@
   gap: 0.625rem;
 }
 
+.readiness__list > li {
+  min-width: 0;
+}
+
 .readiness__item {
   display: flex;
   align-items: center;
@@ -37,6 +46,12 @@
   border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
   border-radius: var(--tch-radius-lg, 0.5rem);
   background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
+  color: inherit;
+  text-decoration: none;
+}
+
+a.readiness__item {
+  cursor: pointer;
 }
 
 .readiness__status-dot {

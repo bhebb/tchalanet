@@ -65,6 +65,11 @@ type HostState =
   `,
   styles: [
     `
+      :host {
+        display: block;
+        min-width: 0;
+      }
+
       .widget-fallback {
         border: 1px dashed var(--tch-color-outline, var(--mat-sys-outline-variant));
         background: var(--tch-color-surface, var(--mat-sys-surface-container));
