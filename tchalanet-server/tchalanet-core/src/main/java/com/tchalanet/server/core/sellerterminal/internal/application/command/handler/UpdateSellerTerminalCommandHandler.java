@@ -25,6 +25,7 @@ public class UpdateSellerTerminalCommandHandler
             cmd.displayName(),
             cmd.firstName(),
             cmd.lastName(),
+            cmd.email(),
             cmd.phoneNumber(),
             cmd.addressId());
 

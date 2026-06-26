@@ -2,24 +2,17 @@
   [title]="'platform.tenantAdmins.title' | translate"
   [description]="'platform.tenantAdmins.description' | translate"
 >
-  <tch-admin-crud-shell>
-    <ng-container toolbar>
-      <form class="tenant-admins-global__filters" [formGroup]="filters">
-        <mat-form-field appearance="outline" class="tenant-admins-global__search">
-          <mat-label>{{ 'platform.tenantAdmins.filter.search' | translate }}</mat-label>
-          <span matPrefix class="material-symbols-outlined" style="padding: 0 0.5rem; color: var(--tch-color-on-surface-variant)">search</span>
-          <input matInput formControlName="q" type="search" [placeholder]="'platform.tenantAdmins.filter.searchPlaceholder' | translate" />
-        </mat-form-field>
-
-        @if (hasActiveFilters()) {
-          <button mat-button type="button" (click)="resetFilters()">
-            {{ 'platform.tenantAdmins.action.resetFilters' | translate }}
-          </button>
-        }
-      </form>
-    </ng-container>
-
-    <ng-container content>
+  <tch-admin-list-surface
+    [searchLabel]="'platform.tenantAdmins.filter.search' | translate"
+    [searchPlaceholder]="'platform.tenantAdmins.filter.searchPlaceholder' | translate"
+    [searchValue]="searchQuery()"
+    [showReset]="hasActiveFilters()"
+    [filtersExpanded]="hasActiveFilters()"
+    [resetLabel]="'platform.tenantAdmins.action.resetFilters' | translate"
+    (searchChange)="onSearchFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-content>
       @if (loading()) {
         <tch-loading label="{{ 'platform.tenantAdmins.loading' | translate }}" />
       } @else if (errorTitle()) {
@@ -153,7 +146,7 @@
       }
     </ng-container>
 
-    <ng-container footer>
+    <ng-container list-footer>
       @if (total() > 0) {
         <div class="tenant-admins-global__pagination">
           <span class="tenant-admins-global__pagination-total">
@@ -173,5 +166,5 @@
         </div>
       }
     </ng-container>
-  </tch-admin-crud-shell>
+  </tch-admin-list-surface>
 </tch-admin-page-shell>

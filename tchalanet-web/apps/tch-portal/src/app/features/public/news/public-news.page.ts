@@ -1,111 +1,90 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { TchBackendClient } from '@tch/api';
+import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { TranslatePipe } from '@ngx-translate/core';
 
-type NewsCategory = 'all' | 'results' | 'tchala' | 'system' | 'promo' | 'tips';
+type NewsFilter = 'all' | 'internal' | 'external';
+type PublicContentSourceType = 'INTERNAL' | 'EXTERNAL_RSS';
 
-interface NewsItem {
+interface PublicNewsItem {
   readonly id: string;
-  readonly category: Exclude<NewsCategory, 'all'>;
-  readonly categoryLabel: string;
-  readonly categoryStyle: 'primary' | 'secondary' | 'neutral';
   readonly title: string;
-  readonly excerpt: string;
-  readonly time: string;
-  readonly icon: string;
-  readonly accent?: 'primary' | 'secondary';
+  readonly content: string | null;
+  readonly imageUrl: string | null;
+  readonly sourceUrl: string | null;
+  readonly sourceType: PublicContentSourceType;
+  readonly publishedAt: string | null;
 }
 
-const NEWS_ITEMS: readonly NewsItem[] = [
-  {
-    id: 'ny-45',
-    category: 'results',
-    categoryLabel: 'NY Afternoon',
-    categoryStyle: 'secondary',
-    title: 'Résultats New York : Le 45 fait des heureux',
-    excerpt: 'Le tirage de cet après-midi a révélé des combinaisons inattendues. Découvrez les gagnants.',
-    time: '14:30',
-    icon: 'confirmation_number',
-    accent: 'secondary',
-  },
-  {
-    id: 'tchala-eau',
-    category: 'tchala',
-    categoryLabel: 'Tchala',
-    categoryStyle: 'primary',
-    title: "Rêver d'eau : Quels numéros jouer ?",
-    excerpt: "L'interprétation complète de vos rêves de cette nuit selon le dictionnaire Tchala officiel.",
-    time: '10:15',
-    icon: 'water_drop',
-  },
-  {
-    id: 'securite',
-    category: 'system',
-    categoryLabel: 'Système',
-    categoryStyle: 'neutral',
-    title: 'Nouvelle sécurité sur vos transactions',
-    excerpt: 'Nous renforçons la validation de vos fiches avec le nouveau sceau numérique sécurisé.',
-    time: 'Hier',
-    icon: 'security',
-  },
-  {
-    id: 'jackpot-weekend',
-    category: 'promo',
-    categoryLabel: 'Promotion',
-    categoryStyle: 'secondary',
-    title: 'Jackpot spécial ce weekend !',
-    excerpt: "Multipliez vos gains par 5 sur tous les Lotto 3 du samedi soir. Ne ratez pas l'occasion.",
-    time: 'Hier',
-    icon: 'emoji_events',
-    accent: 'primary',
-  },
-  {
-    id: 'tips-3',
-    category: 'tips',
-    categoryLabel: 'Conseils',
-    categoryStyle: 'neutral',
-    title: 'Optimisez vos mises en 3 étapes',
-    excerpt: 'Comment utiliser les statistiques de tirage pour mieux choisir vos numéros favoris.',
-    time: 'Il y a 2 jours',
-    icon: 'lightbulb',
-  },
-  {
-    id: 'fl-midi',
-    category: 'results',
-    categoryLabel: 'FL Midi',
-    categoryStyle: 'secondary',
-    title: 'Florida Midi : résultats du tirage',
-    excerpt: 'Le 07 et le 33 en tête des combinaisons gagnantes pour le tirage de midi.',
-    time: 'Il y a 2 jours',
-    icon: 'confirmation_number',
-    accent: 'secondary',
-  },
-];
-
-const FILTER_OPTIONS: readonly { id: NewsCategory; labelKey: string }[] = [
-  { id: 'all',     labelKey: 'common.all' },
-  { id: 'results', labelKey: 'domain.entity.results' },
-  { id: 'tchala',  labelKey: 'public.news.filter_tchala' },
-  { id: 'system',  labelKey: 'public.news.filter_system' },
-  { id: 'promo',   labelKey: 'domain.entity.promotions' },
+const FILTER_OPTIONS: readonly { id: NewsFilter; label: string }[] = [
+  { id: 'all', label: 'Toutes' },
+  { id: 'internal', label: 'Tchalanet' },
+  { id: 'external', label: 'RSS externe' },
 ];
 
 @Component({
   selector: 'tch-public-news-page',
-  imports: [TranslatePipe],
+  imports: [DatePipe, TranslatePipe, TchErrorPanel, TchLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './public-news.page.html',
   styleUrls: ['./public-news.page.scss'],
 })
-export class PublicNewsPage {
+export class PublicNewsPage implements OnInit {
+  private readonly backend = inject(TchBackendClient);
+
   readonly filters = FILTER_OPTIONS;
-  readonly activeFilter = signal<NewsCategory>('all');
+  readonly activeFilter = signal<NewsFilter>('all');
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly items = signal<PublicNewsItem[]>([]);
 
   readonly filteredItems = computed(() => {
-    const f = this.activeFilter();
-    return f === 'all' ? NEWS_ITEMS : NEWS_ITEMS.filter(item => item.category === f);
+    const filter = this.activeFilter();
+    const items = [...this.items()].sort((a, b) => {
+      if (a.sourceType !== b.sourceType) return a.sourceType === 'INTERNAL' ? -1 : 1;
+      return new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime();
+    });
+
+    if (filter === 'internal') return items.filter(item => item.sourceType === 'INTERNAL');
+    if (filter === 'external') return items.filter(item => item.sourceType === 'EXTERNAL_RSS');
+    return items;
   });
 
-  setFilter(id: NewsCategory): void {
+  ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.backend
+      .get<PublicNewsItem[]>('/public/news?surface=PUBLIC_HOME&limit=50')
+      .subscribe({
+        next: items => {
+          this.items.set(items ?? []);
+          this.loading.set(false);
+        },
+        error: err => {
+          this.error.set(
+            (err as { error?: { title?: string; detail?: string } })?.error?.title
+              ?? (err as { error?: { detail?: string } })?.error?.detail
+              ?? 'Erreur lors du chargement des actualités.',
+          );
+          this.loading.set(false);
+        },
+      });
+  }
+
+  setFilter(id: NewsFilter): void {
     this.activeFilter.set(id);
+  }
+
+  sourceLabel(item: PublicNewsItem): string {
+    return item.sourceType === 'INTERNAL' ? 'Tchalanet' : 'RSS externe';
+  }
+
+  sourceIcon(item: PublicNewsItem): string {
+    return item.sourceType === 'INTERNAL' ? 'campaign' : 'rss_feed';
   }
 }

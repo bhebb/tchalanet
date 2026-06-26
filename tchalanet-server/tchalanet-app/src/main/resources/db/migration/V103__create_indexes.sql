@@ -128,15 +128,28 @@ CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_payout
 CREATE INDEX ix_tchala_entry__status ON tchala_entry (status);
 
 -- ─── Notifications ──────────────────────────────────────────────────
+CREATE INDEX idx_notification_tenant_created
+  ON notification (tenant_id, created_at DESC)
+  WHERE deleted_at IS NULL;
+CREATE INDEX idx_notification_scope_created
+  ON notification (scope, created_at DESC)
+  WHERE deleted_at IS NULL;
+CREATE INDEX idx_notification_status_expires
+  ON notification (status, expires_at);
 CREATE UNIQUE INDEX uq_notification__tenant_dedupe
   ON notification (COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid), dedupe_key)
   WHERE dedupe_key IS NOT NULL AND deleted_at IS NULL;
-CREATE INDEX idx_notification_audience_status_created
-  ON notification (tenant_id, audience_type, audience_value, status, created_at DESC);
-CREATE INDEX idx_notification_delivery_notification_channel
-  ON notification_delivery (notification_id, channel);
-CREATE INDEX idx_notification_delivery_status_next
-  ON notification_delivery (status, next_attempt_at);
+CREATE INDEX idx_notification_publication_tenant_created
+  ON notification_publication (tenant_id, published_at DESC);
+CREATE INDEX idx_notification_recipient_inbox
+  ON notification_recipient (recipient_actor_type, recipient_actor_id, read_at, created_at DESC);
+CREATE INDEX idx_notification_recipient_unread
+  ON notification_recipient (recipient_actor_type, recipient_actor_id, created_at DESC)
+  WHERE read_at IS NULL AND dismissed_at IS NULL;
+CREATE INDEX idx_notification_user_state_actor
+  ON notification_user_state (actor_type, actor_id, read_at, created_at DESC);
+CREATE INDEX idx_notification_trigger_log_source
+  ON notification_trigger_log (source_type, source_id);
 CREATE INDEX idx_notification_template_lookup
   ON notification_template (tenant_id, template_key, locale)
   WHERE active = true AND deleted_at IS NULL;

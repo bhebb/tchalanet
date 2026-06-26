@@ -38,18 +38,26 @@ function unwrap(error: unknown): unknown {
   return error;
 }
 
+function isIgnorableBrowserNoise(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+  return message.includes('ResizeObserver loop completed with undelivered notifications')
+    || message.includes('ResizeObserver loop limit exceeded');
+}
+
 @Injectable()
 export class AppErrorHandler implements ErrorHandler {
   private readonly injector = inject(Injector);
 
   handleError(error: unknown): void {
     const original = unwrap(error);
-    console.error('[AppError]', original);
 
     // HTTP errors are already surfaced — with ProblemDetail, trace id and copy — by
     // apiFeedbackInterceptor. Re-reporting them here produced a duplicate, technical
     // "Erreur inattendue [object Object]" banner. Skip them.
     if (original instanceof HttpErrorResponse) return;
+    if (isIgnorableBrowserNoise(original)) return;
+
+    console.error('[AppError]', original);
 
     const store = this.injector.get(ShellFeedbackStore, null);
     if (!store) return;

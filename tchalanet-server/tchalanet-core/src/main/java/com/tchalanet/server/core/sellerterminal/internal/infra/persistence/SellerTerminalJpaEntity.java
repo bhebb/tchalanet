@@ -44,6 +44,9 @@ public class SellerTerminalJpaEntity extends BaseTenantEntity {
     @Column(name = "display_name", nullable = false, length = 180)
     private String displayName;
 
+    @Column(name = "email", length = 254)
+    private String email;
+
     @Column(name = "phone_number", length = 64)
     private String phoneNumber;
 

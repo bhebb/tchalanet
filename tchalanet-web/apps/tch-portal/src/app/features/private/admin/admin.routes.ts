@@ -173,6 +173,12 @@ export const adminRoutes: Route[] = [
       import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
     data: { titleKey: 'nav.admin.company_support', icon: 'headset_mic' },
   },
+  {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./notifications/admin-notifications.page').then(m => m.AdminNotificationsPage),
+    data: { titleKey: 'nav.admin.company_notifications', icon: 'notifications' },
+  },
   // ── Aide ───────────────────────────────────────────────────────────────────
   {
     path: 'help',

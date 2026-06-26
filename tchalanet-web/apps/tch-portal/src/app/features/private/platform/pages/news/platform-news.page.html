@@ -1,0 +1,215 @@
+<tch-admin-page-shell
+  title="Actualités publiques"
+  description="News internes Tchalanet et flux externes RSS utilisés dans les blocs d'actualités."
+>
+  <div actions>
+    <button mat-stroked-button [disabled]="saving()" (click)="forceRefresh()">
+      <span class="material-symbols-outlined">sync</span>
+      Rafraîchir RSS
+    </button>
+    <button mat-flat-button color="primary" (click)="newInternal()">
+      <span class="material-symbols-outlined">add</span>
+      Nouvelle interne
+    </button>
+  </div>
+
+  <section class="summary-row" aria-label="Résumé actualités">
+    <article class="summary-card summary-card--accent">
+      <span class="material-symbols-outlined" aria-hidden="true">campaign</span>
+      <div>
+        <p>News internes</p>
+        <strong>{{ internalCount() }}</strong>
+      </div>
+    </article>
+    <article class="summary-card">
+      <span class="material-symbols-outlined" aria-hidden="true">rss_feed</span>
+      <div>
+        <p>RSS externes</p>
+        <strong>{{ externalCount() }}</strong>
+      </div>
+    </article>
+  </section>
+
+  @if (!loading() && externalCount() === 0) {
+    <section class="rss-hint" aria-label="Flux RSS externe absent">
+      <span class="material-symbols-outlined" aria-hidden="true">rss_feed</span>
+      <div>
+        <strong>Aucune actualité RSS chargée</strong>
+        <p>
+          Cliquez sur <em>Rafraîchir RSS</em> pour charger le snapshot externe. Si les RSS
+          apparaissent côté public mais pas ici, redémarrez l'API pour prendre le dernier patch
+          backend.
+        </p>
+      </div>
+    </section>
+  }
+
+  @if (showForm()) {
+    <section class="editor-card" aria-label="Créer ou modifier une actualité interne">
+      <header>
+        <h2>{{ editing() ? 'Modifier une news interne' : 'Créer une news interne' }}</h2>
+        <button mat-icon-button (click)="cancelForm()" matTooltip="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form [formGroup]="form" class="editor-form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline">
+          <mat-label>Titre</mat-label>
+          <input matInput formControlName="title" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Message court</mat-label>
+          <textarea matInput rows="4" formControlName="content"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Lien source</mat-label>
+          <input matInput formControlName="sourceUrl" />
+        </mat-form-field>
+
+        <div class="editor-form__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Statut</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="DRAFT">Brouillon</mat-option>
+              <mat-option value="PUBLISHED">Publié</mat-option>
+              <mat-option value="ARCHIVED">Archivé</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Durée d'affichage</mat-label>
+            <mat-select formControlName="expiresAfterDays">
+              <mat-option [value]="1">1 jour</mat-option>
+              <mat-option [value]="3">3 jours</mat-option>
+              <mat-option [value]="7">7 jours</mat-option>
+              <mat-option [value]="14">14 jours</mat-option>
+              <mat-option [value]="30">30 jours</mat-option>
+              <mat-option [value]="0">Sans expiration</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="editor-form__row">
+          <mat-form-field appearance="outline">
+            <mat-label>Surfaces</mat-label>
+            <mat-select formControlName="targetSurfaces" multiple>
+              @for (surface of surfaces; track surface) {
+                <mat-option [value]="surface">{{ surfaceLabel(surface) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="editor-actions">
+          <button mat-stroked-button type="button" (click)="cancelForm()">Annuler</button>
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving()">Enregistrer</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <tch-admin-crud-shell>
+    <div content>
+      @if (loading()) {
+        <tch-loading label="Chargement des actualités..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (sortedItems().length === 0) {
+        <tch-admin-empty-state
+          icon="article"
+          title="Aucune actualité"
+          message="Créez une news interne ou rafraîchissez le flux RSS externe."
+        />
+      } @else {
+        <table mat-table [dataSource]="sortedItems()" class="news-table">
+          <ng-container matColumnDef="publishedAt">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let row" class="cell-date">
+              {{ row.publishedAt ? (row.publishedAt | date:'dd/MM/yy HH:mm') : '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="source">
+            <th mat-header-cell *matHeaderCellDef>Source</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="source-pill" [class.source-pill--internal]="row.sourceType === 'INTERNAL'">
+                {{ sourceLabel(row) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Titre</th>
+            <td mat-cell *matCellDef="let row">
+              <strong>{{ row.title }}</strong>
+              @if (row.content) {
+                <div class="cell-sub">{{ row.content }}</div>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="surfaces">
+            <th mat-header-cell *matHeaderCellDef>Surfaces</th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.sourceType === 'EXTERNAL_RSS') {
+                Toutes
+              } @else {
+                {{ (row.targetSurfaces || []).map(surfaceLabel.bind(this)).join(', ') || '—' }}
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expiresAt">
+            <th mat-header-cell *matHeaderCellDef>Expiration</th>
+            <td mat-cell *matCellDef="let row" class="cell-date">
+              {{ row.expiresAt ? (row.expiresAt | date:'dd/MM/yy HH:mm') : '—' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row" class="cell-actions">
+              @if (row.sourceType === 'INTERNAL') {
+                <button mat-icon-button (click)="edit(row)" matTooltip="Modifier">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                @if (row.status !== 'PUBLISHED') {
+                  <button mat-icon-button (click)="changeStatus(row, 'PUBLISHED')" matTooltip="Publier">
+                    <span class="material-symbols-outlined">publish</span>
+                  </button>
+                }
+                @if (row.status !== 'ARCHIVED') {
+                  <button mat-icon-button (click)="changeStatus(row, 'ARCHIVED')" matTooltip="Archiver">
+                    <span class="material-symbols-outlined">archive</span>
+                  </button>
+                }
+              } @else {
+                <button mat-icon-button (click)="hide(row)" matTooltip="Masquer cette news RSS">
+                  <span class="material-symbols-outlined">visibility_off</span>
+                </button>
+              }
+              @if (row.sourceUrl) {
+                <a mat-icon-button [href]="row.sourceUrl" target="_blank" rel="noopener" matTooltip="Ouvrir la source">
+                  <span class="material-symbols-outlined">open_in_new</span>
+                </a>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      }
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

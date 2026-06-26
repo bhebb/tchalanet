@@ -37,10 +37,14 @@
           <input matInput formControlName="actorId" placeholder="uuid acteur" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Tenant ID</mat-label>
-          <input matInput formControlName="tenantId" placeholder="uuid tenant" />
-        </mat-form-field>
+        <tch-search-select
+          label="Tenant"
+          placeholder="Nom ou code du tenant"
+          icon="apartment"
+          emptyLabel="Aucun tenant trouvé"
+          [searchFn]="searchTenants"
+          (valueChange)="selectTenantFilter($event)"
+        />
 
         <mat-form-field appearance="outline">
           <mat-label>Depuis</mat-label>

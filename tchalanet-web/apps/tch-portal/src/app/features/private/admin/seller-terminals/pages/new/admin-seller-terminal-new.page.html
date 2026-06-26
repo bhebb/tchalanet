@@ -72,10 +72,19 @@
             </mat-form-field>
           </div>
 
-          <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
-            <mat-label>Téléphone (optionnel)</mat-label>
-            <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" placeholder="+509 XXXX XXXX" />
-          </mat-form-field>
+          <div class="stn-page__row">
+            <mat-form-field appearance="outline" class="stn-page__field">
+              <mat-label>Email (optionnel)</mat-label>
+              <input matInput formControlName="email" type="email" autocomplete="email" placeholder="vendeur@exemple.com" />
+              @if (form.controls.email.hasError('email')) {
+                <mat-error>Email invalide.</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="stn-page__field">
+              <mat-label>Téléphone (optionnel)</mat-label>
+              <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" placeholder="+509 XXXX XXXX" />
+            </mat-form-field>
+          </div>
 
         </tch-admin-section-card>
 

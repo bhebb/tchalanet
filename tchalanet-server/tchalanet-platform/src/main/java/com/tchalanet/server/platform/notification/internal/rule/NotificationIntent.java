@@ -5,7 +5,9 @@ import com.tchalanet.server.platform.notification.api.model.NotificationAudience
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
+import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public record NotificationIntent(
@@ -17,7 +19,7 @@ public record NotificationIntent(
     NotificationKind kind,
     NotificationCategory category,
     NotificationAudienceType audienceType,
-    String audienceValue,
+    Set<NotificationTarget> targets,
     Map<String, Object> variables,
     String title,
     String message,

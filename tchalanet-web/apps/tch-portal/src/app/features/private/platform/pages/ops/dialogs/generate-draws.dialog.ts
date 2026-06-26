@@ -67,7 +67,7 @@ import {
             <strong>{{ result()!.tenantsSucceeded }}</strong>/{{ result()!.tenantsRequested }} tenants OK
             @if (result()!.tenantsFailed > 0) { · <strong class="generate-draws-dialog__err">{{ result()!.tenantsFailed }} échoué(s)</strong> }
           </p>
-          @if (result()!.tenants?.length) {
+          @if (result()!.tenants.length) {
             <table mat-table [dataSource]="result()!.tenants" class="generate-draws-dialog__outcome-table">
               <ng-container matColumnDef="tenantId">
                 <th mat-header-cell *matHeaderCellDef>Tenant</th>

@@ -139,10 +139,19 @@ export interface CreateTenantAdminRequest {
 export interface TenantAdminView {
   id: string;
   email: string;
+  phone?: string | null;
   displayName: string;
   roleCodes: string[];
   status: string;
   createdAt: string;
+}
+
+export interface PlatformSuperAdminView {
+  id: string;
+  email: string;
+  displayName: string;
+  status: string;
+  assignedAt: string;
 }
 
 interface IdentityUserPageResponse {
@@ -202,6 +211,10 @@ export class PlatformTenantsApi {
         asTenantAdmin: { tenantId, reason: 'SUPER_ADMIN: list tenant admins' },
       })
       .pipe(map(page => page.items ?? []));
+  }
+
+  listSuperAdmins(): Observable<PlatformSuperAdminView[]> {
+    return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins');
   }
 
   createTenantAdmin(tenantId: string, req: CreateTenantAdminRequest): Observable<TenantAdminView> {

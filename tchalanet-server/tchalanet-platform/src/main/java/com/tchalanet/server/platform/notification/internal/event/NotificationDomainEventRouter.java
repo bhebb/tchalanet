@@ -2,8 +2,8 @@ package com.tchalanet.server.platform.notification.internal.event;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
-import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationIntent;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationRule;
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
@@ -47,7 +47,7 @@ public class NotificationDomainEventRouter {
         intent.sourceEventId() == null ? null : intent.sourceEventId().toString(),
         intent.correlationKey(),
         intent.audienceType(),
-        intent.audienceValue(),
+        intent.targets(),
         intent.severity(),
         intent.kind(),
         intent.category(),
@@ -55,6 +55,7 @@ public class NotificationDomainEventRouter {
         intent.templateKey(),
         intent.title(),
         intent.message(),
+        null,
         jsonUtils.toJsonNode(intent.variables()),
         null,
         null,

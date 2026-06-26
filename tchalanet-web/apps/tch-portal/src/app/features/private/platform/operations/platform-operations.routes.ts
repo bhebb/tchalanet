@@ -73,13 +73,17 @@ export const platformOperationsRoutes: Route[] = [
   },
   {
     path: 'communication-tests',
-    data: {
-      titleKey: 'platform.nav.communicationTests',
-      descriptionKey: 'platform.placeholder.descriptions.communicationTests',
-      icon: 'send',
-    },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/communication/platform-communication.page').then(
+        m => m.PlatformCommunicationPage,
+      ),
+  },
+  {
+    path: 'communication',
+    loadComponent: () =>
+      import('./pages/communication/platform-communication.page').then(
+        m => m.PlatformCommunicationPage,
+      ),
   },
   {
     path: 'identity-sync',

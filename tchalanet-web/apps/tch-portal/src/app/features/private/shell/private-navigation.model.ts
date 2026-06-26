@@ -556,6 +556,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/admin/company/settings' },
           },
           {
+            id: 'company-notifications',
+            labelKey: 'nav.admin.company_notifications',
+            icon: 'notifications',
+            destination: { kind: 'route', value: '/app/admin/notifications' },
+          },
+          {
             id: 'company-support',
             labelKey: 'nav.admin.company_support',
             icon: 'headset_mic',

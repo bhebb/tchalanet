@@ -7,12 +7,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
+import { Observable, map } from 'rxjs';
 
 import {
   PlatformOpsApi,
   DrawResultOpsResponse,
   OverrideDrawResultRequest,
 } from '../../../platform-ops-api.service';
+import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 
 @Component({
   selector: 'tch-override-result-dialog',
@@ -26,18 +29,21 @@ import {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TchSearchSelect,
   ],
   template: `
     <h2 mat-dialog-title>Override — {{ data.row.slotKey }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="override-result-dialog__form">
-        <mat-form-field appearance="outline">
-          <mat-label>Tenant ID</mat-label>
-          <input matInput formControlName="tenantId" />
-          @if (form.controls.tenantId.invalid && form.controls.tenantId.touched) {
-            <mat-error>Requis.</mat-error>
-          }
-        </mat-form-field>
+        <tch-search-select
+          label="Tenant"
+          placeholder="Nom ou code du tenant"
+          icon="apartment"
+          emptyLabel="Aucun tenant trouvé"
+          [error]="form.controls.tenantId.invalid && form.controls.tenantId.touched ? 'Requis.' : ''"
+          [searchFn]="searchTenants"
+          (valueChange)="selectTenant($event)"
+        />
         <mat-form-field appearance="outline">
           <mat-label>Date du tirage (YYYY-MM-DD)</mat-label>
           <input matInput formControlName="drawDate" />
@@ -85,6 +91,7 @@ export class OverrideResultDialog {
   protected readonly data = inject<{ row: DrawResultOpsResponse; onSuccess: () => void }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<OverrideResultDialog>);
   private readonly api = inject(PlatformOpsApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
 
@@ -99,6 +106,18 @@ export class OverrideResultDialog {
     reason: ['', Validators.required],
     force: [false],
   });
+
+  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
+    );
+
+  selectTenant(option: TchSearchOption | null): void {
+    const tenant = option?.data as TenantSummaryView | undefined;
+    this.form.patchValue({
+      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) return;
@@ -127,5 +146,16 @@ export class OverrideResultDialog {
         this.error.set(pd?.title ?? 'Erreur.');
       },
     });
+  }
+
+  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
+    return {
+      id: tenant.id ?? tenant.tenantId ?? tenant.code,
+      title: tenant.name,
+      subtitle: tenant.code,
+      badge: tenant.status,
+      icon: 'apartment',
+      data: tenant,
+    };
   }
 }

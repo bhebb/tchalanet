@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.config-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 56rem;
+  padding: 1.25rem;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 0.75rem;
+  background: var(--tch-color-surface-container-lowest, #fff);
+  box-shadow: var(--tch-elevation-1, 0 1px 3px rgba(0, 0, 0, 0.12));
+}
+
+.config-card__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  color: var(--tch-color-primary, #30308f);
+  background: var(--tch-color-surface-tonal, #ebebf5);
+  font-family: 'Material Symbols Outlined';
+  font-size: 1.5rem;
+  flex: 0 0 auto;
+}
+
+.config-card__body {
+  min-width: 0;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  color: var(--tch-color-on-surface, #1a1c1e);
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+
+p {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  line-height: 1.55;
+}

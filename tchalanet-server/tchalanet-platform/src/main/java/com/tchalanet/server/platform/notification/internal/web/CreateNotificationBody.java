@@ -5,7 +5,10 @@ import com.tchalanet.server.platform.notification.api.model.NotificationCategory
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
+import com.tchalanet.server.platform.notification.api.model.NotificationTarget;
+import com.tchalanet.server.platform.notification.api.model.NotificationTranslationInput;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
 
@@ -14,7 +17,7 @@ public record CreateNotificationBody(
     String sourceId,
     String dedupeKey,
     NotificationAudienceType audienceType,
-    String audienceValue,
+    Set<NotificationTarget> targets,
     NotificationSeverity severity,
     NotificationKind kind,
     NotificationCategory category,
@@ -22,6 +25,7 @@ public record CreateNotificationBody(
     String messageKey,
     String titleText,
     String messageText,
+    Map<String, NotificationTranslationInput> translations,
     JsonNode payload,
     String actionType,
     String actionUrl,

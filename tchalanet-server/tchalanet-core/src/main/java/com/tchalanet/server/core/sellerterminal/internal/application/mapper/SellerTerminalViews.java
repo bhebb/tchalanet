@@ -14,7 +14,7 @@ public final class SellerTerminalViews {
         return new SellerTerminalView(
             t.id(), t.tenantId(),
             t.terminalCode(), t.displayName(), t.firstName(), t.lastName(),
-            t.phoneNumber(), t.addressId(),
+            t.email(), t.phoneNumber(), t.addressId(),
             t.status(), t.commissionRate(),
             t.lastSeenAt(), t.activatedAt(),
             t.blockedAt(), t.blockedBy(), t.blockedReason(), t.disabledAt(),
@@ -24,7 +24,7 @@ public final class SellerTerminalViews {
     public static SellerTerminalSummaryRow summary(SellerTerminal t) {
         return new SellerTerminalSummaryRow(
             t.id(), t.tenantId(),
-            t.terminalCode(), t.displayName(), t.phoneNumber(),
+            t.terminalCode(), t.displayName(), t.email(), t.phoneNumber(),
             t.status(), t.commissionRate(),
             t.lastSeenAt(), t.activatedAt(),
             null, null, null, null);

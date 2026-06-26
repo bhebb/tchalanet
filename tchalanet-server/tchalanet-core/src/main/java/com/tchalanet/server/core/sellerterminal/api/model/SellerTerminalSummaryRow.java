@@ -11,6 +11,7 @@ public record SellerTerminalSummaryRow(
     TenantId tenantId,
     String terminalCode,
     String displayName,
+    String email,
     String phoneNumber,
     SellerTerminalStatus status,
     BigDecimal commissionRate,

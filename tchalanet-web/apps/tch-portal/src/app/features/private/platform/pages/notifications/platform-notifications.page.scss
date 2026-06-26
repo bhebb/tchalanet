@@ -1,0 +1,161 @@
+:host {
+  display: block;
+}
+
+.summary-card,
+.composer-card {
+  margin-bottom: 1rem;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 0.75rem;
+  background: var(--tch-color-surface-container-lowest, #fff);
+}
+
+.summary-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 16rem;
+  padding: 1rem;
+}
+
+.summary-card p {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 1.75rem;
+}
+
+.composer-card {
+  padding: 1rem;
+}
+
+.composer-card header,
+.composer-actions,
+.notification-filters,
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.composer-card header,
+.composer-actions {
+  justify-content: space-between;
+}
+
+.composer-card h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.composer-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.composer-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.composer-form__locale {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.composer-form__locale-tabs {
+  overflow: hidden;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 0.75rem;
+  background: var(--tch-color-surface-container-lowest, #fff);
+}
+
+.composer-form__locale-tabs,
+.composer-form__locale-tabs mat-form-field {
+  min-width: 0;
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mat-mdc-tab-header {
+  border-bottom: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: var(--tch-color-primary-container, #141545);
+}
+
+:host ::ng-deep .composer-form__locale-tabs .mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-color: var(--tch-color-secondary-container, #fecb02);
+}
+
+.composer-form__tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 800;
+}
+
+.composer-form__tab-state {
+  font-size: 1rem;
+}
+
+.composer-form__tab-state--ready {
+  color: var(--tch-color-status-ready, #10b981);
+}
+
+.composer-form__tab-state--todo {
+  color: var(--tch-color-status-warning, #f59e0b);
+}
+
+.notification-filters {
+  flex-wrap: wrap;
+}
+
+.notification-filters mat-form-field {
+  min-width: 10rem;
+  max-width: 16rem;
+  flex: 1 1 10rem;
+}
+
+.notification-table {
+  width: 100%;
+}
+
+.cell-date {
+  white-space: nowrap;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-family: var(--tch-font-mono, monospace);
+  font-size: 0.8rem;
+}
+
+.cell-sub {
+  max-width: 46rem;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+}
+
+@media (max-width: 800px) {
+  .composer-form__row {
+    grid-template-columns: 1fr;
+  }
+}

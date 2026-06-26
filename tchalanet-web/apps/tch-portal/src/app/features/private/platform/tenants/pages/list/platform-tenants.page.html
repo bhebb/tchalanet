@@ -9,31 +9,22 @@
     </a>
   </div>
 
-  <tch-admin-crud-shell>
-    <ng-container toolbar>
-      <form class="tenants-page__filters" [formGroup]="filters">
-        <mat-form-field appearance="outline" class="tenants-page__search">
-          <mat-label>{{ 'platform.tenants.filter.search' | translate }}</mat-label>
-          <input matInput formControlName="q" type="search" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="tenants-page__filter-status">
-          <mat-label>{{ 'platform.tenants.filter.status' | translate }}</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="">{{ 'platform.tenants.filter.allStatuses' | translate }}</mat-option>
-            @for (status of statuses; track status) {
-              <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <button mat-button type="button" (click)="resetFilters()">
-          {{ 'platform.tenants.action.resetFilters' | translate }}
-        </button>
-      </form>
-    </ng-container>
-
-    <ng-container content>
+  <tch-admin-list-surface
+    [searchLabel]="'platform.tenants.filter.search' | translate"
+    [searchPlaceholder]="'platform.tenants.filter.search' | translate"
+    [searchValue]="filters.controls.q.value"
+    [statusLabel]="'platform.tenants.filter.status' | translate"
+    [statusValue]="filters.controls.status.value"
+    [statusOptions]="statusFilterOptions()"
+    [allStatusesLabel]="'platform.tenants.filter.allStatuses' | translate"
+    [resetLabel]="'platform.tenants.action.resetFilters' | translate"
+    [filtersDisplay]="'inline'"
+    [filtersExpanded]="hasActiveFilters()"
+    (searchChange)="onSearchFilter($event)"
+    (statusChange)="onStatusFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-content>
       @if (loading()) {
         <tch-loading [label]="'platform.tenants.loading' | translate" />
       } @else if (errorTitle()) {
@@ -173,7 +164,7 @@
       }
     </ng-container>
 
-    <ng-container footer>
+    <ng-container list-footer>
       <div class="tenants-page__pagination">
         <span class="tenants-page__pagination-total">
           {{ 'platform.tenants.paginationTotal' | translate: { count: total() } }}
@@ -191,5 +182,5 @@
         </div>
       </div>
     </ng-container>
-  </tch-admin-crud-shell>
+  </tch-admin-list-surface>
 </tch-admin-page-shell>

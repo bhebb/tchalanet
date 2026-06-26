@@ -6,6 +6,7 @@ ENV ?= dev
 ROOT := $(abspath $(CURDIR))
 SVC  := $(ROOT)/scripts/utils/service-up.sh
 WRAP := $(ROOT)/scripts/utils/run-compose-wrapper.sh
+EDGE_SERVICE_DEV_LOCAL_COMPOSE := $(if $(filter dev,$(ENV)),-f compose/docker-compose-edge-service-dev-local.yml,)
 
 # Ajoute les chemins Docker fréquents (Homebrew/Intel/ARM)
 export PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$(PATH)
@@ -161,7 +162,7 @@ rebuild-api: env-merge ensure-exec networks
 rebuild-edge: env-merge ensure-exec networks
 	@echo "→ Rebuild de l'image Edge locale..."
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged \
-	                -f compose/docker-compose-edge-service.yml up -d --build edge-service
+	                -f compose/docker-compose-edge-service.yml $(EDGE_SERVICE_DEV_LOCAL_COMPOSE) up -d --build edge-service
 	@echo "✅ Edge rebuildé et redémarré"
 
 rebuild-all: rebuild-api rebuild-edge
@@ -173,7 +174,7 @@ rebuild-all: rebuild-api rebuild-edge
 up-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
 down-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV)
 up-edge:   env-merge ensure-exec networks
-	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml up -d edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml $(EDGE_SERVICE_DEV_LOCAL_COMPOSE) up -d edge-service
 down-edge: env-merge ensure-exec
 	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service
 
@@ -330,7 +331,7 @@ local-api-smoke:
 
 # local-product : server-v0 complet en local (API + Edge + Web)
 local-product-up: local-api-up
-	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml up -d edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml $(EDGE_SERVICE_DEV_LOCAL_COMPOSE) up -d edge-service
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up web $(ENV)
 
 local-product-down:

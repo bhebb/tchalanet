@@ -10,19 +10,17 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { EMPTY, Subject, catchError, debounceTime, switchMap } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, switchMap } from 'rxjs';
 import {
+  AdminListSurface,
   BadgeStatus,
   TchConfirmDialog,
   TchConfirmDialogData,
@@ -31,11 +29,9 @@ import {
   TchStatusBadge,
 } from '@tch/ui/components';
 
-import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { TchBackendClient } from '@tch/api';
-import { Observable } from 'rxjs';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
 
@@ -51,16 +47,13 @@ const PAGE_SIZE = 20;
     TranslatePipe,
     RouterLink,
     DatePipe,
-    ReactiveFormsModule,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
-    AdminCrudShellComponent,
+    AdminListSurface,
     TchLoading,
     TchErrorPanel,
     TchStatusBadge,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatMenuModule,
     MatSortModule,
     MatTableModule,
@@ -71,7 +64,6 @@ const PAGE_SIZE = 20;
 export class PlatformTenantAdminsGlobalPage implements OnInit {
   private readonly backend = inject(TchBackendClient);
   private readonly identityApi = inject(IdentityUserCrudApi);
-  private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
@@ -84,7 +76,8 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   readonly loadTrigger$ = new Subject<void>();
   readonly displayedColumns = ['user', 'tenant', 'status', 'assignedAt', 'actions'];
 
-  readonly filters = this.fb.nonNullable.group({ q: '', sort: 'displayName,asc' });
+  readonly searchQuery = signal('');
+  readonly sort = signal('displayName,asc');
 
   readonly loading = signal(false);
   readonly errorTitle = signal<string | null>(null);
@@ -122,31 +115,32 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
         this.page.set(Math.max(0, Number(params.get('page') ?? 0) || 0));
-        this.filters.setValue(
-          { q: params.get('q') ?? '', sort: params.get('sort') ?? 'displayName,asc' },
-          { emitEvent: false },
-        );
+        this.searchQuery.set(params.get('q') ?? '');
+        this.sort.set(params.get('sort') ?? 'displayName,asc');
         this.hasActiveFilters.set(!!params.get('q'));
         this.loadTrigger$.next();
       });
-
-    this.filters.valueChanges
-      .pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.navigateWithFilters());
   }
 
   resetFilters(): void {
-    this.filters.reset({ q: '', sort: 'displayName,asc' });
+    this.searchQuery.set('');
+    this.sort.set('displayName,asc');
+    this.navigateWithFilters();
+  }
+
+  onSearchFilter(q: string): void {
+    this.searchQuery.set(q);
+    this.navigateWithFilters();
   }
 
   onSortChange(sort: Sort): void {
     const sortStr = sort.active && sort.direction ? `${sort.active},${sort.direction}` : 'displayName,asc';
-    this.filters.patchValue({ sort: sortStr }, { emitEvent: false });
+    this.sort.set(sortStr);
     this.navigateWithFilters();
   }
 
   parsedSort(): { active: string; direction: 'asc' | 'desc' } {
-    const raw = this.filters.controls.sort.value ?? 'displayName,asc';
+    const raw = this.sort() || 'displayName,asc';
     const [active, dir] = raw.split(',');
     return { active: active ?? 'displayName', direction: dir === 'desc' ? 'desc' : 'asc' };
   }
@@ -283,8 +277,8 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
-        q: this.filters.controls.q.value || null,
-        sort: this.filters.controls.sort.value || null,
+        q: this.searchQuery() || null,
+        sort: this.sort() || null,
         page: 0,
       },
       queryParamsHandling: 'merge',

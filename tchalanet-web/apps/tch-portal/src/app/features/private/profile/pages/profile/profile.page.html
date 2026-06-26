@@ -97,7 +97,7 @@
             <div>
               <dt>{{ 'profile.pref.themeMode.label' | translate }}</dt>
               <dd>
-                @if (profile()!.preferences?.themeMode) {
+                @if (profile()!.preferences.themeMode) {
                   {{ ('profile.pref.themeMode.' + profile()!.preferences!.themeMode!.toLowerCase()) | translate }}
                 } @else {
                   {{ 'common.not_set' | translate }}
@@ -106,15 +106,15 @@
             </div>
             <div>
               <dt>{{ 'profile.pref.locale' | translate }}</dt>
-              <dd>{{ profile()!.preferences?.locale || ('common.not_set' | translate) }}</dd>
+              <dd>{{ profile()!.preferences.locale || ('common.not_set' | translate) }}</dd>
             </div>
             <div>
               <dt>{{ 'profile.pref.timeZone' | translate }}</dt>
-              <dd>{{ profile()!.preferences?.timeZone || ('common.not_set' | translate) }}</dd>
+              <dd>{{ profile()!.preferences.timeZone || ('common.not_set' | translate) }}</dd>
             </div>
             <div>
               <dt>{{ 'profile.pref.currency' | translate }}</dt>
-              <dd>{{ profile()!.preferences?.currency || ('common.not_set' | translate) }}</dd>
+              <dd>{{ profile()!.preferences.currency || ('common.not_set' | translate) }}</dd>
             </div>
           </dl>
           <div class="profile__card-actions">

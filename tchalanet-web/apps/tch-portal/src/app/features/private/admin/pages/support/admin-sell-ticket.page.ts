@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
 import {
@@ -34,8 +33,6 @@ const GAME_CODES = ['BORLETTE', 'LOTTO3', 'TCHALA'] as const;
     RouterLink,
     AdminPageShellComponent,
     AdminSectionCardComponent,
-    TchLoading,
-    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatSelectModule,

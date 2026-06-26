@@ -317,9 +317,9 @@
                 "icon": "inventory_2"
               },
               {
-                "id": "ops-communication-tests",
-                "label_key": "platform.nav.communicationTests",
-                "path": "/app/platform/ops/communication-tests",
+                "id": "ops-communication",
+                "label_key": "platform.nav.communicationOps",
+                "path": "/app/platform/ops/communication",
                 "kind": "internal",
                 "icon": "send"
               },

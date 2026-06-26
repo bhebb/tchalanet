@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.notification.internal.rule;
 
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
@@ -8,6 +9,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationSeverity
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 abstract class AbstractNotificationRule implements NotificationRule {
@@ -39,8 +41,8 @@ abstract class AbstractNotificationRule implements NotificationRule {
         severity,
         kind,
         category,
-        NotificationAudienceType.ROLE,
-        "TENANT_ADMIN",
+        NotificationAudienceType.TENANT_ADMINS,
+        Set.of(),
         variables(event),
         title,
         message,
@@ -65,8 +67,8 @@ abstract class AbstractNotificationRule implements NotificationRule {
         severity,
         kind,
         category,
-        NotificationAudienceType.PLATFORM,
-        "platform",
+        NotificationAudienceType.PLATFORM_ADMINS,
+        Set.of(),
         variables(event),
         title,
         message,
@@ -88,6 +90,9 @@ abstract class AbstractNotificationRule implements NotificationRule {
     var value = value(event, methodName);
     if (value instanceof UUID uuid) {
       return uuid;
+    }
+    if (value instanceof EventId eventId) {
+      return eventId.value();
     }
     if (value != null) {
       try {

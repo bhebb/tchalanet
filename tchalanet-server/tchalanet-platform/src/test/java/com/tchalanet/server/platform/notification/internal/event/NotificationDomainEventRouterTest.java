@@ -1,20 +1,31 @@
 package com.tchalanet.server.platform.notification.internal.event;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.job.lifecycle.JobLifecycleEvent;
+import com.tchalanet.server.common.job.lifecycle.JobLifecycleStatus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
+import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.internal.rule.BatchAlertNotificationRule;
 import com.tchalanet.server.platform.notification.internal.rule.PayoutNotificationRule;
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -50,6 +61,46 @@ class NotificationDomainEventRouterTest {
     router.on(new PayoutRequestedEvent(UUID.randomUUID(), TenantId.of(UUID.randomUUID())));
 
     verify(notificationService).createNotification(any(CreateNotificationRequest.class));
+  }
+
+  @Test
+  void failedJobCreatesPlatformSystemNotification() {
+    var notificationService = mock(NotificationService.class);
+    var processedEvents = provider(true);
+    var router =
+        new NotificationDomainEventRouter(
+            List.of(new BatchAlertNotificationRule()),
+            notificationService,
+            new JsonUtils(JsonMapper.builder().build()),
+            processedEvents);
+    var eventId = UUID.randomUUID();
+
+    router.on(new JobLifecycleEvent(
+        EventId.of(eventId),
+        Instant.parse("2026-06-26T12:00:00Z"),
+        null,
+        "req-1",
+        "results:external:fetch",
+        JobLifecycleStatus.FAILED,
+        "IllegalStateException",
+        "Provider NY_EVE failed",
+        Map.of("providerKey", "NY_EVE")));
+
+    var captor = ArgumentCaptor.forClass(CreateNotificationRequest.class);
+    verify(processedEvents.getIfAvailable())
+        .markProcessedIfAbsent(eq("notification.ops.job_lifecycle"), eq(eventId));
+    verify(notificationService).createNotification(captor.capture());
+
+    var request = captor.getValue();
+    org.assertj.core.api.Assertions.assertThat(request.tenantId()).isNull();
+    org.assertj.core.api.Assertions.assertThat(request.audienceType())
+        .isEqualTo(NotificationAudienceType.PLATFORM_ADMINS);
+    org.assertj.core.api.Assertions.assertThat(request.severity())
+        .isEqualTo(NotificationSeverity.CRITICAL);
+    org.assertj.core.api.Assertions.assertThat(request.kind())
+        .isEqualTo(NotificationKind.SYSTEM_ERROR);
+    org.assertj.core.api.Assertions.assertThat(request.titleKey())
+        .isEqualTo("notification.system.ops.job_failed");
   }
 
   private static ObjectProvider<ProcessedEventPort> provider(boolean markProcessedResult) {

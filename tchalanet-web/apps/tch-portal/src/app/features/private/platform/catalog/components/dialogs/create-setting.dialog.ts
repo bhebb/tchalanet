@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
+import { Observable, map } from 'rxjs';
 
 import {
   PlatformSettingsApi,
@@ -15,6 +17,7 @@ import {
   SettingLevel,
   SettingExposure,
 } from '../../data-access/platform-settings-api.service';
+import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 
 export const VALUE_TYPES: SettingValueType[] = ['STRING', 'INT', 'LONG', 'DECIMAL', 'BOOLEAN', 'JSON'];
 export const SETTING_LEVELS: SettingLevel[] = ['GLOBAL', 'TENANT', 'OUTLET', 'TERMINAL'];
@@ -24,7 +27,7 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
   selector: 'tch-create-setting-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TchSearchSelect],
   template: `
     <h2 mat-dialog-title>Nouveau paramètre</h2>
     <mat-dialog-content>
@@ -64,10 +67,14 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
             @for (e of exposures; track e) { <mat-option [value]="e">{{ e }}</mat-option> }
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Tenant ID (optionnel, pour niveau TENANT)</mat-label>
-          <input matInput formControlName="tenantId" />
-        </mat-form-field>
+        <tch-search-select
+          label="Tenant"
+          placeholder="Optionnel, pour niveau TENANT"
+          icon="apartment"
+          emptyLabel="Aucun tenant trouvé"
+          [searchFn]="searchTenants"
+          (valueChange)="selectTenant($event)"
+        />
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -89,6 +96,7 @@ export const EXPOSURES: SettingExposure[] = ['INTERNAL', 'PUBLIC_RUNTIME', 'TENA
 export class CreateSettingDialog {
   private readonly dialogRef = inject(MatDialogRef<CreateSettingDialog>);
   private readonly api = inject(PlatformSettingsApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly fb = inject(FormBuilder);
 
   readonly valueTypes = VALUE_TYPES;
@@ -105,6 +113,18 @@ export class CreateSettingDialog {
     exposure: ['INTERNAL' as SettingExposure],
     tenantId: [''],
   });
+
+  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
+    );
+
+  selectTenant(option: TchSearchOption | null): void {
+    const tenant = option?.data as TenantSummaryView | undefined;
+    this.form.patchValue({
+      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) return;
@@ -123,5 +143,16 @@ export class CreateSettingDialog {
       next: (created: SettingView) => { this.submitting.set(false); this.dialogRef.close(created); },
       error: (err: unknown) => { this.dialogRef.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
     });
+  }
+
+  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
+    return {
+      id: tenant.id ?? tenant.tenantId ?? tenant.code,
+      title: tenant.name,
+      subtitle: tenant.code,
+      badge: tenant.status,
+      icon: 'apartment',
+      data: tenant,
+    };
   }
 }

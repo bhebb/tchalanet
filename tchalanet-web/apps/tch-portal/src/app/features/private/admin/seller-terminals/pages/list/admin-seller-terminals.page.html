@@ -40,28 +40,21 @@
   } @else if (error()) {
     <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadPage()" />
   } @else {
-    <tch-admin-crud-shell>
-      <ng-container toolbar>
-        <tch-admin-data-toolbar
-          searchPlaceholder="Rechercher un vendeur..."
-          [searchValue]="searchQuery()"
-          (searchChange)="onSearch($event)"
-        >
-          <mat-select
-            [value]="statusFilter()"
-            (selectionChange)="onStatusFilter($event.value)"
-            class="seller-terminals-page__status-select"
-          >
-            <mat-option value="">Tous les statuts</mat-option>
-            <mat-option value="ACTIVE">Actif</mat-option>
-            <mat-option value="INACTIVE">Inactif</mat-option>
-            <mat-option value="BLOCKED">Bloqué</mat-option>
-            <mat-option value="DISABLED">Désactivé</mat-option>
-          </mat-select>
-        </tch-admin-data-toolbar>
-      </ng-container>
-
-      <ng-container content>
+    <tch-admin-list-surface
+      searchLabel="Recherche"
+      searchPlaceholder="Rechercher un vendeur..."
+      [searchValue]="searchQuery()"
+      statusLabel="Statut"
+      [statusValue]="statusFilter()"
+      [statusOptions]="statusOptions"
+      allStatusesLabel="Tous les statuts"
+      resetLabel="Réinitialiser"
+      [filtersExpanded]="!!statusFilter()"
+      (searchChange)="onSearch($event)"
+      (statusChange)="onStatusFilter($event)"
+      (resetFilters)="resetFilters()"
+    >
+      <ng-container list-content>
         @if (items().length === 0) {
           <tch-admin-empty-state
             icon="point_of_sale"
@@ -80,6 +73,10 @@
               <ng-container matColumnDef="displayName">
                 <th mat-header-cell *matHeaderCellDef>Vendeur</th>
                 <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+              </ng-container>
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let row">{{ row.email ?? '—' }}</td>
               </ng-container>
               <ng-container matColumnDef="phoneNumber">
                 <th mat-header-cell *matHeaderCellDef>Téléphone</th>
@@ -168,7 +165,7 @@
         }
       </ng-container>
 
-      <ng-container footer>
+      <ng-container list-footer>
         <div class="seller-terminals-page__pagination">
           <button mat-button [disabled]="page() === 0" (click)="prevPage()">
             <span class="material-symbols-outlined">chevron_left</span>
@@ -181,6 +178,6 @@
           </button>
         </div>
       </ng-container>
-    </tch-admin-crud-shell>
+    </tch-admin-list-surface>
   }
 </tch-admin-page-shell>

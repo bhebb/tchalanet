@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
@@ -48,6 +49,7 @@ public class TenantNotificationController {
 
   @GetMapping
   public ApiResponse<?> list(
+      @RequestParam(required = false, name = "q") String q,
       @RequestParam(required = false) NotificationStatus status,
       @RequestParam(required = false) NotificationCategory category,
       @RequestParam(required = false) NotificationKind kind,
@@ -63,6 +65,7 @@ public class TenantNotificationController {
                 Optional.ofNullable(category),
                 Optional.ofNullable(kind),
                 Optional.ofNullable(severity),
+                TchSearchQuery.of(q),
                 pageRequest)));
   }
 

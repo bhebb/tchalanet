@@ -1,0 +1,19 @@
+<section class="recipient-picker" aria-label="Destinataires">
+  <tch-search-select
+    label="Tenant"
+    placeholder="Rechercher un tenant"
+    icon="apartment"
+    emptyLabel="Aucun tenant trouvé"
+    [searchFn]="searchTenants"
+    (valueChange)="updateTenant($event)"
+  />
+
+  <tch-multi-search-select
+    label="Destinataires"
+    placeholder="Rechercher admin, superadmin ou seller"
+    icon="person_search"
+    emptyLabel="Aucun destinataire disponible"
+    [searchFn]="searchRecipients"
+    (valueChange)="updateRecipients($event)"
+  />
+</section>

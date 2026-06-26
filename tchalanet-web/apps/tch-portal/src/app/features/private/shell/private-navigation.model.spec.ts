@@ -1,4 +1,4 @@
-import { PLATFORM_NAVIGATION } from './private-navigation.model';
+import { PLATFORM_NAVIGATION, TENANT_ADMIN_NAVIGATION } from './private-navigation.model';
 
 describe('PLATFORM_NAVIGATION', () => {
   it('groups the Super Admin platform navigation by operational responsibility', () => {
@@ -64,5 +64,15 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(supportAndContent?.children?.[0].destination?.value).toBe(
       '/app/platform/contact-requests',
     );
+  });
+
+  it('exposes the tenant admin notification center under my company', () => {
+    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+
+    expect(company?.children?.map(child => child.labelKey)).toContain(
+      'nav.admin.company_notifications',
+    );
+    expect(company?.children?.find(child => child.id === 'company-notifications')?.destination?.value)
+      .toBe('/app/admin/notifications');
   });
 });

@@ -215,11 +215,23 @@
 
 > Contact-requests, News, Notifications — pages existantes à repositionner dans sidenav
 
-- [ ] Vérifier que `PlatformContactRequestsPage` et `PlatformNewsPage` et `PlatformNotificationsPage` sont fonctionnelles
-- [ ] Créer `pages/contact-config/platform-contact-config.page.ts` — configuration contact global
-  - Placeholder V0 avec message "Endpoint à venir" si gap backend confirmé
-  - Champs attendus : email support, téléphone, canaux de réception, message affiché page contact
-- [ ] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous une section cohérente dans la sidenav (conserver anciens paths comme redirects)
+- [x] Rendre `PlatformContactRequestsPage` fonctionnelle
+  - Liste `GET /platform/contact-requests`
+  - Filtres statut/type, pagination, détail `GET /platform/contact-requests/{id}`
+  - Actions V0 : changer le statut, modifier les notes internes
+- [x] Brancher `PlatformNewsPage`
+  - Source : `platform.publiccontent`
+  - Liste interne + RSS externe, internes affichées en priorité
+  - Création/modification news interne, publier/archiver, masquer RSS, refresh RSS
+- [x] Brancher `PlatformNotificationsPage`
+  - Source : `platform.notification`
+  - Liste persistée, filtres statut/sévérité/catégorie
+  - Composer notification système `PLATFORM`, canaux `WEB` + `IN_APP`
+  - Actions V0 : marquer comme lu, archiver
+- [x] Créer `pages/contact-config/platform-contact-config.page.ts` — configuration contact global
+  - Placeholder V0 dédié avec message "Endpoint à venir" car gap backend confirmé
+  - Champs attendus documentés : email support, téléphone, canaux de réception, message affiché page contact
+- [x] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous une section cohérente dans la sidenav (conserver anciens paths comme redirects)
 
 ---
 

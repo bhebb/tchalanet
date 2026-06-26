@@ -410,6 +410,13 @@
                 "icon": "settings"
               },
               {
+                "id": "company-notifications",
+                "label_key": "nav.admin.company_notifications",
+                "path": "/app/admin/notifications",
+                "kind": "internal",
+                "icon": "notifications"
+              },
+              {
                 "id": "company-support",
                 "label_key": "nav.admin.company_support",
                 "path": "/app/admin/company/support",

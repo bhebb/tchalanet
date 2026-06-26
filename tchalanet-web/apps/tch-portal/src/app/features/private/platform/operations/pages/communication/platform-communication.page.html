@@ -1,0 +1,290 @@
+<tch-admin-page-shell
+  title="Communication ops"
+  description="Suivi de la file d'envoi, des retries et des tentatives providers."
+>
+  <div actions>
+    <button mat-flat-button color="primary" [disabled]="dispatching()" (click)="dispatchDue()">
+      <span class="material-symbols-outlined">send</span>
+      Dispatcher maintenant
+    </button>
+    <button mat-icon-button (click)="load()" matTooltip="Rafraîchir" style="margin-left:0.5rem">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  <form class="provider-tests" [formGroup]="testForm">
+    <div class="provider-test-header">
+      <div>
+        <h2>Tests providers</h2>
+        <p>Email, SMS et WhatsApp utilisent les fournisseurs configurés dans edge-service.</p>
+      </div>
+    </div>
+
+    <tch-platform-recipient-picker (selectionChange)="updateRecipients($event)" />
+
+    <div class="message-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Titre</mat-label>
+        <input matInput formControlName="title" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Message</mat-label>
+        <input matInput formControlName="message" />
+      </mat-form-field>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Slack">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Channel key</mat-label>
+            <input matInput formControlName="slackChannelKey" placeholder="ops-alerts" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'SLACK'" (click)="sendSlackTest()">
+            <span class="material-symbols-outlined">send</span>
+            Envoyer Slack
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Email">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Email destinataire</mat-label>
+            <input matInput formControlName="emailTo" placeholder="admin@example.com" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'EMAIL'" (click)="sendEmailTest()">
+            <span class="material-symbols-outlined">alternate_email</span>
+            Envoyer email
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="SMS">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Téléphone destinataire</mat-label>
+            <input matInput formControlName="phoneTo" placeholder="+509..." />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'SMS'" (click)="sendSmsTest()">
+            <span class="material-symbols-outlined">sms</span>
+            Envoyer SMS
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="WhatsApp">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>WhatsApp destinataire</mat-label>
+            <input matInput formControlName="whatsappTo" placeholder="+509..." />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'WHATSAPP'" (click)="sendWhatsappTest()">
+            <span class="material-symbols-outlined">chat</span>
+            Envoyer WhatsApp
+          </button>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+
+  @if (summary(); as s) {
+    <div class="summary-bar">
+      <div class="stat-chip stat-warn">
+        <span class="material-symbols-outlined">schedule</span>
+        <span>{{ s.pending }} en attente</span>
+      </div>
+      <div class="stat-chip">
+        <span class="material-symbols-outlined">sync</span>
+        <span>{{ s.dispatching }} en cours</span>
+      </div>
+      <div class="stat-chip stat-success">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span>{{ s.sent }} envoyés</span>
+      </div>
+      <div class="stat-chip" [class.stat-danger]="s.failed > 0">
+        <span class="material-symbols-outlined">error</span>
+        <span>{{ s.failed }} échoués</span>
+      </div>
+      <div class="stat-chip">
+        <span class="material-symbols-outlined">block</span>
+        <span>{{ s.skipped }} ignorés</span>
+      </div>
+      <div class="stat-chip" [class.stat-danger]="s.cancelled > 0">
+        <span class="material-symbols-outlined">cancel</span>
+        <span>{{ s.cancelled }} annulés</span>
+      </div>
+    </div>
+  }
+
+  <tch-admin-list-surface
+    searchLabel="Destinataire"
+    searchPlaceholder="email, téléphone, channel..."
+    [searchValue]="filterForm.controls.recipient.value"
+    statusLabel="Statut"
+    [statusValue]="filterForm.controls.status.value"
+    [statusOptions]="statusFilterOptions"
+    allStatusesLabel="Tous les statuts"
+    resetLabel="Réinitialiser"
+    [filtersExpanded]="hasActiveFilters()"
+    (searchChange)="onSearch($event)"
+    (statusChange)="onStatusFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-filters>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Canal</mat-label>
+        <mat-select
+          panelClass="tch-admin-list-surface__status-panel"
+          [value]="filterForm.controls.channel.value"
+          (valueChange)="onChannelFilter($event)"
+        >
+          <mat-option value="">Tous les canaux</mat-option>
+          @for (channel of channelFilterOptions; track channel.value) {
+            <mat-option [value]="channel.value">{{ channel.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <tch-search-select
+        label="Tenant"
+        placeholder="Nom ou code du tenant"
+        icon="apartment"
+        emptyLabel="Aucun tenant trouvé"
+        [searchFn]="searchTenants"
+        (valueChange)="selectTenantFilter($event)"
+      />
+    </ng-container>
+
+    <ng-container list-content>
+      @if (loading()) {
+        <tch-loading label="Chargement..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (messages().length === 0) {
+        <tch-admin-empty-state icon="outbox" title="Aucun message" message="Aucun message ne correspond aux filtres." />
+      } @else {
+        <table mat-table [dataSource]="messages()" multiTemplateDataRows class="communication-table">
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let row" class="cell-date">
+              {{ row.createdAt | date:'dd/MM/yy HH:mm:ss' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="row.status" />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="channel">
+            <th mat-header-cell *matHeaderCellDef>Canal</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="channelTone(row.channel)" [label]="row.channel" />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="recipient">
+            <th mat-header-cell *matHeaderCellDef>Destinataire</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="primary-text">{{ row.recipientValue }}</div>
+              <div class="muted-text">{{ row.recipientType }}</div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="template">
+            <th mat-header-cell *matHeaderCellDef>Message</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="primary-text">{{ row.subject || row.templateKey }}</div>
+              <code class="code-chip">{{ row.templateKey }}</code>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nextAttempt">
+            <th mat-header-cell *matHeaderCellDef>Retry</th>
+            <td mat-cell *matCellDef="let row" class="cell-secondary">
+              @if (row.nextAttemptAt) {
+                {{ row.nextAttemptAt | date:'dd/MM/yy HH:mm:ss' }}
+              } @else {
+                -
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expand">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row" class="cell-expand">
+              <button mat-icon-button (click)="toggleExpand(row.id)" [matTooltip]="expandedId() === row.id ? 'Masquer' : 'Détails'">
+                <span class="material-symbols-outlined">
+                  {{ expandedId() === row.id ? 'expand_less' : 'expand_more' }}
+                </span>
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-cell">
+              @if (expandedId() === row.id) {
+                <div class="detail-panel">
+                  <div class="detail-grid">
+                    <div>
+                      <span>Correlation</span>
+                      <code>{{ row.correlationKey || '-' }}</code>
+                    </div>
+                    <div>
+                      <span>Tenant</span>
+                      <code>{{ row.tenantId || 'platform' }}</code>
+                    </div>
+                    <div>
+                      <span>Envoyé</span>
+                      <code>{{ row.sentAt ? (row.sentAt | date:'dd/MM/yy HH:mm:ss') : '-' }}</code>
+                    </div>
+                    <div>
+                      <span>Erreur</span>
+                      <code>{{ row.failureReason || '-' }}</code>
+                    </div>
+                  </div>
+
+                  <div class="attempts">
+                    <h3>Dernières tentatives</h3>
+                    @if (row.attempts.length === 0) {
+                      <p class="muted-text">Aucune tentative enregistrée.</p>
+                    } @else {
+                      @for (attempt of row.attempts; track attempt.id) {
+                        <div class="attempt-row">
+                          <tch-admin-status-pill [tone]="statusTone(attempt.status)" [label]="attempt.status" />
+                          <span>{{ attempt.attemptedAt | date:'dd/MM/yy HH:mm:ss' }}</span>
+                          <code>{{ attempt.provider }}</code>
+                          <span class="attempt-error">{{ attempt.errorCode || attempt.errorMessage || '-' }}</span>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+        </table>
+      }
+    </ng-container>
+
+    <ng-container list-footer>
+      <div class="pager">
+        <span>{{ totalElements() }} message(s)</span>
+        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+    </ng-container>
+  </tch-admin-list-surface>
+</tch-admin-page-shell>

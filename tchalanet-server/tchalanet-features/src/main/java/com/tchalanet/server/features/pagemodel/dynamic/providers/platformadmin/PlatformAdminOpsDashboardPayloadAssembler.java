@@ -8,13 +8,14 @@ import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-    import com.tchalanet.server.platform.contactrequest.api.ContactRequestAdminApi;
+import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.contactrequest.api.ContactRequestAdminApi;
 import com.tchalanet.server.platform.contactrequest.api.ContactRequestStatus;
 import com.tchalanet.server.platform.contactrequest.api.model.ContactRequestSummaryView;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
+import com.tchalanet.server.platform.notification.api.model.NotificationActorType;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
-import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
-import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import java.time.Instant;
 import java.util.List;
@@ -219,19 +220,31 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
     }
     String roleCode = ctx.currentRole() != null ? ctx.currentRole().name() : null;
     try {
-      var summary = notificationApi.getNotificationSummary(
-          new GetNotificationSummaryRequest(ctx.userId(), roleCode));
-      List<NotificationItemView> notifications = notificationApi.listNotifications(new ListNotificationsRequest(
+      var unreadCount = notificationApi.countUnread(
+          NotificationActorType.APP_USER,
+          ctx.userId().value(),
+          ctx.userId(),
+          roleCode);
+      TchPage<NotificationItemView> notificationPage = notificationApi.listMyNotifications(
+          NotificationActorType.APP_USER,
+          ctx.userId().value(),
           ctx.userId(),
           roleCode,
-          Optional.of(NotificationStatus.UNREAD),
+          Optional.of(NotificationStatus.PUBLISHED),
           Optional.empty(),
           Optional.empty(),
           Optional.empty(),
-          new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt"))))));
+          TchSearchQuery.empty(),
+          new TchPageRequest(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("createdAt")))));
+      List<NotificationItemView> notifications = notificationPage != null && notificationPage.items() != null
+          ? notificationPage.items().stream().filter(PlatformAdminOpsDashboardPayloadAssembler::isUnread).toList()
+          : List.of();
+      long criticalCount = notifications.stream()
+          .filter(notification -> notification.severity() == NotificationSeverity.CRITICAL)
+          .count();
       return new OpsAlertPayload(
-          summary != null ? summary.unreadCount() : 0,
-          summary != null ? summary.criticalCount() : 0,
+          unreadCount != null ? unreadCount.unreadCount() : notifications.size(),
+          criticalCount,
           notifications.stream()
               .map(notification -> new OpsAlertItem(
                   notification.id() != null ? notification.id().value().toString() : "",
@@ -246,6 +259,10 @@ public class PlatformAdminOpsDashboardPayloadAssembler {
           "Le dashboard continue sans bloquer la page.",
           "WARN")));
     }
+  }
+
+  private static boolean isUnread(NotificationItemView notification) {
+    return notification != null && notification.readAt() == null && notification.archivedAt() == null;
   }
 
   private OpsAlertPayload buildContactRequests() {

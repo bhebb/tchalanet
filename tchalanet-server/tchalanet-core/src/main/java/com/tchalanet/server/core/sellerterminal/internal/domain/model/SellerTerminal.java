@@ -16,6 +16,7 @@ public record SellerTerminal(
     String firstName,
     String lastName,
     String displayName,
+    String email,
     String phoneNumber,
     AddressId addressId,
     SellerTerminalStatus status,
@@ -39,13 +40,14 @@ public record SellerTerminal(
         String displayName,
         String firstName,
         String lastName,
+        String email,
         String phoneNumber,
         AddressId addressId,
         BigDecimal commissionRate
     ) {
         validateCommissionRate(commissionRate);
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             SellerTerminalStatus.PENDING, commissionRate,
             null, null, null, null, null, null,
             false, null);
@@ -57,7 +59,7 @@ public record SellerTerminal(
         }
         if (status == SellerTerminalStatus.ACTIVE) return this;
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             SellerTerminalStatus.ACTIVE, commissionRate,
             lastSeenAt, now, blockedAt, blockedBy, blockedReason, disabledAt,
             mustChangePin, pinResetAt);
@@ -69,7 +71,7 @@ public record SellerTerminal(
         }
         if (status == SellerTerminalStatus.BLOCKED) return this;
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             SellerTerminalStatus.BLOCKED, commissionRate,
             lastSeenAt, activatedAt, now, by, reason, disabledAt,
             mustChangePin, pinResetAt);
@@ -80,7 +82,7 @@ public record SellerTerminal(
             throw new SellerTerminalStatusException(id, status, "Only BLOCKED terminal can be unblocked");
         }
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             SellerTerminalStatus.ACTIVE, commissionRate,
             lastSeenAt, activatedAt != null ? activatedAt : now, null, null, null, disabledAt,
             mustChangePin, pinResetAt);
@@ -89,7 +91,7 @@ public record SellerTerminal(
     public SellerTerminal disable(Instant now) {
         if (status == SellerTerminalStatus.DISABLED) return this;
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             SellerTerminalStatus.DISABLED, commissionRate,
             lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, now,
             mustChangePin, pinResetAt);
@@ -97,7 +99,7 @@ public record SellerTerminal(
 
     public SellerTerminal resetAccessMetadata() {
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             status, commissionRate,
             null, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
             mustChangePin, pinResetAt);
@@ -105,7 +107,7 @@ public record SellerTerminal(
 
     public SellerTerminal changePin() {
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             status, commissionRate,
             lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
             false, pinResetAt);
@@ -116,7 +118,7 @@ public record SellerTerminal(
             throw new SellerTerminalStatusException(id, status, "Cannot reset PIN for a disabled terminal");
         }
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             status, commissionRate,
             null, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
             true, now);
@@ -126,11 +128,12 @@ public record SellerTerminal(
         String displayName,
         String firstName,
         String lastName,
+        String email,
         String phoneNumber,
         AddressId addressId
     ) {
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             status, commissionRate,
             lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
             mustChangePin, pinResetAt);
@@ -139,7 +142,7 @@ public record SellerTerminal(
     public SellerTerminal updateCommissionRate(BigDecimal rate) {
         validateCommissionRate(rate);
         return new SellerTerminal(
-            id, tenantId, terminalCode, firstName, lastName, displayName, phoneNumber, addressId,
+            id, tenantId, terminalCode, firstName, lastName, displayName, email, phoneNumber, addressId,
             status, rate,
             lastSeenAt, activatedAt, blockedAt, blockedBy, blockedReason, disabledAt,
             mustChangePin, pinResetAt);

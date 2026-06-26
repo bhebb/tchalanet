@@ -29,6 +29,9 @@ The public API is exported from `src/index.ts`.
 | `tch-error-panel` | `TchErrorPanel` | Error panel for data-load failures |
 | `tch-page-error` | `TchPageError` | Full-page error (404, 500, etc.) |
 | `tch-loading` | `TchLoading` | Loading spinner |
+| `tch-admin-list-surface` | `AdminListSurface` | Shared list/table surface with debounced search, collapsible filters and slots |
+| `tch-search-select` | `TchSearchSelect` | Single server-backed autocomplete selector |
+| `tch-multi-search-select` | `TchMultiSearchSelect` | Multi server-backed autocomplete selector with chips |
 | `tch-section-header` | `TchSectionHeader` | Section title + optional action |
 | `tch-field-error` | `TchFieldError` | Form field error message |
 | `tch-lang-switcher` | `TchLangSwitcher` | Language selector |

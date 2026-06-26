@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe, KeyValuePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
@@ -113,7 +113,6 @@ export type ArchiveView = 'recent' | 'failed' | 'invalid';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    KeyValuePipe,
     ReactiveFormsModule,
     AdminCrudShellComponent,
     AdminEmptyStateComponent,

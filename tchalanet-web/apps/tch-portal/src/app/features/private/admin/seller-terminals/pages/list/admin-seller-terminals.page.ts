@@ -11,14 +11,11 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
-import { AdminDataToolbarComponent } from '../../../../shared/admin-ui/admin-data-toolbar.component';
+import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -45,8 +42,7 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
     DecimalPipe,
     RouterLink,
     AdminPageShellComponent,
-    AdminCrudShellComponent,
-    AdminDataToolbarComponent,
+    AdminListSurface,
     AdminEmptyStateComponent,
     AdminStatusPillComponent,
     TchLoading,
@@ -54,7 +50,6 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    MatSelectModule,
     MatTableModule,
   ],
   templateUrl: './admin-seller-terminals.page.html',
@@ -69,6 +64,7 @@ export class AdminSellerTerminalsPage implements OnInit {
   readonly displayedColumns = [
     'terminalCode',
     'displayName',
+    'email',
     'phoneNumber',
     'status',
     'commissionRate',
@@ -86,6 +82,12 @@ export class AdminSellerTerminalsPage implements OnInit {
   readonly summary = signal<SellerTerminalsSummary | null>(null);
 
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / 20)));
+  readonly statusOptions: readonly AdminListStatusOption[] = [
+    { value: 'ACTIVE', label: 'Actif' },
+    { value: 'INACTIVE', label: 'Inactif' },
+    { value: 'BLOCKED', label: 'Bloqué' },
+    { value: 'DISABLED', label: 'Désactivé' },
+  ];
 
   ngOnInit(): void {
     this.loadSummary();
@@ -130,8 +132,15 @@ export class AdminSellerTerminalsPage implements OnInit {
     this.loadPage();
   }
 
-  onStatusFilter(status: SellerTerminalStatus | ''): void {
-    this.statusFilter.set(status);
+  resetFilters(): void {
+    this.searchQuery.set('');
+    this.statusFilter.set('');
+    this.page.set(0);
+    this.loadPage();
+  }
+
+  onStatusFilter(status: string): void {
+    this.statusFilter.set((status || '') as SellerTerminalStatus | '');
     this.page.set(0);
     this.loadPage();
   }
