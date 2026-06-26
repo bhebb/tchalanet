@@ -6,6 +6,14 @@
     <button mat-icon-button (click)="load()" matTooltip="Rafraîchir">
       <span class="material-symbols-outlined">refresh</span>
     </button>
+    <button mat-stroked-button type="button" (click)="purgeExpired(true)">
+      <span class="material-symbols-outlined">preview</span>
+      Simuler purge
+    </button>
+    <button mat-stroked-button type="button" (click)="purgeExpired(false)">
+      <span class="material-symbols-outlined">delete_sweep</span>
+      Purger expirées
+    </button>
     <button mat-flat-button color="primary" (click)="showComposer.set(!showComposer())">
       <span class="material-symbols-outlined">add_alert</span>
       Nouvelle notification
@@ -255,8 +263,24 @@
           <ng-container matColumnDef="title">
             <th mat-header-cell *matHeaderCellDef>Message</th>
             <td mat-cell *matCellDef="let row">
-              <strong>{{ titleOf(row) }}</strong>
+              <div class="notification-title-line">
+                <strong>{{ titleOf(row) }}</strong>
+                <span class="notification-chip" [class.notification-chip--system]="hasSystemKeys(row)">
+                  {{ languageModeOf(row) }}
+                </span>
+              </div>
               <div class="cell-sub">{{ messageOf(row) }}</div>
+              @if (hasSystemKeys(row)) {
+                <div class="system-keys" aria-label="Clés système">
+                  @for (key of systemKeysOf(row); track key) {
+                    <code>{{ key }}</code>
+                  }
+                  <button mat-button type="button" (click)="openTranslations(row)">
+                    <span class="material-symbols-outlined">translate</span>
+                    Traductions
+                  </button>
+                </div>
+              }
             </td>
           </ng-container>
 
@@ -275,9 +299,27 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row" class="cell-actions">
+              @if (canPublish(row)) {
+                <button mat-icon-button (click)="publish(row)" matTooltip="Publier">
+                  <span class="material-symbols-outlined">publish</span>
+                </button>
+              }
+              @if (canRepublish(row)) {
+                <button mat-icon-button (click)="republish(row)" matTooltip="Republier">
+                  <span class="material-symbols-outlined">campaign</span>
+                </button>
+              }
+              <button mat-icon-button (click)="replayRecipients(row)" matTooltip="Rejouer les destinataires">
+                <span class="material-symbols-outlined">group_add</span>
+              </button>
               @if (!row.readAt) {
                 <button mat-icon-button (click)="markRead(row)" matTooltip="Marquer comme lu">
                   <span class="material-symbols-outlined">done</span>
+                </button>
+              }
+              @if (canCancel(row)) {
+                <button mat-icon-button (click)="cancel(row)" matTooltip="Annuler">
+                  <span class="material-symbols-outlined">cancel</span>
                 </button>
               }
               @if (!row.archivedAt) {

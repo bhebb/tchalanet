@@ -145,6 +145,67 @@
   white-space: nowrap;
 }
 
+.notification-title-line,
+.system-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.notification-title-line strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.375rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+  border-radius: 999px;
+  background: var(--tch-color-surface-container-low, #f7f6fb);
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.notification-chip--system {
+  border-color: color-mix(in oklab, var(--tch-color-primary, #1d1b5f) 28%, transparent);
+  background: color-mix(in oklab, var(--tch-color-primary-container, #e2dfff) 55%, transparent);
+  color: var(--tch-color-on-primary-container, #17113d);
+}
+
+.system-keys {
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.system-keys code {
+  max-width: min(100%, 24rem);
+  overflow: hidden;
+  padding: 0.18rem 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--tch-color-surface-container, #efedf4);
+  color: var(--tch-color-on-surface-variant, #46464f);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+}
+
+.system-keys button {
+  min-height: 1.75rem;
+  padding-inline: 0.45rem;
+}
+
+.system-keys .material-symbols-outlined {
+  margin-right: 0.25rem;
+  font-size: 1rem;
+}
+
 .cell-actions {
   white-space: nowrap;
   text-align: right;
@@ -155,7 +216,37 @@
 }
 
 @media (max-width: 800px) {
+  .summary-card {
+    width: 100%;
+  }
+
   .composer-form__row {
     grid-template-columns: 1fr;
+  }
+
+  .notification-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .notification-table table,
+  .notification-table .mat-mdc-table {
+    min-width: 42rem;
+  }
+
+  .cell-sub {
+    max-width: 20rem;
+    white-space: normal;
+  }
+
+  .notification-title-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .pager {
+    width: 100%;
+    justify-content: space-between;
   }
 }

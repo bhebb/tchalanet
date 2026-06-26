@@ -261,20 +261,19 @@ public class NotificationPersistenceService
 
   private int markPersonalState(
       UUID notificationId, NotificationActorType actorType, UUID actorId, boolean dismiss) {
-    var recipient =
-        recipients.findFirstByNotificationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-            notificationId, actorType, actorId);
-    if (recipient.isPresent()) {
-      var now = clock.instant();
-      return dismiss
-          ? recipients.dismiss(notificationId, actorType, actorId, now)
-          : recipients.markRead(notificationId, actorType, actorId, now);
-    }
-
     var publication =
         publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(notificationId);
     if (publication.isEmpty()) {
       return 0;
+    }
+    var recipient =
+        recipients.findFirstByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+            publication.get().getId(), actorType, actorId);
+    if (recipient.isPresent()) {
+      var now = clock.instant();
+      return dismiss
+          ? recipients.dismissByPublication(publication.get().getId(), actorType, actorId, now)
+          : recipients.markReadByPublication(publication.get().getId(), actorType, actorId, now);
     }
     var state =
         userStates
@@ -329,10 +328,8 @@ public class NotificationPersistenceService
     var notificationTargets = explicitTargets(targets);
     for (var target : notificationTargets) {
       var exists =
-          recipients
-              .findFirstByNotificationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-                  notification.getId(), target.actorType(), target.actorId())
-              .isPresent();
+          recipients.existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+              publication.getId(), target.actorType(), target.actorId());
       if (exists) {
         continue;
       }
@@ -358,11 +355,36 @@ public class NotificationPersistenceService
     if (notificationIds == null || notificationIds.isEmpty()) {
       return java.util.Map.of();
     }
+    var latestPublicationByNotificationId =
+        publications.findByNotificationIdInAndDeletedAtIsNullOrderByPublicationNoDesc(notificationIds)
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    NotificationPublicationJpaEntity::getNotificationId,
+                    Function.identity(),
+                    (existing, ignored) -> existing));
+    if (latestPublicationByNotificationId.isEmpty()) {
+      return java.util.Map.of();
+    }
+    var publicationIds =
+        latestPublicationByNotificationId.values().stream()
+            .map(NotificationPublicationJpaEntity::getId)
+            .toList();
+    var notificationIdByPublicationId =
+        latestPublicationByNotificationId.values().stream()
+            .collect(
+                Collectors.toMap(
+                    NotificationPublicationJpaEntity::getId,
+                    NotificationPublicationJpaEntity::getNotificationId));
     return recipients
-        .findByNotificationIdInAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
-            notificationIds, actorType, actorId)
+        .findByPublicationIdInAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+            publicationIds, actorType, actorId)
         .stream()
-        .collect(Collectors.toMap(NotificationRecipientJpaEntity::getNotificationId, Function.identity(), (a, b) -> a));
+        .collect(
+            Collectors.toMap(
+                item -> notificationIdByPublicationId.get(item.getPublicationId()),
+                Function.identity(),
+                (a, b) -> a));
   }
 
   private String titleText(NotificationJpaEntity entity) {

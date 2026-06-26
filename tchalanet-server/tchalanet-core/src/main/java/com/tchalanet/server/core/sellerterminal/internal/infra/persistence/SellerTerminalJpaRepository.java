@@ -23,7 +23,7 @@ public interface SellerTerminalJpaRepository
         SellerTerminalStatus status
     );
 
-    List<SellerTerminalJpaEntity> findByTenantIdAndIdIn(
+    List<SellerTerminalJpaEntity> findByTenantIdAndIdInAndDeletedAtIsNull(
         UUID tenantId,
         Collection<UUID> ids
     );

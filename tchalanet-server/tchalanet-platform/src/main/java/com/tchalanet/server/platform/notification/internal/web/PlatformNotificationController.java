@@ -7,6 +7,9 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.common.web.paging.TchSearchQuery;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
@@ -75,6 +78,54 @@ public class PlatformNotificationController {
     return ApiResponse.success(true);
   }
 
+  @PostMapping("/{id}/publish")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "'notification.publish:' + (#request == null ? '' : #request.reason())")
+  public ApiResponse<?> publish(
+      @PathVariable NotificationId id,
+      @RequestBody(required = false) NotificationLifecycleBody request,
+      @CurrentContext TchRequestContext context) {
+    return ApiResponse.success(notificationAdminGate.publish(id, request, context));
+  }
+
+  @PostMapping("/{id}/republish")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "'notification.republish:' + #request.reason()")
+  public ApiResponse<?> republish(
+      @PathVariable NotificationId id,
+      @RequestBody NotificationLifecycleBody request,
+      @CurrentContext TchRequestContext context) {
+    return ApiResponse.success(notificationAdminGate.republish(id, request, context));
+  }
+
+  @PostMapping("/{id}/replay-recipients")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "'notification.replay_recipients'")
+  public ApiResponse<?> replayRecipients(@PathVariable NotificationId id) {
+    return ApiResponse.success(notificationAdminGate.replayRecipients(id));
+  }
+
+  @PostMapping("/{id}/cancel")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "'notification.cancel:' + #request.reason()")
+  public ApiResponse<?> cancel(
+      @PathVariable NotificationId id, @RequestBody NotificationLifecycleBody request) {
+    notificationAdminGate.cancel(id, request);
+    return ApiResponse.success(true);
+  }
+
   @PostMapping("/{id}/dismiss")
   public ApiResponse<?> dismiss(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
@@ -86,5 +137,15 @@ public class PlatformNotificationController {
   public ApiResponse<?> markAllRead(@CurrentContext TchRequestContext context) {
     notificationAdminGate.markAllRead(context);
     return ApiResponse.success(true);
+  }
+
+  @PostMapping("/purge-expired")
+  @AuditLog(
+      entity = AuditEntityType.SYSTEM,
+      action = AuditAction.STATE_CHANGE,
+      idExpression = "'notifications'",
+      detailsExpression = "'notification.purge_expired dryRun=' + (#request == null ? false : #request.dryRun())")
+  public ApiResponse<?> purgeExpired(@RequestBody(required = false) NotificationPurgeBody request) {
+    return ApiResponse.success(notificationAdminGate.purgeExpired(request));
   }
 }

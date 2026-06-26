@@ -92,6 +92,18 @@ public class NotificationJpaEntity extends BaseEntity {
   @Column(name = "status", nullable = false, length = 32)
   private NotificationStatus status;
 
+  @Column(name = "published_at")
+  private Instant publishedAt;
+
   @Column(name = "expires_at")
   private Instant expiresAt;
+
+  @Column(name = "cancelled_at")
+  private Instant cancelledAt;
+
+  @Column(name = "cancelled_reason")
+  private String cancelledReason;
+
+  @Column(name = "purged_at")
+  private Instant purgedAt;
 }

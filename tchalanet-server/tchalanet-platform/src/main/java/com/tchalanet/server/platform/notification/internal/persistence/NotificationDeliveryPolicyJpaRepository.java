@@ -11,4 +11,8 @@ public interface NotificationDeliveryPolicyJpaRepository
 
   List<NotificationDeliveryPolicyJpaEntity> findByNotificationIdAndEnabledTrueAndDeletedAtIsNull(
       UUID notificationId);
+
+  List<NotificationDeliveryPolicyJpaEntity>
+      findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(
+          UUID notificationId, UUID publicationId);
 }

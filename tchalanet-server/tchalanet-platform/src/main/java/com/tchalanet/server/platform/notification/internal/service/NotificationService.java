@@ -18,6 +18,7 @@ import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationPublicationId;
+import com.tchalanet.server.platform.notification.api.model.NotificationPublicationStatus;
 import com.tchalanet.server.platform.notification.api.model.NotificationPublishedEvent;
 import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -60,9 +62,12 @@ public class NotificationService {
   private final NotificationReader reader;
   private final NotificationTemplateRenderer templateRenderer;
   private final NotificationPolicy notificationPolicy;
+  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaRepository notifications;
   private final com.tchalanet.server.platform.notification.internal.persistence.NotificationTranslationJpaRepository translations;
   private final com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaRepository publications;
   private final com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaRepository deliveryPolicies;
+  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaRepository recipients;
+  private final com.tchalanet.server.platform.notification.internal.persistence.NotificationUserStateJpaRepository userStates;
   private final ApplicationEventPublisher eventPublisher;
 
   @TchTx
@@ -134,6 +139,285 @@ public class NotificationService {
             deliveryChannels,
             now));
     log.debug("Notification created id={} channels={}", saved.id(), deliveryChannels);
+  }
+
+  @TchTx
+  public NotificationPublicationId publish(NotificationId notificationId, UserId actorId, String reason) {
+    var entity = notificationEntity(notificationId);
+    var now = clock.instant();
+    if (entity.getStatus() == NotificationStatus.CANCELLED || entity.getStatus() == NotificationStatus.PURGED) {
+      throw ProblemRest.unprocessable("notification.not_publishable");
+    }
+    notifications.publishDraft(notificationId.value(), now);
+    entity.setStatus(NotificationStatus.PUBLISHED);
+    var publication = latestPublication(entity.getId())
+        .orElseGet(() -> createPublication(entity, null, reason, actorId, now));
+    publishEvent(entity, publication, deliveryChannels(entity.getId(), publication.getId()), now);
+    return NotificationPublicationId.of(publication.getId());
+  }
+
+  @TchTx
+  public NotificationPublicationId republish(NotificationId notificationId, UserId actorId, String reason) {
+    if (reason == null || reason.isBlank()) {
+      throw ProblemRest.badRequest("notification.reason_required");
+    }
+    var entity = notificationEntity(notificationId);
+    if (entity.getStatus() == NotificationStatus.CANCELLED || entity.getStatus() == NotificationStatus.PURGED) {
+      throw ProblemRest.unprocessable("notification.not_republishable");
+    }
+    var now = clock.instant();
+    var previous = latestPublication(entity.getId()).orElse(null);
+    var publication = createPublication(entity, previous, reason, actorId, now);
+    replayRecipients(entity, publication);
+    var channels = copyDeliveryPolicies(entity, previous, publication);
+    publishEvent(entity, publication, channels, now);
+    return NotificationPublicationId.of(publication.getId());
+  }
+
+  @TchTx
+  public int replayRecipients(NotificationId notificationId) {
+    var entity = notificationEntity(notificationId);
+    var publication = latestPublication(entity.getId())
+        .orElseThrow(() -> ProblemRest.notFound("notification.publication_not_found"));
+    return replayRecipients(entity, publication);
+  }
+
+  @TchTx
+  public void cancel(NotificationId notificationId, String reason) {
+    if (reason == null || reason.isBlank()) {
+      throw ProblemRest.badRequest("notification.reason_required");
+    }
+    var now = clock.instant();
+    var updated = notifications.cancel(notificationId.value(), reason.trim(), now);
+    if (updated == 0) {
+      throw ProblemRest.notFound("notification.not_found");
+    }
+    publications.updatePublishedStatus(notificationId.value(), NotificationPublicationStatus.CANCELLED);
+  }
+
+  @TchTx
+  public PurgeResult purgeExpired(boolean dryRun) {
+    var now = clock.instant();
+    var actorStateCutoff = now.minus(java.time.Duration.ofDays(30));
+    var lifecycleCutoff = now.minus(java.time.Duration.ofDays(30));
+    var notificationCandidates = notifications.countPurgeCandidates(lifecycleCutoff);
+    var recipientStateCandidates = recipients.countRetainedActorStates(actorStateCutoff);
+    var userStateCandidates = userStates.countRetainedActorStates(actorStateCutoff);
+    var candidates = notificationCandidates + recipientStateCandidates + userStateCandidates;
+    if (dryRun) {
+      return new PurgeResult(
+          candidates,
+          0,
+          true,
+          notificationCandidates,
+          0,
+          recipientStateCandidates,
+          0,
+          userStateCandidates,
+          0);
+    }
+    var purgedNotifications = notifications.purgeLifecycle(now, lifecycleCutoff);
+    var purgedRecipients = recipients.purgeRetainedActorStates(actorStateCutoff, now);
+    var purgedUserStates = userStates.purgeRetainedActorStates(actorStateCutoff, now);
+    publications.updatePublishedStatusForExpired(now);
+    return new PurgeResult(
+        candidates,
+        purgedNotifications + purgedRecipients + purgedUserStates,
+        false,
+        notificationCandidates,
+        purgedNotifications,
+        recipientStateCandidates,
+        purgedRecipients,
+        userStateCandidates,
+        purgedUserStates);
+  }
+
+  public record PurgeResult(
+      long candidates,
+      long purged,
+      boolean dryRun,
+      long notificationCandidates,
+      long purgedNotifications,
+      long recipientStateCandidates,
+      long purgedRecipientStates,
+      long userStateCandidates,
+      long purgedUserStates) {}
+
+  private com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notificationEntity(
+      NotificationId notificationId) {
+    return notifications
+        .findById(notificationId.value())
+        .filter(entity -> entity.getDeletedAt() == null)
+        .orElseThrow(() -> ProblemRest.notFound("notification.not_found"));
+  }
+
+  private Optional<com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity>
+      latestPublication(UUID notificationId) {
+    return publications.findFirstByNotificationIdAndDeletedAtIsNullOrderByPublicationNoDesc(notificationId);
+  }
+
+  private com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity
+      createPublication(
+          com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
+          com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity previous,
+          String reason,
+          UserId actorId,
+          java.time.Instant now) {
+    notification.setStatus(NotificationStatus.PUBLISHED);
+    if (notification.getPublishedAt() == null) {
+      notification.setPublishedAt(now);
+    }
+    notification.setUpdatedAt(now);
+    notifications.save(notification);
+
+    var publication =
+        new com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity();
+    publication.setNotificationId(notification.getId());
+    publication.setTenantId(notification.getTenantId());
+    publication.setPublicationNo(previous == null ? 1 : previous.getPublicationNo() + 1);
+    publication.setStatus(NotificationPublicationStatus.PUBLISHED);
+    publication.setAudienceType(publicationAudience(notification.getAudienceType()));
+    publication.setPublishedAt(now);
+    publication.setExpiresAt(notification.getExpiresAt());
+    publication.setRepublishedFromPublicationId(previous == null ? null : previous.getId());
+    publication.setReason(reason);
+    publication.setCreatedByActorType(actorId == null ? null : NotificationActorType.APP_USER);
+    publication.setCreatedByActorId(actorId == null ? null : actorId.value());
+    return publications.save(publication);
+  }
+
+  private int replayRecipients(
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+    if (notification.getAudienceType() != NotificationAudienceType.SPECIFIC_ACTORS) {
+      return 0;
+    }
+    var existing = recipients.findByNotificationIdAndDeletedAtIsNull(notification.getId());
+    var uniqueTargets =
+        existing.stream()
+            .collect(
+                Collectors.toMap(
+                    item -> item.getRecipientActorType() + ":" + item.getRecipientActorId(),
+                    item -> item,
+                    (left, right) -> left))
+            .values();
+    int created = 0;
+    for (var target : uniqueTargets) {
+      var exists =
+          recipients.existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+              publication.getId(), target.getRecipientActorType(), target.getRecipientActorId());
+      if (exists) {
+        continue;
+      }
+      var recipient =
+          new com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaEntity();
+      recipient.setNotificationId(notification.getId());
+      recipient.setPublicationId(publication.getId());
+      recipient.setTenantId(notification.getTenantId());
+      recipient.setRecipientActorType(target.getRecipientActorType());
+      recipient.setRecipientActorId(target.getRecipientActorId());
+      recipient.setDeliveredAt(publication.getPublishedAt());
+      recipients.save(recipient);
+      created++;
+    }
+    return created;
+  }
+
+  private Set<NotificationDeliveryChannel> copyDeliveryPolicies(
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity previous,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+    var previousPolicies =
+        previous == null
+            ? deliveryPolicies.findByNotificationIdAndEnabledTrueAndDeletedAtIsNull(notification.getId())
+            : deliveryPolicies.findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(
+                notification.getId(), previous.getId());
+    var channels =
+        previousPolicies.stream()
+            .map(
+                com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity
+                    ::getChannel)
+            .filter(java.util.Objects::nonNull)
+            .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
+    if (channels.isEmpty()) {
+      channels.add(NotificationDeliveryChannel.IN_APP);
+    }
+    for (var channel : channels) {
+      var policy =
+          new com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity();
+      policy.setNotificationId(notification.getId());
+      policy.setPublicationId(publication.getId());
+      policy.setTenantId(notification.getTenantId());
+      policy.setChannel(channel);
+      policy.setEnabled(true);
+      deliveryPolicies.save(policy);
+    }
+    return Set.copyOf(channels);
+  }
+
+  private Set<NotificationDeliveryChannel> deliveryChannels(UUID notificationId, UUID publicationId) {
+    var channels =
+        deliveryPolicies
+            .findByNotificationIdAndPublicationIdAndEnabledTrueAndDeletedAtIsNull(notificationId, publicationId)
+            .stream()
+            .map(
+                com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaEntity
+                    ::getChannel)
+            .filter(java.util.Objects::nonNull)
+            .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
+    if (channels.isEmpty()) {
+      channels.add(NotificationDeliveryChannel.IN_APP);
+    }
+    return Set.copyOf(channels);
+  }
+
+  private void publishEvent(
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication,
+      Set<NotificationDeliveryChannel> channels,
+      java.time.Instant now) {
+    eventPublisher.publishEvent(
+        new NotificationPublishedEvent(
+            idGenerator.newUuid(),
+            NotificationId.of(notification.getId()),
+            NotificationPublicationId.of(publication.getId()),
+            TenantId.nullableOf(notification.getTenantId()),
+            notification.getAudienceType(),
+            eventTargets(notification, publication),
+            notification.getSeverity(),
+            notification.getKind(),
+            notification.getCategory(),
+            notification.getTitleText(),
+            notification.getMessageText(),
+            notification.getPayload(),
+            notification.getActionUrl(),
+            channels,
+            now));
+  }
+
+  private Set<NotificationTarget> eventTargets(
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity notification,
+      com.tchalanet.server.platform.notification.internal.persistence.NotificationPublicationJpaEntity publication) {
+    if (notification.getAudienceType() != NotificationAudienceType.SPECIFIC_ACTORS) {
+      return Set.of();
+    }
+    return recipients.findByNotificationIdAndDeletedAtIsNull(notification.getId()).stream()
+        .filter(recipient -> publication.getId().equals(recipient.getPublicationId()))
+        .map(
+            recipient ->
+                new NotificationTarget(
+                    recipient.getRecipientActorType(), recipient.getRecipientActorId()))
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private NotificationAudienceType publicationAudience(NotificationAudienceType audienceType) {
+    if (audienceType == null) {
+      return NotificationAudienceType.ALL_APP_USERS;
+    }
+    return switch (audienceType) {
+      case SPECIFIC_ACTORS, PLATFORM_ADMINS, ALL_APP_USERS, TENANT_ADMINS, TENANT_APP_USERS,
+          TENANT_SELLER_TERMINALS -> audienceType;
+    };
   }
 
   private void validateManualTranslations(CreateNotificationRequest request) {

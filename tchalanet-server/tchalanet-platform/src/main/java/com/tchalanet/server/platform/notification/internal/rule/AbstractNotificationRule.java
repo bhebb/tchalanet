@@ -37,6 +37,7 @@ abstract class AbstractNotificationRule implements NotificationRule {
         eventId,
         tenantId,
         event.getClass().getSimpleName(),
+        sourceId(event, eventId),
         templateKey,
         severity,
         kind,
@@ -63,6 +64,7 @@ abstract class AbstractNotificationRule implements NotificationRule {
         eventId,
         null,
         event.getClass().getSimpleName(),
+        sourceId(event, eventId),
         templateKey,
         severity,
         kind,
@@ -73,6 +75,19 @@ abstract class AbstractNotificationRule implements NotificationRule {
         title,
         message,
         correlationKey);
+  }
+
+  private String sourceId(Object event, UUID eventId) {
+    if (eventId != null) {
+      return eventId.toString();
+    }
+    for (String methodName : java.util.List.of("sourceId", "id", "tenantId", "sellerTerminalId", "drawId", "ticketId")) {
+      var value = value(event, methodName);
+      if (value != null) {
+        return value.toString();
+      }
+    }
+    return Integer.toHexString(event.hashCode());
   }
 
   private TenantId tenantId(Object event) {

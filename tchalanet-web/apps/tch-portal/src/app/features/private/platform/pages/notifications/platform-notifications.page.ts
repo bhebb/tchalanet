@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -10,8 +11,18 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading } from '@tch/ui/components';
+import {
+  AdminListStatusOption,
+  AdminListSurface,
+  TchConfirmDialog,
+  TchConfirmDialogData,
+  TchConfirmDialogResult,
+  TchErrorPanel,
+  TchLoading,
+} from '@tch/ui/components';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -68,7 +79,9 @@ type TargetMode = 'BROADCAST' | 'SPECIFIC';
 export class PlatformNotificationsPage implements OnInit {
   private readonly api = inject(PlatformSupportApi);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   readonly statusOptions = STATUS_OPTIONS;
   readonly severityOptions = SEVERITY_OPTIONS;
@@ -307,6 +320,95 @@ export class PlatformNotificationsPage implements OnInit {
     });
   }
 
+  publish(item: NotificationItemView): void {
+    this.confirmLifecycle({
+      title: 'Publier la notification',
+      message: `Publier « ${this.titleOf(item)} » maintenant ?`,
+      confirmLabel: 'Publier',
+      icon: 'publish',
+    }, result => {
+      this.runLifecycle(
+        this.api.publishNotification(this.idOf(item), result.reason ?? 'Publication manuelle'),
+        'Notification publiée.',
+      );
+    });
+  }
+
+  republish(item: NotificationItemView): void {
+    this.confirmLifecycle({
+      title: 'Republier la notification',
+      message: `Créer une nouvelle publication pour « ${this.titleOf(item)} ». Les destinataires la verront comme non lue.`,
+      confirmLabel: 'Republier',
+      icon: 'campaign',
+      sensitive: true,
+      requireReason: true,
+      auditLabel: 'Republication auditée',
+      reasonLabel: 'Raison de la republication',
+      confirmCheckboxLabel: 'Je confirme que cette republication est nécessaire et sera tracée.',
+    }, result => {
+      this.runLifecycle(
+        this.api.republishNotification(this.idOf(item), result.reason ?? ''),
+        'Notification republiée.',
+      );
+    });
+  }
+
+  replayRecipients(item: NotificationItemView): void {
+    this.confirmLifecycle({
+      title: 'Rejouer les destinataires',
+      message: `Ajouter les destinataires manquants pour « ${this.titleOf(item)} » sans réinitialiser les lectures existantes ?`,
+      confirmLabel: 'Rejouer',
+      icon: 'group_add',
+    }, () => {
+      this.runLifecycle(
+        this.api.replayNotificationRecipients(this.idOf(item)),
+        'Destinataires rejoués.',
+      );
+    });
+  }
+
+  cancel(item: NotificationItemView): void {
+    this.confirmLifecycle({
+      title: 'Annuler la notification',
+      message: `Annuler « ${this.titleOf(item)} » pour tous les destinataires ?`,
+      confirmLabel: 'Annuler la notification',
+      destructive: true,
+      icon: 'cancel',
+      sensitive: true,
+      requireReason: true,
+      auditLabel: 'Annulation auditée',
+      reasonLabel: 'Raison de l’annulation',
+      confirmCheckboxLabel: 'Je confirme que cette annulation est nécessaire et sera tracée.',
+    }, result => {
+      this.runLifecycle(
+        this.api.cancelNotification(this.idOf(item), result.reason ?? ''),
+        'Notification annulée.',
+      );
+    });
+  }
+
+  purgeExpired(dryRun: boolean): void {
+    this.confirmLifecycle({
+      title: dryRun ? 'Simuler la purge' : 'Purger les notifications expirées',
+      message: dryRun
+        ? 'Calculer les notifications expirées purgeables sans les modifier ?'
+        : 'Marquer les notifications expirées comme purgées ? Cette action est globale.',
+      confirmLabel: dryRun ? 'Simuler' : 'Purger',
+      destructive: !dryRun,
+      icon: dryRun ? 'preview' : 'delete_sweep',
+      sensitive: !dryRun,
+      requireReason: !dryRun,
+      auditLabel: 'Purge auditée',
+      reasonLabel: 'Raison de la purge',
+      confirmCheckboxLabel: 'Je confirme que cette purge est nécessaire et sera tracée.',
+    }, () => {
+      this.runLifecycle(
+        this.api.purgeExpiredNotifications(dryRun),
+        dryRun ? 'Purge simulée.' : 'Notifications expirées purgées.',
+      );
+    });
+  }
+
   idOf(item: NotificationItemView): string {
     return typeof item.id === 'string' ? item.id : item.id.value;
   }
@@ -317,6 +419,24 @@ export class PlatformNotificationsPage implements OnInit {
 
   messageOf(item: NotificationItemView): string {
     return item.messageText || item.messageKey || '';
+  }
+
+  systemKeysOf(item: NotificationItemView): string[] {
+    return [item.titleKey, item.messageKey].filter((key): key is string => !!key);
+  }
+
+  hasSystemKeys(item: NotificationItemView): boolean {
+    return this.systemKeysOf(item).length > 0;
+  }
+
+  languageModeOf(item: NotificationItemView): string {
+    return this.hasSystemKeys(item) ? 'System keys' : 'FR / EN / HT';
+  }
+
+  openTranslations(item: NotificationItemView): void {
+    void this.router.navigate(['/app/platform/catalog/translations'], {
+      queryParams: { key: item.titleKey ?? item.messageKey ?? '' },
+    });
   }
 
   severityTone(severity: NotificationSeverity): AdminStatusTone {
@@ -338,6 +458,45 @@ export class PlatformNotificationsPage implements OnInit {
       CANCELLED: 'Annulée',
       PURGED: 'Purgée',
     }[status];
+  }
+
+  canPublish(item: NotificationItemView): boolean {
+    return item.status === 'EXPIRED';
+  }
+
+  canRepublish(item: NotificationItemView): boolean {
+    return item.status === 'PUBLISHED' || item.status === 'EXPIRED';
+  }
+
+  canCancel(item: NotificationItemView): boolean {
+    return item.status === 'PUBLISHED' || item.status === 'EXPIRED';
+  }
+
+  private runLifecycle(request: Observable<unknown>, successMessage: string): void {
+    this.saving.set(true);
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.snackBar.open(successMessage, 'OK', { duration: 3000 });
+        this.load();
+      },
+      error: err => {
+        this.saving.set(false);
+        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+      },
+    });
+  }
+
+  private confirmLifecycle(
+    data: TchConfirmDialogData,
+    confirmed: (result: TchConfirmDialogResult) => void,
+  ): void {
+    this.dialog.open(TchConfirmDialog, { data })
+      .afterClosed()
+      .subscribe(result => {
+        if (!result?.confirmed) return;
+        confirmed(result);
+      });
   }
 
   private errorMessage(err: unknown): string {

@@ -15,8 +15,8 @@
 - [x] Implement in-app list, unread count, mark read, dismiss, and mark all read.
 - [x] Support dynamic broadcast user state.
 - [x] Support explicit app-user recipients through `notification_recipient`.
-- [ ] Add explicit seller-terminal recipient support to the notification recipient contract.
-- [ ] Add purge/retention rules for read, dismissed, expired, and cancelled notification rows.
+- [x] Add explicit seller-terminal recipient support to the notification recipient contract.
+- [x] Add purge/retention rules for read, dismissed, expired, and cancelled notification rows.
 - [ ] Add focused backend tests for inbox state and tenant isolation.
 - [x] Add minimal frontend bell, unread badge, latest dropdown, and dismiss/read actions.
 
@@ -33,11 +33,13 @@
 
 ## Slice 3 — Publication Lifecycle
 
-- [ ] Implement publish.
-- [ ] Implement republish as a new publication that resets unread state only for the new publication.
-- [ ] Implement replay recipients idempotently.
-- [ ] Implement cancel with required reason and audit.
-- [ ] Implement purge expired with dry-run and soft-purge V0.
+- [x] Implement publish.
+- [x] Implement republish as a new publication that resets unread state only for the new publication.
+- [x] Implement replay recipients idempotently.
+- [x] Implement cancel with required reason and audit.
+  - [x] Require reason and cancel active publications.
+  - [x] Add audit event/hook for cancel.
+- [x] Implement purge expired with dry-run and soft-purge V0.
 - [ ] Add lifecycle action tests.
 
 ## Slice 4 — Communication Bridge
@@ -57,39 +59,39 @@
 
 ## Slice 5 — Automatic Triggers
 
-- [ ] Add `notification_trigger_log`.
-- [ ] Implement trigger service with stable `trigger_key`, `source_type`, and `source_id`.
-- [ ] Add tenant onboarding triggers.
-- [ ] Add seller terminal triggers.
-- [ ] Add ops job/gate/resource triggers.
+- [x] Add `notification_trigger_log`.
+- [x] Implement trigger service with stable `trigger_key`, `source_type`, and `source_id`.
+- [x] Add tenant onboarding triggers.
+- [x] Add seller terminal triggers.
+- [x] Add ops job/gate/resource triggers.
   - [x] Add ops job failed/non-quiet skipped system notification trigger.
-- [ ] Add draw result and settlement triggers.
-- [ ] Add support/contact triggers.
-- [ ] Add cache and maintenance triggers.
+- [x] Add draw result and settlement triggers.
+- [x] Add support/contact triggers.
+- [x] Add cache and maintenance triggers.
 - [ ] Add idempotence tests for each P0 trigger family.
 
 ## Slice 6 — Full UI
 
 - [x] Add admin notification center page with filters and pagination.
 - [x] Expose admin notification center under tenant admin `Mon entreprise`.
-- [ ] Add platform notification center page with filters and pagination.
+- [x] Add platform notification center page with filters and pagination.
 - [x] Add tenant admin creation form.
-- [ ] Add superadmin creation form.
-- [ ] Add lifecycle controls where authorized.
-- [ ] Add severity badges, empty states, mobile layout, and language-aware rendering.
-- [ ] For system notifications, show keys/resolved previews and route text edits to referential translations (`i18n_override`).
+- [x] Add superadmin creation form.
+- [x] Add lifecycle controls where authorized.
+- [x] Add severity badges, empty states, mobile layout, and language-aware rendering.
+- [x] For system notifications, show keys/resolved previews and route text edits to referential translations (`i18n_override`).
 
 ## Acceptance
 
-- [ ] Notification and communication responsibilities are separated.
-- [ ] `notification_recipient` remains in-app only.
-- [ ] External channels are processed by `platform.communication`.
-- [ ] Tenant admin can send tenant notifications only.
-- [ ] Superadmin can send platform/global and tenant-targeted notifications.
+- [x] Notification and communication responsibilities are separated.
+- [x] `notification_recipient` remains in-app only.
+- [x] External channels are processed by `platform.communication`.
+- [x] Tenant admin can send tenant notifications only.
+- [x] Superadmin can send platform/global and tenant-targeted notifications.
 - [ ] FR/EN/HT are supported and resolved by current locale.
-- [ ] Users can read and dismiss without deleting for others.
-- [ ] Republish, replay recipients, cancel, and soft purge work.
-- [ ] Sensitive lifecycle actions are audited.
-- [ ] Automatic triggers are idempotent.
+- [x] Users can read and dismiss without deleting for others.
+- [x] Republish, replay recipients, cancel, and soft purge work.
+- [x] Sensitive lifecycle actions are audited.
+- [x] Automatic triggers are idempotent.
 - [ ] No external delivery is sent on rollback.
 - [ ] API responses use standard pagination, ProblemDetail errors, and `ApiResponse<T>` for 2xx responses.

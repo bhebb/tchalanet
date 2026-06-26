@@ -180,4 +180,78 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.PUBLISHED
       """)
   int expire(@Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationJpaEntity n
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.PUBLISHED,
+             n.publishedAt = coalesce(n.publishedAt, :now),
+             n.updatedAt = :now
+       where n.id = :notificationId
+         and n.deletedAt is null
+         and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.DRAFT
+      """)
+  int publishDraft(@Param("notificationId") UUID notificationId, @Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationJpaEntity n
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.CANCELLED,
+             n.cancelledAt = :now,
+             n.cancelledReason = :reason,
+             n.updatedAt = :now
+       where n.id = :notificationId
+         and n.deletedAt is null
+         and n.status <> com.tchalanet.server.platform.notification.api.model.NotificationStatus.PURGED
+      """)
+  int cancel(
+      @Param("notificationId") UUID notificationId,
+      @Param("reason") String reason,
+      @Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationJpaEntity n
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.PURGED,
+             n.purgedAt = :now,
+             n.updatedAt = :now
+       where n.deletedAt is null
+         and n.status <> com.tchalanet.server.platform.notification.api.model.NotificationStatus.PURGED
+         and (
+              (
+                n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.EXPIRED
+                and coalesce(n.expiresAt, n.updatedAt, n.createdAt) <= :lifecycleCutoff
+              )
+           or (
+                n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.CANCELLED
+                and coalesce(n.cancelledAt, n.updatedAt, n.createdAt) <= :lifecycleCutoff
+              )
+           or (n.expiresAt is not null and n.expiresAt <= :lifecycleCutoff)
+         )
+      """)
+  int purgeLifecycle(
+      @Param("now") Instant now,
+      @Param("lifecycleCutoff") Instant lifecycleCutoff);
+
+  @Query(
+      """
+      select count(n) from NotificationJpaEntity n
+       where n.deletedAt is null
+         and n.status <> com.tchalanet.server.platform.notification.api.model.NotificationStatus.PURGED
+         and (
+              (
+                n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.EXPIRED
+                and coalesce(n.expiresAt, n.updatedAt, n.createdAt) <= :lifecycleCutoff
+              )
+           or (
+                n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.CANCELLED
+                and coalesce(n.cancelledAt, n.updatedAt, n.createdAt) <= :lifecycleCutoff
+              )
+           or (n.expiresAt is not null and n.expiresAt <= :lifecycleCutoff)
+         )
+      """)
+  long countPurgeCandidates(@Param("lifecycleCutoff") Instant lifecycleCutoff);
 }

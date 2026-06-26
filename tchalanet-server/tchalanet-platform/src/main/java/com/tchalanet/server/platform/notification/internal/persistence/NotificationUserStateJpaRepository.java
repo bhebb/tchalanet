@@ -50,4 +50,30 @@ public interface NotificationUserStateJpaRepository
       @Param("actorType") NotificationActorType actorType,
       @Param("actorId") UUID actorId,
       @Param("now") Instant now);
+
+  @Query(
+      """
+      select count(s) from NotificationUserStateJpaEntity s
+       where s.deletedAt is null
+         and (
+              (s.dismissedAt is not null and s.dismissedAt <= :actorStateCutoff)
+           or (s.readAt is not null and s.readAt <= :actorStateCutoff)
+         )
+      """)
+  long countRetainedActorStates(@Param("actorStateCutoff") Instant actorStateCutoff);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationUserStateJpaEntity s
+         set s.deletedAt = :now
+       where s.deletedAt is null
+         and (
+              (s.dismissedAt is not null and s.dismissedAt <= :actorStateCutoff)
+           or (s.readAt is not null and s.readAt <= :actorStateCutoff)
+         )
+      """)
+  int purgeRetainedActorStates(
+      @Param("actorStateCutoff") Instant actorStateCutoff,
+      @Param("now") Instant now);
 }

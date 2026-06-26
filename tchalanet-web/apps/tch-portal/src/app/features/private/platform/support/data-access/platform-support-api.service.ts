@@ -256,4 +256,24 @@ export class PlatformSupportApi {
   archiveNotification(id: string): Observable<boolean> {
     return this.backend.post<boolean>(`/platform/notifications/${id}/archive`, {});
   }
+
+  publishNotification(id: string, reason?: string | null): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/notifications/${id}/publish`, { reason: reason ?? null });
+  }
+
+  republishNotification(id: string, reason: string): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/notifications/${id}/republish`, { reason });
+  }
+
+  replayNotificationRecipients(id: string): Observable<number> {
+    return this.backend.post<number>(`/platform/notifications/${id}/replay-recipients`, {});
+  }
+
+  cancelNotification(id: string, reason: string): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/notifications/${id}/cancel`, { reason });
+  }
+
+  purgeExpiredNotifications(dryRun: boolean): Observable<unknown> {
+    return this.backend.post<unknown>('/platform/notifications/purge-expired', { dryRun });
+  }
 }

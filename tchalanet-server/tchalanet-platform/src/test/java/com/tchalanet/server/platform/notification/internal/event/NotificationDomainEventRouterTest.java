@@ -20,6 +20,7 @@ import com.tchalanet.server.platform.notification.api.model.request.CreateNotifi
 import com.tchalanet.server.platform.notification.internal.rule.BatchAlertNotificationRule;
 import com.tchalanet.server.platform.notification.internal.rule.PayoutNotificationRule;
 import com.tchalanet.server.platform.notification.internal.service.NotificationService;
+import com.tchalanet.server.platform.notification.internal.service.NotificationTriggerService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +35,13 @@ class NotificationDomainEventRouterTest {
   @Test
   void duplicateEventSkipsNotificationCreation() {
     var notificationService = mock(NotificationService.class);
+    var triggerService = triggerService(true);
     var processedEvents = provider(false);
     var router =
         new NotificationDomainEventRouter(
             List.of(new PayoutNotificationRule()),
             notificationService,
+            triggerService,
             new JsonUtils(JsonMapper.builder().build()),
             processedEvents);
 
@@ -50,11 +53,13 @@ class NotificationDomainEventRouterTest {
   @Test
   void newEventCreatesNotification() {
     var notificationService = mock(NotificationService.class);
+    var triggerService = triggerService(true);
     var processedEvents = provider(true);
     var router =
         new NotificationDomainEventRouter(
             List.of(new PayoutNotificationRule()),
             notificationService,
+            triggerService,
             new JsonUtils(JsonMapper.builder().build()),
             processedEvents);
 
@@ -66,11 +71,13 @@ class NotificationDomainEventRouterTest {
   @Test
   void failedJobCreatesPlatformSystemNotification() {
     var notificationService = mock(NotificationService.class);
+    var triggerService = triggerService(true);
     var processedEvents = provider(true);
     var router =
         new NotificationDomainEventRouter(
             List.of(new BatchAlertNotificationRule()),
             notificationService,
+            triggerService,
             new JsonUtils(JsonMapper.builder().build()),
             processedEvents);
     var eventId = UUID.randomUUID();
@@ -89,6 +96,12 @@ class NotificationDomainEventRouterTest {
     var captor = ArgumentCaptor.forClass(CreateNotificationRequest.class);
     verify(processedEvents.getIfAvailable())
         .markProcessedIfAbsent(eq("notification.ops.job_lifecycle"), eq(eventId));
+    verify(triggerService)
+        .markTriggeredIfAbsent(
+            eq("notification.ops.job_lifecycle"),
+            eq("JobLifecycleEvent"),
+            eq(eventId.toString()),
+            eq(null));
     verify(notificationService).createNotification(captor.capture());
 
     var request = captor.getValue();
@@ -111,6 +124,12 @@ class NotificationDomainEventRouterTest {
     ObjectProvider<ProcessedEventPort> provider = mock(ObjectProvider.class);
     when(provider.getIfAvailable()).thenReturn(port);
     return provider;
+  }
+
+  private static NotificationTriggerService triggerService(boolean markTriggeredResult) {
+    var service = mock(NotificationTriggerService.class);
+    when(service.markTriggeredIfAbsent(any(), any(), any(), any())).thenReturn(markTriggeredResult);
+    return service;
   }
 
   private record PayoutRequestedEvent(UUID eventId, TenantId tenantId) {}

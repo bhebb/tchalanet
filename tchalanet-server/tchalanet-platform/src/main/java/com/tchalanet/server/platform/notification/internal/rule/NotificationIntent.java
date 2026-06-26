@@ -14,6 +14,7 @@ public record NotificationIntent(
     UUID sourceEventId,
     TenantId tenantId,
     String sourceType,
+    String sourceId,
     String templateKey,
     NotificationSeverity severity,
     NotificationKind kind,

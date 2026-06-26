@@ -45,7 +45,7 @@ class NotificationServiceTest {
   @Test
   void markReadUsesPersonalActorState() {
     var reader = new RecordingNotificationReader(new NotificationSummaryView(0, 0, 0, false));
-    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null);
+    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
     var notificationId = NotificationId.of(UUID.randomUUID());
     var actorId = UserId.of(UUID.randomUUID());
 
@@ -59,7 +59,7 @@ class NotificationServiceTest {
   @Test
   void archiveDismissesPersonalActorState() {
     var reader = new RecordingNotificationReader(new NotificationSummaryView(0, 0, 0, false));
-    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null);
+    var service = new NotificationService(CLOCK, null, null, null, reader, null, null, null, null, null, null, null, null, null);
     var notificationId = NotificationId.of(UUID.randomUUID());
     var actorId = UserId.of(UUID.randomUUID());
 
@@ -75,7 +75,7 @@ class NotificationServiceTest {
     var userId = UserId.of(UUID.randomUUID());
     var summary = new NotificationSummaryView(4, 1, 2, true);
     var reader = new RecordingNotificationReader(summary);
-    var service = new NotificationService(null, null, null, null, reader, null, null, null, null, null, null);
+    var service = new NotificationService(null, null, null, null, reader, null, null, null, null, null, null, null, null, null);
 
     var result =
         service.getNotificationSummary(new GetNotificationSummaryRequest(userId, "TENANT_ADMIN"));
@@ -138,9 +138,12 @@ class NotificationServiceTest {
         null,
         renderer,
         null,
+        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaRepository.class),
         translations,
         publications,
         mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationDeliveryPolicyJpaRepository.class),
+        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationRecipientJpaRepository.class),
+        mock(com.tchalanet.server.platform.notification.internal.persistence.NotificationUserStateJpaRepository.class),
         mock(org.springframework.context.ApplicationEventPublisher.class));
   }
 
@@ -221,6 +224,7 @@ class NotificationServiceTest {
         Optional<NotificationCategory> category,
         Optional<NotificationKind> kind,
         Optional<NotificationSeverity> severity,
+        com.tchalanet.server.common.web.paging.TchSearchQuery search,
         TchPageRequest pageRequest) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
@@ -232,6 +236,7 @@ class NotificationServiceTest {
         Optional<NotificationCategory> category,
         Optional<NotificationKind> kind,
         Optional<NotificationSeverity> severity,
+        com.tchalanet.server.common.web.paging.TchSearchQuery search,
         TchPageRequest pageRequest) {
       throw new UnsupportedOperationException("Not needed by this test");
     }
@@ -246,6 +251,7 @@ class NotificationServiceTest {
         Optional<NotificationCategory> category,
         Optional<NotificationKind> kind,
         Optional<NotificationSeverity> severity,
+        com.tchalanet.server.common.web.paging.TchSearchQuery search,
         TchPageRequest pageRequest) {
       throw new UnsupportedOperationException("Not needed by this test");
     }

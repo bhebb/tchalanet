@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.notification.internal.mapper;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationActionView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.internal.persistence.NotificationJpaEntity;
@@ -36,11 +37,12 @@ public final class NotificationMapper {
     target.setActionUrl(notification.action() == null ? null : notification.action().url());
     target.setActionRoute(notification.action() == null ? null : notification.action().url());
     target.setStatus(notification.status());
+    target.setPublishedAt(notification.status() == NotificationStatus.PUBLISHED ? notification.createdAt() : null);
     target.setExpiresAt(notification.expiresAt());
     target.setCreatedAt(notification.createdAt());
     target.setUpdatedAt(notification.updatedAt());
-	    return target;
-	  }
+    return target;
+  }
 
   private static String scope(Notification notification) {
     if (notification.tenantId() != null) {

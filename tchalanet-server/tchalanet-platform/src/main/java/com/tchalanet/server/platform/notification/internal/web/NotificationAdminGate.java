@@ -136,6 +136,26 @@ class NotificationAdminGate {
         NotificationActorType.APP_USER, userId.value(), userId, roleCode(context));
   }
 
+  Object publish(NotificationId id, NotificationLifecycleBody request, TchRequestContext context) {
+    return notificationService.publish(id, context.currentUserIdRequired(), reason(request));
+  }
+
+  Object republish(NotificationId id, NotificationLifecycleBody request, TchRequestContext context) {
+    return notificationService.republish(id, context.currentUserIdRequired(), reason(request));
+  }
+
+  Object replayRecipients(NotificationId id) {
+    return notificationService.replayRecipients(id);
+  }
+
+  void cancel(NotificationId id, NotificationLifecycleBody request) {
+    notificationService.cancel(id, reason(request));
+  }
+
+  Object purgeExpired(NotificationPurgeBody request) {
+    return notificationService.purgeExpired(request != null && request.dryRun());
+  }
+
   private void create(
       CreateNotificationBody request,
       TenantId tenantId,
@@ -166,5 +186,9 @@ class NotificationAdminGate {
 
   private static String roleCode(TchRequestContext context) {
     return context.currentRole() == null ? null : context.currentRole().name();
+  }
+
+  private static String reason(NotificationLifecycleBody request) {
+    return request == null ? null : request.reason();
   }
 }

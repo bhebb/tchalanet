@@ -28,6 +28,19 @@ public interface NotificationRecipientJpaRepository
       findByNotificationIdInAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
           Collection<UUID> notificationIds, NotificationActorType actorType, UUID actorId);
 
+  List<NotificationRecipientJpaEntity>
+      findByPublicationIdInAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+          Collection<UUID> publicationIds, NotificationActorType actorType, UUID actorId);
+
+  List<NotificationRecipientJpaEntity> findByNotificationIdAndDeletedAtIsNull(UUID notificationId);
+
+  Optional<NotificationRecipientJpaEntity>
+      findFirstByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+          UUID publicationId, NotificationActorType actorType, UUID actorId);
+
+  boolean existsByPublicationIdAndRecipientActorTypeAndRecipientActorIdAndDeletedAtIsNull(
+      UUID publicationId, NotificationActorType actorType, UUID actorId);
+
   @Modifying
   @Query(
       """
@@ -48,6 +61,22 @@ public interface NotificationRecipientJpaRepository
   @Query(
       """
       update NotificationRecipientJpaEntity r
+         set r.readAt = coalesce(r.readAt, :now)
+       where r.publicationId = :publicationId
+         and r.recipientActorType = :actorType
+         and r.recipientActorId = :actorId
+         and r.deletedAt is null
+      """)
+  int markReadByPublication(
+      @Param("publicationId") UUID publicationId,
+      @Param("actorType") NotificationActorType actorType,
+      @Param("actorId") UUID actorId,
+      @Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationRecipientJpaEntity r
          set r.dismissedAt = coalesce(r.dismissedAt, :now),
              r.readAt = coalesce(r.readAt, :now)
        where r.notificationId = :notificationId
@@ -59,5 +88,48 @@ public interface NotificationRecipientJpaRepository
       @Param("notificationId") UUID notificationId,
       @Param("actorType") NotificationActorType actorType,
       @Param("actorId") UUID actorId,
+      @Param("now") Instant now);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationRecipientJpaEntity r
+         set r.dismissedAt = coalesce(r.dismissedAt, :now),
+             r.readAt = coalesce(r.readAt, :now)
+       where r.publicationId = :publicationId
+         and r.recipientActorType = :actorType
+         and r.recipientActorId = :actorId
+         and r.deletedAt is null
+      """)
+  int dismissByPublication(
+      @Param("publicationId") UUID publicationId,
+      @Param("actorType") NotificationActorType actorType,
+      @Param("actorId") UUID actorId,
+      @Param("now") Instant now);
+
+  @Query(
+      """
+      select count(r) from NotificationRecipientJpaEntity r
+       where r.deletedAt is null
+         and (
+              (r.dismissedAt is not null and r.dismissedAt <= :actorStateCutoff)
+           or (r.readAt is not null and r.readAt <= :actorStateCutoff)
+         )
+      """)
+  long countRetainedActorStates(@Param("actorStateCutoff") Instant actorStateCutoff);
+
+  @Modifying
+  @Query(
+      """
+      update NotificationRecipientJpaEntity r
+         set r.deletedAt = :now
+       where r.deletedAt is null
+         and (
+              (r.dismissedAt is not null and r.dismissedAt <= :actorStateCutoff)
+           or (r.readAt is not null and r.readAt <= :actorStateCutoff)
+         )
+      """)
+  int purgeRetainedActorStates(
+      @Param("actorStateCutoff") Instant actorStateCutoff,
       @Param("now") Instant now);
 }
