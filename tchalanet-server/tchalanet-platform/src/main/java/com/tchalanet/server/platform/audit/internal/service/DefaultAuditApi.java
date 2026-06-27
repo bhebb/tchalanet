@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
+import com.tchalanet.server.common.context.TchContextScope;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditEventView;
@@ -15,9 +17,21 @@ import org.springframework.stereotype.Service;
 public class DefaultAuditApi implements AuditApi {
 
   private final AuditService auditService;
+  private final TchContextResolver contextResolver;
 
   @Override
   public void logAuditEvent(LogAuditEventRequest request) {
+    if (request != null && request.tenantId() != null) {
+      var ctx = contextResolver.currentOrNull();
+      if (ctx != null) {
+        TchContextScope.runWithContext(
+            ctx.withEffectiveTenantUuid(request.tenantId()),
+            () -> auditService.logAuditEvent(request));
+        return;
+      }
+      TchContextScope.runWithTemporaryTenant(request.tenantId(), "audit", () -> auditService.logAuditEvent(request));
+      return;
+    }
     auditService.logAuditEvent(request);
   }
 

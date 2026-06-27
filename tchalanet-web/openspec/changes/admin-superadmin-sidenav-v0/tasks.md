@@ -58,6 +58,12 @@
   - Ajouter : `resources` (placeholder détail infra depuis le dashboard Ops)
 - [x] Mettre à jour `private-navigation.model.ts` (`PLATFORM_NAVIGATION`) — fallback statique
 - [x] Mettre à jour `private_shell_superadmin.json` `sections[]` — source backend réelle
+- [x] Séparer `Opérations`, `Audit`, `Archives` et `Communication & support`
+  - `Opérations` garde uniquement le runtime courant : Vue d'ensemble, Tirages, Résultats, Jobs, Cache, Sync identité
+  - `Jobs` remplace le libellé visible `Tâches planifiées` / `Batch`; les routes legacy restent en alias
+  - `Audit` expose Audit fonctionnel + Révisions techniques sans rester sous Ops
+  - `Archives` expose les sous-entrées réalistes branchées sur la page archive existante
+  - `Communication & support` remplace `Support & contenu` pour éviter un doublon avec contact/news/notifications
 - [x] `nx build` green
 
 ---
@@ -216,9 +222,9 @@
 
 ---
 
-## Slice 8 — Support & contenu
+## Slice 8 — Communication & support
 
-> Contact-requests, News, Notifications — pages existantes à repositionner dans sidenav
+> Contact-requests, News, Notifications — pages existantes à repositionner dans sidenav sans créer de doublon avec une nouvelle section Communication.
 
 - [x] Rendre `PlatformContactRequestsPage` fonctionnelle
   - Liste `GET /platform/contact-requests`
@@ -236,7 +242,10 @@
 - [x] Créer `pages/contact-config/platform-contact-config.page.ts` — configuration contact global
   - Placeholder V0 dédié avec message "Endpoint à venir" car gap backend confirmé
   - Champs attendus documentés : email support, téléphone, canaux de réception, message affiché page contact
-- [x] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous une section cohérente dans la sidenav (conserver anciens paths comme redirects)
+- [x] Organiser les routes `contact-requests`, `news`, `notifications`, `contact-config` sous `Communication & support` dans la sidenav (conserver anciens paths comme redirects)
+- [x] Ajouter les alias propres `/platform/communication/config`, `/platform/communication/outbox`, `/platform/communication/tests`
+  - `outbox` et `tests` réutilisent la page ops communication existante tant que la séparation d'écran n'est pas nécessaire
+  - Ne pas ajouter `Templates` au menu avant endpoint/page dédiée
 
 ---
 

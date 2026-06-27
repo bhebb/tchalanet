@@ -59,20 +59,31 @@ Platform
 │   └── Templates de pages          /platform/catalog/page-model-templates
 │
 ├── Opérations
+│   ├── Vue d'ensemble              /platform
 │   ├── Tirages                     /platform/ops/draws
 │   ├── Résultats                   /platform/ops/draw-results
-│   ├── Tâches planifiées           /platform/ops/batch
+│   ├── Jobs                        /platform/ops/jobs
 │   ├── Cache                       /platform/ops/cache
-│   ├── Archives                    /platform/ops/archives
-│   ├── Tests communication         /platform/ops/communication-tests
 │   ├── Synchronisation identité    /platform/ops/identity-sync
-│   └── Audit                       /platform/ops/audit
 │
-├── Support & contenu
-│   ├── Messages de contact         /platform/contact-requests
-│   ├── News publiques              /platform/news
-│   ├── Notifications               /platform/notifications
-│   └── Configuration contact       /platform/contact-config
+├── Audit
+│   ├── Audit fonctionnel           /platform/audit
+│   └── Révisions techniques        /platform/audit/entity-history
+│
+├── Archives
+│   ├── Vue d'ensemble              /platform/archives
+│   ├── Runs                        /platform/archives/runs
+│   ├── Échecs & objets invalides   /platform/archives/issues
+│   ├── Legal holds                 /platform/archives/legal-holds
+│   └── Partitions                  /platform/archives/partitions
+│
+├── Communication & support
+│   ├── Notifications               /platform/communication/notifications
+│   ├── Messages de contact         /platform/communication/contacts
+│   ├── News publiques              /platform/communication/news
+│   ├── Configuration contact       /platform/communication/config
+│   ├── File d'envoi                /platform/communication/outbox
+│   └── Tests communication         /platform/communication/tests
 │
 ├── Tchala
 │   ├── Suggestions                 /platform/tchala/suggestions
@@ -116,6 +127,12 @@ Avant ce change, la situation est :
 ## Décisions validées
 
 **Providers** : retirer du menu Ops V0. Route gardée comme redirect ou placeholder caché.
+
+**Opérations / Audit / Archives / Communication** : `Opérations` est limité au pilotage runtime courant. Les enquêtes audit, le lifecycle archive/rétention et les communications/support sont des familles de premier niveau séparées. Cette séparation ne crée pas de doublon avec l'ancien groupe `Support & contenu` : ce groupe est renommé et élargi en `Communication & support`.
+
+**Jobs** : le libellé visible est `Jobs`, jamais `Schedulers` ou `Batch`. Les routes legacy `/platform/ops/batch` et `/platform/ops/schedulers` restent des alias vers la même page, mais la sidenav pointe vers `/platform/ops/jobs`. Le scheduler est un déclencheur automatique ; le job est l'unité opérable.
+
+**Promesses UI vs backend** : la sidenav V0 ne doit pas exposer des écrans qui n'ont pas de page ou d'endpoint branché. Les sous-entrées `Archives` pointent vers la page archive existante jusqu'à ce que les écrans spécialisés soient livrés. `Templates`, téléchargement d'objets archive, vérification/restauration d'objet, stop job, `nextRunAt` et logs détaillés restent hors V0 tant que les endpoints ne sont pas disponibles.
 
 **Plans et Pricing** : séparés dans Référentiels. Route actuelle `plans-pricing` → split en `/catalog/plans` et `/catalog/pricing`.
 

@@ -20,7 +20,7 @@ export interface AccessPermissionView {
 }
 
 export interface EffectivePermissionsView {
-  readonly tenantId: string;
+  readonly tenantId: string | null;
   readonly userId: string;
   readonly roleIds: readonly string[];
   readonly permissionCodes: readonly string[];
@@ -74,42 +74,56 @@ export class PlatformAccessControlApi {
     return this.backend.get<TchPage<AccessUserView>>(`/admin/identity/users?${query.toString()}`);
   }
 
-  getEffectivePermissions(userId: string): Observable<EffectivePermissionsView> {
+  getEffectivePermissions(userId: string, tenantId: string | null): Observable<EffectivePermissionsView> {
     return this.backend.get<EffectivePermissionsView>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/effective`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/effective${tenantQuery(tenantId)}`,
     );
   }
 
-  assignRole(userId: string, roleCode: string): Observable<void> {
+  assignRole(userId: string, roleCode: string, tenantId: string | null): Observable<void> {
     return this.backend.post<void>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleCode)}`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleCode)}${tenantQuery(tenantId)}`,
       {},
     );
   }
 
-  removeRole(userId: string, roleCode: string): Observable<void> {
+  removeRole(userId: string, roleCode: string, tenantId: string | null): Observable<void> {
     return this.backend.delete<void>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleCode)}`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/roles/${encodeURIComponent(roleCode)}${tenantQuery(tenantId)}`,
     );
   }
 
-  grantPermission(userId: string, permissionCode: string, reason: string | null): Observable<void> {
+  grantPermission(
+    userId: string,
+    permissionCode: string,
+    reason: string | null,
+    tenantId: string | null,
+  ): Observable<void> {
     return this.backend.put<void, OverrideReasonRequest>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/grant`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/grant${tenantQuery(tenantId)}`,
       { reason },
     );
   }
 
-  denyPermission(userId: string, permissionCode: string, reason: string | null): Observable<void> {
+  denyPermission(
+    userId: string,
+    permissionCode: string,
+    reason: string | null,
+    tenantId: string | null,
+  ): Observable<void> {
     return this.backend.put<void, OverrideReasonRequest>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/deny`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/deny${tenantQuery(tenantId)}`,
       { reason },
     );
   }
 
-  removePermissionOverride(userId: string, permissionCode: string): Observable<void> {
+  removePermissionOverride(userId: string, permissionCode: string, tenantId: string | null): Observable<void> {
     return this.backend.delete<void>(
-      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/override`,
+      `/admin/access-control/users/${encodeURIComponent(userId)}/permissions/${encodeURIComponent(permissionCode)}/override${tenantQuery(tenantId)}`,
     );
   }
+}
+
+function tenantQuery(tenantId: string | null | undefined): string {
+  return tenantId ? `?tenant_id=${encodeURIComponent(tenantId)}` : '';
 }

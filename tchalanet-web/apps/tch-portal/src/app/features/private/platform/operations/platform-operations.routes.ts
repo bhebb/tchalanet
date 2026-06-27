@@ -81,15 +81,15 @@ export const platformOperationsRoutes: Route[] = [
   {
     path: 'communication-tests',
     loadComponent: () =>
-      import('./pages/communication/platform-communication.page').then(
-        m => m.PlatformCommunicationPage,
+      import('./pages/communication/platform-communication-tests.page').then(
+        m => m.PlatformCommunicationTestsPage,
       ),
   },
   {
     path: 'communication',
     loadComponent: () =>
-      import('./pages/communication/platform-communication.page').then(
-        m => m.PlatformCommunicationPage,
+      import('./pages/communication/platform-communication-outbox.page').then(
+        m => m.PlatformCommunicationOutboxPage,
       ),
   },
   {

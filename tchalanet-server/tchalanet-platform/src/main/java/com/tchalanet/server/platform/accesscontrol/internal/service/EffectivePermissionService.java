@@ -7,6 +7,7 @@ import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPer
 import com.tchalanet.server.platform.accesscontrol.api.model.view.EffectivePermissionsView;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.adapter.PermissionCatalogAdminAdapter;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.entity.UserPermissionOverrideJpaEntity;
+import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.PlatformUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.UserPermissionOverrideJpaRepository;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EffectivePermissionService {
 
   private final TenantUserRoleJpaRepository tenantUserRoleRepository;
+  private final PlatformUserRoleJpaRepository platformUserRoleRepository;
   private final PermissionCatalogAdminAdapter permissionCatalogAdminAdapter;
   private final UserPermissionOverrideJpaRepository overrideRepository;
 
@@ -49,6 +51,10 @@ public class EffectivePermissionService {
   public EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request) {
     var tenantId = request.tenantId();
     var userId = request.userId();
+
+    if (tenantId == null) {
+      return getPlatformEffectivePermissions(userId);
+    }
 
     // 1. Collect permissions from all active roles
     var roleIds = tenantUserRoleRepository
@@ -81,5 +87,20 @@ public class EffectivePermissionService {
     effective.removeAll(denies); // DENY wins over role grants and explicit GRANTs
 
     return new EffectivePermissionsView(tenantId, userId, roleIds, Set.copyOf(effective));
+  }
+
+  private EffectivePermissionsView getPlatformEffectivePermissions(com.tchalanet.server.common.types.id.UserId userId) {
+    var roleIds = platformUserRoleRepository
+        .findActivePlatformAssignmentsByUser(userId.value())
+        .stream()
+        .map(r -> RoleId.of(r.getRoleId()))
+        .toList();
+
+    Set<String> effective = new HashSet<>();
+    for (var roleId : roleIds) {
+      effective.addAll(permissionCatalogAdminAdapter.listPermissionCodes(roleId));
+    }
+
+    return new EffectivePermissionsView(null, userId, roleIds, Set.copyOf(effective));
   }
 }

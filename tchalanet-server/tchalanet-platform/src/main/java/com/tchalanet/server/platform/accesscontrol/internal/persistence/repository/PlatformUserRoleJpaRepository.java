@@ -21,6 +21,19 @@ public interface PlatformUserRoleJpaRepository extends JpaRepository<PlatformUse
       @Param("userId") UUID userId,
       @Param("roleId") UUID roleId);
 
+  @Query("""
+      select r
+      from PlatformUserRoleJpaEntity r
+      join AppRoleJpaEntity role on role.id = r.roleId
+      where r.userId = :userId
+        and r.deletedAt is null
+        and role.system = true
+        and role.active = true
+        and role.deletedAt is null
+        and role.scope = 'PLATFORM'
+      """)
+  List<PlatformUserRoleJpaEntity> findActivePlatformAssignmentsByUser(@Param("userId") UUID userId);
+
   @Modifying
   @Query("""
       update PlatformUserRoleJpaEntity r

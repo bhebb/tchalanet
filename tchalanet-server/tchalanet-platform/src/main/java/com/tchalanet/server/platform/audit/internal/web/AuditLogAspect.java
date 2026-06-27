@@ -11,6 +11,7 @@ import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventReques
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -101,8 +102,9 @@ public class AuditLogAspect {
 
         String entityId = resolveEntityId(annotation, ctx);
         Map<String, Object> details = resolveDetails(annotation, ctx, error);
+        UUID tenantId = resolveTenantId(annotation, ctx);
 
-        return new LogAuditEventRequest(entityType, entityId, action, details);
+        return new LogAuditEventRequest(entityType, entityId, action, details, tenantId);
     }
 
     private StandardEvaluationContext buildEvaluationContext(
@@ -128,6 +130,19 @@ public class AuditLogAspect {
 
         Object value = parser.parseExpression(expr).getValue(ctx);
         return value != null ? value.toString() : "unknown";
+    }
+
+    private UUID resolveTenantId(AuditLog annotation, StandardEvaluationContext ctx) {
+        String expr = annotation.tenantIdExpression();
+        if (expr == null || expr.isBlank()) return null;
+
+        Object value = parser.parseExpression(expr).getValue(ctx);
+        if (value == null) return null;
+        if (value instanceof UUID uuid) return uuid;
+        if (value instanceof com.tchalanet.server.common.types.id.TenantId tenantId) {
+            return tenantId.uuid();
+        }
+        return UUID.fromString(value.toString());
     }
 
     @SuppressWarnings("unchecked")
