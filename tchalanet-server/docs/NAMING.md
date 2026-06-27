@@ -27,7 +27,7 @@
 
 ### 2.2 Bounded context package naming
 
-- Utiliser lowercase, un seul segment : `core.sales`, `core.draw`, `core.audit`, `core.accesscontrol`
+- Utiliser lowercase, un seul segment : `core.sales`, `core.draw`, `platform.audit`, `platform.accesscontrol`
 - Éviter : pluriels fantaisistes, séparateurs mixtes, dossiers `impl` inutiles.
 
 ---

@@ -55,9 +55,15 @@ Il répond aux questions :
 Envers ne remplace pas `audit_event` pour les actions sensibles : il ne porte pas naturellement le
 sens fonctionnel, la raison opérateur, l'autorisation, le résultat ou le contexte d'override.
 
-Les listeners Envers, l'entité `revinfo` et les projections futures appartiennent à
+Les listeners Envers, l'entité `revinfo` et les projections appartiennent à
 `platform.entityhistory`, pas à `platform.audit`. Si une UI superadmin expose ces révisions, elle
 doit passer par des projections read-only allowlistées et jamais par des tables `*_aud` brutes.
+
+Allowlist exposée actuellement :
+
+- `SELLER_TERMINAL`
+- `DRAW_RESULT`
+- `LIMIT_ASSIGNMENT`
 
 
 ## Enums
@@ -133,6 +139,15 @@ Audit endpoints are read-only search/read endpoints. Public HTTP writes to audit
 
 Tenant-scoped reads must respect RLS/effective tenant. Platform override must be explicit and
 auditable.
+
+Platform functional audit reads:
+
+```http
+GET /api/v1/platform/audit/logs
+```
+
+Filters include page/size, entity type, action, entity id, actor id, tenant, IP, and date range.
+Purge requires a reason and must itself remain controlled and auditable.
 
 ## Guardrails
 
