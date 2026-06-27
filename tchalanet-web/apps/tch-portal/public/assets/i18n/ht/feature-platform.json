@@ -617,6 +617,63 @@
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
     },
+    "entityHistory": {
+      "title": "Revizyon teknik — Envers",
+      "description": "Istwa Envers pou antite ki ekspoze yo.",
+      "notice": "Istwa teknik chanjman antite yo. Pou aksyon operatè yo, sèvi ak Audit.",
+      "source": {
+        "envers": "Sous: Hibernate Envers"
+      },
+      "entityType": {
+        "sellerTerminal": "Seller terminal",
+        "drawResult": "Rezilta tiraj",
+        "limitAssignment": "Assignasyon limit"
+      },
+      "filter": {
+        "entityType": "Tip antite",
+        "entityId": "ID oswa kle biznis",
+        "entityIdPlaceholder": "UUID, kòd tèminal, NY_EVE 2026-06-26, oswa règ",
+        "allEntityTypes": "Tout antite"
+      },
+      "state": {
+        "loading": "Chajman revizyon yo...",
+        "initialTitle": "Pa gen rechèch",
+        "initialMessage": "Chwazi yon antite ekspoze pou wè istwa teknik li.",
+        "emptyTitle": "Pa gen revizyon",
+        "emptyMessage": "Pa gen revizyon teknik ki koresponn ak filtè yo."
+      },
+      "column": {
+        "changedAt": "Dat",
+        "operation": "Operasyon",
+        "entity": "Antite",
+        "changedFields": "Chan ki chanje",
+        "tenant": "Tenant",
+        "changedBy": "ID aktè"
+      },
+      "action": {
+        "viewDetail": "Gade detay",
+        "hideDetail": "Kache detay"
+      },
+      "detail": {
+        "title": "Revizyon teknik",
+        "revisionId": "ID revizyon",
+        "changes": "Chanjman",
+        "field": "Chan",
+        "before": "Anvan",
+        "after": "Apre",
+        "noSafeChanges": "Pa gen valè ekspozab pou revizyon sa a."
+      },
+      "value": {
+        "global": "Global"
+      },
+      "pagination": {
+        "count": "{{count}} revizyon",
+        "page": "Paj {{page}} / {{total}}"
+      },
+      "feedback": {
+        "loadError": "Pa ka chaje revizyon yo."
+      }
+    },
     "i18nOverrides": {
       "title": "Tradiksyon",
       "description": "Jere chanjman tradiksyon yo pa lang ak nivo.",

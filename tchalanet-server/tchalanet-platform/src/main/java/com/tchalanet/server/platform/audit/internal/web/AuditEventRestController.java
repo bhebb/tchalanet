@@ -23,6 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +45,7 @@ public class AuditEventRestController {
       @RequestParam(required = false) String entityId,
       @RequestParam(required = false) AuditAction action,
       @RequestParam(required = false) String actorId,
+      @RequestParam(required = false) String ip,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
       @TchPaging(
@@ -57,6 +59,7 @@ public class AuditEventRestController {
         entityId,
         action,
         actorId,
+        ip,
         from,
         to,
         pageReq.pageable()));
@@ -71,8 +74,9 @@ public class AuditEventRestController {
       action = AuditAction.AUDIT_PURGE,
       idExpression = "'audit_event'",
       detailsExpression = "#result")
-  public ApiResponse<PurgeOldAuditEventsResult> purgeExpiredAuditLogs() {
-    return ApiResponse.success(auditApi.purgeOldAuditEvents(new PurgeOldAuditEventsRequest()));
+  public ApiResponse<PurgeOldAuditEventsResult> purgeExpiredAuditLogs(
+      @RequestBody(required = false) PurgeOldAuditEventsRequest request) {
+    return ApiResponse.success(auditApi.purgeOldAuditEvents(request));
   }
 
   private AuditEventResponse toResponse(AuditEventView event) {

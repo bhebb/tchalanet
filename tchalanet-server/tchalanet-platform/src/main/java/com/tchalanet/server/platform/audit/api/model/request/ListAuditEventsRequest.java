@@ -12,6 +12,7 @@ public record ListAuditEventsRequest(
     String entityId,
     AuditAction action,
     String actorId,
+    String ip,
     Instant from,
     Instant to,
     Pageable pageable) {}

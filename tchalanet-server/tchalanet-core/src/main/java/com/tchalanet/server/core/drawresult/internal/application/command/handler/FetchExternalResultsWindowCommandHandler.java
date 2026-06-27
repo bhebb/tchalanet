@@ -137,6 +137,16 @@ public class FetchExternalResultsWindowCommandHandler
                 return;
             }
 
+            if (!resultSlotCatalog.existsLive(slot.id())) {
+                counters.slotNotFound++;
+                log.warn(
+                    "draw-results.fetch.skip missing_live_slot slot={} slotId={} date={}",
+                    slot.slotKey(),
+                    slot.id(),
+                    date);
+                return;
+            }
+
             var external = externalResultFetcher.fetch(cmd, slot, sourceCfg, date, now);
 
             if (!external.hasAnyResult()) {

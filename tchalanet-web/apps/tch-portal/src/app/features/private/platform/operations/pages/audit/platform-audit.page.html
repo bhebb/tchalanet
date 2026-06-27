@@ -1,74 +1,72 @@
-<tch-admin-page-shell title="Audit" description="Journal d'audit des actions superadmin.">
+<tch-admin-page-shell title="Audit" description="Journal fonctionnel des actions administratives et opérationnelles.">
   <div actions>
-    <button mat-stroked-button color="warn" [disabled]="purging()" (click)="purge()" matTooltip="Purger les logs expirés selon la politique de rétention">
-      <span class="material-symbols-outlined">delete_sweep</span>
-      Purger
+    <button mat-stroked-button color="warn" [disabled]="purging()" (click)="purge()" matTooltip="Purger uniquement les logs expirés selon la politique de rétention">
+      <span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
+      Purger rétention
     </button>
-    <button mat-icon-button (click)="load()" matTooltip="Rafraîchir" style="margin-left:0.5rem">
-      <span class="material-symbols-outlined">refresh</span>
+    <button mat-icon-button class="platform-audit__refresh-action" (click)="load()" matTooltip="Rafraîchir">
+      <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
     </button>
   </div>
 
-  <tch-admin-crud-shell>
-    <div toolbar>
-      <form [formGroup]="filterForm" class="audit-filters">
-        <mat-form-field appearance="outline">
-          <mat-label>Type d'entité</mat-label>
-          <mat-select formControlName="entityType">
-            <mat-option value="">Tous</mat-option>
-            @for (t of entityTypes; track t) {
-              <mat-option [value]="t">{{ t }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+  <tch-admin-list-surface
+    searchLabel="ID entité"
+    searchPlaceholder="uuid ou code"
+    [searchValue]="filterForm.controls.entityId.value"
+    [searchMinLength]="0"
+    statusLabel="Type d'entité"
+    [statusValue]="filterForm.controls.entityType.value"
+    [statusOptions]="entityTypeOptions()"
+    allStatusesLabel="Tous"
+    resetLabel="Réinitialiser"
+    [filtersDisplay]="'panel'"
+    [filtersExpanded]="hasActiveFilters()"
+    (searchChange)="onEntityIdFilter($event)"
+    (statusChange)="onEntityTypeFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <div list-filters [formGroup]="filterForm" class="platform-audit__filters">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Action</mat-label>
+        <input matInput formControlName="action" placeholder="ex: CREATE" />
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Action</mat-label>
-          <input matInput formControlName="action" placeholder="ex: CREATE" />
-        </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Acteur ID</mat-label>
+        <input matInput formControlName="actorId" placeholder="uuid acteur" />
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>ID entité</mat-label>
-          <input matInput formControlName="entityId" placeholder="uuid ou code" />
-        </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>IP</mat-label>
+        <input matInput formControlName="ip" placeholder="127.0.0.1" />
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Acteur ID</mat-label>
-          <input matInput formControlName="actorId" placeholder="uuid acteur" />
-        </mat-form-field>
+      <tch-search-select
+        label="Tenant"
+        placeholder="Nom ou code du tenant"
+        icon="apartment"
+        emptyLabel="Aucun tenant trouvé"
+        [searchFn]="searchTenants"
+        (valueChange)="selectTenantFilter($event)"
+      />
 
-        <tch-search-select
-          label="Tenant"
-          placeholder="Nom ou code du tenant"
-          icon="apartment"
-          emptyLabel="Aucun tenant trouvé"
-          [searchFn]="searchTenants"
-          (valueChange)="selectTenantFilter($event)"
-        />
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Depuis</mat-label>
+        <input matInput type="date" formControlName="from" />
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Depuis</mat-label>
-          <input matInput type="date" formControlName="from" />
-        </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Jusqu'à</mat-label>
+        <input matInput type="date" formControlName="to" />
+      </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Jusqu'à</mat-label>
-          <input matInput type="date" formControlName="to" />
-        </mat-form-field>
-
-        <div class="filter-actions">
-          <button mat-flat-button color="primary" type="button" (click)="applyFilters()">
-            <span class="material-symbols-outlined">search</span>
-            Filtrer
-          </button>
-          <button mat-stroked-button type="button" (click)="resetFilters()">
-            <span class="material-symbols-outlined">clear</span>
-          </button>
-        </div>
-      </form>
+      <button mat-flat-button color="primary" type="button" (click)="applyFilters()">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        Filtrer
+      </button>
     </div>
 
-    <div content>
+    <ng-container list-content>
       @if (loading()) {
         <tch-loading label="Chargement des événements..." />
       } @else if (error()) {
@@ -80,93 +78,190 @@
           message="Aucun événement d'audit ne correspond aux filtres sélectionnés."
         />
       } @else {
-        <table mat-table [dataSource]="events()" multiTemplateDataRows class="audit-table">
+        <div class="platform-audit__table">
+          <table mat-table [dataSource]="events()" multiTemplateDataRows>
+            <ng-container matColumnDef="occurredAt">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row" class="platform-audit__date">
+                {{ row.occurredAt | date:'dd/MM/yy HH:mm:ss' }}
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="occurredAt">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let row" class="cell-date">
-              {{ row.occurredAt | date:'dd/MM/yy HH:mm:ss' }}
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="actor">
+              <th mat-header-cell *matHeaderCellDef>Acteur</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="actorTone(row.actorType)" [label]="row.actorType" />
+                <div class="platform-audit__entity-id">
+                  <span class="platform-audit__subtext" [matTooltip]="row.actorId || ''">
+                    {{ row.actorId ? row.actorId.slice(0, 8) + '…' : '—' }}
+                  </span>
+                  @if (row.actorId) {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="platform-audit__copy-id"
+                      (click)="copyActorId(row.actorId)"
+                      matTooltip="Copier l'ID acteur"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="actor">
-            <th mat-header-cell *matHeaderCellDef>Acteur</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [tone]="actorTone(row.actorType)" [label]="row.actorType" />
-              <div class="cell-sub">{{ row.actorId ? row.actorId.slice(0, 8) + '…' : '—' }}</div>
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="entity">
+              <th mat-header-cell *matHeaderCellDef>Entité</th>
+              <td mat-cell *matCellDef="let row">
+                <code class="platform-audit__entity-type">{{ row.entityType }}</code>
+                <div class="platform-audit__entity-id">
+                  <span class="platform-audit__subtext" [matTooltip]="row.entityId || ''">
+                    {{ row.entityId?.slice(0, 20) ?? '—' }}
+                  </span>
+                  @if (row.entityId) {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="platform-audit__copy-id"
+                      (click)="copyEntityId(row.entityId)"
+                      matTooltip="Copier l'ID complet"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="entity">
-            <th mat-header-cell *matHeaderCellDef>Entité</th>
-            <td mat-cell *matCellDef="let row">
-              <code class="entity-type">{{ row.entityType }}</code>
-              <div class="cell-sub">{{ row.entityId?.slice(0, 20) ?? '—' }}</div>
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="actionTone(row.action)" [label]="row.action" />
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef>Action</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [tone]="actionTone(row.action)" [label]="row.action" />
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="tenantId">
+              <th mat-header-cell *matHeaderCellDef>Tenant</th>
+              <td mat-cell *matCellDef="let row" class="platform-audit__mono">
+                {{ row.tenantId ? row.tenantId.slice(0, 8) + '…' : 'Global' }}
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="tenantId">
-            <th mat-header-cell *matHeaderCellDef>Tenant</th>
-            <td mat-cell *matCellDef="let row" class="cell-mono">
-              {{ row.tenantId ? row.tenantId.slice(0, 8) + '…' : 'Global' }}
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="ip">
+              <th mat-header-cell *matHeaderCellDef>IP</th>
+              <td mat-cell *matCellDef="let row" class="platform-audit__mono">{{ row.ip ?? '—' }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="ip">
-            <th mat-header-cell *matHeaderCellDef>IP</th>
-            <td mat-cell *matCellDef="let row" class="cell-mono">{{ row.ip ?? '—' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row" class="cell-expand">
-              @if (row.details) {
-                <button mat-icon-button
+            <ng-container matColumnDef="expand">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="platform-audit__expand-cell">
+                <button
+                  mat-icon-button
                   (click)="toggleExpand(row.id)"
-                  [matTooltip]="expandedId() === row.id ? 'Masquer détails' : 'Voir détails'">
-                  <span class="material-symbols-outlined">
-                    {{ expandedId() === row.id ? 'expand_less' : 'expand_more' }}
+                  [matTooltip]="expandedId() === row.id ? 'Masquer détails' : 'Voir détails'"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ expandedId() === row.id ? 'expand_less' : 'manage_search' }}
                   </span>
                 </button>
-              }
-            </td>
-          </ng-container>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="detail-cell">
-              @if (expandedId() === row.id && row.details) {
-                <div class="detail-panel">
-                  <pre class="detail-json">{{ formatDetails(row.details) }}</pre>
-                </div>
-              }
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="expandedDetail">
+              <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length" class="platform-audit__detail-cell">
+                @if (expandedId() === row.id) {
+                  <div class="platform-audit__detail-panel">
+                    <div class="platform-audit__detail-header">
+                      <h2>Détails audit</h2>
+                      <button mat-button type="button" (click)="copyAuditId(row.id)">
+                        <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                        Copier audit ID
+                      </button>
+                    </div>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="main-row"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
-        </table>
+                    <dl class="platform-audit__meta">
+                      <div>
+                        <dt>Audit ID</dt>
+                        <dd>{{ row.id }}</dd>
+                      </div>
+                      <div>
+                        <dt>Date ISO</dt>
+                        <dd>{{ row.occurredAt }}</dd>
+                      </div>
+                      <div>
+                        <dt>Actor type</dt>
+                        <dd>{{ row.actorType }}</dd>
+                      </div>
+                      <div>
+                        <dt>Actor ID</dt>
+                        <dd>{{ row.actorId ?? '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Action</dt>
+                        <dd>{{ row.action }}</dd>
+                      </div>
+                      <div>
+                        <dt>Entity</dt>
+                        <dd>{{ row.entityType }} / {{ row.entityId }}</dd>
+                      </div>
+                      <div>
+                        <dt>Tenant</dt>
+                        <dd>{{ row.tenantId ?? 'Global' }}</dd>
+                      </div>
+                      <div>
+                        <dt>IP</dt>
+                        <dd>{{ row.ip ?? '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>User agent</dt>
+                        <dd>{{ row.userAgent ?? '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Request ID</dt>
+                        <dd>{{ detailValue(row.details, 'requestId') ?? '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Trace ID</dt>
+                        <dd>{{ detailValue(row.details, 'traceId') ?? '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>Reason</dt>
+                        <dd>{{ detailValue(row.details, 'reason') ?? detailValue(row.details, 'blockedReason') ?? '—' }}</dd>
+                      </div>
+                    </dl>
+
+                    @if (row.details) {
+                      <h3 class="platform-audit__detail-subtitle">Metadata JSON</h3>
+                      <pre class="platform-audit__detail-json">{{ formatDetails(row.details) }}</pre>
+                    }
+                  </div>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="platform-audit__detail-row"></tr>
+          </table>
+        </div>
       }
-    </div>
+    </ng-container>
 
-    <div footer>
-      <span>{{ totalElements() }} événement(s)</span>
-      <div style="display:flex;align-items:center;gap:4px">
-        <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
-          <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-        <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
+    <ng-container list-footer>
+      <div class="platform-audit__pagination">
+        <span class="platform-audit__pagination-total">{{ totalElements() }} événement(s)</span>
+        <div class="platform-audit__pagination-nav">
+          <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            Précédent
+          </button>
+          <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+          <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+            Suivant
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
       </div>
-    </div>
-  </tch-admin-crud-shell>
+    </ng-container>
+  </tch-admin-list-surface>
 </tch-admin-page-shell>

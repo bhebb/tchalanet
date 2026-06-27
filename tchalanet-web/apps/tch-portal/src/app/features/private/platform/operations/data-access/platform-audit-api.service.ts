@@ -30,6 +30,7 @@ export interface PurgeAuditResult {
   deleted: number;
   retentionDays: number;
   threshold: string;
+  reason: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -42,6 +43,7 @@ export class PlatformAuditApi {
     entityId?: string;
     action?: string;
     actorId?: string;
+    ip?: string;
     from?: string;
     to?: string;
     page?: number;
@@ -57,7 +59,7 @@ export class PlatformAuditApi {
     return this.backend.get<TchPage<AuditEventView>>(`/platform/audit/logs${q ? '?' + q : ''}`);
   }
 
-  purge(): Observable<PurgeAuditResult> {
-    return this.backend.post<PurgeAuditResult>('/platform/audit/purge', {});
+  purge(reason: string): Observable<PurgeAuditResult> {
+    return this.backend.post<PurgeAuditResult>('/platform/audit/purge', { reason });
   }
 }

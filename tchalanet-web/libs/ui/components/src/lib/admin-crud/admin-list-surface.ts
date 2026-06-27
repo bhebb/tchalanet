@@ -5,6 +5,7 @@ import {
   OnInit,
   ViewEncapsulation,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -31,7 +32,11 @@ export interface AdminListStatusOption {
   encapsulation: ViewEncapsulation.None,
   imports: [MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule],
   template: `
-    <section class="tch-admin-list-surface">
+    <section
+      class="tch-admin-list-surface"
+      [class.tch-admin-list-surface--inline]="filtersDisplay() === 'inline'"
+      [class.tch-admin-list-surface--panel]="filtersDisplay() === 'panel'"
+    >
       <div class="tch-admin-list-surface__toolbar">
         <mat-form-field appearance="outline" class="tch-admin-list-surface__search" subscriptSizing="dynamic">
           <mat-icon matPrefix>search</mat-icon>
@@ -42,8 +47,21 @@ export interface AdminListStatusOption {
             [placeholder]="searchPlaceholder()"
             [value]="searchValue()"
             (input)="onSearchInput($event)"
+            (keydown.enter)="submitSearch()"
           />
         </mat-form-field>
+
+        @if (showSearchButton()) {
+          <button
+            mat-flat-button
+            type="button"
+            class="tch-admin-list-surface__search-submit"
+            (click)="submitSearch()"
+          >
+            <mat-icon>search</mat-icon>
+            {{ searchButtonLabel() }}
+          </button>
+        }
 
         @if (hasFilters() && filtersDisplay() === 'panel') {
           <button
@@ -127,6 +145,7 @@ export interface AdminListStatusOption {
 
       .tch-admin-list-surface__search {
         flex: 1 1 100%;
+        min-width: min(18rem, 100%);
         max-width: none;
       }
 
@@ -160,6 +179,12 @@ export interface AdminListStatusOption {
 
       .tch-admin-list-surface__filter-toggle:active {
         transform: scale(0.98);
+      }
+
+      .tch-admin-list-surface__search-submit {
+        min-height: var(--tch-size-touch-target, 48px);
+        border-radius: var(--tch-radius-pill, 999px);
+        white-space: nowrap;
       }
 
       .tch-admin-list-surface__filter-toggle--active {
@@ -323,19 +348,28 @@ export interface AdminListStatusOption {
       @media (min-width: 600px) {
         .tch-admin-list-surface__toolbar {
           align-items: center;
-          flex-wrap: nowrap;
+          flex-wrap: wrap;
         }
 
         .tch-admin-list-surface__search {
-          flex: 0 1 21rem;
+          flex: 1 1 21rem;
+          max-width: 28rem;
         }
 
         .tch-admin-list-surface__filters {
+          width: 100%;
+          align-items: center;
+        }
+
+        .tch-admin-list-surface--panel .tch-admin-list-surface__filters {
+          order: 10;
+        }
+
+        .tch-admin-list-surface--inline .tch-admin-list-surface__filters {
           width: auto;
           padding: 0;
           border: 0;
           background: transparent;
-          align-items: center;
           flex: 0 0 auto;
         }
 
@@ -355,11 +389,15 @@ export class AdminListSurface implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly searchInput$ = new Subject<string>();
 
+  readonly searchDraft = signal('');
+
   readonly searchLabel = input('Recherche');
   readonly searchPlaceholder = input('Rechercher...');
   readonly searchValue = input('');
   readonly searchMinLength = input(3);
   readonly searchDebounceMs = input(350);
+  readonly showSearchButton = input(false);
+  readonly searchButtonLabel = input('Rechercher');
   readonly filterToggleLabel = input('Filtres');
   readonly filtersDisplay = input<'panel' | 'inline'>('panel');
   readonly filtersExpanded = input(false);
@@ -371,12 +409,17 @@ export class AdminListSurface implements OnInit {
   readonly showReset = input(true);
 
   readonly searchChange = output<string>();
+  readonly searchSubmit = output<string>();
   readonly statusChange = output<string>();
   readonly resetFilters = output<void>();
   readonly filtersExpandedChange = output<boolean>();
 
   readonly filtersOpen = signal(false);
   readonly hasFilters = computed(() => this.statusOptions().length > 0);
+
+  constructor() {
+    effect(() => this.searchDraft.set(this.searchValue()));
+  }
 
   ngOnInit(): void {
     this.filtersOpen.set(this.filtersExpanded());
@@ -390,7 +433,15 @@ export class AdminListSurface implements OnInit {
   }
 
   onSearchInput(event: Event): void {
-    this.searchInput$.next((event.target as HTMLInputElement).value.trim());
+    const value = (event.target as HTMLInputElement).value.trim();
+    this.searchDraft.set(value);
+    this.searchInput$.next(value);
+  }
+
+  submitSearch(): void {
+    const value = this.searchDraft().trim();
+    this.searchChange.emit(value);
+    this.searchSubmit.emit(value);
   }
 
   toggleFilters(): void {

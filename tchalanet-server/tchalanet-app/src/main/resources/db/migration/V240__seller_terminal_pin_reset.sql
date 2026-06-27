@@ -7,6 +7,12 @@ ALTER TABLE seller_terminal
     ADD COLUMN IF NOT EXISTS must_change_pin BOOLEAN NOT NULL DEFAULT FALSE,
     ADD COLUMN IF NOT EXISTS pin_reset_at    TIMESTAMPTZ;
 
+ALTER TABLE seller_terminal_aud
+    ADD COLUMN IF NOT EXISTS must_change_pin     BOOLEAN,
+    ADD COLUMN IF NOT EXISTS must_change_pin_mod BOOLEAN,
+    ADD COLUMN IF NOT EXISTS pin_reset_at        TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS pin_reset_at_mod    BOOLEAN;
+
 -- ── 2. Permission seed ────────────────────────────────────────────────────────
 
 INSERT INTO permission (code, name, category, system, active)

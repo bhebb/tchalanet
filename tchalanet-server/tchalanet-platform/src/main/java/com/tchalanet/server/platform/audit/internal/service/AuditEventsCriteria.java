@@ -12,6 +12,7 @@ public record AuditEventsCriteria(
     String entityId,
     AuditAction action,
     String actorId,
+    String ip,
     Instant from,
     Instant to,
     Pageable pageable) {}

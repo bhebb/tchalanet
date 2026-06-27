@@ -215,7 +215,7 @@ spring:
       org.hibernate.envers.store_data_at_delete: true
       org.hibernate.envers.revision_field_name: "rev"
       org.hibernate.envers.revision_type_field_name: "revtype"
-      org.hibernate.envers.revision_listener: "com.tchalanet.server.platform.audit.internal.listener.TchRevisionListener"
+      org.hibernate.envers.revision_listener: "com.tchalanet.server.platform.entityhistory.internal.listener.TchRevisionListener"
 
       hibernate.type.json_format_mapper: jackson3
   batch:

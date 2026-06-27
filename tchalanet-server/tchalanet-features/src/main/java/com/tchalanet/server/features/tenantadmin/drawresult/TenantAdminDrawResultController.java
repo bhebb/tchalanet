@@ -36,7 +36,7 @@ public class TenantAdminDrawResultController {
     @AuditLog(
         entity = AuditEntityType.DRAW_RESULT,
         action = AuditAction.DRAW_RESULT_PROPOSE,
-        idExpression = "#req.slotKey() + ':' + #req.drawDate()",
+        idExpression = "#result.data().drawResultId().value().toString()",
         detailsExpression = "#req")
     public ApiResponse<RecordManualDrawResultResult> propose(
         @Valid @RequestBody ProposeManualDrawResultRequest req,

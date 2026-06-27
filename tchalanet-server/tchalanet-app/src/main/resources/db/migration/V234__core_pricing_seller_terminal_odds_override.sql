@@ -61,32 +61,6 @@ CREATE UNIQUE INDEX uq_st_pricing_odds_override_active
 -- limitpolicy: add SELLER_TERMINAL to scope/target enums
 -- (existing scope_type and target_type columns in limit_assignment use varchar — no migration needed)
 
-CREATE TABLE seller_terminal_pricing_odds_override_aud
-(
-    id                 uuid    NOT NULL,
-    rev                integer NOT NULL,
-    revtype            smallint,
-    tenant_id          uuid,
-    seller_terminal_id uuid,
-    game_code          varchar(32),
-    bet_type           varchar(32),
-    bet_option         smallint,
-    odds               numeric(12,4),
-    active             boolean,
-    effective_from     timestamptz,
-    effective_to       timestamptz,
-    reason             varchar(500),
-    created_at         timestamptz,
-    created_by         uuid,
-    updated_at         timestamptz,
-    updated_by         uuid,
-    deleted_at         timestamptz,
-    deleted_by         uuid,
-    version            bigint,
-    CONSTRAINT pk_st_pricing_odds_override_aud PRIMARY KEY (id, rev),
-    CONSTRAINT fk_st_pricing_odds_override_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
-);
-
 ALTER TABLE seller_terminal_pricing_odds_override ENABLE ROW LEVEL SECURITY;
 ALTER TABLE seller_terminal_pricing_odds_override FORCE ROW LEVEL SECURITY;
 CREATE POLICY seller_terminal_pricing_odds_override_rls_all ON seller_terminal_pricing_odds_override

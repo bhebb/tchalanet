@@ -617,6 +617,63 @@
       "pagination": "Page {{page}} / {{total}}",
       "paginationTotal": "{{count}} administrateur(s)"
     },
+    "entityHistory": {
+      "title": "Technical revisions — Envers",
+      "description": "Envers history for exposed entities.",
+      "notice": "Technical history of entity changes. For operator actions, use Audit.",
+      "source": {
+        "envers": "Source: Hibernate Envers"
+      },
+      "entityType": {
+        "sellerTerminal": "Seller terminal",
+        "drawResult": "Draw result",
+        "limitAssignment": "Limit assignment"
+      },
+      "filter": {
+        "entityType": "Entity type",
+        "entityId": "ID or business key",
+        "entityIdPlaceholder": "UUID, terminal code, NY_EVE 2026-06-26, or rule",
+        "allEntityTypes": "All entities"
+      },
+      "state": {
+        "loading": "Loading revisions...",
+        "initialTitle": "No search",
+        "initialMessage": "Select an exposed entity to view its technical history.",
+        "emptyTitle": "No revisions",
+        "emptyMessage": "No technical revision matches the selected filters."
+      },
+      "column": {
+        "changedAt": "Date",
+        "operation": "Operation",
+        "entity": "Entity",
+        "changedFields": "Changed fields",
+        "tenant": "Tenant",
+        "changedBy": "Actor ID"
+      },
+      "action": {
+        "viewDetail": "View detail",
+        "hideDetail": "Hide detail"
+      },
+      "detail": {
+        "title": "Technical revision",
+        "revisionId": "Revision ID",
+        "changes": "Changes",
+        "field": "Field",
+        "before": "Before",
+        "after": "After",
+        "noSafeChanges": "No exposable value for this revision."
+      },
+      "value": {
+        "global": "Global"
+      },
+      "pagination": {
+        "count": "{{count}} revision(s)",
+        "page": "Page {{page}} / {{total}}"
+      },
+      "feedback": {
+        "loadError": "Unable to load revisions."
+      }
+    },
     "i18nOverrides": {
       "title": "Translations",
       "description": "Manage translation overrides by locale and level.",

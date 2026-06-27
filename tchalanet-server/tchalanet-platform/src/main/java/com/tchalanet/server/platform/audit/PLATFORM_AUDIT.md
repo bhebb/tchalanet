@@ -15,6 +15,50 @@
 - Audit technique de révision (Envers)
 - Audit d’infrastructure technique
 
+## Deux familles d'audit
+
+### Audit fonctionnel
+
+`platform.audit` produit un journal d'actions humaines/système consultable par les opérateurs.
+
+Source de vérité :
+
+- table `audit_event`
+- API Java `AuditApi`
+- annotation `@AuditLog`
+- endpoint superadmin `GET /platform/audit/logs`
+
+Il répond aux questions :
+
+- qui a fait l'action ;
+- sur quelle entité métier ou système ;
+- avec quel résultat (`SUCCESS`/`FAIL` dans les détails quand l'annotation est utilisée) ;
+- pour quelle raison, request id, tenant, IP ou user-agent.
+
+### Historique technique d'entites
+
+`platform.entityhistory` produit un historique de révision d'entités JPA avec Hibernate Envers.
+
+Source de vérité :
+
+- table `revinfo`
+- tables `*_aud`
+- annotations JPA `@Audited`
+- slice `platform.entityhistory`
+
+Il répond aux questions :
+
+- quelle ligne a changé ;
+- à quelle révision ;
+- avec quel type de révision et quels champs persistés.
+
+Envers ne remplace pas `audit_event` pour les actions sensibles : il ne porte pas naturellement le
+sens fonctionnel, la raison opérateur, l'autorisation, le résultat ou le contexte d'override.
+
+Les listeners Envers, l'entité `revinfo` et les projections futures appartiennent à
+`platform.entityhistory`, pas à `platform.audit`. Si une UI superadmin expose ces révisions, elle
+doit passer par des projections read-only allowlistées et jamais par des tables `*_aud` brutes.
+
 
 ## Enums
 

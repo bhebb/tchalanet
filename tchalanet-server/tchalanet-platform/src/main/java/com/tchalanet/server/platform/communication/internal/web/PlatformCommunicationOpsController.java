@@ -61,7 +61,9 @@ public class PlatformCommunicationOpsController {
           allowedSort = {"createdAt", "status", "channel", "nextAttemptAt", "sentAt", "failedAt"},
           defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
-    var page = messages.searchOpsMessages(status, channel, tenantId, blankToNull(recipient), pageReq.pageable());
+    var page =
+        messages.searchOpsMessages(
+            status, channel, tenantId, recipientPattern(recipient), pageReq.pageable());
     var messageIds = page.getContent().stream().map(OutboundMessageJpaEntity::getId).toList();
     var attemptsByMessage = messageIds.isEmpty()
         ? Map.<UUID, List<MessageDeliveryAttemptJpaEntity>>of()
@@ -211,6 +213,11 @@ public class PlatformCommunicationOpsController {
 
   private String blankToNull(String value) {
     return value == null || value.isBlank() ? null : value.trim();
+  }
+
+  private String recipientPattern(String value) {
+    var normalized = blankToNull(value);
+    return normalized == null ? null : "%" + normalized.toLowerCase(Locale.ROOT) + "%";
   }
 
   public record SlackTestRequest(

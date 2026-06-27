@@ -64,6 +64,14 @@ public class ResultSlotCatalogImpl implements ResultSlotCatalog {
     }
 
     @Override
+    public boolean existsLive(ResultSlotId id) {
+        if (id == null) {
+            return false;
+        }
+        return repo.findByIdAndDeletedAtIsNull(id.value()).isPresent();
+    }
+
+    @Override
     public ResultSlotStatsView stats() {
         long total = repo.countAllLive();
         long active = repo.countActiveLive();

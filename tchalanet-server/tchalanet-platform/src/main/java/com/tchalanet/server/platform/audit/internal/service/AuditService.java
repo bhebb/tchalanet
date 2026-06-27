@@ -64,6 +64,7 @@ public class AuditService {
                 normalize(request.entityId()),
                 request.action(),
                 normalize(request.actorId()),
+                normalize(request.ip()),
                 request.from(),
                 request.to(),
                 request.pageable()));
@@ -97,14 +98,19 @@ public class AuditService {
 
   @TchTx
   public PurgeOldAuditEventsResult purgeOldAuditEvents(PurgeOldAuditEventsRequest request) {
+    var reason = normalize(request == null ? null : request.reason());
+    if (reason == null) {
+      throw new IllegalArgumentException("Audit purge reason is required");
+    }
     var threshold = Instant.now(clock).minus(retentionDays, ChronoUnit.DAYS);
     int deleted = writer.deleteBefore(threshold);
     log.info(
-        "Purged {} audit events older than {} days (threshold={})",
+        "Purged {} audit events older than {} days (threshold={}, reason={})",
         deleted,
         retentionDays,
-        threshold);
-    return new PurgeOldAuditEventsResult(deleted, retentionDays, threshold);
+        threshold,
+        reason);
+    return new PurgeOldAuditEventsResult(deleted, retentionDays, threshold, reason);
   }
 
   private static String normalize(String value) {

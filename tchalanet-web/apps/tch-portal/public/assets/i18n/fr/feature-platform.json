@@ -617,6 +617,63 @@
         "label": "Total tenants"
       }
     },
+    "entityHistory": {
+      "title": "Révisions techniques — Envers",
+      "description": "Historique Envers des entités exposées.",
+      "notice": "Historique technique des changements d’entités. Pour les actions opérateur, consultez Audit.",
+      "source": {
+        "envers": "Source : Hibernate Envers"
+      },
+      "entityType": {
+        "sellerTerminal": "Seller terminal",
+        "drawResult": "Résultat de tirage",
+        "limitAssignment": "Assignation de limite"
+      },
+      "filter": {
+        "entityType": "Type d’entité",
+        "entityId": "ID ou clé métier",
+        "entityIdPlaceholder": "UUID, code terminal, NY_EVE 2026-06-26 ou règle",
+        "allEntityTypes": "Toutes les entités"
+      },
+      "state": {
+        "loading": "Chargement des révisions...",
+        "initialTitle": "Aucune recherche",
+        "initialMessage": "Sélectionnez une entité exposée pour consulter son historique technique.",
+        "emptyTitle": "Aucune révision",
+        "emptyMessage": "Aucune révision technique ne correspond aux filtres sélectionnés."
+      },
+      "column": {
+        "changedAt": "Date",
+        "operation": "Opération",
+        "entity": "Entité",
+        "changedFields": "Champs modifiés",
+        "tenant": "Tenant",
+        "changedBy": "Acteur ID"
+      },
+      "action": {
+        "viewDetail": "Voir détail",
+        "hideDetail": "Masquer détail"
+      },
+      "detail": {
+        "title": "Révision technique",
+        "revisionId": "Révision ID",
+        "changes": "Changements",
+        "field": "Champ",
+        "before": "Avant",
+        "after": "Après",
+        "noSafeChanges": "Aucune valeur exposable pour cette révision."
+      },
+      "value": {
+        "global": "Global"
+      },
+      "pagination": {
+        "count": "{{count}} révision(s)",
+        "page": "Page {{page}} / {{total}}"
+      },
+      "feedback": {
+        "loadError": "Impossible de charger les révisions."
+      }
+    },
     "i18nOverrides": {
       "title": "Traductions",
       "description": "Gérez les overrides de traduction par locale et niveau.",

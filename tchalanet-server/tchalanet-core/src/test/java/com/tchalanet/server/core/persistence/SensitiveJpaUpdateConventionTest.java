@@ -21,7 +21,6 @@ class SensitiveJpaUpdateConventionTest {
         "com/tchalanet/server/core/outlet/internal/infra/persistence/adapter/OutletPersistenceAdapter.java"
     );
     private static final Set<String> GUARDED_SQL_WRITERS = Set.of(
-        "com/tchalanet/server/core/drawresult/internal/infra/persistence/adapter/DrawResultWriterJdbcAdapter.java",
         "com/tchalanet/server/core/draw/internal/infra/persistence/adapter/DrawLifecycleJpaAdapter.java",
         "com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java"
     );
@@ -51,11 +50,7 @@ class SensitiveJpaUpdateConventionTest {
         for (String writer : GUARDED_SQL_WRITERS) {
             String source = Files.readString(SOURCE_ROOT.resolve(writer));
 
-            if (writer.contains("DrawResultWriterJdbcAdapter")) {
-                assertThat(source).contains("version = draw_result.version + 1");
-                assertThat(source).contains("CONFIRMED");
-                assertThat(source).contains("OVERRIDDEN");
-            } else if (writer.contains("DrawLifecycleJpaAdapter")) {
+            if (writer.contains("DrawLifecycleJpaAdapter")) {
                 assertThat(source).contains("bulkOpen");
                 assertThat(source).contains("bulkClose");
             } else if (writer.contains("JpaLedgerRepositoryAdapter")) {

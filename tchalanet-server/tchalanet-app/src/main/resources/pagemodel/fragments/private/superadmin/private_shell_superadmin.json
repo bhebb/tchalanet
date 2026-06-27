@@ -336,6 +336,13 @@
                 "path": "/app/platform/ops/audit",
                 "kind": "internal",
                 "icon": "assignment_turned_in"
+              },
+              {
+                "id": "ops-entity-history",
+                "label_key": "platform.nav.entityHistory",
+                "path": "/app/platform/ops/entity-history",
+                "kind": "internal",
+                "icon": "manage_history"
               }
             ]
           },

@@ -1,5 +1,6 @@
 export * from './lib/contracts/action-item';
 export * from './lib/contracts/api.types';
+export * from './lib/contracts/entity-history';
 export * from './lib/http/api-base';
 export * from './lib/http/api-feedback-context';
 export * from './lib/http/api-response';
