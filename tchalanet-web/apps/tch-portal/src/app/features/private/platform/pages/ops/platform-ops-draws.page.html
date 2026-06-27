@@ -66,7 +66,19 @@
 
           <ng-container matColumnDef="slot">
             <th mat-header-cell *matHeaderCellDef>Slot</th>
-            <td mat-cell *matCellDef="let row"><code>{{ row.slot.key }}</code></td>
+            <td mat-cell *matCellDef="let row">
+              <div class="draws-page__slot-cell">
+                @if (lotteryAsset(row.slot.key); as asset) {
+                  <img class="draws-page__lottery-logo" [src]="asset" [alt]="row.slot.key" loading="lazy" />
+                }
+                <div>
+                  <code>{{ row.slot.key }}</code>
+                  @if (row.slot.label) {
+                    <span>{{ row.slot.label }}</span>
+                  }
+                </div>
+              </div>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="status">

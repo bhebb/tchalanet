@@ -28,15 +28,13 @@ describe('PLATFORM_NAVIGATION', () => {
       'platform.nav.drawResults',
       'platform.nav.jobs',
       'platform.nav.cache',
-      'platform.nav.health',
     ]);
     expect(operations?.children?.map(child => child.destination?.value)).toEqual([
-      '/app/platform',
+      '/app/platform/ops',
       '/app/platform/ops/draws',
       '/app/platform/ops/draw-results',
       '/app/platform/ops/jobs',
       '/app/platform/ops/cache',
-      '/app/platform/ops/health',
     ]);
   });
 

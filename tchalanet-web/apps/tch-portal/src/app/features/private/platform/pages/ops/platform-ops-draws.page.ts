@@ -37,6 +37,7 @@ import { GenerateDrawsDialog } from './dialogs/generate-draws.dialog';
 import { BatchOpDialog, AnyBatchResult } from './dialogs/batch-op.dialog';
 import { ApplyResultsDialog } from './dialogs/apply-results.dialog';
 import { DrawLifecycleActionDialog, DrawAction, ActionDialogResult, ACTION_LABELS } from './dialogs/draw-lifecycle-action.dialog';
+import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-assets';
 
 // ── CorrectDrawResultDialog ────────────────────────────────────────────────────
 
@@ -584,5 +585,9 @@ export class PlatformOpsDrawsPage implements OnInit {
     if (!r) return '—';
     const parts = [r.lot1, r.lot2, r.lot3, r.lot4].filter(Boolean);
     return parts.length ? parts.join(' · ') : r.status;
+  }
+
+  lotteryAsset(slotKey: string): string | null {
+    return lotteryAssetForSlot(slotKey);
   }
 }

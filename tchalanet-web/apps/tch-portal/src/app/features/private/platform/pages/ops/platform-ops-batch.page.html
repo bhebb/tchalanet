@@ -1,4 +1,4 @@
-<tch-admin-page-shell title="Opérations Batch" description="Jobs planifiés et gates de contrôle.">
+<tch-admin-page-shell title="Jobs" description="Jobs planifiés, gates de contrôle et exécutions récentes.">
   <mat-tab-group>
 
     <mat-tab label="Jobs">
@@ -22,6 +22,19 @@
             <ng-container matColumnDef="scope">
               <th mat-header-cell *matHeaderCellDef>Portée</th>
               <td mat-cell *matCellDef="let row">{{ row.scope }}</td>
+            </ng-container>
+            <ng-container matColumnDef="gate">
+              <th mat-header-cell *matHeaderCellDef>Gate effective</th>
+              <td mat-cell *matCellDef="let row">
+                @if (gateEnabled(row.job_key) === null) {
+                  <tch-admin-status-pill tone="neutral" label="Inconnu" />
+                } @else {
+                  <tch-admin-status-pill
+                    [tone]="gateEnabled(row.job_key) ? 'success' : 'danger'"
+                    [label]="gateEnabled(row.job_key) ? 'Activé' : 'Désactivé'"
+                  />
+                }
+              </td>
             </ng-container>
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
@@ -127,6 +140,10 @@
             <ng-container matColumnDef="ended_at">
               <th mat-header-cell *matHeaderCellDef>Fin</th>
               <td mat-cell *matCellDef="let row">{{ row.ended_at ? (row.ended_at | date:'dd/MM HH:mm:ss') : '—' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="duration">
+              <th mat-header-cell *matHeaderCellDef>Durée</th>
+              <td mat-cell *matCellDef="let row">{{ executionDuration(row) }}</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="execColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: execColumns"></tr>

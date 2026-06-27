@@ -193,7 +193,7 @@
               {
                 "id": "ops-overview",
                 "label_key": "platform.nav.overview",
-                "path": "/app/platform",
+                "path": "/app/platform/ops",
                 "kind": "internal",
                 "icon": "monitor_heart",
                 "active_match": "exact"
@@ -225,13 +225,6 @@
                 "path": "/app/platform/ops/cache",
                 "kind": "internal",
                 "icon": "cached"
-              },
-              {
-                "id": "ops-health",
-                "label_key": "platform.nav.health",
-                "path": "/app/platform/ops/health",
-                "kind": "internal",
-                "icon": "health_and_safety"
               }
             ]
           },

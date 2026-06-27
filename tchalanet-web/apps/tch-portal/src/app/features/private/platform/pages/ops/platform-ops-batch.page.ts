@@ -50,9 +50,9 @@ export class PlatformOpsBatchPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly jobColumns = ['job_key', 'display_name', 'scope', 'actions'];
+  readonly jobColumns = ['job_key', 'display_name', 'scope', 'gate', 'actions'];
   readonly gateColumns = ['jobKey', 'enabled', 'actions'];
-  readonly execColumns = ['execution_id', 'job_key', 'status', 'started_at', 'ended_at'];
+  readonly execColumns = ['execution_id', 'job_key', 'status', 'started_at', 'ended_at', 'duration'];
 
   readonly loadingJobs = signal(false);
   readonly errorJobs = signal<string | null>(null);
@@ -120,6 +120,22 @@ export class PlatformOpsBatchPage implements OnInit {
   selectExecJob(jobKey: string): void {
     this.selectedExecJobKey.set(jobKey);
     if (jobKey) this.loadExecutions();
+  }
+
+  gateEnabled(jobKey: string): boolean | null {
+    return this.gatesMap()[jobKey] ?? null;
+  }
+
+  executionDuration(row: ExecutionResponse): string {
+    if (!row.started_at || !row.ended_at) return '—';
+    const started = new Date(row.started_at).getTime();
+    const ended = new Date(row.ended_at).getTime();
+    if (Number.isNaN(started) || Number.isNaN(ended) || ended < started) return '—';
+    const seconds = Math.round((ended - started) / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const rest = seconds % 60;
+    return `${minutes}m ${rest}s`;
   }
 
   loadExecutions(): void {

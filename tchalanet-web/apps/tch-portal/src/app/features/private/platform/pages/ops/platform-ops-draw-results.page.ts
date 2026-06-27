@@ -24,7 +24,9 @@ import {
   DrawResultOpsResponse,
 } from '../../platform-ops-api.service';
 import { FetchResultsDialog } from './dialogs/fetch-results.dialog';
+import { ManualResultDialog } from './dialogs/manual-result.dialog';
 import { OverrideResultDialog } from './dialogs/override-result.dialog';
+import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-assets';
 
 @Component({
   selector: 'tch-platform-ops-draw-results-page',
@@ -52,7 +54,7 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = ['slotKey', 'occurredAt', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
+  readonly displayedColumns = ['lottery', 'slotKey', 'occurredAt', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly page = signal<{ items: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
@@ -91,6 +93,13 @@ export class PlatformOpsDrawResultsPage implements OnInit {
         onSuccess: () => this.load(),
       },
       width: '500px',
+    });
+  }
+
+  openManual(): void {
+    const ref = this.dialog.open(ManualResultDialog, { width: '520px' });
+    ref.afterClosed().subscribe(done => {
+      if (done) this.load();
     });
   }
 
@@ -135,5 +144,9 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       LOW: 'danger',
     };
     return map[quality] ?? 'neutral';
+  }
+
+  lotteryAsset(slotKey: string): string | null {
+    return lotteryAssetForSlot(slotKey);
   }
 }

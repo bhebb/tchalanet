@@ -3,6 +3,10 @@
   description="Consultation, fetch, override et confirmation des résultats."
 >
   <div actions>
+    <button mat-stroked-button [disabled]="actionLoading()" (click)="openManual()">
+      <span class="material-symbols-outlined">edit_note</span>
+      Saisie manuelle
+    </button>
     <button mat-stroked-button [disabled]="actionLoading()" (click)="openFetch('fetch')">
       <span class="material-symbols-outlined">download</span>
       Fetch
@@ -28,6 +32,15 @@
       <ng-container content>
         <div class="draw-results-page__table">
           <table mat-table [dataSource]="page()?.items ?? []">
+            <ng-container matColumnDef="lottery">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                @if (lotteryAsset(row.slotKey); as asset) {
+                  <img class="draw-results-page__lottery-logo" [src]="asset" [alt]="row.slotKey" loading="lazy" />
+                }
+              </td>
+            </ng-container>
+
             <ng-container matColumnDef="slotKey">
               <th mat-header-cell *matHeaderCellDef>Slot</th>
               <td mat-cell *matCellDef="let row"><code>{{ row.slotKey }}</code></td>

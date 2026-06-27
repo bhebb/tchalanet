@@ -63,7 +63,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             id: 'ops-overview',
             labelKey: 'platform.nav.overview',
             icon: 'monitor_heart',
-            destination: { kind: 'route', value: '/app/platform' },
+            destination: { kind: 'route', value: '/app/platform/ops' },
             activeMatch: 'exact',
           },
           {
@@ -89,12 +89,6 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'platform.nav.cache',
             icon: 'cached',
             destination: { kind: 'route', value: '/app/platform/ops/cache' },
-          },
-          {
-            id: 'ops-health',
-            labelKey: 'platform.nav.health',
-            icon: 'health_and_safety',
-            destination: { kind: 'route', value: '/app/platform/ops/health' },
           },
         ],
       },

@@ -1,4 +1,25 @@
 .draws-page {
+  &__slot-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+
+    span {
+      display: block;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+    }
+  }
+
+  &__lottery-logo {
+    display: block;
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-surface-container-low);
+  }
+
   &__pagination {
     display: flex;
     align-items: center;
