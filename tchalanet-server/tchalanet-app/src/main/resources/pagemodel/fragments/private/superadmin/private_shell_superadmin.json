@@ -177,18 +177,125 @@
                 "icon": "playlist_add_check"
               },
               {
-                "id": "tenant-admins",
-                "label_key": "platform.nav.tenantAdmins",
-                "path": "/app/platform/tenant-admins",
-                "kind": "internal",
-                "icon": "admin_panel_settings"
-              },
-              {
                 "id": "tenant-support",
                 "label_key": "platform.nav.supportTenant",
                 "path": "/app/platform/support-tenant",
                 "kind": "internal",
                 "icon": "support_agent"
+              }
+            ]
+          },
+          {
+            "id": "operations",
+            "label_key": "platform.nav.operations",
+            "icon": "manufacturing",
+            "children": [
+              {
+                "id": "ops-overview",
+                "label_key": "platform.nav.overview",
+                "path": "/app/platform/ops",
+                "kind": "internal",
+                "icon": "monitor_heart",
+                "active_match": "exact"
+              },
+              {
+                "id": "ops-draws",
+                "label_key": "platform.nav.draws",
+                "path": "/app/platform/ops/draws",
+                "kind": "internal",
+                "icon": "event"
+              },
+              {
+                "id": "ops-draw-results",
+                "label_key": "platform.nav.drawResults",
+                "path": "/app/platform/ops/draw-results",
+                "kind": "internal",
+                "icon": "fact_check"
+              },
+              {
+                "id": "ops-jobs",
+                "label_key": "platform.nav.jobs",
+                "path": "/app/platform/ops/jobs",
+                "kind": "internal",
+                "icon": "schedule"
+              },
+              {
+                "id": "ops-cache",
+                "label_key": "platform.nav.cache",
+                "path": "/app/platform/ops/cache",
+                "kind": "internal",
+                "icon": "cached"
+              }
+            ]
+          },
+          {
+            "id": "access",
+            "label_key": "platform.nav.accessSecurity",
+            "icon": "shield",
+            "children": [
+              {
+                "id": "access-permissions",
+                "label_key": "platform.nav.permissions",
+                "path": "/app/platform/access/permissions",
+                "kind": "internal",
+                "icon": "key"
+              },
+              {
+                "id": "access-roles",
+                "label_key": "platform.nav.roles",
+                "path": "/app/platform/access/roles",
+                "kind": "internal",
+                "icon": "groups"
+              },
+              {
+                "id": "access-user-access",
+                "label_key": "platform.nav.accessUsers",
+                "path": "/app/platform/access/users",
+                "kind": "internal",
+                "icon": "manage_accounts"
+              },
+              {
+                "id": "access-super-admins",
+                "label_key": "platform.nav.superAdmins",
+                "path": "/app/platform/super-admins",
+                "kind": "internal",
+                "icon": "admin_panel_settings"
+              },
+              {
+                "id": "access-admin-accounts",
+                "label_key": "platform.nav.users",
+                "path": "/app/platform/tenant-admins",
+                "kind": "internal",
+                "icon": "supervised_user_circle"
+              },
+              {
+                "id": "access-backend-keys",
+                "label_key": "platform.nav.backendKeys",
+                "path": "/app/platform/access/backend-keys",
+                "kind": "internal",
+                "icon": "vpn_key"
+              }
+            ]
+          },
+          {
+            "id": "audit",
+            "label_key": "platform.nav.audit",
+            "icon": "assignment_turned_in",
+            "children": [
+              {
+                "id": "audit-functional",
+                "label_key": "platform.nav.functionalAudit",
+                "path": "/app/platform/audit",
+                "kind": "internal",
+                "icon": "assignment_turned_in",
+                "active_match": "exact"
+              },
+              {
+                "id": "audit-entity-history",
+                "label_key": "platform.nav.entityHistory",
+                "path": "/app/platform/audit/entity-history",
+                "kind": "internal",
+                "icon": "manage_history"
               }
             ]
           },
@@ -212,13 +319,6 @@
                 "icon": "calendar_month"
               },
               {
-                "id": "catalog-draw-channel-games",
-                "label_key": "platform.nav.drawChannelGames",
-                "path": "/app/platform/catalog/draw-channel-games",
-                "kind": "internal",
-                "icon": "link"
-              },
-              {
                 "id": "catalog-result-slots",
                 "label_key": "platform.nav.resultSlots",
                 "path": "/app/platform/catalog/result-slots",
@@ -226,32 +326,11 @@
                 "icon": "view_timeline"
               },
               {
-                "id": "catalog-result-slot-calendars",
-                "label_key": "platform.nav.resultSlotCalendars",
-                "path": "/app/platform/catalog/result-slot-calendars",
-                "kind": "internal",
-                "icon": "event_note"
-              },
-              {
-                "id": "catalog-plans",
-                "label_key": "platform.nav.plans",
-                "path": "/app/platform/catalog/plans",
-                "kind": "internal",
-                "icon": "workspace_premium"
-              },
-              {
                 "id": "catalog-pricing",
                 "label_key": "platform.nav.pricing",
                 "path": "/app/platform/catalog/pricing",
                 "kind": "internal",
                 "icon": "payments"
-              },
-              {
-                "id": "catalog-settings",
-                "label_key": "platform.nav.globalSettings",
-                "path": "/app/platform/catalog/settings",
-                "kind": "internal",
-                "icon": "settings"
               },
               {
                 "id": "catalog-themes",
@@ -266,118 +345,98 @@
                 "path": "/app/platform/catalog/translations",
                 "kind": "internal",
                 "icon": "translate"
-              },
-              {
-                "id": "catalog-page-model-templates",
-                "label_key": "platform.nav.pageModelTemplates",
-                "path": "/app/platform/catalog/page-model-templates",
-                "kind": "internal",
-                "icon": "dashboard_customize"
               }
             ]
           },
           {
-            "id": "operations",
-            "label_key": "platform.nav.operations",
-            "icon": "manufacturing",
+            "id": "archives",
+            "label_key": "platform.nav.archives",
+            "icon": "inventory_2",
             "children": [
               {
-                "id": "ops-draws",
-                "label_key": "platform.nav.draws",
-                "path": "/app/platform/ops/draws",
+                "id": "archive-overview",
+                "label_key": "platform.nav.overview",
+                "path": "/app/platform/archives",
                 "kind": "internal",
-                "icon": "event"
+                "icon": "inventory_2",
+                "active_match": "exact"
               },
               {
-                "id": "ops-draw-results",
-                "label_key": "platform.nav.drawResults",
-                "path": "/app/platform/ops/draw-results",
+                "id": "archive-runs",
+                "label_key": "platform.nav.archiveRuns",
+                "path": "/app/platform/archives/runs",
                 "kind": "internal",
-                "icon": "fact_check"
+                "icon": "history"
               },
               {
-                "id": "ops-batch",
-                "label_key": "platform.nav.scheduledTasks",
-                "path": "/app/platform/ops/batch",
+                "id": "archive-issues",
+                "label_key": "platform.nav.archiveIssues",
+                "path": "/app/platform/archives/issues",
                 "kind": "internal",
-                "icon": "schedule"
+                "icon": "report"
               },
               {
-                "id": "ops-cache",
-                "label_key": "platform.nav.cache",
-                "path": "/app/platform/ops/cache",
+                "id": "archive-legal-holds",
+                "label_key": "platform.nav.legalHolds",
+                "path": "/app/platform/archives/legal-holds",
                 "kind": "internal",
-                "icon": "cached"
+                "icon": "gavel"
               },
               {
-                "id": "ops-archives",
-                "label_key": "platform.nav.archives",
-                "path": "/app/platform/ops/archives",
+                "id": "archive-partitions",
+                "label_key": "platform.nav.partitions",
+                "path": "/app/platform/archives/partitions",
                 "kind": "internal",
-                "icon": "inventory_2"
-              },
-              {
-                "id": "ops-communication",
-                "label_key": "platform.nav.communicationOps",
-                "path": "/app/platform/ops/communication",
-                "kind": "internal",
-                "icon": "send"
-              },
-              {
-                "id": "ops-identity-sync",
-                "label_key": "platform.nav.identitySync",
-                "path": "/app/platform/ops/identity-sync",
-                "kind": "internal",
-                "icon": "sync_alt"
-              },
-              {
-                "id": "ops-audit",
-                "label_key": "platform.nav.audit",
-                "path": "/app/platform/ops/audit",
-                "kind": "internal",
-                "icon": "assignment_turned_in"
-              },
-              {
-                "id": "ops-entity-history",
-                "label_key": "platform.nav.entityHistory",
-                "path": "/app/platform/ops/entity-history",
-                "kind": "internal",
-                "icon": "manage_history"
+                "icon": "table_rows"
               }
             ]
           },
           {
             "id": "support-and-content",
-            "label_key": "platform.nav.supportAndContent",
+            "label_key": "platform.nav.communicationSupport",
             "icon": "campaign",
             "children": [
               {
+                "id": "notifications",
+                "label_key": "platform.nav.inAppNotifications",
+                "path": "/app/platform/communication/notifications",
+                "kind": "internal",
+                "icon": "notifications"
+              },
+              {
                 "id": "contact-requests",
                 "label_key": "platform.nav.contactRequests",
-                "path": "/app/platform/contact-requests",
+                "path": "/app/platform/communication/contacts",
                 "kind": "internal",
                 "icon": "contact_support"
               },
               {
                 "id": "news",
                 "label_key": "platform.nav.news",
-                "path": "/app/platform/news",
+                "path": "/app/platform/communication/news",
                 "kind": "internal",
                 "icon": "article"
               },
               {
-                "id": "notifications",
-                "label_key": "platform.nav.inAppNotifications",
-                "path": "/app/platform/notifications",
-                "kind": "internal",
-                "icon": "notifications"
-              },
-              {
                 "id": "contact-config",
                 "label_key": "platform.nav.contactConfig",
-                "path": "/app/platform/contact-config",
+                "path": "/app/platform/communication/config",
                 "kind": "internal",
                 "icon": "contact_mail"
+              },
+              {
+                "id": "communication-outbox",
+                "label_key": "platform.nav.communicationOutbox",
+                "path": "/app/platform/communication/outbox",
+                "kind": "internal",
+                "icon": "outbox"
+              },
+              {
+                "id": "communication-tests",
+                "label_key": "platform.nav.communicationTests",
+                "path": "/app/platform/communication/tests",
+                "kind": "internal",
+                "icon": "send"
               }
             ]
           },
@@ -410,53 +469,11 @@
             ]
           },
           {
-            "id": "access",
-            "label_key": "platform.nav.accessSecurity",
-            "icon": "shield",
-            "children": [
-              {
-                "id": "access-permissions",
-                "label_key": "platform.nav.permissions",
-                "path": "/app/platform/access/permissions",
-                "kind": "internal",
-                "icon": "key"
-              },
-              {
-                "id": "access-roles",
-                "label_key": "platform.nav.roles",
-                "path": "/app/platform/access/roles",
-                "kind": "internal",
-                "icon": "groups"
-              },
-              {
-                "id": "access-super-admins",
-                "label_key": "platform.nav.superAdmins",
-                "path": "/app/platform/super-admins",
-                "kind": "internal",
-                "icon": "admin_panel_settings"
-              },
-              {
-                "id": "access-users",
-                "label_key": "platform.nav.users",
-                "path": "/app/platform/access/users",
-                "kind": "internal",
-                "icon": "manage_accounts"
-              },
-              {
-                "id": "access-backend-keys",
-                "label_key": "platform.nav.backendKeys",
-                "path": "/app/platform/access/backend-keys",
-                "kind": "internal",
-                "icon": "vpn_key"
-              }
-            ]
-          },
-          {
             "id": "reports",
             "label_key": "platform.nav.platformReports",
-            "icon": "bar_chart",
             "path": "/app/platform/reports",
-            "kind": "internal"
+            "kind": "internal",
+            "icon": "bar_chart"
           }
         ]
       }

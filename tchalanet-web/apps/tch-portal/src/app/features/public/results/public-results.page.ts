@@ -21,11 +21,12 @@ import {
 import {
   PublicDrawResultHistoryPage,
   PublicDrawResultRow,
+  PublicDrawResultSlot,
   PublicDrawResultsService,
 } from './public-draw-results.service';
 import { PAGE_SIZE_OPTIONS } from './public-results.model';
 import type { PageSizeOption, ProviderKey, SlotTypeKey } from './public-results.model';
-import { resolveSlotKeys } from './public-results.utils';
+import { providerKey, providerLabel, resolveSlotKeys, slotTypeKey } from './public-results.utils';
 
 @Component({
   selector: 'tch-public-results-page',
@@ -53,7 +54,17 @@ export class PublicResultsPage {
   readonly currentPage = signal(0);
   readonly pageSize = signal<PageSizeOption>(20);
 
-  readonly slotKeys = computed(() => resolveSlotKeys(this.providerFilter(), this.slotTypeFilter()));
+  readonly slotsResult = rxResource({
+    stream: (): Observable<{ items: readonly PublicDrawResultSlot[] }> => this.svc.slots(),
+  });
+
+  readonly activeSlots = computed(() => this.slotsResult.value()?.items ?? []);
+
+  readonly slotKeys = computed(() => resolveSlotKeys(
+    this.activeSlots(),
+    this.providerFilter(),
+    this.slotTypeFilter(),
+  ));
 
   readonly hasActiveFilters = computed(
     () =>
@@ -164,18 +175,32 @@ export class PublicResultsPage {
 
   // ── Static filter definitions ───────────────────────────────────────────────
 
-  readonly providerFilters: readonly { readonly id: ProviderKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'common.all' },
-    { id: 'ny', labelKey: 'domain.draw.provider.newYork' },
-    { id: 'fl', labelKey: 'domain.draw.provider.florida' },
-    { id: 'ga', labelKey: 'domain.draw.provider.georgia' },
-    { id: 'tx', labelKey: 'domain.draw.provider.texas' },
-  ];
+  readonly providerFilters = computed<readonly { readonly id: ProviderKey; readonly label: string }[]>(() => {
+    const providers = new Map<string, string>();
+    for (const slot of this.activeSlots()) {
+      const id = providerKey(slot.provider);
+      if (id) providers.set(id, providerLabel(slot.provider));
+    }
+    return [
+      { id: 'all', label: 'Tous' },
+      ...Array.from(providers.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .map(([id, label]) => ({ id, label })),
+    ];
+  });
 
-  readonly slotTypeFilters: readonly { readonly id: SlotTypeKey; readonly labelKey: string }[] = [
-    { id: 'all', labelKey: 'common.all' },
-    { id: 'mid', labelKey: 'domain.draw.slotType.mid' },
-    { id: 'eve', labelKey: 'domain.draw.slotType.eve' },
-    { id: 'late', labelKey: 'domain.draw.slotType.late' },
-  ];
+  readonly slotTypeFilters = computed<readonly { readonly id: SlotTypeKey; readonly labelKey: string }[]>(() => {
+    const types = new Set<SlotTypeKey>(['all']);
+    for (const slot of this.activeSlots()) {
+      types.add(slotTypeKey(slot));
+    }
+    const ordered: readonly SlotTypeKey[] = ['all', 'mid', 'eve', 'late'];
+    const labels: Record<SlotTypeKey, string> = {
+      all: 'common.all',
+      mid: 'domain.draw.slotType.mid',
+      eve: 'domain.draw.slotType.eve',
+      late: 'domain.draw.slotType.late',
+    };
+    return ordered.filter(id => types.has(id)).map(id => ({ id, labelKey: labels[id] }));
+  });
 }

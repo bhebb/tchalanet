@@ -9,6 +9,9 @@ import java.util.List;
 
 @Schema(description = "Request to aplly external lottery results into global draw_result storage.")
 public record ApplyExternalResultsRequest(
+    @Schema(description = "Optional tenant codes to target. Empty means all active tenants up to the interactive launch limit.")
+    List<String> tenantCodes,
+
     @Schema(
         description = "Base calendar date used for the fetch window. Defaults server-side if omitted.",
         example = "2026-05-02")

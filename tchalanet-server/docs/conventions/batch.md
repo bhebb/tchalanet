@@ -2,8 +2,13 @@
 
 This document is the backend operational reference for scheduled jobs.
 
-Schedulers stay thin: they check active flags and gates, bind the required context, call commands or
-batch jobs, and log summaries. Business correctness belongs in handlers and batch steps.
+Schedulers stay thin: they check active flags and gates, compute the operational window/candidates,
+launch registered Spring Batch jobs through `BatchJobStarter`, and log summaries. Business
+correctness belongs in command handlers and batch steps.
+
+Spring Batch is the single execution engine for recurring, long-running, restartable, or
+scheduler-triggered operational work. Direct command execution from Ops is reserved for targeted
+human actions such as manual result entry, result override, result confirmation, and cache clear.
 
 ## Draw Scheduler Policy
 
@@ -69,7 +74,7 @@ tch:
 
 Default: daily at `05:00`.
 
-The scheduler loops over active tenants and calls `GenerateDrawsForRangeCommand`.
+The scheduler loops over active tenants and launches the `draw:lifecycle:generate` Spring Batch job.
 Generation is idempotent and preserves the unique key `(tenant_id, draw_channel_id, draw_date)`.
 
 Generated draw snapshots:
@@ -82,7 +87,7 @@ Generated draw snapshots:
 
 Default: every 5 minutes from `04:00` to `10:00` UTC.
 
-The scheduler loops over active tenants and calls `OpenTodayDrawsCommand`.
+The scheduler loops over active tenants and launches the `draw:lifecycle:open` Spring Batch job.
 
 Open eligibility:
 
@@ -158,13 +163,13 @@ time windows, but they must not bypass settlement invariants.
 Use the existing batch gates:
 
 ```text
-draw.generate
-draw.open_today
-draw.processing
-draw.close
-drawresult.fetch
-drawresult.apply
-sales.settle
+draw:lifecycle:generate
+draw:lifecycle:open
+draw:lifecycle:close
+draw:lifecycle:settle
+results:external:fetch
+results:external:apply
+catalog:search:reindex
 ```
 
 The global processing gate can disable the full repeated pipeline. Per-step gates allow targeted
@@ -172,7 +177,12 @@ pause/resume.
 
 ## Ops Paths
 
-Automatic scheduler operations have matching Ops endpoints under `/platform/ops/**` where available.
+Automatic scheduler operations have matching guided Ops endpoints under `/platform/ops/**` where
+available. These endpoints launch the same registered Spring Batch jobs and return execution ids;
+they do not call domain commands directly.
+
+In V0, `refresh` is intentionally not a batch job or guided Ops action. Run `results:external:fetch`
+first, then `results:external:apply` for the target tenant(s).
 
 Forced operations require:
 

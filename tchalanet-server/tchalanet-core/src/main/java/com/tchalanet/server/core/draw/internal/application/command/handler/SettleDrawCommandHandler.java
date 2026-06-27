@@ -15,6 +15,7 @@ import com.tchalanet.server.core.draw.api.event.DrawSettledEvent;
 import com.tchalanet.server.core.draw.internal.domain.exception.DrawResultNotFinalException;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,15 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
     @Override
     @TchTx
     public void handle(SettleDrawCommand command) {
-        var drawSummary = drawSummaryReaderPort.getById(command.drawId());
+        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
+
+        for (var drawId : drawIds) {
+            settle(drawId);
+        }
+    }
+
+    private void settle(DrawId drawId) {
+        var drawSummary = drawSummaryReaderPort.getById(drawId);
 
         var result = drawSummary.result();
 
@@ -74,4 +83,5 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
             AfterCommit.run(() -> publisher.publish(event));
         }
     }
+
 }

@@ -6,15 +6,15 @@
       <span class="material-symbols-outlined">event_note</span>
       Générer
     </button>
-    <button mat-stroked-button (click)="openOpenToday()" matTooltip="Ouvrir les tirages du jour" style="margin-left:0.5rem">
+    <button mat-stroked-button class="draws-page__header-action" (click)="openOpenToday()" matTooltip="Ouvrir les tirages du jour">
       <span class="material-symbols-outlined">lock_open</span>
       Ouvrir
     </button>
-    <button mat-stroked-button (click)="openCloseDue()" matTooltip="Fermer les tirages échus" style="margin-left:0.5rem">
+    <button mat-stroked-button class="draws-page__header-action" (click)="openCloseDue()" matTooltip="Fermer les tirages échus">
       <span class="material-symbols-outlined">lock</span>
       Fermer
     </button>
-    <button mat-flat-button color="primary" (click)="openApply()" style="margin-left:0.5rem">
+    <button mat-flat-button color="primary" class="draws-page__header-action" (click)="openApply()">
       <span class="material-symbols-outlined">assignment_turned_in</span>
       Appliquer
     </button>
@@ -27,6 +27,21 @@
         [searchValue]="slotKeyFilter()"
         (searchChange)="onSearch($event)"
       >
+        <div class="draws-page__tenant-filter">
+          <tch-search-select
+            label="Tenant"
+            placeholder="Rechercher un tenant"
+            icon="apartment"
+            emptyLabel="Aucun tenant trouvé"
+            [searchFn]="searchTenants"
+            (valueChange)="selectTenant($event)"
+          />
+          <div class="draws-page__tenant-current">
+            <span>Tenant affiché</span>
+            <strong>{{ selectedTenantLabel() }}</strong>
+            <button mat-button type="button" (click)="resetTenant()">Tenant par défaut</button>
+          </div>
+        </div>
         <mat-form-field appearance="outline">
           <mat-label>Statut</mat-label>
           <mat-select [value]="statusFilter()" (valueChange)="onStatusChange($event)">
@@ -35,10 +50,42 @@
             }
           </mat-select>
         </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Du</mat-label>
+          <input matInput type="date" [value]="fromFilter()" (change)="onFromChange($any($event.target).value)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Au</mat-label>
+          <input matInput type="date" [value]="toFilter()" (change)="onToChange($any($event.target).value)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lignes</mat-label>
+          <mat-select [value]="deletedVisibility()" (valueChange)="onDeletedVisibilityChange($event)">
+            <mat-option value="active">Actives</mat-option>
+            <mat-option value="deleted">Supprimées</mat-option>
+            <mat-option value="all">Toutes</mat-option>
+          </mat-select>
+        </mat-form-field>
         <button mat-stroked-button (click)="load()">
           <span class="material-symbols-outlined">refresh</span>
         </button>
       </tch-admin-data-toolbar>
+      @if (selectedDraws().length > 0) {
+        <div class="draws-page__selection-bar">
+          <strong>{{ selectedDraws().length }} sélectionné(s)</strong>
+          @if (commonBulkActions().length === 0) {
+            <span>{{ bulkSelectionMessage() }}</span>
+          } @else {
+            @for (action of commonBulkActions(); track action) {
+              <button mat-stroked-button type="button" (click)="openBulkAction(action)">
+                <span class="material-symbols-outlined">{{ actionIcon(action) }}</span>
+                {{ actionLabel(action) }}
+              </button>
+            }
+          }
+          <button mat-button type="button" (click)="clearSelection()">Effacer</button>
+        </div>
+      }
     </div>
 
     <div content>
@@ -51,6 +98,24 @@
       } @else {
         <table mat-table [dataSource]="draws()">
 
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox
+                [checked]="allPageSelected()"
+                [indeterminate]="somePageSelected()"
+                (change)="togglePage($event.checked)"
+                aria-label="Sélectionner la page"
+              />
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                [checked]="isSelected(row)"
+                (change)="toggleDraw(row, $event.checked)"
+                aria-label="Sélectionner le tirage"
+              />
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="drawDate">
             <th mat-header-cell *matHeaderCellDef>Date</th>
             <td mat-cell *matCellDef="let row">{{ row.drawDate }}</td>
@@ -59,14 +124,26 @@
           <ng-container matColumnDef="channel">
             <th mat-header-cell *matHeaderCellDef>Canal</th>
             <td mat-cell *matCellDef="let row">
-              <span style="font-weight:500">{{ row.channel.code }}</span>
-              <span style="color:var(--tch-color-on-surface-variant);margin-left:0.5rem;font-size:0.875rem">{{ row.channel.name }}</span>
+              <span class="draws-page__channel-code">{{ row.channel.code }}</span>
+              <span class="draws-page__channel-name">{{ row.channel.name }}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="slot">
             <th mat-header-cell *matHeaderCellDef>Slot</th>
-            <td mat-cell *matCellDef="let row"><code>{{ row.slot.key }}</code></td>
+            <td mat-cell *matCellDef="let row">
+              <div class="draws-page__slot-cell">
+                @if (lotteryAsset(row.slot.key); as asset) {
+                  <img class="draws-page__lottery-logo" [src]="asset" [alt]="row.slot.key" loading="lazy" />
+                }
+                <div>
+                  <code>{{ row.slot.key }}</code>
+                  @if (row.slot.label) {
+                    <span>{{ row.slot.label }}</span>
+                  }
+                </div>
+              </div>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
@@ -85,9 +162,9 @@
             <th mat-header-cell *matHeaderCellDef>Résultat</th>
             <td mat-cell *matCellDef="let row">
               @if (row.lastResult) {
-                <span style="font-size:0.85rem">{{ lotSummary(row) }}</span>
+                <span class="draws-page__lot-summary">{{ lotSummary(row) }}</span>
               } @else {
-                <span style="color:var(--tch-color-on-surface-variant)">—</span>
+                <span class="draws-page__muted">—</span>
               }
             </td>
           </ng-container>
@@ -132,7 +209,7 @@
       <button mat-menu-item
         [style.color]="action.kind === 'cancel' ? 'var(--tch-color-error)' : ''"
         (click)="openRowAction(draw, action)">
-        <span class="material-symbols-outlined" style="vertical-align:middle;margin-right:0.5rem;font-size:1.25rem">{{ actionIcon(action.kind) }}</span>
+        <span class="material-symbols-outlined draws-page__action-icon">{{ actionIcon(action.kind) }}</span>
         {{ actionLabel(action.kind) }}
       </button>
     }

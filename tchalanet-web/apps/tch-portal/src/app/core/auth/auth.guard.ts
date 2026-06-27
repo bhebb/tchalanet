@@ -3,6 +3,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 
 import { AuthSessionService } from './auth-session.service';
 import { UserRole } from './auth.types';
+import { SupportAccessStore } from '../access/support-access.store';
 
 export const authGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => {
   const auth = inject(AuthSessionService);
@@ -47,13 +48,14 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
   return async (_route, state): Promise<boolean | UrlTree> => {
     const auth = inject(AuthSessionService);
     const router = inject(Router);
+    const supportAccess = inject(SupportAccessStore);
     const session = await auth.refreshSession();
 
     if (!session.authenticated) {
       return router.parseUrl('/login');
     }
 
-    if (!auth.hasRole(requiredRole)) {
+    if (!auth.hasRole(requiredRole) && !isSupportTenantAdminAccess(requiredRole, session.roles, supportAccess.isActive())) {
       return router.parseUrl('/forbidden');
     }
 
@@ -66,4 +68,11 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
 
     return true;
   };
+}
+
+function isSupportTenantAdminAccess(requiredRole: UserRole, roles: readonly UserRole[], supportAccessActive: boolean): boolean {
+  if (requiredRole !== 'TENANT_ADMIN' || !roles.includes('SUPER_ADMIN')) {
+    return false;
+  }
+  return supportAccessActive;
 }

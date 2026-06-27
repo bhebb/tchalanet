@@ -7,6 +7,7 @@ import com.tchalanet.server.platform.archive.api.ArchiveApi;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJdbcRepository;
+import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.CleanupMode;
@@ -50,6 +51,7 @@ public class PlatformArchiveController {
   private final ArchiveApi archiveApi;
   private final ArchiveRestoreService restoreService;
   private final ArchivePartitionCleanupService cleanupService;
+  private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
   private final ArchiveRunJdbcRepository runRepo;
   private final ArchiveObjectJdbcRepository objectRepo;
 
@@ -116,6 +118,45 @@ public class PlatformArchiveController {
     return ApiResponse.success(null);
   }
 
+  // ── Legal holds ────────────────────────────────────────────────────────────
+
+  @Operation(summary = "Create archive legal hold")
+  @PostMapping("/legal-holds")
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<UUID> createLegalHold(
+      @Valid @RequestBody CreateLegalHoldRequest request,
+      @CurrentContext TchRequestContext ctx) {
+
+    UUID id = legalHoldRepo.create(
+        request.tenantId(),
+        request.datasetCode(),
+        request.entityType(),
+        request.entityId(),
+        request.periodStart(),
+        request.periodEnd(),
+        request.reason(),
+        ctx.currentUserIdRequired().value());
+    return ApiResponse.success(id);
+  }
+
+  @Operation(summary = "Release archive legal hold")
+  @PostMapping("/legal-holds/{holdId}/release")
+  public ApiResponse<Void> releaseLegalHold(
+      @org.springframework.web.bind.annotation.PathVariable UUID holdId,
+      @Valid @RequestBody ReleaseLegalHoldRequest request,
+      @CurrentContext TchRequestContext ctx) {
+
+    legalHoldRepo.release(holdId, ctx.currentUserIdRequired().value(), request.reason());
+    return ApiResponse.success(null);
+  }
+
+  @Operation(summary = "List active archive legal holds")
+  @GetMapping("/legal-holds/active")
+  public ApiResponse<List<Map<String, Object>>> listActiveLegalHolds(
+      @RequestParam(defaultValue = "50") int limit) {
+    return ApiResponse.success(legalHoldRepo.listActive(limit));
+  }
+
   // ── Ops view ────────────────────────────────────────────────────────────────
 
   @Operation(summary = "List failed archive runs")
@@ -154,5 +195,19 @@ public class PlatformArchiveController {
       @NotNull LocalDate from,
       @NotNull LocalDate to,
       @NotBlank @Size(min = 10, max = 500) String reason
+  ) {}
+
+  public record CreateLegalHoldRequest(
+      UUID tenantId,
+      @NotBlank String datasetCode,
+      String entityType,
+      String entityId,
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
+      @NotBlank @Size(min = 10, max = 1000) String reason
+  ) {}
+
+  public record ReleaseLegalHoldRequest(
+      @NotBlank @Size(min = 10, max = 1000) String reason
   ) {}
 }

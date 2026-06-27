@@ -11,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { AdminStatusPillComponent } from '../../../../shared/admin-ui/admin-status-pill.component';
 import {
   PlatformOpsApi,
-  TenantBatchResponse,
+  OpsLaunchResponse,
   GenerateDrawsRequest,
 } from '../../../platform-ops-api.service';
 
@@ -64,26 +64,26 @@ import {
       @if (result()) {
         <div class="generate-draws-dialog__result">
           <p class="generate-draws-dialog__summary-line">
-            <strong>{{ result()!.tenantsSucceeded }}</strong>/{{ result()!.tenantsRequested }} tenants OK
-            @if (result()!.tenantsFailed > 0) { · <strong class="generate-draws-dialog__err">{{ result()!.tenantsFailed }} échoué(s)</strong> }
+            <strong>{{ result()!.started }}</strong>/{{ result()!.requested }} job(s) lancé(s)
+            @if (result()!.failed > 0) { · <strong class="generate-draws-dialog__err">{{ result()!.failed }} échoué(s)</strong> }
           </p>
-          @if (result()!.tenants.length) {
-            <table mat-table [dataSource]="result()!.tenants" class="generate-draws-dialog__outcome-table">
+          @if (result()!.launches.length) {
+            <table mat-table [dataSource]="result()!.launches" class="generate-draws-dialog__outcome-table">
               <ng-container matColumnDef="tenantId">
                 <th mat-header-cell *matHeaderCellDef>Tenant</th>
-                <td mat-cell *matCellDef="let r"><code>{{ r.tenantId }}</code></td>
+                <td mat-cell *matCellDef="let r"><code>{{ r.tenant_id ?? 'global' }}</code></td>
               </ng-container>
               <ng-container matColumnDef="ok">
                 <th mat-header-cell *matHeaderCellDef>Statut</th>
                 <td mat-cell *matCellDef="let r">
-                  <tch-admin-status-pill [tone]="r.ok ? 'success' : 'danger'" [label]="r.ok ? 'OK' : 'ERREUR'" />
+                  <tch-admin-status-pill [tone]="r.error ? 'danger' : 'success'" [label]="r.status" />
                 </td>
               </ng-container>
               <ng-container matColumnDef="detail">
                 <th mat-header-cell *matHeaderCellDef>Détail</th>
                 <td mat-cell *matCellDef="let r">
-                  @if (r.ok && r.result) {
-                    créés: {{ r.result.created }} · ignorés: {{ r.result.skipped }}
+                  @if (!r.error && r.execution_id) {
+                    execution #{{ r.execution_id }}
                   } @else if (r.error) {
                     {{ r.error }}
                   }
@@ -128,7 +128,7 @@ export class GenerateDrawsDialog {
 
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
-  readonly result = signal<TenantBatchResponse<{ created: number; skipped: number }> | null>(null);
+  readonly result = signal<OpsLaunchResponse | null>(null);
   readonly outcomeColumns = ['tenantId', 'ok', 'detail'];
 
   readonly form = this.fb.group({
@@ -154,7 +154,7 @@ export class GenerateDrawsDialog {
     this.submitting.set(true);
     this.error.set(null);
     this.api.generateDraws(req).subscribe({
-      next: (res) => { this.submitting.set(false); this.result.set(res as TenantBatchResponse<{ created: number; skipped: number }>); },
+      next: (res) => { this.submitting.set(false); this.result.set(res); },
       error: (err: unknown) => {
         this.submitting.set(false);
         const pd = (err as { error?: { title?: string } })?.error;

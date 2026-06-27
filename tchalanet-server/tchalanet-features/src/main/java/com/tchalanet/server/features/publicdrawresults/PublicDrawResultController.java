@@ -8,6 +8,7 @@ import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultDet
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultHistoryResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultLatestResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSearchCriteria;
+import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotsResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -41,6 +42,15 @@ public class PublicDrawResultController {
         @RequestParam(required = false) String provider,
         @RequestParam(required = false) @Min(1) @Max(100) Integer limit) {
         return ApiResponse.success(service.latest(slotKeys, provider, limit));
+    }
+
+    /**
+     * Public active slots for dynamic filters and lightweight result surfaces.
+     */
+    @GetMapping("/slots")
+    public ApiResponse<PublicDrawResultSlotsResponse> slots(
+        @RequestParam(required = false) String provider) {
+        return ApiResponse.success(service.slots(provider));
     }
 
     /**

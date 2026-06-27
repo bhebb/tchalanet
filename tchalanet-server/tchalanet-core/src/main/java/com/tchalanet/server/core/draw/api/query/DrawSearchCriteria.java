@@ -98,6 +98,17 @@ public record DrawSearchCriteria(
             normalizeKeys(resultSlotKeys));
     }
 
+    public DrawSearchCriteria withResultSlotKey(String resultSlotKey) {
+        return new DrawSearchCriteria(
+            resultSlotId,
+            status,
+            from,
+            to,
+            limitPerChannel,
+            lookaheadHours,
+            normalizeKeys(resultSlotKey == null ? null : List.of(resultSlotKey)));
+    }
+
     private static DrawStatus parseStatus(String status) {
         if (status == null || status.isBlank()) {
             return null;

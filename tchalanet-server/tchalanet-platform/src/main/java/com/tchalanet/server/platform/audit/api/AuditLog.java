@@ -17,4 +17,6 @@ public @interface AuditLog {
   String idExpression() default "";
 
   String detailsExpression() default "";
+
+  String tenantIdExpression() default "";
 }

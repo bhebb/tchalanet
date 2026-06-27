@@ -26,6 +26,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { environment } from '../environments/environment';
 
 import { authBearerInterceptor } from './core/auth/auth-bearer.interceptor';
+import { supportAccessInterceptor } from './core/access/support-access.interceptor';
 import { provideFirebaseAuthClient } from './core/auth/firebase/firebase-auth.providers';
 import { firebaseApp$ } from '@angular/fire/app';
 
@@ -39,6 +40,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         correlationRequestInterceptor,
         authBearerInterceptor,
+        supportAccessInterceptor,
         apiFeedbackInterceptor,
         problemDetailInterceptor,
       ]),

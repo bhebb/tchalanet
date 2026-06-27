@@ -17,7 +17,7 @@ import java.util.Map;
  * NOTE: /api/v1 prefix is added automatically by platform config.
  * Endpoints:
  * - GET  /platform/ops/batch/gates/{jobKey}?tenant_id=...
- * - GET  /platform/ops/batch/gates:effective?job_keys=...&tenant_id=...
+ * - GET  /platform/ops/batch/gates/effective?job_keys=...&tenant_id=...
  * - PUT  /platform/ops/batch/gates/{jobKey}
  */
 @RestController
@@ -35,11 +35,8 @@ public class OpsBatchGateController {
         "draw:lifecycle:open",
         "draw:lifecycle:close",
         "draw:lifecycle:settle",
-        "results:external:refresh",
         "results:external:fetch",
         "results:external:apply",
-        "results:external:manual",
-        "results:external:override",
         "catalog:search:reindex"
     );
 
@@ -53,7 +50,7 @@ public class OpsBatchGateController {
     }
 
     @Operation(summary = "Get effective gate status for multiple jobs (bulk)")
-    @GetMapping(":effective")
+    @GetMapping("/effective")
     public ApiResponse<Map<String, Boolean>> getEffectiveGates(
         @RequestParam(required = false, name = "job_keys") List<String> jobKeys,
         @RequestParam(required = false, name = "tenant_id") String tenantId

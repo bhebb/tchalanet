@@ -19,4 +19,13 @@
     gap: 0.25rem;
     align-items: center;
   }
+
+  &__lottery-logo {
+    display: block;
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-surface-container-low);
+  }
 }

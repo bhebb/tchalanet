@@ -9,8 +9,6 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
-
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
@@ -22,13 +20,16 @@ public class ArchiveDrawCommandHandler implements VoidCommandHandler<ArchiveDraw
     @Override
     @TchTx
     public void handle(ArchiveDrawCommand command) {
-        log.info("Archiving draw {}", command.drawId());
-        Objects.requireNonNull(command.drawId(), "drawId is required");
+        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
+        log.info("Archiving {} draw(s)", drawIds.size());
 
-        var draw = drawLookupPort.getById(command.drawId());
+        for (var drawId : drawIds) {
+            var draw = drawLookupPort.getById(drawId);
 
-        draw.archive();
+            draw.archive();
 
-        drawLifecyclePort.save(draw);
+            drawLifecyclePort.save(draw);
+        }
     }
+
 }

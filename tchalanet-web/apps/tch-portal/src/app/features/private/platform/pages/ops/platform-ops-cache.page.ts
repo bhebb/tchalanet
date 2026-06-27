@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,6 +12,13 @@ import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-s
 import { PlatformOpsApi, CacheView } from '../../platform-ops-api.service';
 import { ClearAllCachesDialog } from './dialogs/clear-all-caches.dialog';
 import { ClearCacheGroupDialog } from './dialogs/clear-cache-group.dialog';
+
+type OpsCacheGroup = 'plans' | 'catalog' | 'tenant' | 'access' | 'pagemodel' | 'batch' | 'other';
+
+interface OpsCacheRow extends CacheView {
+  group: OpsCacheGroup;
+  critical: boolean;
+}
 
 @Component({
   selector: 'tch-platform-ops-cache-page',
@@ -35,11 +42,18 @@ export class PlatformOpsCachePage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = ['cacheName', 'size', 'hitRate', 'lastClearedAt', 'actions'];
+  readonly displayedColumns = ['cacheName', 'group', 'size', 'hitRate', 'lastClearedAt', 'critical', 'actions'];
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly traceId = signal<string | null>(null);
   readonly caches = signal<CacheView[]>([]);
+  readonly groupedCaches = computed<OpsCacheRow[]>(() =>
+    this.caches().map(cache => ({
+      ...cache,
+      group: cacheGroup(cache.cacheName),
+      critical: criticalCache(cache.cacheName),
+    })),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -82,17 +96,37 @@ export class PlatformOpsCachePage implements OnInit {
   }
 
   openClearPlans(): void {
+    this.openClearGroup('plans');
+  }
+
+  openClearGroup(group: OpsCacheGroup): void {
     const ref = this.dialog.open(ClearCacheGroupDialog, {
       width: '480px',
       data: {
-        group: 'plans',
-        title: 'Vider les caches plans',
-        description: 'Cette action vide uniquement les caches du catalogue des plans actifs et des plans par code/id.',
-        confirmLabel: 'Vider les caches plans',
+        group,
+        title: `Vider les caches ${group}`,
+        description: `Cette action vide uniquement les caches du groupe ${group}.`,
+        confirmLabel: `Vider ${group}`,
       },
     });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.load();
     });
   }
+}
+
+function cacheGroup(cacheName: string): OpsCacheGroup {
+  const name = cacheName.toLowerCase();
+  if (name.includes('plan') || name.includes('pricing') || name.includes('odds')) return 'plans';
+  if (name.includes('catalog') || name.includes('game') || name.includes('draw-channel')) return 'catalog';
+  if (name.includes('tenant')) return 'tenant';
+  if (name.includes('access') || name.includes('auth') || name.includes('permission') || name.includes('role')) return 'access';
+  if (name.includes('page') || name.includes('pagemodel')) return 'pagemodel';
+  if (name.includes('batch') || name.includes('job') || name.includes('gate')) return 'batch';
+  return 'other';
+}
+
+function criticalCache(cacheName: string): boolean {
+  const group = cacheGroup(cacheName);
+  return group === 'access' || group === 'tenant' || group === 'plans' || group === 'batch';
 }

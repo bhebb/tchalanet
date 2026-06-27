@@ -108,13 +108,20 @@ public class ArchiveRunExecutor {
         period.start().getYear(), period.start().getMonthValue(), segmentId);
 
     UUID objectId = UUID.randomUUID();
-    ArchiveExportResult result = exportToStorage(provider, period, tenantId, runId, uri);
-    String checksum = result.checksumSha256();
+    StoredArchiveObject result = exportToStorage(provider, period, tenantId, runId, uri);
 
     objectRepo.insert(objectId, runId, tableName, tenantId,
         period.start(), period.end(), 0,
-        uri, result.rowsExported(), 0L,
-        checksum, result.schemaVersion());
+        uri, result.rowsExported(), result.byteSize(),
+        result.checksumSha256(), result.schemaVersion());
+
+    try {
+      verifyArchiveObject(plan, result, uri);
+    } catch (RuntimeException ex) {
+      objectRepo.markInvalid(objectId);
+      metrics.recordObjectReadError(tableName);
+      throw ex;
+    }
 
     List<ArchiveLookupEntry> lookupEntries =
         provider.generateLookupRows(period, tenantId, objectId);
@@ -128,7 +135,7 @@ public class ArchiveRunExecutor {
         tableName, objectId, period.start(), period.end(), result.rowsExported(), uri);
   }
 
-  private ArchiveExportResult exportToStorage(ArchiveDatasetProvider provider,
+  private StoredArchiveObject exportToStorage(ArchiveDatasetProvider provider,
       ArchivePeriod period, UUID tenantId, UUID runId, String uri) {
 
     OutputStream out = storage.openWrite(uri);
@@ -151,10 +158,37 @@ public class ArchiveRunExecutor {
       }
     }
 
-    return new ArchiveExportResult(
+    return new StoredArchiveObject(
         providerResult.rowsExported(),
         providerResult.schemaVersion(),
-        writer.checksumSha256());
+        writer.checksumSha256(),
+        writer.compressedBytes(),
+        writer.rowsWritten(),
+        storage.size(uri));
+  }
+
+  private void verifyArchiveObject(ArchiveDatasetPlan plan, StoredArchiveObject result, String uri) {
+    if (!storage.exists(uri)) {
+      throw new IllegalStateException("archive object missing after export: " + uri);
+    }
+    if (result.rowsExported() != result.rowsWritten()) {
+      throw new IllegalStateException("archive row-count mismatch for %s: provider=%d writer=%d"
+          .formatted(uri, result.rowsExported(), result.rowsWritten()));
+    }
+    if (plan.estimatedRowCount() != result.rowsExported()) {
+      throw new IllegalStateException("archive plan/export row-count mismatch for %s: plan=%d exported=%d"
+          .formatted(uri, plan.estimatedRowCount(), result.rowsExported()));
+    }
+    if (result.byteSize() <= 0) {
+      throw new IllegalStateException("archive object has invalid byte size for " + uri);
+    }
+    if (result.storageByteSize() != result.byteSize()) {
+      throw new IllegalStateException("archive byte-size mismatch for %s: writer=%d storage=%d"
+          .formatted(uri, result.byteSize(), result.storageByteSize()));
+    }
+    if (result.checksumSha256() == null || result.checksumSha256().isBlank()) {
+      throw new IllegalStateException("archive checksum missing for " + uri);
+    }
   }
 
   // ── Run view helpers ────────────────────────────────────────────────────────
@@ -191,4 +225,13 @@ public class ArchiveRunExecutor {
     if (s == null) return null;
     return s.length() <= max ? s : s.substring(0, max);
   }
+
+  private record StoredArchiveObject(
+      long rowsExported,
+      int schemaVersion,
+      String checksumSha256,
+      long byteSize,
+      long rowsWritten,
+      long storageByteSize
+  ) {}
 }

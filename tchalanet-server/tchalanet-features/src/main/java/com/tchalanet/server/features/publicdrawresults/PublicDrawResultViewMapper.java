@@ -9,6 +9,8 @@ import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultHis
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultLatestItem;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultLatestResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultRow;
+import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotResponse;
+import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotsResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +55,22 @@ public class PublicDrawResultViewMapper {
         latest != null ? extractNumbers(latest.haiti()) : List.of(),
         next != null ? next.expectedAt() : null,
         drawResultId != null ? DETAIL_PATH_PREFIX + drawResultId : null);
+  }
+
+  public PublicDrawResultSlotsResponse toSlotsResponse(List<PublicDrawResultSlotView> slots) {
+    return new PublicDrawResultSlotsResponse(slots.stream().map(this::toSlotResponse).toList());
+  }
+
+  private PublicDrawResultSlotResponse toSlotResponse(PublicDrawResultSlotView slot) {
+    return new PublicDrawResultSlotResponse(
+        slot.slotKey(),
+        slot.provider(),
+        slot.label(),
+        slot.timezone(),
+        slot.drawTime(),
+        slot.next(),
+        null,
+        List.of());
   }
 
   // ── History ────────────────────────────────────────────────────────────────

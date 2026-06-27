@@ -27,9 +27,9 @@ public interface DrawChannelGameRepository extends JpaRepository<DrawChannelGame
     @Query(value = """
         SELECT dc.code, g.code AS game_code, dcg.tenant_game_id, tg.id AS tg_id,
                dcg.draw_channel_id, dc.result_slot_id, dc.timezone, dc.draw_time,
-               dc.sales_open_time, dc.cutoff_sec, dc.days_of_week, dc.default_source,
+               dc.sales_open_time, dc.cutoff_sec, dc.days_of_week, NULL AS default_source,
                dc.active AS channel_active, dcg.enabled AS dcg_enabled, dc.sort_order,
-               dc.depends_on_channel_id
+               NULL AS depends_on_channel_id
         FROM draw_channel dc
         JOIN draw_channel_game dcg ON dc.id = dcg.draw_channel_id
         JOIN tenant_game tg ON tg.id = dcg.tenant_game_id

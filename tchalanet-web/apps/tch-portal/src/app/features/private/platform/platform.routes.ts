@@ -35,7 +35,44 @@ export const platformRoutes: Route[] = [
   { path: 'health', redirectTo: 'ops/health', pathMatch: 'full' },
   { path: 'draws', redirectTo: 'ops/draws', pathMatch: 'full' },
   { path: 'draw-channels', redirectTo: 'ops/draws', pathMatch: 'full' },
-  { path: 'audit', redirectTo: 'ops/audit', pathMatch: 'full' },
+  {
+    path: 'audit',
+    loadComponent: () =>
+      import('./operations/pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
+  },
+  { path: 'audit/logs', redirectTo: 'audit', pathMatch: 'full' },
+  {
+    path: 'audit/entity-history',
+    loadComponent: () =>
+      import('./operations/pages/entity-history/platform-entity-history.page').then(
+        m => m.PlatformEntityHistoryPage,
+      ),
+  },
+  {
+    path: 'archives',
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
+    path: 'archives/runs',
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
+    path: 'archives/issues',
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
+    path: 'archives/legal-holds',
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
+    path: 'archives/partitions',
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
   { path: 'ops/draw-lifecycle', redirectTo: 'ops/draws', pathMatch: 'full' },
   {
     path: '_ops/draw-lifecycle',
@@ -69,23 +106,18 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'access/permissions',
-    data: {
-      titleKey: 'platform.nav.permissions',
-      descriptionKey: 'platform.placeholder.descriptions.permissions',
-      icon: 'key',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./access/pages/platform-permissions.page').then(m => m.PlatformPermissionsPage),
   },
   {
     path: 'access/roles',
-    data: {
-      titleKey: 'platform.nav.roles',
-      descriptionKey: 'platform.placeholder.descriptions.roles',
-      icon: 'groups',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./access/pages/platform-roles.page').then(m => m.PlatformRolesPage),
+  },
+  {
+    path: 'access/users',
+    loadComponent: () =>
+      import('./access/pages/platform-access-users.page').then(m => m.PlatformAccessUsersPage),
   },
   {
     path: 'super-admins',
@@ -94,16 +126,7 @@ export const platformRoutes: Route[] = [
   },
   { path: 'access/super-admins', redirectTo: 'super-admins', pathMatch: 'full' },
   { path: 'access/overrides', redirectTo: 'super-admins', pathMatch: 'full' },
-  {
-    path: 'access/users',
-    data: {
-      titleKey: 'platform.nav.users',
-      descriptionKey: 'platform.placeholder.descriptions.users',
-      icon: 'manage_accounts',
-    },
-    loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
-  },
+  { path: 'access/admin-accounts', redirectTo: 'tenant-admins', pathMatch: 'full' },
   {
     path: 'access/backend-keys',
     data: {
@@ -117,13 +140,10 @@ export const platformRoutes: Route[] = [
   // ── Support tenant ─────────────────────────────────────────────────────────
   {
     path: 'support-tenant',
-    data: {
-      titleKey: 'platform.nav.supportTenant',
-      descriptionKey: 'platform.placeholder.descriptions.supportTenant',
-      icon: 'support_agent',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/support-tenant/platform-support-tenant.page').then(
+        m => m.PlatformSupportTenantPage,
+      ),
   },
   // ── Tchala ─────────────────────────────────────────────────────────────────
   {
@@ -202,6 +222,27 @@ export const platformRoutes: Route[] = [
     path: 'communication/news',
     loadComponent: () =>
       import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+  },
+  {
+    path: 'communication/config',
+    loadComponent: () =>
+      import('./pages/contact-config/platform-contact-config.page').then(
+        m => m.PlatformContactConfigPage,
+      ),
+  },
+  {
+    path: 'communication/outbox',
+    loadComponent: () =>
+      import('./operations/pages/communication/platform-communication-outbox.page').then(
+        m => m.PlatformCommunicationOutboxPage,
+      ),
+  },
+  {
+    path: 'communication/tests',
+    loadComponent: () =>
+      import('./operations/pages/communication/platform-communication-tests.page').then(
+        m => m.PlatformCommunicationTestsPage,
+      ),
   },
   {
     path: 'contact-config',

@@ -51,6 +51,8 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
               e.JOB_EXECUTION_ID,
               i.JOB_NAME,
               e.STATUS,
+              e.EXIT_CODE,
+              e.EXIT_MESSAGE,
               e.START_TIME,
               e.END_TIME,
               %s AS CONTEXT
@@ -59,7 +61,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             LEFT JOIN batch.BATCH_JOB_EXECUTION_PARAMS p
               ON p.JOB_EXECUTION_ID = e.JOB_EXECUTION_ID
             WHERE e.JOB_EXECUTION_ID = :executionId
-            GROUP BY e.JOB_EXECUTION_ID, i.JOB_NAME, e.STATUS, e.START_TIME, e.END_TIME
+            GROUP BY e.JOB_EXECUTION_ID, i.JOB_NAME, e.STATUS, e.EXIT_CODE, e.EXIT_MESSAGE, e.START_TIME, e.END_TIME
             """.formatted(CONTEXT_SQL);
         List<BatchJobExecutionView> rows = jdbc.query(
             sql,
@@ -81,6 +83,8 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
               e.JOB_EXECUTION_ID,
               i.JOB_NAME,
               e.STATUS,
+              e.EXIT_CODE,
+              e.EXIT_MESSAGE,
               e.START_TIME,
               e.END_TIME,
               %s AS CONTEXT
@@ -89,7 +93,7 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             LEFT JOIN batch.BATCH_JOB_EXECUTION_PARAMS p
               ON p.JOB_EXECUTION_ID = e.JOB_EXECUTION_ID
             WHERE i.JOB_NAME = :jobName
-            GROUP BY e.JOB_EXECUTION_ID, i.JOB_NAME, e.STATUS, e.START_TIME, e.END_TIME
+            GROUP BY e.JOB_EXECUTION_ID, i.JOB_NAME, e.STATUS, e.EXIT_CODE, e.EXIT_MESSAGE, e.START_TIME, e.END_TIME
             ORDER BY COALESCE(e.START_TIME, e.CREATE_TIME) DESC
             LIMIT :limit
             """.formatted(CONTEXT_SQL);
@@ -179,7 +183,9 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
             rs.getString("STATUS"),
             toInstant(rs, "START_TIME"),
             toInstant(rs, "END_TIME"),
-            trimToNull(rs.getString("CONTEXT")));
+            trimToNull(rs.getString("CONTEXT")),
+            trimToNull(rs.getString("EXIT_CODE")),
+            compactExitMessage(rs.getString("EXIT_MESSAGE")));
     }
 
     private static final String CONTEXT_SQL = """
@@ -221,5 +227,16 @@ public class JdbcBatchJobHistoryService implements BatchJobHistoryService {
         if (value == null) return null;
         String trimmed = value.trim();
         return trimmed.isBlank() ? null : trimmed;
+    }
+
+    private static String compactExitMessage(String value) {
+        String trimmed = trimToNull(value);
+        if (trimmed == null) return null;
+        String firstLine = trimmed.lines()
+            .map(String::trim)
+            .filter(line -> !line.isBlank())
+            .findFirst()
+            .orElse(trimmed);
+        return firstLine.length() > 1000 ? firstLine.substring(0, 1000) + "…" : firstLine;
     }
 }

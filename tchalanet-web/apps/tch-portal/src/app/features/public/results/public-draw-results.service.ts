@@ -18,6 +18,18 @@ export interface PublicDrawResultRow {
   readonly detailPath: string;
 }
 
+export interface PublicDrawResultSlot {
+  readonly slotKey: string;
+  readonly provider: string;
+  readonly label: string;
+  readonly timezone: string;
+  readonly drawTime: string;
+}
+
+export interface PublicDrawResultSlotsResponse {
+  readonly items: readonly PublicDrawResultSlot[];
+}
+
 export interface PublicDrawResultDetail {
   readonly drawResultId: string;
   readonly slotKey: string;
@@ -55,13 +67,17 @@ export interface HistoryQueryParams {
 export class PublicDrawResultsService {
   private readonly backend = inject(TchBackendClient);
 
+  slots(): Observable<PublicDrawResultSlotsResponse> {
+    return this.backend.get<PublicDrawResultSlotsResponse>('/public/draw-results/slots');
+  }
+
   history(params: HistoryQueryParams): Observable<PublicDrawResultHistoryPage> {
     let p = new HttpParams()
       .set('page', String(params.page))
       .set('size', String(params.size))
       .set('sort', 'occurredAt,desc');
 
-    params.slotKeys?.forEach(k => {
+    params.slotKeys?.filter(k => k && k !== 'all').forEach(k => {
       p = p.append('slotKeys', k);
     });
     if (params.from) p = p.set('from', params.from);

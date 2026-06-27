@@ -42,14 +42,12 @@ tch:
         timezone: ${TCH_US_TX_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_TX_LOTTERY_BASEURL:https://www.texaslottery.com}
         latest-path: ${TCH_US_TX_LATEST_PATH:/export/sites/lottery/rss/tlc_latest.xml}
-        headers: {}
 
       tn:
         enabled: ${TCH_US_TN_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_TN_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_TN_LOTTERY_BASEURL:https://www.tnlottery.com}
         latest-path: ${TCH_US_TN_LATEST_PATH:}
-        headers: {}
 
       # Internal JSON feed (DrawingsData.aspx). One call returns all games for the day; each Pick
       # entry nests its evening draw under RelatedEveningDrawing.
@@ -87,7 +85,6 @@ tch:
         timezone: ${TCH_US_MO_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_MO_LOTTERY_BASEURL:https://www.molottery.com}
         latest-path: ${TCH_US_MO_LATEST_PATH:}
-        headers: {}
 
       # Enum-only — no client registered. Results via manual proposal (V0).
       il:
@@ -95,7 +92,6 @@ tch:
         timezone: ${TCH_US_IL_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_IL_LOTTERY_BASEURL:https://www.illinoislottery.com}
         latest-path: ${TCH_US_IL_LATEST_PATH:}
-        headers: {}
 
       # Internal GraphQL endpoint. Returns data.winningNumbers.drawNumbersMid|drawNumbersEve.
       mi:

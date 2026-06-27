@@ -20,6 +20,9 @@ public interface ArchiveStoragePort {
   /** Return true if an object at {@code uri} already exists. */
   boolean exists(String uri);
 
+  /** Return the stored object size in bytes. */
+  long size(String uri);
+
   /** Delete the object at {@code uri}. No-op if not found. */
   void delete(String uri);
 

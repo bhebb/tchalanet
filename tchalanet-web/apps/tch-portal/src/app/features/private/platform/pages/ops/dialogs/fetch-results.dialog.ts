@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,8 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import {
   PlatformOpsApi,
   FetchExternalResultsRequest,
-  FetchExternalResultsWindowResult,
-  RefreshExternalResultsWindowResult,
+  OpsLaunchResponse,
 } from '../../../platform-ops-api.service';
 
 @Component({
@@ -61,10 +60,12 @@ import {
 
       @if (result()) {
         <div class="fetch-results-dialog__result">
-          @if (data.mode === 'fetch') {
-            <p>Insérés: {{ fetchResult()!.inserted }} · Mis à jour: {{ fetchResult()!.updated }} · Ignorés: {{ fetchResult()!.skipped }} · Non trouvés: {{ fetchResult()!.notFound }}</p>
-          } @else {
-            <p>Récupérés: {{ refreshResult()!.fetched }} · Upserted: {{ refreshResult()!.upserted }} · Appliqués: {{ refreshResult()!.applied }} · Non trouvés: {{ refreshResult()!.notFound }} · Erreurs: {{ refreshResult()!.projectedFail }}</p>
+          <p>{{ result()!.started }}/{{ result()!.requested }} job(s) lancé(s)</p>
+          @for (launch of result()!.launches; track launch.execution_id ?? launch.tenant_id) {
+            <div>
+              {{ launch.tenant_id ?? 'global' }} :
+              @if (launch.execution_id) { execution #{{ launch.execution_id }} } @else { {{ launch.error }} }
+            </div>
           }
         </div>
       }
@@ -91,16 +92,14 @@ import {
   `],
 })
 export class FetchResultsDialog {
-  protected readonly data = inject<{ title: string; mode: 'fetch' | 'refresh'; slotKeys?: string[]; onSuccess: () => void }>(MAT_DIALOG_DATA);
+  protected readonly data = inject<{ title: string; mode: 'fetch'; slotKeys?: string[]; onSuccess: () => void }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<FetchResultsDialog>);
   private readonly api = inject(PlatformOpsApi);
   private readonly fb = inject(FormBuilder);
 
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
-  readonly result = signal<FetchExternalResultsWindowResult | RefreshExternalResultsWindowResult | null>(null);
-  readonly fetchResult = computed(() => this.data.mode === 'fetch' ? this.result() as FetchExternalResultsWindowResult : null);
-  readonly refreshResult = computed(() => this.data.mode === 'refresh' ? this.result() as RefreshExternalResultsWindowResult : null);
+  readonly result = signal<OpsLaunchResponse | null>(null);
 
   readonly form = this.fb.group({
     baseDate: [''],
@@ -137,7 +136,7 @@ export class FetchResultsDialog {
     this.submitting.set(true);
     this.error.set(null);
 
-    const onNext = (res: FetchExternalResultsWindowResult | RefreshExternalResultsWindowResult) => {
+    const onNext = (res: OpsLaunchResponse) => {
       this.submitting.set(false);
       this.result.set(res);
       this.data.onSuccess();
@@ -148,11 +147,7 @@ export class FetchResultsDialog {
       this.error.set(pd?.title ?? 'Erreur.');
     };
 
-    if (this.data.mode === 'fetch') {
-      this.api.fetchDrawResults(req).subscribe({ next: onNext, error: onError });
-    } else {
-      this.api.refreshDrawResults(req).subscribe({ next: onNext, error: onError });
-    }
+    this.api.fetchDrawResults(req).subscribe({ next: onNext, error: onError });
   }
 
   close(): void {

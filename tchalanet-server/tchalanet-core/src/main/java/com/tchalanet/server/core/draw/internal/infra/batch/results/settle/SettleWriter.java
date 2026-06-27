@@ -14,6 +14,8 @@ import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -47,7 +49,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
                     continue;
                 }
 
-                commandBus.execute(new SettleDrawCommand(drawId, null, false));
+                commandBus.execute(new SettleDrawCommand(List.of(drawId), null, false));
             } catch (Exception e) {
                 log.error("settle.fail draw={} cause={}", drawId, e.getMessage(), e);
             }

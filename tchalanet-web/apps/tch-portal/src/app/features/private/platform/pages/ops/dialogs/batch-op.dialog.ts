@@ -9,9 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 
 import { AdminStatusPillComponent } from '../../../../shared/admin-ui/admin-status-pill.component';
-import { TenantBatchResponse } from '../../../platform-ops-api.service';
+import { OpsLaunchResponse } from '../../../platform-ops-api.service';
 
-export type AnyBatchResult = TenantBatchResponse<{ opened?: number; closed?: number; inserted?: number; applied?: number }>;
+export type AnyBatchResult = OpsLaunchResponse;
 
 @Component({
   selector: 'tch-batch-op-dialog',
@@ -47,24 +47,30 @@ export type AnyBatchResult = TenantBatchResponse<{ opened?: number; closed?: num
       @if (result()) {
         <div class="batch-op-dialog__result">
           <p class="batch-op-dialog__summary-line">
-            <strong>{{ result()!.tenantsSucceeded }}</strong>/{{ result()!.tenantsRequested }} tenants OK
-            @if (result()!.tenantsFailed > 0) { · <strong class="batch-op-dialog__err">{{ result()!.tenantsFailed }} échoué(s)</strong> }
+            <strong>{{ result()!.started }}</strong>/{{ result()!.requested }} job(s) lancé(s)
+            @if (result()!.failed > 0) { · <strong class="batch-op-dialog__err">{{ result()!.failed }} échoué(s)</strong> }
           </p>
-          @if (result()!.tenants.length) {
-            <table mat-table [dataSource]="result()!.tenants" class="batch-op-dialog__outcome-table">
+          @if (result()!.launches.length) {
+            <table mat-table [dataSource]="result()!.launches" class="batch-op-dialog__outcome-table">
               <ng-container matColumnDef="tenantId">
                 <th mat-header-cell *matHeaderCellDef>Tenant</th>
-                <td mat-cell *matCellDef="let r"><code>{{ r.tenantId }}</code></td>
+                <td mat-cell *matCellDef="let r"><code>{{ r.tenant_id ?? 'global' }}</code></td>
               </ng-container>
               <ng-container matColumnDef="ok">
                 <th mat-header-cell *matHeaderCellDef>Statut</th>
                 <td mat-cell *matCellDef="let r">
-                  <tch-admin-status-pill [tone]="r.ok ? 'success' : 'danger'" [label]="r.ok ? 'OK' : 'ERREUR'" />
+                  <tch-admin-status-pill [tone]="r.error ? 'danger' : 'success'" [label]="r.status" />
                 </td>
               </ng-container>
               <ng-container matColumnDef="error">
-                <th mat-header-cell *matHeaderCellDef>Message</th>
-                <td mat-cell *matCellDef="let r">{{ r.error ?? '—' }}</td>
+                <th mat-header-cell *matHeaderCellDef>Détail</th>
+                <td mat-cell *matCellDef="let r">
+                  @if (!r.error && r.execution_id) {
+                    execution #{{ r.execution_id }}
+                  } @else {
+                    {{ r.error ?? '—' }}
+                  }
+                </td>
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="outcomeColumns"></tr>
               <tr mat-row *matRowDef="let r; columns: outcomeColumns"></tr>

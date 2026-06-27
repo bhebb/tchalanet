@@ -103,6 +103,7 @@ nav:
 
   - Opérations:
       - Index: 04-operations/index.md
+      - Super admin operations: 04-operations/super-admin-operations.md
 
   - Référence interne:
       - Index: 99-reference/index.md

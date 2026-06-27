@@ -11,5 +11,7 @@ public record ExecutionResponse(
     String status,
     Instant started_at,
     Instant ended_at,
-    String context
+    String context,
+    String exit_code,
+    String exit_message
 ) {}

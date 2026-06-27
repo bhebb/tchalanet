@@ -8,15 +8,17 @@ Ce document centralise les batchs Tchalanet : propriétés, settings/gates, inpu
 
 ## 1. Matrix des batchs
 
-| Batch           | Job key                  | Scope  | Déclenchement   | Horaire / cron | Properties principales         | Settings / gate                        | Input Ops                        | Préconditions              | Effet attendu        |
-| --------------- | ------------------------ | ------ | --------------- | -------------- | ------------------------------ | -------------------------------------- | -------------------------------- | -------------------------- | -------------------- |
-| Generate draws  | DRAW_GENERATE_NEXT       | Tenant | Scheduler + Ops | ex. 05:00 UTC  | lifecycle.generate.\*          | batch.DRAW_GENERATE_NEXT.enabled       | tenantId, from, to, dryRun       | draw_channel actif         | crée draws SCHEDULED |
-| Open due draws  | DRAW_OPEN_DUE            | Global | Scheduler + Ops | ex. \*/5 min   | openHorizonHours, openLagHours | batch.DRAW_OPEN_DUE.enabled            | now, limit, horizon, lag, dryRun | SCHEDULED + fenêtre valide | SCHEDULED → OPEN     |
-| Close due draws | DRAW_CLOSE_DUE           | Global | Scheduler + Ops | ex. \*/5 min   | closeLagHours                  | batch.DRAW_CLOSE_DUE.enabled           | now, limit, dryRun               | OPEN + cutoff passé        | OPEN → CLOSED        |
-| Fetch results   | RESULTS_EXTERNAL_FETCH   | Global | Scheduler + Ops | ex. \*/5 min   | tch.draw.results.\*, providers | batch.RESULTS_EXTERNAL_FETCH.enabled   | now, daysBack, maxSlots, dryRun  | result_slot actif          | crée draw_result     |
-| Apply results   | RESULTS_EXTERNAL_APPLY   | Tenant | Scheduler + Ops | post-fetch     | limits._, defaults._           | batch.RESULTS_EXTERNAL_APPLY.enabled   | tenantId, now, daysBack, dryRun  | CLOSED + draw_result       | CLOSED → RESULTED    |
-| Refresh results | RESULTS_EXTERNAL_REFRESH | Global | Scheduler + Ops | ex. \*/5 min   | fetch + apply                  | batch.RESULTS_EXTERNAL_REFRESH.enabled | now, daysBack                    | fetch + apply OK           | orchestration        |
-| Settle draws    | DRAW_SETTLE_DUE          | Tenant | Scheduler + Ops | ex. \*/10 min  | settlement.\*                  | batch.DRAW_SETTLE_DUE.enabled          | tenantId, now, dryRun            | RESULTED                   | RESULTED → SETTLED   |
+| Batch           | Job key                    | Scope  | Déclenchement   | Horaire / cron | Properties principales         | Setting key (`namespace=batch`) | Input Ops                         | Préconditions              | Effet attendu        |
+| --------------- | -------------------------- | ------ | --------------- | -------------- | ------------------------------ | ------------------------------- | --------------------------------- | -------------------------- | -------------------- |
+| Generate draws  | `draw:lifecycle:generate`  | Tenant | Scheduler + Ops | ex. 05:00 UTC  | `tch.draw.scheduler.generate.*` | `jobs.draw:lifecycle:generate.enabled` | `tenant_id`, `from`, `to`, `days_ahead`, `dry_run` | draw_channel actif         | crée draws SCHEDULED |
+| Open draws      | `draw:lifecycle:open`      | Tenant | Scheduler + Ops | ex. */5 min    | `tch.draw.scheduler.open-today.*` | `jobs.draw:lifecycle:open.enabled` | `tenant_id`, `date`, `max_items`, `dry_run` | SCHEDULED + fenêtre valide | SCHEDULED → OPEN     |
+| Close draws     | `draw:lifecycle:close`     | Tenant | Scheduler + Ops | processing tick | `tch.draw.scheduler.processing.close.*` | `jobs.draw:lifecycle:close.enabled` | `tenant_id`, `max_items`, `dry_run` | OPEN + cutoff passé        | OPEN → CLOSED        |
+| Fetch results   | `results:external:fetch`   | Global | Scheduler + Ops | processing tick | providers + result slots       | `jobs.results:external:fetch.enabled` | `date`, `slot_keys`, `days_back`, `max_slots`, `dry_run`, `include_raw` | result_slot actif          | crée draw_result     |
+| Apply results   | `results:external:apply`   | Tenant | Scheduler + Ops | post-fetch     | processing apply windows       | `jobs.results:external:apply.enabled` | `tenant_id`, `date`, `slot_keys`, `days_back`, `max_slots`, `dry_run` | CLOSED + draw_result       | CLOSED → RESULTED    |
+| Settle draws    | `draw:lifecycle:settle`    | Tenant | Scheduler + Ops | processing tick | settlement windows             | `jobs.draw:lifecycle:settle.enabled` | `tenant_id`, `date`, `max_items`, `days_back`, `dry_run` | RESULTED                   | RESULTED → SETTLED   |
+
+`refresh` n'est pas un job V0 : lancer explicitement `results:external:fetch`, puis
+`results:external:apply` pour les tenants ciblés.
 
 ---
 

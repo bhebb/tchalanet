@@ -1,7 +1,9 @@
 package com.tchalanet.server.platform.tenant.internal.web;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
@@ -24,6 +26,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 @Tag(name = "Platform - Tenants")
 @RestController
 @RequestMapping("/platform/tenants")
@@ -41,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TenantAdminController {
 
   private final TenantConfigService tenants;
+  private final IdGenerator idGenerator;
 
   @Operation(summary = "List tenants with search, status filter and pagination")
   @GetMapping
@@ -105,6 +112,64 @@ public class TenantAdminController {
     tenants.updateTenantIdentity(new UpdateTenantIdentityRequest(id, body.name(), body.timezone(), body.currency()));
   }
 
+  @PostMapping("/{id}/admin-access")
+  @Operation(summary = "Start a platform support tenant-admin access session")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ApiResponse<TenantAdminAccessSessionResponse> startAdminAccess(
+      @PathVariable TenantId id,
+      @Valid @RequestBody StartTenantAdminAccessRequest body) {
+    var tenant = tenants.getTenantById(new GetTenantByIdRequest(id));
+    var requestedMode = body.mode();
+    var mode = requestedMode == SupportAccessMode.SUPPORT_READONLY || tenant.status() != TenantStatus.ACTIVE
+        ? SupportAccessMode.SUPPORT_READONLY
+        : SupportAccessMode.SUPPORT_OVERRIDE;
+    var startedAt = Instant.now();
+    return ApiResponse.success(new TenantAdminAccessSessionResponse(
+        idGenerator.newUuid().toString(),
+        tenant.tenantId().value().toString(),
+        tenant.code(),
+        tenant.name(),
+        startedAt,
+        startedAt.plus(30, ChronoUnit.MINUTES),
+        "SUPER_ADMIN",
+        mode,
+        mode == SupportAccessMode.SUPPORT_READONLY
+    ));
+  }
+
+  @DeleteMapping("/admin-access/current")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Stop the current platform support tenant-admin access session")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public void stopAdminAccess() {
+    // V0 support access is client-session scoped; tenant override authorization is enforced per request.
+  }
+
   public record ReasonRequest(String reason) {}
   public record UpdateTenantIdentityBody(String name, String timezone, String currency) {}
+  public record StartTenantAdminAccessRequest(String reason, SupportAccessMode mode) {
+    public StartTenantAdminAccessRequest {
+      if (reason == null || reason.trim().length() < 10) {
+        throw ProblemRest.badRequest("reason must contain at least 10 characters");
+      }
+      if (mode == null) {
+        mode = SupportAccessMode.SUPPORT_READONLY;
+      }
+    }
+  }
+  public enum SupportAccessMode {
+    SUPPORT_OVERRIDE,
+    SUPPORT_READONLY
+  }
+  public record TenantAdminAccessSessionResponse(
+      String sessionId,
+      String tenantId,
+      String tenantCode,
+      String tenantName,
+      Instant startedAt,
+      Instant expiresAt,
+      String actorRole,
+      SupportAccessMode mode,
+      boolean sensitiveDataMasked
+  ) {}
 }

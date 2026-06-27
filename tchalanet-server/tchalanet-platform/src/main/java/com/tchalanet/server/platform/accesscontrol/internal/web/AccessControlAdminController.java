@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.accesscontrol.internal.web;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -28,6 +29,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -53,21 +56,21 @@ public class AccessControlAdminController {
 
   @Operation(summary = "List system roles")
   @GetMapping("/roles")
-  @PreAuthorize("hasPermission('role.read')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role.read')")
   public ApiResponse<List<RoleView>> listRoles(@CurrentContext TchRequestContext ctx) {
     return ApiResponse.success(accessControlApi.listRoles(new ListRolesRequest(ctx.tenantId())));
   }
 
   @Operation(summary = "List permissions")
   @GetMapping("/permissions")
-  @PreAuthorize("hasPermission('permission.read')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'permission.read')")
   public ApiResponse<List<PermissionView>> listPermissions() {
     return ApiResponse.success(accessControlApi.listPermissions(new ListPermissionsRequest()));
   }
 
   @Operation(summary = "List permissions for a role")
   @GetMapping("/roles/{roleId}/permissions")
-  @PreAuthorize("hasPermission('role.read')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role.read')")
   public ApiResponse<Set<String>> getRolePermissions(@PathVariable RoleId roleId) {
     var codes = accessControlApi.listRolePermissions(new ListRolePermissionsRequest(roleId))
         .stream().map(RolePermissionView::permissionCode).collect(Collectors.toSet());
@@ -78,37 +81,49 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Get effective permissions for a user")
   @GetMapping("/users/{userId}/permissions/effective")
-  @PreAuthorize("hasPermission('user.read')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.read')")
   public ApiResponse<EffectivePermissionsView> getEffective(
-      @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable UserId userId,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
     return ApiResponse.success(accessControlApi.getEffectivePermissions(
-        new GetEffectivePermissionsRequest(userId, ctx.tenantId())));
+        new GetEffectivePermissionsRequest(userId, effectiveTenant(ctx, tenantId))));
   }
 
   // ─── Role assignment ──────────────────────────────────────────────────────
 
   @Operation(summary = "Assign a role to a user")
   @PostMapping("/users/{userId}/roles/{roleCode}")
-  @PreAuthorize("hasPermission('user.role.assign')")
-  @AuditLog(action = AuditAction.USER_ROLE_CHANGE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.role.assign')")
+  @AuditLog(
+      action = AuditAction.USER_ROLE_CHANGE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId",
+      tenantIdExpression = "#tenantId")
   public ApiResponse<Void> assignRole(
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
-      @PathVariable String roleCode) {
+      @PathVariable String roleCode,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
     accessControlApi.assignRoleToUser(
-        new AssignRoleToUserRequest(ctx.tenantId(), userId, roleCode, ctx.currentUserIdRequired()));
+        new AssignRoleToUserRequest(effectiveTenant(ctx, tenantId), userId, roleCode, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
 
   @Operation(summary = "Remove a role from a user")
   @DeleteMapping("/users/{userId}/roles/{roleCode}")
-  @PreAuthorize("hasPermission('user.role.assign')")
-  @AuditLog(action = AuditAction.USER_ROLE_CHANGE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.role.assign')")
+  @AuditLog(
+      action = AuditAction.USER_ROLE_CHANGE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId",
+      tenantIdExpression = "#tenantId")
   public ApiResponse<Void> removeRole(
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
-      @PathVariable String roleCode) {
-    accessControlApi.removeRoleFromUser(new RemoveRoleFromUserRequest(ctx.tenantId(), userId, roleCode));
+      @PathVariable String roleCode,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
+    accessControlApi.removeRoleFromUser(new RemoveRoleFromUserRequest(effectiveTenant(ctx, tenantId), userId, roleCode));
     return ApiResponse.success(null);
   }
 
@@ -116,15 +131,20 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Grant a permission override to a user")
   @PutMapping("/users/{userId}/permissions/{permissionCode}/grant")
-  @PreAuthorize("hasPermission('user.permission.manage')")
-  @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.permission.manage')")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId",
+      tenantIdExpression = "#tenantId")
   public ApiResponse<Void> grantPermission(
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
       @PathVariable String permissionCode,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId,
       @RequestBody(required = false) OverrideReasonRequest body) {
     accessControlApi.grantUserPermission(new GrantUserPermissionRequest(
-        ctx.tenantId(), userId, permissionCode,
+        effectiveTenant(ctx, tenantId), userId, permissionCode,
         body != null ? body.reason() : null,
         ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -132,15 +152,20 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Deny a permission to a user")
   @PutMapping("/users/{userId}/permissions/{permissionCode}/deny")
-  @PreAuthorize("hasPermission('user.permission.manage')")
-  @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.permission.manage')")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId",
+      tenantIdExpression = "#tenantId")
   public ApiResponse<Void> denyPermission(
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
       @PathVariable String permissionCode,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId,
       @RequestBody(required = false) OverrideReasonRequest body) {
     accessControlApi.denyUserPermission(new DenyUserPermissionRequest(
-        ctx.tenantId(), userId, permissionCode,
+        effectiveTenant(ctx, tenantId), userId, permissionCode,
         body != null ? body.reason() : null,
         ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -148,14 +173,19 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Remove a permission override from a user")
   @DeleteMapping("/users/{userId}/permissions/{permissionCode}/override")
-  @PreAuthorize("hasPermission('user.permission.manage')")
-  @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
+  @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'user.permission.manage')")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.USER,
+      idExpression = "#userId",
+      tenantIdExpression = "#tenantId")
   public ApiResponse<Void> removeOverride(
       @CurrentContext TchRequestContext ctx,
       @PathVariable UserId userId,
-      @PathVariable String permissionCode) {
+      @PathVariable String permissionCode,
+      @RequestParam(required = false, name = "tenant_id") UUID tenantId) {
     accessControlApi.removeUserPermissionOverride(
-        new RemoveUserPermissionOverrideRequest(ctx.tenantId(), userId, permissionCode));
+        new RemoveUserPermissionOverrideRequest(effectiveTenant(ctx, tenantId), userId, permissionCode));
     return ApiResponse.success(null);
   }
 
@@ -163,7 +193,7 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Bootstrap access-control matrix (platform ops)")
   @PostMapping("/bootstrap/{mode}")
-  @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission('platform.ops.execute')")
+  @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'platform.ops.execute')")
   @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SYSTEM, idExpression = "'access-control-bootstrap'")
   public ApiResponse<BootstrapAccessControlResult> bootstrap(@PathVariable String mode) {
     var request = new BootstrapAccessControlRequest(
@@ -174,4 +204,8 @@ public class AccessControlAdminController {
   // ─── Inner types ─────────────────────────────────────────────────────────
 
   public record OverrideReasonRequest(String reason) {}
+
+  private TenantId effectiveTenant(TchRequestContext ctx, UUID tenantId) {
+    return tenantId != null ? TenantId.of(tenantId) : ctx.tenantId();
+  }
 }
