@@ -1,16 +1,20 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, map } from 'rxjs';
 
-import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { PlatformOpsApi, RecordManualDrawResultRequest } from '../../../platform-ops-api.service';
-import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
+import {
+  CatalogResultSlotView,
+  PlatformCatalogApi,
+} from '../../../catalog/data-access/platform-catalog-api.service';
+import { haitiLotGameMappings } from '../../../../../../shared/results/haiti-lot-game-mapping';
+import { resultSlotLabel } from '../../../../../../shared/results/result-slot-label';
 
 @Component({
   selector: 'tch-manual-result-dialog',
@@ -23,42 +27,63 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    TchSearchSelect,
+    MatSelectModule,
   ],
   template: `
     <h2 mat-dialog-title>Saisir un résultat manuel</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="manual-result-dialog__form">
-        <tch-search-select
-          label="Tenant"
-          placeholder="Nom ou code du tenant"
-          icon="apartment"
-          emptyLabel="Aucun tenant trouvé"
-          [error]="form.controls.tenantId.invalid && form.controls.tenantId.touched ? 'Requis.' : ''"
-          [searchFn]="searchTenants"
-          (valueChange)="selectTenant($event)"
-        />
         <mat-form-field appearance="outline">
-          <mat-label>Slot key</mat-label>
-          <input matInput formControlName="slotKey" placeholder="ny-middaynumbers" />
+          <mat-label>Slot résultat</mat-label>
+          <mat-select formControlName="slotKey">
+            @for (slot of slots(); track slot.slotKey) {
+              <mat-option [value]="slot.slotKey">
+                {{ slotLabel(slot) }}
+              </mat-option>
+            }
+          </mat-select>
           @if (form.controls.slotKey.invalid && form.controls.slotKey.touched) {
             <mat-error>Requis.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Date du tirage (YYYY-MM-DD)</mat-label>
-          <input matInput formControlName="drawDate" />
+          <input matInput type="date" formControlName="drawDate" [max]="today" />
           @if (form.controls.drawDate.invalid && form.controls.drawDate.touched) {
-            <mat-error>Requis.</mat-error>
+            <mat-error>{{ form.controls.drawDate.hasError('futureDate') ? 'Pas de résultat futur.' : 'Requis.' }}</mat-error>
+          }
+        </mat-form-field>
+        <div class="manual-result-dialog__lot-map" aria-label="Mapping lots Haiti vers provider">
+          @for (mapping of lotMappings(); track mapping.lotKey) {
+            <div class="manual-result-dialog__lot-card">
+              <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
+              <span>
+                <strong>{{ mapping.label }}</strong>
+                <em>{{ mapping.provider }} · {{ mapping.gameLabel }}</em>
+              </span>
+            </div>
+          }
+        </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Lot 1</mat-label>
+          <input matInput formControlName="lot1" maxlength="3" placeholder="123" />
+          @if (form.controls.lot1.invalid && form.controls.lot1.touched) {
+            <mat-error>3 chiffres requis.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Pick 3</mat-label>
-          <input matInput formControlName="pick3" placeholder="1-2-3" />
+          <mat-label>Lot 2</mat-label>
+          <input matInput formControlName="lot2" maxlength="2" placeholder="45" />
+          @if (form.controls.lot2.invalid && form.controls.lot2.touched) {
+            <mat-error>2 chiffres requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Pick 4</mat-label>
-          <input matInput formControlName="pick4" placeholder="1-2-3-4" />
+          <mat-label>Lot 3</mat-label>
+          <input matInput formControlName="lot3" maxlength="2" placeholder="67" />
+          @if (form.controls.lot3.invalid && form.controls.lot3.touched) {
+            <mat-error>2 chiffres requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Raison</mat-label>
@@ -86,50 +111,74 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
   `,
   styles: [`
     .manual-result-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+    .manual-result-dialog__lot-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+    .manual-result-dialog__lot-card { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.5rem; align-items: center; min-height: 3.75rem; padding: 0.5rem; border: 1px solid var(--tch-color-outline-variant); border-radius: var(--tch-radius-sm); background: var(--tch-color-surface-container-low); }
+    .manual-result-dialog__lot-card img { max-width: 3rem; max-height: 2.5rem; object-fit: contain; }
+    .manual-result-dialog__lot-card span { display: grid; gap: 0.125rem; min-width: 0; }
+    .manual-result-dialog__lot-card strong { color: var(--tch-color-on-surface); font-size: var(--tch-font-size-label-md); font-weight: 700; }
+    .manual-result-dialog__lot-card em { color: var(--tch-color-on-surface-variant); font-size: var(--tch-font-size-label-sm); font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .manual-result-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm); font-size: 0.875rem; margin-top: 0.5rem; }
+    @media (max-width: 720px) { .manual-result-dialog__lot-map { grid-template-columns: 1fr; } }
   `],
 })
-export class ManualResultDialog {
+export class ManualResultDialog implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ManualResultDialog>);
   private readonly api = inject(PlatformOpsApi);
-  private readonly tenantsApi = inject(PlatformTenantsApi);
+  private readonly catalogApi = inject(PlatformCatalogApi);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
 
+  readonly today = todayIsoDate();
+  readonly slots = signal<CatalogResultSlotView[]>([]);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    tenantId: ['', Validators.required],
     slotKey: ['', Validators.required],
-    drawDate: ['', Validators.required],
-    pick3: [''],
-    pick4: [''],
+    drawDate: [this.today, [Validators.required, notFutureDateValidator]],
+    lot1: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+    lot2: ['', [Validators.required, Validators.pattern(/^\d{2}$/)]],
+    lot3: ['', [Validators.required, Validators.pattern(/^\d{2}$/)]],
     reason: ['', Validators.required],
     notes: [''],
     force: [false],
   });
 
-  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
-    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
-      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
-    );
+  ngOnInit(): void {
+    this.catalogApi.listResultSlots().subscribe({
+      next: slots => {
+        const sorted = [...slots].sort((a, b) => a.slotKey.localeCompare(b.slotKey));
+        this.slots.set(sorted);
+        if (!this.form.controls.slotKey.value && sorted.length === 1) {
+          this.form.patchValue({ slotKey: sorted[0].slotKey });
+        }
+      },
+      error: err => {
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Slots indisponibles.');
+      },
+    });
+  }
 
-  selectTenant(option: TchSearchOption | null): void {
-    const tenant = option?.data as TenantSummaryView | undefined;
-    this.form.patchValue({ tenantId: tenant?.id ?? tenant?.tenantId ?? '' });
+  slotLabel(slot: CatalogResultSlotView): string {
+    return resultSlotLabel(slot);
+  }
+
+  lotMappings() {
+    const slotKey = this.form.controls.slotKey.value;
+    const slot = this.slots().find(item => item.slotKey === slotKey);
+    return haitiLotGameMappings(slot ?? { slotKey });
   }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) return;
     const v = this.form.value;
     const req: RecordManualDrawResultRequest = {
-      tenantId: v.tenantId!,
       slotKey: v.slotKey!,
       drawDate: v.drawDate!,
       recordedBy: 'platform-ops',
-      pick3: v.pick3 || undefined,
-      pick4: v.pick4 || undefined,
+      lot1: v.lot1!,
+      lot2: v.lot2!,
+      lot3: v.lot3!,
       reason: v.reason!,
       notes: v.notes || undefined,
       force: v.force ?? false,
@@ -148,15 +197,17 @@ export class ManualResultDialog {
       },
     });
   }
+}
 
-  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
-    return {
-      id: tenant.id ?? tenant.tenantId ?? tenant.code,
-      title: tenant.name,
-      subtitle: tenant.code,
-      badge: tenant.status,
-      icon: 'apartment',
-      data: tenant,
-    };
-  }
+function todayIsoDate(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function notFutureDateValidator(control: AbstractControl): { futureDate: true } | null {
+  const value = control.value;
+  return typeof value === 'string' && value > todayIsoDate() ? { futureDate: true } : null;
 }

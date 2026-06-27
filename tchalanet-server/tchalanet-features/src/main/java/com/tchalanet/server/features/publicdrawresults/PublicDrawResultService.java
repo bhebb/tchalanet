@@ -9,6 +9,7 @@ import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultDet
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultHistoryResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultLatestResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSearchCriteria;
+import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotsResponse;
 import java.time.Clock;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,11 @@ public class PublicDrawResultService {
         queryBus.ask(
             new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider));
     return mapper.toLatestResponse(views, limit, clock.instant());
+  }
+
+  public PublicDrawResultSlotsResponse slots(String provider) {
+    var views = queryBus.ask(new ListPublicDrawResultSlotsQuery(List.of(), provider));
+    return mapper.toSlotsResponse(views);
   }
 
   /**

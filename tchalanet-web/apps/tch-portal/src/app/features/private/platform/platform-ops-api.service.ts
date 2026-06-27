@@ -143,25 +143,32 @@ export interface RefreshExternalResultsWindowResult {
 }
 
 export interface OverrideDrawResultRequest {
-  tenantId: string;
   slotKey: string;
   drawDate: string;
-  pick3?: string;
-  pick4?: string;
+  lot1: string;
+  lot2: string;
+  lot3: string;
   reason: string;
   force?: boolean;
 }
 
 export interface RecordManualDrawResultRequest {
-  tenantId: string;
   drawDate: string;
   slotKey: string;
   recordedBy: string;
   notes?: string;
-  pick3?: string;
-  pick4?: string;
+  lot1: string;
+  lot2: string;
+  lot3: string;
   force?: boolean;
-  reason?: string;
+  reason: string;
+}
+
+export interface HaitiLots {
+  lot1?: string | null;
+  lot2?: string | null;
+  lot3?: string | null;
+  lot4?: string | null;
 }
 
 export interface DrawResultOpsResponse {
@@ -174,7 +181,7 @@ export interface DrawResultOpsResponse {
   sourceHash?: string;
   fetchedAt?: string;
   sourceResult?: unknown;
-  haitiResult?: unknown;
+  haitiResult?: HaitiLots | unknown;
   rawPayload?: unknown;
   overrideReason?: string;
 }

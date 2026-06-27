@@ -18,6 +18,18 @@ export interface PublicDrawResultRow {
   readonly detailPath: string;
 }
 
+export interface PublicDrawResultSlot {
+  readonly slotKey: string;
+  readonly provider: string;
+  readonly label: string;
+  readonly timezone: string;
+  readonly drawTime: string;
+}
+
+export interface PublicDrawResultSlotsResponse {
+  readonly items: readonly PublicDrawResultSlot[];
+}
+
 export interface PublicDrawResultDetail {
   readonly drawResultId: string;
   readonly slotKey: string;
@@ -54,6 +66,10 @@ export interface HistoryQueryParams {
 @Injectable({ providedIn: 'root' })
 export class PublicDrawResultsService {
   private readonly backend = inject(TchBackendClient);
+
+  slots(): Observable<PublicDrawResultSlotsResponse> {
+    return this.backend.get<PublicDrawResultSlotsResponse>('/public/draw-results/slots');
+  }
 
   history(params: HistoryQueryParams): Observable<PublicDrawResultHistoryPage> {
     let p = new HttpParams()

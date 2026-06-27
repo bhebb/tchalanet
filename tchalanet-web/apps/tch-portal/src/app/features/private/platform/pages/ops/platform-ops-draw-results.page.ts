@@ -22,11 +22,13 @@ import { AdminStatusPillComponent } from '../../../shared/admin-ui/admin-status-
 import {
   PlatformOpsApi,
   DrawResultOpsResponse,
+  HaitiLots,
 } from '../../platform-ops-api.service';
 import { FetchResultsDialog } from './dialogs/fetch-results.dialog';
 import { ManualResultDialog } from './dialogs/manual-result.dialog';
 import { OverrideResultDialog } from './dialogs/override-result.dialog';
 import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-assets';
+import { HaitiLotsDisplayComponent } from '../../../../../shared/results/haiti-lots-display.component';
 
 @Component({
   selector: 'tch-platform-ops-draw-results-page',
@@ -45,6 +47,7 @@ import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-asset
     MatPaginatorModule,
     MatSelectModule,
     MatTableModule,
+    HaitiLotsDisplayComponent,
   ],
   templateUrl: './platform-ops-draw-results.page.html',
   styleUrls: ['./platform-ops-draw-results.page.scss'],
@@ -54,7 +57,7 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = ['lottery', 'slotKey', 'occurredAt', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
+  readonly displayedColumns = ['lottery', 'slotKey', 'occurredAt', 'haiti', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly page = signal<{ items: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
@@ -148,5 +151,11 @@ export class PlatformOpsDrawResultsPage implements OnInit {
 
   lotteryAsset(slotKey: string): string | null {
     return lotteryAssetForSlot(slotKey);
+  }
+
+  haitiLots(row: DrawResultOpsResponse): HaitiLots {
+    const value = row.haitiResult;
+    if (!value || typeof value !== 'object') return {};
+    return value as HaitiLots;
   }
 }

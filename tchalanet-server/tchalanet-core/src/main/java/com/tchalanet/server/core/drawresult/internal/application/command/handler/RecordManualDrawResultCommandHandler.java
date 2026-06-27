@@ -63,7 +63,7 @@ public class RecordManualDrawResultCommandHandler
                 flags,
                 ResultQuality.COMPLETE.name(),
                 null,
-                command.notes(),
+                command.reason(),
                 command.force());
 
         log.info(
@@ -109,6 +109,7 @@ public class RecordManualDrawResultCommandHandler
         sourceResult.put("occurred_at", occurredAt.toString());
         sourceResult.put("recorded_by", emptyIfNull(command.recordedBy()));
         sourceResult.put("notes", emptyIfNull(command.notes()));
+        sourceResult.put("reason", emptyIfNull(command.reason()));
 
         putIfNotBlank(sourceResult, "pick3", command.pick3());
         putIfNotBlank(sourceResult, "pick4", command.pick4());

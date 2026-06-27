@@ -18,6 +18,10 @@ Il agrège `common.batch` (registre, gates, exécutions), `core.draw` et `core.d
 
 ### Draws — lifecycle manuel
 
+Les draws restent une responsabilité tenant-admin. La surface Ops ne remplace pas
+l'administration tenant : elle existe pour les actions critiques de supervision
+super-admin (générer/ouvrir/fermer/appliquer sur un ou plusieurs tenants).
+
 ```http
 POST /platform/ops/draws/generate       ← GenerateDrawsForRangeCommand (gate: draw:lifecycle:generate)
 POST /platform/ops/draws/open-today     ← OpenTodayDrawsCommand (gate: draw:lifecycle:open)
@@ -28,6 +32,20 @@ POST /platform/ops/draws/apply          ← ApplyExternalResultsWindowCommand (g
 Toutes auditées (`@AuditLog`). Toutes vérifient le gate avant exécution.
 
 ### Draw results — ingestion et correction
+
+Les `draw_result` sont globaux : ils représentent le résultat officiel d'un
+`result_slot` à une date/heure donnée. Le tenant intervient quand un résultat
+est appliqué aux `draws` tenant-scopés, pas quand on crée ou override le
+résultat global.
+
+Depuis la page Résultats, la saisie manuelle demande donc `slotKey`, date,
+`lot1`, `lot2`, `lot3` et raison. Depuis un écran Tirages tenant-admin, le draw
+sélectionné apporte déjà le slot et la date : l'utilisateur ne saisit que les
+lots et la raison.
+
+Pour `override` et `manual`, l'API Ops reçoit les valeurs métier visibles par
+l'opérateur (`lot1`, `lot2`, `lot3`). Le BFF mappe ensuite vers le format core
+actuel (`pick3`, `pick4`) avant exécution de la commande.
 
 ```http
 POST /platform/ops/draw-results/fetch    ← FetchExternalResultsWindowCommand (gate: results:external:fetch)

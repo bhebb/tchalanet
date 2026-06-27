@@ -25,14 +25,14 @@
             role="group"
             [attr.aria-label]="'domain.draw.field.provider' | translate"
           >
-            @for (p of providerFilters; track p.id) {
+            @for (p of providerFilters(); track p.id) {
               <button
                 type="button"
                 class="results-page__chip"
                 [class.is-active]="providerFilter() === p.id"
                 (click)="setProvider(p.id)"
               >
-                {{ p.labelKey | translate }}
+                {{ p.label }}
               </button>
             }
           </div>
@@ -43,7 +43,7 @@
             role="group"
             [attr.aria-label]="'domain.draw.field.slotType' | translate"
           >
-            @for (s of slotTypeFilters; track s.id) {
+            @for (s of slotTypeFilters(); track s.id) {
               <button
                 type="button"
                 class="results-page__chip"

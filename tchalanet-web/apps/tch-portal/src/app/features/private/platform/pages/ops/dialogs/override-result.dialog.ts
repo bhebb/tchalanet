@@ -7,15 +7,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
-import { Observable, map } from 'rxjs';
 
 import {
   PlatformOpsApi,
   DrawResultOpsResponse,
   OverrideDrawResultRequest,
 } from '../../../platform-ops-api.service';
-import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
+import { haitiLotGameMappings } from '../../../../../../shared/results/haiti-lot-game-mapping';
 
 @Component({
   selector: 'tch-override-result-dialog',
@@ -29,21 +27,11 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    TchSearchSelect,
   ],
   template: `
     <h2 mat-dialog-title>Override — {{ data.row.slotKey }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="override-result-dialog__form">
-        <tch-search-select
-          label="Tenant"
-          placeholder="Nom ou code du tenant"
-          icon="apartment"
-          emptyLabel="Aucun tenant trouvé"
-          [error]="form.controls.tenantId.invalid && form.controls.tenantId.touched ? 'Requis.' : ''"
-          [searchFn]="searchTenants"
-          (valueChange)="selectTenant($event)"
-        />
         <mat-form-field appearance="outline">
           <mat-label>Date du tirage (YYYY-MM-DD)</mat-label>
           <input matInput formControlName="drawDate" />
@@ -51,13 +39,37 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
             <mat-error>Requis.</mat-error>
           }
         </mat-form-field>
+        <div class="override-result-dialog__lot-map" aria-label="Mapping lots Haiti vers provider">
+          @for (mapping of lotMappings(); track mapping.lotKey) {
+            <div class="override-result-dialog__lot-card">
+              <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
+              <span>
+                <strong>{{ mapping.label }}</strong>
+                <em>{{ mapping.provider }} · {{ mapping.gameLabel }}</em>
+              </span>
+            </div>
+          }
+        </div>
         <mat-form-field appearance="outline">
-          <mat-label>Pick 3 (ex: 1-2-3)</mat-label>
-          <input matInput formControlName="pick3" />
+          <mat-label>Lot 1</mat-label>
+          <input matInput formControlName="lot1" maxlength="3" />
+          @if (form.controls.lot1.invalid && form.controls.lot1.touched) {
+            <mat-error>3 chiffres requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Pick 4 (ex: 1-2-3-4)</mat-label>
-          <input matInput formControlName="pick4" />
+          <mat-label>Lot 2</mat-label>
+          <input matInput formControlName="lot2" maxlength="2" />
+          @if (form.controls.lot2.invalid && form.controls.lot2.touched) {
+            <mat-error>2 chiffres requis.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lot 3</mat-label>
+          <input matInput formControlName="lot3" maxlength="2" />
+          @if (form.controls.lot3.invalid && form.controls.lot3.touched) {
+            <mat-error>2 chiffres requis.</mat-error>
+          }
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Raison</mat-label>
@@ -82,16 +94,22 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
   `,
   styles: [`
     .override-result-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+    .override-result-dialog__lot-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+    .override-result-dialog__lot-card { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.5rem; align-items: center; min-height: 3.75rem; padding: 0.5rem; border: 1px solid var(--tch-color-outline-variant); border-radius: var(--tch-radius-sm); background: var(--tch-color-surface-container-low); }
+    .override-result-dialog__lot-card img { max-width: 3rem; max-height: 2.5rem; object-fit: contain; }
+    .override-result-dialog__lot-card span { display: grid; gap: 0.125rem; min-width: 0; }
+    .override-result-dialog__lot-card strong { color: var(--tch-color-on-surface); font-size: var(--tch-font-size-label-md); font-weight: 700; }
+    .override-result-dialog__lot-card em { color: var(--tch-color-on-surface-variant); font-size: var(--tch-font-size-label-sm); font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .override-result-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm); font-size: 0.875rem; margin-top: 0.5rem; }
     .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 720px) { .override-result-dialog__lot-map { grid-template-columns: 1fr; } }
   `],
 })
 export class OverrideResultDialog {
   protected readonly data = inject<{ row: DrawResultOpsResponse; onSuccess: () => void }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<OverrideResultDialog>);
   private readonly api = inject(PlatformOpsApi);
-  private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
 
@@ -99,35 +117,27 @@ export class OverrideResultDialog {
   readonly error = signal<string | null>(null);
 
   readonly form = this.fb.group({
-    tenantId: ['', Validators.required],
-    drawDate: ['', Validators.required],
-    pick3: [''],
-    pick4: [''],
+    drawDate: [this.drawDateFromRow(), Validators.required],
+    lot1: [this.lotValue('lot1'), [Validators.required, Validators.pattern(/^\d{3}$/)]],
+    lot2: [this.lotValue('lot2'), [Validators.required, Validators.pattern(/^\d{2}$/)]],
+    lot3: [this.lotValue('lot3'), [Validators.required, Validators.pattern(/^\d{2}$/)]],
     reason: ['', Validators.required],
     force: [false],
   });
 
-  readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
-    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
-      map(page => page.items.map(tenant => this.toTenantOption(tenant))),
-    );
-
-  selectTenant(option: TchSearchOption | null): void {
-    const tenant = option?.data as TenantSummaryView | undefined;
-    this.form.patchValue({
-      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
-    });
+  lotMappings() {
+    return haitiLotGameMappings({ slotKey: this.data.row.slotKey });
   }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) return;
     const v = this.form.value;
     const req: OverrideDrawResultRequest = {
-      tenantId: v.tenantId!,
       slotKey: this.data.row.slotKey,
       drawDate: v.drawDate!,
-      pick3: v.pick3 || undefined,
-      pick4: v.pick4 || undefined,
+      lot1: v.lot1!,
+      lot2: v.lot2!,
+      lot3: v.lot3!,
       reason: v.reason!,
       force: v.force ?? false,
     };
@@ -148,14 +158,14 @@ export class OverrideResultDialog {
     });
   }
 
-  private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
-    return {
-      id: tenant.id ?? tenant.tenantId ?? tenant.code,
-      title: tenant.name,
-      subtitle: tenant.code,
-      badge: tenant.status,
-      icon: 'apartment',
-      data: tenant,
-    };
+  private lotValue(key: 'lot1' | 'lot2' | 'lot3'): string {
+    const value = this.data.row.haitiResult;
+    if (!value || typeof value !== 'object') return '';
+    const lot = (value as Record<string, unknown>)[key];
+    return typeof lot === 'string' ? lot.trim() : '';
+  }
+
+  private drawDateFromRow(): string {
+    return this.data.row.occurredAt?.slice(0, 10) ?? '';
   }
 }

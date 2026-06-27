@@ -13,6 +13,7 @@ import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
@@ -137,18 +138,18 @@ public class DrawResultsOpsController {
         idExpression = "#result.data().drawResultId().value().toString()",
         detailsExpression = "#req")
     public ApiResponse<OverrideDrawResultResult> override(
-        @Valid @RequestBody OverrideDrawResultRequest req,
-        @CurrentContext TchRequestContext ctx
+        @Valid @RequestBody OverrideDrawResultRequest req
     ) {
-        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_OVERRIDE, ctx.tenantId());
+        rejectFutureDate(req.drawDate());
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_OVERRIDE, null);
 
         var res = commandBus.execute(
             new OverrideDrawResultCommand(
-                ctx.tenantId(),
+                null,
                 normalizeSlot(req.slotKey()),
                 req.drawDate(),
-                req.pick3(),
-                req.pick4(),
+                pick3FromLots(req.lot1()),
+                pick4FromLots(req.lot2(), req.lot3()),
                 req.reason(),
                 req.force()
             )
@@ -165,20 +166,20 @@ public class DrawResultsOpsController {
         idExpression = "#result.data().drawResultId().value().toString()",
         detailsExpression = "#req")
     public ApiResponse<RecordManualDrawResultResult> manual(
-        @Valid @RequestBody RecordManualDrawResultRequest req,
-        @CurrentContext TchRequestContext ctx
+        @Valid @RequestBody RecordManualDrawResultRequest req
     ) {
-        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_MANUAL, ctx.tenantId());
+        rejectFutureDate(req.drawDate());
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_MANUAL, null);
 
         var res = commandBus.execute(
             new RecordManualDrawResultCommand(
-                ctx.tenantId(),
+                null,
                 req.drawDate(),
                 normalizeSlot(req.slotKey()),
                 req.recordedBy(),
                 req.notes(),
-                req.pick3(),
-                req.pick4(),
+                pick3FromLots(req.lot1()),
+                pick4FromLots(req.lot2(), req.lot3()),
                 req.force(),
                 req.reason(),
                 false // ops endpoint always writes CONFIRMED
@@ -278,4 +279,23 @@ public class DrawResultsOpsController {
         var normalized = normalizeSlot(s);
         return normalized.isBlank() ? null : normalized;
     }
+
+    private static String pick3FromLots(String lot1) {
+        return digits(lot1);
+    }
+
+    private static String pick4FromLots(String lot2, String lot3) {
+        return digits(lot2) + digits(lot3);
+    }
+
+    private static String digits(String value) {
+        return value == null ? "" : value.trim().replaceAll("\\D", "");
+    }
+
+    private static void rejectFutureDate(LocalDate drawDate) {
+        if (drawDate != null && drawDate.isAfter(LocalDate.now())) {
+            throw ProblemRest.badRequest("draw result date cannot be in the future");
+        }
+    }
+
 }
