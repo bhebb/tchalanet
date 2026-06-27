@@ -32,8 +32,11 @@ export class PrivateNotificationsStore {
     this.scope() === 'platform' ? '/app/platform/notifications' : '/app/admin/notifications',
   );
 
-  loadLatest(): void {
-    this.loadingSignal.set(true);
+  loadLatest(options: { silent?: boolean } = {}): void {
+    if (this.loadingSignal()) return;
+    if (!options.silent) {
+      this.loadingSignal.set(true);
+    }
     this.errorSignal.set(null);
     const scope = this.scope();
     forkJoin({
@@ -46,8 +49,10 @@ export class PrivateNotificationsStore {
         this.loadingSignal.set(false);
       },
       error: () => {
-        this.itemsSignal.set([]);
-        this.unreadCountSignal.set(0);
+        if (!options.silent) {
+          this.itemsSignal.set([]);
+          this.unreadCountSignal.set(0);
+        }
         this.errorSignal.set('notifications.load_failed');
         this.loadingSignal.set(false);
       },

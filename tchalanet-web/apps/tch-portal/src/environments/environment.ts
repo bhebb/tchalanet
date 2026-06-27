@@ -3,6 +3,10 @@ export const environment = {
   apiBasePath: '/api/v1',
   apiBaseUrl: 'http://localhost:8083',
   firebaseAuthEmulatorUrl: null,
+  privateShellPolling: {
+    notificationsMs: 20 * 60 * 1000,
+    sessionMs: 30 * 60 * 1000,
+  },
   firebase: {
     apiKey: 'AIzaSyCbR2gsuZioYJUVeGk7AvtLDgWHveiHYnc',
     authDomain: 'tchalanet-39115.firebaseapp.com',

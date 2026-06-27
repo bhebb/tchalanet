@@ -177,13 +177,6 @@
                 "icon": "playlist_add_check"
               },
               {
-                "id": "tenant-admins",
-                "label_key": "platform.nav.tenantAdmins",
-                "path": "/app/platform/tenant-admins",
-                "kind": "internal",
-                "icon": "admin_panel_settings"
-              },
-              {
                 "id": "tenant-support",
                 "label_key": "platform.nav.supportTenant",
                 "path": "/app/platform/support-tenant",
@@ -438,7 +431,7 @@
               {
                 "id": "access-users",
                 "label_key": "platform.nav.users",
-                "path": "/app/platform/access/users",
+                "path": "/app/platform/tenant-admins",
                 "kind": "internal",
                 "icon": "manage_accounts"
               },

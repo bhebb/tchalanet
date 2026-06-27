@@ -96,8 +96,8 @@
       "tchalaSuggestions": "Suggestions",
       "tchalaImport": "Import",
       "tchalaCleanup": "Cleanup",
-      "accessSecurity": "Access & security",
-      "users": "Users",
+      "accessSecurity": "Access control",
+      "users": "Admin accounts",
       "backendKeys": "Backend signing keys"
     },
     "kpi": {

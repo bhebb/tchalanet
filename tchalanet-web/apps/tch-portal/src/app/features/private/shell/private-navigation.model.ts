@@ -47,12 +47,6 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/platform/tenants/onboarding' },
           },
           {
-            id: 'tenant-admins',
-            labelKey: 'platform.nav.tenantAdmins',
-            icon: 'admin_panel_settings',
-            destination: { kind: 'route', value: '/app/platform/tenant-admins' },
-          },
-          {
             id: 'tenant-support',
             labelKey: 'platform.nav.supportTenant',
             icon: 'support_agent',
@@ -277,7 +271,7 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             id: 'access-users',
             labelKey: 'platform.nav.users',
             icon: 'manage_accounts',
-            destination: { kind: 'route', value: '/app/platform/access/users' },
+            destination: { kind: 'route', value: '/app/platform/tenant-admins' },
           },
           {
             id: 'access-backend-keys',

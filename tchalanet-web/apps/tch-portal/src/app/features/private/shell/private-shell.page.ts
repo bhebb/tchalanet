@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { filter } from 'rxjs';
+import { exhaustMap, filter, from, interval } from 'rxjs';
 import { ActionItem, NavigationDestination } from '@tch/api';
 import { TchBrand, TchSidebarNav, TchUserMenu } from '@tch/ui/components';
 import { ThemeStore } from '@tch/ui/theme';
@@ -17,6 +17,10 @@ import { PrivateNotificationBellComponent } from '../../../core/notifications/pr
 import { PrivateNotificationsStore } from '../../../core/notifications/private-notifications.store';
 import { PrivateShellService } from './private-shell.service';
 import { AdminOverrideBanner } from '../shared/admin-override-banner';
+import { environment } from '../../../../environments/environment';
+
+const DEFAULT_NOTIFICATIONS_POLL_MS = 20 * 60 * 1000;
+const DEFAULT_SESSION_POLL_MS = 30 * 60 * 1000;
 
 @Component({
   imports: [
@@ -274,6 +278,7 @@ export class PrivateShellPage {
   constructor() {
     this.runtime.initPrivateRuntime();
     this.notifications.loadLatest();
+    this.startShellPolling();
 
     effect(() => {
       if (this.shellSvc.shellLoadError()) {
@@ -292,6 +297,32 @@ export class PrivateShellPage {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.drawerOpen.set(false));
+  }
+
+  private startShellPolling(): void {
+    const polling = environment.privateShellPolling ?? {};
+    const notificationsPollMs = positiveInterval(
+      polling.notificationsMs,
+      DEFAULT_NOTIFICATIONS_POLL_MS,
+    );
+    const sessionPollMs = positiveInterval(polling.sessionMs, DEFAULT_SESSION_POLL_MS);
+
+    interval(notificationsPollMs)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.notifications.loadLatest({ silent: true }));
+
+    interval(sessionPollMs)
+      .pipe(
+        exhaustMap(() => from(this.auth.refreshSession(true))),
+        takeUntilDestroyed(),
+      )
+      .subscribe({
+        next: session => {
+          if (!session.authenticated) {
+            void this.router.navigate(['/login']);
+          }
+        },
+      });
   }
 
   toggleDrawer(): void {
@@ -322,6 +353,10 @@ export class PrivateShellPage {
   logout(): void {
     void this.auth.logout().then(() => this.router.navigate(['/login']));
   }
+}
+
+function positiveInterval(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
 const DEFAULT_LOGO = '/assets/brand/tchalanet-logo.svg';

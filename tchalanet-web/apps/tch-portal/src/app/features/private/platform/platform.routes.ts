@@ -69,23 +69,13 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'access/permissions',
-    data: {
-      titleKey: 'platform.nav.permissions',
-      descriptionKey: 'platform.placeholder.descriptions.permissions',
-      icon: 'key',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./access/pages/platform-permissions.page').then(m => m.PlatformPermissionsPage),
   },
   {
     path: 'access/roles',
-    data: {
-      titleKey: 'platform.nav.roles',
-      descriptionKey: 'platform.placeholder.descriptions.roles',
-      icon: 'groups',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./access/pages/platform-roles.page').then(m => m.PlatformRolesPage),
   },
   {
     path: 'super-admins',
@@ -94,16 +84,7 @@ export const platformRoutes: Route[] = [
   },
   { path: 'access/super-admins', redirectTo: 'super-admins', pathMatch: 'full' },
   { path: 'access/overrides', redirectTo: 'super-admins', pathMatch: 'full' },
-  {
-    path: 'access/users',
-    data: {
-      titleKey: 'platform.nav.users',
-      descriptionKey: 'platform.placeholder.descriptions.users',
-      icon: 'manage_accounts',
-    },
-    loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
-  },
+  { path: 'access/users', redirectTo: 'tenant-admins', pathMatch: 'full' },
   {
     path: 'access/backend-keys',
     data: {

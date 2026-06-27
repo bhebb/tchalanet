@@ -28,6 +28,11 @@
   - Visible dans tout `/app/admin/**` quand `SupportAccessStore.isActive()`
 - [ ] Intégrer `AdminOverrideBanner` dans le shell privé (`PrivateShellPage` ou `PrivateShellComponent`)
 - [ ] Désactiver actions mutantes dans les pages admin quand `mode === 'SUPPORT_READONLY'`
+- [x] Ajouter un polling shell privé léger
+  - Notifications privées : refresh silencieux régulier pour la cloche
+  - Runtime/session : refresh régulier pour readiness, entitlements, rôles et permissions
+  - Intervalles configurés via `environment.privateShellPolling` (défaut : notifications 20 min, session/runtime 30 min)
+  - Si le refresh session retire l'accès, redirection login
 
 ---
 
@@ -250,17 +255,36 @@
 
 ---
 
-## Slice 10 — Accès & sécurité
+## Slice 10 — Contrôle d’accès
 
-> Permissions/Rôles = placeholders existants ; Super admins = pages existantes ; Users/Keys = manquants
+> Capability backend : `platform.accesscontrol`.
+> Permissions/Rôles = placeholders existants ; Super admins = pages existantes ; Users/Keys = manquants.
+> Le catalogue des permissions est en lecture côté REST admin ; ne pas exposer create/delete permission en UI V1.
 
-- [ ] Implémenter `pages/access/platform-permissions.page.ts` (remplace placeholder)
-  - `GET /admin/access-control/permissions`
-- [ ] Implémenter `pages/access/platform-roles.page.ts` (remplace placeholder)
+- [x] Renommer le groupe sidenav `platform.nav.accessSecurity` en "Contrôle d’accès"
+- [x] Implémenter `pages/access/platform-permissions.page.ts` (remplace placeholder)
+  - Catalogue lecture seule : `GET /admin/access-control/permissions`
+  - Recherche/filtre par code, domaine, description
+- [x] Implémenter `pages/access/platform-roles.page.ts` (remplace placeholder)
   - `GET /admin/access-control/roles`
+  - Détail permissions du rôle : `GET /admin/access-control/roles/{roleId}/permissions`
+- [x] Implémenter la recherche utilisateur accès
+  - Rechercher un `APP_USER` tenant/admin/superadmin via `/identity/users` ou `/admin/identity/users` selon contexte réel
+  - Afficher rôles actifs et permissions effectives
+  - Overrides : actions supportées en V1 ; affichage séparé bloqué tant qu'un endpoint de listing des overrides n'est pas exposé
+  - Permissions effectives : `GET /admin/access-control/users/{userId}/permissions/effective`
+- [x] Brancher les actions utilisateur supportées par `platform.accesscontrol`
+  - Ajouter rôle : `POST /admin/access-control/users/{userId}/roles/{roleCode}`
+  - Retirer rôle : `DELETE /admin/access-control/users/{userId}/roles/{roleCode}`
+  - Grant override : `PUT /admin/access-control/users/{userId}/permissions/{permissionCode}/grant`
+  - Deny override : `PUT /admin/access-control/users/{userId}/permissions/{permissionCode}/deny`
+  - Retirer override : `DELETE /admin/access-control/users/{userId}/permissions/{permissionCode}/override`
+  - Toutes les actions mutantes doivent demander une raison quand le backend l'accepte et refléter loading/error/success
 - [ ] Vérifier état pages `PlatformSuperAdminsPage` et create — si placeholders, implémenter
-- [ ] Créer `pages/access/platform-users.page.ts`
-  - `GET /identity/users` ou `/admin/identity/users` selon contexte
+- [x] Déplacer l'entrée "Comptes admin" dans Contrôle d'accès
+  - Réutilise la page existante `/platform/tenant-admins`
+  - `/platform/access/users` redirige vers `/platform/tenant-admins`
+  - Liste des `APP_USER` admin/tenant-admin ; ne pas mélanger avec seller terminals
 - [ ] Créer `pages/access/platform-backend-keys.page.ts`
   - `GET /public/security/backend-signing-keys` — diagnostic sécurité lecture seule
 - [ ] S'assurer que toutes les routes `/platform/access/**` et `/platform/super-admins` sont connectées
