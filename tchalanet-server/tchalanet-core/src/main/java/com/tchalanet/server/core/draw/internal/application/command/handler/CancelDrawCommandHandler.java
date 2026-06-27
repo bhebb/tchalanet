@@ -33,28 +33,31 @@ public class CancelDrawCommandHandler implements VoidCommandHandler<CancelDrawCo
     @Override
     @TchTx
     public void handle(CancelDrawCommand command) {
-        Objects.requireNonNull(command.drawId(), "drawId is required");
+        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
         Objects.requireNonNull(command.reasonCode(), "reasonCode is required");
 
-        var draw = drawLookupPort.getById(command.drawId());
+        for (var drawId : drawIds) {
+            var draw = drawLookupPort.getById(drawId);
 
-        // Validate that draw can be cancelled (checks sales, payouts, etc.)
-        salesGuard.assertCanCancel(draw.id(), command.force());
+            // Validate that draw can be cancelled (checks sales, payouts, etc.)
+            salesGuard.assertCanCancel(draw.id(), command.force());
 
-        draw.cancel(command.reasonCode(), command.reasonLabel(), clock.instant());
+            draw.cancel(command.reasonCode(), command.reasonLabel(), clock.instant());
 
-        drawLifecyclePort.save(draw);
+            drawLifecyclePort.save(draw);
 
-        var eventTime = clock.instant();
-        AfterCommit.run(() -> eventPublisher.publish(new DrawCancelledEvent(
-            EventId.of(idGenerator.newUuid()),
-            eventTime,
-            draw.tenantId(),
-            draw.id(),
-            draw.drawChannelId(),
-            draw.drawDate(),
-            draw.cancelReasonCode(),
-            draw.cancelReasonLabel()
-        )));
+            var eventTime = clock.instant();
+            AfterCommit.run(() -> eventPublisher.publish(new DrawCancelledEvent(
+                EventId.of(idGenerator.newUuid()),
+                eventTime,
+                draw.tenantId(),
+                draw.id(),
+                draw.drawChannelId(),
+                draw.drawDate(),
+                draw.cancelReasonCode(),
+                draw.cancelReasonLabel()
+            )));
+        }
     }
+
 }

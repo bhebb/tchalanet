@@ -10,8 +10,6 @@ import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
-
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
@@ -23,13 +21,16 @@ public class UnlockDrawCommandHandler implements VoidCommandHandler<UnlockDrawCo
     @Override
     @TchTx
     public void handle(UnlockDrawCommand command) {
-        log.info("Unlocking draw {}", command.drawId());
-        Objects.requireNonNull(command.drawId(), "drawId is required");
+        var drawIds = DrawLifecycleCommandGuard.requireDrawIds(command.drawIds());
+        log.info("Unlocking {} draw(s)", drawIds.size());
 
-        Draw draw = drawLookupPort.getById(command.drawId());
+        for (var drawId : drawIds) {
+            Draw draw = drawLookupPort.getById(drawId);
 
-        draw.unlock();
+            draw.unlock();
 
-        drawLifecyclePort.save(draw);
+            drawLifecyclePort.save(draw);
+        }
     }
+
 }

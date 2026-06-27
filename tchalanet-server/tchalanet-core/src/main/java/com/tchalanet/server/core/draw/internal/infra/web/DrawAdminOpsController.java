@@ -56,22 +56,6 @@ public class DrawAdminOpsController {
         return ApiResponse.success(reload(drawId));
     }
 
-    @Operation(summary = "Cancel a draw")
-    @PostMapping("/{drawId}/cancel")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_CANCEL,
-        idExpression = "#drawId.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<DrawSummaryResponse> cancel(
-        @PathVariable DrawId drawId,
-        @RequestBody @Valid CancelDrawRequest request) {
-
-        commandBus.execute(new CancelDrawCommand(drawId, request.reasonCode(), request.reasonLabel(), request.force()));
-
-        return ApiResponse.success(reload(drawId));
-    }
-
     @Operation(summary = "Reschedule a draw")
     @PostMapping("/{drawId}/reschedule")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -94,78 +78,6 @@ public class DrawAdminOpsController {
             request.cutoffAt(),
             request.reason(),
             request.force()));
-
-        return ApiResponse.success(reload(drawId));
-    }
-
-    @Operation(summary = "Lock a draw")
-    @PostMapping("/{drawId}/lock")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_LOCK,
-        idExpression = "#drawId.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<DrawSummaryResponse> lock(
-        @PathVariable DrawId drawId,
-        @RequestBody @Valid LockDrawRequest request) {
-
-        commandBus.execute(new LockDrawCommand(drawId, request.reason()));
-
-        return ApiResponse.success(reload(drawId));
-    }
-
-    @Operation(summary = "Unlock a draw")
-    @PostMapping("/{drawId}/unlock")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_UNLOCK,
-        idExpression = "#drawId.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<DrawSummaryResponse> unlock(
-        @PathVariable DrawId drawId,
-        @RequestBody @Valid UnlockDrawRequest request) {
-
-        commandBus.execute(new UnlockDrawCommand(drawId, request.reason()));
-
-        return ApiResponse.success(reload(drawId));
-    }
-
-    @Operation(summary = "Archive a draw")
-    @PostMapping("/{drawId}/archive")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_ARCHIVE,
-        idExpression = "#drawId.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<DrawSummaryResponse> archive(
-        @PathVariable DrawId drawId,
-        @RequestBody @Valid ArchiveDrawRequest request) {
-
-        commandBus.execute(new ArchiveDrawCommand(drawId, request.reason(), request.force()));
-
-        return ApiResponse.success(reload(drawId));
-    }
-
-    /**
-     * Settlement functionality is deferred pending core.sales alignment.
-     * This endpoint is marked for ops/admin strict use only.
-     * DO NOT use in production until settlement is properly aligned with sales/payout/ledger.
-     */
-    @Operation(
-        summary = "Settle a draw (DEFERRED - ops/admin strict use only)",
-        description = "Settlement pending core.sales alignment. Use with extreme caution.")
-    @PostMapping("/{drawId}/settle")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_SETTLE,
-        idExpression = "#drawId.value().toString()",
-        detailsExpression = "#request")
-    public ApiResponse<DrawSummaryResponse> settle(
-        @PathVariable DrawId drawId,
-        @RequestBody @Valid SettleDrawRequest request) {
-
-        commandBus.execute(new SettleDrawCommand(drawId, request.reason(), request.force()));
 
         return ApiResponse.success(reload(drawId));
     }
@@ -204,4 +116,5 @@ public class DrawAdminOpsController {
         var summary = queryBus.ask(new GetDrawByIdQuery(drawId));
         return mapper.toDrawSummaryResponse(summary);
     }
+
 }
