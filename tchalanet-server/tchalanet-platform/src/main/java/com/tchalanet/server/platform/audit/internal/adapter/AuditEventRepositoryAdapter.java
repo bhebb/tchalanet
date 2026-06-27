@@ -130,6 +130,9 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
         if (criteria.actorId() != null && !criteria.actorId().isBlank()) {
           predicates.add(cb.equal(root.get("actorId"), criteria.actorId().trim()));
         }
+        if (criteria.ip() != null && !criteria.ip().isBlank()) {
+          predicates.add(cb.equal(root.get("ip"), toInetAddress(criteria.ip())));
+        }
         if (criteria.from() != null) {
           predicates.add(cb.greaterThanOrEqualTo(root.get("occurredAt"), criteria.from()));
         }

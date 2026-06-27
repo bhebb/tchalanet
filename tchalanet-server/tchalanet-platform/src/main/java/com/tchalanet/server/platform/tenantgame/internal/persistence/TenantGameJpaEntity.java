@@ -9,9 +9,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
-@Audited
 @Entity
 @Table(name = "tenant_game")
 @Getter

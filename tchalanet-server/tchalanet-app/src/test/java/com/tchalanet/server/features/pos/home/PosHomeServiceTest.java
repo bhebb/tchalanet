@@ -118,6 +118,7 @@ class PosHomeServiceTest {
             "Seller Terminal",
             "Seller",
             "Terminal",
+            "st@test.me",
             "+15145550100",
             null,
             status,

@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 
 import java.math.BigDecimal;
@@ -17,7 +16,6 @@ import java.math.BigDecimal;
 @Table(name = "pricing_odds")
 @Getter
 @Setter
-@Audited
 public class PricingOddsEntity extends BaseTenantEntity {
 
     @Column(name = "game_code", nullable = false, length = 32)
@@ -36,4 +34,3 @@ public class PricingOddsEntity extends BaseTenantEntity {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 }
-

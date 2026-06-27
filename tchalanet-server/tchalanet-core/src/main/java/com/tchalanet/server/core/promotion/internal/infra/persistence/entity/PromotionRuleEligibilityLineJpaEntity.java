@@ -7,10 +7,8 @@ import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
-@Audited
 @Table(name = "promotion_rule_eligibility_line")
 @Getter
 @Setter

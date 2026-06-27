@@ -57,6 +57,13 @@ export const platformOperationsRoutes: Route[] = [
       import('./pages/audit/platform-audit.page').then(m => m.PlatformAuditPage),
   },
   {
+    path: 'entity-history',
+    loadComponent: () =>
+      import('./pages/entity-history/platform-entity-history.page').then(
+        m => m.PlatformEntityHistoryPage,
+      ),
+  },
+  {
     path: 'draws',
     loadComponent: () =>
       import('../pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),

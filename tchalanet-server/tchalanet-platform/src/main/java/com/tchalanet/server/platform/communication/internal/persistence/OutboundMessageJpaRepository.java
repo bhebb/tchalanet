@@ -47,14 +47,14 @@ public interface OutboundMessageJpaRepository extends JpaRepository<OutboundMess
          and (:status is null or m.status = :status)
          and (:channel is null or m.channel = :channel)
          and (:tenantId is null or m.tenantId = :tenantId)
-         and (:recipient is null or lower(m.recipientValue) like lower(concat('%', :recipient, '%')))
+         and (:recipientPattern is null or lower(m.recipientValue) like :recipientPattern)
        order by m.createdAt desc
       """)
   Page<OutboundMessageJpaEntity> searchOpsMessages(
       @Param("status") DeliveryStatus status,
       @Param("channel") com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel channel,
       @Param("tenantId") UUID tenantId,
-      @Param("recipient") String recipient,
+      @Param("recipientPattern") String recipientPattern,
       Pageable pageable);
 
   long countByDeletedAtIsNullAndStatus(DeliveryStatus status);

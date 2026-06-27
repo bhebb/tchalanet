@@ -1,9 +1,13 @@
-// common/infra/audit/TchRevisionEntity.java
-package com.tchalanet.server.platform.audit.internal.persistence;
+package com.tchalanet.server.platform.entityhistory.internal.persistence;
 
-import com.tchalanet.server.platform.audit.api.model.AuditActorType;
-import com.tchalanet.server.platform.audit.internal.listener.TchRevisionListener;
-import jakarta.persistence.*;
+import com.tchalanet.server.platform.entityhistory.internal.listener.TchRevisionListener;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -40,7 +44,7 @@ public class TchRevisionEntity {
   private String requestId;
 
   @Column(name = "actor_type", length = 32)
-  private String actorType = AuditActorType.SYSTEM.name();
+  private String actorType = "SYSTEM";
 
   @Column(name = "api_scope", length = 32)
   private String apiScope;
@@ -48,7 +52,6 @@ public class TchRevisionEntity {
   @Column(name = "tenant_overridden", nullable = false)
   private boolean tenantOverridden;
 
-  // helper
   public Instant getInstant() {
     return Instant.ofEpochMilli(timestamp);
   }

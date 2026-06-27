@@ -4,7 +4,6 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,7 +19,6 @@ import java.util.UUID;
 )
 @Getter
 @Setter
-@Audited
 public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
 
     @Column(name = "seller_terminal_id", nullable = false)

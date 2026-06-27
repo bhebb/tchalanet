@@ -15,5 +15,7 @@ public interface ResultSlotCatalog {
 
   Optional<ResultSlotView> findById(ResultSlotId id);
 
+  boolean existsLive(ResultSlotId id);
+
   ResultSlotStatsView stats();
 }

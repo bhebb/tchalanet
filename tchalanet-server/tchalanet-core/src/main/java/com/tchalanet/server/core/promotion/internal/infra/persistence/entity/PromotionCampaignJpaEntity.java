@@ -10,12 +10,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 import java.time.Instant;
 
 @Entity
-@Audited
 @Table(name = "promotion_campaign", uniqueConstraints = @UniqueConstraint(name = "uq_promotion_campaign_tenant_code", columnNames = {"tenant_id", "code"}))
 @Getter
 @Setter

@@ -11,8 +11,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, map } from 'rxjs';
 
-import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect } from '@tch/ui/components';
-import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
+import {
+  AdminListStatusOption,
+  AdminListSurface,
+  TchErrorPanel,
+  TchLoading,
+  TchSearchOption,
+  TchSearchSelect,
+} from '@tch/ui/components';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
@@ -33,9 +39,9 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
   imports: [
     DatePipe,
     ReactiveFormsModule,
-    AdminCrudShellComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    AdminListSurface,
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
@@ -66,6 +72,7 @@ export class PlatformAuditPage implements OnInit {
     actorId: [''],
     entityId: [''],
     tenantId: [''],
+    ip: [''],
     from: [''],
     to: [''],
   });
@@ -78,6 +85,7 @@ export class PlatformAuditPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasActiveFilters = signal(false);
 
   readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
     this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
@@ -96,6 +104,7 @@ export class PlatformAuditPage implements OnInit {
       actorId: v.actorId || undefined,
       entityId: v.entityId || undefined,
       tenantId: v.tenantId || undefined,
+      ip: v.ip || undefined,
       from: v.from ? new Date(v.from).toISOString() : undefined,
       to: v.to ? new Date(v.to + 'T23:59:59').toISOString() : undefined,
       page: this.page(),
@@ -114,9 +123,32 @@ export class PlatformAuditPage implements OnInit {
     });
   }
 
-  applyFilters(): void { this.page.set(0); this.load(); }
+  applyFilters(): void {
+    this.page.set(0);
+    this.updateActiveFilters();
+    this.load();
+  }
 
-  resetFilters(): void { this.filterForm.reset(); this.page.set(0); this.load(); }
+  resetFilters(): void {
+    this.filterForm.reset();
+    this.page.set(0);
+    this.hasActiveFilters.set(false);
+    this.load();
+  }
+
+  entityTypeOptions(): readonly AdminListStatusOption[] {
+    return this.entityTypes.map(entityType => ({ value: entityType, label: entityType }));
+  }
+
+  onEntityIdFilter(entityId: string): void {
+    this.filterForm.patchValue({ entityId }, { emitEvent: false });
+    this.applyFilters();
+  }
+
+  onEntityTypeFilter(entityType: string): void {
+    this.filterForm.patchValue({ entityType }, { emitEvent: false });
+    this.applyFilters();
+  }
 
   selectTenantFilter(option: TchSearchOption | null): void {
     const tenant = option?.data as TenantSummaryView | undefined;
@@ -132,6 +164,28 @@ export class PlatformAuditPage implements OnInit {
     this.expandedId.set(this.expandedId() === id ? null : id);
   }
 
+  copyEntityId(entityId: string): void {
+    void navigator.clipboard.writeText(entityId);
+    this.snackBar.open('ID entité copié.', 'OK', { duration: 2500 });
+  }
+
+  copyActorId(actorId: string): void {
+    void navigator.clipboard.writeText(actorId);
+    this.snackBar.open('ID acteur copié.', 'OK', { duration: 2500 });
+  }
+
+  copyAuditId(auditId: string): void {
+    void navigator.clipboard.writeText(auditId);
+    this.snackBar.open('ID audit copié.', 'OK', { duration: 2500 });
+  }
+
+  detailValue(raw: string | null, key: string): string | null {
+    const details = this.parseDetails(raw);
+    const value = details?.[key];
+    if (value === undefined || value === null || value === '') return null;
+    return typeof value === 'string' ? value : JSON.stringify(value);
+  }
+
   formatDetails(raw: string | null): string {
     if (!raw) return '';
     try { return JSON.stringify(JSON.parse(raw), null, 2); }
@@ -139,9 +193,14 @@ export class PlatformAuditPage implements OnInit {
   }
 
   purge(): void {
-    if (!confirm('Purger les logs d\'audit expirés ?')) return;
+    const reason = prompt('Raison obligatoire pour la purge de rétention audit:');
+    if (!reason?.trim()) return;
+    const confirmation = prompt(
+      'Action sensible: tapez PURGER pour supprimer uniquement les logs expirés selon la politique de rétention.',
+    );
+    if (confirmation !== 'PURGER') return;
     this.purging.set(true);
-    this.api.purge().subscribe({
+    this.api.purge(reason.trim()).subscribe({
       next: result => {
         this.purging.set(false);
         this.snackBar.open(`${result.deleted} événement(s) purgé(s) (rétention ${result.retentionDays}j).`, 'OK', { duration: 6000 });
@@ -179,5 +238,20 @@ export class PlatformAuditPage implements OnInit {
       icon: 'apartment',
       data: tenant,
     };
+  }
+
+  private updateActiveFilters(): void {
+    const v = this.filterForm.getRawValue();
+    this.hasActiveFilters.set(Object.values(v).some(value => !!value));
+  }
+
+  private parseDetails(raw: string | null): Record<string, unknown> | null {
+    if (!raw) return null;
+    try {
+      const value = JSON.parse(raw);
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+    } catch {
+      return null;
+    }
   }
 }

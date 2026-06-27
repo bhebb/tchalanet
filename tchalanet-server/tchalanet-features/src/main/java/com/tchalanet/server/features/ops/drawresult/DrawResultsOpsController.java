@@ -134,7 +134,7 @@ public class DrawResultsOpsController {
     @AuditLog(
         entity = AuditEntityType.DRAW_RESULT,
         action = AuditAction.DRAW_RESULT_OVERRIDE,
-        idExpression = "#req.slotKey() + ':' + #req.drawDate()",
+        idExpression = "#result.data().drawResultId().value().toString()",
         detailsExpression = "#req")
     public ApiResponse<OverrideDrawResultResult> override(
         @Valid @RequestBody OverrideDrawResultRequest req,
@@ -162,7 +162,7 @@ public class DrawResultsOpsController {
     @AuditLog(
         entity = AuditEntityType.DRAW_RESULT,
         action = AuditAction.DRAW_RESULT_MANUAL,
-        idExpression = "#req.slotKey() + ':' + #req.drawDate()",
+        idExpression = "#result.data().drawResultId().value().toString()",
         detailsExpression = "#req")
     public ApiResponse<RecordManualDrawResultResult> manual(
         @Valid @RequestBody RecordManualDrawResultRequest req,

@@ -9,13 +9,11 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 
 @Entity
 @Table(name = "draw_channel")
-@Audited
 @Getter
 @Setter
 public class DrawChannelEntity extends BaseTenantEntity {

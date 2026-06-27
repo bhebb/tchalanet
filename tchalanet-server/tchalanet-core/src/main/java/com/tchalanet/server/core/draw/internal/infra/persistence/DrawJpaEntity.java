@@ -6,7 +6,6 @@ import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,7 +21,6 @@ import java.util.UUID;
         @Index(name = "ix_draw_status_cutoff_at", columnList = "status, cutoff_at"),
         @Index(name = "ix_draw_result_id", columnList = "draw_result_id")
     })
-@Audited
 @Getter
 @Setter
 public class DrawJpaEntity extends BaseTenantEntity {

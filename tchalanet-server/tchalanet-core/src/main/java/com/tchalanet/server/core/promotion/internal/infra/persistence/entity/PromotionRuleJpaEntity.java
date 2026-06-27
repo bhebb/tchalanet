@@ -10,10 +10,8 @@ import java.time.LocalTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
-@Audited
 @Table(
     name = "promotion_rule",
     uniqueConstraints = @UniqueConstraint(

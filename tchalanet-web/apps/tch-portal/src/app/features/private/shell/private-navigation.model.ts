@@ -186,6 +186,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             icon: 'assignment_turned_in',
             destination: { kind: 'route', value: '/app/platform/ops/audit' },
           },
+          {
+            id: 'ops-entity-history',
+            labelKey: 'platform.nav.entityHistory',
+            icon: 'manage_history',
+            destination: { kind: 'route', value: '/app/platform/ops/entity-history' },
+          },
         ],
       },
       {

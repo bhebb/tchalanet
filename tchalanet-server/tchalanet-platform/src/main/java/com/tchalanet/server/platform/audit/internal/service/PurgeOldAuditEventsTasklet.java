@@ -14,6 +14,6 @@ public class PurgeOldAuditEventsTasklet {
 
   // Temporary: simple method to trigger purge without depending on Spring Batch types.
   public void executePurge() throws Exception {
-    auditService.purgeOldAuditEvents(new PurgeOldAuditEventsRequest());
+    auditService.purgeOldAuditEvents(new PurgeOldAuditEventsRequest("scheduled retention purge"));
   }
 }

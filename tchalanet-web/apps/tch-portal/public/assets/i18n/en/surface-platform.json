@@ -67,6 +67,7 @@
       "cache": "Cache",
       "archives": "Archives",
       "audit": "Audit",
+      "entityHistory": "Technical revisions",
       "accessRights": "Access & rights",
       "permissions": "Permissions",
       "roles": "Roles",
