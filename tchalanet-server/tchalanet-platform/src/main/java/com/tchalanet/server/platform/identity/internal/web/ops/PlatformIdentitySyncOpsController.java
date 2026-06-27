@@ -4,6 +4,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.identity.internal.firebase.FirebaseBootstrapSyncService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/platform/ops/sync")
 @Tag(name = "Platform Ops • Sync")
+@ConditionalOnExpression(
+    "'${tch.identity.provider:firebase}' == 'firebase' || "
+        + "'${tch.identity.provider:firebase}' == 'firebase-emulator'")
 @RequiredArgsConstructor
 public class PlatformIdentitySyncOpsController {
 
@@ -34,5 +38,4 @@ public class PlatformIdentitySyncOpsController {
 
   public record FirebaseBootstrapSyncResponse(int attempted, int createdInFirebase, int linked) {}
 }
-
 

@@ -99,9 +99,6 @@ export class PublicResultsPage {
     }),
     stream: ({ params }): Observable<PublicDrawResultHistoryPage> => {
       // Guard: empty slotKeys means the filter combo has no matching slots → short-circuit
-      if (this.slotsResult.isLoading()) {
-        return EMPTY;
-      }
       if (Array.isArray(params.slotKeys) && params.slotKeys.length === 0) {
         return EMPTY;
       }

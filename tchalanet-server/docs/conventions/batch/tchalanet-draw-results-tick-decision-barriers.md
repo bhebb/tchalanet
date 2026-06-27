@@ -77,8 +77,10 @@ Utilisé pour debug contrôlé.
 ```text
 POST /ops/draw-results/fetch
 POST /ops/draw-results/apply
-POST /ops/draw-results/refresh
 ```
+
+`refresh` est désactivé en V0 : il mélange `fetch` global des `draw_result` et `apply`
+tenant-scoped vers les draws. Lancer explicitement les deux jobs si nécessaire.
 
 Il doit encore respecter :
 
@@ -248,14 +250,13 @@ Les settings DB servent à couper rapidement un job sans redéployer.
 
 ## 4.1 Settings recommandés
 
-| Key                                      | Scope  | Default | Description           |
-| ---------------------------------------- | ------ | ------: | --------------------- |
-| `batch.RESULTS_EXTERNAL_FETCH.enabled`   | global |  `true` | Autorise fetch global |
-| `batch.RESULTS_EXTERNAL_APPLY.enabled`   | tenant |  `true` | Autorise apply tenant |
-| `batch.RESULTS_EXTERNAL_REFRESH.enabled` | global |  `true` | Autorise refresh      |
-| `batch.DRAW_OPEN_DUE.enabled`            | global |  `true` | Autorise open due     |
-| `batch.DRAW_CLOSE_DUE.enabled`           | global |  `true` | Autorise close due    |
-| `batch.DRAW_SETTLE_DUE.enabled`          | tenant |  `true` | Autorise settlement   |
+| Namespace | Setting key | Scope | Default | Description |
+| --- | --- | --- | ---: | --- |
+| `batch` | `jobs.results:external:fetch.enabled` | global | `true` | Autorise fetch global |
+| `batch` | `jobs.results:external:apply.enabled` | tenant | `true` | Autorise apply tenant |
+| `batch` | `jobs.draw:lifecycle:open.enabled` | tenant | `true` | Autorise open due |
+| `batch` | `jobs.draw:lifecycle:close.enabled` | tenant | `true` | Autorise close due |
+| `batch` | `jobs.draw:lifecycle:settle.enabled` | tenant | `true` | Autorise settlement |
 
 ## 4.2 Ordre de décision gate
 
@@ -299,7 +300,7 @@ Il doit d’abord produire une liste de `FetchCandidate`.
 void tick() {
   if (!props.results.active()) return;
   if (!props.scheduler.enabled()) return;
-  if (!batchGate.isEnabled(RESULTS_EXTERNAL_REFRESH)) return;
+  if (!batchGate.isEnabled(RESULTS_EXTERNAL_FETCH)) return;
 
   Instant now = clock.instant();
 

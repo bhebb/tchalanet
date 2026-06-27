@@ -43,6 +43,7 @@ public class DrawOpsBatchJobConfig {
   private static final String MAX_DRAWS = "max_draws";
   private static final String MAX_SLOTS = "max_slots";
   private static final String REASON = "reason";
+  private static final String INCLUDE_RAW = "include_raw";
 
   private final JobRepository jobRepository;
   private final PlatformTransactionManager batchTxManager;
@@ -166,7 +167,8 @@ public class DrawOpsBatchJobConfig {
       @Value("#{jobParameters['max_slots']}") String maxSlots,
       @Value("#{jobParameters['dry_run']}") String dryRun,
       @Value("#{jobParameters['force']}") String force,
-      @Value("#{jobParameters['reason']}") String reason) {
+      @Value("#{jobParameters['reason']}") String reason,
+      @Value("#{jobParameters['include_raw']}") String includeRaw) {
     return (contribution, chunkContext) -> {
       commandBus.execute(new FetchExternalResultsWindowCommand(
           parseOptionalTenantId(tenantId),
@@ -177,7 +179,7 @@ public class DrawOpsBatchJobConfig {
           parseBoolean(dryRun),
           parseInt(maxSlots, 1),
           trimToNull(reason),
-          false));
+          parseBoolean(includeRaw)));
       return RepeatStatus.FINISHED;
     };
   }

@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -10,6 +9,7 @@ import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
 import { PlatformOpsApi } from '../../platform-ops-api.service';
+import { PlatformTenantsApi } from '../../tenants/data-access/platform-tenants-api.service';
 
 interface OpsOverviewState {
   provisionalResults: number | null;
@@ -151,6 +151,7 @@ interface OpsOverviewState {
 })
 export class PlatformOpsPage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
+  private readonly tenantsApi = inject(PlatformTenantsApi);
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -164,24 +165,33 @@ export class PlatformOpsPage implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    forkJoin({
+    this.resolveDefaultDrawTenantId().pipe(switchMap(defaultDrawTenantId => forkJoin({
       provisionalResults: this.api.listDrawResults({ status: 'PROVISIONAL', page: 0, size: 1 }).pipe(
         map(page => page.totalElements),
         catchError(() => of(null)),
       ),
-      lowQualityResults: this.api.listDrawResults({ quality: 'LOW', page: 0, size: 1 }).pipe(
+      lowQualityResults: this.api.listDrawResults({ quality: 'SUSPECT', page: 0, size: 1 }).pipe(
         map(page => page.totalElements),
         catchError(() => of(null)),
       ),
-      openDraws: this.api.listDraws({ status: 'OPEN', page: 0, size: 1 }).pipe(
-        map(page => page.totalElements),
-        catchError(() => of(null)),
-      ),
+      openDraws: defaultDrawTenantId
+        ? this.api.listDraws({
+            status: 'OPEN',
+            from: relativeIsoDate(-1),
+            to: todayIsoDate(),
+            page: 0,
+            size: 1,
+            suppressShellFeedback: true,
+          }, defaultDrawTenantId).pipe(
+            map(page => page.totalElements),
+            catchError(() => of(null)),
+          )
+        : of(null),
       jobs: this.api.listJobs().pipe(
         map(jobs => jobs.length),
         catchError(() => of(null)),
       ),
-      disabledGates: this.api.listGates().pipe(
+      disabledGates: this.api.listGates(undefined, true).pipe(
         map(gates => Object.values(gates).filter(enabled => !enabled).length),
         catchError(() => of(null)),
       ),
@@ -192,7 +202,7 @@ export class PlatformOpsPage implements OnInit {
         })),
         catchError(() => of({ regions: null, critical: null })),
       ),
-    }).subscribe({
+    }))).subscribe({
       next: result => {
         this.overview.set({
           provisionalResults: result.provisionalResults,
@@ -215,6 +225,30 @@ export class PlatformOpsPage implements OnInit {
   valueOrDash(value: number | null): string {
     return value === null ? '—' : String(value);
   }
+
+  private resolveDefaultDrawTenantId(): Observable<string | null> {
+    return this.tenantsApi.listTenants({ q: DEFAULT_DRAW_TENANT_CODE, page: 0, size: 10, status: 'ACTIVE' }).pipe(
+      map(page => {
+        const tenants = page.items ?? [];
+        const tenant = tenants.find(item => item.code?.toLowerCase() === DEFAULT_DRAW_TENANT_CODE) ?? tenants[0] ?? null;
+        return tenant?.id ?? tenant?.tenantId ?? null;
+      }),
+      catchError(() => of(null)),
+    );
+  }
+}
+
+function todayIsoDate(): string {
+  return relativeIsoDate(0);
+}
+
+function relativeIsoDate(offsetDays: number): string {
+  const now = new Date();
+  now.setDate(now.getDate() + offsetDays);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function criticalCache(cacheName: string): boolean {
@@ -222,3 +256,5 @@ function criticalCache(cacheName: string): boolean {
   return ['access', 'auth', 'permission', 'role', 'tenant', 'plan', 'pricing', 'odds', 'batch', 'job', 'gate']
     .some(part => name.includes(part));
 }
+
+const DEFAULT_DRAW_TENANT_CODE = 'tchalanet';

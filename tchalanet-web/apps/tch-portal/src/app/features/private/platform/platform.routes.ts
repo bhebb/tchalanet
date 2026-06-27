@@ -140,13 +140,10 @@ export const platformRoutes: Route[] = [
   // ── Support tenant ─────────────────────────────────────────────────────────
   {
     path: 'support-tenant',
-    data: {
-      titleKey: 'platform.nav.supportTenant',
-      descriptionKey: 'platform.placeholder.descriptions.supportTenant',
-      icon: 'support_agent',
-    },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/support-tenant/platform-support-tenant.page').then(
+        m => m.PlatformSupportTenantPage,
+      ),
   },
   // ── Tchala ─────────────────────────────────────────────────────────────────
   {

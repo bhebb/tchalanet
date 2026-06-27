@@ -11,25 +11,60 @@
       <span class="material-symbols-outlined">download</span>
       Fetch
     </button>
-    <button mat-stroked-button [disabled]="actionLoading()" (click)="openFetch('refresh')">
-      <span class="material-symbols-outlined">refresh</span>
-      Refresh
-    </button>
   </div>
 
-  @if (loading()) {
-    <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-  } @else if (page()?.items?.length === 0) {
-    <tch-admin-empty-state
-      icon="receipt_long"
-      title="Aucun résultat"
-      message="Aucun résultat de tirage disponible."
-    />
-  } @else {
-    <tch-admin-crud-shell>
-      <ng-container content>
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar
+        searchPlaceholder="Filtrer par slot..."
+        [searchValue]="slotKeyFilter()"
+        (searchChange)="onSlotSearch($event)"
+      >
+        <mat-form-field appearance="outline">
+          <mat-label>Statut</mat-label>
+          <mat-select [value]="statusFilter()" (valueChange)="onStatusChange($event)">
+            @for (opt of statusOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Qualité</mat-label>
+          <mat-select [value]="qualityFilter()" (valueChange)="onQualityChange($event)">
+            @for (opt of qualityOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Du</mat-label>
+          <input matInput type="date" [value]="fromFilter()" (change)="onFromChange($any($event.target).value)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Au</mat-label>
+          <input matInput type="date" [value]="toFilter()" (change)="onToChange($any($event.target).value)" />
+        </mat-form-field>
+        <button mat-stroked-button type="button" (click)="resetFilters()">
+          <span class="material-symbols-outlined">filter_alt_off</span>
+        </button>
+        <button mat-stroked-button type="button" (click)="load()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <ng-container content>
+      @if (loading()) {
+        <tch-loading label="Chargement..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (page()?.items?.length === 0) {
+        <tch-admin-empty-state
+          icon="receipt_long"
+          title="Aucun résultat"
+          message="Aucun résultat de tirage disponible."
+        />
+      } @else {
         <div class="draw-results-page__table">
           <table mat-table [dataSource]="page()?.items ?? []">
             <ng-container matColumnDef="lottery">
@@ -95,8 +130,10 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </div>
-      </ng-container>
-      <ng-container footer>
+      }
+    </ng-container>
+    <ng-container footer>
+      @if (page()) {
         <mat-paginator
           [length]="page()?.totalElements ?? 0"
           [pageSize]="pageSize()"
@@ -104,7 +141,7 @@
           [pageSizeOptions]="[20, 50, 100]"
           (page)="onPage($event)"
         />
-      </ng-container>
-    </tch-admin-crud-shell>
-  }
+      }
+    </ng-container>
+  </tch-admin-crud-shell>
 </tch-admin-page-shell>

@@ -9,5 +9,7 @@ public record BatchJobExecutionView(
     String status,
     Instant startedAt,
     Instant endedAt,
-    String context
+    String context,
+    String exitCode,
+    String exitMessage
 ) {}

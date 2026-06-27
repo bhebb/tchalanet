@@ -1,8 +1,7 @@
 package com.tchalanet.server.features.ops.drawresult;
 
-import com.tchalanet.server.common.context.web.CurrentContext;
-
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
@@ -17,13 +16,14 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.drawresult.api.command.*;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewByIdQuery;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewBySlotQuery;
 import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import com.tchalanet.server.features.ops.batch.OpsBatchLaunchFacade;
+import com.tchalanet.server.features.ops.batch.model.OpsLaunchResponse;
 import com.tchalanet.server.features.ops.drawresult.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,8 +36,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -49,13 +51,13 @@ import java.util.Objects;
 public class DrawResultsOpsController {
 
     private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
-    private static final JobKey RESULTS_EXTERNAL_REFRESH = JobKey.of("results:external:refresh");
     private static final JobKey RESULTS_EXTERNAL_OVERRIDE = JobKey.of("results:external:override");
     private static final JobKey RESULTS_EXTERNAL_MANUAL = JobKey.of("results:external:manual");
 
     private final CommandBus commandBus;
     private final QueryBus queryBus;
     private final BatchGate gate;
+    private final OpsBatchLaunchFacade batchLaunchFacade;
     private final DrawResultOpsMapper mapper;
 
     @Operation(summary = "Fetch external results into draw_result (slot-first)")
@@ -65,69 +67,20 @@ public class DrawResultsOpsController {
         action = AuditAction.DRAW_RESULT_FETCH,
         idExpression = "#req.slotKeys() == null ? 'all-slots' : #req.slotKeys().toString()",
         detailsExpression = "#req")
-    public ApiResponse<FetchExternalResultsWindowResult> fetch(
+    public ApiResponse<OpsLaunchResponse> fetch(
         @Valid @RequestBody FetchExternalResultsRequest req
     ) {
-        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_FETCH, null);
-
-        var res = commandBus.execute(
-            new FetchExternalResultsWindowCommand(
-                null,
-                nnDate(req.baseDate()),
-                nnInt(req.daysBack(), 0),
-                normalize(req.slotKeys()),
-                req.force(),
-                req.dryRun(),
-                nnInt(req.maxSlots(), 200),
-                req.reason(),
-                req.includeRaw()
-            )
-        );
-
-        return ApiResponse.success(res);
-    }
-
-    @Operation(summary = "Refresh external results (fetch then apply)")
-    @PostMapping("/refresh")
-    @AuditLog(
-        entity = AuditEntityType.DRAW_RESULT,
-        action = AuditAction.DRAW_RESULT_REFRESH,
-        idExpression = "#req.slotKeys() == null ? 'all-slots' : #req.slotKeys().toString()",
-        detailsExpression = "#req")
-    public ApiResponse<RefreshExternalResultsWindowResult> refresh(
-        @Valid @RequestBody FetchExternalResultsRequest req,
-        @CurrentContext TchRequestContext ctx
-    ) {
-        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_REFRESH, ctx.tenantId());
-
-        var fetchRes = commandBus.execute(
-            new FetchExternalResultsWindowCommand(
-                null,
-                nnDate(req.baseDate()),
-                nnInt(req.daysBack(), 0),
-                normalize(req.slotKeys()),
-                req.force(),
-                req.dryRun(),
-                nnInt(req.maxSlots(), 200),
-                req.reason(),
-                req.includeRaw()
-            )
-        );
-
-        var applyRes = commandBus.execute(
-            new ApplyExternalResultsWindowCommand(
-                ctx.tenantId(),
-                nnDate(req.baseDate()),
-                nnInt(req.daysBack(), 0),
-                normalize(req.slotKeys()),
-                req.force(),
-                req.dryRun(),
-                nnInt(req.maxSlots(), 200),
-                req.reason()
-            )
-        );
-
-        return ApiResponse.success(RefreshExternalResultsWindowResult.from(fetchRes, applyRes));
+        return ApiResponse.success(batchLaunchFacade.launchGlobal(
+            RESULTS_EXTERNAL_FETCH,
+            params(
+                "date", nnDate(req.baseDate()).toString(),
+                "days_back", Integer.toString(nnInt(req.daysBack(), 0)),
+                "slot_keys", join(normalize(req.slotKeys())),
+                "max_slots", Integer.toString(nnInt(req.maxSlots(), 200)),
+                "force", Boolean.toString(req.force()),
+                "dry_run", Boolean.toString(req.dryRun()),
+                "reason", req.reason(),
+                "include_raw", Boolean.toString(req.includeRaw()))));
     }
 
     @Operation(summary = "Override a draw result for a slot")
@@ -296,6 +249,23 @@ public class DrawResultsOpsController {
         if (drawDate != null && drawDate.isAfter(LocalDate.now())) {
             throw ProblemRest.badRequest("draw result date cannot be in the future");
         }
+    }
+
+    private static Map<String, String> params(String... entries) {
+        var params = new LinkedHashMap<String, String>();
+        for (int i = 0; i + 1 < entries.length; i += 2) {
+            if (entries[i + 1] != null && !entries[i + 1].isBlank()) {
+                params.put(entries[i], entries[i + 1]);
+            }
+        }
+        return params;
+    }
+
+    private static String join(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        return String.join(",", values);
     }
 
 }

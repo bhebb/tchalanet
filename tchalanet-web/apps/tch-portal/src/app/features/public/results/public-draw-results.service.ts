@@ -77,7 +77,7 @@ export class PublicDrawResultsService {
       .set('size', String(params.size))
       .set('sort', 'occurredAt,desc');
 
-    params.slotKeys?.forEach(k => {
+    params.slotKeys?.filter(k => k && k !== 'all').forEach(k => {
       p = p.append('slotKeys', k);
     });
     if (params.from) p = p.set('from', params.from);

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -62,6 +62,7 @@ export interface CloseDueDrawsRequest {
 }
 
 export interface ApplyExternalResultsRequest {
+  tenantCodes?: string[];
   baseDate?: string;
   daysBack?: number;
   slotKeys?: string[];
@@ -112,9 +113,25 @@ export interface ApplyExternalResultsWindowResult {
   errors: number;
 }
 
+export interface OpsJobLaunchItem {
+  tenant_id: string | null;
+  execution_id: number | null;
+  status: string;
+  error: string | null;
+}
+
+export interface OpsLaunchResponse {
+  job_key: string;
+  requested: number;
+  started: number;
+  failed: number;
+  launches: OpsJobLaunchItem[];
+  message: string;
+}
+
 // ── Draw Results ─────────────────────────────────────────────────────────────
 
-/** POST /platform/ops/draw-results/fetch  (also used for /refresh) */
+/** POST /platform/ops/draw-results/fetch */
 export interface FetchExternalResultsRequest {
   baseDate?: string;
   daysBack?: number;
@@ -131,15 +148,6 @@ export interface FetchExternalResultsWindowResult {
   updated: number;
   noop: number;
   skipped: number;
-  notFound: number;
-}
-
-export interface RefreshExternalResultsWindowResult {
-  fetched: number;
-  projectedOk: number;
-  projectedFail: number;
-  upserted: number;
-  applied: number;
   notFound: number;
 }
 
@@ -186,6 +194,8 @@ export interface DrawResultOpsResponse {
   rawPayload?: unknown;
   overrideReason?: string;
 }
+
+export type OpsDrawResultQuality = 'COMPLETE' | 'SUSPECT' | 'INVALID';
 
 export interface TchPage<T> {
   items: T[];
@@ -263,6 +273,9 @@ export interface ExecutionResponse {
   status: string;
   started_at: string;
   ended_at?: string | null;
+  context?: string | null;
+  exit_code?: string | null;
+  exit_message?: string | null;
 }
 
 // ── Cache ────────────────────────────────────────────────────────────────────
@@ -301,10 +314,21 @@ export class PlatformOpsApi {
     );
   }
 
+  getExecution(executionId: number): Observable<ExecutionResponse> {
+    return this.backend.get<ExecutionResponse>(`/platform/ops/batch/executions/${executionId}`);
+  }
+
+  restartExecution(executionId: number): Observable<StartJobResponse> {
+    return this.backend.post<StartJobResponse>(`/platform/ops/batch/executions/${executionId}:restart`, {});
+  }
+
   // Batch Gates
-  listGates(jobKeys?: string[]): Observable<Record<string, boolean>> {
+  listGates(jobKeys?: string[], suppressShellFeedback = false): Observable<Record<string, boolean>> {
     const q = jobKeys?.length ? `?job_keys=${jobKeys.join(',')}` : '';
-    return this.backend.get<Record<string, boolean>>(`/platform/ops/batch/gates:effective${q}`);
+    return this.backend.get<Record<string, boolean>>(
+      `/platform/ops/batch/gates/effective${q}`,
+      suppressShellFeedback ? { suppressShellFeedback: true } : undefined,
+    );
   }
 
   updateGate(jobKey: string, req: GateUpdateRequest): Observable<void> {
@@ -312,27 +336,27 @@ export class PlatformOpsApi {
   }
 
   // Draw Calendar
-  generateDraws(req: GenerateDrawsRequest): Observable<TenantBatchResponse<GenerateDrawsForRangeResult>> {
-    return this.backend.post<TenantBatchResponse<GenerateDrawsForRangeResult>>('/platform/ops/draws/generate', req);
+  generateDraws(req: GenerateDrawsRequest): Observable<OpsLaunchResponse> {
+    return this.backend.post<OpsLaunchResponse>('/platform/ops/draws/generate', req);
   }
 
-  openTodayDraws(req: OpenTodayDrawsRequest): Observable<TenantBatchResponse<OpenDueDrawsResult>> {
-    return this.backend.post<TenantBatchResponse<OpenDueDrawsResult>>('/platform/ops/draws/open-today', req);
+  openTodayDraws(req: OpenTodayDrawsRequest): Observable<OpsLaunchResponse> {
+    return this.backend.post<OpsLaunchResponse>('/platform/ops/draws/open-today', req);
   }
 
-  closeDueDraws(req: CloseDueDrawsRequest): Observable<TenantBatchResponse<CloseDueDrawsResult>> {
-    return this.backend.post<TenantBatchResponse<CloseDueDrawsResult>>('/platform/ops/draws/close-due', req);
+  closeDueDraws(req: CloseDueDrawsRequest): Observable<OpsLaunchResponse> {
+    return this.backend.post<OpsLaunchResponse>('/platform/ops/draws/close-due', req);
   }
 
-  applyDrawResults(req: ApplyExternalResultsRequest): Observable<ApplyExternalResultsWindowResult> {
-    return this.backend.post<ApplyExternalResultsWindowResult>('/platform/ops/draws/apply', req);
+  applyDrawResults(req: ApplyExternalResultsRequest): Observable<OpsLaunchResponse> {
+    return this.backend.post<OpsLaunchResponse>('/platform/ops/draws/apply', req);
   }
 
   // Draw Results
   listDrawResults(params?: {
     slotKey?: string;
     status?: string;
-    quality?: string;
+    quality?: OpsDrawResultQuality | '';
     from?: string;
     to?: string;
     page?: number;
@@ -353,12 +377,8 @@ export class PlatformOpsApi {
     );
   }
 
-  fetchDrawResults(req: FetchExternalResultsRequest): Observable<FetchExternalResultsWindowResult> {
-    return this.backend.post<FetchExternalResultsWindowResult>('/platform/ops/draw-results/fetch', req);
-  }
-
-  refreshDrawResults(req: FetchExternalResultsRequest): Observable<RefreshExternalResultsWindowResult> {
-    return this.backend.post<RefreshExternalResultsWindowResult>('/platform/ops/draw-results/refresh', req);
+  fetchDrawResults(req: FetchExternalResultsRequest): Observable<OpsLaunchResponse> {
+    return this.backend.post<OpsLaunchResponse>('/platform/ops/draw-results/fetch', req);
   }
 
   overrideDrawResult(req: OverrideDrawResultRequest): Observable<unknown> {
@@ -383,10 +403,11 @@ export class PlatformOpsApi {
       page?: number;
       size?: number;
       deletedVisibility?: 'active' | 'deleted' | 'all';
+      suppressShellFeedback?: boolean;
     },
     tenantId?: string | null,
   ): Observable<TchPage<DrawView>> {
-    const { deletedVisibility, ...queryParams } = params;
+    const { deletedVisibility, suppressShellFeedback, ...queryParams } = params;
     const q = new URLSearchParams(
       Object.fromEntries(
         Object.entries(queryParams)
@@ -394,11 +415,10 @@ export class PlatformOpsApi {
           .map(([k, v]) => [k, String(v)]),
       ),
     ).toString();
-    const options = tenantId
-      ? tenantAdminOptions(tenantId, 'SUPER_ADMIN: list draws')
-      : visibilityOptions(deletedVisibility);
-    const path = tenantId ? '/admin/draws' : '/platform/ops/draws';
-    return this.backend.get<TchPage<DrawView>>(`${path}${q ? '?' + q : ''}`, options);
+    return this.backend.get<TchPage<DrawView>>(
+      `/admin/draws${q ? '?' + q : ''}`,
+      drawListOptions(tenantId, deletedVisibility, suppressShellFeedback),
+    );
   }
 
   /** @deprecated Use listDraws */
@@ -472,12 +492,22 @@ export class PlatformOpsApi {
   }
 }
 
-function tenantAdminOptions(tenantId: string | null | undefined, reason: string): { asTenantAdmin: { tenantId: string; reason: string } } | undefined {
+function tenantAdminOptions(tenantId: string | null | undefined, reason: string): TchRequestOptions | undefined {
   return tenantId ? { asTenantAdmin: { tenantId, reason } } : undefined;
 }
 
-function visibilityOptions(deletedVisibility: 'active' | 'deleted' | 'all' | null | undefined): { headers: Record<string, string> } | undefined {
-  return deletedVisibility && deletedVisibility !== 'active'
-    ? { headers: { 'X-Deleted-Visibility': deletedVisibility } }
-    : undefined;
+function drawListOptions(
+  tenantId: string | null | undefined,
+  deletedVisibility: 'active' | 'deleted' | 'all' | null | undefined,
+  suppressShellFeedback = false,
+): TchRequestOptions | undefined {
+  const options = tenantAdminOptions(tenantId, 'SUPER_ADMIN: list draws');
+  if (!deletedVisibility || deletedVisibility === 'active') {
+    return suppressShellFeedback ? { ...(options ?? {}), suppressShellFeedback: true } : options;
+  }
+  return {
+    ...(options ?? {}),
+    headers: { 'X-Deleted-Visibility': deletedVisibility },
+    ...(suppressShellFeedback ? { suppressShellFeedback: true } : {}),
+  };
 }

@@ -103,16 +103,17 @@ export class AdminOverrideBanner {
     if (this.quitting()) return;
     this.quitting.set(true);
     this.backend.delete<void>('/platform/tenants/admin-access/current').subscribe({
-      next: () => {
-        this.store.clearSession();
-        this.quitting.set(false);
-        void this.router.navigate(['/app/platform/tenants']);
-        this.snackBar.open('Session de support terminée.', 'OK', { duration: 4000 });
-      },
+      next: () => this.finishQuit('Session de support terminée.'),
       error: () => {
-        this.quitting.set(false);
-        this.snackBar.open('Erreur lors de la fermeture de session.', 'OK', { duration: 5000 });
+        this.finishQuit('Session de support terminée localement.');
       },
     });
+  }
+
+  private finishQuit(message: string): void {
+    this.store.clearSession();
+    this.quitting.set(false);
+    void this.router.navigate(['/app/platform/tenants']);
+    this.snackBar.open(message, 'OK', { duration: 4000 });
   }
 }

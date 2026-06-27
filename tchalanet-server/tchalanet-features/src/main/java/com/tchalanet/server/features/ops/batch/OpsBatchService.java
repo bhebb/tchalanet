@@ -178,7 +178,9 @@ public class OpsBatchService {
                 view.status(),
                 view.startedAt(),
                 view.endedAt(),
-                view.context()))
+                view.context(),
+                view.exitCode(),
+                view.exitMessage()))
             .orElseThrow(() -> new NoSuchElementException("Batch execution not found: " + executionId));
     }
 
@@ -215,7 +217,9 @@ public class OpsBatchService {
                 view.status(),
                 view.startedAt(),
                 view.endedAt(),
-                view.context()))
+                view.context(),
+                view.exitCode(),
+                view.exitMessage()))
             .toList();
     }
 

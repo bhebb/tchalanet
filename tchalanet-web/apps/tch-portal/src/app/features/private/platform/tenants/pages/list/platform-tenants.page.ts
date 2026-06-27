@@ -30,6 +30,7 @@ import {
   TenantStatus,
   TenantSummaryView,
 } from '../../data-access/platform-tenants-api.service';
+import { StartTenantAdminAccessDialog } from '../../../shared/start-tenant-admin-access-dialog';
 
 type ProblemLike = { title?: string; detail?: string; traceId?: string; errorId?: string; requestId?: string };
 
@@ -194,6 +195,18 @@ export class PlatformTenantsPage implements OnInit {
 
   canArchive(tenant: TenantSummaryView): boolean {
     return tenant.status !== 'ARCHIVED';
+  }
+
+  openSupportAccess(tenant: TenantSummaryView): void {
+    this.dialog.open(StartTenantAdminAccessDialog, {
+      width: '520px',
+      data: {
+        tenantId: this.tenantId(tenant),
+        tenantName: tenant.name,
+        tenantCode: tenant.code,
+        tenantStatus: tenant.status,
+      },
+    });
   }
 
   activateTenant(tenant: TenantSummaryView): void {

@@ -21,6 +21,8 @@ public final class AppJobParamKeys {
 
     public static final String MAX_DRAWS = "max_draws";
     public static final String MAX_SLOTS = "max_slots";
+    public static final String REASON = "reason";
+    public static final String INCLUDE_RAW = "include_raw";
 
     public static final String FULL_REBUILD = "full_rebuild";
 }

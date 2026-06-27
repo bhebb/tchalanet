@@ -14,15 +14,15 @@ export interface HaitiLotsDisplayValue {
   template: `
     <div class="tch-haiti-lots" [class.tch-haiti-lots--compact]="compact()">
       <span class="tch-haiti-lots__item">
-        @if (showLabels()) { <strong>Lot 1</strong> }
+        @if (showLabels() && !compact()) { <strong>Lot 1</strong> }
         <em>{{ lotLabel(lots().lot1) }}</em>
       </span>
       <span class="tch-haiti-lots__item">
-        @if (showLabels()) { <strong>Lot 2</strong> }
+        @if (showLabels() && !compact()) { <strong>Lot 2</strong> }
         <em>{{ lotLabel(lots().lot2) }}</em>
       </span>
       <span class="tch-haiti-lots__item">
-        @if (showLabels()) { <strong>Lot 3</strong> }
+        @if (showLabels() && !compact()) { <strong>Lot 3</strong> }
         <em>{{ lotLabel(lots().lot3) }}</em>
       </span>
     </div>

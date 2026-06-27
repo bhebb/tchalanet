@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import {
   PlatformOpsApi,
   ApplyExternalResultsRequest,
+  OpsLaunchResponse,
 } from '../../../platform-ops-api.service';
 
 @Component({
@@ -54,7 +55,13 @@ import {
       </form>
       @if (result()) {
         <div class="apply-results-dialog__result">
-          Insérés: {{ result()!.inserted }} · Mis à jour: {{ result()!.updated }} · Non trouvés: {{ result()!.notFound }} · Erreurs: {{ result()!.errors }}
+          {{ result()!.started }}/{{ result()!.requested }} job(s) lancé(s)
+          @for (launch of result()!.launches; track launch.execution_id ?? launch.tenant_id) {
+            <div>
+              {{ launch.tenant_id ?? 'global' }} :
+              @if (launch.execution_id) { execution #{{ launch.execution_id }} } @else { {{ launch.error }} }
+            </div>
+          }
         </div>
       }
       @if (error()) {
@@ -81,13 +88,13 @@ import {
 })
 export class ApplyResultsDialog {
   readonly dialogRef = inject(MatDialogRef<ApplyResultsDialog>);
-  protected readonly data = inject<{ slotKeys?: string[] } | null>(MAT_DIALOG_DATA, { optional: true });
+  protected readonly data = inject<{ slotKeys?: string[]; tenantCode?: string | null } | null>(MAT_DIALOG_DATA, { optional: true });
   private readonly api = inject(PlatformOpsApi);
   private readonly fb = inject(FormBuilder);
 
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
-  readonly result = signal<{ inserted: number; updated: number; notFound: number; errors: number } | null>(null);
+  readonly result = signal<OpsLaunchResponse | null>(null);
 
   readonly form = this.fb.group({
     slotKeys: [this.data?.slotKeys ? this.data.slotKeys.join(', ') : ''],
@@ -103,6 +110,7 @@ export class ApplyResultsDialog {
     if (this.submitting() || this.result()) return;
     const v = this.form.value;
     const req: ApplyExternalResultsRequest = {
+      tenantCodes: this.data?.tenantCode ? [this.data.tenantCode] : undefined,
       baseDate: v.baseDate || undefined,
       daysBack: v.daysBack ?? 0,
       slotKeys: v.slotKeys ? v.slotKeys.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,

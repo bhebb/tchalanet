@@ -61,8 +61,12 @@ public class SpringTchJobRegistry implements TchJobRegistry {
             Set.of(
                 JobParamKeys.REQUEST_ID,
                 JobParamKeys.ACTOR,
+                AppJobParamKeys.FROM,
+                AppJobParamKeys.TO,
                 AppJobParamKeys.DAYS_AHEAD,
-                JobParamKeys.DRY_RUN
+                JobParamKeys.DRY_RUN,
+                JobParamKeys.FORCE,
+                AppJobParamKeys.REASON
             ),
             "generateDrawsJob"
         ));
@@ -75,8 +79,9 @@ public class SpringTchJobRegistry implements TchJobRegistry {
             Set.of(
                 JobParamKeys.REQUEST_ID,
                 JobParamKeys.ACTOR,
-                AppJobParamKeys.FROM,
-                AppJobParamKeys.TO
+                AppJobParamKeys.DATE,
+                JobParamKeys.MAX_ITEMS,
+                JobParamKeys.DRY_RUN
             ),
             "openDrawsJob"
         ));
@@ -89,8 +94,8 @@ public class SpringTchJobRegistry implements TchJobRegistry {
             Set.of(
                 JobParamKeys.REQUEST_ID,
                 JobParamKeys.ACTOR,
-                AppJobParamKeys.FROM,
-                AppJobParamKeys.TO
+                JobParamKeys.MAX_ITEMS,
+                JobParamKeys.DRY_RUN
             ),
             "closeDrawsJob"
         ));
@@ -124,11 +129,14 @@ public class SpringTchJobRegistry implements TchJobRegistry {
                 AppJobParamKeys.FROM,
                 AppJobParamKeys.TO,
                 AppJobParamKeys.SLOT_KEY,
+                AppJobParamKeys.SLOT_KEYS,
                 AppJobParamKeys.DATE,
                 AppJobParamKeys.DAYS_BACK,
                 AppJobParamKeys.MAX_SLOTS,
                 JobParamKeys.DRY_RUN,
-                JobParamKeys.FORCE
+                JobParamKeys.FORCE,
+                AppJobParamKeys.REASON,
+                AppJobParamKeys.INCLUDE_RAW
             ),
             "fetchResultsJob"
         ));
@@ -143,10 +151,12 @@ public class SpringTchJobRegistry implements TchJobRegistry {
                 JobParamKeys.ACTOR,
                 AppJobParamKeys.DATE,
                 AppJobParamKeys.SLOT_KEY,
+                AppJobParamKeys.SLOT_KEYS,
                 AppJobParamKeys.DAYS_BACK,
                 AppJobParamKeys.MAX_SLOTS,
                 JobParamKeys.DRY_RUN,
-                JobParamKeys.FORCE
+                JobParamKeys.FORCE,
+                AppJobParamKeys.REASON
             ),
             "applyResultsJob"
         ));

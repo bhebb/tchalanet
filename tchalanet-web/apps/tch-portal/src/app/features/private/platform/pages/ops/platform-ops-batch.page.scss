@@ -1,8 +1,12 @@
 @use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .batch-page {
-  &__tab-content {
+  &__section {
     padding: 1rem 0;
+
+    & + & {
+      border-top: 1px solid var(--tch-color-outline-variant);
+    }
 
     table {
       width: 100%;
@@ -10,7 +14,129 @@
 
     code {
       font-family: monospace;
-      font-size: 0.8125rem;
+      font-size: var(--tch-font-size-label-md);
+    }
+  }
+
+  &__section-header {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+
+    h2 {
+      margin: 0;
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-title-md);
+      font-weight: var(--tch-weight-semibold);
+    }
+
+    p {
+      margin: 0.25rem 0 0;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-body-sm);
+    }
+  }
+
+  &__exec-filter {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    min-width: min(100%, 22rem);
+
+    mat-select {
+      width: 18rem;
+      max-width: 100%;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  &__launch-result {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.25rem 0 1rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md);
+    padding: 0.75rem 1rem;
+    background: var(--tch-color-success-container);
+    color: var(--tch-color-on-success-container);
+  }
+
+  &__launch-main,
+  &__launch-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  &__launch-main {
+    min-width: 0;
+
+    > .material-symbols-outlined {
+      color: var(--tch-color-primary);
+    }
+
+    p {
+      margin: 0.125rem 0 0;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-body-sm);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__launch-actions {
+    flex-shrink: 0;
+  }
+
+  &__muted,
+  &__context,
+  &__outcome {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  &__context,
+  &__outcome {
+    max-width: 24rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 820px) {
+    &__section-header {
+      flex-direction: column;
+    }
+
+    &__exec-filter {
+      width: 100%;
+
+      mat-select {
+        width: 100%;
+      }
+    }
+
+    &__actions {
+      justify-content: flex-start;
+    }
+
+    &__launch-result {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    &__launch-actions {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 }

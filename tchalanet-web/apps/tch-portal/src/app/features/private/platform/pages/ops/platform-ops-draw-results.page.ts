@@ -8,7 +8,9 @@ import {
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,17 +20,34 @@ import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
+import { AdminDataToolbarComponent } from '../../../shared/admin-ui/admin-data-toolbar.component';
 import { AdminStatusPillComponent } from '../../../shared/admin-ui/admin-status-pill.component';
 import {
   PlatformOpsApi,
   DrawResultOpsResponse,
   HaitiLots,
+  OpsDrawResultQuality,
 } from '../../platform-ops-api.service';
 import { FetchResultsDialog } from './dialogs/fetch-results.dialog';
 import { ManualResultDialog } from './dialogs/manual-result.dialog';
 import { OverrideResultDialog } from './dialogs/override-result.dialog';
 import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-assets';
 import { HaitiLotsDisplayComponent } from '../../../../../shared/results/haiti-lots-display.component';
+
+const RESULT_STATUS_OPTIONS = [
+  { value: '', label: 'Tous les statuts' },
+  { value: 'PROVISIONAL', label: 'Provisoire' },
+  { value: 'CONFIRMED', label: 'Confirmé' },
+  { value: 'OVERRIDDEN', label: 'Override' },
+  { value: 'ERROR', label: 'Erreur' },
+];
+
+const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string }[] = [
+  { value: '', label: 'Toutes qualités' },
+  { value: 'COMPLETE', label: 'Complète' },
+  { value: 'SUSPECT', label: 'Suspecte' },
+  { value: 'INVALID', label: 'Invalide' },
+];
 
 @Component({
   selector: 'tch-platform-ops-draw-results-page',
@@ -39,11 +58,14 @@ import { HaitiLotsDisplayComponent } from '../../../../../shared/results/haiti-l
     AdminPageShellComponent,
     AdminEmptyStateComponent,
     AdminCrudShellComponent,
+    AdminDataToolbarComponent,
     AdminStatusPillComponent,
     TchLoading,
     TchErrorPanel,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatPaginatorModule,
     MatSelectModule,
     MatTableModule,
@@ -64,6 +86,13 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
   readonly actionLoading = signal(false);
+  readonly slotKeyFilter = signal('');
+  readonly statusFilter = signal('');
+  readonly qualityFilter = signal<OpsDrawResultQuality | ''>('');
+  readonly fromFilter = signal('');
+  readonly toFilter = signal('');
+  readonly statusOptions = RESULT_STATUS_OPTIONS;
+  readonly qualityOptions = RESULT_QUALITY_OPTIONS;
 
   ngOnInit(): void {
     this.load();
@@ -72,7 +101,16 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.listDrawResults({ page: this.pageIndex(), size: this.pageSize(), sort: 'occurredAt,DESC' }).subscribe({
+    this.api.listDrawResults({
+      slotKey: this.slotKeyFilter() || undefined,
+      status: this.statusFilter() || undefined,
+      quality: this.qualityFilter() || undefined,
+      from: this.fromFilter() || undefined,
+      to: this.toFilter() || undefined,
+      page: this.pageIndex(),
+      size: this.pageSize(),
+      sort: 'occurredAt,DESC',
+    }).subscribe({
       next: v => { this.page.set(v); this.loading.set(false); },
       error: (err: unknown) => {
         const pd = (err as { error?: { title?: string } })?.error;
@@ -88,10 +126,26 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     this.load();
   }
 
-  openFetch(mode: 'fetch' | 'refresh'): void {
+  onSlotSearch(v: string): void { this.slotKeyFilter.set(v.trim()); this.pageIndex.set(0); this.load(); }
+  onStatusChange(v: string): void { this.statusFilter.set(v); this.pageIndex.set(0); this.load(); }
+  onQualityChange(v: OpsDrawResultQuality | ''): void { this.qualityFilter.set(v); this.pageIndex.set(0); this.load(); }
+  onFromChange(v: string): void { this.fromFilter.set(v); this.pageIndex.set(0); this.load(); }
+  onToChange(v: string): void { this.toFilter.set(v); this.pageIndex.set(0); this.load(); }
+
+  resetFilters(): void {
+    this.slotKeyFilter.set('');
+    this.statusFilter.set('');
+    this.qualityFilter.set('');
+    this.fromFilter.set('');
+    this.toFilter.set('');
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  openFetch(mode: 'fetch'): void {
     this.dialog.open(FetchResultsDialog, {
       data: {
-        title: mode === 'fetch' ? 'Fetch résultats externes' : 'Refresh résultats (fetch + apply)',
+        title: 'Fetch résultats externes',
         mode,
         onSuccess: () => this.load(),
       },
@@ -142,9 +196,9 @@ export class PlatformOpsDrawResultsPage implements OnInit {
 
   qualityTone(quality: string): 'success' | 'warning' | 'danger' | 'neutral' {
     const map: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> = {
-      HIGH: 'success',
-      MEDIUM: 'warning',
-      LOW: 'danger',
+      COMPLETE: 'success',
+      SUSPECT: 'warning',
+      INVALID: 'danger',
     };
     return map[quality] ?? 'neutral';
   }

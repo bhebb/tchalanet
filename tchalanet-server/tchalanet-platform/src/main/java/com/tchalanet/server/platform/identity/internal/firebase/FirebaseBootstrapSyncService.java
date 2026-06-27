@@ -7,11 +7,15 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@ConditionalOnExpression(
+    "'${tch.identity.provider:firebase}' == 'firebase' || "
+        + "'${tch.identity.provider:firebase}' == 'firebase-emulator'")
 @RequiredArgsConstructor
 @Slf4j
 public class FirebaseBootstrapSyncService {

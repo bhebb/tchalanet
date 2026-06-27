@@ -33,6 +33,14 @@ Les procédures détaillées vivent dans `tchalanet-infra/docs/` — cette page 
 | Troubleshooting edge service | `tchalanet-edge-service/` + `tchalanet-server/docs/` |
 | Monitoring | `tchalanet-infra/docs/operations/` |
 
+## Operations plateforme
+
+| Besoin | Source |
+|---|---|
+| Mode support tenant, jobs Spring Batch, endpoints ops | [Super admin operations](super-admin-operations.md) |
+| Conventions batch backend | `tchalanet-server/docs/conventions/batch/` |
+| Contexte tenant / override super admin | `tchalanet-server/docs/conventions/context/` |
+
 ---
 
 ## Règle

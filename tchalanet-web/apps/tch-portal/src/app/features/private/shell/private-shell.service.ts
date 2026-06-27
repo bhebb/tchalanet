@@ -7,6 +7,7 @@ import { ActionItem, NavigationSection } from '@tch/api';
 import { PageModelApi, PageRuntimeResponse, PrivateShellRuntime } from '@tch/page-model';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import { SupportAccessStore } from '../../../core/access/support-access.store';
 import {
   CASHIER_NAVIGATION,
   PLATFORM_NAVIGATION,
@@ -17,6 +18,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PrivateShellService {
   private readonly auth = inject(AuthSessionService);
+  private readonly supportAccess = inject(SupportAccessStore);
   private readonly api = inject(PageModelApi);
   private readonly router = inject(Router);
 
@@ -69,9 +71,12 @@ export class PrivateShellService {
   });
 
   readonly navigation: Signal<readonly NavigationSection[]> = computed(() => {
-    const sections = this.shell()?.navigationDrawer?.sections;
-    if (sections?.length) return canonicalizePlatformNavigation(sections as NavigationSection[]);
     const space = this.space();
+    if (space === 'admin' && this.supportAccess.isActive()) return TENANT_ADMIN_NAVIGATION;
+    const sections = this.shell()?.navigationDrawer?.sections;
+    if (sections?.length) return space === 'platform'
+      ? canonicalizePlatformNavigation(sections as NavigationSection[])
+      : sections as NavigationSection[];
     if (space === 'platform') return PLATFORM_NAVIGATION;
     if (space === 'admin') return TENANT_ADMIN_NAVIGATION;
     return CASHIER_NAVIGATION;

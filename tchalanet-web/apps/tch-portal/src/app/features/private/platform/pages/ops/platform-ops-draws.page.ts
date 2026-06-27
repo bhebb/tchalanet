@@ -617,6 +617,8 @@ const STATUS_OPTIONS = [
   { value: 'ARCHIVED', label: 'Archivé' },
 ];
 
+const DEFAULT_DRAW_TENANT_CODE = 'tchalanet';
+
 const DRAW_ACTION_LABELS: Record<string, string> = {
   cancel: 'Annuler',
   lock: 'Verrouiller',
@@ -695,10 +697,17 @@ export class PlatformOpsDrawsPage implements OnInit {
       map(page => page.items.map(tenant => this.toTenantOption(tenant))),
     );
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.loadDefaultTenant();
+  }
 
   load(): void {
     const tenantId = this.selectedTenantId();
+    if (!tenantId) {
+      this.error.set('Sélectionnez un tenant pour afficher les tirages.');
+      this.loading.set(false);
+      return;
+    }
     this.loading.set(true);
     this.error.set(null);
     this.api.listDraws({
@@ -734,15 +743,17 @@ export class PlatformOpsDrawsPage implements OnInit {
 
   selectTenant(option: TchSearchOption | null): void {
     const tenant = option?.data as TenantSummaryView | undefined;
-    this.selectedTenant.set(tenant ?? null);
+    if (!tenant) {
+      this.loadDefaultTenant();
+      return;
+    }
+    this.selectedTenant.set(tenant);
     this.page.set(0);
     this.load();
   }
 
   resetTenant(): void {
-    this.selectedTenant.set(null);
-    this.page.set(0);
-    this.load();
+    this.loadDefaultTenant();
   }
 
   selectedTenantId(): string | null {
@@ -752,7 +763,7 @@ export class PlatformOpsDrawsPage implements OnInit {
 
   selectedTenantLabel(): string {
     const tenant = this.selectedTenant();
-    return tenant ? `${tenant.name} (${tenant.code})` : 'Tous tenants';
+    return tenant ? `${tenant.name} (${tenant.code})` : 'Tenant non sélectionné';
   }
 
   isSelected(draw: DrawView): boolean {
@@ -837,6 +848,35 @@ export class PlatformOpsDrawsPage implements OnInit {
     };
   }
 
+  private loadDefaultTenant(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.tenantsApi.listTenants({ q: DEFAULT_DRAW_TENANT_CODE, page: 0, size: 10, status: 'ACTIVE' }).subscribe({
+      next: page => {
+        const tenants = page.items ?? [];
+        const defaultTenant = tenants.find(tenant => tenant.code?.toLowerCase() === DEFAULT_DRAW_TENANT_CODE)
+          ?? tenants[0]
+          ?? null;
+        if (!defaultTenant) {
+          this.selectedTenant.set(null);
+          this.draws.set([]);
+          this.totalElements.set(0);
+          this.totalPages.set(1);
+          this.loading.set(false);
+          this.error.set(`Tenant par défaut ${DEFAULT_DRAW_TENANT_CODE} introuvable.`);
+          return;
+        }
+        this.selectedTenant.set(defaultTenant);
+        this.page.set(0);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.loading.set(false);
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement du tenant par défaut.');
+      },
+    });
+  }
+
   private resolveCommonBulkActions(draws: DrawView[]): BulkDrawActionType[] {
     if (draws.length === 0 || draws.length > MAX_BULK_DRAW_ACTIONS || !this.singleTenantSelectionId()) return [];
     const allowed = draws.map(draw => actionsForDraw(draw)
@@ -887,7 +927,10 @@ export class PlatformOpsDrawsPage implements OnInit {
   }
 
   openApply(): void {
-    this.dialog.open(ApplyResultsDialog, { width: '480px' });
+    this.dialog.open(ApplyResultsDialog, {
+      data: { tenantCode: this.selectedTenant()?.code ?? null },
+      width: '480px',
+    });
   }
 
   private openBatch(

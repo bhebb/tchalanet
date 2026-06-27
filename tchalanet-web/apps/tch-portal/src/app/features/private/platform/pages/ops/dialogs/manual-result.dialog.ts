@@ -58,28 +58,28 @@ import { resultSlotLabel } from '../../../../../../shared/results/result-slot-la
             <div class="manual-result-dialog__lot-card">
               <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
               <span>
-                <strong>{{ mapping.label }}</strong>
-                <em>{{ mapping.provider }} · {{ mapping.gameLabel }}</em>
+                <strong>{{ mapping.gameLabel }}</strong>
+                <em>{{ mapping.label }}</em>
               </span>
             </div>
           }
         </div>
         <mat-form-field appearance="outline">
-          <mat-label>Lot 1</mat-label>
+          <mat-label>Pick3 - lot1</mat-label>
           <input matInput formControlName="lot1" maxlength="3" placeholder="123" />
           @if (form.controls.lot1.invalid && form.controls.lot1.touched) {
             <mat-error>3 chiffres requis.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Lot 2</mat-label>
+          <mat-label>Pick4 - lot2</mat-label>
           <input matInput formControlName="lot2" maxlength="2" placeholder="45" />
           @if (form.controls.lot2.invalid && form.controls.lot2.touched) {
             <mat-error>2 chiffres requis.</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
-          <mat-label>Lot 3</mat-label>
+          <mat-label>Pick4 - lot3</mat-label>
           <input matInput formControlName="lot3" maxlength="2" placeholder="67" />
           @if (form.controls.lot3.invalid && form.controls.lot3.touched) {
             <mat-error>2 chiffres requis.</mat-error>

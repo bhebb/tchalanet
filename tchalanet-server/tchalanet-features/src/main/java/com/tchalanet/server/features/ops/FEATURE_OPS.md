@@ -7,8 +7,15 @@
 
 ## Rôle
 
-`features.ops` orchestre des commandes core existantes sans porter d'invariants métier.  
-Il agrège `common.batch` (registre, gates, exécutions), `core.draw` et `core.drawresult`.
+`features.ops` n'est pas un moteur métier. Il expose :
+
+1. des lectures opérationnelles ;
+2. des actions humaines directes et auditées ;
+3. des façades UX typées vers Spring Batch.
+
+Si une opération existe comme scheduler/job batch, l'endpoint Ops correspondant
+lance le job Spring Batch enregistré. Il ne doit pas appeler directement la
+commande métier en parallèle.
 
 **Ne contient pas** : `CommandHandler`, `VoidCommandHandler`, règles métier tenant, écritures tables core.
 
@@ -20,16 +27,19 @@ Il agrège `common.batch` (registre, gates, exécutions), `core.draw` et `core.d
 
 Les draws restent une responsabilité tenant-admin. La surface Ops ne remplace pas
 l'administration tenant : elle existe pour les actions critiques de supervision
-super-admin (générer/ouvrir/fermer/appliquer sur un ou plusieurs tenants).
+super-admin.
+
+Les opérations récurrentes/planifiées sont des façades de lancement Spring Batch :
 
 ```http
-POST /platform/ops/draws/generate       ← GenerateDrawsForRangeCommand (gate: draw:lifecycle:generate)
-POST /platform/ops/draws/open-today     ← OpenTodayDrawsCommand (gate: draw:lifecycle:open)
-POST /platform/ops/draws/close-due      ← CloseDueDrawsCommand (gate: draw:lifecycle:close)
-POST /platform/ops/draws/apply          ← ApplyExternalResultsWindowCommand (gate: results:external:apply)
+POST /platform/ops/draws/generate       ← lance job draw:lifecycle:generate
+POST /platform/ops/draws/open-today     ← lance job draw:lifecycle:open
+POST /platform/ops/draws/close-due      ← lance job draw:lifecycle:close
+POST /platform/ops/draws/apply          ← lance job results:external:apply
 ```
 
-Toutes auditées (`@AuditLog`). Toutes vérifient le gate avant exécution.
+Ces endpoints retournent des `executionId` Spring Batch. Le détail d'exécution
+se lit ensuite via Jobs > Exécutions.
 
 ### Draw results — ingestion et correction
 
@@ -48,8 +58,7 @@ l'opérateur (`lot1`, `lot2`, `lot3`). Le BFF mappe ensuite vers le format core
 actuel (`pick3`, `pick4`) avant exécution de la commande.
 
 ```http
-POST /platform/ops/draw-results/fetch    ← FetchExternalResultsWindowCommand (gate: results:external:fetch)
-POST /platform/ops/draw-results/refresh  ← fetch + apply (gate: results:external:refresh)
+POST /platform/ops/draw-results/fetch    ← lance job results:external:fetch
 POST /platform/ops/draw-results/override ← OverrideDrawResultCommand (gate: results:external:override)
 POST /platform/ops/draw-results/manual   ← RecordManualDrawResultCommand (gate: results:external:manual)
 
@@ -57,6 +66,10 @@ GET  /platform/ops/draw-results                  ← liste paginée
 GET  /platform/ops/draw-results/{drawResultId}   ← détail
 GET  /platform/ops/draw-results/by-slot          ← recherche par slot/date
 ```
+
+`refresh` est désactivé en V0 : il brouille deux responsabilités différentes
+(`fetch` global draw_result, puis `apply` tenant-scoped draw). Si cette action
+revient, elle devra exposer explicitement les deux exécutions batch lancées.
 
 ### Batch jobs — registre et exécution
 
@@ -90,13 +103,17 @@ La purge est disponible en manuel via l'endpoint ci-dessus et en automatique via
 `tch.batch.history.retention-days` (défaut 7) et
 `tch.batch.history.purge-enabled`.
 
-### Batch gates — activer/désactiver les schedulers
+### Batch gates — activer/désactiver les jobs batch
 
 ```http
 GET  /platform/ops/batch/gates/{jobKey}             ← état du gate (+ tenant_id optionnel)
 GET  /platform/ops/batch/gates:effective            ← état effectif multi-gates
 PUT  /platform/ops/batch/gates/{jobKey}             ← activer/désactiver
 ```
+
+Les gates batch correspondent uniquement aux jobs enregistrés dans
+`SpringTchJobRegistry`. Les actions directes (`manual`, `override`, `confirm`,
+cache clear) ne sont pas des jobs Spring Batch.
 
 ---
 
@@ -110,24 +127,8 @@ PUT  /platform/ops/batch/gates/{jobKey}             ← activer/désactiver
 | `draw:lifecycle:settle` | Settlement des tickets après tirage |
 | `results:external:fetch` | Ingestion résultats providers |
 | `results:external:apply` | Application résultats aux draws |
-| `results:external:refresh` | Fetch + apply (orchestration BFF) |
-| `results:external:manual` | Saisie manuelle résultat |
-| `results:external:override` | Override résultat existant |
-
----
-
-## Pattern refresh
-
-`POST /platform/ops/draw-results/refresh` est une orchestration BFF pure :
-
-```
-1. Vérifie gate RESULTS_EXTERNAL_REFRESH
-2. FetchExternalResultsWindowCommand → core.drawresult
-3. ApplyExternalResultsWindowCommand → core.draw
-4. Retourne réponse consolidée des deux opérations
-```
-
-Pas de command handler dédié dans `features.ops` — c'est une composition de commandes core.
+Les actions directes Ops restent contrôlées par leurs validations, permissions et
+audits fonctionnels, mais elles ne sont pas listées comme jobs batch.
 
 ---
 

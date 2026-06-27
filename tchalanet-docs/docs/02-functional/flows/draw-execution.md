@@ -61,7 +61,8 @@ CLOSED ──► RecordManualDrawResultCommand / OverrideDrawResultCommand
 ### Phase Generate — J → J+7 (5h UTC quotidien)
 
 ```
-Scheduler GenerateDrawsForRangeCommand (gate: DRAW_GENERATE)
+Scheduler → job Spring Batch `draw:lifecycle:generate`
+  → step interne : GenerateDrawsForRangeCommand
   → Pour chaque draw_channel actif du tenant :
     UNIQUE(tenant_id, draw_channel_id, draw_date) — idempotent
   → Draw créé : SCHEDULED
@@ -72,7 +73,8 @@ Scheduler GenerateDrawsForRangeCommand (gate: DRAW_GENERATE)
 ### Phase Open (scheduler, fenêtre configurable)
 
 ```
-Scheduler OpenDueDrawsCommand (gate: DRAW_OPEN)
+Scheduler → job Spring Batch `draw:lifecycle:open`
+  → step interne : OpenTodayDrawsCommand
   → Draws SCHEDULED où sales_open_time <= now
   → SCHEDULED → OPEN
   → DrawOpenedEvent (pas publié — state transition interne)
@@ -83,7 +85,8 @@ Scheduler OpenDueDrawsCommand (gate: DRAW_OPEN)
 ### Phase Close (scheduler, fenêtre configurable)
 
 ```
-Scheduler CloseDueDrawsCommand (gate: DRAW_CLOSE)
+Scheduler → job Spring Batch `draw:lifecycle:close`
+  → step interne : CloseDueDrawsCommand
   → Draws OPEN où cutoffAt <= now
   → OPEN → CLOSED
   → DrawClosedEvent publié (AfterCommit)
@@ -94,7 +97,8 @@ Scheduler CloseDueDrawsCommand (gate: DRAW_CLOSE)
 ### Phase Fetch — ingestion résultat externe
 
 ```
-Scheduler FetchExternalResultsWindowCommand (gate: RESULTS_EXTERNAL_FETCH)
+Scheduler → job Spring Batch `results:external:fetch`
+  → step interne : FetchExternalResultsWindowCommand
   → core.drawresult : lit result_slot.source_cfg pour chaque slot actif
   → Appel provider externe (core.uslottery : NY/FL/GA/TX/TN)
   → Projection Haïti via core.haiti (lot1..lot4 depuis pick3+pick4)
@@ -107,7 +111,8 @@ Scheduler FetchExternalResultsWindowCommand (gate: RESULTS_EXTERNAL_FETCH)
 ### Phase Apply — liaison résultat → draw (gate: RESULTS_EXTERNAL_APPLY)
 
 ```
-Scheduler ApplyExternalResultsWindowCommand
+Scheduler → job Spring Batch `results:external:apply`
+  → step interne : ApplyExternalResultsWindowCommand
   → Draws CLOSED + draw_result disponible (PROVISIONAL ou CONFIRMED)
   → draw.drawResultId = drawResultId
   → CLOSED → RESULTED
@@ -124,7 +129,8 @@ Scheduler ApplyExternalResultsWindowCommand
 ### Phase Settle — traitement des tickets (gate: DRAW_SETTLE)
 
 ```
-Scheduler SettleDrawCommand
+Scheduler → job Spring Batch `draw:lifecycle:settle`
+  → step interne : SettleDrawCommand
   Prérequis : draw_result.status = CONFIRMED  ← pas PROVISIONAL
   → draw.locked = true  (verrou anti-concurrence)
   → RESULTED → SETTLED
@@ -201,7 +207,8 @@ OverrideDrawResultCommand  ← remplacement d'un résultat existant
 ```
 
 Gates ops sur `/platform/ops/draw-results/**` :
-`RESULTS_MANUAL_RECORD` · `RESULTS_OVERRIDE` · `RESULTS_EXTERNAL_REFRESH`
+manual/override/confirm restent des actions directes auditées. `fetch` est un lancement
+Spring Batch (`results:external:fetch`). `refresh` est absent en V0.
 
 ---
 
@@ -293,4 +300,5 @@ Idempotence garantie par `processed_event` ou contraintes métier.
 - Domaine drawresult : `core/drawresult/DOMAIN_DRAWRESULT.md`
 - Settlement tickets : [settlement](./settlement.md)
 - Vente ticket : [sell-ticket](./sell-ticket.md)
-- API ops : `POST /platform/ops/draws/{generate|open-due|close-due|apply}` · `POST /platform/ops/draw-results/{fetch|refresh|override|manual}`
+- API ops : `POST /platform/ops/draws/{generate|open-today|close-due|apply}` · `POST /platform/ops/draw-results/{fetch|override|manual}`.
+  Les actions `generate/open/close/apply/fetch` lancent Spring Batch et retournent des `executionId`.

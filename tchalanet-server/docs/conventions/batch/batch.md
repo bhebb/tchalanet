@@ -36,7 +36,8 @@ Fournir un socle stable et normatif pour :
 
 ## Checklist courte (à respecter)
 
-- [ ] Tous les endpoints Ops passent par `BatchJobStarter`.
+- [ ] Tous les endpoints Ops qui déclenchent un traitement récurrent/rejouable passent par `BatchJobStarter`.
+- [ ] Les actions humaines ciblées (`manual`, `override`, `confirm`, cache clear) restent directes, auditées, et n'apparaissent pas comme jobs batch.
 - [ ] Tous les schedulers vérifient `BatchGate` avant d’agir.
 - [ ] Les jobs TENANT installent `BatchJobExecutionListener` (binder).
 - [ ] Les paramètres batch utilisent `BatchParamKeys` (snake_case constants).
@@ -59,13 +60,19 @@ Fournir un socle stable et normatif pour :
 
 ---
 
-Responsabilités :
+Responsabilités pour les endpoints de lancement batch :
 
 - Valider et normaliser le `jobKey` (appel `JobKey.of(...)`).
 - Vérifier la portée (TENANT vs GLOBAL) et la présence de `tenant_id` si nécessaire.
-- Appeler `batchGate.assertEnabledOrThrow(jobKey, tenantId)`.
-- Valider les paramètres via `JobParamsValidator`.
 - Déléguer le démarrage à `BatchJobStarter.start(jobKey, params)`.
+- Retourner une réponse orientée exécution (`executionId`, `status`, tenant ciblé) plutôt qu'un résultat métier immédiat.
+
+Responsabilités pour les actions directes :
+
+- Restreindre aux actions humaines courtes et ciblées sur une entité précise.
+- Exiger raison/force quand l'action est sensible.
+- Auditer fonctionnellement l'écriture.
+- Ne jamais bypasser les invariants métier des handlers.
 
 ## Erreur / réponses
 
@@ -82,7 +89,8 @@ Règles :
 
 - Les schedulers décident _quand_ tenter ; ils ne contiennent pas la logique métier batch ;
 - Toujours vérifier `BatchGate` avant toute orchestration/trigger ;
-- Ne pas résoudre le tenant dans le scheduler : la résolution appartient au binder et aux jobs TENANT.
+- Les schedulers peuvent sélectionner les tenants/candidats à déclencher, mais l'exécution tenant-scoped
+  se fait dans le job via `tenant_id` et le binder.
 
 Patterns :
 
@@ -244,9 +252,16 @@ Scheduler → Batch :
 Ops → Batch :
 
 1. HTTP POST ;
-2. allowlist & params validation ;
-3. `gate.assert` ;
-4. `BatchJobStarter.start(...)`.
+2. endpoint guide construit les params autorisés ;
+3. allowlist & params validation ;
+4. `BatchJobStarter.start(...)` (gate.assert inclus).
+
+Actions directes Ops :
+
+1. HTTP POST sur entité précise ;
+2. validation + raison/force si requis ;
+3. audit fonctionnel ;
+4. command handler métier.
 
 ---
 
@@ -256,7 +271,8 @@ Ops → Batch :
 
 - `BatchGate` partout ;
 - séparation claire Scheduler ≠ Batch logique ;
-- Ops ≠ Scheduler ;
+- Ops guidé ≠ moteur métier : quand un job existe, Ops lance Spring Batch ;
+- actions directes uniquement pour opérations humaines ciblées ;
 - Contexte via listener uniquement ;
 - Utiliser SB6 (JobOperator pour ops) ;
 - Temps = Clock + Instant (utiliser `TimeProvider`).

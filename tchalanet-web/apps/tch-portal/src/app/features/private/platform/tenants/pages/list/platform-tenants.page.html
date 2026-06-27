@@ -134,6 +134,10 @@
                 <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
                 {{ 'platform.tenants.action.viewDetails' | translate }}
               </a>
+              <button mat-menu-item (click)="openSupportAccess(row)">
+                <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+                Mode support admin
+              </button>
               @if (canActivate(row)) {
                 <button mat-menu-item (click)="activateTenant(row)">
                   <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
