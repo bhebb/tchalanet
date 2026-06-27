@@ -5,22 +5,19 @@
 | Table | Envers | Audited fields | Excluded |
 |---|---|---|---|
 | `seller_terminal` | Partial | `terminal_code`, `status`, `commission_rate`, `odds_profile_id`, `limit_profile_id`, `blocked_at`, `blocked_by`, `blocked_reason`, `disabled_at` | PII (`first_name`, `last_name`, `phone_number`, `address_*`), `last_seen_at`, timestamps, external identity fields |
-| `odds_profile` | Partial | `code`, `name`, `status`, `is_default` | timestamps |
-| `odds_rule` | Yes | `odds_profile_id`, `game_code`, `bet_type`, `multiplier`, `active`, `effective_from`, `effective_to` | timestamps |
-| `limit_profile` | Partial | `code`, `name`, `status`, `is_default` | timestamps |
-| `limit_rule` | Yes | `limit_profile_id`, `game_code`, `draw_code`, `selection`, `max_stake`, `max_potential_payout`, `active` | timestamps |
-| `manual_draw_result` | Yes | `draw_code`, `draw_date`, `result_value`, `status`, `confirmed_at`, `confirmed_by`, `correction_reason` | timestamps |
-| `tenant_sales_policy` | Yes | `default_commission_rate`, `default_odds_profile_id`, `default_limit_profile_id`, sale/payout flags | timestamps |
-| `ticket` | **No** | — | immutable row; void/cancel tracked via `audit_log` |
+| `draw_result` | Yes | result slot/date, result payloads, status, source, quality, source hash, override reason | high-volume ticket data |
+| `limit_assignment` | Yes | assignment target, limits, status and lifecycle fields | unrelated policy definitions unless separately approved |
+| `ticket` | **No** | — | immutable row; void/cancel tracked via `audit_event` |
 | `ticket_line` | **No** | — | immutable snapshots |
-| `payout` | **No** | — | high-volume; paid/void events tracked via `audit_log` |
-| `audit_log` | **No** | — | append-only |
-| `app_user` | **No** | — | PII; lock/disable events in `audit_log` |
+| `payout` | **No** | — | high-volume; paid/void events tracked via `audit_event` |
+| `audit_event` | **No** | — | append-only functional audit |
+| `app_user` | **No** | — | PII; lock/disable events in `audit_event` |
 
 ## Annotation pattern
 
 Use field-level `@Audited(withModifiedFlag = true)` for partially audited entities.
-Never use class-level `@Audited` on entities with PII or high-churn fields.
+Never use class-level `@Audited` on entities with PII or high-churn fields. Class-level Envers is
+acceptable only for the explicitly allowlisted entities whose fields have been reviewed.
 
 ### seller_terminal example
 
@@ -44,7 +41,7 @@ public class SellerTerminalJpaEntity {
     private String region;
     private String country;
 
-    // external identity — not audited (Class B events in audit_log)
+    // external identity — not audited (Class B events in audit_event)
     private String externalProvider;
     private String externalIssuer;
     private String externalSubject;
@@ -88,14 +85,14 @@ public class SellerTerminalJpaEntity {
 
 ## Revision table
 
-Standard `revinfo`. Configure via:
+`revinfo` is mapped by `platform.entityhistory` with a custom revision entity/listener. Configure via:
 
 ```properties
 spring.jpa.properties.hibernate.envers.revision_field_name=rev
 spring.jpa.properties.hibernate.envers.revision_type_field_name=revtype
 ```
 
-No custom revision entity or listener in V0.
+The revision listener belongs to `platform.entityhistory`, not `platform.audit`.
 
 ## Rules
 
@@ -103,10 +100,10 @@ No custom revision entity or listener in V0.
 2. No Envers on PII fields by default — no compliance requirement yet.
 3. No class-level `@Audited` on partially audited entities.
 4. Use `withModifiedFlag = true` on all audited fields for fast change detection.
-5. Business commands must still write `audit_log` entries even when Envers is active.
+5. Business commands must still write `audit_event` entries even when Envers is active.
 6. `last_seen_at` and activity timestamps are never audited.
 
-## Business audit_log events (mandatory alongside Envers)
+## Business audit_event events (mandatory alongside Envers)
 
 ```text
 SELLER_TERMINAL_CREATE / UPDATE / BLOCK / UNBLOCK / DISABLE / RESET_ACCESS / COMMISSION_CHANGE

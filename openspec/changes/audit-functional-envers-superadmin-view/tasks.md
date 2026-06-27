@@ -12,7 +12,7 @@
 ## Debug
 
 - [x] Run the local stack and query `audit_event` count.
-- [x] Insert manual smoke data into `audit_event` and `revinfo`/`result_slot_aud`.
+- [x] Insert manual smoke data into `audit_event` and `revinfo`/allowlisted `_aud` tables.
 - [x] Verify superadmin platform RLS can see the manual `audit_event` row.
 - [x] Call `GET /api/v1/platform/audit/logs` as superadmin and compare API payload with DB count.
 - [x] Execute one known `@AuditLog` action and verify a new `audit_event` row.
@@ -21,8 +21,8 @@
 - [x] Add missing `SellerTerminalId` path-variable converter and retest seller-terminal block update.
 - [x] Create `platform.entityhistory` slice boundary for Envers revision entity/listener ownership.
 - [x] Restrict Envers entity coverage and fresh-database audit migrations to `SELLER_TERMINAL`, `DRAW_RESULT`, and `LIMIT_ASSIGNMENT`.
-- [ ] Verify live RLS variables for the real superadmin audit HTTP request.
-- [ ] Add/adjust focused backend tests once the failing runtime condition is confirmed.
+- [x] Verify live superadmin audit API visibility with seeded and real functional audit rows.
+- [ ] Add/adjust focused backend tests later.
 
 ## Proposal
 
@@ -33,8 +33,8 @@
 
 ## Implementation Candidates
 
-- [ ] If data is empty: update web copy/empty state to clarify functional audit vs Envers revisions.
+- [x] If data is empty: update web copy/empty state to clarify functional audit vs Envers revisions.
 - [x] Add a separate platform operations web entry and page for allowlisted entity revision history.
 - [ ] If API filters data: fix superadmin platform RLS/context handling and add integration tests.
 - [ ] If writes are missing: capture actor/tenant at audit aspect time or extend `LogAuditEventRequest` with an actor/context snapshot.
-- [ ] Add a future OpenSpec for `platform.entityhistory` read-only revision projections before exposing Envers in the UI.
+- [x] Document `platform.entityhistory` read-only revision projections before exposing Envers in the UI.

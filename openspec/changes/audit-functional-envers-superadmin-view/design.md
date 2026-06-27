@@ -44,7 +44,7 @@ Envers is not an operator action feed. It should be exposed through `platform.en
 read-only projections that resolve entity type, entity id, revision metadata and field diffs.
 
 `platform.entityhistory` owns the Envers revision entity, revision listener, entity allowlist,
-revision projections and future API. `platform.audit` must not own Envers listeners or revision
+revision projections and API. `platform.audit` must not own Envers listeners or revision
 metadata.
 
 Initial exposed Envers allowlist:
@@ -53,9 +53,8 @@ Initial exposed Envers allowlist:
 - `DRAW_RESULT`: result lifecycle and payload revisions.
 - `LIMIT_ASSIGNMENT`: rule assignment revisions.
 
-Entities outside this allowlist should not keep class-level `@Audited` annotations for now. Existing
-legacy `*_aud` tables may remain in the schema until a dedicated cleanup migration is approved, but
-the application should stop producing new technical revisions for non-allowlisted entity classes.
+Entities outside this allowlist should not keep class-level `@Audited` annotations for now.
+Fresh-database migrations should create only the `_aud` tables required by this allowlist.
 
 ## Current Functional Flow
 
@@ -133,7 +132,7 @@ If writes are missing after annotated actions:
 - add an integration test that calls an annotated endpoint and verifies `audit_event` after success.
 - capture actor/tenant at aspect time or extend `LogAuditEventRequest` with an explicit actor snapshot so after-commit writes do not depend on ambient context.
 
-## Future Entity History Usage
+## Entity History Usage
 
 Add a separate read-only capability surface, not a write path:
 
@@ -145,12 +144,12 @@ platform.entityhistory
   technical revisions only -> revinfo + allowlisted *_aud projections
 ```
 
-Recommended API shape:
+Implemented API shape:
 
 ```http
-GET /platform/entity-history/revisions?entityType=DRAW&entityId={id}
-GET /platform/entity-history/revisions/{revisionId}
-GET /platform/entity-history/revisions/{revisionId}/diff
+GET /platform/entity-history/revisions?entityType=SELLER_TERMINAL&entityId={idOrBusinessKey}
+GET /platform/entity-history/revisions?entityType=DRAW_RESULT&entityId={idOrBusinessKey}
+GET /platform/entity-history/revisions?entityType=LIMIT_ASSIGNMENT&entityId={idOrBusinessKey}
 ```
 
 Recommended web shape:
@@ -161,7 +160,7 @@ Recommended web shape:
 - Functional tab remains action/outcome oriented.
 - Revisions tab is entity oriented and requires `entityType`/`entityId` or a narrow
   recent-revisions query.
-- Detail drawer shows metadata, changed fields, before/after values and a link back to the business entity.
+- Detail expansion shows metadata, changed fields and safe before/after values.
 
 Recommended list contract:
 
@@ -175,6 +174,7 @@ EntityRevisionItem {
   changedBy?: string;
   tenantId?: string;
   changedFields?: string[];
+  changedValues?: EntityRevisionFieldChange[];
 }
 ```
 

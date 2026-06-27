@@ -183,7 +183,8 @@ A wrong silent result belongs in `core` if it can cause direct financial loss, r
 ### Current platform capabilities
 
 ```text
-platform.audit          ← Audit trail (was core.audit)
+platform.audit          ← Functional audit trail (was core.audit)
+platform.entityhistory  ← Technical entity revision history (Hibernate Envers)
 platform.accesscontrol  ← Permission checks, role assignment (was core.accesscontrol)
 platform.identity       ← User/tenant identity context (was core.tenantuser → core.usercontext)
 platform.tenantconfig   ← Tenant configuration (was core.tenantconfig)

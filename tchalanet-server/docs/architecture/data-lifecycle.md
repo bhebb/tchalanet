@@ -71,8 +71,8 @@ Archive after retention period. No Envers. Use immutable snapshots + functional 
 | payout                       | P24M      | created_at    |                           |
 | payout_workflow_history      | P24M      | created_at    | when introduced           |
 | sales_session                | P12M      | opened_at     |                           |
-| audit_log                    | P12M      | occurred_at   | new partitioned table     |
-| audit_event                  | P12M      | occurred_at   | legacy; migrate to audit_log |
+| audit_event                  | P12M      | occurred_at   | current functional audit table |
+| audit_log                    | P12M      | occurred_at   | future/archival partitioned target, if introduced |
 | notification_delivery        | P6M       | created_at    |                           |
 | outbound_message             | P6M       | created_at    |                           |
 | provider_raw_payload         | P6M       | fetched_at    | when introduced           |

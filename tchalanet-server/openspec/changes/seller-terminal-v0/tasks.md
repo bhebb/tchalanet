@@ -43,7 +43,7 @@
 - [x] `ResetSellerTerminalAccessCommand`.
 - [x] Add handlers with `@UseCase`.
 - [x] Add `@TchTx` to write handlers.
-- [x] Add business `audit_log` declarations (all 7 events) — added `SELLER_TERMINAL` to `AuditEntityType`; added 7 `SELLER_TERMINAL_*` entries to `AuditAction`; `@AuditLog` goes on controller methods (S6).
+- [x] Add business `audit_event` declarations (all 7 events) — added `SELLER_TERMINAL` to `AuditEntityType`; added 7 `SELLER_TERMINAL_*` entries to `AuditAction`; `@AuditLog` goes on controller methods (S6).
 - [x] Add field-level `@Audited(withModifiedFlag = true)` on `SellerTerminalJpaEntity` for control/financial fields only (no class-level `@Audited`).
 
 ## 4. Firebase technical user provisioning
@@ -123,4 +123,4 @@
 - [ ] Envers: `status` change recorded in `seller_terminal_aud` after block.
 - [ ] Envers: `commission_rate` change recorded in `seller_terminal_aud`.
 - [ ] Envers: `first_name` and `last_seen_at` absent from `seller_terminal_aud`.
-- [ ] Business `audit_log` entry present for BLOCK, DISABLE, RESET_ACCESS, COMMISSION_CHANGE.
+- [ ] Business `audit_event` entry present for BLOCK, DISABLE, RESET_ACCESS, COMMISSION_CHANGE.

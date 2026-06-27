@@ -322,7 +322,7 @@ Core sales must still validate terminal ACTIVE from business state before creati
 
 ## Audit
 
-### Business audit_log (mandatory)
+### Business audit_event (mandatory)
 
 ```text
 SELLER_TERMINAL_CREATE
@@ -359,7 +359,7 @@ external_provider / external_issuer / external_subject
 created_at, updated_at
 ```
 
-Revision table: standard `revinfo` (no custom revision entity for V0).
+Revision table: `revinfo`, owned by the `platform.entityhistory` revision entity/listener.
 
 `ticket` has no Envers — commission snapshot columns are immutable once written.
 
@@ -370,7 +370,7 @@ Target migration: `V100`.
 Includes:
 - `seller_terminal` table.
 - `seller_terminal_aud` Envers table.
-- `tch_audit_revision` revision table (if not already present).
+- `revinfo` revision table (if not already present).
 - `ticket` column additions (`seller_terminal_id`, `seller_commission_rate_snapshot`, `seller_commission_amount_snapshot`).
 
 Rollout:

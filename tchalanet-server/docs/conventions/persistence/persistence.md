@@ -155,9 +155,9 @@ CI: `flyway migrate` + `ddl-auto=validate` doit échouer si `_AUD` n’est pas a
 
 ## Touchpoints audit (références)
 
-- Envers revision listener: `core.audit.infra.persistence.envers.TchRevisionListener`
-- Spring Data auditor: `core.audit.infra.config.RequestContextAuditorAware`
-- Audit métier: `core.audit` (AfterCommit → LogAuditEventCommand)
+- Envers revision listener: `platform.entityhistory.internal.listener.TchRevisionListener`
+- Spring Data auditor: common/platform request-context auditor configuration
+- Audit métier: `platform.audit` (`AuditApi`, `@AuditLog`, `audit_event`)
 
 📌 Audit métier (actions business) = autre doc (`audit.md`).
 

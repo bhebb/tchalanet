@@ -222,7 +222,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `core.address`        | Port                     | `AddressReaderPort`                                                                                                            |
 | sales → `core.limitpolicy`    | Query                    | `EvaluateLimitPolicyQuery`                                                                                                     |
 | sales → `core.autonomy`       | Service                  | `ResolveAutonomyPolicyService`                                                                                                 |
-| sales → `core.audit`          | Handler direct           | `AuditLoggingCommandHandler` (instance, pas via bus)                                                                           |
+| sales → `platform.audit`      | API                      | Functional audit through `AuditApi`/`@AuditLog`, not direct handler or repository access                                       |
 | sales → `core.ledger`         | Port-in direct           | `RecordLedgerFromSalesPort` (depuis `SalesLedgerListener`)                                                                     |
 | sales → `core.accesscontrol`  | Annotation               | `@RequiresPermission`                                                                                                          |
 | sales → `core.pricing`        | Query                    | `ResolveSellerTerminalOddsQuery` pour odds effectifs seller-terminal override → tenant default                                 |
