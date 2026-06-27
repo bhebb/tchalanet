@@ -37,7 +37,7 @@
     <json-schema-validator.version>3.0.4</json-schema-validator.version>
     <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <mockito.version>5.20.0</mockito.version>
+    <mockito.version>5.23.0</mockito.version>
     <pdfbox.version>3.0.7</pdfbox.version>
     <querydsl.version>5.1.0</querydsl.version>
     <shedlock.version>7.7.0</shedlock.version>
