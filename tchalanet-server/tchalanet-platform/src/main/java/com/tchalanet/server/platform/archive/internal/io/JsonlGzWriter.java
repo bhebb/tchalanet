@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.archive.internal.io;
 
 import java.io.BufferedWriter;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -34,6 +35,7 @@ import tools.jackson.databind.ObjectMapper;
 public final class JsonlGzWriter implements AutoCloseable {
 
   private final ObjectMapper mapper;
+  private final CountingOutputStream countingOut;
   private final DigestOutputStream digestOut;
   private final GZIPOutputStream gzipOut;
   private final BufferedWriter writer;
@@ -46,7 +48,8 @@ public final class JsonlGzWriter implements AutoCloseable {
     this.mapper = mapper;
     try {
       MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-      this.digestOut  = new DigestOutputStream(out, sha256);
+      this.countingOut = new CountingOutputStream(out);
+      this.digestOut  = new DigestOutputStream(countingOut, sha256);
       this.gzipOut    = new GZIPOutputStream(digestOut, 65536);
       this.writer     = new BufferedWriter(new OutputStreamWriter(gzipOut, StandardCharsets.UTF_8), 65536);
     } catch (IOException | NoSuchAlgorithmException e) {
@@ -75,6 +78,7 @@ public final class JsonlGzWriter implements AutoCloseable {
   }
 
   public long compressedBytes() {
+    if (!closed) throw new IllegalStateException("Must close before reading compressed byte count");
     return compressedBytes;
   }
 
@@ -86,7 +90,31 @@ public final class JsonlGzWriter implements AutoCloseable {
     gzipOut.finish();
     gzipOut.flush();
     writer.close();
-    // compressedBytes is not easily available here without a counting wrapper;
-    // the executor reads it from the storage backend after close.
+    compressedBytes = countingOut.bytesWritten();
+  }
+
+  private static final class CountingOutputStream extends FilterOutputStream {
+
+    private long bytesWritten = 0;
+
+    private CountingOutputStream(OutputStream out) {
+      super(out);
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+      out.write(b);
+      bytesWritten++;
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+      out.write(b, off, len);
+      bytesWritten += len;
+    }
+
+    private long bytesWritten() {
+      return bytesWritten;
+    }
   }
 }

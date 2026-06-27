@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.archive.internal.config;
 
 import java.time.Duration;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
@@ -29,6 +30,8 @@ public record ArchiveProperties(
   /** Partition DDL cleanup is disabled by default; DRY_RUN produces a plan without DDL. */
   public record Cleanup(
       @DefaultValue("false") boolean enabled,
-      @DefaultValue("DRY_RUN") String mode
+      @DefaultValue("DRY_RUN") String mode,
+      @DefaultValue("12") int retentionMonths,
+      @DefaultValue("audit_log") List<String> cleanableTables
   ) {}
 }

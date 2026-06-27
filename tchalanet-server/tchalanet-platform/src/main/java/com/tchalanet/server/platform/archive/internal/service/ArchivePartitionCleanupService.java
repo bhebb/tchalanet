@@ -1,11 +1,13 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
+import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -33,6 +35,7 @@ public class ArchivePartitionCleanupService {
 
   private final ArchiveProperties props;
   private final NamedParameterJdbcTemplate jdbc;
+  private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
 
   public enum CleanupMode { DRY_RUN, DETACH_ONLY, DROP }
 
@@ -85,10 +88,21 @@ public class ArchivePartitionCleanupService {
         continue;
       }
 
+      if (legalHoldRepo.hasActiveHoldForPeriod(tableName, periodStart, periodEnd)) {
+        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
+            "active archive legal hold blocks cleanup"));
+        continue;
+      }
+
       long archivedRows = archiveObjects.stream()
           .mapToLong(o -> ((Number) o.getOrDefault("row_count", 0)).longValue())
           .sum();
       long hotRows = countPartitionRows(partitionName);
+      if (hotRows != archivedRows) {
+        result.add(notEligible(partitionName, tableName, periodStart, periodEnd,
+            "hot row count does not match verified archive row count"));
+        continue;
+      }
 
       result.add(new PartitionCleanupPlan(
           partitionName, tableName, periodStart, periodEnd,
@@ -105,6 +119,20 @@ public class ArchivePartitionCleanupService {
    * Mode {@code DRY_RUN} never executes DDL even if enabled.
    */
   public void executeCleanup(String partitionName, CleanupMode mode) {
+    String parentTable = extractParentTable(partitionName);
+    validateCleanupTarget(parentTable, partitionName);
+
+    LocalDate retentionCutoff = LocalDate.now(ZoneOffset.UTC)
+        .minusMonths(props.cleanup().retentionMonths());
+    PartitionCleanupPlan currentPlan = findCurrentPlan(parentTable, partitionName, retentionCutoff)
+        .orElseThrow(() -> new IllegalStateException(
+            "archive cleanup refused: partition is not known or not plannable: " + partitionName));
+
+    if (!currentPlan.eligible()) {
+      throw new IllegalStateException("archive cleanup refused for %s: %s"
+          .formatted(partitionName, currentPlan.ineligibleReason()));
+    }
+
     if (!props.cleanup().enabled()) {
       log.info("archive cleanup: disabled — skipping cleanup of {}", partitionName);
       return;
@@ -117,7 +145,7 @@ public class ArchivePartitionCleanupService {
       log.info("archive cleanup: DETACH_ONLY — detaching partition {}", partitionName);
       jdbc.getJdbcTemplate().execute(
           "ALTER TABLE %s DETACH PARTITION %s CONCURRENTLY".formatted(
-              extractParentTable(partitionName), partitionName));
+              parentTable, partitionName));
       log.info("archive cleanup: partition {} detached", partitionName);
     } else if (mode == CleanupMode.DROP) {
       log.warn("archive cleanup: DROP mode — dropping partition {}", partitionName);
@@ -127,6 +155,31 @@ public class ArchivePartitionCleanupService {
   }
 
   // ── internal helpers ────────────────────────────────────────────────────────
+
+  private Optional<PartitionCleanupPlan> findCurrentPlan(
+      String tableName, String partitionName, LocalDate retentionCutoff) {
+    return plan(tableName, retentionCutoff).stream()
+        .filter(p -> p.partitionName().equals(partitionName))
+        .findFirst();
+  }
+
+  private void validateCleanupTarget(String tableName, String partitionName) {
+    if (!props.cleanup().cleanableTables().contains(tableName)) {
+      throw new IllegalArgumentException(
+          "archive cleanup refused: table is not allowlisted for cleanup: " + tableName);
+    }
+    LocalDate periodStart = parsePeriodStart(partitionName, tableName);
+    if (periodStart == null) {
+      throw new IllegalArgumentException(
+          "archive cleanup refused: partition name does not match expected pattern: " + partitionName);
+    }
+    String expected = "%s_%04d_%02d".formatted(
+        tableName, periodStart.getYear(), periodStart.getMonthValue());
+    if (!expected.equals(partitionName)) {
+      throw new IllegalArgumentException(
+          "archive cleanup refused: partition name is not canonical: " + partitionName);
+    }
+  }
 
   private List<Map<String, Object>> findPartitions(String tableName) {
     return jdbc.queryForList("""

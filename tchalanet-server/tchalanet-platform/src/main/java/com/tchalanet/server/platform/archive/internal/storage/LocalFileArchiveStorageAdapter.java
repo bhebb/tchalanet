@@ -50,6 +50,15 @@ public class LocalFileArchiveStorageAdapter implements ArchiveStoragePort {
   }
 
   @Override
+  public long size(String uri) {
+    try {
+      return Files.size(toPath(uri));
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to read object size: " + uri, e);
+    }
+  }
+
+  @Override
   public void delete(String uri) {
     try {
       Files.deleteIfExists(toPath(uri));
