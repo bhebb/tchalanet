@@ -20,6 +20,7 @@ import com.tchalanet.server.core.promotion.api.query.GetPromotionCampaignQuery;
 import com.tchalanet.server.core.promotion.api.query.ListPromotionCampaignsQuery;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.mapper.PromotionCampaignAdminWebMapper;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.CreatePromotionCampaignRequest;
+import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.InstantiateMaryajGratisRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionCampaignRequest;
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/promotions/campaigns")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
-@RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
 @Tag(name = "Promotion • Campaigns • Admin")
 
 public class PromotionCampaignAdminController {
@@ -68,6 +68,7 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> create(
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody CreatePromotionCampaignRequest request
@@ -78,6 +79,7 @@ public class PromotionCampaignAdminController {
     }
 
     @PutMapping("/{campaignId}")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> update(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PromotionCampaignId campaignId,
@@ -89,16 +91,25 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping("/templates/default-maryaj-gratis/instantiate")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> instantiateDefaultMaryajGratis(
-        @CurrentContext TchRequestContext ctx
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody(required = false) InstantiateMaryajGratisRequest request
     ) {
         var result = commandBus.execute(new InstantiateDefaultMaryajGratisCommand(
-            ctx.effectiveTenantIdRequired()
+            ctx.effectiveTenantIdRequired(),
+            request == null ? null : request.payoutBaseAmount(),
+            request == null ? null : request.quantity(),
+            request == null ? null : request.choiceMode(),
+            request == null ? null : request.generationStrategy(),
+            request == null ? null : request.regenerableBeforeConfirm(),
+            request == null ? null : request.maxRegenerationsBeforeConfirm()
         ));
         return ApiResponse.success(result);
     }
 
     @PostMapping("/{campaignId}/activate")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> activate(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PromotionCampaignId campaignId
@@ -111,6 +122,7 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping("/{campaignId}/deactivate")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> deactivate(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PromotionCampaignId campaignId
@@ -123,6 +135,7 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping("/{campaignId}/pause")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> pause(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PromotionCampaignId campaignId
@@ -135,6 +148,7 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping("/{campaignId}/archive")
+    @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> archive(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PromotionCampaignId campaignId

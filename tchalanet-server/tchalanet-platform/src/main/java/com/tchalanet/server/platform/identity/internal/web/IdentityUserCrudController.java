@@ -46,7 +46,7 @@ public class IdentityUserCrudController {
   // ── Search ────────────────────────────────────────────────────────────────
 
   @GetMapping
-  @PreAuthorize("hasPermission('user.read')")
+  @PreAuthorize("hasPermission(null, 'user.read')")
   @Operation(summary = "Search users. unassigned=true returns users with no tenant assignment.")
   public ApiResponse<List<IdentityUserView>> search(
       @RequestParam(required = false) String q,
@@ -67,7 +67,7 @@ public class IdentityUserCrudController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @PreAuthorize("hasPermission('user.create')")
+  @PreAuthorize("hasPermission(null, 'user.create')")
   @Operation(summary = "Create a user account without tenant assignment")
   @AuditLog(action = AuditAction.USER_CREATE, entity = AuditEntityType.USER, idExpression = "#result.data().id()")
   public ApiResponse<IdentityUserView> create(
@@ -84,7 +84,7 @@ public class IdentityUserCrudController {
 
   @PostMapping("/{userId}/membership")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasPermission('user.membership.manage')")
+  @PreAuthorize("hasPermission(null, 'user.membership.manage')")
   @Operation(summary = "Assign a user to a tenant with a role")
   @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
   public void assignMembership(
@@ -104,7 +104,7 @@ public class IdentityUserCrudController {
 
   @PostMapping("/{userId}/activate")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasPermission('user.activate')")
+  @PreAuthorize("hasPermission(null, 'user.activate')")
   @Operation(summary = "Activate a user account")
   @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
   public void activate(
@@ -115,7 +115,7 @@ public class IdentityUserCrudController {
 
   @PostMapping("/{userId}/suspend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasPermission('user.suspend')")
+  @PreAuthorize("hasPermission(null, 'user.suspend')")
   @Operation(summary = "Suspend a user account")
   @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
   public void suspend(
@@ -126,7 +126,7 @@ public class IdentityUserCrudController {
 
   @DeleteMapping("/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasPermission('user.archive')")
+  @PreAuthorize("hasPermission(null, 'user.archive')")
   @Operation(summary = "Archive (soft-delete) a user account")
   @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
   public void archive(
@@ -136,7 +136,7 @@ public class IdentityUserCrudController {
   }
 
   @PostMapping("/{userId}/reset-password")
-  @PreAuthorize("hasPermission('user.password.reset')")
+  @PreAuthorize("hasPermission(null, 'user.password.reset')")
   @Operation(summary = "Generate and send a temporary password to the user (no reset link)")
   @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
   public ApiResponse<PasswordResetResult> resetPassword(

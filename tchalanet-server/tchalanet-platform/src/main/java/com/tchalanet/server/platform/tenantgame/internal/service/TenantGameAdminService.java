@@ -78,18 +78,21 @@ public class TenantGameAdminService {
         var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode().toUpperCase())
             .orElseThrow(() -> new IllegalArgumentException("Tenant game not found: " + request.getGameCode()));
 
+        var availabilityEnabled = request.getAvailabilityEnabled() != null
+            ? request.getAvailabilityEnabled()
+            : existing.availabilityEnabled();
         var updated = new TenantGame(
             existing.tenantGameId(), existing.tenantId(), existing.gameId(), existing.gameCode(),
             existing.enabled(),
             request.getVisibleInPos() != null ? request.getVisibleInPos() : existing.visibleInPos(),
-            request.getDisplayName() != null ? request.getDisplayName() : existing.displayName(),
+            request.getDisplayName() != null ? blankToNull(request.getDisplayName()) : existing.displayName(),
             request.getDisplayOrder() != null ? request.getDisplayOrder() : existing.displayOrder(),
             request.getMinStake() != null ? request.getMinStake() : existing.minStake(),
             request.getMaxStake() != null ? request.getMaxStake() : existing.maxStake(),
-            request.getAvailabilityEnabled() != null ? request.getAvailabilityEnabled() : existing.availabilityEnabled(),
-            request.getAvailabilityDays() != null ? request.getAvailabilityDays() : existing.availabilityDays(),
-            request.getStartLocalTime() != null ? LocalTime.parse(request.getStartLocalTime()) : existing.startLocalTime(),
-            request.getEndLocalTime() != null ? LocalTime.parse(request.getEndLocalTime()) : existing.endLocalTime());
+            availabilityEnabled,
+            availabilityEnabled ? coalesceText(request.getAvailabilityDays(), existing.availabilityDays()) : null,
+            availabilityEnabled ? coalesceTime(request.getStartLocalTime(), existing.startLocalTime()) : null,
+            availabilityEnabled ? coalesceTime(request.getEndLocalTime(), existing.endLocalTime()) : null);
 
         var saved = persistence.save(updated);
         AfterCommit.run(() -> eventPublisher.publishEvent(
@@ -99,5 +102,29 @@ public class TenantGameAdminService {
     @Transactional(readOnly = true)
     public List<TenantGame> listGames(TenantId tenantId) {
         return persistence.findAllByTenantId(tenantId);
+    }
+
+    private static LocalTime coalesceTime(String value, LocalTime fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        if (value.isBlank()) {
+            return null;
+        }
+        return LocalTime.parse(value.trim());
+    }
+
+    private static String coalesceText(String value, String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        return blankToNull(value);
+    }
+
+    private static String blankToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }

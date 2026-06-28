@@ -319,6 +319,13 @@
                 "icon": "calendar_month"
               },
               {
+                "id": "catalog-draw-channel-games",
+                "label_key": "platform.nav.drawChannelGames",
+                "path": "/app/platform/catalog/draw-channel-games",
+                "kind": "internal",
+                "icon": "link"
+              },
+              {
                 "id": "catalog-result-slots",
                 "label_key": "platform.nav.resultSlots",
                 "path": "/app/platform/catalog/result-slots",
@@ -326,11 +333,32 @@
                 "icon": "view_timeline"
               },
               {
+                "id": "catalog-result-slot-calendars",
+                "label_key": "platform.nav.resultSlotCalendars",
+                "path": "/app/platform/catalog/result-slot-calendars",
+                "kind": "internal",
+                "icon": "event_note"
+              },
+              {
+                "id": "catalog-plans",
+                "label_key": "platform.nav.plans",
+                "path": "/app/platform/catalog/plans",
+                "kind": "internal",
+                "icon": "workspace_premium"
+              },
+              {
                 "id": "catalog-pricing",
                 "label_key": "platform.nav.pricing",
                 "path": "/app/platform/catalog/pricing",
                 "kind": "internal",
                 "icon": "payments"
+              },
+              {
+                "id": "catalog-settings",
+                "label_key": "platform.nav.globalSettings",
+                "path": "/app/platform/catalog/settings",
+                "kind": "internal",
+                "icon": "settings"
               },
               {
                 "id": "catalog-themes",
@@ -345,6 +373,13 @@
                 "path": "/app/platform/catalog/translations",
                 "kind": "internal",
                 "icon": "translate"
+              },
+              {
+                "id": "catalog-page-model-templates",
+                "label_key": "platform.nav.pageModelTemplates",
+                "path": "/app/platform/catalog/page-model-templates",
+                "kind": "internal",
+                "icon": "dashboard_customize"
               }
             ]
           },

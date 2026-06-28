@@ -11,6 +11,10 @@ import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadiness
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
+import com.tchalanet.server.features.tenantadmin.setup.TenantDrawSalesMatrixService;
+import com.tchalanet.server.features.tenantadmin.setup.TenantGamesPricingService;
+import com.tchalanet.server.features.tenantadmin.setup.model.TenantDrawSalesMatrixView;
+import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import lombok.RequiredArgsConstructor;
@@ -30,18 +34,18 @@ import java.util.Set;
  *   1. identity  → TenantCatalog.findRegistryById
  *   2. address   → AddressApi.findPrimaryByTenantId
  *   3. seller terminals → ListSellerTerminalsQuery (page size 1)
- *   4. users            → ListSellersQuery
+ *   4. games_pricing → TenantGamesPricingService
+ *   5. draws         → TenantDrawSalesMatrixService
  *
- * Remaining sections (games_pricing, draws, limits, promotions,
- * settings, i18n, theme, pagemodels) return UNKNOWN until their respective
- * structural check queries are exposed by each domain.
+ * Remaining sections (limits, promotions, settings, i18n, theme, pagemodels)
+ * return UNKNOWN until their respective structural check queries are exposed.
  *
  * Invariants enforced here:
  *   - readiness uses the current context/RLS, never a client-supplied tenant id
  *   - summary has no KPI fields (salesToday, ticketCountToday, activeSessions,
  *     openDraws, unread)
  *   - canCreateSellerTerminal requires identity + address non-MISSING;
- *     games_pricing + draws non-MISSING (UNKNOWN = not yet wired, not blocking)
+ *     games_pricing + draws non-MISSING
  */
 @Component
 @RequiredArgsConstructor
@@ -56,6 +60,8 @@ public class TenantReadinessAssembler {
   private final TenantPreContextLookupApi tenantPreContextLookupApi;
   private final AddressApi addressApi;
   private final QueryBus queryBus;
+  private final TenantGamesPricingService gamesPricingService;
+  private final TenantDrawSalesMatrixService drawSalesMatrixService;
 
   /** V1 section catalog (mirrors dashboard-overview-runtime-v1 §11 tenant table). */
   private static final List<SectionDescriptor> SECTIONS = List.of(
@@ -84,6 +90,8 @@ public class TenantReadinessAssembler {
     boolean identityFound = checkIdentity(ctx);
     boolean hasAddress = checkAddress(ctx);
     boolean hasSellerTerminals = checkSellerTerminals(ctx);
+    TenantReadinessStatus gamesPricingStatus = checkGamesPricing(ctx);
+    TenantReadinessStatus drawsStatus = checkDraws(ctx);
 
     List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
     for (SectionDescriptor d : SECTIONS) {
@@ -113,7 +121,25 @@ public class TenantReadinessAssembler {
           } else {
             status = TenantReadinessStatus.MISSING;
             issues.add(new TenantReadinessIssue(
-                "seller_terminals", "readiness.seller_terminals.empty", d.route()));
+              "seller_terminals", "readiness.seller_terminals.empty", d.route()));
+          }
+        }
+        case "games_pricing" -> {
+          status = gamesPricingStatus;
+          if (status == TenantReadinessStatus.MISSING) {
+            issues.add(new TenantReadinessIssue(
+                "games_pricing", "readiness.games_pricing.missing", d.route()));
+          } else if (status == TenantReadinessStatus.PARTIAL) {
+            issues.add(new TenantReadinessIssue(
+                "games_pricing", "readiness.games_pricing.partial", d.route()));
+          }
+        }
+        case "draws" -> {
+          status = drawsStatus;
+          if (status == TenantReadinessStatus.MISSING) {
+            issues.add(new TenantReadinessIssue("draws", "readiness.draws.missing", d.route()));
+          } else if (status == TenantReadinessStatus.PARTIAL) {
+            issues.add(new TenantReadinessIssue("draws", "readiness.draws.partial", d.route()));
           }
         }
         default ->
@@ -211,6 +237,46 @@ public class TenantReadinessAssembler {
       return page != null && page.totalElements() > 0;
     } catch (RuntimeException e) {
       return false;
+    }
+  }
+
+  private TenantReadinessStatus checkGamesPricing(TchRequestContext ctx) {
+    try {
+      TenantGamesPricingView view = gamesPricingService.get(ctx.tenantId());
+      if (view == null || view.games() == null || view.games().isEmpty()) {
+        return TenantReadinessStatus.MISSING;
+      }
+
+      var activeGames = view.games().stream()
+          .filter(g -> g.enabled() && g.visibleInPos())
+          .toList();
+      if (activeGames.isEmpty()) {
+        return TenantReadinessStatus.MISSING;
+      }
+
+      return TenantReadinessStatus.READY;
+    } catch (RuntimeException e) {
+      return TenantReadinessStatus.UNKNOWN;
+    }
+  }
+
+  private TenantReadinessStatus checkDraws(TchRequestContext ctx) {
+    try {
+      TenantDrawSalesMatrixView view = drawSalesMatrixService.get(ctx.tenantId());
+      if (view == null || view.summary() == null) {
+        return TenantReadinessStatus.MISSING;
+      }
+
+      var summary = view.summary();
+      if (summary.configuredChannelCount() == 0 || summary.offeredChannelGameCount() == 0) {
+        return TenantReadinessStatus.MISSING;
+      }
+      if (summary.activeChannelCount() == 0) {
+        return TenantReadinessStatus.PARTIAL;
+      }
+      return TenantReadinessStatus.READY;
+    } catch (RuntimeException e) {
+      return TenantReadinessStatus.UNKNOWN;
     }
   }
 

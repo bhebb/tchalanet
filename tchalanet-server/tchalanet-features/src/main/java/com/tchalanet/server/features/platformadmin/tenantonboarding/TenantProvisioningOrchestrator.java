@@ -1,9 +1,18 @@
 package com.tchalanet.server.features.platformadmin.tenantonboarding;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelProvisioningApi;
+import com.tchalanet.server.catalog.drawchannel.api.model.ProvisioningTenantGameRef;
+import com.tchalanet.server.catalog.pricing.api.PricingProvisioningApi;
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchContextScope;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentCommand;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningPreviewView;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningProfile;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningRequest;
@@ -14,8 +23,9 @@ import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeRequest;
-import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
+import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
+import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +50,11 @@ public class TenantProvisioningOrchestrator {
   private final TenantPersistenceAdapter tenantPersistence;
   private final TenantReadinessAssembler readinessAssembler;
   private final IdentityApi identityApi;
+  private final TenantGameApi tenantGameApi;
+  private final PricingProvisioningApi pricingProvisioningApi;
+  private final DrawChannelProvisioningApi drawChannelProvisioningApi;
+  private final CommandBus commandBus;
+  private final JsonUtils jsonUtils;
 
   public TenantProvisioningPreviewView preview(TenantProvisioningRequest request) {
     return new TenantProvisioningPreviewView(
@@ -70,6 +85,11 @@ public class TenantProvisioningOrchestrator {
     tenantPersistence.updateDefaultCommissionRate(
         created.tenantId(), request.defaultCommissionRate());
 
+    TchContextScope.runStartupTenant(
+        created.tenantId().value(),
+        "tenant-provisioning-catalog",
+        () -> ensureProfileCatalog(created.tenantId(), request.profile()));
+
     Map<String, String> domainStatuses = new LinkedHashMap<>();
     domainStatuses.put("tenant_identity", "CREATED");
     domainStatuses.put("pagemodels", "SEEDED_VIA_LISTENER");
@@ -80,7 +100,7 @@ public class TenantProvisioningOrchestrator {
     domainStatuses.put("pricing", profilePricingStatus(request.profile()));
     domainStatuses.put("draw_channels", profileDrawChannelsStatus(request.profile()));
     domainStatuses.put("promotions_templates", "TEMPLATES_AVAILABLE");
-    domainStatuses.put("limits_templates", "TEMPLATES_AVAILABLE");
+    domainStatuses.put("limits_templates", profileLimitStatus(request.profile()));
 
     UUID tenantId = created.tenantId().value();
     final String[] initialAdminUserId = {null};
@@ -187,12 +207,74 @@ public class TenantProvisioningOrchestrator {
     return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT_LOTTERY";
   }
 
+  private void ensureProfileCatalog(TenantId tenantId, TenantProvisioningProfile profile) {
+    if (profile == TenantProvisioningProfile.MINIMAL) {
+      return;
+    }
+    for (String gameCode : defaultHaitiLotteryGameCodes()) {
+      tenantGameApi.ensureTenantGame(EnsureTenantGamesRequest.builder()
+          .tenantId(tenantId)
+          .gameCode(gameCode)
+          .build());
+    }
+    pricingProvisioningApi.ensureDefaultHaitiLotteryOdds(tenantId);
+    drawChannelProvisioningApi.ensureDefaultHaitiLotteryChannels(
+        tenantId,
+        tenantGameApi.listGames(tenantId).stream()
+            .map(game -> new ProvisioningTenantGameRef(game.tenantGameId(), game.gameCode()))
+            .toList());
+    ensureDefaultLimits(tenantId);
+  }
+
+  private static List<String> defaultHaitiLotteryGameCodes() {
+    return List.of(
+        "HT_BOLET",
+        "HT_NUMERO",
+        "HT_MARYAJ",
+        "HT_MARYAJ_GRATUIT",
+        "HT_LOTO3",
+        "HT_LOTO4",
+        "HT_LOTO5");
+  }
+
   private static String profilePricingStatus(TenantProvisioningProfile profile) {
     return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT";
   }
 
   private static String profileDrawChannelsStatus(TenantProvisioningProfile profile) {
     return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT_HAITI";
+  }
+
+  private void ensureDefaultLimits(TenantId tenantId) {
+    var scope = LimitScopeRef.tenant(tenantId);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_LINES_PER_TICKET, "maxCount", 200);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_LINE, "valueCents", 10_000_000L);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_TICKET, "valueCents", 100_000_000L);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_PER_LINE, "valueCents", 1_000_000_000L);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_PER_TICKET, "valueCents", 5_000_000_000L);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, "valueCents", 50_000_000L);
+    upsertTenantLimit(tenantId, scope, RuleKey.MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW, "valueCents", 5_000_000_000L);
+  }
+
+  private void upsertTenantLimit(
+      TenantId tenantId,
+      LimitScopeRef scope,
+      RuleKey ruleKey,
+      String paramKey,
+      long paramValue) {
+    commandBus.execute(new UpsertLimitAssignmentCommand(
+        tenantId,
+        ruleKey,
+        scope,
+        true,
+        BreachOutcome.BLOCK,
+        jsonUtils.toJsonNode(Map.of(paramKey, paramValue)),
+        null,
+        null));
+  }
+
+  private static String profileLimitStatus(TenantProvisioningProfile profile) {
+    return profile == TenantProvisioningProfile.MINIMAL ? "NONE" : "DEFAULT";
   }
 
   private static String blankToNull(String value) {

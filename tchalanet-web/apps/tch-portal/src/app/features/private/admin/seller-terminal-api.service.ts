@@ -63,6 +63,10 @@ export interface CreateSellerTerminalResult {
   status: 'ACTIVE' | 'BLOCKED' | 'PENDING';
 }
 
+export interface SellerTerminalCommissionOverview {
+  tenantDefaultRate: number | null;
+}
+
 export interface UpdateSellerTerminalRequest {
   displayName: string;
   firstName?: string | null;
@@ -99,6 +103,17 @@ export interface TchPage<T> {
   totalPages: number;
 }
 
+interface BackendPage<T> {
+  items?: T[];
+  content?: T[];
+  total?: number;
+  totalElements?: number;
+  page?: number;
+  number?: number;
+  size?: number;
+  totalPages?: number;
+}
+
 export interface ListSellerTerminalsParams {
   q?: string;
   status?: SellerTerminalStatus | '';
@@ -113,6 +128,10 @@ export class SellerTerminalApi {
 
   getSummary(): Observable<SellerTerminalsSummary> {
     return this.backend.get<SellerTerminalsSummary>('/admin/seller-terminals/summary');
+  }
+
+  getCommissionOverview(): Observable<SellerTerminalCommissionOverview> {
+    return this.backend.get<SellerTerminalCommissionOverview>('/admin/commission/overview');
   }
 
   list(params: ListSellerTerminalsParams = {}): Observable<TchPage<SellerTerminalSummaryRow>> {
@@ -130,10 +149,10 @@ export class SellerTerminalApi {
           },
         }
       : undefined;
-    return this.backend.get<TchPage<SellerTerminalSummaryRow>>(
+    return this.backend.get<BackendPage<SellerTerminalSummaryRow>>(
       `/admin/seller-terminals${qs ? `?${qs}` : ''}`,
       options,
-    );
+    ).pipe(map(page => this.toPage(page, params.page ?? 0, params.size ?? 20)));
   }
 
   get(id: string): Observable<SellerTerminalView> {
@@ -179,5 +198,18 @@ export class SellerTerminalApi {
 
   resetPin(id: string, req: ResetSellerTerminalPinRequest): Observable<ResetSellerTerminalPinResponse> {
     return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req);
+  }
+
+  private toPage<T>(page: BackendPage<T>, fallbackPage: number, fallbackSize: number): TchPage<T> {
+    const items = page.items ?? page.content ?? [];
+    const size = page.size ?? fallbackSize;
+    const total = page.total ?? page.totalElements ?? items.length;
+    return {
+      items,
+      total,
+      page: page.page ?? page.number ?? fallbackPage,
+      size,
+      totalPages: page.totalPages ?? Math.max(1, Math.ceil(total / Math.max(1, size))),
+    };
   }
 }

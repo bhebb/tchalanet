@@ -1,10 +1,10 @@
 export interface ResultSlotLabelSource {
   readonly slotKey: string;
-  readonly provider?: string | null;
-  readonly drawTime?: string | null;
-  readonly timezone?: string | null;
-  readonly label?: string | null;
-  readonly labelKey?: string | null;
+  readonly provider?: unknown;
+  readonly drawTime?: unknown;
+  readonly timezone?: unknown;
+  readonly label?: unknown;
+  readonly labelKey?: unknown;
 }
 
 export function resultSlotLabel(slot: ResultSlotLabelSource): string {
@@ -21,7 +21,7 @@ export function resultSlotLabel(slot: ResultSlotLabelSource): string {
   return parts.length ? `${parts.join(' · ')} (${slot.slotKey})` : slot.slotKey;
 }
 
-function clean(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
+function clean(value: unknown): string | null {
+  const trimmed = typeof value === 'string' ? value.trim() : '';
   return trimmed ? trimmed : null;
 }

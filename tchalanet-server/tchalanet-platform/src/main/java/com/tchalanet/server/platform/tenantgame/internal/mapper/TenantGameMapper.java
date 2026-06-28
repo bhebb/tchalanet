@@ -35,6 +35,7 @@ public class TenantGameMapper {
     }
 
     public void updateEntityFromDomain(TenantGame domain, TenantGameJpaEntity entity) {
+        if (domain.tenantId() != null) entity.setTenantId(domain.tenantId().value());
         if (domain.gameId() != null) entity.setGameId(domain.gameId().value());
         if (domain.gameCode() != null) entity.setGameCode(domain.gameCode());
         entity.setEnabled(domain.enabled());

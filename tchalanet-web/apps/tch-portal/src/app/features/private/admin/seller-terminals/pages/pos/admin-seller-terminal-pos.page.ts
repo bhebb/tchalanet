@@ -68,6 +68,7 @@ export class AdminSellerTerminalPosPage implements OnInit {
   readonly loading = signal(false);
   readonly pageError = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly printing = signal(false);
   readonly saleError = signal<string | null>(null);
   readonly activityLoading = signal(false);
 
@@ -220,7 +221,33 @@ export class AdminSellerTerminalPosPage implements OnInit {
   }
 
   printTicket(ticket: ConfirmedTicketView): void {
-    window.print();
+    const terminalId = this.sellerTerminal()?.sellerTerminalId;
+    if (!terminalId || this.printing()) return;
+
+    this.printing.set(true);
+    this.saleError.set(null);
+
+    this.api.printTicket(ticket.ticketId, terminalId).subscribe({
+      next: blob => {
+        const url = URL.createObjectURL(blob);
+        const opened = window.open(url, '_blank', 'noopener,noreferrer');
+
+        if (!opened) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${ticket.ticketCode}.pdf`;
+          link.click();
+        }
+
+        window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        this.printing.set(false);
+      },
+      error: (err: unknown) => {
+        const pd = (err as { error?: { title?: string } })?.error;
+        this.saleError.set(pd?.title ?? 'Erreur lors de la génération du ticket.');
+        this.printing.set(false);
+      },
+    });
   }
 
   viewTicketDetails(ticket: ConfirmedTicketView): void {

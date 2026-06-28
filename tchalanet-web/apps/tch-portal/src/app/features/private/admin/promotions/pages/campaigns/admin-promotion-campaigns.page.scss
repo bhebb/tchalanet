@@ -1,0 +1,72 @@
+.promotions-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+  gap: var(--tch-spacing-5);
+}
+
+.promotions-page__campaign-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--tch-spacing-3);
+  margin: var(--tch-spacing-4) 0;
+}
+
+.promotions-page__campaign-facts dt {
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-label-medium);
+}
+
+.promotions-page__campaign-facts dd {
+  margin: var(--tch-spacing-1) 0 0;
+  color: var(--tch-color-on-surface);
+}
+
+.promotions-page__rule {
+  display: grid;
+  gap: var(--tch-spacing-2);
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  padding: var(--tch-spacing-3);
+}
+
+.promotions-page__rule div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tch-spacing-3);
+}
+
+.promotions-page__rule p {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.promotions-page__rule pre {
+  overflow: auto;
+  margin: 0;
+  border-radius: var(--tch-radius-md);
+  padding: var(--tch-spacing-3);
+  background: var(--tch-color-surface-container);
+  font-size: var(--tch-font-size-label-sm);
+}
+
+.promotions-page__copy {
+  margin: 0 0 var(--tch-spacing-4);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.promotions-page__payload-field {
+  width: 100%;
+}
+
+.promotions-page__payload-field textarea {
+  font-family: monospace;
+  font-size: var(--tch-font-size-label-sm);
+}
+
+@media (max-width: 1120px) {
+  .promotions-page__layout,
+  .promotions-page__campaign-facts {
+    grid-template-columns: 1fr;
+  }
+}

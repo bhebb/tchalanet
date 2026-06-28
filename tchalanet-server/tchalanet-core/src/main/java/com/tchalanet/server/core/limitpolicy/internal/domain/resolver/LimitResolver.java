@@ -50,7 +50,8 @@ public class LimitResolver {
                 ctx.userId() != null && ctx.userId().equals(agent.userId()) ? 60 : -1;
 
             case LimitScopeRef.SellerTerminalScope sellerTerminalScope ->
-                sellerTerminalScope.sellerTerminalId() != null && sellerTerminalScope.sellerTerminalId().equals(sellerTerminalScope.sellerTerminalId()) ? 60 : -1;
+                ctx.sellerTerminalId() != null
+                    && ctx.sellerTerminalId().equals(sellerTerminalScope.sellerTerminalId()) ? 60 : -1;
 
             case LimitScopeRef.DrawChannelScope channel ->
                 ctx.drawChannelId() != null && ctx.drawChannelId().equals(channel.drawChannelId()) ? 30 : -1;

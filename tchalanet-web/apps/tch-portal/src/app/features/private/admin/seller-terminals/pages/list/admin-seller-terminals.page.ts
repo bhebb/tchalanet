@@ -160,7 +160,7 @@ export class AdminSellerTerminalsPage implements OnInit {
   }
 
   openPOS(row: SellerTerminalSummaryRow): void {
-    void this.router.navigate(['/app/admin/seller-terminals', row.id.value, 'pos']);
+    void this.router.navigate(['/app/admin/tickets/sell', row.id.value]);
   }
 
   openBlock(row: SellerTerminalSummaryRow): void {
@@ -212,15 +212,16 @@ export class AdminSellerTerminalsPage implements OnInit {
   statusLabel(row: SellerTerminalSummaryRow): string {
     if (row.status === 'BLOCKED') return 'Bloqué';
     if (row.pinResetRequired) return 'PIN à remettre';
-    if (!row.lastSeenAt && !row.activatedAt) return 'Jamais connecté';
+    if (row.status === 'PENDING') return 'En attente';
     if (row.status === 'INACTIVE' || row.status === 'DISABLED') return 'Inactif';
+    if (!row.lastSeenAt) return 'Actif · jamais connecté';
     return 'Actif';
   }
 
   statusTone(row: SellerTerminalSummaryRow): AdminStatusTone {
     if (row.status === 'BLOCKED') return 'danger';
     if (row.pinResetRequired) return 'warning';
-    if (!row.lastSeenAt && !row.activatedAt) return 'neutral';
+    if (row.status === 'PENDING') return 'warning';
     if (row.status === 'INACTIVE' || row.status === 'DISABLED') return 'neutral';
     return 'success';
   }

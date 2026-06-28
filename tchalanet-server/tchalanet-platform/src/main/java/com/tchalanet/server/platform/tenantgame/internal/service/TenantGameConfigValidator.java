@@ -30,11 +30,11 @@ public class TenantGameConfigValidator {
             throw new IllegalArgumentException("displayOrder must be >= 0");
         }
         validateStakes(req.getMinStake(), req.getMaxStake());
-        if (req.getAvailabilityDays() != null) {
+        if (hasText(req.getAvailabilityDays())) {
             validateAvailabilityDays(req.getAvailabilityDays());
         }
-        if (req.getStartLocalTime() != null) parseTime(req.getStartLocalTime(), "startLocalTime");
-        if (req.getEndLocalTime() != null) parseTime(req.getEndLocalTime(), "endLocalTime");
+        if (hasText(req.getStartLocalTime())) parseTime(req.getStartLocalTime(), "startLocalTime");
+        if (hasText(req.getEndLocalTime())) parseTime(req.getEndLocalTime(), "endLocalTime");
     }
 
     private void validateStakes(BigDecimal min, BigDecimal max) {
@@ -65,5 +65,9 @@ public class TenantGameConfigValidator {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(field + " must be a valid time (HH:mm): " + value);
         }
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

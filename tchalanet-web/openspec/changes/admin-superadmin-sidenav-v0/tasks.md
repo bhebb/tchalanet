@@ -335,6 +335,51 @@
 
 ---
 
+## Post-merge hardening / retest
+
+> Architecture et organisation validées. Les tâches restantes sont du contrôle qualité,
+> de la cohérence fallback/backend et du durcissement UX, pas un redesign.
+
+- [ ] Retester la sidenav superadmin depuis la source backend `private_shell_superadmin.json`
+  - Vérifier que chaque entrée visible ouvre une route existante.
+  - Vérifier l'état actif sur `Opérations`, `Audit`, `Archives`, `Communication & support`, `Référentiels`.
+  - Vérifier qu'aucune entrée cachée/legacy (`Providers`, `Batch`, `Schedulers`) ne ressort dans le menu visible.
+- [ ] Aligner le fallback web `PLATFORM_NAVIGATION` sur le JSON backend superadmin
+  - Ajouter les entrées Référentiels déjà présentes dans le backend : plans, paramètres globaux, templates, jeux par canal, calendriers.
+  - Garder les placeholders V0 uniquement quand la route existe mais que l'écran final est volontairement différé.
+- [ ] Retester Référentiels
+  - Jeux, canaux de tirage, slots de résultats, plans, pricing, paramètres, thèmes, traductions, templates.
+  - Vérifier loading/error/empty states et actions create/update quand elles existent.
+  - Vérifier que `draw-channel-games` et `result-slot-calendars` restent des placeholders explicites tant que l'écran complet n'est pas livré.
+- [ ] Retester Opérations
+  - Vue d'ensemble : métriques Résultats/Tirages/Jobs/Cache.
+  - Tirages : filtre tenant/date/status, génération, ouverture, actions lifecycle simples et bulk.
+  - Résultats : filtres, manuel, override, confirm, affichage lots sans duplication.
+  - Jobs : lancement, détail exécution, copie erreur/succès, restart.
+  - Cache : clear cache, clear group, clear all avec confirmation.
+- [ ] Retester Communication & support
+  - Notifications, messages de contact, actualités, configuration contact, file d'envoi, tests canaux.
+  - Vérifier absence de doublons avec les anciennes routes `contact-requests`, `news`, `notifications`.
+- [ ] Retester Contrôle d'accès
+  - Permissions, rôles, accès utilisateurs, super admins, comptes admin, clés backend.
+  - Vérifier que CASHIER / SELLER_TERMINAL ne sont pas proposés comme rôles assignables admin.
+  - Vérifier les raisons obligatoires sur actions sensibles.
+- [ ] Retester Support tenant
+  - Sélection tenant, entrée en mode support, header tenant envoyé par intercepteur.
+  - Sidenav admin visible en mode support, pas sidenav superadmin.
+  - Bouton quitter contexte fonctionnel.
+  - Mode `SUPPORT_READONLY` : actions mutantes désactivées.
+- [ ] Ajouter/mettre à jour les tests ciblés
+  - `private-navigation.model.spec.ts` couvre l'ordre des groupes, l'absence de Providers, et les routes Référentiels.
+  - Tests API/component ciblés sur Jobs detail/copy et Ops overview tenant par défaut.
+  - Tests support tenant : guard + intercepteur + shell nav.
+- [ ] Nettoyer les libellés visibles
+  - Le libellé visible reste `Jobs`; `Batch` et `Schedulers` sont uniquement des routes alias.
+  - `Provider` ne doit pas apparaître dans la sidenav, mais peut rester dans des écrans techniques de communication/catalogue si c'est une colonne métier.
+  - `Slots de résultats` est accepté comme terme métier V0 ; si besoin produit, renommer plus tard en `Créneaux de résultats`.
+
+---
+
 ## Validation globale
 
 - [ ] `nx build` green après chaque slice
@@ -345,4 +390,4 @@
 - [ ] Providers absent du menu (route gardée mais hors NavigationSection[])
 - [ ] Redirects existants tous préservés
 - [ ] Plans et Pricing séparés dans Référentiels
-- [ ] Aucun terme technique visible dans les libellés sidenav (`draw_result`, `batch`, `provider`, `slot`, etc.)
+- [ ] Aucun terme technique non validé visible dans les libellés sidenav (`draw_result`, `batch`, `provider`, etc.)

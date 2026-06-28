@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -30,7 +30,7 @@ import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../sell
   templateUrl: './create-seller-terminal.dialog.html',
   styleUrls: ['./create-seller-terminal.dialog.scss'],
 })
-export class CreateSellerTerminalDialog {
+export class CreateSellerTerminalDialog implements OnInit {
   private readonly api = inject(SellerTerminalApi);
   private readonly dialogRef = inject(MatDialogRef<CreateSellerTerminalDialog>);
   private readonly snackBar = inject(MatSnackBar);
@@ -49,6 +49,17 @@ export class CreateSellerTerminalDialog {
     commissionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
     initialPin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
   });
+
+  ngOnInit(): void {
+    this.api.getCommissionOverview().subscribe({
+      next: overview => {
+        if (overview.tenantDefaultRate != null && this.form.controls.commissionRate.value == null) {
+          this.form.controls.commissionRate.setValue(overview.tenantDefaultRate);
+        }
+      },
+      error: () => { /* Keep commission optional when the overview is unavailable. */ },
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || this.saving()) return;

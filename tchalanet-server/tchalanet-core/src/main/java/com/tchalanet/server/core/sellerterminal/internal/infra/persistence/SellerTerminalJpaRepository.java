@@ -38,7 +38,7 @@ public interface SellerTerminalJpaRepository
         FROM SellerTerminalJpaEntity e
         WHERE e.tenantId = :tenantId AND e.deletedAt IS NULL
         """)
-    Object[] commissionStats(
+    List<Object[]> commissionStats(
         @Param("tenantId") UUID tenantId,
         @Param("defaultRate") BigDecimal defaultRate
     );
@@ -48,7 +48,7 @@ public interface SellerTerminalJpaRepository
         FROM SellerTerminalJpaEntity e
         WHERE e.tenantId = :tenantId AND e.deletedAt IS NULL
         """)
-    Object[] commissionStatsNoDefault(@Param("tenantId") UUID tenantId);
+    List<Object[]> commissionStatsNoDefault(@Param("tenantId") UUID tenantId);
 
     @Query("""
         SELECT t FROM SellerTerminalJpaEntity t

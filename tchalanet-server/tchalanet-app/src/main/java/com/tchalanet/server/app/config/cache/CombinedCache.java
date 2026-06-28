@@ -108,6 +108,7 @@ public class CombinedCache implements Cache {
       return remote == null ? null : remote.get(key);
     } catch (RuntimeException ex) {
       log.warn("Remote cache get failed cache={} key={} cause={}", name, key, ex.toString());
+      remoteEvict(key);
       return null;
     }
   }

@@ -65,6 +65,16 @@ interface SellerTerminalStatsResponse {
   currency: string;
 }
 
+interface PrintTicketRequest {
+  sellerTerminalId: string;
+  printOptionsRequest: {
+    outputFormat: 'PDF';
+    paperSize: 'RECEIPT_80MM';
+  };
+  recordPrint: boolean;
+  deliveryOptions: readonly ['RETURN_FILE'];
+}
+
 // ── Service ────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
@@ -164,5 +174,21 @@ export class AdminSellerTerminalPosApiService {
           currency: 'HTG' as const,
         })),
       );
+  }
+
+  printTicket(ticketId: string, sellerTerminalId: string): Observable<Blob> {
+    const request: PrintTicketRequest = {
+      sellerTerminalId,
+      printOptionsRequest: {
+        outputFormat: 'PDF',
+        paperSize: 'RECEIPT_80MM',
+      },
+      recordPrint: true,
+      deliveryOptions: ['RETURN_FILE'],
+    };
+
+    return this.backend.postBlob(`/tenant/cashier/tickets/${ticketId}/print`, request, {
+      headers: { 'X-Tch-Act-As-Terminal': sellerTerminalId },
+    });
   }
 }

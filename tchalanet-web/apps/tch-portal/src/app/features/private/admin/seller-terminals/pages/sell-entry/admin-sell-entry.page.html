@@ -1,0 +1,62 @@
+<tch-admin-page-shell
+  title="Vendre"
+  description="Choisissez le seller terminal à utiliser pour ouvrir le POS et vendre un ticket."
+>
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/seller-terminals">
+      <span class="material-symbols-outlined">settings</span>
+      Gérer les vendeurs
+    </a>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement des terminaux..." />
+  } @else if (error()) {
+    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (terminals().length === 0) {
+    <tch-admin-empty-state
+      icon="point_of_sale"
+      title="Aucun terminal actif"
+      message="Activez ou créez un vendeur avant de pouvoir ouvrir le POS."
+    >
+      <div class="sell-entry__empty-action">
+        <a mat-flat-button color="primary" routerLink="/app/admin/seller-terminals/new">
+          <span class="material-symbols-outlined">add</span>
+          Nouveau vendeur
+        </a>
+      </div>
+    </tch-admin-empty-state>
+  } @else {
+    <div class="sell-entry__grid">
+      @for (terminal of terminals(); track terminal.id.value) {
+        <article class="sell-entry__card">
+          <div class="sell-entry__avatar">
+            <span class="material-symbols-outlined">point_of_sale</span>
+          </div>
+          <div class="sell-entry__body">
+            <h2>{{ terminal.displayName }}</h2>
+            <p>{{ terminal.terminalCode }}</p>
+            <dl>
+              <div>
+                <dt>Commission</dt>
+                <dd>{{ terminal.commissionRate != null ? terminal.commissionRate + '%' : '—' }}</dd>
+              </div>
+              <div>
+                <dt>Ventes aujourd'hui</dt>
+                <dd>{{ terminal.todaySalesAmount != null ? terminal.todaySalesAmount + ' HTG' : '—' }}</dd>
+              </div>
+            </dl>
+          </div>
+          <a
+            mat-flat-button
+            color="primary"
+            [routerLink]="['/app/admin/tickets/sell', terminal.id.value]"
+          >
+            <span class="material-symbols-outlined">shopping_cart</span>
+            Vendre avec ce terminal
+          </a>
+        </article>
+      }
+    </div>
+  }
+</tch-admin-page-shell>

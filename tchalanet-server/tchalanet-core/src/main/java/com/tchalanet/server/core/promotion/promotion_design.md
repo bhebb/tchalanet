@@ -43,6 +43,15 @@ rule engine.
 Concrete V1 use cases: "maryaj gratuit" rules, seasonal campaigns (e.g.
 Christmas), simple marketing promotions.
 
+Admin UX implication:
+
+- The admin surface is a **Promotions / Campaigns** console.
+- "Maryaj gratis" is a preconfigured campaign template and shortcut, not a
+  separate promotion subsystem.
+- Admins configure typed campaigns and rules; they do not author a generic DSL.
+- `HT_MARYAJ_GRATUIT` is displayed as a real catalog game because settlement,
+  odds and receipt rendering treat it like one.
+
 ---
 
 ## 2. V1 scope — what is IN
@@ -56,6 +65,15 @@ WAIVE_CHARGE     cancel / zero a buyer charge (e.g. SMS)
 ```
 
 A campaign groups rules. A rule carries eligibility + one or more effects.
+
+The V1 admin creation UI should expose exactly these effect families:
+
+- `FREE_GAME_LINE`
+- `BOOST_ODDS`
+- `WAIVE_CHARGE`
+
+Any other promotion type is a backend/domain change first, not a front-only
+dropdown addition.
 
 ---
 
@@ -610,16 +628,19 @@ Implémenté en code versionné (`MaryajGratisDefaultTemplate`) + commande
 
 ```text
 DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
-  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT, quantity = 1
-  payoutBaseAmount = 50 HTG (défaut, à confirmer — porté par le seed)
-  selectionMode = AUTO_GENERATED, generationStrategy = RANDOM
-  regenerableBeforeConfirm = true, max 3
+  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT
+  quantity = paramètre tenant admin, défaut 1
+  payoutBaseAmount = paramètre tenant admin, défaut 50 HTG
+  choiceMode = paramètre tenant admin, défaut AUTO_GENERATE
+  generationStrategy = RANDOM si AUTO_GENERATE
+  regenerableBeforeConfirm = paramètre tenant admin, défaut true, max 3
   éligibilité : minPaidTotal > 0 + au moins 1 ligne payante
 ```
 
 - Instanciation : template plateforme -> campagne tenant ACTIVE via commande
   admin interne. Hook onboarding = follow-up ; **jamais de backfill
   automatique silencieux** des tenants existants (tâche ops avec dry-run).
-- Chaque tenant peut ensuite désactiver/pauser la campagne, modifier montant,
-  éligibilité, quantité (valeur fixe V1 ; mode multiplicateur = open question
-  du change).
+- En V0, le shortcut admin tenant crée la campagne avec ces paramètres. Si une
+  campagne `DEFAULT_MARYAJ_GRATIS` existe déjà, l'endpoint reste idempotent et
+  retourne l'existant ; les changements de règle passent par une nouvelle
+  campagne/règle, pas par mutation silencieuse d'une campagne active.

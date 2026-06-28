@@ -36,7 +36,7 @@ import java.util.List;
 @Tag(name = "Admin • Games")
 @RestController
 @RequestMapping("/admin/games")
-@PreAuthorize("hasPermission(null, 'tenantgame.read')")
+@PreAuthorize("hasPermission(null, 'game-pricing.read')")
 @RequiredArgsConstructor
 public class TenantGameAdminController {
 
@@ -73,7 +73,7 @@ public class TenantGameAdminController {
     @Operation(summary = "Enable a catalog game for this tenant")
     @PostMapping("/{gameCode}/enable")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasPermission('tenantgame.manage')")
+    @PreAuthorize("hasPermission(null, 'game-pricing.update')")
     @RequiredFeature(PlanFeatureKeys.TENANTGAME_MANAGEMENT)
     public ApiResponse<EnableTenantGameResult> enable(
         @PathVariable String gameCode,
@@ -87,7 +87,7 @@ public class TenantGameAdminController {
 
     @Operation(summary = "Disable a game for this tenant")
     @PostMapping("/{gameCode}/disable")
-    @PreAuthorize("hasPermission('tenantgame.manage')")
+    @PreAuthorize("hasPermission(null, 'game-pricing.update')")
     public ApiResponse<DisableTenantGameResult> disable(
         @PathVariable String gameCode,
         @CurrentContext TchRequestContext ctx) {
@@ -100,8 +100,7 @@ public class TenantGameAdminController {
 
     @Operation(summary = "Update tenant game settings")
     @PatchMapping("/{gameCode}/settings")
-    @PreAuthorize("hasPermission('tenantgame.manage')")
-    @RequiredFeature(PlanFeatureKeys.TENANTGAME_SETTINGS)
+    @PreAuthorize("hasPermission(null, 'game-pricing.update')")
     public ApiResponse<Void> updateSettings(
         @PathVariable String gameCode,
         @Valid @RequestBody UpdateGameSettingsWebRequest body,

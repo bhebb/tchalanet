@@ -83,8 +83,8 @@ export function lotteryAssetForProvider(providerCode?: string | null): string | 
   return lotteryAssetForDrawChannel(providerCode);
 }
 
-function normalize(value?: string | null): string | null {
-  const normalized = value?.trim().toLowerCase().replace(/_/g, '-');
+function normalize(value?: unknown): string | null {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase().replace(/_/g, '-') : '';
   return normalized || null;
 }
 

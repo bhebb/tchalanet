@@ -36,7 +36,7 @@ public class AdminTenantConfigController {
   @GetMapping
   @Operation(summary = "Get internal settings of the current tenant")
   public ApiResponse<TenantInternalSettings> getConfig(@CurrentContext TchRequestContext ctx) {
-    var view = tenantConfig.getTenantById(new GetTenantByIdRequest(ctx.tenantId()));
+    var view = tenantConfig.getTenantById(new GetTenantByIdRequest(ctx.effectiveTenantIdRequired()));
     var settings = jsonUtils.treeToValue(view.internalSettings(), TenantInternalSettings.class);
     return ApiResponse.success(settings);
   }
@@ -44,13 +44,13 @@ public class AdminTenantConfigController {
   @GetMapping("/communication")
   @Operation(summary = "Get communication config of the current tenant")
   public ApiResponse<TenantInternalCommunicationConfig> getCommunication(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantCommunicationConfig(new GetTenantByIdRequest(ctx.tenantId())));
+    return ApiResponse.success(tenantConfig.getTenantCommunicationConfig(new GetTenantByIdRequest(ctx.effectiveTenantIdRequired())));
   }
 
   @GetMapping("/document")
   @Operation(summary = "Get document config of the current tenant")
   public ApiResponse<TenantInternalDocumentConfig> getDocument(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(tenantConfig.getTenantDocumentConfig(new GetTenantByIdRequest(ctx.tenantId())));
+    return ApiResponse.success(tenantConfig.getTenantDocumentConfig(new GetTenantByIdRequest(ctx.effectiveTenantIdRequired())));
   }
 
   @PutMapping("/internal-settings")
@@ -59,6 +59,6 @@ public class AdminTenantConfigController {
   public void updateSettings(
       @CurrentContext TchRequestContext ctx,
       @RequestBody JsonNode body) {
-    tenantConfig.updateTenantInternalSettings(new UpdateTenantInternalSettingsRequest(ctx.tenantId(), body));
+    tenantConfig.updateTenantInternalSettings(new UpdateTenantInternalSettingsRequest(ctx.effectiveTenantIdRequired(), body));
   }
 }

@@ -12,6 +12,8 @@ import com.tchalanet.server.core.sellerterminal.internal.domain.model.SellerTerm
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 
 @UseCase
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class CreateSellerTerminalCommandHandler
     private final SellerTerminalWriterPort writer;
     private final IdGenerator idGenerator;
     private final SellerTerminalIdentityProvisionPort identityProvision;
+    private final Clock clock;
 
     @Override
     @TchTx
@@ -42,11 +45,12 @@ public class CreateSellerTerminalCommandHandler
             cmd.addressId(),
             rate);
 
-        writer.save(terminal);
         if (cmd.initialPin() != null && !cmd.initialPin().isBlank()) {
             identityProvision.provision(
                 id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
+            terminal = terminal.activate(Instant.now(clock));
         }
+        writer.save(terminal);
         return id;
     }
 }

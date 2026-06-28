@@ -52,7 +52,13 @@ VALUES (
     "reporting.sales.summary": true,
     "reporting.payout.summary": true,
     "tenant.theme.logo": true,
-    "document.receipt.logo": true
+    "document.receipt.logo": true,
+    "tenantgame.management": true,
+    "tenantgame.settings": true,
+    "tenantgame.availability": true,
+    "promotion.campaigns.config": true,
+    "promotion.rules.basic": true,
+    "promotion.free_game": true
   }'::jsonb,
   '{
     "limits.users.max": 5,
@@ -130,7 +136,13 @@ VALUES (
     "document.receipt.pdf": true,
     "notification.in_app": true,
     "tenant.theme.basic_branding": true,
-    "limitpolicy.basic": true
+    "limitpolicy.basic": true,
+    "tenantgame.management": true,
+    "tenantgame.settings": true,
+    "tenantgame.availability": true,
+    "promotion.campaigns.config": true,
+    "promotion.rules.basic": true,
+    "promotion.free_game": true
   }'::jsonb,
   '{
     "limits.users.max": 15,
@@ -215,16 +227,20 @@ VALUES (
     "offline.sales.basic": true,
     "offline.sync.review": true,
     "offline.grant.basic": true,
-    "promotionDecision.rules.basic": true,
-    "promotionDecision.free_game": true,
-    "promotionDecision.prize_multiplier": true,
+    "promotion.campaigns.config": true,
+    "promotion.rules.basic": true,
+    "promotion.free_game": true,
+    "promotion.prize_multiplier": true,
     "limitpolicy.advanced": true,
     "payout.approval.workflow": true,
     "reporting.dashboard.pro": true,
     "reporting.export.excel": true,
     "document.receipt.custom_template.basic": true,
     "notification.email": true,
-    "audit.viewer": true
+    "audit.viewer": true,
+    "tenantgame.management": true,
+    "tenantgame.settings": true,
+    "tenantgame.availability": true
   }'::jsonb,
   '{
     "limits.users.max": 50,
@@ -310,9 +326,10 @@ VALUES (
       "offline.sales.basic": true,
       "offline.sync.review": true,
       "offline.grant.basic": true,
-      "promotionDecision.rules.basic": true,
-      "promotionDecision.free_game": true,
-      "promotionDecision.prize_multiplier": true,
+      "promotion.campaigns.config": true,
+      "promotion.rules.basic": true,
+      "promotion.free_game": true,
+      "promotion.prize_multiplier": true,
       "limitpolicy.advanced": true,
       "payout.approval.workflow": true,
       "reporting.dashboard.pro": true,
@@ -320,6 +337,9 @@ VALUES (
       "document.receipt.custom_template.basic": true,
       "notification.email": true,
       "audit.viewer": true,
+      "tenantgame.management": true,
+      "tenantgame.settings": true,
+      "tenantgame.availability": true,
 
       "demo.full_access": true,
       "demo.seed_data": true,

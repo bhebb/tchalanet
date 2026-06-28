@@ -81,14 +81,16 @@ export const adminRoutes: Route[] = [
   {
     path: 'promotions/maryaj-gratis',
     loadComponent: () =>
-      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
-    data: { titleKey: 'nav.admin.maryaj_free', icon: 'redeem' },
+      import('./promotions/pages/maryaj-gratis/admin-maryaj-gratis.page').then(
+        m => m.AdminMaryajGratisPage,
+      ),
   },
   {
     path: 'promotions',
     loadComponent: () =>
-      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
-    data: { titleKey: 'nav.promotions', icon: 'local_activity' },
+      import('./promotions/pages/campaigns/admin-promotion-campaigns.page').then(
+        m => m.AdminPromotionCampaignsPage,
+      ),
   },
   { path: 'promotions/active', redirectTo: 'promotions', pathMatch: 'full' },
   // ── Rapports ───────────────────────────────────────────────────────────────
@@ -130,9 +132,18 @@ export const adminRoutes: Route[] = [
       import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
   },
   {
+    path: 'tickets/sell/:sellerTerminalId',
+    loadComponent: () =>
+      import('./seller-terminals/pages/pos/admin-seller-terminal-pos.page').then(
+        m => m.AdminSellerTerminalPosPage,
+      ),
+  },
+  {
     path: 'tickets/sell',
     loadComponent: () =>
-      import('./pages/support/admin-sell-ticket.page').then(m => m.AdminSellTicketPage),
+      import('./seller-terminals/pages/sell-entry/admin-sell-entry.page').then(
+        m => m.AdminSellEntryPage,
+      ),
   },
   {
     path: 'tickets/verify',
