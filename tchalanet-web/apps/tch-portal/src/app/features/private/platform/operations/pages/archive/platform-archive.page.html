@@ -15,45 +15,11 @@
     <!-- Summary stats -->
     <div toolbar>
       @if (summary(); as s) {
-        <div class="summary-bar">
-          <div class="stat-chip stat-success">
-            <span class="material-symbols-outlined">check_circle</span>
-            <span>{{ s.completedRuns }} complétés</span>
-          </div>
-          <div class="stat-chip stat-warn">
-            <span class="material-symbols-outlined">pending</span>
-            <span>{{ s.startedRuns }} en cours</span>
-          </div>
-          <div class="stat-chip" [class.stat-danger]="s.failedRuns > 0">
-            <span class="material-symbols-outlined">error</span>
-            <span>{{ s.failedRuns }} échoués</span>
-          </div>
-          <div class="stat-sep"></div>
-          <div class="stat-chip stat-success">
-            <span class="material-symbols-outlined">verified</span>
-            <span>{{ s.verifiedObjects }} vérifiés</span>
-          </div>
-          <div class="stat-chip">
-            <span class="material-symbols-outlined">hourglass_empty</span>
-            <span>{{ s.pendingObjects }} en attente</span>
-          </div>
-          <div class="stat-chip" [class.stat-danger]="s.invalidObjects > 0">
-            <span class="material-symbols-outlined">report</span>
-            <span>{{ s.invalidObjects }} invalides</span>
-          </div>
-
-          <div class="stat-sep"></div>
-
-          <button mat-stroked-button [class.active-view]="activeView() === 'recent'" (click)="loadRuns()">
-            Runs récents
-          </button>
-          <button mat-stroked-button [class.active-view]="activeView() === 'failed'" (click)="loadFailed()">
-            Runs échoués
-          </button>
-          <button mat-stroked-button [class.active-view]="activeView() === 'invalid'" (click)="loadInvalid()">
-            Objets invalides
-          </button>
-        </div>
+        <tch-archive-summary-bar
+          [summary]="s"
+          [activeView]="activeView()"
+          (viewSelected)="selectView($event)"
+        />
       }
     </div>
 
@@ -64,7 +30,7 @@
         <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="refresh()" />
 
       <!-- Recent runs -->
-      } @else if (activeView() === 'recent') {
+      } @else if (activeView() === 'overview' || activeView() === 'recent') {
         @if (runs().length === 0) {
           <div class="archive-empty">
             <tch-admin-empty-state
@@ -78,95 +44,24 @@
             </button>
           </div>
         } @else {
-          <table mat-table [dataSource]="runs()" multiTemplateDataRows class="archive-table">
-
-            <ng-container matColumnDef="startedAt">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let row" class="cell-date">
-                {{ row.startedAt | date:'dd/MM/yy HH:mm' }}
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Statut</th>
-              <td mat-cell *matCellDef="let row">
-                <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="row.status" />
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="strategy">
-              <th mat-header-cell *matHeaderCellDef>Stratégie</th>
-              <td mat-cell *matCellDef="let row"><code class="code-chip">{{ row.strategy }}</code></td>
-            </ng-container>
-
-            <ng-container matColumnDef="triggerType">
-              <th mat-header-cell *matHeaderCellDef>Déclencheur</th>
-              <td mat-cell *matCellDef="let row" class="cell-secondary">{{ row.triggerType }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="duration">
-              <th mat-header-cell *matHeaderCellDef>Durée</th>
-              <td mat-cell *matCellDef="let row" class="cell-secondary">{{ duration(row) }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="error">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let row" class="cell-expand">
-                @if (row.errorMessage) {
-                  <button mat-icon-button (click)="toggleExpand(row.id)"
-                    [matTooltip]="expandedId() === row.id ? 'Masquer erreur' : 'Voir erreur'">
-                    <span class="material-symbols-outlined">
-                      {{ expandedId() === row.id ? 'expand_less' : 'expand_more' }}
-                    </span>
-                  </button>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="expandedDetail">
-              <td mat-cell *matCellDef="let row" [attr.colspan]="runColumns.length" class="detail-cell">
-                @if (expandedId() === row.id && row.errorMessage) {
-                  <div class="detail-panel error-detail">
-                    <span class="material-symbols-outlined" style="color:var(--tch-color-error,#d32f2f);font-size:1rem;vertical-align:middle">error</span>
-                    {{ row.errorMessage }}
-                  </div>
-                }
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="runColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: runColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
-          </table>
+          <tch-archive-run-table
+            [runs]="runs()"
+            [expandedId]="expandedId()"
+            (expandedIdChange)="expandedId.set($event)"
+          />
         }
+
+      } @else if (activeView() === 'purges') {
+        <tch-archive-purge-panel />
 
       <!-- Failed runs or invalid objects (raw key-value view) -->
       } @else {
-        @if (rawRows().length === 0) {
-          <tch-admin-empty-state
-            icon="check_circle"
-            title="Aucune anomalie"
-            [message]="activeView() === 'failed' ? 'Aucun run échoué.' : 'Aucun objet invalide.'"
-          />
-        } @else {
-          <div class="raw-list">
-            @for (row of rawRows(); track $index) {
-              <div class="raw-card">
-                @for (entry of rawEntries(row); track entry.key) {
-                  <div class="raw-row">
-                    <span class="raw-key">{{ entry.key }}</span>
-                    <span class="raw-val">{{ entry.value }}</span>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
+        <tch-archive-raw-record-list [rows]="rawRows()" [emptyMessage]="rawEmptyMessage()" />
       }
     </div>
 
     <div footer>
-      @if (activeView() === 'recent') {
+      @if (activeView() === 'overview' || activeView() === 'recent') {
         <span>{{ runs().length }} run(s) affichés</span>
       } @else {
         <span>{{ rawRows().length }} résultat(s)</span>

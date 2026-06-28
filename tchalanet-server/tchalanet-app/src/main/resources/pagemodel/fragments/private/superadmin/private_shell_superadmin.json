@@ -423,6 +423,13 @@
                 "path": "/app/platform/archives/partitions",
                 "kind": "internal",
                 "icon": "table_rows"
+              },
+              {
+                "id": "archive-purges",
+                "label_key": "platform.nav.purges",
+                "path": "/app/platform/archives/purges",
+                "kind": "internal",
+                "icon": "delete_sweep"
               }
             ]
           },

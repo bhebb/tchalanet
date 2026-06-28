@@ -1,0 +1,20 @@
+@if (rows.length === 0) {
+  <tch-admin-empty-state
+    icon="check_circle"
+    title="Aucune anomalie"
+    [message]="emptyMessage"
+  />
+} @else {
+  <div class="archive-raw-record-list">
+    @for (row of rows; track $index) {
+      <div class="archive-raw-record-list__card">
+        @for (entry of rawEntries(row); track entry.key) {
+          <div class="archive-raw-record-list__row">
+            <span class="archive-raw-record-list__key">{{ entry.key }}</span>
+            <span class="archive-raw-record-list__value">{{ entry.value }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

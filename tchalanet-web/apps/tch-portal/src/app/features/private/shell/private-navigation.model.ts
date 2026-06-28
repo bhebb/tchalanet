@@ -234,6 +234,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             icon: 'table_rows',
             destination: { kind: 'route', value: '/app/platform/archives/partitions' },
           },
+          {
+            id: 'archive-purges',
+            labelKey: 'platform.nav.purges',
+            icon: 'delete_sweep',
+            destination: { kind: 'route', value: '/app/platform/archives/purges' },
+          },
         ],
       },
       {

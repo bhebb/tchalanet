@@ -21,15 +21,15 @@
 
 ## Images & Deployment
 
-- **[IMAGES-DEPLOYMENT.md](IMAGES-DEPLOYMENT.md)** — Build and publish Docker images to GHCR
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** — Staging/production deployment (Hetzner)
-- **[HETZNER.md](HETZNER.md)** — Server creation, firewall, network (Hetzner Cloud)
-- **[OPERATIONS.md](OPERATIONS.md)** — Day-to-day operations, backups, restores
-- **[QUICK-REFERENCE.md](QUICK-REFERENCE.md)** — Command cheat-sheet
+- **[operations/IMAGES-DEPLOYMENT.md](operations/IMAGES-DEPLOYMENT.md)** — Build and publish Docker images to GHCR
+- **[operations/DEPLOYMENT.md](operations/DEPLOYMENT.md)** — Staging/production deployment (Hetzner)
+- **[operations/HETZNER.md](operations/HETZNER.md)** — Server creation, firewall, network (Hetzner Cloud)
+- **[operations/OPERATIONS.md](operations/OPERATIONS.md)** — Day-to-day operations, backups, restores
+- **[reference/QUICK-REFERENCE.md](reference/QUICK-REFERENCE.md)** — Command cheat-sheet
 
 ## Scripts
 
-- **[scripts-index.md](scripts-index.md)** — Inventory of all scripts with purpose and usage
+- **[reference/scripts-index.md](reference/scripts-index.md)** — Inventory of all scripts with purpose and usage
 
 ## Mobile
 

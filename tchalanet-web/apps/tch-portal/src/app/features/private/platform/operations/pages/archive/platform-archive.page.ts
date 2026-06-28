@@ -1,129 +1,43 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
-import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import {
   ArchiveOpsSummary,
   ArchiveRunView,
   PlatformArchiveApi,
-  TriggerArchiveRunRequest,
 } from '../../data-access/platform-archive-api.service';
-
-// ── Trigger Dialog ─────────────────────────────────────────────────────────
-
-@Component({
-  selector: 'tch-trigger-archive-dialog',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
-  template: `
-    <h2 mat-dialog-title>Déclencher une archive</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-        <mat-form-field appearance="outline">
-          <mat-label>Stratégie (strategy)</mat-label>
-          <input matInput formControlName="strategy" placeholder="ex: AUDIT_LOG_COLD" />
-          @if (form.controls.strategy.invalid && form.controls.strategy.touched) {
-            <mat-error>Requis.</mat-error>
-          }
-        </mat-form-field>
-        <div style="display:flex;gap:12px">
-          <mat-form-field appearance="outline" style="flex:1">
-            <mat-label>Début de période</mat-label>
-            <input matInput type="date" formControlName="periodStart" />
-            @if (form.controls.periodStart.invalid && form.controls.periodStart.touched) {
-              <mat-error>Requis.</mat-error>
-            }
-          </mat-form-field>
-          <mat-form-field appearance="outline" style="flex:1">
-            <mat-label>Fin de période</mat-label>
-            <input matInput type="date" formControlName="periodEnd" />
-            @if (form.controls.periodEnd.invalid && form.controls.periodEnd.touched) {
-              <mat-error>Requis.</mat-error>
-            }
-          </mat-form-field>
-        </div>
-        <mat-form-field appearance="outline">
-          <mat-label>Raison (min. 10 caractères)</mat-label>
-          <textarea matInput formControlName="reason" rows="3" placeholder="Raison opérationnelle de l'archivage..."></textarea>
-          @if (form.controls.reason.invalid && form.controls.reason.touched) {
-            <mat-error>Requis (min. 10 caractères).</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">
-        Déclencher
-      </button>
-    </mat-dialog-actions>
-  `,
-})
-export class TriggerArchiveDialog {
-  private readonly api = inject(PlatformArchiveApi);
-  private readonly ref = inject(MatDialogRef<TriggerArchiveDialog>);
-  private readonly fb = inject(FormBuilder);
-
-  readonly saving = signal(false);
-  readonly form = this.fb.nonNullable.group({
-    strategy: ['', Validators.required],
-    periodStart: ['', Validators.required],
-    periodEnd: ['', Validators.required],
-    reason: ['', [Validators.required, Validators.minLength(10)]],
-  });
-
-  save(): void {
-    if (this.form.invalid) return;
-    this.saving.set(true);
-    const v = this.form.getRawValue();
-    const req: TriggerArchiveRunRequest = {
-      strategy: v.strategy.toUpperCase(),
-      periodStart: v.periodStart,
-      periodEnd: v.periodEnd,
-      reason: v.reason,
-    };
-    this.api.triggerRun(req).subscribe({
-      next: run => this.ref.close(run),
-      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
-    });
-  }
-}
-
-// ── Main Page ──────────────────────────────────────────────────────────────
-
-export type ArchiveView = 'recent' | 'failed' | 'invalid';
+import { ArchiveRouteView } from './archive-view.model';
+import { ArchiveRawRecordListComponent } from './components/archive-raw-record-list/archive-raw-record-list.component';
+import { ArchivePurgePanelComponent } from './components/archive-purge-panel/archive-purge-panel.component';
+import { ArchiveRunTableComponent } from './components/archive-run-table/archive-run-table.component';
+import { ArchiveSummaryBarComponent } from './components/archive-summary-bar/archive-summary-bar.component';
+import { ArchiveTriggerRunDialogComponent } from './components/archive-trigger-run-dialog/archive-trigger-run-dialog.component';
 
 @Component({
   selector: 'tch-platform-archive-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
-    ReactiveFormsModule,
     AdminCrudShellComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
-    AdminStatusPillComponent,
+    ArchiveRawRecordListComponent,
+    ArchivePurgePanelComponent,
+    ArchiveRunTableComponent,
+    ArchiveSummaryBarComponent,
     TchErrorPanel,
     TchLoading,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatTableModule,
     MatTooltipModule,
   ],
   templateUrl: './platform-archive.page.html',
@@ -131,23 +45,21 @@ export type ArchiveView = 'recent' | 'failed' | 'invalid';
 })
 export class PlatformArchivePage implements OnInit {
   private readonly api = inject(PlatformArchiveApi);
+  private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-
-  readonly runColumns = ['startedAt', 'status', 'strategy', 'triggerType', 'duration', 'error'];
-  readonly rawColumns = ['key', 'value'];
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly summary = signal<ArchiveOpsSummary | null>(null);
   readonly runs = signal<ArchiveRunView[]>([]);
   readonly rawRows = signal<Record<string, unknown>[]>([]);
-  readonly activeView = signal<ArchiveView>('recent');
+  readonly activeView = signal<ArchiveRouteView>('overview');
   readonly expandedId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadSummary();
-    this.loadRuns();
+    this.loadRouteView();
   }
 
   private loadSummary(): void {
@@ -193,15 +105,45 @@ export class PlatformArchivePage implements OnInit {
     });
   }
 
+  loadLegalHolds(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.activeView.set('legal-holds');
+    this.api.listActiveLegalHolds(50).subscribe({
+      next: list => { this.rawRows.set(list); this.loading.set(false); },
+      error: (err: unknown) => {
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  loadPartitions(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.activeView.set('partitions');
+    const retentionCutoff = this.defaultRetentionCutoff();
+    this.api.getPartitionCleanupPlan('audit_log', retentionCutoff).subscribe({
+      next: list => { this.rawRows.set(list as unknown as Record<string, unknown>[]); this.loading.set(false); },
+      error: (err: unknown) => {
+        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.');
+        this.loading.set(false);
+      },
+    });
+  }
+
   refresh(): void {
     this.loadSummary();
-    if (this.activeView() === 'recent') this.loadRuns();
+    if (this.activeView() === 'overview' || this.activeView() === 'recent') this.loadRuns();
     else if (this.activeView() === 'failed') this.loadFailed();
-    else this.loadInvalid();
+    else if (this.activeView() === 'invalid') this.loadInvalid();
+    else if (this.activeView() === 'legal-holds') this.loadLegalHolds();
+    else if (this.activeView() === 'partitions') this.loadPartitions();
+    else this.activeView.set('purges');
   }
 
   openTrigger(): void {
-    const ref = this.dialog.open(TriggerArchiveDialog, { width: '520px' });
+    const ref = this.dialog.open(ArchiveTriggerRunDialogComponent, { width: '520px' });
     ref.afterClosed().subscribe((result: ArchiveRunView | { __error: string } | null) => {
       if (result && '__error' in result) {
         this.error.set(result.__error);
@@ -216,28 +158,53 @@ export class PlatformArchivePage implements OnInit {
     });
   }
 
-  toggleExpand(id: string): void {
-    this.expandedId.set(this.expandedId() === id ? null : id);
+  selectView(view: ArchiveRouteView): void {
+    if (view === 'recent' || view === 'overview') this.loadRuns();
+    else if (view === 'failed') this.loadFailed();
+    else if (view === 'invalid') this.loadInvalid();
+    else if (view === 'legal-holds') this.loadLegalHolds();
+    else if (view === 'partitions') this.loadPartitions();
+    else this.activeView.set('purges');
   }
 
-  duration(run: ArchiveRunView): string {
-    if (!run.completedAt || !run.startedAt) return '—';
-    const ms = new Date(run.completedAt).getTime() - new Date(run.startedAt).getTime();
-    if (ms < 1000) return `${ms}ms`;
-    return `${(ms / 1000).toFixed(1)}s`;
+  rawEmptyMessage(): string {
+    if (this.activeView() === 'failed') return 'Aucun run échoué.';
+    if (this.activeView() === 'invalid') return 'Aucun objet invalide.';
+    if (this.activeView() === 'legal-holds') return 'Aucune rétention légale active.';
+    if (this.activeView() === 'partitions') return 'Aucune partition à afficher.';
+    return 'Aucune anomalie.';
   }
 
-  statusTone(status: string): AdminStatusTone {
-    if (status === 'COMPLETED') return 'success';
-    if (status === 'FAILED') return 'danger';
-    if (status === 'STARTED') return 'warning';
-    return 'neutral';
+  private loadRouteView(): void {
+    const view = this.route.snapshot.data['archiveView'] as ArchiveRouteView | undefined;
+    switch (view) {
+      case 'failed':
+        this.loadFailed();
+        break;
+      case 'invalid':
+        this.loadInvalid();
+        break;
+      case 'legal-holds':
+        this.loadLegalHolds();
+        break;
+      case 'partitions':
+        this.loadPartitions();
+        break;
+      case 'purges':
+        this.activeView.set('purges');
+        break;
+      case 'recent':
+      case 'overview':
+      default:
+        this.loadRuns();
+        if (view === 'overview' || !view) this.activeView.set('overview');
+        break;
+    }
   }
 
-  rawEntries(row: Record<string, unknown>): { key: string; value: string }[] {
-    return Object.entries(row).map(([key, value]) => ({
-      key,
-      value: value == null ? '—' : String(value),
-    }));
+  private defaultRetentionCutoff(): string {
+    const d = new Date();
+    d.setUTCFullYear(d.getUTCFullYear() - 1);
+    return d.toISOString().slice(0, 10);
   }
 }

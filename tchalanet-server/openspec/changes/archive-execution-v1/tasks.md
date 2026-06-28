@@ -19,8 +19,9 @@ Status: PENDING
 ## Phase 2 — Partition and cleanup safety
 
 - [x] Partition `audit_log` by month using `occurred_at`.
+- [x] Add Flyway partition maintenance helpers for monthly partition creation and future `audit_log` partitions.
 - [ ] Partition ticket/draw/result high-volume hot tables by month using the operational timestamp.
-- [ ] Keep business date indexed for reporting and lookup.
+- [ ] Keep business date indexed for reporting and lookup when ticket/draw/result partition migrations are added.
 - [x] Implement cleanup planner as dry-run first.
 - [x] Add stricter cleanup execution safety: re-check eligibility inside execute, validate partition names, and block unplanned DDL.
 - [x] Detach/drop/truncate partitions only after verified archive objects exist and legal hold checks pass.
@@ -40,15 +41,32 @@ Status: PENDING
 - [ ] Prove end-to-end flow with `audit_log` in integration tests.
 - [x] Add `SalesTicketArchiveDatasetProvider` for ticket headers.
 - [x] Add `SalesTicketLineArchiveDatasetProvider` for ticket lines by parent ticket sold period.
-- [ ] Archive ticket charges/snapshots, not only ticket headers and lines.
+- [x] Archive ticket charges/snapshots, not only ticket headers and lines.
+- [x] Prove `sales_ticket_charge` archive flow with dev seed data and a local verified archive run.
 - [ ] Implement archived ticket DTO and lookup by ticket id/public code before deleting any hot ticket
   partitions.
-- [ ] Implement `draw`/`draw_result` archive provider after ticket lookup is proven.
-- [ ] Implement batch/audit provider rules with bounded lookup indexes.
+- [x] Implement `draw`/`draw_result` archive provider after ticket lookup is proven.
+- [x] Implement Spring Batch archive provider using job execution as the bounded export aggregate.
+- [x] Implement Envers revision archive provider using `revinfo` as the bounded export aggregate.
+- [ ] Add purge policies for Spring Batch and Envers only after verified archive objects and legal-hold
+  checks are proven.
+- [x] Implement guarded ticket hot-table purge endpoint with dry-run, archive verification, legal-hold
+  checks, bounded deletes, and child-before-parent order.
+- [x] Implement guarded draw, draw_result and entity_revision purge endpoint with dry-run,
+  archive verification, legal-hold checks and dependency blockers.
+- [x] Document Spring Batch emergency purge order and ticket-line emergency cleanup guardrails.
+- [ ] Add integration tests for batch/audit provider rules with bounded lookup indexes.
 
 ## Phase 5 — Web and ops readiness
 
 - [x] Add platform archive page and API service for recent runs, failed runs, invalid objects and ops summary.
 - [x] Add an explicit empty-state hint for dev: no run exists until a manual archive run is triggered.
-- [ ] Add focused frontend tests for the archive page data/loading/error states.
+- [x] Make platform archive sidenav routes explicit: overview/runs/issues/legal-holds/partitions load their intended data.
+- [x] Expose archive purges in the archive UI with dry-run-first controls.
+- [x] Extract archive page UI into route-owned standalone components under `pages/archive/components`.
+- [x] Add focused frontend tests for the archive page data/loading/error states.
 - [ ] Add backend integration tests for trigger run, list runs, lookup index isolation and cleanup planning.
+
+## Phase 6 — Operator documentation
+
+- [x] Add `docs/ARCHIVE_RUNBOOK.md` for archive execution, partitioning, restore, purge, legal holds and incident response.
