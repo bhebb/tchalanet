@@ -41,7 +41,7 @@ public class InstantiateDefaultMaryajGratisCommandHandler
         }
 
         var created = writePort.create(
-            MaryajGratisDefaultTemplate.createCommand(cmd.tenantId(), timeProvider.now()));
+            MaryajGratisDefaultTemplate.createCommand(cmd, timeProvider.now()));
 
         activationPolicy.validate(created);
         var nextStatus = stateMachine.apply(created.status(), PromotionCampaignTransition.ACTIVATE);

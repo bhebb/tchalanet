@@ -245,7 +245,7 @@ export class TchMultiSearchSelect implements ControlValueAccessor {
         debounceTime(250),
         distinctUntilChanged(),
         switchMap(value => {
-          const query = (value ?? '').trim();
+          const query = this.queryText(value);
           if (query.length < this.minChars()) {
             this.loading.set(false);
             return of<readonly TchSearchOption[]>([]);
@@ -317,5 +317,14 @@ export class TchMultiSearchSelect implements ControlValueAccessor {
   private filterAlreadySelected(options: readonly TchSearchOption[]): readonly TchSearchOption[] {
     const selectedIds = new Set(this.selected().map(item => item.id));
     return options.filter(option => !selectedIds.has(option.id));
+  }
+
+  private queryText(value: unknown): string {
+    if (typeof value === 'string') return value.trim();
+    if (value && typeof value === 'object' && 'title' in value) {
+      const title = (value as { title?: unknown }).title;
+      return typeof title === 'string' ? title.trim() : '';
+    }
+    return '';
   }
 }

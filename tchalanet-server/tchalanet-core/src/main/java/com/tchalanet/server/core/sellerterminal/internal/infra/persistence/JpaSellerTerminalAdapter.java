@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
         var entity = repository.findById(terminal.id().value())
             .orElseGet(() -> mapper.toNewEntity(terminal));
         mapper.updateEntity(entity, terminal);
-        return mapper.toDomain(repository.save(entity));
+        return mapper.toDomain(repository.saveAndFlush(entity));
     }
 
     @Override
@@ -65,7 +66,7 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
     @Override
     public SellerTerminalCommissionStatsView commissionStats(TenantId tenantId, BigDecimal tenantDefaultRate) {
         if (tenantDefaultRate == null) {
-            Object[] row = (Object[]) repository.commissionStatsNoDefault(tenantId.value());
+            Object[] row = firstRow(repository.commissionStatsNoDefault(tenantId.value()));
             if (row == null || row[0] == null) return SellerTerminalCommissionStatsView.empty();
             long total = ((Number) row[0]).longValue();
             BigDecimal min = row[1] != null ? (BigDecimal) row[1] : null;
@@ -74,7 +75,7 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
             return new SellerTerminalCommissionStatsView(total, 0L, total, min, max, avg);
         }
 
-        Object[] row = (Object[]) repository.commissionStats(tenantId.value(), tenantDefaultRate);
+        Object[] row = firstRow(repository.commissionStats(tenantId.value(), tenantDefaultRate));
         if (row == null || row[0] == null) return SellerTerminalCommissionStatsView.empty();
 
         long total = ((Number) row[0]).longValue();
@@ -89,5 +90,9 @@ public class JpaSellerTerminalAdapter implements SellerTerminalReaderPort, Selle
 
     private Specification<SellerTerminalJpaEntity> tenantSpec(UUID tenantId) {
         return (root, query, cb) -> cb.equal(root.get("tenantId"), tenantId);
+    }
+
+    private Object[] firstRow(List<Object[]> rows) {
+        return rows == null || rows.isEmpty() ? null : rows.getFirst();
     }
 }

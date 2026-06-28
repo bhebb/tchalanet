@@ -8,6 +8,7 @@ import {
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   inject,
   signal,
 } from '@angular/core';
@@ -68,14 +69,17 @@ function pinMatchValidator(group: AbstractControl): ValidationErrors | null {
   templateUrl: './admin-seller-terminal-new.page.html',
   styleUrls: ['./admin-seller-terminal-new.page.scss'],
 })
-export class AdminSellerTerminalNewPage {
+export class AdminSellerTerminalNewPage implements OnInit {
   private readonly api = inject(SellerTerminalApi);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
+  private readonly fallbackCommissionRate = 15;
+
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly successResult = signal<CreateSellerTerminalResult | null>(null);
+  readonly tenantDefaultCommissionRate = signal<number | null>(null);
   readonly showPin = signal(false);
   readonly showConfirmPin = signal(false);
 
@@ -89,7 +93,7 @@ export class AdminSellerTerminalNewPage {
       phoneNumber: [''],
       initialPin: ['', [Validators.required, Validators.pattern(/^\d{4,8}$/)]],
       confirmPin: ['', [Validators.required]],
-      commissionRate: [15, [Validators.required, Validators.min(0), Validators.max(100)]],
+      commissionRate: [this.fallbackCommissionRate, [Validators.required, Validators.min(0), Validators.max(100)]],
       active: [true],
       address: this.fb.group({
         line1: ['', [Validators.maxLength(200)]],
@@ -102,6 +106,19 @@ export class AdminSellerTerminalNewPage {
     },
     { validators: pinMatchValidator },
   );
+
+  ngOnInit(): void {
+    this.api.getCommissionOverview().subscribe({
+      next: overview => {
+        const rate = overview.tenantDefaultRate ?? this.fallbackCommissionRate;
+        this.tenantDefaultCommissionRate.set(overview.tenantDefaultRate);
+        this.form.controls.commissionRate.setValue(rate);
+      },
+      error: () => {
+        this.tenantDefaultCommissionRate.set(null);
+      },
+    });
+  }
 
   regenerateCode(): void {
     this.form.controls.terminalCode.setValue(generateTerminalCode());
@@ -174,6 +191,7 @@ export class AdminSellerTerminalNewPage {
   onCreateAnother(): void {
     this.successResult.set(null);
     this.error.set(null);
+    const rate = this.tenantDefaultCommissionRate() ?? this.fallbackCommissionRate;
     this.form.reset({
       terminalCode: generateTerminalCode(),
       displayName: '',
@@ -183,7 +201,7 @@ export class AdminSellerTerminalNewPage {
       phoneNumber: '',
       initialPin: '',
       confirmPin: '',
-      commissionRate: 15,
+      commissionRate: rate,
       active: true,
       address: { line1: '', line2: '', city: '', region: '', country: 'HT', postalCode: '' },
     });

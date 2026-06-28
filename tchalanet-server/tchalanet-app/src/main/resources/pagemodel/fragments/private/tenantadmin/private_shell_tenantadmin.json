@@ -296,19 +296,19 @@
             "icon": "local_activity",
             "children": [
               {
+                "id": "promotions-campaigns",
+                "label_key": "nav.admin.promotion_campaigns",
+                "path": "/app/admin/promotions",
+                "kind": "internal",
+                "icon": "campaign",
+                "active_match": "exact"
+              },
+              {
                 "id": "promotions-maryaj",
                 "label_key": "nav.admin.maryaj_free",
                 "path": "/app/admin/promotions/maryaj-gratis",
                 "kind": "internal",
                 "icon": "redeem"
-              },
-              {
-                "id": "promotions-others",
-                "label_key": "nav.admin.active_promotions",
-                "path": "/app/admin/promotions",
-                "kind": "internal",
-                "icon": "campaign",
-                "active_match": "exact"
               }
             ]
           },

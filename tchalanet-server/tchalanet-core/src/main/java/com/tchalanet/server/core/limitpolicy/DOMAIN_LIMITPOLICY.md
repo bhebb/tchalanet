@@ -6,7 +6,20 @@
 
 Il répond à une question précise :
 
-> Est-ce que cette opération respecte les limites configurées pour ce tenant, ce canal, cet outlet ou cet agent ?
+> Est-ce que cette opération respecte les limites configurées pour ce tenant, ce canal, ce seller terminal ou cet agent ?
+
+Dans le code V1 actuel il n'y a pas de scope `OUTLET` dans le contexte runtime.
+Le modèle supporté est :
+
+- `TENANT`
+- `DRAW_CHANNEL`
+- `SELLER_TERMINAL`
+- `AGENT`
+
+`SELLER_TERMINAL` représente le point de vente opérationnel. `OUTLET` reste une
+notion métier possible pour plus tard, mais elle ne doit pas être exposée dans
+la console admin tant qu'elle n'est pas portée par `LimitContext`,
+`LimitScopeRef`, le resolver et les endpoints admin.
 
 `LimitPolicy` ne vend rien, ne paye rien, n’approuve rien.
 
@@ -222,8 +235,8 @@ deleted_at
 Exemple
 {
   "ruleKey": "MAX_STAKE_PER_TICKET",
-  "scopeType": "OUTLET",
-  "scopeId": "outlet-uuid",
+  "scopeType": "SELLER_TERMINAL",
+  "scopeId": "seller-terminal-uuid",
   "enabled": true,
   "onBreach": "BLOCK",
   "params": {
@@ -233,7 +246,7 @@ Exemple
 
 Cela signifie :
 
-Pour cet outlet, un ticket ne peut pas dépasser 5 000 HTG.
+Pour ce seller terminal, un ticket ne peut pas dépasser 5 000 HTG.
 Si la limite est dépassée, l’opération est bloquée.
 
 8. Scopes V0
@@ -242,17 +255,21 @@ Pour la V0, les scopes supportés sont :
 
 TENANT
 DRAWCHANNEL
-OUTLET
+SELLER_TERMINAL
 AGENT
 
-TERMINAL est volontairement exclu de la V0.
+OUTLET est volontairement exclu de la V0 actuelle. Le code utilise
+`SELLER_TERMINAL` sans outlet intermédiaire.
 
-Il pourra être ajouté plus tard sans changer le modèle général.
+Les valeurs historiques `OUTLET`, `TERMINAL`, `GAME`, `ZONE`, `RANGE` peuvent
+encore exister dans certains enums d'entrée, mais le controller admin ne les
+mappe pas vers `LimitScopeRef`. Elles ne sont donc pas supportées par la surface
+runtime V1.
 
 Hiérarchie de résolution
 AGENT
 ↓
-OUTLET
+SELLER_TERMINAL
 ↓
 DRAWCHANNEL
 ↓
@@ -263,7 +280,7 @@ La règle active la plus spécifique gagne.
 Exemple :
 
 TENANT      MAX_STAKE_PER_TICKET = 10 000 HTG
-OUTLET      MAX_STAKE_PER_TICKET = 5 000 HTG
+SELLER_TERMINAL MAX_STAKE_PER_TICKET = 5 000 HTG
 AGENT       MAX_STAKE_PER_TICKET = 2 000 HTG
 
 Pour une vente faite par cet agent, la limite effective est :
@@ -275,7 +292,7 @@ LimitScopeRef représente un scope configurable.
 
 public sealed interface LimitScopeRef
     permits LimitScopeRef.TenantScope,
-            LimitScopeRef.OutletScope,
+            LimitScopeRef.SellerTerminalScope,
             LimitScopeRef.AgentScope,
             LimitScopeRef.DrawChannelScope {
 
@@ -283,8 +300,8 @@ public sealed interface LimitScopeRef
     return new TenantScope(tenantId);
   }
 
-  static OutletScope outlet(OutletId outletId) {
-    return new OutletScope(outletId);
+  static SellerTerminalScope sellerTerminal(SellerTerminalId sellerTerminalId) {
+    return new SellerTerminalScope(sellerTerminalId);
   }
 
   static AgentScope agent(UserId userId) {
@@ -297,7 +314,7 @@ public sealed interface LimitScopeRef
 
   record TenantScope(TenantId tenantId) implements LimitScopeRef {}
 
-  record OutletScope(OutletId outletId) implements LimitScopeRef {}
+  record SellerTerminalScope(SellerTerminalId sellerTerminalId) implements LimitScopeRef {}
 
   record AgentScope(UserId userId) implements LimitScopeRef {}
 
@@ -317,8 +334,8 @@ Exemple :
 
 public record LimitContext(
     TenantId tenantId,
-    OutletId outletId,
     UserId userId,
+    SellerTerminalId sellerTerminalId,
     DrawId drawId,
     DrawChannelId drawChannelId,
     Instant now,
@@ -329,7 +346,7 @@ LimitContext.scopes() retourne les scopes applicables à l’opération :
 
 TENANT
 DRAWCHANNEL
-OUTLET
+SELLER_TERMINAL
 AGENT
 
 selon les IDs présents dans le contexte.
@@ -405,7 +422,7 @@ vérifier si le scope s’applique au contexte,
 garder la règle la plus spécifique pour chaque RuleKey.
 Score de spécificité V0
 AGENT       = 60
-OUTLET      = 50
+SELLER_TERMINAL = 50
 DRAWCHANNEL = 30
 TENANT      = 10
 
@@ -428,13 +445,13 @@ public record EffectiveLimitRule(
 Exemple :
 
 MAX_STAKE_PER_TICKET
-appliedScope = OUTLET O1
+appliedScope = SELLER_TERMINAL ST1
 params = { "valueCents": 500000 }
 onBreach = BLOCK
 
 Cela signifie :
 
-Pour cette opération, la règle MAX_STAKE_PER_TICKET applicable vient de l’outlet O1.
+Pour cette opération, la règle MAX_STAKE_PER_TICKET applicable vient du seller terminal ST1.
 
 15. LimitEvaluationEngine
 
@@ -595,13 +612,13 @@ Pour chaque ticket vendu, draw_exposure est incrémentée sur plusieurs scopes :
 
 TENANT
 DRAWCHANNEL
-OUTLET
+SELLER_TERMINAL
 AGENT
 
 Exemple :
 
 Ticket vendu par agent A1
-dans outlet O1
+via seller terminal ST1
 sur drawChannel NY_MIDI
 pour tenant T1
 
@@ -609,14 +626,14 @@ La projection écrit les facts pour :
 
 TENANT T1
 DRAWCHANNEL NY_MIDI
-OUTLET O1
+SELLER_TERMINAL ST1
 AGENT A1
 
-Ainsi, une règle tenant, channel, outlet ou agent peut lire ses propres facts.
+Ainsi, une règle tenant, channel, seller terminal ou agent peut lire ses propres facts.
 
 24. Pourquoi exposure est multi-scope
 
-Si on écrivait seulement sur le scope le plus spécifique, par exemple AGENT, alors les règles TENANT ou OUTLET ne verraient jamais l’exposition.
+Si on écrivait seulement sur le scope le plus spécifique, par exemple AGENT, alors les règles TENANT ou SELLER_TERMINAL ne verraient jamais l’exposition.
 
 La projection doit donc écrire sur tous les scopes applicables.
 

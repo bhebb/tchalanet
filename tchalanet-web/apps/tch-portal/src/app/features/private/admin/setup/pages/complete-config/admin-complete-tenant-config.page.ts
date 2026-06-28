@@ -21,7 +21,15 @@ import {
   TenantSetupView,
 } from '../../../admin-overview-api.service';
 
-const REQUIRED_SETUP_SECTION_IDS = ['identity', 'address', 'games_pricing', 'draws'] as const;
+const REQUIRED_SETUP_SECTION_IDS = [
+  'identity',
+  'address',
+  'games_pricing',
+  'draws',
+  'generated_draws',
+  'promotions',
+  'seller_terminals',
+] as const;
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -53,12 +61,13 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
 
-  readonly requiredTotalCount = REQUIRED_SETUP_SECTION_IDS.length;
+  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps || REQUIRED_SETUP_SECTION_IDS.length);
   readonly requiredCompletedCount = computed(() =>
+    this.setup()?.completedSteps ??
     REQUIRED_SETUP_SECTION_IDS.filter(id => this.sectionMap().get(id)?.status === 'READY').length,
   );
   readonly progressPct = computed(() =>
-    Math.round((this.requiredCompletedCount() / this.requiredTotalCount) * 100),
+    Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100),
   );
 
   readonly sectionMap = computed<Map<string, ReadinessSection>>(() => {

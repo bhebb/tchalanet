@@ -3,6 +3,7 @@ package com.tchalanet.server.common.web.error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class ProblemRest {
@@ -19,7 +20,7 @@ public final class ProblemRest {
     public static ProblemRestException of(HttpStatus status, String detail, Map<String, Object> properties) {
         ProblemDetail pd = ProblemDetail.forStatus(status);
         pd.setDetail(detail);
-        pd.setProperties(properties);
+        pd.setProperties(new LinkedHashMap<>(properties));
         return new ProblemRestException(pd);
     }
 

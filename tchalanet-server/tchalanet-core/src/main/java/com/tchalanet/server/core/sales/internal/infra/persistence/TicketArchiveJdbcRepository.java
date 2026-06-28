@@ -224,4 +224,102 @@ public class TicketArchiveJdbcRepository {
     });
     return results;
   }
+
+  /** Count ticket charges whose parent ticket was sold in [from, to). */
+  public long countChargesByTicketPeriod(Instant from, Instant to, UUID tenantId) {
+    String tenantClause = tenantId != null ? " AND t.tenant_id = :tenantId" : "";
+    String sql = """
+        SELECT COUNT(*)
+          FROM sales_ticket_charge c
+          JOIN sales_ticket t ON t.id = c.sales_ticket_id
+         WHERE t.sold_at >= :from AND t.sold_at < :to
+           AND t.deleted_at IS NULL
+           AND c.deleted_at IS NULL
+        """ + tenantClause;
+
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("from", Timestamp.from(from))
+        .addValue("to",   Timestamp.from(to));
+    if (tenantId != null) params.addValue("tenantId", tenantId);
+
+    Long count = jdbc.queryForObject(sql, params, Long.class);
+    return count != null ? count : 0L;
+  }
+
+  /** Stream ticket charges by parent ticket sold period. */
+  public void streamChargesByTicketPeriod(Instant from, Instant to, UUID tenantId,
+      Consumer<Map<String, Object>> consumer) {
+
+    String tenantClause = tenantId != null ? " AND t.tenant_id = :tenantId" : "";
+    String sql = """
+        SELECT c.id, c.tenant_id, c.sales_ticket_id, t.public_code, t.sold_at,
+               c.charge_type, c.paid_by, c.amount, c.currency,
+               c.waived_by_rule_id, c.waived_by_decision_id, c.waived_effect_type,
+               c.waived_label, c.created_at, c.created_by, c.updated_at, c.updated_by,
+               c.version
+          FROM sales_ticket_charge c
+          JOIN sales_ticket t ON t.id = c.sales_ticket_id
+         WHERE t.sold_at >= :from AND t.sold_at < :to
+           AND t.deleted_at IS NULL
+           AND c.deleted_at IS NULL
+        """ + tenantClause + """
+         ORDER BY t.sold_at, c.sales_ticket_id, c.charge_type, c.paid_by
+        """;
+
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("from", Timestamp.from(from))
+        .addValue("to",   Timestamp.from(to));
+    if (tenantId != null) params.addValue("tenantId", tenantId);
+
+    jdbc.query(sql, params, rs -> {
+      ResultSetMetaData meta = rs.getMetaData();
+      int cols = meta.getColumnCount();
+      while (rs.next()) {
+        Map<String, Object> row = new LinkedHashMap<>(cols * 2);
+        for (int i = 1; i <= cols; i++) {
+          Object val = rs.getObject(i);
+          if (val instanceof Timestamp ts) val = ts.toInstant();
+          else if (val instanceof java.sql.Date d) val = d.toLocalDate();
+          row.put(meta.getColumnLabel(i), val);
+        }
+        consumer.accept(row);
+      }
+      return null;
+    });
+  }
+
+  /** One lookup row per ticket that has archived charge rows in the period. */
+  public List<Map<String, Object>> findChargeLookupRows(Instant from, Instant to, UUID tenantId) {
+    String tenantClause = tenantId != null ? " AND t.tenant_id = :tenantId" : "";
+    String sql = """
+        SELECT DISTINCT t.id, t.tenant_id, t.public_code, t.sold_at
+          FROM sales_ticket t
+          JOIN sales_ticket_charge c ON c.sales_ticket_id = t.id
+         WHERE t.sold_at >= :from AND t.sold_at < :to
+           AND t.deleted_at IS NULL
+           AND c.deleted_at IS NULL
+        """ + tenantClause + """
+         ORDER BY t.sold_at
+        """;
+
+    MapSqlParameterSource params = new MapSqlParameterSource()
+        .addValue("from", Timestamp.from(from))
+        .addValue("to",   Timestamp.from(to));
+    if (tenantId != null) params.addValue("tenantId", tenantId);
+
+    List<Map<String, Object>> results = new ArrayList<>();
+    jdbc.query(sql, params, rs -> {
+      while (rs.next()) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id",          rs.getObject("id",         UUID.class));
+        row.put("tenant_id",   rs.getObject("tenant_id",  UUID.class));
+        row.put("public_code", rs.getString("public_code"));
+        Timestamp ts = rs.getTimestamp("sold_at");
+        row.put("sold_at",     ts != null ? ts.toInstant() : null);
+        results.add(row);
+      }
+      return null;
+    });
+    return results;
+  }
 }

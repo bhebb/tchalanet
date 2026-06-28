@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export interface HaitiLotsDisplayValue {
-  readonly lot1?: string | null;
-  readonly lot2?: string | null;
-  readonly lot3?: string | null;
-  readonly lot4?: string | null;
+  readonly lot1?: unknown;
+  readonly lot2?: unknown;
+  readonly lot3?: unknown;
+  readonly lot4?: unknown;
 }
 
 @Component({
@@ -87,7 +87,12 @@ export class HaitiLotsDisplayComponent {
   readonly showLabels = input(true);
   readonly compact = input(false);
 
-  lotLabel(value: string | null | undefined): string {
-    return value && value.trim() ? value : '-';
+  lotLabel(value: unknown): string {
+    const normalized = typeof value === 'string'
+      ? value.trim()
+      : value == null
+        ? ''
+        : String(value).trim();
+    return normalized || '-';
   }
 }

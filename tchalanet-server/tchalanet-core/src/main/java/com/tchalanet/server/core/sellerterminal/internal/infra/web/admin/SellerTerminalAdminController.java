@@ -35,6 +35,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @RestController
 @RequestMapping("/admin/seller-terminals")
 @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
@@ -55,10 +59,53 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SellerTerminalAdminController {
 
+    private static final int SUMMARY_MAX_TERMINALS = 500;
+
     private final CommandBus commandBus;
     private final QueryBus queryBus;
 
     // ── Queries ───────────────────────────────────────────────────────────────
+
+    @GetMapping("/summary")
+    @Operation(summary = "Seller terminals summary")
+    public ApiResponse<SellerTerminalsSummaryResponse> summary(@CurrentContext TchRequestContext ctx) {
+        var page = queryBus.ask(new ListSellerTerminalsQuery(
+            ctx.effectiveTenantIdRequired(),
+            SellerTerminalSearchCriteria.empty(),
+            new TchPageRequest(PageRequest.of(0, SUMMARY_MAX_TERMINALS))));
+
+        long activeCount = 0L;
+        long blockedCount = 0L;
+        BigDecimal salesTodayAmount = BigDecimal.ZERO;
+        BigDecimal commissionTotal = BigDecimal.ZERO;
+        long commissionCount = 0L;
+
+        for (SellerTerminalSummaryRow row : page.items()) {
+            if (row.status() == SellerTerminalStatus.ACTIVE) {
+                activeCount++;
+            } else if (row.status() == SellerTerminalStatus.BLOCKED) {
+                blockedCount++;
+            }
+            if (row.todaySalesAmount() != null) {
+                salesTodayAmount = salesTodayAmount.add(row.todaySalesAmount());
+            }
+            if (row.commissionRate() != null) {
+                commissionTotal = commissionTotal.add(row.commissionRate());
+                commissionCount++;
+            }
+        }
+
+        BigDecimal averageCommissionRate = commissionCount == 0L
+            ? BigDecimal.ZERO
+            : commissionTotal.divide(BigDecimal.valueOf(commissionCount), 2, RoundingMode.HALF_UP);
+
+        return ApiResponse.success(new SellerTerminalsSummaryResponse(
+            activeCount,
+            blockedCount,
+            salesTodayAmount,
+            averageCommissionRate,
+            "HTG"));
+    }
 
     @GetMapping
     @Operation(summary = "List seller terminals")
@@ -236,4 +283,11 @@ public class SellerTerminalAdminController {
     public record PinResetRequest(
         @jakarta.validation.constraints.NotNull
         PinResetReason reason) {}
+
+    public record SellerTerminalsSummaryResponse(
+        long activeCount,
+        long blockedCount,
+        BigDecimal salesTodayAmount,
+        BigDecimal averageCommissionRate,
+        String currency) {}
 }

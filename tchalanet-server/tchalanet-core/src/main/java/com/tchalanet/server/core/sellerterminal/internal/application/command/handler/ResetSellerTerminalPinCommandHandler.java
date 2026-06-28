@@ -65,6 +65,9 @@ public class ResetSellerTerminalPinCommandHandler
         }
 
         var updated = terminal.resetPin(now);
+        if (terminal.status() == SellerTerminalStatus.PENDING) {
+            updated = updated.activate(now);
+        }
         writer.save(updated);
 
         return new ResetSellerTerminalPinView(

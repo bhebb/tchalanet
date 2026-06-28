@@ -7,6 +7,54 @@
 
 ---
 
+## Tranche prioritaire — activation tenant + vente admin-as-seller
+
+> Objectif : permettre à un tenant admin de rendre son espace vendable, créer un vendeur,
+> agir avec un terminal vendeur, vendre un ticket et imprimer. Les autres pages admin restent
+> importantes, mais ne bloquent pas cette boucle métier.
+
+- [ ] Vérifier/compléter l'onboarding tenant en 7 étapes
+  - Les 7 étapes doivent être visibles, persistées et relues depuis readiness/config existants.
+  - Chaque étape doit afficher état done/missing/error, CTA clair, loading/error/empty.
+  - Le tenant admin doit pouvoir revenir à la checklist sans perdre les saisies.
+  - La fin de l'onboarding doit rendre le tenant prêt pour génération/ouverture/vente.
+- [ ] Compléter la page Maryaj gratis
+  - Page dédiée `/admin/promotions/maryaj-gratis` non placeholder.
+  - Expliquer l'effet métier sans jargon technique : Maryaj gratuit généré selon règle.
+  - Afficher statut actif/inactif, période, règles principales, dernière modification.
+  - Action d'activation via template default Maryaj gratis si endpoint disponible.
+  - Si endpoint absent ou erreur, afficher état clair et action désactivée, pas de call mort.
+- [ ] Créer un seller terminal depuis admin
+  - Page `/admin/sellers/new` fonctionnelle.
+  - Champs minimum : code terminal, nom affiché, téléphone optionnel, PIN initial, commission optionnelle.
+  - Après création : retour liste vendeurs + feedback succès + possibilité d'ouvrir le mode vendeur.
+  - La liste `/admin/sellers` doit afficher au moins nom/code/statut/actions.
+- [ ] Permettre au tenant admin d'agir avec un seller terminal
+  - Sélecteur de terminal vendeur pour l'admin tenant.
+  - Contexte actif visible dans le shell ou la page vente.
+  - Les appels POS doivent envoyer le contexte seller-terminal attendu par le backend.
+  - Sortie du mode vendeur claire.
+  - Ne pas réintroduire le rôle CASHIER ; seller terminal reste un actor/context.
+- [ ] Brancher la vente admin sur les fonctions POS existantes
+  - Route `/admin/tickets/sell` réutilise le flux POS web, pas une implémentation parallèle.
+  - Le flux appelle les endpoints `features.pos` que le mobile utilisera : jeux, tirages vendables, preview/sell, print.
+  - Test manuel minimum : sélectionner terminal, charger tirages ouverts, saisir une sélection, vendre, afficher reçu.
+- [ ] Imprimer le ticket
+  - Après vente, afficher le ticket/receipt avec action imprimer.
+  - Utiliser le mécanisme print existant POS/receipt si disponible.
+  - Vérifier que l'impression contient tenant, vendeur/terminal, code ticket, tirage, jeux, montants, date.
+- [ ] Test bout-en-bout prioritaire
+  - Provisionner tenant + admin.
+  - Compléter onboarding 7 étapes.
+  - Activer/configurer Maryaj gratis.
+  - Générer et ouvrir des tirages.
+  - Créer seller terminal.
+  - Entrer en mode vendeur avec ce terminal.
+  - Vendre un ticket Maryaj/Bolet simple.
+  - Imprimer le ticket.
+
+---
+
 ## Slice 0 — Coordination OpenSpec ✓
 
 - [x] Marquer Slices 5–6 de `platform-superadmin-and-tenant-admin-pages/tasks.md` comme `Blocked / superseded by admin-tenant-sidenav-v0`

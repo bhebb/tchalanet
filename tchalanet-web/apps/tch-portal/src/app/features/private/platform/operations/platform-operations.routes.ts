@@ -47,6 +47,12 @@ export const platformOperationsRoutes: Route[] = [
       import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
   },
   {
+    path: 'archives/purges',
+    data: { archiveView: 'purges' },
+    loadComponent: () =>
+      import('./pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
     path: 'archives',
     loadComponent: () =>
       import('./pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),

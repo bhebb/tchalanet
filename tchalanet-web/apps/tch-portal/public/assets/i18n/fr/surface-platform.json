@@ -71,6 +71,7 @@
       "archiveIssues": "Échecs & objets invalides",
       "legalHolds": "Legal holds",
       "partitions": "Partitions",
+      "purges": "Purges",
       "audit": "Audit",
       "functionalAudit": "Audit fonctionnel",
       "entityHistory": "Révisions techniques",

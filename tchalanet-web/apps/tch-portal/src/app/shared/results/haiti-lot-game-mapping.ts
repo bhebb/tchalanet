@@ -2,8 +2,8 @@ export type HaitiLotKey = 'lot1' | 'lot2' | 'lot3';
 export type ProviderGameKind = 'pick3' | 'pick4';
 
 export interface HaitiLotGameMappingSource {
-  readonly slotKey?: string | null;
-  readonly provider?: string | null;
+  readonly slotKey?: unknown;
+  readonly provider?: unknown;
 }
 
 export interface HaitiLotGameMapping {
@@ -83,10 +83,15 @@ function providerGameImage(provider: string, gameKind: ProviderGameKind): string
 }
 
 function resolveProvider(source: HaitiLotGameMappingSource | null | undefined): string {
-  const explicit = source?.provider?.trim();
+  const explicit = clean(source?.provider);
   if (explicit) return explicit.toUpperCase();
 
-  const slotKey = source?.slotKey?.trim();
+  const slotKey = clean(source?.slotKey);
   const inferred = slotKey?.split(/[_-]/)[0];
   return inferred?.toUpperCase() || 'US';
+}
+
+function clean(value: unknown): string | null {
+  const trimmed = typeof value === 'string' ? value.trim() : '';
+  return trimmed || null;
 }

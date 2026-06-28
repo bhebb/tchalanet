@@ -9,10 +9,17 @@ import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLegalHoldJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeDataset;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeMode;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveDomainPurgeService.DomainPurgeResult;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.CleanupMode;
 import com.tchalanet.server.platform.archive.internal.service.ArchivePartitionCleanupService.PartitionCleanupPlan;
 import com.tchalanet.server.platform.archive.internal.service.ArchiveRestoreService;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeMode;
+import com.tchalanet.server.platform.archive.internal.service.ArchiveTicketPurgeService.TicketPurgeResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -51,6 +58,8 @@ public class PlatformArchiveController {
   private final ArchiveApi archiveApi;
   private final ArchiveRestoreService restoreService;
   private final ArchivePartitionCleanupService cleanupService;
+  private final ArchiveTicketPurgeService ticketPurgeService;
+  private final ArchiveDomainPurgeService domainPurgeService;
   private final ArchiveLegalHoldJdbcRepository legalHoldRepo;
   private final ArchiveRunJdbcRepository runRepo;
   private final ArchiveObjectJdbcRepository objectRepo;
@@ -116,6 +125,39 @@ public class PlatformArchiveController {
 
     cleanupService.executeCleanup(partitionName, mode);
     return ApiResponse.success(null);
+  }
+
+  @Operation(summary = "Purge archived ticket rows from hot storage (DRY_RUN by default)")
+  @PostMapping("/ticket-purge")
+  public ApiResponse<TicketPurgeResult> purgeArchivedTickets(
+      @Valid @RequestBody TicketPurgeRequest request,
+      @CurrentContext TchRequestContext ctx) {
+
+    return ApiResponse.success(ticketPurgeService.purge(
+        request.tenantId(),
+        request.periodStart(),
+        request.periodEnd(),
+        request.batchSize() == null ? 5_000 : request.batchSize(),
+        request.mode() == null ? TicketPurgeMode.DRY_RUN : request.mode(),
+        ctx.currentUserIdRequired().value(),
+        request.reason()));
+  }
+
+  @Operation(summary = "Purge archived draw, draw_result or Envers revision rows (DRY_RUN by default)")
+  @PostMapping("/domain-purge")
+  public ApiResponse<DomainPurgeResult> purgeArchivedDomainRows(
+      @Valid @RequestBody DomainPurgeRequest request,
+      @CurrentContext TchRequestContext ctx) {
+
+    return ApiResponse.success(domainPurgeService.purge(
+        request.dataset(),
+        request.tenantId(),
+        request.periodStart(),
+        request.periodEnd(),
+        request.batchSize() == null ? 5_000 : request.batchSize(),
+        request.mode() == null ? DomainPurgeMode.DRY_RUN : request.mode(),
+        ctx.currentUserIdRequired().value(),
+        request.reason()));
   }
 
   // ── Legal holds ────────────────────────────────────────────────────────────
@@ -208,6 +250,25 @@ public class PlatformArchiveController {
   ) {}
 
   public record ReleaseLegalHoldRequest(
+      @NotBlank @Size(min = 10, max = 1000) String reason
+  ) {}
+
+  public record TicketPurgeRequest(
+      UUID tenantId,
+      @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
+      @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
+      Integer batchSize,
+      TicketPurgeMode mode,
+      @NotBlank @Size(min = 10, max = 1000) String reason
+  ) {}
+
+  public record DomainPurgeRequest(
+      @NotNull DomainPurgeDataset dataset,
+      UUID tenantId,
+      @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
+      @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
+      Integer batchSize,
+      DomainPurgeMode mode,
       @NotBlank @Size(min = 10, max = 1000) String reason
   ) {}
 }

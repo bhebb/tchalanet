@@ -53,7 +53,7 @@ public class TenantAdminOverviewService {
       address = addressApi.findPrimaryByTenantId(ctx.tenantId()).orElse(null);
     } catch (RuntimeException ignored) {}
 
-    var registry = tenantCatalog.findById(ctx.tenantId()).orElse(null);
+    var registry = safeFindTenant(ctx);
     if (registry == null) {
       return new TenantAdminOverviewView.TenantHeader(
           ctx.tenantId().value().toString(),
@@ -74,5 +74,14 @@ public class TenantAdminOverviewService {
         registry.type() != null ? registry.type().name() : null,
         registry.status() != null ? registry.status().name() : null,
         address);
+  }
+
+  private com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView safeFindTenant(
+      TchRequestContext ctx) {
+    try {
+      return tenantCatalog.findById(ctx.tenantId()).orElse(null);
+    } catch (RuntimeException ignored) {
+      return null;
+    }
   }
 }

@@ -129,6 +129,7 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 | Conventions de nommage         | `NAMING.md`                             |
 | Cache                          | `conventions/cache.md`                  |
 | Batch                          | `conventions/batch.md`                  |
+| Archivage / purge / legal hold | `ARCHIVE_RUNBOOK.md`                    |
 | Sécurité / RLS                 | `conventions/context.md` + `rls.md`     |
 | Configurer/tester l'auth       | `conventions/identity-providers.md`     |
 | Typed IDs                      | `conventions/typed_ids.md`              |

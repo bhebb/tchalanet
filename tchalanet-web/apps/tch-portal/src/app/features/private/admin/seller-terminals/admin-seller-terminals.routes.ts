@@ -16,16 +16,16 @@ export const adminSellerTerminalsRoutes: Route[] = [
       ),
   },
   {
-    path: ':sellerTerminalId',
-    loadComponent: () =>
-      import('../pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
-    data: { titleKey: 'admin.sellerTerminals.title', icon: 'point_of_sale' },
-  },
-  {
     path: ':sellerTerminalId/pos',
     loadComponent: () =>
       import('./pages/pos/admin-seller-terminal-pos.page').then(
         m => m.AdminSellerTerminalPosPage,
       ),
+  },
+  {
+    path: ':sellerTerminalId',
+    loadComponent: () =>
+      import('../pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+    data: { titleKey: 'admin.sellerTerminals.title', icon: 'point_of_sale' },
   },
 ];

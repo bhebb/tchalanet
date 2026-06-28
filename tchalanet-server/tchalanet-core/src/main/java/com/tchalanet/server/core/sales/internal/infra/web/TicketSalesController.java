@@ -32,7 +32,7 @@ import java.util.List;
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
 @Tag(name = "Sales • Sell", description = "Endpoints for ticket sale operations")
-@PreAuthorize("hasPermission('ticket.sell')")
+@PreAuthorize("hasPermission(null, 'ticket.sell')")
 public class TicketSalesController {
 
     private final CommandBus commandBus;

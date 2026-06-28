@@ -50,26 +50,37 @@ export const platformRoutes: Route[] = [
   },
   {
     path: 'archives',
+    data: { archiveView: 'overview' },
     loadComponent: () =>
       import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },
   {
     path: 'archives/runs',
+    data: { archiveView: 'recent' },
     loadComponent: () =>
       import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },
   {
     path: 'archives/issues',
+    data: { archiveView: 'failed' },
     loadComponent: () =>
       import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },
   {
     path: 'archives/legal-holds',
+    data: { archiveView: 'legal-holds' },
     loadComponent: () =>
       import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },
   {
     path: 'archives/partitions',
+    data: { archiveView: 'partitions' },
+    loadComponent: () =>
+      import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
+  },
+  {
+    path: 'archives/purges',
+    data: { archiveView: 'purges' },
     loadComponent: () =>
       import('./operations/pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },

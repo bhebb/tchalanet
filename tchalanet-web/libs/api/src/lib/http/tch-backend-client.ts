@@ -149,6 +149,20 @@ export class TchBackendClient {
     });
   }
 
+  postBlob<TBody = unknown>(
+    path: string,
+    body: TBody,
+    options?: TchRequestOptions,
+  ): Observable<Blob> {
+    const { params, headers, context } = this.resolve(options);
+    return this.http.post(this.url(path), body, {
+      params,
+      headers,
+      context,
+      responseType: 'blob',
+    });
+  }
+
   getArrayBuffer(path: string, options?: TchRequestOptions): Observable<ArrayBuffer> {
     const { params, headers, context } = this.resolve(options);
     return this.http.get(this.url(path), { params, headers, context, responseType: 'arraybuffer' });

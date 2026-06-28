@@ -1,5 +1,7 @@
+import { DatePipe, DecimalPipe, registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, ErrorHandler, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
+import localeFr from '@angular/common/locales/fr';
+import { ApplicationConfig, ErrorHandler, LOCALE_ID, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { AppErrorHandler } from './core/error/app-error-handler';
@@ -30,10 +32,15 @@ import { supportAccessInterceptor } from './core/access/support-access.intercept
 import { provideFirebaseAuthClient } from './core/auth/firebase/firebase-auth.providers';
 import { firebaseApp$ } from '@angular/fire/app';
 
+registerLocaleData(localeFr);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: AppErrorHandler },
+    { provide: LOCALE_ID, useValue: 'fr' },
+    DatePipe,
+    DecimalPipe,
     provideRouter(appRoutes),
     provideHttpClient(
       withFetch(),

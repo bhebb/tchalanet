@@ -88,7 +88,7 @@ public class IdentityUserAdminController {
                 rows.stream().map(view::fromGlobalRow).toList(),
                 page, size, total, totalPages, !hasNext, hasNext, page > 0));
         }
-        var page = memberships.list(ctx.tenantId(), pageReq);
+        var page = memberships.list(ctx.effectiveTenantIdRequired(), pageReq);
         return ApiResponse.success(TchPageMapper.map(page, row -> view.load(ctx, row.id(), InvitationStatus.NOT_SENT, row.createdAt())));
     }
 
@@ -114,8 +114,9 @@ public class IdentityUserAdminController {
     public ApiResponse<TenantUserAdminResponse> create(
         @CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateUserRequest req) {
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
+        var tenantId = ctx.effectiveTenantIdRequired();
         var created = provisioning.provisionTenantUser(
-            ctx.tenantId(), ctx.currentUserIdRequired(),
+            tenantId, ctx.currentUserIdRequired(),
             req.email(), req.phone(), req.firstName(), req.lastName(), req.role());
         return ApiResponse.success(view.load(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
     }
@@ -191,7 +192,7 @@ public class IdentityUserAdminController {
         @PathVariable UserId userId,
         @Valid @RequestBody UpsertMembershipRequest req) {
         view.assertTenantScoped(ctx, userId);
-        memberships.assign(ctx.tenantId(), userId, false);
+        memberships.assign(ctx.effectiveTenantIdRequired(), userId, false);
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
@@ -201,7 +202,7 @@ public class IdentityUserAdminController {
     public ApiResponse<TenantUserAdminResponse>     deleteMembership(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
         view.assertTenantScoped(ctx, userId);
-        memberships.unassign(ctx.tenantId(), userId);
+        memberships.unassign(ctx.effectiveTenantIdRequired(), userId);
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
@@ -214,7 +215,8 @@ public class IdentityUserAdminController {
         @Valid @RequestBody SetUserRoleRequest req) {
         view.assertTenantScoped(ctx, userId);
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
-        accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), userId, req.role().name(), ctx.currentUserIdRequired()));
+        accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(
+            ctx.effectiveTenantIdRequired(), userId, req.role().name(), ctx.currentUserIdRequired()));
         return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 

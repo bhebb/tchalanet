@@ -1,0 +1,72 @@
+<section class="archive-purge-panel">
+  <form [formGroup]="form" class="archive-purge-panel__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Cible</mat-label>
+      <mat-select formControlName="target">
+        <mat-option value="TICKETS">Tickets</mat-option>
+        <mat-option value="DRAW">Draw</mat-option>
+        <mat-option value="DRAW_RESULT">Draw result</mat-option>
+        <mat-option value="ENTITY_REVISION">Envers revisions</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tenant ID optionnel</mat-label>
+      <input matInput formControlName="tenantId" placeholder="UUID" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Début</mat-label>
+      <input matInput type="date" formControlName="periodStart" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fin</mat-label>
+      <input matInput type="date" formControlName="periodEnd" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Batch size</mat-label>
+      <input matInput type="number" min="1" max="100000" formControlName="batchSize" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="archive-purge-panel__reason">
+      <mat-label>Raison</mat-label>
+      <textarea matInput rows="2" formControlName="reason"></textarea>
+    </mat-form-field>
+
+    <div class="archive-purge-panel__actions">
+      <button mat-flat-button color="primary" type="button" (click)="runDryRun()" [disabled]="loading()">
+        <span class="material-symbols-outlined">fact_check</span>
+        Dry run
+      </button>
+      <button
+        mat-stroked-button
+        color="warn"
+        type="button"
+        (click)="runDelete()"
+        [disabled]="!canDelete()"
+        matTooltip="Disponible seulement après un dry-run éligible"
+      >
+        <span class="material-symbols-outlined">delete</span>
+        Delete
+      </button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="archive-purge-panel__error">{{ error() }}</div>
+  }
+
+  @if (lastResult(); as result) {
+    <div class="archive-purge-panel__status" [class.archive-purge-panel__status--ok]="result.plan.eligible">
+      <span class="material-symbols-outlined">{{ result.plan.eligible ? 'verified' : 'block' }}</span>
+      <span>{{ result.plan.eligible ? 'Éligible' : result.plan.ineligibleReason }}</span>
+    </div>
+  }
+
+  <tch-archive-raw-record-list
+    [rows]="resultRows()"
+    emptyMessage="Aucun dry-run exécuté."
+  />
+</section>

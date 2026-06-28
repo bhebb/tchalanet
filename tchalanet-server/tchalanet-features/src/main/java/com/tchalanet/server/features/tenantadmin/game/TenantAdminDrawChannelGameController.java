@@ -31,7 +31,7 @@ import tools.jackson.databind.JsonNode;
 @Tag(name = "Admin • Draw Channel Games")
 @RestController
 @RequestMapping("/admin/draw-channels/{drawChannelId}/tenant-games")
-@PreAuthorize("hasPermission('tenantgame.manage')")
+@PreAuthorize("hasPermission(null, 'game-pricing.update')")
 @RequiredArgsConstructor
 public class TenantAdminDrawChannelGameController {
 

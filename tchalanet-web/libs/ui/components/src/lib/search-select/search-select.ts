@@ -237,13 +237,14 @@ export class TchSearchSelect implements ControlValueAccessor {
         debounceTime(250),
         distinctUntilChanged(),
         tap(value => {
-          if (!this.selected() || value !== this.selected()?.title) {
+          const query = this.queryText(value);
+          if (!this.selected() || query !== this.selected()?.title) {
             this.selected.set(null);
             this.emitValue(null);
           }
         }),
         switchMap(value => {
-          const query = (value ?? '').trim();
+          const query = this.queryText(value);
           if (query.length < this.minChars()) {
             this.loading.set(false);
             return of<readonly TchSearchOption[]>([]);
@@ -305,5 +306,14 @@ export class TchSearchSelect implements ControlValueAccessor {
   private emitValue(value: TchSearchOption | null): void {
     this.onChange(value);
     this.valueChange.emit(value);
+  }
+
+  private queryText(value: unknown): string {
+    if (typeof value === 'string') return value.trim();
+    if (value && typeof value === 'object' && 'title' in value) {
+      const title = (value as { title?: unknown }).title;
+      return typeof title === 'string' ? title.trim() : '';
+    }
+    return '';
   }
 }

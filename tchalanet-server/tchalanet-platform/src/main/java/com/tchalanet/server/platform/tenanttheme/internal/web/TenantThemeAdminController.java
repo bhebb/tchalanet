@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "Admin • Theme")
 @RestController
 @RequestMapping("/admin/theme")
-@PreAuthorize("hasPermission('theme.read')")
+@PreAuthorize("hasPermission(null, 'theme.read')")
 @RequiredArgsConstructor
 public class TenantThemeAdminController {
 
@@ -55,7 +55,7 @@ public class TenantThemeAdminController {
     @Operation(summary = "Apply a theme preset")
     @PostMapping("/preset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission('theme.manage')")
+    @PreAuthorize("hasPermission(null, 'theme.manage')")
     @RequiredFeature(PlanFeatureKeys.THEME_PRESET_SELECTION)
     public ApiResponse<Void> applyPreset(
         @Valid @RequestBody ApplyPresetRequest body,
@@ -67,7 +67,7 @@ public class TenantThemeAdminController {
     @Operation(summary = "Update theme settings (defaultMode)")
     @PatchMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission('theme.manage')")
+    @PreAuthorize("hasPermission(null, 'theme.manage')")
     public ApiResponse<Void> updateSettings(
         @Valid @RequestBody UpdateSettingsRequest body,
         @CurrentContext TchRequestContext ctx) {
@@ -79,7 +79,7 @@ public class TenantThemeAdminController {
     @Operation(summary = "Deactivate tenant theme (reset to default)")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasPermission('theme.manage')")
+    @PreAuthorize("hasPermission(null, 'theme.manage')")
     public ApiResponse<Void> deactivate(@CurrentContext TchRequestContext ctx) {
         adminService.deactivate(new DeactivateTenantThemeRequest(ctx.effectiveTenantIdRequired()));
         return ApiResponse.success(null);

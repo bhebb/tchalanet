@@ -12,6 +12,8 @@ risky.
 - Implement `platform.archive` as the archive orchestrator.
 - Keep dataset-specific reads in the owning modules through `ArchiveDatasetProvider`.
 - Use monthly PostgreSQL partitions for high-volume append-heavy data.
+- Add partition maintenance helpers for already-partitioned/monthly-compatible tables and document
+  why id-only FK tables need a dedicated redesign before RANGE partition conversion.
 - Export verified old periods to compressed `jsonl.gz` archive objects.
 - Keep `archive_lookup_index` online for ticket, public code, payout, audit and legal lookup.
 - Support legal hold so disputed data cannot be purged or partition-cleaned.
@@ -27,9 +29,13 @@ risky.
 | `audit_log`, batch logs | 12 months | lookup by actor/entity/action/date | partitioned; no dashboard read by default |
 | `_aud` tables | table-specific | legal/admin only | avoid Envers on high-volume transactional rows |
 
+Spring Batch metadata is operational history, not legal business evidence. It may use shorter
+retention (30-90 days) and emergency purge when DB health requires it.
+
 ## Impact
 
 - Requires Flyway changes for partition support, archive metadata and legal hold state.
+- Does not silently force-convert current id-only FK business tables into date partitions.
 - Requires API hardening for `/api/v1/platform/archive/**` and `/api/v1/admin/archive/**`.
 - Requires focused integration tests for archive run, lookup, tenant isolation and legal hold.
 
