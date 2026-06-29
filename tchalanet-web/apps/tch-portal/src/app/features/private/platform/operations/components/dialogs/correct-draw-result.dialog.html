@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>Corriger le résultat — {{ data.draw.slot.key }} {{ data.draw.drawDate }}</h2>
+<mat-dialog-content>
+  <p class="draw-dialog__hint">
+    Remplace le résultat appliqué par un nouveau résultat confirmé.
+    Résultat actuel : <code>{{ data.draw.lastResult?.id ?? 'aucun' }}</code>
+  </p>
+  <form [formGroup]="form" class="draw-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>ID du résultat corrigé (DrawResultId)</mat-label>
+      <input matInput formControlName="correctedDrawResultId" placeholder="uuid du nouveau résultat confirmé" />
+      @if (form.controls.correctedDrawResultId.invalid && form.controls.correctedDrawResultId.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Raison (requise)</mat-label>
+      <textarea matInput formControlName="reason" rows="2"></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Clé d'idempotence</mat-label>
+      <input matInput formControlName="idempotencyKey" />
+      @if (form.controls.idempotencyKey.invalid && form.controls.idempotencyKey.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-checkbox formControlName="force">Forcer (écraser même si déjà corrigé)</mat-checkbox>
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error class="draw-dialog__feedback" [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="warn" [disabled]="form.invalid || submitting()" (click)="submit()">
+    @if (submitting()) { <span class="material-symbols-outlined draw-dialog__spinner">progress_activity</span> }
+    Corriger
+  </button>
+</mat-dialog-actions>

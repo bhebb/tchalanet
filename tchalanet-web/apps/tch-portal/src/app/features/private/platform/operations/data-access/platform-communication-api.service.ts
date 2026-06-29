@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
-import { TchPage } from '../../platform-ops-api.service';
+import { TchPage } from './platform-ops-api.service';
 
 export type CommunicationChannel =
   | 'SLACK'

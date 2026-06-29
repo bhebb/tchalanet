@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Reprogrammer — {{ data.draw.channel.code }} {{ data.draw.drawDate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="draw-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nouvelle date/heure planifiée</mat-label>
+      <input matInput formControlName="scheduledAt" type="datetime-local" />
+      @if (form.controls.scheduledAt.invalid && form.controls.scheduledAt.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Nouvelle clôture (cutoff)</mat-label>
+      <input matInput formControlName="cutoffAt" type="datetime-local" />
+      @if (form.controls.cutoffAt.invalid && form.controls.cutoffAt.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Raison (requise)</mat-label>
+      <input matInput formControlName="reason" />
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error class="draw-dialog__feedback" [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
+    @if (submitting()) { <span class="material-symbols-outlined draw-dialog__spinner">progress_activity</span> }
+    Reprogrammer
+  </button>
+</mat-dialog-actions>

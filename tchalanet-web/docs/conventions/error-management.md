@@ -142,7 +142,7 @@ its own failure.
 Current migrated example:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops.page.ts
+apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops.page.ts
 targets:
 - platform.ops.overview.results
 - platform.ops.overview.draws
@@ -450,7 +450,7 @@ apps/tch-portal/src/app/features/private/platform/pages/support-tenant
 page target:
 - platform.supportTenant.list
 
-apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-cache
+apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-cache
 page target:
 - platform.ops.cache.list
 action targets:
@@ -497,7 +497,7 @@ normalized error model.
 Platform ops draw-results failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-draw-results
+apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-draw-results
 page target:
 - platform.ops.drawResults.list
 action target:
@@ -511,7 +511,7 @@ stay inside their dialogs.
 Platform ops draw lifecycle failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-draw-lifecycle
+apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-draw-lifecycle
 page target:
 - platform.ops.drawLifecycle.list
 action targets:
@@ -530,7 +530,8 @@ these actions.
 Platform ops batch failures are page/dialog/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-batch
+apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-batch
+apps/tch-portal/src/app/features/private/platform/operations/components/dialogs
 page targets:
 - platform.ops.batch.jobs
 - platform.ops.batch.executions
@@ -544,6 +545,18 @@ Job and execution list failures render as page-level block errors for their owni
 Start-job failures stay inside the start dialog. Restart failures and success copy render as local
 page feedback above the jobs table. Batch actions must suppress shell feedback and must not use
 snackbars; execution detail copy feedback stays inside the details dialog.
+
+Platform operations follows the feature structure convention:
+
+```text
+features/private/platform/operations/
+  pages/       routed operations pages
+  components/  feature-owned dialogs and UI components
+  data-access/ operations API services and models
+```
+
+Do not add new operations dialogs under `pages/ops/dialogs`; dialogs are feature components and
+belong under `operations/components`.
 
 Platform archive failures are page/dialog/action owned:
 

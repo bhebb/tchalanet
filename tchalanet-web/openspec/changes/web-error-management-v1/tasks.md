@@ -147,5 +147,7 @@
       feedback locally without snackbars. Platform ops batch now suppresses shell feedback for job
       and execution loads plus start/restart actions, keeps start failures inside the dialog, shows
       restart feedback locally, removes snackbars, and uses external dialog templates/styles.
+      Platform operations pages, dialogs, and API services now follow the feature
+      `pages/components/data-access` structure, with operations dialogs moved out of routed pages.
 - [ ] Manually verify one public error and one authenticated private error do not stack duplicate
       banners and do not route to the wrong shell.

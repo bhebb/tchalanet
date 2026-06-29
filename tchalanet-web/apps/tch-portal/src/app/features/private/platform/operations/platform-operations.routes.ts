@@ -4,7 +4,7 @@ export const platformOperationsRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('../pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
+      import('./pages/ops/platform-ops.page').then(m => m.PlatformOpsPage),
   },
   {
     path: 'health',
@@ -14,17 +14,17 @@ export const platformOperationsRoutes: Route[] = [
   {
     path: 'batch',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
+      import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
   },
   {
     path: 'jobs',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
+      import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
   },
   {
     path: 'schedulers',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
+      import('./pages/ops/platform-ops-batch.page').then(m => m.PlatformOpsBatchPage),
   },
   {
     path: 'providers',
@@ -72,17 +72,17 @@ export const platformOperationsRoutes: Route[] = [
   {
     path: 'draws',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
+      import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
   },
   {
     path: 'draw-results',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-draw-results.page').then(m => m.PlatformOpsDrawResultsPage),
+      import('./pages/ops/platform-ops-draw-results.page').then(m => m.PlatformOpsDrawResultsPage),
   },
   {
     path: 'cache',
     loadComponent: () =>
-      import('../pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
+      import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),
   },
   {
     path: 'communication-tests',

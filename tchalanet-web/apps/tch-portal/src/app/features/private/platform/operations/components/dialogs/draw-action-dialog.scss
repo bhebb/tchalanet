@@ -1,0 +1,31 @@
+.draw-dialog {
+  &__hint {
+    margin-top: 0;
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  &__feedback {
+    display: block;
+    margin-top: 0.75rem;
+  }
+
+  &__spinner {
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

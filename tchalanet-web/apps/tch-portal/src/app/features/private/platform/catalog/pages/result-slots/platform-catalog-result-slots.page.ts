@@ -16,8 +16,8 @@ import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empt
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { PlatformCatalogApi, CatalogResultSlotView, CreateResultSlotRequest, UpdateResultSlotRequest } from '../../data-access/platform-catalog-api.service';
-import { FetchResultsDialog } from '../../../pages/ops/dialogs/fetch-results.dialog';
-import { ApplyResultsDialog } from '../../../pages/ops/dialogs/apply-results.dialog';
+import { FetchResultsDialog } from '../../../operations/components/dialogs/fetch-results.dialog';
+import { ApplyResultsDialog } from '../../../operations/components/dialogs/apply-results.dialog';
 
 // ── Create Dialog ─────────────────────────────────────────────────────────────
 @Component({
@@ -258,7 +258,7 @@ export class PlatformCatalogResultSlotsPage implements OnInit {
         title: `Fetch résultats — ${keys.length} slot(s)`,
         mode: 'fetch' as const,
         slotKeys: keys,
-        onSuccess: () => {},
+        onSuccess: () => this.load(),
       },
       width: '560px',
     });

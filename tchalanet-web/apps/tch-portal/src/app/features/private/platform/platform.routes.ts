@@ -88,7 +88,7 @@ export const platformRoutes: Route[] = [
   {
     path: '_ops/draw-lifecycle',
     loadComponent: () =>
-      import('./pages/ops/platform-ops-draw-lifecycle.page').then(
+      import('./operations/pages/ops/platform-ops-draw-lifecycle.page').then(
         m => m.PlatformOpsDrawLifecyclePage,
       ),
   },

@@ -10,7 +10,7 @@ import {
   PagedResult,
   SaveDrawResultRequest,
 } from './admin-generated-draws.models';
-import { DrawView, TchPage } from '../../../platform/platform-ops-api.service';
+import { DrawView, TchPage } from '../../../platform/operations/data-access/platform-ops-api.service';
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 

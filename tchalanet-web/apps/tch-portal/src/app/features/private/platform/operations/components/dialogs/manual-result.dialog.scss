@@ -1,0 +1,64 @@
+.manual-result-dialog {
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  &__lot-map {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  &__lot-card {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: center;
+    min-height: 3.75rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    padding: 0.5rem;
+    background: var(--tch-color-surface-container-low);
+
+    img {
+      max-width: 3rem;
+      max-height: 2.5rem;
+      object-fit: contain;
+    }
+
+    span {
+      display: grid;
+      gap: 0.125rem;
+      min-width: 0;
+    }
+
+    strong {
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-label-md);
+      font-weight: var(--tch-weight-bold);
+    }
+
+    em {
+      overflow: hidden;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-style: normal;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__feedback {
+    display: block;
+    margin-top: 0.75rem;
+  }
+
+  @media (max-width: 720px) {
+    &__lot-map {
+      grid-template-columns: 1fr;
+    }
+  }
+}
