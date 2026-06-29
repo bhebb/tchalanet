@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
 import {

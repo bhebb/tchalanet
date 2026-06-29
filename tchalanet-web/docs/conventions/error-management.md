@@ -26,6 +26,18 @@ The web app consumes the backend contract. It does not redefine it:
 - `4xx/5xx` responses use `ProblemDetail`;
 - partial BFF failures use `ApiResponse.notices` and, when useful, `services`.
 
+Reusable frontend error code lives behind `@tch/web/errors`:
+
+- frontend-safe error view models;
+- stable-code/category/fallback copy resolution;
+- page/section/field selection helpers;
+- server field-error mapping helpers;
+- error-domain presentation components once extracted from generic UI.
+
+`@tch/api` remains the backend boundary for `ApiResponse`, `ProblemDetail`, `TchBackendClient`,
+and low-level HTTP mapping. App `core` may keep temporary compatibility exports during migration,
+but new code should import reusable helpers from `@tch/web/errors`.
+
 ## Ownership
 
 ### Shell top

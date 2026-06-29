@@ -17,8 +17,8 @@ import { DrawResultDrawerComponent } from '../../components/draw-result-drawer/d
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminDataToolbarComponent } from '../../../../shared/admin-ui/admin-data-toolbar.component';

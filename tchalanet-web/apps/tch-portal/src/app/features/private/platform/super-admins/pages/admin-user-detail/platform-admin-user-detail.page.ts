@@ -16,8 +16,8 @@ import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { PlatformAdminUserCardComponent } from '../../../shared/admin-user-card/platform-admin-user-card.component';
 import type { AdminUserCardData } from '../../../shared/admin-user-card/admin-user-card.model';

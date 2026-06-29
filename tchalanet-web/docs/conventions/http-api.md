@@ -25,6 +25,19 @@ libs/api/http
 libs/api/clients
 ```
 
+Reusable web runtime placement:
+
+```text
+libs/web/src/lib/errors   frontend-safe error view models, copy, page/section/field helpers
+libs/web/src/lib/auth     provider-neutral auth/session contracts once extracted
+libs/web/src/lib/i18n     runtime i18n loader/language contracts once extracted
+libs/web/src/lib/shell    reusable shell feedback/layout primitives once extracted
+libs/web/src/lib/core     shared web runtime tokens/helpers
+```
+
+App `core` wires providers and shell-specific stores. It should not be the permanent owner of code
+that another web app must reuse.
+
 ## Response Contracts
 
 Successful backend responses use:
@@ -93,9 +106,9 @@ timestamp
 
 Components consume mapped errors or view-state errors. They do not inspect raw `HttpErrorResponse` unless they are an API boundary.
 
-Presentation components render one normalized UI model (`ErrorViewModel`, `tch-error-panel`,
-`tch-section-error`, or `tch-field-error`) and must not parse `ProblemDetail` or `ApiResponse`
-directly. API clients, stores, or the page controller own that mapping.
+Presentation components render one normalized UI model from `@tch/web/errors` (`TchErrorViewModel`,
+`tch-error-panel`, `tch-section-error`, or `tch-field-error`) and must not parse `ProblemDetail` or
+`ApiResponse` directly. API clients, stores, or the page controller own that mapping.
 
 ## Interceptors
 

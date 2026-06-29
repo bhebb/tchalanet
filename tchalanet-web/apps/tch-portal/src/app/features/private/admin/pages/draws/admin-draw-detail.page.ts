@@ -25,7 +25,7 @@ import {
   AdminFormSection,
 } from '@tch/ui/components';
 
-import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { DrawAdminApi, DrawStatus, DrawSummary } from '../../draw-admin.api.service';
 
 type PageState =

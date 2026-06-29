@@ -15,7 +15,7 @@ import { webAppErrorFromNotice, webAppErrorFromProblemDetail } from '@tch/api';
 import type { ApiResponse, ProblemDetail } from '@tch/api';
 import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
 
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import type { AdminSectionTargetError } from '../../../../shared/admin-ui/admin-section-error-target.directive';
 import {

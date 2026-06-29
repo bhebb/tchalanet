@@ -10,8 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { PlatformOpsApi } from '../../data-access/platform-ops-api.service';
 
 export interface ClearCacheGroupDialogData {

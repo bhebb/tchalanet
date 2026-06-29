@@ -9,8 +9,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel } from '@tch/ui/components';
 
-import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
 import {

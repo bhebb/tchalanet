@@ -31,14 +31,14 @@ import {
 } from '../../../../shared/admin-ui/admin-section-error-target.directive';
 import { AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { TchIdentityCardComponent } from '../../../../shared/admin-ui/components/tch-identity-card/tch-identity-card.component';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   applyServerFieldErrors,
   clearServerFieldErrors,
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
-} from '../../../../../../core/api/local-error-routing';
+} from '@tch/web/errors';
 import {
   AdminOverviewApiService,
   AddressView,

@@ -16,8 +16,8 @@ import {
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
-} from '../../../../../../../core/api/local-error-routing';
-import { resolveErrorFeedbackCopy } from '../../../../../../../core/api/error-feedback-copy';
+} from '@tch/web/errors';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminSectionCardComponent } from '../../../../../shared/admin-ui/admin-section-card.component';
 import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../seller-terminal-api.service';
 import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-error-targets';

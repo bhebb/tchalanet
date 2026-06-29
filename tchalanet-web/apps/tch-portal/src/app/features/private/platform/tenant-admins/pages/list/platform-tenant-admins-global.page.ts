@@ -32,8 +32,8 @@ import {
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
 

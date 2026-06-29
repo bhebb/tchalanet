@@ -9,8 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslateService } from '@ngx-translate/core';
 import { TchSearchOption, TchSearchSelect, TchSectionError } from '@tch/ui/components';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { Observable, map } from 'rxjs';
 
 import {

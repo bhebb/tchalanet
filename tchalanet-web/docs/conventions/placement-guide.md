@@ -13,6 +13,8 @@ Place code by **ownership** and **lifetime**, not by generic folder names.
 ```text
 Contract / HTTP client     -> libs/api
 Reusable UI component      -> libs/ui/components
+Web runtime errors         -> libs/web/src/lib/errors
+Web runtime auth/i18n/shell -> libs/web/src/lib/{auth,i18n,shell}
 Runtime theme              -> libs/ui/theme
 Compile-time SCSS          -> libs/ui/styles
 Runtime settings / flags   -> libs/shared-config
@@ -71,7 +73,8 @@ orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
 | Theme SCSS generation                       | `libs/ui/theme/src/scss`                                                                 |
 | Shared SCSS mixins/functions/breakpoints    | `libs/ui/styles`                                                                         |
 | Material global overrides                   | `libs/ui/styles` unless directly tied to M3 preset generation                            |
-| Button / Card / Badge / Loading / Errors    | `libs/ui/components`                                                                     |
+| Button / Card / Badge / Loading             | `libs/ui/components`                                                                     |
+| Error models/copy/routing/components        | `libs/web/src/lib/errors`                                                                |
 | Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                     |
 | Public shell                                | reusable presentation in `libs/web`; app-specific orchestration in the app               |
 | Private shell                               | app feature now, future `libs/web`                                                       |
@@ -84,10 +87,10 @@ orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
 | PageModel renderer                          | `libs/page-model`                                                                        |
 | Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/`                            |
 | PageModel editor screen                     | `apps/tch-portal/src/app/features/platform/page-models`                                  |
-| Auth session store                          | app `core/auth` now, future `shared-auth`                                                |
-| Auth guards                                 | app `core/auth` now, future `shared-auth`                                                |
+| Auth session store                          | app `core/auth` wiring now, reusable contracts in `libs/web/src/lib/auth`                |
+| Auth guards                                 | app `core/auth` wiring now, reusable contracts in `libs/web/src/lib/auth`                |
 | Login page                                  | `apps/tch-portal/src/app/features/auth/login` or `features/public/login` if public route |
-| Locale store                                | app `core/i18n` now, future `shared-i18n`                                                |
+| Locale store                                | app `core/i18n` wiring now, reusable contracts in `libs/web/src/lib/i18n`                |
 | Language switcher UI                        | `libs/ui/components`                                                                     |
 | Backend i18n API contract/client            | `libs/api`                                                                               |
 | Platform i18n admin screen                  | `apps/tch-portal/src/app/features/platform/i18n-overrides`                               |
@@ -217,6 +220,10 @@ App-owned orchestration:
 apps/tch-portal/src/app/features/public/shell
 apps/tch-portal/src/app/features/dashboard/shell
 ```
+
+Reusable shell primitives, such as shell feedback models/stores that can be shared by future
+`public-portal`, `admin-portal`, `platform-portal`, or `pos-web`, belong behind
+`@tch/web/shell`. App routes and provider composition stay in the app.
 
 Reusable public shell presentation:
 

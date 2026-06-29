@@ -13,14 +13,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 
 import { TchErrorPanel, TchFieldError } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   applyServerFieldErrors,
   clearServerFieldErrors,
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
-} from '../../../../../../../core/api/local-error-routing';
+} from '@tch/web/errors';
 import { SellerTerminalApi, SellerTerminalSummaryRow } from '../../../../seller-terminal-api.service';
 
 const BLOCK_FIELD_TARGETS = {

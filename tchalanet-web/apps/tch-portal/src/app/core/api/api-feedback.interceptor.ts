@@ -19,7 +19,7 @@ import { APPLICATION_API_URL_PATTERN } from '@tch/shared-config';
 import { buildCopyText } from '../feedback/copy-error-details';
 import { AddShellFeedbackInput } from '../feedback/shell-feedback.model';
 import { ShellFeedbackStore } from '../feedback/shell-feedback.store';
-import { resolveErrorFeedbackCopy } from './error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 
 export const apiFeedbackInterceptor: HttpInterceptorFn = (req, next) => {
   if (!APPLICATION_API_URL_PATTERN.test(req.url)) return next(req);

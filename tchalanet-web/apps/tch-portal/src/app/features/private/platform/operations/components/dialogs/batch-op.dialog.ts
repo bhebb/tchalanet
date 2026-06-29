@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 
 import { TchSectionError } from '@tch/ui/components';
-import { ErrorViewModel } from '../../../../../../core/api/local-error-routing';
+import { ErrorViewModel } from '@tch/web/errors';
 import { AdminStatusPillComponent } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { OpsLaunchResponse } from '../../data-access/platform-ops-api.service';
 

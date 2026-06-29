@@ -13,8 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
-import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
+import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';

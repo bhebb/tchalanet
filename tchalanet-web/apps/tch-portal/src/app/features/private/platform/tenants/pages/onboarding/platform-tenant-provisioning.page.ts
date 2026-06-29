@@ -20,7 +20,7 @@ import { EMPTY, Subject, catchError, debounceTime, filter, switchMap, takeUntil,
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchActionButton, TchErrorPanel, TchNotice, TchSubmitButton } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminDetailLayoutComponent } from '../../../../shared/admin-ui/components/admin-detail-layout/admin-detail-layout.component';
 import { AdminNextStepsCardComponent, AdminNextStep } from '../../../../shared/admin-ui/components/admin-next-steps-card/admin-next-steps-card.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
