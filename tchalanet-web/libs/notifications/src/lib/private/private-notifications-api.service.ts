@@ -40,7 +40,6 @@ export class PrivateNotificationsApi {
     return this.backend.getPage<PrivateNotificationItem>(
       this.basePath(scope),
       { params: { page: '0', size: String(size) } },
-      { page: 0, size },
     );
   }
 

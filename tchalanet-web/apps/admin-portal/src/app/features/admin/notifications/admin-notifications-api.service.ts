@@ -69,7 +69,6 @@ export class AdminNotificationsApi {
     return this.backend.getPage<AdminNotificationItem>(
       '/admin/notifications',
       { ...(options ?? {}), params: Object.fromEntries(entries) },
-      { page: params.page ?? 0, size: params.size ?? 20 },
     );
   }
 

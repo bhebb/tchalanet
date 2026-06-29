@@ -63,7 +63,6 @@ export class AdminPromotionsApiService {
       {
         params: { page: '0', size: '20', sort: 'createdAt,desc' },
       },
-      { page: 0, size: 20 },
     );
   }
 

@@ -136,7 +136,6 @@ export class SellerTerminalApi {
     return this.backend.getPage<SellerTerminalSummaryRow>(
       '/admin/seller-terminals',
       requestOptions,
-      { page: params.page ?? 0, size: params.size ?? 20 },
     );
   }
 

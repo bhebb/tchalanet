@@ -160,7 +160,6 @@ export class PlatformTenantsApi {
     return this.backend.getPage<TenantSummaryView>(
       '/platform/tenants',
       { ...(options ?? {}), params: Object.fromEntries(query.entries()) },
-      { page: params.page, size: params.size },
     );
   }
 
