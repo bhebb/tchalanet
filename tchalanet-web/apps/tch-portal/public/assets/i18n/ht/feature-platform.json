@@ -59,6 +59,9 @@
         "archive": "Erè pandan achivaj tenant lan.",
         "activate": "Erè pandan aktivasyon tenant an."
       },
+      "feedback": {
+        "updated": "{{name}} mete ajou."
+      },
       "action": {
         "create": "Kreye tenant",
         "applyFilters": "Filtre",

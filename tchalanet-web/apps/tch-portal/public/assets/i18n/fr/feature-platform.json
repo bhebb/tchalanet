@@ -59,6 +59,9 @@
         "archive": "Erreur lors de l'archivage du tenant.",
         "activate": "Erreur lors de l'activation du tenant."
       },
+      "feedback": {
+        "updated": "{{name}} a été mis à jour."
+      },
       "action": {
         "create": "Créer un tenant",
         "applyFilters": "Filtrer",

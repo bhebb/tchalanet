@@ -6,11 +6,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, switchMap } from 'rxjs';
 import {
   AdminListStatusOption,
   AdminListSurface,
@@ -20,8 +19,12 @@ import {
   TchConfirmDialogData,
   TchErrorPanel,
   TchLoading,
+  TchSectionError,
   TchStatusBadge,
 } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
@@ -31,8 +34,6 @@ import {
   TenantSummaryView,
 } from '../../data-access/platform-tenants-api.service';
 import { StartTenantAdminAccessDialog } from '../../../shared/start-tenant-admin-access-dialog';
-
-type ProblemLike = { title?: string; detail?: string; traceId?: string; errorId?: string; requestId?: string };
 
 const PAGE_SIZE = 20;
 const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'SUSPENDED', 'ARCHIVED'] as const;
@@ -50,6 +51,7 @@ const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'SUSPENDED', 'ARCHIVED'] as const;
     AdminListSurface,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     TchStatusBadge,
     TchActionButton,
     MatButtonModule,
@@ -66,7 +68,6 @@ export class PlatformTenantsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly loadTrigger$ = new Subject<void>();
@@ -83,9 +84,8 @@ export class PlatformTenantsPage implements OnInit {
   });
 
   readonly loading = signal(false);
-  readonly errorTitle = signal<string | null>(null);
-  readonly errorDetail = signal<string | null>(null);
-  readonly traceId = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionFeedback = signal<ErrorViewModel | null>(null);
   readonly items = signal<TenantSummaryView[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -103,21 +103,16 @@ export class PlatformTenantsPage implements OnInit {
         const snapPage = Math.max(0, Number(snap.get('page') ?? 0) || 0);
         const snapSize = Math.max(1, Number(snap.get('size') ?? PAGE_SIZE) || PAGE_SIZE);
         this.loading.set(true);
-        this.errorTitle.set(null);
-        this.errorDetail.set(null);
-        this.traceId.set(null);
+        this.error.set(null);
         return this.api.listTenants({
           q: snap.get('q') ?? '',
           status: snap.get('status') ?? '',
           sort: snap.get('sort') ?? 'updatedAt,desc',
           page: snapPage,
           size: snapSize,
-        }).pipe(
+        }, { suppressShellFeedback: true }).pipe(
           catchError((err: unknown) => {
-            const pd = this.problem(err);
-            this.errorTitle.set(pd.title ?? this.translate.instant('platform.tenants.error.load'));
-            this.errorDetail.set(pd.detail ?? null);
-            this.traceId.set(pd.traceId ?? pd.errorId ?? pd.requestId ?? null);
+            this.error.set(this.errorViewModel(err, 'platform.tenants.list'));
             this.loading.set(false);
             return EMPTY;
           }),
@@ -219,12 +214,12 @@ export class PlatformTenantsPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.api.activateTenant(this.tenantId(tenant)).subscribe({
-          next: () => this.loadPage(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenants.error.activate'), 'OK', { duration: 4000 },
-          ),
-        });
+        this.runTenantAction(
+          tenant,
+          'platform.tenants.action.activate',
+          'platform.tenants.activate',
+          id => this.api.activateTenant(id, { suppressShellFeedback: true }),
+        );
       });
   }
 
@@ -239,12 +234,12 @@ export class PlatformTenantsPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.api.suspendTenant(this.tenantId(tenant)).subscribe({
-          next: () => this.loadPage(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenants.error.suspend'), 'OK', { duration: 4000 },
-          ),
-        });
+        this.runTenantAction(
+          tenant,
+          'platform.tenants.action.suspend',
+          'platform.tenants.suspend',
+          id => this.api.suspendTenant(id, { suppressShellFeedback: true }),
+        );
       });
   }
 
@@ -258,12 +253,12 @@ export class PlatformTenantsPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.api.reactivateTenant(this.tenantId(tenant)).subscribe({
-          next: () => this.loadPage(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenants.error.reactivate'), 'OK', { duration: 4000 },
-          ),
-        });
+        this.runTenantAction(
+          tenant,
+          'platform.tenants.action.reactivate',
+          'platform.tenants.reactivate',
+          id => this.api.reactivateTenant(id, { suppressShellFeedback: true }),
+        );
       });
   }
 
@@ -281,12 +276,12 @@ export class PlatformTenantsPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.api.archiveTenant(this.tenantId(tenant)).subscribe({
-          next: () => this.loadPage(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenants.error.archive'), 'OK', { duration: 4000 },
-          ),
-        });
+        this.runTenantAction(
+          tenant,
+          'platform.tenants.action.archive',
+          'platform.tenants.archive',
+          id => this.api.archiveTenant(id, { suppressShellFeedback: true }),
+        );
       });
   }
 
@@ -354,7 +349,41 @@ export class PlatformTenantsPage implements OnInit {
     });
   }
 
-  private problem(err: unknown): ProblemLike {
-    return ((err as { error?: ProblemLike })?.error ?? {}) as ProblemLike;
+  private runTenantAction(
+    tenant: TenantSummaryView,
+    titleKey: string,
+    source: string,
+    action: (tenantId: string) => Observable<unknown>,
+  ): void {
+    const id = this.tenantId(tenant);
+    if (!id) return;
+
+    this.actionFeedback.set(null);
+    action(id).subscribe({
+      next: () => {
+        this.actionFeedback.set({
+          title: this.translate.instant(titleKey),
+          message: this.translate.instant('platform.tenants.feedback.updated', { name: tenant.name }),
+          severity: 'info',
+        });
+        this.loadPage();
+      },
+      error: err => this.actionFeedback.set(this.errorViewModel(err, source)),
+    });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

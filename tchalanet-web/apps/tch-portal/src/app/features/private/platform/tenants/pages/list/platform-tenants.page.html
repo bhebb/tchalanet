@@ -27,19 +27,14 @@
     <ng-container list-content>
       @if (loading()) {
         <tch-loading [label]="'platform.tenants.loading' | translate" />
-      } @else if (errorTitle()) {
+      } @else if (error(); as errorVm) {
         <tch-error-panel
-          [title]="errorTitle()!"
-          [message]="errorDetail() ?? ''"
+          [title]="errorVm.title"
+          [message]="errorVm.message"
           [showRetry]="true"
           [retryLabel]="'common.retry' | translate"
           (retry)="loadPage()"
         />
-        @if (traceId()) {
-          <p class="tenants-page__trace">
-            {{ 'common.traceId' | translate }}: {{ traceId() }}
-          </p>
-        }
       } @else if (items().length === 0) {
         @if (hasActiveFilters()) {
           <tch-admin-empty-state
@@ -64,6 +59,16 @@
           />
         }
       } @else {
+        @if (actionFeedback(); as feedback) {
+          <div class="tenants-page__feedback">
+            <tch-section-error
+              [title]="feedback.title"
+              [message]="feedback.message"
+              [severity]="feedback.severity"
+            />
+          </div>
+        }
+
         <div class="tenants-page__table">
           <table mat-table [dataSource]="items()" matSort
                  [matSortActive]="parsedSort().active"

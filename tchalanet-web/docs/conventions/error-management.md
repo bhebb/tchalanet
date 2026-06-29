@@ -543,6 +543,23 @@ Tenant admin list and create failures render locally on the owning page and supp
 Assigning an existing user renders local action feedback above the table. These pages must not show
 snackbars or raw backend titles.
 
+Platform tenant list lifecycle failures are page/action owned:
+
+```text
+apps/tch-portal/src/app/features/private/platform/tenants/pages/list
+page target:
+- platform.tenants.list
+action targets:
+- platform.tenants.activate
+- platform.tenants.suspend
+- platform.tenants.reactivate
+- platform.tenants.archive
+```
+
+Tenant list load failures render as the page error. Tenant lifecycle actions render local action
+feedback above the tenant table and suppress shell feedback. Do not display trace ids directly in
+the page body; support references stay in normalized diagnostics.
+
 Business days failures are page/action owned:
 
 ```text

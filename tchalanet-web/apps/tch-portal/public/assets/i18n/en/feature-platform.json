@@ -59,6 +59,9 @@
         "archive": "Error archiving tenant.",
         "activate": "Error activating the tenant."
       },
+      "feedback": {
+        "updated": "{{name}} was updated."
+      },
       "action": {
         "create": "Create tenant",
         "applyFilters": "Filter",

@@ -141,6 +141,7 @@
       locally without snackbars. Platform archive now removes inline dialog/styles, suppresses shell
       feedback, renders list failures at page level, and keeps trigger failures inside the dialog.
       Platform tenant-scoped admin list/create/assign now suppresses shell feedback and renders
-      page/action failures locally without snackbars.
+      page/action failures locally without snackbars. Platform tenants list now suppresses shell
+      feedback and renders load/lifecycle failures locally without snackbars or raw trace display.
 - [ ] Manually verify one public error and one authenticated private error do not stack duplicate
       banners and do not route to the wrong shell.

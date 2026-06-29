@@ -189,20 +189,20 @@ export class PlatformTenantsApi {
     return this.backend.put<void>(`/platform/tenants/${id}`, req);
   }
 
-  activateTenant(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/tenants/${id}/activate`, {});
+  activateTenant(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/tenants/${id}/activate`, {}, options);
   }
 
-  suspendTenant(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/tenants/${id}/suspend`, {});
+  suspendTenant(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/tenants/${id}/suspend`, {}, options);
   }
 
-  archiveTenant(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/tenants/${id}/archive`, {});
+  archiveTenant(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/tenants/${id}/archive`, {}, options);
   }
 
-  reactivateTenant(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/tenants/${id}/reactivate`, {});
+  reactivateTenant(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/tenants/${id}/reactivate`, {}, options);
   }
 
   listTenantAdmins(tenantId: string, options?: TchRequestOptions): Observable<TenantAdminView[]> {
