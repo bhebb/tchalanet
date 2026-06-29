@@ -1,7 +1,7 @@
 # Tchalanet Web — Architecture Frontend
 
 > **Statut** : Architecture active — extraction progressive en cours
-> **Apps** : `apps/tch-portal/`, `apps/public-portal/`, `apps/admin-portal/`, `apps/platform-portal/` — Angular / Nx
+> **Apps** : `apps/public-portal/`, `apps/admin-portal/`, `apps/platform-portal/` — Angular / Nx
 > **Objectif** : garder une architecture frontend lisible, slice-first, sans créer de libs vides ni transformer PageModel en usine à gaz.
 
 ---
@@ -40,7 +40,6 @@ tchalanet-web/
 │   ├── public-portal/     ← app publique, SSR/hydration-ready, surface publique canonique
 │   ├── admin-portal/      ← app tenant admin, CSR V0, déployable seule
 │   ├── platform-portal/   ← app plateforme/superadmin, CSR V0, déployable seule
-│   ├── tch-portal/        ← portail historique privé pendant migration, plus de surface publique
 │   ├── web-e2e/           ← Playwright e2e unique pour public/admin/platform
 │   └── proxy.conf.cjs     ← proxy local partagé vers /api/v1
 │
@@ -77,8 +76,8 @@ seule lib avec des dossiers internes.
 `pos-portal` n'existe pas en V0. La vente POS reste lazy-loaded dans `admin-portal` jusqu'à ce que la
 surface justifie une app séparée.
 
-La surface publique appartient désormais à `apps/public-portal/src/app/features/public`. Les pages
-publiques ne sont plus maintenues dans `apps/tch-portal`. Les assets partagés sont servis depuis
+La surface publique appartient à `apps/public-portal/src/app/features/public`. Les surfaces admin et
+platform appartiennent à leurs apps dédiées. Les assets partagés sont servis depuis
 `libs/shared-assets/public` par chaque app.
 
 Les tests end-to-end Angular/Web vivent dans un seul projet Playwright :
@@ -135,7 +134,7 @@ Les contrats HTTP génériques ciblent `libs/api/src/lib/contracts`. Les helpers
 `libs/api/src/lib/http`. Le client backend générique cible `libs/api/src/lib/backend-client`. Les
 contrats runtime PageModel ciblent `libs/page-model`.
 
-Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`, mais uniquement pendant migration.
+Les contrats HTTP transverses vivent dans `libs/api/src/lib/contracts`.
 
 ---
 
@@ -698,7 +697,7 @@ public-home.page.ts
 - Les pages orchestrent des services applicatifs/state dédiés, sans appeler directement `HttpClient`.
 - Les contrats HTTP génériques ciblent `libs/api/contracts`.
 - Les contrats runtime PageModel ciblent `libs/page-model`.
-- Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`.
+- Les contrats HTTP transverses vivent dans `libs/api/contracts`.
 - Pas de nouvelle lib sans frontière claire et stable.
 - Pas de lib Nx vide créée uniquement pour correspondre au diagramme cible.
 - PageModel ne gère pas le shell.

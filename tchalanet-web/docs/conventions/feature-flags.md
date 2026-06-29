@@ -33,7 +33,7 @@ add an `UnleashFeatureFlags implements FeatureFlags` and rebind the token. Done.
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/feature/   // FeatureFlags seam + impl
+libs/shared-config/src/lib/feature/   // FeatureFlags seam + impl
 ```
 
 The structural directive and route guard live in `core/runtime`:

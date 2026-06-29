@@ -26,7 +26,7 @@ Each dependency must answer:
 | `@nx/playwright` | dev/test | e2e | Provides Playwright integration for the unified `web-e2e` project. | Manual Playwright config only. | Keep while Web e2e targets use Nx Playwright. |
 | `@swc/core` | dev/build | Nx tooling | Native transform dependency used by Nx tooling. | TypeScript-only execution. | Keep while required by Nx packages. |
 | `eslint` | dev | quality | Runs flat-config lint checks for the Nx/Angular workspace. | TypeScript compiler only. | Keep while lint is a quality gate. |
-| `@nx/eslint` | dev | quality/Nx | Provides the Nx lint executor used by `tch-portal:lint`. | Running ESLint manually. | Keep while Nx owns project targets. |
+| `@nx/eslint` | dev | quality/Nx | Provides the Nx lint executor used by `public-portal/admin-portal/platform-portal:lint`. | Running ESLint manually. | Keep while Nx owns project targets. |
 | `@nx/eslint-plugin` | dev | quality/Nx | Provides Nx flat config and module-boundary rules. | Custom ESLint-only boundaries. | Keep while Nx boundaries are enforced. |
 | `angular-eslint` | dev | quality/Angular | Provides Angular and template lint rules. | Generic TypeScript lint only. | Keep for Angular-specific rules. |
 | `@angular-eslint/eslint-plugin` | dev | quality/Angular | Provides Angular TypeScript lint rules imported by the legacy Web lint config. | Generic TypeScript lint only. | Remove only if Angular-specific TS rules are no longer used. |

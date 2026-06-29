@@ -119,7 +119,7 @@ card header.
 Current migrated example:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/business-profile/pages/overview
+apps/admin-portal/src/app/features/admin/business-profile/pages/overview
 page target:
 - admin.businessProfile.overview
 section target:
@@ -141,7 +141,7 @@ Readiness/health cards follow the same rule. They must render local preview/chec
 Current migrated example:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/tenants/pages/onboarding
+apps/platform-portal/src/app/features/platform/tenants/pages/onboarding
 target: platform.tenantProvisioning.readiness.preview
 ```
 
@@ -154,7 +154,7 @@ its own failure.
 Current migrated example:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops.page.ts
+apps/platform-portal/src/app/features/platform/operations/pages/ops/platform-ops.page.ts
 targets:
 - platform.ops.overview.results
 - platform.ops.overview.draws
@@ -172,7 +172,7 @@ Setup overview cards may also own non-blocking `ApiResponse.notices` returned by
 Current migrated example:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/setup/pages/complete-config
+apps/admin-portal/src/app/features/admin/setup/pages/complete-config
 targets:
 - admin.setup.identity
 - admin.setup.address
@@ -190,14 +190,14 @@ only cover partial, non-blocking degradation for the owning card.
 Games/pricing action failures are owned by the game card that triggered the action:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/games-pricing/pages/overview
+apps/admin-portal/src/app/features/admin/games-pricing/pages/overview
 target format: admin.setup.games_pricing.<gameCode>
 ```
 
 Draw channel provider source failures are owned by the provider card:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/draw-channels/pages/overview
+apps/admin-portal/src/app/features/admin/draw-channels/pages/overview
 target format: admin.setup.draw_channels.<providerCode>
 ```
 
@@ -208,14 +208,14 @@ notice instead of a snackbar or shell message.
 Draw sales matrix action failures are owned by the affected channel/game tile:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/draw-sales-matrix/pages
+apps/admin-portal/src/app/features/admin/draw-sales-matrix/pages
 target format: admin.setup.draw_sales_matrix.<drawChannelId>.<tenantGameId>
 ```
 
 Business day action failures are owned by the calendar/exceptions section:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/business-days
+apps/admin-portal/src/app/features/admin/pages/business-days
 targets:
 - admin.businessDays.add
 - admin.businessDays.delete.<businessDayId>
@@ -224,7 +224,7 @@ targets:
 Limit rule action failures are owned by either the rule list section or the edit dialog:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/limits
+apps/admin-portal/src/app/features/admin/pages/limits
 targets:
 - admin.limits.delete.<ruleKey>
 - admin.limits.assignment.<ruleKey>
@@ -233,7 +233,7 @@ targets:
 Default pricing grid failures are owned by the pricing page:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/pricing
+apps/admin-portal/src/app/features/admin/pages/pricing
 target:
 - admin.controls.pricing
 ```
@@ -244,7 +244,7 @@ single page-level `tch-error-panel`.
 Draw list and detail failures are owned by the affected tab/detail section:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/draws
+apps/admin-portal/src/app/features/admin/pages/draws
 targets:
 - admin.draws.today
 - admin.draws.upcoming
@@ -256,8 +256,8 @@ targets:
 Seller-terminal creation failures are owned by the creation page/dialog, not by the shell:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/seller-terminals/pages/new
-apps/tch-portal/src/app/features/private/admin/seller-terminals/pages/list/dialogs/create-seller-terminal.dialog
+apps/admin-portal/src/app/features/admin/seller-terminals/pages/new
+apps/admin-portal/src/app/features/admin/seller-terminals/pages/list/dialogs/create-seller-terminal.dialog
 page target:
 - admin.sellerTerminal.create
 ```
@@ -269,7 +269,7 @@ field violations, the page/dialog renders one local page error at the top of the
 Seller-terminal list failures follow the same local ownership rule:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/seller-terminals/pages/list
+apps/admin-portal/src/app/features/admin/seller-terminals/pages/list
 page targets:
 - admin.sellerTerminal.list
 - admin.sellerTerminal.unblock
@@ -291,7 +291,7 @@ and disable actions close or reload the owning surface without creating a snackb
 Seller-terminal POS failures are split by runtime block:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/seller-terminals/pages/pos
+apps/admin-portal/src/app/features/admin/seller-terminals/pages/pos
 page target:
 - admin.sellerTerminal.pos.terminal
 section targets:
@@ -309,7 +309,7 @@ stay next to the sale action and must not create shell banners.
 Admin support sell uses the same local action ownership:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/support/admin-sell-ticket.page
+apps/admin-portal/src/app/features/admin/pages/support/admin-sell-ticket.page
 selector targets:
 - admin.support.sell.terminals
 - admin.support.sell.draws.today
@@ -325,7 +325,7 @@ Do not use snackbars for these failures, and do not expose backend raw titles/de
 Admin tickets list is page-owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/support/admin-tickets.page
+apps/admin-portal/src/app/features/admin/pages/support/admin-tickets.page
 page target:
 - admin.tickets.list
 ```
@@ -335,7 +335,7 @@ Ticket list load failures render as the page error and suppress shell feedback.
 Admin payouts list/action failures are owned by the payouts page:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/payouts
+apps/admin-portal/src/app/features/admin/pages/payouts
 page target:
 - admin.payouts.list
 action targets:
@@ -351,7 +351,7 @@ table. These calls suppress shell feedback and do not use snackbars.
 Platform super-admin list/detail failures are owned by the current page:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/super-admins
+apps/platform-portal/src/app/features/platform/super-admins
 page targets:
 - platform.superAdmins.list
 - platform.superAdmins.detail
@@ -372,7 +372,7 @@ local informational notices, not snackbars.
 Platform tenant-admin list/detail failures follow the same ownership model:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/tenant-admins
+apps/platform-portal/src/app/features/platform/tenant-admins
 page targets:
 - platform.tenantAdmins.list
 - platform.tenantAdmins.detail
@@ -390,7 +390,7 @@ notice, not a snackbar.
 Platform contact-request failures are owned by the contact-requests page:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/contact-requests
+apps/platform-portal/src/app/features/platform/pages/contact-requests
 page target:
 - platform.contactRequests.list
 detail target:
@@ -407,7 +407,7 @@ a local informational notice, not a snackbar.
 Platform public-news failures are owned by the news page:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/news
+apps/platform-portal/src/app/features/platform/pages/news
 page target:
 - platform.news.list
 action targets:
@@ -424,7 +424,7 @@ notice, not a snackbar.
 Admin notifications are page/composer/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/notifications
+apps/admin-portal/src/app/features/admin/notifications
 page target:
 - admin.notifications.list
 composer target:
@@ -440,7 +440,7 @@ same surface; do not use snackbars for notification failures.
 Platform notifications follow the same page/composer/action ownership model:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/notifications
+apps/platform-portal/src/app/features/platform/pages/notifications
 page target:
 - platform.notifications.list
 composer target:
@@ -458,11 +458,11 @@ Success feedback stays as a local informational notice, not a snackbar.
 Platform support-tenant and ops-cache failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/pages/support-tenant
+apps/platform-portal/src/app/features/platform/pages/support-tenant
 page target:
 - platform.supportTenant.list
 
-apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-cache
+apps/platform-portal/src/app/features/platform/operations/pages/ops/platform-ops-cache
 page target:
 - platform.ops.cache.list
 action targets:
@@ -479,7 +479,7 @@ they do not show snackbars or promise support submission.
 Platform communication operations are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/communication
+apps/platform-portal/src/app/features/platform/operations/pages/communication
 page targets:
 - platform.communication.list
 - platform.communication.outbox.list
@@ -497,7 +497,7 @@ results stay as local informational feedback, not snackbars.
 Tenant admin support-access failures are owned by the access dialog:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/shared/start-tenant-admin-access-dialog
+apps/platform-portal/src/app/features/platform/shared/start-tenant-admin-access-dialog
 target:
 - platform.tenantAdminAccess.start
 ```
@@ -509,7 +509,7 @@ normalized error model.
 Platform ops draw-results failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-draw-results
+apps/platform-portal/src/app/features/platform/operations/pages/ops/platform-ops-draw-results
 page target:
 - platform.ops.drawResults.list
 action target:
@@ -523,7 +523,7 @@ stay inside their dialogs.
 Platform ops draw lifecycle failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-draw-lifecycle
+apps/platform-portal/src/app/features/platform/operations/pages/ops/platform-ops-draw-lifecycle
 page target:
 - platform.ops.drawLifecycle.list
 action targets:
@@ -542,8 +542,8 @@ these actions.
 Platform ops batch failures are page/dialog/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/ops/platform-ops-batch
-apps/tch-portal/src/app/features/private/platform/operations/components/dialogs
+apps/platform-portal/src/app/features/platform/operations/pages/ops/platform-ops-batch
+apps/platform-portal/src/app/features/platform/operations/components/dialogs
 page targets:
 - platform.ops.batch.jobs
 - platform.ops.batch.executions
@@ -573,7 +573,7 @@ belong under `operations/components`.
 Platform archive failures are page/dialog/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/operations/pages/archive
+apps/platform-portal/src/app/features/platform/operations/pages/archive
 page targets:
 - platform.archive.runs
 - platform.archive.failedRuns
@@ -591,8 +591,8 @@ the trigger dialog; successful trigger feedback is local page information, not a
 Platform tenant-scoped admin management failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/tenants/pages/admins
-apps/tch-portal/src/app/features/private/platform/tenants/pages/admin-create
+apps/platform-portal/src/app/features/platform/tenants/pages/admins
+apps/platform-portal/src/app/features/platform/tenants/pages/admin-create
 page targets:
 - platform.tenants.admins.list
 - platform.tenants.adminCreate.tenant
@@ -608,7 +608,7 @@ snackbars or raw backend titles.
 Platform tenant list lifecycle failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/platform/tenants/pages/list
+apps/platform-portal/src/app/features/platform/tenants/pages/list
 page target:
 - platform.tenants.list
 action targets:
@@ -625,7 +625,7 @@ the page body; support references stay in normalized diagnostics.
 Business days failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/business-days
+apps/admin-portal/src/app/features/admin/pages/business-days
 page target:
 - admin.businessDays.list
 action targets:
@@ -639,7 +639,7 @@ calendar in the owning page surface. Do not use snackbars for business-days fail
 Draw sales matrix failures are page/game-card owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/draw-sales-matrix
+apps/admin-portal/src/app/features/admin/draw-sales-matrix
 page target:
 - admin.setup.draw_sales_matrix
 game action target:
@@ -653,7 +653,7 @@ snackbar.
 Generated draws failures are page/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/draws/pages/overview/admin-generated-draws.page
+apps/admin-portal/src/app/features/admin/draws/pages/overview/admin-generated-draws.page
 page target:
 - admin.generatedDraws.list
 action targets:
@@ -670,7 +670,7 @@ failures.
 Draw results list failures are page-owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/draw-results
+apps/admin-portal/src/app/features/admin/pages/draw-results
 page target:
 - admin.drawResults.list
 ```
@@ -680,7 +680,7 @@ Draw results load/filter failures render as the page error and suppress shell fe
 Setup settings failures are page/form owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/setup/pages/settings/admin-config.page
+apps/admin-portal/src/app/features/admin/setup/pages/settings/admin-config.page
 page target:
 - admin.setup.config
 form targets:
@@ -695,7 +695,7 @@ These calls suppress shell feedback and do not use snackbars.
 Setup runtime failures are page-owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/setup/pages/settings/admin-runtime.page
+apps/admin-portal/src/app/features/admin/setup/pages/settings/admin-runtime.page
 page target:
 - admin.setup.runtime
 ```
@@ -706,7 +706,7 @@ copy stays in the runtime page surface and does not use a snackbar.
 Limits admin failures are page/dialog/action owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/limits
+apps/admin-portal/src/app/features/admin/pages/limits
 page targets:
 - admin.limits.rules
 - admin.limits.assignments
@@ -723,7 +723,7 @@ snackbars for limits feedback.
 Commission admin failures are owned by the affected section:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/commission
+apps/admin-portal/src/app/features/admin/pages/commission
 page target:
 - admin.commission.overview
 section targets:
@@ -737,7 +737,7 @@ their owning section cards and suppress shell feedback.
 Games admin failures are owned by the active tab or dialog:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/games
+apps/admin-portal/src/app/features/admin/pages/games
 tab targets:
 - admin.games.enabled
 - admin.games.enabled.<gameCode>
@@ -753,7 +753,7 @@ inside the settings dialog. These calls suppress shell feedback.
 Subscription admin failures are page or actions-card owned:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/pages/subscription
+apps/admin-portal/src/app/features/admin/pages/subscription
 page target:
 - admin.subscription.load
 section target:
@@ -793,7 +793,7 @@ Fields render with `tch-field-error`.
 Current migrated examples:
 
 ```text
-apps/tch-portal/src/app/features/private/admin/business-profile/pages/overview
+apps/admin-portal/src/app/features/admin/business-profile/pages/overview
 targets:
 - admin.businessProfile.identity.name -> name
 - admin.businessProfile.region.timezone -> timezone
@@ -806,7 +806,7 @@ targets:
 - admin.businessProfile.address.country -> country
 - admin.businessProfile.address.postalCode -> postalCode
 
-apps/tch-portal/src/app/features/private/admin/setup/pages/settings/admin-config.page
+apps/admin-portal/src/app/features/admin/setup/pages/settings/admin-config.page
 targets:
 - admin.setup.locale.defaultLanguage -> defaultLanguage
 - admin.setup.locale.defaultLocale -> defaultLocale
@@ -816,7 +816,7 @@ targets:
 - admin.setup.receipt.footerMessage -> footerMessage
 - admin.setup.receipt.defaultPaperSize -> defaultPaperSize
 
-apps/tch-portal/src/app/features/private/admin/seller-terminals/pages/new
+apps/admin-portal/src/app/features/admin/seller-terminals/pages/new
 targets:
 - admin.sellerTerminal.create.terminalCode -> terminalCode
 - admin.sellerTerminal.create.displayName -> displayName
@@ -880,9 +880,9 @@ Current placement:
 
 ```text
 libs/api/src/lib/http/web-app-error.ts
-apps/tch-portal/src/app/core/api/api-feedback.interceptor.ts
-apps/tch-portal/src/app/core/api/local-error-routing.ts
-apps/tch-portal/src/app/core/feedback/
+libs/web/errors/src/lib/api-feedback.interceptor.ts
+libs/web/errors/src/lib/local-error-routing.ts
+libs/web/errors/src/lib/
 libs/ui/components/src/lib/field-error/
 libs/ui/components/src/lib/section-error/
 ```

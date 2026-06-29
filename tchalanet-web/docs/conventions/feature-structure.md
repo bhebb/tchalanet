@@ -5,35 +5,19 @@
 Cette convention définit l’organisation des features Angular dans les applications Nx :
 
 ```text
-apps/tch-portal/src/app
+apps/<portal>/src/app
 apps/public-portal/src/app
 apps/admin-portal/src/app
 apps/platform-portal/src/app
 ```
 
-L’objectif est de garder une structure claire, maintenable et progressive, sans tout migrer d’un coup.
+L’objectif est de garder une structure claire, maintenable et progressive.
 
 ---
 
 # 1. Arborescence générale `features/`
 
-Structure legacy `tch-portal` pendant migration :
-
-```text
-features/
-  auth/
-  public/
-  private/
-    shell/
-    shared/
-    account/
-    platform/
-    admin/
-    seller-terminal/
-  dev/
-```
-
-Structure cible pour les nouvelles apps séparées :
+Structure active pour les apps séparées :
 
 ```text
 apps/public-portal/src/app/features/
@@ -52,18 +36,16 @@ et doivent être lazy-loadées pour préparer une extraction future.
 
 ## Rôle des dossiers
 
-| Dossier                    | Rôle                                                                                                          |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `auth/`                    | Écrans d’authentification avant connexion : login, forgot password, reset password.                           |
-| `public/`                  | Pages publiques : home, résultats publics, règles, contact, aide.                                             |
-| `private/`                 | Tout l’espace connecté.                                                                                       |
-| `private/shell/`           | Shell privé : topbar, sidenav, page-model host, layout connecté.                                              |
-| `private/shared/`          | Composants privés réutilisables entre `platform`, `admin`, `seller-terminal`. Jamais de logique métier forte. |
-| `private/account/`         | Compte utilisateur connecté : activation, profil, sécurité, préférences.                                      |
-| `private/platform/`        | Espace superadmin / plateforme.                                                                               |
-| `private/admin/`           | Espace tenant admin.                                                                                          |
-| `private/seller-terminal/` | Espace POS seller-terminal.                                                                                   |
-| `dev/`                     | Pages de développement : theme sandbox, debug UI, playground.                                                 |
+| Dossier app / lib                           | Rôle                                                                                 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `apps/public-portal/src/app/features/public` | Pages publiques : home, résultats publics, règles, contact, aide.                    |
+| `apps/admin-portal/src/app/features/admin`   | Espace tenant admin.                                                                 |
+| `apps/admin-portal/src/app/features/pos`     | Espace POS seller-terminal V0, lazy-loadé et extractible plus tard.                  |
+| `apps/platform-portal/src/app/features/platform` | Espace superadmin / plateforme.                                                  |
+| `libs/core/auth`                             | Login partagé, forgot password, guards, access/entitlements.                         |
+| `libs/core/i18n`                             | Runtime i18n partagé.                                                                |
+| `libs/web/shell`                             | Shells publics/privés/platform réutilisables.                                        |
+| `libs/web/sandbox`                           | Pages/outils de développement : theme sandbox, debug UI, playground.                 |
 
 ---
 
@@ -146,11 +128,10 @@ feature-specific services
 Exemples :
 
 ```text
-features/private/platform/tenants
-features/private/admin/setup
-features/private/account/activation
-features/public/home
-features/auth/login
+apps/platform-portal/src/app/features/platform/tenants
+apps/admin-portal/src/app/features/admin/setup
+apps/admin-portal/src/app/features/pos/sale
+apps/public-portal/src/app/features/public/home
 ```
 
 ---
@@ -1043,7 +1024,7 @@ On découpe seulement quand on travaille activement sur la feature.
 Les fichiers `.page.scss` qui utilisent `@use` vers `libs/ui/styles` ont un chemin relatif dépendant de leur profondeur dans :
 
 ```text
-apps/tch-portal/src/app/
+apps/<portal>/src/app/
 ```
 
 Quand une page est déplacée plus profondément, ajouter un `../` supplémentaire par niveau de dossier ajouté.

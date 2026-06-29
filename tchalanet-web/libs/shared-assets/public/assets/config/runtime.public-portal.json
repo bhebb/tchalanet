@@ -1,0 +1,8 @@
+{
+  "appId": "public-portal",
+  "production": false,
+  "apiBaseUrl": "/api/v1",
+  "authBaseUrl": "/auth",
+  "assetsBaseUrl": "/assets",
+  "enableSandbox": true
+}

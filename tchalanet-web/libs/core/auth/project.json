@@ -12,7 +12,7 @@
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {
-        "buildTarget": "tch-portal:build:development",
+        "buildTarget": "public-portal:build:development",
         "tsConfig": "libs/core/auth/tsconfig.spec.json",
         "watch": false
       }

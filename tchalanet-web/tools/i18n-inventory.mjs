@@ -20,7 +20,16 @@ const bundles = [
 
 const i18nRoot = path.join(root, 'libs/shared-assets/public/assets/i18n');
 const scanRoots = [
-  path.join(root, 'apps/tch-portal/src/app'),
+  path.join(root, 'apps/public-portal/src/app'),
+  path.join(root, 'apps/admin-portal/src/app'),
+  path.join(root, 'apps/platform-portal/src/app'),
+  path.join(root, 'libs/core/auth/src'),
+  path.join(root, 'libs/core/i18n/src'),
+  path.join(root, 'libs/ui/components/src'),
+  path.join(root, 'libs/ui/console/src'),
+  path.join(root, 'libs/web/errors/src'),
+  path.join(root, 'libs/web/shell/src'),
+  path.join(root, 'libs/web/sandbox/src'),
   path.join(root, 'libs/widgets/src'),
   path.join(root, 'libs/shared-assets/public/assets/config'),
 ];

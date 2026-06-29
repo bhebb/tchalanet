@@ -125,7 +125,7 @@ Apps Nx :
 public-portal
 admin-portal
 platform-portal
-tch-portal
+public-portal/admin-portal/platform-portal
 ```
 
 Règle :

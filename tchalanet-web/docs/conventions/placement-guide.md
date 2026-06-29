@@ -1,7 +1,7 @@
 # Web Placement Guide — Tchalanet
 
 > **Status**: DRAFT v0.2
-> **Scope**: frontend placement rules for `tchalanet-web` / `tch-portal`
+> **Scope**: frontend placement rules for `tchalanet-web` / `public-portal`, `admin-portal` et `platform-portal`
 > **Related**: `../ARCHITECTURE.md`, `naming.md`, `state-management.md`, `pagemodel.md`
 
 ---
@@ -35,10 +35,10 @@ Create a lib only when the boundary is real and the slice moves code into it.
 ```text
 tchalanet-web/
 ├── apps/
-│   ├── tch-portal/
 │   ├── public-portal/
 │   ├── admin-portal/
 │   ├── platform-portal/
+│   ├── web-e2e/
 │   └── proxy.conf.cjs
 └── libs/
     ├── api/
@@ -92,7 +92,7 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                   |
 | Public shell                                | reusable primitives in `libs/web/shell`; app-specific orchestration in the app         |
 | Admin/platform shell                        | reusable primitives in `libs/web/shell`; route/provider composition in the owning app  |
-| Public home page                            | `apps/public-portal/src/app/features/public/home` or legacy `apps/tch-portal/...`      |
+| Public home page                            | `apps/public-portal/src/app/features/public/home`                                    |
 | POS pages V0                                | `apps/admin-portal/src/app/features/pos/...`                                           |
 | Tenant admin dashboard page                 | `apps/admin-portal/src/app/features/admin/dashboard`                                   |
 | Platform dashboard page                     | `apps/platform-portal/src/app/features/platform/dashboard`                             |
@@ -100,7 +100,7 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | PageModel API client                        | `libs/page-model`                                                                      |
 | PageModel renderer                          | `libs/page-model`                                                                      |
 | Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/`                          |
-| PageModel editor screen                     | `apps/platform-portal/src/app/features/platform/page-models` or legacy `tch-portal`    |
+| PageModel editor screen                     | `apps/platform-portal/src/app/features/platform/page-models`                         |
 | Auth session store                          | `libs/core/auth` when shared; app-owned wiring stays in the app during migration       |
 | Auth guards                                 | `libs/core/auth` when shared                                                           |
 | Login page                                  | `libs/core/auth`                                                                       |
@@ -108,7 +108,7 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | Language switcher UI                        | `libs/ui/components`                                                                   |
 | Local fallback i18n JSON                    | `libs/shared-assets/public/assets/i18n/{locale}`                                       |
 | Backend i18n API contract/client            | `libs/api`                                                                             |
-| Platform i18n admin screen                  | `apps/platform-portal/src/app/features/platform/i18n-overrides` or legacy `tch-portal` |
+| Platform i18n admin screen                  | `apps/platform-portal/src/app/features/platform/i18n-overrides`                      |
 | Test helpers                                | only create `testing` area when reused by multiple tests                               |
 
 ---
@@ -230,8 +230,8 @@ PrivateShell
 App-owned orchestration:
 
 ```text
-apps/tch-portal/src/app/features/public/shell
-apps/tch-portal/src/app/features/dashboard/shell
+apps/public-portal/src/app/features/public/shell
+apps/<portal>/src/app/features/dashboard/shell
 ```
 
 Reusable shell primitives, such as shell feedback models/stores that can be shared by
@@ -521,7 +521,7 @@ apps/admin-portal/src/app/features/admin/payouts/payout-summary-card.ts
 Page:
 
 ```text
-apps/tch-portal/src/app/features/public/home/public-home.page.ts
+apps/public-portal/src/app/features/public/home/public-home.page.ts
 ```
 
 PageModel runtime, API and renderer:
@@ -611,7 +611,7 @@ libs/api/http
 libs/ui/components
 libs/ui/styles
 libs/ui/theme
-apps/tch-portal/src/app/features/<surface>/<feature>
+apps/<portal>/src/app/features/<surface>/<feature>
 ```
 
 ---

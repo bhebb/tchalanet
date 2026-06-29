@@ -716,7 +716,7 @@ libs/ui/components/src/lib/<component>/<component>.scss
 Feature/page-specific styles:
 
 ```text
-apps/tch-portal/src/app/features/<surface>/<feature>/
+apps/<portal>/src/app/features/<surface>/<feature>/
 ```
 
 Theme runtime SCSS:

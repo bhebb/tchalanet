@@ -15,7 +15,7 @@ Every setting remains readable through `values`. Only explicit feature namespace
 ```text
 libs/shared-config/src/lib/settings/                 API, mapping, runtime store
 libs/shared-config/src/lib/runtime/runtime-paths.ts stable endpoint paths
-apps/tch-portal/src/app/core/runtime/                bootstrap orchestration
+libs/shared-config/src/lib/runtime/                bootstrap orchestration
 ```
 
 Use this area for:

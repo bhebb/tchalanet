@@ -33,6 +33,12 @@
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/platform-portal/src/environments/environment.ts",
+              "with": "apps/platform-portal/src/environments/environment.prod.ts"
+            }
+          ],
           "budgets": [
             {
               "type": "initial",

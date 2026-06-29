@@ -1,6 +1,6 @@
 {
-  "buildCommand": "pnpm nx build tch-portal --configuration=production",
-  "outputDirectory": "dist/apps/tch-portal/browser",
+  "buildCommand": "pnpm nx build public-portal --configuration=production",
+  "outputDirectory": "dist/apps/public-portal/browser",
   "installCommand": "pnpm install --frozen-lockfile",
   "github": { "enabled": false },
   "rewrites": [

@@ -5,7 +5,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
-import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
+import { TCH_API_BASE, correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
 import { provideFirebaseAuthClient } from '@tch/core/auth';
 import {
   I18nEffects,
@@ -13,7 +13,13 @@ import {
   MergedTranslateLoader,
   i18nFeature,
 } from '@tch/core/i18n';
-import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
+import {
+  FeatureFlags,
+  PORTAL_I18N_CONFIG,
+  SettingsFeatureFlags,
+  TchRuntimeConfigStore,
+  provideTchRuntimeConfig,
+} from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
 import { provideEffects } from '@ngrx/effects';
@@ -26,6 +32,15 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
+    provideTchRuntimeConfig({
+      fallback: environment.fallbackConfig,
+      runtimeConfigPath: environment.runtimeConfigPath,
+    }),
+    {
+      provide: TCH_API_BASE,
+      useFactory: (runtimeConfig: TchRuntimeConfigStore) => runtimeConfig.config().apiBaseUrl,
+      deps: [TchRuntimeConfigStore],
+    },
     provideRouter(appRoutes),
     provideHttpClient(
       withFetch(),
@@ -39,8 +54,8 @@ export const appConfig: ApplicationConfig = {
     themeStoreProvider,
     provideWidgets(),
     provideFirebaseAuthClient({
-      options: environment.firebase,
-      emulatorUrl: environment.firebaseAuthEmulatorUrl,
+      options: environment.fallbackConfig.firebase,
+      emulatorUrl: environment.fallbackConfig.firebaseAuthEmulatorUrl,
     }),
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },
     provideTranslateService({

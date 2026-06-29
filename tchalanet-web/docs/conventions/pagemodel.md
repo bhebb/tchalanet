@@ -64,7 +64,7 @@ libs/widgets
   widgets/      concrete Angular widgets
   widget-registry.ts
 
-apps/tch-portal
+apps/<portal>
   app.config.ts composition root
 ```
 

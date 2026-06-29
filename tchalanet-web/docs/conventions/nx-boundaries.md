@@ -118,7 +118,9 @@ shared      -> rien
 ### 4.1 Graphe actif PageModel
 
 ```text
-tch-portal -> page-model, widgets, web
+public-portal  -> page-model, widgets, web, core/auth, core/i18n
+admin-portal   -> web/shell, web/errors, core/auth, core/i18n, ui/console
+platform-portal-> web/shell, web/errors, core/auth, core/i18n, ui/console
 widgets    -> page-model
 web        -> page-model, ui/components
 page-model -X-> widgets

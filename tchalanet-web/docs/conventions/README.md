@@ -1,7 +1,6 @@
 # Conventions — tchalanet-web
 
-Ces conventions couvrent le portail historique `tch-portal` et les apps séparées
-`public-portal`, `admin-portal` et `platform-portal`.
+Ces conventions couvrent les apps séparées `public-portal`, `admin-portal` et `platform-portal`.
 
 | Sujet                                              | Fichier                                        |
 | -------------------------------------------------- | ---------------------------------------------- |

@@ -1,10 +1,14 @@
 import { Route } from '@angular/router';
-import { LoginPage } from '@tch/core/auth';
+import { ForgotPasswordPage, LoginPage } from '@tch/core/auth';
 
 export const appRoutes: Route[] = [
   {
     path: 'login',
     component: LoginPage,
+  },
+  {
+    path: 'forgot-password',
+    component: ForgotPasswordPage,
   },
   {
     path: '',

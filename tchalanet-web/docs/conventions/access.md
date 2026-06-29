@@ -47,7 +47,7 @@ routes.
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/access/   // AccessService, CanDirective, CanPipe, accessGuard
+libs/core/auth/src/lib/access/   // AccessService, CanDirective, CanPipe, accessGuard
 ```
 
 ## Notes
