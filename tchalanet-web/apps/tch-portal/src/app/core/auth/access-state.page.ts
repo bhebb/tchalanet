@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
@@ -11,6 +11,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
       <a routerLink="/app">Retour</a>
     </section>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .page {

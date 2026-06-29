@@ -20,7 +20,10 @@ export function errorsForTargetPrefix(
   targetPrefix: string,
 ): readonly WebAppError[] {
   return errors.filter(
-    error => error.surface === surface && error.target !== undefined && error.target.startsWith(targetPrefix),
+    error =>
+      error.surface === surface &&
+      error.target !== undefined &&
+      error.target.startsWith(targetPrefix),
   );
 }
 
@@ -78,7 +81,10 @@ export function toErrorViewModel(
   };
 }
 
-export function withResolvedErrorCopy(error: WebAppError, translate: TchTranslateLookup): WebAppError {
+export function withResolvedErrorCopy(
+  error: WebAppError,
+  translate: TchTranslateLookup,
+): WebAppError {
   const copy = resolveErrorFeedbackCopy(error, translate);
   return {
     ...error,

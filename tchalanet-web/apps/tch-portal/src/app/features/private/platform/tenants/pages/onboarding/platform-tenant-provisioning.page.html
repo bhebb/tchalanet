@@ -26,7 +26,7 @@
           <tch-notice type="success" class="tenant-provisioning__success-notice">
             <strong>{{ 'platform.tenantProvisioning.success.title' | translate }}</strong>
             <span>
-              {{ 'platform.tenantProvisioning.success.message' | translate: { code: successNotices()?.tenantCode } }}
+              {{ 'platform.tenantProvisioning.success.message' | translate: { code: $safeNavigationMigration(successNotices()?.tenantCode) } }}
             </span>
           </tch-notice>
 

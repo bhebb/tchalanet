@@ -1,0 +1,13 @@
+{
+  "name": "core-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/auth/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:core", "type:core"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

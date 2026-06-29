@@ -1,6 +1,6 @@
 import '@angular/compiler';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SUPPRESS_SHELL_FEEDBACK } from '@tch/api';
@@ -13,7 +13,7 @@ describe('PageModelApi', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     api = TestBed.inject(PageModelApi);
     http = TestBed.inject(HttpTestingController);

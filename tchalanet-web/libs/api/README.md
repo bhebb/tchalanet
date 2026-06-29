@@ -68,6 +68,7 @@ uploadAttachment(formData: FormData): Observable<AttachmentView> {
   return this.backend.postMultipart<AttachmentView>('/tenant/attachments', formData);
 }
 ```
+
 Ne jamais définir `Content-Type` manuellement pour FormData.
 
 ### Suppression du feedback shell

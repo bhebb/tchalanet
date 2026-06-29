@@ -7,7 +7,7 @@ import { correlationRequestInterceptor } from './correlation.interceptor';
 
 function runInterceptor(request: HttpRequest<unknown>) {
   let captured: HttpRequest<unknown> | undefined;
-  const next: HttpHandlerFn = (req) => {
+  const next: HttpHandlerFn = req => {
     captured = req as HttpRequest<unknown>;
     return of(new HttpResponse({ status: 200 }));
   };
@@ -34,7 +34,9 @@ describe('correlationRequestInterceptor', () => {
 
   it('does not overwrite an existing X-Request-Id', () => {
     const existing = 'tch_req_already-set-0123456789';
-    const req = new HttpRequest('GET', '/api/test', { headers: new (require('@angular/common/http').HttpHeaders)({ 'X-Request-Id': existing }) });
+    const req = new HttpRequest('GET', '/api/test', {
+      headers: new (require('@angular/common/http').HttpHeaders)({ 'X-Request-Id': existing }),
+    });
     const forwarded = runInterceptor(req);
     expect(forwarded.headers.get('X-Request-Id')).toBe(existing);
   });

@@ -1,0 +1,13 @@
+{
+  "name": "core-i18n",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/i18n/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:core", "type:core"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

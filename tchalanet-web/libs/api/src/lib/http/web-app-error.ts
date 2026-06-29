@@ -48,7 +48,15 @@ export function webAppErrorFromProblemDetail(
   const resolvedSource = problem.instance ?? source;
 
   return {
-    id: stableErrorId('problem', code, category, resolvedSource, problem.requestId, problem.traceId, problem.errorId),
+    id: stableErrorId(
+      'problem',
+      code,
+      category,
+      resolvedSource,
+      problem.requestId,
+      problem.traceId,
+      problem.errorId,
+    ),
     origin: problem.status === 401 ? 'auth' : 'backend',
     category,
     severity,
@@ -109,7 +117,15 @@ export function webAppErrorFromNotice(
     target,
     field,
     retryable: isRetryable(category, status),
-    dedupeKey: dedupeKey(notice.code, category, status, noticeSource, resolvedSurface, target, field),
+    dedupeKey: dedupeKey(
+      notice.code,
+      category,
+      status,
+      noticeSource,
+      resolvedSurface,
+      target,
+      field,
+    ),
   };
 }
 
@@ -130,7 +146,15 @@ export function webAppErrorsFromProblemDetailFields(
     const category: WebErrorCategory = 'validation';
 
     return {
-      id: stableErrorId('field', code, category, target, problem.requestId, problem.traceId, problem.errorId),
+      id: stableErrorId(
+        'field',
+        code,
+        category,
+        target,
+        problem.requestId,
+        problem.traceId,
+        problem.errorId,
+      ),
       origin: 'validation',
       category,
       severity: 'error',
@@ -148,7 +172,15 @@ export function webAppErrorsFromProblemDetailFields(
       target,
       field: violation.field,
       retryable: false,
-      dedupeKey: dedupeKey(code, category, problem.status, source, 'field', target, violation.field),
+      dedupeKey: dedupeKey(
+        code,
+        category,
+        problem.status,
+        source,
+        'field',
+        target,
+        violation.field,
+      ),
     } satisfies WebAppError;
   });
 }
@@ -159,12 +191,21 @@ export function webAppErrorFromServiceStatus(
   source: string,
 ): WebAppError {
   const code = `service.${service.service}.${service.status.toLowerCase()}`;
-  const category: WebErrorCategory = service.status === 'DOWN' ? 'service_unavailable' : 'unexpected';
+  const category: WebErrorCategory =
+    service.status === 'DOWN' ? 'service_unavailable' : 'unexpected';
   const severity: WebErrorSeverity = service.status === 'DOWN' ? 'error' : 'warn';
   const resolvedSource = service.service || source;
 
   return {
-    id: stableErrorId('service', code, category, resolvedSource, trace?.requestId, trace?.traceId, undefined),
+    id: stableErrorId(
+      'service',
+      code,
+      category,
+      resolvedSource,
+      trace?.requestId,
+      trace?.traceId,
+      undefined,
+    ),
     origin: 'backend',
     category,
     severity,
@@ -184,26 +225,41 @@ export function webAppErrorFromServiceStatus(
   };
 }
 
-function categoryFromCodeStatus(code: string | undefined, status: number | undefined): WebErrorCategory {
+function categoryFromCodeStatus(
+  code: string | undefined,
+  status: number | undefined,
+): WebErrorCategory {
   const normalized = code?.toLowerCase() ?? '';
-  if (normalized.includes('access.denied') || normalized.includes('forbidden')) return 'access_denied';
+  if (normalized.includes('access.denied') || normalized.includes('forbidden'))
+    return 'access_denied';
   if (normalized.includes('validation') || normalized.includes('request.')) return 'validation';
   if (normalized.includes('not_found') || normalized.includes('not-found')) return 'not_found';
   if (normalized.includes('conflict')) return 'conflict';
   if (normalized.includes('rate')) return 'rate_limited';
-  if (normalized.includes('service') || normalized.includes('unavailable') || normalized.includes('degraded')) {
+  if (
+    normalized.includes('service') ||
+    normalized.includes('unavailable') ||
+    normalized.includes('degraded')
+  ) {
     return 'service_unavailable';
   }
 
   switch (status) {
-    case 0: return 'network_unavailable';
+    case 0:
+      return 'network_unavailable';
     case 400:
-    case 422: return 'validation';
-    case 401: return 'auth_required';
-    case 403: return 'access_denied';
-    case 404: return 'not_found';
-    case 409: return 'conflict';
-    case 429: return 'rate_limited';
+    case 422:
+      return 'validation';
+    case 401:
+      return 'auth_required';
+    case 403:
+      return 'access_denied';
+    case 404:
+      return 'not_found';
+    case 409:
+      return 'conflict';
+    case 429:
+      return 'rate_limited';
     default:
       if (status !== undefined && status >= 500) return 'service_unavailable';
       return 'unexpected';
@@ -236,7 +292,14 @@ function dedupeKey(
   target: string | undefined = undefined,
   field: string | undefined = undefined,
 ): string {
-  return [code || category, status ?? 'na', source || 'unknown', surface, target || 'na', field || 'na'].join('|');
+  return [
+    code || category,
+    status ?? 'na',
+    source || 'unknown',
+    surface,
+    target || 'na',
+    field || 'na',
+  ].join('|');
 }
 
 function stableErrorId(
@@ -251,33 +314,59 @@ function stableErrorId(
   return [kind, errorId, requestId, traceId, code, category, source].filter(Boolean).join('|');
 }
 
-function userSafeTitle(code: string | undefined, category: WebErrorCategory, fallback: string): string {
+function userSafeTitle(
+  code: string | undefined,
+  category: WebErrorCategory,
+  fallback: string,
+): string {
   if (code) return code;
   switch (category) {
-    case 'auth_required': return 'Session requise';
-    case 'access_denied': return 'Acces non autorise';
-    case 'validation': return 'Information a corriger';
-    case 'not_found': return 'Element introuvable';
-    case 'conflict': return 'Action impossible';
-    case 'rate_limited': return 'Trop de demandes';
-    case 'network_unavailable': return 'Connexion indisponible';
-    case 'service_unavailable': return 'Service temporairement indisponible';
-    default: return fallback || 'Erreur inattendue';
+    case 'auth_required':
+      return 'Session requise';
+    case 'access_denied':
+      return 'Acces non autorise';
+    case 'validation':
+      return 'Information a corriger';
+    case 'not_found':
+      return 'Element introuvable';
+    case 'conflict':
+      return 'Action impossible';
+    case 'rate_limited':
+      return 'Trop de demandes';
+    case 'network_unavailable':
+      return 'Connexion indisponible';
+    case 'service_unavailable':
+      return 'Service temporairement indisponible';
+    default:
+      return fallback || 'Erreur inattendue';
   }
 }
 
-function userSafeMessage(code: string | undefined, category: WebErrorCategory, fallback: string): string {
+function userSafeMessage(
+  code: string | undefined,
+  category: WebErrorCategory,
+  fallback: string,
+): string {
   if (code) return fallback || code;
   switch (category) {
-    case 'auth_required': return 'Reconnectez-vous pour continuer.';
-    case 'access_denied': return 'Votre compte ne permet pas cette action.';
-    case 'validation': return 'Verifiez les champs et reessayez.';
-    case 'not_found': return 'La ressource demandee n est plus disponible.';
-    case 'conflict': return 'L etat actuel ne permet pas de terminer cette action.';
-    case 'rate_limited': return 'Patientez un moment avant de reessayer.';
-    case 'network_unavailable': return 'Verifiez la connexion et reessayez.';
-    case 'service_unavailable': return 'Une partie du service est temporairement indisponible.';
-    default: return 'Un probleme est survenu. Copiez la reference support si le probleme persiste.';
+    case 'auth_required':
+      return 'Reconnectez-vous pour continuer.';
+    case 'access_denied':
+      return 'Votre compte ne permet pas cette action.';
+    case 'validation':
+      return 'Verifiez les champs et reessayez.';
+    case 'not_found':
+      return 'La ressource demandee n est plus disponible.';
+    case 'conflict':
+      return 'L etat actuel ne permet pas de terminer cette action.';
+    case 'rate_limited':
+      return 'Patientez un moment avant de reessayer.';
+    case 'network_unavailable':
+      return 'Verifiez la connexion et reessayez.';
+    case 'service_unavailable':
+      return 'Une partie du service est temporairement indisponible.';
+    default:
+      return 'Un probleme est survenu. Copiez la reference support si le probleme persiste.';
   }
 }
 

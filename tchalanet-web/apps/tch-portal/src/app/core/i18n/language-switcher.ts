@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { TchLangSwitcher } from '@tch/ui/components';
 
 import { I18nFacade } from './i18n.facade';
@@ -12,6 +12,7 @@ const LANG_META: Record<string, { label: string; shortLabel: string; flag: strin
 @Component({
   selector: 'tch-language-switcher',
   imports: [TchLangSwitcher],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tch-lang-switcher
       [languages]="languages()"

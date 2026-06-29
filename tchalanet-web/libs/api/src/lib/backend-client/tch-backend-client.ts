@@ -10,9 +10,9 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ApiResponse } from '../contracts/api.types';
-import { TCH_API_BASE } from './api-base';
-import { SUPPRESS_SHELL_FEEDBACK } from './api-feedback-context';
-import { unwrapApiResponse } from './api-response';
+import { TCH_API_BASE } from '../http/api-base';
+import { SUPPRESS_SHELL_FEEDBACK } from '../http/api-feedback-context';
+import { unwrapApiResponse } from '../http/api-response';
 
 export interface TchRequestOptions {
   readonly params?: HttpParams | Record<string, string | ReadonlyArray<string>>;
@@ -47,7 +47,9 @@ export class TchBackendClient {
       result.params =
         options.params instanceof HttpParams
           ? options.params
-          : new HttpParams({ fromObject: options.params as Record<string, string | readonly string[]> });
+          : new HttpParams({
+              fromObject: options.params as Record<string, string | readonly string[]>,
+            });
     }
 
     if (options?.asTenantAdmin || options?.headers) {
@@ -72,8 +74,6 @@ export class TchBackendClient {
 
     return result;
   }
-
-  // ── Unwrapped (default) ────────────────────────────────────────────────────
 
   get<T>(path: string, options?: TchRequestOptions): Observable<T> {
     return this.http
@@ -117,8 +117,6 @@ export class TchBackendClient {
       .pipe(map(unwrapApiResponse));
   }
 
-  // ── Full ApiResponse (notices / serviceHealth needed) ─────────────────────
-
   getApiResponse<T>(path: string, options?: TchRequestOptions): Observable<ApiResponse<T>> {
     return this.http.get<ApiResponse<T>>(this.url(path), this.resolve(options));
   }
@@ -130,8 +128,6 @@ export class TchBackendClient {
   ): Observable<ApiResponse<TResponse>> {
     return this.http.post<ApiResponse<TResponse>>(this.url(path), body, this.resolve(options));
   }
-
-  // ── Raw downloads ──────────────────────────────────────────────────────────
 
   getBlob(path: string, options?: TchRequestOptions): Observable<Blob> {
     const { params, headers, context } = this.resolve(options);
@@ -172,8 +168,6 @@ export class TchBackendClient {
     const { params, headers, context } = this.resolve(options);
     return this.http.get(this.url(path), { params, headers, context, responseType: 'text' });
   }
-
-  // ── Multipart uploads ──────────────────────────────────────────────────────
 
   postMultipart<TResponse>(
     path: string,

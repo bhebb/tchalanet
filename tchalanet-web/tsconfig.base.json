@@ -20,13 +20,15 @@
       "@tch/web": ["./libs/web/src/index.ts"],
       "@tch/web/auth": ["./libs/web/src/lib/auth/index.ts"],
       "@tch/web/core": ["./libs/web/src/lib/core/index.ts"],
-      "@tch/web/errors": ["./libs/web/src/lib/errors/index.ts"],
+      "@tch/web/errors": ["./libs/web/errors/src/index.ts"],
       "@tch/web/i18n": ["./libs/web/src/lib/i18n/index.ts"],
-      "@tch/web/shell": ["./libs/web/src/lib/shell/index.ts"],
+      "@tch/web/shell": ["./libs/web/shell/src/index.ts"],
       "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],
       "@tch/ui/theme/*": ["./libs/ui/theme/src/*"],
       "@tch/ui/components": ["./libs/ui/components/src/index.ts"],
       "@tch/widgets": ["./libs/widgets/src/index.ts"],
+      "@tch/core/auth": ["./libs/core/auth/src/index.ts"],
+      "@tch/core/i18n": ["./libs/core/i18n/src/index.ts"],
       "@env/*": ["./apps/tch-portal/src/environments/*"]
     }
   },

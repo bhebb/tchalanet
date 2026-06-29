@@ -7,5 +7,5 @@ export * from './lib/http/api-response';
 export * from './lib/http/correlation.interceptor';
 export * from './lib/http/http-error.mapper';
 export * from './lib/http/problem-detail.interceptor';
-export * from './lib/http/tch-backend-client';
+export * from './lib/backend-client/tch-backend-client';
 export * from './lib/http/web-app-error';

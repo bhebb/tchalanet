@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -31,6 +31,7 @@ import { ThemeMode } from './theme-types';
       </select>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .theme-switcher {

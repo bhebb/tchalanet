@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -15,6 +15,7 @@ import { LanguageSwitcher } from '../i18n';
       <a routerLink="/public">{{ 'auth.forbidden.back' | translate }}</a>
     </section>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
       .page {

@@ -22,8 +22,14 @@ export function resolveErrorFeedbackCopy(
     }
   }
 
-  const categoryTitle = translateIfPresent(translate, `common.errors.categories.${error.category}.title`);
-  const categoryMessage = translateIfPresent(translate, `common.errors.categories.${error.category}.message`);
+  const categoryTitle = translateIfPresent(
+    translate,
+    `common.errors.categories.${error.category}.title`,
+  );
+  const categoryMessage = translateIfPresent(
+    translate,
+    `common.errors.categories.${error.category}.message`,
+  );
   if (categoryTitle && categoryMessage) {
     return { title: categoryTitle, message: categoryMessage };
   }
