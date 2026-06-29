@@ -82,6 +82,8 @@ export class PlatformContactRequestsPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
 
   readonly hasSelection = computed(() => this.selected() !== null);
   readonly statusFilterOptions: readonly AdminListStatusOption[] = STATUS_OPTIONS.map(status => ({
@@ -117,7 +119,10 @@ export class PlatformContactRequestsPage implements OnInit {
         next: page => {
           this.requests.set(page.items ?? []);
           this.totalElements.set(page.totalElements ?? 0);
+          this.page.set(page.page);
           this.totalPages.set(page.totalPages || 1);
+          this.hasNext.set(page.hasNext ?? false);
+          this.hasPrevious.set(page.hasPrevious ?? false);
           this.loading.set(false);
         },
         error: err => {
@@ -158,13 +163,13 @@ export class PlatformContactRequestsPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() === 0) return;
+    if (!this.hasPrevious()) return;
     this.page.set(this.page() - 1);
     this.load();
   }
 
   nextPage(): void {
-    if (this.page() + 1 >= this.totalPages()) return;
+    if (!this.hasNext()) return;
     this.page.set(this.page() + 1);
     this.load();
   }

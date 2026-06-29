@@ -71,6 +71,8 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
 
   private showError(msg: string): void {
     this.error.set(msg);
@@ -96,7 +98,10 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
       next: p => {
         this.overrides.set(p.items);
         this.totalElements.set(p.totalElements);
+        this.page.set(p.page);
         this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -112,8 +117,8 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   onKeyFilter(v: string): void { this.keyFilter.set(v); this.page.set(0); this.load(); }
   onLocaleChange(v: string): void { this.localeFilter.set(v); this.page.set(0); this.load(); }
   onLevelChange(v: string): void { this.levelFilter.set(v); this.page.set(0); this.load(); }
-  prevPage(): void { this.page.set(this.page() - 1); this.load(); }
-  nextPage(): void { this.page.set(this.page() + 1); this.load(); }
+  prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
+  nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
   openCreate(): void {
     const ref = this.dialog.open(CreateI18nOverrideDialog, { width: '540px' });

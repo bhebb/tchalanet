@@ -88,9 +88,9 @@
     <footer class="support-tenant-page__pagination">
       <span>{{ total() }} tenant(s)</span>
       <div>
-        <button mat-button type="button" [disabled]="page() === 0" (click)="prevPage()">Précédent</button>
-        <span>Page {{ page() + 1 }}</span>
-        <button mat-button type="button" [disabled]="(page() + 1) * 20 >= total()" (click)="nextPage()">Suivant</button>
+        <button mat-button type="button" [disabled]="!hasPrevious()" (click)="prevPage()">Précédent</button>
+        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+        <button mat-button type="button" [disabled]="!hasNext()" (click)="nextPage()">Suivant</button>
       </div>
     </footer>
   }

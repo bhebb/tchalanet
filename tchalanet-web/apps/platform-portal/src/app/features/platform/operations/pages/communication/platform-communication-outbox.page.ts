@@ -108,6 +108,8 @@ export class PlatformCommunicationOutboxPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
 
   readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
     this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }, { suppressShellFeedback: true }).pipe(
@@ -137,7 +139,10 @@ export class PlatformCommunicationOutboxPage implements OnInit {
         this.summary.set(view.summary);
         this.messages.set(view.messages.items);
         this.totalElements.set(view.messages.totalElements);
+        this.page.set(view.messages.page);
         this.totalPages.set(view.messages.totalPages || 1);
+        this.hasNext.set(view.messages.hasNext ?? false);
+        this.hasPrevious.set(view.messages.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -179,11 +184,13 @@ export class PlatformCommunicationOutboxPage implements OnInit {
   }
 
   prevPage(): void {
+    if (!this.hasPrevious()) return;
     this.page.set(this.page() - 1);
     this.load();
   }
 
   nextPage(): void {
+    if (!this.hasNext()) return;
     this.page.set(this.page() + 1);
     this.load();
   }

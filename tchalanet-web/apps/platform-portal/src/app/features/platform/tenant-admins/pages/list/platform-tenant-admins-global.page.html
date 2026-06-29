@@ -168,12 +168,12 @@
             {{ 'platform.tenantAdmins.paginationTotal' | translate: { count: total() } }}
           </span>
           <div class="tenant-admins-global__pagination-nav">
-            <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+            <button mat-button [disabled]="!hasPrevious()" (click)="prevPage()">
               <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
               {{ 'common.previous' | translate }}
             </button>
             <span>{{ 'platform.tenantAdmins.pagination' | translate: { page: page() + 1, total: totalPages() } }}</span>
-            <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+            <button mat-button [disabled]="!hasNext()" (click)="nextPage()">
               {{ 'common.next' | translate }}
               <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
             </button>

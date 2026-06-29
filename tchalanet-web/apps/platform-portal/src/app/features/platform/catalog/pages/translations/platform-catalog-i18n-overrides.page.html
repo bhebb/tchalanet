@@ -121,11 +121,11 @@
     <div footer>
       <span class="catalog-i18n-page__footer-count">{{ 'platform.i18nOverrides.pagination.count' | translate: { count: totalElements() } }}</span>
       <div class="catalog-i18n-page__pagination">
-        <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
+        <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
         <span>{{ 'platform.i18nOverrides.pagination.page' | translate: { page: page() + 1, total: totalPages() } }}</span>
-        <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+        <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>

@@ -117,6 +117,8 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly dryRun = signal(false);
   readonly filteredDraws = signal<DrawView[]>([]);
 
@@ -142,7 +144,10 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
         next: page => {
           this.draws.set(page.items);
           this.totalElements.set(page.totalElements);
+          this.page.set(page.page);
           this.totalPages.set(page.totalPages || 1);
+          this.hasNext.set(page.hasNext ?? false);
+          this.hasPrevious.set(page.hasPrevious ?? false);
           this.applySearch();
           this.loading.set(false);
         },
@@ -165,11 +170,13 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   }
 
   prevPage(): void {
+    if (!this.hasPrevious()) return;
     this.page.set(this.page() - 1);
     this.load();
   }
 
   nextPage(): void {
+    if (!this.hasNext()) return;
     this.page.set(this.page() + 1);
     this.load();
   }

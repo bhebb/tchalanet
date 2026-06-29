@@ -70,6 +70,8 @@ export class PlatformEntityHistoryPage {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly hasQueried = signal(false);
   readonly hasActiveFilters = signal(false);
   readonly expandedRevisionId = signal<string | null>(null);
@@ -82,6 +84,8 @@ export class PlatformEntityHistoryPage {
       this.revisions.set([]);
       this.totalElements.set(0);
       this.totalPages.set(1);
+      this.hasNext.set(false);
+      this.hasPrevious.set(false);
       this.hasActiveFilters.set(false);
       return;
     }
@@ -99,7 +103,10 @@ export class PlatformEntityHistoryPage {
       next: p => {
         this.revisions.set(p.items);
         this.totalElements.set(p.totalElements);
+        this.page.set(p.page);
         this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -124,17 +131,21 @@ export class PlatformEntityHistoryPage {
     this.revisions.set([]);
     this.totalElements.set(0);
     this.totalPages.set(1);
+    this.hasNext.set(false);
+    this.hasPrevious.set(false);
     this.error.set(null);
     this.hasActiveFilters.set(false);
     this.expandedRevisionId.set(null);
   }
 
   prevPage(): void {
+    if (!this.hasPrevious()) return;
     this.page.set(this.page() - 1);
     this.load();
   }
 
   nextPage(): void {
+    if (!this.hasNext()) return;
     this.page.set(this.page() + 1);
     this.load();
   }

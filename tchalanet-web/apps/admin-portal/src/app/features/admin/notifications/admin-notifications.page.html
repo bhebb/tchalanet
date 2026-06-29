@@ -299,11 +299,11 @@
 
     <div class="notifications-pagination">
       <span>{{ total() }} notification(s)</span>
-      <button mat-icon-button type="button" [disabled]="page() === 0" (click)="prevPage()">
+      <button mat-icon-button type="button" [disabled]="!hasPrevious()" (click)="prevPage()">
         <mat-icon>chevron_left</mat-icon>
       </button>
       <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-      <button mat-icon-button type="button" [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+      <button mat-icon-button type="button" [disabled]="!hasNext()" (click)="nextPage()">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>
