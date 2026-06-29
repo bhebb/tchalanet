@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ data.enable ? 'Activer' : 'Désactiver' }} gate</h2>
+<mat-dialog-content>
+  <p class="update-gate-dialog__job-key"><strong>{{ data.jobKey }}</strong></p>
+  <form [formGroup]="form" class="update-gate-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Portée</mat-label>
+      <mat-select formControlName="scope">
+        <mat-option value="GLOBAL">Global</mat-option>
+        <mat-option value="TENANT">Tenant</mat-option>
+      </mat-select>
+    </mat-form-field>
+    @if (form.controls.scope.value === 'TENANT') {
+      <tch-search-select
+        label="Tenant"
+        placeholder="Nom ou code du tenant"
+        icon="apartment"
+        emptyLabel="Aucun tenant trouvé"
+        [error]="form.controls.tenantId.invalid && form.controls.tenantId.touched ? 'Requis pour portée TENANT.' : ''"
+        [searchFn]="searchTenants"
+        (valueChange)="selectTenant($event)"
+      />
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>Raison</mat-label>
+      <input matInput formControlName="reason" />
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error
+      class="update-gate-dialog__feedback"
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
+  <button mat-flat-button [color]="data.enable ? 'primary' : 'warn'"
+    [disabled]="form.invalid || submitting()" (click)="submit()">
+    @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
+    Confirmer
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,27 @@
+.block-dialog {
+  &__info {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm, 0.875rem);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__field {
+    width: 100%;
+  }
+
+  &__spin {
+    animation: block-dialog-spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+@keyframes block-dialog-spin {
+  to { transform: rotate(360deg); }
+}

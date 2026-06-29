@@ -15,7 +15,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 - Infra images/tags : `tchalanet-infra/envs/common/compose.env` + `compose/*`
 - Web (Nx) : `tchalanet-web/package.json` + `tchalanet-web/pnpm-lock.yaml`
 - Mobile (Flutter) : `tchalanet-mobile/pubspec.yaml`
-- Version pnpm : `package.json#packageManager` + Corepack
+- Version pnpm web : `tchalanet-web/package.json#packageManager` + Corepack
 - Edge service : `tchalanet-edge-service/package.json`
 
 ---
@@ -88,9 +88,12 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 ## 3) Web (Nx / Angular)
 
-- Angular : 21.x (voir `tchalanet-web/package.json`)
-- Nx : workspace géré via `tchalanet-web/`
-- Package manager : pnpm (voir `packageManager` dans `tchalanet-web/package.json`)
+- Angular : 22.0.4 (voir `tchalanet-web/package.json`)
+- Angular Material/CDK : 22.0.x
+- Nx : 23.1.0-beta.4
+- TypeScript : 6.0.3
+- Package manager : pnpm 11.9.0 (voir `packageManager` dans `tchalanet-web/package.json`)
+- SSR packages : `@angular/ssr` 22.0.x + `express` 4.x pour `public-portal`
 
 ### Dépendances principales (versions dans `tchalanet-web/package.json`)
 
@@ -100,11 +103,19 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | `@ngrx/effects`             | ^21.1.0  | Side effects (HTTP, i18n)      |
 | `@ngrx/router-store`        | ^21.1.0  | Router/store sync              |
 | `@ngrx/store-devtools`      | ^21.1.0  | Dev tools                      |
-| `@angular/material`         | ^21.2.13 | UI component library           |
-| `@angular/cdk`              | ^21.2.13 | Component primitives           |
+| `@angular/material`         | ^22.0.2  | UI component library           |
+| `@angular/cdk`              | ^22.0.2  | Component primitives           |
 | `@ngx-translate/core`       | ^17.0.0  | i18n runtime                   |
 | `@ngx-translate/http-loader`| ^17.0.0  | i18n HTTP loader               |
-| `keycloak-angular`          | ^21.0.0  | Keycloak OIDC integration      |
+| `keycloak-angular`          | ^22.0.0  | Keycloak OIDC integration      |
+| `@angular/ssr`              | ~22.0.4  | Angular SSR runtime            |
+| `express`                   | ^4.21.2  | SSR node server                |
+
+Known peer lag after Angular 22 upgrade:
+
+- NgRx 21.x peer-declares Angular 21.
+- `@angular/fire` 20.x peer-declares Angular 20 and pulls Angular 20 platform-browser-dynamic peers.
+- Module federation tooling peer-declares TypeScript 4/5 while the workspace is on TypeScript 6.
 
 ---
 

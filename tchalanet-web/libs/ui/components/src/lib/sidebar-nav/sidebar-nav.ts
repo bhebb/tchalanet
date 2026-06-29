@@ -65,7 +65,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
                       <span class="material-symbols-outlined" aria-hidden="true">{{ child.icon }}</span>
                     }
                     <span class="sidebar__label">{{ actionText(child) | translate }}</span>
-                    @if (child.badge?.value !== undefined && child.badge?.value !== null) {
+                    @if ($safeNavigationMigration(child.badge?.value) !== undefined && $safeNavigationMigration(child.badge?.value) !== null) {
                       <span class="sidebar__badge" [attr.data-severity]="child.badge?.severity ?? 'info'">
                         {{ child.badge?.value }}
                       </span>
@@ -88,7 +88,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
               <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
             }
             <span class="sidebar__label">{{ actionText(item) | translate }}</span>
-            @if (item.badge?.value !== undefined && item.badge?.value !== null) {
+            @if ($safeNavigationMigration(item.badge?.value) !== undefined && $safeNavigationMigration(item.badge?.value) !== null) {
               <span class="sidebar__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
                 {{ item.badge?.value }}
               </span>

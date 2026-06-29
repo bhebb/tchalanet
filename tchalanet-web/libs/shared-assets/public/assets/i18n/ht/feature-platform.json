@@ -1,0 +1,749 @@
+{
+  "platform": {
+    "placeholder": {
+      "title": "Ekran an preparasyon",
+      "description": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
+      "message": "Fonksyonalite sa a ap disponib nan yon pwochen iterasyon.",
+      "descriptions": {
+        "entitlements": "Jere dwa fonksyonèl ki disponib pou chak tenant.",
+        "providers": "Siveye providers ak konektè tiraj yo.",
+        "opsResources": "Detay resous sèvis kritik ak degrade yo.",
+        "archives": "Konsilte ak kontwole achiv platfòm yo.",
+        "games": "Referans global jwèt ki disponib sou platfòm nan.",
+        "resultSlots": "Referans espas rezilta ak fenèt piblikasyon yo.",
+        "permissions": "Jere pèmisyon platfòm yo.",
+        "roles": "Jere wòl platfòm yo.",
+        "overrides": "Jere overrides super admin yo.",
+        "supportTenant": "Sélectionnez un tenant pour accéder à son interface d'administration en mode support.",
+        "communicationTests": "Testez les canaux de communication (email, Slack, notifications).",
+        "identitySync": "Synchronisez les identités Firebase avec la plateforme.",
+        "contactConfig": "Configurez les canaux et messages de contact globaux.",
+        "tchalaSuggestions": "Gérez les suggestions de rêves en attente d'approbation.",
+        "tchalaImport": "Importez des entrées Tchala depuis un fichier.",
+        "tchalaCleanup": "Fusionnez ou supprimez des entrées Tchala en double.",
+        "users": "Gérez les utilisateurs de la plateforme.",
+        "backendKeys": "Clés de signature backend — lecture seule.",
+        "drawChannelGames": "Associez des jeux aux canaux de tirage.",
+        "resultSlotCalendars": "Gérez les calendriers des slots de résultats.",
+        "platformReports": "Rapports agrégés de la plateforme."
+      }
+    },
+    "dashboard": {
+      "title": "Platfòm",
+      "description": "Rezime enfrastrikti Tchalanet",
+      "kpi": {
+        "activeTenants": "Tenant aktif",
+        "receivedContacts": "Demann kontak",
+        "pendingNotifications": "Notifikasyon an atant",
+        "degradedServices": "Sèvis degraded"
+      },
+      "provisioning": {
+        "title": "Pwovizyon resan"
+      },
+      "integrity": {
+        "title": "Entegrite operasyonèl"
+      },
+      "contacts": {
+        "title": "Demann kontak resan"
+      }
+    },
+    "tenants": {
+      "title": "Tenant",
+      "description": "Lis, filtre, epi swiv tenant Tchalanet yo.",
+      "loading": "Chajman tenants...",
+      "pagination": "Paj {{page}} / {{total}}",
+      "error": {
+        "load": "Pa ka chaje tenants yo.",
+        "suspend": "Erè pandan sispansyon tenant lan.",
+        "reactivate": "Erè pandan reaktivasyon tenant lan.",
+        "archive": "Erè pandan achivaj tenant lan.",
+        "activate": "Erè pandan aktivasyon tenant an."
+      },
+      "feedback": {
+        "updated": "{{name}} mete ajou."
+      },
+      "action": {
+        "create": "Kreye tenant",
+        "applyFilters": "Filtre",
+        "resetFilters": "Reyinisyalize",
+        "openMenu": "Ouvri aksyon tenant lan",
+        "viewDetails": "Wè tenant an",
+        "suspend": "Sispann",
+        "reactivate": "Reaktive",
+        "archive": "Achive",
+        "backToList": "Retounen nan lis la",
+        "activate": "Aktive"
+      },
+      "filter": {
+        "search": "Chèche",
+        "status": "Estati",
+        "profile": "Pwofil",
+        "allStatuses": "Tout estati",
+        "allProfiles": "Tout pwofil"
+      },
+      "column": {
+        "tenant": "Tenant",
+        "code": "Kòd",
+        "status": "Estati",
+        "profile": "Pwofil",
+        "primaryAdmin": "Admin prensipal",
+        "readiness": "Readiness",
+        "createdAt": "Kreye",
+        "updatedAt": "Dènyè modifikasyon",
+        "type": "Tip",
+        "currency": "Monè",
+        "name": "Nom",
+        "email": "Email"
+      },
+      "empty": {
+        "title": "Pa gen tenant",
+        "message": "Kreye premye tenant lan pou kòmanse.",
+        "filtered": {
+          "title": "Pa gen rezilta",
+          "message": "Pa gen okenn tenant ki koresponn ak filtre yo chwazi."
+        }
+      },
+      "status": {
+        "onboarding": "Onboarding",
+        "active": "Aktif",
+        "suspended": "Sispann",
+        "disabled": "Dezaktive",
+        "draft": "Bouyon",
+        "archived": "Achive"
+      },
+      "readiness": {
+        "ready": "Pare",
+        "incomplete": "Enkonplè",
+        "blocked": "Bloke",
+        "missing": "Manke",
+        "unknown": "Pou konplete"
+      },
+      "type": {
+        "borlette": "Borlette",
+        "reseau": "Rezo",
+        "ambulant": "Mobil"
+      },
+      "profile": {
+        "minimal": "Minimal",
+        "defaultHaitiLottery": "Loteri Ayiti pa defo",
+        "demo": "Demo"
+      },
+      "profileDescription": {
+        "minimal": "Baz minimal, apre sa konfigirasyon manyèl.",
+        "defaultHaitiLottery": "Pwofil rekòmande pou yon tenant reyèl: jwèt, pri, ak kanal tiraj Ayiti.",
+        "demo": "Pwofil demonstrasyon pou anviwònman ki pa pwodiksyon."
+      },
+      "field": {
+        "code": "Kòd tenant",
+        "name": "Non",
+        "type": "Tip",
+        "timezone": "Fizo orè",
+        "currency": "Lajan",
+        "initialAdminEmail": "Imèl admin inisyal",
+        "profile": "Pwofil"
+      },
+      "validation": {
+        "code": "Fòma obligatwa: ti lèt, chif, tirè (3-30 karaktè).",
+        "required": "Chan obligatwa.",
+        "email": "Adrès imèl pa valid."
+      },
+      "create": {
+        "title": "Kreye tenant",
+        "description": "Pwovizyone yon tenant ki ka opere ak done inisyal li yo.",
+        "adminHint": "Si li vid, tenant lan ap kreye san administratè inisyal.",
+        "success": "Tenant lan pwovizyone avèk siksè.",
+        "error": "Pwovizyonman tenant lan echwe.",
+        "previewError": "Pa ka kalkile pwofil la.",
+        "previewLoading": "Kalkil pwofil la...",
+        "section": {
+          "identity": "Idantite tenant",
+          "admin": "Admin inisyal",
+          "profile": "Pwofil provisioning",
+          "preview": "Apèsi provisioning"
+        },
+        "action": {
+          "preview": "Preview",
+          "provision": "Kreye tenant"
+        },
+        "preview": {
+          "profile": "Pwofil chwazi",
+          "includedDomains": "Sa ki pral inisyalize",
+          "notCopiedData": "Sa ki pap kopye",
+          "expectedReadiness": "Readiness espere",
+          "empty": "Ranpli fòm lan, apre sa lanse preview la."
+        }
+      },
+      "detail": {
+        "title": "Detay tenant",
+        "description": "Idantite, rejyon, komès ak pwofil tenant an.",
+        "loading": "Chajman tenant...",
+        "error": "Pa ka chaje tenant lan.",
+        "createdTitle": "Tenant kreye",
+        "domainStatuses": "Domèn pwovizyone",
+        "nextSteps": "Pwochen etap",
+        "empty": {
+          "title": "Tenant pa jwenn",
+          "message": "Detay tenant sa a poko disponib."
+        },
+        "section": {
+          "identity": "Idantite",
+          "region": "Rejyon",
+          "commerce": "Komès",
+          "profile": "Pwofil & Readiness",
+          "address": "Adresse"
+        },
+        "field": {
+          "type": "Tip",
+          "country": "Pays",
+          "city": "Ville",
+          "addressLine": "Adresse",
+          "postalCode": "Code postal",
+          "theme": "Thème actif"
+        },
+        "identityCard": {
+          "eyebrow": "Tenant"
+        },
+        "action": {
+          "viewAdmins": "Wè administratè yo",
+          "updateSuccess": "Enfòmasyon yo mete ajou avèk siksè.",
+          "updateError": "Enposib pou sove chanjman yo.",
+          "activate": "Activer",
+          "activateError": "Erreur lors de l'activation.",
+          "suspend": "Suspendre",
+          "suspendError": "Erreur lors de la suspension.",
+          "addAdmin": "Ajouter un administrateur"
+        },
+        "tab": {
+          "overview": "Aperçu",
+          "admins": "Administrateurs",
+          "configuration": "Configuration",
+          "subscription": "Abonnement",
+          "entitlements": "Droits d'usage",
+          "sellerTerminals": "Seller-terminals",
+          "audit": "Audit"
+        },
+        "address": {
+          "empty": "Adresse non renseignée."
+        },
+        "admins": {
+          "loading": "Chargement des administrateurs…",
+          "error": "Erreur lors du chargement des administrateurs.",
+          "empty": {
+            "title": "Aucun administrateur",
+            "message": "Ce tenant n'a pas encore d'administrateur."
+          }
+        },
+        "config": {
+          "empty": {
+            "title": "Configuration non renseignée",
+            "message": "La configuration interne de ce tenant n'a pas encore été définie."
+          },
+          "section": {
+            "locale": "Langue & région",
+            "calendar": "Calendrier commercial",
+            "communication": "Communication ticket",
+            "receipt": "Reçu / documents"
+          },
+          "field": {
+            "defaultLanguage": "Langue par défaut",
+            "defaultLocale": "Locale par défaut",
+            "supportedLanguages": "Langues supportées",
+            "fallbackLanguage": "Langue de secours",
+            "defaultOpen": "Ouvert par défaut",
+            "holidaySalesAllowed": "Vente les jours fériés",
+            "closedWeekdays": "Jours fermés",
+            "receiptDisplayName": "Nom affiché",
+            "headerMessage": "Message d'en-tête",
+            "footerMessage": "Message de pied",
+            "paperSize": "Format papier",
+            "showQrCode": "Afficher QR code",
+            "showSellerName": "Afficher nom vendeur",
+            "showPotentialPayout": "Afficher gain potentiel"
+          },
+          "paidBy": {
+            "buyer": "Payé par l'acheteur",
+            "tenant": "Payé par le tenant",
+            "platform": "Payé par la plateforme"
+          }
+        }
+      },
+      "provisioning": {
+        "domains": {
+          "tenant_identity": "Idantite tenant",
+          "pagemodels": "Paj inisyal",
+          "theme": "Tèm",
+          "settings": "Paramèt",
+          "i18n": "Tradiksyon",
+          "games": "Jwèt",
+          "pricing": "Tarif",
+          "draw_channels": "Kanal tiraj",
+          "promotions_templates": "Modèl pwomosyon",
+          "limits_templates": "Modèl limit",
+          "demo_users": "Itilizatè demo",
+          "demo_seller_terminals": "Seller-terminals demo"
+        },
+        "data": {
+          "tickets": "Tikè",
+          "sales": "Vant",
+          "payouts": "Peman",
+          "audit": "Odit",
+          "notifications": "Notifikasyon",
+          "stats": "Estatistik",
+          "ledger": "Gran liv"
+        },
+        "readiness": {
+          "identity": "Idantite tenant",
+          "users": "Admin tenant",
+          "draw_channels": "Kanal tiraj",
+          "seller_rules": "Règ seller-terminal",
+          "limits": "Limit",
+          "odds": "Barèm",
+          "seller_terminals": "Seller-terminals"
+        },
+        "nextSteps": {
+          "CREATE_INITIAL_ADMIN": "Kreye admin inisyal la",
+          "CONFIGURE_GAMES": "Konfigire jwèt yo",
+          "CONFIGURE_DRAW_CHANNELS": "Konfigire kanal tiraj yo",
+          "CONFIGURE_SELLER_RULES": "Konfigire règ seller-terminal",
+          "CREATE_SELLER_TERMINAL": "Kreye yon seller-terminal",
+          "CONFIGURE_LIMITS": "Konfigire limit yo",
+          "CONFIGURE_ODDS": "Konfigire barèm yo",
+          "VERIFY_DEMO_SETUP": "Verifye done demo yo"
+        },
+        "statuses": {
+          "CREATED": "Kreye",
+          "SEEDED_VIA_LISTENER": "Inisyalize otomatikman",
+          "DEFAULT": "Valè pa defo",
+          "DEFAULT_LOTTERY": "Jwèt loto pa defo",
+          "DEFAULT_HAITI": "Konfigirasyon Ayiti pa defo",
+          "TEMPLATES_AVAILABLE": "Modèl disponib",
+          "NONE": "Pa konfigire"
+        },
+        "warnings": {
+          "INITIAL_ADMIN_EMAIL_MISSING": "Pa gen admin inisyal k ap kreye."
+        }
+      },
+      "confirm": {
+        "suspend": "Ou vle sispann {{name}} ? Vandè yo p ap ka konekte ankò.",
+        "reactivate": "Ou vle reaktive {{name}} ?",
+        "archive": "Ou vle achive {{name}} ? Aksyon sa a difisil pou defèt.",
+        "reasonLabel": "Rezon",
+        "activate": "Ou vle aktive {{name}} ?"
+      },
+      "success": {
+        "suspended": "Tenant sispann.",
+        "reactivated": "Tenant reaktive.",
+        "archived": "Tenant achive."
+      },
+      "paginationTotal": "{{count}} tenant(s)",
+      "admin": {
+        "pageTitle": "Ajoute yon admin",
+        "pageTitleWithTenant": "Ajoute admin — {{name}}",
+        "loading": "Ap chaje...",
+        "section": "Enfòmasyon administratè",
+        "field": {
+          "email": "Imèl",
+          "firstName": "Prenon",
+          "lastName": "Non fanmi (opsyonèl)",
+          "phone": "Telefòn (opsyonèl)"
+        },
+        "error": {
+          "email": "Imèl valid obligatwa.",
+          "firstName": "Prenon obligatwa.",
+          "create": "Erè pandan kreyasyon."
+        },
+        "roleInfo": "Wòl: TENANT_ADMIN",
+        "submit": "Kreye administratè",
+        "success": "Administratè kreye avèk siksè."
+      },
+      "adminStatus": {
+        "active": "Actif",
+        "pending": "En attente",
+        "disabled": "Désactivé",
+        "invited": "Invité"
+      }
+    },
+    "tenantProvisioning": {
+      "title": "Pwovizyone yon tenant",
+      "description": "Kreye yon tenant, aplike yon pwofil inisyal, epi prepare konfigirasyon li.",
+      "backToTenants": "Retounen nan tenants",
+      "section": {
+        "identity": "Idantite & klasifikasyon",
+        "regional": "Paramèt rejyonal",
+        "commercial": "Paramèt komèsyal",
+        "profile": "Pwofil provisioning",
+        "initialAdmin": "Admin inisyal"
+      },
+      "field": {
+        "code": "Kòd tenant",
+        "name": "Non afichaj",
+        "type": "Tip",
+        "timezone": "Fizo orè",
+        "currency": "Lajan",
+        "defaultCommissionRate": "Komisyon pa defo",
+        "profile": "Pwofil",
+        "initialAdminEmail": "Imèl admin inisyal"
+      },
+      "hint": {
+        "defaultCommissionRate": "Komisyon yo aplike pa defo sou seller-terminal ki pa gen yon to espesifik.",
+        "initialAdminEmail": "Si li vid, tenant lan ap kreye san administratè inisyal."
+      },
+      "error": {
+        "code": "Fòma obligatwa: ti lèt, chif, tirè (3–30 karaktè).",
+        "required": "Chan obligatwa.",
+        "email": "Adrès imèl pa valid.",
+        "commissionRate": "Komisyon an dwe ant 0 ak 100 %.",
+        "submitTitle": "Pwovizyonman enposib"
+      },
+      "loading": {
+        "title": "Pwovizyonman tenant an ap fèt…",
+        "message": "Kreyasyon tenant an, aplikasyon pwofil inisyal la ak preparasyon konfigirasyon an."
+      },
+      "action": {
+        "cancel": "Anile",
+        "submit": "Pwovizyone tenant lan",
+        "submitting": "Pwovizyonman…",
+        "backToList": "Retounen nan lis la",
+        "completeRequired": "Ranpli chan obligatwa yo pou kontinye",
+        "viewTenant": "Gade tenant lan",
+        "addAdmin": "Ajoute yon administratè",
+        "createAnother": "Kreye yon lòt tenant"
+      },
+      "warning": {
+        "initialAdminMissing": "Pa gen admin inisyal. Tenant lan ka kreye, men yon administratè ap dwe ajoute apre.",
+        "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè tenant lan.",
+        "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay tenant lan.",
+        "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
+        "fallback": "Yon pwen konfigirasyon mande verifikasyon."
+      },
+      "identityCard": {
+        "eyebrow": "Idantite tenant lan",
+        "fallbackTitle": "Nouvo tenant",
+        "unassignedCode": "pa asiyen"
+      },
+      "health": {
+        "title": "Sante konfigirasyon",
+        "eyebrow": "Readiness",
+        "loading": "Kalkil pwofil la...",
+        "fallback": "Pou valide"
+      },
+      "result": {
+        "nextSteps": "Pwochen etap",
+        "warnings": "Avètisman",
+        "initialAdmin": "Admin inisyal",
+        "adminEmail": "Imèl",
+        "adminStatus": "Estati",
+        "temporaryAccessCreated": "Aksè tanporè kreye",
+        "temporaryPassword": "Modpas tanporè",
+        "passwordConfiguredServerSide": "Modpas tanporè a defini selon konfigirasyon sèvè a.",
+        "adminNextInstruction": "Mande admin nan konekte. Li dwe chanje modpas li epi ranpli pwofil li avan li antre nan /app/admin."
+      },
+      "domain": {
+        "tenantIdentity": "Idantite tenant",
+        "pagemodels": "Paj inisyal",
+        "theme": "Tèm",
+        "settings": "Paramèt",
+        "i18n": "Tradiksyon",
+        "games": "Jwèt",
+        "pricing": "Tarif",
+        "drawChannels": "Kanal tiraj",
+        "promotionsTemplates": "Modèl pwomosyon",
+        "limitsTemplates": "Modèl limit",
+        "demoUsers": "Itilizatè demo",
+        "demoSellerTerminals": "Seller-terminals demo"
+      },
+      "status": {
+        "created": "Kreye",
+        "seeded": "Inisyalize",
+        "default": "Pa defo",
+        "defaultLottery": "Lotri pa defo",
+        "defaultHaiti": "Ayiti pa defo",
+        "templatesAvailable": "Modèl disponib",
+        "none": "Okenn",
+        "planned": "Prevwa",
+        "expected": "Atann"
+      },
+      "step": {
+        "createInitialAdmin": "Kreye admin inisyal la",
+        "configureGames": "Konfigire jwèt yo",
+        "configureDrawChannels": "Konfigire kanal tiraj yo",
+        "createSellerTerminal": "Kreye yon seller-terminal",
+        "configureSellerRules": "Konfigire règ seller-terminal yo",
+        "configureLimits": "Konfigire limit yo",
+        "configureOdds": "Konfigire barèm yo",
+        "verifyDemoSetup": "Verifye done demo yo"
+      },
+      "success": {
+        "title": "Tenant pwovizyone avèk siksè",
+        "message": "Tenant {{code}} te kreye epi li prèt pou konfigirasyon."
+      },
+      "typeDescription": {
+        "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
+        "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
+        "ambulant": "Vendeur indépendant ou petite activité mobile."
+      }
+    },
+    "contactRequests": {
+      "title": "Demann kontak",
+      "description": "Jesyon demann ki rive"
+    },
+    "news": {
+      "title": "Nouvèl",
+      "description": "Jesyon nouvèl platfòm"
+    },
+    "notifications": {
+      "title": "Notifikasyon",
+      "description": "Jesyon notifikasyon platfòm"
+    },
+    "ops": {
+      "title": "Operasyon",
+      "description": "Eta sèvis ak monitè"
+    },
+    "onboarding": {
+      "adminCreated": "Admin tenant kreye",
+      "code": "Kòd tenant",
+      "currency": "Lajan",
+      "domains": "Domèn ki enkli",
+      "error": "Operasyon an echwe.",
+      "initialAdminEmail": "Imèl premye admin",
+      "name": "Non tenant",
+      "preview": "Apèsi",
+      "previewResult": "Apèsi",
+      "profile": "Pwofil",
+      "provision": "Pwovizyone",
+      "success": "Tenant pwovizyone",
+      "timezone": "Fizo orè",
+      "title": "Pwovizyònman tenant",
+      "type": "Tip"
+    },
+    "action": {
+      "health": "Sante sistèm",
+      "onboarding": "Onbòding",
+      "settings": "Paramèt",
+      "subscriptions": "Abònman",
+      "tenants": "Tenant"
+    },
+    "kpi": {
+      "activeSubscriptions": {
+        "label": "Abònman aktif"
+      },
+      "activeTenants": {
+        "label": "Tenant aktif"
+      },
+      "pendingOnboarding": {
+        "label": "Onbòding annatant"
+      },
+      "suspendedTenants": {
+        "label": "Tenant sispann"
+      },
+      "tenantsWithIssues": {
+        "label": "Tenant ak pwoblèm"
+      },
+      "totalTenants": {
+        "label": "Total tenant"
+      }
+    },
+    "tenantAdmins": {
+      "title": "Administrateurs tenant",
+      "description": "Consultez et gérez les administrateurs de chaque tenant.",
+      "loading": "Chargement des administrateurs...",
+      "filter": {
+        "search": "Rechercher",
+        "searchPlaceholder": "Nom ou email..."
+      },
+      "column": {
+        "admin": "Administrateur",
+        "tenant": "Tenant",
+        "status": "Statut",
+        "assignedAt": "Affecté le"
+      },
+      "status": {
+        "active": "Actif",
+        "pending": "En attente",
+        "suspended": "Bloqué",
+        "inactive": "Inactif",
+        "archived": "Archivé"
+      },
+      "action": {
+        "openMenu": "Ouvrir le menu",
+        "viewDetail": "Voir le détail",
+        "resetPassword": "Réinitialiser le mot de passe",
+        "activate": "Activer",
+        "block": "Bloquer",
+        "archive": "Archiver",
+        "manageAdmins": "Gérer les admins",
+        "addAdmin": "Ajouter un admin",
+        "resetFilters": "Réinitialiser les filtres"
+      },
+      "confirm": {
+        "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
+        "activate": "Activer le compte de {{ name }} ?",
+        "block": "Bloquer le compte de {{ name }} ? Cet administrateur ne pourra plus se connecter.",
+        "archive": "Archiver le compte de {{ name }} ? Cette action est irréversible."
+      },
+      "success": {
+        "resetPassword": "Lien de réinitialisation envoyé."
+      },
+      "error": {
+        "load": "Impossible de charger les administrateurs.",
+        "resetPassword": "Échec de l'envoi du lien de réinitialisation.",
+        "activate": "Échec de l'activation du compte.",
+        "block": "Échec du blocage du compte.",
+        "archive": "Échec de l'archivage du compte."
+      },
+      "empty": {
+        "title": "Aucun administrateur trouvé",
+        "message": "Aucun administrateur ne correspond à vos critères.",
+        "filtered": {
+          "title": "Aucun résultat",
+          "message": "Aucun administrateur ne correspond à votre recherche."
+        }
+      },
+      "detail": {
+        "title": "Détail administrateur",
+        "description": "Informations et actions sur cet administrateur tenant.",
+        "back": "Retour à la liste",
+        "loading": "Chargement...",
+        "error": {
+          "load": "Impossible de charger cet administrateur."
+        },
+        "field": {
+          "tenant": "Tenant",
+          "email": "Email",
+          "assignedAt": "Affecté le"
+        },
+        "actions": {
+          "title": "Actions",
+          "manageInTenant": "Gérer dans le tenant"
+        }
+      },
+      "pagination": "Page {{page}} / {{total}}",
+      "paginationTotal": "{{count}} administrateur(s)"
+    },
+    "entityHistory": {
+      "title": "Revizyon teknik — Envers",
+      "description": "Istwa Envers pou antite ki ekspoze yo.",
+      "notice": "Istwa teknik chanjman antite yo. Pou aksyon operatè yo, sèvi ak Audit.",
+      "source": {
+        "envers": "Sous: Hibernate Envers"
+      },
+      "entityType": {
+        "sellerTerminal": "Seller terminal",
+        "drawResult": "Rezilta tiraj",
+        "limitAssignment": "Assignasyon limit"
+      },
+      "filter": {
+        "entityType": "Tip antite",
+        "entityId": "ID oswa kle biznis",
+        "entityIdPlaceholder": "UUID, kòd tèminal, NY_EVE 2026-06-26, oswa règ",
+        "allEntityTypes": "Tout antite"
+      },
+      "state": {
+        "loading": "Chajman revizyon yo...",
+        "initialTitle": "Pa gen rechèch",
+        "initialMessage": "Chwazi yon antite ekspoze pou wè istwa teknik li.",
+        "emptyTitle": "Pa gen revizyon",
+        "emptyMessage": "Pa gen revizyon teknik ki koresponn ak filtè yo."
+      },
+      "column": {
+        "changedAt": "Dat",
+        "operation": "Operasyon",
+        "entity": "Antite",
+        "changedFields": "Chan ki chanje",
+        "tenant": "Tenant",
+        "changedBy": "ID aktè"
+      },
+      "action": {
+        "viewDetail": "Gade detay",
+        "hideDetail": "Kache detay"
+      },
+      "detail": {
+        "title": "Revizyon teknik",
+        "revisionId": "ID revizyon",
+        "changes": "Chanjman",
+        "field": "Chan",
+        "before": "Anvan",
+        "after": "Apre",
+        "noSafeChanges": "Pa gen valè ekspozab pou revizyon sa a."
+      },
+      "value": {
+        "global": "Global"
+      },
+      "pagination": {
+        "count": "{{count}} revizyon",
+        "page": "Paj {{page}} / {{total}}"
+      },
+      "feedback": {
+        "loadError": "Pa ka chaje revizyon yo."
+      }
+    },
+    "i18nOverrides": {
+      "title": "Tradiksyon",
+      "description": "Jere chanjman tradiksyon yo pa lang ak nivo.",
+      "action": {
+        "add": "Ajoute",
+        "refresh": "Rafrechi",
+        "edit": "Modifye",
+        "delete": "Efase",
+        "create": "Kreye",
+        "save": "Anrejistre",
+        "cancel": "Anile",
+        "retry": "Eseye ankò",
+        "confirmDelete": "Efase tradiksyon \"{{key}}\" ({{locale}})?"
+      },
+      "kpi": {
+        "keys": "Kle",
+        "locales": "Lang",
+        "overrides": "Chanjman"
+      },
+      "filter": {
+        "searchPlaceholder": "Kle i18n...",
+        "locale": "Lang",
+        "allLocales": "Tout",
+        "level": "Nivo",
+        "allLevels": "Tout"
+      },
+      "state": {
+        "loading": "Chajman tradiksyon yo...",
+        "emptyTitle": "Pa gen chanjman",
+        "emptyMessage": "Pa gen okenn tradiksyon chanje pou filtè sa a."
+      },
+      "column": {
+        "locale": "Lang",
+        "level": "Nivo",
+        "key": "Kle",
+        "value": "Valè",
+        "surface": "Sifas",
+        "active": "Aktif",
+        "actions": "Aksyon"
+      },
+      "status": {
+        "active": "Aktif",
+        "inactive": "Inaktif"
+      },
+      "pagination": {
+        "count": "{{count}} chanjman",
+        "page": "Paj {{page}} / {{total}}"
+      },
+      "dialog": {
+        "createTitle": "Ajoute tradiksyon",
+        "editTitle": "Modifye tradiksyon",
+        "defaultSurface": "Pa defo (INTERNAL)",
+        "unchangedSurface": "Pa chanje",
+        "keyLabel": "Kle (i18nKey)",
+        "keyPlaceholder": "egz: common.welcomeTitle",
+        "valueLabel": "Valè (i18nValue)",
+        "tenantIdLabel": "Tenant ID (obligatwa pou nivo TENANT)",
+        "required": "Obligatwa."
+      },
+      "feedback": {
+        "created": "Tradiksyon kreye.",
+        "updated": "Tradiksyon mete ajou.",
+        "deleted": "Tradiksyon efase.",
+        "loadError": "Pa ka chaje tradiksyon yo.",
+        "deleteError": "Pa ka efase tradiksyon an.",
+        "genericError": "Pa ka anrejistre tradiksyon an."
+      }
+    }
+  }
+}

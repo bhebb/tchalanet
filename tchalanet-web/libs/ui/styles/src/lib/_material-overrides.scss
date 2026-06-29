@@ -55,6 +55,41 @@ optgroup {
   box-shadow: var(--tch-elevation-3) !important;
 }
 
+.lang-switcher__menu {
+  min-width: 160px !important;
+
+  .mat-mdc-menu-content {
+    padding-block: 4px;
+  }
+
+  .mat-mdc-menu-item {
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+}
+
+.user-menu__panel {
+  min-width: 200px !important;
+
+  .user-menu__name {
+    padding: 0.5rem 1rem;
+    color: var(--tch-color-on-surface-variant);
+    font-weight: 600;
+  }
+
+  .mat-mdc-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 44px;
+  }
+
+  .material-symbols-outlined {
+    flex: none;
+    font-size: 1.25rem;
+  }
+}
+
 .mat-mdc-select-panel {
   max-height: 20rem !important;
 }

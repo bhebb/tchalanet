@@ -1,0 +1,90 @@
+<tch-admin-page-shell
+  title="Tests canaux"
+  description="Envoyer des tests contrôlés vers les providers email, Slack, SMS et WhatsApp."
+>
+  <form class="provider-tests" [formGroup]="testForm">
+    <div class="provider-test-header">
+      <div>
+        <h2>Tests providers</h2>
+        <p>Email, SMS et WhatsApp utilisent les fournisseurs configurés dans edge-service.</p>
+      </div>
+    </div>
+
+    <tch-platform-recipient-picker (selectionChange)="updateRecipients($event)" />
+
+    <div class="message-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Titre</mat-label>
+        <input matInput formControlName="title" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Message</mat-label>
+        <input matInput formControlName="message" />
+      </mat-form-field>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Slack">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Channel key</mat-label>
+            <input matInput formControlName="slackChannelKey" placeholder="ops-alerts" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'SLACK'" (click)="sendSlackTest()">
+            <span class="material-symbols-outlined">send</span>
+            Envoyer Slack
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Email">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Email destinataire</mat-label>
+            <input matInput formControlName="emailTo" placeholder="admin@example.com" />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'EMAIL'" (click)="sendEmailTest()">
+            <span class="material-symbols-outlined">alternate_email</span>
+            Envoyer email
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="SMS">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Téléphone destinataire</mat-label>
+            <input matInput formControlName="phoneTo" placeholder="+509..." />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'SMS'" (click)="sendSmsTest()">
+            <span class="material-symbols-outlined">sms</span>
+            Envoyer SMS
+          </button>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="WhatsApp">
+        <div class="provider-row">
+          <mat-form-field appearance="outline">
+            <mat-label>WhatsApp destinataire</mat-label>
+            <input matInput formControlName="whatsappTo" placeholder="+509..." />
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="button" [disabled]="testing() === 'WHATSAPP'" (click)="sendWhatsappTest()">
+            <span class="material-symbols-outlined">chat</span>
+            Envoyer WhatsApp
+          </button>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+
+  @if (feedback(); as feedbackVm) {
+    <div class="platform-communication-page__feedback">
+      <tch-section-error
+        [title]="feedbackVm.title"
+        [message]="feedbackVm.message"
+        [severity]="feedbackVm.severity"
+      />
+    </div>
+  }
+</tch-admin-page-shell>

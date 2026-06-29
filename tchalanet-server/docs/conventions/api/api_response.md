@@ -41,6 +41,100 @@ ApiResponseContext.get().addNotice("LIMIT_WARN", "Stake exceeds limit", "limitpo
 ApiResponseContext.get().addServiceStatus("meilisearch", DOWN, "Search unavailable");
 ```
 
+For BFF and partial-result flows, prefer the helper so standard metadata is attached consistently:
+
+```java
+ApiResponseNotices.warn(
+    PlatformIdentityNoticeCodes.ACTIVATION_ERROR,
+    "Identity activation could not be completed.",
+    "platform.identity",
+    NoticeSource.of("identityActivation")
+        .service("keycloak")
+        .operation("completeFirstLogin"),
+    ex
+);
+```
+
+The helper writes to `ApiResponseContext`; `ApiResponseBodyAdvice` assembles the final
+`ApiResponse<T>` envelope.
+
+For endpoints that aggregate multiple slices, prefer `BffSlices` so the required/optional decision
+is explicit at the call site:
+
+```java
+var profile = BffSlices.required(() -> profileService.currentProfile(ctx));
+
+var activation = BffSlices.optional(
+    BffSlicePolicy.warn(
+        PlatformIdentityNoticeCodes.ACTIVATION_ERROR,
+        "Identity activation could not be completed.",
+        "platform.identity",
+        NoticeSource.of("identityActivation")
+            .service("keycloak")
+            .operation("activateIfNeeded"),
+        IdentityActivationView.unavailable()
+    ).serviceStatus(ServiceHealth.DEGRADED, "Identity provider unavailable"),
+    () -> identityActivation.activateIfNeeded(ctx)
+);
+```
+
+`required` preserves the normal exception flow. Stable-code exceptions are rendered by
+`GlobalErrorHandler` as `ProblemDetail`. `optional` catches the slice failure, adds a standardized
+notice, optionally adds a degraded service status, and returns the declared fallback.
+
+Reserved `ApiNotice.meta` keys:
+
+| Key | Meaning |
+|---|---|
+| `source` | Fine-grained emitter/slice inside the domain |
+| `surface` | UI owner: `shell`, `page`, `section`, or `field` |
+| `placement` | UI placement: `top`, `inline`, or `summary` |
+| `target` | Stable UI target such as `dashboard.commissions` or `profile.email` |
+| `field` | Form control name for field-level validation/feedback |
+| `service` | Downstream service or provider when relevant |
+| `operation` | Stable operation name useful for support |
+| `requestId` | Request correlation id |
+| `traceId` | Distributed trace id |
+| `spanId` | Distributed span id |
+| `errorId` | Server-generated id for a caught optional failure |
+
+Domain-specific metadata is allowed, but frontend behavior must rely on stable fields above and the
+notice `code`.
+
+Frontend rendering ownership:
+
+- `surface=shell`: cross-cutting feedback only;
+- `surface=page`: page-level top error;
+- `surface=section`: block/widget/card-level top error, usually with `target`;
+- `surface=field`: form-control inline error, usually with `field`.
+
+Every error should have one UI owner. Do not emit a section/field notice expecting it to also become
+a shell banner.
+
+## Stable Codes and Assembly Ownership
+
+Backend code owns stable error/notice codes. The web translates those codes; it must not depend on
+raw Java exception messages, provider messages, SQL text, stack traces, or ad-hoc backend titles.
+
+Blocking failures:
+
+- throw/propagate a stable-code exception from the controller/service path;
+- `GlobalErrorHandler` assembles the `ProblemDetail`;
+- include correlation diagnostics (`requestId`, `traceId`, `spanId`, `errorId`) when available;
+- do not wrap the failure in `ApiResponse`.
+
+Non-blocking BFF/slice failures:
+
+- catch only at the slice boundary that knows the slice is optional;
+- call `ApiResponseNotices` or `BffSlices.optional(...)` with a stable code, domain, source,
+  severity, and UI ownership metadata;
+- `ApiResponseBodyAdvice` assembles the final `ApiResponse<T>` with `notices` and `services`;
+- return an explicit fallback value for that slice.
+
+Use `CommonErrorCodes` only for truly shared stable codes. Domain-specific codes should live beside
+the backend capability that owns the behavior, and they should follow a searchable dotted format such
+as `platform.identity.activation.error` or `dashboard.commissions.unavailable`.
+
 ## Response Structure
 
 All 2xx responses now return `ApiResponse<T>`:
@@ -145,6 +239,70 @@ public ResponseEntity<ApiResponse<SearchResult>> search(@RequestBody SearchReque
     var results = searchService.search(request);
     return ResponseEntity.ok(ApiResponse.partial(results, List.of(serviceStatus), notices));
 }
+```
+
+### Blocking vs non-blocking BFF examples
+
+Required slice failure: throw a stable-code exception. `GlobalErrorHandler` emits `ProblemDetail`.
+
+```java
+var sale = BffSlices.required(() -> commandBus.execute(command));
+return ApiResponse.success(mapper.toSellResponse(sale));
+```
+
+Optional slice failure: preserve primary data and add an immediate notice.
+
+```java
+var activationView = BffSlices.optional(
+    BffSlicePolicy.warn(
+        PlatformIdentityNoticeCodes.ACTIVATION_ERROR,
+        "Identity activation could not be completed.",
+        "platform.identity",
+        NoticeSource.of("identityActivation")
+            .service("keycloak")
+            .operation("activateIfNeeded"),
+        IdentityActivationView.unavailable()
+    ),
+    () -> identityActivation.activateIfNeeded(ctx)
+);
+
+return dashboardView.withActivation(activationView);
+```
+
+Section-level dashboard warning: preserve the dashboard response and target the failing block.
+
+```java
+ApiResponseNotices.add(
+    "dashboard.commissions.unavailable",
+    "Commissions are temporarily unavailable.",
+    "dashboard",
+    NoticeSeverity.WARN,
+    NoticeSource.of("commissions").service("commission-service"),
+    ex,
+    Map.of(
+        "surface", "section",
+        "placement", "top",
+        "target", "dashboard.commissions"
+    )
+);
+```
+
+Optional provider degradation: add both a notice for user copy and a service status for the partial
+response status.
+
+```java
+var providerResults = BffSlices.optional(
+    BffSlicePolicy.warn(
+        "features.dashboard.provider_results.degraded",
+        "Some provider results are temporarily unavailable.",
+        "features.dashboard",
+        NoticeSource.of("providerResults")
+            .service("uslottery")
+            .operation("latestResults"),
+        ProviderResults.unavailable()
+    ).serviceStatus(ServiceHealth.DEGRADED, "Latest results unavailable"),
+    () -> providerResultsClient.latestResults()
+);
 ```
 
 ## Benefits

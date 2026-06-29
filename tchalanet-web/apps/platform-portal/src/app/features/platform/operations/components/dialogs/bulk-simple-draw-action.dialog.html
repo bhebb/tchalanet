@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>{{ label }} — {{ data.draws.length }} tirage(s)</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="draw-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Raison</mat-label>
+      <textarea matInput formControlName="reason" rows="2"></textarea>
+    </mat-form-field>
+    @if (data.action === 'archive') {
+      <mat-checkbox formControlName="force">Forcer l'archivage</mat-checkbox>
+    }
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error class="draw-dialog__feedback" [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="submitting()" (click)="submit()">
+    @if (submitting()) { <span class="material-symbols-outlined draw-dialog__spinner">progress_activity</span> }
+    Appliquer
+  </button>
+</mat-dialog-actions>

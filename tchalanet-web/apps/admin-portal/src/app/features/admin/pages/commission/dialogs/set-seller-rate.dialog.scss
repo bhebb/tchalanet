@@ -1,0 +1,12 @@
+.set-seller-rate-dialog {
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__field {
+    width: 100%;
+    min-width: 320px;
+  }
+}

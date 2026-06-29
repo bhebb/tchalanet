@@ -1,0 +1,51 @@
+.settings-page {
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--tch-color-surface-container);
+    }
+  }
+
+  &__card-icon {
+    font-size: 1.5rem;
+    color: var(--tch-color-primary);
+    flex-shrink: 0;
+  }
+
+  &__card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.125rem;
+  }
+
+  &__card-label {
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+
+  &__card-desc {
+    font-size: 0.8125rem;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__card-arrow {
+    color: var(--tch-color-on-surface-variant);
+    flex-shrink: 0;
+  }
+}

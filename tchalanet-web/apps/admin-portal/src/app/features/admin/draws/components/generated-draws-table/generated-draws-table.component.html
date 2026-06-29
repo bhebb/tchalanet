@@ -1,0 +1,164 @@
+<div class="gdt">
+
+  <!-- Table -->
+  <div class="gdt__scroll">
+    <table class="gdt__table">
+      <thead>
+        <tr class="gdt__head-row">
+          <th class="gdt__th">Tirage</th>
+          <th class="gdt__th">Date &amp; heure</th>
+          <th class="gdt__th">Vente</th>
+          <th class="gdt__th">Résultat</th>
+          <th class="gdt__th">Mode</th>
+          <th class="gdt__th">Publication</th>
+          <th class="gdt__th gdt__th--right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (group of groups(); track group.date) {
+
+          <!-- Date group header -->
+          <tr class="gdt__group-row">
+            <td class="gdt__group-cell" colspan="7">{{ groupDateLabel(group.date) }}</td>
+          </tr>
+
+          @for (draw of group.draws; track draw.drawId) {
+            <tr class="gdt__row">
+
+              <!-- Tirage -->
+              <td class="gdt__td">
+                <div class="gdt__draw-cell">
+                  <!-- Provider logo slot: swap <img> in once assets are available -->
+                  <div class="gdt__provider-logo" [attr.data-provider]="draw.providerCode" [title]="draw.providerLabel">
+                    <span class="gdt__provider-code">{{ draw.providerCode }}</span>
+                  </div>
+                  <span class="gdt__accent gdt__accent--{{ accentColor(draw) }}"></span>
+                  <div>
+                    <p class="gdt__draw-label">{{ draw.label }}</p>
+                    <p class="gdt__draw-sub">{{ draw.slotLabel }}</p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Date & heure -->
+              <td class="gdt__td">
+                <p class="gdt__date">{{ draw.businessDate | date:'d MMM':'':'fr' }}</p>
+                <p class="gdt__time">{{ scheduledTime(draw.scheduledAt) }}</p>
+              </td>
+
+              <!-- Vente -->
+              <td class="gdt__td">
+                <tch-generated-draw-status-badge type="sales" [status]="draw.salesStatus" />
+              </td>
+
+              <!-- Résultat -->
+              <td class="gdt__td">
+                <div class="gdt__result-cell">
+                  <tch-generated-draw-status-badge type="result" [status]="draw.resultStatus" />
+                  @if (draw.numbers && draw.numbers.length > 0) {
+                    <div class="gdt__numbers">
+                      @for (n of draw.numbers; track $index) {
+                        <span class="gdt__ball">{{ n }}</span>
+                      }
+                    </div>
+                  }
+                  @if (draw.sourceError) {
+                    <p class="gdt__error-hint">{{ draw.sourceError.occurredAt | date:'HH:mm':'':'fr' }}</p>
+                  }
+                </div>
+              </td>
+
+              <!-- Mode -->
+              <td class="gdt__td">
+                <span class="gdt__mode-chip">{{ draw.resultMode }}</span>
+              </td>
+
+              <!-- Publication -->
+              <td class="gdt__td">
+                @if (draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED') {
+                  <tch-generated-draw-status-badge type="publication" [status]="draw.publicationStatus" />
+                } @else {
+                  <span class="gdt__dash">—</span>
+                }
+              </td>
+
+              <!-- Actions -->
+              <td class="gdt__td gdt__td--right">
+                <div class="gdt__actions">
+                  @switch (draw.resultStatus) {
+                    @case ('MISSING') {
+                      <button mat-flat-button color="primary" class="gdt__action-btn"
+                        (click)="enterResult.emit(draw)">
+                        Saisir résultat
+                      </button>
+                    }
+                    @case ('CONFIRMED') {
+                      <button mat-stroked-button class="gdt__action-btn"
+                        (click)="viewResult.emit(draw)">
+                        Voir résultat
+                      </button>
+                    }
+                    @case ('SOURCE_ERROR') {
+                      <button mat-stroked-button color="warn" class="gdt__action-btn"
+                        (click)="verifySource.emit(draw)">
+                        Vérifier
+                      </button>
+                    }
+                    @default {
+                      <button mat-stroked-button class="gdt__action-btn"
+                        (click)="viewDetails.emit(draw)">
+                        Voir détails
+                      </button>
+                    }
+                  }
+
+                  <!-- Lifecycle action menu -->
+                  @if (lifecycleActions(draw).length > 0) {
+                    <button mat-icon-button class="gdt__more-btn"
+                      [matMenuTriggerFor]="rowMenu"
+                      [matMenuTriggerData]="{ draw: draw }"
+                      aria-label="Plus d'actions">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Row lifecycle menu (shared template, data injected per trigger) -->
+  <mat-menu #rowMenu="matMenu">
+    <ng-template matMenuContent let-draw="draw">
+      @for (action of lifecycleActions(draw); track action) {
+        <button mat-menu-item
+          [class.gdt__menu-action--danger]="action === 'cancel'"
+          (click)="onLifecycleAction(draw, action)">
+          <mat-icon>{{ lifecycleIcon(action) }}</mat-icon>
+          <span>{{ lifecycleLabel(action) }}</span>
+        </button>
+      }
+    </ng-template>
+  </mat-menu>
+
+  <!-- Footer -->
+  <div class="gdt__footer">
+    <p class="gdt__count">
+      Affichage de {{ rangeStart }}–{{ rangeEnd }} sur {{ totalElements() }} tirage{{ totalElements() > 1 ? 's' : '' }}
+    </p>
+    <div class="gdt__pagination">
+      <button mat-icon-button [disabled]="!hasPrev" (click)="prevPage.emit()" aria-label="Page précédente">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button mat-icon-button [disabled]="!hasNext" (click)="nextPage.emit()" aria-label="Page suivante">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+  </div>
+
+</div>

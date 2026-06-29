@@ -1,0 +1,8 @@
+{
+  "appId": "platform-portal",
+  "production": true,
+  "apiBaseUrl": "https://api.tchalanet.com/api/v1",
+  "authBaseUrl": "https://api.tchalanet.com/auth",
+  "assetsBaseUrl": "/assets",
+  "enableSandbox": false
+}

@@ -1,0 +1,99 @@
+{
+  "name": "platform-portal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "tch",
+  "sourceRoot": "apps/platform-portal/src",
+  "tags": ["scope:platform", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/platform-portal",
+        "browser": "apps/platform-portal/src/main.ts",
+        "tsConfig": "apps/platform-portal/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
+        },
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/platform-portal/public"
+          }
+        ],
+        "styles": ["apps/platform-portal/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/platform-portal/src/environments/environment.ts",
+              "with": "apps/platform-portal/src/environments/environment.prod.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/proxy.conf.cjs"
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "platform-portal:build:production"
+        },
+        "development": {
+          "buildTarget": "platform-portal:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "platform-portal:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/platform-portal/browser",
+        "spa": true
+      }
+    }
+  }
+}

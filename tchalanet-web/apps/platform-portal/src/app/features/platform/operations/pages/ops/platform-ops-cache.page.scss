@@ -1,0 +1,14 @@
+@use 'index' as ui;
+
+.cache-page {
+  &__feedback {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table { width: 100%; }
+  }
+}

@@ -1,0 +1,13 @@
+@use 'index' as ui;
+
+.tenant-admins-page {
+  &__feedback {
+    margin-block-end: 1rem;
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table { width: 100%; }
+  }
+}

@@ -1,0 +1,146 @@
+<h2 mat-dialog-title>
+  Limites - {{ terminal.displayName }}
+  <span class="seller-terminal-limits-dialog__subtitle">{{ terminal.terminalCode }}</span>
+</h2>
+
+<mat-dialog-content class="seller-terminal-limits-dialog__content">
+  @if (loading()) {
+    <tch-loading />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else {
+    @if (actionError(); as actionErrorVm) {
+      <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+    }
+
+    @if (rows().length === 0 && !editingRow()) {
+      <p class="seller-terminal-limits-dialog__empty">
+        Aucune limite spécifique configurée pour ce terminal. Les règles tenant s'appliquent.
+      </p>
+    }
+
+    @if (rows().length > 0) {
+      <table mat-table [dataSource]="rows()" class="seller-terminal-limits-dialog__table">
+        <ng-container matColumnDef="rule">
+          <th mat-header-cell *matHeaderCellDef>Règle</th>
+          <td mat-cell *matCellDef="let r">
+            <code class="seller-terminal-limits-dialog__rule-key">{{ r.spec.ruleKey }}</code>
+            @if (r.spec.label) {
+              <div class="seller-terminal-limits-dialog__muted">{{ r.spec.label }}</div>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="onBreach">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="seller-terminal-limits-dialog__outcome">{{ r.assignment?.onBreach ?? '-' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let r">
+            @if (r.assignment) {
+              <span
+                class="seller-terminal-limits-dialog__status"
+                [class.seller-terminal-limits-dialog__status--enabled]="r.assignment.enabled"
+              >
+                {{ r.assignment.enabled ? 'Actif' : 'Inactif' }}
+              </span>
+            } @else {
+              <span class="seller-terminal-limits-dialog__muted">-</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let r" class="seller-terminal-limits-dialog__actions-cell">
+            <button mat-icon-button (click)="editRow(r)" matTooltip="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+            @if (r.assignment) {
+              <button mat-icon-button color="warn" (click)="deleteRow(r)" matTooltip="Supprimer">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    }
+
+    @if (editingRow(); as row) {
+      <section class="seller-terminal-limits-dialog__editor">
+        <div class="seller-terminal-limits-dialog__editor-heading">
+          <strong>{{ row.spec.ruleKey }}</strong>
+          @if (row.spec.label) { - {{ row.spec.label }} }
+        </div>
+        @if (row.spec.description) {
+          <p class="seller-terminal-limits-dialog__description">{{ row.spec.description }}</p>
+        }
+        <form [formGroup]="form" class="seller-terminal-limits-dialog__form">
+          <mat-form-field appearance="outline">
+            <mat-label>Action en cas de dépassement</mat-label>
+            <mat-select formControlName="onBreach">
+              @for (o of breachOutcomes; track o) {
+                <mat-option [value]="o">{{ o }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Paramètres (JSON)</mat-label>
+            <textarea
+              matInput
+              formControlName="params"
+              rows="4"
+              class="seller-terminal-limits-dialog__json"
+            ></textarea>
+            @if (form.controls.params.errors?.['jsonInvalid']) {
+              <mat-error>JSON invalide.</mat-error>
+            }
+          </mat-form-field>
+          <mat-checkbox formControlName="enabled">Actif</mat-checkbox>
+        </form>
+        <div class="seller-terminal-limits-dialog__editor-actions">
+          <button mat-stroked-button (click)="cancelEdit()">Annuler</button>
+          <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="saveEdit()">
+            Enregistrer
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (!editingRow()) {
+      <section class="seller-terminal-limits-dialog__add">
+        <mat-form-field appearance="outline" class="seller-terminal-limits-dialog__add-field">
+          <mat-label>Ajouter une règle</mat-label>
+          <mat-select [(value)]="selectedRuleKey">
+            @for (spec of availableSpecs(); track spec.ruleKey) {
+              <mat-option [value]="spec.ruleKey">
+                {{ spec.ruleKey }} - {{ spec.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-stroked-button [disabled]="!selectedRuleKey" (click)="addRule()">
+          <mat-icon>add</mat-icon>
+          Configurer
+        </button>
+      </section>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

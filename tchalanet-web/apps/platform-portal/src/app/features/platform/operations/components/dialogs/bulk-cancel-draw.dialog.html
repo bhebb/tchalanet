@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Annuler — {{ data.draws.length }} tirage(s)</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="draw-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Code de raison</mat-label>
+      <input matInput formControlName="reasonCode" placeholder="ADMIN_REQUEST" />
+      @if (form.controls.reasonCode.invalid && form.controls.reasonCode.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Libellé</mat-label>
+      <textarea matInput formControlName="reasonLabel" rows="2"></textarea>
+    </mat-form-field>
+    <mat-checkbox formControlName="force">Forcer</mat-checkbox>
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error class="draw-dialog__feedback" [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
+  <button mat-flat-button color="warn" [disabled]="form.invalid || submitting()" (click)="submit()">
+    @if (submitting()) { <span class="material-symbols-outlined draw-dialog__spinner">progress_activity</span> }
+    Annuler
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,9 @@
+{
+  "appId": "admin-portal",
+  "production": false,
+  "apiBaseUrl": "https://api.localtest.me/api/v1",
+  "authBaseUrl": "https://auth.localtest.me",
+  "assetsBaseUrl": "/assets",
+  "firebaseAuthEmulatorUrl": null,
+  "enableSandbox": true
+}

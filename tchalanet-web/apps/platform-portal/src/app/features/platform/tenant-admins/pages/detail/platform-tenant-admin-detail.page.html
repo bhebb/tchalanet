@@ -1,0 +1,34 @@
+<tch-admin-page-shell
+  [title]="cardUser()?.displayName || cardUser()?.email || 'Administrateur'"
+  description="Détail du compte administrateur tenant."
+>
+  <div actions>
+    <button mat-stroked-button type="button" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Retour
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
+  } @else if (cardUser(); as u) {
+    @if (actionNotice(); as notice) {
+      <tch-section-error
+        class="tenant-admin-detail__notice"
+        [title]="notice.title"
+        [message]="notice.message"
+        severity="info"
+      />
+    }
+
+    <tch-platform-admin-user-card
+      [user]="u"
+      (activate)="activate()"
+      (block)="block()"
+      (archive)="archive()"
+      (resetPassword)="resetPassword()"
+    />
+  }
+</tch-admin-page-shell>

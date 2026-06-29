@@ -16,7 +16,7 @@ Entitlements are **not** feature flags. See [`feature-flags.md`](./feature-flags
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/entitlement/   // EntitlementsStore
+libs/core/auth/src/lib/entitlement/   // EntitlementsStore
 libs/shared-config/src/lib/settings/        // private settings source
 ```
 

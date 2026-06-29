@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="payout-action-dialog__form">
+    <mat-form-field appearance="outline" class="payout-action-dialog__field">
+      <mat-label>Raison</mat-label>
+      <textarea matInput formControlName="reason" rows="3" placeholder="Motif de l'action..."></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>La raison est requise.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="warn" [disabled]="form.invalid" (click)="submit()">
+    Confirmer
+  </button>
+</mat-dialog-actions>

@@ -1,7 +1,7 @@
-# tch-portal — Quickstart & Frontend Development Guide
+# Tchalanet Web — Quickstart & Frontend Development Guide
 
 > **Status**: DRAFT — migration en cours
-> **App**: `apps/tch-portal/`
+> **Apps**: `apps/public-portal/`, `apps/admin-portal/`, `apps/platform-portal/`
 > **Stack**: Angular / Nx / SCSS / Playwright / Vitest
 > **Related docs**:
 >
@@ -37,23 +37,32 @@ Angular ne connaît pas les bindings backend internes.
 pnpm install
 ```
 
-### Démarrer l’application
+### Démarrer les applications
 
 ```bash
-pnpm nx serve tch-portal
+pnpm runtime:local-ide
+pnpm nx run public-portal:serve --port=4301
+pnpm nx run admin-portal:serve --port=4302
+pnpm nx run platform-portal:serve --port=4303
 ```
+
+Chaque app peut aussi être lancée seule via `pnpm serve:public-portal`,
+`pnpm serve:admin-portal` ou `pnpm serve:platform-portal`.
 
 ### Lancer les tests unitaires
 
 ```bash
-pnpm nx test tch-portal
+pnpm test
 ```
 
 ### Lancer les tests end-to-end
 
 ```bash
-pnpm nx e2e tch-portal-e2e
+pnpm nx e2e web-e2e
 ```
+
+`web-e2e` est le projet Playwright unique. Les tests sont rangés par surface sous
+`apps/web-e2e/src/{public-portal,admin-portal,platform-portal}`.
 
 ---
 
@@ -73,18 +82,18 @@ Installer le plugin Angular Nx si nécessaire :
 pnpm add -D @nx/angular
 ```
 
-Générer l’application principale :
+Générer une nouvelle app seulement si le workspace doit ajouter une surface déployable :
 
 ```bash
-pnpm nx g @nx/angular:app tch-portal \
-  --directory=apps/tch-portal \
+pnpm nx g @nx/angular:app <app-name> \
+  --directory=apps/<app-name> \
   --routing \
   --style=scss \
   --prefix=tch \
   --standalone \
   --unitTestRunner=vitest \
   --e2eTestRunner=playwright \
-  --tags=app:tch-portal,scope:web
+  --tags=scope:<surface>,type:app
 ```
 
 > Ne pas utiliser cette commande dans un workspace déjà initialisé sauf décision explicite.
@@ -96,19 +105,23 @@ pnpm nx g @nx/angular:app tch-portal \
 ```text
 tchalanet-web/
 ├── apps/
-│   └── tch-portal/
-│       └── src/app/
-│           ├── core/       ← auth, i18n et runtime applicatif
-│           ├── features/   ← pages et orchestration de surface
-│           └── shared/     ← contrats encore locaux à l'application
+│   ├── public-portal/
+│   ├── admin-portal/
+│   ├── platform-portal/
+│   └── web-e2e/
 └── libs/
     ├── api/
     │   └── src/lib/
     │       ├── contracts/  ← contrats backend/web transverses
     │       └── http/       ← clients HTTP, interceptors, helpers API
+    ├── core/
+    │   ├── auth/           ← auth, login partagé, guards, access/entitlements
+    │   └── i18n/           ← runtime i18n partagé
+    ├── notifications/      ← notifications privées réutilisables
     ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
+    ├── shared-assets/      ← assets publics partagés, i18n fallback, runtime config JSON
     ├── shared-config/      ← settings runtime et feature flags
-    ├── web/                ← présentation shell réutilisable
+    ├── web/                ← errors, shell, sandbox
     ├── widgets/            ← registre concret et widgets PageModel
     └── ui/
         ├── components/     ← composants UI réutilisables et stateless
@@ -118,21 +131,24 @@ tchalanet-web/
 
 ---
 
-## 5. Structure cible par extraction
+## 5. Structure par libs
 
-`page-model`, `widgets` et `web` sont actives. Les autres libs restent des **cibles de migration**,
-pas des dossiers à créer à vide.
+Les libs actives portent une frontière réelle. Ne pas créer de dossiers à vide.
 
 ```text
 libs/
   api/             contrats backend/web, clients HTTP et interceptors
-  shared-auth/     OIDC/Keycloak, session et guards
-  shared-i18n/     traduction runtime et sélection de langue
+  core/auth/       OIDC/Keycloak, session, login, guards, access/entitlements
+  core/i18n/       traduction runtime et sélection de langue
+  notifications/   notifications privées réutilisables
+  shared-assets/   assets publics partagés, i18n fallback, runtime config JSON
   shared-config/   feature flags, settings et configuration runtime
   ui/              components, styles et theme
   page-model/      actif : contrats, API, renderer et registre abstrait
   widgets/         actif : registre concret et widgets dynamiques
-  web/             actif partiellement : présentation shell réutilisable
+  web/errors/      présentation d'erreurs web
+  web/shell/       shells web publics/privés/platform
+  web/sandbox/     sandbox dev/theme
 ```
 
 Une lib est créée seulement si un change :
@@ -423,7 +439,9 @@ type:app,scope:web
 Règles cibles :
 
 ```text
-tch-portal   → page-model, widgets, web
+public-portal  → page-model, widgets, web, core/auth, core/i18n
+admin-portal   → web/shell, web/errors, core/auth, core/i18n, ui/console
+platform-portal→ web/shell, web/errors, core/auth, core/i18n, ui/console
 web          → page-model, ui/components
 widgets      → page-model
 page-model   → api, ui/components; jamais widgets
@@ -434,7 +452,7 @@ api          → shared-* seulement si nécessaire
 shared-*     → code générique uniquement
 ```
 
-À court terme, certaines dépendances peuvent rester dans `apps/tch-portal/src/app`.
+À court terme, certaines dépendances peuvent rester dans `apps/<portal>/src/app`.
 Les corrections se font slice par slice, pas par refactor massif.
 
 ---

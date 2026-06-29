@@ -1,0 +1,54 @@
+<div class="private-shell">
+  <header class="top-app-bar">
+    <button
+      type="button"
+      class="burger"
+      (click)="toggleDrawer()"
+      [attr.aria-label]="'nav.toggle_menu' | translate"
+      [attr.aria-expanded]="drawerOpen()"
+      aria-controls="private-drawer"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+    </button>
+    <tch-brand [brand]="brand()" [showName]="false" />
+    @if (titleKey()) {
+      <strong>{{ titleKey() | translate }}</strong>
+    }
+    <div class="utilities">
+      <ng-content select="[private-shell-utility]" />
+      <button
+        type="button"
+        class="mode-toggle"
+        (click)="themeToggled.emit()"
+        [attr.aria-label]="'nav.theme_toggle' | translate"
+        [attr.aria-pressed]="darkMode()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">{{ themeIcon() }}</span>
+      </button>
+      <tch-user-menu
+        [name]="userName()"
+        (profile)="profileRequested.emit()"
+        (settings)="settingsRequested.emit()"
+        (logout)="logoutRequested.emit()"
+      />
+    </div>
+  </header>
+
+  <div class="workspace" [class.is-drawer-open]="drawerOpen()">
+    <aside id="private-drawer" class="drawer">
+      <tch-sidebar-nav
+        [primary]="primary()"
+        [sections]="sections()"
+        [secondary]="secondary()"
+      />
+    </aside>
+
+    <div class="backdrop" (click)="closeDrawer()" aria-hidden="true"></div>
+
+    <main class="content">
+      <ng-content select="[private-shell-before-content]" />
+      <tch-shell-feedback-outlet [verbosity]="feedbackVerbosity()" />
+      <ng-content />
+    </main>
+  </div>
+</div>

@@ -4,7 +4,10 @@ import ts from 'typescript';
 
 const root = process.cwd();
 const registryPath = path.join(root, 'libs/widgets/src/lib/widget-registry.ts');
-const fallbackPath = path.join(root, 'apps/tch-portal/public/assets/fallback/public-bootstrap-fallback.fr.json');
+const fallbackPath = path.join(
+  root,
+  'libs/shared-assets/public/assets/fallback/public-bootstrap-fallback.fr.json',
+);
 
 function propertyNameText(name) {
   if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
@@ -14,7 +17,13 @@ function propertyNameText(name) {
 }
 
 function collectRegistryKeys(sourceText) {
-  const source = ts.createSourceFile(registryPath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const source = ts.createSourceFile(
+    registryPath,
+    sourceText,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
   const keys = new Set();
 
   function visit(node) {
@@ -65,7 +74,11 @@ const pagePayload = fallback.pagePayload;
 const widgets = pagePayload?.content?.widgets ?? {};
 const declaredWidgetIds = new Set(Object.keys(widgets));
 const layoutWidgetIds = collectLayoutWidgetIds(pagePayload);
-const widgetTypes = new Set(Object.values(widgets).map(widget => widget?.type).filter(Boolean));
+const widgetTypes = new Set(
+  Object.values(widgets)
+    .map(widget => widget?.type)
+    .filter(Boolean),
+);
 
 const missingTypes = difference(widgetTypes, registryKeys);
 const missingWidgetIds = difference(layoutWidgetIds, declaredWidgetIds);
@@ -84,10 +97,14 @@ if (missingTypes.length || missingWidgetIds.length || unreferencedWidgetIds.leng
     console.error(`missing registry types:\n${missingTypes.map(type => `  - ${type}`).join('\n')}`);
   }
   if (missingWidgetIds.length) {
-    console.error(`layout ids without widget config:\n${missingWidgetIds.map(id => `  - ${id}`).join('\n')}`);
+    console.error(
+      `layout ids without widget config:\n${missingWidgetIds.map(id => `  - ${id}`).join('\n')}`,
+    );
   }
   if (unreferencedWidgetIds.length) {
-    console.error(`widget configs not referenced by layout:\n${unreferencedWidgetIds.map(id => `  - ${id}`).join('\n')}`);
+    console.error(
+      `widget configs not referenced by layout:\n${unreferencedWidgetIds.map(id => `  - ${id}`).join('\n')}`,
+    );
   }
   process.exitCode = 1;
 }

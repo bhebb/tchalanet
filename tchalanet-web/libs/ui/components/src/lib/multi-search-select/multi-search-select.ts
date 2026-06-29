@@ -236,8 +236,8 @@ export class TchMultiSearchSelect implements ControlValueAccessor {
   readonly selected = signal<readonly TchSearchOption[]>([]);
   readonly loading = signal(false);
 
-  private onChange: (value: readonly TchSearchOption[]) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: readonly TchSearchOption[]) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
 
   constructor() {
     this.query.valueChanges

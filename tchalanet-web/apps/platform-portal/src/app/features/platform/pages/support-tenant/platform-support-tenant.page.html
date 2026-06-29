@@ -1,0 +1,97 @@
+<tch-admin-page-shell
+  title="Support tenant"
+  description="Sélectionner un tenant et ouvrir l'espace admin tenant en contexte support plateforme."
+>
+  <div actions>
+    <button mat-stroked-button type="button" (click)="load()">
+      <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+      Recharger
+    </button>
+  </div>
+
+  <section class="support-tenant-page__filters" [formGroup]="filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Rechercher</mat-label>
+      <input matInput formControlName="q" placeholder="Nom, code..." (keyup.enter)="applyFilters()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Statut</mat-label>
+      <mat-select formControlName="status" (valueChange)="applyFilters()">
+        @for (status of statusOptions; track status) {
+          <mat-option [value]="status">{{ status || 'Tous statuts' }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="button" (click)="applyFilters()">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      Chercher
+    </button>
+    <button mat-button type="button" (click)="resetFilters()">Réinitialiser</button>
+  </section>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (tenants().length === 0) {
+    <tch-admin-empty-state icon="support_agent" title="Aucun tenant" message="Aucun tenant ne correspond à ces filtres." />
+  } @else {
+    <table mat-table [dataSource]="tenants()" class="support-tenant-page__table">
+      <ng-container matColumnDef="tenant">
+        <th mat-header-cell *matHeaderCellDef>Tenant</th>
+        <td mat-cell *matCellDef="let row">
+          <strong>{{ row.name }}</strong>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let row"><code>{{ row.code }}</code></td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
+        <td mat-cell *matCellDef="let row">
+          <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="row.status" />
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="updatedAt">
+        <th mat-header-cell *matHeaderCellDef>Mis à jour</th>
+        <td mat-cell *matCellDef="let row" class="support-tenant-page__muted">
+          {{ row.updatedAt ? (row.updatedAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row" class="support-tenant-page__actions">
+          <button mat-flat-button color="primary" type="button" (click)="openSupportAccess(row)">
+            <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+            Mode support admin
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+
+    <footer class="support-tenant-page__pagination">
+      <span>{{ total() }} tenant(s)</span>
+      <div>
+        <button mat-button type="button" [disabled]="page() === 0" (click)="prevPage()">Précédent</button>
+        <span>Page {{ page() + 1 }}</span>
+        <button mat-button type="button" [disabled]="(page() + 1) * 20 >= total()" (click)="nextPage()">Suivant</button>
+      </div>
+    </footer>
+  }
+</tch-admin-page-shell>

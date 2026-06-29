@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ actionLabel }} — {{ data.draw.channel.name }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="lifecycle-action-dialog__form">
+    @if (data.action === 'reschedule') {
+      <mat-form-field appearance="outline" class="lifecycle-action-dialog__field">
+        <mat-label>Nouvelle date/heure</mat-label>
+        <input matInput formControlName="newScheduledAt" type="datetime-local" />
+        @if (form.controls['newScheduledAt'].invalid && form.controls['newScheduledAt'].touched) {
+          <mat-error>Date/heure requise.</mat-error>
+        }
+      </mat-form-field>
+    }
+    @if (needsReason) {
+      <mat-form-field appearance="outline" class="lifecycle-action-dialog__field">
+        <mat-label>{{ data.action === 'cancel' ? 'Raison (requise)' : 'Raison (optionnelle)' }}</mat-label>
+        <textarea matInput formControlName="reason" rows="3"></textarea>
+        @if (form.controls['reason'].invalid && form.controls['reason'].touched) {
+          <mat-error>Raison requise.</mat-error>
+        }
+      </mat-form-field>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">
+    {{ actionLabel }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,18 @@
+@let vm = state();
+
+<section class="admin-dashboard">
+  @switch (vm.status) {
+    @case ('loading') {
+      <tch-loading [label]="'common.loading' | translate" />
+    }
+    @case ('error') {
+      <tch-error-panel
+        [title]="'common.error.title' | translate"
+        [message]="'dashboard.loadError' | translate"
+      />
+    }
+    @case ('ready') {
+      <tch-page-model [content]="vm.response.content" [dynamic]="vm.response.dynamic" />
+    }
+  }
+</section>

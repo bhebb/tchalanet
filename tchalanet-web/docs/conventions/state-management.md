@@ -32,9 +32,9 @@ libs/shared-config
 libs/ui/components
 libs/ui/styles
 libs/ui/theme
-apps/tch-portal/src/app/core
-apps/tch-portal/src/app/features
-apps/tch-portal/src/app/shared
+apps/<portal>/src/app/core
+apps/<portal>/src/app/features
+libs/api/src/lib/contracts
 ```
 
 Target libs such as `shared-auth`, `shared-i18n`, `page-model`, `widgets`, and `web` are extraction targets, not mandatory placement today.
@@ -81,7 +81,7 @@ Component-local state stays in the component.
 Feature state lives next to the feature/page:
 
 ```text
-apps/tch-portal/src/app/features/<surface>/<feature>/<feature>.store.ts
+apps/<portal>/src/app/features/<surface>/<feature>/<feature>.store.ts
 ```
 
 Examples:

@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Démarrer le job</h2>
+<mat-dialog-content>
+  <p class="start-job-dialog__job-key"><strong>{{ data.job.job_key }}</strong> — {{ data.job.display_name }}</p>
+  <div class="start-job-dialog__usage">
+    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+    <span>{{ usageHint(data.job.job_key) }}</span>
+  </div>
+  @if (data.job.required_params.length) {
+    <div class="start-job-dialog__params">
+      <strong>Requis</strong>
+      @for (param of data.job.required_params; track param) {
+        <code>{{ param }}</code>
+      }
+    </div>
+  }
+  @if (data.job.optional_params.length) {
+    <div class="start-job-dialog__params">
+      <strong>Optionnels</strong>
+      @for (param of data.job.optional_params; track param) {
+        <code>{{ param }}</code>
+      }
+    </div>
+  }
+  <form [formGroup]="form" class="start-job-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Paramètres JSON à ajuster</mat-label>
+      <textarea matInput formControlName="paramsJson" rows="8" spellcheck="false"></textarea>
+      @if (form.controls.paramsJson.invalid && form.controls.paramsJson.touched) {
+        <mat-error>JSON invalide.</mat-error>
+      }
+    </mat-form-field>
+    <div class="start-job-dialog__tools">
+      <button mat-button type="button" (click)="resetExample()">
+        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+        Remettre l'exemple
+      </button>
+      <button mat-button type="button" (click)="formatJson()">
+        <span class="material-symbols-outlined" aria-hidden="true">data_object</span>
+        Formatter
+      </button>
+    </div>
+  </form>
+  @if (result()) {
+    <tch-section-error
+      class="start-job-dialog__feedback"
+      title="Job démarré"
+      [message]="'Exécution #' + result()!.execution_id + ' · Statut: ' + result()!.status"
+      severity="info"
+    />
+  }
+  @if (error(); as errorVm) {
+    <tch-section-error
+      class="start-job-dialog__feedback"
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">{{ result() ? 'Fermer' : 'Annuler' }}</button>
+  @if (!result()) {
+    <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
+      @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
+      Démarrer
+    </button>
+  }
+</mat-dialog-actions>

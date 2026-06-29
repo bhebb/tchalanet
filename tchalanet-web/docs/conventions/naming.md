@@ -1,19 +1,19 @@
 # Web Naming Conventions — Tchalanet
 
 > **Status**: DRAFT v0.2
-> **Scope**: `tchalanet-web` / `apps/tch-portal` / `libs/**`
+> **Scope**: `tchalanet-web` / `apps/*-portal` / `libs/**`
 > **Goal**: noms prédictibles, searchable, cohérents avec l’architecture Angular/Nx Tchalanet.
 
 ---
 
 ## 1. Principes
 
-* Les noms doivent être **searchable** et **prédictibles**.
-* Le nom encode l’intention métier ou UI, pas l’implémentation accidentelle.
-* Éviter les noms génériques : `common`, `helpers`, `misc`, `stuff`, `utils` sans contexte.
-* Ne pas utiliser `Dto` comme suffixe par défaut côté frontend.
-* Ne pas créer un deuxième nom pour le même concept.
-* Ne pas créer une lib Nx vide uniquement pour correspondre à un diagramme cible.
+- Les noms doivent être **searchable** et **prédictibles**.
+- Le nom encode l’intention métier ou UI, pas l’implémentation accidentelle.
+- Éviter les noms génériques : `common`, `helpers`, `misc`, `stuff`, `utils` sans contexte.
+- Ne pas utiliser `Dto` comme suffixe par défaut côté frontend.
+- Ne pas créer un deuxième nom pour le même concept.
+- Ne pas créer une lib Nx vide uniquement pour correspondre à un diagramme cible.
 
 ---
 
@@ -23,6 +23,18 @@ Les contrats backend/web vivent dans :
 
 ```text
 libs/api/src/lib/contracts
+```
+
+Le client backend générique vit dans :
+
+```text
+libs/api/src/lib/backend-client
+```
+
+Les interceptors et helpers HTTP vivent dans :
+
+```text
+libs/api/src/lib/http
 ```
 
 Exception possédée par sa capacité : les contrats runtime PageModel vivent dans
@@ -105,9 +117,55 @@ dashboard.tenant_admin.kpis.title
 
 ---
 
-## 4. Features applicatives
+## 4. Apps et aliases publics
 
-Dans `apps/tch-portal/src/app/features`, organiser par surface puis feature :
+Apps Nx :
+
+```text
+public-portal
+admin-portal
+platform-portal
+public-portal/admin-portal/platform-portal
+```
+
+Règle :
+
+```text
+<surface>-portal
+```
+
+Ne pas créer `pos-portal` en V0. La surface POS reste lazy dans `admin-portal` tant qu'elle n'a pas
+son propre cycle de build/deploy.
+
+Aliases publics des libs :
+
+```text
+@tch/api
+@tch/core/auth
+@tch/core/i18n
+@tch/web/errors
+@tch/web/shell
+@tch/ui/components
+@tch/ui/theme
+@tch/page-model
+@tch/shared-config
+@tch/widgets
+```
+
+Éviter les aliases générés ou ambigus :
+
+```text
+core-auth
+core-i18n
+web-errors
+web-shell
+```
+
+---
+
+## 5. Features applicatives
+
+Dans `apps/<portal>/src/app/features`, organiser par surface puis feature :
 
 ```text
 features/<surface>/<feature>
@@ -119,8 +177,8 @@ Exemples :
 features/public/home
 features/public/results
 features/public/check-ticket
-features/cashier/dashboard
-features/cashier/sale
+features/pos/home
+features/pos/sale
 features/admin/dashboard
 features/admin/outlets
 features/admin/users
@@ -146,7 +204,7 @@ Route → Page → Container(s) → Component(s)
 
 ---
 
-## 5. Pages, containers, components
+## 6. Pages, containers, components
 
 ### Page
 
@@ -158,18 +216,18 @@ Suffixe obligatoire :
 
 Une page est routée. Elle peut injecter :
 
-* router ;
-* services applicatifs ;
-* stores ;
-* API services ;
-* bootstrap/runtime services.
+- router ;
+- services applicatifs ;
+- stores ;
+- API services ;
+- bootstrap/runtime services.
 
 Exemples :
 
 ```text
 public-home.page.ts
-tenant-admin-dashboard.page.ts
-cashier-dashboard.page.ts
+admin-dashboard.page.ts
+pos-dashboard.page.ts
 not-found.page.ts
 ```
 
@@ -188,7 +246,7 @@ Exemples :
 ```text
 ticket-search.container.ts
 tenant-readiness.container.ts
-cashier-session.container.ts
+pos-session.container.ts
 ```
 
 ### Component
@@ -233,7 +291,7 @@ Les composants UI purs sont stateless, basés sur input()/output(), sans appel H
 
 ---
 
-## 6. Shells
+## 7. Shells
 
 Un shell structure une surface entière.
 
@@ -247,8 +305,9 @@ Exemples :
 
 ```text
 public-shell.shell.ts
-private-shell.shell.ts
-cashier-shell.shell.ts
+admin-shell.shell.ts
+platform-shell.shell.ts
+pos-shell.shell.ts
 ```
 
 Les shells rendent le chrome de page :
@@ -258,11 +317,14 @@ PublicShell = PublicHeader + main + PublicFooter
 PrivateShell = PrivateTopAppBar + SidebarNav + main
 ```
 
+Les primitives réutilisables de shell vivent derrière `@tch/web/shell`. La composition de route et
+les providers propres à une app restent dans `apps/<portal>`.
+
 Le PageModel ne rend pas le shell.
 
 ---
 
-## 7. PageModel
+## 8. PageModel
 
 Lib active :
 
@@ -290,17 +352,17 @@ page-model.types.ts
 
 Le PageModel ne doit pas posséder :
 
-* widgets concrets ;
-* PublicHeader ;
-* PublicFooter ;
-* PrivateShell ;
-* SidebarNav ;
-* runtime theme ;
-* i18n bootstrap.
+- widgets concrets ;
+- PublicHeader ;
+- PublicFooter ;
+- PrivateShell ;
+- SidebarNav ;
+- runtime theme ;
+- i18n bootstrap.
 
 ---
 
-## 8. Widgets
+## 9. Widgets
 
 Lib active :
 
@@ -357,7 +419,7 @@ Widget ne fait pas d’appel HTTP direct.
 
 ---
 
-## 9. Data access / API
+## 10. Data access / API
 
 Pour les services applicatifs réutilisables, utiliser une frontière explicite.
 
@@ -373,6 +435,7 @@ Dans une lib cible future :
 ```text
 libs/api/src/lib/http
 libs/api/src/lib/contracts
+libs/api/src/lib/backend-client
 ```
 
 Suffixes recommandés :
@@ -409,7 +472,7 @@ PrivateShellPayload
 
 ---
 
-## 10. Stores
+## 11. Stores
 
 ### Stores globaux
 
@@ -449,7 +512,7 @@ Sauf besoin répété, documenté et testé.
 
 ---
 
-## 11. UI libs
+## 12. UI libs
 
 ### `libs/ui/components`
 
@@ -498,7 +561,7 @@ theme-preset-registry.ts
 
 ---
 
-## 12. SCSS et tokens
+## 13. SCSS et tokens
 
 Les composants consomment les tokens globaux :
 
@@ -532,7 +595,7 @@ Règle :
 
 ---
 
-## 13. Helpers
+## 14. Helpers
 
 Éviter les dossiers génériques :
 
@@ -587,7 +650,7 @@ Préférer :
 ```text
 features/public/home
 features/admin/dashboard
-features/cashier/sale
+features/pos/sale
 libs/ui/components/card
 libs/api/contracts/action-item.ts
 libs/api/http

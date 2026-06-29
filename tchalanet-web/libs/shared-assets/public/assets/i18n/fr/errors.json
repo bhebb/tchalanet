@@ -1,0 +1,84 @@
+{
+  "common": {
+    "errors": {
+      "fallback": {
+        "title": "Probleme detecte",
+        "message": "Un probleme est survenu. Copiez la reference support si le probleme persiste."
+      },
+      "categories": {
+        "auth_required": {
+          "title": "Session requise",
+          "message": "Reconnectez-vous pour continuer."
+        },
+        "access_denied": {
+          "title": "Acces non autorise",
+          "message": "Votre compte ne permet pas cette action."
+        },
+        "validation": {
+          "title": "Information a corriger",
+          "message": "Verifiez les champs et reessayez."
+        },
+        "not_found": {
+          "title": "Element introuvable",
+          "message": "La ressource demandee n est plus disponible."
+        },
+        "conflict": {
+          "title": "Action impossible",
+          "message": "L etat actuel ne permet pas de terminer cette action."
+        },
+        "rate_limited": {
+          "title": "Trop de demandes",
+          "message": "Patientez un moment avant de reessayer."
+        },
+        "network_unavailable": {
+          "title": "Connexion indisponible",
+          "message": "Verifiez la connexion et reessayez."
+        },
+        "service_unavailable": {
+          "title": "Service temporairement indisponible",
+          "message": "Une partie du service est temporairement indisponible."
+        },
+        "unexpected": {
+          "title": "Probleme detecte",
+          "message": "Un probleme est survenu. Copiez la reference support si le probleme persiste."
+        }
+      },
+      "codes": {
+        "request": {
+          "missing_parameter": {
+            "title": "Information manquante",
+            "message": "Une information obligatoire est manquante. Verifiez le formulaire puis reessayez."
+          },
+          "not_readable": {
+            "title": "Demande invalide",
+            "message": "Certaines informations envoyees ne peuvent pas etre lues. Verifiez le formulaire puis reessayez."
+          },
+          "type_mismatch": {
+            "title": "Format invalide",
+            "message": "Une valeur n a pas le format attendu. Verifiez le champ signale puis reessayez."
+          }
+        },
+        "validation": {
+          "constraint_violation": {
+            "title": "Information a corriger",
+            "message": "Corrigez les champs signales puis reessayez."
+          },
+          "failed": {
+            "title": "Information a corriger",
+            "message": "Corrigez les champs signales puis reessayez."
+          }
+        },
+        "platform": {
+          "identity": {
+            "activation": {
+              "error": {
+                "title": "Activation du compte incomplete",
+                "message": "Votre espace reste accessible, mais une verification de compte n a pas pu se terminer."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

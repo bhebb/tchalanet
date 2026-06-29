@@ -1,0 +1,99 @@
+{
+  "name": "admin-portal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "tch",
+  "sourceRoot": "apps/admin-portal/src",
+  "tags": ["scope:admin", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/admin-portal",
+        "browser": "apps/admin-portal/src/main.ts",
+        "tsConfig": "apps/admin-portal/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
+        },
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/admin-portal/public"
+          }
+        ],
+        "styles": ["apps/admin-portal/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/admin-portal/src/environments/environment.ts",
+              "with": "apps/admin-portal/src/environments/environment.prod.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/proxy.conf.cjs"
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "admin-portal:build:production"
+        },
+        "development": {
+          "buildTarget": "admin-portal:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "admin-portal:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/admin-portal/browser",
+        "spa": true
+      }
+    }
+  }
+}

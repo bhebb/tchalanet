@@ -1,49 +1,51 @@
-# Convention — Structure des features Angular `tch-portal`
+# Convention — Structure des features Angular `tchalanet-web`
 
 ## Objectif
 
-Cette convention définit l’organisation des features Angular dans l’application Nx :
+Cette convention définit l’organisation des features Angular dans les applications Nx :
 
 ```text
-apps/tch-portal/src/app
+apps/<portal>/src/app
+apps/public-portal/src/app
+apps/admin-portal/src/app
+apps/platform-portal/src/app
 ```
 
-L’objectif est de garder une structure claire, maintenable et progressive, sans tout migrer d’un coup.
+L’objectif est de garder une structure claire, maintenable et progressive.
 
 ---
 
 # 1. Arborescence générale `features/`
 
-Structure cible :
+Structure active pour les apps séparées :
 
 ```text
-features/
-  auth/
+apps/public-portal/src/app/features/
   public/
-  private/
-    shell/
-    shared/
-    account/
-    platform/
-    admin/
-    seller-terminal/
-  dev/
+
+apps/admin-portal/src/app/features/
+  admin/
+  pos/
+
+apps/platform-portal/src/app/features/
+  platform/
 ```
+
+`pos-portal` n'existe pas en V0. Les features POS restent sous `admin-portal/src/app/features/pos`
+et doivent être lazy-loadées pour préparer une extraction future.
 
 ## Rôle des dossiers
 
-| Dossier                    | Rôle                                                                                                          |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `auth/`                    | Écrans d’authentification avant connexion : login, forgot password, reset password.                           |
-| `public/`                  | Pages publiques : home, résultats publics, règles, contact, aide.                                             |
-| `private/`                 | Tout l’espace connecté.                                                                                       |
-| `private/shell/`           | Shell privé : topbar, sidenav, page-model host, layout connecté.                                              |
-| `private/shared/`          | Composants privés réutilisables entre `platform`, `admin`, `seller-terminal`. Jamais de logique métier forte. |
-| `private/account/`         | Compte utilisateur connecté : activation, profil, sécurité, préférences.                                      |
-| `private/platform/`        | Espace superadmin / plateforme.                                                                               |
-| `private/admin/`           | Espace tenant admin.                                                                                          |
-| `private/seller-terminal/` | Espace POS seller-terminal.                                                                                   |
-| `dev/`                     | Pages de développement : theme sandbox, debug UI, playground.                                                 |
+| Dossier app / lib                           | Rôle                                                                                 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `apps/public-portal/src/app/features/public` | Pages publiques : home, résultats publics, règles, contact, aide.                    |
+| `apps/admin-portal/src/app/features/admin`   | Espace tenant admin.                                                                 |
+| `apps/admin-portal/src/app/features/pos`     | Espace POS seller-terminal V0, lazy-loadé et extractible plus tard.                  |
+| `apps/platform-portal/src/app/features/platform` | Espace superadmin / plateforme.                                                  |
+| `libs/core/auth`                             | Login partagé, forgot password, guards, access/entitlements.                         |
+| `libs/core/i18n`                             | Runtime i18n partagé.                                                                |
+| `libs/web/shell`                             | Shells publics/privés/platform réutilisables.                                        |
+| `libs/web/sandbox`                           | Pages/outils de développement : theme sandbox, debug UI, playground.                 |
 
 ---
 
@@ -66,6 +68,17 @@ initializers
 global stores
 app bootstrap
 ```
+
+Dans les nouvelles apps, éviter de recréer durablement `core/auth` ou `core/i18n` si la logique est
+réutilisable. Utiliser les libs :
+
+```text
+libs/core/auth
+libs/core/i18n
+```
+
+`apps/<portal>/src/app/core` reste acceptable pour le wiring propre à l'app : bootstrap, providers,
+configuration de routes, initializers spécifiques.
 
 À éviter dans `core` :
 
@@ -115,11 +128,10 @@ feature-specific services
 Exemples :
 
 ```text
-features/private/platform/tenants
-features/private/admin/setup
-features/private/account/activation
-features/public/home
-features/auth/login
+apps/platform-portal/src/app/features/platform/tenants
+apps/admin-portal/src/app/features/admin/setup
+apps/admin-portal/src/app/features/pos/sale
+apps/public-portal/src/app/features/public/home
 ```
 
 ---
@@ -130,18 +142,21 @@ Toute feature importante doit suivre cette structure :
 
 ```text
 feature-name/
-  pages/
+  list/
+  new/
+  edit/
   components/
   data-access/
   feature-name.routes.ts
 ```
 
-| Dossier        | Contenu                                                     |
-| -------------- | ----------------------------------------------------------- |
-| `pages/`       | Composants routés uniquement. Une page = une route Angular. |
-| `components/`  | Composants UI propres à la feature. Pas de routing.         |
-| `data-access/` | API services, models, stores locaux. Pas de composants UI.  |
-| `*.routes.ts`  | Routes internes de la feature.                              |
+| Dossier                 | Contenu                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `list/`, `new`, `edit/` | Page/flow routé quand la feature suit un CRUD clair.                           |
+| `pages/`                | Accepté pour les features legacy ou hétérogènes. Une page = une route Angular. |
+| `components/`           | Composants UI propres à la feature. Pas de routing.                            |
+| `data-access/`          | API services, models, stores locaux. Pas de composants UI.                     |
+| `*.routes.ts`           | Routes internes de la feature.                                                 |
 
 ## Cas particulier `features/public`
 
@@ -190,6 +205,19 @@ Pour les grands écrans admin, CRUD, détail, onboarding, setup :
 ```text
 .ts + .html + .scss séparés
 ```
+
+Chaque page routée nouvelle doit vivre dans son propre dossier :
+
+```text
+seller-terminals/
+  list/
+    seller-terminal-list.page.ts
+    seller-terminal-list.page.html
+    seller-terminal-list.page.scss
+    seller-terminal-list.store.ts
+```
+
+Les stores page-specific restent avec la page. Les clients métier restent dans `data-access/`.
 
 ---
 
@@ -358,6 +386,15 @@ data-access/
   xxx.store.ts
 ```
 
+Pour les nouvelles features admin/platform, préférer les noms préfixés par la surface quand le nom
+serait ambigu hors dossier :
+
+```text
+admin-seller-terminal-list.page.ts
+platform-tenant-detail.page.ts
+pos-sale.page.ts
+```
+
 Les composants dans `components/` sont spécifiques à leur feature.
 
 S’ils deviennent vraiment génériques et réutilisés dans plusieurs features, ils peuvent être déplacés plus tard vers :
@@ -376,7 +413,7 @@ selon leur niveau de généricité.
 
 ---
 
-# 7. `private/shared/`
+# 7. `private/shared/` et équivalents multi-app
 
 `private/shared/` contient uniquement des composants/helpers réutilisables dans l’espace connecté.
 
@@ -391,6 +428,18 @@ private/shared/
     identity-card
     next-steps-card
     empty-state
+```
+
+Dans les apps séparées, éviter de recréer un gros `shared/` par réflexe. Préférer :
+
+```text
+apps/admin-portal/src/app/features/admin/<feature>/components
+apps/platform-portal/src/app/features/platform/<feature>/components
+libs/ui/components                       # si vraiment global et stateless
+libs/web/shell                           # si shell/runtime web
+libs/web/errors                          # si erreur web
+libs/core/auth                           # si auth
+libs/core/i18n                           # si i18n
 ```
 
 Règle stricte :
@@ -410,7 +459,7 @@ feature-name/components/
 
 ---
 
-# 8. `private/shell/`
+# 8. Shells
 
 `private/shell/` contient les éléments structurels de l’espace connecté.
 
@@ -424,6 +473,20 @@ private/shell/
   pages/
     page-model-host/
       private-page-model-host.page.ts/.html/.scss
+```
+
+Dans les nouvelles apps, les primitives réutilisables de shell vivent dans :
+
+```text
+libs/web/shell
+```
+
+La composition de route, les providers et le bootstrap restent dans :
+
+```text
+apps/admin-portal/src/app
+apps/platform-portal/src/app
+apps/public-portal/src/app
 ```
 
 ## PageModel host
@@ -584,16 +647,12 @@ export const platformTenantRoutes: Route[] = [
   {
     path: ':tenantId/admins',
     loadComponent: () =>
-      import('./pages/admins/platform-tenant-admins.page').then(
-        m => m.PlatformTenantAdminsPage,
-      ),
+      import('./pages/admins/platform-tenant-admins.page').then(m => m.PlatformTenantAdminsPage),
   },
   {
     path: ':tenantId',
     loadComponent: () =>
-      import('./pages/detail/platform-tenant-detail.page').then(
-        m => m.PlatformTenantDetailPage,
-      ),
+      import('./pages/detail/platform-tenant-detail.page').then(m => m.PlatformTenantDetailPage),
   },
 
   // Legacy
@@ -775,7 +834,7 @@ admin/
 ## Route canonique
 
 ```text
-/app/admin/setup
+/admin/setup
 ```
 
 ## Redirects legacy dans `admin.routes.ts`
@@ -878,7 +937,7 @@ admin/
 Route canonique :
 
 ```text
-/app/admin/seller-terminals
+/admin/seller-terminals
 ```
 
 ---
@@ -965,7 +1024,7 @@ On découpe seulement quand on travaille activement sur la feature.
 Les fichiers `.page.scss` qui utilisent `@use` vers `libs/ui/styles` ont un chemin relatif dépendant de leur profondeur dans :
 
 ```text
-apps/tch-portal/src/app/
+apps/<portal>/src/app/
 ```
 
 Quand une page est déplacée plus profondément, ajouter un `../` supplémentaire par niveau de dossier ajouté.
@@ -973,7 +1032,7 @@ Quand une page est déplacée plus profondément, ajouter un `../` supplémentai
 Exemple :
 
 ```scss
-@use '../../../../../../libs/ui/styles/...' as ...;
+@use '../../../../../../libs/ui/styles/...' as...;
 ```
 
 À vérifier après chaque déplacement.

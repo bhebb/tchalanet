@@ -1,0 +1,47 @@
+.generate-draws-dialog {
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  &__result {
+    margin-top: 1rem;
+  }
+
+  &__summary-line {
+    margin: 0 0 0.5rem;
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  &__err {
+    color: var(--tch-color-error);
+  }
+
+  &__outcome-table {
+    width: 100%;
+    font-size: var(--tch-font-size-label-md);
+  }
+
+  &__feedback {
+    display: block;
+    margin-top: 0.75rem;
+  }
+}
+
+code {
+  font-family: monospace;
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>Accéder au tenant {{ data.tenantName }}</h2>
+<mat-dialog-content>
+  <div
+    class="start-access-dialog__mode-badge"
+    [class.start-access-dialog__mode-badge--readonly]="mode === 'SUPPORT_READONLY'"
+  >
+    <span class="material-symbols-outlined" aria-hidden="true">
+      {{ mode === 'SUPPORT_READONLY' ? 'visibility' : 'admin_panel_settings' }}
+    </span>
+    @if (mode === 'SUPPORT_OVERRIDE') {
+      Mode <strong>SUPPORT_OVERRIDE</strong> — le tenant est ACTIVE. Vous pourrez effectuer des
+      actions.
+    } @else {
+      Mode <strong>SUPPORT_READONLY</strong> — le tenant est {{ data.tenantStatus }}. Consultation
+      uniquement.
+    }
+  </div>
+
+  <form [formGroup]="form" class="start-access-dialog__form">
+    <mat-form-field appearance="outline" class="start-access-dialog__field">
+      <mat-label>Raison d'accès</mat-label>
+      <textarea
+        matInput
+        formControlName="reason"
+        rows="3"
+        placeholder="Décrivez la raison de cet accès (min. 10 caractères)"
+      ></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>La raison est obligatoire (min. 10 caractères).</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox formControlName="confirmed">
+      Je confirme vouloir accéder au tenant <strong>{{ data.tenantCode }}</strong> en mode
+      {{ mode }}.
+    </mat-checkbox>
+  </form>
+
+  @if (error(); as errorVm) {
+    <tch-section-error
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="loading()">Annuler</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="form.invalid || loading()"
+    (click)="submit()"
+  >
+    @if (loading()) {
+      <span class="material-symbols-outlined spin" aria-hidden="true">progress_activity</span>
+    }
+    Accéder
+  </button>
+</mat-dialog-actions>

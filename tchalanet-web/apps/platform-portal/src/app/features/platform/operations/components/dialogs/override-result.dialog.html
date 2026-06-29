@@ -1,0 +1,67 @@
+<h2 mat-dialog-title>Override — {{ data.row.slotKey }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="override-result-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Date du tirage (YYYY-MM-DD)</mat-label>
+      <input matInput formControlName="drawDate" />
+      @if (form.controls.drawDate.invalid && form.controls.drawDate.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <div class="override-result-dialog__lot-map" aria-label="Mapping lots Haiti vers provider">
+      @for (mapping of lotMappings(); track mapping.lotKey) {
+        <div class="override-result-dialog__lot-card">
+          <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
+          <span>
+            <strong>{{ mapping.gameLabel }}</strong>
+            <em>{{ mapping.label }}</em>
+          </span>
+        </div>
+      }
+    </div>
+    <mat-form-field appearance="outline">
+      <mat-label>Pick3 - lot1</mat-label>
+      <input matInput formControlName="lot1" maxlength="3" />
+      @if (form.controls.lot1.invalid && form.controls.lot1.touched) {
+        <mat-error>3 chiffres requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Pick4 - lot2</mat-label>
+      <input matInput formControlName="lot2" maxlength="2" />
+      @if (form.controls.lot2.invalid && form.controls.lot2.touched) {
+        <mat-error>2 chiffres requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Pick4 - lot3</mat-label>
+      <input matInput formControlName="lot3" maxlength="2" />
+      @if (form.controls.lot3.invalid && form.controls.lot3.touched) {
+        <mat-error>2 chiffres requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Raison</mat-label>
+      <textarea matInput formControlName="reason" rows="2"></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+    <mat-checkbox formControlName="force">Forcer (remplace états protégés)</mat-checkbox>
+  </form>
+  @if (error(); as errorVm) {
+    <tch-section-error
+      class="override-result-dialog__feedback"
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
+  <button mat-flat-button color="warn" [disabled]="form.invalid || submitting()" (click)="submit()">
+    @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
+    Appliquer l'override
+  </button>
+</mat-dialog-actions>

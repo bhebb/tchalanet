@@ -1,0 +1,12 @@
+.lifecycle-action-dialog {
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  &__field {
+    width: 100%;
+  }
+}

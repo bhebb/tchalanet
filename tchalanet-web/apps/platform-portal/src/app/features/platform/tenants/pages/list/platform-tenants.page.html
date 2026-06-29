@@ -1,0 +1,195 @@
+<tch-admin-page-shell
+  [title]="'platform.tenants.title' | translate"
+  [description]="'platform.tenants.description' | translate"
+>
+  <div actions>
+    <a tch-action variant="primary" routerLink="/app/platform/tenants/onboarding">
+      <span class="material-symbols-outlined" aria-hidden="true">add_business</span>
+      {{ 'platform.tenants.action.create' | translate }}
+    </a>
+  </div>
+
+  <tch-admin-list-surface
+    [searchLabel]="'platform.tenants.filter.search' | translate"
+    [searchPlaceholder]="'platform.tenants.filter.search' | translate"
+    [searchValue]="filters.controls.q.value"
+    [statusLabel]="'platform.tenants.filter.status' | translate"
+    [statusValue]="filters.controls.status.value"
+    [statusOptions]="statusFilterOptions()"
+    [allStatusesLabel]="'platform.tenants.filter.allStatuses' | translate"
+    [resetLabel]="'platform.tenants.action.resetFilters' | translate"
+    [filtersDisplay]="'inline'"
+    [filtersExpanded]="hasActiveFilters()"
+    (searchChange)="onSearchFilter($event)"
+    (statusChange)="onStatusFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-content>
+      @if (loading()) {
+        <tch-loading [label]="'platform.tenants.loading' | translate" />
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          [retryLabel]="'common.retry' | translate"
+          (retry)="loadPage()"
+        />
+      } @else if (items().length === 0) {
+        @if (hasActiveFilters()) {
+          <tch-admin-empty-state
+            icon="search_off"
+            [title]="'platform.tenants.empty.filtered.title' | translate"
+            [message]="'platform.tenants.empty.filtered.message' | translate"
+          />
+          <div class="tenants-page__empty-actions">
+            <button mat-button type="button" (click)="resetFilters()">
+              {{ 'platform.tenants.action.resetFilters' | translate }}
+            </button>
+            <a tch-action variant="primary" routerLink="/app/platform/tenants/onboarding">
+              <span class="material-symbols-outlined" aria-hidden="true">add_business</span>
+              {{ 'platform.tenants.action.create' | translate }}
+            </a>
+          </div>
+        } @else {
+          <tch-admin-empty-state
+            icon="business"
+            [title]="'platform.tenants.empty.title' | translate"
+            [message]="'platform.tenants.empty.message' | translate"
+          />
+        }
+      } @else {
+        @if (actionFeedback(); as feedback) {
+          <div class="tenants-page__feedback">
+            <tch-section-error
+              [title]="feedback.title"
+              [message]="feedback.message"
+              [severity]="feedback.severity"
+            />
+          </div>
+        }
+
+        <div class="tenants-page__table">
+          <table mat-table [dataSource]="items()" matSort
+                 [matSortActive]="parsedSort().active"
+                 [matSortDirection]="parsedSort().direction"
+                 matSortDisableClear
+                 (matSortChange)="onSortChange($event)">
+
+            <ng-container matColumnDef="tenant">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="name">{{ 'platform.tenants.column.tenant' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <strong class="tenants-page__name">{{ row.name }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="code">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="code">{{ 'platform.tenants.column.code' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <code class="tenants-page__code">{{ row.code }}</code>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="type">{{ 'platform.tenants.column.type' | translate }}</th>
+              <td mat-cell *matCellDef="let row" class="tenants-page__muted">{{ typeLabel(row.type) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="status">{{ 'platform.tenants.column.status' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-status-badge [label]="statusLabel(row.status)" [status]="statusBadge(row.status)" />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="currency">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="currency">{{ 'platform.tenants.column.currency' | translate }}</th>
+              <td mat-cell *matCellDef="let row" class="tenants-page__muted">{{ row.currency ?? '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="updatedAt">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="updatedAt">{{ 'platform.tenants.column.updatedAt' | translate }}</th>
+              <td mat-cell *matCellDef="let row" class="tenants-page__muted">{{ row.updatedAt | date: 'dd MMM y, HH:mm' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="tenants-page__actions-cell">
+                <button
+                  mat-icon-button
+                  [matMenuTriggerFor]="rowMenu"
+                  [matMenuTriggerData]="{ row }"
+                  [attr.aria-label]="'platform.tenants.action.openMenu' | translate"
+                  (click)="$event.stopPropagation()"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"
+                class="tenants-page__row"
+                [routerLink]="[tenantId(row)]"></tr>
+          </table>
+
+          <mat-menu #rowMenu="matMenu">
+            <ng-template matMenuContent let-row="row">
+              <a mat-menu-item [routerLink]="[tenantId(row)]">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                {{ 'platform.tenants.action.viewDetails' | translate }}
+              </a>
+              <button mat-menu-item (click)="openSupportAccess(row)">
+                <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+                Mode support admin
+              </button>
+              @if (canActivate(row)) {
+                <button mat-menu-item (click)="activateTenant(row)">
+                  <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+                  {{ 'platform.tenants.action.activate' | translate }}
+                </button>
+              }
+              @if (canSuspend(row)) {
+                <button mat-menu-item (click)="suspendTenant(row)">
+                  <span class="material-symbols-outlined" aria-hidden="true">pause_circle</span>
+                  {{ 'platform.tenants.action.suspend' | translate }}
+                </button>
+              }
+              @if (canReactivate(row)) {
+                <button mat-menu-item (click)="reactivateTenant(row)">
+                  <span class="material-symbols-outlined" aria-hidden="true">play_circle</span>
+                  {{ 'platform.tenants.action.reactivate' | translate }}
+                </button>
+              }
+              @if (canArchive(row)) {
+                <button mat-menu-item (click)="archiveTenant(row)">
+                  <span class="material-symbols-outlined" aria-hidden="true">archive</span>
+                  {{ 'platform.tenants.action.archive' | translate }}
+                </button>
+              }
+            </ng-template>
+          </mat-menu>
+        </div>
+      }
+    </ng-container>
+
+    <ng-container list-footer>
+      <div class="tenants-page__pagination">
+        <span class="tenants-page__pagination-total">
+          {{ 'platform.tenants.paginationTotal' | translate: { count: total() } }}
+        </span>
+        <div class="tenants-page__pagination-nav">
+          <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            {{ 'common.previous' | translate }}
+          </button>
+          <span>{{ 'platform.tenants.pagination' | translate: { page: page() + 1, total: totalPages() } }}</span>
+          <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+            {{ 'common.next' | translate }}
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </tch-admin-list-surface>
+</tch-admin-page-shell>

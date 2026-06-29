@@ -1,0 +1,334 @@
+<tch-admin-page-shell
+  title="Nouveau seller-terminal"
+  description="Enregistrez un nouveau point de vente sur le réseau."
+>
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/seller-terminals">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Retour à la liste
+    </a>
+  </div>
+
+  @if (successResult(); as result) {
+    <!-- ── Success state ──────────────────────────────────────────────────── -->
+    <div class="stn-page__success-wrapper">
+      <tch-seller-terminal-success-card
+        [result]="result"
+        (openPos)="onOpenPos($event)"
+        (backToList)="goBackToList()"
+        (createAnother)="onCreateAnother()"
+      />
+    </div>
+  } @else {
+    <!-- ── Form + Preview ─────────────────────────────────────────────────── -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="stn-page__grid" novalidate>
+
+      <!-- Left column: form sections -->
+      <div class="stn-page__form-col">
+        @if (error(); as pageError) {
+          <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+        }
+
+        <!-- Identité -->
+        <tch-admin-section-card title="Identité" icon="badge" description="Informations d'identification du terminal">
+
+          <!-- Code terminal (auto-generated, editable) -->
+          <div class="stn-page__field-group">
+            <mat-form-field appearance="outline" class="stn-page__field">
+              <mat-label>Code terminal</mat-label>
+              <input matInput formControlName="terminalCode" placeholder="TCH-XXXXXX" autocomplete="off" />
+              <button
+                mat-icon-button matSuffix type="button"
+                (click)="regenerateCode()"
+                matTooltip="Générer un nouveau code"
+              >
+                <span class="material-symbols-outlined">refresh</span>
+              </button>
+              @if (form.controls.terminalCode.hasError('required')) {
+                <mat-error>Le code terminal est requis.</mat-error>
+              }
+            </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.terminalCode)" />
+
+            <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
+              <mat-label>Nom d'affichage</mat-label>
+              <input matInput formControlName="displayName" placeholder="Ex : Point Vente Centre-Ville" autocomplete="off" />
+              @if (form.controls.displayName.hasError('required')) {
+                <mat-error>Le nom d'affichage est requis.</mat-error>
+              }
+              @if (form.controls.displayName.hasError('minlength')) {
+                <mat-error>Minimum 2 caractères.</mat-error>
+              }
+              @if (form.controls.displayName.hasError('maxlength')) {
+                <mat-error>Maximum 64 caractères.</mat-error>
+              }
+            </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.displayName)" />
+          </div>
+
+          <div class="stn-page__row">
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Prénom (optionnel)</mat-label>
+                <input matInput formControlName="firstName" autocomplete="given-name" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.firstName)" />
+            </div>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Nom (optionnel)</mat-label>
+                <input matInput formControlName="lastName" autocomplete="family-name" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.lastName)" />
+            </div>
+          </div>
+
+          <div class="stn-page__row">
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Email (optionnel)</mat-label>
+                <input matInput formControlName="email" type="email" autocomplete="email" placeholder="vendeur@exemple.com" />
+                @if (form.controls.email.hasError('email')) {
+                  <mat-error>Email invalide.</mat-error>
+                }
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.email)" />
+            </div>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Téléphone (optionnel)</mat-label>
+                <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" placeholder="+509 XXXX XXXX" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.phoneNumber)" />
+            </div>
+          </div>
+
+        </tch-admin-section-card>
+
+        <!-- Adresse -->
+        <tch-admin-section-card title="Adresse" icon="location_on" description="Adresse physique du point de vente (optionnelle)">
+
+          <!-- TODO: extraire en <tch-address-form> réutilisable dans shared/admin-ui — même champs utilisés dans business-profile et ici -->
+          <div formGroupName="address" class="stn-page__address-grid">
+            <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
+              <mat-label>Rue / Ligne 1</mat-label>
+              <input matInput formControlName="line1" placeholder="Ex : 12 Rue Pavée" autocomplete="address-line1" />
+              @if (form.controls.address.controls.line1.hasError('maxlength')) {
+                <mat-error>Maximum 200 caractères.</mat-error>
+              }
+            </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.line1)" />
+
+            <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
+              <mat-label>Appartement / Ligne 2 (optionnel)</mat-label>
+              <input matInput formControlName="line2" placeholder="Ex : Apt 3B" autocomplete="address-line2" />
+            </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.line2)" />
+
+            <div class="stn-page__row">
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Ville</mat-label>
+                  <input matInput formControlName="city" placeholder="Ex : Port-au-Prince" autocomplete="address-level2" />
+                  @if (form.controls.address.controls.city.hasError('maxlength')) {
+                    <mat-error>Maximum 100 caractères.</mat-error>
+                  }
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.city)" />
+              </div>
+
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Région / Département (optionnel)</mat-label>
+                  <input matInput formControlName="region" placeholder="Ex : Ouest" autocomplete="address-level1" />
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.region)" />
+              </div>
+            </div>
+
+            <div class="stn-page__row">
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Pays (code ISO)</mat-label>
+                  <input matInput formControlName="country" placeholder="HT" maxlength="2" autocomplete="country" />
+                  @if (form.controls.address.controls.country.hasError('maxlength')) {
+                    <mat-error>Code ISO 2 lettres (ex : HT, US).</mat-error>
+                  }
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.country)" />
+              </div>
+
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Code postal (optionnel)</mat-label>
+                  <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.postalCode)" />
+              </div>
+            </div>
+          </div>
+
+        </tch-admin-section-card>
+
+        <!-- Accès -->
+        <tch-admin-section-card title="Accès" icon="lock" description="PIN de connexion initial du vendeur">
+
+          <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
+            <mat-label>PIN initial</mat-label>
+            <input
+              matInput
+              formControlName="initialPin"
+              [type]="showPin() ? 'text' : 'password'"
+              placeholder="6 chiffres"
+              autocomplete="new-password"
+              inputmode="numeric"
+            />
+            <button mat-icon-button matSuffix type="button" (click)="toggleShowPin()" [attr.aria-label]="showPin() ? 'Masquer' : 'Afficher'">
+              <span class="material-symbols-outlined">{{ showPin() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+            @if (form.controls.initialPin.hasError('required')) {
+              <mat-error>Le PIN est requis.</mat-error>
+            }
+            @if (form.controls.initialPin.hasError('pattern')) {
+              <mat-error>Le PIN doit contenir exactement 6 chiffres.</mat-error>
+            }
+          </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.initialPin)" />
+
+          <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
+            <mat-label>Confirmer le PIN</mat-label>
+            <input
+              matInput
+              formControlName="confirmPin"
+              [type]="showConfirmPin() ? 'text' : 'password'"
+              placeholder="Répéter le PIN"
+              autocomplete="new-password"
+              inputmode="numeric"
+            />
+            <button mat-icon-button matSuffix type="button" (click)="toggleShowConfirmPin()" [attr.aria-label]="showConfirmPin() ? 'Masquer' : 'Afficher'">
+              <span class="material-symbols-outlined">{{ showConfirmPin() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+            @if (form.controls.confirmPin.hasError('required')) {
+              <mat-error>La confirmation est requise.</mat-error>
+            }
+          </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.confirmPin)" />
+
+          @if (form.hasError('pinMismatch') && form.controls.confirmPin.touched) {
+            <div class="stn-page__pin-error">
+              <span class="material-symbols-outlined">error</span>
+              Les PINs ne correspondent pas.
+            </div>
+          }
+
+        </tch-admin-section-card>
+
+        <!-- Commission -->
+        <tch-admin-section-card title="Commission" icon="percent" description="Taux de commission appliqué à ce terminal">
+
+          <mat-form-field appearance="outline" class="stn-page__field">
+            <mat-label>Taux de commission (%)</mat-label>
+            <input
+              matInput
+              formControlName="commissionRate"
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              inputmode="decimal"
+            />
+            @if (form.controls.commissionRate.hasError('required')) {
+              <mat-error>Le taux de commission est requis.</mat-error>
+            }
+            @if (form.controls.commissionRate.hasError('min') || form.controls.commissionRate.hasError('max')) {
+              <mat-error>Le taux doit être compris entre 0 et 100.</mat-error>
+            }
+          </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.commissionRate)" />
+
+        </tch-admin-section-card>
+
+        <!-- Statut -->
+        <tch-admin-section-card title="Statut" icon="toggle_on" description="Le terminal sera immédiatement disponible si activé">
+
+          <div class="stn-page__toggle-row">
+            <mat-slide-toggle formControlName="active" color="primary">
+              Activer le seller-terminal à la création
+            </mat-slide-toggle>
+          </div>
+
+        </tch-admin-section-card>
+
+        <!-- Footer actions -->
+        <div class="stn-page__footer">
+          <a mat-stroked-button routerLink="/app/admin/seller-terminals">
+            Annuler
+          </a>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="stn-page__submit-btn"
+            [disabled]="saving()"
+          >
+            @if (saving()) {
+              <span class="material-symbols-outlined stn-page__spin">progress_activity</span>
+              Création en cours…
+            } @else {
+              <span class="material-symbols-outlined">add</span>
+              Créer le seller-terminal
+            }
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right column: preview -->
+      <div class="stn-page__preview-col">
+        <div class="stn-page__preview-card">
+          <div class="stn-page__preview-header">
+            <span class="material-symbols-outlined stn-page__preview-icon">point_of_sale</span>
+            <span class="stn-page__preview-label">Aperçu du terminal</span>
+          </div>
+
+          <div class="stn-page__preview-body">
+            <p class="stn-page__preview-code">
+              {{ form.controls.terminalCode.value || 'TCH-??????' }}
+            </p>
+            <p class="stn-page__preview-name">
+              {{ form.controls.displayName.value || 'Nom du terminal' }}
+            </p>
+            @let fullName = (form.controls.firstName.value + ' ' + form.controls.lastName.value).trim();
+            @if (fullName) {
+              <p class="stn-page__preview-person">
+                <span class="material-symbols-outlined">person</span>
+                {{ fullName }}
+              </p>
+            }
+            @if (form.controls.phoneNumber.value) {
+              <p class="stn-page__preview-person">
+                <span class="material-symbols-outlined">phone</span>
+                {{ form.controls.phoneNumber.value }}
+              </p>
+            }
+          </div>
+
+          <div class="stn-page__preview-footer">
+            <span class="stn-page__preview-badge" [class.stn-page__preview-badge--active]="form.controls.active.value">
+              {{ form.controls.active.value ? 'ACTIF' : 'EN ATTENTE' }}
+            </span>
+            <span class="stn-page__preview-commission">
+              Commission : {{ form.controls.commissionRate.value }}%
+            </span>
+          </div>
+        </div>
+
+        <div class="stn-page__preview-hint">
+          <span class="material-symbols-outlined">info</span>
+          <span>Le code terminal et le PIN initial seront affichés après la création.</span>
+        </div>
+      </div>
+
+    </form>
+  }
+</tch-admin-page-shell>

@@ -1,0 +1,35 @@
+@use 'index' as ui;
+
+.draw-results-page {
+  &__feedback {
+    margin-block-end: 1rem;
+  }
+
+  &__table {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+    }
+
+    code {
+      font-family: monospace;
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__row-actions {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  &__lottery-logo {
+    display: block;
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: contain;
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-surface-container-low);
+  }
+}

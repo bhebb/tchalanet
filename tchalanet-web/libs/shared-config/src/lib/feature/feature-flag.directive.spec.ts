@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { FeatureFlags } from './feature-flags';
@@ -6,6 +6,7 @@ import { FeatureFlagDirective } from './feature-flag.directive';
 
 @Component({
   imports: [FeatureFlagDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p *tchFeature="'web.demo'; else off">on</p>
     <ng-template #off><p>off</p></ng-template>

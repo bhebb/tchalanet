@@ -1,0 +1,128 @@
+<tch-admin-page-shell
+  title="Règles de limite"
+  description="Configurez les limites de mise, d'exposition et de paiement appliquées au tenant.">
+
+  <div actions>
+    <button mat-stroked-button (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (rules().length === 0) {
+    <tch-admin-empty-state icon="policy" title="Aucune règle disponible" message="Le catalogue de règles est vide." />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-page__action-error"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice(); as notice) {
+      <tch-section-error
+        class="limits-page__action-error"
+        title="Action effectuée"
+        [message]="notice"
+        severity="info"
+      />
+    }
+
+    <mat-accordion multi>
+      @for (cat of categories(); track cat) {
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span class="category-title">{{ cat }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ (rowsByCategory().get(cat) ?? []).length }} règle(s)
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <table mat-table [dataSource]="rowsByCategory().get(cat) ?? []" class="rules-table">
+            <ng-container matColumnDef="rule">
+              <th mat-header-cell *matHeaderCellDef>Règle</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="rule-name"><code>{{ row.spec.ruleKey }}</code></div>
+                @if (row.spec.label) {
+                  <div class="rule-label">{{ row.spec.label }}</div>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Info</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.spec.description) {
+                  <span class="rule-desc" [title]="row.spec.description">
+                    {{ row.spec.description | slice:0:80 }}{{ row.spec.description.length > 80 ? '…' : '' }}
+                  </span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="status-cell">
+                  <tch-admin-status-pill [tone]="assignmentTone(row)" [label]="assignmentLabel(row)" />
+                  @if (row.assignment && paramsPreview(row)) {
+                    <span class="params-preview" [title]="paramsPreview(row)">
+                      {{ paramsPreview(row) | slice:0:40 }}{{ paramsPreview(row).length > 40 ? '…' : '' }}
+                    </span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="onBreach">
+              <th mat-header-cell *matHeaderCellDef>En cas de dépassement</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.assignment) {
+                  <tch-admin-status-pill
+                    [tone]="breachTone(row.assignment.onBreach)"
+                    [label]="row.assignment.onBreach" />
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button
+                  [title]="row.assignment ? 'Modifier' : 'Configurer'"
+                  (click)="openUpsert(row)">
+                  <span class="material-symbols-outlined">
+                    {{ row.assignment ? 'edit' : 'add_circle' }}
+                  </span>
+                </button>
+                @if (row.assignment) {
+                  <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"
+              [class.row-assigned]="!!row.assignment"
+              [class.row-disabled]="row.assignment && !row.assignment.enabled"></tr>
+          </table>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</tch-admin-page-shell>

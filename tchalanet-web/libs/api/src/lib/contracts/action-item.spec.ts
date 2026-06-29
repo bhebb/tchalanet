@@ -1,10 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
-import { actionHref, actionRoute, actionText, isExternalAction, isRouteAction } from './action-item';
+import {
+  actionHref,
+  actionRoute,
+  actionText,
+  isExternalAction,
+  isRouteAction,
+} from './action-item';
 
 describe('ActionItem helpers', () => {
-  const route = { id: 'home', labelKey: 'nav.home', destination: { kind: 'route' as const, value: '/home' } };
-  const url = { id: 'docs', label: 'Docs', destination: { kind: 'url' as const, value: 'https://example.test' } };
+  const route = {
+    id: 'home',
+    labelKey: 'nav.home',
+    destination: { kind: 'route' as const, value: '/home' },
+  };
+  const url = {
+    id: 'docs',
+    label: 'Docs',
+    destination: { kind: 'url' as const, value: 'https://example.test' },
+  };
 
   it('reads text and destinations without resolving bindings', () => {
     expect(actionText(route)).toBe('nav.home');

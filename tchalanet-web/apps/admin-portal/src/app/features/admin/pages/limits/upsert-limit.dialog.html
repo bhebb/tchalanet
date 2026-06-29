@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ assignment() ? 'Modifier' : 'Configurer' }} la règle</h2>
+
+<mat-dialog-content>
+  @if (spec(); as limitSpec) {
+    <div class="upsert-limit-dialog__summary">
+      <strong>{{ limitSpec.ruleKey }}</strong>
+      @if (limitSpec.label) { - {{ limitSpec.label }} }
+    </div>
+
+    @if (limitSpec.description) {
+      <p class="upsert-limit-dialog__description">{{ limitSpec.description }}</p>
+    }
+  }
+
+  @if (error(); as err) {
+    <tch-section-error
+      class="upsert-limit-dialog__error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity"
+    />
+  }
+
+  <form [formGroup]="form" class="upsert-limit-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Action en cas de dépassement</mat-label>
+      <mat-select formControlName="onBreach">
+        @for (o of breachOutcomes; track o) {
+          <mat-option [value]="o">{{ o }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Paramètres (JSON)</mat-label>
+      <textarea matInput formControlName="params" rows="5" class="upsert-limit-dialog__json"></textarea>
+      @if (form.controls.params.errors?.['jsonInvalid']) {
+        <mat-error>JSON invalide.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox formControlName="enabled">Actif</mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">
+    Enregistrer
+  </button>
+</mat-dialog-actions>

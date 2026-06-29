@@ -12,7 +12,8 @@ Reusable Angular UI components shared by Web shells and pages.
 Runtime theme selection and DOM token application belong to `libs/ui/theme`. Shared SCSS primitives
 and global Material overrides belong to `libs/ui/styles`.
 
-The public API is exported from `src/index.ts`.
+The public API is exported from `src/index.ts`. Error primitives are documented in
+[`ERRORS.md`](./ERRORS.md).
 
 ## Component inventory
 
@@ -28,6 +29,7 @@ The public API is exported from `src/index.ts`.
 | `tch-empty-state` | `TchEmptyState` | Empty state with icon + message |
 | `tch-error-panel` | `TchErrorPanel` | Error panel for data-load failures |
 | `tch-page-error` | `TchPageError` | Full-page error (404, 500, etc.) |
+| `tch-section-error` | `TchSectionError` | Section/widget/card-level error message |
 | `tch-loading` | `TchLoading` | Loading spinner |
 | `tch-admin-list-surface` | `AdminListSurface` | Shared list/table surface with debounced search, collapsible filters and slots |
 | `tch-search-select` | `TchSearchSelect` | Single server-backed autocomplete selector |

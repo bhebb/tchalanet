@@ -1,0 +1,21 @@
+{
+  "name": "core-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core/auth/src",
+  "prefix": "tch",
+  "projectType": "library",
+  "tags": ["scope:core", "type:core"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "buildTarget": "public-portal:build:development",
+        "tsConfig": "libs/core/auth/tsconfig.spec.json",
+        "watch": false
+      }
+    }
+  }
+}

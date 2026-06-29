@@ -228,8 +228,8 @@ export class TchSearchSelect implements ControlValueAccessor {
   readonly loading = signal(false);
   readonly selected = signal<TchSearchOption | null>(null);
 
-  private onChange: (value: TchSearchOption | null) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: TchSearchOption | null) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
 
   constructor() {
     this.query.valueChanges

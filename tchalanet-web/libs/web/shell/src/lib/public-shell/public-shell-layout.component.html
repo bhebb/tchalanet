@@ -1,0 +1,16 @@
+<a class="public-shell__skip" href="#public-content">{{ 'public.nav.skip' | tchLabel }}</a>
+
+<tch-public-header
+  [shell]="shell()"
+  [languages]="languages()"
+  [currentLanguage]="currentLanguage()"
+  (languageSelected)="languageSelected.emit($event)"
+  (loginRequested)="loginRequested.emit($event)"
+/>
+
+<main id="public-content" class="public-shell__main">
+  <tch-shell-feedback-outlet verbosity="minimal" />
+  <ng-content />
+</main>
+
+<tch-public-footer [shell]="shell()" />

@@ -53,7 +53,9 @@ export function actionQueryParams(item: ActionItem | undefined): Record<string, 
   const qIdx = value.indexOf('?');
   if (qIdx < 0) return null;
   const params: Record<string, string> = {};
-  new URLSearchParams(value.slice(qIdx + 1)).forEach((v, k) => { params[k] = v; });
+  new URLSearchParams(value.slice(qIdx + 1)).forEach((v, k) => {
+    params[k] = v;
+  });
   return Object.keys(params).length ? params : null;
 }
 

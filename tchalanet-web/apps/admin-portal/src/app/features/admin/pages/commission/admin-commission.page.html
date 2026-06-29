@@ -1,0 +1,115 @@
+<tch-admin-page-shell title="Commissions" description="Taux de commission par défaut et par vendeur.">
+  <div actions>
+    <button mat-stroked-button [disabled]="loading()" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+    <button mat-flat-button color="primary" [disabled]="loading()" (click)="openSetDefaultRate()">
+      <span class="material-symbols-outlined">edit</span>
+      Modifier taux par défaut
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else {
+    @if (overview(); as overviewVm) {
+      <tch-admin-section-card
+        title="Vue d'ensemble"
+        tchSectionErrorTarget="admin.commission.defaultRate"
+        [tchSectionErrors]="sectionErrors()"
+      >
+        <dl class="commission-page__overview">
+          <dt>Taux par défaut</dt>
+          <dd>{{ overviewVm.tenantDefaultRate }}%</dd>
+          <dt>Total vendeurs</dt>
+          <dd>{{ overviewVm.totalSellerTerminals }}</dd>
+          <dt>Au taux par défaut</dt>
+          <dd>{{ overviewVm.countAtDefaultRate }}</dd>
+          <dt>Taux personnalisé</dt>
+          <dd>{{ overviewVm.countWithCustomRate }}</dd>
+          <dt>Min / Max</dt>
+          <dd>{{ overviewVm.minRate }}% / {{ overviewVm.maxRate }}%</dd>
+        </dl>
+      </tch-admin-section-card>
+    }
+
+    <tch-admin-section-card
+      title="Vendeurs"
+      tchSectionErrorTarget="admin.commission.sellers"
+      [tchSectionErrors]="sectionErrors()"
+    >
+      @if (sellers().length === 0) {
+        <tch-admin-empty-state icon="point_of_sale" title="Aucun vendeur" message="Aucun vendeur enregistré." />
+      } @else {
+        <div class="commission-page__table">
+          <table mat-table [dataSource]="sellers()">
+            <ng-container matColumnDef="terminalCode">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row">{{ row.terminalCode }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="displayName">
+              <th mat-header-cell *matHeaderCellDef>Nom</th>
+              <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="commissionRate">
+              <th mat-header-cell *matHeaderCellDef>Taux</th>
+              <td mat-cell *matCellDef="let row">{{ row.commissionRate }}%</td>
+            </ng-container>
+
+            <ng-container matColumnDef="source">
+              <th mat-header-cell *matHeaderCellDef>Source</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="commission-page__source-badge commission-page__source-badge--{{ row.source | lowercase }}">
+                  {{ row.source === 'CUSTOM' ? 'Personnalisé' : 'Défaut' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ row }">
+                  <span class="material-symbols-outlined">more_vert</span>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="sellerColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: sellerColumns"></tr>
+          </table>
+        </div>
+
+        <mat-menu #rowMenu="matMenu">
+          <ng-template matMenuContent let-row="row">
+            <button mat-menu-item (click)="openSetSellerRate(row)">
+              <span class="material-symbols-outlined">edit</span>
+              Modifier le taux
+            </button>
+            @if (row.source === 'CUSTOM') {
+              <button mat-menu-item (click)="resetSellerRate(row)">
+                <span class="material-symbols-outlined">restart_alt</span>
+                Remettre au défaut
+              </button>
+            }
+          </ng-template>
+        </mat-menu>
+      }
+    </tch-admin-section-card>
+  }
+</tch-admin-page-shell>

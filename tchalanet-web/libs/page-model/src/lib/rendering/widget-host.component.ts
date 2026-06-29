@@ -52,8 +52,15 @@ type HostState =
         </div>
       }
       @case ('error') {
-        <div class="widget-fallback widget-fallback--error" role="alert">
-          {{ 'widget.error' | translate }}
+        <div
+          class="widget-fallback widget-fallback--error"
+          [attr.data-severity]="errorSeverity()"
+          role="alert"
+        >
+          <strong>{{ 'widget.error' | translate }}</strong>
+          @if (errorCode()) {
+            <span class="widget-fallback__code">{{ errorCode() }}</span>
+          }
         </div>
       }
     }
@@ -81,6 +88,22 @@ type HostState =
       .widget-fallback--error {
         border-color: var(--tch-color-error, var(--mat-sys-error));
         color: var(--tch-color-error, var(--mat-sys-error));
+      }
+      .widget-fallback--error[data-severity='warn'] {
+        border-color: var(--tch-color-warning, #9a6700);
+        color: var(--tch-color-on-warning-container, #3d2b00);
+        background: var(--tch-color-warning-container, #fff4ce);
+      }
+      .widget-fallback--error[data-severity='info'] {
+        border-color: var(--tch-color-primary, var(--mat-sys-primary));
+        color: var(--tch-color-on-primary-container, var(--mat-sys-on-primary-container));
+        background: var(--tch-color-primary-container, var(--mat-sys-primary-container));
+      }
+      .widget-fallback__code {
+        display: block;
+        margin-top: .25rem;
+        font-size: .75rem;
+        opacity: .75;
       }
     `,
   ],
@@ -114,6 +137,8 @@ export class WidgetHostComponent {
   });
 
   readonly renderFailed = signal(false);
+  readonly errorSeverity = computed(() => this.localError()?.severity ?? 'error');
+  readonly errorCode = computed(() => this.localError()?.code ?? '');
   private ref: ComponentRef<unknown> | null = null;
 
   constructor() {

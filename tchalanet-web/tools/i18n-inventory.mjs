@@ -18,27 +18,38 @@ const bundles = [
   'feature-seller-terminal',
 ];
 
-const i18nRoot = path.join(root, 'apps/tch-portal/public/assets/i18n');
+const i18nRoot = path.join(root, 'libs/shared-assets/public/assets/i18n');
 const scanRoots = [
-  path.join(root, 'apps/tch-portal/src/app'),
+  path.join(root, 'apps/public-portal/src/app'),
+  path.join(root, 'apps/admin-portal/src/app'),
+  path.join(root, 'apps/platform-portal/src/app'),
+  path.join(root, 'libs/core/auth/src'),
+  path.join(root, 'libs/core/i18n/src'),
+  path.join(root, 'libs/ui/components/src'),
+  path.join(root, 'libs/ui/console/src'),
+  path.join(root, 'libs/web/errors/src'),
+  path.join(root, 'libs/web/shell/src'),
+  path.join(root, 'libs/web/sandbox/src'),
   path.join(root, 'libs/widgets/src'),
-  path.join(root, 'apps/tch-portal/public/assets/config'),
+  path.join(root, 'libs/shared-assets/public/assets/config'),
 ];
 const scanExtensions = new Set(['.ts', '.html', '.json']);
-const ignoredReferencedPrefixes = [
-  'http.',
-  'https.',
-  'tch.',
-  'web.',
-  'entitlement.',
-  'pos.',
-];
+const ignoredReferencedPrefixes = ['http.', 'https.', 'tch.', 'web.', 'entitlement.', 'pos.'];
 
 const checkMode = process.argv.includes('--check');
 const allowedTopLevelByBundle = {
   common: new Set(['common']),
   domain: new Set(['catalog', 'domain', 'draw_channel', 'ticket']),
-  component: new Set(['app', 'component', 'error', 'layout', 'quickaction', 'readiness', 'shell', 'widget']),
+  component: new Set([
+    'app',
+    'component',
+    'error',
+    'layout',
+    'quickaction',
+    'readiness',
+    'shell',
+    'widget',
+  ]),
   'surface-public': new Set(['brand', 'footer', 'legal', 'nav', 'public']),
   'surface-admin': new Set(['nav', 'surface']),
   'surface-platform': new Set(['nav', 'platform', 'surface']),
@@ -175,9 +186,11 @@ async function walk(dir, files = []) {
 
 function collectReferences(source) {
   const references = new Set();
-  const translatePipe = /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*(?:translate|tchLabel)/g;
+  const translatePipe =
+    /['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]\s*\|\s*(?:translate|tchLabel)/g;
   const translateInstant = /\.instant\(\s*['"`]([a-z][a-zA-Z0-9_-]*(?:\.[a-zA-Z0-9_-]+){1,})['"`]/g;
-  const routeKey = /\b(?:titleKey|descriptionKey|labelKey|messageKey|bodyKey|eyebrowKey|fileKey)\s*:\s*['"`]([^'"`]+)['"`]/g;
+  const routeKey =
+    /\b(?:titleKey|descriptionKey|labelKey|messageKey|bodyKey|eyebrowKey|fileKey)\s*:\s*['"`]([^'"`]+)['"`]/g;
   for (const pattern of [translatePipe, translateInstant, routeKey]) {
     for (const match of source.matchAll(pattern)) {
       const key = match[1];
@@ -223,7 +236,9 @@ for (const locale of locales) {
 const missingReferences = difference(references, canonical);
 const unused = difference(canonical, references);
 
-console.log(`i18n inventory (${canonical.size} declared fr keys, ${references.size} referenced keys)`);
+console.log(
+  `i18n inventory (${canonical.size} declared fr keys, ${references.size} referenced keys)`,
+);
 for (const locale of locales) {
   const missing = missingByLocale.get(locale);
   const diagnostics = diagnosticsByLocale.get(locale);

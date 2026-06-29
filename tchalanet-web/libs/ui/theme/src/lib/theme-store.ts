@@ -163,22 +163,30 @@ export const themeStoreProvider = {
 };
 
 function persistTheme(theme: RuntimeTheme): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+
   localStorage.setItem(themeModeStorageKey, theme.mode);
   localStorage.setItem(themePresetStorageKey, theme.activePresetKey);
   localStorage.setItem(themeDensityStorageKey, theme.density);
 }
 
 function restoreMode(): ThemeMode {
-  const value = localStorage.getItem(themeModeStorageKey);
+  const value = typeof localStorage === 'undefined' ? null : localStorage.getItem(themeModeStorageKey);
   return value === 'dark' || value === 'system' ? value : 'light';
 }
 
 function restorePresetKey(): string {
-  return localStorage.getItem(themePresetStorageKey) || defaultThemePresetId;
+  return typeof localStorage === 'undefined'
+    ? defaultThemePresetId
+    : localStorage.getItem(themePresetStorageKey) || defaultThemePresetId;
 }
 
 function restoreDensity(): ThemeDensity {
-  const value = localStorage.getItem(themeDensityStorageKey);
+  const value = typeof localStorage === 'undefined'
+    ? null
+    : localStorage.getItem(themeDensityStorageKey);
   return value === 'compact' || value === 'dense' ? value : 'comfortable';
 }
 

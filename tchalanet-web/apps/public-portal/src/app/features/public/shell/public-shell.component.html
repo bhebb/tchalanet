@@ -1,0 +1,9 @@
+<tch-public-shell-layout
+  [shell]="shellSvc.shell()"
+  [languages]="languages()"
+  [currentLanguage]="i18n.currentLanguage()"
+  (languageSelected)="i18n.setCurrent($event)"
+  (loginRequested)="login()"
+>
+  <router-outlet />
+</tch-public-shell-layout>

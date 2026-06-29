@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ config.label }} - {{ data.draw.label }}</h2>
+
+<mat-dialog-content>
+  <p class="adld__subtitle">{{ data.draw.businessDate }} &middot; {{ data.draw.slotLabel }}</p>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="adld__field">
+      <mat-label>{{ config.reasonRequired ? 'Raison (requise)' : 'Raison (optionnelle)' }}</mat-label>
+      <textarea matInput formControlName="reason" rows="3"></textarea>
+      @if (form.controls['reason'].invalid && form.controls['reason'].touched) {
+        <mat-error>Raison requise.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null">Annuler</button>
+  <button
+    mat-flat-button
+    [color]="config.color"
+    [disabled]="form.invalid"
+    (click)="confirm()"
+  >
+    {{ config.label }}
+  </button>
+</mat-dialog-actions>

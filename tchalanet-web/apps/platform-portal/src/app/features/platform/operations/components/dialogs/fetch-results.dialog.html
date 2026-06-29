@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="fetch-results-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Date de base (YYYY-MM-DD, optionnel)</mat-label>
+      <input matInput formControlName="baseDate" placeholder="2026-06-17" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Jours en arrière</mat-label>
+      <input matInput type="number" formControlName="daysBack" min="0" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Slot keys (optionnel, virgule-séparé)</mat-label>
+      <input matInput formControlName="slotKeys" placeholder="NY_MID, FL_EVE" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Max slots</mat-label>
+      <input matInput type="number" formControlName="maxSlots" min="1" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Raison (requis si force=true)</mat-label>
+      <input matInput formControlName="reason" />
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Raison requise.</mat-error>
+      }
+    </mat-form-field>
+    <mat-checkbox formControlName="force">Forcer l'écrasement</mat-checkbox>
+    <mat-checkbox formControlName="dryRun">Dry-run (simuler sans écrire)</mat-checkbox>
+    <mat-checkbox formControlName="includeRaw">Persister le payload brut</mat-checkbox>
+  </form>
+
+  @if (result()) {
+    <div class="fetch-results-dialog__result">
+      <p>{{ result()!.started }}/{{ result()!.requested }} job(s) lancé(s)</p>
+      @for (launch of result()!.launches; track launch.execution_id ?? launch.tenant_id) {
+        <div>
+          {{ launch.tenant_id ?? 'global' }} :
+          @if (launch.execution_id) { execution #{{ launch.execution_id }} } @else { {{ launch.error }} }
+        </div>
+      }
+    </div>
+  }
+  @if (error(); as errorVm) {
+    <tch-section-error
+      class="fetch-results-dialog__feedback"
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">{{ result() ? 'Fermer' : 'Annuler' }}</button>
+  @if (!result()) {
+    <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
+      @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
+      Exécuter
+    </button>
+  }
+</mat-dialog-actions>

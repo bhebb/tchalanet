@@ -1,0 +1,176 @@
+<tch-admin-page-shell title="Configuration tenant" description="Paramètres de configuration du tenant.">
+  <div actions>
+    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (pageState() === 'loading') {
+    <tch-loading label="Chargement..." />
+  } @else if (pageState() === 'error') {
+    @if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
+  } @else {
+
+    <mat-tab-group>
+
+      <!-- Langue & région -->
+      <mat-tab label="Langue & région">
+        <div class="config-page__tab-content">
+          <tch-admin-section-card title="Langue par défaut" description="Détermine la langue d'interface et de communication pour ce tenant.">
+            <form [formGroup]="localeForm" class="config-page__form">
+              <mat-form-field appearance="outline">
+                <mat-label>Langue par défaut</mat-label>
+                <mat-select formControlName="defaultLanguage">
+                  @for (lang of languages; track lang.code) {
+                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.defaultLanguage" />
+
+              <mat-form-field appearance="outline">
+                <mat-label>Locale (ex: fr-HT, fr-FR)</mat-label>
+                <input matInput formControlName="defaultLocale" placeholder="fr-HT" />
+              </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.defaultLocale" />
+
+              <mat-form-field appearance="outline">
+                <mat-label>Langue de repli</mat-label>
+                <mat-select formControlName="fallbackLanguage">
+                  @for (lang of languages; track lang.code) {
+                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
+
+              @if (localeFormError()) {
+                <tch-notice type="error">{{ localeFormError() }}</tch-notice>
+              } @else if (localeNotice(); as notice) {
+                <tch-notice type="success">{{ notice }}</tch-notice>
+              }
+
+              <div class="config-page__form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  [disabled]="saveState() === 'saving'"
+                  (click)="saveLocale()"
+                >
+                  @if (saveState() === 'saving') {
+                    <span class="material-symbols-outlined config-page__spin">progress_activity</span>
+                  } @else {
+                    <span class="material-symbols-outlined">save</span>
+                  }
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </tch-admin-section-card>
+        </div>
+      </mat-tab>
+
+      <!-- Reçu -->
+      <mat-tab label="Reçu">
+        <div class="config-page__tab-content">
+          <tch-admin-section-card title="Configuration du reçu" description="Personnalisez l'apparence des reçus imprimés par vos seller terminals.">
+            <form [formGroup]="receiptForm" class="config-page__form">
+
+              <div class="config-page__checkbox-row">
+                <mat-checkbox formControlName="enabled">Activer les paramètres de reçu personnalisés</mat-checkbox>
+              </div>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nom affiché sur le reçu</mat-label>
+                <input matInput formControlName="displayName" placeholder="Nom de votre point de vente" />
+              </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.displayName" />
+
+              <mat-form-field appearance="outline">
+                <mat-label>Message d'en-tête</mat-label>
+                <textarea matInput formControlName="headerMessage" rows="2" placeholder="Merci de jouer avec nous !" ></textarea>
+              </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.headerMessage" />
+
+              <mat-form-field appearance="outline">
+                <mat-label>Message de pied de page</mat-label>
+                <textarea matInput formControlName="footerMessage" rows="2" placeholder="Bonne chance !" ></textarea>
+              </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.footerMessage" />
+
+              <mat-form-field appearance="outline">
+                <mat-label>Format de papier</mat-label>
+                <mat-select formControlName="defaultPaperSize">
+                  @for (size of paperSizes; track size) {
+                    <mat-option [value]="size">{{ size }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.defaultPaperSize" />
+
+              <div class="config-page__checkboxes">
+                <mat-checkbox formControlName="showQrCode">Afficher le QR code</mat-checkbox>
+                <mat-checkbox formControlName="showSellerName">Afficher le nom du vendeur</mat-checkbox>
+                <mat-checkbox formControlName="showOutletName">Afficher le nom du point de vente</mat-checkbox>
+                <mat-checkbox formControlName="showPotentialPayout">Afficher le gain potentiel</mat-checkbox>
+              </div>
+
+              @if (receiptFormError()) {
+                <tch-notice type="error">{{ receiptFormError() }}</tch-notice>
+              } @else if (receiptNotice(); as notice) {
+                <tch-notice type="success">{{ notice }}</tch-notice>
+              }
+
+              <div class="config-page__form-actions">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="button"
+                  [disabled]="receiptSaveState() === 'saving'"
+                  (click)="saveReceipt()"
+                >
+                  @if (receiptSaveState() === 'saving') {
+                    <span class="material-symbols-outlined config-page__spin">progress_activity</span>
+                  } @else {
+                    <span class="material-symbols-outlined">save</span>
+                  }
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </tch-admin-section-card>
+        </div>
+      </mat-tab>
+
+      <!-- Communication -->
+      <mat-tab label="Communication">
+        <div class="config-page__tab-content">
+          <tch-notice type="info">
+            La configuration de la livraison des billets (SMS, WhatsApp, email) est gérée par la plateforme. Contactez votre administrateur pour modifier ces paramètres.
+          </tch-notice>
+        </div>
+      </mat-tab>
+
+      <!-- Règles -->
+      <mat-tab label="Règles métier">
+        <div class="config-page__tab-content">
+          <tch-notice type="info">
+            La configuration des règles métier (calendrier commercial, jours fériés) sera disponible prochainement.
+          </tch-notice>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+
+  }
+</tch-admin-page-shell>

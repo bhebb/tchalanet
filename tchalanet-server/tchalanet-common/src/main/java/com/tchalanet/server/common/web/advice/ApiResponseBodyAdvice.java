@@ -3,6 +3,8 @@ package com.tchalanet.server.common.web.advice;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.ApiStatus;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.ServiceHealth;
 import com.tchalanet.server.common.web.api.ServiceStatus;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,19 +61,17 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (ResponseEntity.class.isAssignableFrom(paramType)) {
             Type gen = returnType.getGenericParameterType();
             if (gen instanceof ParameterizedType pt) {
-                Type arg = pt.getActualTypeArguments()[0];
-                if (arg instanceof Class<?> cls) {
-                    paramType = cls;
-                } else {
+                var cls = rawClass(pt.getActualTypeArguments()[0]);
+                if (cls == null) {
                     return false;
                 }
+                paramType = cls;
             } else {
                 return false;
             }
         }
 
-        if (ApiResponse.class.isAssignableFrom(paramType)
-            || ProblemDetail.class.isAssignableFrom(paramType)) {
+        if (ProblemDetail.class.isAssignableFrom(paramType)) {
             return false;
         }
 
@@ -99,7 +100,23 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         List<ApiNotice> notices = context.getNotices();
         List<ServiceStatus> services = context.getServices();
 
-        ApiStatus status = resolveStatus(notices, context);
+        if (body instanceof ApiResponse<?> apiResponse) {
+            var mergedNotices = new ArrayList<ApiNotice>(apiResponse.notices());
+            mergedNotices.addAll(notices);
+
+            var mergedServices = new ArrayList<ServiceStatus>(apiResponse.services());
+            mergedServices.addAll(services);
+
+            ApiStatus status = resolveStatus(mergedNotices, mergedServices, apiResponse.status());
+            return new ApiResponse<>(
+                status,
+                apiResponse.data(),
+                List.copyOf(mergedNotices),
+                List.copyOf(mergedServices)
+            );
+        }
+
+        ApiStatus status = resolveStatus(notices, services, ApiStatus.SUCCESS);
 
         return new ApiResponse<>(status, body, notices, services);
     }
@@ -109,19 +126,34 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
      * pending ticket) is preserved so the UI can render it alongside the pending
      * indicator.
      */
-    private static ApiStatus resolveStatus(List<ApiNotice> notices, ApiResponseContext context) {
+    private static ApiStatus resolveStatus(
+        List<ApiNotice> notices,
+        List<ServiceStatus> services,
+        ApiStatus cleanStatus
+    ) {
         boolean approvalRequired = notices.stream()
             .anyMatch(n -> APPROVAL_REQUIRED_CODE.equals(n.code()));
 
         if (approvalRequired) {
             return ApiStatus.PENDING;
         }
-        if (context.hasDegradedServices()) {
+        if (services.stream().anyMatch(s -> s.status() != ServiceHealth.UP)) {
             return ApiStatus.PARTIAL;
         }
-        if (context.hasWarnings()) {
+        if (notices.stream().anyMatch(n -> n.severity() == NoticeSeverity.WARN)) {
             return ApiStatus.SUCCESS_WITH_WARNINGS;
         }
-        return ApiStatus.SUCCESS;
+        return cleanStatus;
+    }
+
+    @Nullable
+    private static Class<?> rawClass(Type type) {
+        if (type instanceof Class<?> cls) {
+            return cls;
+        }
+        if (type instanceof ParameterizedType pt && pt.getRawType() instanceof Class<?> cls) {
+            return cls;
+        }
+        return null;
     }
 }

@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Bloquer le vendeur</h2>
+
+<mat-dialog-content>
+  <p class="block-dialog__info">
+    Bloquer <strong>{{ data.displayName }}</strong> ({{ data.terminalCode }})
+    empêche toute vente jusqu'au déblocage.
+  </p>
+
+  <form [formGroup]="form" class="block-dialog__form">
+    @if (error(); as pageError) {
+      <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+    }
+
+    <mat-form-field appearance="outline" class="block-dialog__field">
+      <mat-label>Raison du blocage</mat-label>
+      <textarea
+        matInput
+        formControlName="reason"
+        rows="3"
+        maxlength="200"
+        placeholder="Ex. : terminal non retourné, suspicion de fraude..."
+      ></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Raison requise.</mat-error>
+      }
+    </mat-form-field>
+    <tch-field-error [message]="serverFieldMessage(form.controls.reason)" />
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="saving()">Annuler</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="form.invalid || saving()"
+    (click)="submit()"
+  >
+    @if (saving()) {
+      <span class="material-symbols-outlined block-dialog__spin">progress_activity</span>
+    }
+    Bloquer
+  </button>
+</mat-dialog-actions>

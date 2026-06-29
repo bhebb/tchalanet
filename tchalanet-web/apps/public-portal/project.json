@@ -1,0 +1,104 @@
+{
+  "name": "public-portal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "tch",
+  "sourceRoot": "apps/public-portal/src",
+  "tags": ["scope:public", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/public-portal",
+        "browser": "apps/public-portal/src/main.ts",
+        "tsConfig": "apps/public-portal/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
+        },
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/public-portal/public"
+          }
+        ],
+        "styles": ["apps/public-portal/src/styles.scss"],
+        "server": "apps/public-portal/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/public-portal/src/server.ts"
+        },
+        "outputMode": "server"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/public-portal/src/environments/environment.ts",
+              "with": "apps/public-portal/src/environments/environment.prod.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/proxy.conf.cjs"
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "public-portal:build:production"
+        },
+        "development": {
+          "buildTarget": "public-portal:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "watch": false
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "public-portal:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/public-portal/browser",
+        "spa": true
+      }
+    }
+  }
+}

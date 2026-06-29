@@ -1,0 +1,32 @@
+<main class="tch-login-page">
+  <section class="tch-login-page__panel" aria-labelledby="tch-login-title">
+    <header class="tch-login-page__header">
+      <p class="tch-login-page__eyebrow">Tchalanet</p>
+      <h1 id="tch-login-title" class="tch-login-page__title">Connexion</h1>
+    </header>
+
+    <form class="tch-login-page__form" (submit)="submitLogin($event)">
+      <label class="tch-login-page__field">
+        <span class="tch-login-page__label">Identifiant</span>
+        <input
+          class="tch-login-page__input"
+          type="text"
+          autocomplete="username"
+          [formField]="loginForm.username"
+        />
+      </label>
+
+      <label class="tch-login-page__field">
+        <span class="tch-login-page__label">Mot de passe</span>
+        <input
+          class="tch-login-page__input"
+          type="password"
+          autocomplete="current-password"
+          [formField]="loginForm.password"
+        />
+      </label>
+
+      <button class="tch-login-page__submit" type="submit">Se connecter</button>
+    </form>
+  </section>
+</main>

@@ -1,0 +1,96 @@
+.seller-terminal-limits-dialog {
+  &__subtitle {
+    margin-left: 0.5rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-md, 0.8rem);
+    font-weight: var(--tch-weight-regular, 400);
+  }
+
+  &__content {
+    min-width: 640px;
+    max-width: 760px;
+  }
+
+  &__empty {
+    margin: 0.5rem 0 1rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-body-sm, 0.9rem);
+  }
+
+  &__table {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  &__rule-key {
+    font-size: var(--tch-font-size-label-sm, 0.78rem);
+  }
+
+  &__muted {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-md, 0.8rem);
+  }
+
+  &__outcome {
+    font-size: var(--tch-font-size-body-sm, 0.85rem);
+  }
+
+  &__status {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-md, 0.82rem);
+
+    &--enabled {
+      color: var(--tch-color-status-ready, #1d6b3e);
+    }
+  }
+
+  &__actions-cell {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  &__editor {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+    border-radius: var(--tch-radius-sm, 8px);
+  }
+
+  &__editor-heading {
+    margin-bottom: 0.75rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-body-sm, 0.85rem);
+  }
+
+  &__description {
+    margin: 0 0 0.75rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-md, 0.82rem);
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__json {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: var(--tch-font-size-label-md, 0.82rem);
+  }
+
+  &__editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  &__add {
+    margin-bottom: 0.5rem;
+  }
+
+  &__add-field {
+    width: 100%;
+  }
+}

@@ -1,0 +1,83 @@
+<tch-admin-page-shell title="Plans & tarification" description="Référentiel global des plans d'abonnement de la plateforme.">
+  <div actions>
+    <button mat-flat-button color="primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      Nouveau plan
+    </button>
+  </div>
+
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar searchPlaceholder="Rechercher..." [searchValue]="''" (searchChange)="load()">
+        <button mat-stroked-button (click)="load()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <div content>
+      @if (loading()) {
+        <tch-loading label="Chargement..." />
+      } @else if (error()) {
+        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (plans().length === 0) {
+        <tch-admin-empty-state icon="workspace_premium" title="Aucun plan" message="Créez le premier plan d'abonnement." />
+      } @else {
+        <table mat-table [dataSource]="plans()">
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>Code</th>
+            <td mat-cell *matCellDef="let row"><code>{{ row.code }}</code></td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="priceAmount">
+            <th mat-header-cell *matHeaderCellDef>Prix</th>
+            <td mat-cell *matCellDef="let row">{{ row.priceAmount !== null ? (row.priceAmount + ' ' + (row.currency ?? '')) : '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="billingPeriod">
+            <th mat-header-cell *matHeaderCellDef>Période</th>
+            <td mat-cell *matCellDef="let row">{{ row.billingPeriod ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="isDefault">
+            <th mat-header-cell *matHeaderCellDef>Défaut</th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.isDefault) {
+                <span class="material-symbols-outlined" style="color:var(--tch-success)">star</span>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              @if (row.active) {
+                <button mat-icon-button title="Désactiver" (click)="deactivate(row)">
+                  <span class="material-symbols-outlined">block</span>
+                </button>
+              }
+              <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      }
+    </div>
+
+    <div footer>
+      <span>{{ plans().length }} plan(s)</span>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

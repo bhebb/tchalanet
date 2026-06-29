@@ -1,0 +1,89 @@
+<tch-admin-page-shell title="Gestion des caches" description="Visualisez et videz les caches applicatifs.">
+  <div actions>
+    <button mat-stroked-button color="warn" (click)="openClearPlans()">
+      <span class="material-symbols-outlined">workspace_premium</span>
+      Vider caches plans
+    </button>
+    <button mat-flat-button color="warn" (click)="openClearAll()">
+      <span class="material-symbols-outlined">delete_sweep</span>
+      Vider tous les caches
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement..." />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (caches().length === 0) {
+    <tch-admin-empty-state icon="storage" title="Aucun cache" message="Aucun cache trouvé." />
+  } @else {
+    @if (actionError(); as actionErrorVm) {
+      <tch-section-error
+        class="cache-page__feedback"
+        [title]="actionErrorVm.title"
+        [message]="actionErrorVm.message"
+        [severity]="actionErrorVm.severity"
+      />
+    }
+
+    @if (actionNotice(); as notice) {
+      <tch-section-error
+        class="cache-page__feedback"
+        [title]="notice.title"
+        [message]="notice.message"
+        severity="info"
+      />
+    }
+
+    <div class="cache-page__table">
+      <table mat-table [dataSource]="groupedCaches()">
+        <ng-container matColumnDef="cacheName">
+          <th mat-header-cell *matHeaderCellDef>Cache</th>
+          <td mat-cell *matCellDef="let row">{{ row.cacheName }}</td>
+        </ng-container>
+        <ng-container matColumnDef="group">
+          <th mat-header-cell *matHeaderCellDef>Groupe</th>
+          <td mat-cell *matCellDef="let row">{{ row.group }}</td>
+        </ng-container>
+        <ng-container matColumnDef="size">
+          <th mat-header-cell *matHeaderCellDef>Taille</th>
+          <td mat-cell *matCellDef="let row">{{ row.size }}</td>
+        </ng-container>
+        <ng-container matColumnDef="hitRate">
+          <th mat-header-cell *matHeaderCellDef>Taux de succès</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.hitRate !== undefined ? (row.hitRate * 100 | number: '1.1-1') + '%' : '—' }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="lastClearedAt">
+          <th mat-header-cell *matHeaderCellDef>Dernier vidage</th>
+          <td mat-cell *matCellDef="let row">{{ row.lastClearedAt ?? '—' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="critical">
+          <th mat-header-cell *matHeaderCellDef>Critique</th>
+          <td mat-cell *matCellDef="let row">{{ row.critical ? 'Oui' : 'Non' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-stroked-button color="warn" (click)="clearOne(row)">
+              <span class="material-symbols-outlined">delete</span>
+              Vider
+            </button>
+            <button mat-button color="warn" (click)="openClearGroup(row.group)">
+              Groupe
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  }
+</tch-admin-page-shell>

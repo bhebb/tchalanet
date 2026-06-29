@@ -1,0 +1,72 @@
+.ptac {
+  &__title {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--tch-color-primary-container, #141545);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    span { font-size: 1rem; }
+  }
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+
+  &__value {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: var(--tch-color-primary-container, #141545);
+  }
+
+  &__progress {
+    height: 0.375rem;
+    border-radius: var(--tch-radius-pill, 99px);
+    background: var(--tch-color-outline-variant, #c7c5d0);
+    overflow: hidden;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    width: 65%;
+    border-radius: var(--tch-radius-pill, 99px);
+    background: var(--tch-color-secondary-container, #fecb02);
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  &__spin {
+    font-size: 1.5rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    animation: ptac-spin 1s linear infinite;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+}
+
+@keyframes ptac-spin {
+  to { transform: rotate(360deg); }
+}

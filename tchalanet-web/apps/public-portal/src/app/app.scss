@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.public-portal {
+  min-height: 100vh;
+  background: var(--tch-color-background, #f9f9fc);
+  color: var(--tch-color-on-background, #1a1c1e);
+  font-family: var(--tch-font-family, system-ui, sans-serif);
+}
