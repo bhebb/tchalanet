@@ -144,6 +144,8 @@
       page/action failures locally without snackbars. Platform tenants list now suppresses shell
       feedback and renders load/lifecycle failures locally without snackbars or raw trace display.
       Platform ops draw-lifecycle now suppresses shell feedback and renders list/action/dry-run
-      feedback locally without snackbars.
+      feedback locally without snackbars. Platform ops batch now suppresses shell feedback for job
+      and execution loads plus start/restart actions, keeps start failures inside the dialog, shows
+      restart feedback locally, removes snackbars, and uses external dialog templates/styles.
 - [ ] Manually verify one public error and one authenticated private error do not stack duplicate
       banners and do not route to the wrong shell.

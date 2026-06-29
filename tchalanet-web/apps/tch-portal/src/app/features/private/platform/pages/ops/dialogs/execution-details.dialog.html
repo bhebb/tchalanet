@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>Exécution #{{ execution.execution_id }}</h2>
+<mat-dialog-content>
+  @if (copyFeedback(); as feedback) {
+    <tch-section-error
+      class="execution-details__feedback"
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
+  <dl class="execution-details__meta">
+    <div>
+      <dt>Job</dt>
+      <dd><code>{{ execution.job_key }}</code></dd>
+    </div>
+    <div>
+      <dt>Statut</dt>
+      <dd><tch-admin-status-pill [tone]="statusTone(execution.status)" [label]="execution.status" /></dd>
+    </div>
+    <div>
+      <dt>Début</dt>
+      <dd>{{ execution.started_at | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+    </div>
+    <div>
+      <dt>Fin</dt>
+      <dd>{{ execution.ended_at ? (execution.ended_at | date:'dd/MM/yyyy HH:mm:ss') : '—' }}</dd>
+    </div>
+    <div>
+      <dt>Contexte</dt>
+      <dd>{{ execution.context || '—' }}</dd>
+    </div>
+    <div>
+      <dt>Exit code</dt>
+      <dd>{{ execution.exit_code || '—' }}</dd>
+    </div>
+  </dl>
+
+  <section class="execution-details__section">
+    <h3>Résultat</h3>
+    <pre>{{ execution.exit_message || execution.exit_code || '—' }}</pre>
+  </section>
+
+  <section class="execution-details__section">
+    <h3>Données copiables</h3>
+    <pre>{{ payload }}</pre>
+  </section>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="copy()">
+    <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+    Copier
+  </button>
+  <button mat-flat-button color="primary" mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

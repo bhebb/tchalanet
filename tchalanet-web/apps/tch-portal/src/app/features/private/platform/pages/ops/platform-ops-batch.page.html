@@ -16,11 +16,35 @@
 
     @if (loadingJobs()) {
       <tch-loading label="Chargement..." />
-    } @else if (errorJobs()) {
-      <tch-error-panel [title]="errorJobs()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadJobs()" />
+    } @else if (errorJobs(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="loadJobs()"
+      />
     } @else if (jobs().length === 0) {
       <tch-admin-empty-state icon="schedule" title="Aucun job" message="Aucun job configuré." />
     } @else {
+      @if (actionError(); as actionErrorVm) {
+        <tch-section-error
+          class="batch-page__feedback"
+          [title]="actionErrorVm.title"
+          [message]="actionErrorVm.message"
+          [severity]="actionErrorVm.severity"
+        />
+      }
+
+      @if (actionNotice(); as notice) {
+        <tch-section-error
+          class="batch-page__feedback"
+          [title]="notice.title"
+          [message]="notice.message"
+          severity="info"
+        />
+      }
+
       <table mat-table [dataSource]="jobs()">
         <ng-container matColumnDef="job_key">
           <th mat-header-cell *matHeaderCellDef>Clé</th>
@@ -129,8 +153,14 @@
       <tch-admin-empty-state icon="history" title="Aucun job sélectionné" message="Sélectionnez un job pour voir ses exécutions." />
     } @else if (loadingExec()) {
       <tch-loading label="Chargement..." />
-    } @else if (errorExec()) {
-      <tch-error-panel [title]="errorExec()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadExecutions()" />
+    } @else if (errorExec(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="loadExecutions()"
+      />
     } @else if (executions().length === 0) {
       <tch-admin-empty-state icon="history" title="Aucune exécution" message="Aucune exécution enregistrée pour ce job." />
     } @else {

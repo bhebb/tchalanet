@@ -304,22 +304,23 @@ export class PlatformOpsApi {
     return this.backend.get<JobInfoResponse[]>('/platform/ops/batch/jobs', options);
   }
 
-  startJob(jobKey: string, req: StartJobRequest): Observable<StartJobResponse> {
-    return this.backend.post<StartJobResponse>(`/platform/ops/batch/jobs/${jobKey}:start`, req);
+  startJob(jobKey: string, req: StartJobRequest, options?: TchRequestOptions): Observable<StartJobResponse> {
+    return this.backend.post<StartJobResponse>(`/platform/ops/batch/jobs/${jobKey}:start`, req, options);
   }
 
-  listExecutions(jobKey: string, limit = 20): Observable<ExecutionResponse[]> {
+  listExecutions(jobKey: string, limit = 20, options?: TchRequestOptions): Observable<ExecutionResponse[]> {
     return this.backend.get<ExecutionResponse[]>(
       `/platform/ops/batch/executions?job_key=${encodeURIComponent(jobKey)}&limit=${limit}`,
+      options,
     );
   }
 
-  getExecution(executionId: number): Observable<ExecutionResponse> {
-    return this.backend.get<ExecutionResponse>(`/platform/ops/batch/executions/${executionId}`);
+  getExecution(executionId: number, options?: TchRequestOptions): Observable<ExecutionResponse> {
+    return this.backend.get<ExecutionResponse>(`/platform/ops/batch/executions/${executionId}`, options);
   }
 
-  restartExecution(executionId: number): Observable<StartJobResponse> {
-    return this.backend.post<StartJobResponse>(`/platform/ops/batch/executions/${executionId}:restart`, {});
+  restartExecution(executionId: number, options?: TchRequestOptions): Observable<StartJobResponse> {
+    return this.backend.post<StartJobResponse>(`/platform/ops/batch/executions/${executionId}:restart`, {}, options);
   }
 
   // Batch Gates

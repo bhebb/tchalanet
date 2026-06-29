@@ -527,6 +527,24 @@ Draw lifecycle list failures render as the page error. Per-draw lifecycle failur
 feedback render above the lifecycle table and suppress shell feedback. Do not use snackbars for
 these actions.
 
+Platform ops batch failures are page/dialog/action owned:
+
+```text
+apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-batch
+page targets:
+- platform.ops.batch.jobs
+- platform.ops.batch.executions
+dialog target:
+- platform.ops.batch.start
+action target:
+- platform.ops.batch.restart
+```
+
+Job and execution list failures render as page-level block errors for their owning table.
+Start-job failures stay inside the start dialog. Restart failures and success copy render as local
+page feedback above the jobs table. Batch actions must suppress shell feedback and must not use
+snackbars; execution detail copy feedback stays inside the details dialog.
+
 Platform archive failures are page/dialog/action owned:
 
 ```text

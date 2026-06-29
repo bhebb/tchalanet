@@ -5,7 +5,12 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import {
   PlatformOpsApi,
   JobInfoResponse,
@@ -24,93 +29,20 @@ import {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TchSectionError,
   ],
-  template: `
-    <h2 mat-dialog-title>Démarrer le job</h2>
-    <mat-dialog-content>
-      <p class="start-job-dialog__job-key"><strong>{{ data.job.job_key }}</strong> — {{ data.job.display_name }}</p>
-      <div class="start-job-dialog__usage">
-        <span class="material-symbols-outlined" aria-hidden="true">info</span>
-        <span>{{ usageHint(data.job.job_key) }}</span>
-      </div>
-      @if (data.job.required_params.length) {
-        <div class="start-job-dialog__params">
-          <strong>Requis</strong>
-          @for (param of data.job.required_params; track param) {
-            <code>{{ param }}</code>
-          }
-        </div>
-      }
-      @if (data.job.optional_params.length) {
-        <div class="start-job-dialog__params">
-          <strong>Optionnels</strong>
-          @for (param of data.job.optional_params; track param) {
-            <code>{{ param }}</code>
-          }
-        </div>
-      }
-      <form [formGroup]="form" class="start-job-dialog__form">
-        <mat-form-field appearance="outline">
-          <mat-label>Paramètres JSON à ajuster</mat-label>
-          <textarea matInput formControlName="paramsJson" rows="8" spellcheck="false"></textarea>
-          @if (form.controls.paramsJson.invalid && form.controls.paramsJson.touched) {
-            <mat-error>JSON invalide.</mat-error>
-          }
-        </mat-form-field>
-        <div class="start-job-dialog__tools">
-          <button mat-button type="button" (click)="resetExample()">
-            <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
-            Remettre l'exemple
-          </button>
-          <button mat-button type="button" (click)="formatJson()">
-            <span class="material-symbols-outlined" aria-hidden="true">data_object</span>
-            Formatter
-          </button>
-        </div>
-      </form>
-      @if (result()) {
-        <div class="start-job-dialog__result">
-          Job démarré — Exécution #{{ result()!.execution_id }} · Statut: {{ result()!.status }}
-        </div>
-      }
-      @if (error()) {
-        <div class="start-job-dialog__error">{{ error() }}</div>
-      }
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="close()">{{ result() ? 'Fermer' : 'Annuler' }}</button>
-      @if (!result()) {
-        <button mat-flat-button color="primary" [disabled]="form.invalid || submitting()" (click)="submit()">
-          @if (submitting()) { <span class="spin material-symbols-outlined">progress_activity</span> }
-          Démarrer
-        </button>
-      }
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .start-job-dialog__job-key { background: var(--tch-color-surface-container); padding: 0.5rem 0.75rem; border-radius: var(--tch-radius-sm); margin-bottom: 0.5rem; font-size: 0.875rem; }
-    .start-job-dialog__usage { display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.75rem; color: var(--tch-color-on-surface-variant); font-size: var(--tch-font-size-body-sm); }
-    .start-job-dialog__usage .material-symbols-outlined { font-size: 1.125rem; color: var(--tch-color-primary); }
-    .start-job-dialog__params { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; margin-bottom: 0.5rem; font-size: var(--tch-font-size-label-md); }
-    .start-job-dialog__params strong { margin-right: 0.25rem; color: var(--tch-color-on-surface); }
-    .start-job-dialog__params code { padding: 0.125rem 0.375rem; border-radius: var(--tch-radius-pill); background: var(--tch-color-surface-container-high); color: var(--tch-color-on-surface-variant); font-family: monospace; font-size: var(--tch-font-size-label-sm); }
-    .start-job-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
-    .start-job-dialog__tools { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: -0.5rem; }
-    .start-job-dialog__tools button { display: inline-flex; align-items: center; gap: 0.25rem; }
-    .start-job-dialog__result { background: var(--tch-color-success-container); color: var(--tch-color-on-success-container); padding: 0.75rem; border-radius: var(--tch-radius-sm); font-size: 0.875rem; margin-top: 0.75rem; }
-    .start-job-dialog__error { background: var(--tch-color-error-container); color: var(--tch-color-on-error-container); padding: 0.75rem; border-radius: var(--tch-radius-sm); font-size: 0.875rem; margin-top: 0.5rem; }
-    .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `],
+  templateUrl: './start-job.dialog.html',
+  styleUrls: ['./start-job.dialog.scss'],
 })
 export class StartJobDialog {
   protected readonly data = inject<{ job: JobInfoResponse }>(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<StartJobDialog>);
   private readonly api = inject(PlatformOpsApi);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly submitting = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly result = signal<StartJobResponse | null>(null);
 
   readonly form = this.fb.group({
@@ -131,12 +63,11 @@ export class StartJobDialog {
     const req: StartJobRequest = { params };
     this.submitting.set(true);
     this.error.set(null);
-    this.api.startJob(this.data.job.job_key, req).subscribe({
+    this.api.startJob(this.data.job.job_key, req, { suppressShellFeedback: true }).subscribe({
       next: (res) => { this.submitting.set(false); this.result.set(res); },
       error: (err: unknown) => {
         this.submitting.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur lors du démarrage.');
+        this.error.set(this.errorViewModel(err, 'platform.ops.batch.start'));
       },
     });
   }
@@ -163,6 +94,21 @@ export class StartJobDialog {
 
   usageHint(jobKey: string): string {
     return JOB_USAGE_HINTS[jobKey] ?? 'Execution technique Spring Batch. Utilisez les pages metier Tirages/Resultats pour les actions guidees.';
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }
 

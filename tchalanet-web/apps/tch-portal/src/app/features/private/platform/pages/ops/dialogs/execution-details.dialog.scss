@@ -1,0 +1,60 @@
+.execution-details {
+  &__feedback {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  &__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+
+    div {
+      display: grid;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    dt {
+      margin: 0;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-weight: var(--tch-weight-semibold);
+    }
+
+    dd {
+      margin: 0;
+      color: var(--tch-color-on-surface);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__section {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    h3 {
+      margin: 0;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-weight: var(--tch-weight-semibold);
+    }
+
+    pre {
+      max-height: 18rem;
+      margin: 0;
+      overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      border: 1px solid var(--tch-color-outline-variant);
+      border-radius: var(--tch-radius-sm);
+      padding: 0.75rem;
+      background: var(--tch-color-surface-container);
+      color: var(--tch-color-on-surface);
+      font-family: monospace;
+      font-size: var(--tch-font-size-body-sm);
+    }
+  }
+}
