@@ -292,8 +292,7 @@ export class AdminSellerTerminalPosPage implements OnInit {
         this.printing.set(false);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.saleError.set(pd?.title ?? 'Erreur lors de la génération du ticket.');
+        this.saleError.set(this.errorViewModel(err, 'admin.sellerTerminal.pos.print'));
         this.printing.set(false);
       },
     });

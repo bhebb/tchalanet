@@ -1,0 +1,39 @@
+.archive-raw-record-list {
+  --archive-raw-border: var(--tch-color-outline-variant);
+  --archive-raw-muted: var(--tch-color-on-surface-variant);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.archive-raw-record-list__card {
+  border: 1px solid var(--archive-raw-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.archive-raw-record-list__row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0.5rem;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--archive-raw-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.archive-raw-record-list__key {
+  font-weight: 500;
+  color: var(--archive-raw-muted);
+  font-family: monospace;
+}
+
+.archive-raw-record-list__value {
+  font-family: monospace;
+  word-break: break-all;
+}

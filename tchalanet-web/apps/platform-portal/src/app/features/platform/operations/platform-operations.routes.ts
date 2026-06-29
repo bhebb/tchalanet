@@ -54,6 +54,7 @@ export const platformOperationsRoutes: Route[] = [
   },
   {
     path: 'archives',
+    data: { archiveView: 'overview' },
     loadComponent: () =>
       import('./pages/archive/platform-archive.page').then(m => m.PlatformArchivePage),
   },

@@ -1,0 +1,59 @@
+.archive-run-table {
+  --archive-run-muted: var(--tch-color-on-surface-variant);
+  --archive-run-surface: var(--tch-color-surface-variant);
+  --archive-run-border: var(--tch-color-outline-variant);
+  --archive-run-error: var(--tch-color-error);
+  --archive-run-on-surface: var(--tch-color-on-surface);
+
+  width: 100%;
+}
+
+.archive-run-table__date {
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--archive-run-muted);
+}
+
+.archive-run-table__secondary {
+  font-size: 0.8rem;
+  color: var(--archive-run-muted);
+}
+
+.archive-run-table__expand {
+  width: 40px;
+  text-align: right;
+  padding-right: 4px !important;
+}
+
+.archive-run-table__code {
+  font-size: 0.78rem;
+  background: var(--archive-run-surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.archive-run-table__detail-row td,
+.archive-run-table__detail-cell {
+  padding: 0 !important;
+}
+
+.archive-run-table__detail {
+  padding: 0.6rem 1rem;
+  background: var(--archive-run-surface);
+  border-top: 1px solid var(--archive-run-border);
+  font-size: 0.82rem;
+}
+
+.archive-run-table__detail--error {
+  background: color-mix(in srgb, var(--archive-run-error) 8%, transparent);
+  color: var(--archive-run-on-surface);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+
+  .material-symbols-outlined {
+    color: var(--archive-run-error);
+    font-size: 1rem;
+  }
+}
