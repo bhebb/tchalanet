@@ -8,8 +8,14 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
   } @else {
     <tch-admin-crud-shell>
       <ng-container toolbar>
@@ -27,6 +33,10 @@
       </ng-container>
 
       <ng-container content>
+        @if (actionError(); as actionErrorVm) {
+          <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+        }
+
         @if (items().length === 0) {
           <tch-admin-empty-state icon="payments" title="Aucun paiement" message="Aucun paiement trouvé pour ce filtre." />
         } @else {

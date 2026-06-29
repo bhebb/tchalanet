@@ -12,9 +12,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 import {
   BadgeStatus,
   TchErrorPanel,
+  TchFieldError,
   TchLoading,
   TchNotice,
   TchStatusBadge,
@@ -23,8 +25,20 @@ import {
 import { AdminDetailLayoutComponent } from '../../../../shared/admin-ui/components/admin-detail-layout/admin-detail-layout.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
+import {
+  AdminSectionErrorTargetDirective,
+  AdminSectionTargetError,
+} from '../../../../shared/admin-ui/admin-section-error-target.directive';
 import { AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { TchIdentityCardComponent } from '../../../../shared/admin-ui/components/tch-identity-card/tch-identity-card.component';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import {
+  applyServerFieldErrors,
+  clearServerFieldErrors,
+  ErrorViewModel,
+  toErrorViewModel,
+  withResolvedErrorCopies,
+} from '../../../../../../core/api/local-error-routing';
 import {
   AdminOverviewApiService,
   AddressView,
@@ -34,6 +48,11 @@ import {
 
 type PageState = 'loading' | 'ready' | 'error';
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
+
+const IDENTITY_SECTION_TARGET = 'admin.businessProfile.identity';
+const REGION_SECTION_TARGET = 'admin.businessProfile.region';
+const COMMERCIAL_SECTION_TARGET = 'admin.businessProfile.commercial';
+const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
 
 @Component({
   selector: 'tch-admin-business-profile-page',
@@ -49,9 +68,11 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
     AdminPageShellComponent,
     AdminDetailLayoutComponent,
     AdminSectionCardComponent,
+    AdminSectionErrorTargetDirective,
     TchIdentityCardComponent,
     TchLoading,
     TchErrorPanel,
+    TchFieldError,
     TchNotice,
     TchStatusBadge,
   ],
@@ -64,9 +85,10 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
   readonly overview = signal<TenantAdminOverviewView | null>(null);
   readonly commissionRate = signal<number | null>(null);
+  readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
 
   // Identity form — name only
   readonly showIdentityForm = signal(false);
@@ -137,28 +159,31 @@ export class AdminBusinessProfilePage implements OnInit {
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
+    this.sectionErrors.set([]);
     this.identityFormState.set('idle');
     this.regionFormState.set('idle');
     this.commissionFormState.set('idle');
     this.addressFormState.set('idle');
-    this.api.getOverview().subscribe({
+    this.api.getOverview({ suppressShellFeedback: true }).subscribe({
       next: data => {
         this.overview.set(data);
         this.pageState.set('ready');
         this.prefillForms(data.header);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.pageError.set(pd?.title ?? this.translate.instant('admin.businessProfile.error.load'));
+        this.pageError.set(this.errorViewModel(err, 'admin.businessProfile.overview', 'page'));
         this.pageState.set('error');
       },
     });
-    this.api.getCommissionOverview().subscribe({
+    this.api.getCommissionOverview({ suppressShellFeedback: true }).subscribe({
       next: r => {
         this.commissionRate.set(r.tenantDefaultRate);
         this.commissionForm.patchValue({ rate: r.tenantDefaultRate });
+        this.clearSectionError(COMMERCIAL_SECTION_TARGET);
       },
-      error: () => { /* non-blocking */ },
+      error: (err: unknown) => {
+        this.setSectionError(this.sectionErrorFromUnknown(err, COMMERCIAL_SECTION_TARGET));
+      },
     });
   }
 
@@ -168,6 +193,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showIdentityForm.set(true);
     this.identityFormState.set('idle');
     this.identityFormError.set(null);
+    clearServerFieldErrors(this.identityForm);
     this.showRegionForm.set(false);
     this.showAddressForm.set(false);
   }
@@ -175,23 +201,27 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelIdentityForm(): void {
     this.showIdentityForm.set(false);
     this.identityFormError.set(null);
+    clearServerFieldErrors(this.identityForm);
     this.identityForm.patchValue({ name: this.header()?.tenantName ?? '' });
   }
 
   submitIdentity(): void {
+    clearServerFieldErrors(this.identityForm);
     if (this.identityForm.invalid) { this.identityForm.markAllAsTouched(); return; }
+    const h = this.header();
+    if (!h) return;
     this.identityFormState.set('submitting');
     this.identityFormError.set(null);
-    const h = this.header()!;
+    this.clearSectionError(IDENTITY_SECTION_TARGET);
+    const v = this.identityForm.getRawValue();
     this.api.updateIdentity({
-      name: this.identityForm.value.name!,
+      name: v.name ?? '',
       timezone: h.timezone ?? '',
       currency: h.currency ?? '',
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: () => { this.identityFormState.set('success'); this.showIdentityForm.set(false); this.load(); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { detail?: string; title?: string } })?.error;
-        this.identityFormError.set(pd?.detail ?? pd?.title ?? this.translate.instant('admin.businessProfile.error.save'));
+        this.handleIdentitySubmitError(err);
         this.identityFormState.set('error');
       },
     });
@@ -203,6 +233,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showRegionForm.set(true);
     this.regionFormState.set('idle');
     this.regionFormError.set(null);
+    clearServerFieldErrors(this.regionForm);
     this.showIdentityForm.set(false);
     this.showAddressForm.set(false);
   }
@@ -210,23 +241,27 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelRegionForm(): void {
     this.showRegionForm.set(false);
     this.regionFormError.set(null);
+    clearServerFieldErrors(this.regionForm);
     this.regionForm.patchValue({ timezone: this.header()?.timezone ?? '', currency: this.header()?.currency ?? '' });
   }
 
   submitRegion(): void {
+    clearServerFieldErrors(this.regionForm);
+    if (this.regionForm.invalid) { this.regionForm.markAllAsTouched(); return; }
+    const h = this.header();
+    if (!h) return;
     this.regionFormState.set('submitting');
     this.regionFormError.set(null);
-    const h = this.header()!;
-    const v = this.regionForm.value;
+    this.clearSectionError(REGION_SECTION_TARGET);
+    const v = this.regionForm.getRawValue();
     this.api.updateIdentity({
       name: h.tenantName ?? '',
       timezone: v.timezone ?? '',
       currency: v.currency ?? '',
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: () => { this.regionFormState.set('success'); this.showRegionForm.set(false); this.load(); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { detail?: string; title?: string } })?.error;
-        this.regionFormError.set(pd?.detail ?? pd?.title ?? this.translate.instant('admin.businessProfile.error.save'));
+        this.handleRegionSubmitError(err);
         this.regionFormState.set('error');
       },
     });
@@ -238,6 +273,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showCommissionForm.set(true);
     this.commissionFormState.set('idle');
     this.commissionFormError.set(null);
+    clearServerFieldErrors(this.commissionForm);
     this.showIdentityForm.set(false);
     this.showRegionForm.set(false);
     this.showAddressForm.set(false);
@@ -246,24 +282,26 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelCommissionForm(): void {
     this.showCommissionForm.set(false);
     this.commissionFormError.set(null);
+    clearServerFieldErrors(this.commissionForm);
     this.commissionForm.patchValue({ rate: this.commissionRate() });
   }
 
   submitCommission(): void {
+    clearServerFieldErrors(this.commissionForm);
     if (this.commissionForm.invalid) { this.commissionForm.markAllAsTouched(); return; }
     const rate = this.commissionForm.value.rate;
     if (rate == null) return;
     this.commissionFormState.set('submitting');
     this.commissionFormError.set(null);
-    this.api.updateDefaultCommissionRate(rate).subscribe({
+    this.clearSectionError(COMMERCIAL_SECTION_TARGET);
+    this.api.updateDefaultCommissionRate(rate, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.commissionFormState.set('success');
         this.showCommissionForm.set(false);
         this.commissionRate.set(rate);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { detail?: string; title?: string } })?.error;
-        this.commissionFormError.set(pd?.detail ?? pd?.title ?? this.translate.instant('admin.businessProfile.error.save'));
+        this.handleCommissionSubmitError(err);
         this.commissionFormState.set('error');
       },
     });
@@ -275,6 +313,7 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showAddressForm.set(true);
     this.addressFormState.set('idle');
     this.addressFormError.set(null);
+    clearServerFieldErrors(this.addressForm);
     this.showIdentityForm.set(false);
     this.showRegionForm.set(false);
     this.showCommissionForm.set(false);
@@ -283,22 +322,28 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelAddressForm(): void {
     this.showAddressForm.set(false);
     this.addressFormError.set(null);
+    clearServerFieldErrors(this.addressForm);
     this.prefillAddressForm(this.header()?.address ?? null);
   }
 
   submitAddress(): void {
+    clearServerFieldErrors(this.addressForm);
     if (this.addressForm.invalid) { this.addressForm.markAllAsTouched(); return; }
     this.addressFormState.set('submitting');
     this.addressFormError.set(null);
-    const v = this.addressForm.value;
+    this.clearSectionError(ADDRESS_SECTION_TARGET);
+    const v = this.addressForm.getRawValue();
     this.api.upsertAddress({
-      line1: v.line1!, line2: v.line2 || null, city: v.city!,
-      region: v.region || null, country: v.country!, postalCode: v.postalCode || null,
-    }).subscribe({
+      line1: v.line1 ?? '',
+      line2: v.line2 || null,
+      city: v.city ?? '',
+      region: v.region || null,
+      country: v.country ?? '',
+      postalCode: v.postalCode || null,
+    }, { suppressShellFeedback: true }).subscribe({
       next: () => { this.addressFormState.set('success'); this.showAddressForm.set(false); this.load(); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { detail?: string; title?: string } })?.error;
-        this.addressFormError.set(pd?.detail ?? pd?.title ?? this.translate.instant('admin.setup.address.error.save'));
+        this.handleAddressSubmitError(err);
         this.addressFormState.set('error');
       },
     });
@@ -348,5 +393,164 @@ export class AdminBusinessProfilePage implements OnInit {
       line1: addr?.line1 ?? '', line2: addr?.line2 ?? '', city: addr?.city ?? '',
       region: addr?.region ?? '', country: addr?.country ?? 'HT', postalCode: addr?.postalCode ?? '',
     });
+  }
+
+  private handleCommissionSubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.businessProfile.commission'),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.commissionForm, fieldErrors, {
+        'commission.rate': 'rate',
+        'admin.businessProfile.commission.rate': 'rate',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.commissionFormError.set(null);
+        return;
+      }
+    }
+
+    this.commissionFormError.set(this.errorViewModel(err, 'admin.businessProfile.commission', 'section').message);
+  }
+
+  private handleAddressSubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.businessProfile.address'),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.addressForm, fieldErrors, {
+        'address.line1': 'line1',
+        'admin.businessProfile.address.line1': 'line1',
+        'tenant.address.line1': 'line1',
+        'address.line2': 'line2',
+        'admin.businessProfile.address.line2': 'line2',
+        'tenant.address.line2': 'line2',
+        'address.city': 'city',
+        'admin.businessProfile.address.city': 'city',
+        'tenant.address.city': 'city',
+        'address.region': 'region',
+        'admin.businessProfile.address.region': 'region',
+        'tenant.address.region': 'region',
+        'address.country': 'country',
+        'admin.businessProfile.address.country': 'country',
+        'tenant.address.country': 'country',
+        'address.postalCode': 'postalCode',
+        'admin.businessProfile.address.postalCode': 'postalCode',
+        'tenant.address.postalCode': 'postalCode',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.addressFormError.set(null);
+        return;
+      }
+    }
+
+    this.addressFormError.set(this.errorViewModel(err, ADDRESS_SECTION_TARGET, 'section').message);
+  }
+
+  private handleIdentitySubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, IDENTITY_SECTION_TARGET),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.identityForm, fieldErrors, {
+        name: 'name',
+        'tenant.name': 'name',
+        'identity.name': 'name',
+        'admin.businessProfile.identity.name': 'name',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.identityFormError.set(null);
+        return;
+      }
+    }
+
+    this.identityFormError.set(this.errorViewModel(err, IDENTITY_SECTION_TARGET, 'section').message);
+  }
+
+  private handleRegionSubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, REGION_SECTION_TARGET),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.regionForm, fieldErrors, {
+        timezone: 'timezone',
+        currency: 'currency',
+        'tenant.timezone': 'timezone',
+        'tenant.currency': 'currency',
+        'identity.timezone': 'timezone',
+        'identity.currency': 'currency',
+        'admin.businessProfile.region.timezone': 'timezone',
+        'admin.businessProfile.region.currency': 'currency',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.regionFormError.set(null);
+        return;
+      }
+    }
+
+    this.regionFormError.set(this.errorViewModel(err, REGION_SECTION_TARGET, 'section').message);
+  }
+
+  private sectionErrorFromUnknown(err: unknown, target: string): AdminSectionTargetError {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, target, 'section');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return {
+        target,
+        severity: normalized.severity,
+        title: copy.title,
+        message: copy.message,
+      };
+    }
+
+    return {
+      target,
+      severity: 'warn',
+      title: this.translate.instant('common.errors.categories.service_unavailable.title'),
+      message: this.translate.instant('common.errors.categories.service_unavailable.message'),
+    };
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
+  }
+
+  private setSectionError(error: AdminSectionTargetError): void {
+    this.sectionErrors.update(errors => [
+      ...errors.filter(item => item.target !== error.target),
+      error,
+    ]);
+  }
+
+  private clearSectionError(target: string): void {
+    this.sectionErrors.update(errors => errors.filter(item => item.target !== target));
   }
 }

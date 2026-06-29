@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface TenantGameView {
@@ -45,23 +46,23 @@ export interface UpdateGameSettingsRequest {
 export class GamesAdminApiService {
   private readonly backend = inject(TchBackendClient);
 
-  listEnabledGames(): Observable<TenantGameView[]> {
-    return this.backend.get<TenantGameView[]>('/admin/games');
+  listEnabledGames(options?: TchRequestOptions): Observable<TenantGameView[]> {
+    return this.backend.get<TenantGameView[]>('/admin/games', options);
   }
 
-  listCatalogGames(): Observable<CatalogGameView[]> {
-    return this.backend.get<CatalogGameView[]>('/admin/games/catalog');
+  listCatalogGames(options?: TchRequestOptions): Observable<CatalogGameView[]> {
+    return this.backend.get<CatalogGameView[]>('/admin/games/catalog', options);
   }
 
-  enableGame(gameCode: string): Observable<void> {
-    return this.backend.post<void>(`/admin/games/${gameCode}/enable`, {});
+  enableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/games/${gameCode}/enable`, {}, options);
   }
 
-  disableGame(gameCode: string): Observable<void> {
-    return this.backend.post<void>(`/admin/games/${gameCode}/disable`, {});
+  disableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/games/${gameCode}/disable`, {}, options);
   }
 
-  updateGameSettings(gameCode: string, req: UpdateGameSettingsRequest): Observable<void> {
-    return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, req);
+  updateGameSettings(gameCode: string, req: UpdateGameSettingsRequest, options?: TchRequestOptions): Observable<void> {
+    return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, req, options);
   }
 }

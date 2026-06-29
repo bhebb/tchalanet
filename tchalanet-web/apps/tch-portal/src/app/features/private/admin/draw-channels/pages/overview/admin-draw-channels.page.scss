@@ -65,6 +65,11 @@
     color: var(--tch-color-on-surface-variant, #46464f);
   }
 
+  &__notice {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
   &__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

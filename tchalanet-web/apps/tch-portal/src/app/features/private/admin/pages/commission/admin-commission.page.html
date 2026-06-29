@@ -12,27 +12,41 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
   } @else {
-    @if (overview()) {
-      <tch-admin-section-card title="Vue d'ensemble">
+    @if (overview(); as overviewVm) {
+      <tch-admin-section-card
+        title="Vue d'ensemble"
+        tchSectionErrorTarget="admin.commission.defaultRate"
+        [tchSectionErrors]="sectionErrors()"
+      >
         <dl class="commission-page__overview">
           <dt>Taux par défaut</dt>
-          <dd>{{ overview()!.tenantDefaultRate }}%</dd>
+          <dd>{{ overviewVm.tenantDefaultRate }}%</dd>
           <dt>Total vendeurs</dt>
-          <dd>{{ overview()!.totalSellerTerminals }}</dd>
+          <dd>{{ overviewVm.totalSellerTerminals }}</dd>
           <dt>Au taux par défaut</dt>
-          <dd>{{ overview()!.countAtDefaultRate }}</dd>
+          <dd>{{ overviewVm.countAtDefaultRate }}</dd>
           <dt>Taux personnalisé</dt>
-          <dd>{{ overview()!.countWithCustomRate }}</dd>
+          <dd>{{ overviewVm.countWithCustomRate }}</dd>
           <dt>Min / Max</dt>
-          <dd>{{ overview()!.minRate }}% / {{ overview()!.maxRate }}%</dd>
+          <dd>{{ overviewVm.minRate }}% / {{ overviewVm.maxRate }}%</dd>
         </dl>
       </tch-admin-section-card>
     }
 
-    <tch-admin-section-card title="Vendeurs">
+    <tch-admin-section-card
+      title="Vendeurs"
+      tchSectionErrorTarget="admin.commission.sellers"
+      [tchSectionErrors]="sectionErrors()"
+    >
       @if (sellers().length === 0) {
         <tch-admin-empty-state icon="point_of_sale" title="Aucun vendeur" message="Aucun vendeur enregistré." />
       } @else {

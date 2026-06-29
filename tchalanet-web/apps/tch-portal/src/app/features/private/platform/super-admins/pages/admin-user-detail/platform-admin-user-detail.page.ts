@@ -11,10 +11,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { PlatformAdminUserCardComponent } from '../../../shared/admin-user-card/platform-admin-user-card.component';
 import type { AdminUserCardData } from '../../../shared/admin-user-card/admin-user-card.model';
@@ -31,6 +34,7 @@ import { AssignTenantDialog, AssignTenantResult } from '../../../shared/assign-t
     PlatformAdminUserCardComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     MatButtonModule,
   ],
   templateUrl: './platform-admin-user-detail.page.html',
@@ -42,14 +46,15 @@ export class PlatformAdminUserDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly loadTrigger$ = new Subject<void>();
   private readonly superAdmin = signal<PlatformSuperAdminView | null>(null);
 
   readonly loading = signal(false);
-  readonly errorTitle = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
 
   readonly cardUser = computed((): AdminUserCardData | null => {
     const u = this.superAdmin();
@@ -69,10 +74,11 @@ export class PlatformAdminUserDetailPage implements OnInit {
         switchMap(() => {
           const userId = this.route.snapshot.paramMap.get('userId') ?? '';
           this.loading.set(true);
-          this.errorTitle.set(null);
-          return this.api.getSuperAdmin(userId).pipe(
-            catchError(() => {
-              this.errorTitle.set('Chargement impossible.');
+          this.error.set(null);
+          this.actionNotice.set(null);
+          return this.api.getSuperAdmin(userId, { suppressShellFeedback: true }).pipe(
+            catchError((err: unknown) => {
+              this.error.set(this.errorViewModel(err, 'platform.superAdmins.detail'));
               this.loading.set(false);
               return EMPTY;
             }),
@@ -93,37 +99,47 @@ export class PlatformAdminUserDetailPage implements OnInit {
   activate(): void {
     const u = this.superAdmin();
     if (!u) return;
-    this.identityApi.activate(u.id).subscribe({
+    this.actionNotice.set(null);
+    this.error.set(null);
+    this.identityApi.activate(u.id, { suppressShellFeedback: true }).subscribe({
       next: () => this.loadTrigger$.next(),
-      error: () => this.snackBar.open('Activation impossible.', 'OK', { duration: 4000 }),
+      error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.activate')),
     });
   }
 
   block(): void {
     const u = this.superAdmin();
     if (!u) return;
-    this.identityApi.suspend(u.id).subscribe({
+    this.actionNotice.set(null);
+    this.error.set(null);
+    this.identityApi.suspend(u.id, { suppressShellFeedback: true }).subscribe({
       next: () => this.loadTrigger$.next(),
-      error: () => this.snackBar.open('Suspension impossible.', 'OK', { duration: 4000 }),
+      error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.suspend')),
     });
   }
 
   archive(): void {
     const u = this.superAdmin();
     if (!u) return;
-    this.identityApi.archive(u.id).subscribe({
+    this.actionNotice.set(null);
+    this.error.set(null);
+    this.identityApi.archive(u.id, { suppressShellFeedback: true }).subscribe({
       next: () => void this.router.navigate(['/app/platform/super-admins']),
-      error: () => this.snackBar.open('Archivage impossible.', 'OK', { duration: 4000 }),
+      error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.archive')),
     });
   }
 
   resetPassword(): void {
     const u = this.superAdmin();
     if (!u) return;
-    this.identityApi.resetPassword(u.id).subscribe({
-      next: ({ tempPassword }) =>
-        this.snackBar.open(`Mot de passe temporaire : ${tempPassword}`, 'OK', { duration: 15000 }),
-      error: () => this.snackBar.open('Réinitialisation impossible.', 'OK', { duration: 4000 }),
+    this.actionNotice.set(null);
+    this.error.set(null);
+    this.identityApi.resetPassword(u.id, { suppressShellFeedback: true }).subscribe({
+      next: ({ tempPassword }) => this.actionNotice.set({
+        title: 'Mot de passe temporaire',
+        message: tempPassword,
+      }),
+      error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.resetPassword')),
     });
   }
 
@@ -135,19 +151,43 @@ export class PlatformAdminUserDetailPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result) return;
+        this.actionNotice.set(null);
+        this.error.set(null);
         this.identityApi
-          .assignMembership(u.id, { tenantId: result.tenantId, role: 'TENANT_ADMIN' })
+          .assignMembership(
+            u.id,
+            { tenantId: result.tenantId, role: 'TENANT_ADMIN' },
+            { suppressShellFeedback: true },
+          )
           .subscribe({
             next: () => {
-              this.snackBar.open(`Assigné au tenant ${result.tenantName}.`, 'OK', { duration: 4000 });
+              this.actionNotice.set({
+                title: 'Tenant assigné',
+                message: result.tenantName,
+              });
               this.loadTrigger$.next();
             },
-            error: () => this.snackBar.open('Assignation impossible.', 'OK', { duration: 4000 }),
+            error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.assignTenant')),
           });
       });
   }
 
   goBack(): void {
     void this.router.navigate(['/app/platform/super-admins']);
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

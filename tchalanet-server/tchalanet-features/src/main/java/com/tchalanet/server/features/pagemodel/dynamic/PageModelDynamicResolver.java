@@ -6,6 +6,9 @@ import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.common.web.advice.ApiResponseNotices;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.NoticeSource;
 import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.WidgetDynamicError;
@@ -131,14 +134,16 @@ public class PageModelDynamicResolver {
                 currentRole != null
                     && Arrays.asList(roleAnnotation.value()).contains(currentRole);
             if (!permitted) {
-              errors.add(new WidgetDynamicError(
+              var error = new WidgetDynamicError(
                   widgetId,
                   provider.providerKey(),
                   "PROVIDER_ROLE_DENIED",
                   "Provider " + provider.providerKey()
                       + " requires one of " + Arrays.toString(roleAnnotation.value())
                       + " but current role is " + currentRole
-              ));
+              );
+              errors.add(error);
+              addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
               return;
             }
           }
@@ -146,28 +151,58 @@ public class PageModelDynamicResolver {
             Object payload = provider.load(doc, widgetId, config, lang, ctx, resolutionContext);
             widgets.put(widgetId, payload);
           } catch (PageModelDynamicProviderException e) {
-            errors.add(new WidgetDynamicError(
+            var error = new WidgetDynamicError(
                 widgetId,
                 provider.providerKey(),
                 e.code(),
                 safeMsg(e)
-            ));
+            );
+            errors.add(error);
+            addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
           } catch (Exception e) {
-            errors.add(new WidgetDynamicError(
+            var error = new WidgetDynamicError(
                 widgetId,
                 provider.providerKey(),
-                "PROVIDER_ERROR",
+                "pagemodel.widget.unavailable",
                 safeMsg(e)
-            ));
+            );
+            errors.add(error);
+            addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, e);
           }
-        }, () -> errors.add(new WidgetDynamicError(
-            widgetId,
-            "resolver",
-            "NO_PROVIDER",
-            "No provider found for logicalId=" + logicalId
-                + ", widgetType=" + widgetType
-                + ", source=" + source
-        )));
+        }, () -> {
+          var error = new WidgetDynamicError(
+              widgetId,
+              "resolver",
+              "pagemodel.widget.no_provider",
+              "No provider found for logicalId=" + logicalId
+                  + ", widgetType=" + widgetType
+                  + ", source=" + source
+          );
+          errors.add(error);
+          addWidgetNotice(error, "Page section unavailable.", NoticeSeverity.WARN, null);
+        });
+  }
+
+  private static void addWidgetNotice(
+      WidgetDynamicError error,
+      String message,
+      NoticeSeverity severity,
+      Exception ex) {
+    ApiResponseNotices.add(
+        error.code(),
+        message,
+        "features.pagemodel",
+        severity,
+        NoticeSource.of(error.widgetId())
+            .service(error.provider())
+            .operation("loadWidget"),
+        ex,
+        Map.of(
+            "surface", "section",
+            "placement", "top",
+            "target", error.widgetId()
+        )
+    );
   }
 
   private static String safeMsg(Exception e) {

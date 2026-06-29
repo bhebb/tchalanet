@@ -15,6 +15,14 @@ mat-dialog-content {
 
   &__field { width: 100%; }
 
+  &__field-stack {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    mat-form-field { width: 100%; }
+  }
+
   &__two-col {
     display: grid;
     grid-template-columns: 1fr;

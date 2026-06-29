@@ -11,7 +11,6 @@ import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
-import { apiFeedbackInterceptor } from '../../../../libs/api/src/lib/http/api-feedback.interceptor';
 import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
@@ -28,9 +27,9 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { environment } from '../environments/environment';
 
 import { authBearerInterceptor } from './core/auth/auth-bearer.interceptor';
+import { apiFeedbackInterceptor } from './core/api/api-feedback.interceptor';
 import { supportAccessInterceptor } from './core/access/support-access.interceptor';
 import { provideFirebaseAuthClient } from './core/auth/firebase/firebase-auth.providers';
-import { firebaseApp$ } from '@angular/fire/app';
 
 registerLocaleData(localeFr);
 

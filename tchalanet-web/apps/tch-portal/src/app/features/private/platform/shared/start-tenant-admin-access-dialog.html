@@ -36,14 +36,12 @@
     </mat-checkbox>
   </form>
 
-  @if (error()) {
-    <div class="start-access-dialog__error">
-      <span class="material-symbols-outlined" aria-hidden="true">error</span>
-      {{ error() }}
-      @if (traceId()) {
-        <span class="start-access-dialog__trace">ID: {{ traceId() }}</span>
-      }
-    </div>
+  @if (error(); as errorVm) {
+    <tch-section-error
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end">

@@ -79,8 +79,15 @@
 
 .biz-profile__form-row {
   display: grid;
-  grid-template-columns: 1fr 80px;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 8rem);
   gap: 0.5rem;
+}
+
+.biz-profile__field-group {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .biz-profile__form-actions {

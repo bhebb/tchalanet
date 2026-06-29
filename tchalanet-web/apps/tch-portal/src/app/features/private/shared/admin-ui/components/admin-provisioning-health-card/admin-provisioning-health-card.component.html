@@ -21,8 +21,12 @@
 
   @if (loading()) {
     <tch-loading [label]="loadingLabel()" />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" />
+  } @else if (resolvedErrorTitle()) {
+    <tch-section-error
+      [title]="resolvedErrorTitle()!"
+      [message]="resolvedErrorMessage()"
+      [severity]="errorSeverity()"
+    />
   } @else if (items().length) {
     <dl class="admin-provisioning-health-card__items">
       @for (item of visibleItems(); track item.label) {

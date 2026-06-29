@@ -2,9 +2,13 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
@@ -32,6 +36,7 @@ const LANGUAGE_LABELS: Record<string, string> = {
     AdminStatusPillComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     MatButtonModule,
     MatIconModule,
   ],
@@ -40,10 +45,11 @@ const LANGUAGE_LABELS: Record<string, string> = {
 })
 export class AdminRuntimePage implements OnInit {
   private readonly api = inject(RuntimeApiService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly notice = signal<string | null>(null);
   readonly runtime = signal<TenantRuntimeView | null>(null);
   readonly runtimeJson = () =>
     this.runtime() ? JSON.stringify(this.runtime(), null, 2) : '';
@@ -67,20 +73,38 @@ export class AdminRuntimePage implements OnInit {
   }
 
   reload(): void {
-    this.load();
-    this.snackBar.open('Données rechargées.', 'OK', { duration: 2000 });
+    this.load(true);
   }
 
-  private load(): void {
+  private load(showReloadNotice = false): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.getTenantRuntime().subscribe({
-      next: v => { this.runtime.set(v); this.loading.set(false); },
+    this.notice.set(null);
+    this.api.getTenantRuntime({ suppressShellFeedback: true }).subscribe({
+      next: v => {
+        this.runtime.set(v);
+        this.loading.set(false);
+        if (showReloadNotice) this.notice.set('Données rechargées.');
+      },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err));
         this.loading.set(false);
       },
     });
+  }
+
+  private errorViewModel(err: unknown): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.runtime', 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

@@ -2,9 +2,13 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent } from '../../../shared/admin-ui/admin-status-pill.component';
 import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
@@ -26,6 +30,7 @@ import {
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -33,25 +38,32 @@ import {
     AvailableGamesPipe,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
+  styleUrl: './admin-draw-sales-matrix.page.scss',
 })
 export class AdminDrawSalesMatrixPage implements OnInit {
   private readonly api = inject(AdminDrawSalesMatrixApi);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly matrix = signal<TenantDrawSalesMatrixView | null>(null);
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
+  readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
+  readonly actionNotices = signal<Readonly<Record<string, string>>>({});
 
   ngOnInit(): void { this.load(); }
 
-  load(): void {
+  load(preserveActionFeedback = false): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.getMatrix().subscribe({
+    if (!preserveActionFeedback) {
+      this.actionErrors.set({});
+      this.actionNotices.set({});
+    }
+    this.api.getMatrix({ suppressShellFeedback: true }).subscribe({
       next: data => { this.matrix.set(data); this.loading.set(false); },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'admin.setup.draw_sales_matrix', 'page'));
         this.loading.set(false);
       },
     });
@@ -68,62 +80,81 @@ export class AdminDrawSalesMatrixPage implements OnInit {
   }
 
   offerGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
-    const drawChannelId = slot.channel!.drawChannelId.value;
+    const drawChannelId = slot.channel?.drawChannelId.value;
+    if (!drawChannelId) return;
     const tenantGameId = game.tenantGameId.value;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
-    this.api.offerGame(drawChannelId, tenantGameId).subscribe({
-      next: () => { this.acting.set(null); this.snackBar.open(`${game.gameCode} ajouté au canal.`, 'OK', { duration: 3000 }); this.load(); },
+    this.clearActionError(key);
+    this.clearActionNotice(key);
+    this.api.offerGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
+      next: () => {
+        this.acting.set(null);
+        this.setActionNotice(key, `${game.gameCode} ajouté au canal.`);
+        this.load(true);
+      },
       error: (err: unknown) => {
         this.acting.set(null);
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 4000 });
+        this.setActionError(key, err, drawChannelId, tenantGameId);
       },
     });
   }
 
   toggleGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
-    const drawChannelId = slot.channel!.drawChannelId.value;
+    const drawChannelId = slot.channel?.drawChannelId.value;
+    if (!drawChannelId) return;
     const tenantGameId = game.tenantGameId.value;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
+    this.clearActionError(key);
+    this.clearActionNotice(key);
     const newEnabled = !game.enabledOnChannel;
-    this.api.toggleGame(drawChannelId, tenantGameId, newEnabled).subscribe({
+    this.api.toggleGame(drawChannelId, tenantGameId, newEnabled, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.acting.set(null);
-        this.snackBar.open(`${game.gameCode} ${newEnabled ? 'activé' : 'désactivé'}.`, 'OK', { duration: 3000 });
-        this.load();
+        this.setActionNotice(key, `${game.gameCode} ${newEnabled ? 'activé' : 'désactivé'}.`);
+        this.load(true);
       },
       error: (err: unknown) => {
         this.acting.set(null);
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 4000 });
+        this.setActionError(key, err, drawChannelId, tenantGameId);
       },
     });
   }
 
   removeGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
-    const drawChannelId = slot.channel!.drawChannelId.value;
+    const drawChannelId = slot.channel?.drawChannelId.value;
+    if (!drawChannelId) return;
     const tenantGameId = game.tenantGameId.value;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
-    this.api.removeGame(drawChannelId, tenantGameId).subscribe({
-      next: () => { this.acting.set(null); this.snackBar.open(`${game.gameCode} retiré du canal.`, 'OK', { duration: 3000 }); this.load(); },
+    this.clearActionError(key);
+    this.clearActionNotice(key);
+    this.api.removeGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
+      next: () => {
+        this.acting.set(null);
+        this.setActionNotice(key, `${game.gameCode} retiré du canal.`);
+        this.load(true);
+      },
       error: (err: unknown) => {
         this.acting.set(null);
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 4000 });
+        this.setActionError(key, err, drawChannelId, tenantGameId);
       },
     });
+  }
+
+  actionError(drawChannelId: string, tenantGameId: string): ErrorViewModel | null {
+    return this.actionErrors()[this.actingKey(drawChannelId, tenantGameId)] ?? null;
+  }
+
+  actionNotice(drawChannelId: string, tenantGameId: string): string | null {
+    return this.actionNotices()[this.actingKey(drawChannelId, tenantGameId)] ?? null;
   }
 
   severityIcon(w: SetupWarning): string {
     if (w.severity === 'ERROR') return 'error';
     if (w.severity === 'WARN') return 'warning';
     return 'info';
-  }
-
-  severityColor(w: SetupWarning): string {
-    if (w.severity === 'ERROR') return 'var(--tch-error, #d32f2f)';
-    if (w.severity === 'WARN') return 'var(--tch-warn, #ed6c02)';
-    return 'var(--tch-info, #0288d1)';
   }
 
   slotStatusTone(slot: SlotMatrixView): 'success' | 'warning' | 'danger' | 'neutral' {
@@ -144,5 +175,56 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     if (!game.offeredOnChannel) return 'Non offert';
     if (!game.enabledOnChannel) return 'Désactivé';
     return 'Incomplet';
+  }
+
+  private setActionError(
+    key: string,
+    err: unknown,
+    drawChannelId: string,
+    tenantGameId: string,
+  ): void {
+    const error = this.errorViewModel(err, `admin.setup.draw_sales_matrix.${drawChannelId}.${tenantGameId}`, 'section');
+    this.actionErrors.update(current => ({ ...current, [key]: error }));
+  }
+
+  private setActionNotice(key: string, message: string): void {
+    this.actionNotices.update(current => ({ ...current, [key]: message }));
+  }
+
+  private clearActionError(key: string): void {
+    this.actionErrors.update(current => {
+      if (!current[key]) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
+
+  private clearActionNotice(key: string): void {
+    this.actionNotices.update(current => {
+      if (!current[key]) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (!problem) {
+      return {
+        severity: 'error',
+        title: this.translate.instant('common.errors.fallback.title'),
+        message: this.translate.instant('common.errors.fallback.message'),
+      };
+    }
+
+    const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }

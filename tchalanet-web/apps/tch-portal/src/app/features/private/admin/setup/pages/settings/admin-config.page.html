@@ -9,7 +9,15 @@
   @if (pageState() === 'loading') {
     <tch-loading label="Chargement..." />
   } @else if (pageState() === 'error') {
-    <tch-error-panel [title]="pageError()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+    @if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
   } @else {
 
     <mat-tab-group>
@@ -27,11 +35,13 @@
                   }
                 </mat-select>
               </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.defaultLanguage" />
 
               <mat-form-field appearance="outline">
                 <mat-label>Locale (ex: fr-HT, fr-FR)</mat-label>
                 <input matInput formControlName="defaultLocale" placeholder="fr-HT" />
               </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.defaultLocale" />
 
               <mat-form-field appearance="outline">
                 <mat-label>Langue de repli</mat-label>
@@ -41,6 +51,13 @@
                   }
                 </mat-select>
               </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
+
+              @if (localeFormError()) {
+                <tch-notice type="error">{{ localeFormError() }}</tch-notice>
+              } @else if (localeNotice(); as notice) {
+                <tch-notice type="success">{{ notice }}</tch-notice>
+              }
 
               <div class="config-page__form-actions">
                 <button
@@ -77,16 +94,19 @@
                 <mat-label>Nom affiché sur le reçu</mat-label>
                 <input matInput formControlName="displayName" placeholder="Nom de votre point de vente" />
               </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.displayName" />
 
               <mat-form-field appearance="outline">
                 <mat-label>Message d'en-tête</mat-label>
                 <textarea matInput formControlName="headerMessage" rows="2" placeholder="Merci de jouer avec nous !" ></textarea>
               </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.headerMessage" />
 
               <mat-form-field appearance="outline">
                 <mat-label>Message de pied de page</mat-label>
                 <textarea matInput formControlName="footerMessage" rows="2" placeholder="Bonne chance !" ></textarea>
               </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.footerMessage" />
 
               <mat-form-field appearance="outline">
                 <mat-label>Format de papier</mat-label>
@@ -96,6 +116,7 @@
                   }
                 </mat-select>
               </mat-form-field>
+              <tch-field-error [control]="receiptForm.controls.defaultPaperSize" />
 
               <div class="config-page__checkboxes">
                 <mat-checkbox formControlName="showQrCode">Afficher le QR code</mat-checkbox>
@@ -103,6 +124,12 @@
                 <mat-checkbox formControlName="showOutletName">Afficher le nom du point de vente</mat-checkbox>
                 <mat-checkbox formControlName="showPotentialPayout">Afficher le gain potentiel</mat-checkbox>
               </div>
+
+              @if (receiptFormError()) {
+                <tch-notice type="error">{{ receiptFormError() }}</tch-notice>
+              } @else if (receiptNotice(); as notice) {
+                <tch-notice type="success">{{ notice }}</tch-notice>
+              }
 
               <div class="config-page__form-actions">
                 <button

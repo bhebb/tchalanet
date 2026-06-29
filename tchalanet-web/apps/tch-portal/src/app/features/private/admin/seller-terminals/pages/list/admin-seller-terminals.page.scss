@@ -44,7 +44,7 @@
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--tch-color-primary-container, #141545);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
     line-height: 1.2;
   }
 
@@ -53,7 +53,7 @@
     font-weight: 600;
     color: var(--tch-color-on-surface-variant, #46464f);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0;
   }
 
   // ── Table ──────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--tch-color-primary-container, #141545);
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
   }
 
   &__status-select {

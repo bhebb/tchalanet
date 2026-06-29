@@ -16,5 +16,6 @@
 | Access gate (`*tchCan`, `can` pipe, `accessGuard`) | [`access.md`](./access.md) |
 | PageModel runtime | [`pagemodel.md`](./pagemodel.md) |
 | HTTP API / errors / headers | [`http-api.md`](./http-api.md) |
+| Error management (shell/page/section/field) | [`error-management.md`](./error-management.md) |
 
 > Règle : conventions mises à jour **en même commit** que le code qui change la règle.

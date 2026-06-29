@@ -1,9 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 
@@ -26,6 +30,7 @@ type PageState = 'loading' | 'ready' | 'error';
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     DrawChannelsSummaryComponent,
     DrawChannelProviderCardComponent,
   ],
@@ -35,10 +40,11 @@ type PageState = 'loading' | 'ready' | 'error';
 export class AdminDrawChannelsPage implements OnInit {
   private readonly api      = inject(AdminDrawChannelsApiService);
   private readonly router   = inject(Router);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly pageState    = signal<PageState>('loading');
-  readonly pageError    = signal<string | null>(null);
+  readonly pageError    = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<string | null>(null);
   readonly allProviders = signal<DrawChannelProviderView[]>([]);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery  = signal<string>('');
@@ -74,17 +80,18 @@ export class AdminDrawChannelsPage implements OnInit {
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
+    this.actionNotice.set(null);
     this.api.getDrawChannelProviders().subscribe({
       next: data => { this.allProviders.set(data); this.pageState.set('ready'); },
       error: (err: unknown) => {
-        this.pageError.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.pageError.set(this.errorViewModel(err));
         this.pageState.set('error');
       },
     });
   }
 
   onConfigure(provider: DrawChannelProviderView): void {
-    this.snackBar.open(`Configuration de ${provider.providerLabel} — bientôt disponible.`, 'OK', { duration: 3000 });
+    this.actionNotice.set(`Configuration de ${provider.providerLabel} bientot disponible.`);
   }
 
   onViewProviderResults(provider: DrawChannelProviderView): void {
@@ -97,5 +104,20 @@ export class AdminDrawChannelsPage implements OnInit {
     this.router.navigate(['/app/admin/results'], {
       queryParams: { provider: event.provider.providerCode, slot: event.slot.slotKey },
     });
+  }
+
+  private errorViewModel(err: unknown): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.draw_channels', 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

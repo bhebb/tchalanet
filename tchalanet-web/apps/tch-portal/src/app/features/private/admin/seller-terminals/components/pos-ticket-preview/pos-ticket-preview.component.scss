@@ -37,6 +37,7 @@
     span {
       font-size: 1.75rem;
       color: var(--tch-color-secondary-container, #fecb02);
+      font-variation-settings: 'FILL' 1;
     }
   }
 
@@ -200,6 +201,11 @@
     height: 2rem;
     background: #fff;
     border-radius: 1px;
+
+    &--w1 { width: 3px; }
+    &--w2 { width: 6px; }
+    &--w3 { width: 9px; }
+    &--w4 { width: 12px; }
   }
 
   &__ticket-code {

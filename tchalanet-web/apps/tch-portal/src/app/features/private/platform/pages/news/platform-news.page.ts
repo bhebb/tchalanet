@@ -7,11 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
@@ -48,6 +51,7 @@ const DEFAULT_EXPIRES_AFTER_DAYS = 7;
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -63,14 +67,16 @@ const DEFAULT_EXPIRES_AFTER_DAYS = 7;
 export class PlatformNewsPage implements OnInit {
   private readonly api = inject(PlatformSupportApi);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly surfaces = SURFACES;
   readonly displayedColumns = ['publishedAt', 'source', 'title', 'surfaces', 'expiresAt', 'status', 'actions'];
 
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly items = signal<PublicContentAdminItemView[]>([]);
   readonly editing = signal<PublicContentAdminItemView | null>(null);
   readonly showForm = signal(false);
@@ -100,13 +106,14 @@ export class PlatformNewsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.listNews().subscribe({
+    this.actionError.set(null);
+    this.api.listNews({ suppressShellFeedback: true }).subscribe({
       next: items => {
         this.items.set(items ?? []);
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(this.errorMessage(err));
+        this.error.set(this.errorViewModel(err, 'platform.news.list'));
         this.loading.set(false);
       },
     });
@@ -153,6 +160,8 @@ export class PlatformNewsPage implements OnInit {
     const value = this.form.getRawValue();
     const now = new Date();
     this.saving.set(true);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     this.api.upsertNews({
       id: this.editing()?.id ?? null,
       title: value.title.trim(),
@@ -164,61 +173,79 @@ export class PlatformNewsPage implements OnInit {
         ? (this.editing()?.publishedAt ?? now.toISOString())
         : null,
       expiresAt: this.resolveExpiresAt(value.expiresAfterDays, now),
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
         this.showForm.set(false);
-        this.snackBar.open('Actualité enregistrée.', 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Actualité enregistrée',
+          message: value.title.trim(),
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.news.save'));
       },
     });
   }
 
   changeStatus(item: PublicContentAdminItemView, status: PublicContentStatus): void {
     this.saving.set(true);
-    this.api.changeNewsStatus(item.id, status).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.changeNewsStatus(item.id, status, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open('Statut mis à jour.', 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Statut mis à jour',
+          message: this.statusLabel(status),
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.news.status'));
       },
     });
   }
 
   hide(item: PublicContentAdminItemView): void {
     this.saving.set(true);
-    this.api.hideNews(item.id).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.hideNews(item.id, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open('Actualité masquée.', 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Actualité masquée',
+          message: item.title,
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.news.hide'));
       },
     });
   }
 
   forceRefresh(): void {
     this.saving.set(true);
-    this.api.forceRefreshNews().subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.forceRefreshNews({ suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open('Flux RSS rafraîchi.', 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Flux RSS rafraîchi',
+          message: 'Les actualités externes ont été synchronisées.',
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.news.refresh'));
       },
     });
   }
@@ -271,9 +298,18 @@ export class PlatformNewsPage implements OnInit {
     return days > 0 ? days : DEFAULT_EXPIRES_AFTER_DAYS;
   }
 
-  private errorMessage(err: unknown): string {
-    return (err as { error?: { title?: string; detail?: string } })?.error?.title
-      ?? (err as { error?: { detail?: string } })?.error?.detail
-      ?? 'Erreur de chargement.';
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

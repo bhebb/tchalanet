@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface StartTenantAdminAccessRequest {
@@ -26,14 +26,16 @@ export class PlatformTenantAdminAccessApi {
   startAdminAccess(
     tenantId: string,
     req: StartTenantAdminAccessRequest,
+    options?: TchRequestOptions,
   ): Observable<TenantAdminAccessSession> {
     return this.backend.post<TenantAdminAccessSession>(
       `/platform/tenants/${tenantId}/admin-access`,
       req,
+      options,
     );
   }
 
-  stopAdminAccess(): Observable<void> {
-    return this.backend.delete<void>('/platform/tenants/admin-access/current');
+  stopAdminAccess(options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>('/platform/tenants/admin-access/current', options);
   }
 }

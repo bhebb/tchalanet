@@ -4,11 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateService } from '@ngx-translate/core';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -44,6 +47,7 @@ const INTENT_OPTIONS: ContactRequestIntent[] = [
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -56,7 +60,7 @@ const INTENT_OPTIONS: ContactRequestIntent[] = [
 })
 export class PlatformContactRequestsPage implements OnInit {
   private readonly api = inject(PlatformSupportApi);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly statusOptions = STATUS_OPTIONS;
   readonly intentOptions = INTENT_OPTIONS;
@@ -69,7 +73,10 @@ export class PlatformContactRequestsPage implements OnInit {
   readonly loading = signal(false);
   readonly detailLoading = signal(false);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly detailError = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly requests = signal<ContactRequestSummaryView[]>([]);
   readonly selected = signal<ContactRequestAdminDetailView | null>(null);
   readonly page = signal(0);
@@ -95,6 +102,8 @@ export class PlatformContactRequestsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
 
     this.api
       .listContactRequests({
@@ -103,7 +112,7 @@ export class PlatformContactRequestsPage implements OnInit {
         intent: this.intentFilter() || undefined,
         page: this.page(),
         size: 20,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: page => {
           this.requests.set(page.items ?? []);
@@ -112,7 +121,7 @@ export class PlatformContactRequestsPage implements OnInit {
           this.loading.set(false);
         },
         error: err => {
-          this.error.set(this.errorMessage(err));
+          this.error.set(this.errorViewModel(err, 'platform.contactRequests.list'));
           this.loading.set(false);
         },
       });
@@ -162,14 +171,17 @@ export class PlatformContactRequestsPage implements OnInit {
 
   open(row: ContactRequestSummaryView): void {
     this.detailLoading.set(true);
-    this.api.getContactRequest(row.id).subscribe({
+    this.detailError.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.getContactRequest(row.id, { suppressShellFeedback: true }).subscribe({
       next: detail => {
         this.selected.set(detail);
         this.detailLoading.set(false);
       },
       error: err => {
         this.detailLoading.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.detailError.set(this.errorViewModel(err, 'platform.contactRequests.detail'));
       },
     });
   }
@@ -182,16 +194,21 @@ export class PlatformContactRequestsPage implements OnInit {
     const selected = this.selected();
     if (!selected || selected.status === status) return;
     this.saving.set(true);
-    this.api.updateContactStatus(selected.id, status).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.updateContactStatus(selected.id, status, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open('Statut mis à jour.', 'OK', { duration: 3000 });
         this.open({ ...selected, status });
         this.load();
+        this.actionNotice.set({
+          title: 'Statut mis à jour',
+          message: this.statusLabel(status),
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.contactRequests.status'));
       },
     });
   }
@@ -208,16 +225,19 @@ export class PlatformContactRequestsPage implements OnInit {
         internalNotes: notes.trim() || null,
         externalTool: selected.externalTool,
         externalReference: selected.externalReference,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.snackBar.open('Notes mises à jour.', 'OK', { duration: 3000 });
           this.open(selected);
+          this.actionNotice.set({
+            title: 'Notes mises à jour',
+            message: selected.reference,
+          });
         },
         error: err => {
           this.saving.set(false);
-          this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+          this.actionError.set(this.errorViewModel(err, 'platform.contactRequests.notes'));
         },
       });
   }
@@ -249,9 +269,18 @@ export class PlatformContactRequestsPage implements OnInit {
     }[status];
   }
 
-  private errorMessage(err: unknown): string {
-    return (err as { error?: { title?: string; detail?: string } })?.error?.title
-      ?? (err as { error?: { detail?: string } })?.error?.detail
-      ?? 'Erreur de chargement.';
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

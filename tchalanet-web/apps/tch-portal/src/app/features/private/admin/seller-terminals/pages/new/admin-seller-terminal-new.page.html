@@ -25,6 +25,9 @@
 
       <!-- Left column: form sections -->
       <div class="stn-page__form-col">
+        @if (error(); as pageError) {
+          <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+        }
 
         <!-- Identité -->
         <tch-admin-section-card title="Identité" icon="badge" description="Informations d'identification du terminal">
@@ -45,6 +48,7 @@
                 <mat-error>Le code terminal est requis.</mat-error>
               }
             </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.terminalCode)" />
 
             <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
               <mat-label>Nom d'affichage</mat-label>
@@ -59,31 +63,44 @@
                 <mat-error>Maximum 64 caractères.</mat-error>
               }
             </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.displayName)" />
           </div>
 
           <div class="stn-page__row">
-            <mat-form-field appearance="outline" class="stn-page__field">
-              <mat-label>Prénom (optionnel)</mat-label>
-              <input matInput formControlName="firstName" autocomplete="given-name" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="stn-page__field">
-              <mat-label>Nom (optionnel)</mat-label>
-              <input matInput formControlName="lastName" autocomplete="family-name" />
-            </mat-form-field>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Prénom (optionnel)</mat-label>
+                <input matInput formControlName="firstName" autocomplete="given-name" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.firstName)" />
+            </div>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Nom (optionnel)</mat-label>
+                <input matInput formControlName="lastName" autocomplete="family-name" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.lastName)" />
+            </div>
           </div>
 
           <div class="stn-page__row">
-            <mat-form-field appearance="outline" class="stn-page__field">
-              <mat-label>Email (optionnel)</mat-label>
-              <input matInput formControlName="email" type="email" autocomplete="email" placeholder="vendeur@exemple.com" />
-              @if (form.controls.email.hasError('email')) {
-                <mat-error>Email invalide.</mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="stn-page__field">
-              <mat-label>Téléphone (optionnel)</mat-label>
-              <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" placeholder="+509 XXXX XXXX" />
-            </mat-form-field>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Email (optionnel)</mat-label>
+                <input matInput formControlName="email" type="email" autocomplete="email" placeholder="vendeur@exemple.com" />
+                @if (form.controls.email.hasError('email')) {
+                  <mat-error>Email invalide.</mat-error>
+                }
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.email)" />
+            </div>
+            <div class="stn-page__field-stack">
+              <mat-form-field appearance="outline" class="stn-page__field">
+                <mat-label>Téléphone (optionnel)</mat-label>
+                <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" placeholder="+509 XXXX XXXX" />
+              </mat-form-field>
+              <tch-field-error [message]="serverFieldMessage(form.controls.phoneNumber)" />
+            </div>
           </div>
 
         </tch-admin-section-card>
@@ -100,40 +117,54 @@
                 <mat-error>Maximum 200 caractères.</mat-error>
               }
             </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.line1)" />
 
             <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
               <mat-label>Appartement / Ligne 2 (optionnel)</mat-label>
               <input matInput formControlName="line2" placeholder="Ex : Apt 3B" autocomplete="address-line2" />
             </mat-form-field>
+            <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.line2)" />
 
             <div class="stn-page__row">
-              <mat-form-field appearance="outline" class="stn-page__field">
-                <mat-label>Ville</mat-label>
-                <input matInput formControlName="city" placeholder="Ex : Port-au-Prince" autocomplete="address-level2" />
-                @if (form.controls.address.controls.city.hasError('maxlength')) {
-                  <mat-error>Maximum 100 caractères.</mat-error>
-                }
-              </mat-form-field>
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Ville</mat-label>
+                  <input matInput formControlName="city" placeholder="Ex : Port-au-Prince" autocomplete="address-level2" />
+                  @if (form.controls.address.controls.city.hasError('maxlength')) {
+                    <mat-error>Maximum 100 caractères.</mat-error>
+                  }
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.city)" />
+              </div>
 
-              <mat-form-field appearance="outline" class="stn-page__field">
-                <mat-label>Région / Département (optionnel)</mat-label>
-                <input matInput formControlName="region" placeholder="Ex : Ouest" autocomplete="address-level1" />
-              </mat-form-field>
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Région / Département (optionnel)</mat-label>
+                  <input matInput formControlName="region" placeholder="Ex : Ouest" autocomplete="address-level1" />
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.region)" />
+              </div>
             </div>
 
             <div class="stn-page__row">
-              <mat-form-field appearance="outline" class="stn-page__field">
-                <mat-label>Pays (code ISO)</mat-label>
-                <input matInput formControlName="country" placeholder="HT" maxlength="2" autocomplete="country" />
-                @if (form.controls.address.controls.country.hasError('maxlength')) {
-                  <mat-error>Code ISO 2 lettres (ex : HT, US).</mat-error>
-                }
-              </mat-form-field>
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Pays (code ISO)</mat-label>
+                  <input matInput formControlName="country" placeholder="HT" maxlength="2" autocomplete="country" />
+                  @if (form.controls.address.controls.country.hasError('maxlength')) {
+                    <mat-error>Code ISO 2 lettres (ex : HT, US).</mat-error>
+                  }
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.country)" />
+              </div>
 
-              <mat-form-field appearance="outline" class="stn-page__field">
-                <mat-label>Code postal (optionnel)</mat-label>
-                <input matInput formControlName="postalCode" autocomplete="postal-code" />
-              </mat-form-field>
+              <div class="stn-page__field-stack">
+                <mat-form-field appearance="outline" class="stn-page__field">
+                  <mat-label>Code postal (optionnel)</mat-label>
+                  <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                </mat-form-field>
+                <tch-field-error [message]="serverFieldMessage(form.controls.address.controls.postalCode)" />
+              </div>
             </div>
           </div>
 
@@ -148,7 +179,7 @@
               matInput
               formControlName="initialPin"
               [type]="showPin() ? 'text' : 'password'"
-              placeholder="4 à 8 chiffres"
+              placeholder="6 chiffres"
               autocomplete="new-password"
               inputmode="numeric"
             />
@@ -159,9 +190,10 @@
               <mat-error>Le PIN est requis.</mat-error>
             }
             @if (form.controls.initialPin.hasError('pattern')) {
-              <mat-error>Le PIN doit contenir entre 4 et 8 chiffres.</mat-error>
+              <mat-error>Le PIN doit contenir exactement 6 chiffres.</mat-error>
             }
           </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.initialPin)" />
 
           <mat-form-field appearance="outline" class="stn-page__field stn-page__field--full">
             <mat-label>Confirmer le PIN</mat-label>
@@ -180,6 +212,7 @@
               <mat-error>La confirmation est requise.</mat-error>
             }
           </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.confirmPin)" />
 
           @if (form.hasError('pinMismatch') && form.controls.confirmPin.touched) {
             <div class="stn-page__pin-error">
@@ -211,6 +244,7 @@
               <mat-error>Le taux doit être compris entre 0 et 100.</mat-error>
             }
           </mat-form-field>
+          <tch-field-error [message]="serverFieldMessage(form.controls.commissionRate)" />
 
         </tch-admin-section-card>
 
@@ -224,11 +258,6 @@
           </div>
 
         </tch-admin-section-card>
-
-        <!-- Error banner -->
-        @if (error()) {
-          <tch-error-panel [title]="error()!" />
-        }
 
         <!-- Footer actions -->
         <div class="stn-page__footer">

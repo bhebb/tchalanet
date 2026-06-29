@@ -181,10 +181,20 @@ export class AdminDrawChannelsApiService {
   }
 
   updateDrawChannelProviderConfig(
-    _providerCode: UsLotteryProviderCode,
-    _request: UpdateDrawChannelProviderConfigRequest,
+    providerCode: UsLotteryProviderCode,
+    request: UpdateDrawChannelProviderConfigRequest,
   ): Observable<DrawChannelProviderView> {
     // TODO(backend): POST /admin/draw-channels/:providerCode/config
-    return of(MOCK_PROVIDERS[0]).pipe(delay(200));
+    const provider = MOCK_PROVIDERS.find(item => item.providerCode === providerCode) ?? MOCK_PROVIDERS[0];
+    const updatedProvider: DrawChannelProviderView = {
+      ...provider,
+      tenantStatus: request.enabled ? 'ACTIVE' : 'INACTIVE',
+      resultAcquisition: {
+        ...provider.resultAcquisition,
+        mode: request.resultAcquisitionMode,
+      },
+      defaultSalesCutoffMinutes: request.defaultSalesCutoffMinutes ?? provider.defaultSalesCutoffMinutes,
+    };
+    return of(updatedProvider).pipe(delay(200));
   }
 }

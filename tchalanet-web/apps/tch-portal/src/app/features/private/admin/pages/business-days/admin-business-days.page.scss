@@ -1,6 +1,11 @@
 @use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .business-days-page {
+  &__action-error {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
   &__month-nav {
     display: flex;
     align-items: center;
@@ -55,7 +60,7 @@
     text-transform: uppercase;
     padding: 0.1rem 0.3rem;
     border-radius: var(--tch-radius-full);
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
 
     @include ui.up(medium) {
       font-size: 0.625rem;

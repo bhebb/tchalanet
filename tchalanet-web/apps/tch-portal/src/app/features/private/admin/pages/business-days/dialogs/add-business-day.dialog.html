@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Ajouter une exception</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="add-business-day-dialog__form">
+    <mat-form-field appearance="outline" class="add-business-day-dialog__field">
+      <mat-label>Date (YYYY-MM-DD)</mat-label>
+      <input matInput formControlName="date" placeholder="2025-01-01" />
+      @if (form.controls.date.invalid && form.controls.date.touched) {
+        <mat-error>Date requise (format YYYY-MM-DD).</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="add-business-day-dialog__field">
+      <mat-label>Statut</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="OPEN">OPEN (jour ouvrable)</mat-option>
+        <mat-option value="CLOSED">CLOSED (jour fermé)</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="add-business-day-dialog__field">
+      <mat-label>Raison (optionnel)</mat-label>
+      <input matInput formControlName="reason" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">Ajouter</button>
+</mat-dialog-actions>

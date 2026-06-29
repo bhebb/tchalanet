@@ -16,6 +16,15 @@
     <tch-status-badge [status]="readinessBadge()" [label]="g.readiness.label" />
   </div>
 
+  @if (actionError(); as err) {
+    <tch-section-error
+      class="game-card__error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity ?? 'error'"
+    />
+  }
+
   <!-- Body (hidden for UNAVAILABLE) -->
   @if (g.tenantStatus !== 'UNAVAILABLE') {
     <div class="game-card__body">

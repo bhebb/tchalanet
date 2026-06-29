@@ -8,6 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../core/api/local-error-routing';
 import { SupportAccessStore } from '../../../../core/access/support-access.store';
 import { PlatformTenantAdminAccessApi } from '../platform-tenant-admin-access-api.service';
 import type { TenantStatus } from '../tenants/data-access/platform-tenants-api.service';
@@ -31,6 +36,7 @@ export interface StartTenantAdminAccessDialogData {
     MatIconModule,
     MatInputModule,
     ReactiveFormsModule,
+    TchSectionError,
   ],
   templateUrl: './start-tenant-admin-access-dialog.html',
   styleUrls: ['./start-tenant-admin-access-dialog.scss'],
@@ -42,13 +48,13 @@ export class StartTenantAdminAccessDialog {
   private readonly store = inject(SupportAccessStore);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   protected readonly mode =
     this.data.tenantStatus === 'ACTIVE' ? 'SUPPORT_OVERRIDE' : 'SUPPORT_READONLY';
 
   protected readonly loading = signal(false);
-  protected readonly error = signal<string | null>(null);
-  protected readonly traceId = signal<string | null>(null);
+  protected readonly error = signal<ErrorViewModel | null>(null);
 
   readonly form = this.fb.group({
     reason: ['', [Validators.required, Validators.minLength(10)]],
@@ -57,15 +63,17 @@ export class StartTenantAdminAccessDialog {
 
   submit(): void {
     if (this.form.invalid || this.loading()) return;
+    const reason = this.form.controls.reason.value;
+    if (!reason) return;
+
     this.loading.set(true);
     this.error.set(null);
-    this.traceId.set(null);
 
     this.api
       .startAdminAccess(this.data.tenantId, {
-        reason: this.form.controls.reason.value!,
+        reason,
         mode: this.mode,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: session => {
           this.store.startSession(session);
@@ -75,11 +83,23 @@ export class StartTenantAdminAccessDialog {
         },
         error: (err: unknown) => {
           this.loading.set(false);
-          const pd = (err as { error?: { title?: string; errorId?: string; requestId?: string } })
-            ?.error;
-          this.error.set(pd?.title ?? 'Une erreur est survenue.');
-          this.traceId.set(pd?.errorId ?? pd?.requestId ?? null);
+          this.error.set(this.errorViewModel(err, 'platform.tenantAdminAccess.start'));
         },
       });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

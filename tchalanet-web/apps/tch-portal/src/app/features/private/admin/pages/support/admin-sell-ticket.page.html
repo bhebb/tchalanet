@@ -21,6 +21,10 @@
 
     <form [formGroup]="form" (ngSubmit)="runPreview()">
 
+      @if (loadError(); as loadErrorVm) {
+        <tch-error-panel [title]="loadErrorVm.title" [message]="loadErrorVm.message" />
+      }
+
       <!-- En-tête du billet -->
       <tch-admin-section-card title="Informations">
         <div class="sell-page__header-grid">
@@ -137,6 +141,10 @@
       }
 
       <!-- Actions -->
+      @if (actionError(); as actionErrorVm) {
+        <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+      }
+
       <div class="sell-page__form-actions">
         <a mat-stroked-button routerLink="../tickets">Annuler</a>
 

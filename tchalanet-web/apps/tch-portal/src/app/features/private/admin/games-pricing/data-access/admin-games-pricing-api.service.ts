@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { GamesAdminApiService, UpdateGameSettingsRequest } from '../../games-admin-api.service';
 import {
   TenantGamePricingView,
@@ -76,22 +77,22 @@ export class AdminGamesPricingApiService {
   private readonly backend = inject(TchBackendClient);
   private readonly gamesApi = inject(GamesAdminApiService);
 
-  getGamesPricing(): Observable<TenantGamePricingView[]> {
+  getGamesPricing(options?: TchRequestOptions): Observable<TenantGamePricingView[]> {
     return this.backend
-      .get<BffResponse>('/admin/setup/games-pricing')
+      .get<BffResponse>('/admin/setup/games-pricing', options)
       .pipe(map(res => res.games.map(row => this.toView(row))));
   }
 
-  enableGame(gameCode: string): Observable<void> {
-    return this.gamesApi.enableGame(gameCode);
+  enableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
+    return this.gamesApi.enableGame(gameCode, options);
   }
 
-  disableGame(gameCode: string): Observable<void> {
-    return this.gamesApi.disableGame(gameCode);
+  disableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
+    return this.gamesApi.disableGame(gameCode, options);
   }
 
-  updateSettings(gameCode: string, req: UpdateGameSettingsRequest): Observable<void> {
-    return this.gamesApi.updateGameSettings(gameCode, req);
+  updateSettings(gameCode: string, req: UpdateGameSettingsRequest, options?: TchRequestOptions): Observable<void> {
+    return this.gamesApi.updateGameSettings(gameCode, req, options);
   }
 
   private toView(row: BffGameRow): TenantGamePricingView {

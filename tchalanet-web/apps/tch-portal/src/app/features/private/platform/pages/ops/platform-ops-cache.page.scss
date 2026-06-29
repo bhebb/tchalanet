@@ -1,6 +1,11 @@
 @use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .cache-page {
+  &__feedback {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
   &__table {
     overflow-x: auto;
 

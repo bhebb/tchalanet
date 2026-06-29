@@ -7,13 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import {
   AdminListStatusOption,
   AdminListSurface,
@@ -22,7 +23,10 @@ import {
   TchConfirmDialogResult,
   TchErrorPanel,
   TchLoading,
+  TchSectionError,
 } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -64,6 +68,7 @@ type TargetMode = 'BROADCAST' | 'SPECIFIC';
     PlatformRecipientPickerComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -80,8 +85,8 @@ export class PlatformNotificationsPage implements OnInit {
   private readonly api = inject(PlatformSupportApi);
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly statusOptions = STATUS_OPTIONS;
   readonly severityOptions = SEVERITY_OPTIONS;
@@ -92,7 +97,10 @@ export class PlatformNotificationsPage implements OnInit {
 
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly composerError = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly notifications = signal<NotificationItemView[]>([]);
   readonly showComposer = signal(false);
   readonly recipientSelection = signal<PlatformRecipientPickerSelection | null>(null);
@@ -141,6 +149,8 @@ export class PlatformNotificationsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     this.api.listNotifications({
       q: this.searchQuery() || undefined,
       status: this.statusFilter() || undefined,
@@ -148,7 +158,7 @@ export class PlatformNotificationsPage implements OnInit {
       category: this.categoryFilter() || undefined,
       page: this.page(),
       size: 20,
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: page => {
         this.notifications.set(page.items ?? []);
         this.totalElements.set(page.totalElements ?? 0);
@@ -156,7 +166,7 @@ export class PlatformNotificationsPage implements OnInit {
         this.loading.set(false);
       },
       error: err => {
-        this.error.set(this.errorMessage(err));
+        this.error.set(this.errorViewModel(err, 'platform.notifications.list'));
         this.loading.set(false);
       },
     });
@@ -219,7 +229,11 @@ export class PlatformNotificationsPage implements OnInit {
     const recipientSelection = this.recipientSelection();
     const specificTargets = value.targetMode === 'SPECIFIC' ? recipientSelection?.targets ?? [] : [];
     if (value.targetMode === 'SPECIFIC' && specificTargets.length === 0) {
-      this.snackBar.open('Sélectionner au moins un destinataire.', 'OK', { duration: 5000 });
+      this.composerError.set({
+        title: 'Destinataire requis',
+        message: 'Sélectionnez au moins un destinataire avant d’envoyer la notification.',
+        severity: 'error',
+      });
       return;
     }
 
@@ -254,10 +268,17 @@ export class PlatformNotificationsPage implements OnInit {
     };
 
     const request = value.targetMode === 'SPECIFIC' && recipientSelection?.tenantId
-      ? this.api.createTenantNotification(recipientSelection.tenantId, payload)
-      : this.api.createNotification(payload);
+      ? this.api.createTenantNotification(
+          recipientSelection.tenantId,
+          payload,
+          { suppressShellFeedback: true },
+        )
+      : this.api.createNotification(payload, { suppressShellFeedback: true });
 
     this.saving.set(true);
+    this.composerError.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     request.subscribe({
       next: () => {
         this.saving.set(false);
@@ -278,44 +299,52 @@ export class PlatformNotificationsPage implements OnInit {
           channels: ['IN_APP'],
           externalDestination: '',
         });
-        this.snackBar.open('Notification créée.', 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Notification créée',
+          message: value.titleFr.trim(),
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.composerError.set(this.errorViewModel(err, 'platform.notifications.create'));
       },
     });
   }
 
   updateRecipients(selection: PlatformRecipientPickerSelection): void {
     this.recipientSelection.set(selection);
+    this.composerError.set(null);
   }
 
   markRead(item: NotificationItemView): void {
     this.saving.set(true);
-    this.api.markNotificationRead(this.idOf(item)).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.markNotificationRead(this.idOf(item), { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
         this.load();
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.notifications.markRead'));
       },
     });
   }
 
   archive(item: NotificationItemView): void {
     this.saving.set(true);
-    this.api.archiveNotification(this.idOf(item)).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.archiveNotification(this.idOf(item), { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
         this.load();
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.notifications.archive'));
       },
     });
   }
@@ -328,7 +357,11 @@ export class PlatformNotificationsPage implements OnInit {
       icon: 'publish',
     }, result => {
       this.runLifecycle(
-        this.api.publishNotification(this.idOf(item), result.reason ?? 'Publication manuelle'),
+        this.api.publishNotification(
+          this.idOf(item),
+          result.reason ?? 'Publication manuelle',
+          { suppressShellFeedback: true },
+        ),
         'Notification publiée.',
       );
     });
@@ -347,7 +380,11 @@ export class PlatformNotificationsPage implements OnInit {
       confirmCheckboxLabel: 'Je confirme que cette republication est nécessaire et sera tracée.',
     }, result => {
       this.runLifecycle(
-        this.api.republishNotification(this.idOf(item), result.reason ?? ''),
+        this.api.republishNotification(
+          this.idOf(item),
+          result.reason ?? '',
+          { suppressShellFeedback: true },
+        ),
         'Notification republiée.',
       );
     });
@@ -361,7 +398,7 @@ export class PlatformNotificationsPage implements OnInit {
       icon: 'group_add',
     }, () => {
       this.runLifecycle(
-        this.api.replayNotificationRecipients(this.idOf(item)),
+        this.api.replayNotificationRecipients(this.idOf(item), { suppressShellFeedback: true }),
         'Destinataires rejoués.',
       );
     });
@@ -381,7 +418,11 @@ export class PlatformNotificationsPage implements OnInit {
       confirmCheckboxLabel: 'Je confirme que cette annulation est nécessaire et sera tracée.',
     }, result => {
       this.runLifecycle(
-        this.api.cancelNotification(this.idOf(item), result.reason ?? ''),
+        this.api.cancelNotification(
+          this.idOf(item),
+          result.reason ?? '',
+          { suppressShellFeedback: true },
+        ),
         'Notification annulée.',
       );
     });
@@ -403,7 +444,7 @@ export class PlatformNotificationsPage implements OnInit {
       confirmCheckboxLabel: 'Je confirme que cette purge est nécessaire et sera tracée.',
     }, () => {
       this.runLifecycle(
-        this.api.purgeExpiredNotifications(dryRun),
+        this.api.purgeExpiredNotifications(dryRun, { suppressShellFeedback: true }),
         dryRun ? 'Purge simulée.' : 'Notifications expirées purgées.',
       );
     });
@@ -474,15 +515,20 @@ export class PlatformNotificationsPage implements OnInit {
 
   private runLifecycle(request: Observable<unknown>, successMessage: string): void {
     this.saving.set(true);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open(successMessage, 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: successMessage.replace(/\.$/, ''),
+          message: 'La liste a été actualisée.',
+        });
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.notifications.lifecycle'));
       },
     });
   }
@@ -499,9 +545,18 @@ export class PlatformNotificationsPage implements OnInit {
       });
   }
 
-  private errorMessage(err: unknown): string {
-    return (err as { error?: { title?: string; detail?: string } })?.error?.title
-      ?? (err as { error?: { detail?: string } })?.error?.detail
-      ?? 'Erreur de chargement.';
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

@@ -1,6 +1,10 @@
 @use '../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .tickets-page {
+  &__status-filter {
+    width: 160px;
+  }
+
   &__table {
     overflow-x: auto;
 

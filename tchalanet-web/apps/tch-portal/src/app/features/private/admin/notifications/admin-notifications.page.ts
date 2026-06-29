@@ -7,10 +7,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { Observable } from 'rxjs';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../core/api/local-error-routing';
 import { AdminCrudShellComponent } from '../../shared/admin-ui/admin-crud-shell.component';
 import { AdminEmptyStateComponent } from '../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../shared/admin-ui/admin-page-shell.component';
@@ -53,6 +57,7 @@ type AdminNotificationChannel = (typeof CHANNEL_OPTIONS)[number];
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -67,7 +72,7 @@ type AdminNotificationChannel = (typeof CHANNEL_OPTIONS)[number];
 export class AdminNotificationsPage implements OnInit {
   private readonly api = inject(AdminNotificationsApi);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly severities = SEVERITIES;
   readonly categories = CATEGORIES;
@@ -76,7 +81,10 @@ export class AdminNotificationsPage implements OnInit {
 
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
+  readonly composerError = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<string | null>(null);
   readonly items = signal<AdminNotificationItem[]>([]);
   readonly total = signal(0);
   readonly unreadCount = signal(0);
@@ -109,14 +117,14 @@ export class AdminNotificationsPage implements OnInit {
 
   load(): void {
     this.loading.set(true);
-    this.error.set(null);
+    this.pageError.set(null);
     this.api
       .list({
         severity: this.severityFilter() || undefined,
         category: this.categoryFilter() || undefined,
         page: this.page(),
         size: 20,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: response => {
           this.items.set(response.items ?? response.content ?? []);
@@ -126,7 +134,7 @@ export class AdminNotificationsPage implements OnInit {
           this.loadUnreadCount();
         },
         error: err => {
-          this.error.set(this.errorMessage(err));
+          this.pageError.set(this.errorViewModel(err, 'admin.notifications.list'));
           this.loading.set(false);
         },
       });
@@ -157,15 +165,24 @@ export class AdminNotificationsPage implements OnInit {
   }
 
   markRead(item: AdminNotificationItem): void {
-    this.runAction(this.api.markRead(this.idOf(item)), 'Notification marquée comme lue.');
+    this.runAction(
+      this.api.markRead(this.idOf(item), { suppressShellFeedback: true }),
+      'Notification marquée comme lue.',
+    );
   }
 
   dismiss(item: AdminNotificationItem): void {
-    this.runAction(this.api.dismiss(this.idOf(item)), 'Notification fermée.');
+    this.runAction(
+      this.api.dismiss(this.idOf(item), { suppressShellFeedback: true }),
+      'Notification fermée.',
+    );
   }
 
   markAllRead(): void {
-    this.runAction(this.api.markAllRead(), 'Notifications marquées comme lues.');
+    this.runAction(
+      this.api.markAllRead({ suppressShellFeedback: true }),
+      'Notifications marquées comme lues.',
+    );
   }
 
   create(): void {
@@ -174,6 +191,9 @@ export class AdminNotificationsPage implements OnInit {
       return;
     }
 
+    this.composerError.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     const value = this.composerForm.getRawValue();
     const severity = value.severity;
     const externalDestination = value.externalDestination.trim();
@@ -201,7 +221,7 @@ export class AdminNotificationsPage implements OnInit {
             }
           : null,
         channels: value.channels,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: () => {
           this.saving.set(false);
@@ -220,12 +240,12 @@ export class AdminNotificationsPage implements OnInit {
             channels: ['IN_APP'],
             externalDestination: '',
           });
-          this.snackBar.open('Notification créée.', 'OK', { duration: 2500 });
+          this.actionNotice.set('Notification créée.');
           this.load();
         },
         error: err => {
           this.saving.set(false);
-          this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+          this.composerError.set(this.errorViewModel(err, 'admin.notifications.create'));
         },
       });
   }
@@ -255,29 +275,41 @@ export class AdminNotificationsPage implements OnInit {
   }
 
   private loadUnreadCount(): void {
-    this.api.unreadCount().subscribe({
+    this.api.unreadCount({ suppressShellFeedback: true }).subscribe({
       next: value => this.unreadCount.set(value.unreadCount ?? 0),
       error: () => this.unreadCount.set(0),
     });
   }
 
-  private runAction(action: ReturnType<AdminNotificationsApi['markRead']>, successMessage: string): void {
+  private runAction(action: Observable<boolean>, successMessage: string): void {
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     this.saving.set(true);
     action.subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open(successMessage, 'OK', { duration: 2500 });
+        this.actionNotice.set(successMessage);
         this.load();
       },
       error: err => {
         this.saving.set(false);
-        this.snackBar.open(this.errorMessage(err), 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'admin.notifications.action'));
       },
     });
   }
 
-  private errorMessage(err: unknown): string {
-    const problem = (err as { error?: { title?: string; detail?: string; message?: string } })?.error;
-    return problem?.detail ?? problem?.title ?? problem?.message ?? 'Erreur de chargement.';
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

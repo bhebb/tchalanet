@@ -9,15 +9,7 @@ import { AdminPageShellComponent } from '../../shared/admin-ui/admin-page-shell.
   selector: 'tch-platform-placeholder-page',
   imports: [TranslatePipe, AdminPageShellComponent, AdminEmptyStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <tch-admin-page-shell [title]="titleKey() | translate" [description]="descriptionKey() | translate">
-      <tch-admin-empty-state
-        [icon]="icon()"
-        [title]="'platform.placeholder.title' | translate"
-        [message]="'platform.placeholder.message' | translate"
-      />
-    </tch-admin-page-shell>
-  `,
+  templateUrl: './platform-placeholder.page.html',
 })
 export class PlatformPlaceholderPage {
   private readonly route = inject(ActivatedRoute);

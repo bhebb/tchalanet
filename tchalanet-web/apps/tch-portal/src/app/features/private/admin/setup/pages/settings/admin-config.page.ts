@@ -17,10 +17,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel, TchNotice } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchFieldError, TchNotice } from '@tch/ui/components';
+import {
+  applyServerFieldErrors,
+  clearServerFieldErrors,
+  ErrorViewModel,
+  toErrorViewModel,
+  withResolvedErrorCopies,
+} from '../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
 import {
@@ -49,6 +58,7 @@ const PAPER_SIZES = ['THERMAL_58', 'THERMAL_80', 'A4'] as const;
     AdminSectionCardComponent,
     TchLoading,
     TchErrorPanel,
+    TchFieldError,
     TchNotice,
     MatButtonModule,
     MatCheckboxModule,
@@ -64,12 +74,16 @@ const PAPER_SIZES = ['THERMAL_58', 'THERMAL_80', 'A4'] as const;
 export class AdminConfigPage implements OnInit {
   private readonly api = inject(TenantConfigApiService);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
   readonly saveState = signal<SaveState>('idle');
   readonly receiptSaveState = signal<SaveState>('idle');
+  readonly localeFormError = signal<string | null>(null);
+  readonly receiptFormError = signal<string | null>(null);
+  readonly localeNotice = signal<string | null>(null);
+  readonly receiptNotice = signal<string | null>(null);
 
   readonly languages = SUPPORTED_LANGUAGES;
   readonly paperSizes = PAPER_SIZES;
@@ -101,8 +115,10 @@ export class AdminConfigPage implements OnInit {
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
+    this.localeNotice.set(null);
+    this.receiptNotice.set(null);
 
-    this.api.getTenantConfig().subscribe({
+    this.api.getTenantConfig({ suppressShellFeedback: true }).subscribe({
       next: cfg => {
         this.config = cfg;
         this.patchLocale(cfg);
@@ -110,14 +126,16 @@ export class AdminConfigPage implements OnInit {
         this.pageState.set('ready');
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.pageError.set(pd?.title ?? 'Erreur de chargement.');
+        this.pageError.set(this.errorViewModel(err, 'admin.setup.config', 'page'));
         this.pageState.set('error');
       },
     });
   }
 
   saveLocale(): void {
+    clearServerFieldErrors(this.localeForm);
+    this.localeFormError.set(null);
+    this.localeNotice.set(null);
     if (this.localeForm.invalid) {
       this.localeForm.markAllAsTouched();
       return;
@@ -132,21 +150,23 @@ export class AdminConfigPage implements OnInit {
         fallbackLanguage: v.fallbackLanguage || null,
       },
     };
-    this.api.updateInternalSettings(updated).subscribe({
+    this.api.updateInternalSettings(updated, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.config = updated;
         this.saveState.set('idle');
-        this.snackBar.open('Paramètres de langue enregistrés.', 'OK', { duration: 3000 });
+        this.localeNotice.set('Paramètres de langue enregistrés.');
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.snackBar.open(pd?.title ?? 'Erreur lors de la sauvegarde.', 'OK', { duration: 5000 });
+        this.handleLocaleSubmitError(err);
         this.saveState.set('idle');
       },
     });
   }
 
   saveReceipt(): void {
+    clearServerFieldErrors(this.receiptForm);
+    this.receiptFormError.set(null);
+    this.receiptNotice.set(null);
     this.receiptSaveState.set('saving');
     const v = this.receiptForm.getRawValue();
     const updated: TenantInternalConfig = {
@@ -165,15 +185,14 @@ export class AdminConfigPage implements OnInit {
         },
       },
     };
-    this.api.updateInternalSettings(updated).subscribe({
+    this.api.updateInternalSettings(updated, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.config = updated;
         this.receiptSaveState.set('idle');
-        this.snackBar.open('Configuration du reçu enregistrée.', 'OK', { duration: 3000 });
+        this.receiptNotice.set('Configuration du reçu enregistrée.');
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.snackBar.open(pd?.title ?? 'Erreur lors de la sauvegarde.', 'OK', { duration: 5000 });
+        this.handleReceiptSubmitError(err);
         this.receiptSaveState.set('idle');
       },
     });
@@ -203,5 +222,95 @@ export class AdminConfigPage implements OnInit {
       showOutletName: r.showOutletName ?? false,
       showPotentialPayout: r.showPotentialPayout ?? false,
     });
+  }
+
+  private handleLocaleSubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.setup.locale'),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.localeForm, fieldErrors, {
+        'locale.defaultLanguage': 'defaultLanguage',
+        'admin.setup.locale.defaultLanguage': 'defaultLanguage',
+        'tenant.locale.defaultLanguage': 'defaultLanguage',
+        'locale.defaultLocale': 'defaultLocale',
+        'admin.setup.locale.defaultLocale': 'defaultLocale',
+        'tenant.locale.defaultLocale': 'defaultLocale',
+        'locale.fallbackLanguage': 'fallbackLanguage',
+        'admin.setup.locale.fallbackLanguage': 'fallbackLanguage',
+        'tenant.locale.fallbackLanguage': 'fallbackLanguage',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.localeFormError.set(null);
+        return;
+      }
+    }
+
+    this.localeFormError.set(this.formErrorMessage(problem, 'admin.setup.locale'));
+  }
+
+  private handleReceiptSubmitError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.setup.receipt'),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.receiptForm, fieldErrors, {
+        'document.receipt.displayName': 'displayName',
+        'admin.setup.receipt.displayName': 'displayName',
+        'receipt.displayName': 'displayName',
+        'document.receipt.headerMessage': 'headerMessage',
+        'admin.setup.receipt.headerMessage': 'headerMessage',
+        'receipt.headerMessage': 'headerMessage',
+        'document.receipt.footerMessage': 'footerMessage',
+        'admin.setup.receipt.footerMessage': 'footerMessage',
+        'receipt.footerMessage': 'footerMessage',
+        'document.receipt.defaultPaperSize': 'defaultPaperSize',
+        'admin.setup.receipt.defaultPaperSize': 'defaultPaperSize',
+        'receipt.defaultPaperSize': 'defaultPaperSize',
+      });
+
+      if (fieldErrors.length && !remaining.length) {
+        this.receiptFormError.set(null);
+        return;
+      }
+    }
+
+    this.receiptFormError.set(this.formErrorMessage(problem, 'admin.setup.receipt'));
+  }
+
+  private formErrorMessage(problem: ProblemDetail | undefined, source: string): string {
+    if (!problem) return this.errorFallback().message;
+
+    const normalized = webAppErrorFromProblemDetail(problem, source, 'section');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy).message;
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return this.errorFallback();
+  }
+
+  private errorFallback(): ErrorViewModel {
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

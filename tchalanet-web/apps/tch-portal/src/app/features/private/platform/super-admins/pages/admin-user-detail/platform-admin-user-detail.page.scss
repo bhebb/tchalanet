@@ -1,1 +1,6 @@
-// styles migrated to platform-admin-user-card.component.scss
+.platform-admin-user-detail {
+  &__notice {
+    display: block;
+    margin-bottom: 1rem;
+  }
+}

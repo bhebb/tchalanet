@@ -38,8 +38,14 @@
       <ng-container list-content>
         @if (loading()) {
           <tch-loading label="Chargement des messages..." />
-        } @else if (error()) {
-          <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+        } @else if (error(); as errorVm) {
+          <tch-error-panel
+            [title]="errorVm.title"
+            [message]="errorVm.message"
+            [showRetry]="true"
+            retryLabel="Réessayer"
+            (retry)="load()"
+          />
         } @else if (requests().length === 0) {
           <tch-admin-empty-state
             icon="contact_mail"
@@ -47,6 +53,24 @@
             message="Aucune demande ne correspond aux filtres sélectionnés."
           />
         } @else {
+          @if (actionError(); as actionErrorVm) {
+            <tch-section-error
+              class="support-layout__feedback"
+              [title]="actionErrorVm.title"
+              [message]="actionErrorVm.message"
+              [severity]="actionErrorVm.severity"
+            />
+          }
+
+          @if (actionNotice(); as notice) {
+            <tch-section-error
+              class="support-layout__feedback"
+              [title]="notice.title"
+              [message]="notice.message"
+              severity="info"
+            />
+          }
+
           <table mat-table [dataSource]="requests()" class="support-table">
             <ng-container matColumnDef="createdAt">
               <th mat-header-cell *matHeaderCellDef>Date</th>
@@ -128,6 +152,12 @@
 
         @if (detailLoading()) {
           <tch-loading label="Chargement du détail..." />
+        } @else if (detailError(); as detailErrorVm) {
+          <tch-section-error
+            [title]="detailErrorVm.title"
+            [message]="detailErrorVm.message"
+            [severity]="detailErrorVm.severity"
+          />
         } @else {
           <div class="detail-section">
             <span class="detail-label">Statut</span>

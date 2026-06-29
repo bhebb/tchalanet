@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type DrawResultStatus = 'PENDING' | 'APPLIED' | 'CORRECTED' | 'VOIDED';
@@ -43,7 +43,7 @@ export interface ListDrawResultsParams {
 export class AdminDrawResultsApi {
   private readonly backend = inject(TchBackendClient);
 
-  list(params: ListDrawResultsParams = {}): Observable<TchPage<DrawResultView>> {
+  list(params: ListDrawResultsParams = {}, options?: TchRequestOptions): Observable<TchPage<DrawResultView>> {
     const p = new URLSearchParams();
     if (params.slotKey) p.set('slotKey', params.slotKey);
     if (params.status) p.set('status', params.status);
@@ -53,10 +53,13 @@ export class AdminDrawResultsApi {
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
     const qs = p.toString();
-    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results${qs ? `?${qs}` : ''}`);
+    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results${qs ? `?${qs}` : ''}`, options);
   }
 
-  listToday(params: { slotKey?: string; status?: DrawResultStatus; quality?: DrawResultQuality; page?: number; size?: number } = {}): Observable<TchPage<DrawResultView>> {
+  listToday(
+    params: { slotKey?: string; status?: DrawResultStatus; quality?: DrawResultQuality; page?: number; size?: number } = {},
+    options?: TchRequestOptions,
+  ): Observable<TchPage<DrawResultView>> {
     const p = new URLSearchParams();
     if (params.slotKey) p.set('slotKey', params.slotKey);
     if (params.status) p.set('status', params.status);
@@ -64,16 +67,20 @@ export class AdminDrawResultsApi {
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
     const qs = p.toString();
-    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results/today${qs ? `?${qs}` : ''}`);
+    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results/today${qs ? `?${qs}` : ''}`, options);
   }
 
-  listLastDays(days: number, params: { slotKey?: string; status?: DrawResultStatus; quality?: DrawResultQuality; page?: number; size?: number } = {}): Observable<TchPage<DrawResultView>> {
+  listLastDays(
+    days: number,
+    params: { slotKey?: string; status?: DrawResultStatus; quality?: DrawResultQuality; page?: number; size?: number } = {},
+    options?: TchRequestOptions,
+  ): Observable<TchPage<DrawResultView>> {
     const p = new URLSearchParams({ days: String(days) });
     if (params.slotKey) p.set('slotKey', params.slotKey);
     if (params.status) p.set('status', params.status);
     if (params.quality) p.set('quality', params.quality);
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
-    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results/last-days?${p}`);
+    return this.backend.get<TchPage<DrawResultView>>(`/admin/draw-results/last-days?${p}`, options);
   }
 }

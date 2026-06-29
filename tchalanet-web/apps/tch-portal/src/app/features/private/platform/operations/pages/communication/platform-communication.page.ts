@@ -6,12 +6,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, forkJoin, map } from 'rxjs';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import {
   AdminListStatusOption,
   AdminListSurface,
@@ -19,7 +20,10 @@ import {
   TchLoading,
   TchSearchOption,
   TchSearchSelect,
+  TchSectionError,
 } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -57,6 +61,7 @@ import {
     TchErrorPanel,
     TchLoading,
     TchSearchSelect,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -73,7 +78,7 @@ export class PlatformCommunicationPage implements OnInit {
   private readonly api = inject(PlatformCommunicationApi);
   private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly statuses: DeliveryStatus[] = ['PENDING', 'DISPATCHING', 'SENT', 'FAILED', 'SKIPPED', 'CANCELLED'];
   readonly channels: CommunicationChannel[] = [
@@ -114,7 +119,8 @@ export class PlatformCommunicationPage implements OnInit {
   readonly dispatching = signal(false);
   readonly testing = signal<string | null>(null);
   readonly recipientSelection = signal<PlatformRecipientPickerSelection | null>(null);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionFeedback = signal<ErrorViewModel | null>(null);
   readonly summary = signal<CommunicationQueueSummary | null>(null);
   readonly messages = signal<CommunicationMessageView[]>([]);
   readonly expandedId = signal<string | null>(null);
@@ -123,7 +129,7 @@ export class PlatformCommunicationPage implements OnInit {
   readonly totalPages = signal(1);
 
   readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
-    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }).pipe(
+    this.tenantsApi.listTenants({ q: query, page: 0, size: 12, status: null }, { suppressShellFeedback: true }).pipe(
       map(page => page.items.map(tenant => this.toTenantOption(tenant))),
     );
 
@@ -143,7 +149,7 @@ export class PlatformCommunicationPage implements OnInit {
         recipient: v.recipient,
         page: this.page(),
         size: 20,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: view => {
           this.summary.set(view.summary);
@@ -153,7 +159,7 @@ export class PlatformCommunicationPage implements OnInit {
           this.loading.set(false);
         },
         error: (err: unknown) => {
-          this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+          this.error.set(this.errorViewModel(err, 'platform.communication.list'));
           this.loading.set(false);
         },
       });
@@ -206,19 +212,20 @@ export class PlatformCommunicationPage implements OnInit {
 
   dispatchDue(): void {
     this.dispatching.set(true);
-    this.api.dispatchDue().subscribe({
+    this.actionFeedback.set(null);
+    this.api.dispatchDue({ suppressShellFeedback: true }).subscribe({
       next: result => {
         this.dispatching.set(false);
-        this.snackBar.open(`${result.dispatched} message(s) dispatché(s).`, 'OK', { duration: 5000 });
+        this.actionFeedback.set({
+          title: 'Dispatch terminé',
+          message: `${result.dispatched} message(s) dispatché(s).`,
+          severity: 'info',
+        });
         this.load();
       },
       error: (err: unknown) => {
         this.dispatching.set(false);
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? 'Dispatch impossible.',
-          'OK',
-          { duration: 5000 },
-        );
+        this.actionFeedback.set(this.errorViewModel(err, 'platform.communication.dispatch'));
       },
     });
   }
@@ -229,7 +236,7 @@ export class PlatformCommunicationPage implements OnInit {
       channelKey: v.slackChannelKey,
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendEmailTest(): void {
@@ -240,14 +247,14 @@ export class PlatformCommunicationPage implements OnInit {
         to,
         subject: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('EMAIL', () => this.api.testEmail({
       to: v.emailTo || '',
       subject: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendSmsTest(): void {
@@ -258,14 +265,14 @@ export class PlatformCommunicationPage implements OnInit {
         to,
         title: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('SMS', () => this.api.testSms({
       to: v.phoneTo || '',
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendWhatsappTest(): void {
@@ -276,14 +283,14 @@ export class PlatformCommunicationPage implements OnInit {
         to,
         title: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('WHATSAPP', () => this.api.testWhatsapp({
       to: v.whatsappTo || '',
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   updateRecipients(selection: PlatformRecipientPickerSelection): void {
@@ -323,20 +330,21 @@ export class PlatformCommunicationPage implements OnInit {
     request: () => ReturnType<PlatformCommunicationApi['testSlack']>,
   ): void {
     this.testing.set(channel);
+    this.actionFeedback.set(null);
     request().subscribe({
       next: result => {
         this.testing.set(null);
         const status = result.sent ? 'envoyé' : `non envoyé (${result.reason || 'dégradé'})`;
-        this.snackBar.open(`${result.channel}: ${status}`, 'OK', { duration: 7000 });
+        this.actionFeedback.set({
+          title: `${result.channel}: test terminé`,
+          message: `${result.channel}: ${status}.`,
+          severity: result.sent ? 'info' : 'warn',
+        });
         this.load();
       },
       error: (err: unknown) => {
         this.testing.set(null);
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? `${channel}: erreur d'envoi.`,
-          'OK',
-          { duration: 7000 },
-        );
+        this.actionFeedback.set(this.errorViewModel(err, `platform.communication.test.${channel}`));
       },
     });
   }
@@ -347,20 +355,21 @@ export class PlatformCommunicationPage implements OnInit {
     request: (recipient: string) => ReturnType<PlatformCommunicationApi['testSlack']>,
   ): void {
     this.testing.set(channel);
+    this.actionFeedback.set(null);
     forkJoin(recipients.map(recipient => request(recipient))).subscribe({
       next: results => {
         this.testing.set(null);
         const sent = results.filter(result => result.sent).length;
-        this.snackBar.open(`${channel}: ${sent}/${results.length} message(s) envoyés.`, 'OK', { duration: 7000 });
+        this.actionFeedback.set({
+          title: `${channel}: test terminé`,
+          message: `${sent}/${results.length} message(s) envoyés.`,
+          severity: sent === results.length ? 'info' : 'warn',
+        });
         this.load();
       },
       error: (err: unknown) => {
         this.testing.set(null);
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? `${channel}: erreur d'envoi.`,
-          'OK',
-          { duration: 7000 },
-        );
+        this.actionFeedback.set(this.errorViewModel(err, `platform.communication.test.${channel}`));
       },
     });
   }
@@ -387,6 +396,21 @@ export class PlatformCommunicationPage implements OnInit {
       badge: tenant.status,
       icon: 'apartment',
       data: tenant,
+    };
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
     };
   }
 }

@@ -3,8 +3,14 @@
     <mat-tab label="Jeux activés">
       @if (loadingGames()) {
         <tch-loading label="Chargement..." />
-      } @else if (errorGames()) {
-        <tch-error-panel [title]="errorGames()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadGames()" />
+      } @else if (errorGames(); as gamesError) {
+        <tch-error-panel
+          [title]="gamesError.title"
+          [message]="gamesError.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="loadGames()"
+        />
       } @else if (games().length === 0) {
         <tch-admin-empty-state icon="casino" title="Aucun jeu activé" message="Activez des jeux depuis le catalogue." />
       } @else {
@@ -44,8 +50,14 @@
     <mat-tab label="Catalogue">
       @if (loadingCatalog()) {
         <tch-loading label="Chargement..." />
-      } @else if (errorCatalog()) {
-        <tch-error-panel [title]="errorCatalog()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadCatalog()" />
+      } @else if (errorCatalog(); as catalogError) {
+        <tch-error-panel
+          [title]="catalogError.title"
+          [message]="catalogError.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="loadCatalog()"
+        />
       } @else if (catalog().length === 0) {
         <tch-admin-empty-state icon="inventory" title="Catalogue vide" message="Aucun jeu disponible dans le catalogue." />
       } @else {

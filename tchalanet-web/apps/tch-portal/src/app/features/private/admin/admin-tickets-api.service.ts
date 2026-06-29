@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type TicketStatus = 'PLACED' | 'PAID' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
@@ -80,20 +80,29 @@ export interface TchPage<T> {
 export class AdminTicketsApi {
   private readonly backend = inject(TchBackendClient);
 
-  list(params: AdminTicketListParams = {}): Observable<TchPage<TicketRowView>> {
+  list(
+    params: AdminTicketListParams = {},
+    options?: TchRequestOptions,
+  ): Observable<TchPage<TicketRowView>> {
     const p = new URLSearchParams();
     p.set('page', String(params.page ?? 0));
     p.set('size', String(params.size ?? 20));
     p.set('sort', 'placedAt,desc');
     if (params.status) p.set('status', params.status);
-    return this.backend.get<TchPage<TicketRowView>>(`/tenant/cashier/tickets?${p.toString()}`);
+    return this.backend.get<TchPage<TicketRowView>>(`/tenant/cashier/tickets?${p.toString()}`, options);
   }
 
-  preview(req: AdminTicketPreviewRequest): Observable<AdminTicketPreviewView> {
-    return this.backend.post<AdminTicketPreviewView>('/tenant/cashier/tickets/preview', req);
+  preview(
+    req: AdminTicketPreviewRequest,
+    options?: TchRequestOptions,
+  ): Observable<AdminTicketPreviewView> {
+    return this.backend.post<AdminTicketPreviewView>('/tenant/cashier/tickets/preview', req, options);
   }
 
-  sell(req: AdminSellTicketRequest): Observable<AdminSoldTicketView> {
-    return this.backend.post<AdminSoldTicketView>('/tenant/cashier/tickets/sell', req);
+  sell(
+    req: AdminSellTicketRequest,
+    options?: TchRequestOptions,
+  ): Observable<AdminSoldTicketView> {
+    return this.backend.post<AdminSoldTicketView>('/tenant/cashier/tickets/sell', req, options);
   }
 }

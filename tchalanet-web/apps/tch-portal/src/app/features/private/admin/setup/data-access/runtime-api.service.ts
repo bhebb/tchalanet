@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface TenantRuntimeView {
@@ -17,11 +17,11 @@ export interface TenantRuntimeView {
 export class RuntimeApiService {
   private readonly backend = inject(TchBackendClient);
 
-  getTenantRuntime(): Observable<TenantRuntimeView> {
-    return this.backend.get<TenantRuntimeView>('/tenant/runtime');
+  getTenantRuntime(options?: TchRequestOptions): Observable<TenantRuntimeView> {
+    return this.backend.get<TenantRuntimeView>('/tenant/runtime', options);
   }
 
-  getPublicTenantRuntime(): Observable<TenantRuntimeView> {
-    return this.backend.get<TenantRuntimeView>('/public/tenant/runtime');
+  getPublicTenantRuntime(options?: TchRequestOptions): Observable<TenantRuntimeView> {
+    return this.backend.get<TenantRuntimeView>('/public/tenant/runtime', options);
   }
 }

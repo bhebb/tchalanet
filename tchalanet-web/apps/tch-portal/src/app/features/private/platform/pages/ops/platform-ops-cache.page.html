@@ -12,11 +12,35 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
   } @else if (caches().length === 0) {
     <tch-admin-empty-state icon="storage" title="Aucun cache" message="Aucun cache trouvé." />
   } @else {
+    @if (actionError(); as actionErrorVm) {
+      <tch-section-error
+        class="cache-page__feedback"
+        [title]="actionErrorVm.title"
+        [message]="actionErrorVm.message"
+        [severity]="actionErrorVm.severity"
+      />
+    }
+
+    @if (actionNotice(); as notice) {
+      <tch-section-error
+        class="cache-page__feedback"
+        [title]="notice.title"
+        [message]="notice.message"
+        severity="info"
+      />
+    }
+
     <div class="cache-page__table">
       <table mat-table [dataSource]="groupedCaches()">
         <ng-container matColumnDef="cacheName">

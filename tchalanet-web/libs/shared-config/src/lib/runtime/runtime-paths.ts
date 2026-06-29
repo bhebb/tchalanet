@@ -17,6 +17,7 @@ export const PORTAL_I18N_CONFIG = {
     assetsSuffix: '.json',
     bundles: [
         'common',
+        'errors',
         'domain',
         'component',
         'surface-public',

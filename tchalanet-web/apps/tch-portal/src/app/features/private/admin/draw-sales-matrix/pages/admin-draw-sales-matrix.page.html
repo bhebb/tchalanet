@@ -8,9 +8,15 @@
 
   @if (loading()) {
     <tch-loading label="Chargement de la matrice..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-  } @else if (matrix()) {
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (matrix(); as matrixVm) {
 
     <!-- Summary KPIs -->
     @if (summary(); as s) {
@@ -47,7 +53,7 @@
     }
 
     <!-- Providers -->
-    @for (provider of matrix()!.providers; track provider.providerCode) {
+    @for (provider of matrixVm.providers; track provider.providerCode) {
       <section class="dsm-provider">
         <h3 class="dsm-provider__title">
           <span class="material-symbols-outlined">business</span>
@@ -115,13 +121,35 @@
                           <ul class="dsm-game__warnings">
                             @for (w of game.warnings; track w.code) {
                               <li>
-                                <span class="material-symbols-outlined" [style.color]="severityColor(w)" style="font-size:14px">{{ severityIcon(w) }}</span>
+                                <span
+                                  class="material-symbols-outlined dsm-game__warning-icon"
+                                  [class.dsm-game__warning-icon--error]="w.severity === 'ERROR'"
+                                  [class.dsm-game__warning-icon--warn]="w.severity === 'WARN'"
+                                  [class.dsm-game__warning-icon--info]="w.severity === 'INFO'"
+                                >
+                                  {{ severityIcon(w) }}
+                                </span>
                                 <code>{{ w.code }}</code>
                               </li>
                             }
                           </ul>
                         }
                         @if (slot.channel) {
+                          @if (actionError(slot.channel.drawChannelId.value, game.tenantGameId.value); as err) {
+                            <tch-section-error
+                              class="dsm-game__error"
+                              [title]="err.title"
+                              [message]="err.message"
+                              [severity]="err.severity"
+                            />
+                          } @else if (actionNotice(slot.channel.drawChannelId.value, game.tenantGameId.value); as notice) {
+                            <tch-section-error
+                              class="dsm-game__error"
+                              title="Action effectuée"
+                              [message]="notice"
+                              severity="info"
+                            />
+                          }
                           <div class="dsm-game__actions">
                             <button
                               mat-stroked-button
@@ -160,6 +188,21 @@
                             <strong>{{ game.gameCode }}</strong>
                             @if (game.displayName) { <span class="dsm-game__name">{{ game.displayName }}</span> }
                           </div>
+                          @if (actionError(slot.channel.drawChannelId.value, game.tenantGameId.value); as err) {
+                            <tch-section-error
+                              class="dsm-game__error"
+                              [title]="err.title"
+                              [message]="err.message"
+                              [severity]="err.severity"
+                            />
+                          } @else if (actionNotice(slot.channel.drawChannelId.value, game.tenantGameId.value); as notice) {
+                            <tch-section-error
+                              class="dsm-game__error"
+                              title="Action effectuée"
+                              [message]="notice"
+                              severity="info"
+                            />
+                          }
                           <div class="dsm-game__actions">
                             <button
                               mat-flat-button
@@ -186,36 +229,3 @@
     }
   }
 </tch-admin-page-shell>
-
-<style>
-.dsm-kpis { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
-.dsm-kpi { display: flex; flex-direction: column; align-items: center; background: var(--tch-surface, #fff); border: 1px solid var(--tch-border, #e0e0e0); border-radius: 8px; padding: 12px 20px; min-width: 100px; }
-.dsm-kpi--warn { border-color: var(--tch-warn, #ed6c02); }
-.dsm-kpi__value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-.dsm-kpi__label { font-size: 0.75rem; color: var(--tch-text-secondary, #666); margin-top: 4px; }
-.dsm-provider { margin-bottom: 32px; }
-.dsm-provider__title { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
-.dsm-slot-header { display: flex; align-items: center; gap: 12px; }
-.dsm-slot-header__key { font-size: 0.95rem; }
-.dsm-slot-header__time { color: var(--tch-text-secondary, #666); font-size: 0.85rem; }
-.dsm-channel-info { display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; color: var(--tch-text-secondary, #555); font-size: 0.875rem; }
-.dsm-section-label { margin: 12px 0 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tch-text-secondary, #666); font-weight: 600; }
-.dsm-section-label--secondary { color: var(--tch-text-secondary, #999); }
-.dsm-games { display: flex; flex-wrap: wrap; gap: 12px; padding: 4px 0 8px; }
-.dsm-games--available { opacity: 0.8; }
-.dsm-game { border: 1px solid var(--tch-border, #e0e0e0); border-radius: 8px; padding: 10px 14px; min-width: 200px; background: var(--tch-surface, #fafafa); }
-.dsm-game--ready { border-color: var(--tch-success, #2e7d32); }
-.dsm-game--disabled { opacity: 0.65; }
-.dsm-game--available { border-style: dashed; background: transparent; }
-.dsm-game__header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
-.dsm-game__name { font-size: 0.82rem; color: var(--tch-text-secondary, #666); }
-.dsm-game__meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.8rem; color: var(--tch-text-secondary, #666); margin-bottom: 4px; }
-.dsm-game__warnings { margin: 6px 0 0; padding-left: 16px; list-style: none; }
-.dsm-game__warnings li { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; }
-.dsm-game__actions { display: flex; align-items: center; gap: 4px; margin-top: 10px; }
-.dsm-game__btn { font-size: 0.8rem; height: 32px; line-height: 32px; padding: 0 12px; }
-.dsm-game__btn-remove { color: var(--tch-text-secondary, #999); }
-.dsm-badge { font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; background: var(--tch-surface-variant, #f0f0f0); }
-.dsm-badge--warn { background: #fff3e0; color: #e65100; }
-.dsm-badge--neutral { background: var(--tch-surface-variant, #f0f0f0); }
-</style>

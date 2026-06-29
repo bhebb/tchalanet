@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type TargetType =
@@ -66,21 +67,28 @@ export interface UpsertLimitAssignmentRequest {
 export class AdminLimitsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listRules(): Observable<LimitRuleSpec[]> {
-    return this.backend.get<LimitRuleSpec[]>('/admin/policies/limits/rules');
+  listRules(options?: TchRequestOptions): Observable<LimitRuleSpec[]> {
+    return this.backend.get<LimitRuleSpec[]>('/admin/policies/limits/rules', options);
   }
 
-  listAssignments(target: TargetType, targetId?: string): Observable<ListLimitAssignmentsView> {
+  listAssignments(
+    target: TargetType,
+    targetId?: string,
+    options?: TchRequestOptions,
+  ): Observable<ListLimitAssignmentsView> {
     const qs = new URLSearchParams({ target });
     if (targetId) qs.set('targetId', targetId);
-    return this.backend.get<ListLimitAssignmentsView>(`/admin/policies/limits/assignments?${qs}`);
+    return this.backend.get<ListLimitAssignmentsView>(`/admin/policies/limits/assignments?${qs}`, options);
   }
 
-  upsertAssignment(req: UpsertLimitAssignmentRequest): Observable<{ id: { value: string } }> {
-    return this.backend.put<{ id: { value: string } }>('/admin/policies/limits/assignments', req);
+  upsertAssignment(
+    req: UpsertLimitAssignmentRequest,
+    options?: TchRequestOptions,
+  ): Observable<{ id: { value: string } }> {
+    return this.backend.put<{ id: { value: string } }>('/admin/policies/limits/assignments', req, options);
   }
 
-  deleteAssignment(id: string): Observable<unknown> {
-    return this.backend.delete<unknown>(`/admin/policies/limits/assignments/${id}`);
+  deleteAssignment(id: string, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.delete<unknown>(`/admin/policies/limits/assignments/${id}`, options);
   }
 }

@@ -23,12 +23,15 @@
   @if (pageState() === 'loading') {
     <tch-loading label="Chargement des tirages…" />
   } @else if (pageState() === 'error') {
-    <tch-error-panel
-      [title]="pageError()!"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+    @if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
   } @else {
 
     <!-- KPI summary -->
@@ -67,6 +70,22 @@
 
       <!-- Table or empty state -->
       <div content>
+        @if (actionError(); as errorVm) {
+          <tch-section-error
+            class="gd-page__action-feedback"
+            [title]="errorVm.title"
+            [message]="errorVm.message"
+            [severity]="errorVm.severity"
+          />
+        } @else if (actionNotice(); as notice) {
+          <tch-section-error
+            class="gd-page__action-feedback"
+            title="Action effectuée"
+            [message]="notice"
+            severity="info"
+          />
+        }
+
         @if (groupedDraws().length === 0) {
           <tch-admin-empty-state
             icon="confirmation_number"

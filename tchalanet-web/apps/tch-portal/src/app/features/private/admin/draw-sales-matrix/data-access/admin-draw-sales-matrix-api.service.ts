@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface MatrixSummary {
@@ -90,27 +91,35 @@ export interface TenantDrawSalesMatrixView {
 export class AdminDrawSalesMatrixApi {
   private readonly backend = inject(TchBackendClient);
 
-  getMatrix(): Observable<TenantDrawSalesMatrixView> {
-    return this.backend.get<TenantDrawSalesMatrixView>('/admin/setup/draw-sales-matrix');
+  getMatrix(options?: TchRequestOptions): Observable<TenantDrawSalesMatrixView> {
+    return this.backend.get<TenantDrawSalesMatrixView>('/admin/setup/draw-sales-matrix', options);
   }
 
-  offerGame(drawChannelId: string, tenantGameId: string): Observable<unknown> {
+  offerGame(drawChannelId: string, tenantGameId: string, options?: TchRequestOptions): Observable<unknown> {
     return this.backend.put<unknown>(
       `/admin/draw-channels/${drawChannelId}/tenant-games/${tenantGameId}`,
       { enabled: true },
+      options,
     );
   }
 
-  toggleGame(drawChannelId: string, tenantGameId: string, enabled: boolean): Observable<unknown> {
+  toggleGame(
+    drawChannelId: string,
+    tenantGameId: string,
+    enabled: boolean,
+    options?: TchRequestOptions,
+  ): Observable<unknown> {
     return this.backend.patch<unknown>(
       `/admin/draw-channels/${drawChannelId}/tenant-games/${tenantGameId}`,
       { enabled },
+      options,
     );
   }
 
-  removeGame(drawChannelId: string, tenantGameId: string): Observable<unknown> {
+  removeGame(drawChannelId: string, tenantGameId: string, options?: TchRequestOptions): Observable<unknown> {
     return this.backend.delete<unknown>(
       `/admin/draw-channels/${drawChannelId}/tenant-games/${tenantGameId}`,
+      options,
     );
   }
 }

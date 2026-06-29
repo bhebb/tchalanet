@@ -6,10 +6,12 @@ import { ShellFeedbackItem } from './shell-feedback.model';
 function makeItem(overrides: Partial<ShellFeedbackItem> = {}): ShellFeedbackItem {
   return {
     id: 'test-1',
+    dedupeKey: 'test-key',
     severity: 'error',
     title: 'Erreur',
     message: 'Détail',
     dismissible: true,
+    repeatCount: 1,
     ...overrides,
   };
 }
@@ -45,6 +47,7 @@ describe('ShellFeedbackBannerComponent', () => {
       expect(makeComponent('standard', makeItem({ requestId: 'x' }))['hasDiagnostic']()).toBe(true);
       expect(makeComponent('standard', makeItem({ traceId: 'x' }))['hasDiagnostic']()).toBe(true);
       expect(makeComponent('standard', makeItem({ spanId: 'x' }))['hasDiagnostic']()).toBe(true);
+      expect(makeComponent('standard', makeItem({ errorId: 'x' }))['hasDiagnostic']()).toBe(true);
     });
 
     it('hasDiagnostic returns false when no trace fields', () => {

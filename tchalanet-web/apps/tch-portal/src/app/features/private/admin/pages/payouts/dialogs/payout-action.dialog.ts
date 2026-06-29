@@ -16,30 +16,8 @@ const ACTION_LABELS: Record<string, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
-  template: `
-    <h2 mat-dialog-title>{{ title }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="payout-action-dialog__form">
-        <mat-form-field appearance="outline" class="payout-action-dialog__field">
-          <mat-label>Raison</mat-label>
-          <textarea matInput formControlName="reason" rows="3" placeholder="Motif de l'action..."></textarea>
-          @if (form.controls.reason.invalid && form.controls.reason.touched) {
-            <mat-error>La raison est requise.</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="warn" [disabled]="form.invalid" (click)="submit()">
-        Confirmer
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .payout-action-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; }
-    .payout-action-dialog__field { width: 100%; min-width: 360px; }
-  `],
+  templateUrl: './payout-action.dialog.html',
+  styleUrls: ['./payout-action.dialog.scss'],
 })
 export class PayoutActionDialog {
   protected readonly data = inject<{ action: string; payoutId: string }>(MAT_DIALOG_DATA);
@@ -54,6 +32,8 @@ export class PayoutActionDialog {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.dialogRef.close(this.form.controls.reason.value!);
+    const reason = this.form.controls.reason.value;
+    if (!reason) return;
+    this.dialogRef.close(reason);
   }
 }

@@ -300,8 +300,8 @@ export class PlatformOpsApi {
   private readonly backend = inject(TchBackendClient);
 
   // Batch Jobs
-  listJobs(): Observable<JobInfoResponse[]> {
-    return this.backend.get<JobInfoResponse[]>('/platform/ops/batch/jobs');
+  listJobs(options?: TchRequestOptions): Observable<JobInfoResponse[]> {
+    return this.backend.get<JobInfoResponse[]>('/platform/ops/batch/jobs', options);
   }
 
   startJob(jobKey: string, req: StartJobRequest): Observable<StartJobResponse> {
@@ -362,7 +362,7 @@ export class PlatformOpsApi {
     page?: number;
     size?: number;
     sort?: string;
-  }): Observable<TchPage<DrawResultOpsResponse>> {
+  }, options?: TchRequestOptions): Observable<TchPage<DrawResultOpsResponse>> {
     const q = params
       ? new URLSearchParams(
           Object.fromEntries(
@@ -374,6 +374,7 @@ export class PlatformOpsApi {
       : '';
     return this.backend.get<TchPage<DrawResultOpsResponse>>(
       `/platform/ops/draw-results${q ? '?' + q : ''}`,
+      options,
     );
   }
 
@@ -389,8 +390,8 @@ export class PlatformOpsApi {
     return this.backend.post<unknown>('/platform/ops/draw-results/manual', req);
   }
 
-  confirmDrawResult(drawResultId: string): Observable<unknown> {
-    return this.backend.post<unknown>(`/platform/ops/draw-results/${drawResultId}/confirm`, {});
+  confirmDrawResult(drawResultId: string, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/ops/draw-results/${drawResultId}/confirm`, {}, options);
   }
 
   // Draw Lifecycle (per-draw admin actions)
@@ -475,20 +476,23 @@ export class PlatformOpsApi {
   }
 
   // Cache
-  listCaches(): Observable<CacheView[]> {
-    return this.backend.get<CacheView[]>('/platform/ops/cache');
+  listCaches(options?: TchRequestOptions): Observable<CacheView[]> {
+    return this.backend.get<CacheView[]>('/platform/ops/cache', options);
   }
 
-  clearCache(cacheName: string): Observable<void> {
-    return this.backend.delete<void>(`/platform/ops/cache/${cacheName}`);
+  clearCache(cacheName: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>(`/platform/ops/cache/${cacheName}`, options);
   }
 
-  clearAllCaches(reason: string): Observable<void> {
-    return this.backend.delete<void>('/platform/ops/cache', { params: { reason } });
+  clearAllCaches(reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>('/platform/ops/cache', { ...options, params: { reason } });
   }
 
-  clearCacheGroup(group: string, reason: string): Observable<CacheGroupClearResult> {
-    return this.backend.delete<CacheGroupClearResult>(`/platform/ops/cache/groups/${group}`, { params: { reason } });
+  clearCacheGroup(group: string, reason: string, options?: TchRequestOptions): Observable<CacheGroupClearResult> {
+    return this.backend.delete<CacheGroupClearResult>(
+      `/platform/ops/cache/groups/${group}`,
+      { ...options, params: { reason } },
+    );
   }
 }
 

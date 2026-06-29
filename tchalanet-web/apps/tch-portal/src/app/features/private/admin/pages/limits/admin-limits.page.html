@@ -10,11 +10,33 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
   } @else if (rules().length === 0) {
     <tch-admin-empty-state icon="policy" title="Aucune règle disponible" message="Le catalogue de règles est vide." />
   } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-page__action-error"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice(); as notice) {
+      <tch-section-error
+        class="limits-page__action-error"
+        title="Action effectuée"
+        [message]="notice"
+        severity="info"
+      />
+    }
+
     <mat-accordion multi>
       @for (cat of categories(); track cat) {
         <mat-expansion-panel [expanded]="true">
@@ -104,16 +126,3 @@
     </mat-accordion>
   }
 </tch-admin-page-shell>
-
-<style>
-.category-title { font-weight: 600; text-transform: capitalize; }
-.rules-table { width: 100%; }
-.rule-name { font-size: 0.82rem; }
-.rule-label { font-size: 0.78rem; color: var(--tch-text-secondary, #666); }
-.rule-desc { font-size: 0.78rem; color: var(--tch-text-secondary, #666); }
-.status-cell { display: flex; flex-direction: column; gap: 2px; }
-.params-preview { font-size: 0.72rem; color: var(--tch-text-secondary, #666); font-family: monospace; }
-.muted { color: var(--tch-text-secondary, #888); }
-.row-assigned { background: color-mix(in srgb, var(--tch-primary, #1976d2) 4%, transparent); }
-.row-disabled { opacity: 0.65; }
-</style>

@@ -114,4 +114,9 @@ export interface PageDynamicPayload {
 export interface WidgetDynamicError {
   readonly widgetId: string;
   readonly code?: string;
+  readonly message?: string;
+  readonly severity?: 'info' | 'warn' | 'error';
+  readonly traceId?: string;
+  readonly requestId?: string;
+  readonly errorId?: string;
 }

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -66,21 +67,25 @@ export class PlatformAdminApi {
     );
   }
 
-  getSuperAdmin(userId: string): Observable<PlatformSuperAdminView> {
+  getSuperAdmin(userId: string, options?: TchRequestOptions): Observable<PlatformSuperAdminView> {
     return this.backend.get<{ id: string; email: string; displayName: string; status: string; createdAt: string }>(
       `/admin/identity/users/${userId}`,
+      options,
     ).pipe(map(u => ({ id: u.id, email: u.email, displayName: u.displayName, status: u.status, assignedAt: u.createdAt })));
   }
 
-  listSuperAdmins(): Observable<PlatformSuperAdminView[]> {
-    return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins');
+  listSuperAdmins(options?: TchRequestOptions): Observable<PlatformSuperAdminView[]> {
+    return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins', options);
   }
 
-  createSuperAdmin(request: CreatePlatformSuperAdminRequest): Observable<PlatformSuperAdminView> {
-    return this.backend.post<PlatformSuperAdminView>('/platform/super-admins', request);
+  createSuperAdmin(
+    request: CreatePlatformSuperAdminRequest,
+    options?: TchRequestOptions,
+  ): Observable<PlatformSuperAdminView> {
+    return this.backend.post<PlatformSuperAdminView>('/platform/super-admins', request, options);
   }
 
-  revokeSuperAdmin(userId: string): Observable<void> {
-    return this.backend.delete<void>(`/platform/super-admins/${userId}`);
+  revokeSuperAdmin(userId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>(`/platform/super-admins/${userId}`, options);
   }
 }

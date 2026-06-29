@@ -46,6 +46,12 @@
     &--full { max-width: none; }
   }
 
+  &__field-stack {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
   &__toggle-row {
     display: flex;
     align-items: center;

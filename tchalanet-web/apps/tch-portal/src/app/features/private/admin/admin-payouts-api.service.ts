@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type PayoutStatus = 'PENDING' | 'APPROVED' | 'PAID' | 'BLOCKED' | 'CANCELLED' | 'REVERSED';
@@ -43,7 +44,7 @@ export interface ListPayoutsParams {
 export class AdminPayoutsApi {
   private readonly backend = inject(TchBackendClient);
 
-  list(params: ListPayoutsParams = {}): Observable<TchPage<PayoutRowView>> {
+  list(params: ListPayoutsParams = {}, options?: TchRequestOptions): Observable<TchPage<PayoutRowView>> {
     const p = new URLSearchParams();
     if (params.status) p.set('status', params.status);
     if (params.ticketId) p.set('ticketId', params.ticketId);
@@ -52,26 +53,26 @@ export class AdminPayoutsApi {
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
     const qs = p.toString();
-    return this.backend.get<TchPage<PayoutRowView>>(`/admin/payouts${qs ? `?${qs}` : ''}`);
+    return this.backend.get<TchPage<PayoutRowView>>(`/admin/payouts${qs ? `?${qs}` : ''}`, options);
   }
 
-  get(payoutId: string): Observable<PayoutDetailsView> {
-    return this.backend.get<PayoutDetailsView>(`/admin/payouts/${payoutId}`);
+  get(payoutId: string, options?: TchRequestOptions): Observable<PayoutDetailsView> {
+    return this.backend.get<PayoutDetailsView>(`/admin/payouts/${payoutId}`, options);
   }
 
-  block(payoutId: string, reason: string): Observable<void> {
-    return this.backend.post<void>(`/admin/payouts/${payoutId}/block`, { reason });
+  block(payoutId: string, reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/payouts/${payoutId}/block`, { reason }, options);
   }
 
-  unblock(payoutId: string): Observable<void> {
-    return this.backend.post<void>(`/admin/payouts/${payoutId}/unblock`, {});
+  unblock(payoutId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/payouts/${payoutId}/unblock`, {}, options);
   }
 
-  cancel(payoutId: string, reason: string): Observable<void> {
-    return this.backend.post<void>(`/admin/payouts/${payoutId}/cancel`, { reason });
+  cancel(payoutId: string, reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/payouts/${payoutId}/cancel`, { reason }, options);
   }
 
-  reverse(payoutId: string, reason: string): Observable<void> {
-    return this.backend.post<void>(`/admin/payouts/${payoutId}/reverse`, { reason });
+  reverse(payoutId: string, reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/admin/payouts/${payoutId}/reverse`, { reason }, options);
   }
 }

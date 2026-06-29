@@ -115,100 +115,126 @@
     <div content>
       @if (loading()) {
         <tch-loading label="Chargement des actualités..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-      } @else if (sortedItems().length === 0) {
-        <tch-admin-empty-state
-          icon="article"
-          title="Aucune actualité"
-          message="Créez une news interne ou rafraîchissez le flux RSS externe."
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="load()"
         />
       } @else {
-        <table mat-table [dataSource]="sortedItems()" class="news-table">
-          <ng-container matColumnDef="publishedAt">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let row" class="cell-date">
-              {{ row.publishedAt ? (row.publishedAt | date:'dd/MM/yy HH:mm') : '—' }}
-            </td>
-          </ng-container>
+        @if (actionError(); as actionErrorVm) {
+          <tch-section-error
+            class="news-page__feedback"
+            [title]="actionErrorVm.title"
+            [message]="actionErrorVm.message"
+            [severity]="actionErrorVm.severity"
+          />
+        }
 
-          <ng-container matColumnDef="source">
-            <th mat-header-cell *matHeaderCellDef>Source</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="source-pill" [class.source-pill--internal]="row.sourceType === 'INTERNAL'">
-                {{ sourceLabel(row) }}
-              </span>
-            </td>
-          </ng-container>
+        @if (actionNotice(); as notice) {
+          <tch-section-error
+            class="news-page__feedback"
+            [title]="notice.title"
+            [message]="notice.message"
+            severity="info"
+          />
+        }
 
-          <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef>Titre</th>
-            <td mat-cell *matCellDef="let row">
-              <strong>{{ row.title }}</strong>
-              @if (row.content) {
-                <div class="cell-sub">{{ row.content }}</div>
-              }
-            </td>
-          </ng-container>
+        @if (sortedItems().length === 0) {
+          <tch-admin-empty-state
+            icon="article"
+            title="Aucune actualité"
+            message="Créez une news interne ou rafraîchissez le flux RSS externe."
+          />
+        } @else {
+          <table mat-table [dataSource]="sortedItems()" class="news-table">
+            <ng-container matColumnDef="publishedAt">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let row" class="cell-date">
+                {{ row.publishedAt ? (row.publishedAt | date:'dd/MM/yy HH:mm') : '—' }}
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="surfaces">
-            <th mat-header-cell *matHeaderCellDef>Surfaces</th>
-            <td mat-cell *matCellDef="let row">
-              @if (row.sourceType === 'EXTERNAL_RSS') {
-                Toutes
-              } @else {
-                {{ (row.targetSurfaces || []).map(surfaceLabel.bind(this)).join(', ') || '—' }}
-              }
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="source">
+              <th mat-header-cell *matHeaderCellDef>Source</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="source-pill" [class.source-pill--internal]="row.sourceType === 'INTERNAL'">
+                  {{ sourceLabel(row) }}
+                </span>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="expiresAt">
-            <th mat-header-cell *matHeaderCellDef>Expiration</th>
-            <td mat-cell *matCellDef="let row" class="cell-date">
-              {{ row.expiresAt ? (row.expiresAt | date:'dd/MM/yy HH:mm') : '—' }}
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef>Titre</th>
+              <td mat-cell *matCellDef="let row">
+                <strong>{{ row.title }}</strong>
+                @if (row.content) {
+                  <div class="cell-sub">{{ row.content }}</div>
+                }
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Statut</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
-            </td>
-          </ng-container>
+            <ng-container matColumnDef="surfaces">
+              <th mat-header-cell *matHeaderCellDef>Surfaces</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.sourceType === 'EXTERNAL_RSS') {
+                  Toutes
+                } @else {
+                  {{ (row.targetSurfaces || []).map(surfaceLabel.bind(this)).join(', ') || '—' }}
+                }
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row" class="cell-actions">
-              @if (row.sourceType === 'INTERNAL') {
-                <button mat-icon-button (click)="edit(row)" matTooltip="Modifier">
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                @if (row.status !== 'PUBLISHED') {
-                  <button mat-icon-button (click)="changeStatus(row, 'PUBLISHED')" matTooltip="Publier">
-                    <span class="material-symbols-outlined">publish</span>
+            <ng-container matColumnDef="expiresAt">
+              <th mat-header-cell *matHeaderCellDef>Expiration</th>
+              <td mat-cell *matCellDef="let row" class="cell-date">
+                {{ row.expiresAt ? (row.expiresAt | date:'dd/MM/yy HH:mm') : '—' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="cell-actions">
+                @if (row.sourceType === 'INTERNAL') {
+                  <button mat-icon-button (click)="edit(row)" matTooltip="Modifier">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  @if (row.status !== 'PUBLISHED') {
+                    <button mat-icon-button (click)="changeStatus(row, 'PUBLISHED')" matTooltip="Publier">
+                      <span class="material-symbols-outlined">publish</span>
+                    </button>
+                  }
+                  @if (row.status !== 'ARCHIVED') {
+                    <button mat-icon-button (click)="changeStatus(row, 'ARCHIVED')" matTooltip="Archiver">
+                      <span class="material-symbols-outlined">archive</span>
+                    </button>
+                  }
+                } @else {
+                  <button mat-icon-button (click)="hide(row)" matTooltip="Masquer cette news RSS">
+                    <span class="material-symbols-outlined">visibility_off</span>
                   </button>
                 }
-                @if (row.status !== 'ARCHIVED') {
-                  <button mat-icon-button (click)="changeStatus(row, 'ARCHIVED')" matTooltip="Archiver">
-                    <span class="material-symbols-outlined">archive</span>
-                  </button>
+                @if (row.sourceUrl) {
+                  <a mat-icon-button [href]="row.sourceUrl" target="_blank" rel="noopener" matTooltip="Ouvrir la source">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                  </a>
                 }
-              } @else {
-                <button mat-icon-button (click)="hide(row)" matTooltip="Masquer cette news RSS">
-                  <span class="material-symbols-outlined">visibility_off</span>
-                </button>
-              }
-              @if (row.sourceUrl) {
-                <a mat-icon-button [href]="row.sourceUrl" target="_blank" rel="noopener" matTooltip="Ouvrir la source">
-                  <span class="material-symbols-outlined">open_in_new</span>
-                </a>
-              }
-            </td>
-          </ng-container>
+              </td>
+            </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        }
       }
     </div>
   </tch-admin-crud-shell>

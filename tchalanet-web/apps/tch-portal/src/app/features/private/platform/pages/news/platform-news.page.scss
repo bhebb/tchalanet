@@ -2,6 +2,11 @@
   display: block;
 }
 
+.news-page__feedback {
+  display: block;
+  margin-bottom: 1rem;
+}
+
 .summary-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 16rem));

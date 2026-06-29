@@ -13,9 +13,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import {
@@ -59,7 +62,7 @@ export class AdminSellerTerminalsPage implements OnInit {
   private readonly api = inject(SellerTerminalApi);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = [
     'terminalCode',
@@ -73,7 +76,8 @@ export class AdminSellerTerminalsPage implements OnInit {
   ];
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
   readonly items = signal<SellerTerminalSummaryRow[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -104,6 +108,7 @@ export class AdminSellerTerminalsPage implements OnInit {
   loadPage(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.actionError.set(null);
 
     this.api
       .list({
@@ -111,7 +116,7 @@ export class AdminSellerTerminalsPage implements OnInit {
         status: this.statusFilter() || undefined,
         page: this.page(),
         size: 20,
-      })
+      }, { suppressShellFeedback: true })
       .subscribe({
         next: res => {
           this.items.set(res.items);
@@ -119,8 +124,7 @@ export class AdminSellerTerminalsPage implements OnInit {
           this.loading.set(false);
         },
         error: (err: unknown) => {
-          const pd = (err as { error?: { title?: string } })?.error;
-          this.error.set(pd?.title ?? 'Erreur de chargement.');
+          this.error.set(this.errorViewModel(err, 'admin.sellerTerminal.list'));
           this.loading.set(false);
         },
       });
@@ -171,12 +175,12 @@ export class AdminSellerTerminalsPage implements OnInit {
   }
 
   unblock(row: SellerTerminalSummaryRow): void {
-    this.api.unblock(row.id.value).subscribe({
-      next: () => {
-        this.snackBar.open(`${row.displayName} débloqué.`, 'OK', { duration: 3000 });
-        this.loadPage();
+    this.actionError.set(null);
+    this.api.unblock(row.id.value, { suppressShellFeedback: true }).subscribe({
+      next: () => this.loadPage(),
+      error: err => {
+        this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.unblock'));
       },
-      error: () => this.snackBar.open('Erreur lors du déblocage.', 'OK', { duration: 4000 }),
     });
   }
 
@@ -199,12 +203,12 @@ export class AdminSellerTerminalsPage implements OnInit {
     const ref = this.dialog.open(ConfirmDisableDialog, { data: row, width: '400px' });
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
-      this.api.disable(row.id.value).subscribe({
-        next: () => {
-          this.snackBar.open(`${row.displayName} désactivé.`, 'OK', { duration: 3000 });
-          this.loadPage();
+      this.actionError.set(null);
+      this.api.disable(row.id.value, { suppressShellFeedback: true }).subscribe({
+        next: () => this.loadPage(),
+        error: err => {
+          this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.disable'));
         },
-        error: () => this.snackBar.open('Erreur lors de la désactivation.', 'OK', { duration: 4000 }),
       });
     });
   }
@@ -224,5 +228,20 @@ export class AdminSellerTerminalsPage implements OnInit {
     if (row.status === 'PENDING') return 'warning';
     if (row.status === 'INACTIVE' || row.status === 'DISABLED') return 'neutral';
     return 'success';
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

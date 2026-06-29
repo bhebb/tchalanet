@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -162,14 +162,14 @@ interface IdentityUserPageResponse {
 export class PlatformTenantsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listTenants(params: TenantListQuery): Observable<TenantPageResponse> {
+  listTenants(params: TenantListQuery, options?: TchRequestOptions): Observable<TenantPageResponse> {
     const query = new URLSearchParams();
     query.set('page', String(params.page));
     query.set('size', String(params.size));
     if (params.q?.trim()) query.set('q', params.q.trim());
     if (params.status) query.set('status', params.status);
     if (params.sort) query.set('sort', params.sort);
-    return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`);
+    return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`, options);
   }
 
   getTenant(id: string): Observable<TenantDetailView> {

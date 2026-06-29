@@ -37,8 +37,14 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="loadPage()" />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="loadPage()"
+    />
   } @else {
     <tch-admin-list-surface
       searchLabel="Recherche"
@@ -55,6 +61,10 @@
       (resetFilters)="resetFilters()"
     >
       <ng-container list-content>
+        @if (actionError(); as actionErrorVm) {
+          <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+        }
+
         @if (items().length === 0) {
           <tch-admin-empty-state
             icon="point_of_sale"

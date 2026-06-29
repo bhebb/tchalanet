@@ -49,6 +49,9 @@ API clients unwrap successful responses before exposing data to stores/component
 
 ## Error Handling
 
+See [`error-management.md`](./error-management.md) for the shell/page/section/field ownership
+model and the backend metadata expected for each error type.
+
 Central error mapping should preserve:
 
 ```text

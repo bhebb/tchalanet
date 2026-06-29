@@ -1,6 +1,11 @@
 @use '../../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .runtime-page {
+  &__notice {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
   &__sections {
     display: flex;
     flex-direction: column;

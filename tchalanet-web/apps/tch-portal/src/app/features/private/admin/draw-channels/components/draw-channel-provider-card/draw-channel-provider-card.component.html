@@ -23,6 +23,15 @@
     <tch-draw-channel-source-badge [acquisition]="p.resultAcquisition" />
   </div>
 
+  @if (sourceError(); as err) {
+    <tch-section-error
+      class="pcard__source-error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity"
+    />
+  }
+
   <!-- Slots -->
   @if (p.slots.length > 0) {
     <div class="pcard__slots">

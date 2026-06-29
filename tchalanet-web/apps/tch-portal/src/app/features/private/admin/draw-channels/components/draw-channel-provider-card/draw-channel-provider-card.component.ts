@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { TchCard } from '@tch/ui/components';
+import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import {
   DrawChannelProviderView,
@@ -25,6 +25,12 @@ const STATUS_LABEL: Record<DrawChannelProviderTenantStatus, string> = {
   UNAVAILABLE:  'Non disponible',
 };
 
+interface DrawChannelProviderCardError {
+  readonly title: string;
+  readonly message: string;
+  readonly severity: TchSectionErrorSeverity;
+}
+
 @Component({
   selector: 'tch-draw-channel-provider-card',
   standalone: true,
@@ -33,6 +39,7 @@ const STATUS_LABEL: Record<DrawChannelProviderTenantStatus, string> = {
     LowerCasePipe,
     MatButtonModule,
     TchCard,
+    TchSectionError,
     AdminStatusPillComponent,
     DrawChannelSourceBadgeComponent,
     DrawChannelSlotRowComponent,
@@ -51,6 +58,16 @@ export class DrawChannelProviderCardComponent {
 
   readonly statusTone  = computed<AdminStatusTone>(() => STATUS_TONE[this.provider().tenantStatus]);
   readonly statusLabel = computed<string>(() => STATUS_LABEL[this.provider().tenantStatus]);
+  readonly sourceError = computed<DrawChannelProviderCardError | null>(() => {
+    const provider = this.provider();
+    if (provider.resultAcquisition.sourceStatus !== 'ERROR') return null;
+
+    return {
+      severity: 'warn',
+      title: 'Source de resultats indisponible',
+      message: 'Les ventes restent disponibles, mais les resultats automatiques de ce fournisseur sont a verifier.',
+    };
+  });
 
   readonly acquisitionSubline = computed<string>(() => {
     const a = this.provider().resultAcquisition;

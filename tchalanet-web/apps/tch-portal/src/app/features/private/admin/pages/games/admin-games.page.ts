@@ -2,11 +2,14 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import {
@@ -36,17 +39,17 @@ import { GameSettingsDialog } from './dialogs/game-settings.dialog';
 export class AdminGamesPage implements OnInit {
   private readonly api = inject(GamesAdminApiService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly gameColumns = ['gameCode', 'displayName', 'enabled', 'settings'];
   readonly catalogColumns = ['gameCode', 'name', 'category', 'activate'];
 
   readonly loadingGames = signal(false);
-  readonly errorGames = signal<string | null>(null);
+  readonly errorGames = signal<ErrorViewModel | null>(null);
   readonly games = signal<TenantGameView[]>([]);
 
   readonly loadingCatalog = signal(false);
-  readonly errorCatalog = signal<string | null>(null);
+  readonly errorCatalog = signal<ErrorViewModel | null>(null);
   readonly catalog = signal<CatalogGameView[]>([]);
 
   ngOnInit(): void {
@@ -56,11 +59,11 @@ export class AdminGamesPage implements OnInit {
 
   protected loadGames(): void {
     this.loadingGames.set(true);
-    this.api.listEnabledGames().subscribe({
+    this.errorGames.set(null);
+    this.api.listEnabledGames({ suppressShellFeedback: true }).subscribe({
       next: v => { this.games.set(v); this.loadingGames.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.errorGames.set(pd?.title ?? 'Erreur.');
+        this.errorGames.set(this.errorViewModel(err, 'admin.games.enabled'));
         this.loadingGames.set(false);
       },
     });
@@ -68,11 +71,11 @@ export class AdminGamesPage implements OnInit {
 
   protected loadCatalog(): void {
     this.loadingCatalog.set(true);
-    this.api.listCatalogGames().subscribe({
+    this.errorCatalog.set(null);
+    this.api.listCatalogGames({ suppressShellFeedback: true }).subscribe({
       next: v => { this.catalog.set(v); this.loadingCatalog.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.errorCatalog.set(pd?.title ?? 'Erreur.');
+        this.errorCatalog.set(this.errorViewModel(err, 'admin.games.catalog'));
         this.loadingCatalog.set(false);
       },
     });
@@ -83,23 +86,26 @@ export class AdminGamesPage implements OnInit {
   }
 
   toggleGame(game: TenantGameView): void {
-    const op = game.enabled ? this.api.disableGame(game.gameCode) : this.api.enableGame(game.gameCode);
+    this.errorGames.set(null);
+    const op = game.enabled
+      ? this.api.disableGame(game.gameCode, { suppressShellFeedback: true })
+      : this.api.enableGame(game.gameCode, { suppressShellFeedback: true });
     op.subscribe({
       next: () => {
-        this.snackBar.open(`Jeu ${game.gameCode} ${game.enabled ? 'désactivé' : 'activé'}.`, 'OK', { duration: 3000 });
         this.loadGames();
       },
-      error: () => this.snackBar.open('Erreur.', 'OK', { duration: 4000 }),
+      error: err => this.errorGames.set(this.errorViewModel(err, `admin.games.enabled.${game.gameCode}`)),
     });
   }
 
   enableFromCatalog(game: CatalogGameView): void {
-    this.api.enableGame(game.gameCode).subscribe({
+    this.errorCatalog.set(null);
+    this.api.enableGame(game.gameCode, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open(`Jeu ${game.gameCode} activé.`, 'OK', { duration: 3000 });
         this.loadGames();
+        this.loadCatalog();
       },
-      error: () => this.snackBar.open("Erreur lors de l'activation.", 'OK', { duration: 4000 }),
+      error: err => this.errorCatalog.set(this.errorViewModel(err, `admin.games.catalog.${game.gameCode}`)),
     });
   }
 
@@ -108,5 +114,20 @@ export class AdminGamesPage implements OnInit {
     ref.afterClosed().subscribe(ok => {
       if (ok) this.loadGames();
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

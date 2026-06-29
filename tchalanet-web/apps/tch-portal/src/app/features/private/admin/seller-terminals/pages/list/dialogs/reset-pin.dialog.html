@@ -1,0 +1,67 @@
+@if (state() === 'confirming' || state() === 'submitting') {
+  <h2 mat-dialog-title>Réinitialiser le PIN</h2>
+  <mat-dialog-content>
+    <p class="reset-pin-dialog__info">
+      Un nouveau PIN temporaire sera généré pour
+      <strong>{{ data.terminalCode }}</strong> - {{ data.displayName }}.<br />
+      L'ancien PIN ne fonctionnera plus.<br />
+      Le vendeur devra changer son PIN à sa prochaine connexion.
+    </p>
+    <form [formGroup]="form" class="reset-pin-dialog__form">
+      @if (error(); as pageError) {
+        <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+      }
+
+      <mat-form-field appearance="outline" class="reset-pin-dialog__field">
+        <mat-label>Raison</mat-label>
+        <mat-select formControlName="reason">
+          <mat-option value="PIN_LOST">PIN perdu</mat-option>
+          <mat-option value="SELLER_CHANGED">Changement de vendeur</mat-option>
+          <mat-option value="SUSPECTED_COMPROMISE">Suspicion de compromission</mat-option>
+          <mat-option value="ADMIN_CORRECTION">Correction administrative</mat-option>
+          <mat-option value="OTHER">Autre</mat-option>
+        </mat-select>
+        @if (form.controls.reason.invalid && form.controls.reason.touched) {
+          <mat-error>Veuillez sélectionner une raison.</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close [disabled]="state() === 'submitting'">Annuler</button>
+    <button
+      mat-flat-button
+      color="warn"
+      [disabled]="form.invalid || state() === 'submitting'"
+      (click)="submit()"
+    >
+      @if (state() === 'submitting') {
+        <span class="material-symbols-outlined reset-pin-dialog__spin" aria-hidden="true">progress_activity</span>
+      }
+      Réinitialiser le PIN
+    </button>
+  </mat-dialog-actions>
+}
+
+@if (state() === 'success' && result(); as pinResult) {
+  <h2 mat-dialog-title>PIN temporaire généré</h2>
+  <mat-dialog-content class="reset-pin-dialog__success">
+    <p>
+      <strong>Terminal :</strong> {{ pinResult.terminalCode }}
+    </p>
+    <div class="reset-pin-dialog__pin-box">
+      <span class="reset-pin-dialog__pin">{{ pinResult.temporaryPin }}</span>
+      <button mat-icon-button (click)="copyPin()" [title]="pinCopied() ? 'Copié !' : 'Copier le PIN'">
+        <span class="material-symbols-outlined">{{ pinCopied() ? 'check' : 'content_copy' }}</span>
+      </button>
+    </div>
+    <p class="reset-pin-dialog__warning">
+      <span class="material-symbols-outlined reset-pin-dialog__warning-icon">warning</span>
+      Copiez ce PIN maintenant. Il ne sera plus affiché après fermeture.<br />
+      Le vendeur devra le changer à sa prochaine connexion.
+    </p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="close()">Fermer</button>
+  </mat-dialog-actions>
+}

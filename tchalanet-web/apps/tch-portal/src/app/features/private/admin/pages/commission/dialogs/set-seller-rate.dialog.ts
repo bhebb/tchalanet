@@ -12,30 +12,8 @@ import { SellerTerminalCommissionRow } from '../../../admin-commission-api.servi
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
-  template: `
-    <h2 mat-dialog-title>Taux — {{ data.row.displayName }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="set-seller-rate-dialog__form">
-        <mat-form-field appearance="outline" class="set-seller-rate-dialog__field">
-          <mat-label>Taux de commission (%)</mat-label>
-          <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
-          @if (form.controls.rate.invalid && form.controls.rate.touched) {
-            <mat-error>Taux entre 0 et 100.</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">
-        Enregistrer
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .set-seller-rate-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; }
-    .set-seller-rate-dialog__field { width: 100%; min-width: 320px; }
-  `],
+  templateUrl: './set-seller-rate.dialog.html',
+  styleUrls: ['./set-seller-rate.dialog.scss'],
 })
 export class SetSellerRateDialog {
   protected readonly data = inject<{ row: SellerTerminalCommissionRow }>(MAT_DIALOG_DATA);
@@ -48,6 +26,8 @@ export class SetSellerRateDialog {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.dialogRef.close(this.form.controls.rate.value!);
+    const rate = this.form.controls.rate.value;
+    if (rate == null) return;
+    this.dialogRef.close(rate);
   }
 }

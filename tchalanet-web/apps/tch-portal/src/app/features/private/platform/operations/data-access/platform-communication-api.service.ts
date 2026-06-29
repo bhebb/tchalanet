@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { TchPage } from '../../platform-ops-api.service';
 
@@ -80,7 +80,7 @@ export class PlatformCommunicationApi {
     recipient?: string;
     page?: number;
     size?: number;
-  }): Observable<CommunicationQueueView> {
+  }, options?: TchRequestOptions): Observable<CommunicationQueueView> {
     const q = new URLSearchParams(
       Object.fromEntries(
         Object.entries(params)
@@ -90,26 +90,39 @@ export class PlatformCommunicationApi {
     ).toString();
     return this.backend.get<CommunicationQueueView>(
       `/platform/ops/communication/messages${q ? '?' + q : ''}`,
+      options,
     );
   }
 
-  dispatchDue(): Observable<CommunicationDispatchResult> {
-    return this.backend.post<CommunicationDispatchResult>('/platform/ops/communication/dispatch-due', {});
+  dispatchDue(options?: TchRequestOptions): Observable<CommunicationDispatchResult> {
+    return this.backend.post<CommunicationDispatchResult>('/platform/ops/communication/dispatch-due', {}, options);
   }
 
-  testSlack(body: { channelKey: string; title: string; message: string }): Observable<CommunicationTestResponse> {
-    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/slack-test', body);
+  testSlack(
+    body: { channelKey: string; title: string; message: string },
+    options?: TchRequestOptions,
+  ): Observable<CommunicationTestResponse> {
+    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/slack-test', body, options);
   }
 
-  testEmail(body: { to: string; subject: string; message: string }): Observable<CommunicationTestResponse> {
-    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/email-test', body);
+  testEmail(
+    body: { to: string; subject: string; message: string },
+    options?: TchRequestOptions,
+  ): Observable<CommunicationTestResponse> {
+    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/email-test', body, options);
   }
 
-  testSms(body: { to: string; title: string; message: string }): Observable<CommunicationTestResponse> {
-    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/sms-test', body);
+  testSms(
+    body: { to: string; title: string; message: string },
+    options?: TchRequestOptions,
+  ): Observable<CommunicationTestResponse> {
+    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/sms-test', body, options);
   }
 
-  testWhatsapp(body: { to: string; title: string; message: string }): Observable<CommunicationTestResponse> {
-    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/whatsapp-test', body);
+  testWhatsapp(
+    body: { to: string; title: string; message: string },
+    options?: TchRequestOptions,
+  ): Observable<CommunicationTestResponse> {
+    return this.backend.post<CommunicationTestResponse>('/platform/ops/communication/whatsapp-test', body, options);
   }
 }

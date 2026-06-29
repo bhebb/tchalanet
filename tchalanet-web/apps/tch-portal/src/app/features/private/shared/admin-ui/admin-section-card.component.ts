@@ -1,12 +1,18 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, input, signal } from '@angular/core';
 
-import { TchCard } from '@tch/ui/components';
+import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
+
+export interface AdminSectionCardError {
+  readonly title: string;
+  readonly message: string;
+  readonly severity?: TchSectionErrorSeverity;
+}
 
 @Component({
   selector: 'tch-admin-section-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchCard],
+  imports: [TchCard, TchSectionError],
   template: `
     <tch-card class="section-card">
       <div class="section-card__header">
@@ -25,6 +31,15 @@ import { TchCard } from '@tch/ui/components';
           <ng-content select="[actions]" />
         </div>
       </div>
+      @if (sectionError(); as error) {
+        <div class="section-card__error">
+          <tch-section-error
+            [title]="error.title"
+            [message]="error.message"
+            [severity]="error.severity ?? 'error'"
+          />
+        </div>
+      }
       <div class="section-card__body">
         <ng-content />
       </div>
@@ -89,6 +104,10 @@ import { TchCard } from '@tch/ui/components';
         flex-shrink: 0;
       }
 
+      .section-card__error {
+        padding: 1rem 1.5rem 0;
+      }
+
       .section-card__body {
         padding: 1.5rem;
       }
@@ -100,7 +119,15 @@ import { TchCard } from '@tch/ui/components';
   ],
 })
 export class AdminSectionCardComponent {
+  private readonly changeDetector = inject(ChangeDetectorRef);
+
   readonly title = input.required<string>();
   readonly description = input<string | null>(null);
   readonly icon = input<string | null>(null);
+  readonly sectionError = signal<AdminSectionCardError | null>(null);
+
+  setSectionError(error: AdminSectionCardError | null): void {
+    this.sectionError.set(error);
+    this.changeDetector.markForCheck();
+  }
 }

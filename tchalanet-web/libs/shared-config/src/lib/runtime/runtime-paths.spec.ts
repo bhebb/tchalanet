@@ -18,6 +18,7 @@ describe('runtime paths', () => {
     expect(PORTAL_I18N_CONFIG.assetsSuffix).toBe('.json');
     expect(PORTAL_I18N_CONFIG.bundles).toEqual([
       'common',
+      'errors',
       'domain',
       'component',
       'surface-public',

@@ -36,7 +36,9 @@ export class BaremesAdminApi {
   private readonly backend = inject(TchBackendClient);
 
   listTenantOdds(): Observable<PricingOddsEntry[]> {
-    return this.backend.get<PricingOddsEntry[]>('/admin/controls/odds');
+    return this.backend.get<PricingOddsEntry[]>('/admin/controls/odds', {
+      suppressShellFeedback: true,
+    });
   }
 
   listSellerOverrides(sellerTerminalId: string): Observable<OddsOverrideEntry[]> {

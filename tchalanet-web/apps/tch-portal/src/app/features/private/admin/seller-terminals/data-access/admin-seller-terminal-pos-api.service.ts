@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { HttpHeaders } from '@angular/common/http';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -81,9 +82,12 @@ interface PrintTicketRequest {
 export class AdminSellerTerminalPosApiService {
   private readonly backend = inject(TchBackendClient);
 
-  getSellerTerminalForPos(sellerTerminalId: string): Observable<PosSellerTerminalView> {
+  getSellerTerminalForPos(
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<PosSellerTerminalView> {
     return this.backend
-      .get<SellerTerminalDetailResponse>(`/admin/seller-terminals/${sellerTerminalId}`)
+      .get<SellerTerminalDetailResponse>(`/admin/seller-terminals/${sellerTerminalId}`, options)
       .pipe(
         map(r => ({
           sellerTerminalId: r.id.value,
@@ -95,9 +99,13 @@ export class AdminSellerTerminalPosApiService {
       );
   }
 
-  getOpenDrawsForPos(lookaheadHours = 24): Observable<PosOpenDrawView[]> {
+  getOpenDrawsForPos(
+    lookaheadHours = 24,
+    options?: TchRequestOptions,
+  ): Observable<PosOpenDrawView[]> {
     return this.backend
       .get<PosAvailableDrawResponse[]>('/tenant/cashier/draws/available', {
+        ...(options ?? {}),
         params: { lookaheadHours: String(lookaheadHours) },
       })
       .pipe(
@@ -118,9 +126,9 @@ export class AdminSellerTerminalPosApiService {
       );
   }
 
-  getActiveGamesForPos(): Observable<PosGameView[]> {
+  getActiveGamesForPos(options?: TchRequestOptions): Observable<PosGameView[]> {
     return this.backend
-      .get<PosGameOptionResponse[]>('/tenant/cashier/games/available')
+      .get<PosGameOptionResponse[]>('/tenant/cashier/games/available', options)
       .pipe(
         map(games =>
           games.map(g => ({
@@ -141,13 +149,14 @@ export class AdminSellerTerminalPosApiService {
     request: ConfirmTicketSaleRequest,
     idempotencyKey: string,
     sellerTerminalId: string,
+    options?: TchRequestOptions,
   ): Observable<ConfirmedTicketView> {
     return this.backend
       .post<PosSellTicketApiResponse>('/tenant/cashier/tickets/sell', request, {
-        headers: {
+        ...withHeaders(options, {
           'Idempotency-Key': idempotencyKey,
           'X-Tch-Act-As-Terminal': sellerTerminalId,
-        },
+        }),
       })
       .pipe(
         map(r => ({
@@ -162,10 +171,13 @@ export class AdminSellerTerminalPosApiService {
       );
   }
 
-  getTerminalActivity(sellerTerminalId: string): Observable<PosTerminalActivityView> {
+  getTerminalActivity(
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<PosTerminalActivityView> {
     return this.backend
       .get<SellerTerminalStatsResponse>('/tenant/cashier/tickets/stats', {
-        headers: { 'X-Tch-Act-As-Terminal': sellerTerminalId },
+        ...withHeaders(options, { 'X-Tch-Act-As-Terminal': sellerTerminalId }),
       })
       .pipe(
         map(r => ({
@@ -191,4 +203,27 @@ export class AdminSellerTerminalPosApiService {
       headers: { 'X-Tch-Act-As-Terminal': sellerTerminalId },
     });
   }
+}
+
+function withHeaders(
+  options: TchRequestOptions | undefined,
+  headers: Record<string, string>,
+): TchRequestOptions {
+  if (options?.headers instanceof HttpHeaders) {
+    return {
+      ...options,
+      headers: Object.entries(headers).reduce(
+        (acc, [key, value]) => acc.set(key, value),
+        options.headers,
+      ),
+    };
+  }
+
+  return {
+    ...(options ?? {}),
+    headers: {
+      ...(options?.headers ?? {}),
+      ...headers,
+    },
+  };
 }

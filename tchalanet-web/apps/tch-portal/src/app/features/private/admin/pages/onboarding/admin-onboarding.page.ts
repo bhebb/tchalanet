@@ -9,17 +9,6 @@ import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-she
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslatePipe, AdminPageShellComponent, AdminEmptyStateComponent],
-  template: `
-    <tch-admin-page-shell
-      [title]="'admin.onboarding.title' | translate"
-      [description]="'admin.onboarding.description' | translate"
-    >
-      <tch-admin-empty-state
-        icon="checklist"
-        [title]="'common.placeholder.title' | translate"
-        [message]="'common.placeholder.message' | translate"
-      />
-    </tch-admin-page-shell>
-  `,
+  templateUrl: './admin-onboarding.page.html',
 })
 export class AdminOnboardingPage {}

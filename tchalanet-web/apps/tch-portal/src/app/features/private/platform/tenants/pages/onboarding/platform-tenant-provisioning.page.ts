@@ -18,11 +18,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { EMPTY, Subject, catchError, debounceTime, filter, switchMap, takeUntil, tap } from 'rxjs';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchActionButton, TchErrorPanel, TchNotice, TchSubmitButton } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
 import { AdminDetailLayoutComponent } from '../../../../shared/admin-ui/components/admin-detail-layout/admin-detail-layout.component';
 import { AdminNextStepsCardComponent, AdminNextStep } from '../../../../shared/admin-ui/components/admin-next-steps-card/admin-next-steps-card.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
-import { AdminProvisioningHealthCardComponent } from '../../../../shared/admin-ui/components/admin-provisioning-health-card/admin-provisioning-health-card.component';
+import {
+  AdminProvisioningHealthCardComponent,
+  AdminProvisioningHealthError,
+} from '../../../../shared/admin-ui/components/admin-provisioning-health-card/admin-provisioning-health-card.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
 import { AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { TchIdentityCardComponent } from '../../../../shared/admin-ui/components/tch-identity-card/tch-identity-card.component';
@@ -109,6 +114,8 @@ const STEP_ICONS: Record<string, string> = {
   VERIFY_DEMO_SETUP: 'checklist',
 };
 
+const READINESS_PREVIEW_TARGET = 'platform.tenantProvisioning.readiness.preview';
+
 @Component({
   selector: 'tch-platform-tenant-provisioning-page',
   standalone: true,
@@ -154,7 +161,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   readonly submitted = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly previewLoading = signal(false);
-  readonly previewError = signal<string | null>(null);
+  readonly previewError = signal<AdminProvisioningHealthError | null>(null);
   readonly preview = signal<TenantProvisioningPreviewView | null>(null);
   readonly result = signal<TenantProvisioningResultView | null>(null);
 
@@ -294,8 +301,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
         switchMap(() =>
           this.api.preview(this.requestFromForm()).pipe(
             catchError((err: unknown) => {
-              const problem = (err as { error?: { title?: string } })?.error;
-              this.previewError.set(problem?.title ?? 'Erreur lors du calcul du profil.');
+              this.previewError.set(this.previewErrorFromUnknown(err));
               this.previewLoading.set(false);
               return EMPTY;
             }),
@@ -385,6 +391,25 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     return key
       ? this.translate.instant(key)
       : this.translate.instant('platform.tenantProvisioning.warning.fallback');
+  }
+
+  private previewErrorFromUnknown(err: unknown): AdminProvisioningHealthError {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, READINESS_PREVIEW_TARGET, 'section');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return {
+        severity: normalized.severity,
+        title: copy.title,
+        message: copy.message,
+      };
+    }
+
+    return {
+      severity: 'warn',
+      title: this.translate.instant('common.errors.categories.service_unavailable.title'),
+      message: this.translate.instant('common.errors.categories.service_unavailable.message'),
+    };
   }
 
   /** Route to the freshly-created tenant's detail page, when the id is known. */

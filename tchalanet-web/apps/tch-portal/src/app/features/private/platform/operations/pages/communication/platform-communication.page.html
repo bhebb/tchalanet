@@ -7,7 +7,12 @@
       <span class="material-symbols-outlined">send</span>
       Dispatcher maintenant
     </button>
-    <button mat-icon-button (click)="load()" matTooltip="Rafraîchir" style="margin-left:0.5rem">
+    <button
+      mat-icon-button
+      class="platform-communication-page__refresh"
+      (click)="load()"
+      matTooltip="Rafraîchir"
+    >
       <span class="material-symbols-outlined">refresh</span>
     </button>
   </div>
@@ -88,6 +93,16 @@
     </mat-tab-group>
   </form>
 
+  @if (actionFeedback(); as feedback) {
+    <div class="platform-communication-page__feedback">
+      <tch-section-error
+        [title]="feedback.title"
+        [message]="feedback.message"
+        [severity]="feedback.severity"
+      />
+    </div>
+  }
+
   @if (summary(); as s) {
     <div class="summary-bar">
       <div class="stat-chip stat-warn">
@@ -159,8 +174,14 @@
     <ng-container list-content>
       @if (loading()) {
         <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="load()"
+        />
       } @else if (messages().length === 0) {
         <tch-admin-empty-state icon="outbox" title="Aucun message" message="Aucun message ne correspond aux filtres." />
       } @else {

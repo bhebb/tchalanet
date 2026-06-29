@@ -33,8 +33,14 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
   } @else if (tenants().length === 0) {
     <tch-admin-empty-state icon="support_agent" title="Aucun tenant" message="Aucun tenant ne correspond à ces filtres." />
   } @else {

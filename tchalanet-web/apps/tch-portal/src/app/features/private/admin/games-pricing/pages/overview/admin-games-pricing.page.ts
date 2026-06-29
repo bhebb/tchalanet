@@ -2,15 +2,19 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import { GamesPricingSummaryComponent } from '../../components/games-pricing-summary/games-pricing-summary.component';
-import { TenantGameCardComponent } from '../../components/tenant-game-card/tenant-game-card.component';
+import { TenantGameCardComponent, TenantGameCardError } from '../../components/tenant-game-card/tenant-game-card.component';
 import { GameSettingsDialog } from '../../../pages/games/dialogs/game-settings.dialog';
 
 type PageState = 'loading' | 'ready' | 'error';
@@ -35,39 +39,42 @@ type PageState = 'loading' | 'ready' | 'error';
 export class AdminGamesPricingPage implements OnInit {
   private readonly api = inject(AdminGamesPricingApiService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
   readonly games = signal<TenantGamePricingView[]>([]);
+  readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
 
   ngOnInit(): void { this.load(); }
 
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
-    this.api.getGamesPricing().subscribe({
+    this.actionErrors.set({});
+    this.api.getGamesPricing({ suppressShellFeedback: true }).subscribe({
       next: data => { this.games.set(data); this.pageState.set('ready'); },
       error: (err: unknown) => {
-        this.pageError.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        const problem = (err as { error?: ProblemDetail })?.error;
+        this.pageError.set(this.pageErrorViewModel(problem));
         this.pageState.set('error');
       },
     });
   }
 
   onActivate(gameCode: string): void {
-    this.api.enableGame(gameCode).subscribe({
-      next: () => { this.snackBar.open('Jeu activé.', 'OK', { duration: 3000 }); this.load(); },
-      error: (err: unknown) => this.snackBar.open(
-        (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 4000 }),
+    this.clearActionError(gameCode);
+    this.api.enableGame(gameCode, { suppressShellFeedback: true }).subscribe({
+      next: () => this.load(),
+      error: (err: unknown) => this.setActionError(gameCode, err),
     });
   }
 
   onDisable(gameCode: string): void {
-    this.api.disableGame(gameCode).subscribe({
-      next: () => { this.snackBar.open('Jeu désactivé.', 'OK', { duration: 3000 }); this.load(); },
-      error: (err: unknown) => this.snackBar.open(
-        (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 4000 }),
+    this.clearActionError(gameCode);
+    this.api.disableGame(gameCode, { suppressShellFeedback: true }).subscribe({
+      next: () => this.load(),
+      error: (err: unknown) => this.setActionError(gameCode, err),
     });
   }
 
@@ -95,5 +102,63 @@ export class AdminGamesPricingPage implements OnInit {
 
     const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '480px' });
     ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
+  }
+
+  actionError(gameCode: string): TenantGameCardError | null {
+    return this.actionErrors()[gameCode] ?? null;
+  }
+
+  private setActionError(gameCode: string, err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    const error = this.errorCopy(problem, `admin.setup.games_pricing.${gameCode}`, 'section');
+    this.actionErrors.update(current => ({
+      ...current,
+      [gameCode]: error,
+    }));
+  }
+
+  private clearActionError(gameCode: string): void {
+    this.actionErrors.update(current => {
+      if (!current[gameCode]) return current;
+      const next = { ...current };
+      delete next[gameCode];
+      return next;
+    });
+  }
+
+  private pageErrorViewModel(problem: ProblemDetail | undefined): ErrorViewModel {
+    if (!problem) {
+      return {
+        severity: 'error',
+        title: this.translate.instant('common.errors.categories.unexpected.title'),
+        message: this.translate.instant('common.errors.categories.unexpected.message'),
+      };
+    }
+
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.games_pricing', 'page');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
+  }
+
+  private errorCopy(
+    problem: ProblemDetail | undefined,
+    source: string,
+    surface: 'page' | 'section',
+  ): TenantGameCardError {
+    if (!problem) {
+      return {
+        severity: 'error',
+        title: this.translate.instant('common.errors.categories.unexpected.title'),
+        message: this.translate.instant('common.errors.categories.unexpected.message'),
+      };
+    }
+
+    const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return {
+      severity: normalized.severity,
+      title: copy.title,
+      message: copy.message,
+    };
   }
 }

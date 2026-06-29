@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface CommissionOverviewView {
@@ -26,25 +26,34 @@ export interface SellerTerminalCommissionRow {
 export class AdminCommissionApi {
   private readonly backend = inject(TchBackendClient);
 
-  getOverview(): Observable<CommissionOverviewView> {
-    return this.backend.get<CommissionOverviewView>('/admin/commission/overview');
+  getOverview(options?: TchRequestOptions): Observable<CommissionOverviewView> {
+    return this.backend.get<CommissionOverviewView>('/admin/commission/overview', options);
   }
 
-  setDefaultRate(rate: number): Observable<void> {
-    return this.backend.put<void>('/admin/commission/default-rate', { rate });
+  setDefaultRate(rate: number, options?: TchRequestOptions): Observable<void> {
+    return this.backend.put<void>('/admin/commission/default-rate', { rate }, options);
   }
 
-  listSellers(page = 0, size = 50): Observable<SellerTerminalCommissionRow[]> {
+  listSellers(
+    page = 0,
+    size = 50,
+    options?: TchRequestOptions,
+  ): Observable<SellerTerminalCommissionRow[]> {
     return this.backend.get<SellerTerminalCommissionRow[]>(
       `/admin/commission/sellers?page=${page}&size=${size}`,
+      options,
     );
   }
 
-  setSellerRate(sellerTerminalId: string, rate: number): Observable<void> {
-    return this.backend.put<void>(`/admin/commission/sellers/${sellerTerminalId}`, { rate });
+  setSellerRate(
+    sellerTerminalId: string,
+    rate: number,
+    options?: TchRequestOptions,
+  ): Observable<void> {
+    return this.backend.put<void>(`/admin/commission/sellers/${sellerTerminalId}`, { rate }, options);
   }
 
-  resetSellerRate(sellerTerminalId: string): Observable<void> {
-    return this.backend.delete<void>(`/admin/commission/sellers/${sellerTerminalId}/custom-rate`);
+  resetSellerRate(sellerTerminalId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>(`/admin/commission/sellers/${sellerTerminalId}/custom-rate`, options);
   }
 }

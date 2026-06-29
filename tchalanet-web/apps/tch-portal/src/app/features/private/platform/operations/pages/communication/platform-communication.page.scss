@@ -1,3 +1,13 @@
+.platform-communication-page {
+  &__refresh {
+    margin-left: 0.5rem;
+  }
+
+  &__feedback {
+    margin-block-end: 1rem;
+  }
+}
+
 .provider-tests {
   display: grid;
   gap: 1rem;
@@ -99,7 +109,7 @@
 
 .stat-warn {
   background: color-mix(in srgb, var(--tch-color-warning, #f59e0b) 16%, transparent);
-  color: #9a5b00;
+  color: var(--tch-color-on-warning-container, #9a5b00);
 }
 
 .stat-danger {

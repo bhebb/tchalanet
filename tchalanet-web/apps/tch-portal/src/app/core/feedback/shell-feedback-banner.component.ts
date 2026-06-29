@@ -25,6 +25,9 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
       <div class="sfb__body">
         <strong class="sfb__title">{{ item.title }}</strong>
         <span class="sfb__message">{{ item.message }}</span>
+        @if (item.repeatCount > 1) {
+          <span class="sfb__meta">Repete {{ item.repeatCount }} fois</span>
+        }
 
         @if (verbosity === 'verbose' && item.status) {
           <span class="sfb__meta">HTTP {{ item.status }}</span>
@@ -66,6 +69,12 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
                   <dd><code>{{ item.spanId }}</code></dd>
                 </div>
               }
+              @if (item.errorId) {
+                <div class="sfb__detail-row">
+                  <dt>errorId</dt>
+                  <dd><code>{{ item.errorId }}</code></dd>
+                </div>
+              }
             </dl>
           }
         }
@@ -83,17 +92,6 @@ import { ShellFeedbackItem, ShellFeedbackVerbosity } from './shell-feedback.mode
               {{ copied() ? 'check' : 'content_copy' }}
             </span>
           </button>
-        }
-        @if (item.reportUrl) {
-          <a
-            class="sfb__btn"
-            [href]="item.reportUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Signaler ce problème"
-          >
-            <span class="material-symbols-outlined" aria-hidden="true">bug_report</span>
-          </a>
         }
         @if (item.dismissible) {
           <button
@@ -272,7 +270,7 @@ export class ShellFeedbackBannerComponent {
   protected showDetails = computed(() => this.verbosity === 'standard' || this.verbosity === 'verbose');
 
   protected hasDiagnostic(): boolean {
-    return !!(this.item.requestId || this.item.traceId || this.item.spanId);
+    return !!(this.item.requestId || this.item.traceId || this.item.spanId || this.item.errorId);
   }
 
   protected toggleDetails(): void {

@@ -30,6 +30,7 @@ export * from './lib/overlay-nav/overlay-nav';
 export * from './lib/page-error/page-error';
 export * from './lib/search-select/search-select';
 export * from './lib/section-header/section-header';
+export * from './lib/section-error/section-error';
 export * from './lib/sidebar-nav/sidebar-nav';
 export * from './lib/status-badge/status-badge';
 export * from './lib/submit-button/submit-button';

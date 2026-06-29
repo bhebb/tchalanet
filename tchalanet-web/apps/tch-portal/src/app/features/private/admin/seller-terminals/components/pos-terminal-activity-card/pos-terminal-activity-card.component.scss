@@ -43,6 +43,7 @@
 
   &__progress-bar {
     height: 100%;
+    width: 65%;
     border-radius: var(--tch-radius-pill, 99px);
     background: var(--tch-color-secondary-container, #fecb02);
   }

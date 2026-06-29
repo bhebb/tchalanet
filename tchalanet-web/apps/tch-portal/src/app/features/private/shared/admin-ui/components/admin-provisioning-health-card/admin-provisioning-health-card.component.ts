@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { TchLoading, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 import {
   AdminStatusPillComponent,
   AdminStatusTone,
@@ -12,11 +12,17 @@ export interface AdminProvisioningHealthItem {
   readonly tone: AdminStatusTone;
 }
 
+export interface AdminProvisioningHealthError {
+  readonly title: string;
+  readonly message: string;
+  readonly severity?: TchSectionErrorSeverity;
+}
+
 @Component({
   selector: 'tch-admin-provisioning-health-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminStatusPillComponent, TchErrorPanel, TchLoading],
+  imports: [AdminStatusPillComponent, TchLoading, TchSectionError],
   templateUrl: './admin-provisioning-health-card.component.html',
   styleUrls: ['./admin-provisioning-health-card.component.scss'],
 })
@@ -26,6 +32,9 @@ export class AdminProvisioningHealthCardComponent {
   readonly loading = input(false);
   readonly loadingLabel = input('Calcul du profil...');
   readonly error = input<string | null>(null);
+  readonly errorTitle = input<string | null>(null);
+  readonly errorMessage = input<string | null>(null);
+  readonly errorSeverity = input<TchSectionErrorSeverity>('warn');
   readonly readinessLabel = input.required<string>();
   readonly readinessTone = input<AdminStatusTone>('neutral');
   readonly progress = input<number | null>(null);
@@ -59,6 +68,9 @@ export class AdminProvisioningHealthCardComponent {
     if (limit <= 0) return 0;
     return Math.max(0, this.items().length - limit);
   });
+
+  readonly resolvedErrorTitle = computed(() => this.errorTitle() ?? this.error());
+  readonly resolvedErrorMessage = computed(() => this.errorMessage() ?? '');
 
   toggle(): void {
     this.expanded.update(value => !value);

@@ -1,0 +1,36 @@
+.clear-caches-dialog {
+  &__warning {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: var(--tch-radius-sm, 0.5rem);
+    background: var(--tch-color-warning-container);
+    color: var(--tch-color-on-warning-container);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  &__field {
+    width: 100%;
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

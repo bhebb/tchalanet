@@ -4,8 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import {
@@ -40,11 +44,12 @@ import {
 })
 export class AdminDrawResultsPage implements OnInit {
   private readonly api = inject(AdminDrawResultsApi);
+  private readonly translate = inject(TranslateService);
 
   readonly columns = ['channelCode', 'slotLabel', 'drawDate', 'numbers', 'status', 'quality', 'appliedAt'];
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly results = signal<DrawResultView[]>([]);
   readonly statusFilter = signal<DrawResultStatus | ''>('');
   readonly qualityFilter = signal<DrawResultQuality | ''>('');
@@ -60,11 +65,10 @@ export class AdminDrawResultsPage implements OnInit {
       status: this.statusFilter() || undefined,
       quality: this.qualityFilter() || undefined,
       size: 100,
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: p => { this.results.set(p.content); this.loading.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err));
         this.loading.set(false);
       },
     });
@@ -96,5 +100,20 @@ export class AdminDrawResultsPage implements OnInit {
       case 'ESTIMATED': return 'warning';
       default: return 'neutral';
     }
+  }
+
+  private errorViewModel(err: unknown): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, 'admin.drawResults.list', 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

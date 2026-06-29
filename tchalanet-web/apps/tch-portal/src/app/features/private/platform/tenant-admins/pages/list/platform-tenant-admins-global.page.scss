@@ -9,6 +9,17 @@
   border: 1px solid var(--tch-color-outline-variant);
 }
 
+.tenant-admins-global__notice {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.tenant-admins-global__empty-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 .tenant-admins-global__cell-main {
   display: flex;
   flex-direction: column;

@@ -42,7 +42,7 @@
     font-size: 1rem;
     font-weight: 800;
     flex-shrink: 0;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   &--unavailable &__avatar {
@@ -101,6 +101,11 @@
     }
   }
 
+  &__source-error {
+    display: block;
+    padding: 0 1.5rem 1rem;
+  }
+
   // ---- Slots ----
 
   &__slots {
@@ -113,7 +118,7 @@
     font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     color: var(--tch-color-on-surface-variant, #46464f);
   }
 

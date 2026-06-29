@@ -15,13 +15,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SlicePipe } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent } from '../../../shared/admin-ui/admin-status-pill.component';
@@ -31,7 +35,6 @@ import {
   BreachOutcome,
   LimitAssignmentItem,
   LimitRuleSpec,
-  RuleKey,
   TargetType,
 } from './admin-limits-api.service';
 
@@ -50,48 +53,16 @@ const BREACH_OUTCOMES: BreachOutcome[] = ['ALLOW', 'WARN', 'REQUIRE_APPROVAL', '
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    TchSectionError,
   ],
-  template: `
-    <h2 mat-dialog-title>{{ assignment() ? 'Modifier' : 'Configurer' }} la règle</h2>
-    <mat-dialog-content>
-      <div style="font-size:0.85rem;color:var(--tch-text-secondary,#666);padding:4px 0 12px">
-        <strong>{{ spec()?.ruleKey }}</strong>
-        @if (spec()?.label) { — {{ spec()!.label }} }
-      </div>
-      @if (spec()?.description) {
-        <p style="font-size:0.82rem;margin:0 0 12px;color:var(--tch-text-secondary,#666)">{{ spec()!.description }}</p>
-      }
-      <form [formGroup]="form" style="display:flex;flex-direction:column;gap:12px">
-        <mat-form-field appearance="outline">
-          <mat-label>Action en cas de dépassement</mat-label>
-          <mat-select formControlName="onBreach">
-            @for (o of breachOutcomes; track o) {
-              <mat-option [value]="o">{{ o }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Paramètres (JSON)</mat-label>
-          <textarea matInput formControlName="params" rows="5" style="font-family:monospace;font-size:0.82rem"></textarea>
-          @if (form.controls.params.errors?.['jsonInvalid']) {
-            <mat-error>JSON invalide.</mat-error>
-          }
-        </mat-form-field>
-        <mat-checkbox formControlName="enabled">Actif</mat-checkbox>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">
-        Enregistrer
-      </button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './upsert-limit.dialog.html',
+  styleUrl: './upsert-limit.dialog.scss',
 })
 export class UpsertLimitDialog {
   private readonly api = inject(AdminLimitsApi);
   private readonly ref = inject(MatDialogRef<UpsertLimitDialog>);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly breachOutcomes = BREACH_OUTCOMES;
   readonly spec = signal<LimitRuleSpec | null>(null);
@@ -99,6 +70,7 @@ export class UpsertLimitDialog {
   readonly targetType = signal<TargetType>('TENANT');
   readonly targetId = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly error = signal<ErrorViewModel | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     onBreach: ['BLOCK' as BreachOutcome, Validators.required],
@@ -121,21 +93,31 @@ export class UpsertLimitDialog {
   }
 
   save(): void {
-    if (this.form.invalid || !this.spec()) return;
+    const spec = this.spec();
+    if (this.form.invalid || !spec) return;
     let parsedParams: unknown;
-    try { parsedParams = JSON.parse(this.form.value.params!); } catch { return; }
+    try { parsedParams = JSON.parse(this.form.controls.params.value); } catch { return; }
     this.saving.set(true);
+    this.error.set(null);
     const v = this.form.getRawValue();
     this.api.upsertAssignment({
-      ruleKey: this.spec()!.ruleKey,
+      ruleKey: spec.ruleKey,
       targetType: this.targetType(),
       targetId: this.targetId() ?? undefined,
       enabled: v.enabled,
       onBreach: v.onBreach,
       params: parsedParams,
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: result => this.ref.close(result),
-      error: () => { this.saving.set(false); },
+      error: (err: unknown) => {
+        this.error.set(resolveLimitError(
+          (err as { error?: ProblemDetail })?.error,
+          `admin.limits.assignment.${this.spec()?.ruleKey ?? 'unknown'}`,
+          'section',
+          this.translate,
+        ));
+        this.saving.set(false);
+      },
     });
   }
 }
@@ -160,6 +142,7 @@ interface RuleRow {
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -171,14 +154,17 @@ interface RuleRow {
     SlicePipe,
   ],
   templateUrl: './admin-limits.page.html',
+  styleUrl: './admin-limits.page.scss',
 })
 export class AdminLimitsPage implements OnInit {
   private readonly api = inject(AdminLimitsApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<string | null>(null);
   readonly rules = signal<LimitRuleSpec[]>([]);
   readonly assignments = signal<LimitAssignmentItem[]>([]);
 
@@ -198,7 +184,8 @@ export class AdminLimitsPage implements OnInit {
     const byCategory = new Map<string, RuleRow[]>();
     for (const spec of this.rules()) {
       if (!byCategory.has(spec.category)) byCategory.set(spec.category, []);
-      byCategory.get(spec.category)!.push({ spec, assignment: assignMap.get(spec.ruleKey) ?? null });
+      const rows = byCategory.get(spec.category);
+      if (rows) rows.push({ spec, assignment: assignMap.get(spec.ruleKey) ?? null });
     }
     return byCategory;
   });
@@ -208,23 +195,35 @@ export class AdminLimitsPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.listRules().subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.listRules({ suppressShellFeedback: true }).subscribe({
       next: rules => {
         this.rules.set(rules);
         this.loadAssignments();
       },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(resolveLimitError(
+          (err as { error?: ProblemDetail })?.error,
+          'admin.limits.rules',
+          'page',
+          this.translate,
+        ));
         this.loading.set(false);
       },
     });
   }
 
   private loadAssignments(): void {
-    this.api.listAssignments('TENANT').subscribe({
+    this.api.listAssignments('TENANT', undefined, { suppressShellFeedback: true }).subscribe({
       next: view => { this.assignments.set(view.items); this.loading.set(false); },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(resolveLimitError(
+          (err as { error?: ProblemDetail })?.error,
+          'admin.limits.assignments',
+          'page',
+          this.translate,
+        ));
         this.loading.set(false);
       },
     });
@@ -235,7 +234,8 @@ export class AdminLimitsPage implements OnInit {
     (ref.componentInstance as UpsertLimitDialog).init(row.spec, 'TENANT', null, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
-        this.snackBar.open('Règle enregistrée.', 'OK', { duration: 4000 });
+        this.actionError.set(null);
+        this.actionNotice.set('Règle enregistrée.');
         this.loadAssignments();
       }
     });
@@ -244,15 +244,20 @@ export class AdminLimitsPage implements OnInit {
   delete(row: RuleRow): void {
     if (!row.assignment) return;
     if (!confirm(`Supprimer la règle ${row.spec.ruleKey} ?`)) return;
-    this.api.deleteAssignment(row.assignment.id.value).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open('Règle supprimée.', 'OK', { duration: 4000 });
+        this.actionNotice.set('Règle supprimée.');
         this.loadAssignments();
       },
       error: (err: unknown) => {
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.',
-          'OK', { duration: 5000 });
+        this.actionError.set(resolveLimitError(
+          (err as { error?: ProblemDetail })?.error,
+          `admin.limits.delete.${row.spec.ruleKey}`,
+          'section',
+          this.translate,
+        ));
       },
     });
   }
@@ -282,4 +287,23 @@ export class AdminLimitsPage implements OnInit {
       return Object.entries(p).map(([k, v]) => `${k}: ${v}`).join(', ');
     } catch { return ''; }
   }
+}
+
+function resolveLimitError(
+  problem: ProblemDetail | undefined,
+  source: string,
+  surface: 'page' | 'section',
+  translate: TranslateService,
+): ErrorViewModel {
+  if (!problem) {
+    return {
+      severity: 'error',
+      title: translate.instant('common.errors.fallback.title'),
+      message: translate.instant('common.errors.fallback.message'),
+    };
+  }
+
+  const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+  const copy = resolveErrorFeedbackCopy(normalized, key => translate.instant(key));
+  return toErrorViewModel(normalized, copy);
 }

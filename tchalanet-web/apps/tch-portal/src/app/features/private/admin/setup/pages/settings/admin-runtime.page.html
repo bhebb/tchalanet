@@ -8,40 +8,55 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="reload()" />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="reload()"
+    />
   } @else if (!runtime()) {
     <tch-admin-empty-state icon="dns" title="Aucune donnée runtime" message="Impossible de récupérer les informations runtime." />
-  } @else {
+  } @else if (runtime(); as runtimeVm) {
+    @if (notice(); as reloadNotice) {
+      <tch-section-error
+        class="runtime-page__notice"
+        title="Action effectuée"
+        [message]="reloadNotice"
+        severity="info"
+      />
+    }
+
     <div class="runtime-page__sections">
       <tch-admin-section-card title="Informations runtime">
         <dl class="runtime-page__info-list">
-          <dt>Code</dt><dd>{{ runtime()!.code }}</dd>
-          <dt>Nom</dt><dd>{{ runtime()!.name }}</dd>
+          <dt>Code</dt><dd>{{ runtimeVm.code }}</dd>
+          <dt>Nom</dt><dd>{{ runtimeVm.name }}</dd>
           <dt>Statut</dt>
           <dd>
-            <tch-admin-status-pill [label]="runtime()!.status" [tone]="runtimeStatusTone(runtime()!.status)" />
+            <tch-admin-status-pill [label]="runtimeVm.status" [tone]="runtimeStatusTone(runtimeVm.status)" />
           </dd>
           <dt>Langue par défaut</dt>
-          <dd>{{ runtime()!.defaultLanguage ? languageLabel(runtime()!.defaultLanguage!) : '—' }}</dd>
+          <dd>{{ runtimeVm.defaultLanguage ? languageLabel(runtimeVm.defaultLanguage) : '—' }}</dd>
           <dt>Locale par défaut</dt>
-          <dd>{{ runtime()!.defaultLocale ?? '—' }}</dd>
+          <dd>{{ runtimeVm.defaultLocale ?? '—' }}</dd>
         </dl>
       </tch-admin-section-card>
 
       <tch-admin-section-card title="Configuration régionale">
         <dl class="runtime-page__info-list">
-          <dt>Fuseau horaire</dt><dd>{{ runtime()!.timezone }}</dd>
-          <dt>Devise</dt><dd>{{ runtime()!.currency }}</dd>
+          <dt>Fuseau horaire</dt><dd>{{ runtimeVm.timezone }}</dd>
+          <dt>Devise</dt><dd>{{ runtimeVm.currency }}</dd>
         </dl>
       </tch-admin-section-card>
 
       <tch-admin-section-card title="Locales supportées">
-        @if (runtime()!.supportedLocales.length === 0) {
+        @if (runtimeVm.supportedLocales.length === 0) {
           <p class="runtime-page__empty">Aucune locale configurée.</p>
         } @else {
           <ul class="runtime-page__locale-list">
-            @for (locale of runtime()!.supportedLocales; track locale) {
+            @for (locale of runtimeVm.supportedLocales; track locale) {
               <li class="runtime-page__locale-chip">{{ languageLabel(locale) }} ({{ locale }})</li>
             }
           </ul>

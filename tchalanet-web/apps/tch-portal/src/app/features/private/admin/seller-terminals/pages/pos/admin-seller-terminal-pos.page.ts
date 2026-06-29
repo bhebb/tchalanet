@@ -8,13 +8,20 @@ import {
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchErrorPanel, TchLoading, TchNotice } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../../shared/admin-ui/admin-section-card.component';
+import {
+  AdminSectionErrorTargetDirective,
+  AdminSectionTargetError,
+} from '../../../../shared/admin-ui/admin-section-error-target.directive';
 
 import { AdminSellerTerminalPosApiService } from '../../data-access/admin-seller-terminal-pos-api.service';
 import {
@@ -47,6 +54,7 @@ let lineIdCounter = 0;
     MatIconModule,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    AdminSectionErrorTargetDirective,
     TchLoading,
     TchErrorPanel,
     TchNotice,
@@ -64,13 +72,15 @@ export class AdminSellerTerminalPosPage implements OnInit {
   private readonly api = inject(AdminSellerTerminalPosApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
-  readonly pageError = signal<string | null>(null);
+  readonly pageError = signal<ErrorViewModel | null>(null);
   readonly saving = signal(false);
   readonly printing = signal(false);
-  readonly saleError = signal<string | null>(null);
+  readonly saleError = signal<ErrorViewModel | null>(null);
   readonly activityLoading = signal(false);
+  readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
 
   readonly sellerTerminal = signal<PosSellerTerminalView | null>(null);
   readonly openDraws = signal<PosOpenDrawView[]>([]);
@@ -112,35 +122,67 @@ export class AdminSellerTerminalPosPage implements OnInit {
   private loadPage(sellerTerminalId: string): void {
     this.loading.set(true);
     this.pageError.set(null);
+    this.sectionErrors.set([]);
 
-    forkJoin({
-      terminal: this.api.getSellerTerminalForPos(sellerTerminalId),
-      draws: this.api.getOpenDrawsForPos(),
-      games: this.api.getActiveGamesForPos(),
-    }).subscribe({
-      next: ({ terminal, draws, games }) => {
+    this.api.getSellerTerminalForPos(sellerTerminalId, { suppressShellFeedback: true }).subscribe({
+      next: terminal => {
         this.sellerTerminal.set(terminal);
-        this.openDraws.set(draws);
-        this.games.set(games);
-        this.selectedDraw.set(draws[0] ?? null);
-        const borlette = games.find(g => g.gameCode === 'BORLETTE' && g.enabled);
-        this.selectedGameCode.set(borlette?.gameCode ?? games.find(g => g.enabled)?.gameCode ?? null);
         this.loading.set(false);
+        this.loadDraws();
+        this.loadGames();
         this.loadActivity(sellerTerminalId);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.pageError.set(pd?.title ?? 'Erreur de chargement du POS.');
+        this.pageError.set(this.errorViewModel(err, 'admin.sellerTerminal.pos.terminal'));
         this.loading.set(false);
+      },
+    });
+  }
+
+  private loadDraws(): void {
+    this.clearSectionError('admin.sellerTerminal.pos.draws');
+    this.api.getOpenDrawsForPos(24, { suppressShellFeedback: true }).subscribe({
+      next: draws => {
+        this.openDraws.set(draws);
+        this.selectedDraw.set(draws[0] ?? null);
+      },
+      error: err => {
+        this.openDraws.set([]);
+        this.selectedDraw.set(null);
+        this.setSectionError('admin.sellerTerminal.pos.draws', err);
+      },
+    });
+  }
+
+  private loadGames(): void {
+    this.clearSectionError('admin.sellerTerminal.pos.games');
+    this.api.getActiveGamesForPos({ suppressShellFeedback: true }).subscribe({
+      next: games => {
+        this.games.set(games);
+        const borlette = games.find(g => g.gameCode === 'BORLETTE' && g.enabled);
+        this.selectedGameCode.set(borlette?.gameCode ?? games.find(g => g.enabled)?.gameCode ?? null);
+      },
+      error: err => {
+        this.games.set([]);
+        this.selectedGameCode.set(null);
+        this.setSectionError('admin.sellerTerminal.pos.games', err);
       },
     });
   }
 
   private loadActivity(sellerTerminalId: string): void {
     this.activityLoading.set(true);
-    this.api.getTerminalActivity(sellerTerminalId).subscribe({
-      next: a => { this.activity.set(a); this.activityLoading.set(false); },
-      error: () => this.activityLoading.set(false),
+    this.clearSectionError('admin.sellerTerminal.pos.activity');
+    this.api.getTerminalActivity(sellerTerminalId, { suppressShellFeedback: true }).subscribe({
+      next: a => {
+        this.activity.set(a);
+        this.activityLoading.set(false);
+      },
+      error: err => {
+        this.activity.set(null);
+        this.setSectionError('admin.sellerTerminal.pos.activity', err);
+        this.activityLoading.set(false);
+      },
     });
   }
 
@@ -150,6 +192,10 @@ export class AdminSellerTerminalPosPage implements OnInit {
 
   selectGame(gameCode: string): void {
     this.selectedGameCode.set(gameCode);
+  }
+
+  hasSectionError(target: string): boolean {
+    return this.sectionErrors().some(error => error.target === target);
   }
 
   addLine(input: PosTicketLineInput): void {
@@ -173,20 +219,23 @@ export class AdminSellerTerminalPosPage implements OnInit {
 
   confirmSale(): void {
     if (!this.canConfirm()) return;
+    const terminal = this.sellerTerminal();
+    const draw = this.selectedDraw();
+    if (!terminal || !draw) return;
 
     this.saving.set(true);
     this.saleError.set(null);
 
     const idempotencyKey = crypto.randomUUID();
 
-    const terminalId = this.sellerTerminal()!.sellerTerminalId;
+    const terminalId = terminal.sellerTerminalId;
 
     this.api
       .confirmTicketSale(
         {
           sellerTerminalId: terminalId,
-          drawId: this.selectedDraw()!.drawId,
-          drawChannelId: this.selectedDraw()!.drawChannelId ?? null,
+          drawId: draw.drawId,
+          drawChannelId: draw.drawChannelId ?? null,
           currency: 'HTG',
           lines: this.lines().map(l => ({
             gameCode: l.gameCode,
@@ -197,6 +246,7 @@ export class AdminSellerTerminalPosPage implements OnInit {
         },
         idempotencyKey,
         terminalId,
+        { suppressShellFeedback: true },
       )
       .subscribe({
         next: ticket => {
@@ -207,8 +257,7 @@ export class AdminSellerTerminalPosPage implements OnInit {
           this.loadActivity(id);
         },
         error: (err: unknown) => {
-          const pd = (err as { error?: { title?: string } })?.error;
-          this.saleError.set(pd?.title ?? 'Erreur lors de la confirmation de la vente.');
+          this.saleError.set(this.errorViewModel(err, 'admin.sellerTerminal.pos.sale'));
           this.saving.set(false);
         },
       });
@@ -256,5 +305,32 @@ export class AdminSellerTerminalPosPage implements OnInit {
 
   goBack(): void {
     void this.router.navigate(['/app/admin/seller-terminals']);
+  }
+
+  private setSectionError(target: string, err: unknown): void {
+    const vm = this.errorViewModel(err, target);
+    this.sectionErrors.update(errors => [
+      ...errors.filter(error => error.target !== target),
+      { ...vm, target },
+    ]);
+  }
+
+  private clearSectionError(target: string): void {
+    this.sectionErrors.update(errors => errors.filter(error => error.target !== target));
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

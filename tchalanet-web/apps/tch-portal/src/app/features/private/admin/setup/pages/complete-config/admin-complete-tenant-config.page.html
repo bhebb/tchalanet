@@ -43,6 +43,9 @@
           <mat-icon class="setup__card-domain-icon">verified_user</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.identity' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.identity'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">
           @if (header()?.tenantName) {
             {{ header()!.tenantName }}
@@ -64,6 +67,9 @@
           <mat-icon class="setup__card-domain-icon">location_on</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.address' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.address'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         @if (header()?.address; as addr) {
           <p class="setup__card-body setup__card-body--address">
             {{ addr.line1 }}@if (addr.line2) { · {{ addr.line2 }}} · {{ addr.city }}@if (addr.country) {, {{ addr.country }}}
@@ -87,6 +93,9 @@
             <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.blocking' | translate }}</span>
           }
         </div>
+        @if (sectionError('admin.setup.games_pricing'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">{{ 'admin.setup.section.gamesDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/games-pricing">
           {{ 'admin.setup.section.gamesCta' | translate }}
@@ -104,6 +113,9 @@
             <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.blocking' | translate }}</span>
           }
         </div>
+        @if (sectionError('admin.setup.draws'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">{{ 'admin.setup.section.drawChannelsDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/draw-channels">
           {{ 'admin.setup.section.drawChannelsCta' | translate }}
@@ -118,6 +130,9 @@
           <span class="setup__card-title">{{ 'admin.setup.section.generatedDraws' | translate }}</span>
           <span class="setup__card-badge">{{ 'admin.setup.operational' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.generatedDraws'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">{{ 'admin.setup.section.generatedDrawsDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/draws">
           {{ 'admin.setup.section.generatedDrawsCta' | translate }}
@@ -133,6 +148,9 @@
           <span class="setup__card-title">{{ 'admin.setup.section.theme' | translate }}</span>
           <span class="setup__card-badge">{{ 'admin.setup.optional' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.theme'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">{{ 'admin.setup.section.themeDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/appearance">
           {{ 'admin.setup.section.themeCta' | translate }}
@@ -148,6 +166,9 @@
           <span class="setup__card-title">{{ 'admin.setup.section.promotions' | translate }}</span>
           <span class="setup__card-badge">{{ 'admin.setup.optional' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.promotions'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
         <p class="setup__card-body">{{ 'admin.setup.section.promotionsDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/promotions/maryaj-gratis">
           {{ 'admin.setup.section.promotionsCta' | translate }}
@@ -177,6 +198,9 @@
           <mat-icon class="setup__card-domain-icon">point_of_sale</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.sellerTerminal' | translate }}</span>
         </div>
+        @if (sectionError('admin.setup.sellerTerminal'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
 
         @if (canCreateSellerTerminal()) {
           <p class="setup__card-body">{{ 'admin.setup.section.sellerTerminalReady' | translate }}</p>

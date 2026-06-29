@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -134,37 +134,44 @@ export class SellerTerminalApi {
     return this.backend.get<SellerTerminalCommissionOverview>('/admin/commission/overview');
   }
 
-  list(params: ListSellerTerminalsParams = {}): Observable<TchPage<SellerTerminalSummaryRow>> {
+  list(
+    params: ListSellerTerminalsParams = {},
+    options?: TchRequestOptions,
+  ): Observable<TchPage<SellerTerminalSummaryRow>> {
     const p = new URLSearchParams();
     if (params.q) p.set('q', params.q);
     if (params.status) p.set('status', params.status);
     if (params.page !== undefined) p.set('page', String(params.page));
     if (params.size !== undefined) p.set('size', String(params.size));
     const qs = p.toString();
-    const options = params.tenantId
+    const requestOptions = params.tenantId
       ? {
+          ...(options ?? {}),
           asTenantAdmin: {
             tenantId: params.tenantId,
             reason: 'SUPER_ADMIN: list seller terminals for recipient picker',
           },
         }
-      : undefined;
-    return this.backend.get<BackendPage<SellerTerminalSummaryRow>>(
+      : options;
+    return this.backend.get<TchPage<SellerTerminalSummaryRow>>(
       `/admin/seller-terminals${qs ? `?${qs}` : ''}`,
-      options,
-    ).pipe(map(page => this.toPage(page, params.page ?? 0, params.size ?? 20)));
+      requestOptions,
+    );
   }
 
   get(id: string): Observable<SellerTerminalView> {
     return this.backend.get<SellerTerminalView>(`/admin/seller-terminals/${id}`);
   }
 
-  create(req: CreateSellerTerminalRequest): Observable<{ value: string }> {
-    return this.backend.post<{ value: string }>('/admin/seller-terminals', req);
+  create(req: CreateSellerTerminalRequest, options?: TchRequestOptions): Observable<{ value: string }> {
+    return this.backend.post<{ value: string }>('/admin/seller-terminals', req, options);
   }
 
-  createFull(req: CreateSellerTerminalRequest): Observable<CreateSellerTerminalResult> {
-    return this.backend.post<{ value: string }>('/admin/seller-terminals', req).pipe(
+  createFull(
+    req: CreateSellerTerminalRequest,
+    options?: TchRequestOptions,
+  ): Observable<CreateSellerTerminalResult> {
+    return this.backend.post<{ value: string }>('/admin/seller-terminals', req, options).pipe(
       map(res => ({
         sellerTerminalId: res.value,
         terminalCode: req.terminalCode,
@@ -180,24 +187,28 @@ export class SellerTerminalApi {
     return this.backend.put<void>(`/admin/seller-terminals/${id}`, req);
   }
 
-  block(id: string, reason: string): Observable<void> {
-    return this.backend.patch<void>(`/admin/seller-terminals/${id}/block`, { reason });
+  block(id: string, reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.patch<void>(`/admin/seller-terminals/${id}/block`, { reason }, options);
   }
 
-  unblock(id: string): Observable<void> {
-    return this.backend.patch<void>(`/admin/seller-terminals/${id}/unblock`, {});
+  unblock(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.patch<void>(`/admin/seller-terminals/${id}/unblock`, {}, options);
   }
 
-  disable(id: string): Observable<void> {
-    return this.backend.patch<void>(`/admin/seller-terminals/${id}/disable`, {});
+  disable(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.patch<void>(`/admin/seller-terminals/${id}/disable`, {}, options);
   }
 
   resetAccess(id: string, newPin: string): Observable<void> {
     return this.backend.patch<void>(`/admin/seller-terminals/${id}/reset-access`, { newPin });
   }
 
-  resetPin(id: string, req: ResetSellerTerminalPinRequest): Observable<ResetSellerTerminalPinResponse> {
-    return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req);
+  resetPin(
+    id: string,
+    req: ResetSellerTerminalPinRequest,
+    options?: TchRequestOptions,
+  ): Observable<ResetSellerTerminalPinResponse> {
+    return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req, options);
   }
 
   private toPage<T>(page: BackendPage<T>, fallbackPage: number, fallbackSize: number): TchPage<T> {

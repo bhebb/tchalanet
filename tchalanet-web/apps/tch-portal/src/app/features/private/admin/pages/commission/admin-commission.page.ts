@@ -4,13 +4,20 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
+import {
+  AdminSectionErrorTargetDirective,
+  AdminSectionTargetError,
+} from '../../../shared/admin-ui/admin-section-error-target.directive';
 import {
   AdminCommissionApi,
   CommissionOverviewView,
@@ -27,6 +34,7 @@ import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
     LowerCasePipe,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    AdminSectionErrorTargetDirective,
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
@@ -41,12 +49,13 @@ import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
 export class AdminCommissionPage implements OnInit {
   private readonly api = inject(AdminCommissionApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly sellerColumns = ['terminalCode', 'displayName', 'status', 'commissionRate', 'source', 'actions'];
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
   readonly overview = signal<CommissionOverviewView | null>(null);
   readonly sellers = signal<SellerTerminalCommissionRow[]>([]);
 
@@ -57,19 +66,22 @@ export class AdminCommissionPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.sectionErrors.set([]);
 
-    this.api.getOverview().subscribe({
-      next: v => { this.overview.set(v); this.loading.set(false); },
+    this.api.getOverview({ suppressShellFeedback: true }).subscribe({
+      next: v => {
+        this.overview.set(v);
+        this.loading.set(false);
+      },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'admin.commission.overview'));
         this.loading.set(false);
       },
     });
 
-    this.api.listSellers().subscribe({
+    this.api.listSellers(0, 50, { suppressShellFeedback: true }).subscribe({
       next: v => this.sellers.set(v),
-      error: () => {},
+      error: err => this.setSectionError('admin.commission.sellers', err),
     });
   }
 
@@ -78,12 +90,12 @@ export class AdminCommissionPage implements OnInit {
     const ref = this.dialog.open(SetDefaultRateDialog, { data: { current }, width: '420px' });
     ref.afterClosed().subscribe((rate: number | undefined) => {
       if (rate == null) return;
-      this.api.setDefaultRate(rate).subscribe({
+      this.clearSectionError('admin.commission.defaultRate');
+      this.api.setDefaultRate(rate, { suppressShellFeedback: true }).subscribe({
         next: () => {
-          this.snackBar.open('Taux par défaut mis à jour.', 'OK', { duration: 3000 });
           this.load();
         },
-        error: () => this.snackBar.open('Erreur lors de la mise à jour.', 'OK', { duration: 4000 }),
+        error: err => this.setSectionError('admin.commission.defaultRate', err),
       });
     });
   }
@@ -92,23 +104,50 @@ export class AdminCommissionPage implements OnInit {
     const ref = this.dialog.open(SetSellerRateDialog, { data: { row }, width: '420px' });
     ref.afterClosed().subscribe((rate: number | undefined) => {
       if (rate == null) return;
-      this.api.setSellerRate(row.id.value, rate).subscribe({
+      this.clearSectionError('admin.commission.sellers');
+      this.api.setSellerRate(row.id.value, rate, { suppressShellFeedback: true }).subscribe({
         next: () => {
-          this.snackBar.open('Taux vendeur mis à jour.', 'OK', { duration: 3000 });
           this.load();
         },
-        error: () => this.snackBar.open('Erreur lors de la mise à jour.', 'OK', { duration: 4000 }),
+        error: err => this.setSectionError('admin.commission.sellers', err),
       });
     });
   }
 
   resetSellerRate(row: SellerTerminalCommissionRow): void {
-    this.api.resetSellerRate(row.id.value).subscribe({
+    this.clearSectionError('admin.commission.sellers');
+    this.api.resetSellerRate(row.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open(`${row.displayName} revenu au taux par défaut.`, 'OK', { duration: 3000 });
         this.load();
       },
-      error: () => this.snackBar.open('Erreur lors de la réinitialisation.', 'OK', { duration: 4000 }),
+      error: err => this.setSectionError('admin.commission.sellers', err),
     });
+  }
+
+  private setSectionError(target: string, err: unknown): void {
+    const vm = this.errorViewModel(err, target);
+    this.sectionErrors.update(errors => [
+      ...errors.filter(error => error.target !== target),
+      { ...vm, target },
+    ]);
+  }
+
+  private clearSectionError(target: string): void {
+    this.sectionErrors.update(errors => errors.filter(error => error.target !== target));
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

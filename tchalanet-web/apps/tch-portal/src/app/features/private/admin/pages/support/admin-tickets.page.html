@@ -4,10 +4,10 @@
 
     <tch-admin-data-toolbar>
       <mat-select
+        class="tickets-page__status-filter"
         [value]="statusFilter()"
         (valueChange)="onStatusFilter($event)"
         placeholder="Statut"
-        style="width: 160px"
       >
         <mat-option value="">Tous</mat-option>
         <mat-option value="PLACED">Placé</mat-option>
@@ -24,8 +24,14 @@
 
     @if (loading()) {
       <tch-loading />
-    } @else if (error()) {
-      <tch-error-panel [message]="error()!" (retry)="load()" />
+    } @else if (error(); as pageError) {
+      <tch-error-panel
+        [title]="pageError.title"
+        [message]="pageError.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
     } @else if (items().length === 0) {
       <tch-admin-empty-state icon="confirmation_number" title="Aucun billet" message="Aucun billet trouvé pour ces critères." />
     } @else {

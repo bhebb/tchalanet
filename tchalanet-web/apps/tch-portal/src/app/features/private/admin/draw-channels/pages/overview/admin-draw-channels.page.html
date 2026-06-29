@@ -18,14 +18,17 @@
   </div>
 
   @if (pageState() === 'loading') {
-    <tch-loading label="Chargement des tirages…" />
+    <tch-loading label="Chargement des tirages..." />
   } @else if (pageState() === 'error') {
-    <tch-error-panel
-      [title]="pageError()!"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+    @if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
   } @else {
 
     <!-- KPI summary -->
@@ -55,6 +58,15 @@
     <p class="dc-page__count">
       Affichage de <strong>{{ filteredProviders().length }}</strong> provider{{ filteredProviders().length !== 1 ? 's' : '' }}
     </p>
+
+    @if (actionNotice(); as notice) {
+      <tch-section-error
+        class="dc-page__notice"
+        title="Action non disponible"
+        [message]="notice"
+        severity="info"
+      />
+    }
 
     <!-- Provider cards grid -->
     @if (filteredProviders().length === 0) {

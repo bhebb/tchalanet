@@ -10,15 +10,7 @@ import { AdminPageShellComponent } from '../../shared/admin-ui/admin-page-shell.
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslatePipe, AdminPageShellComponent, AdminEmptyStateComponent],
-  template: `
-    <tch-admin-page-shell [title]="data['titleKey'] | translate">
-      <tch-admin-empty-state
-        [icon]="data['icon'] ?? 'construction'"
-        [title]="'common.placeholder.title' | translate"
-        [message]="'common.placeholder.message' | translate"
-      />
-    </tch-admin-page-shell>
-  `,
+  templateUrl: './admin-placeholder.page.html',
 })
 export class AdminPlaceholderPage {
   protected readonly data = inject(ActivatedRoute).snapshot.data;

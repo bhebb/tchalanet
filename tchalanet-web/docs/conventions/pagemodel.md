@@ -139,6 +139,9 @@ Critical shape facts:
 * Runtime widget payloads live in `dynamic.widgets`, keyed by widget id.
 * Widget-local dynamic failures live in `dynamic.errors`.
 * Request-level `notices` and `services` belong to the `ApiResponse` envelope, not to PageModel.
+* Section-targeted request notices may be mapped by the web API boundary into widget-local
+  `dynamic.errors` when `meta.surface=section` and `meta.target` matches a widget id. See
+  [`error-management.md`](./error-management.md).
 * Dashboard-specific responses may add dashboard-level fields such as `notifications`, but the renderer must keep `content` and `dynamic` semantics unchanged.
 
 ---

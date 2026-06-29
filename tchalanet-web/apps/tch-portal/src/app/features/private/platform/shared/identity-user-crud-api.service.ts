@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface CreateIdentityUserRequest {
@@ -28,33 +29,33 @@ export interface PasswordResetResult {
 export class IdentityUserCrudApi {
   private readonly backend = inject(TchBackendClient);
 
-  searchUnassigned(q: string, page = 0, size = 10): Observable<IdentityUserView[]> {
+  searchUnassigned(q: string, page = 0, size = 10, options?: TchRequestOptions): Observable<IdentityUserView[]> {
     const params = new URLSearchParams({ unassigned: 'true', page: String(page), size: String(size) });
     if (q?.trim()) params.set('q', q.trim());
-    return this.backend.get<IdentityUserView[]>(`/identity/users?${params.toString()}`);
+    return this.backend.get<IdentityUserView[]>(`/identity/users?${params.toString()}`, options);
   }
 
-  createUser(request: CreateIdentityUserRequest): Observable<IdentityUserView> {
-    return this.backend.post<IdentityUserView>('/identity/users', request);
+  createUser(request: CreateIdentityUserRequest, options?: TchRequestOptions): Observable<IdentityUserView> {
+    return this.backend.post<IdentityUserView>('/identity/users', request, options);
   }
 
-  assignMembership(userId: string, request: AssignMembershipRequest): Observable<void> {
-    return this.backend.post<void>(`/identity/users/${userId}/membership`, request);
+  assignMembership(userId: string, request: AssignMembershipRequest, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/identity/users/${userId}/membership`, request, options);
   }
 
-  activate(userId: string): Observable<void> {
-    return this.backend.post<void>(`/identity/users/${userId}/activate`, {});
+  activate(userId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/identity/users/${userId}/activate`, {}, options);
   }
 
-  suspend(userId: string): Observable<void> {
-    return this.backend.post<void>(`/identity/users/${userId}/suspend`, {});
+  suspend(userId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/identity/users/${userId}/suspend`, {}, options);
   }
 
-  archive(userId: string): Observable<void> {
-    return this.backend.delete<void>(`/identity/users/${userId}`);
+  archive(userId: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.delete<void>(`/identity/users/${userId}`, options);
   }
 
-  resetPassword(userId: string): Observable<PasswordResetResult> {
-    return this.backend.post<PasswordResetResult>(`/identity/users/${userId}/reset-password`, {});
+  resetPassword(userId: string, options?: TchRequestOptions): Observable<PasswordResetResult> {
+    return this.backend.post<PasswordResetResult>(`/identity/users/${userId}/reset-password`, {}, options);
   }
 }

@@ -14,7 +14,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -26,16 +25,17 @@ import {
   TchConfirmDialogData,
   TchErrorPanel,
   TchLoading,
+  TchSectionError,
   TchStatusBadge,
 } from '@tch/ui/components';
 
 import { AdminEmptyStateComponent } from '../../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
-import { TchBackendClient } from '@tch/api';
+import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
-
-type ProblemLike = { title?: string; detail?: string };
 
 const PAGE_SIZE = 20;
 
@@ -52,6 +52,7 @@ const PAGE_SIZE = 20;
     AdminListSurface,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     TchStatusBadge,
     MatButtonModule,
     MatMenuModule,
@@ -67,7 +68,6 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -80,7 +80,8 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   readonly sort = signal('displayName,asc');
 
   readonly loading = signal(false);
-  readonly errorTitle = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly items = signal<TenantAdminGlobalRow[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -94,11 +95,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
         const snap = this.route.snapshot.queryParamMap;
         const snapPage = Math.max(0, Number(snap.get('page') ?? 0) || 0);
         this.loading.set(true);
-        this.errorTitle.set(null);
+        this.error.set(null);
+        this.actionNotice.set(null);
         return this.search(snap.get('q') ?? '', snap.get('sort') ?? 'displayName,asc', snapPage).pipe(
           catchError((err: unknown) => {
-            const pd = this.problem(err);
-            this.errorTitle.set(pd.title ?? this.translate.instant('platform.tenantAdmins.error.load'));
+            this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.list'));
             this.loading.set(false);
             return EMPTY;
           }),
@@ -191,13 +192,14 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.identityApi.resetPassword(row.id).subscribe({
-          next: ({ tempPassword }) => this.snackBar.open(
-            `Mot de passe temporaire : ${tempPassword}`, 'OK', { duration: 15000 },
-          ),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenantAdmins.error.resetPassword'), 'OK', { duration: 4000 },
-          ),
+        this.error.set(null);
+        this.actionNotice.set(null);
+        this.identityApi.resetPassword(row.id, { suppressShellFeedback: true }).subscribe({
+          next: ({ tempPassword }) => this.actionNotice.set({
+            title: this.translate.instant('platform.tenantAdmins.action.resetPassword'),
+            message: tempPassword,
+          }),
+          error: err => this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.resetPassword')),
         });
       });
   }
@@ -213,11 +215,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.identityApi.activate(row.id).subscribe({
+        this.error.set(null);
+        this.actionNotice.set(null);
+        this.identityApi.activate(row.id, { suppressShellFeedback: true }).subscribe({
           next: () => this.loadTrigger$.next(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenantAdmins.error.activate'), 'OK', { duration: 4000 },
-          ),
+          error: err => this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.activate')),
         });
       });
   }
@@ -234,11 +236,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.identityApi.suspend(row.id).subscribe({
+        this.error.set(null);
+        this.actionNotice.set(null);
+        this.identityApi.suspend(row.id, { suppressShellFeedback: true }).subscribe({
           next: () => this.loadTrigger$.next(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenantAdmins.error.block'), 'OK', { duration: 4000 },
-          ),
+          error: err => this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.block')),
         });
       });
   }
@@ -256,11 +258,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (!result?.confirmed) return;
-        this.identityApi.archive(row.id).subscribe({
+        this.error.set(null);
+        this.actionNotice.set(null);
+        this.identityApi.archive(row.id, { suppressShellFeedback: true }).subscribe({
           next: () => this.loadTrigger$.next(),
-          error: () => this.snackBar.open(
-            this.translate.instant('platform.tenantAdmins.error.archive'), 'OK', { duration: 4000 },
-          ),
+          error: err => this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.archive')),
         });
       });
   }
@@ -270,7 +272,10 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
     if (q) params['q'] = q;
     if (sort) params['sort'] = sort;
     const qs = new URLSearchParams(params).toString();
-    return this.backend.get<TenantAdminGlobalPage>(`/admin/identity/users?${qs}`);
+    return this.backend.get<TenantAdminGlobalPage>(
+      `/admin/identity/users?${qs}`,
+      { suppressShellFeedback: true },
+    );
   }
 
   private navigateWithFilters(): void {
@@ -293,7 +298,18 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
     });
   }
 
-  private problem(err: unknown): ProblemLike {
-    return ((err as { error?: ProblemLike })?.error ?? {}) as ProblemLike;
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

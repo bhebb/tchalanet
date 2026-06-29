@@ -32,6 +32,15 @@
       </header>
 
       <form [formGroup]="composerForm" class="composer-form" (ngSubmit)="create()">
+        @if (composerError(); as errorVm) {
+          <tch-section-error
+            class="composer-form__error"
+            [title]="errorVm.title"
+            [message]="errorVm.message"
+            [severity]="errorVm.severity"
+          />
+        }
+
         <mat-form-field appearance="outline">
           <mat-label>Audience</mat-label>
           <mat-select formControlName="audienceType">
@@ -210,12 +219,32 @@
       </button>
     </div>
 
-    @if (error()) {
-      <tch-error-panel [message]="error()!" />
+    @if (actionError(); as errorVm) {
+      <tch-section-error
+        class="notifications-feedback"
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [severity]="errorVm.severity"
+      />
+    } @else if (actionNotice(); as notice) {
+      <tch-section-error
+        class="notifications-feedback"
+        title="Action effectuée"
+        [message]="notice"
+        severity="info"
+      />
     }
 
     @if (loading()) {
       <tch-loading label="Chargement des notifications..." />
+    } @else if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
     } @else if (items().length === 0) {
       <tch-admin-empty-state
         icon="notifications"

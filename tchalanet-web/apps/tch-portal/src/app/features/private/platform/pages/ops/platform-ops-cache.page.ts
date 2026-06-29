@@ -3,10 +3,13 @@ import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { PlatformOpsApi, CacheView } from '../../platform-ops-api.service';
@@ -30,6 +33,7 @@ interface OpsCacheRow extends CacheView {
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -40,12 +44,13 @@ interface OpsCacheRow extends CacheView {
 export class PlatformOpsCachePage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = ['cacheName', 'group', 'size', 'hitRate', 'lastClearedAt', 'critical', 'actions'];
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly traceId = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly caches = signal<CacheView[]>([]);
   readonly groupedCaches = computed<OpsCacheRow[]>(() =>
     this.caches().map(cache => ({
@@ -62,28 +67,29 @@ export class PlatformOpsCachePage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.listCaches().subscribe({
+    this.actionError.set(null);
+    this.api.listCaches({ suppressShellFeedback: true }).subscribe({
       next: v => { this.caches.set(v); this.loading.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; errorId?: string; requestId?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
-        this.traceId.set(pd?.errorId ?? pd?.requestId ?? null);
+        this.error.set(this.errorViewModel(err, 'platform.ops.cache.list'));
         this.loading.set(false);
       },
     });
   }
 
   clearOne(cache: CacheView): void {
-    this.api.clearCache(cache.cacheName).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.clearCache(cache.cacheName, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open(`Cache "${cache.cacheName}" vidé.`, 'OK', { duration: 3000 });
         this.load();
+        this.actionNotice.set({
+          title: 'Cache vidé',
+          message: cache.cacheName,
+        });
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string; errorId?: string; requestId?: string } })?.error;
-        const msg = pd?.title ?? 'Erreur.';
-        const tid = pd?.errorId ?? pd?.requestId;
-        this.snackBar.open(tid ? `${msg} (ID: ${tid})` : msg, 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'platform.ops.cache.clear'));
       },
     });
   }
@@ -112,6 +118,21 @@ export class PlatformOpsCachePage implements OnInit {
     ref.afterClosed().subscribe(ok => {
       if (ok) this.load();
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }
 

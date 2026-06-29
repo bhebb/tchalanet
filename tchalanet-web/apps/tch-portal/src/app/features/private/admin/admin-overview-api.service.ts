@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import type { ApiResponse } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type ReadinessStatus = 'READY' | 'PARTIAL' | 'MISSING' | 'UNKNOWN';
@@ -75,23 +76,27 @@ export interface UpsertAddressRequest {
 export class AdminOverviewApiService {
   private readonly backend = inject(TchBackendClient);
 
-  getOverview(): Observable<TenantAdminOverviewView> {
-    return this.backend.get<TenantAdminOverviewView>('/admin/overview');
+  getOverview(options?: TchRequestOptions): Observable<TenantAdminOverviewView> {
+    return this.backend.get<TenantAdminOverviewView>('/admin/overview', options);
   }
 
-  updateIdentity(req: UpdateTenantIdentityRequest): Observable<void> {
-    return this.backend.put<void>('/admin/tenant', req);
+  getOverviewResponse(options?: TchRequestOptions): Observable<ApiResponse<TenantAdminOverviewView>> {
+    return this.backend.getApiResponse<TenantAdminOverviewView>('/admin/overview', options);
   }
 
-  getCommissionOverview(): Observable<{ tenantDefaultRate: number | null }> {
-    return this.backend.get<{ tenantDefaultRate: number | null }>('/admin/commission/overview');
+  updateIdentity(req: UpdateTenantIdentityRequest, options?: TchRequestOptions): Observable<void> {
+    return this.backend.put<void>('/admin/tenant', req, options);
   }
 
-  updateDefaultCommissionRate(rate: number): Observable<void> {
-    return this.backend.put<void>('/admin/commission/default-rate', { rate });
+  getCommissionOverview(options?: TchRequestOptions): Observable<{ tenantDefaultRate: number | null }> {
+    return this.backend.get<{ tenantDefaultRate: number | null }>('/admin/commission/overview', options);
   }
 
-  upsertAddress(req: UpsertAddressRequest): Observable<void> {
-    return this.backend.put<void>('/admin/tenant/address', req);
+  updateDefaultCommissionRate(rate: number, options?: TchRequestOptions): Observable<void> {
+    return this.backend.put<void>('/admin/commission/default-rate', { rate }, options);
+  }
+
+  upsertAddress(req: UpsertAddressRequest, options?: TchRequestOptions): Observable<void> {
+    return this.backend.put<void>('/admin/tenant/address', req, options);
   }
 }

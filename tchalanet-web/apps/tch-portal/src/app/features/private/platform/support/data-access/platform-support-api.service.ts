@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type ContactRequestIntent =
@@ -168,7 +169,7 @@ export class PlatformSupportApi {
     intent?: ContactRequestIntent;
     page?: number;
     size?: number;
-  }): Observable<TchPage<ContactRequestSummaryView>> {
+  }, options?: TchRequestOptions): Observable<TchPage<ContactRequestSummaryView>> {
     const entries = Object.entries(params)
       .filter(([, value]) => value !== undefined && value !== null && String(value) !== '')
       .map(([key, value]) => [key, String(value)]);
@@ -176,15 +177,16 @@ export class PlatformSupportApi {
 
     return this.backend.get<TchPage<ContactRequestSummaryView>>(
       `/platform/contact-requests${q ? '?' + q : ''}`,
+      options,
     );
   }
 
-  getContactRequest(id: string): Observable<ContactRequestAdminDetailView> {
-    return this.backend.get<ContactRequestAdminDetailView>(`/platform/contact-requests/${id}`);
+  getContactRequest(id: string, options?: TchRequestOptions): Observable<ContactRequestAdminDetailView> {
+    return this.backend.get<ContactRequestAdminDetailView>(`/platform/contact-requests/${id}`, options);
   }
 
-  updateContactStatus(id: string, status: ContactRequestStatus): Observable<void> {
-    return this.backend.patch<void>(`/platform/contact-requests/${id}/status`, { status });
+  updateContactStatus(id: string, status: ContactRequestStatus, options?: TchRequestOptions): Observable<void> {
+    return this.backend.patch<void>(`/platform/contact-requests/${id}/status`, { status }, options);
   }
 
   updateContactNotes(
@@ -194,35 +196,44 @@ export class PlatformSupportApi {
       externalTool?: string | null;
       externalReference?: string | null;
     },
+    options?: TchRequestOptions,
   ): Observable<void> {
-    return this.backend.patch<void>(`/platform/contact-requests/${id}/notes`, payload);
+    return this.backend.patch<void>(`/platform/contact-requests/${id}/notes`, payload, options);
   }
 
-  listNews(): Observable<PublicContentAdminItemView[]> {
-    return this.backend.get<PublicContentAdminItemView[]>('/platform/public-content/news');
+  listNews(options?: TchRequestOptions): Observable<PublicContentAdminItemView[]> {
+    return this.backend.get<PublicContentAdminItemView[]>('/platform/public-content/news', options);
   }
 
-  upsertNews(payload: UpsertPublicContentRequest): Observable<PublicContentAdminItemView> {
-    return this.backend.post<PublicContentAdminItemView>('/platform/public-content/news', payload);
+  upsertNews(
+    payload: UpsertPublicContentRequest,
+    options?: TchRequestOptions,
+  ): Observable<PublicContentAdminItemView> {
+    return this.backend.post<PublicContentAdminItemView>('/platform/public-content/news', payload, options);
   }
 
-  changeNewsStatus(id: string, status: PublicContentStatus): Observable<PublicContentAdminItemView> {
+  changeNewsStatus(
+    id: string,
+    status: PublicContentStatus,
+    options?: TchRequestOptions,
+  ): Observable<PublicContentAdminItemView> {
     return this.backend.post<PublicContentAdminItemView>(
       `/platform/public-content/news/${id}/status`,
       { status },
+      options,
     );
   }
 
-  hideNews(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/public-content/news/${id}/hide`, {});
+  hideNews(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/public-content/news/${id}/hide`, {}, options);
   }
 
-  showNews(id: string): Observable<void> {
-    return this.backend.post<void>(`/platform/public-content/news/${id}/show`, {});
+  showNews(id: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/public-content/news/${id}/show`, {}, options);
   }
 
-  forceRefreshNews(): Observable<void> {
-    return this.backend.post<void>('/platform/public-content/news/force-refresh', {});
+  forceRefreshNews(options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>('/platform/public-content/news/force-refresh', {}, options);
   }
 
   listNotifications(params: {
@@ -233,47 +244,51 @@ export class PlatformSupportApi {
     severity?: NotificationSeverity;
     page?: number;
     size?: number;
-  }): Observable<TchPage<NotificationItemView>> {
+  }, options?: TchRequestOptions): Observable<TchPage<NotificationItemView>> {
     const entries = Object.entries(params)
       .filter(([, value]) => value !== undefined && value !== null && String(value) !== '')
       .map(([key, value]) => [key, String(value)]);
     const q = new URLSearchParams(Object.fromEntries(entries)).toString();
-    return this.backend.get<TchPage<NotificationItemView>>(`/platform/notifications${q ? '?' + q : ''}`);
+    return this.backend.get<TchPage<NotificationItemView>>(`/platform/notifications${q ? '?' + q : ''}`, options);
   }
 
-  createNotification(payload: CreateNotificationRequest): Observable<boolean> {
-    return this.backend.post<boolean>('/platform/notifications', payload);
+  createNotification(payload: CreateNotificationRequest, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>('/platform/notifications', payload, options);
   }
 
-  createTenantNotification(tenantId: string, payload: CreateNotificationRequest): Observable<boolean> {
-    return this.backend.post<boolean>(`/platform/tenants/${tenantId}/notifications`, payload);
+  createTenantNotification(
+    tenantId: string,
+    payload: CreateNotificationRequest,
+    options?: TchRequestOptions,
+  ): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/tenants/${tenantId}/notifications`, payload, options);
   }
 
-  markNotificationRead(id: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/platform/notifications/${id}/read`, {});
+  markNotificationRead(id: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/notifications/${id}/read`, {}, options);
   }
 
-  archiveNotification(id: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/platform/notifications/${id}/archive`, {});
+  archiveNotification(id: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/notifications/${id}/archive`, {}, options);
   }
 
-  publishNotification(id: string, reason?: string | null): Observable<unknown> {
-    return this.backend.post<unknown>(`/platform/notifications/${id}/publish`, { reason: reason ?? null });
+  publishNotification(id: string, reason?: string | null, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/notifications/${id}/publish`, { reason: reason ?? null }, options);
   }
 
-  republishNotification(id: string, reason: string): Observable<unknown> {
-    return this.backend.post<unknown>(`/platform/notifications/${id}/republish`, { reason });
+  republishNotification(id: string, reason: string, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.post<unknown>(`/platform/notifications/${id}/republish`, { reason }, options);
   }
 
-  replayNotificationRecipients(id: string): Observable<number> {
-    return this.backend.post<number>(`/platform/notifications/${id}/replay-recipients`, {});
+  replayNotificationRecipients(id: string, options?: TchRequestOptions): Observable<number> {
+    return this.backend.post<number>(`/platform/notifications/${id}/replay-recipients`, {}, options);
   }
 
-  cancelNotification(id: string, reason: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/platform/notifications/${id}/cancel`, { reason });
+  cancelNotification(id: string, reason: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/platform/notifications/${id}/cancel`, { reason }, options);
   }
 
-  purgeExpiredNotifications(dryRun: boolean): Observable<unknown> {
-    return this.backend.post<unknown>('/platform/notifications/purge-expired', { dryRun });
+  purgeExpiredNotifications(dryRun: boolean, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.post<unknown>('/platform/notifications/purge-expired', { dryRun }, options);
   }
 }

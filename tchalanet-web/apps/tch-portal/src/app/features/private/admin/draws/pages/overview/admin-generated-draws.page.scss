@@ -1,4 +1,9 @@
 .gd-page {
+  &__action-feedback {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
   &__date-chips {
     display: flex;
     gap: 0.5rem;

@@ -1,0 +1,84 @@
+{
+  "common": {
+    "errors": {
+      "fallback": {
+        "title": "Pwoblem detekte",
+        "message": "Gen yon pwoblem ki rive. Kopye referans sipò a si pwoblem nan kontinye."
+      },
+      "categories": {
+        "auth_required": {
+          "title": "Sesyon obligatwa",
+          "message": "Konekte anko pou kontinye."
+        },
+        "access_denied": {
+          "title": "Aksè refize",
+          "message": "Kont ou pa ka fe aksyon sa a."
+        },
+        "validation": {
+          "title": "Enfomasyon pou korije",
+          "message": "Verifye chan yo epi eseye anko."
+        },
+        "not_found": {
+          "title": "Eleman pa jwenn",
+          "message": "Resous ou mande a pa disponib anko."
+        },
+        "conflict": {
+          "title": "Aksyon pa disponib",
+          "message": "Eta aktyel la pa pemet aksyon sa a."
+        },
+        "rate_limited": {
+          "title": "Twop demann",
+          "message": "Tann yon ti moman avan ou eseye anko."
+        },
+        "network_unavailable": {
+          "title": "Koneksyon pa disponib",
+          "message": "Verifye koneksyon an epi eseye anko."
+        },
+        "service_unavailable": {
+          "title": "Sevis la pa disponib pou yon ti tan",
+          "message": "Yon pati nan sevis la pa disponib pou yon ti tan."
+        },
+        "unexpected": {
+          "title": "Pwoblem detekte",
+          "message": "Gen yon pwoblem ki rive. Kopye referans sipò a si pwoblem nan kontinye."
+        }
+      },
+      "codes": {
+        "request": {
+          "missing_parameter": {
+            "title": "Enfomasyon manke",
+            "message": "Gen yon enfomasyon obligatwa ki manke. Verifye fom lan epi eseye anko."
+          },
+          "not_readable": {
+            "title": "Demann lan pa valid",
+            "message": "Gen enfomasyon ki voye ki pa ka li. Verifye fom lan epi eseye anko."
+          },
+          "type_mismatch": {
+            "title": "Foma pa valid",
+            "message": "Gen yon vale ki pa nan foma yo espere a. Verifye chan ki make a epi eseye anko."
+          }
+        },
+        "validation": {
+          "constraint_violation": {
+            "title": "Enfomasyon pou korije",
+            "message": "Korije chan ki make yo epi eseye anko."
+          },
+          "failed": {
+            "title": "Enfomasyon pou korije",
+            "message": "Korije chan ki make yo epi eseye anko."
+          }
+        },
+        "platform": {
+          "identity": {
+            "activation": {
+              "error": {
+                "title": "Aktivasyon kont lan pa fini",
+                "message": "Espas ou a toujou aksesib, men yon verifikasyon kont pa t fini."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -103,6 +103,10 @@
   min-width: 0;
 }
 
+.composer-form__error {
+  grid-column: 1 / -1;
+}
+
 :host ::ng-deep .composer-form__locale-tabs .mat-mdc-tab-header {
   border-bottom: 1px solid var(--tch-color-outline-variant);
 }
@@ -155,6 +159,11 @@
   mat-form-field {
     min-width: 13rem;
   }
+}
+
+.notifications-feedback {
+  display: block;
+  margin-block-end: 1rem;
 }
 
 .notifications-table {

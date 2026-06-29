@@ -7,17 +7,18 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 import { DrawResultDrawerComponent } from '../../components/draw-result-drawer/draw-result-drawer.component';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { AdminCrudShellComponent } from '../../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminDataToolbarComponent } from '../../../../shared/admin-ui/admin-data-toolbar.component';
@@ -44,12 +45,9 @@ const TODAY = new Date().toISOString().slice(0, 10);
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatMenuModule,
     AdminPageShellComponent,
     AdminCrudShellComponent,
@@ -57,6 +55,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     GeneratedDrawsSummaryComponent,
     GeneratedDrawsTableComponent,
     DrawResultDrawerComponent,
@@ -68,12 +67,14 @@ export class AdminGeneratedDrawsPage implements OnInit {
   private readonly api      = inject(AdminGeneratedDrawsApiService);
   private readonly router   = inject(Router);
   private readonly dialog   = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly today = TODAY;
 
   readonly pageState     = signal<PageState>('loading');
-  readonly pageError     = signal<string | null>(null);
+  readonly pageError     = signal<ErrorViewModel | null>(null);
+  readonly actionError   = signal<ErrorViewModel | null>(null);
+  readonly actionNotice  = signal<string | null>(null);
   readonly allDraws      = signal<GeneratedDrawView[]>([]);
   readonly totalElements = signal<number>(0);
   readonly page          = signal<number>(0);
@@ -102,8 +103,9 @@ export class AdminGeneratedDrawsPage implements OnInit {
   readonly groupedDraws = computed<GeneratedDrawGroup[]>(() => {
     const map = new Map<string, GeneratedDrawView[]>();
     for (const draw of this.allDraws()) {
-      if (!map.has(draw.businessDate)) map.set(draw.businessDate, []);
-      map.get(draw.businessDate)!.push(draw);
+      const drawsForDate = map.get(draw.businessDate) ?? [];
+      drawsForDate.push(draw);
+      map.set(draw.businessDate, drawsForDate);
     }
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
@@ -115,19 +117,21 @@ export class AdminGeneratedDrawsPage implements OnInit {
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
+    this.actionError.set(null);
+    this.actionNotice.set(null);
     this.api.getGeneratedDraws({
       datePreset: this.datePreset(),
       status: this.statusFilter() === 'all' ? null : this.statusFilter(),
       q: this.searchQuery() || null,
       page: this.page(),
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: result => {
         this.allDraws.set(result.content);
         this.totalElements.set(result.totalElements);
         this.pageState.set('ready');
       },
       error: (err: unknown) => {
-        this.pageError.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.pageError.set(this.errorViewModel(err, 'admin.generatedDraws.list', 'page'));
         this.pageState.set('error');
       },
     });
@@ -199,20 +203,22 @@ export class AdminGeneratedDrawsPage implements OnInit {
     reason?: string,
   ): void {
     this.busy.set(true);
-    let call$;
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    let call$: Observable<GeneratedDrawView>;
 
     switch (action) {
       case 'cancel':
-        call$ = this.api.cancelDraw(draw.drawId, reason ?? 'ADMIN_REQUEST');
+        call$ = this.api.cancelDraw(draw.drawId, reason ?? 'ADMIN_REQUEST', { suppressShellFeedback: true });
         break;
       case 'lock':
-        call$ = this.api.lockDraw(draw.drawId, reason);
+        call$ = this.api.lockDraw(draw.drawId, reason, { suppressShellFeedback: true });
         break;
       case 'unlock':
-        call$ = this.api.unlockDraw(draw.drawId, reason);
+        call$ = this.api.unlockDraw(draw.drawId, reason, { suppressShellFeedback: true });
         break;
       case 'archive':
-        call$ = this.api.archiveDraw(draw.drawId, reason);
+        call$ = this.api.archiveDraw(draw.drawId, reason, { suppressShellFeedback: true });
         break;
     }
 
@@ -225,13 +231,31 @@ export class AdminGeneratedDrawsPage implements OnInit {
         const labels: Record<DrawLifecycleAction, string> = {
           cancel: 'Annulé', lock: 'Verrouillé', unlock: 'Déverrouillé', archive: 'Archivé',
         };
-        this.snackBar.open(`Tirage ${labels[action]} avec succès.`, 'OK', { duration: 4000 });
+        this.actionNotice.set(`Tirage ${labels[action]} avec succès.`);
       },
       error: (err: unknown) => {
         this.busy.set(false);
-        const msg = (err as { error?: { title?: string } })?.error?.title ?? "Erreur lors de l'opération.";
-        this.snackBar.open(msg, 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, `admin.generatedDraws.lifecycle.${action}`, 'section'));
       },
     });
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

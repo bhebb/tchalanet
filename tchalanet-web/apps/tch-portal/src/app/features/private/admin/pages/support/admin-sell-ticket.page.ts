@@ -5,8 +5,12 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchErrorPanel } from '@tch/ui/components';
 
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
 import {
@@ -33,6 +37,7 @@ const GAME_CODES = ['BORLETTE', 'LOTTO3', 'TCHALA'] as const;
     RouterLink,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    TchErrorPanel,
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
@@ -45,14 +50,15 @@ export class AdminSellTicketPage implements OnInit {
   private readonly drawsApi = inject(AdminDrawsApi);
   private readonly terminalsApi = inject(SellerTerminalApi);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly state = signal<PageState>('idle');
   readonly terminals = signal<SellerTerminalSummaryRow[]>([]);
   readonly draws = signal<DrawSummaryView[]>([]);
   readonly preview = signal<AdminTicketPreviewView | null>(null);
   readonly sold = signal<AdminSoldTicketView | null>(null);
-  readonly loadError = signal<string | null>(null);
+  readonly loadError = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
 
   readonly betTypes = BET_TYPES;
   readonly gameCodes = GAME_CODES;
@@ -73,20 +79,21 @@ export class AdminSellTicketPage implements OnInit {
   }
 
   private loadSelectors(): void {
-    this.terminalsApi.list({ status: 'ACTIVE', size: 100 }).subscribe({
+    this.loadError.set(null);
+    this.terminalsApi.list({ status: 'ACTIVE', size: 100 }, { suppressShellFeedback: true }).subscribe({
       next: p => this.terminals.set(p.items),
-      error: () => this.loadError.set('Impossible de charger les terminaux.'),
+      error: err => this.loadError.set(this.errorViewModel(err, 'admin.support.sell.terminals')),
     });
 
-    this.drawsApi.listToday({ size: 50 }).subscribe({
+    this.drawsApi.listToday({ size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => {
         const today = p.content.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
         this.draws.set(today);
       },
-      error: () => {},
+      error: err => this.loadError.set(this.errorViewModel(err, 'admin.support.sell.draws.today')),
     });
 
-    this.drawsApi.listUpcoming({ days: 2, size: 50 }).subscribe({
+    this.drawsApi.listUpcoming({ days: 2, size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => {
         const upcoming = p.content.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
         this.draws.update(existing => {
@@ -94,7 +101,11 @@ export class AdminSellTicketPage implements OnInit {
           return [...existing, ...upcoming.filter(d => !ids.has(d.id))];
         });
       },
-      error: () => {},
+      error: err => {
+        if (this.draws().length === 0) {
+          this.loadError.set(this.errorViewModel(err, 'admin.support.sell.draws.upcoming'));
+        }
+      },
     });
   }
 
@@ -120,6 +131,7 @@ export class AdminSellTicketPage implements OnInit {
     if (this.form.invalid) return;
     this.state.set('previewing');
     this.preview.set(null);
+    this.actionError.set(null);
 
     const raw = this.form.getRawValue();
     this.api.preview({
@@ -127,14 +139,13 @@ export class AdminSellTicketPage implements OnInit {
       drawId: raw.drawId,
       currency: raw.currency,
       lines: raw.lines as AdminTicketLineRequest[],
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: result => {
         this.preview.set(result);
         this.state.set('previewed');
       },
       error: (err: unknown) => {
-        const msg = (err as { error?: { title?: string } })?.error?.title ?? 'Erreur de prévisualisation.';
-        this.snackBar.open(msg, 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'admin.support.sell.preview'));
         this.state.set('idle');
       },
     });
@@ -143,6 +154,7 @@ export class AdminSellTicketPage implements OnInit {
   confirmSell(): void {
     if (this.form.invalid || !this.preview()) return;
     this.state.set('selling');
+    this.actionError.set(null);
 
     const raw = this.form.getRawValue();
     this.api.sell({
@@ -150,14 +162,13 @@ export class AdminSellTicketPage implements OnInit {
       drawId: raw.drawId,
       currency: raw.currency,
       lines: raw.lines as AdminTicketLineRequest[],
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: result => {
         this.sold.set(result);
         this.state.set('sold');
       },
       error: (err: unknown) => {
-        const msg = (err as { error?: { title?: string } })?.error?.title ?? 'Erreur lors de la vente.';
-        this.snackBar.open(msg, 'OK', { duration: 5000 });
+        this.actionError.set(this.errorViewModel(err, 'admin.support.sell.confirm'));
         this.state.set('previewed');
       },
     });
@@ -169,6 +180,7 @@ export class AdminSellTicketPage implements OnInit {
     this.lines.at(0).reset({ gameCode: 'BORLETTE', betType: 'DIRECT', betOption: 1 });
     this.preview.set(null);
     this.sold.set(null);
+    this.actionError.set(null);
     this.state.set('idle');
   }
 
@@ -178,5 +190,20 @@ export class AdminSellTicketPage implements OnInit {
 
   drawLabel(d: DrawSummaryView): string {
     return `${d.channel.name} — ${d.drawDate} ${d.slot.label} (${d.status})`;
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

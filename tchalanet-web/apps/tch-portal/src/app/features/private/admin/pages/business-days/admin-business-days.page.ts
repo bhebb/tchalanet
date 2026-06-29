@@ -2,10 +2,14 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import {
@@ -37,6 +41,7 @@ function daysInMonth(year: number, month: number): number {
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -47,11 +52,13 @@ function daysInMonth(year: number, month: number): number {
 export class AdminBusinessDaysPage implements OnInit {
   private readonly api = inject(BusinessDaysApiService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly tableColumns = ['date', 'status', 'reason', 'actions'];
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
+  readonly actionNotice = signal<string | null>(null);
   readonly overrides = signal<BusinessDayView[]>([]);
 
   private readonly now = new Date();
@@ -106,16 +113,19 @@ export class AdminBusinessDaysPage implements OnInit {
     this.loadMonth();
   }
 
-  loadMonth(): void {
+  loadMonth(preserveActionFeedback = false): void {
     const from = startOfMonth(this.currentYear(), this.currentMonth());
     const to = endOfMonth(this.currentYear(), this.currentMonth());
     this.loading.set(true);
     this.error.set(null);
-    this.api.listBusinessDays({ from, to }).subscribe({
+    if (!preserveActionFeedback) {
+      this.actionError.set(null);
+      this.actionNotice.set(null);
+    }
+    this.api.listBusinessDays({ from, to }, { suppressShellFeedback: true }).subscribe({
       next: v => { this.overrides.set(v); this.loading.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'admin.businessDays.list', 'page'));
         this.loading.set(false);
       },
     });
@@ -125,23 +135,48 @@ export class AdminBusinessDaysPage implements OnInit {
     const ref = this.dialog.open(AddBusinessDayDialog, { width: '420px' });
     ref.afterClosed().subscribe((req: UpsertBusinessDayRequest | undefined) => {
       if (!req) return;
-      this.api.upsertBusinessDay(req).subscribe({
+      this.actionError.set(null);
+      this.actionNotice.set(null);
+      this.api.upsertBusinessDay(req, { suppressShellFeedback: true }).subscribe({
         next: () => {
-          this.snackBar.open('Exception ajoutée.', 'OK', { duration: 3000 });
-          this.loadMonth();
+          this.actionNotice.set('Exception ajoutée.');
+          this.loadMonth(true);
         },
-        error: () => this.snackBar.open("Erreur lors de l'ajout.", 'OK', { duration: 4000 }),
+        error: (err: unknown) => this.actionError.set(this.errorViewModel(err, 'admin.businessDays.add', 'section')),
       });
     });
   }
 
   deleteOverride(row: BusinessDayView): void {
-    this.api.deleteBusinessDay(row.id).subscribe({
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.deleteBusinessDay(row.id, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open('Exception supprimée.', 'OK', { duration: 3000 });
-        this.loadMonth();
+        this.actionNotice.set('Exception supprimée.');
+        this.loadMonth(true);
       },
-      error: () => this.snackBar.open('Erreur lors de la suppression.', 'OK', { duration: 4000 }),
+      error: (err: unknown) => this.actionError.set(
+        this.errorViewModel(err, `admin.businessDays.delete.${row.id}`, 'section'),
+      ),
     });
+  }
+
+  private errorViewModel(
+    err: unknown,
+    source: string,
+    surface: 'page' | 'section',
+  ): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (!problem) {
+      return {
+        severity: 'error',
+        title: this.translate.instant('common.errors.fallback.title'),
+        message: this.translate.instant('common.errors.fallback.message'),
+      };
+    }
+
+    const normalized = webAppErrorFromProblemDetail(problem, source, surface);
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy);
   }
 }

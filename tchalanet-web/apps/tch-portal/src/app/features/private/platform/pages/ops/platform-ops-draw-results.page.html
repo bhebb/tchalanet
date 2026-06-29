@@ -13,6 +13,16 @@
     </button>
   </div>
 
+  @if (actionFeedback(); as feedback) {
+    <div class="draw-results-page__feedback">
+      <tch-section-error
+        [title]="feedback.title"
+        [message]="feedback.message"
+        [severity]="feedback.severity"
+      />
+    </div>
+  }
+
   <tch-admin-crud-shell>
     <div toolbar>
       <tch-admin-data-toolbar
@@ -56,8 +66,14 @@
     <ng-container content>
       @if (loading()) {
         <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="load()"
+        />
       } @else if (page()?.items?.length === 0) {
         <tch-admin-empty-state
           icon="receipt_long"

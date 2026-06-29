@@ -1,0 +1,84 @@
+{
+  "common": {
+    "errors": {
+      "fallback": {
+        "title": "Problem detected",
+        "message": "Something went wrong. Copy the support reference if the problem continues."
+      },
+      "categories": {
+        "auth_required": {
+          "title": "Session required",
+          "message": "Sign in again to continue."
+        },
+        "access_denied": {
+          "title": "Access denied",
+          "message": "Your account cannot perform this action."
+        },
+        "validation": {
+          "title": "Information to correct",
+          "message": "Check the fields and try again."
+        },
+        "not_found": {
+          "title": "Item not found",
+          "message": "The requested resource is no longer available."
+        },
+        "conflict": {
+          "title": "Action unavailable",
+          "message": "The current state does not allow this action."
+        },
+        "rate_limited": {
+          "title": "Too many requests",
+          "message": "Wait a moment before trying again."
+        },
+        "network_unavailable": {
+          "title": "Connection unavailable",
+          "message": "Check the connection and try again."
+        },
+        "service_unavailable": {
+          "title": "Service temporarily unavailable",
+          "message": "Part of the service is temporarily unavailable."
+        },
+        "unexpected": {
+          "title": "Problem detected",
+          "message": "Something went wrong. Copy the support reference if the problem continues."
+        }
+      },
+      "codes": {
+        "request": {
+          "missing_parameter": {
+            "title": "Missing information",
+            "message": "Required information is missing. Check the form and try again."
+          },
+          "not_readable": {
+            "title": "Invalid request",
+            "message": "Some submitted information cannot be read. Check the form and try again."
+          },
+          "type_mismatch": {
+            "title": "Invalid format",
+            "message": "A value does not have the expected format. Check the highlighted field and try again."
+          }
+        },
+        "validation": {
+          "constraint_violation": {
+            "title": "Information to correct",
+            "message": "Correct the highlighted fields and try again."
+          },
+          "failed": {
+            "title": "Information to correct",
+            "message": "Correct the highlighted fields and try again."
+          }
+        },
+        "platform": {
+          "identity": {
+            "activation": {
+              "error": {
+                "title": "Account activation incomplete",
+                "message": "Your workspace is still accessible, but an account check could not finish."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

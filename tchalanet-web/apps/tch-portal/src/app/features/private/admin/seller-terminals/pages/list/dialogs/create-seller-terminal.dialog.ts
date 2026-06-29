@@ -6,11 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 
-import { TchErrorPanel } from '@tch/ui/components';
+import { TchErrorPanel, TchFieldError } from '@tch/ui/components';
+import {
+  applyServerFieldErrors,
+  clearServerFieldErrors,
+  ErrorViewModel,
+  toErrorViewModel,
+  withResolvedErrorCopies,
+} from '../../../../../../../core/api/local-error-routing';
+import { resolveErrorFeedbackCopy } from '../../../../../../../core/api/error-feedback-copy';
 import { AdminSectionCardComponent } from '../../../../../shared/admin-ui/admin-section-card.component';
 import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../seller-terminal-api.service';
+import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-error-targets';
 
 @Component({
   selector: 'tch-create-seller-terminal-dialog',
@@ -20,6 +30,7 @@ import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../sell
     ReactiveFormsModule,
     AdminSectionCardComponent,
     TchErrorPanel,
+    TchFieldError,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -33,11 +44,11 @@ import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../sell
 export class CreateSellerTerminalDialog implements OnInit {
   private readonly api = inject(SellerTerminalApi);
   private readonly dialogRef = inject(MatDialogRef<CreateSellerTerminalDialog>);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly saving = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
 
   readonly form = this.fb.group({
     terminalCode: ['', [Validators.required, Validators.maxLength(64)]],
@@ -62,34 +73,71 @@ export class CreateSellerTerminalDialog implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || this.saving()) return;
+    if (this.saving()) return;
+    clearServerFieldErrors(this.form);
+    this.error.set(null);
+    this.form.markAllAsTouched();
+    if (this.form.invalid) return;
 
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     const req: CreateSellerTerminalRequest = {
-      terminalCode: v.terminalCode!,
-      displayName: v.displayName!,
+      terminalCode: v.terminalCode ?? '',
+      displayName: v.displayName ?? '',
       firstName: v.firstName || null,
       lastName: v.lastName || null,
       email: v.email || null,
       phoneNumber: v.phoneNumber || null,
       commissionRate: v.commissionRate ?? null,
-      initialPin: v.initialPin!,
+      initialPin: v.initialPin ?? '',
     };
 
     this.saving.set(true);
-    this.error.set(null);
-
-    this.api.create(req).subscribe({
+    this.api.create(req, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
-        this.snackBar.open('Vendeur créé avec succès.', 'OK', { duration: 3000 });
         this.dialogRef.close({ reload: true });
       },
       error: (err: unknown) => {
         this.saving.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur lors de la création.');
+        this.handleCreateError(err);
       },
+    });
+  }
+
+  serverFieldMessage(control: AbstractControl | null): string {
+    const server = control?.errors?.['server'];
+    return typeof server === 'object' &&
+      server !== null &&
+      'message' in server &&
+      typeof (server as { message?: unknown }).message === 'string'
+      ? (server as { message: string }).message
+      : '';
+  }
+
+  private handleCreateError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
+        key => this.translate.instant(key),
+      );
+      const remaining = applyServerFieldErrors(this.form, fieldErrors, SELLER_TERMINAL_CREATE_FIELD_TARGETS);
+
+      if (fieldErrors.length && !remaining.length) {
+        this.error.set(null);
+        return;
+      }
+
+      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      this.error.set(toErrorViewModel(normalized, copy));
+      return;
+    }
+
+    this.error.set({
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
     });
   }
 }

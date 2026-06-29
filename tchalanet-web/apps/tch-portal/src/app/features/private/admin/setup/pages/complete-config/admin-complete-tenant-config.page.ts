@@ -11,9 +11,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { webAppErrorFromNotice, webAppErrorFromProblemDetail } from '@tch/api';
+import type { ApiResponse, ProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
 
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
+import type { AdminSectionTargetError } from '../../../../shared/admin-ui/admin-section-error-target.directive';
 import {
   AdminOverviewApiService,
   TenantAdminOverviewView,
@@ -46,6 +50,7 @@ type PageState = 'loading' | 'ready' | 'error';
     AdminPageShellComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
   ],
   templateUrl: './admin-complete-tenant-config.page.html',
   styleUrls: ['./admin-complete-tenant-config.page.scss'],
@@ -57,6 +62,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<string | null>(null);
   readonly overview = signal<TenantAdminOverviewView | null>(null);
+  readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
 
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
@@ -99,14 +105,16 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
-    this.api.getOverview().subscribe({
-      next: data => {
-        this.overview.set(data);
+    this.sectionErrors.set([]);
+    this.api.getOverviewResponse().subscribe({
+      next: response => {
+        this.overview.set(response.data);
+        this.sectionErrors.set(this.sectionErrorsFromResponse(response));
         this.pageState.set('ready');
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.pageError.set(pd?.title ?? this.translate.instant('admin.setup.error.load'));
+        const problem = (err as { error?: ProblemDetail })?.error;
+        this.pageError.set(this.pageErrorTitle(problem));
         this.pageState.set('error');
       },
     });
@@ -133,6 +141,10 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return this.setup()?.blockingSteps?.includes(id.toUpperCase()) ?? false;
   }
 
+  sectionError(target: string): AdminSectionTargetError | null {
+    return this.sectionErrors().find(error => error.target === target) ?? null;
+  }
+
   private cardOf(
     map: Map<string, ReadinessSection>,
     id: string,
@@ -142,5 +154,29 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   ) {
     const s = map.get(id);
     return { id, labelKey, icon, route: route ?? s?.route ?? null, status: s?.status ?? 'UNKNOWN' };
+  }
+
+  private sectionErrorsFromResponse(
+    response: ApiResponse<TenantAdminOverviewView>,
+  ): readonly AdminSectionTargetError[] {
+    return response.notices
+      .map(notice => webAppErrorFromNotice(notice, response.trace, 'admin.setup.overview', 'section'))
+      .filter(error => error.surface === 'section' && !!error.target)
+      .map(error => {
+        const copy = resolveErrorFeedbackCopy(error, key => this.translate.instant(key));
+        return {
+          target: error.target,
+          severity: error.severity,
+          title: copy.title,
+          message: copy.message,
+        } satisfies AdminSectionTargetError;
+      });
+  }
+
+  private pageErrorTitle(problem: ProblemDetail | undefined): string {
+    if (!problem) return this.translate.instant('admin.setup.error.load');
+
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.overview', 'page');
+    return resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key)).title;
   }
 }

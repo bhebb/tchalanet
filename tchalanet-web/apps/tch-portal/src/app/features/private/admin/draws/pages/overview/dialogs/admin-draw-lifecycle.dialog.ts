@@ -30,34 +30,8 @@ const ACTION_CONFIG: Record<DrawLifecycleAction, { label: string; reasonRequired
     MatFormFieldModule,
     MatInputModule,
   ],
-  template: `
-    <h2 mat-dialog-title>{{ config.label }} — {{ data.draw.label }}</h2>
-    <mat-dialog-content>
-      <p class="adld__subtitle">{{ data.draw.businessDate }} · {{ data.draw.slotLabel }}</p>
-      <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="adld__field">
-          <mat-label>{{ config.reasonRequired ? 'Raison (requise)' : 'Raison (optionnelle)' }}</mat-label>
-          <textarea matInput formControlName="reason" rows="3"></textarea>
-          @if (form.controls['reason'].invalid && form.controls['reason'].touched) {
-            <mat-error>Raison requise.</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button [mat-dialog-close]="null">Annuler</button>
-      <button mat-flat-button
-        [color]="config.color"
-        [disabled]="form.invalid"
-        (click)="confirm()">
-        {{ config.label }}
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .adld__subtitle { margin: 0 0 1rem; opacity: .7; font-size: .875rem; }
-    .adld__field { width: 100%; }
-  `],
+  templateUrl: './admin-draw-lifecycle.dialog.html',
+  styleUrls: ['./admin-draw-lifecycle.dialog.scss'],
 })
 export class AdminDrawLifecycleDialog {
   protected readonly data = inject<AdminDrawLifecycleDialogData>(MAT_DIALOG_DATA);
@@ -75,6 +49,6 @@ export class AdminDrawLifecycleDialog {
       this.form.markAllAsTouched();
       return;
     }
-    this.dialogRef.close({ reason: this.form.value.reason || undefined });
+    this.dialogRef.close({ reason: this.form.getRawValue().reason || undefined });
   }
 }

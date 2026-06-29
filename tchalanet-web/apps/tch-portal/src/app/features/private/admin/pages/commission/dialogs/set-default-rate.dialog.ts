@@ -10,30 +10,8 @@ import { MatInputModule } from '@angular/material/input';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule],
-  template: `
-    <h2 mat-dialog-title>Modifier le taux par défaut</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="set-default-rate-dialog__form">
-        <mat-form-field appearance="outline" class="set-default-rate-dialog__field">
-          <mat-label>Taux de commission (%)</mat-label>
-          <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
-          @if (form.controls.rate.invalid && form.controls.rate.touched) {
-            <mat-error>Taux entre 0 et 100.</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="submit()">
-        Enregistrer
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .set-default-rate-dialog__form { display: flex; flex-direction: column; gap: 0.75rem; }
-    .set-default-rate-dialog__field { width: 100%; min-width: 320px; }
-  `],
+  templateUrl: './set-default-rate.dialog.html',
+  styleUrls: ['./set-default-rate.dialog.scss'],
 })
 export class SetDefaultRateDialog {
   protected readonly data = inject<{ current: number }>(MAT_DIALOG_DATA);
@@ -46,6 +24,8 @@ export class SetDefaultRateDialog {
 
   submit(): void {
     if (this.form.invalid) return;
-    this.dialogRef.close(this.form.controls.rate.value!);
+    const rate = this.form.controls.rate.value;
+    if (rate == null) return;
+    this.dialogRef.close(rate);
   }
 }

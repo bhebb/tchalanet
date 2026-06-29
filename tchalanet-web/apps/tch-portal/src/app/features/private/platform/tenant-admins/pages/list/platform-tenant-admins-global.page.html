@@ -15,8 +15,14 @@
     <ng-container list-content>
       @if (loading()) {
         <tch-loading label="{{ 'platform.tenantAdmins.loading' | translate }}" />
-      } @else if (errorTitle()) {
-        <tch-error-panel [title]="errorTitle()!" [showRetry]="true" retryLabel="{{ 'common.retry' | translate }}" (retry)="loadTrigger$.next()" />
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          retryLabel="{{ 'common.retry' | translate }}"
+          (retry)="loadTrigger$.next()"
+        />
       } @else if (items().length === 0) {
         @if (hasActiveFilters()) {
           <tch-admin-empty-state
@@ -24,7 +30,7 @@
             [title]="'platform.tenantAdmins.empty.filtered.title' | translate"
             [message]="'platform.tenantAdmins.empty.filtered.message' | translate"
           />
-          <div style="display:flex; justify-content:center; margin-top:1rem;">
+          <div class="tenant-admins-global__empty-actions">
             <button mat-button type="button" (click)="resetFilters()">
               {{ 'platform.tenantAdmins.action.resetFilters' | translate }}
             </button>
@@ -37,6 +43,15 @@
           />
         }
       } @else {
+        @if (actionNotice(); as notice) {
+          <tch-section-error
+            class="tenant-admins-global__notice"
+            [title]="notice.title"
+            [message]="notice.message"
+            severity="info"
+          />
+        }
+
         <div class="tenant-admins-global__table">
           <table mat-table [dataSource]="items()" matSort
                  [matSortActive]="parsedSort().active"

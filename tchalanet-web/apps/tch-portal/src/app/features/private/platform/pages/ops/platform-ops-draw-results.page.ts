@@ -13,10 +13,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
@@ -62,6 +65,7 @@ const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string 
     AdminStatusPillComponent,
     TchLoading,
     TchErrorPanel,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -77,11 +81,12 @@ const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string 
 export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = ['lottery', 'slotKey', 'occurredAt', 'haiti', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionFeedback = signal<ErrorViewModel | null>(null);
   readonly page = signal<{ items: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
@@ -110,11 +115,10 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       page: this.pageIndex(),
       size: this.pageSize(),
       sort: 'occurredAt,DESC',
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: v => { this.page.set(v); this.loading.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'platform.ops.drawResults.list'));
         this.loading.set(false);
       },
     });
@@ -169,16 +173,20 @@ export class PlatformOpsDrawResultsPage implements OnInit {
 
   confirmResult(row: DrawResultOpsResponse): void {
     this.actionLoading.set(true);
-    this.api.confirmDrawResult(row.id).subscribe({
+    this.actionFeedback.set(null);
+    this.api.confirmDrawResult(row.id, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.actionLoading.set(false);
-        this.snackBar.open('Résultat confirmé.', 'OK', { duration: 3000 });
+        this.actionFeedback.set({
+          title: 'Résultat confirmé',
+          message: 'Le résultat a été confirmé.',
+          severity: 'info',
+        });
         this.load();
       },
       error: (err: unknown) => {
         this.actionLoading.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.snackBar.open(pd?.title ?? 'Erreur de confirmation.', 'OK', { duration: 5000 });
+        this.actionFeedback.set(this.errorViewModel(err, 'platform.ops.drawResults.confirm'));
       },
     });
   }
@@ -211,5 +219,20 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     const value = row.haitiResult;
     if (!value || typeof value !== 'object') return {};
     return value as HaitiLots;
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

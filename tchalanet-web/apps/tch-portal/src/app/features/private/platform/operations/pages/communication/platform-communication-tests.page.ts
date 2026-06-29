@@ -3,10 +3,14 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../../shared/admin-ui/admin-page-shell.component';
 import { PlatformCommunicationApi } from '../../data-access/platform-communication-api.service';
 import {
@@ -26,6 +30,7 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatTabsModule,
+    TchSectionError,
   ],
   templateUrl: './platform-communication-tests.page.html',
   styleUrls: ['./platform-communication.page.scss'],
@@ -33,10 +38,11 @@ import {
 export class PlatformCommunicationTestsPage {
   private readonly api = inject(PlatformCommunicationApi);
   private readonly fb = inject(FormBuilder);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly testing = signal<string | null>(null);
   readonly recipientSelection = signal<PlatformRecipientPickerSelection | null>(null);
+  readonly feedback = signal<ErrorViewModel | null>(null);
 
   readonly testForm = this.fb.nonNullable.group({
     slackChannelKey: ['ops-alerts'],
@@ -53,7 +59,7 @@ export class PlatformCommunicationTestsPage {
       channelKey: v.slackChannelKey,
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendEmailTest(): void {
@@ -64,14 +70,14 @@ export class PlatformCommunicationTestsPage {
         to,
         subject: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('EMAIL', () => this.api.testEmail({
       to: v.emailTo || '',
       subject: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendSmsTest(): void {
@@ -82,14 +88,14 @@ export class PlatformCommunicationTestsPage {
         to,
         title: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('SMS', () => this.api.testSms({
       to: v.phoneTo || '',
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   sendWhatsappTest(): void {
@@ -100,14 +106,14 @@ export class PlatformCommunicationTestsPage {
         to,
         title: v.title,
         message: v.message,
-      }));
+      }, { suppressShellFeedback: true }));
       return;
     }
     this.runProviderTest('WHATSAPP', () => this.api.testWhatsapp({
       to: v.whatsappTo || '',
       title: v.title,
       message: v.message,
-    }));
+    }, { suppressShellFeedback: true }));
   }
 
   updateRecipients(selection: PlatformRecipientPickerSelection): void {
@@ -135,19 +141,20 @@ export class PlatformCommunicationTestsPage {
     request: () => ReturnType<PlatformCommunicationApi['testSlack']>,
   ): void {
     this.testing.set(channel);
+    this.feedback.set(null);
     request().subscribe({
       next: result => {
         this.testing.set(null);
         const status = result.sent ? 'envoyé' : `non envoyé (${result.reason || 'dégradé'})`;
-        this.snackBar.open(`${result.channel}: ${status}`, 'OK', { duration: 7000 });
+        this.feedback.set({
+          title: `${result.channel}: test terminé`,
+          message: `${result.channel}: ${status}.`,
+          severity: result.sent ? 'info' : 'warn',
+        });
       },
       error: (err: unknown) => {
         this.testing.set(null);
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? `${channel}: erreur d'envoi.`,
-          'OK',
-          { duration: 7000 },
-        );
+        this.feedback.set(this.errorViewModel(err, `platform.communication.tests.${channel}`));
       },
     });
   }
@@ -158,20 +165,36 @@ export class PlatformCommunicationTestsPage {
     request: (recipient: string) => ReturnType<PlatformCommunicationApi['testSlack']>,
   ): void {
     this.testing.set(channel);
+    this.feedback.set(null);
     forkJoin(recipients.map(recipient => request(recipient))).subscribe({
       next: results => {
         this.testing.set(null);
         const sent = results.filter(result => result.sent).length;
-        this.snackBar.open(`${channel}: ${sent}/${results.length} message(s) envoyés.`, 'OK', { duration: 7000 });
+        this.feedback.set({
+          title: `${channel}: test terminé`,
+          message: `${sent}/${results.length} message(s) envoyés.`,
+          severity: sent === results.length ? 'info' : 'warn',
+        });
       },
       error: (err: unknown) => {
         this.testing.set(null);
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? `${channel}: erreur d'envoi.`,
-          'OK',
-          { duration: 7000 },
-        );
+        this.feedback.set(this.errorViewModel(err, `platform.communication.tests.${channel}`));
       },
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

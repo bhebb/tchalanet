@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 // ---- Draw channel models (from /tenant/draw-channels) ----
@@ -135,13 +136,13 @@ export class DrawAdminApi {
     });
   }
 
-  getDrawById(id: string): Observable<DrawSummary> {
-    return this.backend.get<DrawSummary>(`/admin/draws/${id}`);
+  getDrawById(id: string, options?: TchRequestOptions): Observable<DrawSummary> {
+    return this.backend.get<DrawSummary>(`/admin/draws/${id}`, options);
   }
 
   // ---- Results ----
 
-  proposeManualResult(req: ProposeManualResultRequest): Observable<unknown> {
-    return this.backend.post<unknown>('/admin/draw-results/manual', req);
+  proposeManualResult(req: ProposeManualResultRequest, options?: TchRequestOptions): Observable<unknown> {
+    return this.backend.post<unknown>('/admin/draw-results/manual', req, options);
   }
 }

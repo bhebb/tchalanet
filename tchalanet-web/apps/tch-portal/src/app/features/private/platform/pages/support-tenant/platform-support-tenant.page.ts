@@ -7,8 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../shared/admin-ui/admin-status-pill.component';
@@ -47,11 +51,12 @@ export class PlatformSupportTenantPage implements OnInit {
   private readonly api = inject(PlatformTenantsApi);
   private readonly dialog = inject(MatDialog);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly columns = ['tenant', 'code', 'status', 'updatedAt', 'actions'];
   readonly statusOptions = STATUS_OPTIONS;
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly tenants = signal<TenantSummaryView[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -75,14 +80,14 @@ export class PlatformSupportTenantPage implements OnInit {
       page: this.page(),
       size: PAGE_SIZE,
       sort: 'updatedAt,desc',
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: result => {
         this.tenants.set(result.items ?? []);
         this.total.set(result.total ?? result.items?.length ?? 0);
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'platform.supportTenant.list'));
         this.loading.set(false);
       },
     });
@@ -138,5 +143,20 @@ export class PlatformSupportTenantPage implements OnInit {
       default:
         return 'neutral';
     }
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

@@ -20,6 +20,10 @@
   &__table {
     overflow-x: auto;
   }
+
+  &__row {
+    cursor: pointer;
+  }
 }
 
 .spin {

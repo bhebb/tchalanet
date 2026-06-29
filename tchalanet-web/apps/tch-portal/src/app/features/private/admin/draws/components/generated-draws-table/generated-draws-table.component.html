@@ -137,7 +137,7 @@
     <ng-template matMenuContent let-draw="draw">
       @for (action of lifecycleActions(draw); track action) {
         <button mat-menu-item
-          [style.color]="action === 'cancel' ? 'var(--tch-color-error)' : null"
+          [class.gdt__menu-action--danger]="action === 'cancel'"
           (click)="onLifecycleAction(draw, action)">
           <mat-icon>{{ lifecycleIcon(action) }}</mat-icon>
           <span>{{ lifecycleLabel(action) }}</span>

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TchCard, TchStatusBadge, BadgeStatus } from '@tch/ui/components';
+import { TchCard, TchSectionError, TchSectionErrorSeverity, TchStatusBadge, BadgeStatus } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '../../../../shared/admin-ui/admin-status-pill.component';
 import { TenantGamePricingView, TenantGameStatus, ReadinessStatus } from '../../data-access/admin-games-pricing.models';
 
@@ -28,16 +28,33 @@ const READINESS_BADGE: Record<ReadinessStatus, BadgeStatus> = {
   BLOCKED: 'blocked',
 };
 
+export interface TenantGameCardError {
+  readonly title: string;
+  readonly message: string;
+  readonly severity?: TchSectionErrorSeverity;
+}
+
 @Component({
   selector: 'tch-tenant-game-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LowerCasePipe, RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, TchCard, TchStatusBadge, AdminStatusPillComponent],
+  imports: [
+    LowerCasePipe,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    TchCard,
+    TchSectionError,
+    TchStatusBadge,
+    AdminStatusPillComponent,
+  ],
   templateUrl: './tenant-game-card.component.html',
   styleUrls: ['./tenant-game-card.component.scss'],
 })
 export class TenantGameCardComponent {
   readonly game = input.required<TenantGamePricingView>();
+  readonly actionError = input<TenantGameCardError | null>(null);
 
   readonly activate  = output<string>();
   readonly disable   = output<string>();

@@ -131,6 +131,11 @@
   &--address { font-size: 0.8125rem; }
 }
 
+.setup__card-error {
+  display: block;
+  margin: 0.25rem 0;
+}
+
 .setup__card-cta {
   align-self: flex-start;
   margin-top: 0.25rem;

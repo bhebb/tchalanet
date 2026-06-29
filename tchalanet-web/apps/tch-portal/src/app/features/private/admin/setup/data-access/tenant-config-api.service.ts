@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface TenantLocaleConfig {
@@ -62,19 +62,19 @@ export interface TenantInternalConfig {
 export class TenantConfigApiService {
   private readonly backend = inject(TchBackendClient);
 
-  getTenantConfig(): Observable<TenantInternalConfig> {
-    return this.backend.get<TenantInternalConfig>('/admin/tenant-config');
+  getTenantConfig(options?: TchRequestOptions): Observable<TenantInternalConfig> {
+    return this.backend.get<TenantInternalConfig>('/admin/tenant-config', options);
   }
 
-  updateInternalSettings(req: TenantInternalConfig): Observable<void> {
-    return this.backend.put<void>('/admin/tenant-config/internal-settings', req);
+  updateInternalSettings(req: TenantInternalConfig, options?: TchRequestOptions): Observable<void> {
+    return this.backend.put<void>('/admin/tenant-config/internal-settings', req, options);
   }
 
-  getCommunicationConfig(): Observable<TenantCommunicationConfig> {
-    return this.backend.get<TenantCommunicationConfig>('/admin/tenant-config/communication');
+  getCommunicationConfig(options?: TchRequestOptions): Observable<TenantCommunicationConfig> {
+    return this.backend.get<TenantCommunicationConfig>('/admin/tenant-config/communication', options);
   }
 
-  getDocumentConfig(): Observable<TenantDocumentConfig> {
-    return this.backend.get<TenantDocumentConfig>('/admin/tenant-config/document');
+  getDocumentConfig(options?: TchRequestOptions): Observable<TenantDocumentConfig> {
+    return this.backend.get<TenantDocumentConfig>('/admin/tenant-config/document', options);
   }
 }

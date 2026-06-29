@@ -5,8 +5,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminDataToolbarComponent } from '../../../shared/admin-ui/admin-data-toolbar.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
@@ -41,11 +45,12 @@ import { AdminTicketsApi, TicketRowView, TicketStatus } from '../../admin-ticket
 })
 export class AdminTicketsPage implements OnInit {
   private readonly api = inject(AdminTicketsApi);
+  private readonly translate = inject(TranslateService);
 
   readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt'];
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly items = signal<TicketRowView[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
@@ -64,15 +69,14 @@ export class AdminTicketsPage implements OnInit {
       status: this.statusFilter() || undefined,
       page: this.page(),
       size: 20,
-    }).subscribe({
+    }, { suppressShellFeedback: true }).subscribe({
       next: p => {
         this.items.set(p.content);
         this.total.set(p.totalElements);
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'admin.tickets.list'));
         this.loading.set(false);
       },
     });
@@ -104,5 +108,20 @@ export class AdminTicketsPage implements OnInit {
 
   amountDisplay(cents: number): string {
     return (cents / 100).toFixed(2);
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

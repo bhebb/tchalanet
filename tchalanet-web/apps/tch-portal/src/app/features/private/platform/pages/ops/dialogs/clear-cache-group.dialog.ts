@@ -6,8 +6,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../core/api/local-error-routing';
 import { PlatformOpsApi } from '../../../platform-ops-api.service';
 
 export interface ClearCacheGroupDialogData {
@@ -29,97 +33,20 @@ export interface ClearCacheGroupDialogData {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    TchSectionError,
   ],
-  template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>
-      <div class="clear-cache-group-dialog__warning">
-        <span class="material-symbols-outlined">warning</span>
-        {{ data.description }}
-      </div>
-      <form [formGroup]="form" class="clear-cache-group-dialog__form">
-        <mat-form-field appearance="outline" class="clear-cache-group-dialog__field">
-          <mat-label>Raison (min. 10 caractères)</mat-label>
-          <textarea matInput formControlName="reason" rows="3"></textarea>
-          @if (form.controls.reason.invalid && form.controls.reason.touched) {
-            <mat-error>Raison requise (min. 10 caractères).</mat-error>
-          }
-        </mat-form-field>
-        <mat-checkbox formControlName="confirmed">
-          Je confirme vouloir vider ce groupe de caches.
-        </mat-checkbox>
-      </form>
-
-      @if (error()) {
-        <div class="clear-cache-group-dialog__error">
-          <span class="material-symbols-outlined">error</span>
-          {{ error() }}
-          @if (traceId()) {
-            <span class="clear-cache-group-dialog__trace">ID: {{ traceId() }}</span>
-          }
-        </div>
-      }
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
-      <button
-        mat-flat-button
-        color="warn"
-        [disabled]="form.invalid || submitting()"
-        (click)="submit()"
-      >
-        @if (submitting()) {
-          <span class="material-symbols-outlined spin">progress_activity</span>
-        }
-        {{ data.confirmLabel }}
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .clear-cache-group-dialog__warning {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem;
-      border-radius: var(--tch-radius-sm, 0.5rem);
-      background: var(--tch-color-warning-container);
-      color: var(--tch-color-on-warning-container);
-      font-size: 0.875rem;
-      margin-bottom: 1rem;
-    }
-    .clear-cache-group-dialog__form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      width: 100%;
-    }
-    .clear-cache-group-dialog__field { width: 100%; }
-    .clear-cache-group-dialog__error {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem;
-      border-radius: var(--tch-radius-sm, 0.5rem);
-      background: var(--tch-color-error-container);
-      color: var(--tch-color-on-error-container);
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-    }
-    .clear-cache-group-dialog__trace { font-size: 0.75rem; opacity: 0.7; margin-left: 0.25rem; }
-    .spin { animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `],
+  templateUrl: './clear-cache-group.dialog.html',
+  styleUrls: ['./clear-cache-group.dialog.scss'],
 })
 export class ClearCacheGroupDialog {
   private readonly dialogRef = inject(MatDialogRef<ClearCacheGroupDialog>);
   private readonly api = inject(PlatformOpsApi);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
   readonly data = inject<ClearCacheGroupDialogData>(MAT_DIALOG_DATA);
 
   readonly submitting = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly traceId = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
 
   readonly form = this.fb.group({
     reason: ['', [Validators.required, Validators.minLength(10)]],
@@ -131,19 +58,33 @@ export class ClearCacheGroupDialog {
     this.submitting.set(true);
     this.error.set(null);
 
-    this.api.clearCacheGroup(this.data.group, this.form.controls.reason.value!).subscribe({
-      next: result => {
+    const reason = this.form.controls.reason.value;
+    if (!reason) return;
+
+    this.api.clearCacheGroup(this.data.group, reason, { suppressShellFeedback: true }).subscribe({
+      next: () => {
         this.submitting.set(false);
-        const missing = result.missing.length ? ` (${result.missing.length} cache(s) introuvable(s))` : '';
-        this.snackBar.open(`${result.cleared.length} cache(s) vidé(s)${missing}.`, 'OK', { duration: 4000 });
         this.dialogRef.close(true);
       },
       error: (err: unknown) => {
         this.submitting.set(false);
-        const pd = (err as { error?: { title?: string; errorId?: string; requestId?: string } })?.error;
-        this.error.set(pd?.title ?? "Erreur lors de l'opération.");
-        this.traceId.set(pd?.errorId ?? pd?.requestId ?? null);
+        this.error.set(this.errorViewModel(err, 'platform.ops.cache.clearGroup'));
       },
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

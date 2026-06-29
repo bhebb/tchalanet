@@ -27,9 +27,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import com.tchalanet.server.common.observability.TchTraceIds;
+import com.tchalanet.server.common.web.api.CommonErrorCodes;
 
 import static com.tchalanet.server.common.http.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.http.TchHeaders.X_REQUEST_ID;
@@ -185,7 +188,9 @@ public class GlobalErrorHandler {
 
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
         pd.setTitle("Validation failed");
-        pd.setProperty("code", "validation.failed");
+        pd.setProperty("code", CommonErrorCodes.VALIDATION_FAILED);
+        pd.setProperty("errors", fieldErrors(ex));
+        pd.setProperty("violations", fieldViolations(ex));
 
         decorate(pd, req, ex, true);
 
@@ -211,7 +216,7 @@ public class GlobalErrorHandler {
 
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
         pd.setTitle("Malformed request body");
-        pd.setProperty("code", "request.not_readable");
+        pd.setProperty("code", CommonErrorCodes.REQUEST_NOT_READABLE);
 
         decorate(pd, req, ex, true);
 
@@ -229,7 +234,7 @@ public class GlobalErrorHandler {
 
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
         pd.setTitle("Missing request parameter");
-        pd.setProperty("code", "request.missing_parameter");
+        pd.setProperty("code", CommonErrorCodes.REQUEST_MISSING_PARAMETER);
 
         decorate(pd, req, ex, true);
 
@@ -251,7 +256,7 @@ public class GlobalErrorHandler {
 
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
         pd.setTitle("Type mismatch");
-        pd.setProperty("code", "request.type_mismatch");
+        pd.setProperty("code", CommonErrorCodes.REQUEST_TYPE_MISMATCH);
 
         decorate(pd, req, ex, true);
 
@@ -267,7 +272,7 @@ public class GlobalErrorHandler {
     ) {
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         pd.setTitle("Constraint violation");
-        pd.setProperty("code", "validation.constraint_violation");
+        pd.setProperty("code", CommonErrorCodes.VALIDATION_CONSTRAINT_VIOLATION);
 
         decorate(pd, req, ex, true);
 
@@ -291,7 +296,7 @@ public class GlobalErrorHandler {
             ex.getMessage()
         );
         pd.setTitle("Business rule violation");
-        pd.setProperty("code", "business_rule.violation");
+        pd.setProperty("code", CommonErrorCodes.BUSINESS_RULE_VIOLATION);
 
         decorate(pd, req, ex, true);
 
@@ -314,7 +319,7 @@ public class GlobalErrorHandler {
     ) {
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
         pd.setTitle("Forbidden");
-        pd.setProperty("code", "access.denied");
+        pd.setProperty("code", CommonErrorCodes.ACCESS_DENIED);
 
         decorate(pd, req, ex, true);
 
@@ -333,7 +338,7 @@ public class GlobalErrorHandler {
             "An unexpected error occurred"
         );
         pd.setTitle("Unexpected error");
-        pd.setProperty("code", "internal.unexpected");
+        pd.setProperty("code", CommonErrorCodes.INTERNAL_UNEXPECTED);
 
         decorate(pd, req, ex, false);
 
@@ -449,5 +454,34 @@ public class GlobalErrorHandler {
     private static String headerOrNull(HttpServletRequest req, String name) {
         var value = req.getHeader(name);
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private static LinkedHashMap<String, ArrayList<String>> fieldErrors(
+        MethodArgumentNotValidException ex
+    ) {
+        var errors = new LinkedHashMap<String, ArrayList<String>>();
+        for (var fieldError : ex.getBindingResult().getFieldErrors()) {
+            errors
+                .computeIfAbsent(fieldError.getField(), ignored -> new ArrayList<>())
+                .add(fieldError.getDefaultMessage());
+        }
+        return errors;
+    }
+
+    private static ArrayList<LinkedHashMap<String, String>> fieldViolations(
+        MethodArgumentNotValidException ex
+    ) {
+        var violations = new ArrayList<LinkedHashMap<String, String>>();
+        for (var fieldError : ex.getBindingResult().getFieldErrors()) {
+            var violation = new LinkedHashMap<String, String>();
+            violation.put("code", CommonErrorCodes.VALIDATION_FAILED);
+            violation.put("field", fieldError.getField());
+            violation.put("target", fieldError.getField());
+            if (fieldError.getDefaultMessage() != null) {
+                violation.put("message", fieldError.getDefaultMessage());
+            }
+            violations.add(violation);
+        }
+        return violations;
     }
 }

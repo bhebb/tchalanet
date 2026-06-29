@@ -5,8 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateService } from '@ngx-translate/core';
 
+import { webAppErrorFromProblemDetail } from '@tch/api';
+import type { ProblemDetail } from '@tch/api';
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import {
@@ -37,6 +41,7 @@ import { AdminDrawsApi, DrawSummaryView, DrawStatus } from '../../admin-draws-ap
 })
 export class AdminDrawsPage implements OnInit {
   private readonly api = inject(AdminDrawsApi);
+  private readonly translate = inject(TranslateService);
 
   readonly columns = ['channel', 'slot', 'drawDate', 'scheduledAt', 'cutoffAt', 'status'];
 
@@ -61,11 +66,10 @@ export class AdminDrawsPage implements OnInit {
   loadToday(): void {
     this.loadingToday.set(true);
     this.errorToday.set(null);
-    this.api.listToday({ size: 50 }).subscribe({
+    this.api.listToday({ size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => { this.today.set(p.content); this.loadingToday.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.errorToday.set(pd?.title ?? 'Erreur de chargement.');
+        this.errorToday.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.today'));
         this.loadingToday.set(false);
       },
     });
@@ -74,11 +78,10 @@ export class AdminDrawsPage implements OnInit {
   loadUpcoming(): void {
     this.loadingUpcoming.set(true);
     this.errorUpcoming.set(null);
-    this.api.listUpcoming({ days: 7, size: 50 }).subscribe({
+    this.api.listUpcoming({ days: 7, size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => { this.upcoming.set(p.content); this.loadingUpcoming.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.errorUpcoming.set(pd?.title ?? 'Erreur de chargement.');
+        this.errorUpcoming.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.upcoming'));
         this.loadingUpcoming.set(false);
       },
     });
@@ -87,11 +90,10 @@ export class AdminDrawsPage implements OnInit {
   loadAll(): void {
     this.loadingAll.set(true);
     this.errorAll.set(null);
-    this.api.list({ size: 50 }).subscribe({
+    this.api.list({ size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => { this.all.set(p.content); this.loadingAll.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.errorAll.set(pd?.title ?? 'Erreur de chargement.');
+        this.errorAll.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.all'));
         this.loadingAll.set(false);
       },
     });
@@ -108,5 +110,12 @@ export class AdminDrawsPage implements OnInit {
       case 'ARCHIVED': return 'neutral';
       default: return 'neutral';
     }
+  }
+
+  private errorTitle(problem: ProblemDetail | undefined, source: string): string {
+    if (!problem) return this.translate.instant('common.errors.categories.unexpected.title');
+
+    const normalized = webAppErrorFromProblemDetail(problem, source, 'section');
+    return resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key)).title;
   }
 }

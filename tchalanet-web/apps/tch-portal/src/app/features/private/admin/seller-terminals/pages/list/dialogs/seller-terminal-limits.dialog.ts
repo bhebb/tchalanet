@@ -7,18 +7,21 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../../../core/api/local-error-routing';
 import {
   AdminLimitsApi,
   BreachOutcome,
@@ -57,146 +60,13 @@ interface AssignmentRow {
     TchLoading,
     TchErrorPanel,
   ],
-  template: `
-    <h2 mat-dialog-title>
-      Limites — {{ terminal.displayName }}
-      <span style="font-size:0.8rem;font-weight:400;color:var(--tch-text-secondary,#666);margin-left:8px">
-        {{ terminal.terminalCode }}
-      </span>
-    </h2>
-
-    <mat-dialog-content style="min-width:640px;max-width:760px">
-      @if (loading()) {
-        <tch-loading />
-      } @else if (error()) {
-        <tch-error-panel [message]="error()!" (retry)="load()" />
-      } @else {
-        @if (rows().length === 0 && !editingRow()) {
-          <p style="color:var(--tch-text-secondary,#666);font-size:0.9rem;margin:8px 0 16px">
-            Aucune limite spécifique configurée pour ce terminal. Les règles tenant s'appliquent.
-          </p>
-        }
-
-        @if (rows().length > 0) {
-          <table mat-table [dataSource]="rows()" style="width:100%;margin-bottom:16px">
-            <ng-container matColumnDef="rule">
-              <th mat-header-cell *matHeaderCellDef>Règle</th>
-              <td mat-cell *matCellDef="let r">
-                <code style="font-size:0.78rem">{{ r.spec.ruleKey }}</code>
-                @if (r.spec.label) {
-                  <div style="font-size:0.8rem;color:var(--tch-text-secondary,#666)">{{ r.spec.label }}</div>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="onBreach">
-              <th mat-header-cell *matHeaderCellDef>Action</th>
-              <td mat-cell *matCellDef="let r">
-                <span style="font-size:0.85rem">{{ r.assignment?.onBreach ?? '—' }}</span>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Statut</th>
-              <td mat-cell *matCellDef="let r">
-                @if (r.assignment) {
-                  <span style="font-size:0.82rem;color:{{ r.assignment.enabled ? 'var(--tch-color-success,green)' : 'var(--tch-text-secondary,#666)' }}">
-                    {{ r.assignment.enabled ? 'Actif' : 'Inactif' }}
-                  </span>
-                } @else {
-                  <span style="font-size:0.82rem;color:var(--tch-text-secondary,#666)">—</span>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let r" style="white-space:nowrap;text-align:right">
-                <button mat-icon-button (click)="editRow(r)" matTooltip="Modifier">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                @if (r.assignment) {
-                  <button mat-icon-button color="warn" (click)="deleteRow(r)" matTooltip="Supprimer">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        }
-
-        @if (editingRow()) {
-          <div style="border:1px solid var(--mat-divider-color,#e0e0e0);border-radius:8px;padding:16px;margin-bottom:16px">
-            <div style="font-size:0.85rem;color:var(--tch-text-secondary,#666);margin-bottom:12px">
-              <strong>{{ editingRow()!.spec.ruleKey }}</strong>
-              @if (editingRow()!.spec.label) { — {{ editingRow()!.spec.label }} }
-            </div>
-            @if (editingRow()!.spec.description) {
-              <p style="font-size:0.82rem;margin:0 0 12px;color:var(--tch-text-secondary,#666)">
-                {{ editingRow()!.spec.description }}
-              </p>
-            }
-            <form [formGroup]="form" style="display:flex;flex-direction:column;gap:12px">
-              <mat-form-field appearance="outline">
-                <mat-label>Action en cas de dépassement</mat-label>
-                <mat-select formControlName="onBreach">
-                  @for (o of breachOutcomes; track o) {
-                    <mat-option [value]="o">{{ o }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Paramètres (JSON)</mat-label>
-                <textarea matInput formControlName="params" rows="4"
-                  style="font-family:monospace;font-size:0.82rem"></textarea>
-                @if (form.controls['params'].errors?.['jsonInvalid']) {
-                  <mat-error>JSON invalide.</mat-error>
-                }
-              </mat-form-field>
-              <mat-checkbox formControlName="enabled">Actif</mat-checkbox>
-            </form>
-            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-              <button mat-stroked-button (click)="cancelEdit()">Annuler</button>
-              <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="saveEdit()">
-                Enregistrer
-              </button>
-            </div>
-          </div>
-        }
-
-        @if (!editingRow()) {
-          <div style="margin-bottom:8px">
-            <mat-form-field appearance="outline" style="width:100%">
-              <mat-label>Ajouter une règle</mat-label>
-              <mat-select [(value)]="selectedRuleKey">
-                @for (spec of availableSpecs(); track spec.ruleKey) {
-                  <mat-option [value]="spec.ruleKey">
-                    {{ spec.ruleKey }} — {{ spec.label }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <button mat-stroked-button [disabled]="!selectedRuleKey" (click)="addRule()">
-              <mat-icon>add</mat-icon> Configurer
-            </button>
-          </div>
-        }
-      }
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>Fermer</button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './seller-terminal-limits.dialog.html',
+  styleUrls: ['./seller-terminal-limits.dialog.scss'],
 })
 export class SellerTerminalLimitsDialog implements OnInit {
   private readonly api = inject(AdminLimitsApi);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
-  private readonly ref = inject(MatDialogRef<SellerTerminalLimitsDialog>);
+  private readonly translate = inject(TranslateService);
 
   readonly terminal = inject<SellerTerminalSummaryRow>(MAT_DIALOG_DATA);
 
@@ -204,7 +74,8 @@ export class SellerTerminalLimitsDialog implements OnInit {
   readonly displayedColumns = ['rule', 'onBreach', 'status', 'actions'];
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionError = signal<ErrorViewModel | null>(null);
   readonly saving = signal(false);
 
   private readonly allSpecs = signal<LimitRuleSpec[]>([]);
@@ -247,9 +118,14 @@ export class SellerTerminalLimitsDialog implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
+    this.actionError.set(null);
 
-    const specs$ = this.api.listRules();
-    const assignments$ = this.api.listAssignments('SELLER_TERMINAL', this.terminal.id.value);
+    const specs$ = this.api.listRules({ suppressShellFeedback: true });
+    const assignments$ = this.api.listAssignments(
+      'SELLER_TERMINAL',
+      this.terminal.id.value,
+      { suppressShellFeedback: true },
+    );
 
     let specsLoaded = false;
     let assignmentsLoaded = false;
@@ -261,16 +137,17 @@ export class SellerTerminalLimitsDialog implements OnInit {
 
     specs$.subscribe({
       next: specs => { this.allSpecs.set(specs); specsLoaded = true; if (!failed) tryFinish(); },
-      error: () => { if (!failed) { failed = true; this.error.set('Erreur de chargement.'); this.loading.set(false); } },
+      error: err => { if (!failed) { failed = true; this.error.set(this.errorViewModel(err, 'admin.sellerTerminal.limits.rules')); this.loading.set(false); } },
     });
 
     assignments$.subscribe({
       next: view => { this.assignments.set(view.items); assignmentsLoaded = true; if (!failed) tryFinish(); },
-      error: () => { if (!failed) { failed = true; this.error.set('Erreur de chargement.'); this.loading.set(false); } },
+      error: err => { if (!failed) { failed = true; this.error.set(this.errorViewModel(err, 'admin.sellerTerminal.limits.assignments')); this.loading.set(false); } },
     });
   }
 
   editRow(row: AssignmentRow): void {
+    this.actionError.set(null);
     this.editingRow.set(row);
     const a = row.assignment;
     this.form.patchValue({
@@ -283,16 +160,18 @@ export class SellerTerminalLimitsDialog implements OnInit {
   cancelEdit(): void {
     this.editingRow.set(null);
     this.selectedRuleKey = null;
+    this.actionError.set(null);
   }
 
   saveEdit(): void {
     const row = this.editingRow();
     if (!row || this.form.invalid) return;
+    const v = this.form.getRawValue();
     let parsedParams: unknown;
-    try { parsedParams = JSON.parse(this.form.value.params!); } catch { return; }
+    try { parsedParams = JSON.parse(v.params); } catch { return; }
 
     this.saving.set(true);
-    const v = this.form.getRawValue();
+    this.actionError.set(null);
     const req: UpsertLimitAssignmentRequest = {
       ruleKey:    row.spec.ruleKey,
       targetType: 'SELLER_TERMINAL',
@@ -302,29 +181,28 @@ export class SellerTerminalLimitsDialog implements OnInit {
       params:     parsedParams,
     };
 
-    this.api.upsertAssignment(req).subscribe({
+    this.api.upsertAssignment(req, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.saving.set(false);
         this.editingRow.set(null);
         this.selectedRuleKey = null;
-        this.snackBar.open('Règle enregistrée.', 'OK', { duration: 3000 });
         this.reloadAssignments();
       },
-      error: () => {
+      error: err => {
         this.saving.set(false);
-        this.snackBar.open('Erreur lors de l\'enregistrement.', 'OK', { duration: 4000 });
+        this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.limits.save'));
       },
     });
   }
 
   deleteRow(row: AssignmentRow): void {
     if (!row.assignment) return;
-    this.api.deleteAssignment(row.assignment.id.value).subscribe({
+    this.actionError.set(null);
+    this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
-        this.snackBar.open('Règle supprimée.', 'OK', { duration: 3000 });
         this.reloadAssignments();
       },
-      error: () => this.snackBar.open('Erreur lors de la suppression.', 'OK', { duration: 4000 }),
+      error: err => this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.limits.delete')),
     });
   }
 
@@ -335,9 +213,24 @@ export class SellerTerminalLimitsDialog implements OnInit {
   }
 
   private reloadAssignments(): void {
-    this.api.listAssignments('SELLER_TERMINAL', this.terminal.id.value).subscribe({
+    this.api.listAssignments('SELLER_TERMINAL', this.terminal.id.value, { suppressShellFeedback: true }).subscribe({
       next: view => this.assignments.set(view.items),
-      error: () => {},
+      error: err => this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.limits.reload')),
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

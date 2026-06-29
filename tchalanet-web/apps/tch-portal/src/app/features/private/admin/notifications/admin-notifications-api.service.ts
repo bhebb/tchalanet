@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface AdminNotificationsPage<T> {
@@ -71,33 +71,34 @@ export class AdminNotificationsApi {
     readonly category?: AdminNotificationCategory;
     readonly page?: number;
     readonly size?: number;
-  }): Observable<AdminNotificationsPage<AdminNotificationItem>> {
+  }, options?: TchRequestOptions): Observable<AdminNotificationsPage<AdminNotificationItem>> {
     const entries = Object.entries(params)
       .filter(([, value]) => value !== undefined && value !== null && String(value) !== '')
       .map(([key, value]) => [key, String(value)]);
     const q = new URLSearchParams(Object.fromEntries(entries)).toString();
     return this.backend.get<AdminNotificationsPage<AdminNotificationItem>>(
       `/admin/notifications${q ? '?' + q : ''}`,
+      options,
     );
   }
 
-  unreadCount(): Observable<AdminNotificationUnreadCount> {
-    return this.backend.get<AdminNotificationUnreadCount>('/admin/notifications/unread-count');
+  unreadCount(options?: TchRequestOptions): Observable<AdminNotificationUnreadCount> {
+    return this.backend.get<AdminNotificationUnreadCount>('/admin/notifications/unread-count', options);
   }
 
-  create(payload: CreateAdminNotificationRequest): Observable<boolean> {
-    return this.backend.post<boolean>('/admin/notifications', payload);
+  create(payload: CreateAdminNotificationRequest, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>('/admin/notifications', payload, options);
   }
 
-  markRead(id: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/admin/notifications/${id}/read`, {});
+  markRead(id: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/admin/notifications/${id}/read`, {}, options);
   }
 
-  dismiss(id: string): Observable<boolean> {
-    return this.backend.post<boolean>(`/admin/notifications/${id}/dismiss`, {});
+  dismiss(id: string, options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>(`/admin/notifications/${id}/dismiss`, {}, options);
   }
 
-  markAllRead(): Observable<boolean> {
-    return this.backend.post<boolean>('/admin/notifications/read-all', {});
+  markAllRead(options?: TchRequestOptions): Observable<boolean> {
+    return this.backend.post<boolean>('/admin/notifications/read-all', {}, options);
   }
 }

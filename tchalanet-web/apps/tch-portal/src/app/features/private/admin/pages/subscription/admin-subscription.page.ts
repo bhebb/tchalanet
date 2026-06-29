@@ -3,11 +3,18 @@ import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';
+import {
+  AdminSectionErrorTargetDirective,
+  AdminSectionTargetError,
+} from '../../../shared/admin-ui/admin-section-error-target.directive';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
 import {
   AdminStatusPillComponent,
@@ -29,6 +36,7 @@ import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
     DatePipe,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    AdminSectionErrorTargetDirective,
     AdminEmptyStateComponent,
     AdminStatusPillComponent,
     TchLoading,
@@ -42,10 +50,11 @@ import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
 export class AdminSubscriptionPage implements OnInit {
   private readonly api = inject(AdminSubscriptionApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
   readonly subscription = signal<SubscriptionView | null>(null);
   readonly acting = signal(false);
 
@@ -56,11 +65,11 @@ export class AdminSubscriptionPage implements OnInit {
   load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.get().subscribe({
+    this.sectionErrors.set([]);
+    this.api.get({ suppressShellFeedback: true }).subscribe({
       next: v => { this.subscription.set(v); this.loading.set(false); },
       error: (err: unknown) => {
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.error.set(pd?.title ?? 'Erreur de chargement.');
+        this.error.set(this.errorViewModel(err, 'admin.subscription.load'));
         this.loading.set(false);
       },
     });
@@ -71,9 +80,10 @@ export class AdminSubscriptionPage implements OnInit {
     ref.afterClosed().subscribe((newEndsAt: string | undefined) => {
       if (!newEndsAt) return;
       this.acting.set(true);
-      this.api.renew(newEndsAt).subscribe({
-        next: () => { this.snackBar.open('Abonnement renouvelé.', 'OK', { duration: 3000 }); this.load(); this.acting.set(false); },
-        error: () => { this.snackBar.open('Erreur lors du renouvellement.', 'OK', { duration: 4000 }); this.acting.set(false); },
+      this.clearSectionError('admin.subscription.actions');
+      this.api.renew(newEndsAt, { suppressShellFeedback: true }).subscribe({
+        next: () => { this.load(); this.acting.set(false); },
+        error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
       });
     });
   }
@@ -83,26 +93,29 @@ export class AdminSubscriptionPage implements OnInit {
     ref.afterClosed().subscribe((reason: string | undefined) => {
       if (reason === undefined) return;
       this.acting.set(true);
-      this.api.cancel(reason || undefined).subscribe({
-        next: () => { this.snackBar.open('Abonnement annulé.', 'OK', { duration: 3000 }); this.load(); this.acting.set(false); },
-        error: () => { this.snackBar.open('Erreur lors de l\'annulation.', 'OK', { duration: 4000 }); this.acting.set(false); },
+      this.clearSectionError('admin.subscription.actions');
+      this.api.cancel(reason || undefined, { suppressShellFeedback: true }).subscribe({
+        next: () => { this.load(); this.acting.set(false); },
+        error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
       });
     });
   }
 
   suspend(): void {
     this.acting.set(true);
-    this.api.suspend().subscribe({
-      next: () => { this.snackBar.open('Abonnement suspendu.', 'OK', { duration: 3000 }); this.load(); this.acting.set(false); },
-      error: () => { this.snackBar.open('Erreur lors de la suspension.', 'OK', { duration: 4000 }); this.acting.set(false); },
+    this.clearSectionError('admin.subscription.actions');
+    this.api.suspend({ suppressShellFeedback: true }).subscribe({
+      next: () => { this.load(); this.acting.set(false); },
+      error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
     });
   }
 
   resume(): void {
     this.acting.set(true);
-    this.api.resume().subscribe({
-      next: () => { this.snackBar.open('Abonnement repris.', 'OK', { duration: 3000 }); this.load(); this.acting.set(false); },
-      error: () => { this.snackBar.open('Erreur lors de la reprise.', 'OK', { duration: 4000 }); this.acting.set(false); },
+    this.clearSectionError('admin.subscription.actions');
+    this.api.resume({ suppressShellFeedback: true }).subscribe({
+      next: () => { this.load(); this.acting.set(false); },
+      error: err => { this.setSectionError('admin.subscription.actions', err); this.acting.set(false); },
     });
   }
 
@@ -115,5 +128,32 @@ export class AdminSubscriptionPage implements OnInit {
       case 'CANCELLED': return 'danger';
       case 'EXPIRED': return 'danger';
     }
+  }
+
+  private setSectionError(target: string, err: unknown): void {
+    const vm = this.errorViewModel(err, target);
+    this.sectionErrors.update(errors => [
+      ...errors.filter(error => error.target !== target),
+      { ...vm, target },
+    ]);
+  }
+
+  private clearSectionError(target: string): void {
+    this.sectionErrors.update(errors => errors.filter(error => error.target !== target));
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

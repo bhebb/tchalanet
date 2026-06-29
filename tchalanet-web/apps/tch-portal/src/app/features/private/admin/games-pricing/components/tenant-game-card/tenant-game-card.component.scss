@@ -58,6 +58,11 @@
   text-overflow: ellipsis;
 }
 
+.game-card__error {
+  display: block;
+  padding: 0 1.25rem 1rem;
+}
+
 // ── Body ──────────────────────────────────────────────────────────────────────
 
 .game-card__body {
@@ -87,7 +92,7 @@
   font-size: var(--tch-font-size-label-sm, 0.6875rem);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   color: var(--tch-color-on-surface-variant, #46464f);
   display: flex;
   align-items: center;

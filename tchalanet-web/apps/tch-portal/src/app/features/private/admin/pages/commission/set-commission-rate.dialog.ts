@@ -26,35 +26,8 @@ export interface SetRateDialogResult {
     MatInputModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>
-      <mat-form-field appearance="outline" style="width:100%;margin-top:.75rem">
-        <mat-label>{{ data.label }}</mat-label>
-        <input
-          matInput
-          type="number"
-          min="0"
-          max="100"
-          step="0.01"
-          [formControl]="rateControl"
-        />
-        <span matSuffix>%</span>
-        @if (rateControl.hasError('required')) {
-          <mat-error>Valeur obligatoire.</mat-error>
-        }
-        @if (rateControl.hasError('min') || rateControl.hasError('max')) {
-          <mat-error>Le taux doit être entre 0 et 100.</mat-error>
-        }
-      </mat-form-field>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button (click)="confirm()" [disabled]="rateControl.invalid">
-        Appliquer
-      </button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './set-commission-rate.dialog.html',
+  styleUrls: ['./set-commission-rate.dialog.scss'],
 })
 export class SetCommissionRateDialog {
   protected readonly data = inject<SetRateDialogData>(MAT_DIALOG_DATA);

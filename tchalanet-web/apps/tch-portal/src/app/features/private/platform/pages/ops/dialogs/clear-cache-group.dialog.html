@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+  <div class="clear-cache-group-dialog__warning">
+    <span class="material-symbols-outlined">warning</span>
+    {{ data.description }}
+  </div>
+  <form [formGroup]="form" class="clear-cache-group-dialog__form">
+    <mat-form-field appearance="outline" class="clear-cache-group-dialog__field">
+      <mat-label>Raison (min. 10 caractères)</mat-label>
+      <textarea matInput formControlName="reason" rows="3"></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Raison requise (min. 10 caractères).</mat-error>
+      }
+    </mat-form-field>
+    <mat-checkbox formControlName="confirmed">
+      Je confirme vouloir vider ce groupe de caches.
+    </mat-checkbox>
+  </form>
+
+  @if (error(); as errorVm) {
+    <tch-section-error
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
+  <button
+    mat-flat-button
+    color="warn"
+    [disabled]="form.invalid || submitting()"
+    (click)="submit()"
+  >
+    @if (submitting()) {
+      <span class="material-symbols-outlined spin">progress_activity</span>
+    }
+    {{ data.confirmLabel }}
+  </button>
+</mat-dialog-actions>

@@ -16,12 +16,15 @@
   @if (pageState() === 'loading') {
     <tch-loading label="Chargement des jeux…" />
   } @else if (pageState() === 'error') {
-    <tch-error-panel
-      [title]="pageError()!"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
+    @if (pageError(); as errorVm) {
+      <tch-error-panel
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="load()"
+      />
+    }
   } @else if (games().length === 0) {
     <tch-admin-empty-state
       icon="casino"
@@ -38,6 +41,7 @@
       @for (game of games(); track game.gameCode) {
         <tch-tenant-game-card
           [game]="game"
+          [actionError]="actionError(game.gameCode)"
           (activate)="onActivate($event)"
           (disable)="onDisable($event)"
           (configure)="onConfigure($event)"
