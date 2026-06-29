@@ -9,6 +9,10 @@ export const environment = {
     apiBaseUrl: '/api/v1',
     authBaseUrl: '/auth',
     assetsBaseUrl: '/assets',
+    portalBaseUrls: {
+      'admin-portal': '/admin',
+      'platform-portal': '/platform',
+    },
     enableSandbox: false,
     firebaseAuthEmulatorUrl: null,
     firebase: {

@@ -4,5 +4,9 @@
   "apiBaseUrl": "/api/v1",
   "authBaseUrl": "/auth",
   "assetsBaseUrl": "/assets",
-  "enableSandbox": true
+  "enableSandbox": true,
+  "portalBaseUrls": {
+    "admin-portal": "/admin",
+    "platform-portal": "/platform"
+  }
 }

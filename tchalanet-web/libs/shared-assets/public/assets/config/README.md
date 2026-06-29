@@ -38,3 +38,14 @@ pnpm runtime:prod-vercel
 
 Angular `environment.ts` is only the fallback. Apps and libs read runtime config through
 `@tch/shared-config`.
+
+`public-portal` also uses `portalBaseUrls` after login to jump to the right deployed app:
+
+```json
+{
+  "portalBaseUrls": {
+    "admin-portal": "/admin",
+    "platform-portal": "/platform"
+  }
+}
+```

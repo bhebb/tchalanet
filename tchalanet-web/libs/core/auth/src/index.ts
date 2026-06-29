@@ -1,6 +1,7 @@
 export * from './lib/access-state.page';
 export * from './lib/auth-bearer.interceptor';
 export * from './lib/auth-client';
+export * from './lib/auth-redirect.service';
 export * from './lib/auth-session.service';
 export * from './lib/auth.guard';
 export * from './lib/auth.types';

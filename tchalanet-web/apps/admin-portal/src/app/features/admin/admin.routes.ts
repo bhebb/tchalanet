@@ -5,7 +5,13 @@ export const adminRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+      import('./dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
+    data: { titleKey: 'nav.dashboard', icon: 'dashboard' },
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
     data: { titleKey: 'nav.dashboard', icon: 'dashboard' },
   },
   // ── Configuration générale ─────────────────────────────────────────────────

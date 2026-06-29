@@ -4,7 +4,7 @@ export const platformRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./dashboard/platform-dashboard.page').then(m => m.PlatformDashboardPage),
     data: {
       titleKey: 'platform.nav.dashboard',
       descriptionKey: 'platform.placeholder.description',
@@ -14,7 +14,7 @@ export const platformRoutes: Route[] = [
   {
     path: 'dashboard',
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./dashboard/platform-dashboard.page').then(m => m.PlatformDashboardPage),
     data: {
       titleKey: 'platform.nav.dashboard',
       descriptionKey: 'platform.placeholder.description',

@@ -30,6 +30,7 @@ export interface TchRuntimeConfig {
   readonly apiBaseUrl: string;
   readonly authBaseUrl: string;
   readonly assetsBaseUrl: string;
+  readonly portalBaseUrls?: Partial<Record<Exclude<TchAppId, 'public-portal'>, string>>;
   readonly enableSandbox: boolean;
   readonly firebase: TchFirebaseRuntimeConfig;
   readonly firebaseAuthEmulatorUrl: string | null;
@@ -55,6 +56,10 @@ export class TchRuntimeConfigStore {
     apiBaseUrl: '/api/v1',
     authBaseUrl: '/auth',
     assetsBaseUrl: '/assets',
+    portalBaseUrls: {
+      'admin-portal': '/admin',
+      'platform-portal': '/platform',
+    },
     enableSandbox: false,
     firebaseAuthEmulatorUrl: null,
     firebase: {
@@ -116,6 +121,10 @@ function mergeRuntimeConfig(
   return {
     ...fallback,
     ...override,
+    portalBaseUrls: {
+      ...(fallback.portalBaseUrls ?? {}),
+      ...(override.portalBaseUrls ?? {}),
+    },
     firebase: {
       ...fallback.firebase,
       ...(override.firebase ?? {}),

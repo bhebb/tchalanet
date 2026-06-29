@@ -1,8 +1,16 @@
 // Theme dev sandbox — toggleable panel to exercise the theme (presets, light/dark, density, M3 type
 // scale, fonts) and inspect colour roles against real Material components. Dev-only: the launcher is
 // hidden unless isDevMode(). Kept on purpose; activate with the floating 🧪 button.
-import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, isDevMode, signal } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  PLATFORM_ID,
+  computed,
+  inject,
+  isDevMode,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -402,7 +410,9 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
 export class ThemeSandboxComponent {
   private readonly document = inject(DOCUMENT);
   private readonly dialog = inject(MatDialog);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly theme = inject(ThemeStore);
   readonly devMode = isDevMode() && this.runtimeConfig.config().enableSandbox;
   readonly modes: readonly ThemeMode[] = ['light', 'dark', 'system'];
@@ -454,6 +464,9 @@ export class ThemeSandboxComponent {
     if (!this.open()) {
       return [];
     }
+    if (!this.isBrowser) {
+      return [];
+    }
     const cs = getComputedStyle(this.document.body);
     return COLOR_TOKENS.map((token) => ({
       label: token.replace('--tch-', '').replace('--mat-sys-', 'mat:'),
@@ -465,7 +478,9 @@ export class ThemeSandboxComponent {
   toggle(): void {
     const next = !this.open();
     this.open.set(next);
-    localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
+    if (this.isBrowser) {
+      localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
+    }
     this.refresh();
   }
 
@@ -494,6 +509,9 @@ export class ThemeSandboxComponent {
   }
 
   private restoreOpen(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
     return localStorage.getItem(STORAGE_KEY) === '1';
   }
 }

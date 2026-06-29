@@ -1,11 +1,11 @@
 import { Route } from '@angular/router';
-import { ForgotPasswordPage, TchLoginPage, authGuard, roleGuard, spaceDispatchGuard } from '@tch/core/auth';
+import { ForgotPasswordPage, LoginPage, authGuard, roleGuard, spaceDispatchGuard } from '@tch/core/auth';
 import { consoleAccountRoutes, consoleProfileRoutes } from '@tch/ui/console';
 
 export const appRoutes: Route[] = [
   {
     path: 'login',
-    component: TchLoginPage,
+    component: LoginPage,
   },
   {
     path: 'forgot-password',
@@ -57,10 +57,12 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'app/admin',
+    canActivate: [roleGuard('TENANT_ADMIN')],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
   {
     path: '',
+    canActivate: [roleGuard('TENANT_ADMIN')],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
   },
   {

@@ -4,13 +4,13 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { TCH_BRAND_ASSETS } from '@tch/shared-assets';
 
 import { AuthSessionService } from '../auth-session.service';
+import { AuthRedirectService } from '../auth-redirect.service';
 import { LanguageSwitcher } from '@tch/core/i18n';
 
 @Component({
@@ -43,7 +43,7 @@ export class LoginPage {
   readonly brandLogoInverse = TCH_BRAND_ASSETS.logoInverse;
 
   private readonly authSession = inject(AuthSessionService);
-  private readonly router = inject(Router);
+  private readonly authRedirect = inject(AuthRedirectService);
 
   togglePasswordVisibility(): void {
     this.passwordVisible.update(visible => !visible);
@@ -62,7 +62,7 @@ export class LoginPage {
         return;
       }
 
-      await this.router.navigateByUrl('/app');
+      await this.authRedirect.navigateAfterLogin(session);
     } catch {
       this.errorKey.set('auth.login.errors.invalidCredentials');
     } finally {
