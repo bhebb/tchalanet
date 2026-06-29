@@ -1,0 +1,219 @@
+    <div class="tchala-page">
+      <section class="tchala-page__hero">
+        <p class="tchala-page__eyebrow">{{ 'public.tchala.eyebrow' | translate }}</p>
+        <h1>{{ 'public.tchala.title' | translate }}</h1>
+        <p class="tchala-page__lead">{{ 'public.tchala.subtitle' | translate }}</p>
+      </section>
+
+      <tch-public-list-shell>
+        <!-- Search slot -->
+        <tch-public-filter-bar filters>
+          <label class="tchala-page__search">
+            <span class="tchala-page__search-label">{{
+              'public.tchala.search_label' | translate
+            }}</span>
+            <input
+              type="search"
+              class="tchala-page__search-input"
+              [placeholder]="'public.tchala.search_placeholder' | translate"
+              [value]="query()"
+              (input)="onQueryInput($event)"
+            />
+            <span class="material-symbols-outlined tchala-page__search-icon" aria-hidden="true"
+              >auto_awesome</span
+            >
+          </label>
+        </tch-public-filter-bar>
+
+        <!-- Content slot -->
+        <ng-container content>
+          @if (resource.isLoading()) {
+            <p class="tchala-page__status">{{ 'common.loading' | translate }}</p>
+          } @else if (resource.error()) {
+            <p class="tchala-page__status tchala-page__status--error">
+              {{ 'common.searchLoadError' | translate }}
+            </p>
+          } @else if (entries().length > 0) {
+            <div class="tchala-page__grid" role="list">
+              @for (entry of entries(); track entry.id) {
+                <article class="tchala-page__card" role="listitem">
+                  <div class="tchala-page__card-icon">
+                    <span class="material-symbols-outlined" aria-hidden="true">{{
+                      entry.icon
+                    }}</span>
+                  </div>
+                  <div class="tchala-page__card-body">
+                    <h2 class="tchala-page__card-term">{{ entry.term }}</h2>
+                    @if (entry.description) {
+                      <p class="tchala-page__card-desc">{{ entry.description }}</p>
+                    }
+                  </div>
+                  <div
+                    class="tchala-page__numbers"
+                    [attr.aria-label]="'domain.tchala.field.associatedNumbers' | translate"
+                  >
+                    @for (num of entry.numbers; track num) {
+                      <span>{{ num }}</span>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <tch-public-empty-state
+              icon="auto_stories"
+              [title]="'common.searchEmpty' | translate"
+            />
+          }
+        </ng-container>
+
+        <!-- Footer slot: pagination (only when entries are loaded) -->
+        @if (entries().length > 0 && totalPages() > 1) {
+          <tch-public-pagination-bar
+            footer
+            [page]="currentPage()"
+            [totalPages]="totalPages()"
+            [showMeta]="false"
+            (pageChange)="goToPage($event)"
+          />
+        }
+      </tch-public-list-shell>
+
+      <!-- ── Suggestion section ── -->
+      @if (!suggestionStatusResource.isLoading()) {
+        <section class="tchala-page__suggest" aria-labelledby="suggest-title">
+          @if (!suggestionOpen()) {
+            <!-- Boîte pleine : barre compacte non cliquable -->
+            <div class="tchala-page__suggest-bar tchala-page__suggest-bar--locked">
+              <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+              <span>{{ 'public.tchala.suggest.closed' | translate }}</span>
+            </div>
+          } @else if (formState() === 'success') {
+            <!-- Succès : barre compacte avec lien reset -->
+            <div class="tchala-page__suggest-bar tchala-page__suggest-bar--success">
+              <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              <span>{{ 'public.tchala.suggest.success' | translate }}</span>
+              <button type="button" class="tchala-page__suggest-again" (click)="resetForm()">
+                {{ 'public.tchala.suggest.suggest_again' | translate }}
+              </button>
+            </div>
+          } @else {
+            <!-- Barre trigger / formulaire inline -->
+            <button
+              type="button"
+              class="tchala-page__suggest-bar tchala-page__suggest-bar--toggle"
+              [class.tchala-page__suggest-bar--open]="formExpanded()"
+              [attr.aria-expanded]="formExpanded()"
+              aria-controls="suggest-form-body"
+              (click)="formExpanded.set(!formExpanded())"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+              <span id="suggest-title" class="tchala-page__suggest-bar-label">
+                {{ 'public.tchala.suggest.lead_short' | translate }}
+              </span>
+              <span class="tchala-page__suggest-bar-sub">{{
+                'public.tchala.suggest.title' | translate
+              }}</span>
+              <span
+                class="material-symbols-outlined tchala-page__suggest-chevron"
+                aria-hidden="true"
+                >{{ formExpanded() ? 'expand_less' : 'expand_more' }}</span
+              >
+            </button>
+
+            @if (formExpanded()) {
+              <div id="suggest-form-body" class="tchala-page__suggest-body">
+                <form class="tchala-page__suggest-form" (submit)="onSubmit($event)" novalidate>
+                  <div class="tchala-page__suggest-fields">
+                    <div class="tchala-page__suggest-field">
+                      <label class="tchala-page__suggest-label" for="suggest-dream">
+                        {{ 'public.tchala.suggest.dream_label' | translate
+                        }}<span aria-hidden="true"> *</span>
+                      </label>
+                      <input
+                        id="suggest-dream"
+                        type="text"
+                        class="tchala-page__suggest-input"
+                        [placeholder]="'public.tchala.suggest.dream_placeholder' | translate"
+                        [value]="dreamInput()"
+                        (input)="dreamInput.set(getInputValue($event))"
+                        required
+                        maxlength="80"
+                      />
+                    </div>
+
+                    <div class="tchala-page__suggest-field">
+                      <label class="tchala-page__suggest-label" for="suggest-numbers">
+                        {{ 'domain.tchala.field.associatedNumbers' | translate
+                        }}<span aria-hidden="true"> *</span>
+                      </label>
+                      <input
+                        id="suggest-numbers"
+                        type="text"
+                        class="tchala-page__suggest-input"
+                        [placeholder]="'public.tchala.suggest.numbers_placeholder' | translate"
+                        [value]="numbersInput()"
+                        (input)="numbersInput.set(getInputValue($event))"
+                        required
+                        maxlength="40"
+                      />
+                      <span class="tchala-page__suggest-hint">{{
+                        'public.tchala.suggest.numbers_hint' | translate
+                      }}</span>
+                    </div>
+                  </div>
+
+                  <div class="tchala-page__suggest-field">
+                    <label class="tchala-page__suggest-label" for="suggest-note">
+                      {{ 'public.tchala.suggest.note_label' | translate }}
+                    </label>
+                    <textarea
+                      id="suggest-note"
+                      class="tchala-page__suggest-textarea"
+                      [placeholder]="'public.tchala.suggest.note_placeholder' | translate"
+                      [value]="noteInput()"
+                      (input)="noteInput.set(getInputValue($event))"
+                      rows="2"
+                      maxlength="300"
+                    ></textarea>
+                  </div>
+
+                  <div class="tchala-page__suggest-footer">
+                    @if (formState() === 'error') {
+                      <p class="tchala-page__suggest-error" role="alert">
+                        {{ 'public.tchala.suggest.error' | translate }}
+                      </p>
+                    }
+                    <button
+                      type="submit"
+                      class="tchala-page__suggest-submit"
+                      [disabled]="formState() === 'submitting' || !canSubmit()"
+                    >
+                      @if (formState() === 'submitting') {
+                        <span
+                          class="material-symbols-outlined tchala-page__suggest-spinner"
+                          aria-hidden="true"
+                          >autorenew</span
+                        >
+                      }
+                      {{ 'public.tchala.suggest.submit' | translate }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            }
+          }
+        </section>
+      }
+
+      <!-- ── Note ── -->
+      <section class="tchala-page__note" aria-labelledby="tchala-note-title">
+        <span class="material-symbols-outlined tchala-page__note-icon" aria-hidden="true"
+          >info</span
+        >
+        <div>
+          <h2 id="tchala-note-title">{{ 'public.tchala.note_title' | translate }}</h2>
+          <p>{{ 'public.tchala.note_body' | translate }}</p>
+        </div>
+      </section>
+    </div>

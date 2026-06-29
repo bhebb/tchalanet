@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -16,14 +16,6 @@ export type ContactRequestStatus =
   | 'QUALIFIED'
   | 'CLOSED'
   | 'SPAM';
-
-export interface TchPage<T> {
-  items: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
 
 export interface ContactRequestSummaryView {
   id: string;

@@ -1,20 +1,18 @@
 import { Route } from '@angular/router';
 
-import { authGuard, roleGuard, spaceDispatchGuard } from './core/auth/auth.guard';
-import { AccessStatePage } from './core/auth/access-state.page';
-import { ForbiddenPage } from './core/auth/forbidden.page';
+import {
+  AccessStatePage,
+  ForbiddenPage,
+  authGuard,
+  roleGuard,
+  spaceDispatchGuard,
+} from '@tch/core/auth';
 import { NotFoundPage } from '@tch/web';
 
 export const appRoutes: Route[] = [
   {
     path: 'login',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes),
-  },
-  {
-    path: 'public',
-    loadComponent: () =>
-      import('./features/public/shell/public-shell.component').then(m => m.TchPublicShellComponent),
-    loadChildren: () => import('./features/public/public.routes').then(m => m.publicRoutes),
   },
   {
     path: 'forbidden',
@@ -95,7 +93,7 @@ export const appRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'public',
+    redirectTo: 'login',
   },
   {
     path: '**',

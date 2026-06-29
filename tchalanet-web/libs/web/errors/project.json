@@ -8,6 +8,14 @@
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "options": {
+        "buildTarget": "tch-portal:build:development",
+        "tsConfig": "libs/web/errors/tsconfig.spec.json",
+        "watch": false
+      }
     }
   }
 }

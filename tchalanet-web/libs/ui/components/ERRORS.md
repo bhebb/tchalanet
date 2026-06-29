@@ -22,7 +22,7 @@ tchalanet-web/docs/conventions/error-management.md
 
 - Components receive already-normalized copy or Angular form controls.
 - Components must not own API calls, stores, routing decisions, or retry policy.
-- Shell feedback is app-owned (`apps/tch-portal/src/app/core/feedback`), not part of this UI lib.
+- Shell feedback is shell-owned (`libs/web/shell`), not part of this UI lib.
 - Feature/page code decides which component to render based on error ownership.
 - Field errors should be attached to `FormControl.errors.server` by feature code before rendering
   `tch-field-error`.
@@ -69,4 +69,3 @@ Field error:
 </mat-form-field>
 <tch-field-error [control]="form.controls.rate" />
 ```
-

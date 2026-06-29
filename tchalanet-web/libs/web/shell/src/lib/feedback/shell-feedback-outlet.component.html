@@ -1,0 +1,18 @@
+@if (store.hasItems()) {
+  <div class="sfo" role="region" aria-label="Notifications systeme">
+    @for (item of store.visibleItems(); track item.id) {
+      <tch-shell-feedback-banner
+        [item]="item"
+        [verbosity]="verbosity"
+        (dismissed)="store.dismiss($event)"
+      />
+    }
+    @if (store.overflowCount() > 0) {
+      <div class="sfo__overflow" role="status">
+        {{ store.overflowCount() }} autre{{ store.overflowCount() > 1 ? 's' : '' }}
+        notification{{ store.overflowCount() > 1 ? 's' : '' }}
+        <button type="button" class="sfo__clear" (click)="store.clear()">Tout fermer</button>
+      </div>
+    }
+  </div>
+}

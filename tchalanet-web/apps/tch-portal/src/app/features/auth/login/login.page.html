@@ -3,8 +3,12 @@
     <div class="login-page__brand-glow login-page__brand-glow--top"></div>
     <div class="login-page__brand-glow login-page__brand-glow--bottom"></div>
 
-    <a class="login-page__brand" routerLink="/public" [attr.aria-label]="'brand.logo_alt' | translate">
-      <img src="/assets/brand/tchalanet-logo-inverse.svg" [alt]="'brand.logo_alt' | translate" />
+    <a
+      class="login-page__brand"
+      routerLink="/public"
+      [attr.aria-label]="'brand.logo_alt' | translate"
+    >
+      <img [src]="brandLogoInverse" [alt]="'brand.logo_alt' | translate" />
     </a>
 
     <div class="login-page__brand-content">
@@ -40,7 +44,7 @@
   <section class="login-page__form-panel">
     <header class="login-page__compact-header">
       <a routerLink="/public" [attr.aria-label]="'brand.logo_alt' | translate">
-        <img src="/assets/brand/tchalanet-logo.svg" [alt]="'brand.logo_alt' | translate" />
+        <img [src]="brandLogo" [alt]="'brand.logo_alt' | translate" />
       </a>
       <tch-language-switcher />
     </header>
@@ -110,25 +114,20 @@
           </div>
 
           @if (errorKey(); as error) {
-            <p class="login-card__error" role="alert">
-              <mat-icon aria-hidden="true">error</mat-icon>
-              <span>{{ error | translate }}</span>
-            </p>
+          <p class="login-card__error" role="alert">
+            <mat-icon aria-hidden="true">error</mat-icon>
+            <span>{{ error | translate }}</span>
+          </p>
           }
 
-          <button
-            class="login-submit"
-            type="submit"
-            [disabled]="loading() || loginForm.invalid"
-          >
+          <button class="login-submit" type="submit" [disabled]="loading() || loginForm.invalid">
             @if (loading()) {
-              <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
-                progress_activity
-              </span>
-              {{ 'common.authenticating' | translate }}
-            } @else {
-              {{ 'auth.login.form.submit' | translate }}
-              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            <span class="material-symbols-outlined login-card__spinner" aria-hidden="true">
+              progress_activity
+            </span>
+            {{ 'common.authenticating' | translate }} } @else { {{ 'auth.login.form.submit' |
+            translate }}
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             }
           </button>
         </form>

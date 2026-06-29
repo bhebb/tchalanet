@@ -8,20 +8,40 @@
 Structure active :
 
 ```text
-apps/tch-portal/                 application Angular principale
+apps/public-portal/              surface publique canonique, SSR/hydration-ready
+apps/admin-portal/               surface tenant admin, déployable seule
+apps/platform-portal/            surface plateforme/superadmin, déployable seule
+apps/tch-portal/                 portail historique privé pendant migration
+apps/web-e2e/                    Playwright e2e unique public/admin/platform
 libs/api/                        contrats et infrastructure HTTP transverses
+libs/core/auth/                  login partagé, session, guards et auth runtime
+libs/core/i18n/                  runtime i18n partagé
+libs/page-model/                 contrats, API et renderer PageModel
+libs/shared-assets/              assets, logos, fonts, i18n JSON et markdown partagés
 libs/shared-config/              settings runtime et feature flags
+libs/web/errors/                 normalisation et présentation des erreurs web
+libs/web/shell/                  layouts shell public/privé et feedback shell
 libs/ui/theme/                   thème runtime
 libs/ui/styles/                  primitives SCSS partagées
 libs/ui/components/              composants UI réutilisables
+libs/widgets/                    widgets concrets PageModel
 ```
 
-`shared-auth`, `shared-i18n`, `page-model`, `widgets`, et `web` sont les prochaines cibles
-d’extraction. Une lib cible est créée lorsqu’un changement y déplace un ensemble cohérent de code,
-définit ses exports publics et valide ses frontières; on ne crée pas de coquilles vides.
+Les libs sont créées seulement lorsqu’un changement y déplace un ensemble cohérent de code, définit
+ses exports publics et valide ses frontières; on ne crée pas de coquilles vides.
 
-`page-model` précède `widgets`. Les dashboards, shells, routes et pages par rôle appartiennent à
-`web`.
+La surface publique a été extraite de `tch-portal` vers `public-portal`. Les apps admin et platform
+sont déployables indépendamment. La vente POS reste lazy-loaded dans `admin-portal` en V0; il n'y a
+pas de `pos-portal` pour le moment.
+
+Les tests e2e Web vivent dans `apps/web-e2e`, avec un dossier par surface. Le run standard Playwright
+utilise Chromium et démarre les apps sur des ports locaux stables :
+
+```text
+public-portal   http://localhost:4301
+admin-portal    http://localhost:4302
+platform-portal http://localhost:4303
+```
 
 OpenSpec packs:
 

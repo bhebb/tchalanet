@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler, Injectable, Injector, inject } from '@angular/core';
 
-import { ShellFeedbackStore } from '../feedback/shell-feedback.store';
+import { ShellFeedbackStore } from '@tch/web/shell';
 
 /** Angular wraps some thrown values; reach the original error when present. */
 function unwrap(error: unknown): unknown {

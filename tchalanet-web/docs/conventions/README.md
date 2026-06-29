@@ -13,6 +13,7 @@ Ces conventions couvrent le portail historique `tch-portal` et les apps séparé
 | Auth (Keycloak, session, guards)                   | [`auth.md`](./auth.md)                         |
 | Theme runtime (Material 3 pipeline)                | [`theme.md`](./theme.md)                       |
 | i18n runtime                                       | [`i18n.md`](./i18n.md)                         |
+| Shared static assets                               | [`placement-guide.md`](./placement-guide.md)   |
 | Runtime settings                                   | [`settings.md`](./settings.md)                 |
 | Feature flags (isolation seam, Unleash-ready)      | [`feature-flags.md`](./feature-flags.md)       |
 | Entitlements (exported, backend-authoritative)     | [`entitlements.md`](./entitlements.md)         |

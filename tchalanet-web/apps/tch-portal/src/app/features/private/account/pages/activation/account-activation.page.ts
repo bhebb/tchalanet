@@ -9,9 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
+import { AuthSessionService, PrivateBootstrapStore } from '@tch/core/auth';
 import { TchErrorPanel } from '@tch/ui/components';
-import { AuthSessionService } from '../../../../../core/auth/auth-session.service';
-import { PrivateBootstrapStore } from '../../../../../core/runtime';
 import { AdminDetailLayoutComponent } from '../../../shared/admin-ui/components/admin-detail-layout/admin-detail-layout.component';
 import { AdminPageShellComponent } from '../../../shared/admin-ui/admin-page-shell.component';
 import { AdminSectionCardComponent } from '../../../shared/admin-ui/admin-section-card.component';

@@ -18,6 +18,7 @@ Web runtime shell          -> libs/web/shell
 Auth / i18n runtime        -> libs/core/{auth,i18n}
 Runtime theme              -> libs/ui/theme
 Compile-time SCSS          -> libs/ui/styles
+Shared static assets       -> libs/shared-assets
 Runtime settings / flags   -> libs/shared-config
 Routed page                -> apps/<portal>/src/app/features
 Feature state              -> next to the feature page
@@ -49,6 +50,7 @@ tchalanet-web/
     │   ├── auth/
     │   └── i18n/
     ├── page-model/
+    ├── shared-assets/
     ├── shared-config/
     ├── web/
     │   ├── errors/
@@ -78,6 +80,8 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | `TchBackendClient`, request options         | `libs/api/src/lib/backend-client`                                                      |
 | Runtime config                              | `libs/shared-config`                                                                   |
 | Feature flags                               | `libs/shared-config`                                                                   |
+| Shared static assets                        | `libs/shared-assets/public/assets`                                                     |
+| Stable asset URL constants                  | `libs/shared-assets/src/lib`                                                           |
 | Theme runtime / active mode                 | `libs/ui/theme`                                                                        |
 | Theme API / theme preset registry           | `libs/ui/theme` or `libs/api/http` + `ui/theme` depending ownership                    |
 | Theme SCSS generation                       | `libs/ui/theme/src/scss`                                                               |
@@ -102,6 +106,7 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | Login page                                  | `libs/core/auth`                                                                       |
 | Locale store                                | `libs/core/i18n` when shared; app-owned wiring stays in the app during migration       |
 | Language switcher UI                        | `libs/ui/components`                                                                   |
+| Local fallback i18n JSON                    | `libs/shared-assets/public/assets/i18n/{locale}`                                       |
 | Backend i18n API contract/client            | `libs/api`                                                                             |
 | Platform i18n admin screen                  | `apps/platform-portal/src/app/features/platform/i18n-overrides` or legacy `tch-portal` |
 | Test helpers                                | only create `testing` area when reused by multiple tests                               |
@@ -236,13 +241,7 @@ Reusable shell primitives, such as shell feedback models/stores that can be shar
 Reusable public shell presentation:
 
 ```text
-libs/web/src/lib/public-shell
-```
-
-New shared shell primitives should prefer:
-
-```text
-libs/web/shell/src
+libs/web/shell/src/lib/public-shell
 ```
 
 Shared visual parts:
@@ -267,7 +266,7 @@ Reusable visual primitives can live in `ui/components`, but the footer compositi
 Current reusable footer:
 
 ```text
-libs/web/src/lib/public-shell/public-footer.ts
+libs/web/shell/src/lib/public-shell/public-footer.ts
 ```
 
 The footer consumes a resolved runtime shell fragment:
@@ -626,6 +625,7 @@ Before adding/moving code:
 - [ ] Is this a PageModel runtime contract/client/renderer/helper? Put it in `libs/page-model`.
 - [ ] Is this a concrete PageModel widget or registry entry? Put it in `libs/widgets`.
 - [ ] Is this reusable shell presentation without app services? Put it in `libs/web`.
+- [ ] Is this a static asset shared by several deployable apps? Put it in `libs/shared-assets`.
 - [ ] Is this reusable visual UI? Put it in `libs/ui/components`.
 - [ ] Is this SCSS primitive? Put it in `libs/ui/styles`.
 - [ ] Is this runtime theme? Put it in `libs/ui/theme`.

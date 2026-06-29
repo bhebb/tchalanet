@@ -11,8 +11,9 @@ do not read provider tokens directly.
 ## Placement
 
 ```text
-apps/tch-portal/src/app/core/auth/                  neutral session, commands, guards, bearer
-apps/tch-portal/src/app/core/auth/{provider}/       provider SDK adapter
+libs/core/auth/src/lib/                  neutral session, commands, guards, bearer
+libs/core/auth/src/lib/{provider}/       provider SDK adapter
+apps/<portal>/src/app/app.config.ts      composition root selecting the provider adapter
 ```
 
 Use this area for:
@@ -27,6 +28,9 @@ Do not put tenant business rules, seller operational validation, or PageModel pe
 
 The composition root selects the identity-provider adapter. Core auth orchestration depends only on
 `AuthClient`; provider SDK imports stay inside the provider adapter and composition root.
+
+Apps consume auth through `@tch/core/auth`; they must not import another app's `core/auth` files
+directly.
 
 ## Session Contract
 

@@ -1,0 +1,90 @@
+<div
+  class="sfb sfb--{{ item.severity }}"
+  role="alert"
+  [attr.aria-live]="item.severity === 'error' ? 'assertive' : 'polite'"
+>
+  <span class="material-symbols-outlined sfb__icon" aria-hidden="true">{{ icon }}</span>
+
+  <div class="sfb__body">
+    <strong class="sfb__title">{{ item.title }}</strong>
+    <span class="sfb__message">{{ item.message }}</span>
+
+    @if (item.repeatCount > 1) {
+      <span class="sfb__meta">Repete {{ item.repeatCount }} fois</span>
+    }
+    @if (verbosity === 'verbose' && item.status) {
+      <span class="sfb__meta">HTTP {{ item.status }}</span>
+    }
+    @if (verbosity === 'verbose' && item.source) {
+      <span class="sfb__meta">{{ item.source }}</span>
+    }
+
+    @if (showDetails() && hasDiagnostic()) {
+      <button
+        type="button"
+        class="sfb__details-toggle"
+        [attr.aria-expanded]="expanded()"
+        (click)="toggleDetails()"
+      >
+        <span>Details techniques</span>
+        <span class="material-symbols-outlined" aria-hidden="true">
+          {{ expanded() ? 'expand_less' : 'expand_more' }}
+        </span>
+      </button>
+
+      @if (expanded()) {
+        <dl class="sfb__details" aria-label="Details de diagnostic">
+          @if (item.requestId) {
+            <div class="sfb__detail-row">
+              <dt>requestId</dt>
+              <dd><code>{{ item.requestId }}</code></dd>
+            </div>
+          }
+          @if (item.traceId) {
+            <div class="sfb__detail-row">
+              <dt>traceId</dt>
+              <dd><code>{{ item.traceId }}</code></dd>
+            </div>
+          }
+          @if (item.spanId) {
+            <div class="sfb__detail-row">
+              <dt>spanId</dt>
+              <dd><code>{{ item.spanId }}</code></dd>
+            </div>
+          }
+          @if (item.errorId) {
+            <div class="sfb__detail-row">
+              <dt>errorId</dt>
+              <dd><code>{{ item.errorId }}</code></dd>
+            </div>
+          }
+        </dl>
+      }
+    }
+  </div>
+
+  <div class="sfb__actions">
+    @if (showDetails() && item.copyText) {
+      <button
+        type="button"
+        class="sfb__btn"
+        [attr.aria-label]="copied() ? 'Copie' : 'Copier les details'"
+        (click)="copy()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">
+          {{ copied() ? 'check' : 'content_copy' }}
+        </span>
+      </button>
+    }
+    @if (item.dismissible) {
+      <button
+        type="button"
+        class="sfb__btn"
+        aria-label="Fermer"
+        (click)="dismissed.emit(item.id)"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    }
+  </div>
+</div>

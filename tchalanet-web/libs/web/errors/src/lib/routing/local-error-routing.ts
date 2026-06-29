@@ -77,7 +77,19 @@ export function toErrorViewModel(
     title: copy.title,
     message: copy.message,
     severity: error.severity,
+    surface: error.surface,
+    placement: error.placement,
     code: error.code,
+    status: error.status,
+    requestId: error.requestId,
+    traceId: error.traceId,
+    spanId: error.spanId,
+    errorId: error.errorId,
+    source: error.source,
+    target: error.target,
+    field: error.field,
+    retryable: error.retryable,
+    dedupeKey: error.dedupeKey,
   };
 }
 

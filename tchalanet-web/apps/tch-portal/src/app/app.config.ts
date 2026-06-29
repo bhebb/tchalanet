@@ -1,8 +1,12 @@
 import { DatePipe, DecimalPipe, registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import localeFr from '@angular/common/locales/fr';
-import { ApplicationConfig, ErrorHandler, LOCALE_ID, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {import { ApplicationConfig, ErrorHandler, isDevMode, provideBrowserGlobalErrorListeners } from '@angular/core';
+
+ApplicationConfig,
+  ErrorHandler,
+  isDevMode,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';import { provideRouter } from '@angular/router';
 
 import { AppErrorHandler } from './core/error/app-error-handler';
 import { provideEffects } from '@ngrx/effects';
@@ -14,22 +18,28 @@ import { correlationRequestInterceptor, problemDetailInterceptor } from '@tch/ap
 import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
-
+import {
+  authBearerInterceptor,
+  provideFirebaseAuthClient,
+  supportAccessInterceptor,
+} from '@tch/core/auth';
 import { appRoutes } from './app.routes';
 import {
   I18nEffects,
   MERGED_TRANSLATE_LOADER_OPTIONS,
   MergedTranslateLoader,
   i18nFeature,
-} from './core/i18n';
+} from '@tch/core/i18n';
+import { FeatureFlags, PORTAL_I18N_CONFIG, SettingsFeatureFlags } from '@tch/shared-config';
+import { themeStoreProvider } from '@tch/ui/theme';
+import { provideWidgets } from '@tch/widgets';
+
+import { appRoutes } from './app.routes';
 import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { environment } from '../environments/environment';
 
-import { authBearerInterceptor } from './core/auth/auth-bearer.interceptor';
 import { apiFeedbackInterceptor } from './core/api/api-feedback.interceptor';
-import { supportAccessInterceptor } from './core/access/support-access.interceptor';
-import { provideFirebaseAuthClient } from './core/auth/firebase/firebase-auth.providers';
 
 registerLocaleData(localeFr);
 

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage, appendQuery } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -38,14 +38,6 @@ export interface DrawSummaryView {
   active: boolean;
 }
 
-export interface TchPage<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
-
 export interface ListDrawsParams {
   resultSlotId?: string;
   status?: DrawStatus;
@@ -60,40 +52,27 @@ export class AdminDrawsApi {
   private readonly backend = inject(TchBackendClient);
 
   list(params: ListDrawsParams = {}, options?: TchRequestOptions): Observable<TchPage<DrawSummaryView>> {
-    const p = new URLSearchParams();
-    if (params.resultSlotId) p.set('resultSlotId', params.resultSlotId);
-    if (params.status) p.set('status', params.status);
-    if (params.from) p.set('from', params.from);
-    if (params.to) p.set('to', params.to);
-    if (params.page !== undefined) p.set('page', String(params.page));
-    if (params.size !== undefined) p.set('size', String(params.size));
-    const qs = p.toString();
-    return this.backend.get<TchPage<DrawSummaryView>>(`/admin/draws${qs ? `?${qs}` : ''}`, options);
+    return this.backend.get<TchPage<DrawSummaryView>>(appendQuery('/admin/draws', params), options);
   }
 
   listToday(
     params: { resultSlotId?: string; page?: number; size?: number } = {},
     options?: TchRequestOptions,
   ): Observable<TchPage<DrawSummaryView>> {
-    const p = new URLSearchParams();
-    if (params.resultSlotId) p.set('resultSlotId', params.resultSlotId);
-    if (params.page !== undefined) p.set('page', String(params.page));
-    if (params.size !== undefined) p.set('size', String(params.size));
-    const qs = p.toString();
-    return this.backend.get<TchPage<DrawSummaryView>>(`/admin/draws/today${qs ? `?${qs}` : ''}`, options);
+    return this.backend.get<TchPage<DrawSummaryView>>(
+      appendQuery('/admin/draws/today', params),
+      options,
+    );
   }
 
   listUpcoming(
     params: { resultSlotId?: string; days?: number; page?: number; size?: number } = {},
     options?: TchRequestOptions,
   ): Observable<TchPage<DrawSummaryView>> {
-    const p = new URLSearchParams();
-    if (params.resultSlotId) p.set('resultSlotId', params.resultSlotId);
-    if (params.days !== undefined) p.set('days', String(params.days));
-    if (params.page !== undefined) p.set('page', String(params.page));
-    if (params.size !== undefined) p.set('size', String(params.size));
-    const qs = p.toString();
-    return this.backend.get<TchPage<DrawSummaryView>>(`/admin/draws/upcoming${qs ? `?${qs}` : ''}`, options);
+    return this.backend.get<TchPage<DrawSummaryView>>(
+      appendQuery('/admin/draws/upcoming', params),
+      options,
+    );
   }
 
   get(drawId: string, options?: TchRequestOptions): Observable<DrawSummaryView> {

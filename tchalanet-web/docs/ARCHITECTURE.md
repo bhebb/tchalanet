@@ -37,10 +37,11 @@ C’est un **contrat de composition de page prêt-à-rendre**.
 ```text
 tchalanet-web/
 ├── apps/
-│   ├── tch-portal/        ← portail historique, migration progressive
-│   ├── public-portal/     ← app publique, SSR/SSG-ready
+│   ├── public-portal/     ← app publique, SSR/hydration-ready, surface publique canonique
 │   ├── admin-portal/      ← app tenant admin, CSR V0, déployable seule
 │   ├── platform-portal/   ← app plateforme/superadmin, CSR V0, déployable seule
+│   ├── tch-portal/        ← portail historique privé pendant migration, plus de surface publique
+│   ├── web-e2e/           ← Playwright e2e unique pour public/admin/platform
 │   └── proxy.conf.cjs     ← proxy local partagé vers /api/v1
 │
 │   apps/*/src/app/
@@ -57,6 +58,7 @@ tchalanet-web/
     │   ├── auth/          ← login partagé, auth/session/guards quand extraits
     │   └── i18n/          ← runtime i18n partagé quand extrait
     ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
+    ├── shared-assets/      ← assets statiques partagés servis en /assets/**
     ├── shared-config/      ← settings runtime et feature flags
     ├── web/                ← façade historique web, à réduire progressivement
     │   ├── errors/         ← modèle/copy/routing UI des erreurs web
@@ -74,6 +76,27 @@ seule lib avec des dossiers internes.
 
 `pos-portal` n'existe pas en V0. La vente POS reste lazy-loaded dans `admin-portal` jusqu'à ce que la
 surface justifie une app séparée.
+
+La surface publique appartient désormais à `apps/public-portal/src/app/features/public`. Les pages
+publiques ne sont plus maintenues dans `apps/tch-portal`. Les assets partagés sont servis depuis
+`libs/shared-assets/public` par chaque app.
+
+Les tests end-to-end Angular/Web vivent dans un seul projet Playwright :
+
+```text
+apps/web-e2e/src/
+  public-portal/
+  admin-portal/
+  platform-portal/
+```
+
+Le run standard utilise Chromium et démarre les apps sur des ports locaux stables :
+
+```text
+public-portal   http://localhost:4301
+admin-portal    http://localhost:4302
+platform-portal http://localhost:4303
+```
 
 ---
 
@@ -167,6 +190,21 @@ Responsabilité :
 - helpers runtime i18n.
 
 Les écrans métier d'administration i18n restent dans leur feature platform/admin.
+
+---
+
+### `libs/shared-assets`
+
+Responsabilité :
+
+- logos, icônes, fonts, images publiques et markdown partagés ;
+- bundles JSON i18n locaux de fallback ;
+- constantes TypeScript de chemins `/assets/**`.
+
+Chaque app copie `libs/shared-assets/public` dans son browser output. `public-portal` SSR sert ces
+fichiers depuis le dossier browser généré, pas depuis le workspace source.
+
+Cette lib ne contient ni secrets runtime, ni store i18n, ni loader ngx-translate, ni shell.
 
 ---
 
@@ -318,6 +356,7 @@ libs/
   api/             contrats backend/web, http technique, backend-client
   core/auth/       login partagé, OIDC/Keycloak, session et guards
   core/i18n/       traduction runtime et sélection de langue
+  shared-assets/   assets statiques et constantes de chemins /assets/**
   shared-config/   feature flags, settings et configuration runtime
   ui/              components, styles et theme
   page-model/      actif : contrats, API, moteur de rendu et registre abstrait

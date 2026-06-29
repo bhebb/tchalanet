@@ -87,7 +87,13 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionFeedback = signal<ErrorViewModel | null>(null);
-  readonly page = signal<{ items: DrawResultOpsResponse[]; totalElements: number; totalPages: number; number: number; size: number } | null>(null);
+  readonly page = signal<{
+    items: DrawResultOpsResponse[];
+    totalElements: number;
+    totalPages: number;
+    page: number;
+    size: number;
+  } | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
   readonly actionLoading = signal(false);

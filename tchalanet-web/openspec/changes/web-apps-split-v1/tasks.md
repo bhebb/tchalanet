@@ -20,19 +20,23 @@
 - [x] Ajouter/valider le dossier `libs/api/src/lib/http`.
 - [x] Ajouter/valider le dossier `libs/api/src/lib/backend-client`.
 - [x] Ne pas créer `libs/api/clients` comme registre central de tous les clients métier.
-- [ ] Placer `ApiResponse<T>`, `ProblemDetail`, `TchPage<T>`, `ApiNotice`, `ServiceStatus`,
+- [x] Placer `ApiResponse<T>`, `ProblemDetail`, `TchPage<T>`, `ApiNotice`, `ServiceStatus`,
   `ActionItem`, `NavigationDestination` dans `libs/api/src/lib/contracts`.
-- [ ] Placer interceptors, constantes headers, helpers query params/pagination et normalisation
+- [x] Placer interceptors, constantes headers, helpers query params/pagination et normalisation
   `ProblemDetail` dans `libs/api/src/lib/http`.
-- [ ] Placer `BackendClient`, unwrap `ApiResponse<T>`, mapping central erreurs, pagination et
+- [x] Placer `BackendClient`, unwrap `ApiResponse<T>`, mapping central erreurs, pagination et
   options headers dans `libs/api/src/lib/backend-client`.
 
 ### 2.2 `libs/core`
 
 - [x] Créer/valider `libs/core/auth`.
 - [x] Créer/valider `libs/core/i18n`.
-- [ ] Placer login partagé, session store, guards, permissions, login/logout et état auth dans
+- [x] Placer `I18nFacade`, store/effects i18n, loader/merger ngx-translate et language switcher
+  runtime dans `libs/core/i18n`.
+- [x] Placer login partagé, session store, guards, permissions, login/logout et état auth dans
   `libs/core/auth`.
+- [x] Déplacer `AuthSessionService`, guards, bearer interceptor, provider Firebase, bootstrap privé
+  et support access runtime dans `libs/core/auth`.
 - [x] Vérifier que `libs/core/auth` ne contient aucun client métier admin/platform/POS ni registre
   central d'endpoints backend.
 
@@ -55,9 +59,20 @@
 - [x] Ne pas créer `libs/web/navigation` en V0; garder navigation dans `libs/web/shell` tant qu'elle
   appartient au shell.
 - [x] Ne pas créer une lib séparée `libs/shell`.
+- [x] Déplacer les primitives publiques réutilisables `PublicHeader`/`PublicFooter`/`PublicBottomNav`
+  dans `libs/web/shell`.
+- [x] Déplacer `PublicShellService`, `PublicFallbackBundleService` et le modèle bootstrap public dans
+  `libs/web/shell`.
+- [x] Déplacer le feedback shell réutilisable (`ShellFeedbackStore`, outlet, banner, copy support
+  reference) dans `libs/web/shell`.
+- [x] Déplacer les presets/modèles de navigation shell privés dans `libs/web/shell`.
+- [x] Extraire le layout visuel du shell privé dans `libs/web/shell`, avec projection pour les
+  utilitaires et le contenu spécifiques à l'app.
+- [x] Extraire le layout visuel du shell public dans `libs/web/shell`, avec projection du contenu
+  routé et wiring i18n/login conservé dans l'app.
 - [ ] Placer public shell, private/admin shell, platform shell et layout shell utilities dans
   `libs/web/shell`.
-- [ ] Placer page error, section error, API error presenter et mapping UI depuis `ProblemDetail`
+- [x] Placer page error, section error, API error presenter et mapping UI depuis `ProblemDetail`
   dans `libs/web/errors`.
 
 ### 2.5 Autres libs
@@ -141,9 +156,9 @@
 
 ## 9. Public portal
 
-- [ ] Mettre les routes publiques dans `public-portal`.
-- [ ] Garder les features publiques sous `features/public`.
-- [ ] Brancher `public-portal` sur `libs/page-model` si la page est rendue par PageModel.
+- [x] Mettre les routes publiques dans `public-portal`.
+- [x] Garder les features publiques sous `features/public`.
+- [x] Brancher `public-portal` sur `libs/page-model` si la page est rendue par PageModel.
 - [ ] Ne pas mettre le shell public dans PageModel.
 - [ ] Ne pas mettre le thème runtime dans PageModel.
 - [x] Prioriser SSR/SSG pour `public-portal`.

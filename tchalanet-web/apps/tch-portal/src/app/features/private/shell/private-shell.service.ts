@@ -4,16 +4,14 @@ import { NavigationEnd, Router } from '@angular/router';
 import { catchError, distinctUntilChanged, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 
 import { ActionItem, NavigationSection } from '@tch/api';
+import { AuthSessionService, SupportAccessStore } from '@tch/core/auth';
 import { PageModelApi, PageRuntimeResponse, PrivateShellRuntime } from '@tch/page-model';
-
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
-import { SupportAccessStore } from '../../../core/access/support-access.store';
 import {
   CASHIER_NAVIGATION,
   PLATFORM_NAVIGATION,
-  TENANT_ADMIN_NAVIGATION,
   PrivateSpace,
-} from './private-navigation.model';
+  TENANT_ADMIN_NAVIGATION,
+} from '@tch/web/shell';
 
 @Injectable({ providedIn: 'root' })
 export class PrivateShellService {

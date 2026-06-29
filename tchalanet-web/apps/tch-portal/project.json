@@ -20,6 +20,11 @@
         "assets": [
           {
             "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
+          {
+            "glob": "**/*",
             "input": "apps/tch-portal/public"
           }
         ],

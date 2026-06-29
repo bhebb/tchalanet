@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import {
   DatePreset,
   GeneratedDrawView,
@@ -10,7 +10,7 @@ import {
   PagedResult,
   SaveDrawResultRequest,
 } from './admin-generated-draws.models';
-import { DrawView, TchPage } from '../../../platform/operations/data-access/platform-ops-api.service';
+import { DrawView } from '../../../platform/operations/data-access/platform-ops-api.service';
 
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 
@@ -147,7 +147,7 @@ export class AdminGeneratedDrawsApiService {
         return {
           content: filtered,
           totalElements: filtered.length,
-          page: page.number,
+          page: page.page,
           size: page.size,
         };
       }),

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage, appendQuery } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -23,14 +23,6 @@ export interface PayoutDetailsView extends PayoutRowView {
   reason?: string | null;
 }
 
-export interface TchPage<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
-
 export interface ListPayoutsParams {
   status?: PayoutStatus;
   ticketId?: string;
@@ -45,15 +37,7 @@ export class AdminPayoutsApi {
   private readonly backend = inject(TchBackendClient);
 
   list(params: ListPayoutsParams = {}, options?: TchRequestOptions): Observable<TchPage<PayoutRowView>> {
-    const p = new URLSearchParams();
-    if (params.status) p.set('status', params.status);
-    if (params.ticketId) p.set('ticketId', params.ticketId);
-    if (params.from) p.set('from', params.from);
-    if (params.to) p.set('to', params.to);
-    if (params.page !== undefined) p.set('page', String(params.page));
-    if (params.size !== undefined) p.set('size', String(params.size));
-    const qs = p.toString();
-    return this.backend.get<TchPage<PayoutRowView>>(`/admin/payouts${qs ? `?${qs}` : ''}`, options);
+    return this.backend.get<TchPage<PayoutRowView>>(appendQuery('/admin/payouts', params), options);
   }
 
   get(payoutId: string, options?: TchRequestOptions): Observable<PayoutDetailsView> {

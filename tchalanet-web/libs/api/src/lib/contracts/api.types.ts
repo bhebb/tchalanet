@@ -65,9 +65,12 @@ export interface ProblemDetail {
 }
 
 export interface TchPage<T> {
-  readonly items: readonly T[];
-  readonly page: number;
-  readonly size: number;
+  readonly items: T[];
   readonly totalElements: number;
   readonly totalPages: number;
+  readonly page: number;
+  readonly size: number;
+  readonly last?: boolean;
+  readonly hasNext?: boolean;
+  readonly hasPrevious?: boolean;
 }

@@ -66,7 +66,7 @@ export class AdminDrawResultsPage implements OnInit {
       quality: this.qualityFilter() || undefined,
       size: 100,
     }, { suppressShellFeedback: true }).subscribe({
-      next: p => { this.results.set(p.content); this.loading.set(false); },
+      next: p => { this.results.set(p.items); this.loading.set(false); },
       error: (err: unknown) => {
         this.error.set(this.errorViewModel(err));
         this.loading.set(false);

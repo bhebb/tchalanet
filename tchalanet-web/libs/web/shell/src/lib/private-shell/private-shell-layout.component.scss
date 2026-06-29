@@ -1,0 +1,120 @@
+.private-shell {
+  --comp-private-border: var(--tch-color-outline-variant);
+
+  min-height: 100vh;
+}
+
+.top-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--tch-z-header, 100);
+  align-items: center;
+  border-bottom: 1px solid var(--comp-private-border);
+  background: var(--tch-color-surface, #fff);
+  display: flex;
+  justify-content: space-between;
+  min-height: 4rem;
+  padding: 0 1.5rem;
+}
+
+.utilities {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mode-toggle:hover {
+  background: var(--tch-color-surface-container-high);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) 1fr;
+  min-height: calc(100vh - 4rem);
+}
+
+.drawer,
+.content {
+  min-width: 0;
+}
+
+.burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: var(--tch-radius-md, 12px);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.burger:hover {
+  background: var(--tch-color-surface-container-high);
+}
+
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .top-app-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding-block: 0.75rem;
+  }
+
+  .burger {
+    display: inline-flex;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(82vw, 18rem);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: var(--tch-z-drawer, 300);
+    overflow-y: auto;
+    box-shadow: var(--tch-elevation-2, 0 8px 24px rgba(0, 0, 0, 0.18));
+  }
+
+  .workspace.is-drawer-open .drawer {
+    transform: translateX(0);
+  }
+
+  .workspace.is-drawer-open .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--tch-z-drawer, 300) - 10);
+    background: color-mix(in oklab, #000 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+}

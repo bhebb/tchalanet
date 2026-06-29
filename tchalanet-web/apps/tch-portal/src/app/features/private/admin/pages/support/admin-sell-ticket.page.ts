@@ -87,7 +87,7 @@ export class AdminSellTicketPage implements OnInit {
 
     this.drawsApi.listToday({ size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => {
-        const today = p.content.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
+        const today = p.items.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
         this.draws.set(today);
       },
       error: err => this.loadError.set(this.errorViewModel(err, 'admin.support.sell.draws.today')),
@@ -95,7 +95,7 @@ export class AdminSellTicketPage implements OnInit {
 
     this.drawsApi.listUpcoming({ days: 2, size: 50 }, { suppressShellFeedback: true }).subscribe({
       next: p => {
-        const upcoming = p.content.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
+        const upcoming = p.items.filter(d => d.status === 'OPEN' || d.status === 'SCHEDULED');
         this.draws.update(existing => {
           const ids = new Set(existing.map(d => d.id));
           return [...existing, ...upcoming.filter(d => !ids.has(d.id))];

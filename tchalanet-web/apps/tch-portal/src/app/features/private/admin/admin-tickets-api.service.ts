@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type TicketStatus = 'PLACED' | 'PAID' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
@@ -68,14 +68,6 @@ export interface AdminTicketListParams {
   readonly size?: number;
 }
 
-export interface TchPage<T> {
-  readonly content: T[];
-  readonly totalElements: number;
-  readonly totalPages: number;
-  readonly number: number;
-  readonly size: number;
-}
-
 @Injectable({ providedIn: 'root' })
 export class AdminTicketsApi {
   private readonly backend = inject(TchBackendClient);
@@ -84,12 +76,15 @@ export class AdminTicketsApi {
     params: AdminTicketListParams = {},
     options?: TchRequestOptions,
   ): Observable<TchPage<TicketRowView>> {
-    const p = new URLSearchParams();
-    p.set('page', String(params.page ?? 0));
-    p.set('size', String(params.size ?? 20));
-    p.set('sort', 'placedAt,desc');
-    if (params.status) p.set('status', params.status);
-    return this.backend.get<TchPage<TicketRowView>>(`/tenant/cashier/tickets?${p.toString()}`, options);
+    return this.backend.get<TchPage<TicketRowView>>(
+      appendQuery('/tenant/cashier/tickets', {
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+        sort: 'placedAt,desc',
+        status: params.status,
+      }),
+      options,
+    );
   }
 
   preview(

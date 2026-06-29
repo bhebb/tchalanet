@@ -23,7 +23,7 @@ Each dependency must answer:
 | `@nx/angular` | dev | Nx/Angular | Provides Angular app/lib generators and Nx Angular integrations. | Angular CLI-only workspace. | Keep while Angular projects are managed by Nx. |
 | `@nx/devkit` | dev | Nx | Supports Nx plugins/config and generated Playwright configs. | No Nx plugin APIs. | Keep while Nx project tooling imports it. |
 | `@nx/js` | dev | Nx/TypeScript | Supports JS/TS workspace init and generator plumbing used by Nx Angular. | Angular-only setup. | Keep while required by Nx Angular. |
-| `@nx/playwright` | dev/test | e2e | Provides Playwright integration for generated app e2e projects. | Manual Playwright config. | Keep while app e2e targets use Nx Playwright. |
+| `@nx/playwright` | dev/test | e2e | Provides Playwright integration for the unified `web-e2e` project. | Manual Playwright config only. | Keep while Web e2e targets use Nx Playwright. |
 | `@swc/core` | dev/build | Nx tooling | Native transform dependency used by Nx tooling. | TypeScript-only execution. | Keep while required by Nx packages. |
 | `eslint` | dev | quality | Runs flat-config lint checks for the Nx/Angular workspace. | TypeScript compiler only. | Keep while lint is a quality gate. |
 | `@nx/eslint` | dev | quality/Nx | Provides the Nx lint executor used by `tch-portal:lint`. | Running ESLint manually. | Keep while Nx owns project targets. |
@@ -36,7 +36,7 @@ Each dependency must answer:
 | `@typescript-eslint/utils` | dev | quality/TypeScript | Supports TypeScript ESLint rule utilities. | No custom TS-aware lint utilities. | Keep while required by local lint dependencies or rules. |
 | `typescript-eslint` | dev | quality/TypeScript | Provides TypeScript ESLint flat-config support. | Manual parser/plugin wiring only. | Keep while using flat TypeScript ESLint config. |
 | `eslint-config-prettier` | dev | quality/format | Prevents formatting rules from conflicting with Prettier. | Manually disabling conflicting rules. | Keep while Prettier and ESLint are both used. |
-| `eslint-plugin-playwright` | dev | quality/e2e | Lints Playwright e2e tests. | Generic lint rules for tests. | Keep while Playwright tests exist. |
+| `eslint-plugin-playwright` | dev | quality/e2e | Lints Playwright tests in `apps/web-e2e`. | Generic lint rules for tests. | Keep while Playwright tests exist. |
 | `eslint-plugin-simple-import-sort` | dev | quality/imports | Supports deterministic import sorting in the existing legacy Web lint config. | Prettier or manual import ordering. | Remove if import sorting is removed from all ESLint configs. |
 | `eslint-plugin-unused-imports` | dev | quality/imports | Removes and flags unused imports in the existing legacy Web lint config. | TypeScript no-unused checks only. | Remove if unused import cleanup is handled elsewhere. |
 | `prettier` | dev | quality/format | Formats workspace files consistently. | Editor-only formatting. | Keep if team accepts format standard. |

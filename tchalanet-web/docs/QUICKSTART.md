@@ -37,11 +37,16 @@ Angular ne connaît pas les bindings backend internes.
 pnpm install
 ```
 
-### Démarrer l’application
+### Démarrer les applications
 
 ```bash
-pnpm nx serve tch-portal
+pnpm nx serve public-portal --port=4301
+pnpm nx serve admin-portal --port=4302
+pnpm nx serve platform-portal --port=4303
 ```
+
+`tch-portal` reste disponible pendant la migration des surfaces privées, mais la surface publique
+canonique est `public-portal`.
 
 ### Lancer les tests unitaires
 
@@ -52,8 +57,11 @@ pnpm nx test tch-portal
 ### Lancer les tests end-to-end
 
 ```bash
-pnpm nx e2e tch-portal-e2e
+pnpm nx e2e web-e2e
 ```
+
+`web-e2e` est le projet Playwright unique. Les tests sont rangés par surface sous
+`apps/web-e2e/src/{public-portal,admin-portal,platform-portal}`.
 
 ---
 

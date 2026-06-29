@@ -7,8 +7,10 @@ import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
-import { LanguageSwitcher } from '../../../core/i18n';
+import { AuthSessionService } from '@tch/core/auth';
+import { TCH_BRAND_ASSETS } from '@tch/shared-assets';
+
+import { LanguageSwitcher } from '@tch/core/i18n';
 
 @Component({
   standalone: true,
@@ -34,6 +36,8 @@ export class LoginPage implements OnInit {
   readonly checkingSession = signal(true);
   readonly errorKey = signal<string | null>(null);
   readonly passwordVisible = signal(false);
+  readonly brandLogo = TCH_BRAND_ASSETS.logo;
+  readonly brandLogoInverse = TCH_BRAND_ASSETS.logoInverse;
 
   private readonly authSession = inject(AuthSessionService);
   private readonly router = inject(Router);

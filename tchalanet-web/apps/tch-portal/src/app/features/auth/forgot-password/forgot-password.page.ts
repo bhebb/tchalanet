@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
-import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import { AuthSessionService } from '@tch/core/auth';
 import { AccountActivationApi } from '../../../features/private/account/data-access/account-activation-api.service';
 
 const passwordsMatch: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {

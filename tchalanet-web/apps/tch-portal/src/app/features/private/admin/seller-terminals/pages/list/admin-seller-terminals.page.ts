@@ -120,7 +120,7 @@ export class AdminSellerTerminalsPage implements OnInit {
       .subscribe({
         next: res => {
           this.items.set(res.items);
-          this.total.set(res.total);
+          this.total.set(res.totalElements);
           this.loading.set(false);
         },
         error: (err: unknown) => {

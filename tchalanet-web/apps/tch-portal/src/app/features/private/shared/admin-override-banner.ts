@@ -4,8 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TchBackendClient } from '@tch/api';
-
-import { SupportAccessStore } from '../../../core/access/support-access.store';
+import { SupportAccessStore } from '@tch/core/auth';
 
 @Component({
   selector: 'tch-admin-override-banner',

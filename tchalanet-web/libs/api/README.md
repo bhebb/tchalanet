@@ -10,6 +10,7 @@ Common backend/Web transport boundary.
 - HTTP interceptors: `correlationRequestInterceptor`, `problemDetailInterceptor`;
 - typed backend client: `TchBackendClient`;
 - context token: `SUPPRESS_SHELL_FEEDBACK`.
+- query helpers: `appendQuery`, `toHttpParams`, `toQueryString`, `pageQuery`.
 
 ---
 
@@ -44,6 +45,25 @@ export class PublicResultsService {
 
 Le path logique `/public/results` est automatiquement préfixé en `/api/v1/public/results`.
 Ne jamais inclure `/api/v1` dans les paths passés à `TchBackendClient`.
+
+### Contrat paginé
+
+`TchPage<T>` reflète le record backend `common.web.paging.TchPage` :
+
+```ts
+interface TchPage<T> {
+  items: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last?: boolean;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+}
+```
+
+Ne pas utiliser le shape Spring `Page<T>` (`content`, `number`) pour les endpoints Tchalanet.
 
 ### Réponse complète (notices / serviceHealth)
 

@@ -1,3 +1,5 @@
+import { TCH_LOTTERY_ASSET_BASE_PATH } from '@tch/shared-assets';
+
 export type HaitiLotKey = 'lot1' | 'lot2' | 'lot3';
 export type ProviderGameKind = 'pick3' | 'pick4';
 
@@ -16,7 +18,7 @@ export interface HaitiLotGameMapping {
   readonly imageAlt: string;
 }
 
-const LOTTERY_IMAGE_BASE = '/assets/images/lottery/';
+const LOTTERY_IMAGE_BASE = `${TCH_LOTTERY_ASSET_BASE_PATH}/`;
 
 const PROVIDER_GAME_LABELS: Record<string, { pick3Label?: string; pick4Label?: string }> = {
   CA: { pick3Label: 'Daily 3', pick4Label: 'Daily 4' },
@@ -42,7 +44,9 @@ const PROVIDER_GAME_IMAGE_OVERRIDES: Partial<Record<`${string}:${ProviderGameKin
   'TX:pick4': 'tx_pick4.png',
 };
 
-export function haitiLotGameMappings(source: HaitiLotGameMappingSource | null | undefined): HaitiLotGameMapping[] {
+export function haitiLotGameMappings(
+  source: HaitiLotGameMappingSource | null | undefined,
+): HaitiLotGameMapping[] {
   const provider = resolveProvider(source);
   const labels = PROVIDER_GAME_LABELS[provider] ?? {};
 
@@ -60,9 +64,8 @@ function toMapping(
   provider: string,
   labels: { pick3Label?: string; pick4Label?: string },
 ): HaitiLotGameMapping {
-  const gameLabel = gameKind === 'pick3'
-    ? (labels.pick3Label ?? 'Pick 3')
-    : (labels.pick4Label ?? 'Pick 4');
+  const gameLabel =
+    gameKind === 'pick3' ? (labels.pick3Label ?? 'Pick 3') : (labels.pick4Label ?? 'Pick 4');
 
   return {
     lotKey,

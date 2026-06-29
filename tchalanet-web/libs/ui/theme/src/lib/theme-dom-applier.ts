@@ -13,6 +13,10 @@ export class ThemeDomApplier {
   private readonly overlay = inject(OverlayContainer);
 
   apply(theme: RuntimeTheme, presetCss: string): void {
+    if (typeof window === 'undefined' || !this.document.body || !this.document.head) {
+      return;
+    }
+
     const root = this.document.documentElement;
     const body = this.document.body;
     const overlayElement = this.overlay.getContainerElement();

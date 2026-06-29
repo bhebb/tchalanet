@@ -10,10 +10,10 @@ import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { SupportAccessStore } from '@tch/core/auth';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
-import { SupportAccessStore } from '../../../../core/access/support-access.store';
 import { PlatformTenantAdminAccessApi } from '../platform-tenant-admin-access-api.service';
 import type { TenantStatus } from '../tenants/data-access/platform-tenants-api.service';
 

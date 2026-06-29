@@ -15,7 +15,15 @@
         "browser": "apps/admin-portal/src/main.ts",
         "tsConfig": "apps/admin-portal/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
+        },
         "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
           {
             "glob": "**/*",
             "input": "apps/admin-portal/public"

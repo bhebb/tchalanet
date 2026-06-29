@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -196,14 +196,6 @@ export interface DrawResultOpsResponse {
 }
 
 export type OpsDrawResultQuality = 'COMPLETE' | 'SUSPECT' | 'INVALID';
-
-export interface TchPage<T> {
-  items: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
 
 // ── Draw Lifecycle (admin/draws) ─────────────────────────────────────────────
 

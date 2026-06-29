@@ -1,15 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import { Observable } from 'rxjs';
-
-// ─── Shared ────────────────────────────────────────────────────────────────
-export interface TchPage<T> {
-  items: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-}
 
 // ─── Games ─────────────────────────────────────────────────────────────────
 export interface CatalogGameView {

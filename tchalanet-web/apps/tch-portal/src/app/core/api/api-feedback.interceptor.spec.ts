@@ -5,10 +5,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { SUPPRESS_SHELL_FEEDBACK } from '@tch/api';
+import { ShellFeedbackStore } from '@tch/web/shell';
 import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
-import { ShellFeedbackStore } from '../feedback/shell-feedback.store';
 import { apiFeedbackInterceptor } from './api-feedback.interceptor';
 
 describe('apiFeedbackInterceptor', () => {

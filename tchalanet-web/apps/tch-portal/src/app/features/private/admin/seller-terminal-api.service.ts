@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -151,7 +151,7 @@ export class SellerTerminalApi {
             tenantId: params.tenantId,
             reason: 'SUPER_ADMIN: list seller terminals for recipient picker',
           },
-        }
+      }
       : options;
     return this.backend.get<TchPage<SellerTerminalSummaryRow>>(
       `/admin/seller-terminals${qs ? `?${qs}` : ''}`,

@@ -84,7 +84,7 @@ export class AdminPayoutsPage implements OnInit {
       { suppressShellFeedback: true },
     ).subscribe({
       next: p => {
-        this.items.set(p.content);
+        this.items.set(p.items);
         this.total.set(p.totalElements);
         this.loading.set(false);
       },

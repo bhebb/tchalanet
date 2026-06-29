@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { AuthSessionService } from '../auth/auth-session.service';
+import { AuthSessionService } from '@tch/core/auth';
 import {
   PrivateNotificationItem,
   PrivateNotificationScope,

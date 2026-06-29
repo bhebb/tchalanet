@@ -1,0 +1,15 @@
+.auth-state-page {
+  display: grid;
+  gap: 1rem;
+  max-width: 720px;
+  padding: 2rem;
+}
+
+.auth-state-page__title,
+.auth-state-page__body {
+  margin: 0;
+}
+
+.auth-state-page__link {
+  color: var(--tch-color-primary, #0f5b46);
+}

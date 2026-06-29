@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage as TchPageResult } from '@tch/api';
 import { Observable } from 'rxjs';
-import { TchPage as TchPageResult } from '../../operations/data-access/platform-ops-api.service';
 
 export type I18nOverrideLevel = 'GLOBAL' | 'TENANT';
 export type I18nSurface =

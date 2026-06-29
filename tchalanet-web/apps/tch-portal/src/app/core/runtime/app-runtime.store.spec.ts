@@ -1,15 +1,14 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { AuthSessionService, PrivateRuntimeInitializer } from '@tch/core/auth';
 import { ThemeStore } from '@tch/ui/theme';
 import { of } from 'rxjs';
 
-import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '@tch/shared-config';
-import { I18nFacade } from '../i18n';
+import { I18nFacade } from '@tch/core/i18n';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 import { AppRuntimeStore } from './app-runtime.store';
-import { PrivateRuntimeInitializer } from './private-runtime-initializer';
-import { PublicRuntimeInitializer } from './public-runtime-initializer';
+import { PublicRuntimeInitializer } from '@tch/web/shell';
 
 describe('AppRuntimeStore', () => {
   const anonymousSession = {

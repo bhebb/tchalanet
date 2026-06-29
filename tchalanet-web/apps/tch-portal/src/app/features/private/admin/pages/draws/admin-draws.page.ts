@@ -67,7 +67,7 @@ export class AdminDrawsPage implements OnInit {
     this.loadingToday.set(true);
     this.errorToday.set(null);
     this.api.listToday({ size: 50 }, { suppressShellFeedback: true }).subscribe({
-      next: p => { this.today.set(p.content); this.loadingToday.set(false); },
+      next: p => { this.today.set(p.items); this.loadingToday.set(false); },
       error: (err: unknown) => {
         this.errorToday.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.today'));
         this.loadingToday.set(false);
@@ -79,7 +79,7 @@ export class AdminDrawsPage implements OnInit {
     this.loadingUpcoming.set(true);
     this.errorUpcoming.set(null);
     this.api.listUpcoming({ days: 7, size: 50 }, { suppressShellFeedback: true }).subscribe({
-      next: p => { this.upcoming.set(p.content); this.loadingUpcoming.set(false); },
+      next: p => { this.upcoming.set(p.items); this.loadingUpcoming.set(false); },
       error: (err: unknown) => {
         this.errorUpcoming.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.upcoming'));
         this.loadingUpcoming.set(false);
@@ -91,7 +91,7 @@ export class AdminDrawsPage implements OnInit {
     this.loadingAll.set(true);
     this.errorAll.set(null);
     this.api.list({ size: 50 }, { suppressShellFeedback: true }).subscribe({
-      next: p => { this.all.set(p.content); this.loadingAll.set(false); },
+      next: p => { this.all.set(p.items); this.loadingAll.set(false); },
       error: (err: unknown) => {
         this.errorAll.set(this.errorTitle((err as { error?: ProblemDetail })?.error, 'admin.draws.all'));
         this.loadingAll.set(false);

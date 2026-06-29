@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import { Observable } from 'rxjs';
-import { TchPage } from './platform-ops-api.service';
 
 export type AuditActorType = 'USER' | 'TERMINAL' | 'SYSTEM';
 

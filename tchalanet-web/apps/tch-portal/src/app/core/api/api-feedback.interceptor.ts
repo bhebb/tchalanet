@@ -15,10 +15,8 @@ import {
   webAppErrorFromServiceStatus,
 } from '@tch/api';
 import { APPLICATION_API_URL_PATTERN } from '@tch/shared-config';
+import { AddShellFeedbackInput, ShellFeedbackStore, buildCopyText } from '@tch/web/shell';
 
-import { buildCopyText } from '../feedback/copy-error-details';
-import { AddShellFeedbackInput } from '../feedback/shell-feedback.model';
-import { ShellFeedbackStore } from '../feedback/shell-feedback.store';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 
 export const apiFeedbackInterceptor: HttpInterceptorFn = (req, next) => {

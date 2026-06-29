@@ -9,30 +9,27 @@ HTTP access is a platform boundary. Components do not call `HttpClient` directly
 
 ## Placement
 
-Current app placement:
+Library placement:
 
 ```text
-apps/tch-portal/src/app/core/http/
-apps/tch-portal/src/app/core/<capability>/*-api.service.ts
-apps/tch-portal/src/app/shared/types/
+libs/api/src/lib/contracts        transverse backend contracts
+libs/api/src/lib/http             interceptors, request context, query helpers, error mapping
+libs/api/src/lib/backend-client   TchBackendClient wrapper around Angular HttpClient
 ```
 
-Target library placement, once stable:
+Feature placement:
 
 ```text
-libs/api/contracts
-libs/api/http
-libs/api/clients
+apps/<portal>/src/app/features/**/data-access/*-api.service.ts
 ```
 
 Reusable web runtime placement:
 
 ```text
-libs/web/src/lib/errors   frontend-safe error view models, copy, page/section/field helpers
-libs/web/src/lib/auth     provider-neutral auth/session contracts once extracted
-libs/web/src/lib/i18n     runtime i18n loader/language contracts once extracted
-libs/web/src/lib/shell    reusable shell feedback/layout primitives once extracted
-libs/web/src/lib/core     shared web runtime tokens/helpers
+libs/web/errors   frontend-safe error view models, copy, page/section/field helpers
+libs/core/auth    provider-neutral auth/session contracts, guards, provider adapter wiring
+libs/core/i18n    runtime i18n loader/language contracts
+libs/web/shell    reusable shell feedback/layout primitives
 ```
 
 App `core` wires providers and shell-specific stores. It should not be the permanent owner of code
@@ -51,6 +48,26 @@ Paged responses use:
 ```text
 TchPage<T>
 ```
+
+`TchPage<T>` mirrors the backend record
+`tchalanet-common/common.web.paging.TchPage`:
+
+```ts
+{
+  items: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+```
+
+Do not type Tchalanet backend lists as Spring `Page<T>` (`content`, `number`) in web code. If an
+endpoint still returns a local non-`TchPage` shape, keep a local feature type and do not alias it to
+`TchPage<T>`.
 
 Errors map to:
 

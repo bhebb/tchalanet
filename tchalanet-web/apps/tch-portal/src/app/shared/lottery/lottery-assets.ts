@@ -1,4 +1,4 @@
-const LOTTERY_ASSET_BASE = '/assets/images/lottery';
+import { TCH_LOTTERY_ASSET_BASE_PATH } from '@tch/shared-assets';
 
 const SLOT_ASSETS: Record<string, string> = {
   'ca-pick3': 'ca_pick3.svg',
@@ -69,14 +69,14 @@ export function lotteryAssetForSlot(slotKey?: string | null): string | null {
   const normalized = normalize(slotKey);
   if (!normalized) return null;
   const asset = SLOT_ASSETS[normalized];
-  return asset ? `${LOTTERY_ASSET_BASE}/${asset}` : null;
+  return asset ? `${TCH_LOTTERY_ASSET_BASE_PATH}/${asset}` : null;
 }
 
 export function lotteryAssetForDrawChannel(drawChannelCode?: string | null): string | null {
   const normalized = normalize(drawChannelCode);
   if (!normalized) return null;
   const asset = DRAW_CHANNEL_ASSETS[normalized] ?? inferChannelAsset(normalized);
-  return asset ? `${LOTTERY_ASSET_BASE}/${asset}` : null;
+  return asset ? `${TCH_LOTTERY_ASSET_BASE_PATH}/${asset}` : null;
 }
 
 export function lotteryAssetForProvider(providerCode?: string | null): string | null {
@@ -89,8 +89,10 @@ function normalize(value?: unknown): string | null {
 }
 
 function inferChannelAsset(value: string): string | null {
-  if (value.includes('pick3') || value.includes('cash3') || value.includes('daily3')) return 'pick3-logo.png';
-  if (value.includes('pick4') || value.includes('cash4') || value.includes('daily4')) return 'pick4-logo.png';
+  if (value.includes('pick3') || value.includes('cash3') || value.includes('daily3'))
+    return 'pick3-logo.png';
+  if (value.includes('pick4') || value.includes('cash4') || value.includes('daily4'))
+    return 'pick4-logo.png';
   if (value.includes('numbers')) return 'logo-numbers.png.webp';
   if (value.includes('win4')) return 'logo-win4.png.webp';
   return null;

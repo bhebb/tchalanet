@@ -15,7 +15,15 @@
         "browser": "apps/public-portal/src/main.ts",
         "tsConfig": "apps/public-portal/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/theme/src", "libs/ui/styles/src/lib"]
+        },
         "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/shared-assets/public",
+            "output": "."
+          },
           {
             "glob": "**/*",
             "input": "apps/public-portal/public"
@@ -30,6 +38,12 @@
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/public-portal/src/environments/environment.ts",
+              "with": "apps/public-portal/src/environments/environment.prod.ts"
+            }
+          ],
           "budgets": [
             {
               "type": "initial",

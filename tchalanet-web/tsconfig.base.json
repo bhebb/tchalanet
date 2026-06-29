@@ -29,7 +29,8 @@
       "@tch/widgets": ["./libs/widgets/src/index.ts"],
       "@tch/core/auth": ["./libs/core/auth/src/index.ts"],
       "@tch/core/i18n": ["./libs/core/i18n/src/index.ts"],
-      "@env/*": ["./apps/tch-portal/src/environments/*"]
+      "@env/*": ["./apps/tch-portal/src/environments/*"],
+      "@tch/shared-assets": ["./libs/shared-assets/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

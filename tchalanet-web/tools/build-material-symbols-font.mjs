@@ -4,7 +4,7 @@
  *
  * Downloads the Google Fonts instance and converts it to woff2 (keeping all glyphs + the icon
  * ligatures, which live under the `rlig` feature wrapped in extension lookups). Output:
- *   apps/tch-portal/public/assets/fonts/material-symbols-outlined.woff2  (~310 KB)
+ *   libs/shared-assets/public/assets/fonts/material-symbols-outlined.woff2  (~310 KB)
  *
  * We intentionally do NOT glyph-subset: Material Symbols ligature subsetting is fragile (it can
  * silently drop the `rlig` feature, leaving icons as raw ligature text), and the full instance is
@@ -19,9 +19,8 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const OUT = 'apps/tch-portal/public/assets/fonts/material-symbols-outlined.woff2';
-const CSS_URL =
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block';
+const OUT = 'libs/shared-assets/public/assets/fonts/material-symbols-outlined.woff2';
+const CSS_URL = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block';
 
 // Resolve the current font URL from the Google CSS (the hash changes across versions).
 const css = await (await fetch(CSS_URL, { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
@@ -35,10 +34,13 @@ writeFileSync(raw, Buffer.from(await (await fetch(url)).arrayBuffer()));
 // Convert to woff2, keeping everything (all glyphs + GSUB ligatures).
 execFileSync(
   'python3',
-  ['-c', `from fontTools.ttLib import TTFont
+  [
+    '-c',
+    `from fontTools.ttLib import TTFont
 f = TTFont(${JSON.stringify(raw)})
 f.flavor = 'woff2'
 f.save(${JSON.stringify(OUT)})
-print('wrote', ${JSON.stringify(OUT)})`],
+print('wrote', ${JSON.stringify(OUT)})`,
+  ],
   { stdio: 'inherit' },
 );
