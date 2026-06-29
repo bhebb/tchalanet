@@ -44,7 +44,7 @@ export class PrivateNotificationsStore {
       count: this.api.unreadCount(scope),
     }).subscribe({
       next: ({ latest, count }) => {
-        this.itemsSignal.set(latest.items ?? latest.content ?? []);
+        this.itemsSignal.set(latest.items);
         this.unreadCountSignal.set(count.unreadCount ?? 0);
         this.loadingSignal.set(false);
       },

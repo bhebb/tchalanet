@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -95,14 +95,6 @@ export interface TenantDetailView extends TenantSummaryView {
   internalSettings?: TenantInternalSettings | null;
 }
 
-export interface TenantPageResponse {
-  items: TenantSummaryView[];
-  total: number;
-  page: number;
-  size: number;
-  totalPages: number;
-}
-
 export interface TenantListQuery {
   q?: string | null;
   status?: string | null;
@@ -154,22 +146,22 @@ export interface PlatformSuperAdminView {
   assignedAt: string;
 }
 
-interface IdentityUserPageResponse {
-  items: TenantAdminView[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class PlatformTenantsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listTenants(params: TenantListQuery, options?: TchRequestOptions): Observable<TenantPageResponse> {
+  listTenants(params: TenantListQuery, options?: TchRequestOptions): Observable<TchPage<TenantSummaryView>> {
     const query = new URLSearchParams();
     query.set('page', String(params.page));
     query.set('size', String(params.size));
     if (params.q?.trim()) query.set('q', params.q.trim());
     if (params.status) query.set('status', params.status);
     if (params.sort) query.set('sort', params.sort);
-    return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`, options);
+    return this.backend.getPage<TenantSummaryView>(
+      '/platform/tenants',
+      { ...(options ?? {}), params: Object.fromEntries(query.entries()) },
+      { page: params.page, size: params.size },
+    );
   }
 
   getTenant(id: string, options?: TchRequestOptions): Observable<TenantDetailView> {
@@ -207,11 +199,11 @@ export class PlatformTenantsApi {
 
   listTenantAdmins(tenantId: string, options?: TchRequestOptions): Observable<TenantAdminView[]> {
     return this.backend
-      .get<IdentityUserPageResponse>('/admin/identity/users', {
+      .getPage<TenantAdminView>('/admin/identity/users', {
         ...options,
         asTenantAdmin: { tenantId, reason: 'SUPER_ADMIN: list tenant admins' },
       })
-      .pipe(map(page => page.items ?? []));
+      .pipe(map(page => page.items));
   }
 
   listSuperAdmins(): Observable<PlatformSuperAdminView[]> {

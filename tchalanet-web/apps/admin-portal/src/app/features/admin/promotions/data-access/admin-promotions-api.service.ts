@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 export type PromotionCampaignStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'INACTIVE' | 'ARCHIVED';
 
@@ -27,21 +26,6 @@ export interface PromotionCampaignView {
   readonly startsAt: string | null;
   readonly endsAt: string | null;
   readonly rules: readonly PromotionRuleView[];
-}
-
-interface TchPageResponse<T> {
-  readonly items?: readonly T[];
-  readonly content?: readonly T[];
-  readonly total?: number;
-  readonly totalElements?: number;
-  readonly page?: number;
-  readonly size?: number;
-  readonly totalPages?: number;
-}
-
-export interface PromotionCampaignPage {
-  readonly items: readonly PromotionCampaignView[];
-  readonly total: number;
 }
 
 export interface InstantiateMaryajGratisRequest {
@@ -73,17 +57,14 @@ export interface CreatePromotionRuleRequest {
 export class AdminPromotionsApiService {
   private readonly backend = inject(TchBackendClient);
 
-  listCampaigns(): Observable<PromotionCampaignPage> {
-    return this.backend
-      .get<TchPageResponse<PromotionCampaignView>>('/admin/promotions/campaigns', {
+  listCampaigns(): Observable<TchPage<PromotionCampaignView>> {
+    return this.backend.getPage<PromotionCampaignView>(
+      '/admin/promotions/campaigns',
+      {
         params: { page: '0', size: '20', sort: 'createdAt,desc' },
-      })
-      .pipe(
-        map(page => ({
-          items: page.items ?? page.content ?? [],
-          total: page.total ?? page.totalElements ?? (page.items ?? page.content ?? []).length,
-        })),
-      );
+      },
+      { page: 0, size: 20 },
+    );
   }
 
   instantiateDefaultMaryajGratis(

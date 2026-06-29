@@ -127,8 +127,8 @@ export class AdminNotificationsPage implements OnInit {
       }, { suppressShellFeedback: true })
       .subscribe({
         next: response => {
-          this.items.set(response.items ?? response.content ?? []);
-          this.total.set(response.totalElements ?? 0);
+          this.items.set(response.items);
+          this.total.set(response.totalElements);
           this.totalPages.set(response.totalPages || 1);
           this.loading.set(false);
           this.loadUnreadCount();

@@ -1,15 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
-
-export interface AdminNotificationsPage<T> {
-  readonly items?: T[];
-  readonly content?: T[];
-  readonly totalElements: number;
-  readonly totalPages: number;
-  readonly number?: number;
-  readonly size?: number;
-}
 
 export type AdminNotificationSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 export type AdminNotificationCategory =
@@ -71,14 +62,14 @@ export class AdminNotificationsApi {
     readonly category?: AdminNotificationCategory;
     readonly page?: number;
     readonly size?: number;
-  }, options?: TchRequestOptions): Observable<AdminNotificationsPage<AdminNotificationItem>> {
+  }, options?: TchRequestOptions): Observable<TchPage<AdminNotificationItem>> {
     const entries = Object.entries(params)
       .filter(([, value]) => value !== undefined && value !== null && String(value) !== '')
       .map(([key, value]) => [key, String(value)]);
-    const q = new URLSearchParams(Object.fromEntries(entries)).toString();
-    return this.backend.get<AdminNotificationsPage<AdminNotificationItem>>(
-      `/admin/notifications${q ? '?' + q : ''}`,
-      options,
+    return this.backend.getPage<AdminNotificationItem>(
+      '/admin/notifications',
+      { ...(options ?? {}), params: Object.fromEntries(entries) },
+      { page: params.page ?? 0, size: params.size ?? 20 },
     );
   }
 

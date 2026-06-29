@@ -82,8 +82,8 @@ export class PlatformSupportTenantPage implements OnInit {
       sort: 'updatedAt,desc',
     }, { suppressShellFeedback: true }).subscribe({
       next: result => {
-        this.tenants.set(result.items ?? []);
-        this.total.set(result.total ?? result.items?.length ?? 0);
+        this.tenants.set(result.items);
+        this.total.set(result.totalElements);
         this.loading.set(false);
       },
       error: (err: unknown) => {

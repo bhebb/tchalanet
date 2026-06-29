@@ -9,10 +9,10 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ApiResponse } from '../contracts/api.types';
+import { ApiResponse, TchBackendPage, TchPage } from '../contracts/api.types';
 import { TCH_API_BASE } from '../http/api-base';
 import { SUPPRESS_SHELL_FEEDBACK } from '../http/api-feedback-context';
-import { unwrapApiResponse } from '../http/api-response';
+import { normalizeTchPage, unwrapApiResponse } from '../http/api-response';
 
 export interface TchRequestOptions {
   readonly params?: HttpParams | Record<string, string | ReadonlyArray<string>>;
@@ -79,6 +79,19 @@ export class TchBackendClient {
     return this.http
       .get<ApiResponse<T>>(this.url(path), this.resolve(options))
       .pipe(map(unwrapApiResponse));
+  }
+
+  getPage<T>(
+    path: string,
+    options?: TchRequestOptions,
+    fallback?: { readonly page?: number; readonly size?: number },
+  ): Observable<TchPage<T>> {
+    return this.http
+      .get<ApiResponse<TchBackendPage<T>>>(this.url(path), this.resolve(options))
+      .pipe(
+        map(unwrapApiResponse),
+        map(page => normalizeTchPage(page, fallback?.page, fallback?.size)),
+      );
   }
 
   post<TResponse, TBody = unknown>(

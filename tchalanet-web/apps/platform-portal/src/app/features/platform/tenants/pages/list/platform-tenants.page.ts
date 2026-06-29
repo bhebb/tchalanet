@@ -120,8 +120,8 @@ export class PlatformTenantsPage implements OnInit {
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(res => {
-      this.items.set(res.items ?? []);
-      this.total.set(res.total ?? res.items?.length ?? 0);
+        this.items.set(res.items);
+        this.total.set(res.totalElements);
       this.loading.set(false);
     });
 
