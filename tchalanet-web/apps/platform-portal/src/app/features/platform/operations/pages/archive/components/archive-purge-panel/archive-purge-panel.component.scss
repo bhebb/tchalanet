@@ -1,0 +1,58 @@
+.archive-purge-panel {
+  --archive-purge-error: var(--tch-color-error);
+  --archive-purge-warning: var(--tch-color-warning);
+  --archive-purge-success: var(--tch-color-success);
+
+  display: grid;
+  gap: 16px;
+}
+
+.archive-purge-panel__form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.archive-purge-panel__reason,
+.archive-purge-panel__actions {
+  grid-column: 1 / -1;
+}
+
+.archive-purge-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.archive-purge-panel__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.archive-purge-panel__error {
+  border: 1px solid color-mix(in srgb, var(--archive-purge-error) 36%, transparent);
+  border-radius: 6px;
+  color: var(--archive-purge-error);
+  padding: 10px 12px;
+}
+
+.archive-purge-panel__status {
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--archive-purge-warning) 36%, transparent);
+  border-radius: 6px;
+  color: var(--archive-purge-warning);
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.archive-purge-panel__status--ok {
+  border-color: color-mix(in srgb, var(--archive-purge-success) 36%, transparent);
+  color: var(--archive-purge-success);
+}
+
+@media (max-width: 900px) {
+  .archive-purge-panel__form {
+    grid-template-columns: 1fr;
+  }
+}

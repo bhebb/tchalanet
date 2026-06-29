@@ -95,14 +95,6 @@ export interface ResetSellerTerminalPinResponse {
   pinResetAt: string;
 }
 
-export interface TchPage<T> {
-  items: T[];
-  total: number;
-  page: number;
-  size: number;
-  totalPages: number;
-}
-
 interface BackendPage<T> {
   items?: T[];
   content?: T[];
@@ -217,7 +209,7 @@ export class SellerTerminalApi {
     const total = page.total ?? page.totalElements ?? items.length;
     return {
       items,
-      total,
+      totalElements: total,
       page: page.page ?? page.number ?? fallbackPage,
       size,
       totalPages: page.totalPages ?? Math.max(1, Math.ceil(total / Math.max(1, size))),
