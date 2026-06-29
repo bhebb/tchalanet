@@ -172,13 +172,13 @@ export class PlatformTenantsApi {
     return this.backend.get<TenantPageResponse>(`/platform/tenants?${query.toString()}`, options);
   }
 
-  getTenant(id: string): Observable<TenantDetailView> {
+  getTenant(id: string, options?: TchRequestOptions): Observable<TenantDetailView> {
     // Guard against missing route params: never hit `/platform/tenants/null` — fail fast
     // client-side so the caller shows a clear "no tenant selected" state instead of a 500.
     if (!isValidId(id)) {
       return throwError(() => new Error('Aucun tenant sélectionné.'));
     }
-    return this.backend.get<TenantDetailView>(`/platform/tenants/${id}`);
+    return this.backend.get<TenantDetailView>(`/platform/tenants/${id}`, options);
   }
 
   createTenant(req: CreateTenantRequest): Observable<TenantSummaryView> {
@@ -205,9 +205,10 @@ export class PlatformTenantsApi {
     return this.backend.post<void>(`/platform/tenants/${id}/reactivate`, {});
   }
 
-  listTenantAdmins(tenantId: string): Observable<TenantAdminView[]> {
+  listTenantAdmins(tenantId: string, options?: TchRequestOptions): Observable<TenantAdminView[]> {
     return this.backend
       .get<IdentityUserPageResponse>('/admin/identity/users', {
+        ...options,
         asTenantAdmin: { tenantId, reason: 'SUPER_ADMIN: list tenant admins' },
       })
       .pipe(map(page => page.items ?? []));
@@ -217,8 +218,13 @@ export class PlatformTenantsApi {
     return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins');
   }
 
-  createTenantAdmin(tenantId: string, req: CreateTenantAdminRequest): Observable<TenantAdminView> {
+  createTenantAdmin(
+    tenantId: string,
+    req: CreateTenantAdminRequest,
+    options?: TchRequestOptions,
+  ): Observable<TenantAdminView> {
     return this.backend.post<TenantAdminView>('/admin/identity/users', req, {
+      ...options,
       asTenantAdmin: { tenantId, reason: 'SUPER_ADMIN: create tenant admin' },
     });
   }

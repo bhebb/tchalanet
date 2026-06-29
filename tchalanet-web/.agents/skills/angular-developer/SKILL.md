@@ -9,6 +9,30 @@ metadata:
 
 # Angular Developer Guidelines
 
+## Tchalanet Project Overlay
+
+When working inside `tchalanet-web`, project conventions override generic Angular defaults:
+
+- Load the relevant files under `docs/conventions/` before editing Angular code. For HTTP/error
+  work, read `docs/conventions/http-api.md` and `docs/conventions/error-management.md`; for styles,
+  read `docs/conventions/style.md` and `docs/conventions/theme.md`; for reusable error UI, read
+  `libs/ui/components/ERRORS.md`.
+- Keep the HTTP boundary layered as `page/component -> feature API service -> TchBackendClient`.
+  Components must not call `HttpClient` or inspect raw `HttpErrorResponse`/`ProblemDetail`.
+- Consume the backend contract as-is: `2xx = ApiResponse<T>`, `4xx/5xx = ProblemDetail`,
+  non-blocking BFF degradation = `ApiResponse.notices`/service metadata.
+- Render every user-facing failure through exactly one UI owner: shell, page, section, or field.
+  A locally owned API call must pass `suppressShellFeedback: true`.
+- Use `tch-error-panel`, `tch-section-error`, and `tch-field-error` with normalized copy. Do not
+  show backend raw `title`, `detail`, exception messages, provider messages, SQL text, or stack
+  traces directly in Angular templates.
+- Prefer external `templateUrl`/`styleUrls` for non-trivial pages/dialogs. Avoid inline templates,
+  inline styles, and snackbars for API failure feedback.
+- Use `--tch-*` theme tokens and BEM-like feature classes. Hardcoded colors are allowed only as
+  fallbacks inside `var(--tch-*, #...)`.
+- Add or update focused tests when touching normalizers, interceptors, ownership routing, shell
+  feedback grouping, or field-error mapping.
+
 1. Always analyze the project's Angular version before providing guidance, as best practices and available features can vary significantly between versions. If creating a new project with Angular CLI, do not specify a version unless prompted by the user.
 
 2. When generating code, follow Angular's style guide and best practices for maintainability and performance. Use the Angular CLI for scaffolding components, services, directives, pipes, and routes to ensure consistency.

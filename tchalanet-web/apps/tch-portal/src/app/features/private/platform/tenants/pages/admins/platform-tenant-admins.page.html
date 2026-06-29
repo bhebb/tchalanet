@@ -19,8 +19,14 @@
 
   @if (loading()) {
     <tch-loading label="Chargement..." />
-  } @else if (error()) {
-    <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="ngOnInit()" />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="ngOnInit()"
+    />
   } @else if (admins().length === 0) {
     <tch-admin-empty-state
       icon="person"
@@ -28,6 +34,16 @@
       message="Ajoutez le premier administrateur pour ce tenant."
     />
   } @else {
+    @if (actionFeedback(); as feedback) {
+      <div class="tenant-admins-page__feedback">
+        <tch-section-error
+          [title]="feedback.title"
+          [message]="feedback.message"
+          [severity]="feedback.severity"
+        />
+      </div>
+    }
+
     <tch-admin-crud-shell>
       <ng-container content>
         <div class="tenant-admins-page__table">

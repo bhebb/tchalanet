@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>Déclencher une archive</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="trigger-archive-dialog__form">
+    <mat-form-field appearance="outline">
+      <mat-label>Stratégie (strategy)</mat-label>
+      <input matInput formControlName="strategy" placeholder="ex: AUDIT_LOG_COLD" />
+      @if (form.controls.strategy.invalid && form.controls.strategy.touched) {
+        <mat-error>Requis.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="trigger-archive-dialog__period">
+      <mat-form-field appearance="outline">
+        <mat-label>Début de période</mat-label>
+        <input matInput type="date" formControlName="periodStart" />
+        @if (form.controls.periodStart.invalid && form.controls.periodStart.touched) {
+          <mat-error>Requis.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Fin de période</mat-label>
+        <input matInput type="date" formControlName="periodEnd" />
+        @if (form.controls.periodEnd.invalid && form.controls.periodEnd.touched) {
+          <mat-error>Requis.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Raison (min. 10 caractères)</mat-label>
+      <textarea
+        matInput
+        formControlName="reason"
+        rows="3"
+        placeholder="Raison opérationnelle de l'archivage..."
+      ></textarea>
+      @if (form.controls.reason.invalid && form.controls.reason.touched) {
+        <mat-error>Requis (min. 10 caractères).</mat-error>
+      }
+    </mat-form-field>
+  </form>
+
+  @if (error(); as errorVm) {
+    <tch-section-error
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close [disabled]="saving()">Annuler</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="save()">
+    Déclencher
+  </button>
+</mat-dialog-actions>

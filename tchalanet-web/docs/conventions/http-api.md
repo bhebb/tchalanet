@@ -45,26 +45,57 @@ Errors map to:
 ProblemDetail
 ```
 
-API clients unwrap successful responses before exposing data to stores/components.
+The web consumes the backend contract; it does not redefine it:
+
+- `2xx` means `ApiResponse<T>` or an explicitly documented raw payload/download;
+- `4xx/5xx` means `ProblemDetail`;
+- non-blocking BFF degradation stays in `ApiResponse.notices` and, when useful, service metadata;
+- blocking failures stay as `ProblemDetail`.
+
+API clients unwrap successful responses before exposing data to stores/components. They also mark
+locally owned requests with `TchRequestOptions.suppressShellFeedback` so the shell does not render a
+duplicate banner when a page, section, dialog, or form owns the failure.
+
+Backend notices intended for web display should include stable metadata:
+
+```text
+code
+severity
+domain
+source
+service
+operation
+meta.surface    shell | page | section | field
+meta.placement  top | inline | summary
+meta.target     stable UI target when surface is section/page
+meta.field      stable field/control name when surface is field
+traceId/requestId/errorId/spanId when available
+```
+
+Frontend code translates stable `code` values first, category fallback second, and generic fallback
+last. It must not display raw exception messages, provider messages, SQL text, stack traces, backend
+`title`, or backend `detail` directly to public/minimal users.
 
 ## Error Handling
 
 See [`error-management.md`](./error-management.md) for the shell/page/section/field ownership
 model and the backend metadata expected for each error type.
 
-Central error mapping should preserve:
+Central error mapping should preserve diagnostics for support correlation:
 
 ```text
 status
 code/type
-title/message
-detail
 instance/path
-errorId/requestId
+errorId/requestId/traceId/spanId
 timestamp
 ```
 
 Components consume mapped errors or view-state errors. They do not inspect raw `HttpErrorResponse` unless they are an API boundary.
+
+Presentation components render one normalized UI model (`ErrorViewModel`, `tch-error-panel`,
+`tch-section-error`, or `tch-field-error`) and must not parse `ProblemDetail` or `ApiResponse`
+directly. API clients, stores, or the page controller own that mapping.
 
 ## Interceptors
 

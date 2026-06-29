@@ -1,6 +1,10 @@
 @use '../../../../../../../../../../libs/ui/styles/src/lib/index' as ui;
 
 .tenant-admins-page {
+  &__feedback {
+    margin-block-end: 1rem;
+  }
+
   &__table {
     overflow-x: auto;
 

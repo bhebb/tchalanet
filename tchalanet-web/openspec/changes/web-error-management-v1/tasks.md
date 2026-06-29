@@ -138,6 +138,9 @@
       feedback and render load/dispatch/provider-test feedback locally without snackbars. Platform
       tenant-admin support access now renders start-session failures locally with normalized copy.
       Platform ops draw-results now suppresses shell feedback and renders list/confirm feedback
-      locally without snackbars.
+      locally without snackbars. Platform archive now removes inline dialog/styles, suppresses shell
+      feedback, renders list failures at page level, and keeps trigger failures inside the dialog.
+      Platform tenant-scoped admin list/create/assign now suppresses shell feedback and renders
+      page/action failures locally without snackbars.
 - [ ] Manually verify one public error and one authenticated private error do not stack duplicate
       banners and do not route to the wrong shell.

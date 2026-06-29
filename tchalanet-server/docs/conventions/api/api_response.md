@@ -111,6 +111,30 @@ Frontend rendering ownership:
 Every error should have one UI owner. Do not emit a section/field notice expecting it to also become
 a shell banner.
 
+## Stable Codes and Assembly Ownership
+
+Backend code owns stable error/notice codes. The web translates those codes; it must not depend on
+raw Java exception messages, provider messages, SQL text, stack traces, or ad-hoc backend titles.
+
+Blocking failures:
+
+- throw/propagate a stable-code exception from the controller/service path;
+- `GlobalErrorHandler` assembles the `ProblemDetail`;
+- include correlation diagnostics (`requestId`, `traceId`, `spanId`, `errorId`) when available;
+- do not wrap the failure in `ApiResponse`.
+
+Non-blocking BFF/slice failures:
+
+- catch only at the slice boundary that knows the slice is optional;
+- call `ApiResponseNotices` or `BffSlices.optional(...)` with a stable code, domain, source,
+  severity, and UI ownership metadata;
+- `ApiResponseBodyAdvice` assembles the final `ApiResponse<T>` with `notices` and `services`;
+- return an explicit fallback value for that slice.
+
+Use `CommonErrorCodes` only for truly shared stable codes. Domain-specific codes should live beside
+the backend capability that owns the behavior, and they should follow a searchable dotted format such
+as `platform.identity.activation.error` or `dashboard.commissions.unavailable`.
+
 ## Response Structure
 
 All 2xx responses now return `ApiResponse<T>`:

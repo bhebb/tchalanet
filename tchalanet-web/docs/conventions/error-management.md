@@ -508,6 +508,41 @@ Draw-results list failures render as a page error. Confirm failures and success 
 the results table and suppress shell feedback. Dialog-owned fetch/manual/override failures must
 stay inside their dialogs.
 
+Platform archive failures are page/dialog/action owned:
+
+```text
+apps/tch-portal/src/app/features/private/platform/operations/pages/archive
+page targets:
+- platform.archive.runs
+- platform.archive.failedRuns
+- platform.archive.invalidObjects
+section target:
+- platform.archive.summary
+dialog target:
+- platform.archive.trigger
+```
+
+Archive list failures render as page errors for the selected view. Summary refresh failures render
+as local section feedback because the runs table can still be used. Trigger failures stay inside
+the trigger dialog; successful trigger feedback is local page information, not a snackbar.
+
+Platform tenant-scoped admin management failures are page/action owned:
+
+```text
+apps/tch-portal/src/app/features/private/platform/tenants/pages/admins
+apps/tch-portal/src/app/features/private/platform/tenants/pages/admin-create
+page targets:
+- platform.tenants.admins.list
+- platform.tenants.adminCreate.tenant
+- platform.tenants.adminCreate.create
+action target:
+- platform.tenants.admins.assign
+```
+
+Tenant admin list and create failures render locally on the owning page and suppress shell feedback.
+Assigning an existing user renders local action feedback above the table. These pages must not show
+snackbars or raw backend titles.
+
 Business days failures are page/action owned:
 
 ```text

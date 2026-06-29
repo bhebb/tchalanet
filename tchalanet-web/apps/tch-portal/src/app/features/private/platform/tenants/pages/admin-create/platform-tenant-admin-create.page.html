@@ -43,8 +43,8 @@
         </div>
       </tch-admin-section-card>
 
-      @if (error()) {
-        <tch-error-panel [title]="error()!" />
+      @if (error(); as errorVm) {
+        <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
       }
 
       <div class="tenant-admin-create-page__form-actions">
