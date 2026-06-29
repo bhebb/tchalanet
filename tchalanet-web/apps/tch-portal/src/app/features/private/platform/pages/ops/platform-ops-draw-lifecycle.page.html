@@ -33,11 +33,27 @@
     <div content>
       @if (loading()) {
         <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
+      } @else if (error(); as errorVm) {
+        <tch-error-panel
+          [title]="errorVm.title"
+          [message]="errorVm.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="load()"
+        />
       } @else if (draws().length === 0) {
         <tch-admin-empty-state icon="event_busy" title="Aucun tirage" message="Aucun tirage trouvé pour ce filtre." />
       } @else {
+        @if (actionFeedback(); as feedback) {
+          <div class="draw-lifecycle-page__feedback">
+            <tch-section-error
+              [title]="feedback.title"
+              [message]="feedback.message"
+              [severity]="feedback.severity"
+            />
+          </div>
+        }
+
         <div class="draw-lifecycle-page__table">
           <table mat-table [dataSource]="filteredDraws()">
             <ng-container matColumnDef="channelCode">

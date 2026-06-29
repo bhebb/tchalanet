@@ -11,10 +11,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { resolveErrorFeedbackCopy } from '../../../../../core/api/error-feedback-copy';
+import { ErrorViewModel, toErrorViewModel } from '../../../../../core/api/local-error-routing';
 import { AdminCrudShellComponent } from '../../../shared/admin-ui/admin-crud-shell.component';
 import { AdminDataToolbarComponent } from '../../../shared/admin-ui/admin-data-toolbar.component';
 import { AdminEmptyStateComponent } from '../../../shared/admin-ui/admin-empty-state.component';
@@ -86,6 +89,7 @@ const STATUS_OPTIONS = [
     AdminStatusPillComponent,
     TchErrorPanel,
     TchLoading,
+    TchSectionError,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -98,14 +102,15 @@ const STATUS_OPTIONS = [
 export class PlatformOpsDrawLifecyclePage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = ['channelCode', 'channelName', 'status', 'scheduledAt', 'openedAt', 'actions'];
   readonly statusOptions = STATUS_OPTIONS;
 
   readonly loading = signal(false);
   readonly busy = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
+  readonly actionFeedback = signal<ErrorViewModel | null>(null);
   readonly draws = signal<DrawView[]>([]);
   readonly search = signal('');
   readonly statusFilter = signal('');
@@ -127,7 +132,12 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.api
-      .listDrawsForLifecycle({ status: this.statusFilter() || undefined, page: this.page(), size: 20 })
+      .listDrawsForLifecycle({
+        status: this.statusFilter() || undefined,
+        page: this.page(),
+        size: 20,
+        suppressShellFeedback: true,
+      })
       .subscribe({
         next: page => {
           this.draws.set(page.items);
@@ -137,8 +147,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
           this.loading.set(false);
         },
         error: (err: unknown) => {
-          const pd = (err as { error?: { title?: string } })?.error;
-          this.error.set(pd?.title ?? 'Erreur de chargement.');
+          this.error.set(this.errorViewModel(err, 'platform.ops.drawLifecycle.list'));
           this.loading.set(false);
         },
       });
@@ -174,7 +183,11 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
 
   openAction(draw: DrawView, action: DrawAction): void {
     if (this.dryRun()) {
-      this.snackBar.open(`DryRun: ${ACTION_LABELS[action]} serait exécuté sur ${draw.channel.name}`, 'OK', { duration: 4000 });
+      this.actionFeedback.set({
+        title: 'Dry-run',
+        message: `Dry-run: ${ACTION_LABELS[action]} serait exécuté sur ${draw.channel.name}.`,
+        severity: 'info',
+      });
       return;
     }
 
@@ -191,40 +204,71 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
 
   private executeAction(draw: DrawView, action: DrawAction, result: ActionDialogResult): void {
     this.busy.set(true);
+    this.actionFeedback.set(null);
     let call$;
 
     switch (action) {
       case 'cancel':
-        call$ = this.api.cancelDraw(draw.id, { reasonCode: result.reason ?? 'ADMIN_REQUEST' });
+        call$ = this.api.cancelDraw(draw.id, { reasonCode: result.reason ?? 'ADMIN_REQUEST' }, null, { suppressShellFeedback: true });
         break;
       case 'lock':
-        call$ = this.api.lockDraw(draw.id, result.reason);
+        call$ = this.api.lockDraw(draw.id, result.reason, null, { suppressShellFeedback: true });
         break;
       case 'unlock':
-        call$ = this.api.unlockDraw(draw.id, result.reason);
+        call$ = this.api.unlockDraw(draw.id, result.reason, null, { suppressShellFeedback: true });
         break;
       case 'settle':
-        call$ = this.api.settleDraw(draw.id);
+        call$ = this.api.settleDraw(draw.id, undefined, null, { suppressShellFeedback: true });
         break;
       case 'archive':
-        call$ = this.api.archiveDraw(draw.id);
+        call$ = this.api.archiveDraw(draw.id, undefined, undefined, null, { suppressShellFeedback: true });
         break;
       case 'reschedule':
-        call$ = this.api.rescheduleDraw(draw.id, result.newScheduledAt!, result.newScheduledAt!, result.reason ?? 'reprogrammé');
+        if (!result.newScheduledAt) {
+          this.busy.set(false);
+          return;
+        }
+        call$ = this.api.rescheduleDraw(
+          draw.id,
+          result.newScheduledAt,
+          result.newScheduledAt,
+          result.reason ?? 'reprogrammé',
+          undefined,
+          null,
+          { suppressShellFeedback: true },
+        );
         break;
     }
 
     call$.subscribe({
       next: () => {
         this.busy.set(false);
-        this.snackBar.open(`${ACTION_LABELS[action]} exécuté avec succès.`, 'OK', { duration: 4000 });
+        this.actionFeedback.set({
+          title: `${ACTION_LABELS[action]} exécuté`,
+          message: `${draw.channel.name} a été mis à jour.`,
+          severity: 'info',
+        });
         this.load();
       },
       error: (err: unknown) => {
         this.busy.set(false);
-        const pd = (err as { error?: { title?: string } })?.error;
-        this.snackBar.open(pd?.title ?? "Erreur lors de l'opération.", 'OK', { duration: 5000 });
+        this.actionFeedback.set(this.errorViewModel(err, `platform.ops.drawLifecycle.${action}`));
       },
     });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      return toErrorViewModel(normalized, copy);
+    }
+
+    return {
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    };
   }
 }

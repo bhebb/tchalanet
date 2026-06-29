@@ -423,52 +423,52 @@ export class PlatformOpsApi {
   }
 
   /** @deprecated Use listDraws */
-  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number }): Observable<TchPage<DrawView>> {
+  listDrawsForLifecycle(params: { status?: string; page?: number; size?: number; suppressShellFeedback?: boolean }): Observable<TchPage<DrawView>> {
     return this.listDraws(params);
   }
 
-  cancelDraw(drawId: string, req: CancelDrawRequest, tenantId?: string | null): Observable<DrawView> {
-    return this.cancelDraws({ ...req, drawIds: [drawId] }, tenantId).pipe(map(rows => rows[0]));
+  cancelDraw(drawId: string, req: CancelDrawRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.cancelDraws({ ...req, drawIds: [drawId] }, tenantId, options).pipe(map(rows => rows[0]));
   }
 
-  cancelDraws(req: CancelDrawsRequest, tenantId?: string | null): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/cancel', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: cancel draws'));
+  cancelDraws(req: CancelDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/cancel', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: cancel draws', options));
   }
 
-  lockDraw(drawId: string, reason?: string, tenantId?: string | null): Observable<DrawView> {
-    return this.lockDraws({ drawIds: [drawId], reason }, tenantId).pipe(map(rows => rows[0]));
+  lockDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.lockDraws({ drawIds: [drawId], reason }, tenantId, options).pipe(map(rows => rows[0]));
   }
 
-  lockDraws(req: LifecycleDrawsRequest, tenantId?: string | null): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/lock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: lock draws'));
+  lockDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/lock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: lock draws', options));
   }
 
-  unlockDraw(drawId: string, reason?: string, tenantId?: string | null): Observable<DrawView> {
-    return this.unlockDraws({ drawIds: [drawId], reason }, tenantId).pipe(map(rows => rows[0]));
+  unlockDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.unlockDraws({ drawIds: [drawId], reason }, tenantId, options).pipe(map(rows => rows[0]));
   }
 
-  unlockDraws(req: LifecycleDrawsRequest, tenantId?: string | null): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/unlock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: unlock draws'));
+  unlockDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/unlock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: unlock draws', options));
   }
 
-  settleDraw(drawId: string, reason?: string, tenantId?: string | null): Observable<DrawView> {
-    return this.settleDraws({ drawIds: [drawId], reason }, tenantId).pipe(map(rows => rows[0]));
+  settleDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.settleDraws({ drawIds: [drawId], reason }, tenantId, options).pipe(map(rows => rows[0]));
   }
 
-  settleDraws(req: LifecycleDrawsRequest, tenantId?: string | null): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/settle', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: settle draws'));
+  settleDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/settle', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: settle draws', options));
   }
 
-  archiveDraw(drawId: string, reason?: string, force?: boolean, tenantId?: string | null): Observable<DrawView> {
-    return this.archiveDraws({ drawIds: [drawId], reason, force }, tenantId).pipe(map(rows => rows[0]));
+  archiveDraw(drawId: string, reason?: string, force?: boolean, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.archiveDraws({ drawIds: [drawId], reason, force }, tenantId, options).pipe(map(rows => rows[0]));
   }
 
-  archiveDraws(req: LifecycleDrawsRequest, tenantId?: string | null): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/archive', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: archive draws'));
+  archiveDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/archive', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: archive draws', options));
   }
 
-  rescheduleDraw(drawId: string, scheduledAt: string, cutoffAt: string, reason: string, force?: boolean, tenantId?: string | null): Observable<DrawView> {
-    return this.backend.post<DrawView>(`/admin/draws/${drawId}/reschedule`, { scheduledAt, cutoffAt, reason, force }, tenantAdminOptions(tenantId, 'SUPER_ADMIN: reschedule draw'));
+  rescheduleDraw(drawId: string, scheduledAt: string, cutoffAt: string, reason: string, force?: boolean, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.backend.post<DrawView>(`/admin/draws/${drawId}/reschedule`, { scheduledAt, cutoffAt, reason, force }, tenantAdminOptions(tenantId, 'SUPER_ADMIN: reschedule draw', options));
   }
 
   correctDrawResult(drawId: string, req: CorrectDrawResultRequest, tenantId?: string | null): Observable<DrawView> {
@@ -496,8 +496,12 @@ export class PlatformOpsApi {
   }
 }
 
-function tenantAdminOptions(tenantId: string | null | undefined, reason: string): TchRequestOptions | undefined {
-  return tenantId ? { asTenantAdmin: { tenantId, reason } } : undefined;
+function tenantAdminOptions(
+  tenantId: string | null | undefined,
+  reason: string,
+  options?: TchRequestOptions,
+): TchRequestOptions | undefined {
+  return tenantId ? { ...(options ?? {}), asTenantAdmin: { tenantId, reason } } : options;
 }
 
 function drawListOptions(

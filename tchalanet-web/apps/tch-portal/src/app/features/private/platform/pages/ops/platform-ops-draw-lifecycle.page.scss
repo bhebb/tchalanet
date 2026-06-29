@@ -17,6 +17,10 @@
     }
   }
 
+  &__feedback {
+    margin-block-end: 1rem;
+  }
+
   &__row-actions {
     display: flex;
     gap: 0.5rem;

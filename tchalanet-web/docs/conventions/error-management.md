@@ -508,6 +508,25 @@ Draw-results list failures render as a page error. Confirm failures and success 
 the results table and suppress shell feedback. Dialog-owned fetch/manual/override failures must
 stay inside their dialogs.
 
+Platform ops draw lifecycle failures are page/action owned:
+
+```text
+apps/tch-portal/src/app/features/private/platform/pages/ops/platform-ops-draw-lifecycle
+page target:
+- platform.ops.drawLifecycle.list
+action targets:
+- platform.ops.drawLifecycle.cancel
+- platform.ops.drawLifecycle.lock
+- platform.ops.drawLifecycle.unlock
+- platform.ops.drawLifecycle.settle
+- platform.ops.drawLifecycle.archive
+- platform.ops.drawLifecycle.reschedule
+```
+
+Draw lifecycle list failures render as the page error. Per-draw lifecycle failures and dry-run
+feedback render above the lifecycle table and suppress shell feedback. Do not use snackbars for
+these actions.
+
 Platform archive failures are page/dialog/action owned:
 
 ```text
