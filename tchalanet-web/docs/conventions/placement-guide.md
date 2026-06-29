@@ -13,12 +13,13 @@ Place code by **ownership** and **lifetime**, not by generic folder names.
 ```text
 Contract / HTTP client     -> libs/api
 Reusable UI component      -> libs/ui/components
-Web runtime errors         -> libs/web/src/lib/errors
-Web runtime auth/i18n/shell -> libs/web/src/lib/{auth,i18n,shell}
+Web runtime errors         -> libs/web/errors
+Web runtime shell          -> libs/web/shell
+Auth / i18n runtime        -> libs/core/{auth,i18n}
 Runtime theme              -> libs/ui/theme
 Compile-time SCSS          -> libs/ui/styles
 Runtime settings / flags   -> libs/shared-config
-Routed page                -> app feature now, future web lib
+Routed page                -> apps/<portal>/src/app/features
 Feature state              -> next to the feature page
 Cross-surface state        -> owning runtime capability, extracted only when stable
 ```
@@ -33,19 +34,25 @@ Create a lib only when the boundary is real and the slice moves code into it.
 ```text
 tchalanet-web/
 ├── apps/
-│   └── tch-portal/
-│       └── src/app/
-│           ├── core/
-│           ├── features/
-│           └── shared/
+│   ├── tch-portal/
+│   ├── public-portal/
+│   ├── admin-portal/
+│   ├── platform-portal/
+│   └── proxy.conf.cjs
 └── libs/
     ├── api/
     │   └── src/lib/
     │       ├── contracts/
-    │       └── http/
+    │       ├── http/
+    │       └── backend-client/
+    ├── core/
+    │   ├── auth/
+    │   └── i18n/
     ├── page-model/
     ├── shared-config/
     ├── web/
+    │   ├── errors/
+    │   └── shell/
     ├── widgets/
     └── ui/
         ├── components/
@@ -53,54 +60,57 @@ tchalanet-web/
         └── theme/
 ```
 
-`page-model`, `widgets`, and the reusable part of `web` are extracted. App-coupled shell
-orchestration, `shared-auth`, and `shared-i18n` continue to move slice by slice.
+`page-model`, `widgets`, `core/auth`, `core/i18n`, `web/errors`, and `web/shell` are extracted.
+The root `libs/web` project remains as a compatibility façade while slices move to explicit libs.
+`libs/api` remains a single Nx lib with internal folders; do not create `libs/api/contracts` or
+`libs/api/backend-client` as separate projects.
 
 ---
 
 ## 3. Placement table
 
-| Element                                     | Placement                                                                                |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `ApiResponse`, `ProblemDetail`, `ApiNotice` | `libs/api/src/lib/contracts`                                                             |
-| `ActionItem`, `NavigationDestination`       | `libs/api/src/lib/contracts`                                                             |
-| HTTP interceptors                           | `libs/api/src/lib/http`, auth-specific interceptor may live near auth during migration   |
-| Generic API helpers                         | `libs/api/src/lib/http`                                                                  |
-| Runtime config                              | `libs/shared-config`                                                                     |
-| Feature flags                               | `libs/shared-config`                                                                     |
-| Theme runtime / active mode                 | `libs/ui/theme`                                                                          |
-| Theme API / theme preset registry           | `libs/ui/theme` or `libs/api/http` + `ui/theme` depending ownership                      |
-| Theme SCSS generation                       | `libs/ui/theme/src/scss`                                                                 |
-| Shared SCSS mixins/functions/breakpoints    | `libs/ui/styles`                                                                         |
-| Material global overrides                   | `libs/ui/styles` unless directly tied to M3 preset generation                            |
-| Button / Card / Badge / Loading             | `libs/ui/components`                                                                     |
-| Error models/copy/routing/components        | `libs/web/src/lib/errors`                                                                |
-| Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                     |
-| Public shell                                | reusable presentation in `libs/web`; app-specific orchestration in the app               |
-| Private shell                               | app feature now, future `libs/web`                                                       |
-| Public home page                            | `apps/tch-portal/src/app/features/public/home`                                           |
-| Cashier dashboard page                      | `apps/tch-portal/src/app/features/cashier/dashboard`                                     |
-| Tenant admin dashboard page                 | `apps/tch-portal/src/app/features/admin/dashboard`                                       |
-| Platform dashboard page                     | `apps/tch-portal/src/app/features/platform/dashboard`                                    |
-| PageModel runtime API contract              | `libs/page-model`                                                                        |
-| PageModel API client                        | `libs/page-model`                                                                        |
-| PageModel renderer                          | `libs/page-model`                                                                        |
-| Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/`                            |
-| PageModel editor screen                     | `apps/tch-portal/src/app/features/platform/page-models`                                  |
-| Auth session store                          | app `core/auth` wiring now, reusable contracts in `libs/web/src/lib/auth`                |
-| Auth guards                                 | app `core/auth` wiring now, reusable contracts in `libs/web/src/lib/auth`                |
-| Login page                                  | `apps/tch-portal/src/app/features/auth/login` or `features/public/login` if public route |
-| Locale store                                | app `core/i18n` wiring now, reusable contracts in `libs/web/src/lib/i18n`                |
-| Language switcher UI                        | `libs/ui/components`                                                                     |
-| Backend i18n API contract/client            | `libs/api`                                                                               |
-| Platform i18n admin screen                  | `apps/tch-portal/src/app/features/platform/i18n-overrides`                               |
-| Test helpers                                | only create `testing` area when reused by multiple tests                                 |
+| Element                                     | Placement                                                                              |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `ApiResponse`, `ProblemDetail`, `ApiNotice` | `libs/api/src/lib/contracts`                                                           |
+| `ActionItem`, `NavigationDestination`       | `libs/api/src/lib/contracts`                                                           |
+| HTTP interceptors                           | `libs/api/src/lib/http`, auth-specific interceptor may live near auth during migration |
+| Generic API helpers                         | `libs/api/src/lib/http`                                                                |
+| `TchBackendClient`, request options         | `libs/api/src/lib/backend-client`                                                      |
+| Runtime config                              | `libs/shared-config`                                                                   |
+| Feature flags                               | `libs/shared-config`                                                                   |
+| Theme runtime / active mode                 | `libs/ui/theme`                                                                        |
+| Theme API / theme preset registry           | `libs/ui/theme` or `libs/api/http` + `ui/theme` depending ownership                    |
+| Theme SCSS generation                       | `libs/ui/theme/src/scss`                                                               |
+| Shared SCSS mixins/functions/breakpoints    | `libs/ui/styles`                                                                       |
+| Material global overrides                   | `libs/ui/styles` unless directly tied to M3 preset generation                          |
+| Button / Card / Badge / Loading             | `libs/ui/components`                                                                   |
+| Error models/copy/routing/components        | `libs/web/errors`                                                                      |
+| Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                   |
+| Public shell                                | reusable primitives in `libs/web/shell`; app-specific orchestration in the app         |
+| Admin/platform shell                        | reusable primitives in `libs/web/shell`; route/provider composition in the owning app  |
+| Public home page                            | `apps/public-portal/src/app/features/public/home` or legacy `apps/tch-portal/...`      |
+| POS pages V0                                | `apps/admin-portal/src/app/features/pos/...`                                           |
+| Tenant admin dashboard page                 | `apps/admin-portal/src/app/features/admin/dashboard`                                   |
+| Platform dashboard page                     | `apps/platform-portal/src/app/features/platform/dashboard`                             |
+| PageModel runtime API contract              | `libs/page-model`                                                                      |
+| PageModel API client                        | `libs/page-model`                                                                      |
+| PageModel renderer                          | `libs/page-model`                                                                      |
+| Widget registry / concrete widgets          | `libs/widgets`, grouped as `widgets/<surface>/<widget-name>/`                          |
+| PageModel editor screen                     | `apps/platform-portal/src/app/features/platform/page-models` or legacy `tch-portal`    |
+| Auth session store                          | `libs/core/auth` when shared; app-owned wiring stays in the app during migration       |
+| Auth guards                                 | `libs/core/auth` when shared                                                           |
+| Login page                                  | `libs/core/auth`                                                                       |
+| Locale store                                | `libs/core/i18n` when shared; app-owned wiring stays in the app during migration       |
+| Language switcher UI                        | `libs/ui/components`                                                                   |
+| Backend i18n API contract/client            | `libs/api`                                                                             |
+| Platform i18n admin screen                  | `apps/platform-portal/src/app/features/platform/i18n-overrides` or legacy `tch-portal` |
+| Test helpers                                | only create `testing` area when reused by multiple tests                               |
 
 ---
 
 ## 4. Operational context placement
 
-Operational context is a runtime capability used by cashier/POS flows.
+Operational context is a runtime capability used by POS flows.
 
 Examples:
 
@@ -109,7 +119,7 @@ current tenant
 current outlet
 current terminal
 current sales session
-seller/cashier identity
+seller identity
 business date
 readiness/status
 ```
@@ -126,36 +136,36 @@ libs/api/src/lib/http/operational-context-api.service.ts
 Cashier page/state:
 
 ```text
-apps/tch-portal/src/app/features/cashier/operational-context/
+apps/admin-portal/src/app/features/pos/operational-context/
   operational-context.routes.ts
   operational-context.page.ts
   operational-context.store.ts
 ```
 
-If only the cashier dashboard uses it, keep the store local to the cashier feature.
+If only the POS dashboard uses it, keep the store local to the POS feature.
 
-If several cashier pages need it, place the store at the cashier feature boundary:
+If several POS pages need it, place the store at the POS feature boundary:
 
 ```text
-apps/tch-portal/src/app/features/cashier/
-  cashier-operational-context.store.ts
+apps/admin-portal/src/app/features/pos/
+  pos-operational-context.store.ts
 ```
 
-If admin, cashier, sale, payout, terminal binding, and shell all need the same runtime state, extract later to an owning runtime area.
+If admin, POS sale, payout, terminal binding, and shell all need the same runtime state, extract later to an owning runtime area.
 
 Possible future placement:
 
 ```text
-apps/tch-portal/src/app/core/operational-context
+apps/admin-portal/src/app/core/operational-context
 ```
 
 or, when stable enough:
 
 ```text
-libs/shared-operational-context
+libs/core/operational-context
 ```
 
-Do not create `shared-operational-context` until there is a real multi-surface need.
+Do not create `core/operational-context` until there is a real multi-surface need.
 
 ### Route wiring
 
@@ -171,13 +181,11 @@ export const sellerTerminalRoutes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./dashboard/cashier-dashboard.page').then(m => m.CashierDashboardPage),
+        loadComponent: () => import('./dashboard/pos-dashboard.page').then(m => m.PosDashboardPage),
       },
       {
         path: 'sale',
-        loadComponent: () =>
-          import('./sale/cashier-sale.page').then(m => m.CashierSalePage),
+        loadComponent: () => import('./sale/pos-sale.page').then(m => m.PosSalePage),
       },
     ],
   },
@@ -221,14 +229,20 @@ apps/tch-portal/src/app/features/public/shell
 apps/tch-portal/src/app/features/dashboard/shell
 ```
 
-Reusable shell primitives, such as shell feedback models/stores that can be shared by future
-`public-portal`, `admin-portal`, `platform-portal`, or `pos-web`, belong behind
+Reusable shell primitives, such as shell feedback models/stores that can be shared by
+`public-portal`, `admin-portal`, `platform-portal`, or a future `pos-portal`, belong behind
 `@tch/web/shell`. App routes and provider composition stay in the app.
 
 Reusable public shell presentation:
 
 ```text
 libs/web/src/lib/public-shell
+```
+
+New shared shell primitives should prefer:
+
+```text
+libs/web/shell/src
 ```
 
 Shared visual parts:
@@ -346,13 +360,13 @@ Widget registry imports stay synchronous; widgets are rendered through PageModel
 Runtime locale state:
 
 ```text
-apps/tch-portal/src/app/core/i18n
+libs/core/i18n
 ```
 
-Future:
+During migration, app-specific bootstrap may still live in:
 
 ```text
-libs/shared-i18n
+apps/<portal>/src/app/core/i18n
 ```
 
 Language switcher UI:
@@ -370,7 +384,7 @@ libs/api
 Platform i18n admin screen:
 
 ```text
-apps/tch-portal/src/app/features/platform/i18n-overrides
+apps/platform-portal/src/app/features/platform/i18n-overrides
 ```
 
 ---
@@ -393,7 +407,7 @@ libs/api/http
 Feature-specific config:
 
 ```text
-apps/tch-portal/src/app/features/<surface>/<feature>
+apps/<portal>/src/app/features/<surface>/<feature>
 ```
 
 Do not put tenant config state in `ui`.
@@ -402,16 +416,16 @@ Do not put tenant config state in `ui`.
 
 ## 11. Auth placement
 
-During migration:
+Shared auth:
 
 ```text
-apps/tch-portal/src/app/core/auth
+libs/core/auth
 ```
 
-Future:
+During migration, app-specific bootstrap may still live in:
 
 ```text
-libs/shared-auth
+apps/<portal>/src/app/core/auth
 ```
 
 Auth owns:
@@ -424,16 +438,10 @@ permission helpers
 token/session storage
 ```
 
-Login page:
+Shared login page:
 
 ```text
-apps/tch-portal/src/app/features/auth/login
-```
-
-or if deliberately public-routed:
-
-```text
-apps/tch-portal/src/app/features/public/login
+libs/core/auth/src/lib/login
 ```
 
 ---
@@ -469,8 +477,8 @@ or an owning runtime lib if it is not generic API state:
 ```text
 libs/ui/theme
 libs/shared-config
-future shared-auth
-future shared-i18n
+libs/core/auth
+libs/core/i18n
 ```
 
 ---
@@ -489,7 +497,7 @@ libs/api/src/lib/http/payout-api.service.ts
 Page/state:
 
 ```text
-apps/tch-portal/src/app/features/admin/payouts/
+apps/admin-portal/src/app/features/admin/payouts/
   payouts.routes.ts
   payouts.page.ts
   payouts.store.ts
@@ -504,7 +512,7 @@ libs/ui/components/status-badge
 Business-specific card stays in feature:
 
 ```text
-apps/tch-portal/src/app/features/admin/payouts/payout-summary-card.ts
+apps/admin-portal/src/app/features/admin/payouts/payout-summary-card.ts
 ```
 
 ---
@@ -531,7 +539,7 @@ libs/widgets
 
 ---
 
-### Cashier sale
+### POS sale
 
 Contracts/API:
 
@@ -543,16 +551,16 @@ libs/api/src/lib/http/sale-api.service.ts
 Page/state:
 
 ```text
-apps/tch-portal/src/app/features/cashier/sale/
-  cashier-sale.routes.ts
-  cashier-sale.page.ts
-  cashier-sale.store.ts
+apps/admin-portal/src/app/features/pos/sale/
+  pos-sale.routes.ts
+  pos-sale.page.ts
+  pos-sale.store.ts
 ```
 
 Operational context dependency:
 
 ```text
-CashierSaleStore injects CashierOperationalContextStore
+PosSaleStore injects PosOperationalContextStore
 ```
 
 UI components:
@@ -578,6 +586,10 @@ libs/shared/facades
 libs/shared/stores
 libs/shared/utils
 ```
+
+Do not read this as “never create a `core/*` lib”. `libs/core/auth` and `libs/core/i18n` are
+valid because they are explicit runtime capabilities with public aliases and real consumers.
+The anti-pattern is a vague catch-all `libs/core` dumping ground.
 
 unless a specific, approved migration changes the architecture.
 
@@ -609,17 +621,17 @@ apps/tch-portal/src/app/features/<surface>/<feature>
 
 Before adding/moving code:
 
-* [ ] Is this a contract? Put it in `libs/api/contracts`.
-* [ ] Is this an HTTP client? Put it in `libs/api/http`.
-* [ ] Is this a PageModel runtime contract/client/renderer/helper? Put it in `libs/page-model`.
-* [ ] Is this a concrete PageModel widget or registry entry? Put it in `libs/widgets`.
-* [ ] Is this reusable shell presentation without app services? Put it in `libs/web`.
-* [ ] Is this reusable visual UI? Put it in `libs/ui/components`.
-* [ ] Is this SCSS primitive? Put it in `libs/ui/styles`.
-* [ ] Is this runtime theme? Put it in `libs/ui/theme`.
-* [ ] Is this page-specific state? Keep it in the feature.
-* [ ] Is this cross-surface runtime state? Put it in the owning runtime capability.
-* [ ] Is there only one consumer? Do not extract yet.
-* [ ] Are you creating a lib just to match a diagram? Do not.
-* [ ] Does this make PageModel resolve backend bindings? Do not.
-* [ ] Does this make UI components call HTTP? Do not.
+- [ ] Is this a contract? Put it in `libs/api/contracts`.
+- [ ] Is this an HTTP client? Put it in `libs/api/http`.
+- [ ] Is this a PageModel runtime contract/client/renderer/helper? Put it in `libs/page-model`.
+- [ ] Is this a concrete PageModel widget or registry entry? Put it in `libs/widgets`.
+- [ ] Is this reusable shell presentation without app services? Put it in `libs/web`.
+- [ ] Is this reusable visual UI? Put it in `libs/ui/components`.
+- [ ] Is this SCSS primitive? Put it in `libs/ui/styles`.
+- [ ] Is this runtime theme? Put it in `libs/ui/theme`.
+- [ ] Is this page-specific state? Keep it in the feature.
+- [ ] Is this cross-surface runtime state? Put it in the owning runtime capability.
+- [ ] Is there only one consumer? Do not extract yet.
+- [ ] Are you creating a lib just to match a diagram? Do not.
+- [ ] Does this make PageModel resolve backend bindings? Do not.
+- [ ] Does this make UI components call HTTP? Do not.

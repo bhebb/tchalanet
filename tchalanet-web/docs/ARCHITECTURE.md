@@ -1,21 +1,22 @@
-# tch-portal — Architecture Frontend
+# Tchalanet Web — Architecture Frontend
 
 > **Statut** : Architecture active — extraction progressive en cours
-> **App** : `apps/tch-portal/` — Angular / Nx
+> **Apps** : `apps/tch-portal/`, `apps/public-portal/`, `apps/admin-portal/`, `apps/platform-portal/` — Angular / Nx
 > **Objectif** : garder une architecture frontend lisible, slice-first, sans créer de libs vides ni transformer PageModel en usine à gaz.
 
 ---
 
 ## 1. Objectif
 
-`tch-portal` doit permettre de construire :
+`tchalanet-web` doit permettre de construire :
 
-* la page publique ;
-* les dashboards privés ;
-* les shells public / privé ;
-* les widgets dynamiques ;
-* les thèmes runtime ;
-* les composants UI réutilisables ;
+- la page publique ;
+- les dashboards privés ;
+- les shells public / privé ;
+- les widgets dynamiques ;
+- les thèmes runtime ;
+- les composants UI réutilisables ;
+- plusieurs apps déployables indépendamment quand la surface le justifie ;
 
 tout en gardant une règle simple :
 
@@ -36,19 +37,30 @@ C’est un **contrat de composition de page prêt-à-rendre**.
 ```text
 tchalanet-web/
 ├── apps/
-│   └── tch-portal/
-│       └── src/app/
-│           ├── core/       ← auth, i18n et runtime applicatif
-│           ├── features/   ← pages et orchestration de surface
-│           └── shared/     ← contrats encore locaux à l'application
+│   ├── tch-portal/        ← portail historique, migration progressive
+│   ├── public-portal/     ← app publique, SSR/SSG-ready
+│   ├── admin-portal/      ← app tenant admin, CSR V0, déployable seule
+│   ├── platform-portal/   ← app plateforme/superadmin, CSR V0, déployable seule
+│   └── proxy.conf.cjs     ← proxy local partagé vers /api/v1
+│
+│   apps/*/src/app/
+│   ├── app.config.ts
+│   ├── app.routes.ts
+│   └── features/           ← pages, flows et orchestration propres à l'app
 └── libs/
     ├── api/
     │   └── src/lib/
-    │       ├── contracts/  ← contrats backend/web transverses
-    │       └── http/       ← clients HTTP, interceptors, helpers API
+    │       ├── contracts/      ← contrats backend/web transverses
+    │       ├── http/           ← interceptors, headers, helpers API
+    │       └── backend-client/ ← TchBackendClient générique
+    ├── core/
+    │   ├── auth/          ← login partagé, auth/session/guards quand extraits
+    │   └── i18n/          ← runtime i18n partagé quand extrait
     ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
     ├── shared-config/      ← settings runtime et feature flags
-    ├── web/                ← présentation shell réutilisable sans services app
+    ├── web/                ← façade historique web, à réduire progressivement
+    │   ├── errors/         ← modèle/copy/routing UI des erreurs web
+    │   └── shell/          ← primitives shell web partagées
     ├── widgets/            ← registre concret et widgets PageModel
     └── ui/
         ├── components/     ← composants UI réutilisables et stateless
@@ -56,7 +68,12 @@ tchalanet-web/
         └── theme/          ← thème runtime, presets Material 3 et tokens
 ```
 
-Cette structure est volontairement petite. Chaque lib active porte une frontière déjà utilisée.
+Cette structure reste volontairement petite. Chaque lib active porte une frontière réelle. Ne pas
+créer de sous-lib Nx pour `api/contracts`, `api/http` ou `api/backend-client` : `libs/api` reste une
+seule lib avec des dossiers internes.
+
+`pos-portal` n'existe pas en V0. La vente POS reste lazy-loaded dans `admin-portal` jusqu'à ce que la
+surface justifie une app séparée.
 
 ---
 
@@ -66,11 +83,11 @@ Cette structure est volontairement petite. Chaque lib active porte une frontièr
 
 Responsabilité :
 
-* contrats backend/web ;
-* types HTTP communs ;
-* helpers API ;
-* interceptors ;
-* futurs clients HTTP transverses.
+- contrats backend/web ;
+- types HTTP communs ;
+- helpers API ;
+- interceptors ;
+- `TchBackendClient`, wrapper technique autour de `HttpClient`.
 
 Exemples de contrats à centraliser ici :
 
@@ -91,8 +108,9 @@ ui/components peut consommer ActionItem.
 ui/components ne possède pas ActionItem.
 ```
 
-Les contrats HTTP génériques ciblent `libs/api/src/lib/contracts`. Les contrats runtime PageModel
-ciblent `libs/page-model`.
+Les contrats HTTP génériques ciblent `libs/api/src/lib/contracts`. Les helpers/interceptors ciblent
+`libs/api/src/lib/http`. Le client backend générique cible `libs/api/src/lib/backend-client`. Les
+contrats runtime PageModel ciblent `libs/page-model`.
 
 Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`, mais uniquement pendant migration.
 
@@ -102,12 +120,12 @@ Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/
 
 Responsabilité :
 
-* contrats `PageRuntimeResponse` et types associés ;
-* client `PageModelApi` ;
-* renderer rows/columns et `WidgetHostComponent` ;
-* fallbacks de widgets contenus ;
-* token injectable abstrait `WIDGET_REGISTRY` ;
-* helpers communs aux widgets et `LabelPipe`.
+- contrats `PageRuntimeResponse` et types associés ;
+- client `PageModelApi` ;
+- renderer rows/columns et `WidgetHostComponent` ;
+- fallbacks de widgets contenus ;
+- token injectable abstrait `WIDGET_REGISTRY` ;
+- helpers communs aux widgets et `LabelPipe`.
 
 Cette lib ne dépend jamais de `libs/widgets`.
 
@@ -117,24 +135,77 @@ Cette lib ne dépend jamais de `libs/widgets`.
 
 Responsabilité :
 
-* widgets PageModel concrets ;
-* mapping direct type backend → composant Angular ;
-* provider `provideWidgets()`, activé par l'app composition root.
+- widgets PageModel concrets ;
+- mapping direct type backend → composant Angular ;
+- provider `provideWidgets()`, activé par l'app composition root.
 
 Cette lib dépend de `libs/page-model`.
 
 ---
 
+### `libs/core/auth`
+
+Responsabilité :
+
+- login partagé ;
+- session store ;
+- guards ;
+- permissions ;
+- login/logout ;
+- état d'authentification.
+
+Cette lib ne contient aucun client métier admin, platform ou POS.
+
+---
+
+### `libs/core/i18n`
+
+Responsabilité :
+
+- contrats et état de locale partagés ;
+- bootstrap i18n réutilisable quand il n'est plus app-coupled ;
+- helpers runtime i18n.
+
+Les écrans métier d'administration i18n restent dans leur feature platform/admin.
+
+---
+
 ### `libs/web`
 
-Responsabilité active :
+Responsabilité historique :
 
-* éléments de shell web réutilisables sans injection de services applicatifs ;
-* footer public ;
-* navigation publique basse.
+- éléments de shell web réutilisables sans injection de services applicatifs ;
+- footer public ;
+- navigation publique basse.
 
-Le header public et la composition complète du shell restent dans l'app tant qu'ils orchestrent
-auth et i18n.
+La lib racine `@tch/web` reste une façade de compatibilité pendant la migration.
+
+---
+
+### `libs/web/errors`
+
+Responsabilité :
+
+- modèle d'erreur web consommable par les pages ;
+- mapping copy/traduction depuis les codes backend stables ;
+- helpers de routage shell/page/section/field ;
+- helpers field error côté formulaire.
+
+Elle ne possède pas `HttpClient` et ne promet pas de workflow support/ticket.
+
+---
+
+### `libs/web/shell`
+
+Responsabilité :
+
+- primitives shell web partagées ;
+- feedback shell routable ;
+- actions shell qui préservent la surface courante ;
+- futures briques public/admin/platform shell quand elles ne dépendent plus d'une app concrète.
+
+La navigation reste dans shell en V0 ; ne pas créer `libs/web/navigation` tant qu'il n'y a pas de
+frontière réelle.
 
 ---
 
@@ -142,9 +213,9 @@ auth et i18n.
 
 Responsabilité :
 
-* settings runtime ;
-* feature flags ;
-* configuration frontend runtime.
+- settings runtime ;
+- feature flags ;
+- configuration frontend runtime.
 
 Cette lib ne doit pas contenir de composants UI.
 
@@ -154,12 +225,12 @@ Cette lib ne doit pas contenir de composants UI.
 
 Responsabilité :
 
-* composants UI réutilisables ;
-* composants stateless ;
-* composants basés sur `input()` / `output()` ;
-* aucun appel HTTP ;
-* aucune dépendance NgRx ;
-* aucune logique métier applicative.
+- composants UI réutilisables ;
+- composants stateless ;
+- composants basés sur `input()` / `output()` ;
+- aucun appel HTTP ;
+- aucune dépendance NgRx ;
+- aucune logique métier applicative.
 
 Exemples :
 
@@ -184,13 +255,13 @@ Ces composants consomment des contrats partagés, mais ne les possèdent pas.
 
 Responsabilité :
 
-* primitives SCSS compile-time ;
-* breakpoints ;
-* functions ;
-* mixins ;
-* typography helpers ;
-* overlay helpers ;
-* Material overrides globaux.
+- primitives SCSS compile-time ;
+- breakpoints ;
+- functions ;
+- mixins ;
+- typography helpers ;
+- overlay helpers ;
+- Material overrides globaux.
 
 Cette lib ne décide jamais du thème courant.
 
@@ -213,15 +284,15 @@ README.md
 
 Responsabilité :
 
-* thème runtime ;
-* sélection light/dark ;
-* ThemeDomApplier ;
-* application des CSS variables ;
-* synchronisation Angular Material OverlayContainer ;
-* presets ;
-* tokens ;
-* future génération/build de thème ;
-* future intégration tenant theme.
+- thème runtime ;
+- sélection light/dark ;
+- ThemeDomApplier ;
+- application des CSS variables ;
+- synchronisation Angular Material OverlayContainer ;
+- presets ;
+- tokens ;
+- future génération/build de thème ;
+- future intégration tenant theme.
 
 Cette lib porte le `README.md`/guide de thème.
 
@@ -244,33 +315,38 @@ Components exposent des variables locales --comp-*.
 
 ```text
 libs/
-  api/             contrats backend/web, clients HTTP et interceptors
-  shared-auth/     OIDC/Keycloak, session et guards
-  shared-i18n/     traduction runtime et sélection de langue
+  api/             contrats backend/web, http technique, backend-client
+  core/auth/       login partagé, OIDC/Keycloak, session et guards
+  core/i18n/       traduction runtime et sélection de langue
   shared-config/   feature flags, settings et configuration runtime
   ui/              components, styles et theme
   page-model/      actif : contrats, API, moteur de rendu et registre abstrait
   widgets/         actif : registre concret et widgets dynamiques
-  web/             actif partiellement : présentation shell réutilisable
+  web/errors/      actif : modèle/copy/routing d'erreur web
+  web/shell/       actif : primitives shell web
+  web/             façade historique à réduire
 ```
 
-Les libs `page-model`, `widgets` et `web` sont actives. Les autres restent des cibles de migration,
-pas des dossiers à créer à vide.
+Les libs ci-dessus sont actives. Elles restent fines : les clients métier restent dans les features
+tant qu'ils n'ont pas plusieurs consommateurs réels.
 
 Une lib est créée seulement lorsqu’un change :
 
-* déplace un slice cohérent ;
-* définit ses exports publics ;
-* valide ses dépendances Nx ;
-* supprime ou réduit une dépendance depuis `apps/tch-portal`.
+- déplace un slice cohérent ;
+- définit ses exports publics ;
+- valide ses dépendances Nx ;
+- supprime ou réduit une dépendance depuis une app.
 
 Graphe de dépendances actif :
 
 ```text
-tch-portal -> page-model, widgets, web
-widgets    -> page-model
-web        -> page-model, ui/components
-page-model -X-> widgets
+apps/*      -> core/auth, core/i18n, web/errors, web/shell, ui/*, api, page-model, widgets
+widgets     -> page-model
+web         -> page-model, ui/components
+web/errors  -> api
+web/shell   -> ui/components, page-model selon besoin
+page-model  -X-> widgets
+ui          -X-> api clients métier / features
 ```
 
 ---
@@ -285,14 +361,14 @@ PageModel = rows / columns / widgets
 
 Il ne possède pas :
 
-* PublicHeader ;
-* PublicFooter ;
-* PrivateShell ;
-* SidebarNav ;
-* TopAppBar ;
-* theme runtime ;
-* i18n bootstrap ;
-* résolution fileKey/jsonFile.
+- PublicHeader ;
+- PublicFooter ;
+- PrivateShell ;
+- SidebarNav ;
+- TopAppBar ;
+- theme runtime ;
+- i18n bootstrap ;
+- résolution fileKey/jsonFile.
 
 Le shell rend le chrome de page.
 
@@ -462,13 +538,13 @@ home.check_ticket.title
 
 `ActionItem` devient le contrat unique pour :
 
-* header nav ;
-* footer links ;
-* sidebar ;
-* overlay nav ;
-* buttons ;
-* CTA ;
-* social links.
+- header nav ;
+- footer links ;
+- sidebar ;
+- overlay nav ;
+- buttons ;
+- CTA ;
+- social links.
 
 `TchLink` est legacy et doit disparaître progressivement.
 
@@ -532,16 +608,16 @@ export function isRouteAction(item: ActionItem | undefined): boolean {
 | Surface        | Route frontend cible | Rôle                                             |
 | -------------- | -------------------: | ------------------------------------------------ |
 | Public         |            `/public` | Résultats, vérification ticket, PageModel public |
-| Cashier/POS    |       `/app/cashier` | Vente, paiement, session caisse                  |
-| Tenant Admin   |         `/app/admin` | Dashboard et configuration tenant                |
-| Platform Admin |      `/app/platform` | Opérations plateforme                            |
+| Cashier/POS    |      `/admin/pos` V0 | Vente, paiement, session caisse                  |
+| Tenant Admin   |             `/admin` | Dashboard et configuration tenant                |
+| Platform Admin |          `/platform` | Opérations plateforme                            |
 | Auth           |  `/login`, callbacks | Authentification                                 |
 
 Note importante :
 
 ```text
 Les routes frontend ne sont pas forcément les scopes API backend.
-Ex: /app/admin peut appeler /api/v1/admin/** ou /api/v1/tenant/** selon le cas.
+Ex: /admin peut appeler /api/v1/admin/** ou /api/v1/tenant/** selon le cas.
 ```
 
 ---
@@ -577,19 +653,19 @@ public-home.page.ts
 
 ## 12. Règles non négociables
 
-* Toutes les routes pointent vers une `Page`.
-* Les composants UI ne font pas d’appel HTTP.
-* Les composants UI ne dépendent pas de NgRx ni de services applicatifs.
-* Les pages orchestrent des services applicatifs/state dédiés, sans appeler directement `HttpClient`.
-* Les contrats HTTP génériques ciblent `libs/api/contracts`.
-* Les contrats runtime PageModel ciblent `libs/page-model`.
-* Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`.
-* Pas de nouvelle lib sans frontière claire et stable.
-* Pas de lib Nx vide créée uniquement pour correspondre au diagramme cible.
-* PageModel ne gère pas le shell.
-* Angular ne résout pas `fileKey/jsonFile` en runtime.
-* Les styles consomment `--tch-*`.
-* Les composants exposent des variables locales `--comp-*`.
+- Toutes les routes pointent vers une `Page`.
+- Les composants UI ne font pas d’appel HTTP.
+- Les composants UI ne dépendent pas de NgRx ni de services applicatifs.
+- Les pages orchestrent des services applicatifs/state dédiés, sans appeler directement `HttpClient`.
+- Les contrats HTTP génériques ciblent `libs/api/contracts`.
+- Les contrats runtime PageModel ciblent `libs/page-model`.
+- Les contrats actifs peuvent rester temporairement dans `apps/tch-portal/src/app/shared/types`.
+- Pas de nouvelle lib sans frontière claire et stable.
+- Pas de lib Nx vide créée uniquement pour correspondre au diagramme cible.
+- PageModel ne gère pas le shell.
+- Angular ne résout pas `fileKey/jsonFile` en runtime.
+- Les styles consomment `--tch-*`.
+- Les composants exposent des variables locales `--comp-*`.
 
 ---
 
@@ -597,11 +673,11 @@ public-home.page.ts
 
 Ne pas faire maintenant :
 
-* un CMS complet ;
-* un theme builder visuel ;
-* une migration massive de tous les widgets ;
-* un moteur de layout avancé ;
-* des conditions complexes dans PageModel ;
-* des appels frontend pour résoudre `fileKey` ;
-* des hacks Material dans chaque composant ;
-* une réorganisation Nx complète en une seule PR.
+- un CMS complet ;
+- un theme builder visuel ;
+- une migration massive de tous les widgets ;
+- un moteur de layout avancé ;
+- des conditions complexes dans PageModel ;
+- des appels frontend pour résoudre `fileKey` ;
+- des hacks Material dans chaque composant ;
+- une réorganisation Nx complète en une seule PR.
