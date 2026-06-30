@@ -56,9 +56,11 @@ export class AuthRedirectService {
     if (route.startsWith('/app/platform')) {
       return 'platform-portal';
     }
+    if (route.startsWith('/app/account')) {
+      return session.roles.includes('SUPER_ADMIN') ? 'platform-portal' : 'admin-portal';
+    }
     if (
       route.startsWith('/app/admin') ||
-      route.startsWith('/app/account') ||
       route.startsWith('/app/profile') ||
       route.startsWith('/app/seller-terminal')
     ) {

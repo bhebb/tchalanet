@@ -1,5 +1,12 @@
 import { Route } from '@angular/router';
-import { ForgotPasswordPage, LoginPage, authGuard, roleGuard, spaceDispatchGuard } from '@tch/core/auth';
+import {
+  ForbiddenPage,
+  ForgotPasswordPage,
+  LoginPage,
+  authGuard,
+  roleGuard,
+  spaceDispatchGuard,
+} from '@tch/core/auth';
 import { consoleAccountRoutes, consoleProfileRoutes } from '@tch/ui/console';
 
 export const appRoutes: Route[] = [
@@ -59,6 +66,10 @@ export const appRoutes: Route[] = [
     path: 'app/admin',
     canActivate: [roleGuard('TENANT_ADMIN')],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+  },
+  {
+    path: 'forbidden',
+    component: ForbiddenPage,
   },
   {
     path: '',
