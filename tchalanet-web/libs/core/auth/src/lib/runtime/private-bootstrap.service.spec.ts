@@ -13,7 +13,7 @@ describe('PrivateBootstrapService', () => {
 
     TestBed.inject(PrivateBootstrapService).bootstrap().subscribe();
 
-    expect(backend.get).toHaveBeenCalledWith('/tenant/runtime/bootstrap', {
+    expect(backend.get).toHaveBeenCalledWith('/runtime/private', {
       suppressShellFeedback: true,
     });
   });
