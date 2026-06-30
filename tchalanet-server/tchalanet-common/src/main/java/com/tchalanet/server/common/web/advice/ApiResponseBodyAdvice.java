@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.api.ServiceStatus;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -43,6 +44,7 @@ import java.util.List;
  * </ol>
  */
 @RestControllerAdvice(basePackages = "com.tchalanet.server")
+@Order(100)
 public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     public static final String APPROVAL_REQUIRED_CODE = "APPROVAL_REQUIRED";
