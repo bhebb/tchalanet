@@ -9,7 +9,11 @@
 | Redis | `docker-compose-redis.yml` | `back` | Cache / jobs |
 | API | `docker-compose-api.yml` | `edge`, `back` | Spring Boot |
 | Edge service | `docker-compose-edge-service.yml` | `edge`, `back` | Messages / edge APIs |
+| Web (portails) | `docker-compose-web.yml` | `edge` | Nginx — public, admin, platform. **Voir Plan B ci-dessous.** |
 | Firebase emulator | `docker-compose-firebase-emulator.yml` | `edge`, `back` | Local IDE only |
+
+> `web` n'est pas inclus dans `up-seq.sh` par défaut — le plan Docker (Plan B) l'ajoute.
+> Le plan Vercel (Plan A) remplace ce conteneur par des projets Vercel par portail.
 
 ## Auth
 

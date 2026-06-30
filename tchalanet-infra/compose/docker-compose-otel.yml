@@ -1,5 +1,5 @@
 # docker-compose-otel.yml
-# Local observability stack: OTel Collector + Jaeger.
+# Local observability stack: OTel Collector + Jaeger (traces) + Loki + Grafana (logs).
 # Self-contained: declare the back network as external so docker-compose-project.yml
 # does not need to be included.  Networks must already exist (make networks).
 #
@@ -7,9 +7,11 @@
 #         make up-otel ENV=dev    (explicit)
 #         make down-otel
 #
-# Jaeger UI:  http://localhost:16686
-# OTLP HTTP:  http://localhost:4318  (for IDE runs → Spring Boot default)
-# OTLP gRPC:  localhost:4317
+# Jaeger UI:   http://localhost:16686   (traces)
+# Grafana UI:  http://localhost:3100    (logs + traces unified)
+# Loki API:    http://localhost:3200
+# OTLP HTTP:   http://localhost:4318   (IDE → Spring Boot default)
+# OTLP gRPC:   localhost:4317
 
 services:
   otel-collector:
@@ -57,6 +59,59 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  loki:
+    image: grafana/loki:3.5.0
+    container_name: tchl-loki-${ENV:-dev}
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./otel/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki-data:/loki
+    ports:
+      - "3200:3100"   # Loki API (3200 host → 3100 container)
+    networks:
+      back: {}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  grafana:
+    image: grafana/grafana:12.0.1
+    container_name: tchl-grafana-${ENV:-dev}
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./otel/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3100:3000"   # Grafana UI (3100 host → 3000 container)
+    networks:
+      back: {}
+    depends_on:
+      loki:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  loki-data: {}
+  grafana-data: {}
 
 networks:
   back:

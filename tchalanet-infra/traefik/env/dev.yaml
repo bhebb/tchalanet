@@ -16,11 +16,11 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Unleash Feature Flags
-    flags:
-      rule: Host(`flags.localtest.me`)
-      entryPoints: [ websecure ]
-      service: unleash-svc
+    # Edge service (dev)
+    edge:
+      rule: Host(`edge.localtest.me`)
+      entryPoints: [ websecure, mobile-https ]
+      service: edge-svc
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
@@ -45,10 +45,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://api:8080"
-    unleash-svc:
+    edge-svc:
       loadBalancer:
         servers:
-          - url: "http://unleash:4242"
+          - url: "http://edge-service:3000"
     web-svc:
       loadBalancer:
         servers:

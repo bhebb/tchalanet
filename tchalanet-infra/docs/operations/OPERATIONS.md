@@ -55,6 +55,19 @@ make smoke-staging
 
 Le smoke staging vérifie API, Edge et Web.
 
+## Runbooks
+
+Procédures pas-à-pas pour les opérations critiques :
+
+| Runbook | Quand l'utiliser |
+|---|---|
+| [RB-00 — Secrets & variables checklist](runbooks/RB-00-secrets-checklist.md) | **Lire en premier** — inventaire complet de tous les secrets requis staging + prod |
+| [RB-01 — Provisionnement staging](runbooks/RB-01-staging-provision.md) | Première mise en service ou recréation complète du serveur staging |
+| [RB-02 — Déploiement web CF Pages](runbooks/RB-02-web-cf-pages.md) | Mise en place initiale des 3 portails Angular sur Cloudflare Pages |
+| [RB-03 — Distribution mobile Android](runbooks/RB-03-mobile-distribution.md) | Build et distribution d'une version Android staging via Firebase App Distribution |
+
+---
+
 ## Backup PostgreSQL production
 
 Objectif : pouvoir reconstruire un serveur Docker supprimé/recréé rapidement, sans dépendre du

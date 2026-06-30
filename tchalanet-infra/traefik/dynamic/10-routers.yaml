@@ -16,15 +16,15 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Unleash Feature Flags
-    flags:
-      rule: Host(`flags.localtest.me`)
-      entryPoints: [ websecure ]
-      service: unleash-svc
+    # Edge service
+    edge:
+      rule: Host(`edge.localtest.me`)
+      entryPoints: [ websecure, mobile-https ]
+      service: edge-svc
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Web App (Angular/Nx)
+    # Web App (Angular/Nx — dev server sur host:4200)
     web-app:
       rule: Host(`app.localtest.me`)
       entryPoints: [ websecure ]
@@ -32,7 +32,7 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Mobile App (Ionic/Angular)
+    # Mobile App (Flutter/dev — dev server sur host:4201)
     mobile-app:
       rule: Host(`mob.localtest.me`)
       entryPoints: [ websecure ]
@@ -45,10 +45,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://api:8080"
-    unleash-svc:
+    edge-svc:
       loadBalancer:
         servers:
-          - url: "http://unleash:4242"
+          - url: "http://edge-service:3000"
     web-svc:
       loadBalancer:
         servers:
