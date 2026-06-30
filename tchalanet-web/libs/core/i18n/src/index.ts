@@ -1,3 +1,4 @@
+export * from './lib/angular-locale.providers';
 export * from './lib/i18n.facade';
 export * from './lib/i18n-merger.service';
 export * from './lib/i18n.types';

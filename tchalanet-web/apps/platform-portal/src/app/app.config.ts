@@ -17,6 +17,7 @@ import {
   MERGED_TRANSLATE_LOADER_OPTIONS,
   MergedTranslateLoader,
   i18nFeature,
+  provideTchAngularLocales,
 } from '@tch/core/i18n';
 import {
   FeatureFlags,
@@ -65,6 +66,7 @@ export const appConfig: ApplicationConfig = {
       emulatorUrl: environment.fallbackConfig.firebaseAuthEmulatorUrl,
     }),
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },
+    provideTchAngularLocales(PORTAL_I18N_CONFIG.defaultLang),
     provideTranslateService({
       fallbackLang: PORTAL_I18N_CONFIG.fallbackLang,
       lang: PORTAL_I18N_CONFIG.defaultLang,
