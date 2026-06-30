@@ -1,4 +1,20 @@
-<main class="admin-portal">
-  <router-outlet />
-</main>
+@if (showShell()) {
+  <tch-private-shell-layout
+    [brand]="brand"
+    [titleKey]="titleKey"
+    [sections]="sections"
+    [userName]="userName()"
+    [darkMode]="darkMode()"
+    (themeToggled)="toggleTheme()"
+    (profileRequested)="goToProfile()"
+    (settingsRequested)="goToProfile()"
+    (logoutRequested)="logout()"
+  >
+    <router-outlet />
+  </tch-private-shell-layout>
+} @else {
+  <main class="admin-portal">
+    <router-outlet />
+  </main>
+}
 <tch-theme-sandbox />
