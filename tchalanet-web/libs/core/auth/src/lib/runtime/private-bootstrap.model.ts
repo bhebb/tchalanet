@@ -6,9 +6,9 @@ export interface RuntimeBootstrapResponse {
   readonly space: PrivateSpace;
   readonly user: AuthenticatedUserView;
   readonly tenantContext: TenantContextView | null;
-  readonly settings: RuntimeSettingsView;
-  readonly theme: RuntimeThemeView;
-  readonly i18n: RuntimeI18nBundle;
+  readonly settings?: RuntimeSettingsView | null;
+  readonly theme?: RuntimeThemeView | null;
+  readonly i18n?: RuntimeI18nBundle | null;
   readonly entitlements: EntitlementsView;
   readonly readiness: RuntimeReadinessView;
   readonly notifications: RuntimeNotificationSummary;
