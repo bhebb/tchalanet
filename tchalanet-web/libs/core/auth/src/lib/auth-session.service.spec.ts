@@ -64,6 +64,29 @@ describe('AuthSessionService', () => {
     expect(session.roles).toEqual(['TENANT_ADMIN']);
   });
 
+  it('derives the platform role from the private runtime space', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    runtime.initialize.mockReturnValue(of({
+      ...bootstrap(),
+      space: 'PLATFORM',
+      tenantContext: null,
+      entitlements: { roles: ['PLATFORM_ADMIN'], permissions: [] },
+      user: {
+        ...bootstrap().user,
+        roles: [],
+        defaultSpace: 'PLATFORM',
+      },
+      entryRoute: '/app/platform',
+      pageModelRef: { route: '/app/platform', endpoint: '/pages/platform' },
+    } satisfies RuntimeBootstrapResponse));
+
+    const session = await TestBed.inject(AuthSessionService).refreshSession();
+
+    expect(session.roles).toEqual(['SUPER_ADMIN']);
+    expect(session.entryRoute).toBe('/app/platform');
+  });
+
   it('does not bootstrap private runtime when provider session is anonymous', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(false);
 

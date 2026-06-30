@@ -45,7 +45,10 @@ export class AuthSessionService {
           undefined,
         tenantId: bootstrap.tenantContext?.tenantId,
         tenantCode: bootstrap.tenantContext?.tenantCode ?? undefined,
-        roles: normalizeRoles(bootstrap.entitlements.roles),
+        roles: normalizeRoles(
+          [...(bootstrap.user.roles ?? []), ...(bootstrap.entitlements.roles ?? [])],
+          bootstrap.space,
+        ),
         tokenExpiresAt: await this.auth.getTokenExpiresAt(),
         entryRoute: bootstrap.entryRoute ?? bootstrap.pageModelRef?.route ?? undefined,
         mustChangePassword: bootstrap.user.mustChangePassword ?? false,
@@ -128,13 +131,21 @@ function isAccessDenied(err: unknown): boolean {
   return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
 }
 
-function normalizeRoles(roles: readonly string[] | undefined): readonly UserRole[] {
-  return (roles ?? [])
+function normalizeRoles(roles: readonly string[] | undefined, space?: string | null): readonly UserRole[] {
+  const normalized = (roles ?? [])
     .map(role => role.toUpperCase())
     .map(role => {
-      if (role === 'TENANT_OWNER') return 'TENANT_ADMIN';
-      if (role === 'OPERATOR') return 'CASHIER';
+      if (role === 'ROLE_SUPER_ADMIN' || role === 'PLATFORM_ADMIN') return 'SUPER_ADMIN';
+      if (role === 'ROLE_TENANT_ADMIN' || role === 'TENANT_OWNER') return 'TENANT_ADMIN';
+      if (role === 'ROLE_CASHIER' || role === 'OPERATOR' || role === 'ACTOR_SELLER_TERMINAL') return 'CASHIER';
       return role;
     })
     .filter((role): role is UserRole => supportedRoles.includes(role as UserRole));
+
+  const rolesFromSpace: UserRole[] = [];
+  if (space === 'PLATFORM') rolesFromSpace.push('SUPER_ADMIN');
+  if (space === 'ADMIN') rolesFromSpace.push('TENANT_ADMIN');
+  if (space === 'CASHIER') rolesFromSpace.push('CASHIER');
+
+  return Array.from(new Set([...normalized, ...rolesFromSpace]));
 }
