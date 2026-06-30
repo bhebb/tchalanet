@@ -18,7 +18,11 @@ export class PrivateRuntimeInitializer {
 
   initialize(): Observable<RuntimeBootstrapResponse> {
     this.bootstrapStore.setLoading();
-    return this.bootstrapApi.bootstrap().pipe(tap(response => this.applyBootstrap(response)));
+    return this.bootstrapApi.bootstrap().pipe(
+      tap(response => {
+        this.applyBootstrap(response);
+      }),
+    );
   }
 
   private applyBootstrap(response: RuntimeBootstrapResponse): void {
@@ -52,7 +56,8 @@ export class PrivateRuntimeInitializer {
   }
 
   private mergeI18n(response: RuntimeBootstrapResponse): void {
-    const locale = response.i18n?.locale ?? response.settings?.locale ?? response.user.preferredLocale;
+    const locale =
+      response.i18n?.locale ?? response.settings?.locale ?? response.user.preferredLocale;
     const messages = response.i18n?.messages ?? {};
     if (!locale) {
       return;

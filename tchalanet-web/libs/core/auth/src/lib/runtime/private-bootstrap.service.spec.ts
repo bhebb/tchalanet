@@ -6,20 +6,20 @@ import { PrivateBootstrapService } from './private-bootstrap.service';
 
 describe('PrivateBootstrapService', () => {
   it('uses the canonical private runtime endpoint', () => {
-    const backend = { getApiResponse: vi.fn(() => of({ data: bootstrap() })) };
+    const backend = { get: vi.fn(() => of(bootstrap())) };
     TestBed.configureTestingModule({
       providers: [PrivateBootstrapService, { provide: TchBackendClient, useValue: backend }],
     });
 
     TestBed.inject(PrivateBootstrapService).bootstrap().subscribe();
 
-    expect(backend.getApiResponse).toHaveBeenCalledWith('/runtime/private', {
+    expect(backend.get).toHaveBeenCalledWith('/runtime/private', {
       suppressShellFeedback: true,
     });
   });
 
-  it('unwraps the runtime bootstrap envelope explicitly', () => {
-    const backend = { getApiResponse: vi.fn(() => of({ data: bootstrap() })) };
+  it('returns the unwrapped runtime bootstrap data', () => {
+    const backend = { get: vi.fn(() => of(bootstrap())) };
     TestBed.configureTestingModule({
       providers: [PrivateBootstrapService, { provide: TchBackendClient, useValue: backend }],
     });
