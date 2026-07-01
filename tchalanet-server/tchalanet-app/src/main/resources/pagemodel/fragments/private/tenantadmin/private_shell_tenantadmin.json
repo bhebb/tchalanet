@@ -226,6 +226,13 @@
                 "icon": "tune"
               },
               {
+                "id": "limits-seller",
+                "label_key": "nav.admin.limits_seller",
+                "path": "/app/admin/limits/seller-terminal",
+                "kind": "internal",
+                "icon": "person"
+              },
+              {
                 "id": "limits-draw",
                 "label_key": "nav.admin.limits_draw",
                 "path": "/app/admin/limits/draw",
@@ -233,25 +240,11 @@
                 "icon": "event"
               },
               {
-                "id": "limits-seller",
-                "label_key": "nav.admin.limits_seller",
-                "path": "/app/admin/limits/agent",
-                "kind": "internal",
-                "icon": "person"
-              },
-              {
                 "id": "limits-number",
                 "label_key": "nav.admin.limits_number",
                 "path": "/app/admin/limits/number",
                 "kind": "internal",
                 "icon": "pin"
-              },
-              {
-                "id": "limits-system",
-                "label_key": "nav.admin.limits_system",
-                "path": "/app/admin/limits/system",
-                "kind": "internal",
-                "icon": "info"
               }
             ]
           },

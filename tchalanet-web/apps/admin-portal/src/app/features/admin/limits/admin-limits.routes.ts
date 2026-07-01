@@ -23,9 +23,9 @@ export const adminLimitsRoutes: Route[] = [
           import('./pages/draw/admin-limits-draw.page').then(m => m.AdminLimitsDrawPage),
       },
       {
-        path: 'agent',
+        path: 'seller-terminal',
         loadComponent: () =>
-          import('./pages/agent/admin-limits-agent.page').then(m => m.AdminLimitsAgentPage),
+          import('./pages/seller-terminal/admin-limits-seller-terminal.page').then(m => m.AdminLimitsSellerTerminalPage),
       },
       {
         path: 'number',

@@ -25,7 +25,7 @@ import { LimitAssignmentsTableComponent } from '../../components/limit-assignmen
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
 @Component({
-  selector: 'tch-admin-limits-agent-page',
+  selector: 'tch-admin-limits-seller-terminal-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -37,10 +37,10 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
     AdminEmptyStateComponent,
     LimitAssignmentsTableComponent,
   ],
-  templateUrl: './admin-limits-agent.page.html',
-  styleUrl: './admin-limits-agent.page.scss',
+  templateUrl: './admin-limits-seller-terminal.page.html',
+  styleUrl: './admin-limits-seller-terminal.page.scss',
 })
-export class AdminLimitsAgentPage {
+export class AdminLimitsSellerTerminalPage {
   private readonly api = inject(AdminLimitsApi);
   private readonly sellerTerminalApi = inject(SellerTerminalApi);
   private readonly dialog = inject(MatDialog);
@@ -113,7 +113,7 @@ export class AdminLimitsAgentPage {
         this.reloadAssignments(code);
       },
       error: (err: unknown) => {
-        this.actionError.set(this.resolveError(err, 'admin.limits.agent.delete', 'section'));
+        this.actionError.set(this.resolveError(err, 'admin.limits.seller-terminal.delete', 'section'));
       },
     });
   }
@@ -131,7 +131,7 @@ export class AdminLimitsAgentPage {
         this.loading.set(false);
       },
       error: (err: unknown) => {
-        this.pageError.set(this.resolveError(err, 'admin.limits.agent', 'page'));
+        this.pageError.set(this.resolveError(err, 'admin.limits.seller-terminal', 'page'));
         this.loading.set(false);
       },
     });
@@ -146,7 +146,7 @@ export class AdminLimitsAgentPage {
         );
       },
       error: (err: unknown) => {
-        this.actionError.set(this.resolveError(err, 'admin.limits.agent.reload', 'section'));
+        this.actionError.set(this.resolveError(err, 'admin.limits.seller-terminal.reload', 'section'));
       },
     });
   }
