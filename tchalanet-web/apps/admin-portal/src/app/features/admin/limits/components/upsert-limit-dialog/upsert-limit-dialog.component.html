@@ -86,29 +86,30 @@
         </mat-form-field>
       }
 
-      @if (showSelectionId()) {
+      @if (showSelectionChips()) {
         <mat-form-field appearance="outline">
-          <mat-label>Numéro / sélection bloqué(e)</mat-label>
-          <input matInput formControlName="selectionId" placeholder="ex: 13, 00">
-          @if (form.controls.selectionId.errors?.['required']) {
-            <mat-error>Champ obligatoire.</mat-error>
+          <mat-label>Numéros bloqués</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Numéros bloqués">
+            @for (sel of selections(); track sel) {
+              <mat-chip (removed)="removeSelection(sel)">
+                {{ sel }}
+                <button matChipRemove aria-label="Retirer {{ sel }}">
+                  <span class="material-symbols-outlined">cancel</span>
+                </button>
+              </mat-chip>
+            }
+            <input
+              placeholder="Ex : 13, appuyez Entrée"
+              [matChipInputFor]="chipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+              (matChipInputTokenEnd)="addSelection($event)"
+            />
+          </mat-chip-grid>
+          <mat-hint>Entrez un numéro puis appuyez sur Entrée ou virgule.</mat-hint>
+          @if (selections().length === 0) {
+            <mat-error>Ajoutez au moins un numéro.</mat-error>
           }
         </mat-form-field>
-      }
-
-      @if (showAutoWarn()) {
-        <div class="upsert-limit-dialog__auto-warn">
-          <mat-checkbox formControlName="autoWarn">
-            Créer aussi un avertissement en approche du seuil
-          </mat-checkbox>
-          @if (form.controls.autoWarn.value) {
-            <mat-form-field appearance="outline" class="upsert-limit-dialog__warn-field">
-              <mat-label>Seuil d'avertissement (HTG)</mat-label>
-              <input matInput type="number" formControlName="warnThresholdHtg" min="0" step="0.01">
-              <mat-hint>Par défaut 1 000 HTG en dessous du seuil principal.</mat-hint>
-            </mat-form-field>
-          }
-        </div>
       }
 
       <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
@@ -121,7 +122,7 @@
   <button
     mat-flat-button
     color="primary"
-    [disabled]="form.invalid || saving() || !spec()"
+    [disabled]="!canSave()"
     (click)="save()">
     {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
   </button>

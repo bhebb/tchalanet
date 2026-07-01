@@ -1,21 +1,21 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import type { MatChipInputEvent } from '@angular/material/chips';
 import { TranslateService } from '@ngx-translate/core';
-import { forkJoin } from 'rxjs';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
@@ -42,6 +42,7 @@ const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
     ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -56,9 +57,9 @@ export class UpsertLimitDialogComponent {
   private readonly ref = inject(MatDialogRef<UpsertLimitDialogComponent>);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
-  private readonly destroyRef = inject(DestroyRef);
 
   readonly breachOutcomes = V0_BREACH_OUTCOMES;
+  readonly separatorKeyCodes: number[] = [ENTER, COMMA];
 
   // 'add' = user picks rule first; 'edit' = rule is fixed
   readonly mode = signal<'add' | 'edit'>('edit');
@@ -71,7 +72,7 @@ export class UpsertLimitDialogComponent {
   readonly saving = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly paramSchema = signal<ParamSchema>('NONE');
-  readonly onBreachValue = signal<BreachOutcome>('BLOCK');
+  readonly selections = signal<string[]>([]);
 
   readonly showParamForm = computed(() => this.spec() !== null);
   readonly showValueCents = computed(() =>
@@ -84,9 +85,12 @@ export class UpsertLimitDialogComponent {
   readonly showBetTypeCode = computed(() =>
     this.paramSchema() === 'BET_TYPE' || this.paramSchema() === 'CENTS_BET_TYPE',
   );
-  readonly showSelectionId = computed(() => this.paramSchema() === 'SELECTION');
-  readonly showAutoWarn = computed(() =>
-    this.showValueCents() && this.onBreachValue() === 'BLOCK',
+  readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
+  readonly canSave = computed(() =>
+    !this.saving() &&
+    this.spec() !== null &&
+    this.form.valid &&
+    (this.paramSchema() !== 'SELECTION' || this.selections().length > 0),
   );
 
   readonly form = this.fb.nonNullable.group({
@@ -96,16 +100,7 @@ export class UpsertLimitDialogComponent {
     maxCount: [0 as number],
     windowMinutes: [0 as number],
     betTypeCode: [''],
-    selectionId: [''],
-    autoWarn: [false],
-    warnThresholdHtg: [0 as number],
   });
-
-  constructor() {
-    this.form.controls.onBreach.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(v => this.onBreachValue.set(v));
-  }
 
   /** Edit existing assignment. */
   init(
@@ -139,6 +134,7 @@ export class UpsertLimitDialogComponent {
     this.assignment.set(null);
     this.spec.set(null);
     this.paramSchema.set('NONE');
+    this.selections.set([]);
     this.error.set(null);
     this.saving.set(false);
   }
@@ -148,13 +144,31 @@ export class UpsertLimitDialogComponent {
     if (rule) this.applySpec(rule, null);
   }
 
+  addSelection(event: MatChipInputEvent): void {
+    const val = (event.value ?? '').trim();
+    if (val && !this.selections().includes(val)) {
+      this.selections.update(s => [...s, val]);
+    }
+    event.chipInput?.clear();
+  }
+
+  removeSelection(sel: string): void {
+    this.selections.update(s => s.filter(x => x !== sel));
+  }
+
   save(): void {
-    if (this.form.invalid || this.saving() || !this.spec()) return;
+    if (!this.canSave() || !this.spec()) return;
     const spec = this.spec()!;
     const v = this.form.getRawValue();
-    const params = buildParams(this.paramSchema(), spec.paramsTemplate, v);
+    const params = buildParams(this.paramSchema(), spec.paramsTemplate, {
+      valueCentsHtg: v.valueCentsHtg,
+      maxCount: v.maxCount,
+      windowMinutes: v.windowMinutes,
+      betTypeCode: v.betTypeCode,
+      selectionIds: this.selections(),
+    });
 
-    const mainReq = {
+    const req = {
       ruleKey: spec.ruleKey,
       targetType: this.targetType(),
       targetId: this.targetId() ?? undefined,
@@ -163,26 +177,11 @@ export class UpsertLimitDialogComponent {
       params,
     };
 
-    const requests = [this.api.upsertAssignment(mainReq, { suppressShellFeedback: true })];
-
-    if (v.autoWarn && this.showAutoWarn() && v.warnThresholdHtg > 0) {
-      const warnParams = buildParams(this.paramSchema(), spec.paramsTemplate, {
-        ...v,
-        valueCentsHtg: v.warnThresholdHtg,
-      });
-      requests.push(
-        this.api.upsertAssignment(
-          { ...mainReq, onBreach: 'WARN', params: warnParams },
-          { suppressShellFeedback: true },
-        ),
-      );
-    }
-
     this.saving.set(true);
     this.error.set(null);
 
-    forkJoin(requests).subscribe({
-      next: ([result]) => this.ref.close(result),
+    this.api.upsertAssignment(req, { suppressShellFeedback: true }).subscribe({
+      next: result => this.ref.close(result),
       error: (err: unknown) => {
         this.error.set(this.resolveError(err, `admin.limits.upsert.${spec.ruleKey}`));
         this.saving.set(false);
@@ -200,15 +199,17 @@ export class UpsertLimitDialogComponent {
     const srcParams = assignment?.params ?? spec.paramsTemplate;
     const extracted = extractParamValues(schema, spec.paramsTemplate, srcParams);
 
+    this.selections.set(extracted.selectionIds);
+
     const onBreach = assignment?.onBreach ?? spec.defaultOutcome;
     this.form.patchValue({
       onBreach,
       enabled: assignment?.enabled ?? true,
-      ...extracted,
-      autoWarn: false,
-      warnThresholdHtg: Math.max(0, extracted.valueCentsHtg - 1000),
+      valueCentsHtg: extracted.valueCentsHtg,
+      maxCount: extracted.maxCount,
+      windowMinutes: extracted.windowMinutes,
+      betTypeCode: extracted.betTypeCode,
     });
-    this.onBreachValue.set(onBreach);
   }
 
   private applyValidators(schema: ParamSchema): void {
@@ -217,7 +218,6 @@ export class UpsertLimitDialogComponent {
     c.maxCount.clearValidators();
     c.windowMinutes.clearValidators();
     c.betTypeCode.clearValidators();
-    c.selectionId.clearValidators();
 
     switch (schema) {
       case 'CENTS':
@@ -237,16 +237,12 @@ export class UpsertLimitDialogComponent {
       case 'BET_TYPE':
         c.betTypeCode.addValidators([Validators.required]);
         break;
-      case 'SELECTION':
-        c.selectionId.addValidators([Validators.required]);
-        break;
     }
 
     c.valueCentsHtg.updateValueAndValidity({ emitEvent: false });
     c.maxCount.updateValueAndValidity({ emitEvent: false });
     c.windowMinutes.updateValueAndValidity({ emitEvent: false });
     c.betTypeCode.updateValueAndValidity({ emitEvent: false });
-    c.selectionId.updateValueAndValidity({ emitEvent: false });
   }
 
   private resolveError(err: unknown, source: string): ErrorViewModel {

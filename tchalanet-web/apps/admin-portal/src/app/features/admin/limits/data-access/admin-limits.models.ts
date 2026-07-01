@@ -101,7 +101,7 @@ export function buildParams(
     maxCount: number;
     windowMinutes: number;
     betTypeCode: string;
-    selectionId: string;
+    selectionIds: string[];
   },
 ): unknown {
   const t = (template as Record<string, unknown>) ?? {};
@@ -110,7 +110,7 @@ export function buildParams(
   const countKey = keys.find(k => k.toLowerCase().includes('count')) ?? 'maxCount';
   const windowKey = keys.find(k => k.toLowerCase().includes('window') || k.toLowerCase().includes('minutes')) ?? 'windowMinutes';
   const betTypeKey = keys.find(k => k.toLowerCase().includes('bettype') || k.toLowerCase().includes('bet_type')) ?? 'betTypeCode';
-  const selectionKey = keys.find(k => k.toLowerCase().includes('selection')) ?? 'selectionId';
+  const selectionKey = keys.find(k => k.toLowerCase().includes('selection')) ?? 'selections';
 
   switch (schema) {
     case 'CENTS':
@@ -118,7 +118,7 @@ export function buildParams(
     case 'COUNT':
       return { [countKey]: values.maxCount };
     case 'SELECTION':
-      return { [selectionKey]: values.selectionId };
+      return { [selectionKey]: values.selectionIds };
     case 'BET_TYPE':
       return { [betTypeKey]: values.betTypeCode };
     case 'WINDOW_COUNT':
@@ -139,7 +139,7 @@ export function extractParamValues(
   maxCount: number;
   windowMinutes: number;
   betTypeCode: string;
-  selectionId: string;
+  selectionIds: string[];
 } {
   const t = (template as Record<string, unknown>) ?? {};
   const p = (params as Record<string, unknown>) ?? {};
@@ -148,14 +148,15 @@ export function extractParamValues(
   const countKey = tkeys.find(k => k.toLowerCase().includes('count')) ?? 'maxCount';
   const windowKey = tkeys.find(k => k.toLowerCase().includes('window') || k.toLowerCase().includes('minutes')) ?? 'windowMinutes';
   const betTypeKey = tkeys.find(k => k.toLowerCase().includes('bettype') || k.toLowerCase().includes('bet_type')) ?? 'betTypeCode';
-  const selectionKey = tkeys.find(k => k.toLowerCase().includes('selection')) ?? 'selectionId';
+  const selectionKey = tkeys.find(k => k.toLowerCase().includes('selection')) ?? 'selections';
 
   const rawCents = (p[centsKey] ?? t[centsKey] ?? 0) as number;
+  const rawSelections = p[selectionKey] ?? t[selectionKey];
   return {
     valueCentsHtg: schema === 'CENTS' || schema === 'CENTS_BET_TYPE' ? rawCents / 100 : 0,
     maxCount: (p[countKey] ?? t[countKey] ?? 0) as number,
     windowMinutes: (p[windowKey] ?? t[windowKey] ?? 0) as number,
     betTypeCode: String(p[betTypeKey] ?? t[betTypeKey] ?? ''),
-    selectionId: String(p[selectionKey] ?? t[selectionKey] ?? ''),
+    selectionIds: Array.isArray(rawSelections) ? rawSelections.map(String) : [],
   };
 }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -12,6 +13,7 @@ import { AdminPageShellComponent } from '@tch/ui/console';
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
+    MatButtonModule,
     MatTabsModule,
     AdminPageShellComponent,
   ],

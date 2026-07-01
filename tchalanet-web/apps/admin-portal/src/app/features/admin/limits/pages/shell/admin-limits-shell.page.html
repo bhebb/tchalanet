@@ -2,14 +2,14 @@
   title="Limites de vente"
   description="Configurez les règles de contrôle appliquées aux transactions.">
 
-  <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="limits-shell__nav">
-    <a mat-tab-link
-      routerLink="system"
-      routerLinkActive
-      #rlaS="routerLinkActive"
-      [active]="rlaS.isActive">
-      Système
+  <div meta class="limits-shell__meta">
+    <a mat-button routerLink="system" class="limits-shell__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Catalogue des règles et simulation
     </a>
+  </div>
+
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="limits-shell__nav">
     <a mat-tab-link
       routerLink="global"
       routerLinkActive
