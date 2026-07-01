@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-width: 480px;
+  // Mobile-first: no min-width — dialog callers pass maxWidth:'100vw'
+  width: min(480px, 100%);
   max-width: 100%;
 }
 
@@ -39,16 +40,6 @@
   }
 }
 
-.upsert-limit-dialog__auto-warn {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  background: color-mix(in srgb, var(--tch-color-primary) 4%, transparent);
-}
-
 .upsert-limit-dialog__duration {
   display: flex;
   flex-direction: column;
@@ -69,9 +60,11 @@
 
 .upsert-limit-dialog__duration-toggle {
   width: 100%;
+}
 
-  ::ng-deep .mat-button-toggle {
-    flex: 1;
-    text-align: center;
-  }
+// §13 — no public API to make mat-button-toggle fill available width.
+// Scoped under :host per style convention.
+:host ::ng-deep .upsert-limit-dialog__duration-toggle .mat-button-toggle {
+  flex: 1;
+  text-align: center;
 }

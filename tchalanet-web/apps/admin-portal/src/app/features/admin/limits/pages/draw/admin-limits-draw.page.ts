@@ -124,7 +124,7 @@ export class AdminLimitsDrawPage implements OnInit {
   openAdd(): void {
     const channelCode = this.selectedChannel();
     if (!channelCode) return;
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.initAdd(this.unassignedRules(), 'DRAW_CHANNEL', channelCode);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
@@ -137,7 +137,7 @@ export class AdminLimitsDrawPage implements OnInit {
   openUpsert(row: RuleRow): void {
     const channelCode = this.selectedChannel();
     if (!channelCode) return;
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.init(row.spec, 'DRAW_CHANNEL', channelCode, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {

@@ -77,7 +77,7 @@ export class AdminLimitsSellerTerminalPage {
   openAdd(): void {
     const code = this.loadedTerminalCode();
     if (!code) return;
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.initAdd(this.unassignedRules(), 'TERMINAL', code);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
@@ -90,7 +90,7 @@ export class AdminLimitsSellerTerminalPage {
   openUpsert(row: RuleRow): void {
     const code = this.loadedTerminalCode();
     if (!code) return;
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.init(row.spec, 'TERMINAL', code, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {

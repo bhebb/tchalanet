@@ -84,7 +84,7 @@ export class AdminLimitsNumberPage implements OnInit {
   }
 
   openAdd(): void {
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.initAdd(this.unassignedRules(), 'TENANT', null);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
@@ -95,7 +95,7 @@ export class AdminLimitsNumberPage implements OnInit {
   }
 
   openUpsert(row: RuleRow): void {
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
     ref.componentInstance.init(row.spec, 'TENANT', null, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
