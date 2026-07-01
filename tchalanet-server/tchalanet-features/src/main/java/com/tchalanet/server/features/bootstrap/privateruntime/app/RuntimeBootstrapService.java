@@ -62,6 +62,7 @@ public class RuntimeBootstrapService {
     private final NotificationApi notificationApi;
     private final RuntimeReadinessFacade readinessFacade;
     private final PageModelRefResolver pageModelRefResolver;
+    private final PrivateShellNavigationResolver navigationResolver;
     private final QueryBus queryBus;
 
     public RuntimeBootstrapResponse privateBootstrap(TchRequestContext ctx) {
@@ -82,6 +83,7 @@ public class RuntimeBootstrapService {
         RuntimeI18nBundle i18n = resolveI18n(settings.locale(), space, notices);
         RuntimeReadinessView readiness = readinessFacade.readiness(ctx, space);
         RuntimeNotificationSummary notifications = resolveNotifications(ctx, currentUser, notices);
+        Map<String, Object> navigationDrawer = navigationResolver.resolve(space);
         PageModelRef pageModelRef = pageModelRefResolver.resolve(space);
         String entryRoute = resolveEntryRoute(currentUser, accessSnapshot, pageModelRef);
 
@@ -95,6 +97,7 @@ public class RuntimeBootstrapService {
             entitlements,
             readiness,
             notifications,
+            navigationDrawer,
             pageModelRef,
             entryRoute,
             notices.isEmpty() ? null : notices);
@@ -157,9 +160,10 @@ public class RuntimeBootstrapService {
         var i18n = resolveI18n(settings.locale(), space, notices);
         var readiness = readinessFacade.readiness(ctx, space);
         var pageModelRef = pageModelRefResolver.resolve(space);
+        var navigationDrawer = navigationResolver.resolve(space);
         return new RuntimeBootstrapResponse(
             space, user, tenantCtx, settings, theme, i18n, entitlements, readiness,
-            RuntimeNotificationSummary.empty(), pageModelRef, pageModelRef.route(),
+            RuntimeNotificationSummary.empty(), navigationDrawer, pageModelRef, pageModelRef.route(),
             notices.isEmpty() ? null : notices);
     }
 

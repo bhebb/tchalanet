@@ -50,6 +50,7 @@ export class PrivateRuntimeInitializer {
       entitlements: response.entitlements,
       readiness: response.readiness,
       notifications: response.notifications,
+      navigationDrawer: response.navigationDrawer ?? null,
       pageModelRef: response.pageModelRef,
       partial,
     });

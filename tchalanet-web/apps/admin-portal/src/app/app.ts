@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ActionItem } from '@tch/api';
-import { AuthSessionService } from '@tch/core/auth';
+import { AuthSessionService, PrivateBootstrapStore, sectionsFromRuntimeNavigation } from '@tch/core/auth';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
 import { PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
@@ -25,10 +25,13 @@ const ADMIN_BRAND: ActionItem = {
 export class App {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthSessionService);
+  private readonly bootstrap = inject(PrivateBootstrapStore);
   private readonly theme = inject(ThemeStore);
 
   protected readonly brand = ADMIN_BRAND;
-  protected readonly sections = TENANT_ADMIN_NAVIGATION;
+  protected readonly sections = computed(() =>
+    sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_NAVIGATION,
+  );
   protected readonly titleKey = 'surface.tenant_admin';
   protected readonly currentUrl = toSignal(
     this.router.events.pipe(

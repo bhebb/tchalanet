@@ -12,9 +12,45 @@ export interface RuntimeBootstrapResponse {
   readonly entitlements: EntitlementsView;
   readonly readiness: RuntimeReadinessView;
   readonly notifications: RuntimeNotificationSummary;
+  readonly navigationDrawer?: RuntimeNavigationDrawer | null;
   readonly pageModelRef: PageModelRef;
   readonly entryRoute?: string | null;
   readonly notices?: readonly RuntimeBootstrapNotice[] | null;
+}
+
+export interface RuntimeNavigationDrawer {
+  readonly brand?: unknown;
+  readonly topDestinations?: readonly RuntimeNavigationEntry[];
+  readonly sections?: readonly RuntimeNavigationSection[];
+  readonly footerDestinations?: readonly RuntimeNavigationEntry[];
+  readonly actions?: readonly RuntimeNavigationEntry[];
+}
+
+export interface RuntimeNavigationSection {
+  readonly id?: string | null;
+  readonly label_key?: string | null;
+  readonly labelKey?: string | null;
+  readonly titleKey?: string | null;
+  readonly label?: string | null;
+  readonly items?: readonly RuntimeNavigationEntry[] | null;
+}
+
+export interface RuntimeNavigationEntry {
+  readonly id?: string | null;
+  readonly type?: string | null;
+  readonly label_key?: string | null;
+  readonly labelKey?: string | null;
+  readonly label?: string | null;
+  readonly path?: string | null;
+  readonly kind?: string | null;
+  readonly icon?: string | null;
+  readonly active_match?: string | null;
+  readonly activeMatch?: string | null;
+  readonly disabled?: boolean | null;
+  readonly reason_key?: string | null;
+  readonly reasonKey?: string | null;
+  readonly badge?: unknown;
+  readonly children?: readonly RuntimeNavigationEntry[] | null;
 }
 
 export interface AuthenticatedUserView {

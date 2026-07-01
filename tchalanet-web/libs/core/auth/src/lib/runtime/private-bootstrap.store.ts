@@ -6,6 +6,7 @@ import {
   AuthenticatedUserView,
   EntitlementsView,
   PrivateSpace,
+  RuntimeNavigationDrawer,
   RuntimeNotificationSummary,
   RuntimeReadinessView,
   TenantContextView,
@@ -20,6 +21,7 @@ export class PrivateBootstrapStore {
   private readonly entitlementsSignal = signal<EntitlementsView | null>(null);
   private readonly readinessSignal = signal<RuntimeReadinessView | null>(null);
   private readonly notificationsSignal = signal<RuntimeNotificationSummary | null>(null);
+  private readonly navigationDrawerSignal = signal<RuntimeNavigationDrawer | null>(null);
   private readonly pageModelRefSignal = signal<PageModelRef | null>(null);
   private readonly errorSignal = signal<unknown | null>(null);
 
@@ -30,6 +32,7 @@ export class PrivateBootstrapStore {
   readonly entitlements = this.entitlementsSignal.asReadonly();
   readonly readiness = this.readinessSignal.asReadonly();
   readonly notifications = this.notificationsSignal.asReadonly();
+  readonly navigationDrawer = this.navigationDrawerSignal.asReadonly();
   readonly pageModelRef = this.pageModelRefSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
 
@@ -51,6 +54,7 @@ export class PrivateBootstrapStore {
     entitlements: EntitlementsView;
     readiness: RuntimeReadinessView;
     notifications: RuntimeNotificationSummary;
+    navigationDrawer: RuntimeNavigationDrawer | null;
     pageModelRef: PageModelRef;
     partial: boolean;
   }): void {
@@ -60,6 +64,7 @@ export class PrivateBootstrapStore {
     this.entitlementsSignal.set(data.entitlements);
     this.readinessSignal.set(data.readiness);
     this.notificationsSignal.set(data.notifications);
+    this.navigationDrawerSignal.set(data.navigationDrawer);
     this.pageModelRefSignal.set(data.pageModelRef);
     this.statusSignal.set(data.partial ? 'partial' : 'ready');
   }
@@ -81,6 +86,7 @@ export class PrivateBootstrapStore {
     this.entitlementsSignal.set(null);
     this.readinessSignal.set(null);
     this.notificationsSignal.set(null);
+    this.navigationDrawerSignal.set(null);
     this.pageModelRefSignal.set(null);
     this.errorSignal.set(null);
   }
