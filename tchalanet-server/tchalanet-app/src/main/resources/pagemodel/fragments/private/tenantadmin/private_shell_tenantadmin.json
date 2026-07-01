@@ -216,8 +216,17 @@
           {
             "id": "limits",
             "label_key": "nav.admin.limits_section",
+            "path": "/app/admin/limits",
+            "kind": "internal",
             "icon": "shield",
             "children": [
+              {
+                "id": "limits-overview",
+                "label_key": "nav.admin.limits_overview",
+                "path": "/app/admin/limits",
+                "kind": "internal",
+                "icon": "dashboard"
+              },
               {
                 "id": "limits-global",
                 "label_key": "nav.admin.limits_global",

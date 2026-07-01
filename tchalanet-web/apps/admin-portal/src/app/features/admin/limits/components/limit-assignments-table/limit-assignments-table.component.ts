@@ -1,26 +1,26 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { SlicePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 
 import { AdminStatusPillComponent } from '@tch/ui/console';
 import type { AdminStatusTone } from '@tch/ui/console';
 
 import type { BreachOutcome, RuleRow } from '../../data-access/admin-limits.models';
-import { formatLimitCategory, formatLimitParams } from '../../data-access/admin-limits.models';
+import {
+  formatLimitCategory,
+  formatLimitParams,
+  formatLimitSentence,
+} from '../../data-access/admin-limits.models';
 
 @Component({
   selector: 'tch-limit-assignments-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    SlicePipe,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
-    MatTableModule,
     AdminStatusPillComponent,
   ],
   templateUrl: './limit-assignments-table.component.html',
@@ -31,8 +31,6 @@ export class LimitAssignmentsTableComponent {
   readonly canEdit = input<boolean>(false);
   readonly upsert = output<RuleRow>();
   readonly delete = output<RuleRow>();
-
-  readonly displayedColumns = ['rule', 'info', 'status', 'onBreach', 'actions'];
 
   readonly categories = computed(() => {
     const seen = new Set<string>();
@@ -80,5 +78,17 @@ export class LimitAssignmentsTableComponent {
   paramsPreview(row: RuleRow): string {
     if (!row.assignment?.params) return '';
     return formatLimitParams(row.spec, row.assignment.params);
+  }
+
+  ruleSentence(row: RuleRow): string {
+    return formatLimitSentence(row);
+  }
+
+  breachLabel(outcome: BreachOutcome | undefined): string {
+    if (outcome === 'BLOCK') return 'Bloquer';
+    if (outcome === 'WARN') return 'Avertir';
+    if (outcome === 'REQUIRE_APPROVAL') return 'Validation requise';
+    if (outcome === 'ALLOW') return 'Autoriser';
+    return 'Non défini';
   }
 }

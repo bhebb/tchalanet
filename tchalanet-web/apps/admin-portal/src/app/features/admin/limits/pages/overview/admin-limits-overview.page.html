@@ -1,0 +1,146 @@
+<div class="admin-limits-overview">
+  @if (loading()) {
+    <tch-loading label="Chargement des limites…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else {
+    <tch-admin-detail-layout>
+      <div main class="admin-limits-overview__main">
+        <tch-admin-section-card
+          title="Vue d'ensemble"
+          icon="shield"
+          description="Choisissez la zone à contrôler avant d'ajouter ou modifier une règle."
+        >
+          <div actions>
+            <button mat-stroked-button type="button" (click)="load()">
+              <span class="material-symbols-outlined">refresh</span>
+              Actualiser
+            </button>
+          </div>
+
+          <div class="admin-limits-overview__cards" aria-label="Sections de limites">
+            @for (card of cards(); track card.id) {
+              <a class="admin-limits-overview__card" [routerLink]="card.route">
+                <span class="material-symbols-outlined admin-limits-overview__card-icon">{{ card.icon }}</span>
+                <span class="admin-limits-overview__card-body">
+                  <strong>{{ card.title }}</strong>
+                  <span>{{ card.description }}</span>
+                </span>
+                <span class="admin-limits-overview__card-meta">
+                  <span>{{ card.metric }}</span>
+                  <span>{{ card.status }}</span>
+                </span>
+              </a>
+            }
+          </div>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card
+          title="Actions rapides"
+          icon="bolt"
+          description="Accédez directement aux opérations fréquentes de contrôle des ventes."
+        >
+          <div class="admin-limits-overview__quick-links" aria-label="Actions rapides limites">
+            @for (link of actionLinks(); track link.id) {
+              <a class="admin-limits-overview__quick-link" [routerLink]="link.route">
+                <span class="material-symbols-outlined admin-limits-overview__quick-icon">{{ link.icon }}</span>
+                <span>
+                  <strong>{{ link.label }}</strong>
+                  <small>{{ link.description }}</small>
+                </span>
+                <span class="material-symbols-outlined admin-limits-overview__quick-arrow">arrow_forward</span>
+              </a>
+            }
+          </div>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card
+          title="Protections actives"
+          icon="tune"
+          description="Ces règles protègent les ventes par défaut avant les exceptions par vendeur, numéro ou canal."
+        >
+          @if (actionError(); as err) {
+            <tch-section-error
+              class="admin-limits-overview__action-feedback"
+              [title]="err.title"
+              [message]="err.message"
+              [severity]="err.severity"
+            />
+          } @else if (actionNotice()) {
+            <tch-section-error
+              class="admin-limits-overview__action-feedback"
+              title="Action effectuée"
+              [message]="actionNotice()!"
+              severity="info"
+            />
+          }
+
+          @if (activeProtections().length) {
+            <ul class="admin-limits-overview__rule-list">
+              @for (row of activeProtections(); track row.spec.ruleKey) {
+                <li class="admin-limits-overview__rule-item">
+                  <span>{{ ruleSentence(row) }}</span>
+                  <span class="admin-limits-overview__rule-actions">
+                    <button mat-stroked-button type="button" (click)="openUpsert(row)">
+                      <span class="material-symbols-outlined">edit</span>
+                      Modifier
+                    </button>
+                    <button mat-icon-button type="button" color="warn" title="Supprimer" (click)="confirmDelete(row)">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="admin-limits-overview__empty-text">
+              Aucune protection globale active. Commencez par définir les plafonds de ticket et de ligne.
+            </p>
+          }
+          <div class="admin-limits-overview__section-actions">
+            <a mat-flat-button color="primary" routerLink="global">
+              <span class="material-symbols-outlined">add</span>
+              Ajouter une règle globale
+            </a>
+            <a mat-stroked-button routerLink="system">
+              <span class="material-symbols-outlined">info</span>
+              Règles supportées
+            </a>
+          </div>
+        </tch-admin-section-card>
+      </div>
+
+      <div aside>
+        <tch-card class="admin-limits-overview__summary">
+          <p class="admin-limits-overview__summary-eyebrow">Résumé</p>
+          <h2>Limites de vente</h2>
+          <dl>
+            <div>
+              <dt>Règles globales actives</dt>
+              <dd>{{ activeGlobalRows().length }}</dd>
+            </div>
+            <div>
+              <dt>À vérifier</dt>
+              <dd>{{ warningCount() }}</dd>
+            </div>
+            <div>
+              <dt>Numéros surveillés</dt>
+              <dd>{{ numberRuleCount() }}</dd>
+            </div>
+          </dl>
+          @if (warningCount() > 0) {
+            <p>{{ warningCount() }} règle(s) globale(s) sont désactivées. Vérifiez si elles doivent protéger les ventes.</p>
+          } @else {
+            <p>Aucune alerte immédiate sur les règles globales.</p>
+          }
+        </tch-card>
+      </div>
+    </tch-admin-detail-layout>
+  }
+</div>

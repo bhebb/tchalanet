@@ -1,0 +1,232 @@
+.admin-limits-overview {
+  display: block;
+}
+
+.admin-limits-overview__main {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.admin-limits-overview__cards {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.admin-limits-overview__card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  color: inherit;
+  text-decoration: none;
+  background: var(--tch-color-surface-container-lowest);
+
+  &:hover {
+    border-color: var(--tch-color-primary);
+  }
+}
+
+.admin-limits-overview__card-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--tch-radius-pill);
+  background: var(--tch-color-secondary-container);
+  color: var(--tch-color-on-secondary-container);
+}
+
+.admin-limits-overview__card-body {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-md);
+  }
+
+  span {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+    line-height: 1.35;
+  }
+}
+
+.admin-limits-overview__card-meta {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: end;
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-semibold, 600);
+}
+
+.admin-limits-overview__rule-list {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--tch-color-on-surface);
+}
+
+.admin-limits-overview__rule-item {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-container-lowest);
+  line-height: 1.4;
+}
+
+.admin-limits-overview__rule-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.admin-limits-overview__action-feedback {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.admin-limits-overview__quick-links {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-limits-overview__quick-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4.5rem;
+  padding: 0.875rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  color: inherit;
+  text-decoration: none;
+  background: var(--tch-color-surface-container-lowest);
+
+  &:hover {
+    border-color: var(--tch-color-primary);
+    background: var(--tch-color-surface-container-low);
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-md);
+  }
+
+  small {
+    margin-top: 0.125rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+    line-height: 1.35;
+  }
+}
+
+.admin-limits-overview__quick-icon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: var(--tch-radius-pill);
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+}
+
+.admin-limits-overview__quick-arrow {
+  color: var(--tch-color-on-surface-variant);
+}
+
+.admin-limits-overview__empty-text {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+  line-height: 1.45;
+}
+
+.admin-limits-overview__section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-limits-overview__summary {
+  --comp-card-bg: var(--tch-color-primary);
+  --comp-card-border: transparent;
+  display: grid;
+  gap: 1rem;
+  color: var(--tch-color-on-primary);
+  padding: 1.25rem;
+
+  h2,
+  p,
+  dl {
+    margin: 0;
+  }
+
+  h2 {
+    font-size: var(--tch-font-size-title-lg);
+  }
+
+  p {
+    color: color-mix(in oklab, var(--tch-color-on-primary) 82%, transparent);
+    line-height: 1.45;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid color-mix(in oklab, var(--tch-color-on-primary) 18%, transparent);
+  }
+
+  dl div {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  dt {
+    color: color-mix(in oklab, var(--tch-color-on-primary) 70%, transparent);
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-weight-semibold, 600);
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--tch-font-size-title-md);
+    font-weight: var(--tch-weight-semibold, 600);
+  }
+}
+
+.admin-limits-overview__summary-eyebrow {
+  color: var(--tch-color-accent);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-semibold, 600);
+  text-transform: uppercase;
+}
+
+@media (min-width: 760px) {
+  .admin-limits-overview__rule-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .admin-limits-overview__rule-actions {
+    justify-content: flex-end;
+  }
+}

@@ -7,6 +7,7 @@ import type {
   LimitRuleSpec,
   ListLimitAssignmentsView,
   TargetType,
+  TenantAdminPoliciesOverviewView,
   UpsertLimitAssignmentRequest,
 } from './admin-limits.models';
 
@@ -16,6 +17,10 @@ export class AdminLimitsApi {
 
   listRules(options?: TchRequestOptions): Observable<LimitRuleSpec[]> {
     return this.backend.get<LimitRuleSpec[]>('/admin/policies/limits/rules', options);
+  }
+
+  overview(options?: TchRequestOptions): Observable<TenantAdminPoliciesOverviewView> {
+    return this.backend.get<TenantAdminPoliciesOverviewView>('/admin/policies/overview', options);
   }
 
   listAssignments(
@@ -50,4 +55,5 @@ export type {
   BreachOutcome,
   RuleKey,
   RuleRow,
+  TenantAdminPoliciesOverviewView,
 } from './admin-limits.models';
