@@ -132,7 +132,7 @@
               type="date"
               [value]="customEndsAt()"
               (change)="onCustomEndsAtChange($event)">
-            <mat-hint>La règle sera désactivée à minuit de cette date.</mat-hint>
+            <mat-hint>Fin de journée selon le fuseau {{ timezone() }}.</mat-hint>
           </mat-form-field>
         }
       </div>

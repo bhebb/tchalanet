@@ -18,10 +18,11 @@ import type { AdminStatusTone } from '@tch/ui/console';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, TargetType } from '../../data-access/admin-limits.models';
+import { formatLimitCategory, formatLimitParams } from '../../data-access/admin-limits.models';
 
 const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean }[] = [
   { value: 'TENANT',          label: 'Global',              requiresId: false },
-  { value: 'DRAW_CHANNEL',    label: 'Par tirage',          requiresId: true  },
+  { value: 'DRAW_CHANNEL',    label: 'Par canal',           requiresId: true  },
   { value: 'SELLER_TERMINAL', label: 'Par vendeur',         requiresId: true  },
 ];
 
@@ -142,7 +143,7 @@ export class AdminLimitsSystemPage implements OnInit {
   }
 
   categoryLabel(category: string): string {
-    return category.split('_').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    return formatLimitCategory(category);
   }
 
   defaultTone(outcome: BreachOutcome): AdminStatusTone {
@@ -164,9 +165,12 @@ export class AdminLimitsSystemPage implements OnInit {
     return this.rulesIndex().get(ruleKey)?.label || ruleKey;
   }
 
-  paramsDisplay(params: unknown): string {
+  paramsDisplay(item: LimitAssignmentItem): string {
+    const spec = this.rulesIndex().get(item.ruleKey);
+    if (spec) return formatLimitParams(spec, item.params);
+    const params = item.params;
     if (!params || (typeof params === 'object' && Object.keys(params as object).length === 0)) return '—';
-    return JSON.stringify(params);
+    return 'Paramètres configurés';
   }
 
   private toPageError(err: unknown, source: string): ErrorViewModel {

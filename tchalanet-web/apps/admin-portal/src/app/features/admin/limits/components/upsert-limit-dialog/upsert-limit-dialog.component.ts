@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -59,6 +60,7 @@ export class UpsertLimitDialogComponent {
   private readonly ref = inject(MatDialogRef<UpsertLimitDialogComponent>);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
 
   readonly breachOutcomes = V0_BREACH_OUTCOMES;
   readonly separatorKeyCodes: number[] = [ENTER, COMMA];
@@ -91,6 +93,10 @@ export class UpsertLimitDialogComponent {
   );
   readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
   readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
+  readonly timezone = computed(() => {
+    const value = this.runtimeSettings.settings().values['app.timezone'];
+    return typeof value === 'string' && value.trim() ? value : 'America/Port-au-Prince';
+  });
   readonly canSave = computed(() =>
     !this.saving() &&
     this.spec() !== null &&
@@ -165,8 +171,8 @@ export class UpsertLimitDialogComponent {
   }
 
   save(): void {
-    if (!this.canSave() || !this.spec()) return;
-    const spec = this.spec()!;
+    const spec = this.spec();
+    if (!this.canSave() || !spec) return;
     const v = this.form.getRawValue();
     const params = buildParams(this.paramSchema(), spec.paramsTemplate, {
       valueCentsHtg: v.valueCentsHtg,
@@ -206,14 +212,15 @@ export class UpsertLimitDialogComponent {
   private buildEndsAt(): string | null {
     const mode = this.durationMode();
     if (mode === 'permanent') return null;
+    const timezone = this.timezone();
     if (mode === 'today') {
-      const now = new Date();
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).toISOString();
+      const today = getDatePartsInTimeZone(new Date(), timezone);
+      return endOfDayIsoInTimeZone(today, timezone);
     }
     const dateStr = this.customEndsAt();
     if (!dateStr) return null;
     const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d, 23, 59, 59, 0).toISOString();
+    return endOfDayIsoInTimeZone({ year: y, month: m, day: d }, timezone);
   }
 
   private applySpec(spec: LimitRuleSpec, assignment: LimitAssignmentItem | null): void {
@@ -294,4 +301,54 @@ export class UpsertLimitDialogComponent {
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);
   }
+}
+
+interface DateParts {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+}
+
+function getDatePartsInTimeZone(date: Date, timeZone: string): DateParts {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  return {
+    year: Number(parts.find(p => p.type === 'year')?.value),
+    month: Number(parts.find(p => p.type === 'month')?.value),
+    day: Number(parts.find(p => p.type === 'day')?.value),
+  };
+}
+
+function endOfDayIsoInTimeZone(parts: DateParts, timeZone: string): string {
+  const guess = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, 23, 59, 59, 0));
+  const offset = getTimeZoneOffsetMs(guess, timeZone);
+  return new Date(guess.getTime() - offset).toISOString();
+}
+
+function getTimeZoneOffsetMs(date: Date, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes): number =>
+    Number(parts.find(p => p.type === type)?.value);
+  const asUtc = Date.UTC(
+    get('year'),
+    get('month') - 1,
+    get('day'),
+    get('hour'),
+    get('minute'),
+    get('second'),
+  );
+  return asUtc - date.getTime();
 }

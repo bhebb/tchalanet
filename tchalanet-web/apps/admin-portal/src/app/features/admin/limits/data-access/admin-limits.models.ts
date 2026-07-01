@@ -74,7 +74,37 @@ export type ParamSchema =
   | 'WINDOW_COUNT'
   | 'CENTS_BET_TYPE';
 
+const RULE_PARAM_SCHEMAS: Partial<Record<RuleKey, ParamSchema>> = {
+  MAX_STAKE_PER_LINE: 'CENTS',
+  MAX_LINES_PER_TICKET: 'COUNT',
+  MAX_STAKE_PER_TICKET: 'CENTS',
+  MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
+  MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
+  MAX_STAKE_PER_BET_TYPE_PER_TICKET: 'CENTS_BET_TYPE',
+  MAX_STAKE_PER_SELECTION_PER_TICKET: 'CENTS',
+  MAX_POTENTIAL_PAYOUT_PER_TICKET: 'CENTS',
+  MAX_POTENTIAL_PAYOUT_PER_LINE: 'CENTS',
+  MAX_SALES_COUNT_PER_SELECTION_PER_DRAW: 'COUNT',
+  MAX_SALES_COUNT_PER_TICKET: 'COUNT',
+  BLOCK_SELECTION_PER_DRAW: 'SELECTION',
+  BLOCK_BET_TYPE: 'BET_TYPE',
+  MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW: 'WINDOW_COUNT',
+  MAX_STAKE_PER_AGENT_PER_DRAW: 'CENTS',
+  MAX_STAKE_PER_OUTLET_PER_DRAW: 'CENTS',
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  TICKET: 'Ticket',
+  PAYOUT_RISK: 'Risque de paiement',
+  BLOCKING: 'Blocage',
+  EXPOSURE: 'Exposition',
+  SELLER: 'Vendeur',
+  DRAW: 'Tirage',
+};
+
 export function detectParamSchema(spec: LimitRuleSpec): ParamSchema {
+  const known = RULE_PARAM_SCHEMAS[spec.ruleKey];
+  if (known) return known;
   if (spec.stateless) return 'NONE';
   const t = spec.paramsTemplate as Record<string, unknown> | null;
   if (!t || Object.keys(t).length === 0) return 'NONE';
@@ -159,4 +189,57 @@ export function extractParamValues(
     betTypeCode: String(p[betTypeKey] ?? t[betTypeKey] ?? ''),
     selectionIds: Array.isArray(rawSelections) ? rawSelections.map(String) : [],
   };
+}
+
+export function formatLimitCategory(category: string): string {
+  return CATEGORY_LABELS[category] ?? category
+    .split('_')
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+    .join(' ');
+}
+
+export function formatLimitParams(spec: LimitRuleSpec, params: unknown): string {
+  const schema = detectParamSchema(spec);
+  if (schema === 'NONE') return 'Aucun paramètre';
+  const values = extractParamValues(schema, spec.paramsTemplate, params);
+  const parts: string[] = [];
+
+  if (schema === 'CENTS' || schema === 'CENTS_BET_TYPE') {
+    parts.push(`${amountLabel(spec.ruleKey)} : ${formatHtg(values.valueCentsHtg)}`);
+  }
+  if (schema === 'COUNT' || schema === 'WINDOW_COUNT') {
+    parts.push(`${countLabel(spec.ruleKey)} : ${formatInteger(values.maxCount)}`);
+  }
+  if (schema === 'WINDOW_COUNT') {
+    parts.push(`Fenêtre : ${formatInteger(values.windowMinutes)} min`);
+  }
+  if (schema === 'BET_TYPE' || schema === 'CENTS_BET_TYPE') {
+    parts.push(`Type de pari : ${values.betTypeCode || 'Non défini'}`);
+  }
+  if (schema === 'SELECTION') {
+    parts.push(`Numéros : ${values.selectionIds.length ? values.selectionIds.join(', ') : 'Non définis'}`);
+  }
+
+  return parts.length ? parts.join(' · ') : 'Aucun paramètre';
+}
+
+function amountLabel(ruleKey: RuleKey): string {
+  if (ruleKey.includes('PAYOUT')) return 'Gain potentiel max';
+  if (ruleKey.includes('EXPOSURE')) return 'Mise totale max';
+  return 'Montant max';
+}
+
+function countLabel(ruleKey: RuleKey): string {
+  if (ruleKey.includes('LINES')) return 'Lignes max';
+  if (ruleKey.includes('TICKET_COUNT')) return 'Tickets max';
+  if (ruleKey.includes('SALES_COUNT')) return 'Ventes max';
+  return 'Nombre max';
+}
+
+function formatHtg(value: number): string {
+  return `${formatInteger(value)} HTG`;
+}
+
+function formatInteger(value: number): string {
+  return new Intl.NumberFormat('fr-HT', { maximumFractionDigits: 0 }).format(value);
 }

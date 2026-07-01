@@ -9,6 +9,7 @@ import { AdminStatusPillComponent } from '@tch/ui/console';
 import type { AdminStatusTone } from '@tch/ui/console';
 
 import type { BreachOutcome, RuleRow } from '../../data-access/admin-limits.models';
+import { formatLimitCategory, formatLimitParams } from '../../data-access/admin-limits.models';
 
 @Component({
   selector: 'tch-limit-assignments-table',
@@ -56,10 +57,7 @@ export class LimitAssignmentsTableComponent {
   });
 
   categoryLabel(category: string): string {
-    return category
-      .split('_')
-      .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
-      .join(' ');
+    return formatLimitCategory(category);
   }
 
   assignmentTone(row: RuleRow): AdminStatusTone {
@@ -81,13 +79,6 @@ export class LimitAssignmentsTableComponent {
 
   paramsPreview(row: RuleRow): string {
     if (!row.assignment?.params) return '';
-    try {
-      const p = row.assignment.params as Record<string, unknown>;
-      return Object.entries(p)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(', ');
-    } catch {
-      return '';
-    }
+    return formatLimitParams(row.spec, row.assignment.params);
   }
 }
