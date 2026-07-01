@@ -37,6 +37,25 @@
     "invalid": "Widget invalide.",
     "unsupported": "Type de widget non pris en charge."
   },
+  "dashboard": {
+    "fallback": {
+      "title": "Tableau de bord",
+      "notice": {
+        "title": "Information",
+        "empty": "Aucune alerte"
+      },
+      "status": {
+        "title": "Tableau de bord temporairement limité",
+        "runtime": "Données du dashboard",
+        "support": "Support"
+      },
+      "actions": {
+        "title": "Actions disponibles",
+        "setup": "Configuration générale",
+        "support": "Support"
+      }
+    }
+  },
   "shell": {
     "error": {
       "backendUnavailable": {

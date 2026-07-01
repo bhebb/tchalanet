@@ -29,7 +29,12 @@ export class PlatformDashboardPage {
   protected readonly state = toSignal(
     this.pageModelApi.getPlatformPage(this.logicalId).pipe(
       map(response => ({ status: 'ready', response }) as DashboardState),
-      catchError(() => of({ status: 'error' } as DashboardState)),
+      catchError(() =>
+        this.pageModelApi.getPrivateFallbackPage().pipe(
+          map(response => ({ status: 'ready', response }) as DashboardState),
+          catchError(() => of({ status: 'error' } as DashboardState)),
+        ),
+      ),
       startWith({ status: 'loading' } as DashboardState),
     ),
     { initialValue: { status: 'loading' } as DashboardState },

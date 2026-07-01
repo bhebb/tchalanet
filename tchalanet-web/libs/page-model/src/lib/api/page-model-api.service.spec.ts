@@ -48,6 +48,41 @@ describe('PageModelApi', () => {
       .flush(response());
   });
 
+  it('loads the private dashboard fallback from bundled assets', () => {
+    let result: unknown;
+    api.getPrivateFallbackPage().subscribe(page => {
+      result = page.meta.logicalId;
+    });
+
+    http.expectOne('/assets/config/page-private-fallback.json').flush({
+      meta: {
+        logicalId: 'private.dashboard.fallback',
+        scope: 'private',
+        slug: 'dashboard',
+        schemaVersion: 2,
+      },
+      shell: { type: 'private', topAppBar: {}, navigationDrawer: {} },
+      content: { layout: { rows: [] }, widgets: {} },
+      dynamic: { widgets: {}, errors: [] },
+    });
+
+    expect(result).toBe('private.dashboard.fallback');
+  });
+
+  it('rejects successful PageModel responses without data', () => {
+    let failed = false;
+    api.getTenantPage().subscribe({ error: () => { failed = true; } });
+
+    http.expectOne('/api/v1/tenant/dashboard').flush({
+      status: 'SUCCESS',
+      data: null,
+      notices: [],
+      services: [],
+    });
+
+    expect(failed).toBe(true);
+  });
+
   it('maps section-targeted ApiResponse notices into widget-local dynamic errors', () => {
     let resultErrors: unknown;
     api.getPlatformPage().subscribe(result => {
