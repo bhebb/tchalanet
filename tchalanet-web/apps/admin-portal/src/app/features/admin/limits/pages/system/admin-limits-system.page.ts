@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -48,6 +49,7 @@ const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean
 })
 export class AdminLimitsSystemPage implements OnInit {
   private readonly api = inject(AdminLimitsApi);
+  private readonly location = inject(Location);
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
@@ -102,6 +104,10 @@ export class AdminLimitsSystemPage implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   load(): void {

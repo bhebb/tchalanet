@@ -16,6 +16,10 @@
       </mat-form-field>
     }
 
+    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Règles supportées
+    </a>
     <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannel()">
       <span class="material-symbols-outlined">refresh</span>
     </button>

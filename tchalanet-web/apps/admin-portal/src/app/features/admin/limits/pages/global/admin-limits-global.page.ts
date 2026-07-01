@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
@@ -29,6 +30,7 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
+    RouterLink,
     TchErrorPanel,
     TchLoading,
     TchSectionError,

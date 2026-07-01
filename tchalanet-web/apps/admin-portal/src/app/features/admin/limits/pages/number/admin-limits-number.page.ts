@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
@@ -35,6 +36,7 @@ const NUMBER_RULE_KEYS: RuleKey[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
+    RouterLink,
     TchErrorPanel,
     TchLoading,
     TchSectionError,

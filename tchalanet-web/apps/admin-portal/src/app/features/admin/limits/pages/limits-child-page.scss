@@ -6,6 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   margin-bottom: 1rem;
   gap: 1rem;
 }
@@ -14,7 +15,12 @@
   margin: 0;
   font-size: var(--tch-font-size-body-sm);
   color: var(--tch-color-on-surface-variant);
-  flex: 1;
+  flex: 1 1 16rem;
+}
+
+.limits-child-page__rules-link,
+.limits-child-page__back-link {
+  white-space: nowrap;
 }
 
 .limits-child-page__action-feedback {

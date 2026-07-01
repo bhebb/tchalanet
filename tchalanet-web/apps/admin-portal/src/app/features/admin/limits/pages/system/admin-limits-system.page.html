@@ -5,6 +5,10 @@
     <p class="limits-child-page__scope-note">
       Catalogue de toutes les règles de limite supportées. Ces règles sont configurables dans les onglets Générales, Par canal, Par vendeur et Par numéro.
     </p>
+    <button mat-stroked-button type="button" class="limits-child-page__back-link" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Retour
+    </button>
     <button mat-stroked-button (click)="load()" [disabled]="loading()">
       <span class="material-symbols-outlined">refresh</span>
     </button>

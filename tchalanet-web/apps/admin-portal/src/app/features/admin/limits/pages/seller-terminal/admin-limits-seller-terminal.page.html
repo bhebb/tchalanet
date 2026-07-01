@@ -8,6 +8,10 @@
       [searchFn]="searchTerminals"
       (valueChange)="onTerminalSelected($event)"
     />
+    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Règles supportées
+    </a>
     @if (!loading() && loadedTerminalCode() && allRows().length > 0) {
       <button
         mat-flat-button

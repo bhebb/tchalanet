@@ -32,6 +32,10 @@
     <p class="limits-child-page__scope-note">
       Règles par numéro — s'appliquent à tous les tirages au niveau du tenant.
     </p>
+    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Règles supportées
+    </a>
     <button mat-stroked-button (click)="load()" [disabled]="loading()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
