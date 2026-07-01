@@ -1,0 +1,47 @@
+# docker-compose-logging.yml
+# Grafana Alloy — log aggregation agent pour staging et prod.
+# Lit les logs des conteneurs Docker et les pousse vers Grafana Cloud Loki.
+#
+# Usage:  make up-logging ENV=staging
+#         make down-logging ENV=staging
+#
+# Secrets requis dans Doppler (config stg/prd) :
+#   GRAFANA_LOKI_URL      → https://logs-prod-xxx.grafana.net/loki/api/v1/push
+#   GRAFANA_LOKI_USER     → numéro de stack Grafana Cloud (ex: 123456)
+#   GRAFANA_LOKI_PASSWORD → API token Grafana Cloud (scope: logs:write)
+#
+# Grafana Cloud Free : 50 GB logs/mois, 14 jours de rétention — suffisant pour staging+prod.
+
+services:
+  alloy:
+    image: grafana/alloy:v1.9.2
+    container_name: tchl-alloy-${ENV:-staging}
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+    environment:
+      GRAFANA_LOKI_URL: ${GRAFANA_LOKI_URL:?GRAFANA_LOKI_URL is required}
+      GRAFANA_LOKI_USER: ${GRAFANA_LOKI_USER:?GRAFANA_LOKI_USER is required}
+      GRAFANA_LOKI_PASSWORD: ${GRAFANA_LOKI_PASSWORD:?GRAFANA_LOKI_PASSWORD is required}
+      ENV: ${ENV:-staging}
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy-data:/var/lib/alloy/data
+    networks:
+      edge: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+volumes:
+  alloy-data: {}
+
+networks:
+  edge:
+    name: ${DOCKER_NETWORK_EDGE:-edge-staging}
+    external: true

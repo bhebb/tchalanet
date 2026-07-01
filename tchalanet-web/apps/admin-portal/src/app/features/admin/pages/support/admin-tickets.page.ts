@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,9 +54,10 @@ export class AdminTicketsPage implements OnInit {
   readonly items = signal<TicketRowView[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
+  readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly statusFilter = signal<TicketStatus | ''>('');
-
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / 20)));
 
   ngOnInit(): void {
     this.load();
@@ -73,6 +74,10 @@ export class AdminTicketsPage implements OnInit {
       next: p => {
         this.items.set(p.items);
         this.total.set(p.totalElements);
+        this.page.set(p.page);
+        this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -89,11 +94,11 @@ export class AdminTicketsPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() > 0) { this.page.update(p => p - 1); this.load(); }
+    if (this.hasPrevious()) { this.page.update(p => p - 1); this.load(); }
   }
 
   nextPage(): void {
-    if (this.page() + 1 < this.totalPages()) { this.page.update(p => p + 1); this.load(); }
+    if (this.hasNext()) { this.page.update(p => p + 1); this.load(); }
   }
 
   statusTone(status: TicketStatus): AdminStatusTone {

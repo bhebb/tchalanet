@@ -3,7 +3,7 @@
     "errors": {
       "fallback": {
         "title": "Probleme detecte",
-        "message": "Un probleme est survenu. Copiez la reference support si le probleme persiste."
+        "message": "Un probleme est survenu. Reessayez ou contactez le support si le probleme persiste."
       },
       "categories": {
         "auth_required": {
@@ -40,7 +40,7 @@
         },
         "unexpected": {
           "title": "Probleme detecte",
-          "message": "Un probleme est survenu. Copiez la reference support si le probleme persiste."
+          "message": "Un probleme est survenu. Reessayez ou contactez le support si le probleme persiste."
         }
       },
       "codes": {

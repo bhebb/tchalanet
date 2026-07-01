@@ -84,7 +84,7 @@ public class TenantMembershipJpaAdapter {
     var typed = entityManager.createQuery(query);
     typed.setFirstResult((int) pageable.getOffset());
     typed.setMaxResults(pageable.getPageSize());
-    var rows = typed.getResultStream().map(this::toRow).toList();
+    var rows = typed.getResultList().stream().map(this::toRow).toList();
 
     var countQuery = cb.createQuery(Long.class);
     var countRoot = countQuery.from(TenantUserJpaEntity.class);

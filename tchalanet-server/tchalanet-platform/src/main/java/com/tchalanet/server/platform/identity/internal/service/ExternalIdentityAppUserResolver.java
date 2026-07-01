@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
@@ -35,6 +36,7 @@ public class ExternalIdentityAppUserResolver {
   private final AppUserJpaRepository appUsers;
   private final UserBootstrapProperties bootstrapProperties;
   private final AuditApi auditApi;
+  private final TchContextResolver contextResolver;
 
   @Transactional
   public Optional<AppUserIdentityResolution> resolve(ExternalAuthenticatedUser externalUser) {
@@ -161,6 +163,8 @@ public class ExternalIdentityAppUserResolver {
       UUID appUserId,
       AuditAction action,
       String reasonCode) {
+    var ctx = contextResolver.currentOrNull();
+    var tenantUuid = ctx != null ? ctx.tenantUuid() : null;
     auditApi.logAuditEvent(
         new LogAuditEventRequest(
             AuditEntityType.USER,
@@ -173,7 +177,8 @@ public class ExternalIdentityAppUserResolver {
                 "emailSnapshot", externalUser.email() == null ? "" : externalUser.email(),
                 "phoneLinked", verifiedFirebasePhone(externalUser).isPresent(),
                 "bootstrapMode", bootstrapProperties.effectiveMode().name(),
-                "reasonCode", reasonCode)));
+                "reasonCode", reasonCode),
+            tenantUuid));
   }
 
   private static String externalSubjectReference(String subject) {

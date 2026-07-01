@@ -8,6 +8,8 @@ import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 
@@ -70,6 +72,20 @@ public class PromotionJsonMapper {
             : amountRaw != null ? new BigDecimal((String) amountRaw) : null;
         var quantityRaw = m.get("quantity");
         int quantity = quantityRaw instanceof Number n ? n.intValue() : 0;
+        var quantityModeRaw = m.get("quantityMode");
+        var quantityMode = quantityModeRaw != null
+            ? PromotionQuantityMode.valueOf((String) quantityModeRaw)
+            : PromotionQuantityMode.FIXED;
+        var stepPaidAmountRaw = m.get("stepPaidAmount");
+        var stepPaidAmount = stepPaidAmountRaw instanceof Number n ? new BigDecimal(n.toString())
+            : stepPaidAmountRaw != null ? new BigDecimal((String) stepPaidAmountRaw) : null;
+        var quantityPerStepRaw = m.get("quantityPerStep");
+        int quantityPerStep = quantityPerStepRaw instanceof Number n
+            ? n.intValue()
+            : PromotionEffect.DEFAULT_QUANTITY_PER_STEP;
+        var maxQuantityRaw = m.get("maxQuantity");
+        int maxQuantity = maxQuantityRaw instanceof Number n ? n.intValue() : quantity;
+        var quantityTiers = quantityTiersFromJson(m.get("quantityTiers"));
         return new PromotionEffect(
             ruleId,
             campaignId,
@@ -77,6 +93,11 @@ public class PromotionJsonMapper {
             type,
             (String) m.get("gameCode"),
             quantity,
+            quantityMode,
+            stepPaidAmount,
+            quantityPerStep,
+            maxQuantity,
+            quantityTiers,
             amount,
             (String) m.get("currency"),
             (String) m.get("appliesTo"),
@@ -109,6 +130,11 @@ public class PromotionJsonMapper {
         out.put("type", effect.type() == null ? null : effect.type().name());
         out.put("gameCode", effect.gameCode());
         out.put("quantity", effect.quantity());
+        out.put("quantityMode", effect.quantityMode().name());
+        out.put("stepPaidAmount", effect.stepPaidAmount());
+        out.put("quantityPerStep", effect.quantityPerStep());
+        out.put("maxQuantity", effect.maxQuantity());
+        out.put("quantityTiers", effect.quantityTiers().stream().map(PromotionJsonMapper::quantityTierToJson).toList());
         out.put("amount", effect.amount());
         out.put("currency", effect.currency());
         out.put("appliesTo", effect.appliesTo());
@@ -118,5 +144,40 @@ public class PromotionJsonMapper {
         out.put("regenerableBeforeConfirm", effect.regenerableBeforeConfirm());
         out.put("maxRegenerationsBeforeConfirm", effect.maxRegenerationsBeforeConfirm());
         return out;
+    }
+
+    private static List<PromotionQuantityTier> quantityTiersFromJson(Object raw) {
+        if (!(raw instanceof List<?> list) || list.isEmpty()) {
+            return List.of();
+        }
+        return list.stream()
+            .filter(item -> item instanceof Map<?, ?>)
+            .map(item -> {
+                var map = (Map<?, ?>) item;
+                return new PromotionQuantityTier(
+                    decimal(map.get("minPaidAmount")),
+                    map.get("maxPaidAmount") == null ? null : decimal(map.get("maxPaidAmount")),
+                    integer(map.get("quantity"))
+                );
+            })
+            .toList();
+    }
+
+    private static Map<String, Object> quantityTierToJson(PromotionQuantityTier tier) {
+        var out = new LinkedHashMap<String, Object>();
+        out.put("minPaidAmount", tier.minPaidAmount());
+        out.put("maxPaidAmount", tier.maxPaidAmount());
+        out.put("quantity", tier.quantity());
+        return out;
+    }
+
+    private static BigDecimal decimal(Object value) {
+        return value instanceof Number number
+            ? new BigDecimal(number.toString())
+            : new BigDecimal(String.valueOf(value));
+    }
+
+    private static int integer(Object value) {
+        return value instanceof Number number ? number.intValue() : Integer.parseInt(String.valueOf(value));
     }
 }

@@ -1,5 +1,5 @@
 # OTel Collector — local dev pipeline
-# Receives OTLP from the API, exports to Jaeger.
+# Receives OTLP from the API, exports traces to Jaeger and logs to Loki.
 # 100% sampling in local; never use this config in prod.
 
 extensions:
@@ -20,7 +20,6 @@ processors:
     send_batch_size: 1024
     send_batch_max_size: 2048
 
-  # Scrub PII fields from span attributes before export.
   attributes/drop-pii:
     actions:
       - key: http.request.header.authorization
@@ -33,21 +32,19 @@ processors:
         action: delete
 
 exporters:
-  # Local diagnostic exporter: makes received spans visible in `docker logs`.
   debug:
     verbosity: basic
 
-  # Jaeger all-in-one accepts OTLP gRPC on port 4317
   otlp/jaeger:
     endpoint: jaeger:4317
     tls:
       insecure: true
 
-  # Staging placeholder — replace with Grafana Cloud OTLP endpoint + auth header
-  # otlp/grafana:
-  #   endpoint: ${GRAFANA_OTLP_ENDPOINT}
-  #   headers:
-  #     Authorization: "Basic ${GRAFANA_OTLP_TOKEN}"
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    default_labels_enabled:
+      exporter: false
+      job: true
 
 service:
   extensions: [health_check]
@@ -56,3 +53,7 @@ service:
       receivers: [otlp]
       processors: [batch, attributes/drop-pii]
       exporters: [debug, otlp/jaeger]
+    logs:
+      receivers: [otlp]
+      processors: [batch, attributes/drop-pii]
+      exporters: [loki]

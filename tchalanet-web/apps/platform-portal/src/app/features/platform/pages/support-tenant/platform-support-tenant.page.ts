@@ -60,6 +60,9 @@ export class PlatformSupportTenantPage implements OnInit {
   readonly tenants = signal<TenantSummaryView[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
+  readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
 
   readonly filters = this.fb.nonNullable.group({
     q: '',
@@ -82,8 +85,12 @@ export class PlatformSupportTenantPage implements OnInit {
       sort: 'updatedAt,desc',
     }, { suppressShellFeedback: true }).subscribe({
       next: result => {
-        this.tenants.set(result.items ?? []);
-        this.total.set(result.total ?? result.items?.length ?? 0);
+        this.tenants.set(result.items);
+        this.total.set(result.totalElements);
+        this.page.set(result.page);
+        this.totalPages.set(result.totalPages || 1);
+        this.hasNext.set(result.hasNext ?? false);
+        this.hasPrevious.set(result.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -104,13 +111,13 @@ export class PlatformSupportTenantPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() === 0) return;
+    if (!this.hasPrevious()) return;
     this.page.set(this.page() - 1);
     this.load();
   }
 
   nextPage(): void {
-    if ((this.page() + 1) * PAGE_SIZE >= this.total()) return;
+    if (!this.hasNext()) return;
     this.page.set(this.page() + 1);
     this.load();
   }

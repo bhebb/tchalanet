@@ -186,6 +186,8 @@ export class PlatformOpsDrawsPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly selectedIds = signal<ReadonlySet<string>>(new Set<string>());
   readonly selectedDraws = computed(() => this.draws().filter(draw => this.selectedIds().has(draw.id)));
   readonly commonBulkActions = computed(() => this.resolveCommonBulkActions(this.selectedDraws()));
@@ -236,7 +238,10 @@ export class PlatformOpsDrawsPage implements OnInit {
         this.draws.set(p.items);
         this.selectedIds.set(new Set());
         this.totalElements.set(p.totalElements);
+        this.page.set(p.page);
         this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -251,8 +256,8 @@ export class PlatformOpsDrawsPage implements OnInit {
   onFromChange(v: string): void { this.fromFilter.set(v); this.page.set(0); this.load(); }
   onToChange(v: string): void { this.toFilter.set(v); this.page.set(0); this.load(); }
   onDeletedVisibilityChange(v: 'active' | 'deleted' | 'all'): void { this.deletedVisibility.set(v); this.page.set(0); this.load(); }
-  prevPage(): void { this.page.set(this.page() - 1); this.load(); }
-  nextPage(): void { this.page.set(this.page() + 1); this.load(); }
+  prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
+  nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
   selectTenant(option: TchSearchOption | null): void {
     const tenant = option?.data as TenantSummaryView | undefined;

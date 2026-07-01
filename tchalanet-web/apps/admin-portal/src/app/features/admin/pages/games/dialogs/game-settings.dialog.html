@@ -42,6 +42,24 @@
         </mat-form-field>
       </div>
     }
+
+    @if (data.game.betOptions?.length) {
+      <section class="game-settings-dialog__section">
+        <div class="game-settings-dialog__section-header">
+          <h3>Options de pari</h3>
+          <p>Options servies par le barème du jeu.</p>
+        </div>
+
+        <div class="game-settings-dialog__options">
+          @for (option of data.game.betOptions; track option.betType + ':' + option.betOption) {
+            <div class="game-settings-dialog__option">
+              <span class="game-settings-dialog__option-label">{{ option.label }}</span>
+              <span class="game-settings-dialog__option-value">{{ option.value }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
   </form>
 </mat-dialog-content>
 

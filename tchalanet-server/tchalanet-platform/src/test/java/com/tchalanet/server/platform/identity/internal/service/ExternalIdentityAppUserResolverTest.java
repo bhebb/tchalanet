@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.platform.identity.api.ExternalAuthenticatedUser;
 import com.tchalanet.server.platform.identity.api.IdentityProviderType;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
@@ -31,6 +32,7 @@ class ExternalIdentityAppUserResolverTest {
   @Mock private AppUserExternalIdentityJpaRepository externalIdentities;
   @Mock private AppUserJpaRepository appUsers;
   @Mock private AuditApi auditApi;
+  @Mock private TchContextResolver contextResolver;
 
   private ExternalIdentityAppUserResolver resolver;
 
@@ -272,7 +274,8 @@ class ExternalIdentityAppUserResolverTest {
         externalIdentities,
         appUsers,
         new UserBootstrapProperties(true, false, mode, java.util.List.of(), java.util.List.of(), false),
-        auditApi);
+        auditApi,
+        contextResolver);
   }
 
   private ExternalIdentityAppUserResolver controlledAutoResolver() {
@@ -286,7 +289,8 @@ class ExternalIdentityAppUserResolverTest {
             java.util.List.of("user@example.com"),
             java.util.List.of(),
             false),
-        auditApi);
+        auditApi,
+        contextResolver);
   }
 
   private static AppUserExternalIdentityJpaEntity anyMapping() {

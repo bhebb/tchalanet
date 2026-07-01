@@ -1,12 +1,19 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 export type PromotionCampaignStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'INACTIVE' | 'ARCHIVED';
 
+export type PromotionIdRef = string | { readonly value?: string; readonly id?: string };
+
+export function promotionIdValue(id: PromotionIdRef | null | undefined): string | null {
+  if (!id) return null;
+  if (typeof id === 'string') return id;
+  return id.value ?? id.id ?? null;
+}
+
 export interface PromotionRuleView {
-  readonly id: { value: string };
+  readonly id: PromotionIdRef;
   readonly ruleKey: string;
   readonly priority: number;
   readonly eligibility: readonly PromotionConfigItem[];
@@ -19,7 +26,7 @@ export interface PromotionConfigItem {
 }
 
 export interface PromotionCampaignView {
-  readonly id: { value: string };
+  readonly id: PromotionIdRef;
   readonly code: string;
   readonly name: string;
   readonly status: PromotionCampaignStatus;
@@ -29,24 +36,20 @@ export interface PromotionCampaignView {
   readonly rules: readonly PromotionRuleView[];
 }
 
-interface TchPageResponse<T> {
-  readonly items?: readonly T[];
-  readonly content?: readonly T[];
-  readonly total?: number;
-  readonly totalElements?: number;
-  readonly page?: number;
-  readonly size?: number;
-  readonly totalPages?: number;
-}
-
-export interface PromotionCampaignPage {
-  readonly items: readonly PromotionCampaignView[];
-  readonly total: number;
+export interface MaryajQuantityTier {
+  readonly minPaidAmount: number;
+  readonly maxPaidAmount: number | null;
+  readonly quantity: number;
 }
 
 export interface InstantiateMaryajGratisRequest {
   readonly payoutBaseAmount: number;
+  readonly quantityMode: 'FIXED' | 'PER_PAID_AMOUNT' | 'TIERED_PAID_AMOUNT';
   readonly quantity: number;
+  readonly stepPaidAmount?: number | null;
+  readonly quantityPerStep?: number | null;
+  readonly maxQuantity?: number | null;
+  readonly quantityTiers?: readonly MaryajQuantityTier[] | null;
   readonly choiceMode: 'AUTO_GENERATE' | 'SELLER_SELECTS';
   readonly generationStrategy?: 'RANDOM' | null;
   readonly regenerableBeforeConfirm: boolean;
@@ -69,21 +72,21 @@ export interface CreatePromotionRuleRequest {
   readonly effectItems: readonly PromotionConfigItem[];
 }
 
+export interface UpdatePromotionRuleEffectsRequest {
+  readonly items: readonly PromotionConfigItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminPromotionsApiService {
   private readonly backend = inject(TchBackendClient);
 
-  listCampaigns(): Observable<PromotionCampaignPage> {
-    return this.backend
-      .get<TchPageResponse<PromotionCampaignView>>('/admin/promotions/campaigns', {
+  listCampaigns(): Observable<TchPage<PromotionCampaignView>> {
+    return this.backend.getPage<PromotionCampaignView>(
+      '/admin/promotions/campaigns',
+      {
         params: { page: '0', size: '20', sort: 'createdAt,desc' },
-      })
-      .pipe(
-        map(page => ({
-          items: page.items ?? page.content ?? [],
-          total: page.total ?? page.totalElements ?? (page.items ?? page.content ?? []).length,
-        })),
-      );
+      },
+    );
   }
 
   instantiateDefaultMaryajGratis(
@@ -110,6 +113,17 @@ export class AdminPromotionsApiService {
     return this.backend.post<PromotionCampaignView>(
       `/admin/promotions/campaigns/${campaignId}/pause`,
       {},
+    );
+  }
+
+  updateRuleEffects(
+    campaignId: string,
+    ruleId: string,
+    request: UpdatePromotionRuleEffectsRequest,
+  ): Observable<PromotionCampaignView> {
+    return this.backend.patch<PromotionCampaignView>(
+      `/admin/promotions/campaigns/${campaignId}/rules/${ruleId}/effects`,
+      request,
     );
   }
 }

@@ -84,11 +84,11 @@
       </div>
 
       <div class="tickets-page__pagination">
-        <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
+        <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
           <mat-icon>chevron_left</mat-icon>
         </button>
         <span>{{ page() + 1 }} / {{ totalPages() }}</span>
-        <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+        <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>

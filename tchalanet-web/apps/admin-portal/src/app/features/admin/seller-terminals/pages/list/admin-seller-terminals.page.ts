@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -81,11 +80,13 @@ export class AdminSellerTerminalsPage implements OnInit {
   readonly items = signal<SellerTerminalSummaryRow[]>([]);
   readonly total = signal(0);
   readonly page = signal(0);
+  readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly searchQuery = signal('');
   readonly statusFilter = signal<SellerTerminalStatus | ''>('');
   readonly summary = signal<SellerTerminalsSummary | null>(null);
 
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / 20)));
   readonly statusOptions: readonly AdminListStatusOption[] = [
     { value: 'ACTIVE', label: 'Actif' },
     { value: 'INACTIVE', label: 'Inactif' },
@@ -121,6 +122,10 @@ export class AdminSellerTerminalsPage implements OnInit {
         next: res => {
           this.items.set(res.items);
           this.total.set(res.totalElements);
+          this.page.set(res.page);
+          this.totalPages.set(res.totalPages || 1);
+          this.hasNext.set(res.hasNext ?? false);
+          this.hasPrevious.set(res.hasPrevious ?? false);
           this.loading.set(false);
         },
         error: (err: unknown) => {
@@ -150,14 +155,14 @@ export class AdminSellerTerminalsPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() > 0) {
+    if (this.hasPrevious()) {
       this.page.update(p => p - 1);
       this.loadPage();
     }
   }
 
   nextPage(): void {
-    if (this.page() + 1 < this.totalPages()) {
+    if (this.hasNext()) {
       this.page.update(p => p + 1);
       this.loadPage();
     }

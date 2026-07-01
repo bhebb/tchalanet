@@ -5,7 +5,6 @@ import {
   DestroyRef,
   OnInit,
   ViewChild,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -86,7 +85,9 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   readonly total = signal(0);
   readonly page = signal(0);
   readonly size = signal(PAGE_SIZE);
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.size())));
+  readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly hasActiveFilters = signal(false);
 
   ngOnInit(): void {
@@ -109,6 +110,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
     ).subscribe(res => {
       this.items.set(res.items ?? []);
       this.total.set(res.totalElements ?? 0);
+      this.page.set(res.page);
+      this.size.set(res.size);
+      this.totalPages.set(res.totalPages || 1);
+      this.hasNext.set(res.hasNext ?? false);
+      this.hasPrevious.set(res.hasPrevious ?? false);
       this.loading.set(false);
     });
 
@@ -147,11 +153,11 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() > 0) this.goToPage(this.page() - 1);
+    if (this.hasPrevious()) this.goToPage(this.page() - 1);
   }
 
   nextPage(): void {
-    if (this.page() + 1 < this.totalPages()) this.goToPage(this.page() + 1);
+    if (this.hasNext()) this.goToPage(this.page() + 1);
   }
 
   statusBadge(status: string): BadgeStatus {

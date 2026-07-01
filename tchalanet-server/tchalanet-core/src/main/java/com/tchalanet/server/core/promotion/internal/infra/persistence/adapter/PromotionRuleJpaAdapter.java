@@ -3,6 +3,7 @@ package com.tchalanet.server.core.promotion.internal.infra.persistence.adapter;
 import com.tchalanet.server.core.promotion.internal.application.port.out.rule.PromotionRuleReadPort;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRule;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRuleEligibilityLine;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleEffectJpaEntity;
@@ -13,6 +14,7 @@ import com.tchalanet.server.core.promotion.internal.infra.persistence.repository
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,6 +73,13 @@ class PromotionRuleJpaAdapter implements PromotionRuleReadPort {
             effect.getEffectType(),
             effect.getGameCode(),
             effect.getQuantity() == null ? 1 : effect.getQuantity(),
+            effect.getQuantityMode(),
+            effect.getStepPaidAmount(),
+            effect.getQuantityPerStep() == null ? 1 : effect.getQuantityPerStep(),
+            effect.getMaxQuantity() == null
+                ? (effect.getQuantity() == null ? 1 : effect.getQuantity())
+                : effect.getMaxQuantity(),
+            toQuantityTiers(effect.getQuantityTiers()),
             effect.getPayoutBaseAmount() != null ? effect.getPayoutBaseAmount() : effect.getOddsOverride(),
             null,
             effect.getChargeType(),
@@ -80,5 +89,28 @@ class PromotionRuleJpaAdapter implements PromotionRuleReadPort {
             effect.isRegenerableBeforeConfirm(),
             effect.getMaxRegenerationsBeforeConfirm()
         );
+    }
+
+    private List<PromotionQuantityTier> toQuantityTiers(List<Map<String, Object>> tiers) {
+        if (tiers == null || tiers.isEmpty()) {
+            return List.of();
+        }
+        return tiers.stream()
+            .map(tier -> new PromotionQuantityTier(
+                decimal(tier.get("minPaidAmount")),
+                tier.get("maxPaidAmount") == null ? null : decimal(tier.get("maxPaidAmount")),
+                integer(tier.get("quantity"))
+            ))
+            .toList();
+    }
+
+    private BigDecimal decimal(Object value) {
+        return value instanceof Number number
+            ? new BigDecimal(number.toString())
+            : new BigDecimal(String.valueOf(value));
+    }
+
+    private int integer(Object value) {
+        return value instanceof Number number ? number.intValue() : Integer.parseInt(String.valueOf(value));
     }
 }

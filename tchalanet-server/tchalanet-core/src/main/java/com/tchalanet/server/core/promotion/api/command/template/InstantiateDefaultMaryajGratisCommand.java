@@ -4,10 +4,13 @@ import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Instantiates the platform default "Maryaj gratuit" campaign for a tenant
@@ -21,13 +24,18 @@ import java.math.BigDecimal;
 public record InstantiateDefaultMaryajGratisCommand(
     @NotNull TenantId tenantId,
     BigDecimal payoutBaseAmount,
+    PromotionQuantityMode quantityMode,
     Integer quantity,
+    BigDecimal stepPaidAmount,
+    Integer quantityPerStep,
+    Integer maxQuantity,
+    List<PromotionQuantityTier> quantityTiers,
     PromotionChoiceMode choiceMode,
     SelectionGenerationStrategy generationStrategy,
     Boolean regenerableBeforeConfirm,
     Integer maxRegenerationsBeforeConfirm
 ) implements Command<PromotionCampaignView> {
     public InstantiateDefaultMaryajGratisCommand(TenantId tenantId) {
-        this(tenantId, null, null, null, null, null, null);
+        this(tenantId, null, null, null, null, null, null, null, null, null, null, null);
     }
 }

@@ -191,9 +191,7 @@ jobs:
             IMAGE_TAG="${{ env.IMAGE_TAG }}" make deploy ENV=staging || \
             docker compose --env-file envs/staging/compose.env \
               -f compose/docker-compose-traefik.yml \
-              -f compose/docker-compose-postgres.yml \
               -f compose/docker-compose-redis.yml \
-              -f compose/docker-compose-keycloak.yml \
               up -d
 
             echo "Staging deploy done — IMAGE_TAG=${{ env.IMAGE_TAG }}"

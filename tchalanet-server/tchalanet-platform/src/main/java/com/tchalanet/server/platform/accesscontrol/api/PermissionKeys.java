@@ -57,8 +57,14 @@ public final class PermissionKeys {
   // Settings / pricing
   public static final String SETTINGS_READ        = "settings.read";
   public static final String SETTINGS_UPDATE      = "settings.update";
+  public static final String TENANT_ADDRESS_READ  = "tenant.address.read";
+  public static final String TENANT_ADDRESS_MANAGE = "tenant.address.manage";
+  public static final String TENANT_CONFIG_READ   = "tenant.config.read";
+  public static final String TENANT_CONFIG_MANAGE = "tenant.config.manage";
   public static final String GAME_PRICING_READ    = "game-pricing.read";
   public static final String GAME_PRICING_UPDATE  = "game-pricing.update";
+  public static final String THEME_READ           = "theme.read";
+  public static final String THEME_MANAGE         = "theme.manage";
 
   // Limits / promotions
   public static final String LIMIT_READ           = "limit.read";

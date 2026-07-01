@@ -3,7 +3,7 @@
     "errors": {
       "fallback": {
         "title": "Pwoblem detekte",
-        "message": "Gen yon pwoblem ki rive. Kopye referans sipò a si pwoblem nan kontinye."
+        "message": "Gen yon pwoblem ki rive. Eseye anko oswa kontakte sipò si pwoblem nan kontinye."
       },
       "categories": {
         "auth_required": {
@@ -40,7 +40,7 @@
         },
         "unexpected": {
           "title": "Pwoblem detekte",
-          "message": "Gen yon pwoblem ki rive. Kopye referans sipò a si pwoblem nan kontinye."
+          "message": "Gen yon pwoblem ki rive. Eseye anko oswa kontakte sipò si pwoblem nan kontinye."
         }
       },
       "codes": {

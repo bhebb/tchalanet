@@ -39,7 +39,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/policies/limits")
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'limit.read')")
 @RequiredArgsConstructor
 @Tag(name = "Limit Policy • Admin")
 @Validated
@@ -61,6 +61,7 @@ public class LimitPolicyAdminController {
     }
 
     @PutMapping("/assignments")
+    @PreAuthorize("hasPermission(null, 'limit.manage')")
     public ApiResponse<UpsertLimitAssignmentResult> upsertAssignment(
         @CurrentContext TchRequestContext context,
         @Valid @RequestBody UpsertLimitAssignmentRequest req
@@ -84,6 +85,7 @@ public class LimitPolicyAdminController {
     }
 
     @DeleteMapping("/assignments/{id}")
+    @PreAuthorize("hasPermission(null, 'limit.manage')")
     public ApiResponse<DeleteLimitAssignmentResult> deleteAssignment(
         @PathVariable LimitAssignmentId id
     ) {

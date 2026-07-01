@@ -33,11 +33,11 @@ jobs:
           set -euo pipefail
           cd tchalanet-infra
           COMPOSE_FILES=(
-            docker-compose-postgres.yml
             docker-compose-redis.yml
-            docker-compose-keycloak.yml
             docker-compose-api.yml
+            docker-compose-edge-service.yml
             docker-compose-traefik.yml
+            docker-compose-logging.yml
           )
           if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
             for f in "${COMPOSE_FILES[@]}"; do

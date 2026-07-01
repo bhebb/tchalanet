@@ -74,3 +74,18 @@ export interface TchPage<T> {
   readonly hasNext?: boolean;
   readonly hasPrevious?: boolean;
 }
+
+export interface TchBackendPage<T> {
+  readonly items?: readonly T[];
+  readonly content?: readonly T[];
+  readonly total?: number;
+  readonly totalElements?: number;
+  readonly totalPages?: number;
+  readonly page?: number;
+  readonly number?: number;
+  readonly size?: number;
+  readonly last?: boolean;
+  readonly first?: boolean;
+  readonly hasNext?: boolean;
+  readonly hasPrevious?: boolean;
+}

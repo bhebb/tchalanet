@@ -25,7 +25,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/tenant")
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Tenant Admin • Tenant")
 public class AdminTenantController {
@@ -34,12 +33,14 @@ public class AdminTenantController {
   private final TenantConfigApi tenantConfigApi;
 
   @GetMapping("/address")
+  @PreAuthorize("hasPermission(null, 'tenant.address.read')")
   @Operation(summary = "Get primary address of the current tenant")
   public ApiResponse<Optional<AddressView>> getAddress(@CurrentContext TchRequestContext ctx) {
     return ApiResponse.success(addressApi.findPrimaryByTenantId(ctx.tenantId()));
   }
 
   @PutMapping
+  @PreAuthorize("hasPermission(null, 'tenant.config.manage')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Update identity fields of the current tenant")
   public void updateIdentity(
@@ -50,6 +51,7 @@ public class AdminTenantController {
   }
 
   @PutMapping("/address")
+  @PreAuthorize("hasPermission(null, 'tenant.address.manage')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Upsert primary address of the current tenant")
   public void upsertAddress(

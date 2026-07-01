@@ -24,6 +24,8 @@ No permanent MCP by default. An MCP is activated only when the current task need
 
 - GitHub MCP: ✓ active (PAT, scope local). Activer pour PR/issues. ⚠️ PAT à régénérer.
 - Slack MCP: ✓ active (claude.ai). Canal `#tchalanet-agents` (`C0B76AV9WAW`).
+- Hetzner MCP: ✓ active (`@lazyants/hetzner-mcp-server@2.3.1`, `.mcp.json` racine). Nécessite `HETZNER_API_TOKEN` dans l'env shell. 185 outils — Cloud, DNS, Storage Box. Utiliser pour toute tâche ops Hetzner.
+- Cloudflare MCP: ✓ active (`@cloudflare/mcp-server-cloudflare@0.2.0`, `.mcp.json` racine). Nécessite `CLOUDFLARE_API_TOKEN` dans l'env shell. Outils : zones DNS, Workers, KV, R2, D1, secrets, versions. **⚠️ Pas d'outils CF Pages** — les projets Pages se gèrent via le dashboard CF ou wrangler CLI.
 - Nx Cloud MCP: on seulement pendant un travail web/Nx actif.
 - Trello / Filesystem MCP: pas encore activés.
 

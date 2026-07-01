@@ -14,6 +14,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 - Backend runtime/build : `tchalanet-server/pom.xml` (+ `./mvnw`)
 - Infra images/tags : `tchalanet-infra/envs/common/compose.env` + `compose/*`
 - Web (Nx) : `tchalanet-web/package.json` + `tchalanet-web/pnpm-lock.yaml`
+- Web runtime config : `tchalanet-web/apps/proxy.conf.cjs` + `tchalanet-web/libs/shared-assets/public/assets/config/runtime.*.json`
 - Mobile (Flutter) : `tchalanet-mobile/pubspec.yaml`
 - Version pnpm web : `tchalanet-web/package.json#packageManager` + Corepack
 - Edge service : `tchalanet-edge-service/package.json`
@@ -23,7 +24,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 ## 1) Backend (tchalanet-server)
 
 - Java : 25 (défini dans `tchalanet-server/pom.xml`)
-- Spring Boot : 4.0.3 (parent défini dans `tchalanet-server/pom.xml`)
+- Spring Boot : 4.1.0 (parent défini dans `tchalanet-server/pom.xml`)
 - Build tool : Maven (wrapper présent : `./mvnw`)
 - DB driver : PostgreSQL JDBC (version gérée via BOM ou dépendances Maven)
 - Migration : Flyway (utilisé dans le POM)
@@ -32,19 +33,22 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 | Bibliothèque          | Version |
 | --------------------- | ------- |
-| Lombok                | 1.18.42 |
+| Lombok                | 1.18.46 |
 | MapStruct             | 1.6.3   |
 | QueryDSL              | 5.1.0   |
-| Caffeine              | 3.2.3   |
+| Caffeine              | 3.2.4   |
 | Firebase Admin        | 9.9.0   |
-| ShedLock              | 6.6.0   |
+| ShedLock              | 7.7.0   |
 | Testcontainers        | 1.21.4  |
-| ArchUnit              | 1.4.1   |
+| ArchUnit              | 1.4.2   |
 | PDFBox                | 3.0.7   |
-| ZXing                 | 3.5.3   |
-| Springdoc OpenAPI     | 2.8.6   |
+| ZXing                 | 3.5.4   |
+| Springdoc OpenAPI     | 3.0.3   |
 | Jackson 3 (tools.\*)  | 3.1.2   |
-| json-schema-validator | 3.0.2   |
+| json-schema-validator | 3.0.5   |
+| Hibernate             | 7.3.2.Final |
+| Spring Modulith       | 2.1.0   |
+| Mockito               | 5.23.0  |
 
 ### Plugins Maven (versions dans `tchalanet-server/pom.xml` properties)
 
@@ -52,12 +56,19 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | ---------------- | ---------- |
 | maven-compiler   | 3.15.0     |
 | maven-enforcer   | 3.6.2      |
-| maven-surefire   | 3.5.5      |
+| maven-surefire   | 3.5.6      |
 | maven-failsafe   | 3.5.5      |
-| jacoco           | 0.8.14     |
-| spotless         | 2.44.5     |
+| jacoco           | 0.8.15     |
+| spotless         | 3.7.0      |
 | maven-checkstyle | 3.6.0      |
 | sonar-maven      | 5.3.0.6276 |
+
+### Capacités backend récentes
+
+- Promotions V0 : moteur basé sur les effets `FREE_GAME_LINE`, `BOOST_ODDS`, `WAIVE_CHARGE`.
+- Maryaj gratis V0 : configuration admin dédiée, modes d'attribution `FIXED`, `PER_PAID_AMOUNT`, `TIERED_PAID_AMOUNT`; validation vente de billet encore en cours.
+- PageModel admin : navigation tenant avec `Maryaj gratis`, `Lignes gratuites` et `Toutes les promotions`.
+- Migrations récentes promotions/admin : `V248`, `V249`, `V250`, `V251`, `V252`, `V253`.
 
 ---
 
@@ -93,7 +104,17 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 - Nx : 23.1.0-beta.4
 - TypeScript : 6.0.3
 - Package manager : pnpm 11.9.0 (voir `packageManager` dans `tchalanet-web/package.json`)
-- SSR packages : `@angular/ssr` 22.0.x + `express` 4.x pour `public-portal`
+- SSR packages : `@angular/ssr` ~22.0.4 + `express` 4.x pour `public-portal`
+
+### Workspace web actif
+
+- Apps Nx déployables : `public-portal`, `admin-portal`, `platform-portal`.
+- App legacy : `tch-portal` supprimée du workspace actif.
+- E2E : `web-e2e` couvre les apps web.
+- Libs transverses : `api`, `core`, `ui`, `web`, `shared-assets`, `shared-config`, `page-model`, `notifications`, `widgets`.
+- Assets partagés : `libs/shared-assets` pour logos, images et i18n réutilisables.
+- Profils runtime web : `local-ide`, `local-ide-emulator`, `dev-docker`, `dev-docker-emulator`, `stg-vercel`, `prod-vercel`.
+- Routes admin V0 prioritaires : `/app/admin/maryaj-gratis`, `/app/admin/promotions`, `/app/admin/company/appearance`.
 
 ### Dépendances principales (versions dans `tchalanet-web/package.json`)
 
@@ -105,11 +126,27 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | `@ngrx/store-devtools`      | ^21.1.0  | Dev tools                      |
 | `@angular/material`         | ^22.0.2  | UI component library           |
 | `@angular/cdk`              | ^22.0.2  | Component primitives           |
+| `@angular/fire`             | ^20.0.1  | Firebase Angular integration   |
 | `@ngx-translate/core`       | ^17.0.0  | i18n runtime                   |
 | `@ngx-translate/http-loader`| ^17.0.0  | i18n HTTP loader               |
 | `keycloak-angular`          | ^22.0.0  | Keycloak OIDC integration      |
+| `keycloak-js`               | ^26.2.4  | Keycloak JS adapter            |
 | `@angular/ssr`              | ~22.0.4  | Angular SSR runtime            |
 | `express`                   | ^4.21.2  | SSR node server                |
+| `firebase`                  | ^12.14.0 | Firebase web SDK               |
+| `marked`                    | ^18.0.5  | Markdown rendering             |
+
+### Tooling web
+
+| Package             | Version        |
+| ------------------- | -------------- |
+| `nx`                | 23.1.0-beta.4  |
+| `@nx/angular`       | 23.1.0-beta.4  |
+| `@angular/cli`      | ~22.0.4        |
+| `@angular/build`    | ~22.0.4        |
+| `typescript`        | ~6.0.3         |
+| `vitest`            | ^4.0.8         |
+| `@playwright/test`  | ^1.36.0        |
 
 Known peer lag after Angular 22 upgrade:
 
@@ -119,7 +156,7 @@ Known peer lag after Angular 22 upgrade:
 
 ---
 
-## 5) Infra images
+## 4) Infra images
 
 Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
 

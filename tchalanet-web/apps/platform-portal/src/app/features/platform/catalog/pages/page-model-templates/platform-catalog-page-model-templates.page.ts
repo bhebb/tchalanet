@@ -54,6 +54,8 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
 
   levelTone(level: string): AdminStatusTone {
     return level === 'TENANT' ? 'info' : 'neutral';
@@ -68,7 +70,10 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
       next: p => {
         this.templates.set(p.items);
         this.totalElements.set(p.totalElements);
+        this.page.set(p.page);
         this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -80,8 +85,8 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
 
   onSearch(v: string): void { this.search.set(v); this.page.set(0); this.load(); }
   onScope(event: Event): void { this.scopeFilter.set((event.target as HTMLInputElement).value); this.page.set(0); this.load(); }
-  prevPage(): void { this.page.set(this.page() - 1); this.load(); }
-  nextPage(): void { this.page.set(this.page() + 1); this.load(); }
+  prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
+  nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
   setDefault(template: PageModelTemplateView): void {
     this.busy.set(true);

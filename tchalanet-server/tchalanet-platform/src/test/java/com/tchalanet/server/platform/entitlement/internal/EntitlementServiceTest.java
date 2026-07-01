@@ -30,7 +30,7 @@ class EntitlementServiceTest {
 
     assertThatThrownBy(() -> service.requireLimitAtMost(TENANT_ID, LIMIT_KEY, 1))
         .isInstanceOf(ProblemRestException.class)
-        .hasMessage("Missing entitlement limit: " + LIMIT_KEY);
+        .hasMessage("entitlement.limit_missing");
   }
 
   @Test

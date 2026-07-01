@@ -1,0 +1,62 @@
+// Grafana Alloy config — ship Docker container logs to Grafana Cloud Loki
+// Secrets injected via environment variables (from Doppler)
+
+// ── Log ingestion from Docker ─────────────────────────────────────────────
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "docker_logs" {
+  targets = discovery.docker.containers.targets
+
+  // Keep only Tchalanet containers (prefixed tchl-)
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/tchl-.*"
+    action        = "keep"
+  }
+
+  // Label: container name (strip leading slash)
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+    replacement   = "$1"
+  }
+
+  // Label: service name from container label (set by Docker Compose)
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service"
+  }
+
+  // Label: environment
+  rule {
+    target_label = "env"
+    replacement  = env("ENV")
+  }
+}
+
+loki.source.docker "container_logs" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.docker_logs.output
+  forward_to    = [loki.write.grafana_cloud.receiver]
+  relabel_rules = discovery.relabel.docker_logs.rules
+}
+
+// ── Push to Grafana Cloud Loki ────────────────────────────────────────────
+loki.write "grafana_cloud" {
+  endpoint {
+    url = env("GRAFANA_LOKI_URL")
+
+    basic_auth {
+      username = env("GRAFANA_LOKI_USER")
+      password = env("GRAFANA_LOKI_PASSWORD")
+    }
+  }
+
+  external_labels = {
+    project = "tchalanet",
+    env     = env("ENV"),
+  }
+}

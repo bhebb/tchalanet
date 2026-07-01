@@ -11,12 +11,5 @@ http:
         referrerPolicy: "no-referrer-when-downgrade"
         permissionsPolicy: "geolocation=(), microphone=(), camera=()"
 
-    kc-iframe:
-      headers:
-        frameDeny: false
-        customResponseHeaders:
-          X-Frame-Options: "SAMEORIGIN"
-        contentSecurityPolicy: "frame-ancestors 'self' https://app.localtest.me https://*.localtest.me"
-
     gzip:
       compress: {}

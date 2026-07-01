@@ -10,3 +10,5 @@ Ces fiches décrivent le "quoi/pourquoi" des features BFF et leurs relations cro
 - [Stats](stats.md)
 - [i18n](i18n.md)
 - [Notifications](notifications.md)
+- [Maryaj gratis](promotions/maryaj-gratis.md)
+- [Autres promotions](promotions/autres-promotions.md)

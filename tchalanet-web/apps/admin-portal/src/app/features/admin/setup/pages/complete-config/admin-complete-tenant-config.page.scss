@@ -119,6 +119,11 @@
     background: color-mix(in srgb, var(--tch-color-error) 12%, transparent);
     color: var(--tch-color-error);
   }
+
+  &--required {
+    background: color-mix(in srgb, var(--tch-color-primary) 10%, transparent);
+    color: var(--tch-color-primary);
+  }
 }
 
 .setup__card-body {

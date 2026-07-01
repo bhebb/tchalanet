@@ -58,9 +58,30 @@ class AuditLogAspectTest {
         .containsEntry("errorMessage", "bad write");
   }
 
+  @Test
+  void failureAuditToleratesResultBasedEntityIdExpression() throws Throwable {
+    var auditApi = mock(AuditApi.class);
+    var aspect = new AuditLogAspect(auditApi, jsonUtils);
+    var failure = new IllegalStateException("quota missing");
+    var pjp = joinPoint("create", null, failure);
+
+    assertThatThrownBy(() -> aspect.aroundAudit(pjp))
+        .isSameAs(failure);
+
+    var captor = ArgumentCaptor.forClass(LogAuditEventRequest.class);
+    verify(auditApi).logAuditEvent(captor.capture());
+    assertThat(captor.getValue().entityId()).isEqualTo("unknown");
+    assertThat(captor.getValue().details()).containsEntry("outcome", "FAIL");
+  }
+
   private static ProceedingJoinPoint joinPoint(Object result, Throwable failure)
       throws Throwable {
-    Method method = AuditedController.class.getDeclaredMethod("write");
+    return joinPoint("write", result, failure);
+  }
+
+  private static ProceedingJoinPoint joinPoint(String methodName, Object result, Throwable failure)
+      throws Throwable {
+    Method method = AuditedController.class.getDeclaredMethod(methodName);
     var signature = mock(MethodSignature.class);
     when(signature.getMethod()).thenReturn(method);
     when(signature.getParameterNames()).thenReturn(new String[0]);
@@ -80,6 +101,14 @@ class AuditLogAspectTest {
   private static final class AuditedController {
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SYSTEM, idExpression = "'role-1'")
     String write() {
+      return "ok";
+    }
+
+    @AuditLog(
+        action = AuditAction.USER_CREATE,
+        entity = AuditEntityType.USER,
+        idExpression = "#result.data().id()")
+    String create() {
       return "ok";
     }
   }

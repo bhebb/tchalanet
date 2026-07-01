@@ -85,6 +85,8 @@ export class PlatformAuditPage implements OnInit {
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly hasActiveFilters = signal(false);
 
   readonly searchTenants = (query: string): Observable<readonly TchSearchOption<TenantSummaryView>[]> =>
@@ -113,7 +115,10 @@ export class PlatformAuditPage implements OnInit {
       next: p => {
         this.events.set(p.items);
         this.totalElements.set(p.totalElements);
+        this.page.set(p.page);
         this.totalPages.set(p.totalPages || 1);
+        this.hasNext.set(p.hasNext ?? false);
+        this.hasPrevious.set(p.hasPrevious ?? false);
         this.loading.set(false);
       },
       error: (err: unknown) => {
@@ -157,8 +162,8 @@ export class PlatformAuditPage implements OnInit {
     });
   }
 
-  prevPage(): void { this.page.set(this.page() - 1); this.load(); }
-  nextPage(): void { this.page.set(this.page() + 1); this.load(); }
+  prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
+  nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
   toggleExpand(id: string): void {
     this.expandedId.set(this.expandedId() === id ? null : id);

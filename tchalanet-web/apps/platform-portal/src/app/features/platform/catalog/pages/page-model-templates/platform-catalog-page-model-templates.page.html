@@ -88,11 +88,11 @@
     <div footer>
       <span class="catalog-pmt-page__footer-count">{{ totalElements() }} template(s)</span>
       <div class="catalog-pmt-page__pagination">
-        <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
+        <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
         <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-        <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+        <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>

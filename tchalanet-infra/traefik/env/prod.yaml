@@ -16,18 +16,10 @@ http:
         certResolver: letsencrypt
       middlewares: [secure-headers@file, gzip@file]
 
-    unleash:
-      rule: Host(`flags.tchalanet.com`)
+    edge:
+      rule: Host(`edge.tchalanet.com`)
       entryPoints: [websecure]
-      service: unleash-svc
-      tls:
-        certResolver: letsencrypt
-      middlewares: [secure-headers@file, gzip@file]
-
-    meilisearch:
-      rule: Host(`search.tchalanet.com`)
-      entryPoints: [websecure]
-      service: meili-svc
+      service: edge-svc
       tls:
         certResolver: letsencrypt
       middlewares: [secure-headers@file, gzip@file]
@@ -38,12 +30,7 @@ http:
         servers:
           - url: "http://api:8080"
 
-    unleash-svc:
+    edge-svc:
       loadBalancer:
         servers:
-          - url: "http://unleash:4242"
-
-    meili-svc:
-      loadBalancer:
-        servers:
-          - url: "http://meilisearch:7700"
+          - url: "http://edge-service:3000"

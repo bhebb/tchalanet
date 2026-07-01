@@ -18,6 +18,14 @@ export interface TenantGameView {
   readonly startLocalTime: string | null;
   readonly endLocalTime: string | null;
   readonly readyForSale: boolean;
+  readonly betOptions?: readonly TenantGameBetOptionView[];
+}
+
+export interface TenantGameBetOptionView {
+  readonly label: string;
+  readonly value: string;
+  readonly betType: string;
+  readonly betOption: number | null;
 }
 
 export interface CatalogGameView {

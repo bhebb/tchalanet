@@ -448,7 +448,7 @@ public class GlobalErrorHandler {
         }
 
         log.warn("[{}] {} {} - {}",
-            status.value(), req.getMethod(), req.getRequestURI(), detail);
+            status.value(), req.getMethod(), req.getRequestURI(), detail, ex);
     }
 
     private static String headerOrNull(HttpServletRequest req, String name) {

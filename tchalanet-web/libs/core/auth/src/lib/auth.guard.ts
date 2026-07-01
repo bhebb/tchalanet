@@ -62,10 +62,13 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
       return router.parseUrl('/forbidden');
     }
 
-    if (
-      session.entryRoute === '/app/account/activation' &&
-      state.url !== '/app/account/activation'
-    ) {
+    // entryRoute is '/app/account/activation', but that path redirectTo's the canonical
+    // '/account/activation', so state.url resolves to '/account/activation'. Compare against
+    // both forms — comparing only the pre-redirect URL would re-redirect forever.
+    const onActivation =
+      state.url.startsWith('/account/activation') ||
+      state.url.startsWith('/app/account/activation');
+    if (session.entryRoute === '/app/account/activation' && !onActivation) {
       return router.parseUrl('/app/account/activation');
     }
 

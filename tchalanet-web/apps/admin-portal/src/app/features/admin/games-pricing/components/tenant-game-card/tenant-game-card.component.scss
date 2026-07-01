@@ -125,6 +125,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+
+  &--muted {
+    opacity: 0.72;
+  }
 }
 
 .game-card__odds-label {

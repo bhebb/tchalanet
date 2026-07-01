@@ -37,7 +37,8 @@ public class TenantPageModelController {
     var ctxHolder = contextResolver.currentOrNull();
     var role = ctxHolder != null ? ctxHolder.currentRole() : null;
     var type = typeResolver.forDashboard(role);
-    return ApiResponse.success(
+    var api = ApiResponse.success(
         service.resolve(type.logicalId(), Optional.empty(), Optional.ofNullable(lang)));
+    return api;
   }
 }

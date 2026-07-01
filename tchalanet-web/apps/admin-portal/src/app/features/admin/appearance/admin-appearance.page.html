@@ -1,0 +1,136 @@
+<tch-admin-page-shell
+  [title]="'admin.appearance.title' | translate"
+  [description]="'admin.appearance.description' | translate"
+>
+  <div actions>
+    <button mat-stroked-button [disabled]="loading() || resetting()" (click)="resetTheme()">
+      <mat-icon>restart_alt</mat-icon>
+      {{ 'admin.appearance.reset.action' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading [label]="'admin.appearance.loading' | translate" />
+  } @else if (pageState() === 'error') {
+    <tch-error-panel
+      [title]="'admin.appearance.error.load' | translate"
+      [message]="'common.errors.fallback.message' | translate"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="load()"
+    />
+  } @else {
+
+    @if (successKey(); as key) {
+      <tch-notice type="success" class="appearance__notice">{{ key | translate }}</tch-notice>
+    }
+    @if (errorKey(); as key) {
+      <tch-notice type="error" class="appearance__notice">{{ key | translate }}</tch-notice>
+    }
+    @if (featureLocked()) {
+      <tch-notice type="warning" class="appearance__notice">
+        <strong>{{ 'admin.appearance.locked.title' | translate }}</strong>
+        — {{ 'admin.appearance.locked.message' | translate }}
+      </tch-notice>
+    }
+
+    <section class="appearance__current">
+      <div class="appearance__current-icon">
+        <mat-icon>palette</mat-icon>
+      </div>
+      <div class="appearance__current-body">
+        <p class="appearance__current-eyebrow">{{ 'admin.appearance.current.eyebrow' | translate }}</p>
+        <h2 class="appearance__current-title">
+          @if (selectedPreset(); as preset) {
+            {{ presetLabel(preset) }}
+          } @else {
+            {{ activePresetCode() || ('admin.appearance.current.default' | translate) }}
+          }
+        </h2>
+        <p class="appearance__current-meta">
+          {{ 'admin.appearance.current.description' | translate : { code: activePresetCode() || '-' } }}
+        </p>
+      </div>
+    </section>
+
+    <!-- Presets -->
+    <tch-admin-section-card
+      [title]="'admin.appearance.preset.title' | translate"
+      [description]="'admin.appearance.preset.description' | translate"
+      icon="palette"
+    >
+      @if (activePresets().length) {
+        <div class="appearance__presets">
+          @for (preset of activePresets(); track preset.code) {
+            <button
+              type="button"
+              class="appearance__preset"
+              [class.appearance__preset--active]="preset.code === activePresetCode()"
+              [disabled]="savingPreset() !== null || !preset.active"
+              (click)="selectPreset(preset)"
+            >
+              <span class="appearance__preset-preview" aria-hidden="true">
+                <span
+                  class="appearance__preset-preview-main"
+                  [style.background]="presetColor(preset, 'color.primary')"
+                ></span>
+                <span class="appearance__preset-preview-stack">
+                  <span [style.background]="presetColor(preset, 'color.secondary')"></span>
+                  <span [style.background]="presetColor(preset, 'color.surface')"></span>
+                  <span [style.background]="presetColor(preset, 'color.primary', 'dark')"></span>
+                </span>
+              </span>
+              <span class="appearance__preset-head">
+                <span class="appearance__preset-name">{{ presetLabel(preset) }}</span>
+                @if (preset.code === activePresetCode()) {
+                  <mat-icon class="appearance__preset-check">check_circle</mat-icon>
+                }
+              </span>
+              <span class="appearance__preset-meta">
+                <code>{{ preset.code }}</code>
+                <span>{{ presetVendor(preset) }}</span>
+                @if (preset.isDefault) {
+                  <span class="appearance__preset-default">{{ 'admin.appearance.preset.default' | translate }}</span>
+                }
+              </span>
+              <span class="appearance__preset-action">
+                @if (preset.code === activePresetCode()) {
+                  {{ 'admin.appearance.preset.activeTenant' | translate }}
+                } @else {
+                  {{ 'admin.appearance.preset.applyTenant' | translate }}
+                }
+              </span>
+              @if (savingPreset() === preset.code) {
+                <span class="appearance__preset-saving">{{ 'admin.appearance.preset.applying' | translate }}</span>
+              }
+            </button>
+          }
+        </div>
+      } @else {
+        <p class="appearance__empty">{{ 'admin.appearance.preset.empty' | translate }}</p>
+      }
+    </tch-admin-section-card>
+
+    <!-- Mode -->
+    <tch-admin-section-card
+      [title]="'admin.appearance.mode.title' | translate"
+      [description]="'admin.appearance.mode.description' | translate"
+      icon="brightness_6"
+    >
+      <div class="appearance__modes" role="group">
+        @for (option of modeOptions; track option.value) {
+          <button
+            type="button"
+            class="appearance__mode"
+            [class.appearance__mode--active]="option.value === selectedMode()"
+            [disabled]="savingMode()"
+            (click)="selectMode(option.value)"
+          >
+            <mat-icon>{{ option.icon }}</mat-icon>
+            {{ option.labelKey | translate }}
+          </button>
+        }
+      </div>
+    </tch-admin-section-card>
+  }
+</tch-admin-page-shell>

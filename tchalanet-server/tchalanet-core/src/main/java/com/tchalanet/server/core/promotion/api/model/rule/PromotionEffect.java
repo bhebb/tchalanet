@@ -6,6 +6,7 @@ import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Public effect model consumed by sales.
@@ -24,16 +25,29 @@ public record PromotionEffect(
     PromotionEffectType type,
     String gameCode,
     int quantity,
+    PromotionQuantityMode quantityMode,
+    BigDecimal stepPaidAmount,
+    int quantityPerStep,
+    int maxQuantity,
+    List<PromotionQuantityTier> quantityTiers,
     BigDecimal amount,
     String currency,
     String appliesTo,
     String reason,
     PromotionChoiceMode choiceMode,
-    SelectionGenerationStrategy generationStrategy,
-    boolean regenerableBeforeConfirm,
-    int maxRegenerationsBeforeConfirm
+        SelectionGenerationStrategy generationStrategy,
+        boolean regenerableBeforeConfirm,
+        int maxRegenerationsBeforeConfirm
 ) {
     public static final int DEFAULT_MAX_REGENERATIONS = 3;
+    public static final int DEFAULT_QUANTITY_PER_STEP = 1;
+
+    public PromotionEffect {
+        quantityMode = quantityMode == null ? PromotionQuantityMode.FIXED : quantityMode;
+        quantityPerStep = quantityPerStep <= 0 ? DEFAULT_QUANTITY_PER_STEP : quantityPerStep;
+        maxQuantity = maxQuantity <= 0 ? quantity : maxQuantity;
+        quantityTiers = quantityTiers == null ? List.of() : List.copyOf(quantityTiers);
+    }
 
     public PromotionEffect(
         PromotionRuleId ruleId,
@@ -48,7 +62,8 @@ public record PromotionEffect(
         String reason,
         PromotionChoiceMode choiceMode
     ) {
-        this(ruleId, campaignId, ruleKey, type, gameCode, quantity, amount, currency, appliesTo, reason,
+        this(ruleId, campaignId, ruleKey, type, gameCode, quantity, PromotionQuantityMode.FIXED, null,
+            DEFAULT_QUANTITY_PER_STEP, quantity, List.of(), amount, currency, appliesTo, reason,
             choiceMode, null, false, DEFAULT_MAX_REGENERATIONS);
     }
 
@@ -63,7 +78,8 @@ public record PromotionEffect(
         String reason,
         PromotionChoiceMode choiceMode
     ) {
-        this(ruleId, null, null, type, gameCode, quantity, amount, currency, appliesTo, reason,
+        this(ruleId, null, null, type, gameCode, quantity, PromotionQuantityMode.FIXED, null,
+            DEFAULT_QUANTITY_PER_STEP, quantity, List.of(), amount, currency, appliesTo, reason,
             choiceMode, null, false, DEFAULT_MAX_REGENERATIONS);
     }
 
@@ -75,6 +91,35 @@ public record PromotionEffect(
             type,
             gameCode,
             quantity,
+            quantityMode,
+            stepPaidAmount,
+            quantityPerStep,
+            maxQuantity,
+            quantityTiers,
+            amount,
+            currency,
+            appliesTo,
+            reason,
+            choiceMode,
+            generationStrategy,
+            regenerableBeforeConfirm,
+            maxRegenerationsBeforeConfirm
+        );
+    }
+
+    public PromotionEffect withQuantity(int calculatedQuantity) {
+        return new PromotionEffect(
+            ruleId,
+            campaignId,
+            ruleKey,
+            type,
+            gameCode,
+            calculatedQuantity,
+            quantityMode,
+            stepPaidAmount,
+            quantityPerStep,
+            maxQuantity,
+            quantityTiers,
             amount,
             currency,
             appliesTo,

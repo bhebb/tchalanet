@@ -127,11 +127,11 @@
       <ng-container list-footer>
         <span>{{ totalElements() }} message(s)</span>
         <div class="pager">
-          <button mat-icon-button [disabled]="page() === 0" (click)="prevPage()">
+          <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
             <span class="material-symbols-outlined">chevron_left</span>
           </button>
           <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-          <button mat-icon-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+          <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
             <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>

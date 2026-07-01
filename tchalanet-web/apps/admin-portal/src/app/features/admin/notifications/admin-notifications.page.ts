@@ -90,6 +90,8 @@ export class AdminNotificationsPage implements OnInit {
   readonly unreadCount = signal(0);
   readonly page = signal(0);
   readonly totalPages = signal(1);
+  readonly hasNext = signal(false);
+  readonly hasPrevious = signal(false);
   readonly severityFilter = signal<AdminNotificationSeverity | ''>('');
   readonly categoryFilter = signal<AdminNotificationCategory | ''>('');
   readonly showComposer = signal(false);
@@ -127,9 +129,12 @@ export class AdminNotificationsPage implements OnInit {
       }, { suppressShellFeedback: true })
       .subscribe({
         next: response => {
-          this.items.set(response.items ?? response.content ?? []);
-          this.total.set(response.totalElements ?? 0);
+          this.items.set(response.items);
+          this.total.set(response.totalElements);
+          this.page.set(response.page);
           this.totalPages.set(response.totalPages || 1);
+          this.hasNext.set(response.hasNext ?? false);
+          this.hasPrevious.set(response.hasPrevious ?? false);
           this.loading.set(false);
           this.loadUnreadCount();
         },
@@ -153,13 +158,13 @@ export class AdminNotificationsPage implements OnInit {
   }
 
   prevPage(): void {
-    if (this.page() === 0) return;
+    if (!this.hasPrevious()) return;
     this.page.update(page => page - 1);
     this.load();
   }
 
   nextPage(): void {
-    if (this.page() + 1 >= this.totalPages()) return;
+    if (!this.hasNext()) return;
     this.page.update(page => page + 1);
     this.load();
   }

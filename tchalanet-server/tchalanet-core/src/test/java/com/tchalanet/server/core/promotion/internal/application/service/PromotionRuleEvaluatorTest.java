@@ -7,6 +7,8 @@ import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRule;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,5 +70,173 @@ class PromotionRuleEvaluatorTest {
         assertThat(effects.getFirst().campaignId()).isEqualTo(campaignId);
         assertThat(effects.getFirst().ruleId()).isEqualTo(ruleId);
         assertThat(effects.getFirst().ruleKey()).isEqualTo("maryaj-free-line");
+    }
+
+    @Test
+    @DisplayName("calculates free line quantity from paid amount steps")
+    void calculatesQuantityPerPaidAmountStep() {
+        var campaignId = PromotionCampaignId.of(UUID.fromString("A1000000-0000-0000-0000-000000000002"));
+        var ruleId = PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000002"));
+        var rule = new PromotionRule(
+            ruleId,
+            campaignId,
+            "maryaj-per-amount",
+            100,
+            null,
+            null,
+            List.of(),
+            List.of(new PromotionEffect(
+                ruleId,
+                null,
+                null,
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_MARYAJ_GRATUIT",
+                1,
+                PromotionQuantityMode.PER_PAID_AMOUNT,
+                new BigDecimal("1000"),
+                2,
+                10,
+                List.of(),
+                new BigDecimal("50"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.AUTO_GENERATE,
+                null,
+                true,
+                3
+            ))
+        );
+
+        var effects = evaluator.evaluate(rule, new PromotionEvaluationContext(
+            null,
+            PromotionEvaluationPhase.SALE_CONFIRMATION,
+            Instant.parse("2026-05-27T00:00:00Z"),
+            null,
+            List.of(),
+            null,
+            List.of(),
+            null,
+            new BigDecimal("6500"),
+            "HTG",
+            List.of("HT_BOLET"),
+            false
+        ));
+
+        assertThat(effects).hasSize(1);
+        assertThat(effects.getFirst().quantity()).isEqualTo(10);
+        assertThat(effects.getFirst().quantityMode()).isEqualTo(PromotionQuantityMode.PER_PAID_AMOUNT);
+    }
+
+    @Test
+    @DisplayName("does not emit an effect below the first paid amount step")
+    void skipsPerPaidAmountEffectBelowFirstStep() {
+        var ruleId = PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000003"));
+        var rule = new PromotionRule(
+            ruleId,
+            PromotionCampaignId.of(UUID.fromString("A1000000-0000-0000-0000-000000000003")),
+            "maryaj-per-amount",
+            100,
+            null,
+            null,
+            List.of(),
+            List.of(new PromotionEffect(
+                ruleId,
+                null,
+                null,
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_MARYAJ_GRATUIT",
+                1,
+                PromotionQuantityMode.PER_PAID_AMOUNT,
+                new BigDecimal("1000"),
+                2,
+                10,
+                List.of(),
+                new BigDecimal("50"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.AUTO_GENERATE,
+                null,
+                true,
+                3
+            ))
+        );
+
+        var effects = evaluator.evaluate(rule, new PromotionEvaluationContext(
+            null,
+            PromotionEvaluationPhase.SALE_CONFIRMATION,
+            Instant.parse("2026-05-27T00:00:00Z"),
+            null,
+            List.of(),
+            null,
+            List.of(),
+            null,
+            new BigDecimal("999"),
+            "HTG",
+            List.of("HT_BOLET"),
+            false
+        ));
+
+        assertThat(effects).isEmpty();
+    }
+
+    @Test
+    @DisplayName("selects Maryaj gratis quantity from paid amount tiers")
+    void calculatesQuantityFromPaidAmountTiers() {
+        var ruleId = PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000004"));
+        var rule = new PromotionRule(
+            ruleId,
+            PromotionCampaignId.of(UUID.fromString("A1000000-0000-0000-0000-000000000004")),
+            "maryaj-tiered-amount",
+            100,
+            null,
+            null,
+            List.of(),
+            List.of(new PromotionEffect(
+                ruleId,
+                null,
+                null,
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_MARYAJ_GRATUIT",
+                1,
+                PromotionQuantityMode.TIERED_PAID_AMOUNT,
+                null,
+                1,
+                3,
+                List.of(
+                    new PromotionQuantityTier(new BigDecimal("100"), new BigDecimal("199"), 1),
+                    new PromotionQuantityTier(new BigDecimal("200"), new BigDecimal("499"), 2),
+                    new PromotionQuantityTier(new BigDecimal("500"), null, 3)
+                ),
+                new BigDecimal("50"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.AUTO_GENERATE,
+                null,
+                true,
+                3
+            ))
+        );
+
+        var effects = evaluator.evaluate(rule, new PromotionEvaluationContext(
+            null,
+            PromotionEvaluationPhase.SALE_CONFIRMATION,
+            Instant.parse("2026-05-27T00:00:00Z"),
+            null,
+            List.of(),
+            null,
+            List.of(),
+            null,
+            new BigDecimal("500"),
+            "HTG",
+            List.of("HT_BOLET"),
+            false
+        ));
+
+        assertThat(effects).hasSize(1);
+        assertThat(effects.getFirst().quantity()).isEqualTo(3);
+        assertThat(effects.getFirst().quantityMode()).isEqualTo(PromotionQuantityMode.TIERED_PAID_AMOUNT);
     }
 }

@@ -20,6 +20,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
@@ -128,7 +129,7 @@ public class AuditLogAspect {
         String expr = annotation.idExpression();
         if (expr == null || expr.isBlank()) return "unknown";
 
-        Object value = parser.parseExpression(expr).getValue(ctx);
+        Object value = resolveExpressionOrNull(expr, ctx, "audit entity id");
         return value != null ? value.toString() : "unknown";
     }
 
@@ -136,7 +137,7 @@ public class AuditLogAspect {
         String expr = annotation.tenantIdExpression();
         if (expr == null || expr.isBlank()) return null;
 
-        Object value = parser.parseExpression(expr).getValue(ctx);
+        Object value = resolveExpressionOrNull(expr, ctx, "audit tenant id");
         if (value == null) return null;
         if (value instanceof UUID uuid) return uuid;
         if (value instanceof com.tchalanet.server.common.types.id.TenantId tenantId) {
@@ -153,7 +154,7 @@ public class AuditLogAspect {
         String expr = annotation.detailsExpression();
 
         if (expr != null && !expr.isBlank()) {
-            Object v = parser.parseExpression(expr).getValue(ctx);
+            Object v = resolveExpressionOrNull(expr, ctx, "audit details");
             if (v != null) {
                 if (v instanceof Map<?, ?> m) {
                     // normalize to Map<String,Object> (json roundtrip is OK if you want canonical JSON)
@@ -186,6 +187,16 @@ public class AuditLogAspect {
             }
         } catch (Exception e) {
             log.debug("Unable to resolve audit requestId", e);
+        }
+    }
+
+    private Object resolveExpressionOrNull(
+        String expr, StandardEvaluationContext ctx, String label) {
+        try {
+            return parser.parseExpression(expr).getValue(ctx);
+        } catch (EvaluationException | IllegalArgumentException e) {
+            log.debug("Unable to resolve {} expression '{}'", label, expr, e);
+            return null;
         }
     }
 

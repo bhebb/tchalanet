@@ -47,9 +47,9 @@ export class PageModelApi {
 
 function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRuntimeResponse {
   const existingKeys = new Set(
-    response.data.dynamic.errors.map(error => widgetErrorKey(error.widgetId, error.code)),
+    (response.data?.dynamic?.errors ?? []).map(error => widgetErrorKey(error.widgetId, error.code)),
   );
-  const widgetErrors = response.notices
+  const widgetErrors = (response.notices ?? [])
     .map(notice => widgetErrorFromNotice(notice, response.trace))
     .filter((error): error is WidgetDynamicError => error !== null)
     .filter(error => !existingKeys.has(widgetErrorKey(error.widgetId, error.code)));
@@ -61,7 +61,7 @@ function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRun
     dynamic: {
       ...response.data.dynamic,
       errors: [
-        ...response.data.dynamic.errors,
+        ...(response.data.dynamic?.errors ?? []),
         ...widgetErrors,
       ],
     },

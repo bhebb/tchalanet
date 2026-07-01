@@ -113,12 +113,12 @@
 
       <ng-container footer>
         <div class="payouts-page__pagination">
-          <button mat-button [disabled]="page() === 0" (click)="prevPage()">
+          <button mat-button [disabled]="!hasPrevious()" (click)="prevPage()">
             <span class="material-symbols-outlined">chevron_left</span>
             Précédent
           </button>
           <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-          <button mat-button [disabled]="page() + 1 >= totalPages()" (click)="nextPage()">
+          <button mat-button [disabled]="!hasNext()" (click)="nextPage()">
             Suivant
             <span class="material-symbols-outlined">chevron_right</span>
           </button>

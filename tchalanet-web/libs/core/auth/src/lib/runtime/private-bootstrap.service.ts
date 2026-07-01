@@ -10,7 +10,7 @@ export class PrivateBootstrapService {
   private readonly backend = inject(TchBackendClient);
 
   bootstrap(): Observable<RuntimeBootstrapResponse> {
-    return this.backend.get<RuntimeBootstrapResponse>('/tenant/runtime/bootstrap', {
+    return this.backend.get<RuntimeBootstrapResponse>('/runtime/private', {
       suppressShellFeedback: true,
     });
   }

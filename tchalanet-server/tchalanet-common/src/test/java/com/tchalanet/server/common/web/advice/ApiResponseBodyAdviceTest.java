@@ -6,6 +6,7 @@ import com.tchalanet.server.common.web.api.ApiStatus;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -64,6 +65,14 @@ class ApiResponseBodyAdviceTest {
         assertThat(result.status()).isEqualTo(ApiStatus.SUCCESS_WITH_WARNINGS);
         assertThat(result.notices()).extracting(ApiNotice::code)
             .containsExactly("core.sales.limit.warning", "features.dashboard.partial");
+    }
+
+    @Test
+    void runsBeforeTraceAdviceToAvoidNestedApiResponseData() {
+        var order = AnnotationUtils.findAnnotation(ApiResponseBodyAdvice.class, org.springframework.core.annotation.Order.class);
+
+        assertThat(order).isNotNull();
+        assertThat(order.value()).isLessThan(200);
     }
 
     private Object invokeAdvice(Object body) {

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
@@ -7,6 +7,7 @@ import { AUTH_CLIENT } from './auth-client';
 import { UserRole, UserSession } from './auth.types';
 
 const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
+const AUTH_OPERATION_TIMEOUT_MS = 15_000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
@@ -31,7 +32,9 @@ export class AuthSessionService {
     }
 
     try {
-      const bootstrap = await firstValueFrom(this.runtime.initialize());
+      const bootstrap = await firstValueFrom(
+        this.runtime.initialize().pipe(timeout({ first: AUTH_OPERATION_TIMEOUT_MS })),
+      );
 
       const session: UserSession = {
         authenticated: true,
@@ -45,7 +48,10 @@ export class AuthSessionService {
           undefined,
         tenantId: bootstrap.tenantContext?.tenantId,
         tenantCode: bootstrap.tenantContext?.tenantCode ?? undefined,
-        roles: normalizeRoles(bootstrap.entitlements.roles),
+        roles: normalizeRoles(
+          [...(bootstrap.user.roles ?? []), ...(bootstrap.entitlements.roles ?? [])],
+          bootstrap.space,
+        ),
         tokenExpiresAt: await this.auth.getTokenExpiresAt(),
         entryRoute: bootstrap.entryRoute ?? bootstrap.pageModelRef?.route ?? undefined,
         mustChangePassword: bootstrap.user.mustChangePassword ?? false,
@@ -70,13 +76,21 @@ export class AuthSessionService {
     return this.session().roles.includes(role);
   }
 
-  async login(email: string, password: string, remember = true): Promise<UserSession> {
-    await this.auth.login({
-      username: email,
-      password,
-      remember,
-    });
-    return this.refreshSession(true);
+  async login(email: string, password: string): Promise<UserSession> {
+    await withTimeout(
+      this.auth.login({
+        username: email,
+        password,
+      }),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.login.timeout',
+    );
+    await withTimeout(
+      this.auth.getAccessToken(true),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.token.timeout',
+    );
+    return withTimeout(this.refreshSession(true), AUTH_OPERATION_TIMEOUT_MS, 'auth.session.timeout');
   }
 
   async sendPasswordlessLoginLink(email: string): Promise<void> {
@@ -128,13 +142,37 @@ function isAccessDenied(err: unknown): boolean {
   return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
 }
 
-function normalizeRoles(roles: readonly string[] | undefined): readonly UserRole[] {
-  return (roles ?? [])
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise.then(
+      value => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      error => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
+function normalizeRoles(roles: readonly string[] | undefined, space?: string | null): readonly UserRole[] {
+  const normalized = (roles ?? [])
     .map(role => role.toUpperCase())
     .map(role => {
-      if (role === 'TENANT_OWNER') return 'TENANT_ADMIN';
-      if (role === 'OPERATOR') return 'CASHIER';
+      if (role === 'ROLE_SUPER_ADMIN' || role === 'PLATFORM_ADMIN') return 'SUPER_ADMIN';
+      if (role === 'ROLE_TENANT_ADMIN' || role === 'TENANT_OWNER') return 'TENANT_ADMIN';
+      if (role === 'ROLE_CASHIER' || role === 'OPERATOR' || role === 'ACTOR_SELLER_TERMINAL') return 'CASHIER';
       return role;
     })
     .filter((role): role is UserRole => supportedRoles.includes(role as UserRole));
+
+  const rolesFromSpace: UserRole[] = [];
+  if (space === 'PLATFORM') rolesFromSpace.push('SUPER_ADMIN');
+  if (space === 'ADMIN') rolesFromSpace.push('TENANT_ADMIN');
+  if (space === 'CASHIER') rolesFromSpace.push('CASHIER');
+
+  return Array.from(new Set([...normalized, ...rolesFromSpace]));
 }

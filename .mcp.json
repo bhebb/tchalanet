@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "hetzner": {
+      "command": "npx",
+      "args": ["-y", "@lazyants/hetzner-mcp-server@2.3.1"],
+      "env": {
+        "HETZNER_API_TOKEN": "${HETZNER_API_TOKEN}"
+      }
+    },
+    "cloudflare": {
+      "command": "npx",
+      "args": ["-y", "@cloudflare/mcp-server-cloudflare@0.2.0"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+      }
+    }
+  }
+}

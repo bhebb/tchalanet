@@ -3,9 +3,9 @@
   description="Configurez les campagnes, règles d'éligibilité et effets commerciaux appliqués par le backend."
 >
   <div actions>
-    <a mat-flat-button color="primary" routerLink="/app/admin/promotions/maryaj-gratis">
+    <a mat-flat-button color="primary" routerLink="/app/admin/maryaj-gratis" fragment="offer">
       <mat-icon>redeem</mat-icon>
-      Shortcut Maryaj gratis
+      Maryaj gratis
     </a>
     <button mat-stroked-button [disabled]="state() === 'loading'" (click)="load()">
       <mat-icon>refresh</mat-icon>
@@ -28,11 +28,11 @@
           <tch-admin-empty-state
             icon="campaign"
             title="Aucune campagne"
-            message="Créez une campagne ou activez le shortcut Maryaj gratis."
+            message="Créez une campagne ou configurez Maryaj gratis."
           />
         } @else {
           <mat-accordion multi>
-            @for (campaign of campaigns(); track campaign.id.value) {
+            @for (campaign of campaigns(); track idValue(campaign.id)) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
                   <mat-panel-title>{{ campaign.name }}</mat-panel-title>
@@ -60,42 +60,106 @@
                   </div>
                 </dl>
 
-                @for (rule of campaign.rules; track rule.id.value) {
+                @for (rule of campaign.rules; track idValue(rule.id)) {
                   <div class="promotions-page__rule">
-                    <div>
-                      <code>{{ rule.ruleKey }}</code>
-                      <span>Priorité {{ rule.priority }}</span>
+                    <div class="promotions-page__rule-header">
+                      <div>
+                        <p class="promotions-page__rule-title">Règle {{ $index + 1 }}</p>
+                        <p class="promotions-page__rule-subtitle">Priorité {{ rule.priority }}</p>
+                      </div>
+                      <span class="promotions-page__rule-key">{{ rule.ruleKey }}</span>
                     </div>
-                    <p>Éligibilité: {{ rule.eligibility.length }} · Effets: {{ rule.effects.length }}</p>
-                    @for (effect of rule.effects; track effect.type) {
-                      <pre>{{ effect | json }}</pre>
-                    }
+
+                    <div class="promotions-page__rule-grid">
+                      <div>
+                        <h3>Conditions</h3>
+                        @if (rule.eligibility.length === 0) {
+                          <p class="promotions-page__muted">Aucune condition particulière.</p>
+                        } @else {
+                          <ul class="promotions-page__list">
+                            @for (item of rule.eligibility; track item.type + $index) {
+                              <li>
+                                <mat-icon>check_circle</mat-icon>
+                                <span>{{ eligibilityLabel(item) }}</span>
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </div>
+
+                      <div>
+                        <h3>Avantages</h3>
+                        @if (rule.effects.length === 0) {
+                          <p class="promotions-page__muted">Aucun avantage configuré.</p>
+                        } @else {
+                          <ul class="promotions-page__list">
+                            @for (item of rule.effects; track item.type + $index) {
+                              <li>
+                                <mat-icon>redeem</mat-icon>
+                                <span>{{ effectLabel(item) }}</span>
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </div>
+                    </div>
                   </div>
                 }
+
+                <div class="promotions-page__actions">
+                  @if (campaign.status === 'ACTIVE') {
+                    <button mat-stroked-button [disabled]="saving()" (click)="pause(campaign)">
+                      <mat-icon>pause</mat-icon>
+                      Mettre en pause
+                    </button>
+                  } @else if (campaign.status === 'DRAFT' || campaign.status === 'PAUSED' || campaign.status === 'INACTIVE') {
+                    <button mat-flat-button color="primary" [disabled]="saving()" (click)="activate(campaign)">
+                      <mat-icon>play_arrow</mat-icon>
+                      Activer
+                    </button>
+                  }
+                </div>
               </mat-expansion-panel>
             }
           </mat-accordion>
         }
       </tch-admin-section-card>
 
-      <tch-admin-section-card title="Créer une campagne" icon="add_circle">
-        <p class="promotions-page__copy">
-          V0 volontairement explicite: le payload suit les types backend. Cela évite une fausse DSL et garde les effets
-          limités à FREE_GAME_LINE, BOOST_ODDS et WAIVE_CHARGE.
-        </p>
-        <form [formGroup]="form">
-          <mat-form-field appearance="outline" class="promotions-page__payload-field">
-            <mat-label>Payload campagne</mat-label>
-            <textarea matInput rows="22" formControlName="payload"></textarea>
-            @if (form.controls.payload.errors?.['jsonInvalid']) {
-              <mat-error>JSON invalide.</mat-error>
-            }
-          </mat-form-field>
-        </form>
-        <button mat-flat-button color="primary" [disabled]="form.invalid || saving()" (click)="createCampaign()">
-          <mat-icon>save</mat-icon>
-          Créer la campagne
-        </button>
+      <tch-admin-section-card
+        title="Types de promotions"
+        icon="add_circle"
+        description="Choisissez un type supporté par le moteur de promotions."
+      >
+        <div class="promotions-page__catalog">
+          @for (entry of promotionCatalog; track entry.effectType) {
+            <article class="promotions-page__catalog-item">
+              <mat-icon>{{ entry.icon }}</mat-icon>
+              <div>
+                <div class="promotions-page__catalog-heading">
+                  <p class="promotions-page__catalog-title">{{ entry.title }}</p>
+                  <span
+                    class="promotions-page__catalog-status"
+                    [class.promotions-page__catalog-status--ready]="entry.status === 'ready'"
+                  >
+                    {{ entry.statusLabel }}
+                  </span>
+                </div>
+                <p class="promotions-page__copy">{{ entry.description }}</p>
+                <p class="promotions-page__catalog-code">{{ entry.effectType }}</p>
+              </div>
+
+              @if (entry.route) {
+                <a mat-flat-button color="primary" [routerLink]="entry.route" [fragment]="entry.fragment">
+                  Configurer
+                </a>
+              } @else {
+                <button mat-stroked-button disabled>
+                  À venir
+                </button>
+              }
+            </article>
+          }
+        </div>
       </tch-admin-section-card>
     </div>
   }

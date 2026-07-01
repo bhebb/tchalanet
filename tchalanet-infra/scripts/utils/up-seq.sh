@@ -53,9 +53,13 @@ fi
 FILES=(
   "compose/docker-compose-project.yml"
   "compose/docker-compose-traefik.yml"
-  "compose/docker-compose-postgres.yml"
   "compose/docker-compose-redis.yml"
 )
+
+# Postgres local uniquement en dev — staging/prod utilisent Neon
+if [[ "$ENV" == "dev" ]]; then
+  FILES+=("compose/docker-compose-postgres.yml")
+fi
 
 # Override générique (ports, extra_hosts)
 if [[ -f "compose/docker-compose.override.yml" ]]; then
@@ -110,7 +114,11 @@ else
 fi
 
 # 6) Up core
-for svc in traefik postgres redis; do
+CORE_SVCS=(traefik redis)
+if [[ "$ENV" == "dev" ]]; then
+  CORE_SVCS=(traefik postgres redis)
+fi
+for svc in "${CORE_SVCS[@]}"; do
   echo "→ Up $svc"
   "$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
 done

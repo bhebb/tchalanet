@@ -1,18 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchPage } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export type PrivateNotificationSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 export type PrivateNotificationStatus = 'DRAFT' | 'PUBLISHED' | 'EXPIRED' | 'CANCELLED' | 'PURGED';
-
-export interface PrivateNotificationPage<T> {
-  readonly items?: T[];
-  readonly content?: T[];
-  readonly totalElements: number;
-  readonly totalPages: number;
-  readonly number?: number;
-  readonly size?: number;
-}
 
 export interface PrivateNotificationAction {
   readonly type: string | null;
@@ -45,9 +36,10 @@ export interface PrivateNotificationUnreadCount {
 export class PrivateNotificationsApi {
   private readonly backend = inject(TchBackendClient);
 
-  listLatest(scope: PrivateNotificationScope, size = 5): Observable<PrivateNotificationPage<PrivateNotificationItem>> {
-    return this.backend.get<PrivateNotificationPage<PrivateNotificationItem>>(
-      `${this.basePath(scope)}?page=0&size=${size}`,
+  listLatest(scope: PrivateNotificationScope, size = 5): Observable<TchPage<PrivateNotificationItem>> {
+    return this.backend.getPage<PrivateNotificationItem>(
+      this.basePath(scope),
+      { params: { page: '0', size: String(size) } },
     );
   }
 

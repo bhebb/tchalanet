@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -95,17 +95,6 @@ export interface ResetSellerTerminalPinResponse {
   pinResetAt: string;
 }
 
-interface BackendPage<T> {
-  items?: T[];
-  content?: T[];
-  total?: number;
-  totalElements?: number;
-  page?: number;
-  number?: number;
-  size?: number;
-  totalPages?: number;
-}
-
 export interface ListSellerTerminalsParams {
   q?: string;
   status?: SellerTerminalStatus | '';
@@ -130,23 +119,22 @@ export class SellerTerminalApi {
     params: ListSellerTerminalsParams = {},
     options?: TchRequestOptions,
   ): Observable<TchPage<SellerTerminalSummaryRow>> {
-    const p = new URLSearchParams();
-    if (params.q) p.set('q', params.q);
-    if (params.status) p.set('status', params.status);
-    if (params.page !== undefined) p.set('page', String(params.page));
-    if (params.size !== undefined) p.set('size', String(params.size));
-    const qs = p.toString();
     const requestOptions = params.tenantId
       ? {
           ...(options ?? {}),
+          params: this.listParams(params),
           asTenantAdmin: {
             tenantId: params.tenantId,
             reason: 'SUPER_ADMIN: list seller terminals for recipient picker',
           },
       }
-      : options;
-    return this.backend.get<TchPage<SellerTerminalSummaryRow>>(
-      `/admin/seller-terminals${qs ? `?${qs}` : ''}`,
+      : {
+          ...(options ?? {}),
+          params: this.listParams(params),
+        };
+
+    return this.backend.getPage<SellerTerminalSummaryRow>(
+      '/admin/seller-terminals',
       requestOptions,
     );
   }
@@ -203,16 +191,12 @@ export class SellerTerminalApi {
     return this.backend.post<ResetSellerTerminalPinResponse>(`/admin/seller-terminals/${id}/pin-reset`, req, options);
   }
 
-  private toPage<T>(page: BackendPage<T>, fallbackPage: number, fallbackSize: number): TchPage<T> {
-    const items = page.items ?? page.content ?? [];
-    const size = page.size ?? fallbackSize;
-    const total = page.total ?? page.totalElements ?? items.length;
+  private listParams(params: ListSellerTerminalsParams): Record<string, string> {
     return {
-      items,
-      totalElements: total,
-      page: page.page ?? page.number ?? fallbackPage,
-      size,
-      totalPages: page.totalPages ?? Math.max(1, Math.ceil(total / Math.max(1, size))),
+      ...(params.q ? { q: params.q } : {}),
+      ...(params.status ? { status: params.status } : {}),
+      ...(params.page !== undefined ? { page: String(params.page) } : {}),
+      ...(params.size !== undefined ? { size: String(params.size) } : {}),
     };
   }
 }
