@@ -113,6 +113,29 @@
       }
 
       <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
+
+      <div class="upsert-limit-dialog__duration">
+        <p class="upsert-limit-dialog__duration-label">Durée d'application</p>
+        <mat-button-toggle-group
+          [value]="durationMode()"
+          (change)="durationMode.set($event.value)"
+          class="upsert-limit-dialog__duration-toggle">
+          <mat-button-toggle value="permanent">Permanent</mat-button-toggle>
+          <mat-button-toggle value="today">Aujourd'hui</mat-button-toggle>
+          <mat-button-toggle value="custom">Personnalisé</mat-button-toggle>
+        </mat-button-toggle-group>
+        @if (showCustomEndDate()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin</mat-label>
+            <input
+              matInput
+              type="date"
+              [value]="customEndsAt()"
+              (change)="onCustomEndsAtChange($event)">
+            <mat-hint>La règle sera désactivée à minuit de cette date.</mat-hint>
+          </mat-form-field>
+        }
+      </div>
     </form>
   }
 </mat-dialog-content>

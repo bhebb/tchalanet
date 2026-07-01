@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -41,6 +42,7 @@ const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatCheckboxModule,
     MatChipsModule,
     MatDialogModule,
@@ -73,6 +75,8 @@ export class UpsertLimitDialogComponent {
   readonly error = signal<ErrorViewModel | null>(null);
   readonly paramSchema = signal<ParamSchema>('NONE');
   readonly selections = signal<string[]>([]);
+  readonly durationMode = signal<'permanent' | 'today' | 'custom'>('permanent');
+  readonly customEndsAt = signal<string>('');
 
   readonly showParamForm = computed(() => this.spec() !== null);
   readonly showValueCents = computed(() =>
@@ -86,11 +90,13 @@ export class UpsertLimitDialogComponent {
     this.paramSchema() === 'BET_TYPE' || this.paramSchema() === 'CENTS_BET_TYPE',
   );
   readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
+  readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
   readonly canSave = computed(() =>
     !this.saving() &&
     this.spec() !== null &&
     this.form.valid &&
-    (this.paramSchema() !== 'SELECTION' || this.selections().length > 0),
+    (this.paramSchema() !== 'SELECTION' || this.selections().length > 0) &&
+    (this.durationMode() !== 'custom' || this.customEndsAt().length > 0),
   );
 
   readonly form = this.fb.nonNullable.group({
@@ -135,6 +141,8 @@ export class UpsertLimitDialogComponent {
     this.spec.set(null);
     this.paramSchema.set('NONE');
     this.selections.set([]);
+    this.durationMode.set('permanent');
+    this.customEndsAt.set('');
     this.error.set(null);
     this.saving.set(false);
   }
@@ -175,6 +183,8 @@ export class UpsertLimitDialogComponent {
       enabled: v.enabled,
       onBreach: v.onBreach,
       params,
+      startsAt: null,
+      endsAt: this.buildEndsAt(),
     };
 
     this.saving.set(true);
@@ -189,6 +199,23 @@ export class UpsertLimitDialogComponent {
     });
   }
 
+  onCustomEndsAtChange(event: Event): void {
+    this.customEndsAt.set((event.target as HTMLInputElement).value);
+  }
+
+  private buildEndsAt(): string | null {
+    const mode = this.durationMode();
+    if (mode === 'permanent') return null;
+    if (mode === 'today') {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).toISOString();
+    }
+    const dateStr = this.customEndsAt();
+    if (!dateStr) return null;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d, 23, 59, 59, 0).toISOString();
+  }
+
   private applySpec(spec: LimitRuleSpec, assignment: LimitAssignmentItem | null): void {
     this.spec.set(spec);
     this.assignment.set(assignment);
@@ -200,6 +227,15 @@ export class UpsertLimitDialogComponent {
     const extracted = extractParamValues(schema, spec.paramsTemplate, srcParams);
 
     this.selections.set(extracted.selectionIds);
+
+    const endsAt = assignment?.endsAt ?? null;
+    if (endsAt) {
+      this.durationMode.set('custom');
+      this.customEndsAt.set(endsAt.substring(0, 10));
+    } else {
+      this.durationMode.set('permanent');
+      this.customEndsAt.set('');
+    }
 
     const onBreach = assignment?.onBreach ?? spec.defaultOutcome;
     this.form.patchValue({

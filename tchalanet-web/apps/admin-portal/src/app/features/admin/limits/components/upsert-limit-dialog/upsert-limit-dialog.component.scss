@@ -49,6 +49,29 @@
   background: color-mix(in srgb, var(--tch-color-primary) 4%, transparent);
 }
 
-.upsert-limit-dialog__warn-field {
-  margin-top: 0.25rem;
+.upsert-limit-dialog__duration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.upsert-limit-dialog__duration-label {
+  margin: 0;
+  font-size: var(--tch-font-size-body-sm);
+  color: var(--tch-color-on-surface-variant);
+  font-weight: var(--tch-weight-medium, 500);
+}
+
+.upsert-limit-dialog__duration-toggle {
+  width: 100%;
+
+  ::ng-deep .mat-button-toggle {
+    flex: 1;
+    text-align: center;
+  }
 }

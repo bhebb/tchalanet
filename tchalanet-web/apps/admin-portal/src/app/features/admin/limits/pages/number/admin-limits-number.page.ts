@@ -23,7 +23,11 @@ import type { LimitRuleSpec, RuleKey, RuleRow } from '../../data-access/admin-li
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
-const BLOCKING_RULE_KEYS: RuleKey[] = ['BLOCK_SELECTION_PER_DRAW', 'BLOCK_BET_TYPE'];
+const NUMBER_RULE_KEYS: RuleKey[] = [
+  'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
+  'MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW',
+  'BLOCK_SELECTION_PER_DRAW',
+];
 
 @Component({
   selector: 'tch-admin-limits-number-page',
@@ -67,7 +71,7 @@ export class AdminLimitsNumberPage implements OnInit {
       this.api.listAssignments('TENANT', undefined, { suppressShellFeedback: true }),
     ]).subscribe({
       next: ([rules, view]) => {
-        const blockingRules = rules.filter(r => (BLOCKING_RULE_KEYS as string[]).includes(r.ruleKey));
+        const blockingRules = rules.filter(r => (NUMBER_RULE_KEYS as string[]).includes(r.ruleKey));
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
         this.allRows.set(blockingRules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
         this.loading.set(false);
