@@ -1,26 +1,26 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { TranslateService } from '@ngx-translate/core';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import { TchErrorPanel, TchLoading, TchSectionError, TchSearchSelect } from '@tch/ui/components';
+import type { TchSearchOption } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
+import { SellerTerminalApi } from '../../../seller-terminal-api.service';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { RuleRow } from '../../data-access/admin-limits.models';
+import type { LimitRuleSpec, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
@@ -29,13 +29,11 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ReactiveFormsModule,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
     TchErrorPanel,
     TchLoading,
     TchSectionError,
+    TchSearchSelect,
     AdminEmptyStateComponent,
     LimitAssignmentsTableComponent,
   ],
@@ -44,39 +42,48 @@ import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog
 })
 export class AdminLimitsAgentPage {
   private readonly api = inject(AdminLimitsApi);
+  private readonly sellerTerminalApi = inject(SellerTerminalApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-
-  readonly terminalCtrl = new FormControl('', { nonNullable: true, validators: [Validators.required] });
 
   readonly loading = signal(false);
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
-  readonly rows = signal<RuleRow[]>([]);
+  readonly allRows = signal<RuleRow[]>([]);
+  readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
   readonly loadedTerminalCode = signal<string | null>(null);
 
-  loadForTerminal(): void {
-    const code = this.terminalCtrl.value.trim();
-    if (!code) return;
+  readonly searchTerminals = (query: string): Observable<readonly TchSearchOption[]> =>
+    this.sellerTerminalApi.list({ q: query, size: 10 }).pipe(
+      map(page => page.items.map(row => ({
+        id: row.terminalCode,
+        title: row.displayName,
+        subtitle: row.terminalCode,
+      }))),
+    );
+
+  onTerminalSelected(option: TchSearchOption | null): void {
+    const code = option?.id ?? null;
     this.loadedTerminalCode.set(code);
-    this.loading.set(true);
+    this.allRows.set([]);
     this.pageError.set(null);
     this.actionError.set(null);
     this.actionNotice.set(null);
-    forkJoin([
-      this.api.listRules({ suppressShellFeedback: true }),
-      this.api.listAssignments('TERMINAL', code, { suppressShellFeedback: true }),
-    ]).subscribe({
-      next: ([rules, view]) => {
-        const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        this.pageError.set(this.resolveError(err, 'admin.limits.agent', 'page'));
-        this.loading.set(false);
-      },
+    if (code) this.loadForTerminal(code);
+  }
+
+  openAdd(): void {
+    const code = this.loadedTerminalCode();
+    if (!code) return;
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    ref.componentInstance.initAdd(this.unassignedRules(), 'TERMINAL', code);
+    ref.afterClosed().subscribe((result: unknown) => {
+      if (result) {
+        this.actionNotice.set('Règle ajoutée.');
+        this.reloadAssignments(code);
+      }
     });
   }
 
@@ -111,11 +118,30 @@ export class AdminLimitsAgentPage {
     });
   }
 
+  private loadForTerminal(code: string): void {
+    this.loading.set(true);
+    this.pageError.set(null);
+    forkJoin([
+      this.api.listRules({ suppressShellFeedback: true }),
+      this.api.listAssignments('TERMINAL', code, { suppressShellFeedback: true }),
+    ]).subscribe({
+      next: ([rules, view]) => {
+        const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
+        this.allRows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.loading.set(false);
+      },
+      error: (err: unknown) => {
+        this.pageError.set(this.resolveError(err, 'admin.limits.agent', 'page'));
+        this.loading.set(false);
+      },
+    });
+  }
+
   private reloadAssignments(code: string): void {
     this.api.listAssignments('TERMINAL', code, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.update(current =>
+        this.allRows.update(current =>
           current.map(r => ({ spec: r.spec, assignment: assignMap.get(r.spec.ruleKey) ?? null })),
         );
       },

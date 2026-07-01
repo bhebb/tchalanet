@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -25,7 +26,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { DrawAdminApi } from '../../../draw-admin.api.service';
 import type { DrawChannelSummary } from '../../../draw-admin.api.service';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { RuleRow } from '../../data-access/admin-limits.models';
+import type { LimitRuleSpec, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
@@ -63,7 +64,9 @@ export class AdminLimitsDrawPage implements OnInit {
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
-  readonly rows = signal<RuleRow[]>([]);
+  readonly allRows = signal<RuleRow[]>([]);
+  readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
   readonly selectedChannel = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -72,7 +75,7 @@ export class AdminLimitsDrawPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(code => {
         this.selectedChannel.set(code);
-        this.rows.set([]);
+        this.allRows.set([]);
         this.pageError.set(null);
         this.actionError.set(null);
         this.actionNotice.set(null);
@@ -108,13 +111,26 @@ export class AdminLimitsDrawPage implements OnInit {
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.allRows.set(rules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
         this.loading.set(false);
       },
       error: (err: unknown) => {
         this.pageError.set(this.resolveError(err, 'admin.limits.draw', 'page'));
         this.loading.set(false);
       },
+    });
+  }
+
+  openAdd(): void {
+    const channelCode = this.selectedChannel();
+    if (!channelCode) return;
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    ref.componentInstance.initAdd(this.unassignedRules(), 'DRAW_CHANNEL', channelCode);
+    ref.afterClosed().subscribe((result: unknown) => {
+      if (result) {
+        this.actionNotice.set('Règle ajoutée.');
+        this.reloadAssignments(channelCode);
+      }
     });
   }
 
@@ -153,7 +169,7 @@ export class AdminLimitsDrawPage implements OnInit {
     this.api.listAssignments('DRAW_CHANNEL', channelCode, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.update(current =>
+        this.allRows.update(current =>
           current.map(r => ({ spec: r.spec, assignment: assignMap.get(r.spec.ruleKey) ?? null })),
         );
       },

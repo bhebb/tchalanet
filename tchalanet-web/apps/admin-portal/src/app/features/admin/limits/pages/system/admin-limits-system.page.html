@@ -1,0 +1,84 @@
+<div class="limits-child-page">
+  <div class="limits-child-page__toolbar">
+    <p class="limits-child-page__scope-note">
+      Catalogue de toutes les règles de limite supportées. Ces règles sont configurables dans les autres onglets.
+    </p>
+    <button mat-stroked-button (click)="load()" [disabled]="loading()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement du catalogue…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (rules().length === 0) {
+    <tch-admin-empty-state
+      icon="policy"
+      title="Catalogue vide"
+      message="Le backend ne publie aucune règle de limite."
+    />
+  } @else {
+    <mat-accordion multi>
+      @for (cat of categories(); track cat) {
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span class="lsp__category-title">{{ categoryLabel(cat) }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ (rulesByCategory().get(cat) ?? []).length }} règle(s)
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <table mat-table [dataSource]="rulesByCategory().get(cat) ?? []" class="lsp__table">
+
+            <ng-container matColumnDef="rule">
+              <th mat-header-cell *matHeaderCellDef>Règle</th>
+              <td mat-cell *matCellDef="let rule">
+                <div class="lsp__rule-label">{{ rule.label || rule.ruleKey }}</div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef>Description</th>
+              <td mat-cell *matCellDef="let rule">
+                <span class="lsp__rule-desc">{{ rule.description }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="default">
+              <th mat-header-cell *matHeaderCellDef>Action par défaut</th>
+              <td mat-cell *matCellDef="let rule">
+                <tch-admin-status-pill
+                  [tone]="defaultTone(rule.defaultOutcome)"
+                  [label]="defaultLabel(rule.defaultOutcome)"
+                />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let rule">
+                @if (rule.stateless) {
+                  <span class="lsp__badge lsp__badge--stateless">Sans état</span>
+                } @else {
+                  <span class="lsp__badge lsp__badge--stateful">Avec paramètres</span>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  }
+</div>

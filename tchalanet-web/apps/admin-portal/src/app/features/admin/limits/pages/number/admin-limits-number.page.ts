@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -18,7 +19,7 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { RuleKey, RuleRow } from '../../data-access/admin-limits.models';
+import type { LimitRuleSpec, RuleKey, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
@@ -48,7 +49,9 @@ export class AdminLimitsNumberPage implements OnInit {
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
-  readonly rows = signal<RuleRow[]>([]);
+  readonly allRows = signal<RuleRow[]>([]);
+  readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
+  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
 
   ngOnInit(): void {
     this.load();
@@ -66,13 +69,24 @@ export class AdminLimitsNumberPage implements OnInit {
       next: ([rules, view]) => {
         const blockingRules = rules.filter(r => (BLOCKING_RULE_KEYS as string[]).includes(r.ruleKey));
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.set(blockingRules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
+        this.allRows.set(blockingRules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null })));
         this.loading.set(false);
       },
       error: (err: unknown) => {
         this.pageError.set(this.resolveError(err, 'admin.limits.number', 'page'));
         this.loading.set(false);
       },
+    });
+  }
+
+  openAdd(): void {
+    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px' });
+    ref.componentInstance.initAdd(this.unassignedRules(), 'TENANT', null);
+    ref.afterClosed().subscribe((result: unknown) => {
+      if (result) {
+        this.actionNotice.set('Règle ajoutée.');
+        this.reloadAssignments();
+      }
     });
   }
 
@@ -107,7 +121,7 @@ export class AdminLimitsNumberPage implements OnInit {
     this.api.listAssignments('TENANT', undefined, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
-        this.rows.update(current =>
+        this.allRows.update(current =>
           current.map(r => ({ spec: r.spec, assignment: assignMap.get(r.spec.ruleKey) ?? null })),
         );
       },

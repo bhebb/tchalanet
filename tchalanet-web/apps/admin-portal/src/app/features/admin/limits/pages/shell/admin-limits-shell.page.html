@@ -4,6 +4,13 @@
 
   <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="limits-shell__nav">
     <a mat-tab-link
+      routerLink="system"
+      routerLinkActive
+      #rlaS="routerLinkActive"
+      [active]="rlaS.isActive">
+      Système
+    </a>
+    <a mat-tab-link
       routerLink="global"
       routerLinkActive
       #rlaG="routerLinkActive"

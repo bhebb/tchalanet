@@ -1,6 +1,21 @@
-<h2 mat-dialog-title>{{ assignment() ? 'Modifier la règle' : 'Configurer la règle' }}</h2>
+<h2 mat-dialog-title>
+  @if (mode() === 'add') { Ajouter une règle }
+  @else if (assignment()) { Modifier la règle }
+  @else { Configurer la règle }
+</h2>
 
 <mat-dialog-content class="upsert-limit-dialog__content">
+  @if (mode() === 'add') {
+    <mat-form-field appearance="outline" class="upsert-limit-dialog__rule-picker">
+      <mat-label>Règle à configurer</mat-label>
+      <mat-select (selectionChange)="onRuleSelected($event.value)">
+        @for (rule of availableRules(); track rule.ruleKey) {
+          <mat-option [value]="rule.ruleKey">{{ rule.label || rule.ruleKey }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
   @if (spec(); as s) {
     <div class="upsert-limit-dialog__rule-info">
       <div class="upsert-limit-dialog__rule-label">{{ s.label || s.ruleKey }}</div>
@@ -19,84 +34,86 @@
     />
   }
 
-  <form [formGroup]="form" class="upsert-limit-dialog__form">
-    <mat-form-field appearance="outline">
-      <mat-label>En cas de dépassement</mat-label>
-      <mat-select formControlName="onBreach">
-        @for (o of breachOutcomes; track o) {
-          <mat-option [value]="o">{{ o === 'BLOCK' ? 'Bloquer' : 'Avertir' }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    @if (showValueCents()) {
+  @if (showParamForm()) {
+    <form [formGroup]="form" class="upsert-limit-dialog__form">
       <mat-form-field appearance="outline">
-        <mat-label>Montant maximum (HTG)</mat-label>
-        <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01">
-        <mat-hint>Saisissez le seuil en gourdes haïtiennes.</mat-hint>
-        @if (form.controls.valueCentsHtg.errors?.['min']) {
-          <mat-error>Le montant doit être positif.</mat-error>
-        }
+        <mat-label>En cas de dépassement</mat-label>
+        <mat-select formControlName="onBreach">
+          @for (o of breachOutcomes; track o) {
+            <mat-option [value]="o">{{ o === 'BLOCK' ? 'Bloquer' : 'Avertir' }}</mat-option>
+          }
+        </mat-select>
       </mat-form-field>
-    }
 
-    @if (showMaxCount()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Nombre maximum</mat-label>
-        <input matInput type="number" formControlName="maxCount" min="1" step="1">
-        @if (form.controls.maxCount.errors?.['min']) {
-          <mat-error>La valeur doit être au moins 1.</mat-error>
-        }
-      </mat-form-field>
-    }
+      @if (showValueCents()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Montant maximum (HTG)</mat-label>
+          <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01">
+          <mat-hint>Saisissez le seuil en gourdes haïtiennes.</mat-hint>
+          @if (form.controls.valueCentsHtg.errors?.['min']) {
+            <mat-error>Le montant doit être positif.</mat-error>
+          }
+        </mat-form-field>
+      }
 
-    @if (showWindowMinutes()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Fenêtre de temps (minutes)</mat-label>
-        <input matInput type="number" formControlName="windowMinutes" min="1" step="1">
-        @if (form.controls.windowMinutes.errors?.['min']) {
-          <mat-error>La durée doit être au moins 1 minute.</mat-error>
-        }
-      </mat-form-field>
-    }
+      @if (showMaxCount()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre maximum</mat-label>
+          <input matInput type="number" formControlName="maxCount" min="1" step="1">
+          @if (form.controls.maxCount.errors?.['min']) {
+            <mat-error>La valeur doit être au moins 1.</mat-error>
+          }
+        </mat-form-field>
+      }
 
-    @if (showBetTypeCode()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Code type de pari</mat-label>
-        <input matInput formControlName="betTypeCode" placeholder="ex: BORLETTE, MARIAJ">
-        @if (form.controls.betTypeCode.errors?.['required']) {
-          <mat-error>Champ obligatoire.</mat-error>
-        }
-      </mat-form-field>
-    }
+      @if (showWindowMinutes()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Fenêtre de temps (minutes)</mat-label>
+          <input matInput type="number" formControlName="windowMinutes" min="1" step="1">
+          @if (form.controls.windowMinutes.errors?.['min']) {
+            <mat-error>La durée doit être au moins 1 minute.</mat-error>
+          }
+        </mat-form-field>
+      }
 
-    @if (showSelectionId()) {
-      <mat-form-field appearance="outline">
-        <mat-label>Numéro / sélection bloqué(e)</mat-label>
-        <input matInput formControlName="selectionId" placeholder="ex: 13, 00">
-        @if (form.controls.selectionId.errors?.['required']) {
-          <mat-error>Champ obligatoire.</mat-error>
-        }
-      </mat-form-field>
-    }
+      @if (showBetTypeCode()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Code type de pari</mat-label>
+          <input matInput formControlName="betTypeCode" placeholder="ex: BORLETTE, MARIAJ">
+          @if (form.controls.betTypeCode.errors?.['required']) {
+            <mat-error>Champ obligatoire.</mat-error>
+          }
+        </mat-form-field>
+      }
 
-    @if (showAutoWarn()) {
-      <div class="upsert-limit-dialog__auto-warn">
-        <mat-checkbox formControlName="autoWarn">
-          Créer aussi un avertissement en approche du seuil
-        </mat-checkbox>
-        @if (form.controls.autoWarn.value) {
-          <mat-form-field appearance="outline" class="upsert-limit-dialog__warn-field">
-            <mat-label>Seuil d'avertissement (HTG)</mat-label>
-            <input matInput type="number" formControlName="warnThresholdHtg" min="0" step="0.01">
-            <mat-hint>Par défaut 1 000 HTG en dessous du seuil principal.</mat-hint>
-          </mat-form-field>
-        }
-      </div>
-    }
+      @if (showSelectionId()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Numéro / sélection bloqué(e)</mat-label>
+          <input matInput formControlName="selectionId" placeholder="ex: 13, 00">
+          @if (form.controls.selectionId.errors?.['required']) {
+            <mat-error>Champ obligatoire.</mat-error>
+          }
+        </mat-form-field>
+      }
 
-    <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
-  </form>
+      @if (showAutoWarn()) {
+        <div class="upsert-limit-dialog__auto-warn">
+          <mat-checkbox formControlName="autoWarn">
+            Créer aussi un avertissement en approche du seuil
+          </mat-checkbox>
+          @if (form.controls.autoWarn.value) {
+            <mat-form-field appearance="outline" class="upsert-limit-dialog__warn-field">
+              <mat-label>Seuil d'avertissement (HTG)</mat-label>
+              <input matInput type="number" formControlName="warnThresholdHtg" min="0" step="0.01">
+              <mat-hint>Par défaut 1 000 HTG en dessous du seuil principal.</mat-hint>
+            </mat-form-field>
+          }
+        </div>
+      }
+
+      <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
+    </form>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
@@ -104,7 +121,7 @@
   <button
     mat-flat-button
     color="primary"
-    [disabled]="form.invalid || saving()"
+    [disabled]="form.invalid || saving() || !spec()"
     (click)="save()">
     {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
   </button>

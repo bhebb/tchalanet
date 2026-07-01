@@ -1,23 +1,29 @@
 <div class="limits-child-page">
-  <div class="limits-child-page__target-row">
-    <mat-form-field appearance="outline">
-      <mat-label>Code du terminal vendeur</mat-label>
-      <input matInput [formControl]="terminalCtrl" placeholder="ex: T001" (keyup.enter)="loadForTerminal()">
-      <mat-hint>Entrez le code du terminal pour charger ses limites.</mat-hint>
-    </mat-form-field>
-    <button
-      mat-flat-button
-      color="primary"
-      (click)="loadForTerminal()"
-      [disabled]="!terminalCtrl.value.trim() || loading()">
-      Charger
-    </button>
+  <div class="limits-child-page__toolbar limits-agent-page__toolbar">
+    <tch-search-select
+      class="limits-agent-page__search"
+      label="Vendeur / Terminal"
+      hint="Tapez le nom ou le code du terminal."
+      icon="person_search"
+      [searchFn]="searchTerminals"
+      (valueChange)="onTerminalSelected($event)"
+    />
+    @if (!loading() && loadedTerminalCode() && allRows().length > 0) {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openAdd()"
+        [disabled]="unassignedRules().length === 0">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter
+      </button>
+    }
   </div>
 
   @if (!loadedTerminalCode()) {
     <div class="limits-child-page__no-target">
       <span class="material-symbols-outlined">info</span>
-      Saisissez un code de terminal et cliquez sur <strong>Charger</strong>.
+      Recherchez un vendeur pour voir et configurer ses limites.
     </div>
   } @else if (loading()) {
     <tch-loading label="Chargement des limites…" />
@@ -27,9 +33,9 @@
       [message]="err.message"
       [showRetry]="true"
       retryLabel="Réessayer"
-      (retry)="loadForTerminal()"
+      (retry)="onTerminalSelected(null)"
     />
-  } @else if (rows().length === 0) {
+  } @else if (allRows().length === 0) {
     <tch-admin-empty-state
       icon="policy"
       title="Aucune règle disponible"
@@ -52,11 +58,19 @@
       />
     }
 
-    <tch-limit-assignments-table
-      [rows]="rows()"
-      [canEdit]="true"
-      (upsert)="openUpsert($event)"
-      (delete)="confirmDelete($event)"
-    />
+    @if (activeRows().length === 0) {
+      <tch-admin-empty-state
+        icon="policy"
+        title="Aucune limite configurée"
+        message="Cliquez sur Ajouter pour configurer une première limite pour ce vendeur."
+      />
+    } @else {
+      <tch-limit-assignments-table
+        [rows]="activeRows()"
+        [canEdit]="true"
+        (upsert)="openUpsert($event)"
+        (delete)="confirmDelete($event)"
+      />
+    }
   }
 </div>

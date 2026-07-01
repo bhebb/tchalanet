@@ -19,6 +19,16 @@
     <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannel()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
+    @if (!loading() && selectedChannel() && allRows().length > 0) {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openAdd()"
+        [disabled]="unassignedRules().length === 0">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter
+      </button>
+    }
   </div>
 
   @if (!selectedChannel()) {
@@ -36,7 +46,7 @@
       retryLabel="Réessayer"
       (retry)="reload()"
     />
-  } @else if (rows().length === 0) {
+  } @else if (allRows().length === 0) {
     <tch-admin-empty-state
       icon="policy"
       title="Aucune règle disponible"
@@ -59,11 +69,19 @@
       />
     }
 
-    <tch-limit-assignments-table
-      [rows]="rows()"
-      [canEdit]="true"
-      (upsert)="openUpsert($event)"
-      (delete)="confirmDelete($event)"
-    />
+    @if (activeRows().length === 0) {
+      <tch-admin-empty-state
+        icon="policy"
+        title="Aucune limite configurée"
+        message="Cliquez sur Ajouter pour configurer une première limite pour ce canal."
+      />
+    } @else {
+      <tch-limit-assignments-table
+        [rows]="activeRows()"
+        [canEdit]="true"
+        (upsert)="openUpsert($event)"
+        (delete)="confirmDelete($event)"
+      />
+    }
   }
 </div>

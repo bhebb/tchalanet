@@ -62,21 +62,12 @@
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let row">
             @if (canEdit()) {
-              <button
-                mat-icon-button
-                [title]="row.assignment ? 'Modifier' : 'Configurer'"
-                (click)="upsert.emit(row)">
-                <span class="material-symbols-outlined">
-                  {{ row.assignment ? 'edit' : 'add_circle' }}
-                </span>
+              <button mat-icon-button title="Modifier" (click)="upsert.emit(row)">
+                <span class="material-symbols-outlined">edit</span>
               </button>
-              @if (row.assignment) {
-                <button mat-icon-button color="warn" title="Supprimer" (click)="delete.emit(row)">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-              }
-            } @else {
-              <span class="lat__muted">—</span>
+              <button mat-icon-button color="warn" title="Supprimer" (click)="delete.emit(row)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
             }
           </td>
         </ng-container>

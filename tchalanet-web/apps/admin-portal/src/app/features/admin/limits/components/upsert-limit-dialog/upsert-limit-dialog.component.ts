@@ -24,7 +24,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, TargetType } from '../../data-access/admin-limits.models';
+import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, RuleKey, TargetType } from '../../data-access/admin-limits.models';
 import {
   ParamSchema,
   buildParams,
@@ -60,6 +60,10 @@ export class UpsertLimitDialogComponent {
 
   readonly breachOutcomes = V0_BREACH_OUTCOMES;
 
+  // 'add' = user picks rule first; 'edit' = rule is fixed
+  readonly mode = signal<'add' | 'edit'>('edit');
+  readonly availableRules = signal<LimitRuleSpec[]>([]);
+
   readonly spec = signal<LimitRuleSpec | null>(null);
   readonly assignment = signal<LimitAssignmentItem | null>(null);
   readonly targetType = signal<TargetType>('TENANT');
@@ -69,6 +73,7 @@ export class UpsertLimitDialogComponent {
   readonly paramSchema = signal<ParamSchema>('NONE');
   readonly onBreachValue = signal<BreachOutcome>('BLOCK');
 
+  readonly showParamForm = computed(() => this.spec() !== null);
   readonly showValueCents = computed(() =>
     this.paramSchema() === 'CENTS' || this.paramSchema() === 'CENTS_BET_TYPE',
   );
@@ -102,42 +107,50 @@ export class UpsertLimitDialogComponent {
       .subscribe(v => this.onBreachValue.set(v));
   }
 
+  /** Edit existing assignment. */
   init(
     spec: LimitRuleSpec,
     targetType: TargetType,
     targetId: string | null,
     assignment: LimitAssignmentItem | null,
   ): void {
-    this.spec.set(spec);
+    this.mode.set('edit');
     this.targetType.set(targetType);
     this.targetId.set(targetId);
     this.assignment.set(assignment);
+    this.error.set(null);
+    this.saving.set(false);
+    this.applySpec(spec, assignment);
+  }
 
-    const schema = detectParamSchema(spec);
-    this.paramSchema.set(schema);
-    this.applyValidators(schema);
-
-    const srcParams = assignment?.params ?? spec.paramsTemplate;
-    const extracted = extractParamValues(schema, spec.paramsTemplate, srcParams);
-
-    const onBreach = assignment?.onBreach ?? spec.defaultOutcome;
-    this.form.patchValue({
-      onBreach,
-      enabled: assignment?.enabled ?? true,
-      ...extracted,
-      autoWarn: false,
-      warnThresholdHtg: Math.max(0, extracted.valueCentsHtg - 1000),
-    });
-    this.onBreachValue.set(onBreach);
+  /**
+   * Add new assignment: user must first pick the rule from `unassignedRules`.
+   * Call this when no row.assignment exists yet and user clicks "Ajouter".
+   */
+  initAdd(
+    unassignedRules: LimitRuleSpec[],
+    targetType: TargetType,
+    targetId: string | null,
+  ): void {
+    this.mode.set('add');
+    this.availableRules.set(unassignedRules);
+    this.targetType.set(targetType);
+    this.targetId.set(targetId);
+    this.assignment.set(null);
+    this.spec.set(null);
+    this.paramSchema.set('NONE');
     this.error.set(null);
     this.saving.set(false);
   }
 
-  save(): void {
-    if (this.form.invalid || this.saving()) return;
-    const spec = this.spec();
-    if (!spec) return;
+  onRuleSelected(ruleKey: RuleKey): void {
+    const rule = this.availableRules().find(r => r.ruleKey === ruleKey);
+    if (rule) this.applySpec(rule, null);
+  }
 
+  save(): void {
+    if (this.form.invalid || this.saving() || !this.spec()) return;
+    const spec = this.spec()!;
     const v = this.form.getRawValue();
     const params = buildParams(this.paramSchema(), spec.paramsTemplate, v);
 
@@ -175,6 +188,27 @@ export class UpsertLimitDialogComponent {
         this.saving.set(false);
       },
     });
+  }
+
+  private applySpec(spec: LimitRuleSpec, assignment: LimitAssignmentItem | null): void {
+    this.spec.set(spec);
+    this.assignment.set(assignment);
+    const schema = detectParamSchema(spec);
+    this.paramSchema.set(schema);
+    this.applyValidators(schema);
+
+    const srcParams = assignment?.params ?? spec.paramsTemplate;
+    const extracted = extractParamValues(schema, spec.paramsTemplate, srcParams);
+
+    const onBreach = assignment?.onBreach ?? spec.defaultOutcome;
+    this.form.patchValue({
+      onBreach,
+      enabled: assignment?.enabled ?? true,
+      ...extracted,
+      autoWarn: false,
+      warnThresholdHtg: Math.max(0, extracted.valueCentsHtg - 1000),
+    });
+    this.onBreachValue.set(onBreach);
   }
 
   private applyValidators(schema: ParamSchema): void {

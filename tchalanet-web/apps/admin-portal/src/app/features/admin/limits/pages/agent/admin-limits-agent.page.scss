@@ -1,1 +1,9 @@
 @use '../limits-child-page';
+
+.limits-agent-page__toolbar {
+  align-items: flex-start;
+}
+
+.limits-agent-page__search {
+  flex: 1;
+}
