@@ -20,10 +20,9 @@ import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import type { BreachOutcome, LimitAssignmentItem, LimitRuleSpec, TargetType } from '../../data-access/admin-limits.models';
 
 const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean }[] = [
-  { value: 'TENANT',          label: 'Global (tenant)',     requiresId: false },
+  { value: 'TENANT',          label: 'Global',              requiresId: false },
   { value: 'DRAW_CHANNEL',    label: 'Par tirage',          requiresId: true  },
-  { value: 'AGENT',           label: 'Par agent',           requiresId: true  },
-  { value: 'SELLER_TERMINAL', label: 'Par terminal vendeur',requiresId: true  },
+  { value: 'SELLER_TERMINAL', label: 'Par vendeur',         requiresId: true  },
 ];
 
 @Component({
