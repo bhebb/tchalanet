@@ -23,7 +23,7 @@ import {
   AdminSectionTargetError,
 } from '@tch/ui/console';
 
-import { AdminSellerTerminalPosApiService } from '../../data-access/admin-seller-terminal-pos-api.service';
+import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import {
   ConfirmedTicketView,
   PosGameView,
@@ -32,7 +32,7 @@ import {
   PosTerminalActivityView,
   PosTicketDraftLine,
   PosTicketLineInput,
-} from '../../data-access/admin-seller-terminal-pos.models';
+} from '../../data-access/pos-sale.models';
 
 import { PosOpenDrawCardComponent } from '../../components/pos-open-draw-card/pos-open-draw-card.component';
 import { PosGameSelectorComponent } from '../../components/pos-game-selector/pos-game-selector.component';
@@ -44,7 +44,7 @@ import { PosSaleSuccessNoticeComponent } from '../../components/pos-sale-success
 let lineIdCounter = 0;
 
 @Component({
-  selector: 'tch-admin-seller-terminal-pos-page',
+  selector: 'tch-pos-terminal-sale-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -65,11 +65,11 @@ let lineIdCounter = 0;
     PosTerminalActivityCardComponent,
     PosSaleSuccessNoticeComponent,
   ],
-  templateUrl: './admin-seller-terminal-pos.page.html',
-  styleUrls: ['./admin-seller-terminal-pos.page.scss'],
+  templateUrl: './pos-terminal-sale.page.html',
+  styleUrls: ['./pos-terminal-sale.page.scss'],
 })
-export class AdminSellerTerminalPosPage implements OnInit {
-  private readonly api = inject(AdminSellerTerminalPosApiService);
+export class PosTerminalSalePage implements OnInit {
+  private readonly api = inject(PosSaleApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);

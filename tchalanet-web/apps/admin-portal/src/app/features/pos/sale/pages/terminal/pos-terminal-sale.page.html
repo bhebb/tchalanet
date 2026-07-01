@@ -23,6 +23,12 @@
       (retry)="ngOnInit()"
     />
   } @else {
+    @if (sellerTerminal(); as terminal) {
+      <tch-notice type="info" class="pos-page__acting-notice">
+        Mode admin : vous vendez au nom de {{ terminal.displayName }}. Les tickets seront rattachés au terminal
+        {{ terminal.terminalCode }}.
+      </tch-notice>
+    }
 
     <!-- Terminal bloqué -->
     @if (isTerminalBlocked()) {

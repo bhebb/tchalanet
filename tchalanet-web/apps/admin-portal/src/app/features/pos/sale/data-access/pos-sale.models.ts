@@ -1,3 +1,5 @@
+import { WebAppError } from '@tch/api';
+
 // ── Draw ───────────────────────────────────────────────────────────────────
 
 export interface PosOpenDrawView {
@@ -87,6 +89,7 @@ export interface ConfirmedTicketView {
   saleStatus?: string | null;
   backup?: PosTicketBackupView | null;
   sellerInstruction?: string | null;
+  warnings: readonly WebAppError[];
 }
 
 // ── Seller terminal (for POS context) ─────────────────────────────────────
@@ -97,6 +100,25 @@ export interface PosSellerTerminalView {
   displayName: string;
   status: 'ACTIVE' | 'BLOCKED' | 'INACTIVE' | 'DISABLED' | string;
   commissionRate?: number | null;
+}
+
+export interface PosSellerTerminalPickerView {
+  sellerTerminalId: string;
+  terminalCode: string;
+  displayName: string;
+  status: 'ACTIVE' | 'BLOCKED' | 'INACTIVE' | 'DISABLED' | string;
+  commissionRate?: number | null;
+  lastSeenAt?: string | null;
+  todayTicketCount?: number | null;
+  todaySalesAmount?: number | null;
+}
+
+export interface PosSellerTerminalListParams {
+  q?: string;
+  status?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
 }
 
 // ── Activity (matches SellerTerminalDailyStatsResponse on the server) ──────

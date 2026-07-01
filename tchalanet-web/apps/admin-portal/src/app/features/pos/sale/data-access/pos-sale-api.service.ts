@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
-import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import { TchBackendClient, TchPage, TchRequestOptions, webAppErrorFromNotice } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -9,9 +9,11 @@ import {
   ConfirmedTicketView,
   PosGameView,
   PosOpenDrawView,
+  PosSellerTerminalListParams,
+  PosSellerTerminalPickerView,
   PosSellerTerminalView,
   PosTerminalActivityView,
-} from './admin-seller-terminal-pos.models';
+} from './pos-sale.models';
 
 // ── Server response shapes (internal to this service) ──────────────────────
 
@@ -44,6 +46,12 @@ interface SellerTerminalDetailResponse {
   displayName: string;
   status: string;
   commissionRate?: number | null;
+}
+
+interface SellerTerminalSummaryResponse extends SellerTerminalDetailResponse {
+  lastSeenAt?: string | null;
+  todayTicketCount?: number | null;
+  todaySalesAmount?: number | null;
 }
 
 interface PosSellTicketApiResponse {
@@ -79,8 +87,40 @@ interface PrintTicketRequest {
 // ── Service ────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
-export class AdminSellerTerminalPosApiService {
+export class PosSaleApiService {
   private readonly backend = inject(TchBackendClient);
+
+  listSellerTerminalsForSale(
+    params: PosSellerTerminalListParams = {},
+    options?: TchRequestOptions,
+  ): Observable<TchPage<PosSellerTerminalPickerView>> {
+    return this.backend
+      .getPage<SellerTerminalSummaryResponse>('/admin/seller-terminals', {
+        ...(options ?? {}),
+        params: {
+          ...(params.q ? { q: params.q } : {}),
+          ...(params.status ? { status: params.status } : {}),
+          ...(params.sort ? { sort: params.sort } : {}),
+          page: String(params.page ?? 0),
+          size: String(params.size ?? 20),
+        },
+      })
+      .pipe(
+        map(page => ({
+          ...page,
+          items: page.items.map(r => ({
+            sellerTerminalId: r.id.value,
+            terminalCode: r.terminalCode,
+            displayName: r.displayName,
+            status: r.status,
+            commissionRate: r.commissionRate ?? null,
+            lastSeenAt: r.lastSeenAt ?? null,
+            todayTicketCount: r.todayTicketCount ?? null,
+            todaySalesAmount: r.todaySalesAmount ?? null,
+          })),
+        })),
+      );
+  }
 
   getSellerTerminalForPos(
     sellerTerminalId: string,
@@ -152,22 +192,33 @@ export class AdminSellerTerminalPosApiService {
     options?: TchRequestOptions,
   ): Observable<ConfirmedTicketView> {
     return this.backend
-      .post<PosSellTicketApiResponse>('/tenant/cashier/tickets/sell', request, {
+      .postApiResponse<PosSellTicketApiResponse>('/tenant/cashier/tickets/sell', request, {
         ...withHeaders(options, {
           'Idempotency-Key': idempotencyKey,
           'X-Tch-Act-As-Terminal': sellerTerminalId,
         }),
       })
       .pipe(
-        map(r => ({
-          outcome: r.outcome,
-          ticketId: r.ticketId,
-          ticketCode: r.ticketCode,
-          publicCode: r.publicCode ?? null,
-          saleStatus: r.saleStatus ?? null,
-          backup: r.backup ?? null,
-          sellerInstruction: r.sellerInstruction ?? null,
-        })),
+        map(response => {
+          const r = response.data;
+          return {
+            outcome: r.outcome,
+            ticketId: r.ticketId,
+            ticketCode: r.ticketCode,
+            publicCode: r.publicCode ?? null,
+            saleStatus: r.saleStatus ?? null,
+            backup: r.backup ?? null,
+            sellerInstruction: r.sellerInstruction ?? null,
+            warnings: response.notices.map(notice =>
+              webAppErrorFromNotice(
+                notice,
+                response.trace,
+                'admin.sellerTerminal.pos.sale',
+                'section',
+              ),
+            ),
+          };
+        }),
       );
   }
 

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
-import { PosTerminalActivityView } from '../../data-access/admin-seller-terminal-pos.models';
+import { PosTerminalActivityView } from '../../data-access/pos-sale.models';
 
 @Component({
   selector: 'tch-pos-terminal-activity-card',

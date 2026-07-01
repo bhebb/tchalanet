@@ -72,6 +72,16 @@
     span { font-size: 1rem; }
   }
 
+  &__pin-size {
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--tch-font-weight-semibold, 600);
+    color: var(--tch-color-on-surface-variant, #46464f);
+
+    &--complete {
+      color: var(--tch-color-status-ready, #1d6b3e);
+    }
+  }
+
   &__footer {
     display: flex;
     align-items: center;

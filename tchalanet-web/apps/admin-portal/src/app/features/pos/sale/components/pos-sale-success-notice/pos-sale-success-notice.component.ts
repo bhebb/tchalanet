@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 
-import { ConfirmedTicketView } from '../../data-access/admin-seller-terminal-pos.models';
+import { ConfirmedTicketView } from '../../data-access/pos-sale.models';
 
 @Component({
   selector: 'tch-pos-sale-success-notice',

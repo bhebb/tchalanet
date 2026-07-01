@@ -7,6 +7,16 @@
     <div class="psn__body">
       <p class="psn__title">Ticket vendu</p>
       <p class="psn__code">{{ ticket().ticketCode }}</p>
+      @if (ticket().warnings.length) {
+        <div class="psn__warnings" aria-label="Avertissements de vente">
+          @for (warning of ticket().warnings; track warning.id) {
+            <div class="psn__warning">
+              <span class="material-symbols-outlined psn__warning-icon" aria-hidden="true">warning</span>
+              <span>{{ warning.message }}</span>
+            </div>
+          }
+        </div>
+      }
       <div class="psn__actions">
         <button mat-flat-button color="accent" class="psn__btn-print" (click)="print.emit(ticket())">
           <span class="material-symbols-outlined">print</span>

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
-import { PosGameView } from '../../data-access/admin-seller-terminal-pos.models';
+import { PosGameView } from '../../data-access/pos-sale.models';
 
 @Component({
   selector: 'tch-pos-game-selector',

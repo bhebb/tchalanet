@@ -182,14 +182,25 @@
               placeholder="6 chiffres"
               autocomplete="new-password"
               inputmode="numeric"
+              minlength="6"
+              maxlength="6"
             />
             <button mat-icon-button matSuffix type="button" (click)="toggleShowPin()" [attr.aria-label]="showPin() ? 'Masquer' : 'Afficher'">
               <span class="material-symbols-outlined">{{ showPin() ? 'visibility_off' : 'visibility' }}</span>
             </button>
+            <mat-hint>Exactement 6 chiffres.</mat-hint>
+            <mat-hint align="end">
+              <span class="stn-page__pin-size" [class.stn-page__pin-size--complete]="pinLength('initialPin') === 6">
+                {{ pinLength('initialPin') }}/6
+              </span>
+            </mat-hint>
             @if (form.controls.initialPin.hasError('required')) {
               <mat-error>Le PIN est requis.</mat-error>
             }
             @if (form.controls.initialPin.hasError('pattern')) {
+              <mat-error>Le PIN doit contenir exactement 6 chiffres.</mat-error>
+            }
+            @if (form.controls.initialPin.hasError('minlength') || form.controls.initialPin.hasError('maxlength')) {
               <mat-error>Le PIN doit contenir exactement 6 chiffres.</mat-error>
             }
           </mat-form-field>
@@ -204,12 +215,27 @@
               placeholder="Répéter le PIN"
               autocomplete="new-password"
               inputmode="numeric"
+              minlength="6"
+              maxlength="6"
             />
             <button mat-icon-button matSuffix type="button" (click)="toggleShowConfirmPin()" [attr.aria-label]="showConfirmPin() ? 'Masquer' : 'Afficher'">
               <span class="material-symbols-outlined">{{ showConfirmPin() ? 'visibility_off' : 'visibility' }}</span>
             </button>
+            <mat-hint>Répétez les 6 chiffres.</mat-hint>
+            <mat-hint align="end">
+              <span class="stn-page__pin-size" [class.stn-page__pin-size--complete]="pinLength('confirmPin') === 6">
+                {{ pinLength('confirmPin') }}/6
+              </span>
+            </mat-hint>
             @if (form.controls.confirmPin.hasError('required')) {
               <mat-error>La confirmation est requise.</mat-error>
+            }
+            @if (
+              form.controls.confirmPin.hasError('pattern') ||
+              form.controls.confirmPin.hasError('minlength') ||
+              form.controls.confirmPin.hasError('maxlength')
+            ) {
+              <mat-error>La confirmation doit contenir exactement 6 chiffres.</mat-error>
             }
           </mat-form-field>
           <tch-field-error [message]="serverFieldMessage(form.controls.confirmPin)" />

@@ -22,6 +22,7 @@ import {
   DrawResultStatus,
   DrawResultQuality,
 } from '../../admin-draw-results-api.service';
+import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../shared/lottery/lottery-assets';
 
 @Component({
   selector: 'tch-admin-draw-results-page',
@@ -46,7 +47,7 @@ export class AdminDrawResultsPage implements OnInit {
   private readonly api = inject(AdminDrawResultsApi);
   private readonly translate = inject(TranslateService);
 
-  readonly columns = ['channelCode', 'slotLabel', 'drawDate', 'numbers', 'status', 'quality', 'appliedAt'];
+  readonly columns = ['source', 'draw', 'numbers', 'status', 'quality', 'fetchedAt', 'appliedAt'];
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
@@ -100,6 +101,14 @@ export class AdminDrawResultsPage implements OnInit {
       case 'ESTIMATED': return 'warning';
       default: return 'neutral';
     }
+  }
+
+  providerLogo(row: DrawResultView): string | null {
+    return lotteryLogoForSlot(row.slotKey);
+  }
+
+  providerCode(row: DrawResultView): string {
+    return lotteryProviderCodeFromSlot(row.slotKey)?.toUpperCase() ?? row.channelCode;
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {

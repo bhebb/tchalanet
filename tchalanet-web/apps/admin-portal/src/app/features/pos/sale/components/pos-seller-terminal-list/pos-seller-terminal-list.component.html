@@ -1,0 +1,64 @@
+<div class="pos-seller-terminal-list">
+  <table
+    mat-table
+    matSort
+    [dataSource]="sellerTerminals()"
+    [matSortActive]="sortActive()"
+    [matSortDirection]="sortDirection()"
+    matSortDisableClear
+    (matSortChange)="sortChange.emit($event)"
+  >
+    <ng-container matColumnDef="seller">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="displayName">Vendeur</th>
+      <td mat-cell *matCellDef="let row" data-label="Vendeur">
+        <strong class="pos-seller-terminal-list__name">{{ row.displayName }}</strong>
+        <span class="pos-seller-terminal-list__code">{{ row.terminalCode }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="status">Statut</th>
+      <td mat-cell *matCellDef="let row" data-label="Statut">
+        <tch-status-badge [label]="statusLabel(row.status)" [status]="statusBadge(row.status)" />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="todayTicketCount">
+      <th mat-header-cell *matHeaderCellDef>Tickets aujourd'hui</th>
+      <td mat-cell *matCellDef="let row" data-label="Tickets aujourd'hui">{{ row.todayTicketCount ?? 0 }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="todaySalesAmount">
+      <th mat-header-cell *matHeaderCellDef>Ventes aujourd'hui</th>
+      <td mat-cell *matCellDef="let row" data-label="Ventes aujourd'hui">
+        {{ row.todaySalesAmount ?? 0 | number:'1.0-0' }} HTG
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="lastSeenAt">
+      <th mat-header-cell *matHeaderCellDef>Dernière activité</th>
+      <td mat-cell *matCellDef="let row" data-label="Dernière activité">
+        {{ row.lastSeenAt ? (row.lastSeenAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row" class="pos-seller-terminal-list__actions" data-label="Action">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [disabled]="!canSellAs(row)"
+          (click)="sellAs.emit(row)"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">login</span>
+          {{ canSellAs(row) ? 'Agir comme vendeur' : 'Indisponible' }}
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>

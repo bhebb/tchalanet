@@ -17,6 +17,8 @@ export interface DrawResultView {
   status: DrawResultStatus;
   quality: DrawResultQuality;
   numbers: number[];
+  occurredAt?: string | null;
+  fetchedAt?: string | null;
   appliedAt?: string | null;
   publishedAt?: string | null;
 }

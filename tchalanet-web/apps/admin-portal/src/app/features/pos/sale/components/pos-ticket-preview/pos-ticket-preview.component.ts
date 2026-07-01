@@ -7,7 +7,7 @@ import {
   PosOpenDrawView,
   PosSellerTerminalView,
   PosTicketDraftLine,
-} from '../../data-access/admin-seller-terminal-pos.models';
+} from '../../data-access/pos-sale.models';
 import { BET_TYPE_LABELS } from '../pos-ticket-line-editor/pos-ticket-line-editor.component';
 
 @Component({

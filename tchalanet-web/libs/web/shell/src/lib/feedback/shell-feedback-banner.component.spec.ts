@@ -70,4 +70,10 @@ describe('ShellFeedbackBannerComponent', () => {
       expect(makeComponent('verbose', item)['showDetails']()).toBe(true);
     });
   });
+
+  describe('icon', () => {
+    it('uses a confirmation icon for success feedback', () => {
+      expect(makeComponent('standard', makeItem({ severity: 'success' }))['icon']).toBe('check_circle');
+    });
+  });
 });

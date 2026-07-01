@@ -169,7 +169,7 @@ export class AdminSellerTerminalsPage implements OnInit {
   }
 
   openPOS(row: SellerTerminalSummaryRow): void {
-    void this.router.navigate(['/app/admin/tickets/sell', row.id.value]);
+    void this.router.navigate(['/app/admin/pos/sale', row.id.value]);
   }
 
   openBlock(row: SellerTerminalSummaryRow): void {

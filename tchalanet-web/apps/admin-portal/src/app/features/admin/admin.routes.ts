@@ -37,6 +37,10 @@ export const adminRoutes: Route[] = [
         m => m.adminSellerTerminalsRoutes,
       ),
   },
+  {
+    path: 'pos',
+    loadChildren: () => import('../pos/pos.routes').then(m => m.posRoutes),
+  },
   // ── Tirages ────────────────────────────────────────────────────────────────
   {
     path: 'draws',

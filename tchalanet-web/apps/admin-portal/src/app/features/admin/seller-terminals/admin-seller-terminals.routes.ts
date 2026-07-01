@@ -24,7 +24,8 @@ export const adminSellerTerminalsRoutes: Route[] = [
   },
   {
     path: 'sell',
-    loadComponent: () => import('./pages/sell/pos-sell.page').then(m => m.PosSellPage),
+    redirectTo: '/app/admin/pos/sale',
+    pathMatch: 'full',
   },
   {
     path: ':sellerTerminalId',
@@ -35,8 +36,8 @@ export const adminSellerTerminalsRoutes: Route[] = [
   {
     path: ':sellerTerminalId/pos',
     loadComponent: () =>
-      import('./pages/pos/admin-seller-terminal-pos.page').then(
-        m => m.AdminSellerTerminalPosPage,
+      import('../../pos/sale/pages/terminal/pos-terminal-sale.page').then(
+        m => m.PosTerminalSalePage,
       ),
   },
 ];

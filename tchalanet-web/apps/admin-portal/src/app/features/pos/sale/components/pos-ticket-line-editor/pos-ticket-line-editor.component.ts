@@ -19,7 +19,7 @@ import {
   PosGameView,
   PosTicketDraftLine,
   PosTicketLineInput,
-} from '../../data-access/admin-seller-terminal-pos.models';
+} from '../../data-access/pos-sale.models';
 
 export const BET_TYPE_LABELS: Record<PosBetType, string> = {
   DIRECT: 'Direct',

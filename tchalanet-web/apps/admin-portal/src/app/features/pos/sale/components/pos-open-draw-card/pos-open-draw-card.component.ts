@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 
-import { PosOpenDrawView } from '../../data-access/admin-seller-terminal-pos.models';
+import { PosOpenDrawView } from '../../data-access/pos-sale.models';
 
 @Component({
   selector: 'tch-pos-open-draw-card',

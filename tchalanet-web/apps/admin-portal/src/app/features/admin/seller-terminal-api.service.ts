@@ -100,6 +100,7 @@ export interface ListSellerTerminalsParams {
   status?: SellerTerminalStatus | '';
   page?: number;
   size?: number;
+  sort?: string;
   tenantId?: string;
 }
 
@@ -195,6 +196,7 @@ export class SellerTerminalApi {
     return {
       ...(params.q ? { q: params.q } : {}),
       ...(params.status ? { status: params.status } : {}),
+      ...(params.sort ? { sort: params.sort } : {}),
       ...(params.page !== undefined ? { page: String(params.page) } : {}),
       ...(params.size !== undefined ? { size: String(params.size) } : {}),
     };

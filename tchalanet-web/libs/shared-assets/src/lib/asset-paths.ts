@@ -49,6 +49,7 @@ export const TCH_CONFIG_ASSETS = {
 } as const;
 
 export const TCH_LOTTERY_ASSET_BASE_PATH = tchAssetPath('images/lottery');
+export const TCH_LOTTERY_LOGO_ASSET_BASE_PATH = tchAssetPath('images/logo');
 
 export function tchAssetPath(path: string): string {
   const cleanPath = path.replace(/^\/+/, '');
