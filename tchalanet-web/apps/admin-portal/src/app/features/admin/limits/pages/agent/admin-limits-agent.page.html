@@ -1,0 +1,62 @@
+<div class="limits-child-page">
+  <div class="limits-child-page__target-row">
+    <mat-form-field appearance="outline">
+      <mat-label>Code du terminal vendeur</mat-label>
+      <input matInput [formControl]="terminalCtrl" placeholder="ex: T001" (keyup.enter)="loadForTerminal()">
+      <mat-hint>Entrez le code du terminal pour charger ses limites.</mat-hint>
+    </mat-form-field>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="loadForTerminal()"
+      [disabled]="!terminalCtrl.value.trim() || loading()">
+      Charger
+    </button>
+  </div>
+
+  @if (!loadedTerminalCode()) {
+    <div class="limits-child-page__no-target">
+      <span class="material-symbols-outlined">info</span>
+      Saisissez un code de terminal et cliquez sur <strong>Charger</strong>.
+    </div>
+  } @else if (loading()) {
+    <tch-loading label="Chargement des limites…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="loadForTerminal()"
+    />
+  } @else if (rows().length === 0) {
+    <tch-admin-empty-state
+      icon="policy"
+      title="Aucune règle disponible"
+      message="Le catalogue de règles est vide."
+    />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        title="Action effectuée"
+        [message]="actionNotice()!"
+        severity="info"
+      />
+    }
+
+    <tch-limit-assignments-table
+      [rows]="rows()"
+      [canEdit]="true"
+      (upsert)="openUpsert($event)"
+      (delete)="confirmDelete($event)"
+    />
+  }
+</div>

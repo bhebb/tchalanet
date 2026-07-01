@@ -1,0 +1,6 @@
+@use '../limits-child-page';
+
+.limits-draw-page__channel-select {
+  flex: 1;
+  max-width: 320px;
+}

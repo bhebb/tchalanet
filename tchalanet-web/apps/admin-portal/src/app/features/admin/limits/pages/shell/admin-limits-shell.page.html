@@ -1,0 +1,40 @@
+<tch-admin-page-shell
+  title="Limites de vente"
+  description="Configurez les règles de contrôle appliquées aux transactions.">
+
+  <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="limits-shell__nav">
+    <a mat-tab-link
+      routerLink="global"
+      routerLinkActive
+      #rlaG="routerLinkActive"
+      [active]="rlaG.isActive">
+      Générales
+    </a>
+    <a mat-tab-link
+      routerLink="draw"
+      routerLinkActive
+      #rlaD="routerLinkActive"
+      [active]="rlaD.isActive">
+      Par tirage
+    </a>
+    <a mat-tab-link
+      routerLink="agent"
+      routerLinkActive
+      #rlaA="routerLinkActive"
+      [active]="rlaA.isActive">
+      Par vendeur
+    </a>
+    <a mat-tab-link
+      routerLink="number"
+      routerLinkActive
+      #rlaN="routerLinkActive"
+      [active]="rlaN.isActive">
+      Par numéro
+    </a>
+  </nav>
+
+  <mat-tab-nav-panel #tabPanel class="limits-shell__panel">
+    <router-outlet />
+  </mat-tab-nav-panel>
+
+</tch-admin-page-shell>

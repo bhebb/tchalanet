@@ -1,0 +1,51 @@
+<div class="limits-child-page">
+  <div class="limits-child-page__toolbar">
+    <p class="limits-child-page__scope-note">
+      Limites appliquées globalement à tous les terminaux du tenant.
+    </p>
+    <button mat-stroked-button (click)="load()" [disabled]="loading()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement des limites…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (rows().length === 0) {
+    <tch-admin-empty-state
+      icon="policy"
+      title="Aucune règle disponible"
+      message="Le catalogue de règles est vide."
+    />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        title="Action effectuée"
+        [message]="actionNotice()!"
+        severity="info"
+      />
+    }
+
+    <tch-limit-assignments-table
+      [rows]="rows()"
+      [canEdit]="true"
+      (upsert)="openUpsert($event)"
+      (delete)="confirmDelete($event)"
+    />
+  }
+</div>

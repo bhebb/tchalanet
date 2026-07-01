@@ -1,0 +1,69 @@
+<div class="limits-child-page">
+  <div class="limits-child-page__toolbar">
+    @if (channelsError(); as err) {
+      <tch-section-error [title]="err.title" [message]="err.message" [severity]="err.severity" />
+    } @else {
+      <mat-form-field appearance="outline" class="limits-draw-page__channel-select">
+        <mat-label>Canal de tirage</mat-label>
+        <mat-select [formControl]="channelCtrl">
+          @if (channelsLoading()) {
+            <mat-option disabled>Chargement…</mat-option>
+          }
+          @for (ch of channels(); track ch.channelCode) {
+            <mat-option [value]="ch.channelCode">{{ ch.channelName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannel()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  @if (!selectedChannel()) {
+    <div class="limits-child-page__no-target">
+      <span class="material-symbols-outlined">info</span>
+      Sélectionnez un canal pour voir et configurer ses limites spécifiques.
+    </div>
+  } @else if (loading()) {
+    <tch-loading label="Chargement des limites…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="reload()"
+    />
+  } @else if (rows().length === 0) {
+    <tch-admin-empty-state
+      icon="policy"
+      title="Aucune règle disponible"
+      message="Le catalogue de règles est vide."
+    />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        title="Action effectuée"
+        [message]="actionNotice()!"
+        severity="info"
+      />
+    }
+
+    <tch-limit-assignments-table
+      [rows]="rows()"
+      [canEdit]="true"
+      (upsert)="openUpsert($event)"
+      (delete)="confirmDelete($event)"
+    />
+  }
+</div>

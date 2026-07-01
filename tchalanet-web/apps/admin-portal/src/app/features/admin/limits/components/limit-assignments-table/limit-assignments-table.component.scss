@@ -1,0 +1,52 @@
+.lat__category-title {
+  font-weight: var(--tch-weight-semibold, 600);
+}
+
+.lat__table {
+  width: 100%;
+
+  th {
+    color: var(--tch-color-on-surface);
+    font-weight: var(--tch-weight-semibold, 600);
+  }
+
+  td,
+  th {
+    padding-block: 0.625rem;
+  }
+}
+
+.lat__rule-label {
+  font-size: var(--tch-font-size-body-sm);
+  color: var(--tch-color-on-surface);
+  font-weight: var(--tch-weight-medium, 500);
+}
+
+.lat__rule-desc {
+  font-size: var(--tch-font-size-label-sm);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.lat__status-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.lat__params-preview {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: var(--tch-font-size-label-sm);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.lat__muted {
+  color: var(--tch-color-on-surface-variant);
+}
+
+.lat__row--assigned {
+  background: color-mix(in srgb, var(--tch-color-primary) 4%, transparent);
+}
+
+.lat__row--disabled {
+  opacity: 0.65;
+}

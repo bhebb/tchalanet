@@ -52,13 +52,8 @@ export const adminRoutes: Route[] = [
   // ── Limites ────────────────────────────────────────────────────────────────
   {
     path: 'limits',
-    loadComponent: () =>
-      import('./pages/limits/admin-limits.page').then(m => m.AdminLimitsPage),
-  },
-  {
-    path: 'limits/rules',
-    loadComponent: () =>
-      import('./pages/limits/admin-limits-rules.page').then(m => m.AdminLimitsRulesPage),
+    loadChildren: () =>
+      import('./limits/admin-limits.routes').then(m => m.adminLimitsRoutes),
   },
   { path: 'controls/limits', redirectTo: 'limits', pathMatch: 'full' },
   // ── Contrôles de vente ─────────────────────────────────────────────────────
