@@ -1,0 +1,54 @@
+@use '../limits-child-page';
+
+.lsp__category-title {
+  font-weight: var(--tch-weight-semibold, 600);
+}
+
+.lsp__table {
+  width: 100%;
+
+  th {
+    font-weight: var(--tch-weight-semibold, 600);
+    color: var(--tch-color-on-surface);
+  }
+
+  td, th {
+    padding-block: 0.625rem;
+  }
+}
+
+.lsp__rule-label {
+  font-size: var(--tch-font-size-body-sm);
+  font-weight: var(--tch-weight-medium, 500);
+  color: var(--tch-color-on-surface);
+}
+
+.lsp__rule-desc {
+  font-size: var(--tch-font-size-label-sm);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.lsp__badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--tch-radius-pill, 999px);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &--stateless {
+    background: var(--tch-color-surface-container-high);
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &--stateful {
+    background: var(--tch-color-surface-container);
+    color: var(--tch-color-primary);
+  }
+}
+
+.lsp__params-text {
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-body-sm);
+}

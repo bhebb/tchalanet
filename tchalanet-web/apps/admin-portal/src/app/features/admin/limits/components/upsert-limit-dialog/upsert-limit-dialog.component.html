@@ -1,0 +1,152 @@
+<h2 mat-dialog-title>
+  @if (mode() === 'add') { Ajouter une règle }
+  @else if (assignment()) { Modifier la règle }
+  @else { Configurer la règle }
+</h2>
+
+<mat-dialog-content class="upsert-limit-dialog__content">
+  @if (mode() === 'add') {
+    <mat-form-field appearance="outline" class="upsert-limit-dialog__rule-picker">
+      <mat-label>Règle à configurer</mat-label>
+      <mat-select (selectionChange)="onRuleSelected($event.value)">
+        @for (rule of availableRules(); track rule.ruleKey) {
+          <mat-option [value]="rule.ruleKey">{{ rule.label || rule.ruleKey }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  @if (spec(); as s) {
+    <div class="upsert-limit-dialog__rule-info">
+      <div class="upsert-limit-dialog__rule-label">{{ s.label || s.ruleKey }}</div>
+      @if (s.description) {
+        <p class="upsert-limit-dialog__rule-desc">{{ s.description }}</p>
+      }
+    </div>
+  }
+
+  @if (error(); as err) {
+    <tch-section-error
+      class="upsert-limit-dialog__error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity"
+    />
+  }
+
+  @if (showParamForm()) {
+    <form [formGroup]="form" class="upsert-limit-dialog__form">
+      <mat-form-field appearance="outline">
+        <mat-label>En cas de dépassement</mat-label>
+        <mat-select formControlName="onBreach">
+          @for (o of breachOutcomes; track o) {
+            <mat-option [value]="o">{{ o === 'BLOCK' ? 'Bloquer' : 'Avertir' }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (showValueCents()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Montant maximum (HTG)</mat-label>
+          <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01">
+          <mat-hint>Saisissez le seuil en gourdes haïtiennes.</mat-hint>
+          @if (form.controls.valueCentsHtg.errors?.['min']) {
+            <mat-error>Le montant doit être positif.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      @if (showMaxCount()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre maximum</mat-label>
+          <input matInput type="number" formControlName="maxCount" min="1" step="1">
+          @if (form.controls.maxCount.errors?.['min']) {
+            <mat-error>La valeur doit être au moins 1.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      @if (showWindowMinutes()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Fenêtre de temps (minutes)</mat-label>
+          <input matInput type="number" formControlName="windowMinutes" min="1" step="1">
+          @if (form.controls.windowMinutes.errors?.['min']) {
+            <mat-error>La durée doit être au moins 1 minute.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      @if (showBetTypeCode()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Code type de pari</mat-label>
+          <input matInput formControlName="betTypeCode" placeholder="ex: BORLETTE, MARIAJ">
+          @if (form.controls.betTypeCode.errors?.['required']) {
+            <mat-error>Champ obligatoire.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      @if (showSelectionChips()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Numéros bloqués</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Numéros bloqués">
+            @for (sel of selections(); track sel) {
+              <mat-chip (removed)="removeSelection(sel)">
+                {{ sel }}
+                <button matChipRemove aria-label="Retirer {{ sel }}">
+                  <span class="material-symbols-outlined">cancel</span>
+                </button>
+              </mat-chip>
+            }
+            <input
+              placeholder="Ex : 13, appuyez Entrée"
+              [matChipInputFor]="chipGrid"
+              [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+              (matChipInputTokenEnd)="addSelection($event)"
+            />
+          </mat-chip-grid>
+          <mat-hint>Entrez un numéro puis appuyez sur Entrée ou virgule.</mat-hint>
+          @if (selections().length === 0) {
+            <mat-error>Ajoutez au moins un numéro.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <mat-checkbox formControlName="enabled">Règle active</mat-checkbox>
+
+      <div class="upsert-limit-dialog__duration">
+        <p class="upsert-limit-dialog__duration-label">Durée d'application</p>
+        <mat-button-toggle-group
+          [value]="durationMode()"
+          (change)="durationMode.set($event.value)"
+          class="upsert-limit-dialog__duration-toggle">
+          <mat-button-toggle value="permanent">Permanent</mat-button-toggle>
+          <mat-button-toggle value="today">Aujourd'hui</mat-button-toggle>
+          <mat-button-toggle value="custom">Personnalisé</mat-button-toggle>
+        </mat-button-toggle-group>
+        @if (showCustomEndDate()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin</mat-label>
+            <input
+              matInput
+              type="date"
+              [value]="customEndsAt()"
+              (change)="onCustomEndsAtChange($event)">
+            <mat-hint>Fin de journée selon le fuseau {{ timezone() }}.</mat-hint>
+          </mat-form-field>
+        }
+      </div>
+    </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>Annuler</button>
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="!canSave()"
+    (click)="save()">
+    {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+  </button>
+</mat-dialog-actions>

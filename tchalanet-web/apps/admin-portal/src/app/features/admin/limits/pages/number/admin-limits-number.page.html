@@ -1,0 +1,102 @@
+<div class="limits-child-page">
+
+  <div class="limits-number__guide">
+    <div class="limits-number__rule-card">
+      <span class="material-symbols-outlined">bar_chart</span>
+      <div class="limits-number__rule-card-body">
+        <p class="limits-number__rule-card-title">Exposition des mises</p>
+        <p class="limits-number__rule-card-desc">Plafonne la mise totale vendue sur un même numéro pour un tirage. Exemple : max 10 000 HTG de mises sur le 13. S'applique de façon uniforme à tous les numéros.</p>
+      </div>
+    </div>
+    <div class="limits-number__rule-card">
+      <span class="material-symbols-outlined">payments</span>
+      <div class="limits-number__rule-card-body">
+        <p class="limits-number__rule-card-title">Exposition des gains potentiels</p>
+        <p class="limits-number__rule-card-desc">Plafonne le gain potentiel total exposé sur un numéro par tirage. Exemple : max 500 000 HTG de gain potentiel sur le 13 (premier lot). Protège contre un tirage trop concentré.</p>
+      </div>
+    </div>
+    <div class="limits-number__rule-card limits-number__rule-card--block">
+      <span class="material-symbols-outlined">block</span>
+      <div class="limits-number__rule-card-body">
+        <p class="limits-number__rule-card-title">Blocage de numéros</p>
+        <p class="limits-number__rule-card-desc">Bloque complètement un ou plusieurs numéros à la vente pour tous les tirages. Définissez une date de fin « Aujourd'hui » pour un blocage temporaire sur la journée.</p>
+      </div>
+    </div>
+    <div class="limits-number__note">
+      <span class="material-symbols-outlined">info</span>
+      <span>Pour bloquer un numéro seulement sur un canal précis, configurez la règle dans l'onglet <strong>Par canal</strong>.</span>
+    </div>
+  </div>
+
+  <div class="limits-child-page__toolbar">
+    <p class="limits-child-page__scope-note">
+      Règles par numéro — s'appliquent à tous les tirages au niveau du tenant.
+    </p>
+    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Règles supportées
+    </a>
+    <button mat-stroked-button (click)="load()" [disabled]="loading()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+    @if (!loading() && allRows().length > 0) {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openAdd()"
+        [disabled]="unassignedRules().length === 0">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (allRows().length === 0) {
+    <tch-admin-empty-state
+      icon="numbers"
+      title="Aucune règle par numéro"
+      message="Le backend ne publie pas de règles par numéro."
+    />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        title="Action effectuée"
+        [message]="actionNotice()!"
+        severity="info"
+      />
+    }
+
+    @if (activeRows().length === 0) {
+      <tch-admin-empty-state
+        icon="numbers"
+        title="Aucune règle par numéro active"
+        message="Cliquez sur Ajouter pour configurer une limite d'exposition ou un blocage de numéro."
+      />
+    } @else {
+      <tch-limit-assignments-table
+        [rows]="activeRows()"
+        [canEdit]="true"
+        (upsert)="openUpsert($event)"
+        (delete)="confirmDelete($event)"
+      />
+    }
+  }
+</div>

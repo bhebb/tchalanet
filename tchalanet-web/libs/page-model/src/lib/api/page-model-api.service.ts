@@ -1,6 +1,7 @@
-import { HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { ApiNotice, ApiResponse, TchBackendClient } from '@tch/api';
+import { TCH_CONFIG_ASSETS } from '@tch/shared-assets';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -9,6 +10,7 @@ import { PageRuntimeResponse, WidgetDynamicError } from '../runtime/pagemodel.ty
 @Injectable({ providedIn: 'root' })
 export class PageModelApi {
   private readonly backend = inject(TchBackendClient);
+  private readonly http = inject(HttpClient);
 
   getPublicPage(lang?: string): Observable<PageRuntimeResponse> {
     return this.backend.getApiResponse<PageRuntimeResponse>('/public/page', {
@@ -43,11 +45,17 @@ export class PageModelApi {
       params: langParams(lang),
     }).pipe(map(withSectionNotices));
   }
+
+  getPrivateFallbackPage(): Observable<PageRuntimeResponse> {
+    return this.http.get<PageRuntimeResponse>(TCH_CONFIG_ASSETS.pagePrivateFallback);
+  }
 }
 
 function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRuntimeResponse {
+  assertPageRuntimeResponse(response.data);
+
   const existingKeys = new Set(
-    (response.data?.dynamic?.errors ?? []).map(error => widgetErrorKey(error.widgetId, error.code)),
+    response.data.dynamic.errors.map(error => widgetErrorKey(error.widgetId, error.code)),
   );
   const widgetErrors = (response.notices ?? [])
     .map(notice => widgetErrorFromNotice(notice, response.trace))
@@ -66,6 +74,12 @@ function withSectionNotices(response: ApiResponse<PageRuntimeResponse>): PageRun
       ],
     },
   };
+}
+
+function assertPageRuntimeResponse(data: PageRuntimeResponse | null | undefined): asserts data is PageRuntimeResponse {
+  if (!data?.content?.layout || !data.dynamic?.widgets || !data.dynamic.errors) {
+    throw new Error('Invalid PageRuntimeResponse');
+  }
 }
 
 function widgetErrorKey(widgetId: string, code: string | undefined): string {

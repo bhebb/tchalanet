@@ -1,0 +1,73 @@
+<div class="limits-child-page">
+  <div class="limits-child-page__toolbar">
+    <p class="limits-child-page__scope-note">
+      Limites appliquées globalement à tous les terminaux du tenant.
+    </p>
+    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
+      <span class="material-symbols-outlined">info</span>
+      Règles supportées
+    </a>
+    <button mat-stroked-button (click)="load()" [disabled]="loading()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+    @if (!loading() && allRows().length > 0) {
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openAdd()"
+        [disabled]="unassignedRules().length === 0">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement des limites…" />
+  } @else if (pageError(); as err) {
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (allRows().length === 0) {
+    <tch-admin-empty-state
+      icon="policy"
+      title="Aucune règle disponible"
+      message="Le catalogue de règles est vide."
+    />
+  } @else {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        title="Action effectuée"
+        [message]="actionNotice()!"
+        severity="info"
+      />
+    }
+
+    @if (activeRows().length === 0) {
+      <tch-admin-empty-state
+        icon="policy"
+        title="Aucune limite configurée"
+        message="Cliquez sur Ajouter pour configurer une première limite."
+      />
+    } @else {
+      <tch-limit-assignments-table
+        [rows]="activeRows()"
+        [canEdit]="true"
+        (upsert)="openUpsert($event)"
+        (delete)="confirmDelete($event)"
+      />
+    }
+  }
+</div>

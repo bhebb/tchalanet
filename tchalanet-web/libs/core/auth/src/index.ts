@@ -21,5 +21,6 @@ export * from './lib/runtime/private-bootstrap.model';
 export * from './lib/runtime/private-bootstrap.service';
 export * from './lib/runtime/private-bootstrap.store';
 export * from './lib/runtime/private-runtime-initializer';
+export * from './lib/runtime/runtime-navigation.mapper';
 export * from './lib/support/support-access.interceptor';
 export * from './lib/support/support-access.store';

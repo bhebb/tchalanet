@@ -219,46 +219,32 @@
             "icon": "shield",
             "children": [
               {
-                "id": "limits-system",
-                "label_key": "nav.admin.limits_system",
-                "path": "/app/admin/limits?scope=system",
-                "kind": "internal",
-                "icon": "lock"
-              },
-              {
                 "id": "limits-global",
                 "label_key": "nav.admin.limits_global",
-                "path": "/app/admin/limits?scope=global",
+                "path": "/app/admin/limits/global",
                 "kind": "internal",
                 "icon": "tune"
               },
               {
                 "id": "limits-seller",
                 "label_key": "nav.admin.limits_seller",
-                "path": "/app/admin/limits?scope=seller",
+                "path": "/app/admin/limits/seller-terminal",
                 "kind": "internal",
                 "icon": "person"
               },
               {
-                "id": "limits-number",
-                "label_key": "nav.admin.limits_number",
-                "path": "/app/admin/limits?scope=number",
-                "kind": "internal",
-                "icon": "pin"
-              },
-              {
-                "id": "limits-game",
-                "label_key": "nav.admin.limits_game",
-                "path": "/app/admin/limits?scope=game",
-                "kind": "internal",
-                "icon": "casino"
-              },
-              {
                 "id": "limits-draw",
                 "label_key": "nav.admin.limits_draw",
-                "path": "/app/admin/limits?scope=draw",
+                "path": "/app/admin/limits/draw",
                 "kind": "internal",
                 "icon": "event"
+              },
+              {
+                "id": "limits-number",
+                "label_key": "nav.admin.limits_number",
+                "path": "/app/admin/limits/number",
+                "kind": "internal",
+                "icon": "pin"
               }
             ]
           },

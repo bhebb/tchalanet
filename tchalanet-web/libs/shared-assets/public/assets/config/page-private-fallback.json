@@ -1,68 +1,123 @@
 {
-  "currentLang": "fr",
-  "langs": [
-    "fr"
-  ],
-  "context": "dashboard-private",
-  "version": "fallback-1",
-  "theme": {
-    "presetId": "tchalanet-console",
-    "mode": "light",
-    "primaryColor": "#225EC7",
-    "accentColor": "#134D9F"
-  },
-  "header": {
-    "component": "PrivateHeader",
-    "properties": {
-      "brand": {
-        "name": "Tchalanet"
-      }
-    }
-  },
-  "nav": {
-    "header": [],
-    "sidenav": [
+  "meta": {
+    "logicalId": "private.dashboard.fallback",
+    "scope": "private",
+    "slug": "dashboard",
+    "schemaVersion": 2,
+    "currentLang": "fr",
+    "supportedLangs": [
       {
-        "labelKey": "nav.dashboard",
-        "path": "/app/dashboard",
-        "icon": "dashboard"
+        "code": "fr",
+        "label": "Français",
+        "shortLabel": "FR"
       }
     ]
   },
-  "layout": {
-    "component": "GridLayout",
-    "rows": [
-      {
-        "columns": [
-          {
-            "span": 12,
-            "widgets": [
-              {
-                "component": "InfoWidget",
-                "properties": {
-                  "title": "Console prête",
-                  "message": "Configuration par défaut appliquée. Veuillez contacter l’administrateur si les données tardent à arriver."
-                }
+  "shell": {
+    "type": "private",
+    "topAppBar": {
+      "titleKey": "dashboard.fallback.title"
+    },
+    "navigationDrawer": {
+      "primary": []
+    }
+  },
+  "content": {
+    "layout": {
+      "rows": [
+        {
+          "id": "fallback-status",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.fallback.notice", "dashboard.fallback.status"]
+            }
+          ]
+        },
+        {
+          "id": "fallback-actions",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.fallback.actions"]
+            }
+          ]
+        }
+      ]
+    },
+    "widgets": {
+      "dashboard.fallback.notice": {
+        "type": "AlertsWidget",
+        "props": {
+          "titleKey": "dashboard.fallback.notice.title",
+          "emptyKey": "dashboard.fallback.notice.empty"
+        }
+      },
+      "dashboard.fallback.status": {
+        "type": "KpiGridWidget",
+        "props": {
+          "titleKey": "dashboard.fallback.status.title",
+          "items": [
+            {
+              "id": "runtime",
+              "labelKey": "dashboard.fallback.status.runtime",
+              "icon": "cloud_off",
+              "tone": "warning",
+              "value": "Dégradé"
+            },
+            {
+              "id": "support",
+              "labelKey": "dashboard.fallback.status.support",
+              "icon": "support_agent",
+              "tone": "neutral",
+              "value": "Référence requise"
+            }
+          ]
+        }
+      },
+      "dashboard.fallback.actions": {
+        "type": "QuickActionsWidget",
+        "props": {
+          "titleKey": "dashboard.fallback.actions.title",
+          "actions": [
+            {
+              "id": "admin.setup",
+              "labelKey": "dashboard.fallback.actions.setup",
+              "icon": "checklist",
+              "destination": {
+                "kind": "route",
+                "value": "/app/admin/setup"
               }
-            ]
+            },
+            {
+              "id": "admin.support",
+              "labelKey": "dashboard.fallback.actions.support",
+              "icon": "support_agent",
+              "destination": {
+                "kind": "route",
+                "value": "/app/admin/company/support"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "dynamic": {
+    "widgets": {
+      "dashboard.fallback.notice": {
+        "items": [
+          {
+            "id": "dashboard-fallback-active",
+            "title": "Tableau de bord temporairement indisponible",
+            "message": "Les services principaux restent accessibles depuis les actions disponibles.",
+            "severity": "WARN"
           }
         ]
-      }
-    ]
-  },
-  "footer": {
-    "component": "PrivateFooter",
-    "properties": {
-      "brand": {
-        "name": "Tchalanet Console"
-      }
-    }
-  },
-  "features": [],
-  "i18n": {
-    "fr": {
-      "nav.dashboard": "Tableau de bord"
-    }
-  },
-  "issues": []
+      },
+      "dashboard.fallback.status": {},
+      "dashboard.fallback.actions": {}
+    },
+    "errors": []
+  }
 }
