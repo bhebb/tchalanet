@@ -6,9 +6,10 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('./dashboard/platform-dashboard.page').then(m => m.PlatformDashboardPage),
     data: {
-      titleKey: 'platform.nav.dashboard',
+      titleKey: 'platform.nav.opsDashboard',
       descriptionKey: 'platform.placeholder.description',
-      icon: 'dashboard',
+      icon: 'monitor_heart',
+      pageModelLogicalId: 'private.dashboard.superadmin.ops',
     },
   },
   {
@@ -16,9 +17,10 @@ export const platformRoutes: Route[] = [
     loadComponent: () =>
       import('./dashboard/platform-dashboard.page').then(m => m.PlatformDashboardPage),
     data: {
-      titleKey: 'platform.nav.dashboard',
+      titleKey: 'platform.nav.commercialDashboard',
       descriptionKey: 'platform.placeholder.description',
       icon: 'dashboard',
+      pageModelLogicalId: 'private.dashboard.superadmin',
     },
   },
   // ── Tenants ────────────────────────────────────────────────────────────────

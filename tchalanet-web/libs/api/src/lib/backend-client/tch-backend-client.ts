@@ -214,11 +214,7 @@ export class TchBackendClient {
     });
   }
 
-  private toPage<T>(
-    page: TchBackendPage<T>,
-    fallbackPage = 0,
-    fallbackSize = 20,
-  ): TchPage<T> {
+  private toPage<T>(page: TchBackendPage<T>, fallbackPage = 0, fallbackSize = 20): TchPage<T> {
     const items = [...(page.items ?? page.content ?? [])];
     const size = page.size ?? fallbackSize;
     const totalElements = page.totalElements ?? page.total ?? items.length;
@@ -237,14 +233,20 @@ export class TchBackendClient {
     };
   }
 
-  private pageFallback(options?: TchRequestOptions): { readonly page: number; readonly size: number } {
+  private pageFallback(options?: TchRequestOptions): {
+    readonly page: number;
+    readonly size: number;
+  } {
     return {
       page: this.numberParam(options, 'page') ?? 0,
       size: this.numberParam(options, 'size') ?? 20,
     };
   }
 
-  private numberParam(options: TchRequestOptions | undefined, key: 'page' | 'size'): number | undefined {
+  private numberParam(
+    options: TchRequestOptions | undefined,
+    key: 'page' | 'size',
+  ): number | undefined {
     const params = options?.params;
     if (!params) return undefined;
 

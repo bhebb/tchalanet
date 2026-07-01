@@ -42,6 +42,7 @@
           <mat-icon class="{{ statusClass(identityStatus) }}">{{ statusIcon(identityStatus) }}</mat-icon>
           <mat-icon class="setup__card-domain-icon">verified_user</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.identity' | translate }}</span>
+          <span class="setup__card-badge setup__card-badge--required">{{ 'admin.setup.required' | translate }}</span>
         </div>
         @if (sectionError('admin.setup.identity'); as err) {
           <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
@@ -66,6 +67,11 @@
           <mat-icon class="{{ statusClass(addrStatus) }}">{{ statusIcon(addrStatus) }}</mat-icon>
           <mat-icon class="setup__card-domain-icon">location_on</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.address' | translate }}</span>
+          @if (isBlocking('address')) {
+            <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.required' | translate }}</span>
+          } @else {
+            <span class="setup__card-badge setup__card-badge--required">{{ 'admin.setup.required' | translate }}</span>
+          }
         </div>
         @if (sectionError('admin.setup.address'); as err) {
           <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
@@ -90,7 +96,9 @@
           <mat-icon class="setup__card-domain-icon">casino</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.games' | translate }}</span>
           @if (isBlocking('games_pricing')) {
-            <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.blocking' | translate }}</span>
+            <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.required' | translate }}</span>
+          } @else {
+            <span class="setup__card-badge setup__card-badge--required">{{ 'admin.setup.required' | translate }}</span>
           }
         </div>
         @if (sectionError('admin.setup.games_pricing'); as err) {
@@ -110,7 +118,9 @@
           <mat-icon class="setup__card-domain-icon">event_repeat</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.drawChannels' | translate }}</span>
           @if (isBlocking('draws')) {
-            <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.blocking' | translate }}</span>
+            <span class="setup__card-badge setup__card-badge--blocking">{{ 'admin.setup.required' | translate }}</span>
+          } @else {
+            <span class="setup__card-badge setup__card-badge--required">{{ 'admin.setup.required' | translate }}</span>
           }
         </div>
         @if (sectionError('admin.setup.draws'); as err) {
@@ -123,9 +133,10 @@
       </div>
 
       <!-- Generated draws (operational) -->
-      <div class="setup__card">
+      @let generatedDrawsStatus = drawsStatus === 'READY' ? 'READY' : drawsStatus;
+      <div class="setup__card" [class.setup__card--ready]="generatedDrawsStatus === 'READY'">
         <div class="setup__card-header">
-          <mat-icon class="status--unknown">help_outline</mat-icon>
+          <mat-icon class="{{ statusClass(generatedDrawsStatus) }}">{{ statusIcon(generatedDrawsStatus) }}</mat-icon>
           <mat-icon class="setup__card-domain-icon">confirmation_number</mat-icon>
           <span class="setup__card-title">{{ 'admin.setup.section.generatedDraws' | translate }}</span>
           <span class="setup__card-badge">{{ 'admin.setup.operational' | translate }}</span>
@@ -170,7 +181,7 @@
           <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
         }
         <p class="setup__card-body">{{ 'admin.setup.section.promotionsDesc' | translate }}</p>
-        <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/promotions/maryaj-gratis">
+        <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/maryaj-gratis" fragment="offer">
           {{ 'admin.setup.section.promotionsCta' | translate }}
         </a>
       </div>

@@ -99,7 +99,6 @@
         "emailPlaceholder": "name@organization.com",
         "eyebrow": "Secure portal",
         "hidePassword": "Hide password",
-        "remember": "Stay signed in on this device",
         "security": "Your connection is secured by Firebase Authentication.",
         "sendEmailLink": "Get a sign-in link",
         "showPassword": "Show password",

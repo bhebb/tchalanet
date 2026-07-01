@@ -25,7 +25,7 @@ import tools.jackson.databind.JsonNode;
 
 @RestController
 @RequestMapping("/admin/tenant-config")
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'tenant.config.read')")
 @RequiredArgsConstructor
 @Tag(name = "Tenant Admin • Config")
 public class AdminTenantConfigController {
@@ -54,6 +54,7 @@ public class AdminTenantConfigController {
   }
 
   @PutMapping("/internal-settings")
+  @PreAuthorize("hasPermission(null, 'tenant.config.manage')")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(summary = "Update internal settings of the current tenant")
   public void updateSettings(

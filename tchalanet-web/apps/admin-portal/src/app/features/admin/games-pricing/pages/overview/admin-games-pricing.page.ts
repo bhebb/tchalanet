@@ -98,6 +98,7 @@ export class AdminGamesPricingPage implements OnInit {
       startLocalTime: null,
       endLocalTime: null,
       readyForSale: game.readiness.status === 'READY',
+      betOptions: game.odds,
     };
 
     const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '480px' });

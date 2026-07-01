@@ -23,50 +23,147 @@
 
 .promotions-page__rule {
   display: grid;
-  gap: var(--tch-spacing-2);
+  gap: var(--tch-spacing-4);
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-md);
   padding: var(--tch-spacing-3);
 }
 
-.promotions-page__rule div {
+.promotions-page__rule-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--tch-spacing-3);
 }
 
-.promotions-page__rule p {
-  margin: 0;
-  color: var(--tch-color-on-surface-variant);
-}
-
-.promotions-page__rule pre {
-  overflow: auto;
-  margin: 0;
-  border-radius: var(--tch-radius-md);
-  padding: var(--tch-spacing-3);
-  background: var(--tch-color-surface-container);
-  font-size: var(--tch-font-size-label-sm);
-}
-
+.promotions-page__rule-title,
+.promotions-page__rule-subtitle,
+.promotions-page__muted,
 .promotions-page__copy {
-  margin: 0 0 var(--tch-spacing-4);
+  margin: 0;
+}
+
+.promotions-page__rule-title {
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+}
+
+.promotions-page__rule-subtitle,
+.promotions-page__muted,
+.promotions-page__copy {
   color: var(--tch-color-on-surface-variant);
 }
 
-.promotions-page__payload-field {
-  width: 100%;
+.promotions-page__rule-key {
+  border-radius: var(--tch-radius-pill);
+  padding: var(--tch-spacing-1) var(--tch-spacing-3);
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-label-medium);
 }
 
-.promotions-page__payload-field textarea {
-  font-family: monospace;
-  font-size: var(--tch-font-size-label-sm);
+.promotions-page__rule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tch-spacing-4);
+}
+
+.promotions-page__rule-grid h3 {
+  margin: 0 0 var(--tch-spacing-2);
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+}
+
+.promotions-page__list {
+  display: grid;
+  gap: var(--tch-spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promotions-page__list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--tch-spacing-2);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.promotions-page__list mat-icon {
+  color: var(--tch-color-primary);
+  font-size: 20px;
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+.promotions-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--tch-spacing-3);
+}
+
+.promotions-page__catalog {
+  display: grid;
+  gap: var(--tch-spacing-3);
+}
+
+.promotions-page__catalog-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--tch-spacing-3);
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  padding: var(--tch-spacing-4);
+}
+
+.promotions-page__catalog-item > mat-icon {
+  color: var(--tch-color-primary);
+}
+
+.promotions-page__catalog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tch-spacing-2);
+  margin-block-end: var(--tch-spacing-1);
+}
+
+.promotions-page__catalog-title {
+  margin: 0;
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+}
+
+.promotions-page__catalog-status {
+  border-radius: var(--tch-radius-pill);
+  padding: var(--tch-spacing-1) var(--tch-spacing-2);
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-label-small);
+}
+
+.promotions-page__catalog-status--ready {
+  background: var(--tch-color-success-container);
+  color: var(--tch-color-on-success-container);
+}
+
+.promotions-page__catalog-code {
+  margin: var(--tch-spacing-2) 0 0;
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-label-medium);
 }
 
 @media (max-width: 1120px) {
   .promotions-page__layout,
-  .promotions-page__campaign-facts {
+  .promotions-page__campaign-facts,
+  .promotions-page__rule-grid,
+  .promotions-page__catalog-item {
     grid-template-columns: 1fr;
+  }
+
+  .promotions-page__actions {
+    justify-content: flex-start;
   }
 }

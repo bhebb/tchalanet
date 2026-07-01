@@ -247,7 +247,7 @@
                 "id": "maryajGratis",
                 "labelKey": "quickaction.admin.maryaj_gratis",
                 "icon": "redeem",
-                "destination": { "kind": "route", "value": "/app/admin/promotions/maryaj-gratis" }
+                "destination": { "kind": "route", "value": "/app/admin/maryaj-gratis#offer" }
               }
             ]
           }

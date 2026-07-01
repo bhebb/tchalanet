@@ -86,11 +86,16 @@ export const adminRoutes: Route[] = [
   { path: 'controls', redirectTo: 'controls/commissions', pathMatch: 'full' },
   // ── Promotions ─────────────────────────────────────────────────────────────
   {
-    path: 'promotions/maryaj-gratis',
+    path: 'maryaj-gratis',
     loadComponent: () =>
       import('./promotions/pages/maryaj-gratis/admin-maryaj-gratis.page').then(
         m => m.AdminMaryajGratisPage,
       ),
+  },
+  {
+    path: 'promotions/maryaj-gratis',
+    redirectTo: 'maryaj-gratis',
+    pathMatch: 'full',
   },
   {
     path: 'promotions',
@@ -167,7 +172,7 @@ export const adminRoutes: Route[] = [
   {
     path: 'company/appearance',
     loadComponent: () =>
-      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+      import('./appearance/admin-appearance.page').then(m => m.AdminAppearancePage),
     data: { titleKey: 'nav.admin.company_appearance', icon: 'palette' },
   },
   {

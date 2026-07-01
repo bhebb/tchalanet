@@ -99,7 +99,6 @@
         "emailPlaceholder": "nom@organisation.com",
         "eyebrow": "Portail sécurisé",
         "hidePassword": "Masquer le mot de passe",
-        "remember": "Rester connecté sur cet appareil",
         "security": "Votre connexion est sécurisée par Firebase Authentication.",
         "sendEmailLink": "Recevoir un lien de connexion",
         "showPassword": "Afficher le mot de passe",

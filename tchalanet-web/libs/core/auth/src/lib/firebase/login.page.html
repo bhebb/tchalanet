@@ -101,10 +101,7 @@
             </button>
           </mat-form-field>
 
-          <div class="login-card__remember-row">
-            <mat-checkbox name="remember" [(ngModel)]="remember">
-              {{ 'auth.login.form.remember' | translate }}
-            </mat-checkbox>
+          <div class="login-card__forgot-row">
             <button type="button" class="login-card__forgot" (click)="forgotPassword()">
               {{ 'auth.login.form.forgotPassword' | translate }}
             </button>

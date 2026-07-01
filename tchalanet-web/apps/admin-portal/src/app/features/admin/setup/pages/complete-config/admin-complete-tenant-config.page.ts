@@ -30,9 +30,6 @@ const REQUIRED_SETUP_SECTION_IDS = [
   'address',
   'games_pricing',
   'draws',
-  'generated_draws',
-  'promotions',
-  'seller_terminals',
 ] as const;
 
 type PageState = 'loading' | 'ready' | 'error';

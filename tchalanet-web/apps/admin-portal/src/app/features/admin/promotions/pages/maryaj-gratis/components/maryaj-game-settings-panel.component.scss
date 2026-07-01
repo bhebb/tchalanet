@@ -1,0 +1,138 @@
+.maryaj-game-settings {
+  display: grid;
+  gap: 1.25rem;
+  scroll-margin-top: 5rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg);
+  padding: 1.5rem;
+  background: var(--tch-color-surface-container-low);
+  box-shadow: var(--tch-elevation-1);
+}
+
+.maryaj-game-settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.maryaj-game-settings__heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.maryaj-game-settings__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--tch-radius-pill);
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+}
+
+.maryaj-game-settings__eyebrow {
+  margin: 0;
+  color: var(--tch-color-primary);
+  font: var(--tch-typescale-label-large);
+  text-transform: uppercase;
+}
+
+.maryaj-game-settings__title {
+  margin: 0.25rem 0 0;
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-large);
+  line-height: 1.25;
+}
+
+.maryaj-game-settings__subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-body-medium);
+}
+
+.maryaj-game-settings__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.maryaj-game-settings__status {
+  border-radius: var(--tch-radius-pill);
+  padding: 0.25rem 0.75rem;
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-label-medium);
+}
+
+.maryaj-game-settings__status--ready {
+  background: var(--tch-color-success-container);
+  color: var(--tch-color-on-success-container);
+}
+
+.maryaj-game-settings__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.maryaj-game-settings__item {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  padding: 0.875rem 1rem;
+  background: var(--tch-color-surface);
+}
+
+.maryaj-game-settings__item--wide {
+  grid-column: span 3;
+}
+
+.maryaj-game-settings__item dt,
+.maryaj-game-settings__hint {
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-body-small);
+}
+
+.maryaj-game-settings__item dd {
+  margin: 0;
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+  line-height: 1.35;
+}
+
+.maryaj-game-settings__item p {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.maryaj-game-settings__hint {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .maryaj-game-settings__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .maryaj-game-settings__toolbar {
+    justify-content: flex-start;
+  }
+
+  .maryaj-game-settings__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maryaj-game-settings__item--wide {
+    grid-column: auto;
+  }
+}

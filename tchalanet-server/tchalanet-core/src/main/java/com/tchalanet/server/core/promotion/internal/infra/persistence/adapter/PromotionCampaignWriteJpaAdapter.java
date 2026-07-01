@@ -17,10 +17,14 @@ import com.tchalanet.server.core.promotion.internal.infra.persistence.mapper.Pro
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionCampaignRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
+@Transactional
 class PromotionCampaignWriteJpaAdapter implements PromotionCampaignWritePort {
+
+    private static final String DEFAULT_CONFIG_VERSION = "v1";
 
     private final PromotionCampaignRepository campaignRepository;
     private final PromotionCampaignViewAssembler promotionCampaignViewAssembler;
@@ -35,6 +39,9 @@ class PromotionCampaignWriteJpaAdapter implements PromotionCampaignWritePort {
 
         if (e.getStatus() == null) {
             e.setStatus(PromotionCampaignStatus.DRAFT);
+        }
+        if (e.getConfigVersion() == null || e.getConfigVersion().isBlank()) {
+            e.setConfigVersion(DEFAULT_CONFIG_VERSION);
         }
 
         var saved = campaignRepository.save(e);

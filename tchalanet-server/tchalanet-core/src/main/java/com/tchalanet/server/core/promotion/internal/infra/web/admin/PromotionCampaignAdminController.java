@@ -25,6 +25,7 @@ import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.Upda
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,9 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/promotions/campaigns")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'promotion.read')")
 @Tag(name = "Promotion • Campaigns • Admin")
-
 public class PromotionCampaignAdminController {
 
     private final CommandBus commandBus;
@@ -61,13 +61,14 @@ public class PromotionCampaignAdminController {
 
     @GetMapping("/{campaignId}")
     public ApiResponse<PromotionCampaignView> get(
-        @PathVariable PromotionCampaignId campaignId
+        @PathVariable UUID campaignId
     ) {
-        var result = queryBus.ask(new GetPromotionCampaignQuery(campaignId));
+        var result = queryBus.ask(new GetPromotionCampaignQuery(PromotionCampaignId.of(campaignId)));
         return ApiResponse.success(result);
     }
 
     @PostMapping
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> create(
         @CurrentContext TchRequestContext ctx,
@@ -79,18 +80,20 @@ public class PromotionCampaignAdminController {
     }
 
     @PutMapping("/{campaignId}")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> update(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
+        @PathVariable UUID campaignId,
         @Valid @RequestBody UpdatePromotionCampaignRequest request
     ) {
-        var command = mapper.toCommand(ctx.effectiveTenantIdRequired(), campaignId, request);
+        var command = mapper.toCommand(ctx.effectiveTenantIdRequired(), PromotionCampaignId.of(campaignId), request);
         var result = commandBus.execute(command);
         return ApiResponse.success(result);
     }
 
     @PostMapping("/templates/default-maryaj-gratis/instantiate")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> instantiateDefaultMaryajGratis(
         @CurrentContext TchRequestContext ctx,
@@ -99,7 +102,12 @@ public class PromotionCampaignAdminController {
         var result = commandBus.execute(new InstantiateDefaultMaryajGratisCommand(
             ctx.effectiveTenantIdRequired(),
             request == null ? null : request.payoutBaseAmount(),
+            request == null ? null : request.quantityMode(),
             request == null ? null : request.quantity(),
+            request == null ? null : request.stepPaidAmount(),
+            request == null ? null : request.quantityPerStep(),
+            request == null ? null : request.maxQuantity(),
+            request == null ? null : request.quantityTiers(),
             request == null ? null : request.choiceMode(),
             request == null ? null : request.generationStrategy(),
             request == null ? null : request.regenerableBeforeConfirm(),
@@ -109,53 +117,57 @@ public class PromotionCampaignAdminController {
     }
 
     @PostMapping("/{campaignId}/activate")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> activate(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId
+        @PathVariable UUID campaignId
     ) {
         var result = commandBus.execute(new ActivatePromotionCampaignCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId
+            PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(result);
     }
 
     @PostMapping("/{campaignId}/deactivate")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> deactivate(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId
+        @PathVariable UUID campaignId
     ) {
         var result = commandBus.execute(new DeactivatePromotionCampaignCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId
+            PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(result);
     }
 
     @PostMapping("/{campaignId}/pause")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> pause(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId
+        @PathVariable UUID campaignId
     ) {
         var out = commandBus.execute(new PausePromotionCampaignCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId
+            PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(out);
     }
 
     @PostMapping("/{campaignId}/archive")
+    @PreAuthorize("hasPermission(null, 'promotion.manage')")
     @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
     public ApiResponse<PromotionCampaignView> archive(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId
+        @PathVariable UUID campaignId
     ) {
         var out = commandBus.execute(new ArchivePromotionCampaignCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId
+            PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(out);
     }

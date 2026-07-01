@@ -99,6 +99,21 @@ public interface PromotionCampaignJpaMapper {
         if (effect.getQuantity() != null) {
             params.put("quantity", effect.getQuantity());
         }
+        if (effect.getQuantityMode() != null) {
+            params.put("quantityMode", effect.getQuantityMode().name());
+        }
+        if (effect.getStepPaidAmount() != null) {
+            params.put("stepPaidAmount", effect.getStepPaidAmount());
+        }
+        if (effect.getQuantityPerStep() != null) {
+            params.put("quantityPerStep", effect.getQuantityPerStep());
+        }
+        if (effect.getMaxQuantity() != null) {
+            params.put("maxQuantity", effect.getMaxQuantity());
+        }
+        if (effect.getQuantityTiers() != null && !effect.getQuantityTiers().isEmpty()) {
+            params.put("quantityTiers", effect.getQuantityTiers());
+        }
         if (effect.getOddsOverride() != null) {
             params.put("oddsOverride", effect.getOddsOverride());
         }
@@ -110,9 +125,9 @@ public interface PromotionCampaignJpaMapper {
         }
         if (effect.getGenerationStrategy() != null) {
             params.put("generationStrategy", effect.getGenerationStrategy().name());
-            params.put("regenerableBeforeConfirm", effect.isRegenerableBeforeConfirm());
-            params.put("maxRegenerationsBeforeConfirm", effect.getMaxRegenerationsBeforeConfirm());
         }
+        params.put("regenerableBeforeConfirm", effect.isRegenerableBeforeConfirm());
+        params.put("maxRegenerationsBeforeConfirm", effect.getMaxRegenerationsBeforeConfirm());
         return new PromotionEffectConfigView(effect.getEffectType(), params);
     }
 }

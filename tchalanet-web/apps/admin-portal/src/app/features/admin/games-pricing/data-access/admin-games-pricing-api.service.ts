@@ -21,6 +21,10 @@ const BET_TYPE_LABELS: Record<string, string> = {
 };
 
 const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
+  MARRIAGE_2D2D: {
+    1: 'Ordre exact',
+    2: 'Revers / Double',
+  },
   LOTTO4_PATTERN: {
     1: 'Exact',
     2: 'Désordre / Box',
@@ -120,9 +124,11 @@ export class AdminGamesPricingApiService {
   }
 
   private toOdds(entries: BffPricingEntry[]): TenantGameOddView[] {
-    return entries.slice(0, 4).map(e => ({
+    return entries.map(e => ({
       label: this.oddLabel(e),
       value: `×${e.odds}`,
+      betType: e.betType,
+      betOption: e.betOption,
     }));
   }
 

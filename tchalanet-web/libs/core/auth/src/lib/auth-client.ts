@@ -3,7 +3,6 @@ import { InjectionToken } from '@angular/core';
 export interface AuthLoginRequest {
   readonly username: string;
   readonly password: string;
-  readonly remember: boolean;
 }
 
 export interface AuthClient {

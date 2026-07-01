@@ -3,7 +3,7 @@
     "errors": {
       "fallback": {
         "title": "Problem detected",
-        "message": "Something went wrong. Copy the support reference if the problem continues."
+        "message": "Something went wrong. Try again or contact support if the problem continues."
       },
       "categories": {
         "auth_required": {
@@ -40,7 +40,7 @@
         },
         "unexpected": {
           "title": "Problem detected",
-          "message": "Something went wrong. Copy the support reference if the problem continues."
+          "message": "Something went wrong. Try again or contact support if the problem continues."
         }
       },
       "codes": {

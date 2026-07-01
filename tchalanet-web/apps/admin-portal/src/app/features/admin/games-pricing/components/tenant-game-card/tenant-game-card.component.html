@@ -37,10 +37,16 @@
         }
         @if (g.odds.length > 0) {
           <div class="game-card__odds-list">
-            @for (odd of g.odds; track odd.label) {
+            @for (odd of visibleOdds(); track odd.betType + ':' + odd.betOption) {
               <div class="game-card__odds-row">
                 <span class="game-card__odds-label">{{ odd.label }}</span>
                 <span class="game-card__odds-value">{{ odd.value }}</span>
+              </div>
+            }
+            @if (hiddenOddsCount() > 0) {
+              <div class="game-card__odds-row game-card__odds-row--muted">
+                <span class="game-card__odds-label">Autres options</span>
+                <span class="game-card__odds-value">+{{ hiddenOddsCount() }}</span>
               </div>
             }
           </div>
@@ -123,6 +129,11 @@
 
     @if (g.tenantStatus !== 'UNAVAILABLE') {
       <div class="game-card__secondary-actions">
+        @if (g.gameCode === 'HT_MARYAJ_GRATUIT') {
+          <a mat-icon-button routerLink="/app/admin/maryaj-gratis" fragment="game" matTooltip="Configurer Maryaj gratis">
+            <mat-icon>redeem</mat-icon>
+          </a>
+        }
         <a mat-icon-button routerLink="/app/admin/controls/limits" matTooltip="Configurer les limites">
           <mat-icon>shield</mat-icon>
         </a>

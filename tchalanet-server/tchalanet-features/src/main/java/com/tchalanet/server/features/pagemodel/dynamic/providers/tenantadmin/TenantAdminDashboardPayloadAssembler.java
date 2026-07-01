@@ -404,7 +404,7 @@ public class TenantAdminDashboardPayloadAssembler {
     }
 
     private QuickActionsPayload buildQuickActions() {
-        return new QuickActionsPayload(List.of(new ActionItem("ADD_SELLER_TERMINAL", "quickaction.admin.add_seller_terminal", "person_add", "/app/admin/sellers/new"), new ActionItem("ACTIVE_SELLER_TERMINALS", "quickaction.admin.active_seller_terminals", "point_of_sale", "/app/admin/sellers?status=active"), new ActionItem("DAILY_REPORT", "quickaction.admin.daily_report", "today", "/app/admin/reports/today"), new ActionItem("MANAGE_LIMITS", "quickaction.admin.manage_limits", "shield", "/app/admin/controls/limits"), new ActionItem("MANAGE_ODDS", "quickaction.admin.manage_odds", "percent", "/app/admin/controls/odds"), new ActionItem("MARYAJ_GRATIS", "quickaction.admin.maryaj_gratis", "redeem", "/app/admin/promotions/maryaj-gratis")));
+        return new QuickActionsPayload(List.of(new ActionItem("ADD_SELLER_TERMINAL", "quickaction.admin.add_seller_terminal", "person_add", "/app/admin/sellers/new"), new ActionItem("ACTIVE_SELLER_TERMINALS", "quickaction.admin.active_seller_terminals", "point_of_sale", "/app/admin/sellers?status=active"), new ActionItem("DAILY_REPORT", "quickaction.admin.daily_report", "today", "/app/admin/reports/today"), new ActionItem("MANAGE_LIMITS", "quickaction.admin.manage_limits", "shield", "/app/admin/controls/limits"), new ActionItem("MANAGE_ODDS", "quickaction.admin.manage_odds", "percent", "/app/admin/controls/odds"), new ActionItem("MARYAJ_GRATIS", "quickaction.admin.maryaj_gratis", "redeem", "/app/admin/maryaj-gratis#offer")));
     }
 
     public record Payload(TenantDashboardHeaderPayload header, TenantKpiGridPayload kpis,

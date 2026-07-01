@@ -1,6 +1,6 @@
 <tch-admin-page-shell
-  title="Règles de limite"
-  description="Configurez les limites de mise, d'exposition et de paiement appliquées au tenant.">
+  [title]="pageTitle()"
+  [description]="pageDescription()">
 
   <div actions>
     <button mat-stroked-button (click)="load()">
@@ -37,12 +37,27 @@
       />
     }
 
+    @if (!canEditScope()) {
+      <section class="limits-page__scope-note">
+        <span class="material-symbols-outlined">info</span>
+        <p>
+          @if (scope() === 'system') {
+            Les limites système sont le catalogue des règles disponibles. Configurez les valeurs dans
+            <strong>Limite générale</strong> ou dans un scope ciblé.
+          } @else {
+            Ce scope doit d'abord sélectionner une cible précise. Pour modifier les limites tenant,
+            utilisez <strong>Limite générale</strong>.
+          }
+        </p>
+      </section>
+    }
+
     <mat-accordion multi>
       @for (cat of categories(); track cat) {
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
             <mat-panel-title>
-              <span class="category-title">{{ cat }}</span>
+              <span class="category-title">{{ categoryLabel(cat) }}</span>
             </mat-panel-title>
             <mat-panel-description>
               {{ (rowsByCategory().get(cat) ?? []).length }} règle(s)
@@ -101,17 +116,21 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
-                <button mat-icon-button
-                  [title]="row.assignment ? 'Modifier' : 'Configurer'"
-                  (click)="openUpsert(row)">
-                  <span class="material-symbols-outlined">
-                    {{ row.assignment ? 'edit' : 'add_circle' }}
-                  </span>
-                </button>
-                @if (row.assignment) {
-                  <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
-                    <span class="material-symbols-outlined">delete</span>
+                @if (canEditScope()) {
+                  <button mat-icon-button
+                    [title]="row.assignment ? 'Modifier' : 'Configurer'"
+                    (click)="openUpsert(row)">
+                    <span class="material-symbols-outlined">
+                      {{ row.assignment ? 'edit' : 'add_circle' }}
+                    </span>
                   </button>
+                  @if (row.assignment) {
+                    <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  }
+                } @else {
+                  <span class="muted">—</span>
                 }
               </td>
             </ng-container>

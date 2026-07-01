@@ -469,17 +469,18 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         ],
       },
       {
+        id: 'maryaj-gratis',
+        labelKey: 'nav.admin.maryaj_free',
+        icon: 'redeem',
+        destination: { kind: 'route', value: '/app/admin/maryaj-gratis' },
+        activeMatch: 'exact',
+      },
+      {
         id: 'promotions',
         labelKey: 'nav.promotions',
         icon: 'local_activity',
         destination: { kind: 'route', value: '/app/admin/promotions' },
         children: [
-          {
-            id: 'promotions-maryaj',
-            labelKey: 'nav.admin.maryaj_free',
-            icon: 'redeem',
-            destination: { kind: 'route', value: '/app/admin/promotions/maryaj-gratis' },
-          },
           {
             id: 'promotions-others',
             labelKey: 'nav.admin.active_promotions',

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
@@ -7,6 +7,7 @@ import { AUTH_CLIENT } from './auth-client';
 import { UserRole, UserSession } from './auth.types';
 
 const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
+const AUTH_OPERATION_TIMEOUT_MS = 15_000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
@@ -31,7 +32,9 @@ export class AuthSessionService {
     }
 
     try {
-      const bootstrap = await firstValueFrom(this.runtime.initialize());
+      const bootstrap = await firstValueFrom(
+        this.runtime.initialize().pipe(timeout({ first: AUTH_OPERATION_TIMEOUT_MS })),
+      );
 
       const session: UserSession = {
         authenticated: true,
@@ -73,13 +76,21 @@ export class AuthSessionService {
     return this.session().roles.includes(role);
   }
 
-  async login(email: string, password: string, remember = true): Promise<UserSession> {
-    await this.auth.login({
-      username: email,
-      password,
-      remember,
-    });
-    return this.refreshSession(true);
+  async login(email: string, password: string): Promise<UserSession> {
+    await withTimeout(
+      this.auth.login({
+        username: email,
+        password,
+      }),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.login.timeout',
+    );
+    await withTimeout(
+      this.auth.getAccessToken(true),
+      AUTH_OPERATION_TIMEOUT_MS,
+      'auth.token.timeout',
+    );
+    return withTimeout(this.refreshSession(true), AUTH_OPERATION_TIMEOUT_MS, 'auth.session.timeout');
   }
 
   async sendPasswordlessLoginLink(email: string): Promise<void> {
@@ -129,6 +140,22 @@ export class AuthSessionService {
 
 function isAccessDenied(err: unknown): boolean {
   return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403);
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise.then(
+      value => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      error => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }
 
 function normalizeRoles(roles: readonly string[] | undefined, space?: string | null): readonly UserRole[] {

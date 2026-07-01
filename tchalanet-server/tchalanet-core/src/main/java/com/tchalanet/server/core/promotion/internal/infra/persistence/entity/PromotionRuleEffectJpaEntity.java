@@ -3,6 +3,7 @@ package com.tchalanet.server.core.promotion.internal.infra.persistence.entity;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.selection.api.model.SelectionGenerationStrategy;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,9 +11,13 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "promotion_rule_effect")
@@ -34,6 +39,23 @@ public class PromotionRuleEffectJpaEntity extends BaseTenantEntity {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "quantity_mode", nullable = false, length = 32)
+    private PromotionQuantityMode quantityMode = PromotionQuantityMode.FIXED;
+
+    @Column(name = "step_paid_amount", precision = 19, scale = 4)
+    private BigDecimal stepPaidAmount;
+
+    @Column(name = "quantity_per_step")
+    private Integer quantityPerStep;
+
+    @Column(name = "max_quantity")
+    private Integer maxQuantity;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "quantity_tiers", nullable = false, columnDefinition = "jsonb")
+    private List<Map<String, Object>> quantityTiers = List.of();
 
     @Column(name = "odds_override", precision = 19, scale = 6)
     private BigDecimal oddsOverride;

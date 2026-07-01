@@ -3,6 +3,7 @@ package com.tchalanet.server.features.tenantadmin.readiness;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.promotion.api.query.ListPromotionCampaignsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
 import com.tchalanet.server.features.tenantadmin.overview.TenantSetupView;
@@ -17,6 +18,7 @@ import com.tchalanet.server.features.tenantadmin.setup.model.TenantDrawSalesMatr
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenanttheme.api.TenantThemeApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -36,8 +38,10 @@ import java.util.Set;
  *   3. seller terminals → ListSellerTerminalsQuery (page size 1)
  *   4. games_pricing → TenantGamesPricingService
  *   5. draws         → TenantDrawSalesMatrixService
+ *   6. theme         → TenantThemeApi active tenant theme
+ *   7. promotions    → ListPromotionCampaignsQuery (page size 1)
  *
- * Remaining sections (limits, promotions, settings, i18n, theme, pagemodels)
+ * Remaining sections (limits, settings, i18n, pagemodels)
  * return UNKNOWN until their respective structural check queries are exposed.
  *
  * Invariants enforced here:
@@ -55,13 +59,14 @@ public class TenantReadinessAssembler {
       Set.of("identity", "address", "games_pricing", "draws");
 
   private static final List<String> SETUP_SECTION_ORDER =
-      List.of("identity", "address", "games_pricing", "draws", "theme", "promotions");
+      List.of("identity", "address", "games_pricing", "draws");
 
   private final TenantPreContextLookupApi tenantPreContextLookupApi;
   private final AddressApi addressApi;
   private final QueryBus queryBus;
   private final TenantGamesPricingService gamesPricingService;
   private final TenantDrawSalesMatrixService drawSalesMatrixService;
+  private final TenantThemeApi tenantThemeApi;
 
   /** V1 section catalog (mirrors dashboard-overview-runtime-v1 §11 tenant table). */
   private static final List<SectionDescriptor> SECTIONS = List.of(
@@ -92,6 +97,8 @@ public class TenantReadinessAssembler {
     boolean hasSellerTerminals = checkSellerTerminals(ctx);
     TenantReadinessStatus gamesPricingStatus = checkGamesPricing(ctx);
     TenantReadinessStatus drawsStatus = checkDraws(ctx);
+    TenantReadinessStatus themeStatus = checkTheme(ctx);
+    TenantReadinessStatus promotionsStatus = checkPromotions(ctx);
 
     List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
     for (SectionDescriptor d : SECTIONS) {
@@ -142,6 +149,8 @@ public class TenantReadinessAssembler {
             issues.add(new TenantReadinessIssue("draws", "readiness.draws.partial", d.route()));
           }
         }
+        case "theme" -> status = themeStatus;
+        case "promotions" -> status = promotionsStatus;
         default ->
           // V1: remaining sections not yet checked — structural check queries TBD per domain
           status = TenantReadinessStatus.UNKNOWN;
@@ -158,8 +167,9 @@ public class TenantReadinessAssembler {
 
   /**
    * Compute the setup progression view from the readiness sections.
-   * Covers the 6 setup steps shown on the admin setup page (excludes seller_terminals,
-   * which is the CTA unlocked by canCreateSellerTerminal).
+   * Covers the required setup steps shown on the admin setup page (excludes optional
+   * sections such as theme/promotions and the seller terminal CTA unlocked by
+   * canCreateSellerTerminal).
    */
   public TenantSetupView computeSetup(TenantReadinessView view) {
     if (view == null) return TenantSetupView.unknown();
@@ -275,6 +285,29 @@ public class TenantReadinessAssembler {
         return TenantReadinessStatus.PARTIAL;
       }
       return TenantReadinessStatus.READY;
+    } catch (RuntimeException e) {
+      return TenantReadinessStatus.UNKNOWN;
+    }
+  }
+
+  private TenantReadinessStatus checkTheme(TchRequestContext ctx) {
+    try {
+      return tenantThemeApi.findActiveTenantTheme(ctx.tenantId())
+          .filter(theme -> theme.active() && theme.presetCode() != null && !theme.presetCode().isBlank())
+          .isPresent()
+          ? TenantReadinessStatus.READY
+          : TenantReadinessStatus.UNKNOWN;
+    } catch (RuntimeException e) {
+      return TenantReadinessStatus.UNKNOWN;
+    }
+  }
+
+  private TenantReadinessStatus checkPromotions(TchRequestContext ctx) {
+    try {
+      var page = queryBus.ask(new ListPromotionCampaignsQuery(PageRequest.of(0, 1)));
+      return page != null && page.totalElements() > 0
+          ? TenantReadinessStatus.READY
+          : TenantReadinessStatus.UNKNOWN;
     } catch (RuntimeException e) {
       return TenantReadinessStatus.UNKNOWN;
     }

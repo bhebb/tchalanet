@@ -63,6 +63,8 @@ export class TenantGameCardComponent {
   readonly statusTone    = computed<AdminStatusTone>(() => STATUS_TONE[this.game().tenantStatus]);
   readonly statusLabel   = computed<string>(() => STATUS_LABEL[this.game().tenantStatus]);
   readonly readinessBadge = computed<BadgeStatus>(() => READINESS_BADGE[this.game().readiness.status]);
+  readonly visibleOdds = computed(() => this.game().odds.slice(0, 4));
+  readonly hiddenOddsCount = computed(() => Math.max(this.game().odds.length - this.visibleOdds().length, 0));
 
   get avatarLetter(): string {
     return this.game().gameName.charAt(0).toUpperCase();

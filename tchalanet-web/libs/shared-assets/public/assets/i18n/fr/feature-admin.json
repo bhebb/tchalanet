@@ -1,5 +1,47 @@
 {
   "admin": {
+    "appearance": {
+      "title": "Apparence",
+      "description": "Personnalisez le thème et l’apparence de votre espace.",
+      "loading": "Chargement du thème…",
+      "preset": {
+        "title": "Thèmes actifs du système",
+        "description": "Choisissez le thème qui deviendra le thème actif du tenant.",
+        "default": "Par défaut",
+        "applying": "Application…",
+        "empty": "Aucun thème actif disponible.",
+        "activeTenant": "Thème actif du tenant",
+        "applyTenant": "Appliquer au tenant"
+      },
+      "current": {
+        "eyebrow": "Thème actif du tenant",
+        "default": "Thème par défaut",
+        "description": "Code système : {{code}}"
+      },
+      "mode": {
+        "title": "Mode d’affichage",
+        "description": "Définissez le mode clair, sombre ou automatique (selon le système).",
+        "light": "Clair",
+        "dark": "Sombre",
+        "system": "Système"
+      },
+      "reset": {
+        "action": "Réinitialiser"
+      },
+      "feedback": {
+        "presetSaved": "Thème appliqué.",
+        "modeSaved": "Mode d’affichage enregistré.",
+        "reset": "Thème réinitialisé au thème par défaut."
+      },
+      "locked": {
+        "title": "Fonctionnalité non incluse",
+        "message": "La sélection de thème n’est pas incluse dans votre offre actuelle. Contactez l’administrateur pour la débloquer."
+      },
+      "error": {
+        "load": "Impossible de charger le thème.",
+        "save": "Impossible d’enregistrer les modifications."
+      }
+    },
     "drawChannels": {
       "title": "Tirages",
       "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
@@ -148,6 +190,7 @@
       "title": "Configuration du tenant",
       "optional": "Optionnel",
       "operational": "Opérationnel",
+      "required": "Requis",
       "progress": {
         "title": "Configuration du tenant",
         "subtitle": "Suivi de l'état de préparation"
@@ -155,17 +198,17 @@
       "section": {
         "identity": "Identité",
         "address": "Adresse",
-        "addressHint": "Adresse physique du tenant",
+        "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
         "addressCta": "Configurer l'adresse",
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
-        "drawChannels": "Tirages",
-        "drawChannelsDesc": "Tirage disponibles",
-        "drawChannelsCta": "Configurer les tirages",
+        "drawChannels": "Canaux de tirage",
+        "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
+        "drawChannelsCta": "Configurer les canaux",
         "generatedDraws": "Tirages générés",
-        "generatedDrawsDesc": "Tirages générés pour les canaux",
-        "generatedDrawsCta": "Vérifiez les tirages générés et leur état de vente",
+        "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
+        "generatedDrawsCta": "Voir les tirages générés",
         "promotions": "Promotions",
         "promotionsDesc": "Promotions disponibles",
         "promotionsCta": "Configurer les promotions",
@@ -215,6 +258,7 @@
       "description": "Consultez et mettez à jour les informations de votre entreprise.",
       "loading": "Chargement du profil entreprise...",
       "address": {
+        "add": "Ajouter une adresse",
         "empty": "Aucune adresse renseignée.",
         "saved": "Adresse enregistrée."
       },

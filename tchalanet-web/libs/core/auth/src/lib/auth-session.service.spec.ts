@@ -99,18 +99,20 @@ describe('AuthSessionService', () => {
     expect(runtime.initialize).not.toHaveBeenCalled();
   });
 
-  it('delegates login credentials and persistence choice to the configured auth client', async () => {
+  it('delegates login credentials to the configured auth client', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.login).mockResolvedValue(undefined);
+    vi.mocked(auth.getAccessToken).mockResolvedValue('fresh-token');
     vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
     runtime.initialize.mockReturnValue(of(bootstrap()));
 
-    await TestBed.inject(AuthSessionService).login('admin@example.com', 'secret', false);
+    await TestBed.inject(AuthSessionService).login('admin@example.com', 'secret');
 
     expect(auth.login).toHaveBeenCalledWith({
       username: 'admin@example.com',
       password: 'secret',
-      remember: false,
     });
+    expect(auth.getAccessToken).toHaveBeenCalledWith(true);
   });
 
   it('delegates logout and clears the application session', async () => {

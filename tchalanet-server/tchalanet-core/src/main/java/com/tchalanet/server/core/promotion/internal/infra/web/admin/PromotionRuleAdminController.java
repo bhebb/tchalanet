@@ -22,6 +22,7 @@ import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import java.util.UUID;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,8 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/promotions/campaigns/{campaignId}/rules")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
-@RequiredFeature(PlanFeatureKeys.PROMOTION_RULES_BASIC)
+@PreAuthorize("hasPermission(null, 'promotion.manage')")
+@RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
 @Tag(name = "Promotion • Rules • Admin")
 public class PromotionRuleAdminController {
 
@@ -45,12 +46,12 @@ public class PromotionRuleAdminController {
     @PostMapping
     public ApiResponse<PromotionCampaignView> addRule(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
+        @PathVariable UUID campaignId,
         @Valid @RequestBody AddPromotionRuleRequest request
     ) {
         AddPromotionRuleCommand command = mapper.toCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId,
+            PromotionCampaignId.of(campaignId),
             request
         );
 
@@ -61,14 +62,14 @@ public class PromotionRuleAdminController {
     @PatchMapping("/{ruleId}")
     public ApiResponse<PromotionCampaignView> updateRule(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
-        @PathVariable PromotionRuleId ruleId,
+        @PathVariable UUID campaignId,
+        @PathVariable UUID ruleId,
         @Valid @RequestBody UpdatePromotionRuleRequest request
     ) {
         UpdatePromotionRuleCommand command = mapper.toCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId,
-            ruleId,
+            PromotionCampaignId.of(campaignId),
+            PromotionRuleId.of(ruleId),
             request
         );
 
@@ -79,13 +80,13 @@ public class PromotionRuleAdminController {
     @DeleteMapping("/{ruleId}")
     public ApiResponse<PromotionCampaignView> deleteRule(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
-        @PathVariable PromotionRuleId ruleId
+        @PathVariable UUID campaignId,
+        @PathVariable UUID ruleId
     ) {
         var out = commandBus.execute(new DeletePromotionRuleCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId,
-            ruleId
+            PromotionCampaignId.of(campaignId),
+            PromotionRuleId.of(ruleId)
         ));
 
         return ApiResponse.success(out);
@@ -94,14 +95,14 @@ public class PromotionRuleAdminController {
     @PatchMapping("/{ruleId}/eligibility")
     public ApiResponse<PromotionCampaignView> updateEligibility(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
-        @PathVariable PromotionRuleId ruleId,
+        @PathVariable UUID campaignId,
+        @PathVariable UUID ruleId,
         @Valid @RequestBody UpdatePromotionRuleEligibilityRequest request
     ) {
         UpdatePromotionRuleEligibilityCommand command = mapper.toCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId,
-            ruleId,
+            PromotionCampaignId.of(campaignId),
+            PromotionRuleId.of(ruleId),
             request
         );
 
@@ -112,14 +113,14 @@ public class PromotionRuleAdminController {
     @PatchMapping("/{ruleId}/effects")
     public ApiResponse<PromotionCampaignView> updateEffects(
         @CurrentContext TchRequestContext ctx,
-        @PathVariable PromotionCampaignId campaignId,
-        @PathVariable PromotionRuleId ruleId,
+        @PathVariable UUID campaignId,
+        @PathVariable UUID ruleId,
         @Valid @RequestBody UpdatePromotionRuleEffectsRequest request
     ) {
         UpdatePromotionRuleEffectsCommand command = mapper.toCommand(
             ctx.effectiveTenantIdRequired(),
-            campaignId,
-            ruleId,
+            PromotionCampaignId.of(campaignId),
+            PromotionRuleId.of(ruleId),
             request
         );
 

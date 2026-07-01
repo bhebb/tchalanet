@@ -1,0 +1,56 @@
+<section id="game" class="maryaj-game-settings" aria-labelledby="maryaj-game-settings-title">
+  <div class="maryaj-game-settings__header">
+    <div class="maryaj-game-settings__heading">
+      <span class="maryaj-game-settings__icon">
+        <mat-icon>casino</mat-icon>
+      </span>
+      <div>
+        <p class="maryaj-game-settings__eyebrow">Paramètres du jeu</p>
+        <h3 id="maryaj-game-settings-title" class="maryaj-game-settings__title">Maryaj gratuit</h3>
+        <p class="maryaj-game-settings__subtitle">Barème, mises et plafonds utilisés par la vente.</p>
+      </div>
+    </div>
+    <div class="maryaj-game-settings__toolbar">
+      @if (game(); as game) {
+        <span class="maryaj-game-settings__status" [class.maryaj-game-settings__status--ready]="game.tenantStatus === 'ACTIVE'">
+          {{ game.readiness.label }}
+        </span>
+        <button mat-stroked-button type="button" (click)="configure.emit(game)">
+          <mat-icon>tune</mat-icon>
+          Modifier le jeu
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (game(); as game) {
+    <dl class="maryaj-game-settings__grid">
+      <div class="maryaj-game-settings__item maryaj-game-settings__item--wide">
+        <dt>Barème de gain</dt>
+        <dd>{{ game.pricingProfileLabel ?? 'Standard' }}</dd>
+        <p>Détermine le gain payé quand le Maryaj gratuit gagne.</p>
+      </div>
+      <div class="maryaj-game-settings__item">
+        <dt>Mise minimum</dt>
+        <dd>{{ formatAmount(game.limits.minStake, game.limits.currency) }}</dd>
+      </div>
+      <div class="maryaj-game-settings__item">
+        <dt>Mise maximum</dt>
+        <dd>{{ formatAmount(game.limits.maxStake, game.limits.currency) }}</dd>
+      </div>
+      <div class="maryaj-game-settings__item maryaj-game-settings__item--wide">
+        <dt>Plafond de paiement par tirage</dt>
+        <dd>{{ formatAmount(game.limits.maxPerDraw, game.limits.currency) }}</dd>
+        <p>Montant total payable sur ce jeu pour un même tirage.</p>
+      </div>
+    </dl>
+
+    @if (game.readiness.reason) {
+      <p class="maryaj-game-settings__hint">{{ game.readiness.reason }}</p>
+    }
+  } @else {
+    <p class="maryaj-game-settings__hint">
+      Le jeu Maryaj gratuit est absent de la configuration tenant.
+    </p>
+  }
+</section>

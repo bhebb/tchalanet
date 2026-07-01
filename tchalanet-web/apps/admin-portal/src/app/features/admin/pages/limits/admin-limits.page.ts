@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
@@ -18,8 +19,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute } from '@angular/router';
 import { SlicePipe } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
@@ -39,6 +42,9 @@ import {
 } from './admin-limits-api.service';
 
 const BREACH_OUTCOMES: BreachOutcome[] = ['ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK'];
+const EDITABLE_TENANT_SCOPES = new Set<LimitPageScope>(['global']);
+
+type LimitPageScope = 'system' | 'global' | 'seller' | 'number' | 'game' | 'draw';
 
 // ── Upsert Dialog ─────────────────────────────────────────────────────────────
 @Component({
@@ -159,16 +165,46 @@ interface RuleRow {
 export class AdminLimitsPage implements OnInit {
   private readonly api = inject(AdminLimitsApi);
   private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
+  readonly scope = signal<LimitPageScope>('global');
   readonly rules = signal<LimitRuleSpec[]>([]);
   readonly assignments = signal<LimitAssignmentItem[]>([]);
 
   readonly displayedColumns = ['rule', 'category', 'status', 'onBreach', 'actions'];
+  readonly canEditScope = computed(() => EDITABLE_TENANT_SCOPES.has(this.scope()));
+  readonly showsAssignments = computed(() => this.scope() === 'global');
+  readonly pageTitle = computed(() => {
+    switch (this.scope()) {
+      case 'system': return 'Catalogue des limites système';
+      case 'seller': return 'Limites par vendeur';
+      case 'number': return 'Limites par numéro';
+      case 'game': return 'Limites par jeu';
+      case 'draw': return 'Limites par tirage';
+      case 'global':
+      default: return 'Limites générales';
+    }
+  });
+  readonly pageDescription = computed(() => {
+    switch (this.scope()) {
+      case 'system':
+        return 'Consultez les règles supportées par le backend. Ces règles ne sont pas modifiables depuis le tenant.';
+      case 'seller':
+      case 'number':
+      case 'game':
+      case 'draw':
+        return 'Ce scope nécessite de choisir une cible avant de configurer des limites spécifiques.';
+      case 'global':
+      default:
+        return 'Configurez les limites tenant appliquées par défaut aux ventes.';
+    }
+  });
 
   readonly categories = computed(() => {
     const seen = new Set<string>();
@@ -190,7 +226,14 @@ export class AdminLimitsPage implements OnInit {
     return byCategory;
   });
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.scope.set(normalizeLimitScope(params.get('scope')));
+        this.load();
+      });
+  }
 
   load(): void {
     this.loading.set(true);
@@ -200,7 +243,12 @@ export class AdminLimitsPage implements OnInit {
     this.api.listRules({ suppressShellFeedback: true }).subscribe({
       next: rules => {
         this.rules.set(rules);
-        this.loadAssignments();
+        if (this.showsAssignments()) {
+          this.loadAssignments();
+        } else {
+          this.assignments.set([]);
+          this.loading.set(false);
+        }
       },
       error: (err: unknown) => {
         this.error.set(resolveLimitError(
@@ -230,6 +278,7 @@ export class AdminLimitsPage implements OnInit {
   }
 
   openUpsert(row: RuleRow): void {
+    if (!this.canEditScope()) return;
     const ref = this.dialog.open(UpsertLimitDialog, { width: '560px' });
     (ref.componentInstance as UpsertLimitDialog).init(row.spec, 'TENANT', null, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
@@ -242,6 +291,7 @@ export class AdminLimitsPage implements OnInit {
   }
 
   delete(row: RuleRow): void {
+    if (!this.canEditScope()) return;
     if (!row.assignment) return;
     if (!confirm(`Supprimer la règle ${row.spec.ruleKey} ?`)) return;
     this.actionError.set(null);
@@ -263,11 +313,14 @@ export class AdminLimitsPage implements OnInit {
   }
 
   assignmentTone(row: RuleRow): AdminStatusTone {
+    if (!this.showsAssignments()) return 'neutral';
     if (!row.assignment) return 'neutral';
     return row.assignment.enabled ? 'success' : 'warning';
   }
 
   assignmentLabel(row: RuleRow): string {
+    if (this.scope() === 'system') return 'Catalogue';
+    if (!this.showsAssignments()) return 'Sélection requise';
     if (!row.assignment) return 'Non configurée';
     return row.assignment.enabled ? 'Active' : 'Désactivée';
   }
@@ -286,6 +339,25 @@ export class AdminLimitsPage implements OnInit {
       const p = row.assignment.params as Record<string, unknown>;
       return Object.entries(p).map(([k, v]) => `${k}: ${v}`).join(', ');
     } catch { return ''; }
+  }
+
+  categoryLabel(category: string): string {
+    return category
+      .split('_')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+}
+
+function normalizeLimitScope(value: string | null): LimitPageScope {
+  switch ((value ?? 'global').toLowerCase()) {
+    case 'system': return 'system';
+    case 'seller': return 'seller';
+    case 'number': return 'number';
+    case 'game': return 'game';
+    case 'draw': return 'draw';
+    case 'global':
+    default: return 'global';
   }
 }
 

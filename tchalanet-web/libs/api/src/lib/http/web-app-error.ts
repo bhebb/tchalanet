@@ -366,7 +366,7 @@ function userSafeMessage(
     case 'service_unavailable':
       return 'Une partie du service est temporairement indisponible.';
     default:
-      return 'Un probleme est survenu. Copiez la reference support si le probleme persiste.';
+      return 'Un probleme est survenu. Reessayez ou contactez le support si le probleme persiste.';
   }
 }
 

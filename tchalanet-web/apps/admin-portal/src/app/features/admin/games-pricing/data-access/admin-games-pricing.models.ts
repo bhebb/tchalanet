@@ -5,6 +5,8 @@ export type ReadinessStatus = 'READY' | 'TODO' | 'BLOCKED';
 export interface TenantGameOddView {
   readonly label: string;
   readonly value: string;
+  readonly betType: string;
+  readonly betOption: number | null;
 }
 
 export interface TenantGameLimitView {

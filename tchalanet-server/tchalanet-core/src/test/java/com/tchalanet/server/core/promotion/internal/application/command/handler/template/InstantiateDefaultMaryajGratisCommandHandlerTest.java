@@ -16,6 +16,8 @@ import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaign
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityTier;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
 import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCacheEvictorPort;
 import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignReadPort;
@@ -164,10 +166,14 @@ class InstantiateDefaultMaryajGratisCommandHandlerTest {
         assertThat(effect.params())
             .containsEntry("gameCode", "HT_MARYAJ_GRATUIT")
             .containsEntry("payoutBaseAmount", "50")
+            .containsEntry("quantityMode", "TIERED_PAID_AMOUNT")
+            .containsEntry("quantity", "1")
+            .containsEntry("maxQuantity", "3")
             .containsEntry("choiceMode", "AUTO_GENERATE")
             .containsEntry("generationStrategy", "RANDOM")
             .containsEntry("regenerableBeforeConfirm", "true")
             .containsEntry("maxRegenerationsBeforeConfirm", "3");
+        assertThat(effect.params().get("quantityTiers")).isInstanceOf(List.class);
     }
 
     @Test
@@ -182,6 +188,71 @@ class InstantiateDefaultMaryajGratisCommandHandlerTest {
         assertThat(out).isSameAs(existing);
         assertThat(writePort.createdWith).isNull();
         assertThat(writePort.changedTo).isNull();
+    }
+
+    @Test
+    @DisplayName("creates a per paid amount Maryaj gratis campaign")
+    void createsPerPaidAmountCampaign() {
+        var writePort = new WritePortStub();
+        writePort.draft = view(PromotionCampaignStatus.DRAFT);
+        writePort.active = view(PromotionCampaignStatus.ACTIVE);
+
+        handler(null, writePort)
+            .handle(new InstantiateDefaultMaryajGratisCommand(
+                TENANT,
+                null,
+                PromotionQuantityMode.PER_PAID_AMOUNT,
+                null,
+                new java.math.BigDecimal("1000"),
+                2,
+                10,
+                null,
+                null,
+                null,
+                null,
+                null
+            ));
+
+        var effect = writePort.createdWith.rules().get(0).effectItems().get(0);
+        assertThat(effect.params())
+            .containsEntry("quantityMode", "PER_PAID_AMOUNT")
+            .containsEntry("stepPaidAmount", "1000")
+            .containsEntry("quantityPerStep", "2")
+            .containsEntry("maxQuantity", "10");
+    }
+
+    @Test
+    @DisplayName("creates a tiered paid amount Maryaj gratis campaign")
+    void createsTieredPaidAmountCampaign() {
+        var writePort = new WritePortStub();
+        writePort.draft = view(PromotionCampaignStatus.DRAFT);
+        writePort.active = view(PromotionCampaignStatus.ACTIVE);
+
+        handler(null, writePort)
+            .handle(new InstantiateDefaultMaryajGratisCommand(
+                TENANT,
+                null,
+                PromotionQuantityMode.TIERED_PAID_AMOUNT,
+                null,
+                null,
+                null,
+                null,
+                List.of(
+                    new PromotionQuantityTier(new java.math.BigDecimal("100"), new java.math.BigDecimal("199"), 1),
+                    new PromotionQuantityTier(new java.math.BigDecimal("200"), new java.math.BigDecimal("499"), 2),
+                    new PromotionQuantityTier(new java.math.BigDecimal("500"), null, 3)
+                ),
+                null,
+                null,
+                null,
+                null
+            ));
+
+        var effect = writePort.createdWith.rules().get(0).effectItems().get(0);
+        assertThat(effect.params())
+            .containsEntry("quantityMode", "TIERED_PAID_AMOUNT")
+            .containsEntry("maxQuantity", "3");
+        assertThat(effect.params().get("quantityTiers")).isInstanceOf(List.class);
     }
 
     private static PromotionCampaignView view(PromotionCampaignStatus status) {

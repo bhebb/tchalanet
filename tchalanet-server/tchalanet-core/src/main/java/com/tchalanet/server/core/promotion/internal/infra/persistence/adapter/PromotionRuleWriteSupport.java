@@ -13,6 +13,7 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigI
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityConfigInput;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionQuantityMode;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleConfigInput;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionCampaignJpaEntity;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleEffectJpaEntity;
@@ -105,7 +106,7 @@ class PromotionRuleWriteSupport {
 
     PromotionCampaignView updateRuleEffects(UpdatePromotionRuleEffectsCommand cmd) {
         var campaign = campaignRepository.getRequired(cmd.campaignId().value());
-        requireDraft(campaign);
+        requireDraftOrDefaultMaryajGratis(campaign);
         getRuleRequired(cmd.campaignId().value(), cmd.ruleId().value());
         replaceEffects(cmd.ruleId().value(), cmd.items());
         return viewAssembler.toCampaignView(cmd.campaignId().value());
@@ -130,6 +131,13 @@ class PromotionRuleWriteSupport {
         if (campaign.getStatus() != PromotionCampaignStatus.DRAFT) {
             throw ProblemRest.badRequest("promotion.campaign.rules_edit_requires_draft");
         }
+    }
+
+    private void requireDraftOrDefaultMaryajGratis(PromotionCampaignJpaEntity campaign) {
+        if ("DEFAULT_MARYAJ_GRATIS".equals(campaign.getCode())) {
+            return;
+        }
+        requireDraft(campaign);
     }
 
     private void ensureRuleKeyAvailable(UUID campaignId, String ruleKey) {
@@ -172,6 +180,7 @@ class PromotionRuleWriteSupport {
 
     private void replaceEffects(UUID ruleId, List<PromotionEffectConfigInput> items) {
         effectRepository.deleteByRuleId(ruleId);
+        effectRepository.flush();
         if (items == null || items.isEmpty()) {
             throw ProblemRest.badRequest("promotion.rule.effects_required");
         }
@@ -193,6 +202,7 @@ class PromotionRuleWriteSupport {
                 effect.setGameCode(requiredString(params, "gameCode"));
                 effect.setPayoutBaseAmount(positiveDecimal(params, "payoutBaseAmount", "amount"));
                 effect.setQuantity(params.containsKey("quantity") ? positiveInt(params, "quantity") : 1);
+                applyQuantityMode(effect, params);
                 applySelectionGeneration(effect, params);
             }
             case BOOST_ODDS -> {
@@ -202,6 +212,69 @@ class PromotionRuleWriteSupport {
             case WAIVE_CHARGE -> effect.setChargeType(requiredString(params, "chargeType", "chargeCode"));
         }
         return effect;
+    }
+
+    private void applyQuantityMode(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {
+        var mode = enumParam(params, "quantityMode", PromotionQuantityMode.class,
+            "promotion.rule.quantity_mode_invalid");
+        if (mode == null) {
+            mode = PromotionQuantityMode.FIXED;
+        }
+
+        effect.setQuantityMode(mode);
+        if (mode == PromotionQuantityMode.FIXED) {
+            effect.setMaxQuantity(effect.getQuantity());
+            effect.setQuantityTiers(List.of());
+            return;
+        }
+
+        if (mode == PromotionQuantityMode.TIERED_PAID_AMOUNT) {
+            var tiers = quantityTiers(params);
+            effect.setMaxQuantity(params.containsKey("maxQuantity")
+                ? positiveInt(params, "maxQuantity")
+                : tiers.stream().mapToInt(t -> positiveInt(t, "quantity")).max().orElse(effect.getQuantity()));
+            effect.setQuantityTiers(tiers);
+            return;
+        }
+
+        effect.setStepPaidAmount(positiveDecimal(params, "stepPaidAmount"));
+        effect.setQuantityPerStep(
+            params.containsKey("quantityPerStep") ? positiveInt(params, "quantityPerStep") : 1);
+        effect.setMaxQuantity(params.containsKey("maxQuantity")
+            ? positiveInt(params, "maxQuantity")
+            : effect.getQuantity());
+        effect.setQuantityTiers(List.of());
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> quantityTiers(Map<String, Object> params) {
+        var raw = params.get("quantityTiers");
+        if (!(raw instanceof List<?> list) || list.isEmpty()) {
+            throw ProblemRest.badRequest("promotion.rule.quantity_tiers_required");
+        }
+        return list.stream()
+            .map(item -> {
+                if (!(item instanceof Map<?, ?> map)) {
+                    throw ProblemRest.badRequest("promotion.rule.quantity_tiers_invalid");
+                }
+                var tier = (Map<String, Object>) map;
+                var min = positiveDecimal(tier, "minPaidAmount");
+                var max = tier.containsKey("maxPaidAmount") && tier.get("maxPaidAmount") != null
+                    ? positiveDecimal(tier, "maxPaidAmount")
+                    : null;
+                if (max != null && max.compareTo(min) < 0) {
+                    throw ProblemRest.badRequest("promotion.rule.quantity_tier_range_invalid");
+                }
+                var quantity = positiveInt(tier, "quantity");
+                Map<String, Object> out = new java.util.LinkedHashMap<>();
+                out.put("minPaidAmount", min.stripTrailingZeros().toPlainString());
+                if (max != null) {
+                    out.put("maxPaidAmount", max.stripTrailingZeros().toPlainString());
+                }
+                out.put("quantity", quantity);
+                return out;
+            })
+            .toList();
     }
 
     private void applySelectionGeneration(PromotionRuleEffectJpaEntity effect, Map<String, Object> params) {

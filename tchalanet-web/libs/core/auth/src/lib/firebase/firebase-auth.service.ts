@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { EnvironmentInjector, inject, Injectable, runInInjectionContext } from '@angular/core';
 import {
   Auth,
   browserLocalPersistence,
@@ -20,11 +20,16 @@ import { AuthClient, AuthLoginRequest } from '../auth-client';
 export class FirebaseAuthService implements AuthClient {
   private readonly passwordlessEmailStorageKey = 'tchalanet.passwordlessLoginEmail';
   private readonly auth = inject(Auth);
+  private readonly injector = inject(EnvironmentInjector);
 
   constructor() {
     // Business admin tool: always persist sessions in localStorage so users
     // stay logged in across tab close and browser restart.
-    void this.auth.authStateReady().then(() => setPersistence(this.auth, browserLocalPersistence));
+    // runInInjectionContext ensures setPersistence (an AngularFire functional API)
+    // is called within Angular's injection context, even after the async authStateReady().
+    void this.auth.authStateReady().then(() =>
+      runInInjectionContext(this.injector, () => setPersistence(this.auth, browserLocalPersistence)),
+    );
   }
 
   async isAuthenticated(): Promise<boolean> {

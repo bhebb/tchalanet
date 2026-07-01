@@ -19,6 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { AuthSessionService } from '@tch/core/auth';
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeDensity, ThemeMode, ThemeStore } from '@tch/ui/theme';
 import {
@@ -124,7 +125,14 @@ const STORAGE_KEY = 'tch.theme-sandbox.open';
               </select>
             </label>
             <button type="button" (click)="refresh()">↻</button>
-            <button type="button" (click)="purgeOidc()" title="Purge OIDC cache">🔑 Purge OIDC</button>
+            <button
+              type="button"
+              (click)="clearAuthState()"
+              [disabled]="clearingAuth()"
+              title="Vider la session Firebase et les tokens navigateur"
+            >
+              🔑 {{ clearingAuth() ? 'Purge…' : 'Vider token' }}
+            </button>
           </header>
 
           <section class="block">
@@ -412,9 +420,10 @@ export class ThemeSandboxComponent {
   private readonly dialog = inject(MatDialog);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
+  private readonly authSession = inject(AuthSessionService, { optional: true });
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   readonly theme = inject(ThemeStore);
-  readonly devMode = isDevMode() && this.runtimeConfig.config().enableSandbox;
+  readonly devMode = this.sandboxEnabled();
   readonly modes: readonly ThemeMode[] = ['light', 'dark', 'system'];
   readonly densities: readonly ThemeDensity[] = ['comfortable', 'compact', 'dense'];
   readonly open = signal(this.restoreOpen());
@@ -422,6 +431,7 @@ export class ThemeSandboxComponent {
 
   /** UI-kit showcase sample data. */
   readonly submitLoading = signal(false);
+  readonly clearingAuth = signal(false);
   readonly identityMeta = [
     { label: 'Type', value: 'BORLETTE' },
     { label: 'Devise', value: 'HTG' },
@@ -499,8 +509,22 @@ export class ThemeSandboxComponent {
     this.refresh();
   }
 
-  purgeOidc(): void {
-    purgeOidcBrowserCache();
+  async clearAuthState(): Promise<void> {
+    if (this.clearingAuth()) {
+      return;
+    }
+
+    this.clearingAuth.set(true);
+    try {
+      await this.authSession?.logout().catch(() => undefined);
+      await purgeOidcBrowserCache();
+    } finally {
+      this.clearingAuth.set(false);
+    }
+
+    if (this.isBrowser) {
+      globalThis.location.reload();
+    }
   }
 
   refresh(): void {
@@ -513,5 +537,16 @@ export class ThemeSandboxComponent {
       return false;
     }
     return localStorage.getItem(STORAGE_KEY) === '1';
+  }
+
+  private sandboxEnabled(): boolean {
+    if (isDevMode() && this.runtimeConfig.config().enableSandbox) {
+      return true;
+    }
+    if (!this.isBrowser) {
+      return false;
+    }
+    const params = new URLSearchParams(globalThis.location.search);
+    return params.get('tchSandbox') === '1' || params.get('sandbox') === '1';
   }
 }

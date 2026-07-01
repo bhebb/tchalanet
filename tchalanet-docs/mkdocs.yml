@@ -75,6 +75,9 @@ nav:
       - Tenant onboarding: 02-functional/flows/tenant-onboarding.md
       - Terminal binding: 02-functional/flows/terminal-binding.md
       - Admin POS selection: 02-functional/flows/admin-pos-selection.md
+      - Promotions:
+          - Maryaj gratis: 02-functional/features/promotions/maryaj-gratis.md
+          - Autres promotions: 02-functional/features/promotions/autres-promotions.md
 
   - Architecture:
       - Index: 01-architecture/index.md
