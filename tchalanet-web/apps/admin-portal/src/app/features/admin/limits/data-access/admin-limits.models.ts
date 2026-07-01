@@ -63,6 +63,52 @@ export interface RuleRow {
   assignment: LimitAssignmentItem | null;
 }
 
+export interface TenantAdminPoliciesOverviewView {
+  summary: LimitOverviewSummary;
+  scopeCards: LimitOverviewCard[];
+  actionLinks: LimitOverviewActionLink[];
+  alerts: LimitOverviewAlert[];
+  globalRules: LimitOverviewGlobalRule[];
+}
+
+export interface LimitOverviewSummary {
+  activeRules: number;
+  globalRules: number;
+  sellerOverrides: number;
+  channelOverrides: number;
+  numberRules: number;
+  warnings: number;
+}
+
+export interface LimitOverviewCard {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  metric: string;
+  status: 'OK' | 'À configurer' | 'À surveiller' | string;
+  route: string;
+  cta: string;
+}
+
+export interface LimitOverviewAlert {
+  severity: 'info' | 'warning' | 'error' | string;
+  message: string;
+}
+
+export interface LimitOverviewActionLink {
+  id: string;
+  icon: string;
+  label: string;
+  description: string;
+  route: string;
+}
+
+export interface LimitOverviewGlobalRule {
+  spec: LimitRuleSpec;
+  assignment: LimitAssignmentItem | null;
+}
+
 // ── Param schema detection ────────────────────────────────────────────────────
 
 export type ParamSchema =
@@ -223,10 +269,50 @@ export function formatLimitParams(spec: LimitRuleSpec, params: unknown): string 
   return parts.length ? parts.join(' · ') : 'Aucun paramètre';
 }
 
+export function formatLimitSentence(row: RuleRow): string {
+  const assignment = row.assignment;
+  const outcome = assignment ? outcomeVerb(assignment.onBreach) : 'Configurer';
+  const params = assignment?.params ? extractParamValues(detectParamSchema(row.spec), row.spec.paramsTemplate, assignment.params) : null;
+  const amount = params ? formatHtg(params.valueCentsHtg) : null;
+  const count = params ? formatInteger(params.maxCount) : null;
+
+  switch (row.spec.ruleKey) {
+    case 'MAX_STAKE_PER_LINE':
+      return `${outcome} si une ligne dépasse ${amount ?? 'le montant défini'}.`;
+    case 'MAX_LINES_PER_TICKET':
+      return `${outcome} si un ticket dépasse ${count ?? 'le nombre défini'} ligne(s).`;
+    case 'MAX_STAKE_PER_TICKET':
+      return `${outcome} si le ticket dépasse ${amount ?? 'le montant défini'}.`;
+    case 'MAX_POTENTIAL_PAYOUT_PER_TICKET':
+      return `${outcome} si le gain potentiel du ticket dépasse ${amount ?? 'le plafond défini'}.`;
+    case 'MAX_POTENTIAL_PAYOUT_PER_LINE':
+      return `${outcome} si le gain potentiel d'une ligne dépasse ${amount ?? 'le plafond défini'}.`;
+    case 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW':
+      return `${outcome} si la mise cumulée sur un numéro dépasse ${amount ?? 'le plafond défini'} pour un tirage.`;
+    case 'MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW':
+      return `${outcome} si le gain potentiel cumulé sur un numéro dépasse ${amount ?? 'le plafond défini'} pour un tirage.`;
+    case 'MAX_SALES_COUNT_PER_SELECTION_PER_DRAW':
+      return `${outcome} si un numéro dépasse ${count ?? 'le nombre défini'} vente(s) pour un tirage.`;
+    case 'BLOCK_SELECTION_PER_DRAW':
+      return `${outcome} les numéros sélectionnés pour un tirage.`;
+    case 'BLOCK_BET_TYPE':
+      return `${outcome} le type de pari configuré.`;
+    default:
+      return `${outcome} selon la règle « ${row.spec.label || row.spec.ruleKey} ».`;
+  }
+}
+
 function amountLabel(ruleKey: RuleKey): string {
   if (ruleKey.includes('PAYOUT')) return 'Gain potentiel max';
   if (ruleKey.includes('EXPOSURE')) return 'Mise totale max';
   return 'Montant max';
+}
+
+function outcomeVerb(outcome: BreachOutcome): string {
+  if (outcome === 'BLOCK') return 'Bloquer';
+  if (outcome === 'WARN') return 'Avertir';
+  if (outcome === 'REQUIRE_APPROVAL') return 'Demander validation';
+  return 'Autoriser';
 }
 
 function countLabel(ruleKey: RuleKey): string {

@@ -402,8 +402,15 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         id: 'limits',
         labelKey: 'nav.admin.limits_section',
         icon: 'shield',
-        destination: { kind: 'route', value: '/app/admin/limits/global' },
+        destination: { kind: 'route', value: '/app/admin/limits' },
         children: [
+          {
+            id: 'limits-overview',
+            labelKey: 'nav.admin.limits_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/limits' },
+            activeMatch: 'exact',
+          },
           {
             id: 'limits-global',
             labelKey: 'nav.admin.limits_global',

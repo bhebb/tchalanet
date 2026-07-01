@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -32,6 +34,7 @@ import {
   buildParams,
   detectParamSchema,
   extractParamValues,
+  formatLimitSentence,
 } from '../../data-access/admin-limits.models';
 
 const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
@@ -61,6 +64,7 @@ export class UpsertLimitDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly breachOutcomes = V0_BREACH_OUTCOMES;
   readonly separatorKeyCodes: number[] = [ENTER, COMMA];
@@ -79,6 +83,7 @@ export class UpsertLimitDialogComponent {
   readonly selections = signal<string[]>([]);
   readonly durationMode = signal<'permanent' | 'today' | 'custom'>('permanent');
   readonly customEndsAt = signal<string>('');
+  readonly formRevision = signal(0);
 
   readonly showParamForm = computed(() => this.spec() !== null);
   readonly showValueCents = computed(() =>
@@ -93,6 +98,44 @@ export class UpsertLimitDialogComponent {
   );
   readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
   readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
+  readonly amountFieldLabel = computed(() => {
+    const ruleKey = this.spec()?.ruleKey ?? '';
+    if (ruleKey.includes('PAYOUT')) return 'Gain potentiel maximum (HTG)';
+    if (ruleKey.includes('EXPOSURE')) return 'Mise totale exposée maximum (HTG)';
+    return 'Montant maximum (HTG)';
+  });
+  readonly countFieldLabel = computed(() => {
+    const ruleKey = this.spec()?.ruleKey ?? '';
+    if (ruleKey.includes('LINES')) return 'Nombre maximum de lignes';
+    if (ruleKey.includes('TICKET_COUNT')) return 'Nombre maximum de tickets';
+    if (ruleKey.includes('SALES_COUNT')) return 'Nombre maximum de ventes';
+    return 'Nombre maximum';
+  });
+  readonly previewSentence = computed(() => {
+    const spec = this.spec();
+    if (!spec) return '';
+    this.formRevision();
+    const v = this.form.getRawValue();
+    const params = buildParams(this.paramSchema(), spec.paramsTemplate, {
+      valueCentsHtg: v.valueCentsHtg,
+      maxCount: v.maxCount,
+      windowMinutes: v.windowMinutes,
+      betTypeCode: v.betTypeCode,
+      selectionIds: this.selections(),
+    });
+    return formatLimitSentence({
+      spec,
+      assignment: {
+        id: { value: 'preview' },
+        ruleKey: spec.ruleKey,
+        enabled: v.enabled,
+        onBreach: v.onBreach,
+        params,
+        startsAt: null,
+        endsAt: this.buildEndsAt(),
+      },
+    });
+  });
   readonly timezone = computed(() => {
     const value = this.runtimeSettings.settings().values['app.timezone'];
     return typeof value === 'string' && value.trim() ? value : 'America/Port-au-Prince';
@@ -113,6 +156,12 @@ export class UpsertLimitDialogComponent {
     windowMinutes: [0 as number],
     betTypeCode: [''],
   });
+
+  constructor() {
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formRevision.update(value => value + 1));
+  }
 
   /** Edit existing assignment. */
   init(

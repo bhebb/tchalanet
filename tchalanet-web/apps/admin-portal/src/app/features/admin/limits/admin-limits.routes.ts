@@ -6,7 +6,11 @@ export const adminLimitsRoutes: Route[] = [
     loadComponent: () =>
       import('./pages/shell/admin-limits-shell.page').then(m => m.AdminLimitsShellPage),
     children: [
-      { path: '', redirectTo: 'global', pathMatch: 'full' },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/overview/admin-limits-overview.page').then(m => m.AdminLimitsOverviewPage),
+      },
       {
         path: 'system',
         loadComponent: () =>

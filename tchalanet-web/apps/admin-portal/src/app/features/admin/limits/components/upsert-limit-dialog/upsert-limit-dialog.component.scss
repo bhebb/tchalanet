@@ -62,6 +62,36 @@
   width: 100%;
 }
 
+.upsert-limit-dialog__preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.875rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+
+  .material-symbols-outlined {
+    font-size: 1.25rem;
+  }
+
+  strong,
+  small {
+    display: block;
+  }
+
+  strong {
+    font-size: var(--tch-font-size-label-md);
+  }
+
+  small {
+    margin-top: 0.125rem;
+    line-height: 1.4;
+  }
+}
+
 // §13 — no public API to make mat-button-toggle fill available width.
 // Scoped under :host per style convention.
 :host ::ng-deep .upsert-limit-dialog__duration-toggle .mat-button-toggle {
