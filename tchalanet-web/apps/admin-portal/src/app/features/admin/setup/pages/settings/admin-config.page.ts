@@ -118,7 +118,10 @@ export class AdminConfigPage {
   readonly saveLocale = tchMutation<TenantInternalConfig, void>({
     run: updated => this.api.updateInternalSettings(updated, { suppressShellFeedback: true }),
     source: 'admin.setup.locale',
-    onSuccess: () => {
+    onSuccess: (_result, input) => {
+      // maj immédiate : une 2e sauvegarde avant le retour du reload ne doit pas
+      // repartir d'une config stale et écraser la section qui vient d'être enregistrée
+      this.lastConfig = input;
       this.localeForm.markAsPristine();
       this.config.reload();
     },
@@ -128,7 +131,8 @@ export class AdminConfigPage {
   readonly saveReceipt = tchMutation<TenantInternalConfig, void>({
     run: updated => this.api.updateInternalSettings(updated, { suppressShellFeedback: true }),
     source: 'admin.setup.receipt',
-    onSuccess: () => {
+    onSuccess: (_result, input) => {
+      this.lastConfig = input;
       this.receiptForm.markAsPristine();
       this.config.reload();
     },

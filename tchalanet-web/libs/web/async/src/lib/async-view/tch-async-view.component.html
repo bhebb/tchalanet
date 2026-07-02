@@ -33,7 +33,12 @@
     </ng-content>
   }
   @case ('empty') {
-    <ng-content select="[empty]" />
+    <div class="tch-async-view__body">
+      @if (reloadingVisible()) {
+        <div class="tch-async-view__bar" role="progressbar" aria-hidden="true"></div>
+      }
+      <ng-content select="[empty]" />
+    </div>
   }
   @case ('ready') {
     <div class="tch-async-view__body" [class.tch-async-view__body--reloading]="reloadingVisible()">

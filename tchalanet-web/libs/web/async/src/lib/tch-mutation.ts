@@ -20,6 +20,11 @@ export interface TchMutationFeedback {
 }
 
 export interface TchMutationOptions<TInput, TResult> {
+  /**
+   * Contrat : Observable **one-shot** (typiquement un appel HTTP) — la première
+   * émission vaut succès puis l'observable complète. Pas de stream continu :
+   * le pending est relâché à la première émission/erreur.
+   */
   readonly run: (input: TInput, ctx: TchMutationContext) => Observable<TResult>;
   /** Source d'erreur stable, ex. `admin.setup.locale`. */
   readonly source: string;

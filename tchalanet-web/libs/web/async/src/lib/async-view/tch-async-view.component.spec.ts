@@ -146,6 +146,19 @@ describe('TchAsyncViewComponent', () => {
     expect(query('.loading')).toBeNull();
   });
 
+  it('reload depuis un état vide : le slot empty reste visible avec la barre discrète', () => {
+    resolve([]);
+    expect(query('[data-testid="empty"]')).toBeTruthy();
+
+    host.status.set('reloading');
+    fixture.detectChanges();
+    vi.advanceTimersByTime(300);
+    fixture.detectChanges();
+
+    expect(query('[data-testid="empty"]')).toBeTruthy();
+    expect(query('.tch-async-view__bar')).toBeTruthy();
+  });
+
   it('erreur au reload : données précédentes affichées + erreur de section', () => {
     resolve(['midi']);
 
