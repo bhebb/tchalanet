@@ -1,0 +1,50 @@
+@switch (viewState()) {
+  @case ('error') {
+    <div class="tch-async-view__error">
+      <tch-error-panel
+        [title]="error()?.title ?? errorTitle()"
+        [message]="error()?.message ?? ''"
+        [showRetry]="true"
+        [retryLabel]="retryLabel()"
+        (retry)="retry.emit()"
+      />
+      @if (correlationId(); as id) {
+        <p class="tch-async-view__trace">{{ id }}</p>
+      }
+    </div>
+  }
+  @case ('error-stale') {
+    <tch-section-error
+      class="tch-async-view__stale-error"
+      [title]="error()?.title ?? errorTitle()"
+      [message]="error()?.message ?? ''"
+      severity="error"
+    />
+    <div class="tch-async-view__body">
+      <ng-container
+        [ngTemplateOutlet]="readyTemplate()"
+        [ngTemplateOutletContext]="readyContext()"
+      />
+    </div>
+  }
+  @case ('loading') {
+    <ng-content select="[loading]">
+      <tch-loading [label]="loadingLabel()" />
+    </ng-content>
+  }
+  @case ('empty') {
+    <ng-content select="[empty]" />
+  }
+  @case ('ready') {
+    <div class="tch-async-view__body" [class.tch-async-view__body--reloading]="reloadingVisible()">
+      @if (reloadingVisible()) {
+        <div class="tch-async-view__bar" role="progressbar" aria-hidden="true"></div>
+      }
+      <ng-container
+        [ngTemplateOutlet]="readyTemplate()"
+        [ngTemplateOutletContext]="readyContext()"
+      />
+    </div>
+  }
+  @default {}
+}

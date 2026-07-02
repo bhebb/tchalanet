@@ -86,9 +86,9 @@ valeur, reload, annulation des requêtes obsolètes).
 - Le contrat public `ResourceRef` / `ResourceStatus` (`idle`, `loading`, `reloading`,
   `resolved`, `error`, `local`) est documenté stable en v22 — **on ne dépend que de ce
   contrat**, jamais des internals Angular.
-- `rxResource` (rxjs-interop) est encore marqué expérimental — il est **encapsulé dans
-  `TchBackendClient`** : une rupture Angular se corrige en un point, les features ne voient
-  que des `ResourceRef`.
+- `rxResource` est `@publicApi 22.0` (stable, vérifié dans les types installés) — il reste
+  néanmoins **encapsulé dans `TchBackendClient`** : une évolution Angular se corrige en un
+  point, les features ne voient que des `ResourceRef`.
 - `httpResource` est explicitement expérimental **et** ne ferait ni l'unwrap `ApiResponse<T>`,
   ni les headers/options, ni le `ProblemDetail` : interdit tant que ces responsabilités vivent
   dans `TchBackendClient`.

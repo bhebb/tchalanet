@@ -1,10 +1,13 @@
 {
-  "name": "ui-console",
+  "name": "web-async",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/ui/console/src",
+  "sourceRoot": "libs/web/async/src",
   "prefix": "tch",
   "projectType": "library",
-  "tags": [],
+  "tags": [
+    "scope:web",
+    "type:feature"
+  ],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint"
@@ -13,7 +16,7 @@
       "executor": "@angular/build:unit-test",
       "options": {
         "buildTarget": "public-portal:build:development",
-        "tsConfig": "libs/ui/console/tsconfig.spec.json",
+        "tsConfig": "libs/web/async/tsconfig.spec.json",
         "watch": false
       }
     }

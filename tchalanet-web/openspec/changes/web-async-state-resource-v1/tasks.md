@@ -2,15 +2,15 @@
 
 ## 1. Primitives (`libs/api` + `libs/web/async`)
 
-- [ ] `TchBackendClient.getResource<T>()` / `getPageResource<T>()` — rxResource interne sur `get()`/`getPage()`, injector capturé, lazy quand `request()` renvoie `undefined` (+ tests : params réactifs, annulation, unwrap ApiResponse)
-- [ ] Générer la lib Nx `web-async` (alias `@tch/web/async`), tags/boundaries alignés (`web/async → api, web/errors, ui/*`)
-- [ ] `resourceErrorVm(res, source)` + tests (ProblemDetail, erreur non-HTTP, null)
-- [ ] `tchMutation()` + tests (pending global/par clé, feedback succès/erreur, onSuccess, clearFeedback, **double-submit no-op**, hook `idempotency.keyFactory` — défaut `crypto.randomUUID()`)
-- [ ] `server-field-message` centralisé (une copie, supprime les helpers privés des pages au fil des migrations)
-- [ ] `<tch-async-view>` + `tchAsyncReady` + tests (loading/error+retry+traceId/empty/ready, prédicat isEmpty)
-- [ ] `tch-async-view` : état `reloading` (données visibles + barre discrète, jamais de blanchiment) + anti-flash (délai ~300ms, min ~500ms) + slot `loading` surchargeable (skeleton futur)
-- [ ] `tch-pagination` dans `libs/ui/console` : « N–M sur Total », prev/next, sélecteur de taille (10/20/50), piloté par `page`/`size` URL (+ tests)
-- [ ] `pnpm nx run-many -t build,lint,test` sur la lib + apps affectées
+- [x] `TchBackendClient.getResource<T>()` / `getPageResource<T>()` — rxResource interne sur `get()`/`getPage()`, injector capturé, lazy quand `request()` renvoie `undefined` (+ tests : params réactifs, annulation, unwrap ApiResponse)
+- [x] Générer la lib Nx `web-async` (alias `@tch/web/async`), tags/boundaries alignés (`web/async → api, web/errors, ui/*`)
+- [x] `resourceErrorVm(res, source)` + tests (ProblemDetail, erreur non-HTTP, null)
+- [x] `tchMutation()` + tests (pending global/par clé, feedback succès/erreur, onSuccess, clearFeedback, **double-submit no-op**, hook `idempotency.keyFactory` — défaut `crypto.randomUUID()`)
+- [x] `server-field-message` centralisé (une copie, supprime les helpers privés des pages au fil des migrations)
+- [x] `<tch-async-view>` + `tchAsyncReady` + tests (loading/error+retry+traceId/empty/ready, prédicat isEmpty)
+- [x] `tch-async-view` : état `reloading` (données visibles + barre discrète, jamais de blanchiment) + anti-flash (délai ~300ms, min ~500ms) + slot `loading` surchargeable (skeleton futur)
+- [x] `tch-pagination` dans `libs/ui/console` : « N–M sur Total », prev/next, sélecteur de taille (10/20/50), piloté par `page`/`size` URL (+ tests)
+- [x] `pnpm nx run-many -t build,lint,test` sur la lib + apps affectées
 
 ## 2. Pilote setup
 

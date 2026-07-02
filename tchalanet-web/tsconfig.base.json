@@ -32,7 +32,8 @@
       "@tch/core/i18n": ["./libs/core/i18n/src/index.ts"],
       "@tch/shared-assets": ["./libs/shared-assets/src/index.ts"],
       "@tch/ui/console": ["./libs/ui/console/src/index.ts"],
-      "@tch/web/sandbox": ["./libs/web/sandbox/src/index.ts"]
+      "@tch/web/sandbox": ["./libs/web/sandbox/src/index.ts"],
+      "@tch/web/async": ["./libs/web/async/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
