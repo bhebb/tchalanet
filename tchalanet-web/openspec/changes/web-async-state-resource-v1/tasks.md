@@ -5,7 +5,7 @@
 - [ ] `TchBackendClient.getResource<T>()` / `getPageResource<T>()` — rxResource interne sur `get()`/`getPage()`, injector capturé, lazy quand `request()` renvoie `undefined` (+ tests : params réactifs, annulation, unwrap ApiResponse)
 - [ ] Générer la lib Nx `web-async` (alias `@tch/web/async`), tags/boundaries alignés (`web/async → api, web/errors, ui/*`)
 - [ ] `resourceErrorVm(res, source)` + tests (ProblemDetail, erreur non-HTTP, null)
-- [ ] `tchMutation()` + tests (pending global/par clé, feedback succès/erreur, onSuccess, clearFeedback)
+- [ ] `tchMutation()` + tests (pending global/par clé, feedback succès/erreur, onSuccess, clearFeedback, **double-submit no-op**, hook `idempotency.keyFactory` — défaut `crypto.randomUUID()`)
 - [ ] `server-field-message` centralisé (une copie, supprime les helpers privés des pages au fil des migrations)
 - [ ] `<tch-async-view>` + `tchAsyncReady` + tests (loading/error+retry+traceId/empty/ready, prédicat isEmpty)
 - [ ] `tch-async-view` : état `reloading` (données visibles + barre discrète, jamais de blanchiment) + anti-flash (délai ~300ms, min ~500ms) + slot `loading` surchargeable (skeleton futur)
@@ -16,6 +16,7 @@
 
 - [ ] Migrer `admin/setup/pages/settings/admin-config.page` : rxResource par section + 2 tchMutation
 - [ ] Zéro changement visuel (vérifier states loading/error/empty/success + e2e setup existants)
+- [ ] Matrice de couverture complète (design §7) : initial, reload stale, erreur initiale, erreur reload, empty, mutation succès/erreur, pending ligne, double-clic
 - [ ] Mesure avant/après dans la PR (signals, lignes)
 
 ## 3. Pilote overview

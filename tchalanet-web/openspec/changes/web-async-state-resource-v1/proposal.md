@@ -67,6 +67,9 @@ valeur, reload, annulation des requêtes obsolètes).
 
 ## Non-goals
 
+- **`libs/web/async` n'est pas une lib d'état** : primitives async uniquement — aucun store
+  métier (`XxxStore`), aucun cache (`XxxCacheStore`) n'y entre ; l'état reste placé par
+  ownership (feature / service métier), conformément à `state-management.md`.
 - Pas de cache global ni d'invalidation par clés (données par page, pilotées par l'URL).
 - Pas de retry/backoff automatique, pas d'optimistic updates.
 - Pas de `httpResource` ni de `rxResource` créés dans les features pour des appels backend :
@@ -78,10 +81,17 @@ valeur, reload, annulation des requêtes obsolètes).
   librairie de skeletons (le slot `loading` de `tch-async-view` garde la porte ouverte).
 - Pas de migration big-bang des ~90 pages.
 
-## Risques assumés
+## Risques et mitigations (statut API précis)
 
-`resource`/`rxResource` sont récents et leur API peut encore bouger entre versions majeures —
-**décision assumée** (préférence projet : dernières features, précédent : signal forms déjà en
-prod dans `tch-login.page.ts`). Mitigations : les usages template passent par `tch-async-view`
-(contrat stable côté HTML) ; le mapping d'erreur est centralisé ; les pilotes sont couverts par
-les e2e existants du setup et des draws.
+- Le contrat public `ResourceRef` / `ResourceStatus` (`idle`, `loading`, `reloading`,
+  `resolved`, `error`, `local`) est documenté stable en v22 — **on ne dépend que de ce
+  contrat**, jamais des internals Angular.
+- `rxResource` (rxjs-interop) est encore marqué expérimental — il est **encapsulé dans
+  `TchBackendClient`** : une rupture Angular se corrige en un point, les features ne voient
+  que des `ResourceRef`.
+- `httpResource` est explicitement expérimental **et** ne ferait ni l'unwrap `ApiResponse<T>`,
+  ni les headers/options, ni le `ProblemDetail` : interdit tant que ces responsabilités vivent
+  dans `TchBackendClient`.
+- Les usages template passent par `tch-async-view` (contrat stable côté HTML) ; le mapping
+  d'erreur est centralisé ; les pilotes sont couverts par les e2e existants setup/draws.
+- Précédent bleeding-edge accepté en prod : signal forms dans `tch-login.page.ts`.

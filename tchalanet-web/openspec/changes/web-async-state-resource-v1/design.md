@@ -91,6 +91,25 @@ Le feedback alimente `tch-section-error` / `tch-notice` ; les erreurs de champ s
 sur `tch-field-error` via le helper `serverFieldMessage` (déplacé dans `@tch/web/async` ou
 `@tch/web/errors`, une seule copie).
 
+**Double-submit et idempotency :**
+
+- `execute()` est **no-op si déjà `pending()`** (pour la même clé) — le double-clic est bloqué
+  localement par défaut, sans que chaque page y pense.
+- Hook optionnel pour les endpoints idempotents (vente, reset PIN, résultat manuel, override) :
+
+```ts
+tchMutation({
+  run: …,
+  idempotency?: { keyFactory: () => string },   // défaut : crypto.randomUUID() par execute()
+});
+```
+
+La clé est fournie au `run` (header/champ selon le contrat de l'endpoint — le backend a déjà
+la règle formelle : même clé + même payload rejoue la même ressource, même clé + payload
+différent ⇒ conflit ; précédent web : `platform-ops-api.service.ts`). `tchMutation` ne
+remplace **aucun** invariant backend — audit, permissions, idempotency, validation et
+transitions restent serveur.
+
 ## 4. Template : `<tch-async-view>`
 
 ```html
@@ -107,6 +126,10 @@ sur `tch-field-error` via le helper `serverFieldMessage` (déplacé dans `@tch/w
 - États dérivés du `ResourceRef` : `isLoading` → `tch-loading` ; `error` → `tch-error-panel`
   (+ retry) ; valeur vide → slot `empty` ; sinon template `ready` avec la valeur en contexte.
 - `empty` est déterminé par un prédicat input (`[isEmpty]`) avec défaut « array/items vide ».
+- **Lecture seule et layout stable** : `tch-async-view` ne gère jamais les mutations — le
+  pending par ligne/bouton reste sur `tchMutation` dans le template `ready`. En `reloading`,
+  la valeur précédente reste rendue (le `ResourceRef` la conserve) — le composant ne
+  démonte pas le template `ready`, il superpose l'indicateur discret.
 - Le composant vit dans `libs/web/async` (il dépend d'`ErrorViewModel`) et compose les briques
   existantes de `@tch/ui/components`/`@tch/ui/console`.
 
@@ -128,6 +151,16 @@ apps/*    → web/async, api
 
 `resourceErrorVm` ne peut pas vivre dans `libs/api` : le mapping en `ErrorViewModel` dépend de
 `web/errors` (+ translate), et `web/errors → api` existe déjà — l'inverse serait circulaire.
+
+**`web/async` = primitives async, PAS une lib d'état.** N'y entrent jamais :
+
+```text
+TenantConfigStore · DrawsStore · CatalogCacheStore · AdminSetupStore · tout XxxStore/XxxCache
+```
+
+L'état métier reste placé par ownership (feature / service métier / lib runtime propriétaire),
+conformément à `state-management.md`. Un helper de parsing/serialization des params URL
+(`pagination-url.ts`) est acceptable ; un store ne l'est pas.
 
 Pas de nouvelle dépendance npm. `rxResource` n'est référencé qu'à un seul endroit
 (`TchBackendClient`) : si l'API Angular bouge à une montée de version, un seul fichier change
@@ -203,5 +236,29 @@ librairie de skeletons — rien de tout ça tant qu'un besoin réel ne le justif
 | `admin-config.page` (setup) | resources par section, 2 mutations avec feedback distincts, édition inline, erreurs de champ serveur |
 | `admin-generated-draws.page` | params depuis l'URL (filtres/presets), pending par ligne, drawer alimenté par mutation, reload après action |
 
+Matrice de couverture minimale (chaque pilote, avant de cocher la tâche) :
+
+```text
+chargement initial · reload (stale data visible) · erreur initiale ·
+erreur au reload avec données précédentes affichées · empty state ·
+mutation succès · mutation erreur · pending par ligne · double-clic bloqué
+```
+
 Critère anti-usine à gaz : si un pilote exige un flag/option de plus sur les primitives pour un
 besoin local, le besoin reste dans la page — on n'étend pas la primitive.
+
+## 8. Garde-fous (checklist de revue)
+
+- [ ] `libs/web/async` n'expose ni store métier ni cache — primitives async uniquement.
+- [ ] Aucun appel backend ne contourne `TchBackendClient` (`HttpClient`, `httpResource`,
+      `resource`/`rxResource` nus interdits dans les features pour le backend).
+- [ ] Les features ne dépendent que du contrat public `ResourceRef`/`ResourceStatus` —
+      `rxResource` (expérimental) n'apparaît que dans `TchBackendClient`.
+- [ ] `tchMutation` bloque le double-submit localement et supporte une clé d'idempotence
+      explicite pour les endpoints qui l'exigent ; les invariants (audit, permissions,
+      validation, transitions) restent serveur.
+- [ ] `tch-async-view` ne gère que la lecture ; les mutations page/ligne restent dehors.
+- [ ] `reloading` ne blanchit jamais une zone déjà chargée.
+- [ ] Filtres/tri/pagination canoniques dans l'URL : `q`, `status`, `sort`, `page`, `size`.
+- [ ] Les erreurs affichées préservent `traceId`/`requestId`/`errorId` quand disponibles.
+- [ ] La matrice de couverture des pilotes (§7) est complète.
