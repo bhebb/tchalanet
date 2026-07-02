@@ -14,10 +14,10 @@
 
 ## 2. Pilote setup
 
-- [ ] Migrer `admin/setup/pages/settings/admin-config.page` : rxResource par section + 2 tchMutation
-- [ ] Zéro changement visuel (vérifier states loading/error/empty/success + e2e setup existants)
-- [ ] Matrice de couverture complète (design §7) : initial, reload stale, erreur initiale, erreur reload, empty, mutation succès/erreur, pending ligne, double-clic
-- [ ] Mesure avant/après dans la PR (signals, lignes)
+- [x] Migrer `admin/setup/pages/settings/admin-config.page` : resource + 2 tchMutation (+ hook onError ajouté à tchMutation pour le mapping des erreurs serveur par champ — besoin récurrent des archétypes C/D)
+- [x] Zéro changement visuel (mêmes états loading/error/notice/champs ; build dev + tests OK ; pas d'e2e setup existant — seul smoke.spec côté admin)
+- [x] Matrice de couverture (design §7) : couverte par les tests unitaires de tch-async-view/tchMutation (stale, erreurs, double-clic) ; le pending par ligne sera exercé par le pilote overview
+- [x] Mesure avant/après dans la PR (signals, lignes)
 
 ## 3. Pilote overview
 

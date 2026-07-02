@@ -31,8 +31,10 @@ export function resourceErrorVm(
 
 /** Les resources Angular enveloppent l'erreur du stream dans une `Error` (`cause` = origine). */
 export function unwrapResourceError(err: unknown): unknown {
-  if (err instanceof Error && err.cause !== undefined && err.cause !== null) {
-    return err.cause;
+  if (err instanceof Error) {
+    // cast : les apps compilent encore avec lib es2020 (Error.cause absent du type)
+    const cause = (err as Error & { cause?: unknown }).cause;
+    if (cause !== undefined && cause !== null) return cause;
   }
   return err;
 }

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
@@ -64,6 +64,14 @@ export class TenantConfigApiService {
 
   getTenantConfig(options?: TchRequestOptions): Observable<TenantInternalConfig> {
     return this.backend.get<TenantInternalConfig>('/admin/tenant-config', options);
+  }
+
+  /** Resource de lecture de la config tenant (chargement + reload déclaratifs). */
+  tenantConfigResource(): ResourceRef<TenantInternalConfig | undefined> {
+    return this.backend.getResource<TenantInternalConfig>(() => ({
+      path: '/admin/tenant-config',
+      options: { suppressShellFeedback: true },
+    }));
   }
 
   updateInternalSettings(req: TenantInternalConfig, options?: TchRequestOptions): Observable<void> {
