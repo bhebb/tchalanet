@@ -57,6 +57,19 @@ Invariants :
    @else if (vide) { <tch-admin-empty-state … /> }
    @else { <!-- contenu --> }
    ```
+   (Cible : ce squelette devient `<tch-async-view>` — change `web-async-state-resource-v1`.)
+
+   **Loading — 4 niveaux, à ne jamais mélanger :**
+
+   | Situation | Indicateur |
+   | --------- | ---------- |
+   | Chargement initial (page/section) | `tch-loading` à la place du contenu |
+   | **Rechargement** (filtre changé, reload après action) | **Les données restent affichées** + indicateur discret — **jamais de blanchiment** de la zone (stale-while-revalidate) |
+   | Action en cours (submit) | Bouton désactivé + spinner inline + label « en cours » |
+   | Action de ligne | Indicateur sur la ligne concernée seulement, les autres restent actionnables |
+
+   Anti-flash : pas d'indicateur pour une réponse < ~300 ms ; une fois montré, il reste ≥ ~500 ms
+   (porté par `tch-async-view` à terme — en attendant, ne pas faire flasher un spinner à la main).
 5. **Erreurs** — mapper via `webAppErrorFromProblemDetail` + `resolveErrorFeedbackCopy` +
    `toErrorViewModel` (`@tch/web/errors`). Choix du composant :
 
@@ -91,7 +104,7 @@ Invariants :
    | `@if` / `@for` / `@switch` / `@defer` | Control flow natif — jamais `*ngIf`/`*ngFor` | `components.md` |
    | **Signal Forms** (`@angular/forms/signals`) | **Défaut pour tout nouveau formulaire** (précédent : `tch-login.page.ts`) | `signal-forms.md` |
    | `ReactiveFormsModule` | Accepté pour l'existant (65 fichiers) et les cas non couverts par signal forms ; migration opportuniste | `reactive-forms.md` |
-   | `resource()` / RxJS interop | Pour le chargement, garder le pattern projet (`Subject` + `switchMap` + `takeUntilDestroyed`, §2) — ne pas introduire `resource()`/`httpResource` sans décision | `resource.md` |
+   | Resources (`TchBackendClient.getResource`/`getPageResource`) | **Standard cible pour le chargement** (décision 2026-07-02, change `web-async-state-resource-v1`) : le client crée les resources (rxResource interne), les services exposent des ResourceRefs typés, la page consomme — remplace `Subject`+`switchMap`. Jamais de `rxResource`/`httpResource` instancié dans une feature pour un appel backend. Le squelette §2 décrit l'existant en attendant les pilotes | `resource.md` |
    | `effect()` | Dernier recours — préférer `computed()`/`linkedSignal()` | `effects.md` |
 
    Toujours : `standalone: true` + `ChangeDetectionStrategy.OnPush`.
@@ -139,6 +152,41 @@ Règles :
 - Ne pas utiliser `AdminDataTable`/`AdminListToolbar`/`AdminMobileCardList` (kit deprecated).
 - Alternative toolbar : pour des filtres non-standard (chips de dates, selects multiples),
   utiliser `tch-admin-crud-shell` + `tch-admin-data-toolbar` (cf. `admin-generated-draws.page`).
+
+### Pagination, tri, filtres — le standard (ne pas improviser)
+
+**Params URL standard** — toute liste utilise ces noms, valeurs par défaut **omises** de l'URL :
+
+```text
+q        recherche texte (debounce ~300 ms — déjà géré par tch-admin-list-surface)
+status   filtre de statut
+sort     tri : "field,asc|desc" — UN seul critère, appliqué côté serveur
+page     index 0-based
+size     taille de page
+```
+
+Params métier additionnels : préfixés par le domaine (ex. `drawDate`, `channelId`).
+
+**Filtres :**
+
+- **Jamais de filtre en signal local** : l'état de vue complet vit dans l'URL
+  (deep-link, bouton retour, partage). Un filtre = `router.navigate` + lecture `queryParamMap`.
+- Changer un filtre remet `page` à 0.
+- Reset = navigation qui efface les params (pas un `form.reset()` seul).
+
+**Tri :**
+
+- `matSort` sur les en-têtes + `matSortDisableClear` (pas d'état « sans tri »).
+- Tri par défaut **explicite et documenté** par liste (ex. `updatedAt,desc`).
+- Le tri est envoyé au serveur — jamais de `.sort()` client sur une liste paginée.
+
+**Pagination :**
+
+- Serveur via `TchPage<T>` (`totalElements`, `hasNext`, `hasPrevious`).
+- Affichage : total + « page X / Y » (cible : `tch-pagination` partagé avec
+  « N–M sur Total » + sélecteur de taille 10/20/50 — change `web-async-state-resource-v1` ;
+  en attendant, copier le footer de `platform-tenants.page`, ne pas inventer un autre).
+- Au changement de page/filtre : **pas de blanchiment** — voir §1.4.
 
 ---
 
