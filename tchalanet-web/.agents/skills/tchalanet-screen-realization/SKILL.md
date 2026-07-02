@@ -33,6 +33,18 @@ Before coding, load the applicable project docs and the full guide when the task
 
 If a referenced document is missing, say so briefly and continue from the closest available project convention.
 
+## Angular Baseline
+
+Use the modern signal-first APIs for every new component (baseline in
+`docs/conventions/feature-playbook.md` §1.9). For the how-to of each API, load the matching
+reference from the `angular-developer` skill (`../angular-developer/references/`):
+
+- new form → `signal-forms.md` (Signal Forms is the default for new forms; ReactiveForms stays for existing code)
+- local/derived state → `signals-overview.md`, `linked-signal.md`
+- component IO → `inputs.md`, `outputs.md`
+- DI → `di-fundamentals.md` (`inject()` only)
+- avoid `effect()` unless nothing else fits → `effects.md`
+
 ## Golden Flow
 
 Do not start with HTML or SCSS. Reason in this order:

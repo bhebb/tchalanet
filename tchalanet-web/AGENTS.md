@@ -33,6 +33,7 @@ Conventions par sujet (load the relevant file for your task — do not load all)
 | Tu travailles sur… | Lis |
 |---|---|
 | Un écran console : liste, détail, création, édition, drawer | `docs/conventions/feature-playbook.md` |
+| APIs Angular modernes (signals, signal forms, control flow, DI) | playbook §1.9 (baseline) + skill `angular-developer` — références par sujet dans `.agents/skills/angular-developer/references/` (`signal-forms.md`, `signals-overview.md`, `linked-signal.md`, `inputs.md`, `outputs.md`…) |
 | Style, SCSS, tokens CSS `--tch-*`/`--comp-*` (public + consoles) | `docs/conventions/style.md` + `docs/conventions/theme.md` |
 | Composants : lequel utiliser, où le créer | `feature-playbook.md` §8 (table des briques) + `docs/conventions/placement-guide.md` |
 | Le moteur de page public (PageModel, widgets) | `docs/conventions/pagemodel.md` |
