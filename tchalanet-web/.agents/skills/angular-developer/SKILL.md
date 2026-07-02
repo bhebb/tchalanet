@@ -9,30 +9,6 @@ metadata:
 
 # Angular Developer Guidelines
 
-## Tchalanet Project Overlay
-
-When working inside `tchalanet-web`, project conventions override generic Angular defaults:
-
-- Load the relevant files under `docs/conventions/` before editing Angular code. For HTTP/error
-  work, read `docs/conventions/http-api.md` and `docs/conventions/error-management.md`; for styles,
-  read `docs/conventions/style.md` and `docs/conventions/theme.md`; for reusable error UI, read
-  `libs/ui/components/ERRORS.md`.
-- Keep the HTTP boundary layered as `page/component -> feature API service -> TchBackendClient`.
-  Components must not call `HttpClient` or inspect raw `HttpErrorResponse`/`ProblemDetail`.
-- Consume the backend contract as-is: `2xx = ApiResponse<T>`, `4xx/5xx = ProblemDetail`,
-  non-blocking BFF degradation = `ApiResponse.notices`/service metadata.
-- Render every user-facing failure through exactly one UI owner: shell, page, section, or field.
-  A locally owned API call must pass `suppressShellFeedback: true`.
-- Use `tch-error-panel`, `tch-section-error`, and `tch-field-error` with normalized copy. Do not
-  show backend raw `title`, `detail`, exception messages, provider messages, SQL text, or stack
-  traces directly in Angular templates.
-- Prefer external `templateUrl`/`styleUrls` for non-trivial pages/dialogs. Avoid inline templates,
-  inline styles, and snackbars for API failure feedback.
-- Use `--tch-*` theme tokens and BEM-like feature classes. Hardcoded colors are allowed only as
-  fallbacks inside `var(--tch-*, #...)`.
-- Add or update focused tests when touching normalizers, interceptors, ownership routing, shell
-  feedback grouping, or field-error mapping.
-
 1. Always analyze the project's Angular version before providing guidance, as best practices and available features can vary significantly between versions. If creating a new project with Angular CLI, do not specify a version unless prompted by the user.
 
 2. When generating code, follow Angular's style guide and best practices for maintainability and performance. Use the Angular CLI for scaffolding components, services, directives, pipes, and routes to ensure consistency.
@@ -41,7 +17,7 @@ When working inside `tchalanet-web`, project conventions override generic Angula
 
 ## Creating New Projects
 
-If no guidelines are provided by the user, here are same default rules to follow when creating a new Angular project:
+If no guidelines are provided by the user, here are some default rules to follow when creating a new Angular project:
 
 1. Use the latest stable version of Angular unless the user specifies otherwise.
 2. Use Signals Forms for form management in new projects (available in Angular v21 and newer) [Find out more](references/signal-forms.md).
@@ -89,8 +65,8 @@ When managing state and data reactivity, use Angular Signals and consult the fol
 
 In most cases for new apps, **prefer signal forms**. When making a forms decision, analyze the project and consider the following guidelines:
 
-- if the application is using v21 or newer and this is a new form, **prefer signal forms**.
-  -For older applications or when working with existing forms, use the appropriate form type that matches the applications current form strategy.
+- If the application is using v21 or newer and this is a new form, **prefer signal forms**.
+- For older applications or when working with existing forms, use the appropriate form type that matches the applications current form strategy.
 
 - **Signal Forms**: Use signals for form state management. Read [signal-forms.md](references/signal-forms.md)
 - **Template-driven forms**: Use for simple forms. Read [template-driven-forms.md](references/template-driven-forms.md)
@@ -152,3 +128,4 @@ When working with Angular tooling, consult the following references:
 - **Angular CLI**: Creating applications, generating code (components, routes, services), serving, and building. Read [cli.md](references/cli.md)
 - **Code Modernization**: Automatically refactoring to modern standards using migrations. Read [migrations.md](references/migrations.md)
 - **Angular MCP Server**: Available tools, configuration, and experimental features. Read [mcp.md](references/mcp.md)
+- **Environment Configuration**: Strategies for build-time and runtime configuration. Read [environment-configuration.md](references/environment-configuration.md)
