@@ -5,6 +5,8 @@
 > **But** : créer un écran sans réinventer. Choisis l'archétype, copie le squelette, utilise les
 > briques listées. Si tu dois styler autre chose que des briques, c'est une brique manquante —
 > elle va dans `libs/ui/console`, pas dans la page.
+> **Pièges bas niveau** (content-projection SCSS, overlay de soumission, rail sticky) :
+> `.agents/skills/tchalanet-screen-realization/references/admin-page-patterns.md`.
 
 ---
 

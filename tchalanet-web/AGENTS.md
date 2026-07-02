@@ -43,7 +43,8 @@ Conventions par sujet (load the relevant file for your task — do not load all)
 | Organisation dossiers/fichiers d'une feature | `docs/conventions/structure.md` |
 | Naming files, classes, selectors | `docs/conventions/naming.md` |
 | Placement (dans quelle lib va ce code) | `docs/conventions/placement-guide.md` |
-| Auth, guards, session | `docs/conventions/auth.md` |
+| Auth : règles (guards, session, headers) | `docs/conventions/auth.md` |
+| Auth : flow détaillé (login, restore, interceptor, logout) | `docs/auth-flow.md` |
 | Access gating (`*tchCan`, `can` pipe) | `docs/conventions/access.md` |
 | Entitlements | `docs/conventions/entitlements.md` |
 | Feature flags | `docs/conventions/feature-flags.md` |

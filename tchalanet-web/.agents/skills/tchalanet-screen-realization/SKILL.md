@@ -14,6 +14,8 @@ Status: ACTIVE draft. Use this skill for `tchalanet-web` screen work: create, re
 Before coding, load the applicable project docs and the full guide when the task is implementation or review of a real screen:
 
 - `docs/ARCHITECTURE.md`
+- `docs/conventions/feature-playbook.md` — **premier arrêt pour tout écran console** (archétypes liste/détail/création/édition/drawer/config, squelettes, table des briques)
+- `docs/conventions/error-management.md`
 - `docs/conventions/style.md`
 - `docs/conventions/theme.md`
 - `docs/conventions/access.md`
