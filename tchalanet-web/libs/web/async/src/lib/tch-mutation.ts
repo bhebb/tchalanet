@@ -26,6 +26,12 @@ export interface TchMutationOptions<TInput, TResult> {
   readonly surface?: WebErrorSurface;
   /** Typiquement : recharger le resource concerné. */
   readonly onSuccess?: (result: TResult, input: TInput) => void;
+  /**
+   * Traitement d'erreur spécifique (ex. mapping des erreurs serveur par champ
+   * via `applyServerFieldErrors`). Renvoyer `true` = erreur entièrement gérée,
+   * aucun feedback générique n'est émis ; sinon le feedback erreur standard s'applique.
+   */
+  readonly onError?: (err: unknown, input: TInput) => boolean | void;
   /** Pour les endpoints idempotents (vente, reset PIN, résultat, override). */
   readonly idempotency?: { readonly keyFactory?: () => string };
 }
@@ -73,6 +79,7 @@ export class TchMutation<TInput, TResult> {
       },
       error: (err: unknown) => {
         this.release(key);
+        if (this.options.onError?.(err, input) === true) return;
         this.feedbackState.set({
           kind: 'error',
           vm: presentApiError(unwrapResourceError(err), this.translate, {

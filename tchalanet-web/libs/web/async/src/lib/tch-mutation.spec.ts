@@ -13,6 +13,7 @@ interface Call {
 
 function setup(options?: {
   onSuccess?: (result: string, input: string) => void;
+  onError?: (err: unknown, input: string) => boolean | void;
   idempotency?: { keyFactory?: () => string };
 }): { mutation: TchMutation<string, string>; calls: Call[] } {
   TestBed.configureTestingModule({
@@ -29,6 +30,7 @@ function setup(options?: {
       },
       source: 'test.mutation',
       onSuccess: options?.onSuccess,
+      onError: options?.onError,
       idempotency: options?.idempotency,
     }),
   );
@@ -94,6 +96,25 @@ describe('tchMutation', () => {
     expect(feedback?.kind).toBe('error');
     expect(feedback?.vm).toBeTruthy();
     expect(mutation.pending()).toBe(false);
+  });
+
+  it('onError=true supprime le feedback générique (erreur gérée par la page)', () => {
+    const { mutation, calls } = setup({ onError: () => true });
+    mutation.execute('a');
+    calls[0].result.error({ error: { title: 'Validation', status: 400 } });
+
+    expect(mutation.feedback()).toBeNull();
+    expect(mutation.pending()).toBe(false);
+  });
+
+  it('onError sans true laisse le feedback erreur standard', () => {
+    const seen: unknown[] = [];
+    const { mutation, calls } = setup({ onError: err => void seen.push(err) });
+    mutation.execute('a');
+    calls[0].result.error({ error: { title: 'KO', status: 500 } });
+
+    expect(seen.length).toBe(1);
+    expect(mutation.feedback()?.kind).toBe('error');
   });
 
   it('clearFeedback efface le feedback', () => {
