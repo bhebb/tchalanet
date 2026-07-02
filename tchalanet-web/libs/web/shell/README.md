@@ -19,5 +19,6 @@ Reusable shell primitives shared by web apps.
 - error copy normalization, which lives in `@tch/web/errors`;
 - stateless generic UI primitives, which live in `@tch/ui/components`.
 
-Shell feedback renders only shell-owned failures. Page, section, dialog, and field-owned API calls
-must pass `suppressShellFeedback: true` and render through their local owner.
+Shell feedback renders shell-owned failures and user-action confirmations that should remain visible
+at shell level. Page, section, dialog, and field-owned API failures must pass `suppressShellFeedback:
+true` and render through their local owner.

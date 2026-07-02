@@ -52,11 +52,11 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
                   <a
                     class="sidebar__child"
                     [class.is-disabled]="child.disabled"
-                    [class.is-active]="isActionActive(child)"
+                    [class.is-active]="isActionActive(child, item.children)"
                     [routerLink]="actionRoute(child)"
                     [queryParams]="actionQueryParams(child)"
                     routerLinkActive="is-active"
-                    [routerLinkActiveOptions]="{ exact: child.activeMatch === 'exact' }"
+                    [routerLinkActiveOptions]="{ exact: isExactActiveMatch(child, item.children) }"
                     [attr.aria-disabled]="child.disabled ? 'true' : null"
                     [attr.tabindex]="child.disabled ? -1 : null"
                     (click)="onItemClick($event, child)"
@@ -80,7 +80,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
              [class.is-disabled]="item.disabled"
              [class.is-active]="isActionActive(item)"
              routerLinkActive="is-active"
-             [routerLinkActiveOptions]="{ exact: item.activeMatch === 'exact' }"
+             [routerLinkActiveOptions]="{ exact: isExactActiveMatch(item) }"
              [attr.aria-disabled]="item.disabled ? 'true' : null"
              [attr.tabindex]="item.disabled ? -1 : null"
              (click)="onItemClick($event, item)">
@@ -171,7 +171,7 @@ export class TchSidebarNav {
     for (const group of groups) {
       for (const child of group.children ?? []) {
         const route = actionRoute(child);
-        if (!route || !this.isRouteActive(child, route)) continue;
+        if (!route || !this.isRouteActive(child, route, group.children ?? [])) continue;
         if (!best || route.length > best.length) {
           best = { id: group.id, length: route.length };
         }
@@ -191,9 +191,14 @@ export class TchSidebarNav {
     return this.activeGroupId() === item.id;
   }
 
-  isActionActive(item: ActionItem): boolean {
+  isActionActive(item: ActionItem, siblings: readonly ActionItem[] = []): boolean {
     const route = actionRoute(item);
-    return !!route && this.isRouteActive(item, route);
+    return !!route && this.isRouteActive(item, route, siblings);
+  }
+
+  isExactActiveMatch(item: ActionItem, siblings: readonly ActionItem[] = []): boolean {
+    const route = actionRoute(item);
+    return item.activeMatch === 'exact' || (!!route && this.hasLongerSiblingRoute(route, siblings));
   }
 
   toggle(item: ActionItem): void {
@@ -208,9 +213,16 @@ export class TchSidebarNav {
     event.stopPropagation();
   }
 
-  private isRouteActive(item: ActionItem, route: string): boolean {
+  private isRouteActive(item: ActionItem, route: string, siblings: readonly ActionItem[] = []): boolean {
     const url = this.activeComparableUrl();
-    return item.activeMatch === 'exact' ? url === route : url.startsWith(route);
+    return this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route);
+  }
+
+  private hasLongerSiblingRoute(route: string, siblings: readonly ActionItem[]): boolean {
+    return siblings.some(sibling => {
+      const siblingRoute = actionRoute(sibling).replace(/\/$/, '');
+      return siblingRoute.length > route.length && siblingRoute.startsWith(`${route}/`);
+    });
   }
 
   private activeComparableUrl(): string {

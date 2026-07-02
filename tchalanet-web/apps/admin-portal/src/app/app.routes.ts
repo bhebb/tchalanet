@@ -38,7 +38,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'pos',
-    redirectTo: 'seller-terminals/sell',
+    redirectTo: 'app/admin/pos/sale',
     pathMatch: 'full',
   },
   {

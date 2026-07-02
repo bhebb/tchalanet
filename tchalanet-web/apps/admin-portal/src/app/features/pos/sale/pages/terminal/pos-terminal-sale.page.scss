@@ -1,0 +1,177 @@
+.pos-page {
+  &__acting-notice {
+    margin-bottom: 0.75rem;
+  }
+
+  &__blocked-notice {
+    margin-bottom: 1.25rem;
+  }
+
+  // ── Two-column grid ────────────────────────────────────────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5rem;
+    align-items: start;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 1fr 320px;
+    }
+
+    @media (max-width: 860px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ── Left column ────────────────────────────────────────────────────────────
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  &__game-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0 0.75rem;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--tch-color-outline-variant, #c7c5d0);
+    }
+  }
+
+  &__clear-btn {
+    color: var(--tch-color-error, #ba1a1a) !important;
+    font-size: 0.8125rem;
+
+    &:disabled {
+      opacity: 0.45;
+    }
+  }
+
+  &__server-notices {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__server-notice {
+    strong,
+    span {
+      display: block;
+    }
+
+    strong {
+      margin-bottom: 0.125rem;
+      font-weight: 800;
+    }
+  }
+
+  &__print-notice {
+    strong,
+    span {
+      display: block;
+    }
+
+    strong {
+      margin-bottom: 0.125rem;
+      font-weight: 800;
+    }
+  }
+
+  &__notice-scope {
+    display: inline-flex;
+    margin-right: 0.375rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: var(--tch-radius-pill, 999px);
+    background: color-mix(in oklab, currentColor 12%, transparent);
+    font-size: 0.75rem;
+    font-weight: 900;
+  }
+
+  // ── Actions bar ────────────────────────────────────────────────────────────
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__total {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 120px;
+    opacity: 0.45;
+    transition: opacity 200ms;
+
+    &--has-lines { opacity: 1; }
+  }
+
+  &__total-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tch-color-on-surface-variant, #46464f);
+  }
+
+  &__total-amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--tch-color-primary-container, #141545);
+    letter-spacing: 0.02em;
+  }
+
+  &__confirm-btn {
+    flex: 1;
+    height: 3rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  &__disabled-reason {
+    margin: -0.5rem 0 0;
+    padding-left: calc(120px + 1rem);
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    @media (max-width: 720px) {
+      padding-left: 0;
+    }
+  }
+
+  &__spin {
+    animation: pos-spin 1s linear infinite;
+    font-size: 1.125rem;
+    display: inline-flex;
+  }
+
+  &__filled-icon {
+    font-variation-settings: 'FILL' 1;
+  }
+
+  // ── Right column ───────────────────────────────────────────────────────────
+  &__right {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@keyframes pos-spin {
+  to { transform: rotate(360deg); }
+}

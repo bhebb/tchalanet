@@ -10,7 +10,9 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.view.DrawStatLine;
+import com.tchalanet.server.core.sales.api.model.view.GameSalesStatLine;
 import com.tchalanet.server.core.sales.api.model.view.SellerTerminalDailyStatsView;
+import com.tchalanet.server.core.sales.api.model.view.TenantDailySalesStatsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
@@ -213,6 +215,24 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             ))
             .toList();
         return new SellerTerminalDailyStatsView(count, cents(sum), null, breakdown);
+    }
+
+    @Override
+    public TenantDailySalesStatsView dailyStatsByTenant(TenantId tenantId, Instant from, Instant to) {
+        var status = TicketSaleStatus.APPROVED;
+        var count = repository.countByTenantAndPeriod(tenantId.value(), status, from, to);
+        var sum = repository.sumTotalAmountByTenantAndPeriod(tenantId.value(), status, from, to);
+        var activeSellerTerminals = repository.countActiveSellerTerminalsByTenantAndPeriod(
+            tenantId.value(), status, from, to);
+        var rows = repository.statsByGameForTenant(tenantId.value(), status, from, to);
+        var breakdown = rows.stream()
+            .map(r -> new GameSalesStatLine(
+                r[0] != null ? r[0].toString() : "",
+                ((Number) r[1]).longValue(),
+                cents(r[2] instanceof java.math.BigDecimal bd ? bd : new java.math.BigDecimal(r[2].toString()))
+            ))
+            .toList();
+        return new TenantDailySalesStatsView(count, cents(sum), activeSellerTerminals, null, breakdown);
     }
 
     private long cents(BigDecimal amount) {

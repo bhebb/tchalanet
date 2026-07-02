@@ -98,14 +98,30 @@ export class AdminSellerTerminalNewPage implements OnInit {
 
   readonly form = this.fb.nonNullable.group(
     {
-      terminalCode: [generateTerminalCode(), [Validators.required]],
+      terminalCode: [generateTerminalCode(), [Validators.required, Validators.maxLength(64)]],
       displayName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(64)]],
       firstName: [''],
       lastName: [''],
       email: ['', [Validators.email, Validators.maxLength(254)]],
       phoneNumber: [''],
-      initialPin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
-      confirmPin: ['', [Validators.required]],
+      initialPin: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(6),
+          Validators.pattern(/^\d{6}$/),
+        ],
+      ],
+      confirmPin: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.maxLength(6),
+          Validators.pattern(/^\d{6}$/),
+        ],
+      ],
       commissionRate: [this.fallbackCommissionRate, [Validators.required, Validators.min(0), Validators.max(100)]],
       active: [true],
       address: this.fb.group({
@@ -143,6 +159,10 @@ export class AdminSellerTerminalNewPage implements OnInit {
 
   toggleShowConfirmPin(): void {
     this.showConfirmPin.update(v => !v);
+  }
+
+  pinLength(controlName: 'initialPin' | 'confirmPin'): number {
+    return this.form.controls[controlName].value.length;
   }
 
   onSubmit(): void {
@@ -198,7 +218,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   onOpenPos(result: CreateSellerTerminalResult): void {
-    void this.router.navigate(['/app/admin/seller-terminals', result.sellerTerminalId, 'pos']);
+    void this.router.navigate(['/app/admin/pos/sale', result.sellerTerminalId]);
   }
 
   onCreateAnother(): void {

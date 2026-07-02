@@ -1,0 +1,50 @@
+@if (visible()) {
+  <div class="psn" role="alert">
+    <div class="psn__icon-wrap">
+      <span class="material-symbols-outlined psn__icon">verified</span>
+    </div>
+
+    <div class="psn__body">
+      <p class="psn__title">Ticket vendu</p>
+      <p class="psn__code">{{ ticket().ticketCode }}</p>
+      @if (ticket().warnings.length) {
+        <div class="psn__warnings" aria-label="Avertissements de vente">
+          @for (warning of ticket().warnings; track warning.id) {
+            <div class="psn__warning">
+              <span class="material-symbols-outlined psn__warning-icon" aria-hidden="true">warning</span>
+              <span>{{ warningMessage(warning) }}</span>
+            </div>
+          }
+        </div>
+      }
+      <div class="psn__actions">
+        <button
+          mat-flat-button
+          color="accent"
+          class="psn__btn-print"
+          [disabled]="!canPrint()"
+          (click)="print.emit(ticket())"
+        >
+          @if (printing()) {
+            <span class="material-symbols-outlined psn__spin">progress_activity</span>
+            Impression...
+          } @else {
+            <span class="material-symbols-outlined">print</span>
+            Imprimer
+          }
+        </button>
+        <button mat-button class="psn__btn-details" (click)="viewDetails.emit(ticket())">
+          Détails
+        </button>
+        <button mat-button class="psn__btn-new" (click)="newTicket.emit()">
+          <span class="material-symbols-outlined">add</span>
+          Nouveau ticket
+        </button>
+      </div>
+    </div>
+
+    <button class="psn__close" type="button" (click)="dismiss()" aria-label="Fermer">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+}

@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { GeneratedDrawGroup, GeneratedDrawView, DrawLifecycleAction } from '../../data-access/admin-generated-draws.models';
 import { GeneratedDrawStatusBadgeComponent } from '../generated-draw-status-badge/generated-draw-status-badge.component';
+import { lotteryLogoForSlot } from '../../../../../shared/lottery/lottery-assets';
 
 @Component({
   selector: 'tch-generated-draws-table',
@@ -65,6 +66,10 @@ export class GeneratedDrawsTableComponent {
 
   scheduledTime(scheduledAt: string): string {
     return scheduledAt.slice(11, 16);
+  }
+
+  providerLogo(draw: GeneratedDrawView): string | null {
+    return lotteryLogoForSlot(draw.slotKey);
   }
 
   lifecycleActions(draw: GeneratedDrawView): DrawLifecycleAction[] {

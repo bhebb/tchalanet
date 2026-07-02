@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class SaleAcceptanceEvaluator {
 
     public static final String PREVIEW_ACCEPTED_WARNING =
-        "Ce resultat est indicatif. D'autres ventes en cours peuvent modifier les limites disponibles.";
+        "sales.preview_accepted.warning";
 
     private final SalePreparationOrchestrator policyService;
     private final SaleIssueFactory issueFactory;
@@ -77,9 +77,9 @@ public class SaleAcceptanceEvaluator {
 
     private String sellerInstruction(SaleDecision decision) {
         return switch (decision) {
-            case ACCEPTABLE -> "Le panier peut etre vendu.";
-            case REQUIRES_CHANGES -> "Modifiez le panier puis reessayez.";
-            case REJECTED_FINAL -> "La vente ne peut pas etre effectuee dans le contexte actuel.";
+            case ACCEPTABLE -> "sales.acceptable.instruction";
+            case REQUIRES_CHANGES -> "sales.basket_requires_changes.instruction";
+            case REJECTED_FINAL -> "sales.rejected_final.instruction";
         };
     }
 }

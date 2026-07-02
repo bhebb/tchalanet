@@ -58,7 +58,15 @@ export class CreateSellerTerminalDialog implements OnInit {
     email: ['', [Validators.email, Validators.maxLength(254)]],
     phoneNumber: [''],
     commissionRate: [null as number | null, [Validators.min(0), Validators.max(100)]],
-    initialPin: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
+    initialPin: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(6),
+        Validators.pattern(/^\d{6}$/),
+      ],
+    ],
   });
 
   ngOnInit(): void {

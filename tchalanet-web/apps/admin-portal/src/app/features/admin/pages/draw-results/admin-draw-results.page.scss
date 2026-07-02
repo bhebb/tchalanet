@@ -34,4 +34,59 @@
     font-weight: 700;
     font-size: 0.8125rem;
   }
+
+  &__source {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 12rem;
+  }
+
+  &__provider-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-surface-container-lowest);
+    overflow: hidden;
+    flex: 0 0 auto;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    span {
+      font-size: 0.6875rem;
+      font-weight: 800;
+      color: var(--tch-color-on-surface-variant);
+    }
+  }
+
+  &__source-code,
+  &__draw-label {
+    margin: 0;
+    font-weight: 700;
+    color: var(--tch-color-on-surface);
+  }
+
+  &__source-name,
+  &__draw-code,
+  &__draw-meta {
+    margin: 0.125rem 0 0;
+    font-size: 0.75rem;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__draw {
+    min-width: 12rem;
+  }
+
+  &__draw-code {
+    font-family: var(--tch-font-family-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace);
+  }
 }

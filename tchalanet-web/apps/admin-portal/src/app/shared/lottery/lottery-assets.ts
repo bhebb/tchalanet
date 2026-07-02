@@ -1,4 +1,7 @@
-import { TCH_LOTTERY_ASSET_BASE_PATH } from '@tch/shared-assets';
+import {
+  TCH_LOTTERY_ASSET_BASE_PATH,
+  TCH_LOTTERY_LOGO_ASSET_BASE_PATH,
+} from '@tch/shared-assets';
 
 const SLOT_ASSETS: Record<string, string> = {
   'ca-pick3': 'ca_pick3.svg',
@@ -65,6 +68,20 @@ const DRAW_CHANNEL_ASSETS: Record<string, string> = {
   win4: 'logo-win4.png.webp',
 };
 
+const PROVIDER_LOGO_ASSETS: Record<string, string> = {
+  ca: 'calottery-logo.png',
+  fl: 'florida-lottery.jpeg',
+  ga: 'ga_logo.png',
+  il: 'illinois-logo.svg',
+  mi: 'mi_logo.webp',
+  ms: 'msl-logo.svg',
+  nj: 'nj_lottery_logo.png',
+  ny: 'ny_logo.png',
+  oh: 'oh_logo.png',
+  pa: 'PALotteryBlack.svg',
+  tx: 'tx_logo.png',
+};
+
 export function lotteryAssetForSlot(slotKey?: string | null): string | null {
   const normalized = normalize(slotKey);
   if (!normalized) return null;
@@ -80,12 +97,33 @@ export function lotteryAssetForDrawChannel(drawChannelCode?: string | null): str
 }
 
 export function lotteryAssetForProvider(providerCode?: string | null): string | null {
-  return lotteryAssetForDrawChannel(providerCode);
+  const normalized = lotteryProviderCode(providerCode);
+  if (!normalized) return null;
+  const asset = PROVIDER_LOGO_ASSETS[normalized];
+  return asset ? `${TCH_LOTTERY_LOGO_ASSET_BASE_PATH}/${asset}` : null;
+}
+
+export function lotteryLogoForSlot(slotKey?: string | null): string | null {
+  return lotteryAssetForProvider(lotteryProviderCodeFromSlot(slotKey));
+}
+
+export function lotteryProviderCodeFromSlot(slotKey?: string | null): string | null {
+  const normalized = normalize(slotKey);
+  if (!normalized) return null;
+  const [provider] = normalized.split('-');
+  return lotteryProviderCode(provider);
 }
 
 function normalize(value?: string | null): string | null {
   const normalized = value?.trim().toLowerCase().replace(/_/g, '-');
   return normalized || null;
+}
+
+function lotteryProviderCode(value?: string | null): string | null {
+  const normalized = normalize(value);
+  if (!normalized) return null;
+  const [provider] = normalized.split('-');
+  return provider || null;
 }
 
 function inferChannelAsset(value: string): string | null {

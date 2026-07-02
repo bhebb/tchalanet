@@ -51,6 +51,7 @@
     </p>
     <div class="reset-pin-dialog__pin-box">
       <span class="reset-pin-dialog__pin">{{ pinResult.temporaryPin }}</span>
+      <span class="reset-pin-dialog__pin-size">{{ pinResult.temporaryPin.length }} chiffres</span>
       <button mat-icon-button (click)="copyPin()" [title]="pinCopied() ? 'Copié !' : 'Copier le PIN'">
         <span class="material-symbols-outlined">{{ pinCopied() ? 'check' : 'content_copy' }}</span>
       </button>

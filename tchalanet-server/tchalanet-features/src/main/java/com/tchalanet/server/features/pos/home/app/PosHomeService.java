@@ -1,7 +1,6 @@
 package com.tchalanet.server.features.pos.home.app;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
@@ -59,7 +58,7 @@ public class PosHomeService {
         ? ctx.tenantCurrency().getCurrencyCode()
         : "HTG";
 
-    if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+    if (ctx.sellerTerminalId() != null) {
       return sellerTerminalHome(ctx, surface, currency);
     }
 
@@ -67,8 +66,7 @@ public class PosHomeService {
   }
 
   public PosReadinessResponse readiness(TchRequestContext ctx) {
-    var sellerTerminalActor = ctx != null && ctx.actorType() == TchActorType.SELLER_TERMINAL
-        && ctx.sellerTerminalId() != null;
+    var sellerTerminalActor = ctx != null && ctx.sellerTerminalId() != null;
     var blockers = sellerTerminalActor
         ? List.<PosReadinessBlocker>of()
         : List.of(new PosReadinessBlocker(

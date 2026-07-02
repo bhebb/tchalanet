@@ -77,6 +77,136 @@
               }
             }
           }
+        },
+        "sales": {
+          "acceptable": {
+            "title": "Vente prête",
+            "message": "Le ticket peut être vendu."
+          },
+          "preview_accepted": {
+            "title": "Vérification terminée",
+            "message": "Le ticket est vendable maintenant. Si un autre vendeur vend le même numéro avant la confirmation, la limite peut changer."
+          },
+          "basket_requires_changes": {
+            "title": "Ticket à corriger",
+            "message": "Corrigez les lignes signalées puis confirmez à nouveau."
+          },
+          "rejected_final": {
+            "title": "Vente impossible",
+            "message": "Cette vente ne peut pas continuer dans l’état actuel. Revenez à la liste des vendeurs ou choisissez un autre contexte."
+          },
+          "approval_required": {
+            "title": "Mise trop élevée",
+            "message": "Réduisez la mise ou demandez une validation admin avant de vendre ce ticket."
+          },
+          "draw_required": {
+            "title": "Tirage manquant",
+            "message": "Sélectionnez un tirage ouvert puis réessayez."
+          },
+          "currency_required": {
+            "title": "Devise manquante",
+            "message": "Rechargez la page. Si le problème continue, contactez le support."
+          },
+          "lines_required": {
+            "title": "Ticket vide",
+            "message": "Ajoutez au moins un numéro avant de confirmer la vente."
+          },
+          "duplicate_line_number": {
+            "title": "Ligne en double",
+            "message": "Regroupez les mises sur une seule ligne pour le même numéro et le même type de jeu."
+          },
+          "game_required": {
+            "title": "Jeu manquant",
+            "message": "Choisissez Borlette, Maryaj, Loto 3, Loto 4 ou Loto 5 avant d’ajouter la ligne."
+          },
+          "bet_type_required": {
+            "title": "Type de jeu manquant",
+            "message": "Choisissez le type de pari de la ligne puis réessayez."
+          },
+          "unsupported_bet_type": {
+            "title": "Type incompatible",
+            "message": "Ce type de pari n’est pas disponible pour le jeu sélectionné. Choisissez un autre jeu ou retirez la ligne."
+          },
+          "selection_required": {
+            "title": "Numéro manquant",
+            "message": "Entrez le numéro à jouer avant d’ajouter la ligne."
+          },
+          "invalid_selection_format": {
+            "title": "Numéro à corriger",
+            "message": "Corrigez le numéro selon le jeu choisi : 2 chiffres pour Boul, 3 pour Loto 3, 4 pour Loto 4, 5 pour Loto 5."
+          },
+          "invalid_stake_amount": {
+            "title": "Mise invalide",
+            "message": "Entrez une mise supérieure à zéro."
+          },
+          "bet_option_required": {
+            "title": "Option manquante",
+            "message": "Choisissez l’option du jeu, par exemple Exact, Box ou Pair, puis réessayez."
+          },
+          "bet_option_out_of_range": {
+            "title": "Option invalide",
+            "message": "L’option choisie n’existe pas pour ce jeu. Choisissez une option disponible."
+          },
+          "bet_option_not_allowed": {
+            "title": "Option non autorisée",
+            "message": "Ce jeu ne prend pas d’option pour cette ligne. Retirez l’option puis réessayez."
+          },
+          "selection_exposure_limit_exceeded": {
+            "title": "Numéro trop vendu",
+            "message": "Ce numéro a atteint sa limite pour ce tirage. Réduisez la mise, choisissez un autre numéro ou retirez la ligne."
+          },
+          "exposure_changed": {
+            "title": "Limite changée pendant la vente",
+            "message": "Un autre ticket a modifié la limite disponible. Vérifiez le ticket puis confirmez à nouveau."
+          },
+          "draw_closed": {
+            "title": "Tirage fermé",
+            "message": "La vente est fermée pour ce tirage. Choisissez un autre tirage ouvert."
+          },
+          "draw_cutoff_exceeded": {
+            "title": "Vente fermée pour ce tirage",
+            "message": "L’heure limite de vente est passée. Choisissez un autre tirage ouvert."
+          },
+          "session_closed": {
+            "title": "Session de caisse fermée",
+            "message": "Ouvrez une session de caisse avant de vendre."
+          },
+          "terminal_blocked": {
+            "title": "Vendeur bloqué",
+            "message": "Ce vendeur ne peut pas vendre pour le moment. Utilisez un autre vendeur actif ou débloquez-le."
+          },
+          "outlet_suspended": {
+            "title": "Point de vente suspendu",
+            "message": "Les ventes sont suspendues pour ce point de vente. Contactez l’administrateur."
+          },
+          "tenant_disabled": {
+            "title": "Espace désactivé",
+            "message": "Les ventes sont désactivées pour ce tenant. Contactez l’administrateur plateforme."
+          },
+          "untrusted_operational_context": {
+            "title": "Contexte de vente invalide",
+            "message": "La vente n’est pas rattachée à un vendeur fiable. Revenez à la liste des vendeurs puis relancez la vente."
+          },
+          "stake_too_high": {
+            "title": "Mise trop élevée",
+            "message": "Réduisez la mise de cette ligne puis réessayez."
+          },
+          "stake_too_low": {
+            "title": "Mise trop faible",
+            "message": "Augmentez la mise de cette ligne puis réessayez."
+          },
+          "basket_line_count_exceeded": {
+            "title": "Trop de lignes",
+            "message": "Retirez quelques lignes du ticket puis réessayez."
+          },
+          "basket_total_exceeded": {
+            "title": "Total du ticket trop élevé",
+            "message": "Réduisez les mises ou divisez la vente en plusieurs tickets."
+          },
+          "seller_terminal_actor_required": {
+            "title": "Vendeur requis",
+            "message": "Cette vente n’est pas rattachée à un vendeur. Revenez à la liste des vendeurs et ouvrez la vente depuis un vendeur actif."
+          }
         }
       }
     }

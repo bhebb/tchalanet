@@ -131,6 +131,7 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 | `GetTicketQrPngByPublicCodeQuery(publicCode, size)` | `GetTicketQrPngByPublicCodeQueryHandler`  | Public, cache HTTP 1h                                                                      |
 | `ExportDailySalesQuery(from, to)`                   | `ExportDailySalesQueryHandler`            | CSV RLS-scoped                                                                             |
 | `GetAgentDailySalesQuery(from, to)`                 | `GetAgentDailySalesQueryHandler`          | Aggregate JPQL                                                                             |
+| `GetTenantDailySalesStatsQuery`                     | `GetTenantDailySalesStatsQueryHandler`    | Lecture live des tickets approuvés d'un tenant sur une fenêtre courte, utilisée par le dashboard admin pour les métriques du jour |
 
 ### Services applicatifs
 

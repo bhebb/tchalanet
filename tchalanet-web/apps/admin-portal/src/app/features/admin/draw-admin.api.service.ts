@@ -106,8 +106,8 @@ export class DrawAdminApi {
 
   // ---- Channels ----
 
-  listChannels(): Observable<DrawChannelSummary[]> {
-    return this.backend.get<DrawChannelSummary[]>('/tenant/draw-channels');
+  listChannels(options?: TchRequestOptions): Observable<DrawChannelSummary[]> {
+    return this.backend.get<DrawChannelSummary[]>('/tenant/draw-channels', options);
   }
 
   getChannelByCode(code: string): Observable<DrawChannelDetail> {

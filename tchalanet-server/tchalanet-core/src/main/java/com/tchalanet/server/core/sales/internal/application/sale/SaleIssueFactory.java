@@ -7,8 +7,11 @@ import com.tchalanet.server.core.sales.api.model.sale.SaleIssueView;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class SaleIssueFactory {
 
@@ -27,7 +30,7 @@ public class SaleIssueFactory {
         return SaleIssueView.basket(
             code,
             SaleIssueSeverity.ERROR,
-            detail,
+            messageCode(code),
             sellerInstruction(code),
             Map.of("problemStatus", ex.getProblem().getStatus())
         );
@@ -38,7 +41,7 @@ public class SaleIssueFactory {
         return SaleIssueView.basket(
             code,
             toSeverity(notice.severity() == null ? null : notice.severity().name()),
-            notice.message(),
+            messageCode(code),
             sellerInstruction(code),
             notice.meta()
         );
@@ -64,27 +67,65 @@ public class SaleIssueFactory {
             .replace("notice.", "")
             .replace('.', '_')
             .replace('-', '_')
+            .replace(' ', '_')
             .toUpperCase(Locale.ROOT);
-        return switch (normalized) {
-            case "APPROVAL_REQUIRED" -> "APPROVAL_REQUIRED";
-            case "LIMIT_BLOCKED" -> "SELECTION_EXPOSURE_LIMIT_EXCEEDED";
-            case "DRAW_REQUIRED", "DRAW_CHANNEL_REQUIRED", "CURRENCY_REQUIRED", "LINES_REQUIRED",
-                "INVALID_LINE_NUMBER", "GAME_REQUIRED", "BET_TYPE_REQUIRED", "UNSUPPORTED_BET_TYPE",
-                "SELECTION_REQUIRED", "INVALID_STAKE_AMOUNT", "BET_OPTION_REQUIRED",
-                "BET_OPTION_OUT_OF_RANGE", "BET_OPTION_NOT_ALLOWED" -> "INVALID_SELECTION_FORMAT";
-            default -> normalized;
+
+        var mapped = switch (normalized) {
+            case "APPROVAL_REQUIRED" -> "sales.approval_required";
+            case "LIMIT_BLOCKED", "LIMITS_BLOCKED", "EXPOSURE_LIMIT", "SELECTION_EXPOSURE_LIMIT_EXCEEDED" ->
+                "sales.selection_exposure_limit_exceeded";
+            case "EXPOSURE_CHANGED" -> "sales.exposure_changed";
+            case "DRAW_REQUIRED", "DRAW_CHANNEL_REQUIRED" -> "sales.draw_required";
+            case "DRAW_CUTOFF_EXCEEDED", "DRAW_CUTOFF_TIME_HAS_PASSED" -> "sales.draw_cutoff_exceeded";
+            case "DRAW_CLOSED", "DRAW_NOT_OPEN", "DRAW_IS_NOT_OPEN_FOR_SALES" -> "sales.draw_closed";
+            case "CURRENCY_REQUIRED" -> "sales.currency_required";
+            case "LINES_REQUIRED" -> "sales.lines_required";
+            case "DUPLICATE_LINE_NUMBER" -> "sales.duplicate_line_number";
+            case "GAME_REQUIRED" -> "sales.game_required";
+            case "BET_TYPE_REQUIRED" -> "sales.bet_type_required";
+            case "UNSUPPORTED_BET_TYPE" -> "sales.unsupported_bet_type";
+            case "SELECTION_REQUIRED" -> "sales.selection_required";
+            case "SELECTION_INVALID", "INVALID_LINE_NUMBER" -> "sales.invalid_selection_format";
+            case "INVALID_STAKE_AMOUNT" -> "sales.invalid_stake_amount";
+            case "BET_OPTION_REQUIRED" -> "sales.bet_option_required";
+            case "BET_OPTION_OUT_OF_RANGE" -> "sales.bet_option_out_of_range";
+            case "BET_OPTION_NOT_ALLOWED" -> "sales.bet_option_not_allowed";
+            case "SESSION_CLOSED" -> "sales.session_closed";
+            case "TERMINAL_BLOCKED" -> "sales.terminal_blocked";
+            case "OUTLET_SUSPENDED" -> "sales.outlet_suspended";
+            case "TENANT_DISABLED" -> "sales.tenant_disabled";
+            case "UNTRUSTED_OPERATIONAL_CONTEXT" -> "sales.untrusted_operational_context";
+            case "STAKE_TOO_HIGH" -> "sales.stake_too_high";
+            case "STAKE_TOO_LOW" -> "sales.stake_too_low";
+            case "BASKET_LINE_COUNT_EXCEEDED" -> "sales.basket_line_count_exceeded";
+            case "BASKET_TOTAL_EXCEEDED" -> "sales.basket_total_exceeded";
+            default -> null;
         };
+
+        if (mapped != null) {
+            return mapped;
+        }
+
+        log.warn("Mapping unknown sale notice code '{}' to issue code '{}'", rawCode, normalized);
+        return "sales." + normalized.toLowerCase(Locale.ROOT);
+    }
+
+    private String messageCode(String code) {
+        return code + ".message";
     }
 
     private String sellerInstruction(String code) {
         return switch (code) {
-            case "APPROVAL_REQUIRED" -> "Reduisez la mise, modifiez le panier ou contactez un admin.";
-            case "INVALID_SELECTION_FORMAT" -> "Corrigez la selection puis reessayez.";
-            case "SELECTION_EXPOSURE_LIMIT_EXCEEDED", "EXPOSURE_CHANGED" ->
-                "Reduisez la mise ou retirez la ligne concernee.";
-            case "DRAW_CUTOFF_EXCEEDED", "DRAW_CLOSED" -> "Choisissez un autre tirage disponible.";
-            case "SESSION_CLOSED" -> "Ouvrez une session de caisse avant de vendre.";
-            default -> "Modifiez le panier puis reessayez.";
+            case "sales.approval_required" -> "sales.approval_required.instruction";
+            case "sales.invalid_selection_format" -> "sales.invalid_selection_format.instruction";
+            case "sales.selection_exposure_limit_exceeded", "sales.exposure_changed" ->
+                "sales.selection_exposure_limit_exceeded.instruction";
+            case "sales.draw_cutoff_exceeded", "sales.draw_closed" -> "sales.draw_closed.instruction";
+            case "sales.session_closed" -> "sales.session_closed.instruction";
+            case "sales.terminal_blocked" -> "sales.terminal_blocked.instruction";
+            case "sales.outlet_suspended" -> "sales.outlet_suspended.instruction";
+            case "sales.tenant_disabled" -> "sales.tenant_disabled.instruction";
+            default -> "sales.basket_requires_changes.instruction";
         };
     }
 }

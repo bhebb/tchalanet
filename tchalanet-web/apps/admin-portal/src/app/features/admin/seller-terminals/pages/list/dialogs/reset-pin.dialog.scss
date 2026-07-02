@@ -39,6 +39,17 @@
     font-variant-numeric: tabular-nums;
   }
 
+  &__pin-size {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--tch-radius-pill, 999px);
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm, 0.75rem);
+    font-weight: var(--tch-weight-semibold, 600);
+    white-space: nowrap;
+  }
+
   &__warning {
     display: flex;
     align-items: flex-start;

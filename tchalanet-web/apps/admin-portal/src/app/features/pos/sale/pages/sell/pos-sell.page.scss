@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.pos-sell {
+  &__notice {
+    margin-bottom: 1rem;
+  }
+
+  &__pagination {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: center;
+
+    @media (min-width: 720px) {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  &__pagination-total {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  &__pagination-nav {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+}

@@ -83,7 +83,7 @@
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
-      "submit": "Create seller-terminal",
+      "submit": "Create seller terminal",
       "success": "Seller-terminal created:",
       "title": "Seller-terminal onboarding",
       "sellerTerminalId": "Seller-terminal"
@@ -288,7 +288,7 @@
         "title": "New seller-terminal",
         "action": "Add a seller-terminal",
         "description": "Fill in the information to create a new seller-terminal.",
-        "submit": "Create seller-terminal"
+        "submit": "Create seller terminal"
       },
       "detail": {
         "title": "Seller-terminal detail"

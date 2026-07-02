@@ -26,6 +26,8 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryR
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalCommissionStatsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.SellerTerminalSearchCriteria;
+import com.tchalanet.server.core.sales.api.model.view.TenantDailySalesStatsView;
+import com.tchalanet.server.core.sales.api.query.GetTenantDailySalesStatsQuery;
 import com.tchalanet.server.features.pagemodel.contract.ActionItem;
 import com.tchalanet.server.features.pagemodel.contract.AlertItem;
 import com.tchalanet.server.features.pagemodel.contract.NewsItem;
@@ -96,6 +98,7 @@ public class TenantAdminDashboardPayloadAssembler {
         CommercialBundle commercial = loadCommercialBundle(tenantId);
         TenantKpisView kpisView = loadActiveSellerTerminals(tenantId, tz);
         TenantDashboardStatsView analytics = loadDashboardStats(tenantId, tz);
+        TenantDailySalesStatsView liveTodaySales = loadLiveTodaySales(tenantId, tz, ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
         long openDraws = loadOpenDrawCount();
         long closedDraws = loadDrawCount(DrawStatus.CLOSED);
         long notifCount = loadNotificationCount(ctx);
@@ -104,9 +107,9 @@ public class TenantAdminDashboardPayloadAssembler {
         TenantCommissionSummaryPayload commission = loadCommissionSummary(tenantId, tenantDefaultRate);
 
         TenantDashboardHeaderPayload header = buildHeader(ctx, registry);
-        TenantKpiGridPayload kpis = buildKpis(analytics, kpisView, openDraws, notifCount, tz);
-        TenantSalesTrendPayload salesTrend = buildSalesTrend(analytics);
-        TenantGameBreakdownPayload gameBreakdown = buildGameBreakdown(analytics);
+        TenantKpiGridPayload kpis = buildKpis(analytics, kpisView, liveTodaySales, openDraws, notifCount, tz);
+        TenantSalesTrendPayload salesTrend = buildSalesTrend(analytics, liveTodaySales, tz);
+        TenantGameBreakdownPayload gameBreakdown = buildGameBreakdown(analytics, liveTodaySales);
         TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial, commission, closedDraws);
         TenantAlertsPayload alerts = buildAlerts(notifCount, ops.blockedSellerTerminalCount(), closedDraws);
         TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
@@ -191,6 +194,19 @@ public class TenantAdminDashboardPayloadAssembler {
         }
     }
 
+    private TenantDailySalesStatsView loadLiveTodaySales(TenantId tenantId, ZoneId tz, String currency) {
+        try {
+            LocalDate today = LocalDate.now(tz);
+            var from = today.atStartOfDay(tz).toInstant();
+            var to = today.plusDays(1).atStartOfDay(tz).toInstant();
+            TenantDailySalesStatsView view = queryBus.ask(new GetTenantDailySalesStatsQuery(tenantId, from, to, currency));
+            return view != null ? view : TenantDailySalesStatsView.empty(currency);
+        } catch (RuntimeException e) {
+            log.warn("tenant_admin_dashboard: failed to load live sales stats — {}", e.getMessage());
+            return TenantDailySalesStatsView.empty(currency);
+        }
+    }
+
     private long loadOpenDrawCount() {
         return loadDrawCount(DrawStatus.OPEN);
     }
@@ -224,7 +240,9 @@ public class TenantAdminDashboardPayloadAssembler {
         return new TenantDashboardHeaderPayload(ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "", registry != null && registry.name() != null ? registry.name() : "", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
     }
 
-    private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView, long openDraws, long notifCount, ZoneId tz) {
+    private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView,
+                                           TenantDailySalesStatsView liveTodaySales, long openDraws,
+                                           long notifCount, ZoneId tz) {
         LocalDate today = LocalDate.now(tz);
         LocalDate yesterday = today.minusDays(1);
 
@@ -247,26 +265,68 @@ public class TenantAdminDashboardPayloadAssembler {
             }
         }
 
+        if (liveTodaySales != null && liveTodaySales.ticketCount() > 0L) {
+            salesToday = fromCents(liveTodaySales.salesTotalCents());
+            ticketsToday = liveTodaySales.ticketCount();
+        }
+
         long activeSellerTerminals = kpisView.activeCashiers(); // proxy V0: SELLER dim = seller_terminal
+        if (liveTodaySales != null && liveTodaySales.activeSellerTerminals() > 0L) {
+            activeSellerTerminals = liveTodaySales.activeSellerTerminals();
+        }
         return new TenantKpiGridPayload(salesToday, salesYesterday, ticketsToday, ticketsYesterday, winningsToday, payoutsToday, netToday, activeSellerTerminals, openDraws, notifCount, 0L);
     }
 
-    private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view) {
-        if (view == null || view.dailyBreakdown() == null) {
-            return new TenantSalesTrendPayload(List.of());
+    private TenantSalesTrendPayload buildSalesTrend(TenantDashboardStatsView view,
+                                                    TenantDailySalesStatsView liveTodaySales,
+                                                    ZoneId tz) {
+        List<TenantTrendItem> points = new ArrayList<>();
+        if (view != null && view.dailyBreakdown() != null) {
+            points.addAll(view.dailyBreakdown().stream()
+                .map(p -> new TenantTrendItem(
+                    p.refDate() != null ? p.refDate().toString() : "",
+                    p.refDate() != null ? p.refDate().toString() : "",
+                    p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
+                    p.netRevenueEstimated() != null ? p.netRevenueEstimated() : BigDecimal.ZERO,
+                    p.ticketsSold()))
+                .toList());
         }
-        List<TenantTrendItem> points = view.dailyBreakdown().stream()
-            .map(p -> new TenantTrendItem(
-                p.refDate() != null ? p.refDate().toString() : "",
-                p.refDate() != null ? p.refDate().toString() : "",
-                p.grossSales() != null ? p.grossSales() : BigDecimal.ZERO,
-                p.netRevenueEstimated() != null ? p.netRevenueEstimated() : BigDecimal.ZERO,
-                p.ticketsSold()))
-            .toList();
+
+        if (liveTodaySales != null && liveTodaySales.ticketCount() > 0L) {
+            String today = LocalDate.now(tz).toString();
+            TenantTrendItem livePoint = new TenantTrendItem(
+                today,
+                today,
+                fromCents(liveTodaySales.salesTotalCents()),
+                BigDecimal.ZERO,
+                liveTodaySales.ticketCount());
+            boolean replaced = false;
+            for (int i = 0; i < points.size(); i++) {
+                if (today.equals(points.get(i).id())) {
+                    points.set(i, livePoint);
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                points.add(livePoint);
+            }
+        }
         return new TenantSalesTrendPayload(points);
     }
 
-    private TenantGameBreakdownPayload buildGameBreakdown(TenantDashboardStatsView view) {
+    private TenantGameBreakdownPayload buildGameBreakdown(TenantDashboardStatsView view,
+                                                          TenantDailySalesStatsView liveTodaySales) {
+        if (liveTodaySales != null && liveTodaySales.gameBreakdown() != null && !liveTodaySales.gameBreakdown().isEmpty()) {
+            return new TenantGameBreakdownPayload(liveTodaySales.gameBreakdown().stream()
+                .map(g -> new TenantGameBreakdownItem(
+                    g.gameCode() != null ? g.gameCode() : "",
+                    g.gameCode() != null ? g.gameCode() : "",
+                    g.ticketCount(),
+                    fromCents(g.totalCents()),
+                    BigDecimal.ZERO))
+                .toList());
+        }
         if (view == null || view.gameBreakdown() == null) {
             return new TenantGameBreakdownPayload(List.of());
         }
@@ -279,6 +339,10 @@ public class TenantAdminDashboardPayloadAssembler {
                 g.netRevenueEstimated() != null ? g.netRevenueEstimated() : BigDecimal.ZERO))
             .toList();
         return new TenantGameBreakdownPayload(items);
+    }
+
+    private static BigDecimal fromCents(long cents) {
+        return BigDecimal.valueOf(cents).movePointLeft(2);
     }
 
     /**

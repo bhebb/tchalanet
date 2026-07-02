@@ -42,25 +42,6 @@
         </tch-admin-section-card>
 
         <tch-admin-section-card
-          title="Actions rapides"
-          icon="bolt"
-          description="Accédez directement aux opérations fréquentes de contrôle des ventes."
-        >
-          <div class="admin-limits-overview__quick-links" aria-label="Actions rapides limites">
-            @for (link of actionLinks(); track link.id) {
-              <a class="admin-limits-overview__quick-link" [routerLink]="link.route">
-                <span class="material-symbols-outlined admin-limits-overview__quick-icon">{{ link.icon }}</span>
-                <span>
-                  <strong>{{ link.label }}</strong>
-                  <small>{{ link.description }}</small>
-                </span>
-                <span class="material-symbols-outlined admin-limits-overview__quick-arrow">arrow_forward</span>
-              </a>
-            }
-          </div>
-        </tch-admin-section-card>
-
-        <tch-admin-section-card
           title="Protections actives"
           icon="tune"
           description="Ces règles protègent les ventes par défaut avant les exceptions par vendeur, numéro ou canal."
@@ -114,11 +95,30 @@
             </a>
           </div>
         </tch-admin-section-card>
+
+        <tch-admin-section-card
+          title="Actions rapides"
+          icon="bolt"
+          description="Accédez directement aux opérations fréquentes de contrôle des ventes."
+        >
+          <div class="admin-limits-overview__quick-links" aria-label="Actions rapides limites">
+            @for (link of actionLinks(); track link.id) {
+              <a class="admin-limits-overview__quick-link" [routerLink]="link.route">
+                <span class="material-symbols-outlined admin-limits-overview__quick-icon">{{ link.icon }}</span>
+                <span>
+                  <strong>{{ link.label }}</strong>
+                  <small>{{ link.description }}</small>
+                </span>
+                <span class="material-symbols-outlined admin-limits-overview__quick-arrow">arrow_forward</span>
+              </a>
+            }
+          </div>
+        </tch-admin-section-card>
       </div>
 
       <div aside>
         <tch-card class="admin-limits-overview__summary">
-          <p class="admin-limits-overview__summary-eyebrow">Résumé</p>
+          <p class="admin-limits-overview__summary-eyebrow">Résumé des limites</p>
           <h2>Limites de vente</h2>
           <dl>
             <div>

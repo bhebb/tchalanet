@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
 import com.tchalanet.server.common.persistence.repository.TchJpaRepository;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
@@ -69,6 +70,38 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
     List<Object[]> statsByDrawForSellerTerminal(
         @Param("sellerTerminalId") UUID sellerTerminalId,
         @Param("tenantId") UUID tenantId,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT COUNT(t) FROM TicketJpaEntity t WHERE t.tenantId = :tenantId AND t.saleStatus = :status AND t.createdAt >= :from AND t.createdAt < :to")
+    long countByTenantAndPeriod(
+        @Param("tenantId") UUID tenantId,
+        @Param("status") TicketSaleStatus status,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT COALESCE(SUM(t.totalAmount), 0) FROM TicketJpaEntity t WHERE t.tenantId = :tenantId AND t.saleStatus = :status AND t.createdAt >= :from AND t.createdAt < :to")
+    BigDecimal sumTotalAmountByTenantAndPeriod(
+        @Param("tenantId") UUID tenantId,
+        @Param("status") TicketSaleStatus status,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT COUNT(DISTINCT t.sellerTerminalId) FROM TicketJpaEntity t WHERE t.tenantId = :tenantId AND t.saleStatus = :status AND t.sellerTerminalId IS NOT NULL AND t.createdAt >= :from AND t.createdAt < :to")
+    long countActiveSellerTerminalsByTenantAndPeriod(
+        @Param("tenantId") UUID tenantId,
+        @Param("status") TicketSaleStatus status,
+        @Param("from") Instant from,
+        @Param("to") Instant to);
+
+    @Query("SELECT l.gameCode, COUNT(DISTINCT t.id), COALESCE(SUM(l.stakeAmount), 0) " +
+           "FROM TicketJpaEntity t JOIN t.lines l " +
+           "WHERE t.tenantId = :tenantId AND t.saleStatus = :status " +
+           "AND t.createdAt >= :from AND t.createdAt < :to " +
+           "GROUP BY l.gameCode ORDER BY SUM(l.stakeAmount) DESC")
+    List<Object[]> statsByGameForTenant(
+        @Param("tenantId") UUID tenantId,
+        @Param("status") TicketSaleStatus status,
         @Param("from") Instant from,
         @Param("to") Instant to);
 }

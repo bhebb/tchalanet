@@ -1,4 +1,4 @@
-export type ShellFeedbackSeverity = 'info' | 'warn' | 'error';
+export type ShellFeedbackSeverity = 'info' | 'success' | 'warn' | 'error';
 export type ShellFeedbackVerbosity = 'minimal' | 'standard' | 'verbose';
 
 export interface ShellFeedbackItem {

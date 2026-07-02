@@ -1,0 +1,78 @@
+<tch-admin-page-shell
+  title="Vendre"
+  description="Choisissez le vendeur au nom duquel enregistrer la vente."
+>
+  <div actions>
+    <button mat-stroked-button type="button" (click)="loadSellerTerminals()">
+      <span class="material-symbols-outlined">refresh</span>
+      Actualiser
+    </button>
+  </div>
+
+  <tch-notice type="info" class="pos-sell__notice">
+    L'admin agit comme le vendeur sélectionné. Les tickets, commissions et rapports seront rattachés à ce terminal.
+  </tch-notice>
+
+  <tch-admin-list-surface
+    searchLabel="Recherche"
+    searchPlaceholder="Rechercher un vendeur ou un code..."
+    [searchValue]="searchQuery()"
+    statusLabel="Statut"
+    [statusValue]="statusFilter()"
+    [statusOptions]="statusOptions"
+    allStatusesLabel="Tous les statuts"
+    resetLabel="Réinitialiser"
+    [filtersDisplay]="'inline'"
+    [filtersExpanded]="!!searchQuery() || !!statusFilter()"
+    (searchChange)="onSearchFilter($event)"
+    (statusChange)="onStatusFilter($event)"
+    (resetFilters)="resetFilters()"
+  >
+    <ng-container list-content>
+      @if (loading()) {
+        <tch-loading label="Chargement des vendeurs..." />
+      } @else if (error(); as pageError) {
+        <tch-error-panel
+          [title]="pageError.title"
+          [message]="pageError.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="loadSellerTerminals()"
+        />
+      } @else if (sellerTerminals().length === 0) {
+        <tch-admin-empty-state
+          icon="point_of_sale"
+          [title]="searchQuery() || statusFilter() ? 'Aucun vendeur trouvé' : 'Aucun vendeur'"
+          [message]="searchQuery() || statusFilter()
+            ? 'Modifiez la recherche ou réinitialisez les filtres.'
+            : 'Créez un vendeur avant d’ouvrir le POS.'"
+        />
+      } @else {
+        <tch-pos-seller-terminal-list
+          [sellerTerminals]="sellerTerminals()"
+          [sortActive]="sortActive()"
+          [sortDirection]="sortDirection()"
+          (sellAs)="openSale($event)"
+          (sortChange)="onSortChange($event)"
+        />
+      }
+    </ng-container>
+
+    <ng-container list-footer>
+      <div class="pos-sell__pagination">
+        <span class="pos-sell__pagination-total">{{ total() }} vendeur(s)</span>
+        <div class="pos-sell__pagination-nav">
+          <button mat-button type="button" [disabled]="!hasPrevious()" (click)="prevPage()">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            Précédent
+          </button>
+          <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
+          <button mat-button type="button" [disabled]="!hasNext()" (click)="nextPage()">
+            Suivant
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </tch-admin-list-surface>
+</tch-admin-page-shell>

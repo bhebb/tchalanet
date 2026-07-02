@@ -28,6 +28,7 @@ export interface GeneratedDrawView {
   readonly resultMode: GeneratedDrawResultMode;
   readonly publicationStatus?: GeneratedDrawPublicationStatus | null;
   readonly numbers?: string[] | null;
+  readonly fetchedAt?: string | null;
   readonly sourceError?: { readonly message: string; readonly occurredAt?: string | null } | null;
   /** Raw backend DrawStatus — used to determine available lifecycle actions. */
   readonly lifecycleStatus?: string;

@@ -29,14 +29,17 @@
               <!-- Tirage -->
               <td class="gdt__td">
                 <div class="gdt__draw-cell">
-                  <!-- Provider logo slot: swap <img> in once assets are available -->
                   <div class="gdt__provider-logo" [attr.data-provider]="draw.providerCode" [title]="draw.providerLabel">
-                    <span class="gdt__provider-code">{{ draw.providerCode }}</span>
+                    @if (providerLogo(draw); as logo) {
+                      <img [src]="logo" [alt]="draw.providerLabel" loading="lazy" />
+                    } @else {
+                      <span class="gdt__provider-code">{{ draw.providerCode }}</span>
+                    }
                   </div>
                   <span class="gdt__accent gdt__accent--{{ accentColor(draw) }}"></span>
                   <div>
                     <p class="gdt__draw-label">{{ draw.label }}</p>
-                    <p class="gdt__draw-sub">{{ draw.slotLabel }}</p>
+                    <p class="gdt__draw-sub">{{ draw.slotLabel }} · {{ draw.slotKey }}</p>
                   </div>
                 </div>
               </td>
@@ -65,6 +68,9 @@
                   }
                   @if (draw.sourceError) {
                     <p class="gdt__error-hint">{{ draw.sourceError.occurredAt | date:'HH:mm':'':'fr' }}</p>
+                  }
+                  @if (draw.fetchedAt) {
+                    <p class="gdt__fetch-hint">Récupéré {{ draw.fetchedAt | date:'dd/MM HH:mm':'':'fr' }}</p>
                   }
                 </div>
               </td>

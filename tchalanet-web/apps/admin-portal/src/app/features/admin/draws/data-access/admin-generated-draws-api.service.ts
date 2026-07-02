@@ -30,6 +30,7 @@ interface DrawView {
   readonly lastResult: {
     readonly id: string;
     readonly occurredAt: string;
+    readonly fetchedAt?: string | null;
     readonly status: string;
     readonly lot1: string | null;
     readonly lot2: string | null;
@@ -98,8 +99,12 @@ function slotLabelFromKey(key: string): string {
   return labels[part] ?? part;
 }
 
+function providerCodeFromSlotKey(key: string): string {
+  return (key.trim().split(/[-_]/)[0] || 'UNK').toUpperCase();
+}
+
 function mapDrawView(d: DrawView): GeneratedDrawView {
-  const providerCode = d.slot.label ?? 'UNK';
+  const providerCode = providerCodeFromSlotKey(d.slot.key);
   const salesStatus = mapSalesStatus(d.status);
   const resultStatus = mapResultStatus(d.status, d.lastResult);
   const numbers = d.lastResult
@@ -124,6 +129,7 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
       ? 'PUBLISHED'
       : 'NOT_PUBLISHED',
     numbers: numbers?.length ? numbers : null,
+    fetchedAt: d.lastResult?.fetchedAt ?? null,
     sourceError: null,
     lifecycleStatus: d.status,
   };

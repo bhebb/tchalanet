@@ -87,16 +87,25 @@ export class AdminLimitsDrawPage implements OnInit {
 
   private loadChannels(): void {
     this.channelsLoading.set(true);
-    this.drawApi.listChannels().subscribe({
+    this.channelsError.set(null);
+    this.drawApi.listChannels({ suppressShellFeedback: true }).subscribe({
       next: channels => {
-        this.channels.set(channels.filter(c => c.active));
+        const activeChannels = channels.filter(c => c.active);
+        this.channels.set(activeChannels);
         this.channelsLoading.set(false);
+        if (!this.channelCtrl.value && activeChannels.length > 0) {
+          this.channelCtrl.setValue(activeChannels[0].channelCode);
+        }
       },
       error: (err: unknown) => {
         this.channelsError.set(this.resolveError(err, 'admin.limits.draw.channels', 'section'));
         this.channelsLoading.set(false);
       },
     });
+  }
+
+  retryChannels(): void {
+    this.loadChannels();
   }
 
   reload(): void {

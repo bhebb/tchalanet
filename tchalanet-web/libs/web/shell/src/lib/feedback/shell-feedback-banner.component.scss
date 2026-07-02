@@ -29,6 +29,16 @@
   );
 }
 
+.sfb--success {
+  --comp-sfb-bg: color-mix(
+    in srgb,
+    var(--tch-color-status-ready, #1a8051) 12%,
+    var(--tch-color-surface-container-high)
+  );
+  --comp-sfb-border: var(--tch-color-status-ready, #1a8051);
+  --comp-sfb-icon-color: var(--tch-color-status-ready, #1a8051);
+}
+
 .sfb--error {
   --comp-sfb-bg: var(--tch-color-error-container);
   --comp-sfb-fg: var(--tch-color-on-error-container);

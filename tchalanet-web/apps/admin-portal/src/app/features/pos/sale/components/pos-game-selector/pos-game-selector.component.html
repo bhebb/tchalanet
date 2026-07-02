@@ -1,0 +1,22 @@
+<div class="pgs" role="radiogroup" aria-label="Sélectionner un jeu">
+  @for (game of games(); track game.gameCode) {
+    <button
+      class="pgs__tile"
+      type="button"
+      role="radio"
+      [class.pgs__tile--selected]="selectedCode() === game.gameCode"
+      [class.pgs__tile--disabled]="!game.enabled"
+      [attr.aria-checked]="selectedCode() === game.gameCode"
+      [disabled]="!game.enabled"
+      (click)="select(game.gameCode)"
+    >
+      <span class="pgs__label">{{ game.label }}</span>
+      @if (selectedCode() === game.gameCode) {
+        <span class="pgs__active-badge">
+          <span class="pgs__active-dot"></span>
+          Sélectionné
+        </span>
+      }
+    </button>
+  }
+</div>

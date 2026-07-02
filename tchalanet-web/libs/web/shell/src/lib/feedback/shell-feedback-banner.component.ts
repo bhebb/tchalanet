@@ -31,6 +31,8 @@ export class ShellFeedbackBannerComponent {
         return 'error';
       case 'warn':
         return 'warning';
+      case 'success':
+        return 'check_circle';
       default:
         return 'info';
     }

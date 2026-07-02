@@ -1,0 +1,98 @@
+<div class="ptp">
+  <!-- Ticket body -->
+  <div class="ptp__ticket">
+
+    <!-- Branding -->
+    <div class="ptp__brand">
+      <div class="ptp__brand-icon">
+        <span class="material-symbols-outlined">casino</span>
+      </div>
+      <span class="ptp__brand-name">TCHALANET</span>
+      <span class="ptp__brand-sub">Official Lottery</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="ptp__meta">
+      <div class="ptp__meta-row">
+        <span class="ptp__meta-key">DATE</span>
+        <span class="ptp__meta-val">{{ now | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="ptp__meta-row">
+        <span class="ptp__meta-key">TIRAGE</span>
+        @if (draw(); as d) {
+          <span class="ptp__meta-val ptp__meta-val--bold">
+            {{ d.label | uppercase }} ({{ d.scheduledAt | date:'HH:mm' }})
+          </span>
+        } @else {
+          <span class="ptp__meta-val ptp__meta-val--muted">—</span>
+        }
+      </div>
+      <div class="ptp__meta-row">
+        <span class="ptp__meta-key">TERMINAL</span>
+        <span class="ptp__meta-val">{{ sellerTerminal()?.terminalCode ?? '—' }}</span>
+      </div>
+    </div>
+
+    <!-- Lines -->
+    <div class="ptp__lines">
+      <div class="ptp__lines-header">
+        <span>JEU / SÉLECTION / TYPE</span>
+        <span>MISE</span>
+      </div>
+
+      @if (displayLines().length > 0) {
+        @for (line of displayLines(); track $index) {
+          <div class="ptp__line">
+            <span class="ptp__line-desc">
+              {{ line.gameLabel | uppercase }} / {{ line.selection }} / {{ line.betTypeLabel | uppercase }}
+            </span>
+            <span class="ptp__line-amount">{{ line.stakeAmount | number:'1.2-2' }} HTG</span>
+          </div>
+        }
+      } @else {
+        <p class="ptp__lines-empty">Ticket en préparation</p>
+      }
+    </div>
+
+    <!-- Total -->
+    <div class="ptp__total">
+      <span class="ptp__total-label">TOTAL</span>
+      <div class="ptp__total-right">
+        <span class="ptp__total-amount">{{ totalAmount() | number:'1.2-2' }} HTG</span>
+        <span class="ptp__total-sub">Tax incl. (0.00)</span>
+      </div>
+    </div>
+
+    <!-- Ticket code -->
+    <div class="ptp__code-section">
+      @if (confirmedTicket(); as t) {
+        <div class="ptp__barcode">
+          @for (w of [1,3,1,2,1,3,1,1,2,1,4,1]; track $index) {
+            <div
+              class="ptp__bar"
+              [class.ptp__bar--w1]="w === 1"
+              [class.ptp__bar--w2]="w === 2"
+              [class.ptp__bar--w3]="w === 3"
+              [class.ptp__bar--w4]="w === 4"
+            ></div>
+          }
+        </div>
+        <p class="ptp__ticket-code">{{ t.ticketCode }}</p>
+        <span class="ptp__status-badge ptp__status-badge--confirmed">
+          <span class="material-symbols-outlined">verified</span>
+          Ticket vendu
+        </span>
+      } @else {
+        <div class="ptp__code-placeholder">
+          <span class="material-symbols-outlined">qr_code_2</span>
+          <p>Code généré après confirmation</p>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- Perforation -->
+  <div class="ptp__perforation"></div>
+  <div class="ptp__footer">FIN DU TICKET</div>
+</div>
