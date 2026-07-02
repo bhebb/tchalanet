@@ -58,12 +58,26 @@ global et par clé, `feedback()` succès/erreur en `ErrorViewModel`, `execute()`
 - **THEN** `mutation.pending(id)` est vrai pour cette ligne seulement
 - **AND** les autres lignes restent actionnables.
 
+#### Scenario: Double-submit bloqué localement
+
+- **GIVEN** une mutation en cours (`pending()` vrai pour la clé concernée)
+- **WHEN** `execute()` est rappelé pour la même clé (double-clic)
+- **THEN** l'appel est ignoré — aucune seconde requête ne part.
+
+#### Scenario: Idempotency-Key pour les endpoints qui l'exigent
+
+- **GIVEN** une mutation configurée avec le hook d'idempotence (vente, reset PIN, résultat manuel, override)
+- **WHEN** `execute()` est appelé
+- **THEN** une clé (par défaut `crypto.randomUUID()`) est fournie au `run` pour l'endpoint
+- **AND** les invariants backend (rejeu même clé+payload, conflit même clé+payload différent, audit, permissions) restent côté serveur.
+
 ### Requirement: tch-async-view pour les états de template
 
 La lib `@tch/web/async` SHALL exposer `<tch-async-view>` qui reçoit un resource (+ son
 `ErrorViewModel`) et rend l'état correspondant — loading, erreur avec retry, vide, ou le
 template ready — en composant les briques existantes (`tch-loading`, `tch-error-panel`,
-`tch-admin-empty-state`).
+`tch-admin-empty-state`). Le composant est **en lecture seule** : il ne gère aucune mutation ;
+le pending par bouton/ligne reste porté par `tchMutation` dans le template ready.
 
 #### Scenario: Page migrée sans squelette d'états manuel
 
@@ -71,7 +85,7 @@ template ready — en composant les briques existantes (`tch-loading`, `tch-erro
 - **WHEN** son template rend les données
 - **THEN** il n'y a plus de chaîne manuelle `@if (loading()) … @else if (error()) … @else if (vide) …`
 - **AND** le retry de l'état d'erreur appelle `resource.reload()`
-- **AND** l'état d'erreur page affiche le `traceId` du ProblemDetail quand il existe
+- **AND** l'état d'erreur page préserve les identifiants de corrélation du ProblemDetail (`traceId`/`requestId`/`errorId`) quand ils existent
 - **AND** l'état vide est distinct de l'état chargé.
 
 ### Requirement: Loading différencié initial / rechargement / action
