@@ -77,6 +77,136 @@
               }
             }
           }
+        },
+        "sales": {
+          "acceptable": {
+            "title": "Vant lan pare",
+            "message": "Tikè a ka vann."
+          },
+          "preview_accepted": {
+            "title": "Verifikasyon fini",
+            "message": "Tikè a ka vann kounye a. Si yon lòt vandè vann menm nimewo a avan konfimasyon, limit la ka chanje."
+          },
+          "basket_requires_changes": {
+            "title": "Tikè pou korije",
+            "message": "Korije liy ki make yo epi konfime ankò."
+          },
+          "rejected_final": {
+            "title": "Vant pa disponib",
+            "message": "Vant sa a pa ka kontinye nan eta aktyèl la. Retounen nan lis vandè yo oswa chwazi yon lòt kontèks."
+          },
+          "approval_required": {
+            "title": "Miz twò wo",
+            "message": "Diminye miz la oswa mande yon validasyon admin avan ou vann tikè sa a."
+          },
+          "draw_required": {
+            "title": "Tiraj manke",
+            "message": "Chwazi yon tiraj ki ouvè epi eseye ankò."
+          },
+          "currency_required": {
+            "title": "Deviz manke",
+            "message": "Rechaje paj la. Si pwoblèm nan kontinye, kontakte sipò."
+          },
+          "lines_required": {
+            "title": "Tikè vid",
+            "message": "Ajoute omwen yon nimewo avan ou konfime vant lan."
+          },
+          "duplicate_line_number": {
+            "title": "Liy an doub",
+            "message": "Mete miz yo sou yon sèl liy pou menm nimewo ak menm tip jwèt la."
+          },
+          "game_required": {
+            "title": "Jwèt manke",
+            "message": "Chwazi Borlette, Maryaj, Loto 3, Loto 4, oswa Loto 5 avan ou ajoute liy lan."
+          },
+          "bet_type_required": {
+            "title": "Tip jwèt manke",
+            "message": "Chwazi tip pari pou liy lan epi eseye ankò."
+          },
+          "unsupported_bet_type": {
+            "title": "Tip pa konpatib",
+            "message": "Tip pari sa a pa disponib pou jwèt ou chwazi a. Chwazi yon lòt jwèt oswa retire liy lan."
+          },
+          "selection_required": {
+            "title": "Nimewo manke",
+            "message": "Antre nimewo pou jwe a avan ou ajoute liy lan."
+          },
+          "invalid_selection_format": {
+            "title": "Nimewo pou korije",
+            "message": "Korije nimewo a selon jwèt la: 2 chif pou Boul, 3 pou Loto 3, 4 pou Loto 4, 5 pou Loto 5."
+          },
+          "invalid_stake_amount": {
+            "title": "Miz pa valid",
+            "message": "Antre yon miz ki pi gran pase zewo."
+          },
+          "bet_option_required": {
+            "title": "Opsyon manke",
+            "message": "Chwazi opsyon jwèt la, tankou Exact, Box, oswa Pair, epi eseye ankò."
+          },
+          "bet_option_out_of_range": {
+            "title": "Opsyon pa valid",
+            "message": "Opsyon ou chwazi a pa egziste pou jwèt sa a. Chwazi yon opsyon ki disponib."
+          },
+          "bet_option_not_allowed": {
+            "title": "Opsyon pa otorize",
+            "message": "Jwèt sa a pa pran opsyon pou liy sa a. Retire opsyon an epi eseye ankò."
+          },
+          "selection_exposure_limit_exceeded": {
+            "title": "Nimewo a vann twòp",
+            "message": "Nimewo sa a rive nan limit li pou tiraj sa a. Diminye miz la, chwazi yon lòt nimewo, oswa retire liy lan."
+          },
+          "exposure_changed": {
+            "title": "Limit chanje pandan vant lan",
+            "message": "Yon lòt tikè chanje limit ki disponib la. Verifye tikè a epi konfime ankò."
+          },
+          "draw_closed": {
+            "title": "Tiraj fèmen",
+            "message": "Vant fèmen pou tiraj sa a. Chwazi yon lòt tiraj ki ouvè."
+          },
+          "draw_cutoff_exceeded": {
+            "title": "Vant fèmen pou tiraj sa a",
+            "message": "Lè limit pou vann lan pase. Chwazi yon lòt tiraj ki ouvè."
+          },
+          "session_closed": {
+            "title": "Sesyon kesye fèmen",
+            "message": "Louvri yon sesyon kesye avan ou vann."
+          },
+          "terminal_blocked": {
+            "title": "Vandè bloke",
+            "message": "Vandè sa a pa ka vann kounye a. Itilize yon lòt vandè aktif oswa debloke li."
+          },
+          "outlet_suspended": {
+            "title": "Pwen vant sispann",
+            "message": "Vant yo sispann pou pwen vant sa a. Kontakte administratè a."
+          },
+          "tenant_disabled": {
+            "title": "Espas dezaktive",
+            "message": "Vant yo dezaktive pou tenant sa a. Kontakte administratè platfòm nan."
+          },
+          "untrusted_operational_context": {
+            "title": "Kontèks vant pa valid",
+            "message": "Vant lan pa mare ak yon vandè fyab. Retounen nan lis vandè yo epi relouvri vant lan ak yon vandè aktif."
+          },
+          "stake_too_high": {
+            "title": "Miz twò wo",
+            "message": "Diminye miz liy sa a epi eseye ankò."
+          },
+          "stake_too_low": {
+            "title": "Miz twò ba",
+            "message": "Ogmante miz liy sa a epi eseye ankò."
+          },
+          "basket_line_count_exceeded": {
+            "title": "Twòp liy",
+            "message": "Retire kèk liy nan tikè a epi eseye ankò."
+          },
+          "basket_total_exceeded": {
+            "title": "Total tikè a twò wo",
+            "message": "Diminye miz yo oswa separe vant lan an plizyè tikè."
+          },
+          "seller_terminal_actor_required": {
+            "title": "Vandè obligatwa",
+            "message": "Vant sa a pa mare ak yon vandè. Retounen nan lis vandè yo epi ouvri vant lan ak yon vandè aktif."
+          }
         }
       }
     }

@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.view.SellerTerminalDailyStatsView;
+import com.tchalanet.server.core.sales.api.model.view.TenantDailySalesStatsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForDrawSettlementView;
 import com.tchalanet.server.core.sales.api.model.view.TicketForPayoutView;
@@ -32,4 +33,6 @@ public interface TicketProjectionReaderPort {
 
     SellerTerminalDailyStatsView dailyStatsBySellerTerminal(
         SellerTerminalId sellerTerminalId, TenantId tenantId, Instant from, Instant to);
+
+    TenantDailySalesStatsView dailyStatsByTenant(TenantId tenantId, Instant from, Instant to);
 }

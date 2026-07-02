@@ -1,12 +1,12 @@
 <mat-dialog-content>
-  <tch-admin-section-card title="Nouveau seller-terminal" icon="point_of_sale">
+  <tch-admin-section-card title="Nouveau terminal vendeur" icon="point_of_sale">
     <form [formGroup]="form" (ngSubmit)="submit()" class="create-seller-terminal-dialog__form">
       @if (error(); as pageError) {
         <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
       }
 
       <mat-form-field appearance="outline" class="create-seller-terminal-dialog__field">
-        <mat-label>Code seller-terminal</mat-label>
+        <mat-label>Code terminal vendeur</mat-label>
         <input matInput formControlName="terminalCode" placeholder="ex: ST-001" />
         @if (form.controls.terminalCode.invalid && form.controls.terminalCode.touched) {
           <mat-error>Code requis (max 64 caractères).</mat-error>
@@ -92,7 +92,7 @@
           @if (saving()) {
             <span class="material-symbols-outlined spin" aria-hidden="true">progress_activity</span>
           }
-          Créer
+          Créer le terminal vendeur
         </button>
       </div>
     </form>

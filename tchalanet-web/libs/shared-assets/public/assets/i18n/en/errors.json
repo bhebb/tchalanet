@@ -77,6 +77,136 @@
               }
             }
           }
+        },
+        "sales": {
+          "acceptable": {
+            "title": "Sale ready",
+            "message": "The ticket can be sold."
+          },
+          "preview_accepted": {
+            "title": "Check complete",
+            "message": "The ticket can be sold now. If another seller sells the same number before confirmation, the limit may change."
+          },
+          "basket_requires_changes": {
+            "title": "Ticket to correct",
+            "message": "Correct the highlighted lines and confirm again."
+          },
+          "rejected_final": {
+            "title": "Sale unavailable",
+            "message": "This sale cannot continue in the current state. Return to the seller list or choose another context."
+          },
+          "approval_required": {
+            "title": "Stake too high",
+            "message": "Reduce the stake or request admin approval before selling this ticket."
+          },
+          "draw_required": {
+            "title": "Missing draw",
+            "message": "Select an open draw and try again."
+          },
+          "currency_required": {
+            "title": "Missing currency",
+            "message": "Reload the page. If the problem continues, contact support."
+          },
+          "lines_required": {
+            "title": "Empty ticket",
+            "message": "Add at least one number before confirming the sale."
+          },
+          "duplicate_line_number": {
+            "title": "Duplicate line",
+            "message": "Group stakes on a single line for the same number and play type."
+          },
+          "game_required": {
+            "title": "Missing game",
+            "message": "Choose Borlette, Maryaj, Loto 3, Loto 4, or Loto 5 before adding the line."
+          },
+          "bet_type_required": {
+            "title": "Missing play type",
+            "message": "Choose the play type for the line and try again."
+          },
+          "unsupported_bet_type": {
+            "title": "Incompatible type",
+            "message": "This play type is not available for the selected game. Choose another game or remove the line."
+          },
+          "selection_required": {
+            "title": "Missing number",
+            "message": "Enter the number to play before adding the line."
+          },
+          "invalid_selection_format": {
+            "title": "Number to correct",
+            "message": "Correct the number for the selected game: 2 digits for Boul, 3 for Loto 3, 4 for Loto 4, 5 for Loto 5."
+          },
+          "invalid_stake_amount": {
+            "title": "Invalid stake",
+            "message": "Enter a stake greater than zero."
+          },
+          "bet_option_required": {
+            "title": "Missing option",
+            "message": "Choose the game option, such as Exact, Box, or Pair, and try again."
+          },
+          "bet_option_out_of_range": {
+            "title": "Invalid option",
+            "message": "The selected option does not exist for this game. Choose an available option."
+          },
+          "bet_option_not_allowed": {
+            "title": "Option not allowed",
+            "message": "This game does not accept an option for this line. Remove the option and try again."
+          },
+          "selection_exposure_limit_exceeded": {
+            "title": "Number sold too much",
+            "message": "This number reached its limit for this draw. Reduce the stake, choose another number, or remove the line."
+          },
+          "exposure_changed": {
+            "title": "Limit changed during sale",
+            "message": "Another ticket changed the available limit. Review the ticket and confirm again."
+          },
+          "draw_closed": {
+            "title": "Draw closed",
+            "message": "Sales are closed for this draw. Choose another open draw."
+          },
+          "draw_cutoff_exceeded": {
+            "title": "Sales closed for this draw",
+            "message": "The sales cutoff time has passed. Choose another open draw."
+          },
+          "session_closed": {
+            "title": "Cashier session closed",
+            "message": "Open a cashier session before selling."
+          },
+          "terminal_blocked": {
+            "title": "Seller blocked",
+            "message": "This seller cannot sell right now. Use another active seller or unblock this one."
+          },
+          "outlet_suspended": {
+            "title": "Point of sale suspended",
+            "message": "Sales are suspended for this point of sale. Contact an administrator."
+          },
+          "tenant_disabled": {
+            "title": "Workspace disabled",
+            "message": "Sales are disabled for this tenant. Contact the platform administrator."
+          },
+          "untrusted_operational_context": {
+            "title": "Invalid sale context",
+            "message": "The sale is not attached to a trusted seller. Return to the seller list and reopen the sale from an active seller."
+          },
+          "stake_too_high": {
+            "title": "Stake too high",
+            "message": "Reduce the stake on this line and try again."
+          },
+          "stake_too_low": {
+            "title": "Stake too low",
+            "message": "Increase the stake on this line and try again."
+          },
+          "basket_line_count_exceeded": {
+            "title": "Too many lines",
+            "message": "Remove a few lines from the ticket and try again."
+          },
+          "basket_total_exceeded": {
+            "title": "Ticket total too high",
+            "message": "Reduce the stakes or split the sale into multiple tickets."
+          },
+          "seller_terminal_actor_required": {
+            "title": "Seller required",
+            "message": "This sale is not attached to a seller. Return to the seller list and open the sale from an active seller."
+          }
         }
       }
     }

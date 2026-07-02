@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchActorType;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -61,7 +60,7 @@ public class SalePreparationOrchestrator {
         var now = tchTimeProvider.now();
         var tenantId = ctx.effectiveTenantIdRequired();
 
-        if (ctx.actorType() == TchActorType.SELLER_TERMINAL) {
+        if (ctx.sellerTerminalId() != null) {
             return prepareSaleForSellerTerminal(command, ctx, now, tenantId);
         }
 

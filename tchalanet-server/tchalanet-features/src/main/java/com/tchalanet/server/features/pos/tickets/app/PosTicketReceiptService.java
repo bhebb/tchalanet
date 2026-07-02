@@ -3,7 +3,6 @@ package com.tchalanet.server.features.pos.tickets.app;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
@@ -62,7 +61,7 @@ public class PosTicketReceiptService {
         TicketId ticketId,
         PrintTicketRequest request
     ) {
-        validateSellerContext(ctx, request.sellerTerminalId());
+        validateSellerContext(ctx);
 
         // Resolve print profile once here (applies defaults and rejects invalid combos like ESC_POS+A4)
         final DocumentPrintProfile profile;
@@ -108,7 +107,7 @@ public class PosTicketReceiptService {
         TicketId ticketId,
         SendTicketReceiptRequest request
     ) {
-        validateSellerContext(ctx, request.sellerTerminalId());
+        validateSellerContext(ctx);
         validateRecipient(request);
         var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.locale()));
         var recipient = recipient(ctx, request);
@@ -233,13 +232,10 @@ public class PosTicketReceiptService {
 
     // -- operational context ------------------------------------------------------
 
-    private void validateSellerContext(TchRequestContext ctx, SellerTerminalId sellerTerminalId) {
+    private void validateSellerContext(TchRequestContext ctx) {
         if (ctx == null) {
             throw ProblemRest.forbidden("seller_terminal.required");
         }
-        var currentSellerTerminalId = ctx.sellerTerminalIdRequired();
-        if (sellerTerminalId != null && !sellerTerminalId.equals(currentSellerTerminalId)) {
-            throw ProblemRest.badRequest("seller_terminal.mismatch");
-        }
+        ctx.sellerTerminalIdRequired();
     }
 }

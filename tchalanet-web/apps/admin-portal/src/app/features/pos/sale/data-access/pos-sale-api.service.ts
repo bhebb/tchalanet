@@ -1,12 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
-import { TchBackendClient, TchPage, TchRequestOptions, webAppErrorFromNotice } from '@tch/api';
+import {
+  TchBackendClient,
+  TchPage,
+  TchRequestOptions,
+  WebAppError,
+  webAppErrorFromNotice,
+} from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import {
   ConfirmTicketSaleRequest,
   ConfirmedTicketView,
+  PreviewTicketSaleView,
+  PosGameBetTypeView,
   PosGameView,
   PosOpenDrawView,
   PosSellerTerminalListParams,
@@ -56,16 +64,40 @@ interface SellerTerminalSummaryResponse extends SellerTerminalDetailResponse {
 
 interface PosSellTicketApiResponse {
   outcome: 'ACCEPTED' | 'REJECTED' | 'PENDING_APPROVAL';
-  ticketId: string;
-  ticketCode: string;
+  ticketId?: string | { value?: string | null } | null;
+  ticketCode?: string | null;
   publicCode?: string | null;
   saleStatus?: string | null;
+  issues?: PosSaleIssueApiResponse[] | null;
   backup?: {
     displayCode?: string | null;
     verificationShortUrl?: string | null;
     shareableText?: string | null;
   } | null;
   sellerInstruction?: string | null;
+}
+
+interface PosTicketPreviewApiResponse {
+  decision: string;
+  issues?: PosSaleIssueApiResponse[] | null;
+  actionAvailability?: {
+    canSell?: boolean;
+    canPrint?: boolean;
+    canSendSms?: boolean;
+    canSendWhatsapp?: boolean;
+    canSendEmail?: boolean;
+    canCopy?: boolean;
+  } | null;
+  sellerInstruction?: string | null;
+  warning?: string | null;
+}
+
+interface PosSaleIssueApiResponse {
+  code: string;
+  severity: string;
+  message?: string | null;
+  sellerInstruction?: string | null;
+  lineIndex: number;
 }
 
 interface SellerTerminalStatsResponse {
@@ -75,7 +107,6 @@ interface SellerTerminalStatsResponse {
 }
 
 interface PrintTicketRequest {
-  sellerTerminalId: string;
   printOptionsRequest: {
     outputFormat: 'PDF';
     paperSize: 'RECEIPT_80MM';
@@ -169,20 +200,7 @@ export class PosSaleApiService {
   getActiveGamesForPos(options?: TchRequestOptions): Observable<PosGameView[]> {
     return this.backend
       .get<PosGameOptionResponse[]>('/tenant/cashier/games/available', options)
-      .pipe(
-        map(games =>
-          games.map(g => ({
-            gameCode: g.gameCode,
-            label: g.gameLabel,
-            enabled: true,
-            betType: g.betType,
-            betTypeLabel: g.betTypeLabel,
-            requiresOption: g.requiresOption,
-            options: g.options ?? [],
-            selectionHint: g.selectionHint ?? null,
-          })),
-        ),
-      );
+      .pipe(map(games => groupPosGames(games)));
   }
 
   confirmTicketSale(
@@ -203,20 +221,72 @@ export class PosSaleApiService {
           const r = response.data;
           return {
             outcome: r.outcome,
-            ticketId: r.ticketId,
-            ticketCode: r.ticketCode,
+            ticketId: idValue(r.ticketId),
+            ticketCode: r.ticketCode ?? '',
             publicCode: r.publicCode ?? null,
             saleStatus: r.saleStatus ?? null,
             backup: r.backup ?? null,
             sellerInstruction: r.sellerInstruction ?? null,
-            warnings: response.notices.map(notice =>
-              webAppErrorFromNotice(
-                notice,
-                response.trace,
-                'admin.sellerTerminal.pos.sale',
-                'section',
+            warnings: [
+              ...response.notices.map(notice =>
+                webAppErrorFromNotice(
+                  notice,
+                  response.trace,
+                  'admin.sellerTerminal.pos.sale',
+                  'section',
+                ),
               ),
-            ),
+              ...(r.issues ?? []).map(issue =>
+                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.sale'),
+              ),
+            ],
+          };
+        }),
+      );
+  }
+
+  previewTicketSale(
+    request: ConfirmTicketSaleRequest,
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<PreviewTicketSaleView> {
+    return this.backend
+      .postApiResponse<PosTicketPreviewApiResponse>('/tenant/cashier/tickets/preview', request, {
+        ...withHeaders(options, {
+          'X-Tch-Act-As-Terminal': sellerTerminalId,
+        }),
+      })
+      .pipe(
+        map(response => {
+          const r = response.data;
+          return {
+            decision: r.decision,
+            sellerInstruction: r.sellerInstruction ?? null,
+            warning: r.warning ?? null,
+            issues: (r.issues ?? []).map(issue => ({
+              code: issue.code,
+              severity: issue.severity,
+              message: issue.message ?? null,
+              sellerInstruction: issue.sellerInstruction ?? null,
+              lineIndex: issue.lineIndex,
+            })),
+            notices: [
+              ...response.notices.map(notice =>
+                webAppErrorFromNotice(
+                  notice,
+                  response.trace,
+                  'admin.sellerTerminal.pos.preview',
+                  'section',
+                ),
+              ),
+              ...(r.issues ?? []).map(issue =>
+                webAppErrorFromSaleIssue(issue, 'admin.sellerTerminal.pos.preview'),
+              ),
+              ...(r.warning
+                ? [webAppErrorFromSaleWarning(r.warning, 'admin.sellerTerminal.pos.preview')]
+                : []),
+            ],
+            canSell: r.actionAvailability?.canSell ?? r.decision === 'ACCEPTABLE',
           };
         }),
       );
@@ -241,7 +311,6 @@ export class PosSaleApiService {
 
   printTicket(ticketId: string, sellerTerminalId: string): Observable<Blob> {
     const request: PrintTicketRequest = {
-      sellerTerminalId,
       printOptionsRequest: {
         outputFormat: 'PDF',
         paperSize: 'RECEIPT_80MM',
@@ -254,6 +323,122 @@ export class PosSaleApiService {
       headers: { 'X-Tch-Act-As-Terminal': sellerTerminalId },
     });
   }
+}
+
+function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
+  const groups = new Map<string, PosGameView>();
+
+  rows.forEach(row => {
+    const existing = groups.get(row.gameCode);
+    if (existing && row.gameCode === 'HT_BOLET') {
+      return;
+    }
+
+    const betType: PosGameBetTypeView = {
+      betType: row.betType,
+      label: posBetTypeLabel(row),
+      requiresOption: row.requiresOption,
+      options: row.options ?? [],
+      selectionHint: row.selectionHint ?? null,
+    };
+
+    if (existing) {
+      existing.betTypes.push(betType);
+      return;
+    }
+
+    groups.set(row.gameCode, {
+      gameCode: row.gameCode,
+      label: posGameLabel(row),
+      enabled: true,
+      betType: row.betType,
+      betTypeLabel: posBetTypeLabel(row),
+      requiresOption: row.requiresOption,
+      options: row.options ?? [],
+      betTypes: [betType],
+      selectionHint: row.selectionHint ?? null,
+    });
+  });
+
+  return [...groups.values()];
+}
+
+function posGameLabel(row: PosGameOptionResponse): string {
+  return row.gameCode === 'HT_BOLET' ? 'Borlette' : row.gameLabel;
+}
+
+function posBetTypeLabel(row: PosGameOptionResponse): string {
+  const labels: Record<string, string> = {
+    MATCH_1_2D: 'Boul',
+    MATCH_2_2D: 'Boul',
+    MATCH_3_2D: 'Boul',
+    MARRIAGE_2D2D: 'Maryaj',
+    LOTTO3_3D: 'Loto 3',
+    LOTTO4_PATTERN: 'Loto 4',
+    LOTTO5_PATTERN: 'Loto 5',
+  };
+
+  const normalized = labels[row.betType];
+  if (normalized) return normalized;
+
+  return row.betTypeLabel && row.betTypeLabel !== row.betType
+    ? row.betTypeLabel
+    : row.betType;
+}
+
+function idValue(value: string | { value?: string | null } | null | undefined): string {
+  if (typeof value === 'string') return value;
+  return value?.value ?? '';
+}
+
+function webAppErrorFromSaleIssue(issue: PosSaleIssueApiResponse, source: string): WebAppError {
+  const message =
+    issue.sellerInstruction ??
+    issue.message ??
+    'La vente doit être vérifiée avant de continuer.';
+  const severity = saleIssueSeverity(issue.severity);
+
+  return {
+    id: `${source}:${issue.code}:${issue.lineIndex}:${issue.severity}`,
+    origin: 'backend',
+    category: 'validation',
+    severity,
+    surface: 'section',
+    placement: 'top',
+    title: severity === 'error' ? 'Vente bloquée' : 'Vente à vérifier',
+    message,
+    code: issue.code,
+    source,
+    target: 'admin.sellerTerminal.pos.sale',
+    field: issue.lineIndex >= 0 ? `lines.${issue.lineIndex}` : undefined,
+    retryable: false,
+    dedupeKey: `${source}:${issue.code}:${issue.lineIndex}:${issue.severity}`,
+  };
+}
+
+function webAppErrorFromSaleWarning(message: string, source: string): WebAppError {
+  const code = message.startsWith('sales.') ? message : 'sales.preview_accepted';
+  return {
+    id: `${source}:warning:${code}`,
+    origin: 'backend',
+    category: 'validation',
+    severity: 'warn',
+    surface: 'section',
+    placement: 'top',
+    title: 'Vente à vérifier',
+    message,
+    code,
+    source,
+    target: 'admin.sellerTerminal.pos.sale',
+    retryable: false,
+    dedupeKey: `${source}:warning:${code}`,
+  };
+}
+
+function saleIssueSeverity(severity: string): WebAppError['severity'] {
+  if (severity === 'ERROR') return 'error';
+  if (severity === 'INFO') return 'info';
+  return 'warn';
 }
 
 function withHeaders(

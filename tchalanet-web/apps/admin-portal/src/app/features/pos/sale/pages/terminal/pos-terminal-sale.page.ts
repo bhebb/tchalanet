@@ -11,7 +11,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { ProblemDetail, WebAppError, webAppErrorFromProblemDetail } from '@tch/api';
+import { throwError } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 import { TchErrorPanel, TchLoading, TchNotice } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
@@ -25,7 +27,9 @@ import {
 
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import {
+  ConfirmTicketSaleRequest,
   ConfirmedTicketView,
+  PreviewTicketSaleView,
   PosGameView,
   PosOpenDrawView,
   PosSellerTerminalView,
@@ -79,6 +83,8 @@ export class PosTerminalSalePage implements OnInit {
   readonly saving = signal(false);
   readonly printing = signal(false);
   readonly saleError = signal<ErrorViewModel | null>(null);
+  readonly printError = signal<ErrorViewModel | null>(null);
+  readonly saleNotices = signal<readonly WebAppError[]>([]);
   readonly activityLoading = signal(false);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
 
@@ -111,8 +117,22 @@ export class PosTerminalSalePage implements OnInit {
       !!this.selectedDraw() &&
       this.lines().length > 0 &&
       this.lines().every(l => l.selection.trim().length > 0 && l.stakeAmount > 0) &&
+      !this.confirmedTicket() &&
       !this.saving(),
   );
+
+  readonly confirmDisabledReason = computed(() => {
+    if (this.confirmedTicket()) return 'Ticket déjà vendu. Créez un nouveau ticket pour continuer.';
+    if (this.saving()) return 'Vente en cours de confirmation.';
+    if (!this.sellerTerminal()) return 'Terminal vendeur non chargé.';
+    if (this.isTerminalBlocked()) return 'Ce terminal vendeur ne peut pas vendre.';
+    if (!this.selectedDraw()) return 'Sélectionnez un tirage ouvert.';
+    if (this.lines().length === 0) return 'Ajoutez au moins un numéro au ticket.';
+    if (!this.lines().every(l => l.selection.trim().length > 0 && l.stakeAmount > 0)) {
+      return 'Complétez les lignes du ticket avant de confirmer.';
+    }
+    return null;
+  });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('sellerTerminalId') ?? '';
@@ -199,22 +219,54 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   addLine(input: PosTicketLineInput): void {
-    this.lines.update(ls => [
-      ...ls,
-      { ...input, localId: `line-${++lineIdCounter}` },
-    ]);
+    this.lines.update(lines => {
+      const existingIndex = lines.findIndex(line =>
+        line.gameCode === input.gameCode &&
+        line.selection === input.selection &&
+        line.betType === input.betType,
+      );
+
+      if (existingIndex < 0) {
+        return [
+          ...lines,
+          { ...input, localId: `line-${++lineIdCounter}` },
+        ];
+      }
+
+      return lines.map((line, index) => index === existingIndex
+        ? { ...line, stakeAmount: line.stakeAmount + input.stakeAmount }
+        : line);
+    });
     this.confirmedTicket.set(null);
     this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
+  }
+
+  updateLineStake(update: { localId: string; stakeAmount: number }): void {
+    this.lines.update(lines => lines.map(line => line.localId === update.localId
+      ? { ...line, stakeAmount: update.stakeAmount }
+      : line));
+    this.confirmedTicket.set(null);
+    this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
   }
 
   removeLine(localId: string): void {
     this.lines.update(ls => ls.filter(l => l.localId !== localId));
+    this.confirmedTicket.set(null);
+    this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
   }
 
   clearLines(): void {
     this.lines.set([]);
     this.confirmedTicket.set(null);
     this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
   }
 
   confirmSale(): void {
@@ -225,56 +277,133 @@ export class PosTerminalSalePage implements OnInit {
 
     this.saving.set(true);
     this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
 
     const idempotencyKey = crypto.randomUUID();
 
     const terminalId = terminal.sellerTerminalId;
+    const request = this.ticketSaleRequest(terminalId, draw);
 
     this.api
-      .confirmTicketSale(
-        {
-          sellerTerminalId: terminalId,
-          drawId: draw.drawId,
-          drawChannelId: draw.drawChannelId ?? null,
-          currency: 'HTG',
-          lines: this.lines().map(l => ({
-            gameCode: l.gameCode,
-            betType: l.betType,
-            selection: l.selection,
-            stake: l.stakeAmount,
-          })),
-        },
-        idempotencyKey,
-        terminalId,
-        { suppressShellFeedback: true },
+      .previewTicketSale(request, terminalId, { suppressShellFeedback: true })
+      .pipe(
+        switchMap(preview => {
+          this.saleNotices.set(preview.notices);
+
+          if (!preview.canSell || preview.decision !== 'ACCEPTABLE') {
+            return throwError(() => this.previewRejectedError(preview));
+          }
+
+          return this.api.confirmTicketSale(
+              request,
+              idempotencyKey,
+              terminalId,
+              { suppressShellFeedback: true },
+            )
+            .pipe(map(ticket => ({
+              ...ticket,
+              warnings: [...preview.notices, ...ticket.warnings],
+            } satisfies ConfirmedTicketView)));
+        }),
       )
       .subscribe({
         next: ticket => {
           this.confirmedTicket.set(ticket);
-          this.lines.set([]);
           this.saving.set(false);
+          this.bumpActivityAfterSale();
           const id = this.route.snapshot.paramMap.get('sellerTerminalId') ?? '';
           this.loadActivity(id);
         },
         error: (err: unknown) => {
-          this.saleError.set(this.errorViewModel(err, 'admin.sellerTerminal.pos.sale'));
+          const vm = this.errorViewModel(err, 'admin.sellerTerminal.pos.sale');
+          this.saleError.set(isPreviewRejectedViewModel(vm) && this.saleNotices().length > 0
+            ? null
+            : vm);
           this.saving.set(false);
         },
       });
   }
 
+  private ticketSaleRequest(
+    terminalId: string,
+    draw: PosOpenDrawView,
+  ): ConfirmTicketSaleRequest {
+    return {
+      sellerTerminalId: terminalId,
+      drawId: draw.drawId,
+      drawChannelId: draw.drawChannelId ?? null,
+      currency: 'HTG',
+      lines: this.lines().map(l => ({
+        gameCode: l.gameCode,
+        betType: l.betType,
+        selection: l.selection,
+        stake: l.stakeAmount,
+      })),
+    };
+  }
+
+  private previewRejectedError(preview: PreviewTicketSaleView): ErrorViewModel {
+    const instruction = preview.sellerInstruction
+      ?? preview.issues.find(issue => !!issue.sellerInstruction)?.sellerInstruction
+      ?? preview.warning
+      ?? 'Le ticket doit être corrigé avant la vente.';
+
+    return {
+      title: 'Vente à vérifier',
+      message: instruction,
+      severity: preview.decision === 'REJECTED_FINAL' ? 'error' : 'warn',
+      source: 'admin.sellerTerminal.pos.preview',
+      target: 'admin.sellerTerminal.pos.sale',
+      code: preview.issues[0]?.code ?? preview.decision,
+      retryable: false,
+    };
+  }
+
   resetAfterSale(): void {
     this.confirmedTicket.set(null);
     this.saleError.set(null);
+    this.printError.set(null);
+    this.saleNotices.set([]);
     this.lines.set([]);
+  }
+
+  noticeType(error: WebAppError): 'info' | 'warning' | 'error' {
+    if (error.severity === 'error') return 'error';
+    if (error.severity === 'warn') return 'warning';
+    return 'info';
+  }
+
+  noticeTitle(error: WebAppError): string {
+    return resolveErrorFeedbackCopy(error, key => this.translate.instant(key)).title;
+  }
+
+  noticeMessage(error: WebAppError): string {
+    return resolveErrorFeedbackCopy(error, key => this.translate.instant(key)).message;
+  }
+
+  noticeScope(error: WebAppError): string | null {
+    const match = /^lines\.(\d+)$/.exec(error.field ?? '');
+    if (!match) return null;
+    return `Ligne ${Number(match[1]) + 1}`;
+  }
+
+  private bumpActivityAfterSale(): void {
+    const current = this.activity();
+    if (!current) return;
+    this.activity.set({
+      ...current,
+      ticketCount: current.ticketCount + 1,
+      salesTotalCents: current.salesTotalCents + Math.round(this.totalAmount() * 100),
+    });
   }
 
   printTicket(ticket: ConfirmedTicketView): void {
     const terminalId = this.sellerTerminal()?.sellerTerminalId;
-    if (!terminalId || this.printing()) return;
+    if (!terminalId || !ticket.ticketId || this.printing()) return;
 
     this.printing.set(true);
-    this.saleError.set(null);
+    this.printError.set(null);
 
     this.api.printTicket(ticket.ticketId, terminalId).subscribe({
       next: blob => {
@@ -292,7 +421,13 @@ export class PosTerminalSalePage implements OnInit {
         this.printing.set(false);
       },
       error: (err: unknown) => {
-        this.saleError.set(this.errorViewModel(err, 'admin.sellerTerminal.pos.print'));
+        const vm = this.errorViewModel(err, 'admin.sellerTerminal.pos.print');
+        this.printError.set({
+          ...vm,
+          title: 'Impression non disponible',
+          message: 'Le ticket est vendu, mais le reçu n’a pas pu être imprimé. Réessayez depuis ce ticket.',
+          severity: 'warn',
+        });
         this.printing.set(false);
       },
     });
@@ -319,6 +454,10 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    if (isErrorViewModel(err)) {
+      return err;
+    }
+
     const problem = (err as { error?: ProblemDetail })?.error;
     if (problem) {
       const normalized = webAppErrorFromProblemDetail(problem, source, 'page');
@@ -332,4 +471,16 @@ export class PosTerminalSalePage implements OnInit {
       severity: 'error',
     };
   }
+}
+
+function isErrorViewModel(value: unknown): value is ErrorViewModel {
+  return typeof value === 'object' &&
+    value !== null &&
+    'title' in value &&
+    'message' in value &&
+    'severity' in value;
+}
+
+function isPreviewRejectedViewModel(value: ErrorViewModel): boolean {
+  return value.source === 'admin.sellerTerminal.pos.preview';
 }

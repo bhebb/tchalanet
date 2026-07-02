@@ -12,15 +12,26 @@
           @for (warning of ticket().warnings; track warning.id) {
             <div class="psn__warning">
               <span class="material-symbols-outlined psn__warning-icon" aria-hidden="true">warning</span>
-              <span>{{ warning.message }}</span>
+              <span>{{ warningMessage(warning) }}</span>
             </div>
           }
         </div>
       }
       <div class="psn__actions">
-        <button mat-flat-button color="accent" class="psn__btn-print" (click)="print.emit(ticket())">
-          <span class="material-symbols-outlined">print</span>
-          Imprimer
+        <button
+          mat-flat-button
+          color="accent"
+          class="psn__btn-print"
+          [disabled]="!canPrint()"
+          (click)="print.emit(ticket())"
+        >
+          @if (printing()) {
+            <span class="material-symbols-outlined psn__spin">progress_activity</span>
+            Impression...
+          } @else {
+            <span class="material-symbols-outlined">print</span>
+            Imprimer
+          }
         </button>
         <button mat-button class="psn__btn-details" (click)="viewDetails.emit(ticket())">
           Détails

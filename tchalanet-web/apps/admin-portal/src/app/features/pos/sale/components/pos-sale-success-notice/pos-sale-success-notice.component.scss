@@ -94,6 +94,10 @@
     height: 2.25rem;
   }
 
+  &__spin {
+    animation: psn-spin 0.9s linear infinite;
+  }
+
   &__btn-details,
   &__btn-new {
     color: rgba(255, 255, 255, 0.75) !important;
@@ -131,4 +135,8 @@
 @keyframes psn-pop {
   from { transform: scale(0.6); }
   to   { transform: scale(1); }
+}
+
+@keyframes psn-spin {
+  to { transform: rotate(360deg); }
 }

@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Locale;
-import com.tchalanet.server.common.types.id.SellerTerminalId;
+import java.util.UUID;
 
 public record PrintTicketRequest(
-    SellerTerminalId sellerTerminalId,
+    UUID sellerTerminalId,
     PrintOptionsRequest printOptionsRequest,
     boolean recordPrint,
     @Size(max = 500) String reprintReason,

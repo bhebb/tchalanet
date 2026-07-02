@@ -30,8 +30,13 @@
     }
 
     &--selected {
-      border-color: var(--tch-color-secondary-container, #fecb02);
-      background: color-mix(in oklab, var(--tch-color-secondary-container, #fecb02) 10%, transparent);
+      border-color: var(--tch-color-accent, #fecb02);
+      background: var(--tch-color-primary, #141545);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--tch-color-accent, #fecb02) 28%, transparent);
+
+      .pgs__label {
+        color: var(--tch-color-on-primary, #fff);
+      }
     }
 
     &--disabled {
@@ -51,7 +56,19 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background: var(--tch-color-secondary-container, #fecb02);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tch-color-secondary-container, #fecb02) 30%, transparent);
+    background: var(--tch-color-accent, #fecb02);
+  }
+
+  &__active-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 1.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--tch-radius-pill, 999px);
+    background: color-mix(in oklab, var(--tch-color-accent, #fecb02) 22%, transparent);
+    color: var(--tch-color-on-primary, #fff);
+    font-size: 0.75rem;
+    font-weight: 700;
   }
 }

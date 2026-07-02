@@ -61,7 +61,7 @@ class PosTicketReceiptServiceTest {
         context(),
         TICKET_ID,
         new SendTicketReceiptRequest(
-            SELLER_TERMINAL_ID,
+            UUID.randomUUID(),
             CommunicationChannel.SMS,
             "+15145550100",
             null,

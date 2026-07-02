@@ -25,6 +25,9 @@ import java.util.UUID;
 @Setter
 public class SellerTerminalExternalIdentityJpaEntity extends BaseEntity {
 
+    @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
+    private UUID tenantId;
+
     @Column(name = "seller_terminal_id", nullable = false, columnDefinition = "uuid")
     private UUID sellerTerminalId;
 

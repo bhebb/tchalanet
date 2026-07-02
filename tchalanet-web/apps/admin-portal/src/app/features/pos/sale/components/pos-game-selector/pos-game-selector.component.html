@@ -12,7 +12,10 @@
     >
       <span class="pgs__label">{{ game.label }}</span>
       @if (selectedCode() === game.gameCode) {
-        <span class="pgs__active-dot"></span>
+        <span class="pgs__active-badge">
+          <span class="pgs__active-dot"></span>
+          Sélectionné
+        </span>
       }
     </button>
   }

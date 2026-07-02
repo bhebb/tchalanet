@@ -220,8 +220,8 @@
         "sellerTerminalDesc": "Vendeurs disponibles",
         "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
         "identityDesc": "Informations principales de votre entreprise.",
-        "sellerTerminalCta": "Configurer les vendeurs",
-        "sellerTerminalReady": "Vendeurs prêts"
+        "sellerTerminalCta": "Configurer les terminaux vendeurs",
+        "sellerTerminalReady": "Terminaux vendeurs prêts"
       },
       "description": "Suivez les étapes pour configurer votre tenant et le rendre opérationnel.",
       "status": {

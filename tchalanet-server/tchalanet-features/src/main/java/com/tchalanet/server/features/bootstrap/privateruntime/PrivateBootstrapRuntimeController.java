@@ -24,8 +24,7 @@ public class PrivateBootstrapRuntimeController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Private runtime bootstrap — resolves user, authorization and runtime context")
     public ApiResponse<RuntimeBootstrapResponse> privateBootstrap(@CurrentContext TchRequestContext ctx) {
-        var api = ApiResponse.success(service.privateBootstrap(ctx));
-        return api;
+        return ApiResponse.success(service.privateBootstrap(ctx));
     }
 
     @GetMapping("/tenant/runtime/state")

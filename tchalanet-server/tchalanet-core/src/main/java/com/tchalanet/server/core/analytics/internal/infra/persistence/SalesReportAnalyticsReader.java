@@ -37,7 +37,7 @@ public class SalesReportAnalyticsReader {
         FROM analytics_draw
         WHERE tenant_id = :tenantId
           AND ref_date BETWEEN :fromDate AND :toDate
-          AND (:gameCode IS NULL OR game_code = :gameCode)
+          AND (CAST(:gameCode AS varchar) IS NULL OR game_code = CAST(:gameCode AS varchar))
         GROUP BY ref_date, game_code
         ORDER BY ref_date ASC, game_code ASC
         """;

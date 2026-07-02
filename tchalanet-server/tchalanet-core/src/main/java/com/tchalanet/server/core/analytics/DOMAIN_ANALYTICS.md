@@ -147,3 +147,8 @@ du net revenue: le coût réel d'une ligne promotionnelle gagnante arrive via `w
 
 Les dynamic providers PageModel peuvent renommer/formatter les champs pour les widgets, mais ils ne
 calculent pas les KPI financiers et ne lisent pas les tables analytics directement.
+
+Exception opérationnelle V0 : le dashboard tenant admin peut compléter les métriques du jour avec une
+lecture live de `core.sales.api` afin d'afficher immédiatement les tickets vendus, même si la
+projection `analytics_daily` est en retard. Cette lecture ne remplace pas les rapports historiques :
+elle sert uniquement à éviter un tableau de bord vide pendant l'exploitation courante.

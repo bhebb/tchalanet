@@ -44,7 +44,7 @@
         @for (line of displayLines(); track $index) {
           <div class="ptp__line">
             <span class="ptp__line-desc">
-              {{ line.gameLabel | uppercase }} / {{ line.selection }} / {{ betTypeLabels[line.betType] | uppercase }}
+              {{ line.gameLabel | uppercase }} / {{ line.selection }} / {{ line.betTypeLabel | uppercase }}
             </span>
             <span class="ptp__line-amount">{{ line.stakeAmount | number:'1.2-2' }} HTG</span>
           </div>

@@ -24,6 +24,14 @@ export interface PosBetOptionView {
   selectionHint?: string | null;
 }
 
+export interface PosGameBetTypeView {
+  betType: string;
+  label: string;
+  requiresOption: boolean;
+  options: PosBetOptionView[];
+  selectionHint?: string | null;
+}
+
 export interface PosGameView {
   gameCode: string;
   label: string;
@@ -32,10 +40,9 @@ export interface PosGameView {
   betTypeLabel: string;
   requiresOption: boolean;
   options: PosBetOptionView[];
+  betTypes: PosGameBetTypeView[];
   selectionHint?: string | null;
 }
-
-export type PosBetType = 'DIRECT' | 'BOUL' | 'MARYAJ';
 
 // ── Ticket draft (local UI state) ──────────────────────────────────────────
 
@@ -43,14 +50,16 @@ export interface PosTicketDraftLine {
   localId: string;
   gameCode: string;
   selection: string;
-  betType: PosBetType;
+  betType: string;
+  betTypeLabel: string;
   stakeAmount: number;
 }
 
 export interface PosTicketLineInput {
   gameCode: string;
   selection: string;
-  betType: PosBetType;
+  betType: string;
+  betTypeLabel: string;
   stakeAmount: number;
 }
 
@@ -71,6 +80,25 @@ export interface ConfirmTicketSaleLineRequest {
   selection: string;
   betOption?: number | null;
   stake: number;
+}
+
+// ── Sale preview (server-side read-only validation) ───────────────────────
+
+export interface PreviewTicketSaleView {
+  decision: 'ACCEPTABLE' | 'REQUIRES_CHANGES' | 'REJECTED_FINAL' | string;
+  sellerInstruction?: string | null;
+  warning?: string | null;
+  issues: PreviewTicketSaleIssueView[];
+  notices: readonly WebAppError[];
+  canSell: boolean;
+}
+
+export interface PreviewTicketSaleIssueView {
+  code: string;
+  severity: string;
+  message?: string | null;
+  sellerInstruction?: string | null;
+  lineIndex: number;
 }
 
 // ── Sell response (matches PosSellTicketResponse on the server) ────────────

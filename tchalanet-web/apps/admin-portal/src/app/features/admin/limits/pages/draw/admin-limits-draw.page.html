@@ -1,7 +1,13 @@
 <div class="limits-child-page">
   <div class="limits-child-page__toolbar">
     @if (channelsError(); as err) {
-      <tch-section-error [title]="err.title" [message]="err.message" [severity]="err.severity" />
+      <div class="limits-draw-page__channel-error">
+        <tch-section-error [title]="err.title" [message]="err.message" [severity]="err.severity" />
+        <button mat-stroked-button type="button" (click)="retryChannels()">
+          <span class="material-symbols-outlined">refresh</span>
+          Réessayer
+        </button>
+      </div>
     } @else {
       <mat-form-field appearance="outline" class="limits-draw-page__channel-select">
         <mat-label>Canal de tirage</mat-label>
@@ -35,7 +41,15 @@
     }
   </div>
 
-  @if (!selectedChannel()) {
+  @if (channelsLoading()) {
+    <tch-loading label="Chargement des canaux…" />
+  } @else if (channelsError()) {
+    <tch-admin-empty-state
+      icon="event_busy"
+      title="Canaux indisponibles"
+      message="Impossible de charger les canaux de tirage pour le moment."
+    />
+  } @else if (!selectedChannel()) {
     <div class="limits-child-page__no-target">
       <span class="material-symbols-outlined">info</span>
       Sélectionnez un canal pour voir et configurer ses limites spécifiques.

@@ -45,12 +45,14 @@ public class CreateSellerTerminalCommandHandler
             cmd.addressId(),
             rate);
 
+        terminal = writer.save(terminal);
+
         if (cmd.initialPin() != null && !cmd.initialPin().isBlank()) {
             identityProvision.provision(
                 id, cmd.tenantId(), cmd.terminalCode(), cmd.displayName(), cmd.initialPin());
-            terminal = terminal.activate(Instant.now(clock));
+            var now = Instant.now(clock);
+            terminal = writer.save(terminal.resetPin(now).activate(now));
         }
-        writer.save(terminal);
         return id;
     }
 }

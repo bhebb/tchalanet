@@ -76,7 +76,12 @@
         <tch-admin-section-card title="Sélection des numéros" icon="casino">
           <ng-container actions>
             @if (lines().length > 0) {
-              <button mat-button class="pos-page__clear-btn" (click)="clearLines()">
+              <button
+                mat-button
+                class="pos-page__clear-btn"
+                [disabled]="!!confirmedTicket()"
+                (click)="clearLines()"
+              >
                 <span class="material-symbols-outlined">delete_sweep</span>
                 Vider la liste
               </button>
@@ -86,11 +91,29 @@
             [lines]="lines()"
             [selectedGameCode]="selectedGameCode()"
             [games]="games()"
+            [readonly]="!!confirmedTicket()"
             (lineAdded)="addLine($event)"
+            (lineStakeUpdated)="updateLineStake($event)"
             (lineRemoved)="removeLine($event)"
             (linesCleared)="clearLines()"
           />
         </tch-admin-section-card>
+
+        @if (saleNotices().length > 0) {
+          <div class="pos-page__server-notices" aria-live="polite">
+            @for (notice of saleNotices(); track notice.id) {
+              <tch-notice [type]="noticeType(notice)" class="pos-page__server-notice">
+                <strong>
+                  @if (noticeScope(notice); as scope) {
+                    <span class="pos-page__notice-scope">{{ scope }}</span>
+                  }
+                  {{ noticeTitle(notice) }}
+                </strong>
+                <span>{{ noticeMessage(notice) }}</span>
+              </tch-notice>
+            }
+          </div>
+        }
 
         <!-- Sale error -->
         @if (saleError(); as saleErrorVm) {
@@ -103,22 +126,37 @@
             <span class="pos-page__total-label">Total</span>
             <span class="pos-page__total-amount">{{ totalAmount() | number:'1.2-2' }} HTG</span>
           </div>
-          <button
-            mat-flat-button
-            color="primary"
-            class="pos-page__confirm-btn"
-            [disabled]="!canConfirm()"
-            (click)="confirmSale()"
-          >
-            @if (saving()) {
-              <span class="material-symbols-outlined pos-page__spin">progress_activity</span>
-              Confirmation...
-            } @else {
-              <span class="material-symbols-outlined pos-page__filled-icon">check_circle</span>
-              Confirmer la vente
-            }
-          </button>
+          @if (confirmedTicket()) {
+            <button
+              mat-flat-button
+              color="primary"
+              class="pos-page__confirm-btn"
+              (click)="resetAfterSale()"
+            >
+              <span class="material-symbols-outlined">add</span>
+              Nouveau ticket
+            </button>
+          } @else {
+            <button
+              mat-flat-button
+              color="primary"
+              class="pos-page__confirm-btn"
+              [disabled]="!canConfirm()"
+              (click)="confirmSale()"
+            >
+              @if (saving()) {
+                <span class="material-symbols-outlined pos-page__spin">progress_activity</span>
+                Confirmation...
+              } @else {
+                <span class="material-symbols-outlined pos-page__filled-icon">check_circle</span>
+                Confirmer la vente
+              }
+            </button>
+          }
         </div>
+        @if (!canConfirm() && confirmDisabledReason(); as reason) {
+          <p class="pos-page__disabled-reason">{{ reason }}</p>
+        }
 
       </div>
 
@@ -129,11 +167,19 @@
         @if (confirmedTicket(); as ticket) {
           <tch-pos-sale-success-notice
             [ticket]="ticket"
+            [printing]="printing()"
             (print)="printTicket($event)"
             (viewDetails)="viewTicketDetails($event)"
             (newTicket)="resetAfterSale()"
             (dismissed)="resetAfterSale()"
           />
+        }
+
+        @if (printError(); as printErrorVm) {
+          <tch-notice type="warning" class="pos-page__print-notice">
+            <strong>{{ printErrorVm.title }}</strong>
+            <span>{{ printErrorVm.message }}</span>
+          </tch-notice>
         }
 
         <!-- Receipt preview -->

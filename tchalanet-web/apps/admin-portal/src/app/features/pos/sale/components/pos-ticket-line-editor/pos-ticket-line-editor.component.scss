@@ -8,9 +8,26 @@
   &__row,
   &__add-row {
     display: grid;
-    grid-template-columns: 1fr 120px 100px 48px;
+    grid-template-columns: minmax(12rem, 1.6fr) minmax(7rem, 0.7fr) minmax(9rem, 0.8fr) minmax(6rem, auto);
     gap: 0.75rem;
     align-items: center;
+  }
+
+  @media (max-width: 720px) {
+    &__header {
+      display: none;
+    }
+
+    &__row,
+    &__add-row {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    &__col {
+      &--stake { text-align: left; }
+      &--action { justify-self: stretch; }
+    }
   }
 
   &__header {
@@ -89,11 +106,54 @@
       background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 10%, transparent);
       color: var(--tch-color-error, #ba1a1a);
     }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+
+  &__row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  &__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
+    border-radius: 50%;
+    background: var(--tch-color-surface, #fff);
+    color: var(--tch-color-primary, #141545);
+    cursor: pointer;
+
+    span {
+      font-size: 1.125rem;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &--danger {
+      color: var(--tch-color-error, #ba1a1a);
+    }
+
+    &--muted {
+      color: var(--tch-color-on-surface-variant, #46464f);
+    }
   }
 
   // ── Add row ────────────────────────────────────────────────────────────────
   &__add-row {
-    padding: 0.375rem 0.5rem;
+    padding: 0.625rem 0.75rem;
     border-radius: var(--tch-radius-lg, 0.75rem);
     border: 2px solid var(--tch-color-primary-container, #141545);
     background: var(--tch-color-surface-container-lowest, #fff);
@@ -104,6 +164,15 @@
       border-style: dashed;
       box-shadow: none;
     }
+  }
+
+  &__new-label {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tch-color-primary, #141545);
   }
 
   &__input-ball-wrap {
@@ -123,7 +192,7 @@
     min-width: 0;
     border: none;
     background: transparent;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--tch-color-on-surface, #1a1c1e);
     outline: none;
@@ -145,23 +214,39 @@
     font-family: inherit;
   }
 
+  &__type-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-inline: 0.25rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--tch-color-primary, #141545);
+  }
+
   &__stake-input {
     width: 100%;
     border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
     border-radius: 0.5rem;
-    padding: 0.375rem 0.5rem;
+    padding: 0.625rem 0.75rem;
     text-align: right;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
+    font-size: 1rem;
     background: var(--tch-color-surface-container, #edeef1);
     color: var(--tch-color-on-surface, #1a1c1e);
     outline: none;
 
     &:focus { border-color: var(--tch-color-primary-container, #141545); }
+
+    &--edit {
+      max-width: 9rem;
+    }
   }
 
   &__add-btn {
-    padding: 0.375rem 0.75rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 1rem;
     border-radius: 0.5rem;
     border: none;
     background: var(--tch-color-primary-container, #141545);
@@ -175,6 +260,25 @@
 
     &:disabled { opacity: 0.4; cursor: not-allowed; }
     &:not(:disabled):hover { opacity: 0.85; }
+  }
+
+  &__sold-hint {
+    margin: 0.25rem 0 0;
+    padding: 0.75rem 1rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: color-mix(in oklab, var(--tch-color-primary, #141545) 8%, transparent);
+    color: var(--tch-color-primary, #141545);
+    font-weight: 700;
+  }
+
+  &__merge-hint {
+    margin: 0;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--tch-radius-lg, 0.75rem);
+    background: color-mix(in oklab, var(--tch-color-accent, #fecb02) 14%, transparent);
+    color: var(--tch-color-primary, #141545);
+    font-size: 0.8125rem;
+    font-weight: 700;
   }
 
   // ── Error / hint ────────────────────────────────────────────────────────────

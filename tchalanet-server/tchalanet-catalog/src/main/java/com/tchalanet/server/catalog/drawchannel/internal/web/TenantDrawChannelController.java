@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/tenant/draw-channels")
 @RequiredArgsConstructor
 @Tag(name = "Tenant • Draw Channels")
-@PreAuthorize("hasAuthority('TENANT_READ')")
+@PreAuthorize("hasAuthority('TENANT_READ') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 public class TenantDrawChannelController {
 
     private final DrawChannelCatalog catalog;

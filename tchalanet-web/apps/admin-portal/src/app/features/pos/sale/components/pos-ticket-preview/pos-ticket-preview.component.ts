@@ -8,7 +8,6 @@ import {
   PosSellerTerminalView,
   PosTicketDraftLine,
 } from '../../data-access/pos-sale.models';
-import { BET_TYPE_LABELS } from '../pos-ticket-line-editor/pos-ticket-line-editor.component';
 
 @Component({
   selector: 'tch-pos-ticket-preview',
@@ -25,7 +24,6 @@ export class PosTicketPreviewComponent {
   readonly confirmedTicket = input<ConfirmedTicketView | null>(null);
   readonly games = input<PosGameView[]>([]);
 
-  readonly betTypeLabels = BET_TYPE_LABELS;
   readonly now = new Date();
 
   readonly gameLabel = computed(() => {
@@ -41,6 +39,7 @@ export class PosTicketPreviewComponent {
       gameLabel: gl,
       selection: l.selection,
       betType: l.betType,
+      betTypeLabel: l.betTypeLabel,
       stakeAmount: l.stakeAmount,
     }));
   });

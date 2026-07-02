@@ -35,6 +35,7 @@ class CoreSellerTerminalIdentityProvisionAdapter implements SellerTerminalIdenti
 
         var entity = new SellerTerminalExternalIdentityJpaEntity();
         entity.setId(id.value());
+        entity.setTenantId(tenantId.value());
         entity.setSellerTerminalId(id.value());
         entity.setProvider(result.provider().name());
         entity.setIssuer(result.issuer());

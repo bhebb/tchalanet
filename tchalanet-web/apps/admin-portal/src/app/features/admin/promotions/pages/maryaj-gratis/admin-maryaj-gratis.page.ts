@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { AdminDetailLayoutComponent, AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminDetailLayoutComponent, AdminPageShellComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import { GameSettingsDialog } from '../../../pages/games/dialogs/game-settings.dialog';
@@ -25,7 +25,6 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
     MatIconModule,
     AdminDetailLayoutComponent,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
     MaryajConfigSummaryComponent,
     MaryajGameSettingsPanelComponent,
     MaryajOfferPanelComponent,
