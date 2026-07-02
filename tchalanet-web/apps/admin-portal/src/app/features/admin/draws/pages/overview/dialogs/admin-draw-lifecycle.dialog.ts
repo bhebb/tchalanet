@@ -9,10 +9,13 @@ import { DrawLifecycleAction, GeneratedDrawView } from '../../../data-access/adm
 
 export interface AdminDrawLifecycleDialogData {
   draw: GeneratedDrawView;
+  draws?: readonly GeneratedDrawView[];
   action: DrawLifecycleAction;
 }
 
 const ACTION_CONFIG: Record<DrawLifecycleAction, { label: string; reasonRequired: boolean; color: string }> = {
+  open:    { label: 'Ouvrir la vente', reasonRequired: false, color: 'primary' },
+  close:   { label: 'Fermer la vente', reasonRequired: false, color: 'primary' },
   lock:    { label: 'Verrouiller', reasonRequired: false, color: 'primary' },
   unlock:  { label: 'Déverrouiller', reasonRequired: false, color: 'primary' },
   cancel:  { label: 'Annuler le tirage', reasonRequired: true,  color: 'warn' },
@@ -39,6 +42,10 @@ export class AdminDrawLifecycleDialog {
   private readonly fb = inject(FormBuilder);
 
   readonly config = ACTION_CONFIG[this.data.action];
+  readonly drawCount = this.data.draws?.length ?? 1;
+  readonly title = this.drawCount > 1
+    ? `${this.config.label} - ${this.drawCount} tirages`
+    : `${this.config.label} - ${this.data.draw.label}`;
 
   readonly form = this.fb.group({
     reason: ['', this.config.reasonRequired ? [Validators.required, Validators.minLength(3)] : []],

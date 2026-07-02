@@ -40,6 +40,7 @@ export class PosTicketPreviewComponent {
       selection: l.selection,
       betType: l.betType,
       betTypeLabel: l.betTypeLabel,
+      betOptionLabel: l.betOptionLabel ?? null,
       stakeAmount: l.stakeAmount,
     }));
   });

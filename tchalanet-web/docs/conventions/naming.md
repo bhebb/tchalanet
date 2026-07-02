@@ -145,7 +145,9 @@ Aliases publics des libs :
 @tch/core/i18n
 @tch/web/errors
 @tch/web/shell
+@tch/web/sandbox
 @tch/ui/components
+@tch/ui/console
 @tch/ui/theme
 @tch/page-model
 @tch/shared-config
@@ -189,17 +191,16 @@ features/platform/page-models
 Fichiers recommandés :
 
 ```text
-home.routes.ts
-home.page.ts
-home.container.ts
-result-list.container.ts
-result-card.ts
+<feature>.routes.ts
+pages/<page>/<prefix>-<page>.page.ts
+components/<bloc>/<bloc>.component.ts
+data-access/<feature>-api.service.ts
 ```
 
 Règle :
 
 ```text
-Route → Page → Container(s) → Component(s)
+Route → Page → Component(s) de feature
 ```
 
 ---
@@ -231,23 +232,37 @@ pos-dashboard.page.ts
 not-found.page.ts
 ```
 
-### Container
+### Component de feature
 
-Suffixe recommandé :
+Un sous-bloc UI d'une page vit dans `components/` de la feature :
 
 ```text
-*.container.ts
+components/<bloc>/<bloc>.component.ts
 ```
-
-Un container n’est pas routé. Il orchestre une sous-zone de page.
 
 Exemples :
 
 ```text
-ticket-search.container.ts
-tenant-readiness.container.ts
-pos-session.container.ts
+tenant-filter-bar.component.ts
+draw-result-drawer.component.ts
+seller-terminal-success-card.component.ts
 ```
+
+Il reçoit des `input()`, émet des `output()`, et n'appelle pas l'API.
+
+> Historique : le suffixe `*.container.ts` était prescrit mais n'a jamais été adopté
+> (0 fichier en 2026-07). Ne pas l'introduire.
+
+### Dialog
+
+Suffixe obligatoire :
+
+```text
+*.dialog.ts
+```
+
+Ouvert via `MatDialog`, données par `MAT_DIALOG_DATA`. Exemples : `reset-pin.dialog.ts`,
+`block-seller-terminal.dialog.ts`.
 
 ### Component
 
@@ -295,20 +310,21 @@ Les composants UI purs sont stateless, basés sur input()/output(), sans appel H
 
 Un shell structure une surface entière.
 
-Suffixe recommandé :
+Suffixe réel (aligné sur le code, 2026-07) :
 
 ```text
-*.shell.ts
+*-shell.component.ts
 ```
 
 Exemples :
 
 ```text
-public-shell.shell.ts
-admin-shell.shell.ts
-platform-shell.shell.ts
-pos-shell.shell.ts
+public-shell.component.ts
+private-shell.component.ts
 ```
+
+> Historique : le suffixe `*.shell.ts` était prescrit mais n'a jamais été adopté (0 fichier).
+> Ne pas l'introduire.
 
 Les shells rendent le chrome de page :
 
@@ -514,15 +530,41 @@ Sauf besoin répété, documenté et testé.
 
 ## 12. UI libs
 
+### `libs/ui/console`
+
+**Design system des consoles admin/platform.** Composants de scaffolding de page :
+
+```text
+admin-page-shell          (tch-admin-page-shell — racine de toute page console)
+admin-section-card
+admin-detail-layout       (slots main / footer / aside)
+admin-crud-shell
+admin-empty-state
+admin-data-toolbar
+tch-identity-card
+admin-next-steps-card
+admin-provisioning-health-card
+```
+
+L'usage opérationnel est décrit dans `feature-playbook.md`.
+
 ### `libs/ui/components`
 
-Composants réutilisables :
+Primitives transverses réutilisables :
 
 ```text
 loading
 error-panel
 page-error
+section-error
 field-error
+notice
+status-badge
+confirm-dialog
+action-button
+submit-button
+admin-list-surface
+search-select / multi-search-select
 brand
 nav
 overlay-nav
@@ -530,6 +572,10 @@ sidebar-nav
 lang-switcher
 lang-theme-group
 ```
+
+Deprecated (ne plus utiliser, suppression planifiée) : le dossier `admin-crud/` hors
+`admin-list-surface` — `AdminDataTable`, `AdminFormShell`, `AdminListToolbar`,
+`AdminMobileCardList`, `AdminFormActions`, `AdminStatusPill` (0 usage).
 
 Pas de contrat propriétaire ici. Les contrats viennent de `libs/api/contracts`.
 

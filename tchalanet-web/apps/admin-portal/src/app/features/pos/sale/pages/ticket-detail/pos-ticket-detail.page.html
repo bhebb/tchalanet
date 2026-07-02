@@ -1,0 +1,132 @@
+<tch-admin-page-shell [title]="title()" [description]="description()">
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/tickets">
+      <mat-icon>arrow_back</mat-icon>
+      Tickets
+    </a>
+    <a mat-stroked-button routerLink="/app/admin/tickets/verify">
+      <mat-icon>verified</mat-icon>
+      Vérifier
+    </a>
+  </div>
+
+  @if (loading()) {
+    <tch-loading label="Chargement du ticket..." />
+  } @else if (error(); as pageError) {
+    <tch-error-panel
+      [title]="pageError.title"
+      [message]="pageError.message"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (ticket(); as t) {
+    <div class="ticket-detail">
+      <aside class="ticket-detail__summary" aria-label="Résumé du ticket">
+        <p class="ticket-detail__eyebrow">Résumé</p>
+        <h2 class="ticket-detail__summary-title">{{ t.ticketCode }}</h2>
+        <p class="ticket-detail__public-code">Code public {{ t.publicCode }}</p>
+        <tch-admin-status-pill
+          [label]="statusLabel(t.status)"
+          [tone]="statusTone(t.status)"
+        />
+
+        <dl class="ticket-detail__summary-list">
+          <div>
+            <dt>Total payé</dt>
+            <dd>{{ amountDisplay(t.totalAmountCents) }} {{ t.currency }}</dd>
+          </div>
+          <div>
+            <dt>Gain potentiel</dt>
+            <dd>{{ amountDisplay(t.potentialPayoutCents) }} {{ t.currency }}</dd>
+          </div>
+          <div>
+            <dt>Vendeur</dt>
+            <dd>{{ t.sellerDisplayName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Terminal</dt>
+            <dd>{{ t.terminalCode || '—' }}</dd>
+          </div>
+        </dl>
+      </aside>
+
+      <div class="ticket-detail__main">
+        <tch-admin-section-card title="Vente" icon="confirmation_number">
+          <dl class="ticket-detail__facts">
+            <div>
+              <dt>Émis le</dt>
+              <dd>{{ t.placedAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+            </div>
+            <div>
+              <dt>Statut</dt>
+              <dd>{{ statusLabel(t.status) }}</dd>
+            </div>
+            <div>
+              <dt>Point de vente</dt>
+              <dd>{{ t.outletName || '—' }}</dd>
+            </div>
+            @if (t.cancelledAt) {
+              <div>
+                <dt>Annulé le</dt>
+                <dd>{{ t.cancelledAt | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+              </div>
+            }
+          </dl>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card title="Tirage" icon="event">
+          <dl class="ticket-detail__facts">
+            <div>
+              <dt>Canal</dt>
+              <dd>{{ t.drawChannelName }}</dd>
+            </div>
+            <div>
+              <dt>Date et heure</dt>
+              <dd>{{ t.drawScheduledAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+          </dl>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card title="Lignes jouées" icon="casino">
+          <div class="ticket-detail__lines">
+            @for (line of t.lines; track line.lineNumber) {
+              <article class="ticket-detail__line">
+                <div class="ticket-detail__line-number">{{ line.selection }}</div>
+                <div class="ticket-detail__line-body">
+                  <h3>{{ line.gameLabel }}</h3>
+                  <p>{{ line.betTypeLabel }}</p>
+                  @if (line.promotional) {
+                    <span class="ticket-detail__promo">
+                      {{ line.promotionLabel || 'Promotion appliquée' }}
+                    </span>
+                  }
+                </div>
+                <div class="ticket-detail__line-money">
+                  <span>{{ amountDisplay(line.stakeAmountCents) }} {{ t.currency }}</span>
+                  <small>Gain max {{ amountDisplay(line.potentialPayoutCents) }} {{ t.currency }}</small>
+                </div>
+              </article>
+            }
+          </div>
+        </tch-admin-section-card>
+
+        @if (t.charges.length) {
+          <tch-admin-section-card title="Frais" icon="receipt_long">
+            <div class="ticket-detail__charges">
+              @for (charge of t.charges; track charge.type) {
+                <div class="ticket-detail__charge">
+                  <span>{{ charge.label }}</span>
+                  <strong>{{ amountDisplay(charge.amountCents) }} {{ t.currency }}</strong>
+                  @if (charge.waived) {
+                    <small>{{ charge.waivedLabel || 'Frais offert' }}</small>
+                  }
+                </div>
+              }
+            </div>
+          </tch-admin-section-card>
+        }
+      </div>
+    </div>
+  }
+</tch-admin-page-shell>

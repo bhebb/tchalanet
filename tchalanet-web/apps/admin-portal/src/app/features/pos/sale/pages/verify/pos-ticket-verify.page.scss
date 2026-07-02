@@ -1,0 +1,196 @@
+:host {
+  display: block;
+}
+
+.ticket-verify {
+  display: grid;
+  gap: 1rem;
+}
+
+.ticket-verify__main {
+  display: grid;
+  gap: 1rem;
+}
+
+.ticket-verify__form {
+  display: grid;
+  gap: 1rem;
+}
+
+.ticket-verify__field {
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.ticket-verify__select,
+.ticket-verify__input {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md, 0.75rem);
+  background: var(--tch-color-surface);
+  color: var(--tch-color-on-surface);
+  font: inherit;
+}
+
+.ticket-verify__select {
+  display: flex;
+  align-items: center;
+  padding-inline: 0.875rem;
+}
+
+.ticket-verify__input {
+  padding-inline: 0.875rem;
+  font-size: 1rem;
+}
+
+.ticket-verify__input:focus {
+  outline: 2px solid var(--tch-color-primary);
+  outline-offset: 2px;
+}
+
+.ticket-verify__submit {
+  min-height: 3rem;
+  border-radius: var(--tch-radius-pill, 999px);
+}
+
+.ticket-verify__notice {
+  margin-top: 1rem;
+}
+
+.ticket-verify__result {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-left: 0.375rem solid var(--tch-color-primary);
+  border-radius: var(--tch-radius-xl, 1rem);
+  background: var(--tch-color-surface);
+  box-shadow: 0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent);
+}
+
+.ticket-verify__result--success {
+  border-left-color: var(--tch-color-success, #0f8f5f);
+}
+
+.ticket-verify__result--warning {
+  border-left-color: var(--tch-color-warning, #b26a00);
+}
+
+.ticket-verify__result--error {
+  border-left-color: var(--tch-color-error);
+}
+
+.ticket-verify__result-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: color-mix(in oklab, var(--tch-color-primary) 12%, transparent);
+  color: var(--tch-color-primary);
+}
+
+.ticket-verify__result-body {
+  min-width: 0;
+}
+
+.ticket-verify__eyebrow,
+.ticket-verify__summary-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.ticket-verify__result h2,
+.ticket-verify__summary h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  color: var(--tch-color-on-surface);
+}
+
+.ticket-verify__result p,
+.ticket-verify__summary p {
+  margin: 0.5rem 0 0;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.ticket-verify__facts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.ticket-verify__facts div {
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.75rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md, 0.75rem);
+  background: color-mix(in oklab, var(--tch-color-surface-container) 65%, transparent);
+}
+
+.ticket-verify__facts dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.ticket-verify__facts dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--tch-color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.ticket-verify__summary {
+  align-self: start;
+  padding: 1.25rem;
+  border-radius: var(--tch-radius-2xl, 1.5rem);
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+}
+
+.ticket-verify__summary .ticket-verify__summary-eyebrow,
+.ticket-verify__summary h2,
+.ticket-verify__summary p {
+  color: inherit;
+}
+
+.ticket-verify__summary p {
+  opacity: 0.86;
+}
+
+.ticket-verify__summary a {
+  margin-top: 1rem;
+  color: inherit;
+  border-color: color-mix(in oklab, var(--tch-color-on-primary) 60%, transparent);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+}
+
+@media (min-width: 960px) {
+  .ticket-verify {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+    align-items: start;
+  }
+
+  .ticket-verify__form {
+    grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .ticket-verify__facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

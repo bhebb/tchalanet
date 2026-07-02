@@ -5,9 +5,15 @@ import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import tools.jackson.databind.JsonNode;
 
 public record DrawResultResponse(
+    String id,
+    String slotKey,
+    String provider,
+    String timezone,
+    List<String> numbers,
     LocalDate resultDate,
     Instant occurredAt,
     DrawResultStatus status,

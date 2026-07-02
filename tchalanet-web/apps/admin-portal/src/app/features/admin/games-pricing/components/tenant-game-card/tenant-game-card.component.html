@@ -4,10 +4,6 @@
 
   <!-- Header -->
   <div class="game-card__header">
-    <div class="game-card__avatar game-card__avatar--{{ g.tenantStatus | lowercase }}">
-      {{ avatarLetter }}
-    </div>
-
     <div class="game-card__title-block">
       <h3 class="game-card__title">{{ g.gameName }}</h3>
       <tch-admin-status-pill [label]="statusLabel()" [tone]="statusTone()" />
@@ -28,63 +24,24 @@
   <!-- Body (hidden for UNAVAILABLE) -->
   @if (g.tenantStatus !== 'UNAVAILABLE') {
     <div class="game-card__body">
-
-      <!-- Odds panel -->
-      <div class="game-card__panel" [class.game-card__panel--muted]="g.odds.length === 0">
-        <p class="game-card__panel-title">Odds / Barème</p>
-        @if (g.pricingProfileLabel) {
-          <p class="game-card__profile">{{ g.pricingProfileLabel }}</p>
-        }
-        @if (g.odds.length > 0) {
-          <div class="game-card__odds-list">
-            @for (odd of visibleOdds(); track odd.betType + ':' + odd.betOption) {
-              <div class="game-card__odds-row">
-                <span class="game-card__odds-label">{{ odd.label }}</span>
-                <span class="game-card__odds-value">{{ odd.value }}</span>
-              </div>
-            }
-            @if (hiddenOddsCount() > 0) {
-              <div class="game-card__odds-row game-card__odds-row--muted">
-                <span class="game-card__odds-label">Autres options</span>
-                <span class="game-card__odds-value">+{{ hiddenOddsCount() }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <span class="game-card__empty-hint">Standard (défaut)</span>
-        }
+      <div class="game-card__summary-row">
+        <span class="material-symbols-outlined">storefront</span>
+        <span>{{ channelLabel() }}</span>
       </div>
-
-      <!-- Limits panel -->
       <div
-        class="game-card__panel"
-        [class.game-card__panel--warning]="g.tenantStatus === 'NEEDS_CONFIG' && !hasLimits"
+        class="game-card__summary-row"
+        [class.game-card__summary-row--warning]="channelStats().missingStakeChannelCount > 0 || !hasStakeConfig"
       >
-        @if (g.tenantStatus === 'NEEDS_CONFIG' && !hasLimits) {
-          <p class="game-card__panel-title game-card__panel-title--warning">
-            <span class="material-symbols-outlined">warning</span>
-            Limites manquantes
-          </p>
-          <span class="game-card__empty-hint">Non défini</span>
-        } @else {
-          <p class="game-card__panel-title">Limites {{ g.limits.currency }}</p>
-          <div class="game-card__odds-list">
-            <div class="game-card__odds-row">
-              <span class="game-card__odds-label">Min / Max</span>
-              <span class="game-card__odds-value">
-                {{ formatAmount(g.limits.minStake, '') }} / {{ formatAmount(g.limits.maxStake, g.limits.currency) }}
-              </span>
-            </div>
-            @if (g.limits.maxPerDraw !== null) {
-              <div class="game-card__odds-row">
-                <span class="game-card__odds-label">Par tirage</span>
-                <span class="game-card__odds-value">{{ formatAmount(g.limits.maxPerDraw, g.limits.currency) }}</span>
-              </div>
-            }
-          </div>
-        }
+        <span class="material-symbols-outlined">payments</span>
+        <span>{{ stakeLabel() }}</span>
       </div>
-
+      <div
+        class="game-card__summary-row"
+        [class.game-card__summary-row--warning]="channelStats().missingLimitChannelCount > 0"
+      >
+        <span class="material-symbols-outlined">shield</span>
+        <span>{{ limitsLabel() }}</span>
+      </div>
     </div>
   } @else {
     <div class="game-card__unavailable-body">
@@ -134,10 +91,10 @@
             <mat-icon>redeem</mat-icon>
           </a>
         }
-        <a mat-icon-button routerLink="/app/admin/controls/limits" matTooltip="Configurer les limites">
+        <a mat-icon-button routerLink="/app/admin/limits" matTooltip="Configurer les limites">
           <mat-icon>shield</mat-icon>
         </a>
-        <a mat-icon-button routerLink="/app/admin/controls/baremes" matTooltip="Voir le barème">
+        <a mat-icon-button routerLink="/app/admin/controls/gains" matTooltip="Voir les gains et barèmes">
           <mat-icon>format_list_numbered</mat-icon>
         </a>
       </div>

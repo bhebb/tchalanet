@@ -28,17 +28,15 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   styles: [
     `
       .data-toolbar {
-        display: flex;
-        align-items: center;
+        display: grid;
         gap: 0.75rem;
-        flex-wrap: wrap;
+        width: 100%;
       }
 
       .data-toolbar__search {
         position: relative;
-        flex: 1;
-        min-width: 200px;
-        max-width: 320px;
+        min-width: 0;
+        width: 100%;
       }
 
       .data-toolbar__search-icon {
@@ -70,10 +68,38 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       }
 
       .data-toolbar__actions {
-        display: flex;
-        align-items: center;
+        display: grid;
         gap: 0.5rem;
-        flex-shrink: 0;
+        width: 100%;
+        min-width: 0;
+      }
+
+      @media (min-width: 760px) {
+        .data-toolbar__actions {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          align-items: start;
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .data-toolbar {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+
+        .data-toolbar__search {
+          flex: 1;
+          min-width: 200px;
+          max-width: 320px;
+        }
+
+        .data-toolbar__actions {
+          display: flex;
+          align-items: center;
+          width: auto;
+          flex-shrink: 0;
+        }
       }
     `,
   ],

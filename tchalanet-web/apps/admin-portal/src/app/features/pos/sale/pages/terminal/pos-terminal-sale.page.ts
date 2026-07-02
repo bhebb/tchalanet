@@ -223,7 +223,8 @@ export class PosTerminalSalePage implements OnInit {
       const existingIndex = lines.findIndex(line =>
         line.gameCode === input.gameCode &&
         line.selection === input.selection &&
-        line.betType === input.betType,
+        line.betType === input.betType &&
+        (line.betOption ?? null) === (input.betOption ?? null),
       );
 
       if (existingIndex < 0) {
@@ -337,6 +338,7 @@ export class PosTerminalSalePage implements OnInit {
       lines: this.lines().map(l => ({
         gameCode: l.gameCode,
         betType: l.betType,
+        betOption: l.betOption ?? null,
         selection: l.selection,
         stake: l.stakeAmount,
       })),
@@ -434,7 +436,7 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   viewTicketDetails(ticket: ConfirmedTicketView): void {
-    void this.router.navigate(['/app/admin/tickets', ticket.ticketId]);
+    void this.router.navigate(['/app/admin/pos/tickets', ticket.ticketId]);
   }
 
   goBack(): void {

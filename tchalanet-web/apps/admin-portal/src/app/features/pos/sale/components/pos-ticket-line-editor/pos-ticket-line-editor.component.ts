@@ -50,6 +50,7 @@ export class PosTicketLineEditorComponent {
   // Draft new line state
   readonly draftSelection = signal('');
   readonly draftBetType = signal('');
+  readonly draftBetOption = signal<number | null>(null);
   readonly draftStake = signal<number | null>(null);
   readonly editingLineId = signal<string | null>(null);
   readonly editingStake = signal<number | null>(null);
@@ -68,6 +69,21 @@ export class PosTicketLineEditorComponent {
   });
 
   readonly selectedBetTypeCode = computed(() => this.selectedBetType()?.betType ?? '');
+  readonly selectedBetOption = computed(() => {
+    const betType = this.selectedBetType();
+    if (!betType?.requiresOption) return null;
+
+    const current = this.draftBetOption();
+    return betType.options.find(option => option.code === current) ?? betType.options[0] ?? null;
+  });
+  readonly selectedBetOptionCode = computed(() => {
+    const code = this.selectedBetOption()?.code;
+    return code == null ? '' : String(code);
+  });
+  readonly requiresBetOption = computed(() => {
+    const betType = this.selectedBetType();
+    return !!betType?.requiresOption && betType.options.length > 0;
+  });
   readonly selectionMaxLength = computed(() => {
     const betType = this.selectedBetType()?.betType ?? '';
     if (betType === 'MARRIAGE_2D2D') return 5;
@@ -78,7 +94,13 @@ export class PosTicketLineEditorComponent {
     const sel = this.draftSelection().trim();
     const stake = this.draftStake();
     const gameCode = this.selectedGameCode();
-    return !this.readonly() && sel.length > 0 && stake !== null && stake > 0 && !!gameCode && !!this.selectedBetType();
+    return !this.readonly() &&
+      sel.length > 0 &&
+      stake !== null &&
+      stake > 0 &&
+      !!gameCode &&
+      !!this.selectedBetType() &&
+      (!this.requiresBetOption() || !!this.selectedBetOption());
   });
 
   readonly duplicateDraftLine = computed(() => {
@@ -90,6 +112,7 @@ export class PosTicketLineEditorComponent {
     return this.lines().find(line =>
       line.gameCode === gameCode &&
       line.betType === betType.betType &&
+      (line.betOption ?? null) === (this.selectedBetOption()?.code ?? null) &&
       line.selection === selection,
     ) ?? null;
   });
@@ -112,6 +135,7 @@ export class PosTicketLineEditorComponent {
     const stake = this.draftStake();
     const gameCode = this.selectedGameCode();
     const betType = this.selectedBetType();
+    const betOption = this.selectedBetOption();
     const selection = this.normalizeSelection(sel, betType?.betType ?? '');
 
     if (this.readonly()) return;
@@ -119,6 +143,7 @@ export class PosTicketLineEditorComponent {
     if (!stake || stake <= 0) { this.addError.set('La mise doit être supérieure à 0 HTG.'); return; }
     if (!gameCode) { this.addError.set('Sélectionnez un jeu.'); return; }
     if (!betType) { this.addError.set('Aucun type de pari disponible pour ce jeu.'); return; }
+    if (this.requiresBetOption() && !betOption) { this.addError.set('Sélectionnez une option de pari.'); return; }
     if (!selection) { this.addError.set(this.selectionErrorMessage(betType.betType)); return; }
 
     this.addError.set(null);
@@ -127,6 +152,8 @@ export class PosTicketLineEditorComponent {
       selection,
       betType: betType.betType,
       betTypeLabel: betType.label,
+      betOption: betOption?.code ?? null,
+      betOptionLabel: betOption?.label ?? null,
       stakeAmount: stake,
     });
     this.draftSelection.set('');
@@ -135,6 +162,12 @@ export class PosTicketLineEditorComponent {
 
   onDraftKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') this.addLine();
+  }
+
+  onBetTypeChange(betType: string): void {
+    this.draftBetType.set(betType);
+    const next = this.betTypes().find(item => item.betType === betType);
+    this.draftBetOption.set(next?.requiresOption ? (next.options[0]?.code ?? null) : null);
   }
 
   removeLine(localId: string): void {

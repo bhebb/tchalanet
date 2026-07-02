@@ -13,6 +13,10 @@ apps/platform-portal/src/app
 
 L’objectif est de garder une structure claire, maintenable et progressive.
 
+> Pour le **contenu** d'un écran console (liste, détail, création, édition, drawer), voir
+> [`feature-playbook.md`](./feature-playbook.md). Ce document couvre uniquement l'organisation
+> des dossiers/fichiers.
+
 ---
 
 # 1. Arborescence générale `features/`

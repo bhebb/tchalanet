@@ -1,7 +1,13 @@
-<h2 mat-dialog-title>{{ config.label }} - {{ data.draw.label }}</h2>
+<h2 mat-dialog-title>{{ title }}</h2>
 
 <mat-dialog-content>
-  <p class="adld__subtitle">{{ data.draw.businessDate }} &middot; {{ data.draw.slotLabel }}</p>
+  <p class="adld__subtitle">
+    @if (drawCount > 1) {
+      Action appliquée à {{ drawCount }} tirages sélectionnés.
+    } @else {
+      {{ data.draw.businessDate }} &middot; {{ data.draw.slotLabel }}
+    }
+  </p>
   <form [formGroup]="form">
     <mat-form-field appearance="outline" class="adld__field">
       <mat-label>{{ config.reasonRequired ? 'Raison (requise)' : 'Raison (optionnelle)' }}</mat-label>

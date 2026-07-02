@@ -1,0 +1,109 @@
+<tch-admin-page-shell [title]="title()" [description]="description()">
+  <div actions>
+    <a mat-button routerLink="/app/admin/draws">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Tirages
+    </a>
+    @if (result()) {
+      <a mat-stroked-button [routerLink]="['/app/admin/draws', result()!.drawId]">
+        <mat-icon aria-hidden="true">event</mat-icon>
+        Détail du tirage
+      </a>
+    }
+  </div>
+
+  @if (pageState() === 'loading') {
+    <tch-loading label="Chargement du résultat..." />
+  } @else if (pageState() === 'error') {
+    <tch-error-panel
+      [title]="errorTitle() ?? 'Problème détecté'"
+      [message]="errorMessage() ?? ''"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="load()"
+    />
+  } @else if (result()) {
+    <tch-admin-detail-layout>
+      <div main class="draw-result-detail__main">
+        <tch-admin-section-card title="Résultat" icon="fact_check">
+          <div class="draw-result-detail__source">
+            <div class="draw-result-detail__logo">
+              @if (providerLogo(result()!); as logo) {
+                <img [src]="logo" [alt]="result()!.channelName ?? result()!.provider ?? 'Source'" loading="lazy" />
+              } @else {
+                <span>{{ providerCode(result()!) }}</span>
+              }
+            </div>
+            <div>
+              <p class="draw-result-detail__eyebrow">{{ providerCode(result()!) }}</p>
+              <h2>{{ result()!.channelName ?? result()!.provider ?? result()!.slotKey }}</h2>
+            </div>
+          </div>
+
+          <div class="draw-result-detail__numbers" aria-label="Numéros gagnants">
+            @for (number of result()!.numbers ?? []; track number) {
+              <span>{{ number }}</span>
+            }
+          </div>
+
+          <dl class="draw-result-detail__facts">
+            <div>
+              <dt>Statut</dt>
+              <dd>{{ statusLabel(result()!.status) }}</dd>
+            </div>
+            <div>
+              <dt>Qualité</dt>
+              <dd>{{ qualityLabel(result()!.quality) }}</dd>
+            </div>
+            <div>
+              <dt>Appliqué le</dt>
+              <dd>{{ result()!.appliedAt ? (result()!.appliedAt | date: 'dd/MM/y HH:mm') : 'Non appliqué' }}</dd>
+            </div>
+            <div>
+              <dt>Publié le</dt>
+              <dd>{{ result()!.publishedAt ? (result()!.publishedAt | date: 'dd/MM/y HH:mm') : 'Non publié' }}</dd>
+            </div>
+          </dl>
+        </tch-admin-section-card>
+
+        <tch-admin-section-card title="Tirage lié" icon="event">
+          <dl class="draw-result-detail__facts">
+            <div>
+              <dt>Slot</dt>
+              <dd><code>{{ result()!.slotKey ?? '—' }}</code></dd>
+            </div>
+            <div>
+              <dt>Créneau</dt>
+              <dd>{{ result()!.slotLabel ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>Date</dt>
+              <dd>{{ result()!.drawDate ?? result()!.resultDate ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>Heure officielle</dt>
+              <dd>{{ result()!.occurredAt ? (result()!.occurredAt | date: 'dd/MM/y HH:mm') : 'Non disponible' }}</dd>
+            </div>
+            <div>
+              <dt>Récupéré le</dt>
+              <dd>{{ result()!.fetchedAt ? (result()!.fetchedAt | date: 'dd/MM/y HH:mm') : 'Non disponible' }}</dd>
+            </div>
+          </dl>
+        </tch-admin-section-card>
+      </div>
+
+      <div aside>
+        <tch-identity-card
+          eyebrow="Résumé"
+          [title]="result()!.slotLabel ?? result()!.slotKey ?? 'Résultat'"
+          [code]="providerCode(result()!)"
+          [status]="statusLabel(result()!.status)"
+          [statusTone]="statusTone(result()!.status)"
+          [meta]="identityMeta()"
+          icon="fact_check"
+          variant="compact"
+        />
+      </div>
+    </tch-admin-detail-layout>
+  }
+</tch-admin-page-shell>

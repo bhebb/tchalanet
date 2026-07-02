@@ -2,10 +2,12 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.sales.api.query.CashierDashboardOverviewView;
 import com.tchalanet.server.core.sales.api.query.CashierPendingApprovalView;
 import com.tchalanet.server.core.sales.api.query.CashierRecentTicketView;
 import com.tchalanet.server.core.sales.api.query.CashierTopSelectionsView;
+import com.tchalanet.server.core.sales.api.query.DrawTopSelectionsView;
 import com.tchalanet.server.core.sales.internal.application.port.out.CashierTicketDashboardReaderPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -100,6 +102,31 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
         ORDER BY channel_code, rn
         """;
 
+    private static final String DRAW_TOP_SELECTIONS_SQL = """
+        WITH ranked AS (
+            SELECT tl.display_selection,
+                   tl.game_code,
+                   tl.bet_type,
+                   tl.bet_option,
+                   COUNT(*) AS sel_count,
+                   COALESCE(SUM(tl.stake_amount), 0) AS total_stake,
+                   ROW_NUMBER() OVER (
+                       ORDER BY COUNT(*) DESC, COALESCE(SUM(tl.stake_amount), 0) DESC
+                   ) AS rn
+            FROM sales_ticket_line tl
+            JOIN sales_ticket t ON t.id = tl.ticket_id AND t.deleted_at IS NULL
+            WHERE tl.tenant_id = :tenantId
+              AND tl.draw_id = :drawId
+              AND tl.deleted_at IS NULL
+              AND t.sale_status = 'APPROVED'
+            GROUP BY tl.display_selection, tl.game_code, tl.bet_type, tl.bet_option
+        )
+        SELECT display_selection, game_code, bet_type, bet_option, sel_count, total_stake, rn
+        FROM ranked
+        WHERE rn <= :limit
+        ORDER BY rn
+        """;
+
     private static final String PENDING_APPROVALS_SQL = """
         SELECT t.public_code,
                t.total_amount,
@@ -185,6 +212,29 @@ public class CashierTicketDashboardJdbcAdapter implements CashierTicketDashboard
             .toList();
 
         return new CashierTopSelectionsView(businessDate, byDraw);
+    }
+
+    @Override
+    public DrawTopSelectionsView findTopSelectionsByDraw(TenantId tenantId, DrawId drawId, int limit) {
+        var params = new MapSqlParameterSource()
+            .addValue("tenantId", tenantId.value())
+            .addValue("drawId", drawId.value())
+            .addValue("limit", limit);
+
+        List<DrawTopSelectionsView.SelectionItem> items = jdbc.query(DRAW_TOP_SELECTIONS_SQL, params, (rs, i) -> {
+            Number betOption = (Number) rs.getObject("bet_option");
+            return new DrawTopSelectionsView.SelectionItem(
+                rs.getInt("rn"),
+                rs.getString("display_selection"),
+                rs.getString("game_code"),
+                rs.getString("bet_type"),
+                betOption == null ? null : betOption.shortValue(),
+                rs.getInt("sel_count"),
+                toCents(rs.getBigDecimal("total_stake"))
+            );
+        });
+
+        return new DrawTopSelectionsView(drawId, items);
     }
 
     @Override

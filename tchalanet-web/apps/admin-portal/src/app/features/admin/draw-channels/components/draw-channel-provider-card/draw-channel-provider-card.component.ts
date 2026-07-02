@@ -3,6 +3,7 @@ import { LowerCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { lotteryAssetForProvider } from '../../../../../shared/lottery/lottery-assets';
 import {
   DrawChannelProviderView,
   DrawChannelProviderTenantStatus,
@@ -58,6 +59,7 @@ export class DrawChannelProviderCardComponent {
 
   readonly statusTone  = computed<AdminStatusTone>(() => STATUS_TONE[this.provider().tenantStatus]);
   readonly statusLabel = computed<string>(() => STATUS_LABEL[this.provider().tenantStatus]);
+  readonly providerLogo = computed<string | null>(() => lotteryAssetForProvider(this.provider().providerCode));
   readonly sourceError = computed<DrawChannelProviderCardError | null>(() => {
     const provider = this.provider();
     if (provider.resultAcquisition.sourceStatus !== 'ERROR') return null;

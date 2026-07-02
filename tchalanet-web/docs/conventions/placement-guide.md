@@ -11,18 +11,20 @@
 Place code by **ownership** and **lifetime**, not by generic folder names.
 
 ```text
-Contract / HTTP client     -> libs/api
-Reusable UI component      -> libs/ui/components
-Web runtime errors         -> libs/web/errors
-Web runtime shell          -> libs/web/shell
-Auth / i18n runtime        -> libs/core/{auth,i18n}
-Runtime theme              -> libs/ui/theme
-Compile-time SCSS          -> libs/ui/styles
-Shared static assets       -> libs/shared-assets
-Runtime settings / flags   -> libs/shared-config
-Routed page                -> apps/<portal>/src/app/features
-Feature state              -> next to the feature page
-Cross-surface state        -> owning runtime capability, extracted only when stable
+Contract / generic HTTP client   -> libs/api
+Feature API service              -> features/<surface>/<feature>/data-access/
+Console page scaffolding         -> libs/ui/console  (page-shell, section-card, detail-layout…)
+Reusable UI primitive            -> libs/ui/components
+Web runtime errors               -> libs/web/errors
+Web runtime shell                -> libs/web/shell
+Auth / i18n runtime              -> libs/core/{auth,i18n}
+Runtime theme                    -> libs/ui/theme
+Compile-time SCSS                -> libs/ui/styles
+Shared static assets             -> libs/shared-assets
+Runtime settings / flags         -> libs/shared-config
+Routed page                      -> apps/<portal>/src/app/features
+Feature state                    -> next to the feature page
+Cross-surface state              -> owning runtime capability, extracted only when stable
 ```
 
 Do not create a lib just because a target architecture mentions it.
@@ -53,11 +55,14 @@ tchalanet-web/
     ├── shared-assets/
     ├── shared-config/
     ├── web/
+    │   ├── console/       # data-access métier inter-consoles (embryon, cf. ARCHITECTURE.md C5)
     │   ├── errors/
+    │   ├── sandbox/
     │   └── shell/
     ├── widgets/
     └── ui/
         ├── components/
+        ├── console/       # design system des consoles admin/platform
         ├── styles/
         └── theme/
 ```
@@ -88,6 +93,8 @@ The root `libs/web` project remains as a compatibility façade while slices move
 | Shared SCSS mixins/functions/breakpoints    | `libs/ui/styles`                                                                       |
 | Material global overrides                   | `libs/ui/styles` unless directly tied to M3 preset generation                          |
 | Button / Card / Badge / Loading             | `libs/ui/components`                                                                   |
+| Console page shell / section / detail layout | `libs/ui/console` (voir `feature-playbook.md`)                                        |
+| Console empty-state / identity-card          | `libs/ui/console`                                                                      |
 | Error models/copy/routing/components        | `libs/web/errors`                                                                      |
 | Brand / Nav / OverlayNav / SidebarNav       | `libs/ui/components`                                                                   |
 | Public shell                                | reusable primitives in `libs/web/shell`; app-specific orchestration in the app         |
@@ -486,20 +493,20 @@ libs/core/i18n
 
 ### Payouts
 
-Contracts/API:
+Contracts génériques (si transverses) :
 
 ```text
 libs/api/src/lib/contracts/payout.ts
-libs/api/src/lib/http/payout-api.service.ts
 ```
 
-Page/state:
+Service API métier — **dans la feature**, pas dans `libs/api` (règle réelle : 46 services en
+features vs 4 dans libs/api) :
 
 ```text
 apps/admin-portal/src/app/features/admin/payouts/
   payouts.routes.ts
-  payouts.page.ts
-  payouts.store.ts
+  pages/list/admin-payouts.page.ts
+  data-access/payouts-api.service.ts
 ```
 
 Reusable visual card, only if generic:
@@ -540,20 +547,19 @@ libs/widgets
 
 ### POS sale
 
-Contracts/API:
+Contracts génériques (si transverses) :
 
 ```text
 libs/api/src/lib/contracts/sale.ts
-libs/api/src/lib/http/sale-api.service.ts
 ```
 
-Page/state:
+Page/service/état — dans la feature :
 
 ```text
 apps/admin-portal/src/app/features/pos/sale/
   pos-sale.routes.ts
-  pos-sale.page.ts
-  pos-sale.store.ts
+  pages/sell/pos-sell.page.ts
+  data-access/sale-api.service.ts
 ```
 
 Operational context dependency:

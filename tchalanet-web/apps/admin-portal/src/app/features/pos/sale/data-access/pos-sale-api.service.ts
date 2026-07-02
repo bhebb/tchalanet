@@ -21,6 +21,8 @@ import {
   PosSellerTerminalPickerView,
   PosSellerTerminalView,
   PosTerminalActivityView,
+  PosTicketDetailsView,
+  PosTicketVerificationView,
 } from './pos-sale.models';
 
 // ── Server response shapes (internal to this service) ──────────────────────
@@ -113,6 +115,15 @@ interface PrintTicketRequest {
   };
   recordPrint: boolean;
   deliveryOptions: readonly ['RETURN_FILE'];
+}
+
+interface PosTicketDetailsApiResponse extends Omit<PosTicketDetailsView, 'id' | 'drawId'> {
+  id: string | { value?: string | null };
+  drawId: string | { value?: string | null };
+}
+
+interface PosVerifyTicketRequest {
+  scannedValue: string;
 }
 
 // ── Service ────────────────────────────────────────────────────────────────
@@ -309,6 +320,34 @@ export class PosSaleApiService {
       );
   }
 
+  getTicketDetails(
+    ticketId: string,
+    options?: TchRequestOptions,
+  ): Observable<PosTicketDetailsView> {
+    return this.backend
+      .get<PosTicketDetailsApiResponse>(`/tenant/cashier/tickets/${ticketId}`, options)
+      .pipe(
+        map(r => ({
+          ...r,
+          id: idValue(r.id),
+          drawId: idValue(r.drawId),
+        })),
+      );
+  }
+
+  verifyTicket(
+    scannedValue: string,
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<PosTicketVerificationView> {
+    const request: PosVerifyTicketRequest = { scannedValue };
+    return this.backend.post<PosTicketVerificationView>('/tenant/cashier/tickets/verify', request, {
+      ...withHeaders(options, {
+        'X-Tch-Act-As-Terminal': sellerTerminalId,
+      }),
+    });
+  }
+
   printTicket(ticketId: string, sellerTerminalId: string): Observable<Blob> {
     const request: PrintTicketRequest = {
       printOptionsRequest: {
@@ -338,7 +377,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       label: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
-      options: row.options ?? [],
+      options: posBetOptions(row),
       selectionHint: row.selectionHint ?? null,
     };
 
@@ -354,7 +393,7 @@ function groupPosGames(rows: PosGameOptionResponse[]): PosGameView[] {
       betType: row.betType,
       betTypeLabel: posBetTypeLabel(row),
       requiresOption: row.requiresOption,
-      options: row.options ?? [],
+      options: posBetOptions(row),
       betTypes: [betType],
       selectionHint: row.selectionHint ?? null,
     });
@@ -384,6 +423,40 @@ function posBetTypeLabel(row: PosGameOptionResponse): string {
   return row.betTypeLabel && row.betTypeLabel !== row.betType
     ? row.betTypeLabel
     : row.betType;
+}
+
+function posBetOptions(row: PosGameOptionResponse): PosGameBetTypeView['options'] {
+  return (row.options ?? []).map(option => ({
+    code: option.code,
+    label: posBetOptionLabel(option.label),
+    selectionHint: option.selectionHint ?? row.selectionHint ?? null,
+  }));
+}
+
+function posBetOptionLabel(label: string): string {
+  const clean = label.trim();
+  const labels: Record<string, string> = {
+    STRAIGHT: 'Ordre exact',
+    BOX: 'N’importe quel ordre',
+    BOX_3_WAY: 'N’importe quel ordre',
+    BOX_6_WAY: 'N’importe quel ordre',
+    BOX_12_WAY: 'N’importe quel ordre',
+    BOX_24_WAY: 'N’importe quel ordre',
+    STRAIGHT_BOX: 'Ordre exact ou box',
+    STRAIGHT_BOX_STRAIGHT_MATCH: 'Ordre exact + box',
+    STRAIGHT_BOX_BOX_MATCH: 'Box seulement',
+    FRONT_PAIR: 'Première paire',
+    BACK_PAIR: 'Dernière paire',
+  };
+
+  if (labels[clean]) return labels[clean];
+
+  return clean
+    .toLowerCase()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
 function idValue(value: string | { value?: string | null } | null | undefined): string {

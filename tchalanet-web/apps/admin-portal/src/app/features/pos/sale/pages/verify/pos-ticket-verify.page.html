@@ -1,0 +1,152 @@
+<tch-admin-page-shell
+  title="Vérifier un ticket"
+  description="Contrôlez un code public avant paiement ou intervention au guichet."
+>
+  <div actions>
+    <a mat-stroked-button routerLink="/app/admin/pos/sale">
+      <mat-icon>point_of_sale</mat-icon>
+      POS
+    </a>
+  </div>
+
+  <div class="ticket-verify">
+    <div class="ticket-verify__main">
+      <tch-admin-section-card
+        title="Vérification opérateur"
+        description="Choisissez le terminal vendeur qui effectue la vérification."
+        icon="verified"
+      >
+        @if (loadingTerminals()) {
+          <tch-loading label="Chargement des terminaux..." />
+        } @else if (pageError(); as error) {
+          <tch-error-panel
+            [title]="error.title"
+            [message]="error.message"
+            [showRetry]="true"
+            retryLabel="Réessayer"
+            (retry)="loadSellerTerminals()"
+          />
+        } @else if (sellerTerminals().length === 0) {
+          <tch-admin-empty-state
+            icon="point_of_sale"
+            title="Aucun terminal actif"
+            message="Activez un vendeur avant de vérifier des tickets côté opérateur."
+          />
+        } @else {
+          <form class="ticket-verify__form" (submit)="$event.preventDefault(); verify()">
+            <label class="ticket-verify__field">
+              <span>Terminal vendeur</span>
+              <mat-select
+                class="ticket-verify__select"
+                [value]="selectedSellerTerminalId()"
+                (valueChange)="onSellerTerminalChange($event)"
+              >
+                @for (terminal of sellerTerminals(); track terminal.sellerTerminalId) {
+                  <mat-option [value]="terminal.sellerTerminalId">
+                    {{ terminal.displayName }} · {{ terminal.terminalCode }}
+                  </mat-option>
+                }
+              </mat-select>
+            </label>
+
+            <label class="ticket-verify__field ticket-verify__field--code">
+              <span>Code du ticket</span>
+              <input
+                class="ticket-verify__input"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                placeholder="Ex. XV36-E0NZ ou QR scanné"
+                [value]="scannedValue()"
+                (input)="onScannedValueInput($event)"
+              />
+            </label>
+
+            <button
+              mat-flat-button
+              color="primary"
+              class="ticket-verify__submit"
+              type="submit"
+              [disabled]="!canVerify()"
+            >
+              <mat-icon>verified</mat-icon>
+              @if (verifying()) {
+                Vérification...
+              } @else {
+                Vérifier
+              }
+            </button>
+          </form>
+
+          @if (selectedSellerTerminal(); as terminal) {
+            <tch-notice type="info" class="ticket-verify__notice">
+              Les actions de guichet seront rattachées au terminal
+              <strong>{{ terminal.terminalCode }}</strong>.
+            </tch-notice>
+          }
+        }
+      </tch-admin-section-card>
+
+      @if (verifyError(); as error) {
+        <tch-error-panel
+          [title]="error.title"
+          [message]="error.message"
+          [showRetry]="true"
+          retryLabel="Réessayer"
+          (retry)="verify()"
+        />
+      }
+
+      @if (result(); as verification) {
+        <section
+          class="ticket-verify__result"
+          [class.ticket-verify__result--success]="resultTone(verification) === 'success'"
+          [class.ticket-verify__result--warning]="resultTone(verification) === 'warning'"
+          [class.ticket-verify__result--error]="resultTone(verification) === 'error'"
+          aria-live="polite"
+        >
+          <div class="ticket-verify__result-icon" aria-hidden="true">
+            <span class="material-symbols-outlined">
+              {{ resultTone(verification) === 'success' ? 'check_circle' : 'info' }}
+            </span>
+          </div>
+          <div class="ticket-verify__result-body">
+            <p class="ticket-verify__eyebrow">Résultat</p>
+            <h2>{{ resultTitle(verification) }}</h2>
+            <p>{{ resultMessage(verification) }}</p>
+
+            <dl class="ticket-verify__facts">
+              <div>
+                <dt>Code</dt>
+                <dd>{{ verificationCodeDisplay(verification) }}</dd>
+              </div>
+              <div>
+                <dt>Statut</dt>
+                <dd>{{ verification.status }}</dd>
+              </div>
+              @if (verifiedAt(); as date) {
+                <div>
+                  <dt>Vérifié le</dt>
+                  <dd>{{ date | date:'dd/MM/yyyy HH:mm:ss' }}</dd>
+                </div>
+              }
+            </dl>
+          </div>
+        </section>
+      }
+    </div>
+
+    <aside class="ticket-verify__summary" aria-label="Aide à la vérification">
+      <p class="ticket-verify__summary-eyebrow">Usage public</p>
+      <h2>Le client peut aussi vérifier son ticket</h2>
+      <p>
+        La vérification publique utilise seulement le code public du ticket. Elle ne donne pas accès
+        aux détails internes du ticket ni aux actions de guichet.
+      </p>
+      <a mat-stroked-button href="/public/check-ticket">
+        <mat-icon>public</mat-icon>
+        Ouvrir la vérification publique
+      </a>
+    </aside>
+  </div>
+</tch-admin-page-shell>

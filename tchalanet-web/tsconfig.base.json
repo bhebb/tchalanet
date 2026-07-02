@@ -21,6 +21,7 @@
       "@tch/web/auth": ["./libs/web/src/lib/auth/index.ts"],
       "@tch/web/core": ["./libs/web/src/lib/core/index.ts"],
       "@tch/web/errors": ["./libs/web/errors/src/index.ts"],
+      "@tch/web/console": ["./libs/web/console/src/index.ts"],
       "@tch/web/i18n": ["./libs/web/src/lib/i18n/index.ts"],
       "@tch/web/shell": ["./libs/web/shell/src/index.ts"],
       "@tch/ui/theme": ["./libs/ui/theme/src/index.ts"],

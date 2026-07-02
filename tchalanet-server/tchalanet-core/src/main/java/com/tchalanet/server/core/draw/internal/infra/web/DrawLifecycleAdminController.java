@@ -7,16 +7,20 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.draw.api.command.ArchiveDrawCommand;
 import com.tchalanet.server.core.draw.api.command.CancelDrawCommand;
+import com.tchalanet.server.core.draw.api.command.CloseDrawCommand;
 import com.tchalanet.server.core.draw.api.command.DrawLifecycleCommandLimits;
 import com.tchalanet.server.core.draw.api.command.LockDrawCommand;
+import com.tchalanet.server.core.draw.api.command.OpenDrawCommand;
 import com.tchalanet.server.core.draw.api.command.SettleDrawCommand;
 import com.tchalanet.server.core.draw.api.command.UnlockDrawCommand;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.internal.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.internal.infra.web.model.ArchiveDrawRequest;
 import com.tchalanet.server.core.draw.internal.infra.web.model.CancelDrawRequest;
+import com.tchalanet.server.core.draw.internal.infra.web.model.CloseDrawRequest;
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.LockDrawRequest;
+import com.tchalanet.server.core.draw.internal.infra.web.model.OpenDrawRequest;
 import com.tchalanet.server.core.draw.internal.infra.web.model.SettleDrawRequest;
 import com.tchalanet.server.core.draw.internal.infra.web.model.UnlockDrawRequest;
 import com.tchalanet.server.platform.audit.api.AuditLog;
@@ -44,6 +48,32 @@ public class DrawLifecycleAdminController {
     private final CommandBus commandBus;
     private final QueryBus queryBus;
     private final DrawAdminWebMapper mapper;
+
+    @Operation(summary = "Open multiple draws")
+    @PostMapping("/open")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_OPEN,
+        idExpression = "#request.drawIds().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<List<DrawSummaryResponse>> open(@RequestBody @Valid OpenDrawRequest request) {
+        var drawIds = requireDrawIds(request.drawIds());
+        commandBus.execute(new OpenDrawCommand(drawIds, request.reason()));
+        return ApiResponse.success(reload(drawIds));
+    }
+
+    @Operation(summary = "Close multiple draws")
+    @PostMapping("/close")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_CLOSE,
+        idExpression = "#request.drawIds().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<List<DrawSummaryResponse>> close(@RequestBody @Valid CloseDrawRequest request) {
+        var drawIds = requireDrawIds(request.drawIds());
+        commandBus.execute(new CloseDrawCommand(drawIds, request.reason()));
+        return ApiResponse.success(reload(drawIds));
+    }
 
     @Operation(summary = "Cancel multiple draws")
     @PostMapping("/cancel")

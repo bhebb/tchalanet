@@ -52,6 +52,8 @@ export interface PosTicketDraftLine {
   selection: string;
   betType: string;
   betTypeLabel: string;
+  betOption?: number | null;
+  betOptionLabel?: string | null;
   stakeAmount: number;
 }
 
@@ -60,6 +62,8 @@ export interface PosTicketLineInput {
   selection: string;
   betType: string;
   betTypeLabel: string;
+  betOption?: number | null;
+  betOptionLabel?: string | null;
   stakeAmount: number;
 }
 
@@ -156,4 +160,64 @@ export interface PosTerminalActivityView {
   /** Sales total in cents; divide by 100 for display. */
   salesTotalCents: number;
   currency: 'HTG';
+}
+
+// ── Ticket details / verification ─────────────────────────────────────────
+
+export interface PosTicketDetailsView {
+  id: string;
+  ticketCode: string;
+  publicCode: string;
+  status: string;
+  placedAt: string;
+  cancelledAt?: string | null;
+  drawId: string;
+  drawChannelName: string;
+  drawScheduledAt: string;
+  outletName?: string | null;
+  terminalCode?: string | null;
+  sellerDisplayName?: string | null;
+  lines: PosTicketDetailLineView[];
+  stakeCents: number;
+  totalAmountCents: number;
+  currency: string;
+  potentialPayoutCents: number;
+  charges: PosTicketChargeView[];
+}
+
+export interface PosTicketDetailLineView {
+  lineNumber: number;
+  gameCode: string;
+  gameLabel: string;
+  betType: string;
+  betTypeLabel: string;
+  selection: string;
+  stakeAmountCents: number;
+  potentialPayoutCents: number;
+  promotional: boolean;
+  promotionLabel?: string | null;
+}
+
+export interface PosTicketChargeView {
+  type: string;
+  label: string;
+  amountCents: number;
+  waived: boolean;
+  waivedLabel?: string | null;
+}
+
+export interface PosTicketVerificationView {
+  status: string;
+  severity: 'SUCCESS' | 'INFO' | 'WARNING' | 'ERROR' | string;
+  titleKey: string;
+  messageKey: string;
+  params: Record<string, unknown>;
+  availableActions: PosTicketVerificationActionView[];
+}
+
+export interface PosTicketVerificationActionView {
+  type: string;
+  labelKey: string;
+  enabled: boolean;
+  params: Record<string, unknown>;
 }

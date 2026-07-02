@@ -18,12 +18,19 @@ export function normalizePublicCode(code: string): string {
 /**
  * Extract the public code from a QR value that may be:
  *   - a full URL: https://tchalanet.com/public/check-ticket?code=QVQE-NRVR
+ *   - a full URL: https://tchalanet.com/public/ticket/QVQE-NRVR
  *   - or the raw code itself: QVQE-NRVR
  */
 export function extractPublicCodeFromQr(value: string): string {
   try {
     const url = new URL(value);
-    return normalizePublicCode(url.searchParams.get('code') ?? value);
+    const queryCode = url.searchParams.get('code');
+    if (queryCode) return normalizePublicCode(queryCode);
+
+    const parts = url.pathname.split('/').filter(Boolean);
+    const ticketIndex = parts.lastIndexOf('ticket');
+    const pathCode = ticketIndex >= 0 ? parts[ticketIndex + 1] : null;
+    return normalizePublicCode(pathCode ?? value);
   } catch {
     return normalizePublicCode(value);
   }

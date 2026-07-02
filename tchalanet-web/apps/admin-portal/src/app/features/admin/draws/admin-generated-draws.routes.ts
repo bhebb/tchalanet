@@ -10,9 +10,21 @@ export const adminGeneratedDrawsRoutes: Route[] = [
   },
   {
     path: 'matrix',
+    redirectTo: '/app/admin/games/channel-matrix',
+    pathMatch: 'full',
+  },
+  {
+    path: 'results/:resultId',
     loadComponent: () =>
-      import('../draw-sales-matrix/pages/admin-draw-sales-matrix.page').then(
-        m => m.AdminDrawSalesMatrixPage,
+      import('../pages/draw-results/detail/admin-draw-result-detail.page').then(
+        m => m.AdminDrawResultDetailPage,
+      ),
+  },
+  {
+    path: 'results',
+    loadComponent: () =>
+      import('../pages/draw-results/admin-draw-results.page').then(
+        m => m.AdminDrawResultsPage,
       ),
   },
   {
@@ -20,6 +32,13 @@ export const adminGeneratedDrawsRoutes: Route[] = [
     loadComponent: () =>
       import('../draw-channels/pages/overview/admin-draw-channels.page').then(
         m => m.AdminDrawChannelsPage,
+      ),
+  },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./pages/detail/admin-draw-detail.page').then(
+        m => m.AdminDrawDetailPage,
       ),
   },
 ];

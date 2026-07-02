@@ -45,6 +45,9 @@
           <div class="ptp__line">
             <span class="ptp__line-desc">
               {{ line.gameLabel | uppercase }} / {{ line.selection }} / {{ line.betTypeLabel | uppercase }}
+              @if (line.betOptionLabel) {
+                / {{ line.betOptionLabel | uppercase }}
+              }
             </span>
             <span class="ptp__line-amount">{{ line.stakeAmount | number:'1.2-2' }} HTG</span>
           </div>

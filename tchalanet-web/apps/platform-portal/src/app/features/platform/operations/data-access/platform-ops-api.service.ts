@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { ConsoleDrawLifecycleApi } from '@tch/web/console';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -290,6 +291,7 @@ export interface CacheGroupClearResult {
 @Injectable({ providedIn: 'root' })
 export class PlatformOpsApi {
   private readonly backend = inject(TchBackendClient);
+  private readonly drawLifecycle = inject(ConsoleDrawLifecycleApi);
 
   // Batch Jobs
   listJobs(options?: TchRequestOptions): Observable<JobInfoResponse[]> {
@@ -425,7 +427,35 @@ export class PlatformOpsApi {
   }
 
   cancelDraws(req: CancelDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/cancel', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: cancel draws', options));
+    return this.drawLifecycle.execute<DrawView>(
+      'cancel',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: cancel draws', options),
+    );
+  }
+
+  openDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.openDraws({ drawIds: [drawId], reason }, tenantId, options).pipe(map(rows => rows[0]));
+  }
+
+  openDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.drawLifecycle.execute<DrawView>(
+      'open',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: open draws', options),
+    );
+  }
+
+  closeDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.closeDraws({ drawIds: [drawId], reason }, tenantId, options).pipe(map(rows => rows[0]));
+  }
+
+  closeDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
+    return this.drawLifecycle.execute<DrawView>(
+      'close',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: close draws', options),
+    );
   }
 
   lockDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
@@ -433,7 +463,11 @@ export class PlatformOpsApi {
   }
 
   lockDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/lock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: lock draws', options));
+    return this.drawLifecycle.execute<DrawView>(
+      'lock',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: lock draws', options),
+    );
   }
 
   unlockDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
@@ -441,7 +475,11 @@ export class PlatformOpsApi {
   }
 
   unlockDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/unlock', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: unlock draws', options));
+    return this.drawLifecycle.execute<DrawView>(
+      'unlock',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: unlock draws', options),
+    );
   }
 
   settleDraw(drawId: string, reason?: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
@@ -449,7 +487,11 @@ export class PlatformOpsApi {
   }
 
   settleDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/settle', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: settle draws', options));
+    return this.drawLifecycle.execute<DrawView>(
+      'settle',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: settle draws', options),
+    );
   }
 
   archiveDraw(drawId: string, reason?: string, force?: boolean, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
@@ -457,7 +499,11 @@ export class PlatformOpsApi {
   }
 
   archiveDraws(req: LifecycleDrawsRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView[]> {
-    return this.backend.post<DrawView[]>('/admin/draws/lifecycle/archive', req, tenantAdminOptions(tenantId, 'SUPER_ADMIN: archive draws', options));
+    return this.drawLifecycle.execute<DrawView>(
+      'archive',
+      req,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: archive draws', options),
+    );
   }
 
   rescheduleDraw(drawId: string, scheduledAt: string, cutoffAt: string, reason: string, force?: boolean, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {

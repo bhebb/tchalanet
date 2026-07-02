@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TchBackendClient } from '@tch/api';
+import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface FinancialSummary {
@@ -69,6 +69,21 @@ export interface TenantFinancialBreakdownView {
   readonly sellerTerminalDailyRows: readonly SellerTerminalDailyFinancialRow[];
 }
 
+export interface DrawTopSelectionItem {
+  readonly rank: number;
+  readonly displaySelection: string;
+  readonly gameCode: string;
+  readonly betType: string;
+  readonly betOption: number | null;
+  readonly count: number;
+  readonly totalStakeCents: number;
+}
+
+export interface DrawTopSelectionsView {
+  readonly drawId: string;
+  readonly topSelections: readonly DrawTopSelectionItem[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminFinancialsApi {
   private readonly backend = inject(TchBackendClient);
@@ -78,7 +93,7 @@ export class AdminFinancialsApi {
     to: string;
     drawLimit?: number;
     sellerTerminalLimit?: number;
-  }): Observable<TenantFinancialBreakdownView> {
+  }, options?: TchRequestOptions): Observable<TenantFinancialBreakdownView> {
     const query: Record<string, string> = {
       from: params.from,
       to: params.to,
@@ -87,6 +102,18 @@ export class AdminFinancialsApi {
     };
     return this.backend.get<TenantFinancialBreakdownView>('/admin/financials/breakdown', {
       params: query,
+      ...options,
+    });
+  }
+
+  getDrawTopSelections(
+    drawId: string,
+    params: { limit?: number } = {},
+    options?: TchRequestOptions,
+  ): Observable<DrawTopSelectionsView> {
+    return this.backend.get<DrawTopSelectionsView>(`/admin/financials/draws/${drawId}/top-selections`, {
+      params: { limit: String(params.limit ?? 5) },
+      ...options,
     });
   }
 }
