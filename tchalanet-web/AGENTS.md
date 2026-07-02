@@ -33,8 +33,7 @@ Conventions par sujet (load the relevant file for your task — do not load all)
 | Tu travailles sur… | Lis |
 |---|---|
 | Un écran console : liste, détail, création, édition, drawer | `docs/conventions/feature-playbook.md` |
-| Style, SCSS, tokens CSS `--tch-*`/`--comp-*` | `docs/conventions/style.md` + `docs/conventions/theme.md` |
-| Thème public/CSS theming | `docs/conventions/web-public-css-theming.md` |
+| Style, SCSS, tokens CSS `--tch-*`/`--comp-*` (public + consoles) | `docs/conventions/style.md` + `docs/conventions/theme.md` |
 | Composants : lequel utiliser, où le créer | `feature-playbook.md` §8 (table des briques) + `docs/conventions/placement-guide.md` |
 | Le moteur de page public (PageModel, widgets) | `docs/conventions/pagemodel.md` |
 | State/store (signals dans la page, quand extraire un store) | `docs/conventions/state-management.md` |

@@ -99,6 +99,7 @@ tchalanet-web/
     ├── core/
     │   ├── auth/          ← login partagé, auth/session/guards
     │   └── i18n/          ← runtime i18n partagé
+    ├── notifications/      ← notifications privées réutilisables
     ├── page-model/         ← contrats runtime, API, renderer et registre abstrait
     ├── shared-assets/      ← assets statiques partagés servis en /assets/**
     ├── shared-config/      ← settings runtime et feature flags

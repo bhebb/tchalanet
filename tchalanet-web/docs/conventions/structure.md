@@ -361,59 +361,12 @@ Ne pas extraire trop tôt si le composant n’est utilisé qu’une fois et rest
 
 # 6. Convention de nommage
 
-## Pages
+Le nommage (pages, components, dialogs, data-access, préfixes de surface) est défini dans
+[`naming.md`](./naming.md) — ne pas le dupliquer ici.
 
-```text
-pages/
-  xxx/
-    xxx.page.ts
-    xxx.page.html
-    xxx.page.scss
-```
-
-## Components
-
-```text
-components/
-  xxx/
-    xxx.component.ts
-    xxx.component.html
-    xxx.component.scss
-```
-
-## Data access
-
-```text
-data-access/
-  xxx-api.service.ts
-  xxx.models.ts
-  xxx.store.ts
-```
-
-Pour les nouvelles features admin/platform, préférer les noms préfixés par la surface quand le nom
-serait ambigu hors dossier :
-
-```text
-admin-seller-terminal-list.page.ts
-platform-tenant-detail.page.ts
-pos-sale.page.ts
-```
-
-Les composants dans `components/` sont spécifiques à leur feature.
-
-S’ils deviennent vraiment génériques et réutilisés dans plusieurs features, ils peuvent être déplacés plus tard vers :
-
-```text
-features/private/shared/
-```
-
-ou :
-
-```text
-libs/ui/components/
-```
-
-selon leur niveau de généricité.
+Rappel minimal : un composant utilisé par une seule feature reste dans
+`<feature>/components/` ; il ne monte vers `libs/ui/components` (ou `libs/ui/console` pour le
+scaffolding console) que quand il devient réellement générique et multi-features.
 
 ---
 
@@ -863,86 +816,18 @@ admin/tickets/
 
 ---
 
-# 13. Exemple futur : `admin/onboarding/`
+# 13. Autres exemples réels
 
-Si l’on crée une vraie page `AdminOnboardingPage` complète, elle doit suivre cette structure :
-
-```text
-admin/
-  onboarding/
-    pages/
-      overview/
-        admin-onboarding.page.ts
-        admin-onboarding.page.html
-        admin-onboarding.page.scss
-
-    components/
-      onboarding-checklist/
-        onboarding-checklist.component.ts
-        onboarding-checklist.component.html
-        onboarding-checklist.component.scss
-
-      onboarding-step-card/
-        onboarding-step-card.component.ts
-        onboarding-step-card.component.html
-        onboarding-step-card.component.scss
-
-      onboarding-readiness-card/
-        onboarding-readiness-card.component.ts
-        onboarding-readiness-card.component.html
-        onboarding-readiness-card.component.scss
-
-    data-access/
-      admin-onboarding-api.service.ts
-      admin-onboarding.models.ts
-      admin-onboarding.store.ts
-
-    admin-onboarding.routes.ts
-```
-
-Mais pour V0, `admin/setup` peut rester la route canonique si l’objectif est surtout de compléter la configuration tenant.
-
----
-
-# 14. Exemple futur : `admin/seller-terminals/`
+Les « exemples futurs » historiques (onboarding, seller-terminals) sont devenus du code réel —
+la référence est le code, pas ce document :
 
 ```text
-admin/
-  seller-terminals/
-    pages/
-      list/
-        admin-seller-terminals.page.ts
-        admin-seller-terminals.page.html
-        admin-seller-terminals.page.scss
-
-      create/
-        admin-seller-terminal-create.page.ts
-        admin-seller-terminal-create.page.html
-        admin-seller-terminal-create.page.scss
-
-      detail/
-        admin-seller-terminal-detail.page.ts
-        admin-seller-terminal-detail.page.html
-        admin-seller-terminal-detail.page.scss
-
-    components/
-      seller-terminal-filter-bar/
-      seller-terminal-table/
-      seller-terminal-status-card/
-      seller-terminal-pin-reset-dialog/
-
-    data-access/
-      seller-terminals-api.service.ts
-      seller-terminals.models.ts
-
-    seller-terminals.routes.ts
+apps/admin-portal/src/app/features/admin/seller-terminals/   (pages/list, pages/new, pages/activation)
+apps/admin-portal/src/app/features/admin/setup/
+apps/platform-portal/src/app/features/platform/tenants/
 ```
 
-Route canonique :
-
-```text
-/admin/seller-terminals
-```
+Pour le contenu de ces écrans, voir [`feature-playbook.md`](./feature-playbook.md).
 
 ---
 
@@ -1043,27 +928,11 @@ Exemple :
 
 ---
 
-# 18. Ordre de découpage recommandé
+# 18. Ordre de découpage
 
-## Déjà fait / à valider
-
-```text
-1. platform/tenants — fait ou en cours
-2. account — à structurer si activation/profile grossissent
-3. admin/setup — temporaire, utile pour config tenant
-```
-
-## À faire progressivement
-
-```text
-4. admin/onboarding — seulement si une vraie page onboarding admin complète est créée
-5. admin/seller-terminals — au moment du CRUD seller-terminal
-6. platform/operations — au moment de travailler sur ops
-7. platform/references — au moment de travailler sur référentiels
-8. platform/communication — au moment de travailler notifications/news/contact
-9. platform/access-rights — au moment de travailler permissions/rôles
-10. platform/reports — au moment de travailler rapports
-```
+Le découpage se fait feature par feature, **quand on travaille activement dessus**.
+La roadmap vivante (chantiers C1–C6, priorités) est dans
+[`../ARCHITECTURE.md`](../ARCHITECTURE.md) §2 — ne pas la dupliquer ici.
 
 ---
 
@@ -1080,13 +949,3 @@ aux pages qui deviennent trop grosses
 ```
 
 Ne pas déplacer une feature stable uniquement pour “faire propre” si elle n’est pas en cours de développement.
-
-La priorité produit reste :
-
-```text
-1. tenant provisioning/list/detail
-2. account activation
-3. admin setup/config
-4. seller-terminals admin
-5. seller-terminal POS
-```
