@@ -1,10 +1,38 @@
 <div class="gdt">
 
+  @if (hasSelection()) {
+    <div class="gdt__bulkbar">
+      <div>
+        <p class="gdt__bulk-title">{{ selectedCount() }} tirage{{ selectedCount() > 1 ? 's' : '' }} sélectionné{{ selectedCount() > 1 ? 's' : '' }}</p>
+        <p class="gdt__bulk-sub">Actions disponibles pour toute la sélection.</p>
+      </div>
+      <div class="gdt__bulk-actions">
+        @if (commonLifecycleActions().length === 0) {
+          <span class="gdt__bulk-empty">Aucune action commune</span>
+        } @else {
+          @for (action of commonLifecycleActions(); track action) {
+            <button
+              mat-stroked-button
+              type="button"
+              [class.gdt__bulk-action--danger]="action === 'cancel'"
+              (click)="onBulkLifecycleAction(action)"
+            >
+              <mat-icon>{{ lifecycleIcon(action) }}</mat-icon>
+              {{ lifecycleLabel(action) }}
+            </button>
+          }
+        }
+        <button mat-button type="button" (click)="clearSelection()">Annuler</button>
+      </div>
+    </div>
+  }
+
   <!-- Table -->
   <div class="gdt__scroll">
     <table class="gdt__table">
       <thead>
         <tr class="gdt__head-row">
+          <th class="gdt__th gdt__th--select"></th>
           <th class="gdt__th">Tirage</th>
           <th class="gdt__th">Date &amp; heure</th>
           <th class="gdt__th">Vente</th>
@@ -20,14 +48,23 @@
 
           <!-- Date group header -->
           <tr class="gdt__group-row">
-            <td class="gdt__group-cell" colspan="7">{{ groupDateLabel(group.date) }}</td>
+            <td class="gdt__group-cell" colspan="8">{{ groupDateLabel(group.date) }}</td>
           </tr>
 
           @for (draw of group.draws; track draw.drawId) {
             <tr class="gdt__row">
+              <td class="gdt__td gdt__td--select">
+                <input
+                  class="gdt__checkbox"
+                  type="checkbox"
+                  [checked]="isSelected(draw)"
+                  [attr.aria-label]="'Sélectionner ' + draw.label"
+                  (change)="toggleSelection(draw, $any($event.target).checked)"
+                />
+              </td>
 
               <!-- Tirage -->
-              <td class="gdt__td">
+              <td class="gdt__td" data-label="Tirage">
                 <div class="gdt__draw-cell">
                   <div class="gdt__provider-logo" [attr.data-provider]="draw.providerCode" [title]="draw.providerLabel">
                     @if (providerLogo(draw); as logo) {
@@ -45,18 +82,23 @@
               </td>
 
               <!-- Date & heure -->
-              <td class="gdt__td">
-                <p class="gdt__date">{{ draw.businessDate | date:'d MMM':'':'fr' }}</p>
-                <p class="gdt__time">{{ scheduledTime(draw.scheduledAt) }}</p>
+              <td class="gdt__td" data-label="Date">
+                <p class="gdt__date">{{ scheduledDate(draw) }}</p>
+                <p class="gdt__time">{{ scheduledTime(draw) }}</p>
+                @if (salesCountdown(draw); as countdown) {
+                  <p class="gdt__countdown" [class.gdt__countdown--soon]="isClosingSoon(draw)">
+                    {{ countdown }}
+                  </p>
+                }
               </td>
 
               <!-- Vente -->
-              <td class="gdt__td">
+              <td class="gdt__td" data-label="Vente">
                 <tch-generated-draw-status-badge type="sales" [status]="draw.salesStatus" />
               </td>
 
               <!-- Résultat -->
-              <td class="gdt__td">
+              <td class="gdt__td" data-label="Résultat">
                 <div class="gdt__result-cell">
                   <tch-generated-draw-status-badge type="result" [status]="draw.resultStatus" />
                   @if (draw.numbers && draw.numbers.length > 0) {
@@ -67,21 +109,21 @@
                     </div>
                   }
                   @if (draw.sourceError) {
-                    <p class="gdt__error-hint">{{ draw.sourceError.occurredAt | date:'HH:mm':'':'fr' }}</p>
+                    <p class="gdt__error-hint">{{ sourceErrorAtLabel(draw) }}</p>
                   }
                   @if (draw.fetchedAt) {
-                    <p class="gdt__fetch-hint">Récupéré {{ draw.fetchedAt | date:'dd/MM HH:mm':'':'fr' }}</p>
+                    <p class="gdt__fetch-hint">Récupéré {{ fetchedAtLabel(draw) }}</p>
                   }
                 </div>
               </td>
 
               <!-- Mode -->
-              <td class="gdt__td">
+              <td class="gdt__td" data-label="Mode">
                 <span class="gdt__mode-chip">{{ draw.resultMode }}</span>
               </td>
 
               <!-- Publication -->
-              <td class="gdt__td">
+              <td class="gdt__td" data-label="Publication">
                 @if (draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED') {
                   <tch-generated-draw-status-badge type="publication" [status]="draw.publicationStatus" />
                 } @else {
@@ -94,10 +136,17 @@
                 <div class="gdt__actions">
                   @switch (draw.resultStatus) {
                     @case ('MISSING') {
-                      <button mat-flat-button color="primary" class="gdt__action-btn"
-                        (click)="enterResult.emit(draw)">
-                        Saisir résultat
-                      </button>
+                      @if (canEnterManualResult(draw)) {
+                        <button mat-flat-button color="primary" class="gdt__action-btn"
+                          (click)="enterResult.emit(draw)">
+                          Saisir résultat
+                        </button>
+                      } @else {
+                        <button mat-stroked-button class="gdt__action-btn"
+                          (click)="viewDetails.emit(draw)">
+                          Voir détails
+                        </button>
+                      }
                     }
                     @case ('CONFIRMED') {
                       <button mat-stroked-button class="gdt__action-btn"
@@ -106,10 +155,17 @@
                       </button>
                     }
                     @case ('SOURCE_ERROR') {
-                      <button mat-stroked-button color="warn" class="gdt__action-btn"
-                        (click)="verifySource.emit(draw)">
-                        Vérifier
-                      </button>
+                      @if (canEnterManualResult(draw)) {
+                        <button mat-stroked-button color="warn" class="gdt__action-btn"
+                          (click)="verifySource.emit(draw)">
+                          Vérifier
+                        </button>
+                      } @else {
+                        <button mat-stroked-button class="gdt__action-btn"
+                          (click)="viewDetails.emit(draw)">
+                          Voir détails
+                        </button>
+                      }
                     }
                     @default {
                       <button mat-stroked-button class="gdt__action-btn"

@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
@@ -11,6 +13,8 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import type { TenantGameView } from '../../games-admin-api.service';
+import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
 import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
 import {
   AdminDrawSalesMatrixApi,
@@ -31,6 +35,7 @@ import {
     TchErrorPanel,
     TchLoading,
     TchSectionError,
+    RouterLink,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -42,6 +47,7 @@ import {
 })
 export class AdminDrawSalesMatrixPage implements OnInit {
   private readonly api = inject(AdminDrawSalesMatrixApi);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
@@ -71,6 +77,26 @@ export class AdminDrawSalesMatrixPage implements OnInit {
 
   summary(): MatrixSummary | null { return this.matrix()?.summary ?? null; }
 
+  offeredCount(slot: SlotMatrixView): number {
+    return slot.games.filter(game => game.offeredOnChannel).length;
+  }
+
+  activeOfferedCount(slot: SlotMatrixView): number {
+    return slot.games.filter(game => game.offeredOnChannel && game.enabledOnChannel).length;
+  }
+
+  availableCount(slot: SlotMatrixView): number {
+    return slot.games.filter(game => !game.offeredOnChannel && game.enabledForTenant).length;
+  }
+
+  slotTitle(slot: SlotMatrixView): string {
+    return slot.labelKey?.trim() || slot.slotKey;
+  }
+
+  channelLabel(slot: SlotMatrixView): string {
+    return slot.channel?.channelCode ?? 'Canal non configuré';
+  }
+
   actingKey(drawChannelId: string, tenantGameId: string): string {
     return `${drawChannelId}:${tenantGameId}`;
   }
@@ -90,7 +116,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.api.offerGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.acting.set(null);
-        this.setActionNotice(key, `${game.gameCode} ajouté au canal.`);
+        this.setActionNotice(key, `${this.gameLabel(game)} ajouté au canal.`);
         this.load(true);
       },
       error: (err: unknown) => {
@@ -112,7 +138,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.api.toggleGame(drawChannelId, tenantGameId, newEnabled, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.acting.set(null);
-        this.setActionNotice(key, `${game.gameCode} ${newEnabled ? 'activé' : 'désactivé'}.`);
+        this.setActionNotice(key, `${this.gameLabel(game)} ${newEnabled ? 'activé' : 'désactivé'}.`);
         this.load(true);
       },
       error: (err: unknown) => {
@@ -133,7 +159,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.api.removeGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.acting.set(null);
-        this.setActionNotice(key, `${game.gameCode} retiré du canal.`);
+        this.setActionNotice(key, `${this.gameLabel(game)} retiré du canal.`);
         this.load(true);
       },
       error: (err: unknown) => {
@@ -141,6 +167,12 @@ export class AdminDrawSalesMatrixPage implements OnInit {
         this.setActionError(key, err, drawChannelId, tenantGameId);
       },
     });
+  }
+
+  configureGame(game: ChannelGameSetupView): void {
+    const dialogGame = this.toDialogGame(game);
+    const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '520px' });
+    ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
   }
 
   actionError(drawChannelId: string, tenantGameId: string): ErrorViewModel | null {
@@ -175,6 +207,64 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     if (!game.offeredOnChannel) return 'Non offert';
     if (!game.enabledOnChannel) return 'Désactivé';
     return 'Incomplet';
+  }
+
+  isMaryajGratis(game: ChannelGameSetupView): boolean {
+    return (
+      game.gameCode === 'HT_MARYAJ_GRATUIT' ||
+      game.displayName?.toLowerCase().includes('maryaj gratuit') === true
+    );
+  }
+
+  gameLabel(game: ChannelGameSetupView): string {
+    if (this.isMaryajGratis(game)) return 'Maryaj gratis';
+    return game.displayName?.trim() || this.readableGameCode(game.gameCode);
+  }
+
+  gameCodeLabel(game: ChannelGameSetupView): string {
+    if (this.isMaryajGratis(game)) return 'MG';
+    return this.readableGameCode(game.gameCode);
+  }
+
+  warningLabel(warning: SetupWarning): string {
+    const labels: Record<string, string> = {
+      TENANT_GAME_DISABLED: 'Jeu désactivé pour le tenant',
+      NOT_VISIBLE_IN_POS: 'Masqué au POS',
+      CHANNEL_NOT_CONFIGURED: 'Canal non configuré',
+      CHANNEL_INACTIVE: 'Canal inactif',
+      GAME_NOT_OFFERED_ON_CHANNEL: 'Jeu non offert sur ce canal',
+      CHANNEL_GAME_DISABLED: 'Jeu désactivé sur ce canal',
+      STAKE_CONFIG_MISSING: 'Mises à configurer',
+      LIMITS_MISSING: 'Limites à configurer',
+    };
+    return labels[warning.code] ?? this.readableGameCode(warning.code);
+  }
+
+  private readableGameCode(code: string): string {
+    return code
+      .replace(/^HT_/, '')
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  private toDialogGame(game: ChannelGameSetupView): TenantGameView {
+    return {
+      gameCode: game.gameCode,
+      catalogName: this.gameLabel(game),
+      displayName: game.displayName,
+      category: null,
+      enabled: game.enabledForTenant,
+      visibleInPos: game.visibleInPos,
+      displayOrder: 0,
+      minStake: game.minStake,
+      maxStake: game.maxStake,
+      availabilityEnabled: false,
+      availabilityDays: null,
+      startLocalTime: null,
+      endLocalTime: null,
+      readyForSale: game.saleReady,
+    };
   }
 
   private setActionError(

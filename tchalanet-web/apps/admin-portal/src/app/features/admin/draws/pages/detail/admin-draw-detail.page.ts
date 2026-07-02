@@ -1,0 +1,577 @@
+import { DatePipe, DecimalPipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import {
+  AdminDetailLayoutComponent,
+  AdminPageShellComponent,
+  AdminSectionCardComponent,
+} from '@tch/ui/console';
+
+import {
+  GeneratedDrawResultStatus,
+  GeneratedDrawSalesStatus,
+  GeneratedDrawView,
+  SaveDrawResultRequest,
+} from '../../data-access/admin-generated-draws.models';
+import { AdminGeneratedDrawsApiService } from '../../data-access/admin-generated-draws-api.service';
+import {
+  DrawResultDrawerComponent,
+  DrawResultDrawerState,
+} from '../../components/draw-result-drawer/draw-result-drawer.component';
+import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../../shared/lottery/lottery-assets';
+import {
+  AdminFinancialsApi,
+  DrawFinancialRow,
+  DrawTopSelectionItem,
+  SellerTerminalDrawFinancialRow,
+} from '../../../financials/data-access/admin-financials-api.service';
+
+type PageState = 'loading' | 'ready' | 'error';
+type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
+type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
+
+interface DrawActivityReport {
+  readonly ticketsSold: number;
+  readonly grossSales: number;
+  readonly sellerCommission: number;
+  readonly activeSellerCount: number;
+  readonly netRevenueEstimated: number;
+  readonly promotionPotentialPayout: number;
+}
+
+@Component({
+  selector: 'tch-admin-draw-detail-page',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    RouterLink,
+    MatButtonModule,
+    MatIconModule,
+    AdminPageShellComponent,
+    AdminDetailLayoutComponent,
+    AdminSectionCardComponent,
+    TchLoading,
+    TchErrorPanel,
+    DrawResultDrawerComponent,
+  ],
+  templateUrl: './admin-draw-detail.page.html',
+  styleUrls: ['./admin-draw-detail.page.scss'],
+})
+export class AdminDrawDetailPage implements OnInit, OnDestroy {
+  private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(AdminGeneratedDrawsApiService);
+  private readonly financials = inject(AdminFinancialsApi);
+  private timerId: ReturnType<typeof setInterval> | null = null;
+
+  readonly pageState = signal<PageState>('loading');
+  readonly draw = signal<GeneratedDrawView | null>(null);
+  readonly nowMs = signal(Date.now());
+  readonly activityState = signal<DrawActivityState>('idle');
+  readonly activityReport = signal<DrawActivityReport | null>(null);
+  readonly topSelectionsState = signal<DrawTopSelectionsState>('idle');
+  readonly topSelections = signal<readonly DrawTopSelectionItem[]>([]);
+  readonly errorTitle = signal<string | null>(null);
+  readonly errorMessage = signal<string | null>(null);
+  readonly selectedDraw = signal<GeneratedDrawView | null>(null);
+  readonly resultSaveState = signal<DrawResultDrawerState>('ready');
+  readonly resultSaveMessage = signal<string | null>(null);
+
+  readonly title = computed(() => {
+    const draw = this.draw();
+    return draw ? this.drawDisplayName(draw) : 'Détail du tirage';
+  });
+  readonly description = computed(() => {
+    const draw = this.draw();
+    if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
+    return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
+  });
+
+  ngOnInit(): void {
+    this.load();
+    this.timerId = setInterval(() => this.nowMs.set(Date.now()), 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  load(): void {
+    const drawId = this.route.snapshot.paramMap.get('id');
+    if (!drawId) {
+      this.pageState.set('error');
+      this.errorTitle.set('Tirage introuvable');
+      this.errorMessage.set('Aucun identifiant de tirage n’a été fourni.');
+      return;
+    }
+
+    this.pageState.set('loading');
+    this.errorTitle.set(null);
+    this.errorMessage.set(null);
+
+    this.api.getDrawById(drawId, { suppressShellFeedback: true }).subscribe({
+      next: draw => {
+        this.draw.set(draw);
+        this.pageState.set('ready');
+        this.loadActivity(draw);
+        this.loadTopSelections(draw);
+      },
+      error: () => {
+        this.pageState.set('error');
+        this.errorTitle.set('Impossible de charger le tirage');
+        this.errorMessage.set('Réessayez ou revenez à la liste des tirages.');
+      },
+    });
+  }
+
+  countdownLabel(draw: GeneratedDrawView): string {
+    if (draw.salesStatus !== 'OPEN') return 'Vente fermée';
+    const target = this.dateTimeToEpochMs(draw.cutoffAt ?? draw.scheduledAt, draw.timezone);
+    if (target == null) return 'Fin des ventes non disponible';
+    const diff = target - this.nowMs();
+    if (diff <= 0) return 'Ventes fermées';
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+    }
+    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+  }
+
+  drawDisplayName(draw: GeneratedDrawView): string {
+    const label = draw.label || draw.providerLabel;
+    return label.replace(/^Ha[iï]ti\s*[·•-]\s*/i, '').trim();
+  }
+
+  providerSlotCode(draw: GeneratedDrawView): string {
+    return draw.slotKey;
+  }
+
+  slotDisplayLabel(draw: GeneratedDrawView): string {
+    const label = draw.slotLabel?.trim();
+    if (!label) return draw.slotKey;
+    if (label === label.toUpperCase()) {
+      return label
+        .toLowerCase()
+        .split(/[\s_-]+/)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    }
+    return label;
+  }
+
+  scheduledLocalSummary(draw: GeneratedDrawView): string {
+    const value = this.formatLocalDateTime(draw.scheduledAt, draw.timezone);
+    return value ? `Tirage prévu le ${value}` : 'Tirage prévu';
+  }
+
+  scheduledLocalDateTime(draw: GeneratedDrawView): string {
+    return this.formatLocalDateTime(draw.scheduledAt, draw.timezone) ?? 'Non disponible';
+  }
+
+  cutoffLocalDateTime(draw: GeneratedDrawView): string {
+    const cutoff = draw.cutoffAt ?? draw.scheduledAt;
+    return this.formatLocalDateTime(cutoff, draw.timezone) ?? 'Non disponible';
+  }
+
+  asideDrawDateTime(draw: GeneratedDrawView): string {
+    const date = this.formatIsoLikeLocalDateTime(draw.scheduledAt, draw.timezone);
+    return date ? `${draw.providerLabel} · ${date}` : draw.providerLabel;
+  }
+
+  scheduledTime(draw: GeneratedDrawView): string {
+    const parts = this.hasExplicitOffset(draw.scheduledAt) ? null : this.localDateTimeParts(draw.scheduledAt);
+    if (parts) return `${parts.hour}:${parts.minute}`;
+    const date = new Date(draw.scheduledAt);
+    if (Number.isNaN(date.getTime())) return 'Non disponible';
+    return this.formatTimeInZone(date, draw.timezone);
+  }
+
+  operationalHint(draw: GeneratedDrawView): string {
+    if (draw.salesStatus === 'OPEN') {
+      return 'Le tirage est ouvert. Surveillez les ventes et les sélections chaudes avant la fermeture.';
+    }
+    if (this.hasResult(draw)) {
+      return 'Le résultat est disponible. Vérifiez la publication et le suivi des tickets gagnants.';
+    }
+    if (draw.salesStatus === 'CLOSED') {
+      return 'Le tirage est fermé. Vous pouvez vérifier le résultat et lancer le suivi des tickets.';
+    }
+    if (draw.salesStatus === 'CANCELLED') {
+      return 'Le tirage est annulé. Vérifiez les ventes et les opérations de suivi associées.';
+    }
+    return 'Le tirage est planifié. Les ventes seront visibles dès son ouverture.';
+  }
+
+  noSalesHint(report: DrawActivityReport | null): string | null {
+    if (!report || report.ticketsSold > 0 || report.grossSales > 0) return null;
+    const draw = this.draw();
+    if (!draw) return 'Aucune vente enregistrée pour ce tirage.';
+    if (draw.salesStatus === 'OPEN') {
+      return 'Le tirage est ouvert, mais aucune vente n’a encore été enregistrée.';
+    }
+    return 'Aucune vente enregistrée pour ce tirage.';
+  }
+
+  sellersReportQueryParams(draw: GeneratedDrawView): Record<string, string> {
+    return {
+      drawId: draw.drawId,
+      tab: 'sellers',
+    };
+  }
+
+  topSelectionStake(selection: DrawTopSelectionItem): number {
+    return selection.totalStakeCents / 100;
+  }
+
+  salesStatusLabel(status: GeneratedDrawSalesStatus): string {
+    switch (status) {
+      case 'OPEN': return 'Ouvert à la vente';
+      case 'CLOSED': return 'Vente fermée';
+      case 'CANCELLED': return 'Annulé';
+      case 'UPCOMING': return 'À venir';
+    }
+  }
+
+  resultStatusLabel(status: GeneratedDrawResultStatus): string {
+    switch (status) {
+      case 'CONFIRMED': return 'Résultat confirmé';
+      case 'PROVISIONAL': return 'Résultat provisoire';
+      case 'EXPECTED': return 'Résultat attendu';
+      case 'MISSING': return 'Résultat manquant';
+      case 'SOURCE_ERROR': return 'Erreur source';
+      case 'NOT_DUE': return 'Attendu après fermeture';
+    }
+  }
+
+  publicationStatusLabel(status: GeneratedDrawView['publicationStatus']): string {
+    return status === 'PUBLISHED' ? 'Publié' : 'Non publié';
+  }
+
+  canEnterManualResult(draw: GeneratedDrawView): boolean {
+    return this.isDrawPastSales(draw) && this.hasNoResult(draw) && this.isManualResultDue(draw);
+  }
+
+  resultActionLabel(draw: GeneratedDrawView): string {
+    if (this.hasResult(draw)) return 'Détail du résultat';
+    if (this.canEnterManualResult(draw)) return 'Entrer le résultat';
+    return '';
+  }
+
+  resultDetailQueryParams(draw: GeneratedDrawView): Record<string, string> {
+    return {
+      drawId: draw.drawId,
+      slotKey: draw.slotKey,
+      drawDate: draw.businessDate,
+    };
+  }
+
+  providerLogo(draw: GeneratedDrawView): string | null {
+    return lotteryLogoForSlot(draw.slotKey);
+  }
+
+  providerCode(draw: GeneratedDrawView): string {
+    return lotteryProviderCodeFromSlot(draw.slotKey)?.toUpperCase() ?? draw.providerCode;
+  }
+
+  resultUnavailableReason(draw: GeneratedDrawView): string | null {
+    if (this.hasResult(draw)) return null;
+    if (!this.isDrawPastSales(draw)) return null;
+    if (!this.isManualResultDue(draw)) {
+      return 'La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage.';
+    }
+    return null;
+  }
+
+  asideTicketCountLabel(report: DrawActivityReport | null): string {
+    const count = report?.ticketsSold ?? 0;
+    return `${count} ticket${count > 1 ? 's' : ''}`;
+  }
+
+  asideSalesAmountLabel(report: DrawActivityReport | null): string {
+    return `${this.formatAmount(report?.grossSales ?? 0)} HTG`;
+  }
+
+  asideSellerCountLabel(report: DrawActivityReport | null): string {
+    const count = report?.activeSellerCount ?? 0;
+    return `${count} vendeur${count > 1 ? 's' : ''} actif${count > 1 ? 's' : ''}`;
+  }
+
+  asideHotSelectionsLabel(): string {
+    const count = this.topSelections().length;
+    if (count === 0) return 'Aucune';
+    return `${count} à surveiller`;
+  }
+
+  resultFollowupLabel(draw: GeneratedDrawView): string {
+    if (this.hasResult(draw)) return 'Disponible';
+    if (draw.salesStatus === 'OPEN') return 'Attendu après fermeture';
+    if (this.canEnterManualResult(draw)) return 'Saisie manuelle possible';
+    return this.resultStatusLabel(draw.resultStatus);
+  }
+
+  openResultPanel(draw: GeneratedDrawView): void {
+    this.resultSaveState.set('ready');
+    this.resultSaveMessage.set(null);
+    this.selectedDraw.set(draw);
+  }
+
+  closeResultPanel(): void {
+    this.selectedDraw.set(null);
+    this.resultSaveState.set('ready');
+    this.resultSaveMessage.set(null);
+  }
+
+  onResultSaveRequested(request: SaveDrawResultRequest): void {
+    this.resultSaveState.set('saving');
+    this.resultSaveMessage.set(null);
+    this.api.saveDrawResult(request, { suppressShellFeedback: true }).subscribe({
+      next: updated => {
+        this.draw.set(updated);
+        this.selectedDraw.set(updated);
+        this.resultSaveState.set('success');
+        this.resultSaveMessage.set(
+          request.mode === 'confirmed'
+            ? 'Résultat confirmé et publié.'
+            : 'Résultat enregistré en provisoire.',
+        );
+      },
+      error: () => {
+        this.resultSaveState.set('error');
+        this.resultSaveMessage.set('Impossible d’enregistrer le résultat.');
+      },
+    });
+  }
+
+  private hasResult(draw: GeneratedDrawView): boolean {
+    return draw.resultStatus === 'PROVISIONAL'
+      || draw.resultStatus === 'CONFIRMED'
+      || (draw.numbers?.length ?? 0) > 0;
+  }
+
+  private hasNoResult(draw: GeneratedDrawView): boolean {
+    return !this.hasResult(draw);
+  }
+
+  private isDrawPastSales(draw: GeneratedDrawView): boolean {
+    return draw.salesStatus === 'CLOSED' || draw.salesStatus === 'CANCELLED';
+  }
+
+  private isManualResultDue(draw: GeneratedDrawView): boolean {
+    const scheduledAt = this.dateTimeToEpochMs(draw.scheduledAt, draw.timezone);
+    if (scheduledAt == null) return false;
+    return Date.now() >= scheduledAt + 30 * 60 * 1000;
+  }
+
+  private formatLocalDateTime(value: string, timezone: string): string | null {
+    const parts = this.hasExplicitOffset(value) ? null : this.localDateTimeParts(value);
+    if (parts) return `${parts.day}/${parts.month}/${parts.year} ${parts.hour}:${parts.minute}`;
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: timezone,
+    });
+  }
+
+  private formatAmount(value: number): string {
+    return new Intl.NumberFormat('fr-FR', {
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
+
+  private formatIsoLikeLocalDateTime(value: string, timezone: string): string | null {
+    const parts = this.hasExplicitOffset(value) ? null : this.localDateTimeParts(value);
+    if (parts) return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    const dateParts = new Intl.DateTimeFormat('fr-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+      timeZone: timezone,
+    }).formatToParts(date);
+    const pick = (type: string) => dateParts.find(part => part.type === type)?.value ?? '';
+    return `${pick('year')}-${pick('month')}-${pick('day')} ${pick('hour')}:${pick('minute')}`;
+  }
+
+  private dateTimeToEpochMs(value: string, timezone: string): number | null {
+    if (this.hasExplicitOffset(value)) {
+      const epoch = Date.parse(value);
+      return Number.isNaN(epoch) ? null : epoch;
+    }
+
+    const parts = this.localDateTimeParts(value);
+    if (!parts) {
+      const epoch = Date.parse(value);
+      return Number.isNaN(epoch) ? null : epoch;
+    }
+
+    return this.zonedLocalTimeToEpochMs(
+      Number(parts.year),
+      Number(parts.month),
+      Number(parts.day),
+      Number(parts.hour),
+      Number(parts.minute),
+      Number(parts.second ?? '0'),
+      timezone,
+    );
+  }
+
+  private localDateTimeParts(value: string): {
+    year: string;
+    month: string;
+    day: string;
+    hour: string;
+    minute: string;
+    second?: string;
+  } | null {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (!match) return null;
+    return {
+      year: match[1],
+      month: match[2],
+      day: match[3],
+      hour: match[4],
+      minute: match[5],
+      second: match[6],
+    };
+  }
+
+  private hasExplicitOffset(value: string): boolean {
+    return /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value);
+  }
+
+  private zonedLocalTimeToEpochMs(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+    timezone: string,
+  ): number {
+    const utcGuess = Date.UTC(year, month - 1, day, hour, minute, second);
+    const offset = this.timezoneOffsetMs(new Date(utcGuess), timezone);
+    const first = utcGuess - offset;
+    const correctedOffset = this.timezoneOffsetMs(new Date(first), timezone);
+    return utcGuess - correctedOffset;
+  }
+
+  private timezoneOffsetMs(date: Date, timezone: string): number {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+    }).formatToParts(date);
+    const pick = (type: string) => Number(parts.find(part => part.type === type)?.value ?? 0);
+    const asUtc = Date.UTC(
+      pick('year'),
+      pick('month') - 1,
+      pick('day'),
+      pick('hour'),
+      pick('minute'),
+      pick('second'),
+    );
+    return asUtc - date.getTime();
+  }
+
+  private formatTimeInZone(date: Date, timezone: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+      timeZone: timezone,
+    }).format(date);
+  }
+
+  private loadActivity(draw: GeneratedDrawView): void {
+    this.activityState.set('loading');
+    this.activityReport.set(null);
+    this.financials.getBreakdown({
+      from: draw.businessDate,
+      to: draw.businessDate,
+      drawLimit: 250,
+      sellerTerminalLimit: 500,
+    }, { suppressShellFeedback: true }).subscribe({
+      next: breakdown => {
+        const drawRows = breakdown.drawRows.filter(row => row.drawId === draw.drawId);
+        const sellerRows = breakdown.sellerTerminalDrawRows.filter(row => row.drawId === draw.drawId);
+        this.activityReport.set(this.aggregateActivity(drawRows, sellerRows));
+        this.activityState.set('ready');
+      },
+      error: () => {
+        this.activityState.set('error');
+      },
+    });
+  }
+
+  private loadTopSelections(draw: GeneratedDrawView): void {
+    this.topSelectionsState.set('loading');
+    this.topSelections.set([]);
+    this.financials.getDrawTopSelections(draw.drawId, { limit: 5 }, { suppressShellFeedback: true }).subscribe({
+      next: view => {
+        this.topSelections.set(view.topSelections);
+        this.topSelectionsState.set('ready');
+      },
+      error: () => {
+        this.topSelectionsState.set('error');
+      },
+    });
+  }
+
+  private aggregateActivity(
+    drawRows: readonly DrawFinancialRow[],
+    sellerRows: readonly SellerTerminalDrawFinancialRow[],
+  ): DrawActivityReport {
+    const activeSellerIds = new Set(
+      sellerRows
+        .filter(row => row.ticketsSold > 0 || row.grossSales > 0)
+        .map(row => row.sellerTerminalId),
+    );
+    return {
+      ticketsSold: this.sum(drawRows, row => row.ticketsSold),
+      grossSales: this.sum(drawRows, row => row.grossSales),
+      sellerCommission: this.sum(drawRows, row => row.sellerCommission),
+      activeSellerCount: activeSellerIds.size,
+      netRevenueEstimated: this.sum(drawRows, row => row.netRevenueEstimated),
+      promotionPotentialPayout: this.sum(drawRows, row => row.promotionPotentialPayout),
+    };
+  }
+
+  private sum<T>(rows: readonly T[], selector: (row: T) => number): number {
+    return rows.reduce((total, row) => total + Number(selector(row) ?? 0), 0);
+  }
+}

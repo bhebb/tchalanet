@@ -85,7 +85,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return [
       this.cardOf(map, 'identity',      'admin.setup.section.identity',      'verified_user',   null),
       this.cardOf(map, 'address',       'admin.setup.section.address',       'location_on',     null),
-      this.cardOf(map, 'games_pricing', 'admin.setup.section.games',         'casino',          '/app/admin/games-pricing'),
+      this.cardOf(map, 'games_pricing', 'admin.setup.section.games',         'casino',          '/app/admin/games'),
       this.cardOf(map, 'draws',         'admin.setup.section.drawChannels',  'event_repeat',        '/app/admin/draw-channels'),
       this.cardOf(map, 'theme',         'admin.setup.section.theme',         'palette',         '/app/admin/appearance'),
       this.cardOf(map, 'promotions',    'admin.setup.section.promotions',    'redeem',          '/app/admin/promotions'),

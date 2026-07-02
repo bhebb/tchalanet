@@ -5,7 +5,13 @@
   <!-- Header -->
   <div class="pcard__header">
     <div class="pcard__identity">
-      <div class="pcard__avatar">{{ p.providerCode }}</div>
+      <div class="pcard__avatar">
+        @if (providerLogo(); as logo) {
+          <img class="pcard__avatar-image" [src]="logo" [alt]="p.providerLabel" />
+        } @else {
+          <span>{{ p.providerCode }}</span>
+        }
+      </div>
       <div class="pcard__title-group">
         <div class="pcard__name-row">
           <h3 class="pcard__name">{{ p.providerLabel }}</h3>

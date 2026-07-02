@@ -7,7 +7,7 @@ Ces conventions couvrent les apps séparées `public-portal`, `admin-portal` et 
 | Naming (composants, fichiers, libs)                | [`naming.md`](./naming.md)                     |
 | State management (NgRx, signals)                   | [`state-management.md`](./state-management.md) |
 | Nx module boundaries                               | [`nx-boundaries.md`](./nx-boundaries.md)       |
-| Feature playbook (livraison feature)               | [`feature-playbook.md`](./feature-playbook.md) |
+| **Feature playbook (archétypes d'écrans console — commencer ici)** | [`feature-playbook.md`](./feature-playbook.md) |
 | Placement guide (où mettre quoi)                   | [`placement-guide.md`](./placement-guide.md)   |
 | Auth (Keycloak, session, guards)                   | [`auth.md`](./auth.md)                         |
 | Theme runtime (Material 3 pipeline)                | [`theme.md`](./theme.md)                       |

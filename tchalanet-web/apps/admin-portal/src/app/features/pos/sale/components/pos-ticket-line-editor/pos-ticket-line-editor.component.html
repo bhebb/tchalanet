@@ -18,6 +18,9 @@
       </div>
       <div class="ple__col ple__col--type">
         <span class="ple__bet-type">{{ line.betTypeLabel }}</span>
+        @if (line.betOptionLabel) {
+          <span class="ple__bet-option">{{ line.betOptionLabel }}</span>
+        }
       </div>
       <div class="ple__col ple__col--stake">
         @if (editingLineId() === line.localId) {
@@ -108,7 +111,7 @@
           <select
             class="ple__type-select"
             [ngModel]="selectedBetTypeCode()"
-            (ngModelChange)="draftBetType.set($event)"
+            (ngModelChange)="onBetTypeChange($event)"
             aria-label="Type de pari"
           >
             @for (bt of betTypes(); track bt.betType) {
@@ -116,7 +119,9 @@
             }
           </select>
         } @else {
-          <span class="ple__type-label">{{ selectedBetType()?.label ?? '—' }}</span>
+          @if (selectedBetType(); as betType) {
+            <span class="ple__type-label">{{ betType.label }}</span>
+          }
         }
       </div>
 
@@ -146,9 +151,34 @@
       </div>
     </div>
 
+    @if (selectedBetType(); as betType) {
+      @if (betType.requiresOption && betType.options.length > 0) {
+        <div class="ple__option-row">
+          <span class="ple__option-label">Option</span>
+          <select
+            class="ple__option-select"
+            [ngModel]="selectedBetOptionCode()"
+            (ngModelChange)="draftBetOption.set($event === '' ? null : +$event)"
+            aria-label="Option de pari"
+          >
+            @for (option of betType.options; track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+          @if (selectedBetOption()?.selectionHint; as hint) {
+            <span class="ple__option-hint">{{ hint }}</span>
+          }
+        </div>
+      }
+    }
+
     @if (duplicateDraftLine(); as duplicate) {
       <p class="ple__merge-hint">
-        {{ duplicate.selection }} · {{ duplicate.betTypeLabel }} est déjà dans le ticket.
+        {{ duplicate.selection }} · {{ duplicate.betTypeLabel }}
+        @if (duplicate.betOptionLabel) {
+          · {{ duplicate.betOptionLabel }}
+        }
+        est déjà dans le ticket.
         @if (projectedStakeAmount(); as projected) {
           Ajouter {{ draftStake() | number:'1.2-2' }} HTG portera la mise à
           {{ projected | number:'1.2-2' }} HTG.

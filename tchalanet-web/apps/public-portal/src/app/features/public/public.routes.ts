@@ -11,6 +11,16 @@ export const publicRoutes: Route[] = [
       import('./check-ticket/public-check-ticket.page').then(m => m.PublicCheckTicketPage),
   },
   {
+    path: 'verify',
+    loadComponent: () =>
+      import('./check-ticket/public-check-ticket.page').then(m => m.PublicCheckTicketPage),
+  },
+  {
+    path: 'ticket/:publicCode',
+    loadComponent: () =>
+      import('./check-ticket/public-check-ticket.page').then(m => m.PublicCheckTicketPage),
+  },
+  {
     path: 'results',
     pathMatch: 'full',
     loadComponent: () =>

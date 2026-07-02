@@ -44,7 +44,9 @@ export class PublicCheckTicketPage {
   readonly previewImage = TCH_PUBLIC_ASSETS.checkTicketPreview;
 
   constructor() {
-    const rawCode = this.route.snapshot.queryParamMap.get('code');
+    const rawCode =
+      this.route.snapshot.paramMap.get('publicCode') ??
+      this.route.snapshot.queryParamMap.get('code');
     if (rawCode) {
       // Support both plain code and full URL (from QR scanner)
       const normalized = extractPublicCodeFromQr(rawCode);

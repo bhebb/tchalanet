@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Paramètres - {{ data.game.displayName ?? data.game.catalogName }}</h2>
+<h2 mat-dialog-title>Configurer le jeu - {{ data.game.displayName ?? data.game.catalogName }}</h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" class="game-settings-dialog__form">
@@ -6,18 +6,26 @@
       <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
     }
 
+    <section class="game-settings-dialog__intro">
+      <span class="material-symbols-outlined" aria-hidden="true">tune</span>
+      <div>
+        <strong>Paramètres utilisés dans la vente</strong>
+        <p>Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce tenant. Les gains et barèmes globaux restent gérés dans le catalogue plateforme.</p>
+      </div>
+    </section>
+
     <mat-form-field appearance="outline" class="game-settings-dialog__field">
-      <mat-label>Nom affiché</mat-label>
+      <mat-label>Nom affiché au POS</mat-label>
       <input matInput formControlName="displayName" [placeholder]="data.game.catalogName" />
     </mat-form-field>
 
     <div class="game-settings-dialog__row">
       <mat-form-field appearance="outline" class="game-settings-dialog__field">
-        <mat-label>Mise minimum</mat-label>
+        <mat-label>Mise minimum par ligne</mat-label>
         <input matInput type="number" formControlName="minStake" />
       </mat-form-field>
       <mat-form-field appearance="outline" class="game-settings-dialog__field">
-        <mat-label>Mise maximum</mat-label>
+        <mat-label>Mise maximum par ligne</mat-label>
         <input matInput type="number" formControlName="maxStake" />
       </mat-form-field>
     </div>
@@ -27,7 +35,7 @@
       <input matInput type="number" formControlName="displayOrder" />
     </mat-form-field>
 
-    <mat-checkbox formControlName="visibleInPos">Visible au POS</mat-checkbox>
+    <mat-checkbox formControlName="visibleInPos">Afficher ce jeu dans le POS</mat-checkbox>
     <mat-checkbox formControlName="availabilityEnabled">Restreindre les horaires de vente</mat-checkbox>
 
     @if (form.value.availabilityEnabled) {
@@ -46,8 +54,8 @@
     @if (data.game.betOptions?.length) {
       <section class="game-settings-dialog__section">
         <div class="game-settings-dialog__section-header">
-          <h3>Options de pari</h3>
-          <p>Options servies par le barème du jeu.</p>
+          <h3>Options de pari / gains</h3>
+          <p>Lecture seule ici. Ces options viennent du catalogue et du barème du jeu.</p>
         </div>
 
         <div class="game-settings-dialog__options">

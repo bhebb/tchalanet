@@ -78,19 +78,34 @@ Component-local state stays in the component.
 
 ### 3.2 Screen / feature state
 
-Feature state lives next to the feature/page:
+**Pattern par défaut (réel, 2026-07) : les signals vivent directement dans la page.**
+La quasi-totalité des pages console (58) gèrent leur état ainsi ; il n'existe qu'un seul
+`*.store.ts` dans le monorepo. Ne pas créer de store par réflexe.
+
+Standard d'une page (signals séparés — décision 2026-07-02) :
+
+```ts
+readonly loading = signal(false);
+readonly error = signal<ErrorViewModel | null>(null);
+readonly items = signal<Xxx[]>([]);
+readonly actionFeedback = signal<ErrorViewModel | null>(null);
+// + pagination/filters pilotés par les queryParams (URL = source de vérité)
+```
+
+Ne pas utiliser un enum `pageState()` unique dans les nouvelles pages.
+
+Extraire un `*.store.ts` **seulement quand** :
+
+```text
+la page dépasse clairement l'orchestration simple (nombreuses transitions d'état)
+plusieurs pages de la feature partagent le même état
+le state doit survivre à la navigation intra-feature (provided sur la route)
+```
+
+Placement du store quand il existe :
 
 ```text
 apps/<portal>/src/app/features/<surface>/<feature>/<feature>.store.ts
-```
-
-Examples:
-
-```text
-features/admin/outlets/outlets.store.ts
-features/admin/dashboard/tenant-dashboard.store.ts
-features/platform/page-models/page-model-editor.store.ts
-features/cashier/sale/cashier-sale.store.ts
 ```
 
 Contains:
@@ -322,13 +337,18 @@ Errors should be represented as user-displayable state, not raw thrown objects i
 
 ## 7. Loading/error convention
 
-Use the three-level error model:
+Use the error/feedback model (aligné sur l'usage réel) :
 
 ```text
-tch-page-error   -> route/page-level failure
-tch-error-panel  -> section/card/widget failure
-tch-field-error  -> form field failure
+tch-page-error    -> route-level failure (shell/erreur de navigation)
+tch-error-panel   -> la page ne peut pas charger son contenu (avec retry)
+tch-section-error -> feedback d'une action (succès/échec) au-dessus du contenu
+tch-notice        -> message ponctuel succès/erreur
+tch-field-error   -> erreur serveur d'un champ de formulaire
 ```
+
+Le mapping erreur → ViewModel passe par `@tch/web/errors`
+(`webAppErrorFromProblemDetail` + `resolveErrorFeedbackCopy` + `toErrorViewModel`).
 
 For loading:
 

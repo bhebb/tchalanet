@@ -1,14 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import { ConsoleDrawLifecycleApi } from '@tch/web/console';
 import {
   DatePreset,
   GeneratedDrawView,
   GeneratedDrawSalesStatus,
   GeneratedDrawResultStatus,
+  DrawLifecycleAction,
   GeneratedDrawsQuery,
   PagedResult,
   SaveDrawResultRequest,
+  isGeneratedDrawSellableNow,
 } from './admin-generated-draws.models';
 
 interface DrawView {
@@ -121,10 +124,12 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
     label: d.channel.name,
     businessDate: d.drawDate,
     scheduledAt: d.scheduledAt,
+    cutoffAt: d.cutoffAt,
     timezone: d.slot.timezone ?? 'America/New_York',
     salesStatus,
     resultStatus,
     resultMode: 'MANUAL',
+    resultId: d.lastResult?.id ?? null,
     publicationStatus: resultStatus === 'CONFIRMED' || resultStatus === 'PROVISIONAL'
       ? 'PUBLISHED'
       : 'NOT_PUBLISHED',
@@ -139,7 +144,13 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
   if (!status || status === 'all') return draws;
   return draws.filter(d => {
     switch (status) {
-      case 'OPEN':         return d.salesStatus === 'OPEN';
+      case 'OPEN':         return isGeneratedDrawSellableNow(d);
+      case 'PAST':         return (d.salesStatus === 'OPEN' && !isGeneratedDrawSellableNow(d))
+        || d.salesStatus === 'CLOSED'
+        || d.salesStatus === 'CANCELLED'
+        || d.resultStatus === 'EXPECTED'
+        || d.resultStatus === 'MISSING'
+        || d.resultStatus === 'CONFIRMED';
       case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
       case 'MISSING':      return d.resultStatus === 'MISSING';
       case 'CONFIRMED':    return d.resultStatus === 'CONFIRMED';
@@ -154,6 +165,7 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
 @Injectable({ providedIn: 'root' })
 export class AdminGeneratedDrawsApiService {
   private readonly backend = inject(TchBackendClient);
+  private readonly lifecycle = inject(ConsoleDrawLifecycleApi);
 
   getGeneratedDraws(
     params: GeneratedDrawsQuery = {},
@@ -186,6 +198,12 @@ export class AdminGeneratedDrawsApiService {
     );
   }
 
+  getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+    return this.backend
+      .get<DrawView>(`/admin/draws/${drawId}`, options)
+      .pipe(map(mapDrawView));
+  }
+
   saveDrawResult(request: SaveDrawResultRequest, options?: TchRequestOptions): Observable<GeneratedDrawView> {
     const pick3 = request.numbers.join('-');
     const observeTrustPolicy = request.mode !== 'confirmed';
@@ -195,34 +213,62 @@ export class AdminGeneratedDrawsApiService {
         notes: request.note || null,
         pick3,
         pick4: null,
-        force: false,
-        reason: request.mode === 'confirmed' ? 'Saisie manuelle confirmée' : 'Saisie provisoire',
+        force: request.force ?? false,
+        reason: request.force
+          ? 'Override manuel super admin'
+          : request.mode === 'confirmed'
+            ? 'Saisie manuelle confirmée'
+            : 'Saisie provisoire',
         observeTrustPolicy,
       }, options)
       .pipe(map(mapDrawView));
   }
 
-  cancelDraw(drawId: string, reasonCode: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    return this.backend
-      .post<DrawView>(`/admin/draws/${drawId}/cancel`, { reasonCode, force: false }, options)
-      .pipe(map(mapDrawView));
+  cancelDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+    return this.lifecycleDraws('cancel', [drawId], reason, options).pipe(map(draws => draws[0]));
+  }
+
+  openDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+    return this.lifecycleDraws('open', [drawId], reason, options).pipe(map(draws => draws[0]));
+  }
+
+  closeDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
+    return this.lifecycleDraws('close', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
   lockDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    return this.backend
-      .post<DrawView>(`/admin/draws/${drawId}/lock`, { reason }, options)
-      .pipe(map(mapDrawView));
+    return this.lifecycleDraws('lock', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
   unlockDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    return this.backend
-      .post<DrawView>(`/admin/draws/${drawId}/unlock`, { reason }, options)
-      .pipe(map(mapDrawView));
+    return this.lifecycleDraws('unlock', [drawId], reason, options).pipe(map(draws => draws[0]));
   }
 
   archiveDraw(drawId: string, reason?: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
-    return this.backend
-      .post<DrawView>(`/admin/draws/${drawId}/archive`, { reason, force: false }, options)
-      .pipe(map(mapDrawView));
+    return this.lifecycleDraws('archive', [drawId], reason, options).pipe(map(draws => draws[0]));
+  }
+
+  lifecycleDraws(
+    action: DrawLifecycleAction,
+    drawIds: readonly string[],
+    reason?: string,
+    options?: TchRequestOptions,
+  ): Observable<GeneratedDrawView[]> {
+    const payload = action === 'cancel'
+      ? {
+          drawIds: [...drawIds],
+          reasonCode: 'ADMIN_REQUEST',
+          reasonLabel: reason ?? null,
+          force: false,
+        }
+      : {
+          drawIds: [...drawIds],
+          reason,
+          force: false,
+        };
+
+    return this.lifecycle.execute<DrawView>(action, payload, options).pipe(
+      map(draws => draws.map(mapDrawView)),
+    );
   }
 }

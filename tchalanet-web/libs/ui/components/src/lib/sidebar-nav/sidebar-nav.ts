@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 
@@ -9,7 +9,7 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
 
 @Component({
   selector: 'tch-sidebar-nav',
-  imports: [NgTemplateOutlet, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="sidebar" [attr.aria-label]="ariaLabel()">
@@ -55,8 +55,6 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
                     [class.is-active]="isActionActive(child, item.children)"
                     [routerLink]="actionRoute(child)"
                     [queryParams]="actionQueryParams(child)"
-                    routerLinkActive="is-active"
-                    [routerLinkActiveOptions]="{ exact: isExactActiveMatch(child, item.children) }"
                     [attr.aria-disabled]="child.disabled ? 'true' : null"
                     [attr.tabindex]="child.disabled ? -1 : null"
                     (click)="onItemClick($event, child)"
@@ -79,8 +77,6 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
           <a [routerLink]="actionRoute(item)" [queryParams]="actionQueryParams(item)"
              [class.is-disabled]="item.disabled"
              [class.is-active]="isActionActive(item)"
-             routerLinkActive="is-active"
-             [routerLinkActiveOptions]="{ exact: isExactActiveMatch(item) }"
              [attr.aria-disabled]="item.disabled ? 'true' : null"
              [attr.tabindex]="item.disabled ? -1 : null"
              (click)="onItemClick($event, item)">
@@ -215,7 +211,9 @@ export class TchSidebarNav {
 
   private isRouteActive(item: ActionItem, route: string, siblings: readonly ActionItem[] = []): boolean {
     const url = this.activeComparableUrl();
-    return this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route);
+    const routeMatches = this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route);
+    if (!routeMatches) return false;
+    return this.queryParamsMatch(item);
   }
 
   private hasLongerSiblingRoute(route: string, siblings: readonly ActionItem[]): boolean {
@@ -227,5 +225,25 @@ export class TchSidebarNav {
 
   private activeComparableUrl(): string {
     return this.currentUrl().split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
+  }
+
+  private queryParamsMatch(item: ActionItem): boolean {
+    const expected = actionQueryParams(item);
+    if (!expected) {
+      return Object.keys(this.activeQueryParams()).length === 0;
+    }
+    const current = this.activeQueryParams();
+    return Object.entries(expected).every(([key, value]) => current[key] === value)
+      && Object.keys(current).every(key => expected[key] !== undefined);
+  }
+
+  private activeQueryParams(): Record<string, string> {
+    const tree = this.router.parseUrl(this.currentUrl());
+    const params: Record<string, string> = {};
+    for (const [key, value] of Object.entries(tree.queryParams)) {
+      if (value == null) continue;
+      params[key] = String(value);
+    }
+    return params;
   }
 }

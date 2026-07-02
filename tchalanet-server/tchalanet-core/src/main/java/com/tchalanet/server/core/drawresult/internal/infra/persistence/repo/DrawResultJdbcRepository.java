@@ -98,7 +98,7 @@ public class DrawResultJdbcRepository {
         var sql = """
             select
               dr.id,
-              rs.key,
+              rs.slot_key,
               dr.result_date,
               dr.occurred_at,
               dr.status,
@@ -187,7 +187,7 @@ public class DrawResultJdbcRepository {
         Instant occurredAt
     ) {
         var rows = jdbc.query(
-            projectionSql("rs.key = ? and dr.occurred_at = ?"),
+            projectionSql("rs.slot_key = ? and dr.occurred_at = ?"),
             this::mapProjection,
             slotKey,
             Timestamp.from(occurredAt)

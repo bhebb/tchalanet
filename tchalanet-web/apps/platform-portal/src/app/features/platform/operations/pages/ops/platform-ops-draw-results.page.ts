@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -17,6 +18,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
+import { AuthSessionService } from '@tch/core/auth';
 import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -52,6 +54,19 @@ const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string 
   { value: 'INVALID', label: 'Invalide' },
 ];
 
+const DRAW_RESULT_COLUMNS = [
+  'lottery',
+  'slotKey',
+  'occurredAt',
+  'haiti',
+  'status',
+  'source',
+  'quality',
+  'fetchedAt',
+] as const;
+
+const DRAW_RESULT_ACTION_COLUMNS = [...DRAW_RESULT_COLUMNS, 'actions'] as const;
+
 @Component({
   selector: 'tch-platform-ops-draw-results-page',
   standalone: true,
@@ -82,8 +97,12 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly auth = inject(AuthSessionService);
 
-  readonly displayedColumns = ['lottery', 'slotKey', 'occurredAt', 'haiti', 'status', 'source', 'quality', 'fetchedAt', 'actions'];
+  readonly canManageResults = computed(() => this.auth.hasRole('SUPER_ADMIN'));
+  readonly displayedColumns = computed<readonly string[]>(() =>
+    this.canManageResults() ? DRAW_RESULT_ACTION_COLUMNS : DRAW_RESULT_COLUMNS,
+  );
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionFeedback = signal<ErrorViewModel | null>(null);

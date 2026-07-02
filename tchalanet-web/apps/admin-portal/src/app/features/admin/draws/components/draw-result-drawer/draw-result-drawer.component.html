@@ -78,7 +78,11 @@
         }
         <p class="drd-source-error__hint">
           La source automatique n'a pas pu récupérer le résultat.
-          Vous pouvez saisir le résultat manuellement ci-dessous.
+          @if (canEdit()) {
+            Vous pouvez saisir le résultat manuellement ci-dessous.
+          } @else {
+            {{ unavailableReason() || "La saisie manuelle n'est pas encore disponible." }}
+          }
         </p>
       </div>
     }
@@ -109,6 +113,12 @@
 
     <!-- ── CAS A/D : Saisie / Modification ───────────────────────────── -->
     @if (isEditing()) {
+      @if (!canEdit()) {
+        <div class="drd-notice drd-notice--locked">
+          <span class="material-symbols-outlined">lock_clock</span>
+          <p>{{ unavailableReason() || "La saisie manuelle n'est pas encore disponible pour ce tirage." }}</p>
+        </div>
+      }
 
       @if (isModifying() && draw().numbers?.length) {
         <div class="drd-previous">
@@ -222,19 +232,19 @@
     }
 
     <!-- Success state -->
-    @if (state() === 'success') {
+    @if (saveState() === 'success') {
       <div class="drd-success">
         <span class="material-symbols-outlined drd-success__icon">check_circle</span>
-        <p class="drd-success__msg">{{ successMessage() }}</p>
+        <p class="drd-success__msg">{{ saveMessage() }}</p>
         <p class="drd-success__hint">Vous pouvez fermer ce panneau.</p>
       </div>
     }
 
     <!-- Error state -->
-    @if (state() === 'error') {
+    @if (saveState() === 'error') {
       <div class="drd-err-msg">
         <span class="material-symbols-outlined">error</span>
-        <p>{{ errorMessage() }}</p>
+        <p>{{ saveMessage() }}</p>
       </div>
     }
 
@@ -242,29 +252,33 @@
 
   <!-- ── Sticky footer ──────────────────────────────────────────────────── -->
   <footer class="drd-footer">
-    @if (state() === 'saving') {
+    @if (saveState() === 'saving') {
       <p class="drd-footer__saving">
         <span class="material-symbols-outlined drd-footer__spin">progress_activity</span>
         Enregistrement en cours…
       </p>
-    } @else if (state() === 'success') {
+    } @else if (saveState() === 'success') {
       <button mat-flat-button color="primary" (click)="onClose()">Fermer</button>
     } @else {
 
       @if (isEditing()) {
         <button mat-button (click)="onClose()">Annuler</button>
         <div class="drd-footer__right">
-          <button mat-stroked-button (click)="onSave('provisional')">
-            Enregistrer provisoire
-          </button>
-          <button mat-flat-button color="primary" (click)="onSave('confirmed')">
-            Confirmer et publier
-          </button>
+          @if (canSaveProvisional() || canOverrideResult()) {
+            <button mat-stroked-button [disabled]="!canEdit()" (click)="onSave('provisional')">
+              Enregistrer provisoire
+            </button>
+          }
+          @if (canSaveConfirmed() || canOverrideResult()) {
+            <button mat-flat-button color="primary" [disabled]="!canEdit()" (click)="onSave('confirmed')">
+              Confirmer et publier
+            </button>
+          }
         </div>
       }
 
       @if (isLecture()) {
-        @if (isProvisional()) {
+        @if (isProvisional() && canSaveConfirmed()) {
           <button mat-button (click)="onClose()">Fermer</button>
           <div class="drd-footer__right">
             <button mat-stroked-button (click)="onModify()">Modifier</button>
@@ -275,9 +289,11 @@
         } @else {
           <div class="drd-footer__right">
             <button mat-stroked-button (click)="onClose()">Fermer</button>
-            <button mat-flat-button color="primary" (click)="onModify()">
-              Modifier le résultat
-            </button>
+            @if (canOverrideResult()) {
+              <button mat-flat-button color="primary" (click)="onModify()">
+                Modifier le résultat
+              </button>
+            }
           </div>
         }
       }
@@ -288,9 +304,11 @@
           <button mat-stroked-button disabled title="Bientôt disponible">
             Réessayer la vérification
           </button>
-          <button mat-flat-button color="primary" (click)="onEnterManually()">
-            Saisir manuellement
-          </button>
+          @if (canEdit()) {
+            <button mat-flat-button color="primary" (click)="onEnterManually()">
+              Saisir manuellement
+            </button>
+          }
         </div>
       }
 

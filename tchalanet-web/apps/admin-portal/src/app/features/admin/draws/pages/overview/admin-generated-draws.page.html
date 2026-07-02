@@ -108,10 +108,13 @@
             (viewResult)="onViewResult($event)"
             (viewDetails)="onViewDetails($event)"
             (verifySource)="onVerifySource($event)"
+            (openDraw)="onOpenDraw($event)"
+            (closeDraw)="onCloseDraw($event)"
             (lockDraw)="onLockDraw($event)"
             (unlockDraw)="onUnlockDraw($event)"
             (cancelDraw)="onCancelDraw($event)"
             (archiveDraw)="onArchiveDraw($event)"
+            (bulkLifecycle)="onBulkLifecycle($event)"
             (nextPage)="onNextPage()"
             (prevPage)="onPrevPage()"
           />
@@ -125,7 +128,13 @@
 @if (selectedDraw(); as draw) {
   <tch-draw-result-drawer
     [draw]="draw"
+    [canSaveProvisional]="canSaveProvisionalResult(draw)"
+    [canSaveConfirmed]="canSaveConfirmedResult(draw)"
+    [canOverrideResult]="canOverrideResult(draw)"
+    [unavailableReason]="resultUnavailableReason(draw)"
+    [saveState]="resultSaveState()"
+    [saveMessage]="resultSaveMessage()"
     (closed)="onDrawerClosed()"
-    (resultSaved)="onResultSaved($event)"
+    (saveRequested)="onResultSaveRequested($event)"
   />
 }

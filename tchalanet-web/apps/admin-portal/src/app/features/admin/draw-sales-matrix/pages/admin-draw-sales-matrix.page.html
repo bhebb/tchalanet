@@ -1,4 +1,4 @@
-<tch-admin-page-shell title="Matrice tirages" description="Configuration des jeux par canal — visibilité, activation et état de vente.">
+<tch-admin-page-shell title="Jeux par canal" description="Vérifiez quels jeux sont actifs sur chaque canal et configurez les mises avant la vente.">
   <div actions>
     <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
@@ -23,11 +23,11 @@
       <div class="dsm-kpis">
         <div class="dsm-kpi">
           <span class="dsm-kpi__value">{{ s.saleReadyChannelGameCount }}</span>
-          <span class="dsm-kpi__label">Prêt à vendre</span>
+          <span class="dsm-kpi__label">Prêts à vendre</span>
         </div>
         <div class="dsm-kpi">
           <span class="dsm-kpi__value">{{ s.offeredChannelGameCount }}</span>
-          <span class="dsm-kpi__label">Offerts</span>
+          <span class="dsm-kpi__label">Jeux offerts</span>
         </div>
         <div class="dsm-kpi">
           <span class="dsm-kpi__value">{{ s.activeChannelCount }} / {{ s.configuredChannelCount }}</span>
@@ -35,7 +35,7 @@
         </div>
         <div class="dsm-kpi">
           <span class="dsm-kpi__value">{{ s.supportedTenantGameCount }}</span>
-          <span class="dsm-kpi__label">Jeux supportés</span>
+          <span class="dsm-kpi__label">Jeux disponibles</span>
         </div>
         @if (s.missingStakeConfigCount > 0) {
           <div class="dsm-kpi dsm-kpi--warn">
@@ -65,17 +65,23 @@
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title class="dsm-slot-header">
-                  <tch-admin-status-pill
-                    [tone]="slotStatusTone(slot)"
-                    [label]="slot.slotReady ? 'Prêt' : (slot.channel ? 'Incomplet' : 'Non configuré')"
-                  />
-                  <span class="dsm-slot-header__key"><code>{{ slot.slotKey }}</code></span>
-                  <span class="dsm-slot-header__time">{{ slot.resultSlot.drawTime ?? '—' }}</span>
-                  @if (!slot.channel) {
-                    <span class="dsm-badge dsm-badge--neutral">Canal manquant</span>
-                  } @else if (!slot.channel.active) {
-                    <span class="dsm-badge dsm-badge--warn">Canal inactif</span>
-                  }
+                  <span class="dsm-slot-header__main">
+                    <strong>{{ slotTitle(slot) }}</strong>
+                    <span>{{ channelLabel(slot) }} · {{ activeOfferedCount(slot) }} jeu(x) actif(s) sur {{ offeredCount(slot) }} offert(s)</span>
+                  </span>
+                  <span class="dsm-slot-header__meta">
+                    <tch-admin-status-pill
+                      [tone]="slotStatusTone(slot)"
+                      [label]="slot.slotReady ? 'Prêt' : (slot.channel ? 'À vérifier' : 'Non configuré')"
+                    />
+                    <code>{{ slot.slotKey }}</code>
+                    <span>{{ slot.resultSlot.drawTime ?? '—' }}</span>
+                    @if (!slot.channel) {
+                      <span class="dsm-badge dsm-badge--neutral">Canal manquant</span>
+                    } @else if (!slot.channel.active) {
+                      <span class="dsm-badge dsm-badge--warn">Canal inactif</span>
+                    }
+                  </span>
                 </mat-panel-title>
               </mat-expansion-panel-header>
 
@@ -83,9 +89,13 @@
               @if (slot.channel; as ch) {
                 <div class="dsm-channel-info">
                   <span class="material-symbols-outlined">router</span>
-                  <span>Canal : <strong>{{ ch.channelCode }}</strong></span>
-                  <span>Ouverture : {{ ch.salesOpenTime ?? '—' }}</span>
-                  <span>Cutoff : {{ ch.cutoffSec }}s</span>
+                  <span class="dsm-channel-info__title">Canal <strong>{{ ch.channelCode }}</strong></span>
+                  <span>Ouverture vente : {{ ch.salesOpenTime ?? '—' }}</span>
+                  <span>Cutoff : {{ ch.cutoffSec }}s avant le tirage</span>
+                  <span>{{ activeOfferedCount(slot) }} jeu(x) actif(s)</span>
+                  @if (availableCount(slot) > 0) {
+                    <span>{{ availableCount(slot) }} jeu(x) disponible(s) à ajouter</span>
+                  }
                   @if (ch.dependsOnChannelId) {
                     <span class="dsm-badge dsm-badge--neutral">Dépend d'un autre canal</span>
                   }
@@ -95,20 +105,24 @@
               <!-- Games offered -->
               @if (slot.games | offeredGames; as offered) {
                 @if (offered.length > 0) {
-                  <p class="dsm-section-label">Jeux offerts</p>
+                  <p class="dsm-section-label">Jeux activés ou offerts sur ce canal</p>
                   <div class="dsm-games">
                     @for (game of offered; track game.gameCode) {
                       <div class="dsm-game" [class.dsm-game--ready]="game.saleReady" [class.dsm-game--disabled]="!game.enabledOnChannel">
                         <div class="dsm-game__header">
                           <tch-admin-status-pill [tone]="gameStatusTone(game)" [label]="gameStatusLabel(game)" />
-                          <strong>{{ game.gameCode }}</strong>
-                          @if (game.displayName) { <span class="dsm-game__name">{{ game.displayName }}</span> }
+                          <strong>{{ gameLabel(game) }}</strong>
+                          <span class="dsm-game__name">{{ gameCodeLabel(game) }}</span>
                         </div>
                         <div class="dsm-game__meta">
-                          @if (game.minStake !== null) {
-                            <span>Mise : {{ game.minStake }} – {{ game.maxStake }}</span>
+                          @if (game.minStake !== null && game.maxStake !== null) {
+                            <span>Mises autorisées : {{ game.minStake }} à {{ game.maxStake }} HTG</span>
+                          } @else if (game.minStake !== null) {
+                            <span>Mise minimum : {{ game.minStake }} HTG</span>
+                          } @else if (game.maxStake !== null) {
+                            <span>Mise maximum : {{ game.maxStake }} HTG</span>
                           } @else {
-                            <span class="dsm-badge dsm-badge--warn">Mise non config.</span>
+                            <span class="dsm-badge dsm-badge--warn">Mises à configurer</span>
                           }
                           @if (!game.limits.configured) {
                             <span class="dsm-badge dsm-badge--warn">Limites manquantes</span>
@@ -129,7 +143,7 @@
                                 >
                                   {{ severityIcon(w) }}
                                 </span>
-                                <code>{{ w.code }}</code>
+                                <span>{{ warningLabel(w) }}</span>
                               </li>
                             }
                           </ul>
@@ -151,23 +165,42 @@
                             />
                           }
                           <div class="dsm-game__actions">
+                            @if (isMaryajGratis(game)) {
+                              <a
+                                mat-stroked-button
+                                class="dsm-game__btn"
+                                routerLink="/app/admin/maryaj-gratis"
+                                fragment="game"
+                            >
+                              Configurer Maryaj gratis
+                            </a>
+                          } @else {
+                            <button
+                              mat-stroked-button
+                              class="dsm-game__btn"
+                              (click)="configureGame(game)"
+                            >
+                              <mat-icon>tune</mat-icon>
+                              Configurer les mises
+                            </button>
                             <button
                               mat-stroked-button
                               class="dsm-game__btn"
                               [disabled]="isActing(slot.channel.drawChannelId.value, game.tenantGameId.value)"
-                              (click)="toggleGame(slot, game)"
-                            >
-                              {{ game.enabledOnChannel ? 'Désactiver' : 'Activer' }}
-                            </button>
-                            <button
-                              mat-icon-button
-                              class="dsm-game__btn-remove"
-                              [disabled]="isActing(slot.channel.drawChannelId.value, game.tenantGameId.value)"
-                              (click)="removeGame(slot, game)"
-                              title="Retirer du canal"
-                            >
-                              <mat-icon>remove_circle_outline</mat-icon>
-                            </button>
+                                (click)="toggleGame(slot, game)"
+                              >
+                                {{ game.enabledOnChannel ? 'Désactiver' : 'Activer' }}
+                              </button>
+                              <button
+                                mat-icon-button
+                                class="dsm-game__btn-remove"
+                                [disabled]="isActing(slot.channel.drawChannelId.value, game.tenantGameId.value)"
+                                (click)="removeGame(slot, game)"
+                                title="Retirer du canal"
+                              >
+                                <mat-icon>remove_circle_outline</mat-icon>
+                              </button>
+                            }
                           </div>
                         }
                       </div>
@@ -180,13 +213,20 @@
               @if (slot.channel) {
                 @if (slot.games | availableGames; as available) {
                   @if (available.length > 0) {
-                    <p class="dsm-section-label dsm-section-label--secondary">Jeux disponibles à ajouter</p>
+                    <p class="dsm-section-label dsm-section-label--secondary">Jeux disponibles à ajouter sur ce canal</p>
                     <div class="dsm-games dsm-games--available">
                       @for (game of available; track game.gameCode) {
                         <div class="dsm-game dsm-game--available">
                           <div class="dsm-game__header">
-                            <strong>{{ game.gameCode }}</strong>
-                            @if (game.displayName) { <span class="dsm-game__name">{{ game.displayName }}</span> }
+                            <strong>{{ gameLabel(game) }}</strong>
+                            <span class="dsm-game__name">{{ gameCodeLabel(game) }}</span>
+                          </div>
+                          <div class="dsm-game__meta">
+                            @if (game.minStake !== null && game.maxStake !== null) {
+                              <span>Mises autorisées : {{ game.minStake }} à {{ game.maxStake }} HTG</span>
+                            } @else {
+                              <span class="dsm-badge dsm-badge--warn">Mises à configurer</span>
+                            }
                           </div>
                           @if (actionError(slot.channel.drawChannelId.value, game.tenantGameId.value); as err) {
                             <tch-section-error
@@ -204,16 +244,35 @@
                             />
                           }
                           <div class="dsm-game__actions">
-                            <button
-                              mat-flat-button
-                              color="primary"
-                              class="dsm-game__btn"
-                              [disabled]="isActing(slot.channel.drawChannelId.value, game.tenantGameId.value)"
-                              (click)="offerGame(slot, game)"
+                            @if (isMaryajGratis(game)) {
+                              <a
+                                mat-stroked-button
+                                class="dsm-game__btn"
+                                routerLink="/app/admin/maryaj-gratis"
+                                fragment="game"
                             >
-                              <mat-icon>add</mat-icon>
-                              Ajouter
-                            </button>
+                              Configurer Maryaj gratis
+                            </a>
+                            } @else {
+                              <button
+                                mat-stroked-button
+                                class="dsm-game__btn"
+                                (click)="configureGame(game)"
+                              >
+                                <mat-icon>tune</mat-icon>
+                                Configurer les mises
+                              </button>
+                              <button
+                                mat-flat-button
+                                color="primary"
+                                class="dsm-game__btn"
+                                [disabled]="isActing(slot.channel.drawChannelId.value, game.tenantGameId.value)"
+                                (click)="offerGame(slot, game)"
+                              >
+                                <mat-icon>add</mat-icon>
+                                Ajouter
+                              </button>
+                            }
                           </div>
                         </div>
                       }

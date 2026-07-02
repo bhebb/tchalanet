@@ -29,21 +29,19 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         display: block;
         min-height: 100%;
         background: var(--tch-color-surface-container-low, #f4f4f8);
-        padding: 2rem;
+        padding: 1rem;
         box-sizing: border-box;
       }
 
       .page-shell__header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
       }
 
       .page-shell__title {
         margin: 0 0 0.25rem;
-        font-size: 2rem;
+        font-size: clamp(1.5rem, 6vw, 2rem);
         font-weight: 700;
         line-height: 1.25;
         color: var(--tch-color-on-surface, #1a1c1e);
@@ -59,8 +57,28 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       .page-shell__actions {
         display: flex;
         align-items: center;
+        justify-content: flex-start;
         gap: 0.5rem;
-        flex-shrink: 0;
+        flex-wrap: wrap;
+      }
+
+      @media (min-width: 760px) {
+        :host {
+          padding: 2rem;
+        }
+
+        .page-shell__header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+
+        .page-shell__actions {
+          justify-content: flex-end;
+          flex-shrink: 0;
+        }
       }
     `,
   ],

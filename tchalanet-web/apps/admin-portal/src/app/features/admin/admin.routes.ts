@@ -47,11 +47,17 @@ export const adminRoutes: Route[] = [
     loadChildren: () =>
       import('./draws/admin-generated-draws.routes').then(m => m.adminGeneratedDrawsRoutes),
   },
-  { path: 'draw-sales-matrix', redirectTo: 'draws/matrix', pathMatch: 'full' },
+  { path: 'draw-sales-matrix', redirectTo: 'games/channel-matrix', pathMatch: 'full' },
   {
     path: 'draw-channels',
     loadChildren: () =>
       import('./draw-channels/admin-draw-channels.routes').then(m => m.adminDrawChannelsRoutes),
+  },
+  // ── Jeux disponibles ─────────────────────────────────────────────────────
+  {
+    path: 'games',
+    loadChildren: () =>
+      import('./games-pricing/admin-games-pricing.routes').then(m => m.adminGamesPricingRoutes),
   },
   // ── Limites ────────────────────────────────────────────────────────────────
   {
@@ -61,11 +67,7 @@ export const adminRoutes: Route[] = [
   },
   { path: 'controls/limits', redirectTo: 'limits', pathMatch: 'full' },
   // ── Contrôles de vente ─────────────────────────────────────────────────────
-  {
-    path: 'controls/games',
-    loadChildren: () =>
-      import('./games-pricing/admin-games-pricing.routes').then(m => m.adminGamesPricingRoutes),
-  },
+  { path: 'controls/games', redirectTo: 'games', pathMatch: 'full' },
   {
     path: 'controls/gains',
     loadComponent: () =>
@@ -138,6 +140,19 @@ export const adminRoutes: Route[] = [
   { path: 'reports/export', redirectTo: 'reports/exports', pathMatch: 'full' },
   // ── Tickets ────────────────────────────────────────────────────────────────
   {
+    path: 'tickets/verify',
+    loadComponent: () =>
+      import('../pos/sale/pages/verify/pos-ticket-verify.page').then(m => m.PosTicketVerifyPage),
+    data: { titleKey: 'nav.admin.tickets_verify', icon: 'verified' },
+  },
+  {
+    path: 'tickets/:ticketId',
+    loadComponent: () =>
+      import('../pos/sale/pages/ticket-detail/pos-ticket-detail.page').then(
+        m => m.PosTicketDetailPage,
+      ),
+  },
+  {
     path: 'tickets',
     loadComponent: () =>
       import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
@@ -146,12 +161,6 @@ export const adminRoutes: Route[] = [
     path: 'tickets/sell',
     loadComponent: () =>
       import('./pages/support/admin-sell-ticket.page').then(m => m.AdminSellTicketPage),
-  },
-  {
-    path: 'tickets/verify',
-    loadComponent: () =>
-      import('./pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
-    data: { titleKey: 'nav.admin.tickets_verify', icon: 'verified' },
   },
   { path: 'support/tickets', redirectTo: 'tickets', pathMatch: 'full' },
   { path: 'support/sell', redirectTo: 'tickets/sell', pathMatch: 'full' },
@@ -211,16 +220,7 @@ export const adminRoutes: Route[] = [
     path: 'users',
     loadComponent: () => import('./pages/users/admin-users.page').then(m => m.AdminUsersPage),
   },
-  {
-    path: 'games',
-    loadComponent: () =>
-      import('./pages/games/admin-games.page').then(m => m.AdminGamesPage),
-  },
-  {
-    path: 'games-pricing',
-    loadChildren: () =>
-      import('./games-pricing/admin-games-pricing.routes').then(m => m.adminGamesPricingRoutes),
-  },
+  { path: 'games-pricing', redirectTo: 'games', pathMatch: 'full' },
   {
     path: 'business-days',
     loadComponent: () =>
@@ -233,8 +233,8 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'draw-results',
-    loadComponent: () =>
-      import('./pages/draw-results/admin-draw-results.page').then(m => m.AdminDrawResultsPage),
+    redirectTo: 'draws/results',
+    pathMatch: 'full',
   },
   {
     path: 'payouts',

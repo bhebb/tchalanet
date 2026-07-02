@@ -4,7 +4,6 @@ import {
   ElementRef,
   OnInit,
   computed,
-  inject,
   input,
   output,
   signal,
@@ -15,7 +14,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-import { AdminGeneratedDrawsApiService } from '../../data-access/admin-generated-draws-api.service';
 import {
   DrawResultSaveMode,
   GeneratedDrawView,
@@ -24,7 +22,7 @@ import {
 import { GeneratedDrawStatusBadgeComponent } from '../generated-draw-status-badge/generated-draw-status-badge.component';
 
 export type DrawerMode = 'saisie' | 'lecture' | 'source-error' | 'modification';
-type DrawerState = 'ready' | 'saving' | 'success' | 'error';
+export type DrawResultDrawerState = 'ready' | 'saving' | 'success' | 'error';
 
 const TZ_ABBREV: Record<string, string> = {
   'America/New_York':   'EDT',
@@ -53,16 +51,17 @@ const SALES_LABELS: Record<string, string> = {
   styleUrls: ['./draw-result-drawer.component.scss'],
 })
 export class DrawResultDrawerComponent implements OnInit {
-  private readonly api = inject(AdminGeneratedDrawsApiService);
-
   readonly draw = input.required<GeneratedDrawView>();
+  readonly canSaveProvisional = input<boolean>(false);
+  readonly canSaveConfirmed = input<boolean>(false);
+  readonly canOverrideResult = input<boolean>(false);
+  readonly unavailableReason = input<string | null>(null);
+  readonly saveState = input<DrawResultDrawerState>('ready');
+  readonly saveMessage = input<string | null>(null);
   readonly closed = output<void>();
-  readonly resultSaved = output<GeneratedDrawView>();
+  readonly saveRequested = output<SaveDrawResultRequest>();
 
   readonly mode  = signal<DrawerMode>('saisie');
-  readonly state = signal<DrawerState>('ready');
-  readonly successMessage = signal<string | null>(null);
-  readonly errorMessage   = signal<string | null>(null);
 
   readonly n2Ref = viewChild<ElementRef<HTMLInputElement>>('n2Input');
   readonly n3Ref = viewChild<ElementRef<HTMLInputElement>>('n3Input');
@@ -79,6 +78,9 @@ export class DrawResultDrawerComponent implements OnInit {
   readonly isSourceError = computed(() => this.mode() === 'source-error');
   readonly isModifying  = computed(() => this.mode() === 'modification');
   readonly isEditing    = computed(() => this.isSaisie() || this.isModifying());
+  readonly canEdit       = computed(() =>
+    this.canSaveProvisional() || this.canSaveConfirmed() || this.canOverrideResult(),
+  );
 
   readonly noteRequired = computed(() => this.mode() === 'modification' || this.mode() === 'source-error');
 
@@ -117,23 +119,30 @@ export class DrawResultDrawerComponent implements OnInit {
       this.form.disable();
     } else if (d.resultStatus === 'SOURCE_ERROR') {
       this.mode.set('source-error');
+      if (!this.canEdit()) this.form.disable();
     } else {
       this.mode.set('saisie');
+      if (!this.canEdit()) this.form.disable();
     }
   }
 
   onModify(): void {
+    if (!this.canOverrideResult() && !this.canSaveConfirmed()) return;
     this.mode.set('modification');
     this.form.enable();
   }
 
   onEnterManually(): void {
+    if (!this.canEdit()) return;
     this.mode.set('saisie');
     this.form.reset();
     this.form.enable();
   }
 
   onSave(saveMode: DrawResultSaveMode): void {
+    if (saveMode === 'provisional' && !this.canSaveProvisional() && !this.canOverrideResult()) return;
+    if (saveMode === 'confirmed' && !this.canSaveConfirmed() && !this.canOverrideResult()) return;
+
     this.form.markAllAsTouched();
 
     const noteVal = (this.form.value.note ?? '').trim();
@@ -151,26 +160,10 @@ export class DrawResultDrawerComponent implements OnInit {
       numbers: [v.n1!, v.n2!, v.n3!],
       note: noteVal,
       mode: saveMode,
+      force: this.isModifying() && this.canOverrideResult(),
     };
 
-    this.state.set('saving');
-    this.errorMessage.set(null);
-
-    this.api.saveDrawResult(req).subscribe({
-      next: updated => {
-        this.state.set('success');
-        this.successMessage.set(
-          saveMode === 'confirmed'
-            ? 'Résultat confirmé et publié.'
-            : 'Résultat enregistré en provisoire.',
-        );
-        this.resultSaved.emit(updated);
-      },
-      error: () => {
-        this.state.set('error');
-        this.errorMessage.set('Impossible d\'enregistrer le résultat.');
-      },
-    });
+    this.saveRequested.emit(req);
   }
 
   onClose(): void { this.closed.emit(); }

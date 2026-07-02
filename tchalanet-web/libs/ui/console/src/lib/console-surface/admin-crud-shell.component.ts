@@ -30,6 +30,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
         align-items: center;
         gap: 0.75rem;
         flex-wrap: wrap;
+        min-width: 0;
       }
 
       .crud-shell__content {
@@ -39,15 +40,23 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
       .crud-shell__footer {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 0.75rem;
         padding-top: 0.75rem;
         border-top: 1px solid var(--tch-color-outline-variant, #c8c5d0);
+        min-width: 0;
+        overflow-x: auto;
       }
 
       .crud-shell__footer:empty {
         display: none;
+      }
+
+      @media (min-width: 760px) {
+        .crud-shell__footer {
+          align-items: center;
+        }
       }
     `,
   ],

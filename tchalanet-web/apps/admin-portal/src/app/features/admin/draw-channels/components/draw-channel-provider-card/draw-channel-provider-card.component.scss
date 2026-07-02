@@ -33,8 +33,9 @@
   &__avatar {
     width: 3.25rem;
     height: 3.25rem;
-    background: var(--tch-color-primary-container, #141545);
-    color: var(--tch-color-on-primary-container, #c1c2fc);
+    background: var(--tch-color-surface-container-lowest, #ffffff);
+    color: var(--tch-color-primary, #141545);
+    border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
     border-radius: var(--tch-radius-lg, 0.75rem);
     display: flex;
     align-items: center;
@@ -43,6 +44,12 @@
     font-weight: 800;
     flex-shrink: 0;
     letter-spacing: 0;
+  }
+
+  &__avatar-image {
+    max-width: 2.5rem;
+    max-height: 2.5rem;
+    object-fit: contain;
   }
 
   &--unavailable &__avatar {

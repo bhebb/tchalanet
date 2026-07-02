@@ -186,23 +186,23 @@
               {
                 "id": "draws-open",
                 "label_key": "nav.admin.draws_open",
-                "path": "/app/admin/draws?status=open",
+                "path": "/app/admin/draws?status=OPEN",
                 "kind": "internal",
                 "icon": "event_available"
               },
               {
                 "id": "draws-past",
                 "label_key": "nav.admin.draws_past",
-                "path": "/app/admin/draws?status=past",
+                "path": "/app/admin/draws?status=PAST",
                 "kind": "internal",
                 "icon": "history"
               },
               {
-                "id": "draws-matrix",
-                "label_key": "nav.admin.draws_matrix",
-                "path": "/app/admin/draws/matrix",
+                "id": "draws-results",
+                "label_key": "nav.admin.draws_results",
+                "path": "/app/admin/draws/results",
                 "kind": "internal",
-                "icon": "grid_view"
+                "icon": "fact_check"
               },
               {
                 "id": "draws-channels",
@@ -210,6 +210,30 @@
                 "path": "/app/admin/draws/channels",
                 "kind": "internal",
                 "icon": "settings"
+              }
+            ]
+          },
+          {
+            "id": "games",
+            "label_key": "nav.admin.games_available",
+            "path": "/app/admin/games",
+            "kind": "internal",
+            "icon": "casino",
+            "children": [
+              {
+                "id": "games-overview",
+                "label_key": "nav.admin.games_overview",
+                "path": "/app/admin/games",
+                "kind": "internal",
+                "icon": "dashboard",
+                "active_match": "exact"
+              },
+              {
+                "id": "games-channel-matrix",
+                "label_key": "nav.admin.games_channel_matrix",
+                "path": "/app/admin/games/channel-matrix",
+                "kind": "internal",
+                "icon": "grid_view"
               }
             ]
           },
@@ -262,13 +286,6 @@
             "label_key": "nav.admin.controls_sale",
             "icon": "tune",
             "children": [
-              {
-                "id": "controls-games",
-                "label_key": "nav.admin.controls_games",
-                "path": "/app/admin/controls/games",
-                "kind": "internal",
-                "icon": "casino"
-              },
               {
                 "id": "controls-gains",
                 "label_key": "nav.admin.controls_gains",
