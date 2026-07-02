@@ -21,10 +21,11 @@
 
   Frontend:
 
-  - `WEB_ARCHITECTURE.md`
+  - `docs/ARCHITECTURE.md` (web)
+  - `docs/conventions/feature-playbook.md` — archétypes d'écrans console + table des briques
   - `docs/conventions/style.md`
-  - `docs/conventions/theme-convention.md`
-  - `docs/conventions/web-naming.md`
+  - `docs/conventions/theme.md`
+  - `docs/conventions/naming.md`
   - PageModel/runtime shell docs if the screen depends on shell or navigation
 
   Backend/API:

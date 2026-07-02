@@ -14,6 +14,8 @@ Status: ACTIVE draft. Use this skill for `tchalanet-web` screen work: create, re
 Before coding, load the applicable project docs and the full guide when the task is implementation or review of a real screen:
 
 - `docs/ARCHITECTURE.md`
+- `docs/conventions/feature-playbook.md` — **premier arrêt pour tout écran console** (archétypes liste/détail/création/édition/drawer/config, squelettes, table des briques)
+- `docs/conventions/error-management.md`
 - `docs/conventions/style.md`
 - `docs/conventions/theme.md`
 - `docs/conventions/access.md`
@@ -30,6 +32,18 @@ Before coding, load the applicable project docs and the full guide when the task
 - [references/admin-page-patterns.md](references/admin-page-patterns.md) — patterns opérationnels par type de page (création, liste, actions confirmées), pièges récurrents, décisions retenues
 
 If a referenced document is missing, say so briefly and continue from the closest available project convention.
+
+## Angular Baseline
+
+Use the modern signal-first APIs for every new component (baseline in
+`docs/conventions/feature-playbook.md` §1.9). For the how-to of each API, load the matching
+reference from the `angular-developer` skill (`../angular-developer/references/`):
+
+- new form → `signal-forms.md` (Signal Forms is the default for new forms; ReactiveForms stays for existing code)
+- local/derived state → `signals-overview.md`, `linked-signal.md`
+- component IO → `inputs.md`, `outputs.md`
+- DI → `di-fundamentals.md` (`inject()` only)
+- avoid `effect()` unless nothing else fits → `effects.md`
 
 ## Golden Flow
 

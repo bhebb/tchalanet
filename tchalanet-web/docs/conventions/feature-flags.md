@@ -36,7 +36,7 @@ add an `UnleashFeatureFlags implements FeatureFlags` and rebind the token. Done.
 libs/shared-config/src/lib/feature/   // FeatureFlags seam + impl
 ```
 
-The structural directive and route guard live in `core/runtime`:
+The structural directive and route guard live in the same lib (`libs/shared-config/src/lib/feature/`):
 
 ```text
 *tchFeature="'web.public.demo_enabled'"          // show/hide content

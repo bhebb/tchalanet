@@ -28,16 +28,21 @@ Active libs:
 
 ```text
 libs/api
+libs/core/auth
+libs/core/i18n
+libs/page-model
+libs/widgets
 libs/shared-config
 libs/ui/components
+libs/ui/console
 libs/ui/styles
 libs/ui/theme
-apps/<portal>/src/app/core
+libs/web/errors
+libs/web/shell
 apps/<portal>/src/app/features
-libs/api/src/lib/contracts
 ```
 
-Target libs such as `shared-auth`, `shared-i18n`, `page-model`, `widgets`, and `web` are extraction targets, not mandatory placement today.
+La carte complète des briques (rôle + statut) est dans `../ARCHITECTURE.md` §4.
 
 Rule:
 

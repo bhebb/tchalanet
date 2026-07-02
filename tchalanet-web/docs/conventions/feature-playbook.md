@@ -5,6 +5,8 @@
 > **But** : créer un écran sans réinventer. Choisis l'archétype, copie le squelette, utilise les
 > briques listées. Si tu dois styler autre chose que des briques, c'est une brique manquante —
 > elle va dans `libs/ui/console`, pas dans la page.
+> **Pièges bas niveau** (content-projection SCSS, overlay de soumission, rail sticky) :
+> `.agents/skills/tchalanet-screen-realization/references/admin-page-patterns.md`.
 
 ---
 
@@ -75,6 +77,24 @@ Invariants :
    };
    ```
 8. Icônes : `<span class="material-symbols-outlined" aria-hidden="true">…</span>`.
+9. **Baseline Angular moderne** (Angular 22) — tout nouveau composant utilise les APIs signal-first.
+   Le détail de chaque API est dans les références de la skill `angular-developer`
+   (`.agents/skills/angular-developer/references/`) :
+
+   | API | Usage | Référence |
+   | --- | ----- | --------- |
+   | `input()` / `output()` / `model()` | Toujours — jamais `@Input`/`@Output` décorateurs | `inputs.md`, `outputs.md` |
+   | `signal()` / `computed()` | État local et dérivé | `signals-overview.md` |
+   | `linkedSignal()` | État dérivé mais réinitialisable (ex. sélection qui reset quand la liste change) | `linked-signal.md` |
+   | `viewChild()` / `contentChild()` | Requêtes de vue signal-based — jamais `@ViewChild` décorateur | `components.md` |
+   | `inject()` | Toujours — pas d'injection par constructeur | `di-fundamentals.md` |
+   | `@if` / `@for` / `@switch` / `@defer` | Control flow natif — jamais `*ngIf`/`*ngFor` | `components.md` |
+   | **Signal Forms** (`@angular/forms/signals`) | **Défaut pour tout nouveau formulaire** (précédent : `tch-login.page.ts`) | `signal-forms.md` |
+   | `ReactiveFormsModule` | Accepté pour l'existant (65 fichiers) et les cas non couverts par signal forms ; migration opportuniste | `reactive-forms.md` |
+   | `resource()` / RxJS interop | Pour le chargement, garder le pattern projet (`Subject` + `switchMap` + `takeUntilDestroyed`, §2) — ne pas introduire `resource()`/`httpResource` sans décision | `resource.md` |
+   | `effect()` | Dernier recours — préférer `computed()`/`linkedSignal()` | `effects.md` |
+
+   Toujours : `standalone: true` + `ChangeDetectionStrategy.OnPush`.
 
 ---
 
@@ -199,8 +219,11 @@ le formulaire dépasse 3–4 champs.
 Règles :
 
 - Un groupe de champs = une `tch-admin-section-card` (`title`, `icon`, `description`).
-- **Double validation** : validators Angular (`mat-error`) + erreurs serveur par champ
-  (`tch-field-error` alimenté depuis le `ProblemDetail`).
+- **Nouveau formulaire = Signal Forms** (`@angular/forms/signals`, cf. §1.9) ; les squelettes
+  ci-dessus montrent l'existant en ReactiveForms — adapter (`form()`, `[control]`) pour les
+  nouvelles pages. Référence code : `libs/core/auth/src/lib/login/tch-login.page.ts`.
+- **Double validation** : validators (schéma signal forms ou validators Angular/`mat-error`) +
+  erreurs serveur par champ (`tch-field-error` alimenté depuis le `ProblemDetail`).
 - Submit : `saving = signal(false)`, bouton désactivé + label « en cours » pendant l'appel.
 - Après succès : **état de succès dans la page** (pas de redirect sec) avec les actions suivantes.
 - Colonne d'aperçu live à droite : optionnelle, recommandée pour les entités « visuelles ».

@@ -1,7 +1,9 @@
 # Auth Convention
 
-> Status: DRAFT v0.1  
+> Status: DRAFT v0.1
 > Scope: identity providers, application session, guards, auth headers
+> Flow détaillé (topologie 3 apps, LoginPage, restauration de session, interceptor, logout) :
+> [`../auth-flow.md`](../auth-flow.md) — ce fichier-ci ne porte que les règles.
 
 ## Rule
 

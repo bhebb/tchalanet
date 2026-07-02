@@ -15,46 +15,63 @@ Canonical local docs:
 - `CLAUDE.md`
 - `openspec/`
 - `libs/**/README.md`
-- `libs/ui/widget-renderer/README.md`
 
 ## Architecture and conventions
 
 Architecture overview (read when adding features, new libs, or touching shell/routing):
 
-- `docs/ARCHITECTURE.md` — app structure, PageModel contract, lib boundaries
+- `docs/ARCHITECTURE.md` — deux paradigmes (PageModel public / Console privé), carte des briques
+  avec statut, chantiers actifs C1–C6, règles non négociables
 - `docs/dependencies.md` — lib dependency graph and allowed import directions
 
-Conventions (load the relevant file for your task — do not load all):
+**Créer/modifier un écran console (admin/platform) : commence TOUJOURS par
+`docs/conventions/feature-playbook.md`** — archétypes liste/détail/création/édition/drawer/config,
+squelettes copiables, table de décision des briques.
 
-| Task area | Load |
+Conventions par sujet (load the relevant file for your task — do not load all):
+
+| Tu travailles sur… | Lis |
 |---|---|
-| Creating/moving files or components | `docs/conventions/placement-guide.md` |
+| Un écran console : liste, détail, création, édition, drawer | `docs/conventions/feature-playbook.md` |
+| APIs Angular modernes (signals, signal forms, control flow, DI) | playbook §1.9 (baseline) + skill `angular-developer` — références par sujet dans `.agents/skills/angular-developer/references/` (`signal-forms.md`, `signals-overview.md`, `linked-signal.md`, `inputs.md`, `outputs.md`…) |
+| Style, SCSS, tokens CSS `--tch-*`/`--comp-*` (public + consoles) | `docs/conventions/style.md` + `docs/conventions/theme.md` |
+| Composants : lequel utiliser, où le créer | `feature-playbook.md` §8 (table des briques) + `docs/conventions/placement-guide.md` |
+| Le moteur de page public (PageModel, widgets) | `docs/conventions/pagemodel.md` |
+| State/store (signals dans la page, quand extraire un store) | `docs/conventions/state-management.md` |
+| i18n : clés, bundles, TranslatePipe (obligatoire partout) | `docs/conventions/i18n.md` |
+| Erreurs : error-panel/section-error/notice/field-error, ProblemDetail | `docs/conventions/error-management.md` + `feature-playbook.md` §1.5 |
+| HTTP, backend client, headers | `docs/conventions/http-api.md` |
+| Organisation dossiers/fichiers d'une feature | `docs/conventions/structure.md` |
 | Naming files, classes, selectors | `docs/conventions/naming.md` |
-| Adding a feature (route, page, service) | `docs/conventions/feature-playbook.md` |
-| Feature folder structure (pages/components/data-access) | `docs/conventions/feature-structure.md` |
-| HTTP calls, backend client, errors | `docs/conventions/http-api.md` |
-| Styles, CSS tokens, SCSS | `docs/conventions/style.md` + `docs/conventions/theme.md` |
-| i18n keys and translation files | `docs/conventions/i18n.md` |
-| Auth, guards, session | `docs/conventions/auth.md` |
+| Placement (dans quelle lib va ce code) | `docs/conventions/placement-guide.md` |
+| Auth : règles (guards, session, headers) | `docs/conventions/auth.md` |
+| Auth : flow détaillé (login, restore, interceptor, logout) | `docs/auth-flow.md` |
 | Access gating (`*tchCan`, `can` pipe) | `docs/conventions/access.md` |
 | Entitlements | `docs/conventions/entitlements.md` |
 | Feature flags | `docs/conventions/feature-flags.md` |
 | Nx lib boundaries | `docs/conventions/nx-boundaries.md` |
-| State (signals, NgRx) | `docs/conventions/state-management.md` |
-| PageModel / widget renderer | `docs/conventions/pagemodel.md` |
 | Runtime settings | `docs/conventions/settings.md` |
 
 Full index: `docs/conventions/README.md`
 
 ## Key libs
 
-- `@tch/api` — `TchBackendClient`, `NavigationSection`, `ActionItem`, contracts
-- `@tch/ui/components` — `TchCard`, `TchEmptyState`, `TchStatusBadge`, `TchLoading`, `TchSidebarNav`, …
+- `@tch/ui/console` — **design system des consoles** : `tch-admin-page-shell` (racine de toute
+  page), `tch-admin-section-card`, `tch-admin-detail-layout` (main/aside), `tch-admin-crud-shell`,
+  `tch-admin-empty-state`, `tch-identity-card`
+- `@tch/ui/components` — primitives transverses : `TchLoading`, `TchErrorPanel`, `TchSectionError`,
+  `TchNotice`, `TchFieldError`, `TchStatusBadge`, `TchConfirmDialog`, `TchActionButton`,
+  `AdminListSurface`, … (le dossier `admin-crud/` hors `admin-list-surface` est deprecated — ne pas utiliser)
+- `@tch/api` — `TchBackendClient`, `ActionItem`, `ProblemDetail`, contrats génériques
+  (les services API métier restent dans `features/<feature>/data-access/`)
+- `@tch/web/errors` — mapping erreurs : `webAppErrorFromProblemDetail`,
+  `resolveErrorFeedbackCopy`, `toErrorViewModel`
 - `@tch/ui/styles` — SCSS mixins and design token helpers
-- `@tch/ui/theme` — Material 3 theme pipeline
-- `@tch/page-model` — `PageModel`, `WidgetDef`, `VerificationStatus`, …
-- `@tch/web` — `NotFoundPage`, shared app-level pieces
-- `libs/widgets/` — widget components rendered by the widget renderer
+- `@tch/ui/theme` — Material 3 theme pipeline, tokens `--tch-*`
+- `@tch/page-model` — moteur de rendu public : contrats runtime, renderer, `WidgetHost`
+- `@tch/widgets` — widgets concrets rendus par PageModel
+- `@tch/web/shell` — primitives shell public/privé
+- `@tch/web` (façade racine) — mort, 0 usage, ne rien y ajouter (suppression planifiée)
 
 OpenSpec:
 

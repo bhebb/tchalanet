@@ -1,8 +1,8 @@
 # Web Style Convention — Tchalanet
 
-> **Status**: ACTIVE v0.1
-> **Scope**: Angular SCSS, component styles, layout styles, shared style primitives
-> **Related**: `theme-convention.md`, `web-naming.md`, `WEB_ARCHITECTURE.md`
+> **Status**: ACTIVE v0.2
+> **Scope**: Angular SCSS, component styles, layout styles, shared style primitives — toutes surfaces (public + consoles)
+> **Related**: `theme.md`, `naming.md`, `../ARCHITECTURE.md`
 > **Rule**: update this document in the same commit as any code that changes a style rule here.
 
 ---
@@ -23,7 +23,7 @@ It covers:
 * Material override placement.
 
 It does **not** define runtime theme selection.
-Runtime theme rules live in `theme-convention.md`.
+Runtime theme rules live in `theme.md`.
 
 ---
 
@@ -727,7 +727,26 @@ libs/ui/theme/src/scss/
 
 ---
 
-## 19. Anti-patterns
+## 19. Spécificités pages publiques
+
+Les règles ci-dessus s'appliquent partout. Les pages publiques (`public-portal`, widgets
+PageModel, public shell) ajoutent :
+
+* **portabilité des widgets** : un widget est stylé par ses classes propres, jamais par sa
+  position dans la page ; il doit pouvoir être rendu dans une autre page sans casser son style
+  (variantes stables via payload/type, pas via sélecteur parent) ;
+* **multi-mode obligatoire** : chaque page/widget public doit fonctionner en `light`, `dark`
+  et `system` — pas de constantes couleur dark-mode locales, pas d'inversion manuelle ;
+* **multi-preset** : vérifier le rendu sur le preset `tchalanet` et, si disponible, sur un
+  autre preset Material ;
+* **pas de `::ng-deep`** dans les pages publiques (tolérance zéro, vs « discouraged » ailleurs).
+
+Validation visuelle d'une page publique : mobile/desktop × light/dark, états loading/empty/error,
+rendu sans données optionnelles.
+
+---
+
+## 20. Anti-patterns
 
 Do not:
 
@@ -745,7 +764,7 @@ Do not:
 
 ---
 
-## 20. PR checklist
+## 21. PR checklist
 
 Before merging style changes:
 
@@ -758,4 +777,4 @@ Before merging style changes:
 * [ ] Focus-visible state exists for interactive elements.
 * [ ] Material overrides are not hidden in feature styles.
 * [ ] No new global utility without documentation.
-* [ ] Theme rules were not duplicated from `theme-convention.md`.
+* [ ] Theme rules were not duplicated from `theme.md`.
