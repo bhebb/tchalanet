@@ -64,7 +64,7 @@ describe('AdminSectionErrorTargetDirective', () => {
       .query(By.directive(AdminSectionCardComponent))
       .injector.get(AdminSectionCardComponent);
 
-    directive.errors = [
+    directive.tchSectionErrors = [
       {
         target: 'dashboard.readiness',
         severity: 'error',

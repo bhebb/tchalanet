@@ -5,7 +5,8 @@ import {
   HttpParams,
   HttpResponse,
 } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, ResourceRef, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -30,10 +31,17 @@ type ResolvedOptions = {
   context?: HttpContext;
 };
 
+/** Requête déclarative pour les factories de resources (`getResource`/`getPageResource`). */
+export interface TchResourceRequest {
+  readonly path: string;
+  readonly options?: TchRequestOptions;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TchBackendClient {
   private readonly http = inject(HttpClient);
   private readonly base = inject(TCH_API_BASE);
+  private readonly injector = inject(Injector);
 
   private url(path: string): string {
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
@@ -126,6 +134,40 @@ export class TchBackendClient {
     return this.http
       .delete<ApiResponse<TResponse>>(this.url(path), this.resolve(options))
       .pipe(map(unwrapApiResponse));
+  }
+
+  /**
+   * Resource de lecture GET — seul point de création de resources backend
+   * (les features n'instancient jamais `rxResource`/`httpResource` elles-mêmes).
+   *
+   * `request()` est réactif : tout signal lu dedans redéclenche le chargement en
+   * annulant la requête précédente. Renvoyer `undefined` laisse le resource `idle`
+   * (chargement lazy — onglet non visité, paramètre manquant).
+   */
+  getResource<T>(request: () => TchResourceRequest | undefined): ResourceRef<T | undefined> {
+    return rxResource<T, TchResourceRequest | undefined>({
+      injector: this.injector,
+      params: () => request(),
+      // le runtime ne déclenche pas le stream quand params est undefined (lazy)
+      stream: ({ params }) => {
+        const req = params as TchResourceRequest;
+        return this.get<T>(req.path, req.options);
+      },
+    });
+  }
+
+  /** Comme {@link getResource}, pour les listes paginées `TchPage<T>`. */
+  getPageResource<T>(
+    request: () => TchResourceRequest | undefined,
+  ): ResourceRef<TchPage<T> | undefined> {
+    return rxResource<TchPage<T>, TchResourceRequest | undefined>({
+      injector: this.injector,
+      params: () => request(),
+      stream: ({ params }) => {
+        const req = params as TchResourceRequest;
+        return this.getPage<T>(req.path, req.options);
+      },
+    });
   }
 
   getApiResponse<T>(path: string, options?: TchRequestOptions): Observable<ApiResponse<T>> {

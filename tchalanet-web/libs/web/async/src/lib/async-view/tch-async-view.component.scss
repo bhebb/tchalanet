@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+.tch-async-view__body {
+  position: relative;
+}
+
+.tch-async-view__body--reloading {
+  opacity: 0.85;
+  transition: opacity 150ms ease;
+}
+
+.tch-async-view__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--tch-color-surface-container-high, #e6e6ee);
+  z-index: 1;
+}
+
+.tch-async-view__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--tch-color-accent, var(--tch-color-primary, #4750c8));
+  animation: tch-async-view-bar 1.2s ease-in-out infinite;
+}
+
+.tch-async-view__trace {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--tch-color-on-surface-variant, #46464f);
+  word-break: break-all;
+}
+
+.tch-async-view__stale-error {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes tch-async-view-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
