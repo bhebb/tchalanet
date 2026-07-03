@@ -1,3 +1,7 @@
+export * from './lib/draws/console-draws-table.component';
+export * from './lib/draws/console-draws-table.models';
 export * from './lib/draw-lifecycle/console-draw-lifecycle-api.service';
 export * from './lib/draw-lifecycle/console-draw-lifecycle.models';
 export * from './lib/draw-results/console-draw-result-access';
+export * from './lib/draw-results/console-draw-results-table.component';
+export * from './lib/draw-results/console-draw-results-table.models';

@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
@@ -18,10 +17,12 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
+import { AdminStatusTone } from '@tch/ui/console';
 import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
+  ConsoleDrawResultActionEvent,
+  ConsoleDrawResultRow,
+  ConsoleDrawResultsTableComponent,
+} from '@tch/web/console';
 import {
   AdminDrawResultsApi,
   DrawResultView,
@@ -44,17 +45,15 @@ import {
     AdminEmptyStateComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
-    AdminStatusPillComponent,
+    ConsoleDrawResultsTableComponent,
     TchLoading,
     TchErrorPanel,
-    RouterLink,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatTableModule,
   ],
   templateUrl: './admin-draw-results.page.html',
   styleUrls: ['./admin-draw-results.page.scss'],
@@ -63,8 +62,7 @@ export class AdminDrawResultsPage implements OnInit {
   private readonly api = inject(AdminDrawResultsApi);
   private readonly translate = inject(TranslateService);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
-
-  readonly columns = ['draw', 'numbers', 'status', 'quality', 'fetchedAt', 'appliedAt', 'source'];
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
@@ -81,6 +79,9 @@ export class AdminDrawResultsPage implements OnInit {
   readonly toFilter = signal('');
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
+  readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
+    (this.page()?.items ?? []).map(row => this.toConsoleRow(row)),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -151,6 +152,12 @@ export class AdminDrawResultsPage implements OnInit {
     this.toFilter.set('');
     this.pageIndex.set(0);
     this.load();
+  }
+
+  onResultAction(event: ConsoleDrawResultActionEvent): void {
+    if (event.action.id === 'detail') {
+      void this.router.navigate(['/app/admin/draws/results', event.row.id]);
+    }
   }
 
   statusTone(status: DrawResultStatus): AdminStatusTone {
@@ -356,6 +363,36 @@ export class AdminDrawResultsPage implements OnInit {
       title: this.translate.instant('common.errors.fallback.title'),
       message: this.translate.instant('common.errors.fallback.message'),
       severity: 'error',
+    };
+  }
+
+  private toConsoleRow(row: DrawResultView): ConsoleDrawResultRow {
+    const drawDate = this.resultDrawDate(row);
+    const occurredTime = row.occurredAt ? this.resultDrawTime(row) : null;
+    return {
+      id: row.id,
+      title: this.drawTitle(row),
+      subtitle: this.slotCode(row),
+      meta: occurredTime ? `${drawDate} · ${occurredTime}` : drawDate,
+      logoUrl: this.providerLogo(row),
+      logoAlt: this.providerLabel(row),
+      slotKey: this.slotCode(row),
+      numbers: this.resultNumbers(row),
+      statusLabel: this.statusLabel(row.status),
+      statusTone: this.statusTone(row.status),
+      qualityLabel: this.qualityLabel(row.quality),
+      qualityTone: this.qualityTone(row.quality),
+      sourceLabel: this.sourceLabel(row),
+      fetchedAtLabel: this.tenantTimestamp(row.fetchedAt),
+      appliedAtLabel: row.appliedAt ? this.tenantTimestamp(row.appliedAt) : undefined,
+      actions: [
+        {
+          id: 'detail',
+          label: 'Voir détail',
+          icon: 'open_in_new',
+          variant: 'button',
+        },
+      ],
     };
   }
 }

@@ -6,16 +6,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -27,7 +23,14 @@ import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { AdminStatusTone } from '@tch/ui/console';
+import {
+  ConsoleDrawActionEvent,
+  ConsoleDrawRow,
+  ConsoleDrawSelectionEvent,
+  ConsoleDrawsTableComponent,
+  ConsoleRowAction,
+} from '@tch/web/console';
 import {
   PlatformOpsApi,
   DrawView,
@@ -140,24 +143,20 @@ const DRAW_ACTION_LABELS: Record<string, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
-    AdminStatusPillComponent,
+    ConsoleDrawsTableComponent,
     TchErrorPanel,
     TchLoading,
     TchSearchSelect,
     TchSectionError,
     MatButtonModule,
-    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatMenuModule,
     MatSelectModule,
-    MatTableModule,
     MatTooltipModule,
   ],
   templateUrl: './platform-ops-draws.page.html',
@@ -169,7 +168,6 @@ export class PlatformOpsDrawsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = ['select', 'drawDate', 'channel', 'slot', 'status', 'scheduledAt', 'lastResult', 'actions'];
   readonly statusOptions = STATUS_OPTIONS;
 
   readonly loading = signal(false);
@@ -193,6 +191,9 @@ export class PlatformOpsDrawsPage implements OnInit {
   readonly commonBulkActions = computed(() => this.resolveCommonBulkActions(this.selectedDraws()));
   readonly bulkSelectionMessage = computed(() => this.resolveBulkSelectionMessage(this.selectedDraws()));
   readonly maxBulkDrawActions = MAX_BULK_DRAW_ACTIONS;
+  readonly drawRows = computed<readonly ConsoleDrawRow[]>(() =>
+    this.draws().map(draw => this.toConsoleDrawRow(draw)),
+  );
 
   toneForStatus = toneForStatus;
   actionsForDraw = actionsForDraw;
@@ -293,6 +294,11 @@ export class PlatformOpsDrawsPage implements OnInit {
     if (checked) next.add(draw.id);
     else next.delete(draw.id);
     this.selectedIds.set(next);
+  }
+
+  onDrawSelection(event: ConsoleDrawSelectionEvent): void {
+    const draw = this.draws().find(row => row.id === event.row.id);
+    if (draw) this.toggleDraw(draw, event.selected);
   }
 
   allPageSelected(): boolean {
@@ -504,6 +510,12 @@ export class PlatformOpsDrawsPage implements OnInit {
     }
   }
 
+  onDrawAction(event: ConsoleDrawActionEvent): void {
+    const draw = this.draws().find(row => row.id === event.row.id);
+    if (!draw) return;
+    this.openRowAction(draw, { kind: event.action.id } as DrawActionItem);
+  }
+
   private openAndReload(component: unknown, data: unknown, width: string): void {
     const ref = this.dialog.open(component as Parameters<MatDialog['open']>[0], { data, width });
     ref.afterClosed().subscribe((done: boolean | null) => {
@@ -526,6 +538,46 @@ export class PlatformOpsDrawsPage implements OnInit {
 
   lotteryAsset(slotKey: string): string | null {
     return lotteryAssetForSlot(slotKey);
+  }
+
+  private toConsoleDrawRow(draw: DrawView): ConsoleDrawRow {
+    return {
+      id: draw.id,
+      groupLabel: draw.drawDate,
+      title: draw.channel.name,
+      subtitle: draw.slot.key,
+      meta: draw.channel.code,
+      logoUrl: this.lotteryAsset(draw.slot.key),
+      logoAlt: draw.slot.label ?? draw.slot.key,
+      scheduledDateLabel: draw.drawDate,
+      scheduledTimeLabel: draw.scheduledAt,
+      statusLabel: draw.status,
+      statusTone: this.toneForStatus(draw.status),
+      resultLabel: draw.lastResult?.status,
+      resultTone: draw.lastResult ? this.toneForStatus(draw.lastResult.status) : 'neutral',
+      resultNumbers: this.resultNumbers(draw),
+      modeLabel: draw.active ? 'Actif' : 'Inactif',
+      publicationLabel: undefined,
+      actions: actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
+    };
+  }
+
+  private toConsoleDrawAction(action: DrawActionItem): ConsoleRowAction {
+    return {
+      id: action.kind,
+      label: this.actionLabel(action.kind),
+      icon: this.actionIcon(action.kind),
+      tone: action.kind === 'cancel' ? 'danger' : 'default',
+      variant: 'icon',
+    };
+  }
+
+  private resultNumbers(draw: DrawView): string[] {
+    const result = draw.lastResult;
+    if (!result) return [];
+    return [result.lot1, result.lot2, result.lot3, result.lot4]
+      .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
+      .filter(Boolean);
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

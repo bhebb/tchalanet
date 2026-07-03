@@ -1,7 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import {
+  ConsoleDrawActionEvent,
+  ConsoleDrawRow,
+  ConsoleDrawSelectionEvent,
+  ConsoleDrawsTableComponent,
+  ConsoleRowAction,
+} from '@tch/web/console';
 import {
   DrawLifecycleAction,
   GeneratedDrawGroup,
@@ -12,7 +18,6 @@ import {
   generatedDrawProviderAndTenantTimeLabel,
   generatedDrawTenantDateTimeLabel,
 } from '../../data-access/admin-generated-draws.models';
-import { GeneratedDrawStatusBadgeComponent } from '../generated-draw-status-badge/generated-draw-status-badge.component';
 import { lotteryLogoForSlot } from '../../../../../shared/lottery/lottery-assets';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 
@@ -20,7 +25,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
   selector: 'tch-generated-draws-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, GeneratedDrawStatusBadgeComponent],
+  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule],
   templateUrl: './generated-draws-table.component.html',
   styleUrls: ['./generated-draws-table.component.scss'],
 })
@@ -77,6 +82,11 @@ export class GeneratedDrawsTableComponent {
       rest.every(draw => this.lifecycleActions(draw).includes(action)),
     );
   });
+  readonly drawRows = computed<readonly ConsoleDrawRow[]>(() =>
+    this.groups().flatMap(group =>
+      group.draws.map(draw => this.toConsoleDrawRow(draw, this.groupDateLabel(group.date))),
+    ),
+  );
 
   get hasPrev(): boolean { return this.page() > 0; }
   get hasNext(): boolean { return (this.page() + 1) * this.pageSize() < this.totalElements(); }
@@ -197,6 +207,36 @@ export class GeneratedDrawsTableComponent {
     }
   }
 
+  onRowAction(event: ConsoleDrawActionEvent): void {
+    const draw = this.findDraw(event.row.id);
+    if (!draw) return;
+
+    if (event.action.id.startsWith('lifecycle:')) {
+      this.onLifecycleAction(draw, event.action.id.slice('lifecycle:'.length) as DrawLifecycleAction);
+      return;
+    }
+
+    switch (event.action.id) {
+      case 'enterResult':
+        this.enterResult.emit(draw);
+        break;
+      case 'viewResult':
+        this.viewResult.emit(draw);
+        break;
+      case 'verifySource':
+        this.verifySource.emit(draw);
+        break;
+      case 'viewDetails':
+        this.viewDetails.emit(draw);
+        break;
+    }
+  }
+
+  onRowSelection(event: ConsoleDrawSelectionEvent): void {
+    const draw = this.findDraw(event.row.id);
+    if (draw) this.toggleSelection(draw, event.selected);
+  }
+
   isPending(draw: GeneratedDrawView): boolean {
     return this.pendingIds().has(draw.drawId);
   }
@@ -238,5 +278,104 @@ export class GeneratedDrawsTableComponent {
     const scheduledAt = generatedDrawDateTimeToEpochMs(draw.scheduledAt, draw.timezone);
     if (scheduledAt == null) return false;
     return Date.now() >= scheduledAt + 30 * 60 * 1000;
+  }
+
+  private findDraw(drawId: string): GeneratedDrawView | null {
+    return this.groups()
+      .flatMap(group => group.draws)
+      .find(draw => draw.drawId === drawId) ?? null;
+  }
+
+  private toConsoleDrawRow(draw: GeneratedDrawView, groupLabel: string): ConsoleDrawRow {
+    return {
+      id: draw.drawId,
+      groupLabel,
+      title: draw.label,
+      subtitle: `${draw.slotLabel} · ${draw.slotKey}`,
+      meta: draw.providerLabel,
+      logoUrl: this.providerLogo(draw),
+      logoAlt: draw.providerLabel,
+      scheduledDateLabel: this.scheduledDate(draw),
+      scheduledTimeLabel: this.scheduledTime(draw),
+      countdownLabel: this.salesCountdown(draw),
+      countdownTone: this.isClosingSoon(draw) ? 'warning' : 'default',
+      statusLabel: draw.salesStatus,
+      statusTone: this.salesTone(draw.salesStatus),
+      resultLabel: draw.resultStatus,
+      resultTone: this.resultTone(draw.resultStatus),
+      resultNumbers: draw.numbers?.map(n => String(n)) ?? [],
+      resultHint: this.resultHint(draw),
+      modeLabel: draw.resultMode,
+      publicationLabel: draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED'
+        ? draw.publicationStatus
+        : undefined,
+      publicationTone: draw.publicationStatus ? this.publicationTone(draw.publicationStatus) : 'neutral',
+      pending: this.isPending(draw),
+      actions: this.consoleActions(draw),
+    };
+  }
+
+  private consoleActions(draw: GeneratedDrawView): readonly ConsoleRowAction[] {
+    const actions: ConsoleRowAction[] = [this.primaryAction(draw)];
+    for (const action of this.lifecycleActions(draw)) {
+      actions.push({
+        id: `lifecycle:${action}`,
+        label: this.lifecycleLabel(action),
+        icon: this.lifecycleIcon(action),
+        tone: action === 'cancel' ? 'danger' : 'default',
+        variant: 'icon',
+      });
+    }
+    return actions;
+  }
+
+  private primaryAction(draw: GeneratedDrawView): ConsoleRowAction {
+    switch (draw.resultStatus) {
+      case 'MISSING':
+        return this.canEnterManualResult(draw)
+          ? { id: 'enterResult', label: 'Saisir résultat', icon: 'edit_note', tone: 'primary' }
+          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+      case 'CONFIRMED':
+        return { id: 'viewResult', label: 'Voir résultat', icon: 'fact_check' };
+      case 'SOURCE_ERROR':
+        return this.canEnterManualResult(draw)
+          ? { id: 'verifySource', label: 'Vérifier', icon: 'warning', tone: 'danger' }
+          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+      default:
+        return { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+    }
+  }
+
+  private resultHint(draw: GeneratedDrawView): string | undefined {
+    if (draw.sourceError) return this.sourceErrorAtLabel(draw);
+    if (draw.fetchedAt) return `Récupéré ${this.fetchedAtLabel(draw)}`;
+    return undefined;
+  }
+
+  private salesTone(status: string) {
+    switch (status) {
+      case 'OPEN': return 'success';
+      case 'LOCKED': return 'warning';
+      case 'CANCELLED': return 'danger';
+      default: return 'neutral';
+    }
+  }
+
+  private resultTone(status: string) {
+    switch (status) {
+      case 'CONFIRMED': return 'success';
+      case 'PROVISIONAL': return 'warning';
+      case 'MISSING':
+      case 'SOURCE_ERROR': return 'danger';
+      default: return 'neutral';
+    }
+  }
+
+  private publicationTone(status: string) {
+    switch (status) {
+      case 'PUBLISHED': return 'success';
+      case 'PROVISIONAL': return 'warning';
+      default: return 'neutral';
+    }
   }
 }

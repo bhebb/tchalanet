@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -27,7 +25,11 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  ConsoleDrawResultActionEvent,
+  ConsoleDrawResultRow,
+  ConsoleDrawResultsTableComponent,
+} from '@tch/web/console';
 import {
   PlatformOpsApi,
   DrawResultOpsResponse,
@@ -38,7 +40,6 @@ import { FetchResultsDialog } from '../../components/dialogs/fetch-results.dialo
 import { ManualResultDialog } from '../../components/dialogs/manual-result.dialog';
 import { OverrideResultDialog } from '../../components/dialogs/override-result.dialog';
 import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-assets';
-import { HaitiLotsDisplayComponent } from '../../../../../shared/results/haiti-lots-display.component';
 
 const RESULT_STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
@@ -55,30 +56,16 @@ const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string 
   { value: 'INVALID', label: 'Invalide' },
 ];
 
-const DRAW_RESULT_COLUMNS = [
-  'lottery',
-  'slotKey',
-  'occurredAt',
-  'haiti',
-  'status',
-  'source',
-  'quality',
-  'fetchedAt',
-] as const;
-
-const DRAW_RESULT_ACTION_COLUMNS = [...DRAW_RESULT_COLUMNS, 'actions'] as const;
-
 @Component({
   selector: 'tch-platform-ops-draw-results-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
-    AdminStatusPillComponent,
+    ConsoleDrawResultsTableComponent,
     TchLoading,
     TchErrorPanel,
     TchSectionError,
@@ -88,8 +75,6 @@ const DRAW_RESULT_ACTION_COLUMNS = [...DRAW_RESULT_COLUMNS, 'actions'] as const;
     MatInputModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatTableModule,
-    HaitiLotsDisplayComponent,
   ],
   templateUrl: './platform-ops-draw-results.page.html',
   styleUrls: ['./platform-ops-draw-results.page.scss'],
@@ -112,9 +97,6 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));
   readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
-  readonly displayedColumns = computed<readonly string[]>(() =>
-    this.canManageResults() ? DRAW_RESULT_ACTION_COLUMNS : DRAW_RESULT_COLUMNS,
-  );
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionFeedback = signal<ErrorViewModel | null>(null);
@@ -135,6 +117,9 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   readonly toFilter = signal('');
   readonly statusOptions = RESULT_STATUS_OPTIONS;
   readonly qualityOptions = RESULT_QUALITY_OPTIONS;
+  readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
+    (this.page()?.items ?? []).map(row => this.toConsoleRow(row)),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -228,6 +213,19 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     });
   }
 
+  onResultAction(event: ConsoleDrawResultActionEvent): void {
+    const row = this.page()?.items.find(item => item.id === event.row.id);
+    if (!row) return;
+    switch (event.action.id) {
+      case 'confirm':
+        this.confirmResult(row);
+        break;
+      case 'override':
+        this.openOverride(row);
+        break;
+    }
+  }
+
   statusTone(status: string): 'success' | 'warning' | 'danger' | 'neutral' | 'info' {
     const map: Record<string, 'success' | 'warning' | 'danger' | 'neutral' | 'info'> = {
       CONFIRMED: 'success',
@@ -256,6 +254,54 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     const value = row.haitiResult;
     if (!value || typeof value !== 'object') return {};
     return value as HaitiLots;
+  }
+
+  private toConsoleRow(row: DrawResultOpsResponse): ConsoleDrawResultRow {
+    return {
+      id: row.id,
+      title: row.slotKey,
+      subtitle: row.slotKey,
+      meta: row.occurredAt,
+      logoUrl: this.lotteryAsset(row.slotKey),
+      logoAlt: row.slotKey,
+      slotKey: row.slotKey,
+      numbers: this.resultNumbers(row),
+      statusLabel: row.status,
+      statusTone: this.statusTone(row.status),
+      qualityLabel: row.quality,
+      qualityTone: this.qualityTone(row.quality),
+      sourceLabel: row.source || '—',
+      fetchedAtLabel: row.fetchedAt ?? '—',
+      actions: this.resultActions(row),
+    };
+  }
+
+  private resultActions(row: DrawResultOpsResponse) {
+    const actions = [];
+    if (this.canConfirmResults() && row.status === 'PROVISIONAL') {
+      actions.push({
+        id: 'confirm',
+        label: 'Confirmer',
+        icon: 'check_circle',
+        tone: 'primary' as const,
+      });
+    }
+    if (this.canOverrideResults()) {
+      actions.push({
+        id: 'override',
+        label: 'Override',
+        icon: 'edit',
+        variant: 'icon' as const,
+      });
+    }
+    return actions;
+  }
+
+  private resultNumbers(row: DrawResultOpsResponse): string[] {
+    const lots = this.haitiLots(row);
+    return [lots.lot1, lots.lot2, lots.lot3, lots.lot4]
+      .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
+      .filter(Boolean);
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
