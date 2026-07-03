@@ -357,6 +357,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'add_circle',
             destination: { kind: 'route', value: '/app/admin/sellers/new' },
           },
+          {
+            id: 'sellers-commissions',
+            labelKey: 'nav.admin.controls_commissions',
+            icon: 'percent',
+            destination: { kind: 'route', value: '/app/admin/sellers/commissions' },
+          },
         ],
       },
       {
@@ -459,26 +465,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         ],
       },
       {
-        id: 'controls',
-        labelKey: 'nav.admin.controls_sale',
-        icon: 'tune',
-        destination: { kind: 'route', value: '/app/admin/controls/gains' },
-        children: [
-          {
-            id: 'controls-gains',
-            labelKey: 'nav.admin.controls_gains',
-            icon: 'format_list_numbered',
-            destination: { kind: 'route', value: '/app/admin/controls/gains' },
-          },
-          {
-            id: 'controls-commissions',
-            labelKey: 'nav.admin.controls_commissions',
-            icon: 'percent',
-            destination: { kind: 'route', value: '/app/admin/controls/commissions' },
-          },
-        ],
-      },
-      {
         id: 'maryaj-gratis',
         labelKey: 'nav.admin.maryaj_free',
         icon: 'redeem',
@@ -545,6 +531,13 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         destination: { kind: 'route', value: '/app/admin/tickets' },
         children: [
           {
+            id: 'tickets-overview',
+            labelKey: 'nav.admin.tickets_overview',
+            icon: 'dashboard',
+            destination: { kind: 'route', value: '/app/admin/tickets/overview' },
+            activeMatch: 'exact',
+          },
+          {
             id: 'tickets-list',
             labelKey: 'nav.admin.tickets_list',
             icon: 'list',
@@ -556,12 +549,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.tickets_sell',
             icon: 'point_of_sale',
             destination: { kind: 'route', value: '/app/admin/tickets/sell' },
-          },
-          {
-            id: 'tickets-verify',
-            labelKey: 'nav.admin.tickets_verify',
-            icon: 'verified',
-            destination: { kind: 'route', value: '/app/admin/tickets/verify' },
           },
         ],
       },

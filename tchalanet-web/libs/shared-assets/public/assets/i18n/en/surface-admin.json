@@ -127,5 +127,82 @@
     "seller_terminals": "Seller-terminals",
     "language": "Language",
     "profile": "Profile"
+  },
+  "admin": {
+    "tickets": {
+      "common": {
+        "ticketCountSuffix": "tickets"
+      },
+      "status": {
+        "pendingApproval": "Pending approval",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled",
+        "voided": "Voided",
+        "unknown": "Unknown status"
+      },
+      "list": {
+        "title": "Tickets",
+        "description": "Tenant ticket history.",
+        "loading": "Loading tickets...",
+        "emptyTitle": "No tickets",
+        "emptyMessage": "No tickets matched these criteria.",
+        "filters": {
+          "code": "Code",
+          "status": "Status",
+          "allStatuses": "All",
+          "from": "From",
+          "to": "To",
+          "sort": "Sort"
+        },
+        "sort": {
+          "createdDesc": "Newest first",
+          "createdAsc": "Oldest first",
+          "amountDesc": "Amount descending",
+          "amountAsc": "Amount ascending",
+          "codeAsc": "Code A-Z",
+          "codeDesc": "Code Z-A"
+        },
+        "actions": {
+          "sell": "Sell ticket"
+        },
+        "columns": {
+          "code": "Code",
+          "status": "Status",
+          "channel": "Channel",
+          "draw": "Draw",
+          "amount": "Amount",
+          "placedAt": "Issued at"
+        }
+      },
+      "overview": {
+        "title": "Tickets Overview",
+        "description": "Operational summary for today's sales.",
+        "loading": "Loading overview...",
+        "kpisAria": "Today's ticket indicators",
+        "kpis": {
+          "soldTickets": "Tickets sold",
+          "grossSales": "Sales amount",
+          "averageTicket": "Average ticket",
+          "cancelled": "Cancelled"
+        },
+        "drawSales": {
+          "title": "Sales by draw today",
+          "emptyTitle": "No draw sales",
+          "emptyMessage": "Projected sales will appear here."
+        },
+        "recent": {
+          "title": "Latest sold tickets",
+          "viewAll": "View all tickets",
+          "emptyTitle": "No recent ticket",
+          "emptyMessage": "Latest sold tickets will appear here."
+        },
+        "topTerminals": {
+          "title": "Top selling terminals today",
+          "emptyTitle": "No active terminal",
+          "emptyMessage": "Terminals will appear here after analytics projection."
+        }
+      }
+    }
   }
 }

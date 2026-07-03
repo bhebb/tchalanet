@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
@@ -25,17 +26,14 @@ import {
   resourceErrorVm,
 } from '@tch/web/async';
 import { AdminTicketsApi, TicketRowView, TicketStatus } from '../../admin-tickets-api.service';
+import {
+  TICKET_STATUS_VALUES,
+  isTicketStatus,
+  ticketStatusLabelKey,
+  ticketStatusTone,
+} from '../../admin-ticket-status.util';
 
 const DEFAULT_PAGE_SIZE = 20;
-const STATUS_VALUES: readonly TicketStatus[] = [
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'REJECTED',
-  'CANCELLED',
-  'VOIDED',
-  'PAID',
-  'EXPIRED',
-];
 const SORT_VALUES = [
   'createdAt,DESC',
   'createdAt,ASC',
@@ -61,6 +59,7 @@ type TicketSort = typeof SORT_VALUES[number];
     TchPaginationComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TranslatePipe,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -77,13 +76,14 @@ export class AdminTicketsPage {
   private readonly router = inject(Router);
 
   readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt'];
-  readonly sortOptions: readonly { value: TicketSort; label: string }[] = [
-    { value: 'createdAt,DESC', label: 'Plus récents' },
-    { value: 'createdAt,ASC', label: 'Plus anciens' },
-    { value: 'totalAmount,DESC', label: 'Montant décroissant' },
-    { value: 'totalAmount,ASC', label: 'Montant croissant' },
-    { value: 'ticketCode,ASC', label: 'Code A-Z' },
-    { value: 'ticketCode,DESC', label: 'Code Z-A' },
+  readonly statusOptions = TICKET_STATUS_VALUES;
+  readonly sortOptions: readonly { value: TicketSort; labelKey: string }[] = [
+    { value: 'createdAt,DESC', labelKey: 'admin.tickets.list.sort.createdDesc' },
+    { value: 'createdAt,ASC', labelKey: 'admin.tickets.list.sort.createdAsc' },
+    { value: 'totalAmount,DESC', labelKey: 'admin.tickets.list.sort.amountDesc' },
+    { value: 'totalAmount,ASC', labelKey: 'admin.tickets.list.sort.amountAsc' },
+    { value: 'ticketCode,ASC', labelKey: 'admin.tickets.list.sort.codeAsc' },
+    { value: 'ticketCode,DESC', labelKey: 'admin.tickets.list.sort.codeDesc' },
   ];
 
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
@@ -159,16 +159,11 @@ export class AdminTicketsPage {
   }
 
   statusTone(status: TicketStatus): AdminStatusTone {
-    switch (status) {
-      case 'PENDING_APPROVAL': return 'warning';
-      case 'APPROVED': return 'success';
-      case 'PAID': return 'success';
-      case 'REJECTED': return 'danger';
-      case 'CANCELLED': return 'danger';
-      case 'VOIDED': return 'danger';
-      case 'EXPIRED': return 'warning';
-      default: return 'neutral';
-    }
+    return ticketStatusTone(status);
+  }
+
+  statusLabelKey(status: TicketStatus): string {
+    return ticketStatusLabelKey(status);
   }
 
   amountDisplay(cents: number): string {
@@ -190,10 +185,6 @@ export class AdminTicketsPage {
       queryParamsHandling: 'merge',
     });
   }
-}
-
-function isTicketStatus(value: string | null): value is TicketStatus {
-  return STATUS_VALUES.includes(value as TicketStatus);
 }
 
 function isTicketSort(value: string | null): value is TicketSort {
