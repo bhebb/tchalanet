@@ -21,11 +21,11 @@
 
 ## 3. Pilote overview
 
-- [ ] Migrer `admin/draws/pages/overview/admin-generated-draws.page` : resource paramétré URL + mutations lifecycle + drawer
-- [ ] Migrer les filtres locaux (datePreset/statusFilter/searchQuery) vers les query params standard (`q`, `status`, + préfixés) — plus aucun filtre en signal local
-- [ ] Remplacer le footer de pagination local par `tch-pagination`
-- [ ] Pending par ligne sur les actions draw ; reload après action (reloading : pas de blanchiment)
-- [ ] e2e draws existants verts
+- [x] Migrer `admin/draws/pages/overview/admin-generated-draws.page` : resource paramétré URL + mutations lifecycle + drawer (14 signals → 4)
+- [x] Migrer les filtres locaux (datePreset/statusFilter/searchQuery) vers les query params — plus aucun filtre en signal local
+- [~] Footer de pagination : conservé bespoke (table groupée par date) — déviation assumée ; prev/next pilotent l'URL. `tch-pagination` reste le standard des listes plates
+- [x] Pending par ligne sur les actions draw (input `[pendingIds]` de la table) ; reload après action
+- [x] Build dev + tests verts (pas d'e2e draws dédié dans le repo)
 
 ## 4. Codification
 
@@ -36,5 +36,5 @@
 - [x] Helpers URL partagés `@tch/web/async` (`numberParam`/`dateParam`/`textParam`/`enumParam`) + tests — dédup des 4 pages qui les recopiaient
 - [x] `state-management.md` §3.2 réécrite (resource par défaut, plus de Subject+switchMap)
 - [x] `AGENTS.md` : routage état async → `@tch/web/async` + Key libs
-- [ ] Adoption des helpers URL dans les pages existantes (draws, tickets, catalog×2) — fil de l'eau
-- [ ] `openspec validate --strict` puis archive du change (après merge des pilotes #214/#215)
+- [~] Adoption des helpers URL dans les pages existantes (draws, tickets, catalog×2) — suivi séparé (fil de l'eau), non bloquant pour l'archivage
+- [x] `openspec validate` OK ; archive du change (pilotes #214/#215/#216 mergés)
