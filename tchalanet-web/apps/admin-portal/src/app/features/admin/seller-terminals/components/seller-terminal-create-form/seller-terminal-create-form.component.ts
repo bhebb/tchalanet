@@ -11,11 +11,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchErrorPanel } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
+import {
+  ConsoleAddressFormSectionComponent,
+  ConsolePersonIdentityFormSectionComponent,
+} from '@tch/web/console';
 import { ErrorViewModel } from '@tch/web/errors';
 
 import { SellerTerminalCreateFormModel } from '../../pages/new/admin-seller-terminal-new.page';
-import { SellerTerminalAddressFormSectionComponent } from '../seller-terminal-address-form-section/seller-terminal-address-form-section.component';
-import { SellerTerminalIdentityFormSectionComponent } from '../seller-terminal-identity-form-section/seller-terminal-identity-form-section.component';
 import { SellerTerminalPreviewCardComponent } from '../seller-terminal-preview-card/seller-terminal-preview-card.component';
 
 @Component({
@@ -26,8 +28,8 @@ import { SellerTerminalPreviewCardComponent } from '../seller-terminal-preview-c
     RouterLink,
     FormField,
     AdminSectionCardComponent,
-    SellerTerminalAddressFormSectionComponent,
-    SellerTerminalIdentityFormSectionComponent,
+    ConsoleAddressFormSectionComponent,
+    ConsolePersonIdentityFormSectionComponent,
     SellerTerminalPreviewCardComponent,
     TchErrorPanel,
     TranslatePipe,

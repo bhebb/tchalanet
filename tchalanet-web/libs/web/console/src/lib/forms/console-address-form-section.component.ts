@@ -7,7 +7,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 
 @Component({
-  selector: 'tch-seller-terminal-address-form-section',
+  selector: 'tch-console-address-form-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -17,8 +17,13 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
     MatFormFieldModule,
     MatInputModule,
   ],
-  templateUrl: './seller-terminal-address-form-section.component.html',
+  templateUrl: './console-address-form-section.component.html',
+  styleUrls: ['./console-form-sections.scss'],
 })
-export class SellerTerminalAddressFormSectionComponent {
+export class ConsoleAddressFormSectionComponent {
   readonly form = input.required<any>();
+  readonly titleKey = input('component.console.address.title');
+  readonly descriptionKey = input<string | null>('component.console.address.description');
+  readonly icon = input('location_on');
+  readonly required = input(false);
 }

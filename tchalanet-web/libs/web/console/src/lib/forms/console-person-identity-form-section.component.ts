@@ -1,15 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminSectionCardComponent } from '@tch/ui/console';
 
 @Component({
-  selector: 'tch-seller-terminal-identity-form-section',
+  selector: 'tch-console-person-identity-form-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -17,13 +15,14 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
     AdminSectionCardComponent,
     TranslatePipe,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
-    MatTooltipModule,
   ],
-  templateUrl: './seller-terminal-identity-form-section.component.html',
+  templateUrl: './console-person-identity-form-section.component.html',
+  styleUrls: ['./console-form-sections.scss'],
 })
-export class SellerTerminalIdentityFormSectionComponent {
+export class ConsolePersonIdentityFormSectionComponent {
   readonly form = input.required<any>();
-  readonly regenerateCode = output<void>();
+  readonly titleKey = input('component.console.personIdentity.title');
+  readonly descriptionKey = input<string | null>('component.console.personIdentity.description');
+  readonly icon = input('badge');
 }

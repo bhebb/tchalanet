@@ -492,6 +492,8 @@
         "title": "New seller",
         "description": "Register a new point of sale on the network.",
         "section": {
+          "terminal": "Terminal",
+          "terminalDesc": "Code and label displayed for this point of sale.",
           "identity": "Identity",
           "identityDesc": "Seller identification information.",
           "address": "Address",

@@ -561,6 +561,8 @@
         "title": "Nouveau vendeur",
         "description": "Enregistrez un nouveau point de vente sur le réseau.",
         "section": {
+          "terminal": "Terminal",
+          "terminalDesc": "Code et libellé affichés pour ce point de vente.",
           "identity": "Identité",
           "identityDesc": "Informations d'identification du vendeur.",
           "address": "Adresse",

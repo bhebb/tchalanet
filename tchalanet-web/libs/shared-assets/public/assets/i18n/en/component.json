@@ -38,6 +38,39 @@
         "betTypeRequired": "Bet type is required.",
         "oddsMin": "Odds must be greater than 0."
       }
+    },
+    "personIdentity": {
+      "title": "Identity",
+      "description": "Identity and contact information.",
+      "field": {
+        "firstName": "First name (optional)",
+        "lastName": "Last name (optional)",
+        "email": "Email (optional)",
+        "phoneNumber": "Phone (optional)"
+      },
+      "placeholder": {
+        "email": "name@example.com",
+        "phoneNumber": "+509 XXXX XXXX"
+      }
+    },
+    "address": {
+      "title": "Address",
+      "description": "Physical address, when available.",
+      "field": {
+        "line1": "Street / Line 1",
+        "line2": "Apartment / Line 2 (optional)",
+        "city": "City",
+        "region": "Region / Department (optional)",
+        "country": "Country (ISO code)",
+        "postalCode": "Postal code (optional)"
+      },
+      "placeholder": {
+        "line1": "Ex: 12 Rue Pavee",
+        "line2": "Ex: Apt 3B",
+        "city": "Ex: Port-au-Prince",
+        "region": "Ex: Ouest",
+        "country": "HT"
+      }
     }
   },
   "layout": {

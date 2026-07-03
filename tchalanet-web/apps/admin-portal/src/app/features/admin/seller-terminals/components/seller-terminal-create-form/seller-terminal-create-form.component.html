@@ -4,12 +4,64 @@
       <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
     }
 
-    <tch-seller-terminal-identity-form-section
+    <tch-admin-section-card
+      [title]="'admin.sellerTerminals.new.section.terminal' | translate"
+      icon="point_of_sale"
+      [description]="'admin.sellerTerminals.new.section.terminalDesc' | translate"
+    >
+      <div class="seller-terminal-create-form__field-group">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.terminalCode' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().terminalCode"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.terminalCode' | translate"
+            autocomplete="off"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="regenerateCode.emit()"
+            [matTooltip]="'admin.sellerTerminals.new.action.regenerateCode' | translate"
+          >
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+          @if (form().terminalCode().touched() && form().terminalCode().invalid()) {
+            @for (error of form().terminalCode().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.terminalCodeRequired') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.displayName' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().displayName"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.displayName' | translate"
+            autocomplete="off"
+          />
+          @if (form().displayName().touched() && form().displayName().invalid()) {
+            @for (error of form().displayName().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.displayNameRequired') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+    </tch-admin-section-card>
+
+    <tch-console-person-identity-form-section
       [form]="form()"
-      (regenerateCode)="regenerateCode.emit()"
+      titleKey="admin.sellerTerminals.new.section.identity"
+      descriptionKey="admin.sellerTerminals.new.section.identityDesc"
     />
 
-    <tch-seller-terminal-address-form-section [form]="form()" />
+    <tch-console-address-form-section
+      [form]="form().address"
+      titleKey="admin.sellerTerminals.new.section.address"
+      descriptionKey="admin.sellerTerminals.new.section.addressDesc"
+    />
 
     <tch-admin-section-card
       [title]="'admin.sellerTerminals.new.section.access' | translate"

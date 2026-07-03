@@ -11,6 +11,8 @@ export * from './lib/draw-slots/console-draw-slot-identity.models';
 export * from './lib/entity-detail/console-entity-detail.component';
 export * from './lib/entity-detail/console-entity-detail.models';
 export * from './lib/entity-detail/console-facts.component';
+export * from './lib/forms/console-address-form-section.component';
+export * from './lib/forms/console-person-identity-form-section.component';
 export * from './lib/games/console-game-card.component';
 export * from './lib/games/console-game-display';
 export * from './lib/games/console-game-labels.pipe';
