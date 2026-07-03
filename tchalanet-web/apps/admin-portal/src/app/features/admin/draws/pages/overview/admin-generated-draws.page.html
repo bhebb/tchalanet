@@ -39,10 +39,21 @@
             @for (preset of datePresets; track preset.key) {
               <button
                 class="gd-page__chip"
-                [class.gd-page__chip--active]="datePreset() === preset.key"
+                [class.gd-page__chip--active]="!hasCustomDateRange() && datePreset() === preset.key"
                 (click)="onDatePreset(preset.key)"
               >{{ preset.label }}</button>
             }
+          </div>
+
+          <div class="gd-page__date-range">
+            <label>
+              <span>Du</span>
+              <input type="date" [value]="fromDate()" (change)="onFromDate($any($event.target).value)" />
+            </label>
+            <label>
+              <span>Au</span>
+              <input type="date" [value]="toDate()" (change)="onToDate($any($event.target).value)" />
+            </label>
           </div>
 
           <!-- Status filter -->

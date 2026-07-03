@@ -48,6 +48,11 @@ function datePresetToRange(preset: DatePreset): { from: string; to: string } {
   const today = new Date();
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
   switch (preset) {
+    case 'LAST_48H': {
+      const d = new Date(today);
+      d.setDate(d.getDate() - 1);
+      return { from: fmt(d), to: fmt(today) };
+    }
     case 'TODAY':
       return { from: fmt(today), to: fmt(today) };
     case 'TOMORROW': {
@@ -145,6 +150,13 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
   return draws.filter(d => {
     switch (status) {
       case 'OPEN':         return isGeneratedDrawSellableNow(d);
+      case 'SCHEDULED':
+      case 'LOCKED':
+      case 'CLOSED':
+      case 'RESULTED':
+      case 'SETTLED':
+      case 'CANCELLED':
+      case 'ARCHIVED':     return d.lifecycleStatus === status;
       case 'PAST':         return (d.salesStatus === 'OPEN' && !isGeneratedDrawSellableNow(d))
         || d.salesStatus === 'CLOSED'
         || d.salesStatus === 'CANCELLED'
@@ -153,8 +165,10 @@ function applyStatusFilter(draws: GeneratedDrawView[], status: string | null | u
         || d.resultStatus === 'CONFIRMED';
       case 'EXPECTED':     return d.resultStatus === 'EXPECTED';
       case 'MISSING':      return d.resultStatus === 'MISSING';
+      case 'PROVISIONAL':  return d.resultStatus === 'PROVISIONAL';
       case 'CONFIRMED':    return d.resultStatus === 'CONFIRMED';
       case 'SOURCE_ERROR': return d.resultStatus === 'SOURCE_ERROR';
+      case 'NOT_DUE':      return d.resultStatus === 'NOT_DUE';
       default: return true;
     }
   });
@@ -179,7 +193,9 @@ export class AdminGeneratedDrawsApiService {
     return this.backend.getPageResource<GeneratedDrawView, DrawView>(
       () => {
         const q = query();
-        const { from, to } = datePresetToRange(q.datePreset ?? 'TODAY');
+        const presetRange = datePresetToRange(q.datePreset ?? 'LAST_48H');
+        const from = q.from || presetRange.from;
+        const to = q.to || presetRange.to;
         return {
           path: '/admin/draws',
           options: {
