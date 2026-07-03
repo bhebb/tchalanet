@@ -44,12 +44,27 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Du</mat-label>
-          <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [ngModel]="fromDateValue()"
+            (ngModelChange)="onFromDatePicker($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+          <mat-datepicker #fromPicker />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Au</mat-label>
-          <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
+          <input
+            matInput
+            [matDatepicker]="toPicker"
+            [ngModel]="toDateValue()"
+            [min]="fromDateValue()"
+            (ngModelChange)="onToDatePicker($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+          <mat-datepicker #toPicker />
         </mat-form-field>
 
         <button class="draw-results-page__reset-filter" mat-stroked-button type="button" (click)="resetFilters()">

@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateService } from '@ngx-translate/core';
@@ -65,12 +68,15 @@ const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: stri
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
     ConsoleDrawResultsTableComponent,
+    FormsModule,
     TchLoading,
     TchErrorPanel,
     MatButtonModule,
+    MatDatepickerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatNativeDateModule,
     MatPaginatorModule,
     MatSelectModule,
   ],
@@ -100,6 +106,8 @@ export class AdminDrawResultsPage implements OnInit {
   readonly pageSize = signal(20);
   readonly statusOptions = RESULT_STATUS_OPTIONS;
   readonly qualityOptions = RESULT_QUALITY_OPTIONS;
+  readonly fromDateValue = computed(() => this.fromFilter() ? isoDateToLocalDate(this.fromFilter()) : null);
+  readonly toDateValue = computed(() => this.toFilter() ? isoDateToLocalDate(this.toFilter()) : null);
   readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
     (this.page()?.items ?? []).map(row => this.toConsoleRow(row)),
   );
@@ -163,6 +171,14 @@ export class AdminDrawResultsPage implements OnInit {
     this.toFilter.set(value);
     this.pageIndex.set(0);
     this.load();
+  }
+
+  onFromDatePicker(value: Date | null): void {
+    this.onFromFilter(value ? toIsoDate(value) : '');
+  }
+
+  onToDatePicker(value: Date | null): void {
+    this.onToFilter(value ? toIsoDate(value) : '');
   }
 
   resetFilters(): void {
@@ -410,3 +426,15 @@ const SLOT_LABELS: Record<string, string> = {
   MIDDAY: 'Midday',
   MORNING: 'Morning',
 };
+
+function isoDateToLocalDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

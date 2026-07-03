@@ -1,10 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { AuthSessionService } from '@tch/core/auth';
 import { TchSectionError } from '@tch/ui/components';
@@ -59,9 +64,14 @@ interface LifecycleInput {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
+    FormsModule,
+    MatDatepickerModule,
     MatDialogModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatMenuModule,
+    MatNativeDateModule,
     AdminPageShellComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
@@ -118,6 +128,8 @@ export class AdminGeneratedDrawsPage {
   readonly datePreset = computed<DatePreset>(() => datePresetFromQuery(this.qp().get('date')));
   readonly fromDate = computed(() => dateParam(this.qp().get('from'), YESTERDAY));
   readonly toDate = computed(() => dateParam(this.qp().get('to'), TODAY));
+  readonly fromDateValue = computed(() => isoDateToLocalDate(this.fromDate()));
+  readonly toDateValue = computed(() => isoDateToLocalDate(this.toDate()));
   readonly hasCustomDateRange = computed(() => this.qp().has('from') || this.qp().has('to'));
   readonly statusFilter = computed<DrawStatusFilter>(() => statusFilterFromQuery(this.qp().get('status')));
   readonly searchQuery = computed(() => this.qp().get('q')?.trim() ?? '');
@@ -217,6 +229,14 @@ export class AdminGeneratedDrawsPage {
 
   onToDate(value: string): void {
     this.navigate({ to: dateParam(value, TODAY), date: null, page: null });
+  }
+
+  onFromDatePicker(value: Date | null): void {
+    if (value) this.onFromDate(toIsoDate(value));
+  }
+
+  onToDatePicker(value: Date | null): void {
+    if (value) this.onToDate(toIsoDate(value));
   }
 
   onStatusFilter(status: DrawStatusFilter): void {
@@ -388,6 +408,18 @@ function relativeIsoDate(offsetDays: number): string {
 function dateParam(value: string | null, fallback: string): string {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fallback;
   return value;
+}
+
+function isoDateToLocalDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function numberParam(value: string | null, fallback: number): number {
