@@ -1,0 +1,9 @@
+<section class="games-summary" [attr.aria-label]="'admin.gamesPricing.summary.aria' | translate">
+  @for (item of items(); track item.labelKey) {
+    <article class="games-summary__card games-summary__card--{{ item.tone ?? 'neutral' }}">
+      <span class="games-summary__label">{{ item.labelKey | translate }}</span>
+      <strong class="games-summary__value">{{ item.value }}</strong>
+      <span class="games-summary__help">{{ item.helpKey | translate }}</span>
+    </article>
+  }
+</section>

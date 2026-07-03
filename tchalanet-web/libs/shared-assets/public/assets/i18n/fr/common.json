@@ -26,6 +26,8 @@
     "traceId": "Trace ID",
     "not_available": "Non disponible",
     "validation": {
+      "email": "Adresse email invalide.",
+      "invalid": "Valeur invalide.",
       "required": "Ce champ est obligatoire."
     },
     "not_set": "Non renseigné",
@@ -90,6 +92,8 @@
     "dateRange": {
       "from": "Du",
       "to": "Au"
-    }
+    },
+    "openMenu": "Ouvrir le menu",
+    "resetPassword": "Réinitialiser le mot de passe"
   }
 }

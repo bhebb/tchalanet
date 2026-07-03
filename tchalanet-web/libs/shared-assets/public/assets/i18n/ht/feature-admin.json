@@ -172,6 +172,158 @@
         "title": "Sipò"
       }
     },
+    "gamesPricing": {
+      "title": "Jwèt disponib",
+      "description": "Chwazi jwèt tenant lan sipòte epi konplete paramèt vant yo.",
+      "loading": "Chajman jwèt yo...",
+      "action": {
+        "backToSetup": "Konfigirasyon jeneral",
+        "refresh": "Rafrechi"
+      },
+      "empty": {
+        "title": "Pa gen jwèt disponib",
+        "message": "Kontakte Tchalanet pou aktive yon katalòg jwèt."
+      },
+      "summary": {
+        "aria": "Rezime jwèt disponib yo",
+        "systemGames": {
+          "label": "Jwèt sistèm",
+          "help": "Jwèt ki disponib pou tenant sa a."
+        },
+        "activeGames": {
+          "label": "Jwèt aktif",
+          "help": "Jwèt ki aktive pou vant."
+        },
+        "needsConfig": {
+          "label": "Pou konfigire",
+          "help": "Jwèt aktive ki manke miz oswa barèm."
+        },
+        "inactiveGames": {
+          "label": "Inaktif",
+          "help": "Jwèt disponib men ki pa sipòte kounye a."
+        }
+      },
+      "issues": {
+        "aria": "Jwèt pou konplete",
+        "title": "Pou konplete",
+        "description": "Korije pwen sa yo avan ou aktive jwèt la pou tenant sa a.",
+        "missingStake": "Miz la pa konfigire pou jwèt sa a.",
+        "configure": "Konfigire"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "NEEDS_CONFIG": "Pou konfigire",
+        "INACTIVE": "Inaktif",
+        "UNAVAILABLE": "Pa disponib"
+      },
+      "readiness": {
+        "READY": "Pare",
+        "TODO": "Pou konfigire",
+        "BLOCKED": "Pa disponib"
+      },
+      "card": {
+        "unavailable": "Ap vini",
+        "systemGame": "Jwèt sistèm · {{name}}",
+        "stakeUnavailable": "Miz pa disponib",
+        "stakeConfigured": "Miz konfigire",
+        "stakeMissing": "Miz pa konfigire",
+        "pricingMissing": "Barèm pa konfigire",
+        "pricingOptions": "{{count}} opsyon barèm",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
+        "standardPricingProfile": "Barèm estanda",
+        "limitConfigured": "Limit tiraj konfigire",
+        "limitMissing": "Limit tiraj pa konfigire",
+        "action": {
+          "configure": "Konfigire",
+          "disable": "Dezaktive",
+          "activate": "Aktive",
+          "reactivate": "Reaktive",
+          "edit": "Modifye",
+          "unavailable": "Pa disponib",
+          "maryaj": "Konfigire Maryaj gratis",
+          "limits": "Konfigire limit yo",
+          "pricing": "Gade barèm yo"
+        }
+      }
+    },
+    "drawSalesMatrix": {
+      "title": "Jwèt pa kanal",
+      "description": "Verifye ki jwèt ki aktif sou chak kanal epi konfigire miz yo avan vant.",
+      "loading": "Chajman matriks la...",
+      "action": {
+        "refresh": "Rafrechi"
+      },
+      "summary": {
+        "aria": "Rezime matriks jwèt pa kanal",
+        "saleReady": "Pare pou vann",
+        "offeredGames": "Jwèt yo ofri",
+        "activeChannels": "Kanal aktif",
+        "availableGames": "Jwèt disponib",
+        "missingStake": "Miz pa konfigire",
+        "missingLimits": "Limit manke"
+      },
+      "slot": {
+        "status": {
+          "ready": "Pare",
+          "review": "Pou verifye",
+          "notConfigured": "Pa konfigire"
+        },
+        "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "channelMissing": "Kanal manke",
+        "channelInactive": "Kanal inaktif"
+      },
+      "channel": {
+        "label": "Kanal",
+        "salesOpen": "Ouvèti vant : {{value}}",
+        "cutoff": "Cutoff : {{seconds}}s avan tiraj la",
+        "activeGames": "{{count}} jwèt aktif",
+        "availableToAdd": "{{count}} jwèt disponib pou ajoute",
+        "dependsOnAnother": "Depann de yon lòt kanal"
+      },
+      "section": {
+        "offered": "Jwèt aktive oswa ofri sou kanal sa a",
+        "available": "Jwèt disponib pou ajoute sou kanal sa a"
+      },
+      "game": {
+        "status": {
+          "ready": "Pare",
+          "notOffered": "Pa ofri",
+          "disabled": "Dezaktive",
+          "incomplete": "Enkonplè"
+        },
+        "stakeRange": "Miz otorize : {{min}} a {{max}} HTG",
+        "minStake": "Miz minimòm : {{min}} HTG",
+        "maxStake": "Miz maksimòm : {{max}} HTG",
+        "stakeMissing": "Miz pou konfigire",
+        "limitsMissing": "Limit manke",
+        "hiddenPos": "Kache nan POS",
+        "action": {
+          "configureMaryaj": "Konfigire Maryaj gratis",
+          "configureStake": "Konfigire miz yo",
+          "add": "Ajoute",
+          "activate": "Aktive",
+          "disable": "Dezaktive",
+          "remove": "Retire nan kanal la"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou tenant lan",
+        "NOT_VISIBLE_IN_POS": "Kache nan POS",
+        "CHANNEL_NOT_CONFIGURED": "Kanal pa konfigire",
+        "CHANNEL_INACTIVE": "Kanal inaktif",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Jwèt pa ofri sou kanal sa a",
+        "CHANNEL_GAME_DISABLED": "Jwèt dezaktive sou kanal sa a",
+        "STAKE_CONFIG_MISSING": "Miz pou konfigire",
+        "LIMITS_MISSING": "Limit pou konfigire"
+      },
+      "feedback": {
+        "actionDone": "Aksyon fèt",
+        "added": "{{game}} ajoute sou kanal la.",
+        "activated": "{{game}} aktive.",
+        "disabled": "{{game}} dezaktive.",
+        "removed": "{{game}} retire nan kanal la."
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",
@@ -194,6 +346,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "channelMatrix": "Jwèt pa kanal",
+        "channelMatrixDesc": "Chwazi jwèt ki disponib sou chak kanal tiraj tenant lan.",
+        "channelMatrixCta": "Konfigire jwèt pa kanal",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
         "drawChannelsCta": "Configurer les canaux",
@@ -286,7 +441,215 @@
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Jere seller-terminals",
-      "search_placeholder": "Chèche seller-terminal…"
+      "search_placeholder": "Chèche seller-terminal…",
+      "list": {
+        "title": "Lis vandè",
+        "description": "Jere aksè lavant, komisyon ak terminal ki gen dwa vann tikè.",
+        "loading": "Ap chaje vandè yo...",
+        "action": {
+          "new": "Nouvo vandè",
+          "detail": "Gade detay",
+          "openPos": "Louvri POS",
+          "resetPin": "Re-inisyalize PIN",
+          "block": "Bloke",
+          "unblock": "Debloke",
+          "disable": "Dezaktive",
+          "limits": "Limit",
+          "tickets": "Gade tikè"
+        },
+        "kpi": {
+          "active": "Aktif",
+          "blocked": "Bloke",
+          "salesToday": "Lavant jodi a",
+          "averageCommission": "Komisyon mwayèn"
+        },
+        "filter": {
+          "search": "Rechèch",
+          "searchPlaceholder": "Chèche yon vandè...",
+          "status": "Eta",
+          "allStatuses": "Tout eta",
+          "reset": "Re-inisyalize"
+        },
+        "empty": {
+          "title": "Pa gen vandè",
+          "message": "Kreye yon premye vandè pou kòmanse vann tikè."
+        },
+        "column": {
+          "terminalCode": "Kòd terminal",
+          "seller": "Vandè",
+          "email": "Email",
+          "phone": "Telefòn",
+          "status": "Eta",
+          "commission": "Komisyon",
+          "lastSeenAt": "Dènye aktivite"
+        },
+        "pagination": {
+          "page": "Paj {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN pou remèt",
+          "activeNeverSeen": "Aktif · poko konekte"
+        }
+      },
+      "new": {
+        "title": "Nouvo vandè",
+        "description": "Anrejistre yon nouvo pwen lavant sou rezo a.",
+        "section": {
+          "terminal": "Terminal",
+          "terminalDesc": "Kòd ak libellé ki parèt pou pwen lavant sa a.",
+          "identity": "Idantite",
+          "identityDesc": "Enfòmasyon pou idantifye vandè a.",
+          "address": "Adrès",
+          "addressDesc": "Adrès fizik pwen lavant lan, si li disponib.",
+          "access": "Aksè",
+          "accessDesc": "PIN inisyal pou vandè a konekte.",
+          "commission": "Komisyon",
+          "commissionDesc": "Pousantaj komisyon pou vandè sa a.",
+          "status": "Eta",
+          "statusDesc": "Vandè a ap disponib touswit si li aktive."
+        },
+        "field": {
+          "terminalCode": "Kòd terminal",
+          "displayName": "Non afichaj",
+          "firstName": "Prenon (opsyonèl)",
+          "lastName": "Non (opsyonèl)",
+          "email": "Email (opsyonèl)",
+          "phoneNumber": "Telefòn (opsyonèl)",
+          "addressLine1": "Ri / Liy 1",
+          "addressLine2": "Apatman / Liy 2 (opsyonèl)",
+          "city": "Vil",
+          "region": "Rejyon / Depatman (opsyonèl)",
+          "country": "Peyi (kòd ISO)",
+          "postalCode": "Kòd postal (opsyonèl)",
+          "initialPin": "PIN inisyal",
+          "confirmPin": "Konfime PIN",
+          "commissionRate": "Pousantaj komisyon (%)",
+          "active": "Aktive vandè a lè li kreye"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Egz: Pwen lavant sant vil",
+          "email": "vande@example.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Egz: 12 Rue Pavee",
+          "addressLine2": "Egz: Apt 3B",
+          "city": "Egz: Port-au-Prince",
+          "region": "Egz: Lwès",
+          "country": "HT",
+          "pin": "6 chif",
+          "confirmPin": "Repete PIN nan"
+        },
+        "hint": {
+          "pin": "Egzakteman 6 chif.",
+          "confirmPin": "Repete 6 chif yo."
+        },
+        "validation": {
+          "terminalCodeRequired": "Kòd terminal la obligatwa.",
+          "terminalCodeMax": "Maksimòm 64 karaktè.",
+          "displayNameRequired": "Non afichaj la obligatwa.",
+          "displayNameMin": "Minimòm 2 karaktè.",
+          "displayNameMax": "Maksimòm 64 karaktè.",
+          "email": "Email pa valid.",
+          "emailMax": "Maksimòm 254 karaktè.",
+          "max200": "Maksimòm 200 karaktè.",
+          "max100": "Maksimòm 100 karaktè.",
+          "country": "Kòd ISO 2 lèt.",
+          "postalCode": "Maksimòm 20 karaktè.",
+          "pinRequired": "PIN nan obligatwa.",
+          "pinFormat": "PIN nan dwe gen egzakteman 6 chif.",
+          "confirmPinRequired": "Konfimasyon an obligatwa.",
+          "confirmPinFormat": "Konfimasyon an dwe gen egzakteman 6 chif.",
+          "pinMismatch": "PIN yo pa menm.",
+          "commissionRequired": "Pousantaj komisyon an obligatwa.",
+          "commissionRange": "Pousantaj la dwe ant 0 ak 100."
+        },
+        "action": {
+          "backToList": "Retounen nan lis la",
+          "regenerateCode": "Jenere yon nouvo kòd",
+          "showPin": "Montre PIN",
+          "hidePin": "Kache PIN",
+          "create": "Kreye vandè",
+          "creating": "Ap kreye…",
+          "openPos": "Louvri Web POS",
+          "copy": "Kopye",
+          "copied": "Kopye!",
+          "copyTerminalCode": "Kopye kòd terminal la",
+          "createAnother": "Kreye yon lòt vandè"
+        },
+        "preview": {
+          "title": "Aperçu vandè",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Non vandè",
+          "commission": "Komisyon : {{rate}}%",
+          "hint": "Kòd terminal la ak PIN inisyal la ap parèt apre kreyasyon an."
+        },
+        "success": {
+          "title": "Vandè a kreye avèk siksè!",
+          "description": "Nouvo pwen lavant lan aktif sou rezo a kounye a.",
+          "noticePrefix": "Bay vandè a idantifyan sa yo. PIN inisyal la dwe chanje nan premye koneksyon an.",
+          "noticeStrong": "Li p ap parèt ankò apre ekran sa a fèmen."
+        }
+      },
+      "detail": {
+        "title": "Detay vandè",
+        "description": "Gade idantite, eta ak aktivite vandè a.",
+        "loading": "Ap chaje vandè a...",
+        "action": {
+          "openPos": "Louvri POS",
+          "tickets": "Tikè"
+        },
+        "summary": {
+          "eyebrow": "Vandè"
+        },
+        "today": {
+          "eyebrow": "Jodi a",
+          "title": "Estatistik jounen an",
+          "ticketsSold": "Tikè vann",
+          "grossSales": "Lavant",
+          "commission": "Komisyon",
+          "netRevenue": "Revni nèt estime"
+        },
+        "section": {
+          "identity": "Idantite",
+          "identityDesc": "Enfòmasyon pou idantifye vandè sa a.",
+          "states": "Eta",
+          "statesDesc": "Eta operasyonèl ki detèmine sa vandè a ka fè.",
+          "activity": "Aktivite",
+          "activityDesc": "Dènye dat yo konnen pou vandè sa a.",
+          "security": "Sekirite",
+          "securityDesc": "Eta PIN ak enfòmasyon blokaj.",
+          "control": "Kontwòl"
+        },
+        "field": {
+          "currentStatus": "Eta aktyèl",
+          "canSell": "Ka vann",
+          "blocked": "Bloke",
+          "disabled": "Dezaktive",
+          "mustChangePin": "PIN pou chanje",
+          "pinResetAt": "PIN re-inisyalize",
+          "blockedReason": "Rezon blokaj",
+          "activatedAt": "Aktive",
+          "lastSeenAt": "Dènye koneksyon",
+          "blockedAt": "Bloke",
+          "disabledAt": "Dezaktive",
+          "commissionRate": "Komisyon",
+          "addressId": "Adrès",
+          "tenantId": "Tenant"
+        }
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "PENDING": "An atant",
+        "BLOCKED": "Bloke",
+        "DISABLED": "Dezaktive"
+      },
+      "field": {
+        "seller_terminal_code": "Kòd terminal",
+        "first_name": "Prenon",
+        "last_name": "Non",
+        "email": "Email",
+        "phone": "Telefòn"
+      }
     },
     "drawChannels": {
       "title": "Tirages",
@@ -330,6 +693,61 @@
         "ready": "Prêt pour la vente",
         "todo": "Configuration incomplète",
         "sourceWarning": "Vente configurée · Source à vérifier"
+      }
+    },
+    "games": {
+      "title": "Jwèt",
+      "description": "Jere jwèt ki aktive pou tenant sa a.",
+      "tabs": {
+        "enabled": "Jwèt aktive",
+        "catalog": "Katalòg"
+      },
+      "status": {
+        "readyForSale": "Pare pou vann",
+        "incomplete": "Konfigirasyon pa konplè",
+        "enabledForTenant": "Aktive",
+        "available": "Disponib"
+      },
+      "empty": {
+        "enabled": {
+          "title": "Pa gen jwèt aktive",
+          "message": "Aktive jwèt yo apati katalòg la."
+        },
+        "catalog": {
+          "title": "Katalòg vid",
+          "message": "Pa gen jwèt disponib nan katalòg la."
+        }
+      },
+      "settings": {
+        "title": "Konfigire jwèt la - {{name}}",
+        "description": "Paramèt tenant ki itilize pou vant POS.",
+        "intro": {
+          "aria": "Paramèt vant jwèt la",
+          "title": "Paramèt ki itilize nan vant",
+          "message": "Valè sa yo kontwole afichaj POS la ak miz tenant lan aksepte. Gain ak barèm global yo rete jere nan katalòg platform lan."
+        },
+        "field": {
+          "displayName": "Non ki parèt nan POS",
+          "minStake": "Miz minimòm pa liy",
+          "maxStake": "Miz maksimòm pa liy",
+          "displayOrder": "Lòd afichaj",
+          "visibleInPos": "Montre jwèt sa a nan POS",
+          "availabilityEnabled": "Limite lè vant yo",
+          "startLocalTime": "Lè kòmansman (HH:mm)",
+          "endLocalTime": "Lè fen (HH:mm)"
+        },
+        "options": {
+          "title": "Opsyon pari / gain",
+          "description": "Lekti sèlman isit la. Opsyon sa yo soti nan katalòg jwèt la ak barèm lan."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Tablo kòt",
+      "description": "Kòt pa defo pou tout tip pari yo.",
+      "empty": {
+        "title": "Pa gen kòt konfigire",
+        "message": "Tablo kòt la vid."
       }
     },
     "generatedDraws": {

@@ -1,0 +1,73 @@
+.console-draw-slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+
+  &--compact {
+    gap: 0.5rem;
+  }
+}
+
+.console-draw-slot__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-sm);
+  background: var(--tch-color-surface-container-lowest);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  span {
+    padding: 0.125rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.625rem;
+    font-weight: 800;
+    line-height: 1;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .console-draw-slot--compact & {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.console-draw-slot__body {
+  min-width: 0;
+}
+
+.console-draw-slot__title,
+.console-draw-slot__subtitle,
+.console-draw-slot__meta {
+  margin: 0;
+}
+
+.console-draw-slot__title {
+  color: var(--tch-color-on-surface);
+  font-size: var(--tch-font-size-body-md);
+  font-weight: var(--tch-font-weight-bold, 700);
+  line-height: 1.25;
+}
+
+.console-draw-slot__subtitle,
+.console-draw-slot__meta {
+  margin-top: 0.125rem;
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-label-sm);
+  line-height: 1.25;
+}
+
+.console-draw-slot__subtitle {
+  font-family: var(--tch-font-family-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace);
+}

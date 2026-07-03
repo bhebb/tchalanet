@@ -29,7 +29,7 @@ import {
   LimitRuleSpec,
   UpsertLimitAssignmentRequest,
 } from '../../../../pages/limits/data-access/admin-limits-api.service';
-import { SellerTerminalSummaryRow } from '../../../../data-access/seller-terminal-api.service';
+import { SellerTerminalSummaryRow } from '../../../data-access/seller-terminal-api.service';
 
 const BREACH_OUTCOMES: BreachOutcome[] = ['ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK'];
 

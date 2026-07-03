@@ -124,6 +124,15 @@ Invariants :
 
    Toujours : `standalone: true` + `ChangeDetectionStrategy.OnPush`.
 
+10. **Sections de formulaire communes** — ne pas recopier les champs standards :
+    - adresse : `tch-console-address-form-section` (`@tch/web/console`), reçoit le field tree
+      address signal-form ; l'adresse peut être optionnelle ou obligatoire via `[required]`, la page
+      reste propriétaire du schema de validation ;
+    - identité personne : `tch-console-person-identity-form-section` (`@tch/web/console`), pour
+      prénom/nom/email/téléphone des admins, super admins, vendeurs et contacts.
+    Les champs spécifiques métier (ex. code terminal vendeur, nom d'affichage POS, rôle admin)
+    restent dans le formulaire feature.
+
 ---
 
 ## 2. Archétype A — Liste

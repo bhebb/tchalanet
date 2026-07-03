@@ -2,6 +2,85 @@
   "readiness": {
     "noIssues": "No issues"
   },
+  "console": {
+    "gamesTable": {
+      "column": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Category",
+        "sortOrder": "Order",
+        "status": "Status"
+      }
+    },
+    "pricingTable": {
+      "globalTenant": "Global",
+      "column": {
+        "game": "Game",
+        "betType": "Bet type",
+        "betTypeShort": "Type",
+        "betOption": "Option",
+        "odds": "Odds",
+        "tenant": "Tenant",
+        "status": "Status"
+      }
+    },
+    "pricingForm": {
+      "field": {
+        "identity": "Game / bet type",
+        "gameCode": "Game (gameCode)",
+        "betType": "Bet type",
+        "betOption": "Bet option",
+        "odds": "Odds",
+        "active": "Active"
+      },
+      "validation": {
+        "gameCodeRequired": "Game is required.",
+        "betTypeRequired": "Bet type is required.",
+        "oddsMin": "Odds must be greater than 0."
+      }
+    },
+    "personIdentity": {
+      "title": "Identity",
+      "description": "Identity and contact information.",
+      "field": {
+        "firstName": "First name (optional)",
+        "lastName": "Last name (optional)",
+        "email": "Email (optional)",
+        "phoneNumber": "Phone (optional)",
+        "displayName": "Display name",
+        "assignedAt": "Assigned at"
+      },
+      "placeholder": {
+        "email": "name@example.com",
+        "phoneNumber": "+509 XXXX XXXX"
+      }
+    },
+    "personIdentitySummary": {
+      "empty": "No identity information set."
+    },
+    "address": {
+      "title": "Address",
+      "description": "Physical address, when available.",
+      "field": {
+        "line1": "Street / Line 1",
+        "line2": "Apartment / Line 2 (optional)",
+        "city": "City",
+        "region": "Region / Department (optional)",
+        "country": "Country (ISO code)",
+        "postalCode": "Postal code (optional)"
+      },
+      "placeholder": {
+        "line1": "Ex: 12 Rue Pavee",
+        "line2": "Ex: Apt 3B",
+        "city": "Ex: Port-au-Prince",
+        "region": "Ex: Ouest",
+        "country": "HT"
+      }
+    },
+    "addressSummary": {
+      "empty": "No address set."
+    }
+  },
   "layout": {
     "public_home": {
       "contact_cta": "Contact",

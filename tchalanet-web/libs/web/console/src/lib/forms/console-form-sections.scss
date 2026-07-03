@@ -1,0 +1,24 @@
+.tch-console-form-section__grid {
+  display: grid;
+}
+
+.tch-console-form-section__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tch-console-form-section__field {
+  width: 100%;
+  max-width: 16.25rem;
+}
+
+.tch-console-form-section__field--full {
+  max-width: none;
+}
+
+@media (max-width: 600px) {
+  .tch-console-form-section__row {
+    grid-template-columns: 1fr;
+  }
+}

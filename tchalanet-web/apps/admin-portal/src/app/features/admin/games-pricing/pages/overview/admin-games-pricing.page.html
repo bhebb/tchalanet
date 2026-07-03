@@ -1,91 +1,49 @@
 <tch-admin-page-shell
-  title="Jeux disponibles"
-  description="Vérifiez les jeux actifs, les canaux prêts à vendre et les mises à compléter."
+  [title]="'admin.gamesPricing.title' | translate"
+  [description]="'admin.gamesPricing.description' | translate"
 >
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/setup" class="gp-page__back-btn">
       <span class="material-symbols-outlined">arrow_back</span>
-      Configuration générale
+      {{ 'admin.gamesPricing.action.backToSetup' | translate }}
     </a>
-    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
+    <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
-      Rafraîchir
+      {{ 'admin.gamesPricing.action.refresh' | translate }}
     </button>
   </div>
 
-  @if (pageState() === 'loading') {
-    <tch-loading label="Chargement des jeux…" />
-  } @else if (pageState() === 'error') {
-    @if (pageError(); as errorVm) {
-      <tch-error-panel
-        [title]="errorVm.title"
-        [message]="errorVm.message"
-        [showRetry]="true"
-        retryLabel="Réessayer"
-        (retry)="load()"
-      />
-    }
-  } @else if (games().length === 0) {
+  <tch-async-view
+    [resource]="gamesResource"
+    [error]="gamesError()"
+    [loadingLabel]="'admin.gamesPricing.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  >
     <tch-admin-empty-state
+      empty
       icon="casino"
-      title="Aucun jeu disponible"
-      message="Contactez Tchalanet pour activer un catalogue de jeux."
+      [title]="'admin.gamesPricing.empty.title' | translate"
+      [message]="'admin.gamesPricing.empty.message' | translate"
     />
-  } @else {
 
-    <section class="gp-page__summary" aria-label="Résumé des jeux disponibles">
-      @for (item of summaryItems(); track item.label) {
-        <article class="gp-page__summary-card gp-page__summary-card--{{ item.tone ?? 'neutral' }}">
-          <span class="gp-page__summary-label">{{ item.label }}</span>
-          <strong class="gp-page__summary-value">{{ item.value }}</strong>
-          <span class="gp-page__summary-help">{{ item.help }}</span>
-        </article>
-      }
-    </section>
+    <ng-template tchAsyncReady>
+      <tch-games-setup-summary [items]="summaryItems()" />
 
-    @if (issues().length > 0) {
-      <section class="gp-page__issues" aria-label="Jeux à compléter">
-        <div class="gp-page__issues-header">
-          <div>
-            <h2>À compléter</h2>
-            <p>Corrigez ces points avant d’ouvrir l’offre de jeux à la vente.</p>
-          </div>
-          <a mat-stroked-button routerLink="/app/admin/games/channel-matrix">
-            Jeux par canal
-          </a>
-        </div>
-
-        <div class="gp-page__issue-list">
-          @for (issue of issues(); track issue.gameCode + issue.message) {
-            <article class="gp-page__issue gp-page__issue--{{ issue.tone }}">
-              <span class="material-symbols-outlined gp-page__issue-icon" aria-hidden="true">
-                {{ issue.tone === 'danger' ? 'error' : 'warning' }}
-              </span>
-              <div class="gp-page__issue-copy">
-                <h3>{{ issue.gameName }}</h3>
-                <p>{{ issue.message }}</p>
-              </div>
-              <button mat-stroked-button type="button" (click)="onIssueAction(issue)">
-                {{ issue.actionLabel }}
-              </button>
-            </article>
-          }
-        </div>
-      </section>
-    }
-
-    <div class="gp-page__grid">
-      @for (game of games(); track game.gameCode) {
-        <tch-tenant-game-card
-          [game]="game"
-          [channelStats]="channelStats(game.gameCode)"
-          [actionError]="actionError(game.gameCode)"
-          (activate)="onActivate($event)"
-          (disable)="onDisable($event)"
-          (configure)="onConfigure($event)"
+      @if (issues().length > 0) {
+        <tch-games-setup-issues
+          [issues]="issues()"
+          (issueAction)="onIssueAction($event)"
         />
       }
-    </div>
 
-  }
+      <tch-tenant-games-grid
+        [games]="games()"
+        [actionErrors]="actionErrors()"
+        (activate)="onActivate($event)"
+        (disable)="onDisable($event)"
+        (configure)="onConfigure($event)"
+      />
+    </ng-template>
+  </tch-async-view>
 </tch-admin-page-shell>

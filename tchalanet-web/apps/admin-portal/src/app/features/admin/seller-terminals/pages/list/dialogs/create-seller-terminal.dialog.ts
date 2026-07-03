@@ -19,7 +19,7 @@ import {
 } from '@tch/web/errors';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../../data-access/seller-terminal-api.service';
+import { CreateSellerTerminalRequest, SellerTerminalApi } from '../../../data-access/seller-terminal-api.service';
 import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../../seller-terminal-error-targets';
 
 @Component({

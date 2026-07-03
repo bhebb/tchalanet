@@ -47,6 +47,26 @@
         "title": "Recent Contact Requests"
       }
     },
+    "superAdmins": {
+      "title": "Super admins",
+      "description": "Manage accounts with access to the platform workspace.",
+      "create": {
+        "title": "Add a super admin",
+        "description": "Identity and contact information for the platform account."
+      },
+      "empty": {
+        "title": "No super admin",
+        "message": "Add the first platform account."
+      },
+      "column": {
+        "email": "Email",
+        "name": "Name",
+        "assignedAt": "Assigned at"
+      },
+      "action": {
+        "revoke": "Remove"
+      }
+    },
     "tenants": {
       "title": "Tenants",
       "description": "List, filter, and monitor Tchalanet tenants.",
@@ -226,11 +246,11 @@
           "empty": "Adresse non renseignée."
         },
         "admins": {
-          "loading": "Chargement des administrateurs…",
-          "error": "Erreur lors du chargement des administrateurs.",
+          "loading": "Loading administrators…",
+          "error": "Unable to load administrators.",
           "empty": {
-            "title": "Aucun administrateur",
-            "message": "Ce tenant n'a pas encore d'administrateur."
+            "title": "No administrators",
+            "message": "This tenant does not have an administrator yet."
           }
         },
         "config": {
@@ -483,6 +503,110 @@
         "ambulant": "Vendeur indépendant ou petite activité mobile."
       }
     },
+    "catalog": {
+      "games": {
+        "title": "Catalog games",
+        "description": "Global reference of games available on the platform.",
+        "action": {
+          "create": "New game"
+        },
+        "dialog": {
+          "create": {
+            "title": "New game"
+          },
+          "edit": {
+            "title": "Edit — {{name}}"
+          }
+        },
+        "field": {
+          "code": "Code",
+          "name": "Name",
+          "category": "Category",
+          "sortOrder": "Display order",
+          "active": "Active"
+        },
+        "validation": {
+          "codeRequired": "Code is required.",
+          "nameRequired": "Name is required."
+        },
+        "feedback": {
+          "created": "Game created.",
+          "updated": "Game updated.",
+          "deactivated": "Game deactivated.",
+          "deleted": "Game deleted."
+        },
+        "confirm": {
+          "deactivate": "Deactivate \"{{name}}\"?",
+          "delete": "Permanently delete \"{{name}}\"?"
+        },
+        "search": {
+          "placeholder": "Search for a game..."
+        },
+        "empty": {
+          "title": "No games",
+          "message": "Create the first catalog game."
+        }
+      },
+      "pricing": {
+        "title": "Odds & pricing",
+        "description": "Global platform odds by game and bet type.",
+        "action": {
+          "create": "New odds"
+        },
+        "dialog": {
+          "create": {
+            "title": "New odds"
+          },
+          "edit": {
+            "title": "Edit odds"
+          }
+        },
+        "field": {
+          "gameCode": "Game (gameCode)",
+          "betType": "Bet type",
+          "betOption": "Bet option",
+          "odds": "Odds",
+          "tenant": "Tenant",
+          "tenantPlaceholder": "Leave empty for global",
+          "active": "Active"
+        },
+        "validation": {
+          "gameCodeRequired": "Game is required.",
+          "betTypeRequired": "Bet type is required.",
+          "oddsMin": "Odds must be greater than 0."
+        },
+        "feedback": {
+          "created": "Odds created.",
+          "updated": "Odds updated.",
+          "deleted": "Odds deleted."
+        },
+        "confirm": {
+          "delete": "Delete odds {{gameCode}} / {{betType}}?"
+        },
+        "search": {
+          "placeholder": "Filter by game (BORLETTE...)"
+        },
+        "filter": {
+          "betType": "Bet type"
+        },
+        "scope": {
+          "global": "Global"
+        },
+        "empty": {
+          "title": "No odds",
+          "message": "Create the first catalog odds.",
+          "filtered": {
+            "title": "No results",
+            "message": "No odds match the selected filters."
+          },
+          "tenants": "No tenant found"
+        },
+        "footer": {
+          "count": "{{count}} odds",
+          "filtered": "(filtered from {{total}})"
+        }
+      }
+    },
     "contactRequests": {
       "title": "Contact Requests",
       "description": "Manage incoming contact requests"
@@ -544,81 +668,71 @@
       }
     },
     "tenantAdmins": {
-      "title": "Administrateurs tenant",
-      "description": "Consultez et gérez les administrateurs de chaque tenant.",
-      "loading": "Chargement des administrateurs...",
+      "title": "Tenant administrators",
+      "description": "View and manage administrators for each tenant.",
+      "loading": "Loading administrators...",
       "filter": {
-        "search": "Rechercher",
-        "searchPlaceholder": "Nom ou email..."
+        "search": "Search",
+        "searchPlaceholder": "Name or email..."
       },
       "column": {
-        "admin": "Administrateur",
+        "admin": "Administrator",
         "tenant": "Tenant",
-        "status": "Statut",
-        "assignedAt": "Affecté le"
+        "assignedAt": "Assigned at"
       },
       "status": {
-        "active": "Actif",
-        "pending": "En attente",
-        "suspended": "Bloqué",
-        "inactive": "Inactif",
-        "archived": "Archivé"
+        "active": "Active",
+        "pending": "Pending",
+        "suspended": "Blocked",
+        "inactive": "Inactive",
+        "archived": "Archived"
       },
       "action": {
-        "openMenu": "Ouvrir le menu",
-        "viewDetail": "Voir le détail",
-        "resetPassword": "Réinitialiser le mot de passe",
-        "activate": "Activer",
-        "block": "Bloquer",
-        "archive": "Archiver",
-        "manageAdmins": "Gérer les admins",
-        "addAdmin": "Ajouter un admin",
-        "resetFilters": "Réinitialiser les filtres"
+        "assignTenant": "Assign to tenant",
+        "manageAdmins": "Manage admins",
+        "addAdmin": "Add admin"
       },
       "confirm": {
-        "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
-        "activate": "Activer le compte de {{ name }} ?",
-        "block": "Bloquer le compte de {{ name }} ? Cet administrateur ne pourra plus se connecter.",
-        "archive": "Archiver le compte de {{ name }} ? Cette action est irréversible."
+        "resetPassword": "Send a password reset link to {{ name }}?",
+        "activate": "Activate the account for {{ name }}?",
+        "block": "Block the account for {{ name }}? This administrator will no longer be able to sign in.",
+        "archive": "Archive the account for {{ name }}? This action is irreversible."
       },
       "success": {
-        "resetPassword": "Lien de réinitialisation envoyé."
+        "resetPassword": "Password reset link sent."
       },
       "error": {
-        "load": "Impossible de charger les administrateurs.",
-        "resetPassword": "Échec de l'envoi du lien de réinitialisation.",
-        "activate": "Échec de l'activation du compte.",
-        "block": "Échec du blocage du compte.",
-        "archive": "Échec de l'archivage du compte."
+        "load": "Unable to load administrators.",
+        "resetPassword": "Failed to send the password reset link.",
+        "activate": "Failed to activate the account.",
+        "block": "Failed to block the account.",
+        "archive": "Failed to archive the account."
       },
       "empty": {
-        "title": "Aucun administrateur trouvé",
-        "message": "Aucun administrateur ne correspond à vos critères.",
+        "title": "No administrators found",
+        "message": "No administrators match your criteria.",
         "filtered": {
-          "title": "Aucun résultat",
-          "message": "Aucun administrateur ne correspond à votre recherche."
+          "title": "No results",
+          "message": "No administrators match your search."
         }
       },
       "detail": {
-        "title": "Détail administrateur",
-        "description": "Informations et actions sur cet administrateur tenant.",
-        "back": "Retour à la liste",
-        "loading": "Chargement...",
+        "title": "Administrator detail",
+        "description": "Information and actions for this tenant administrator.",
         "error": {
-          "load": "Impossible de charger cet administrateur."
+          "load": "Unable to load this administrator."
         },
         "field": {
           "tenant": "Tenant",
           "email": "Email",
-          "assignedAt": "Affecté le"
+          "assignedAt": "Assigned at"
         },
         "actions": {
-          "title": "Actions",
-          "manageInTenant": "Gérer dans le tenant"
+          "manageInTenant": "Manage in tenant"
         }
       },
       "pagination": "Page {{page}} / {{total}}",
-      "paginationTotal": "{{count}} administrateur(s)"
+      "paginationTotal": "{{count}} administrator(s)"
     },
     "entityHistory": {
       "title": "Technical revisions — Envers",

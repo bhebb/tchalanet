@@ -1,35 +1,35 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe, DecimalPipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import {
   SellerTerminalApi,
   SellerTerminalSummaryRow,
-  SellerTerminalsSummary,
   SellerTerminalStatus,
-} from '../../../data-access/seller-terminal-api.service';
+} from '../../data-access/seller-terminal-api.service';
+import { SellerTerminalKpiStripComponent } from '../../components/seller-terminal-kpi-strip/seller-terminal-kpi-strip.component';
+import { SellerTerminalTableComponent } from '../../components/seller-terminal-table/seller-terminal-table.component';
 import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialog';
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
@@ -40,131 +40,93 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
-    DecimalPipe,
     RouterLink,
     AdminPageShellComponent,
     AdminListSurface,
     AdminEmptyStateComponent,
-    AdminStatusPillComponent,
-    TchLoading,
     TchErrorPanel,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
+    SellerTerminalKpiStripComponent,
+    SellerTerminalTableComponent,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
-    MatMenuModule,
-    MatTableModule,
   ],
   templateUrl: './admin-seller-terminals.page.html',
   styleUrls: ['./admin-seller-terminals.page.scss'],
 })
-export class AdminSellerTerminalsPage implements OnInit {
+export class AdminSellerTerminalsPage {
   private readonly api = inject(SellerTerminalApi);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = [
-    'terminalCode',
-    'displayName',
-    'email',
-    'phoneNumber',
-    'status',
-    'commissionRate',
-    'lastSeenAt',
-    'actions',
-  ];
-
-  readonly loading = signal(false);
-  readonly error = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
-  readonly items = signal<SellerTerminalSummaryRow[]>([]);
-  readonly total = signal(0);
-  readonly page = signal(0);
-  readonly totalPages = signal(1);
-  readonly hasNext = signal(false);
-  readonly hasPrevious = signal(false);
-  readonly searchQuery = signal('');
-  readonly statusFilter = signal<SellerTerminalStatus | ''>('');
-  readonly summary = signal<SellerTerminalsSummary | null>(null);
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+
+  readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), DEFAULT_PAGE_SIZE));
+  readonly searchQuery = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
+  readonly statusFilter = computed<SellerTerminalStatus | ''>(() => {
+    const status = this.queryParamMap().get('status');
+    return isSellerTerminalStatus(status) ? status : '';
+  });
+  readonly sellers = this.api.listResource(
+    () => ({
+      q: this.searchQuery() || undefined,
+      status: this.statusFilter() || undefined,
+      page: this.page(),
+      size: this.size(),
+    }),
+    { suppressShellFeedback: true },
+  );
+  readonly sellersError = resourceErrorVm(this.sellers, 'admin.sellerTerminal.list');
+  readonly sellerPage = computed(() => this.sellers.value() ?? null);
+  readonly items = computed(() => this.sellerPage()?.items ?? []);
+  readonly totalPages = computed(() => this.sellerPage()?.totalPages || 1);
+  readonly hasNext = computed(() => this.sellerPage()?.hasNext ?? false);
+  readonly hasPrevious = computed(() => this.sellerPage()?.hasPrevious ?? false);
+  readonly summaryResource = this.api.getSummaryResource({ suppressShellFeedback: true });
+  readonly summary = computed(() => this.summaryResource.value() ?? null);
 
   readonly statusOptions: readonly AdminListStatusOption[] = [
-    { value: 'ACTIVE', label: 'Actif' },
-    { value: 'INACTIVE', label: 'Inactif' },
-    { value: 'BLOCKED', label: 'Bloqué' },
-    { value: 'DISABLED', label: 'Désactivé' },
+    { value: 'ACTIVE', label: this.translate.instant('admin.sellerTerminals.status.ACTIVE') },
+    { value: 'PENDING', label: this.translate.instant('admin.sellerTerminals.status.PENDING') },
+    { value: 'BLOCKED', label: this.translate.instant('admin.sellerTerminals.status.BLOCKED') },
+    { value: 'DISABLED', label: this.translate.instant('admin.sellerTerminals.status.DISABLED') },
   ];
 
-  ngOnInit(): void {
-    this.loadSummary();
-    this.loadPage();
-  }
-
-  private loadSummary(): void {
-    this.api.getSummary().subscribe({
-      next: s => this.summary.set(s),
-      error: () => { /* silently ignore — KPI section hides when null */ },
-    });
-  }
-
-  loadPage(): void {
-    this.loading.set(true);
-    this.error.set(null);
+  reload(): void {
     this.actionError.set(null);
-
-    this.api
-      .list({
-        q: this.searchQuery() || undefined,
-        status: this.statusFilter() || undefined,
-        page: this.page(),
-        size: 20,
-      }, { suppressShellFeedback: true })
-      .subscribe({
-        next: res => {
-          this.items.set(res.items);
-          this.total.set(res.totalElements);
-          this.page.set(res.page);
-          this.totalPages.set(res.totalPages || 1);
-          this.hasNext.set(res.hasNext ?? false);
-          this.hasPrevious.set(res.hasPrevious ?? false);
-          this.loading.set(false);
-        },
-        error: (err: unknown) => {
-          this.error.set(this.errorViewModel(err, 'admin.sellerTerminal.list'));
-          this.loading.set(false);
-        },
-      });
+    this.summaryResource.reload();
+    this.sellers.reload();
   }
 
   onSearch(q: string): void {
-    this.searchQuery.set(q);
-    this.page.set(0);
-    this.loadPage();
+    this.navigateList({ q: q.trim() || null, page: null });
   }
 
   resetFilters(): void {
-    this.searchQuery.set('');
-    this.statusFilter.set('');
-    this.page.set(0);
-    this.loadPage();
+    this.navigateList({ q: null, status: null, page: null });
   }
 
   onStatusFilter(status: string): void {
-    this.statusFilter.set((status || '') as SellerTerminalStatus | '');
-    this.page.set(0);
-    this.loadPage();
+    this.navigateList({ status: isSellerTerminalStatus(status) ? status : null, page: null });
   }
 
   prevPage(): void {
     if (this.hasPrevious()) {
-      this.page.update(p => p - 1);
-      this.loadPage();
+      this.navigateList({ page: Math.max(0, this.page() - 1) });
     }
   }
 
   nextPage(): void {
     if (this.hasNext()) {
-      this.page.update(p => p + 1);
-      this.loadPage();
+      this.navigateList({ page: this.page() + 1 });
     }
   }
 
@@ -175,14 +137,14 @@ export class AdminSellerTerminalsPage implements OnInit {
   openBlock(row: SellerTerminalSummaryRow): void {
     const ref = this.dialog.open(BlockSellerTerminalDialog, { data: row, width: '480px' });
     ref.afterClosed().subscribe((result?: { reload: boolean }) => {
-      if (result?.reload) this.loadPage();
+      if (result?.reload) this.reload();
     });
   }
 
   unblock(row: SellerTerminalSummaryRow): void {
     this.actionError.set(null);
     this.api.unblock(row.id.value, { suppressShellFeedback: true }).subscribe({
-      next: () => this.loadPage(),
+      next: () => this.reload(),
       error: err => {
         this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.unblock'));
       },
@@ -196,7 +158,7 @@ export class AdminSellerTerminalsPage implements OnInit {
       disableClose: true,
     });
     ref.afterClosed().subscribe((result?: { reload: boolean }) => {
-      if (result?.reload) this.loadPage();
+      if (result?.reload) this.reload();
     });
   }
 
@@ -210,7 +172,7 @@ export class AdminSellerTerminalsPage implements OnInit {
       if (!confirmed) return;
       this.actionError.set(null);
       this.api.disable(row.id.value, { suppressShellFeedback: true }).subscribe({
-        next: () => this.loadPage(),
+        next: () => this.reload(),
         error: err => {
           this.actionError.set(this.errorViewModel(err, 'admin.sellerTerminal.disable'));
         },
@@ -218,21 +180,17 @@ export class AdminSellerTerminalsPage implements OnInit {
     });
   }
 
-  statusLabel(row: SellerTerminalSummaryRow): string {
-    if (row.status === 'BLOCKED') return 'Bloqué';
-    if (row.pinResetRequired) return 'PIN à remettre';
-    if (row.status === 'PENDING') return 'En attente';
-    if (row.status === 'INACTIVE' || row.status === 'DISABLED') return 'Inactif';
-    if (!row.lastSeenAt) return 'Actif · jamais connecté';
-    return 'Actif';
-  }
-
-  statusTone(row: SellerTerminalSummaryRow): AdminStatusTone {
-    if (row.status === 'BLOCKED') return 'danger';
-    if (row.pinResetRequired) return 'warning';
-    if (row.status === 'PENDING') return 'warning';
-    if (row.status === 'INACTIVE' || row.status === 'DISABLED') return 'neutral';
-    return 'success';
+  private navigateList(params: {
+    readonly q?: string | null;
+    readonly status?: SellerTerminalStatus | null;
+    readonly page?: number | null;
+    readonly size?: number | null;
+  }): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+    });
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
@@ -249,4 +207,17 @@ export class AdminSellerTerminalsPage implements OnInit {
       severity: 'error',
     };
   }
+}
+
+const DEFAULT_PAGE_SIZE = 20;
+const SELLER_TERMINAL_STATUSES = ['PENDING', 'ACTIVE', 'BLOCKED', 'DISABLED'] as const;
+
+function isSellerTerminalStatus(value: string | null): value is SellerTerminalStatus {
+  return SELLER_TERMINAL_STATUSES.includes(value as SellerTerminalStatus);
+}
+
+function numberParam(value: string | null, fallback: number): number {
+  if (value === null || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
 }

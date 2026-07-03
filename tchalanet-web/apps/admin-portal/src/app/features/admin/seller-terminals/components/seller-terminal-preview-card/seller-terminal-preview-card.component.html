@@ -1,0 +1,48 @@
+<div class="seller-terminal-preview-card">
+  <div class="seller-terminal-preview-card__header">
+    <span class="material-symbols-outlined seller-terminal-preview-card__icon">point_of_sale</span>
+    <span class="seller-terminal-preview-card__label">
+      {{ 'admin.sellerTerminals.new.preview.title' | translate }}
+    </span>
+  </div>
+
+  <div class="seller-terminal-preview-card__body">
+    <p class="seller-terminal-preview-card__code">
+      {{ terminalCode() || ('admin.sellerTerminals.new.preview.codeFallback' | translate) }}
+    </p>
+    <p class="seller-terminal-preview-card__name">
+      {{ displayName() || ('admin.sellerTerminals.new.preview.nameFallback' | translate) }}
+    </p>
+
+    @if (fullName()) {
+      <p class="seller-terminal-preview-card__person">
+        <span class="material-symbols-outlined">person</span>
+        {{ fullName() }}
+      </p>
+    }
+
+    @if (phoneNumber()) {
+      <p class="seller-terminal-preview-card__person">
+        <span class="material-symbols-outlined">phone</span>
+        {{ phoneNumber() }}
+      </p>
+    }
+  </div>
+
+  <div class="seller-terminal-preview-card__footer">
+    <span
+      class="seller-terminal-preview-card__badge"
+      [class.seller-terminal-preview-card__badge--active]="active()"
+    >
+      {{ (active() ? 'admin.sellerTerminals.status.ACTIVE' : 'admin.sellerTerminals.status.PENDING') | translate }}
+    </span>
+    <span class="seller-terminal-preview-card__commission">
+      {{ 'admin.sellerTerminals.new.preview.commission' | translate: { rate: commissionRate() ?? 0 } }}
+    </span>
+  </div>
+</div>
+
+<div class="seller-terminal-preview-card__hint">
+  <span class="material-symbols-outlined">info</span>
+  <span>{{ 'admin.sellerTerminals.new.preview.hint' | translate }}</span>
+</div>

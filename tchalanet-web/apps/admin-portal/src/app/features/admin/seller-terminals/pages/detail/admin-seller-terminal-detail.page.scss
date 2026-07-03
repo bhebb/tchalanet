@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.seller-terminal-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.seller-terminal-detail__main,
+.seller-terminal-detail__aside {
+  display: grid;
+  gap: 1rem;
+}

@@ -21,7 +21,7 @@ import {
   toErrorViewModel,
   withResolvedErrorCopies,
 } from '@tch/web/errors';
-import { SellerTerminalApi, SellerTerminalSummaryRow } from '../../../../data-access/seller-terminal-api.service';
+import { SellerTerminalApi, SellerTerminalSummaryRow } from '../../../data-access/seller-terminal-api.service';
 
 const BLOCK_FIELD_TARGETS = {
   reason: 'reason',

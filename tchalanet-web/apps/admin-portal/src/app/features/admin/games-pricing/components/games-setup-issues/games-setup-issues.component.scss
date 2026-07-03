@@ -1,0 +1,107 @@
+.games-issues {
+  display: grid;
+  gap: 0.875rem;
+  margin-block-end: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-surface-container-lowest);
+  box-shadow: var(--tch-elevation-1);
+
+  &__header {
+    display: grid;
+    gap: 0.75rem;
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h2 {
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-title-md);
+      font-weight: var(--tch-font-weight-bold);
+    }
+
+    p {
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-body-sm);
+    }
+  }
+
+  &__list {
+    display: grid;
+    gap: 0.625rem;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.875rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md);
+    background: var(--tch-color-surface-container-low);
+
+    button {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+    }
+
+    &--danger {
+      border-color: color-mix(in oklab, var(--tch-color-status-danger, #dc2626) 45%, var(--tch-color-outline-variant));
+    }
+
+    &--warning {
+      border-color: color-mix(in oklab, var(--tch-color-status-warning) 55%, var(--tch-color-outline-variant));
+    }
+  }
+
+  &__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--tch-color-status-warning) 14%, var(--tch-color-surface-container));
+    color: var(--tch-color-on-surface);
+    font-size: 1.25rem;
+  }
+
+  &__copy {
+    min-width: 0;
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h3 {
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-body-md);
+      font-weight: var(--tch-font-weight-bold);
+    }
+
+    p {
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-body-sm);
+    }
+  }
+
+  @media (min-width: 760px) {
+    &__header {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    &__item {
+      grid-template-columns: auto 1fr auto;
+
+      button {
+        grid-column: auto;
+        justify-self: end;
+      }
+    }
+  }
+}

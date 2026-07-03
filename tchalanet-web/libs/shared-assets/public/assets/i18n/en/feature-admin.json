@@ -164,6 +164,158 @@
         "title": "Support"
       }
     },
+    "gamesPricing": {
+      "title": "Available games",
+      "description": "Choose the games supported by this tenant and complete their sales settings.",
+      "loading": "Loading games...",
+      "action": {
+        "backToSetup": "General setup",
+        "refresh": "Refresh"
+      },
+      "empty": {
+        "title": "No games available",
+        "message": "Contact Tchalanet to enable a game catalog."
+      },
+      "summary": {
+        "aria": "Available games summary",
+        "systemGames": {
+          "label": "System games",
+          "help": "Games available for this tenant."
+        },
+        "activeGames": {
+          "label": "Active games",
+          "help": "Games enabled for sales."
+        },
+        "needsConfig": {
+          "label": "Needs setup",
+          "help": "Enabled games with incomplete stake or pricing setup."
+        },
+        "inactiveGames": {
+          "label": "Inactive",
+          "help": "Games available but not currently supported."
+        }
+      },
+      "issues": {
+        "aria": "Games to complete",
+        "title": "To complete",
+        "description": "Fix these points before enabling the game for this tenant.",
+        "missingStake": "Stake is not configured for this game.",
+        "configure": "Configure"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "NEEDS_CONFIG": "Needs setup",
+        "INACTIVE": "Inactive",
+        "UNAVAILABLE": "Unavailable"
+      },
+      "readiness": {
+        "READY": "Ready",
+        "TODO": "Needs setup",
+        "BLOCKED": "Unavailable"
+      },
+      "card": {
+        "unavailable": "Coming soon",
+        "systemGame": "System game · {{name}}",
+        "stakeUnavailable": "Stake unavailable",
+        "stakeConfigured": "Stake configured",
+        "stakeMissing": "Stake not configured",
+        "pricingMissing": "Pricing not configured",
+        "pricingOptions": "{{count}} pricing option(s)",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "standardPricingProfile": "Standard pricing",
+        "limitConfigured": "Draw limit configured",
+        "limitMissing": "Draw limit not configured",
+        "action": {
+          "configure": "Configure",
+          "disable": "Disable",
+          "activate": "Activate",
+          "reactivate": "Reactivate",
+          "edit": "Edit",
+          "unavailable": "Unavailable",
+          "maryaj": "Configure free Maryaj",
+          "limits": "Configure limits",
+          "pricing": "View pricing"
+        }
+      }
+    },
+    "drawSalesMatrix": {
+      "title": "Games by channel",
+      "description": "Check which games are active on each channel and configure stakes before sales.",
+      "loading": "Loading matrix...",
+      "action": {
+        "refresh": "Refresh"
+      },
+      "summary": {
+        "aria": "Games by channel matrix summary",
+        "saleReady": "Ready to sell",
+        "offeredGames": "Offered games",
+        "activeChannels": "Active channels",
+        "availableGames": "Available games",
+        "missingStake": "Stake not configured",
+        "missingLimits": "Missing limits"
+      },
+      "slot": {
+        "status": {
+          "ready": "Ready",
+          "review": "Review",
+          "notConfigured": "Not configured"
+        },
+        "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "channelMissing": "Missing channel",
+        "channelInactive": "Inactive channel"
+      },
+      "channel": {
+        "label": "Channel",
+        "salesOpen": "Sales open: {{value}}",
+        "cutoff": "Cutoff: {{seconds}}s before draw",
+        "activeGames": "{{count}} active game(s)",
+        "availableToAdd": "{{count}} game(s) available to add",
+        "dependsOnAnother": "Depends on another channel"
+      },
+      "section": {
+        "offered": "Games enabled or offered on this channel",
+        "available": "Games available to add on this channel"
+      },
+      "game": {
+        "status": {
+          "ready": "Ready",
+          "notOffered": "Not offered",
+          "disabled": "Disabled",
+          "incomplete": "Incomplete"
+        },
+        "stakeRange": "Allowed stakes: {{min}} to {{max}} HTG",
+        "minStake": "Minimum stake: {{min}} HTG",
+        "maxStake": "Maximum stake: {{max}} HTG",
+        "stakeMissing": "Stakes to configure",
+        "limitsMissing": "Missing limits",
+        "hiddenPos": "Hidden from POS",
+        "action": {
+          "configureMaryaj": "Configure free Maryaj",
+          "configureStake": "Configure stakes",
+          "add": "Add",
+          "activate": "Activate",
+          "disable": "Disable",
+          "remove": "Remove from channel"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Game disabled for tenant",
+        "NOT_VISIBLE_IN_POS": "Hidden from POS",
+        "CHANNEL_NOT_CONFIGURED": "Channel not configured",
+        "CHANNEL_INACTIVE": "Channel inactive",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Game not offered on this channel",
+        "CHANNEL_GAME_DISABLED": "Game disabled on this channel",
+        "STAKE_CONFIG_MISSING": "Stakes to configure",
+        "LIMITS_MISSING": "Limits to configure"
+      },
+      "feedback": {
+        "actionDone": "Action completed",
+        "added": "{{game}} added to channel.",
+        "activated": "{{game}} activated.",
+        "disabled": "{{game}} disabled.",
+        "removed": "{{game}} removed from channel."
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} required steps completed",
@@ -186,6 +338,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "channelMatrix": "Games by channel",
+        "channelMatrixDesc": "Choose which games are offered on each tenant draw channel.",
+        "channelMatrixCta": "Configure games by channel",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
         "drawChannelsCta": "Configurer les canaux",
@@ -280,18 +435,204 @@
       "description": "Manage seller-terminals",
       "search_placeholder": "Search seller-terminals…",
       "load_error": "Could not load seller-terminals.",
+      "list": {
+        "title": "Seller list",
+        "description": "Manage seller access, commissions and terminals authorized to sell tickets.",
+        "loading": "Loading sellers...",
+        "action": {
+          "new": "New seller",
+          "detail": "View details",
+          "openPos": "Open POS",
+          "resetPin": "Reset PIN",
+          "block": "Block",
+          "unblock": "Unblock",
+          "disable": "Disable",
+          "limits": "Limits",
+          "tickets": "View tickets"
+        },
+        "kpi": {
+          "active": "Active",
+          "blocked": "Blocked",
+          "salesToday": "Sales today",
+          "averageCommission": "Average commission"
+        },
+        "filter": {
+          "search": "Search",
+          "searchPlaceholder": "Search a seller...",
+          "status": "Status",
+          "allStatuses": "All statuses",
+          "reset": "Reset"
+        },
+        "empty": {
+          "title": "No sellers",
+          "message": "Create a first seller to start selling tickets."
+        },
+        "column": {
+          "terminalCode": "Terminal code",
+          "seller": "Seller",
+          "email": "Email",
+          "phone": "Phone",
+          "status": "Status",
+          "commission": "Commission",
+          "lastSeenAt": "Last activity"
+        },
+        "pagination": {
+          "page": "Page {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN reset required",
+          "activeNeverSeen": "Active · never connected"
+        }
+      },
       "empty": {
         "title": "No seller-terminals",
         "message": "Add your first seller-terminal to get started."
       },
       "new": {
-        "title": "New seller-terminal",
-        "action": "Add a seller-terminal",
-        "description": "Fill in the information to create a new seller-terminal.",
-        "submit": "Create seller terminal"
+        "title": "New seller",
+        "description": "Register a new point of sale on the network.",
+        "section": {
+          "terminal": "Terminal",
+          "terminalDesc": "Code and label displayed for this point of sale.",
+          "identity": "Identity",
+          "identityDesc": "Seller identification information.",
+          "address": "Address",
+          "addressDesc": "Physical point-of-sale address, when available.",
+          "access": "Access",
+          "accessDesc": "Initial login PIN for the seller.",
+          "commission": "Commission",
+          "commissionDesc": "Commission rate applied to this seller.",
+          "status": "Status",
+          "statusDesc": "The seller will be available immediately when active."
+        },
+        "field": {
+          "terminalCode": "Terminal code",
+          "displayName": "Display name",
+          "firstName": "First name (optional)",
+          "lastName": "Last name (optional)",
+          "email": "Email (optional)",
+          "phoneNumber": "Phone (optional)",
+          "addressLine1": "Street / Line 1",
+          "addressLine2": "Apartment / Line 2 (optional)",
+          "city": "City",
+          "region": "Region / Department (optional)",
+          "country": "Country (ISO code)",
+          "postalCode": "Postal code (optional)",
+          "initialPin": "Initial PIN",
+          "confirmPin": "Confirm PIN",
+          "commissionRate": "Commission rate (%)",
+          "active": "Activate seller on creation"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Ex: Downtown point of sale",
+          "email": "seller@example.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Ex: 12 Rue Pavee",
+          "addressLine2": "Ex: Apt 3B",
+          "city": "Ex: Port-au-Prince",
+          "region": "Ex: Ouest",
+          "country": "HT",
+          "pin": "6 digits",
+          "confirmPin": "Repeat the PIN"
+        },
+        "hint": {
+          "pin": "Exactly 6 digits.",
+          "confirmPin": "Repeat the 6 digits."
+        },
+        "validation": {
+          "terminalCodeRequired": "Terminal code is required.",
+          "terminalCodeMax": "Maximum 64 characters.",
+          "displayNameRequired": "Display name is required.",
+          "displayNameMin": "Minimum 2 characters.",
+          "displayNameMax": "Maximum 64 characters.",
+          "email": "Invalid email.",
+          "emailMax": "Maximum 254 characters.",
+          "max200": "Maximum 200 characters.",
+          "max100": "Maximum 100 characters.",
+          "country": "2-letter ISO code.",
+          "postalCode": "Maximum 20 characters.",
+          "pinRequired": "PIN is required.",
+          "pinFormat": "PIN must contain exactly 6 digits.",
+          "confirmPinRequired": "Confirmation is required.",
+          "confirmPinFormat": "Confirmation must contain exactly 6 digits.",
+          "pinMismatch": "PINs do not match.",
+          "commissionRequired": "Commission rate is required.",
+          "commissionRange": "Rate must be between 0 and 100."
+        },
+        "action": {
+          "backToList": "Back to list",
+          "regenerateCode": "Generate a new code",
+          "showPin": "Show PIN",
+          "hidePin": "Hide PIN",
+          "create": "Create seller",
+          "creating": "Creating…",
+          "openPos": "Open Web POS",
+          "copy": "Copy",
+          "copied": "Copied!",
+          "copyTerminalCode": "Copy terminal code",
+          "createAnother": "Create another seller"
+        },
+        "preview": {
+          "title": "Seller preview",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Seller name",
+          "commission": "Commission: {{rate}}%",
+          "hint": "The terminal code and initial PIN will be shown after creation."
+        },
+        "success": {
+          "title": "Seller created successfully!",
+          "description": "The new point of sale is now active on the network.",
+          "noticePrefix": "Share these credentials with the seller. The initial PIN must be changed on first login.",
+          "noticeStrong": "It will not be shown again after this screen is closed."
+        }
       },
       "detail": {
-        "title": "Seller-terminal detail"
+        "title": "Seller-terminal detail",
+        "description": "Review seller identity, states and activity.",
+        "loading": "Loading seller-terminal...",
+        "action": {
+          "openPos": "Open POS",
+          "tickets": "Tickets"
+        },
+        "summary": {
+          "eyebrow": "Seller"
+        },
+        "today": {
+          "eyebrow": "Today",
+          "title": "Today's stats",
+          "ticketsSold": "Tickets sold",
+          "grossSales": "Sales",
+          "commission": "Commissions",
+          "netRevenue": "Estimated net revenue"
+        },
+        "section": {
+          "identity": "Identity",
+          "identityDesc": "Information used to identify this seller.",
+          "states": "States",
+          "statesDesc": "Operational states that define what this seller can do.",
+          "activity": "Activity",
+          "activityDesc": "Latest known dates for this seller.",
+          "security": "Security",
+          "securityDesc": "PIN state and blocking information.",
+          "control": "Control"
+        },
+        "field": {
+          "currentStatus": "Current status",
+          "canSell": "Can sell",
+          "blocked": "Blocked",
+          "disabled": "Disabled",
+          "mustChangePin": "PIN change required",
+          "pinResetAt": "PIN reset at",
+          "blockedReason": "Block reason",
+          "activatedAt": "Activated at",
+          "lastSeenAt": "Last seen",
+          "blockedAt": "Blocked at",
+          "disabledAt": "Disabled at",
+          "commissionRate": "Commission",
+          "addressId": "Address",
+          "tenantId": "Tenant"
+        }
       },
       "status": {
         "ALL": "All",
@@ -315,6 +656,7 @@
         "commission_rate": "Commission rate",
         "commission_rate_hint": "Leave blank to use the tenant default rate.",
         "commission_rate_error": "Rate must be between 0 and 100.",
+        "email": "Email",
         "pin": "PIN (6 chiffres)",
         "pin_required": "PIN is required and must contain 6 digits.",
         "seller_terminal_code": "Seller-terminal code",
@@ -363,6 +705,61 @@
         "ready": "Prêt pour la vente",
         "todo": "Configuration incomplète",
         "sourceWarning": "Vente configurée · Source à vérifier"
+      }
+    },
+    "games": {
+      "title": "Games",
+      "description": "Manage the games enabled for this tenant.",
+      "tabs": {
+        "enabled": "Enabled games",
+        "catalog": "Catalog"
+      },
+      "status": {
+        "readyForSale": "Ready for sale",
+        "incomplete": "Incomplete configuration",
+        "enabledForTenant": "Enabled",
+        "available": "Available"
+      },
+      "empty": {
+        "enabled": {
+          "title": "No enabled games",
+          "message": "Enable games from the catalog."
+        },
+        "catalog": {
+          "title": "Empty catalog",
+          "message": "No catalog game is available."
+        }
+      },
+      "settings": {
+        "title": "Configure game - {{name}}",
+        "description": "Tenant settings used for POS sales.",
+        "intro": {
+          "aria": "Game sales settings",
+          "title": "Settings used for sales",
+          "message": "These values control POS display and accepted stakes for this tenant. Global payouts and pricing remain managed in the platform catalog."
+        },
+        "field": {
+          "displayName": "POS display name",
+          "minStake": "Minimum stake per line",
+          "maxStake": "Maximum stake per line",
+          "displayOrder": "Display order",
+          "visibleInPos": "Show this game in POS",
+          "availabilityEnabled": "Restrict sales hours",
+          "startLocalTime": "Start time (HH:mm)",
+          "endLocalTime": "End time (HH:mm)"
+        },
+        "options": {
+          "title": "Bet options / payouts",
+          "description": "Read-only here. These options come from the game catalog and pricing."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Odds grid",
+      "description": "Default odds for all bet types.",
+      "empty": {
+        "title": "No odds configured",
+        "message": "The odds grid is empty."
       }
     },
     "generatedDraws": {

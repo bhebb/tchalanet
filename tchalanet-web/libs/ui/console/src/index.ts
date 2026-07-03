@@ -1,5 +1,6 @@
 export * from './lib/console-surface/admin-crud-shell.component';
 export * from './lib/console-surface/admin-data-toolbar.component';
+export * from './lib/console-surface/admin-dialog-shell.component';
 export * from './lib/console-surface/admin-empty-state.component';
 export * from './lib/console-surface/admin-page-shell.component';
 export * from './lib/console-surface/admin-section-card.component';

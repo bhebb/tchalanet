@@ -2,9 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
@@ -12,6 +11,12 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
+import {
+  ConsoleGameActionEvent,
+  ConsoleGameRow,
+  ConsoleGamesTableComponent,
+  consoleGameName,
+} from '@tch/web/console';
 import {
   GamesAdminApiService,
   TenantGameView,
@@ -28,9 +33,10 @@ import { GameSettingsDialog } from './dialogs/game-settings.dialog';
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    ConsoleGamesTableComponent,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
     MatTabsModule,
   ],
   templateUrl: './admin-games.page.html',
@@ -41,9 +47,6 @@ export class AdminGamesPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly gameColumns = ['gameCode', 'displayName', 'enabled', 'settings'];
-  readonly catalogColumns = ['gameCode', 'name', 'category', 'activate'];
-
   readonly loadingGames = signal(false);
   readonly errorGames = signal<ErrorViewModel | null>(null);
   readonly games = signal<TenantGameView[]>([]);
@@ -51,6 +54,8 @@ export class AdminGamesPage implements OnInit {
   readonly loadingCatalog = signal(false);
   readonly errorCatalog = signal<ErrorViewModel | null>(null);
   readonly catalog = signal<CatalogGameView[]>([]);
+  readonly gameRows = signal<readonly ConsoleGameRow[]>([]);
+  readonly catalogRows = signal<readonly ConsoleGameRow[]>([]);
 
   ngOnInit(): void {
     this.loadGames();
@@ -61,7 +66,11 @@ export class AdminGamesPage implements OnInit {
     this.loadingGames.set(true);
     this.errorGames.set(null);
     this.api.listEnabledGames({ suppressShellFeedback: true }).subscribe({
-      next: v => { this.games.set(v); this.loadingGames.set(false); },
+      next: v => {
+        this.games.set(v);
+        this.gameRows.set(v.map(game => this.toTenantGameRow(game)));
+        this.loadingGames.set(false);
+      },
       error: (err: unknown) => {
         this.errorGames.set(this.errorViewModel(err, 'admin.games.enabled'));
         this.loadingGames.set(false);
@@ -73,7 +82,11 @@ export class AdminGamesPage implements OnInit {
     this.loadingCatalog.set(true);
     this.errorCatalog.set(null);
     this.api.listCatalogGames({ suppressShellFeedback: true }).subscribe({
-      next: v => { this.catalog.set(v); this.loadingCatalog.set(false); },
+      next: v => {
+        this.catalog.set(v);
+        this.catalogRows.set(v.map(game => this.toCatalogGameRow(game)));
+        this.loadingCatalog.set(false);
+      },
       error: (err: unknown) => {
         this.errorCatalog.set(this.errorViewModel(err, 'admin.games.catalog'));
         this.loadingCatalog.set(false);
@@ -114,6 +127,76 @@ export class AdminGamesPage implements OnInit {
     ref.afterClosed().subscribe(ok => {
       if (ok) this.loadGames();
     });
+  }
+
+  onTenantGameAction(event: ConsoleGameActionEvent): void {
+    const game = this.games().find(item => item.gameCode === event.row.id);
+    if (!game) return;
+    switch (event.action.id) {
+      case 'toggle':
+        this.toggleGame(game);
+        break;
+      case 'settings':
+        this.openSettings(game);
+        break;
+    }
+  }
+
+  onCatalogGameAction(event: ConsoleGameActionEvent): void {
+    const game = this.catalog().find(item => item.gameCode === event.row.id);
+    if (!game || event.action.id !== 'enable') return;
+    this.enableFromCatalog(game);
+  }
+
+  private toTenantGameRow(game: TenantGameView): ConsoleGameRow {
+    return {
+      id: game.gameCode,
+      code: game.gameCode,
+      name: consoleGameName(game.gameCode, game.displayName ?? game.catalogName),
+      category: game.category,
+      sortOrder: game.displayOrder,
+      statusLabel: this.translate.instant(game.enabled ? 'common.enabled' : 'common.disabled'),
+      statusTone: game.enabled ? 'success' : 'neutral',
+      supporting: this.translate.instant(
+        game.readyForSale ? 'admin.games.status.readyForSale' : 'admin.games.status.incomplete',
+      ),
+      actions: [
+        {
+          id: 'toggle',
+          label: this.translate.instant(game.enabled ? 'common.deactivate' : 'common.activate'),
+          icon: game.enabled ? 'block' : 'check_circle',
+          tone: game.enabled ? 'danger' : 'primary',
+        },
+        { id: 'settings', label: this.translate.instant('common.details'), icon: 'tune', variant: 'icon' },
+      ],
+    };
+  }
+
+  private toCatalogGameRow(game: CatalogGameView): ConsoleGameRow {
+    return {
+      id: game.gameCode,
+      code: game.gameCode,
+      name: consoleGameName(game.gameCode, game.name),
+      category: game.category,
+      statusLabel: this.catalogStatusLabel(game),
+      statusTone: game.enabledForTenant ? 'success' : game.catalogActive ? 'info' : 'neutral',
+      supporting: game.disabledReason,
+      actions: game.enabledForTenant
+        ? []
+        : [{
+            id: 'enable',
+            label: this.translate.instant('common.activate'),
+            icon: 'add',
+            tone: 'primary',
+            variant: 'button',
+          }],
+    };
+  }
+
+  private catalogStatusLabel(game: CatalogGameView): string {
+    if (game.enabledForTenant) return this.translate.instant('admin.games.status.enabledForTenant');
+    if (game.catalogActive) return this.translate.instant('admin.games.status.available');
+    return this.translate.instant('common.disabled');
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

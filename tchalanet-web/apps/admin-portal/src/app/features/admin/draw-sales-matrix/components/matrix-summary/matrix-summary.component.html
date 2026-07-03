@@ -1,0 +1,8 @@
+<section class="matrix-summary" [attr.aria-label]="'admin.drawSalesMatrix.summary.aria' | translate">
+  @for (item of items(); track item.labelKey) {
+    <article class="matrix-summary__item matrix-summary__item--{{ item.tone ?? 'neutral' }}">
+      <span class="matrix-summary__value">{{ item.value }}</span>
+      <span class="matrix-summary__label">{{ item.labelKey | translate }}</span>
+    </article>
+  }
+</section>

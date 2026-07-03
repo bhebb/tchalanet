@@ -1,29 +1,38 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent } from '@tch/ui/console';
+import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
+import { consoleGameName } from '@tch/web/console';
 import type { TenantGameView } from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
-import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
 import {
   AdminDrawSalesMatrixApi,
-  TenantDrawSalesMatrixView,
-  MatrixSummary,
   SlotMatrixView,
   ChannelGameSetupView,
-  SetupWarning,
 } from '../data-access/admin-draw-sales-matrix-api.service';
+import {
+  DrawSalesMatrixProviderListComponent,
+  MatrixProviderGameActionEvent,
+} from '../components/matrix-provider-list/matrix-provider-list.component';
+import { DrawSalesMatrixSummaryComponent } from '../components/matrix-summary/matrix-summary.component';
+
+interface MatrixGameMutationInput {
+  readonly key: string;
+  readonly drawChannelId: string;
+  readonly tenantGameId: string;
+  readonly game: ChannelGameSetupView;
+}
+
+interface MatrixToggleGameInput extends MatrixGameMutationInput {
+  readonly enabled: boolean;
+}
 
 @Component({
   selector: 'tch-admin-draw-sales-matrix-page',
@@ -31,70 +40,84 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminPageShellComponent,
-    AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
-    TchSectionError,
-    RouterLink,
+    TranslatePipe,
     MatButtonModule,
-    MatExpansionModule,
-    MatIconModule,
-    OfferedGamesPipe,
-    AvailableGamesPipe,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
+    DrawSalesMatrixProviderListComponent,
+    DrawSalesMatrixSummaryComponent,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
-  styleUrl: './admin-draw-sales-matrix.page.scss',
+  styleUrls: ['./admin-draw-sales-matrix.page.scss'],
 })
-export class AdminDrawSalesMatrixPage implements OnInit {
+export class AdminDrawSalesMatrixPage {
   private readonly api = inject(AdminDrawSalesMatrixApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly loading = signal(false);
-  readonly error = signal<ErrorViewModel | null>(null);
-  readonly matrix = signal<TenantDrawSalesMatrixView | null>(null);
+  readonly matrixResource = this.api.getMatrixResource({ suppressShellFeedback: true });
+  readonly matrixError = resourceErrorVm(this.matrixResource, 'admin.setup.draw_sales_matrix');
+  readonly matrix = computed(() => this.matrixResource.value() ?? null);
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
   readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
   readonly actionNotices = signal<Readonly<Record<string, string>>>({});
-
-  ngOnInit(): void { this.load(); }
+  readonly offerGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
+    run: input => this.api.offerGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.offer',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.added', {
+        game: this.gameLabel(input.game),
+      }));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
+  readonly toggleGameMutation = tchMutation<MatrixToggleGameInput, unknown>({
+    run: input =>
+      this.api.toggleGame(input.drawChannelId, input.tenantGameId, input.enabled, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.toggle',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant(
+        input.enabled ? 'admin.drawSalesMatrix.feedback.activated' : 'admin.drawSalesMatrix.feedback.disabled',
+        { game: this.gameLabel(input.game) },
+      ));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
+  readonly removeGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
+    run: input => this.api.removeGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.remove',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.removed', {
+        game: this.gameLabel(input.game),
+      }));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
 
   load(preserveActionFeedback = false): void {
-    this.loading.set(true);
-    this.error.set(null);
     if (!preserveActionFeedback) {
       this.actionErrors.set({});
       this.actionNotices.set({});
     }
-    this.api.getMatrix({ suppressShellFeedback: true }).subscribe({
-      next: data => { this.matrix.set(data); this.loading.set(false); },
-      error: (err: unknown) => {
-        this.error.set(this.errorViewModel(err, 'admin.setup.draw_sales_matrix', 'page'));
-        this.loading.set(false);
-      },
-    });
-  }
-
-  summary(): MatrixSummary | null { return this.matrix()?.summary ?? null; }
-
-  offeredCount(slot: SlotMatrixView): number {
-    return slot.games.filter(game => game.offeredOnChannel).length;
-  }
-
-  activeOfferedCount(slot: SlotMatrixView): number {
-    return slot.games.filter(game => game.offeredOnChannel && game.enabledOnChannel).length;
-  }
-
-  availableCount(slot: SlotMatrixView): number {
-    return slot.games.filter(game => !game.offeredOnChannel && game.enabledForTenant).length;
-  }
-
-  slotTitle(slot: SlotMatrixView): string {
-    return slot.labelKey?.trim() || slot.slotKey;
-  }
-
-  channelLabel(slot: SlotMatrixView): string {
-    return slot.channel?.channelCode ?? 'Canal non configuré';
+    this.matrixResource.reload();
   }
 
   actingKey(drawChannelId: string, tenantGameId: string): string {
@@ -113,16 +136,13 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.acting.set(key);
     this.clearActionError(key);
     this.clearActionNotice(key);
-    this.api.offerGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, `${this.gameLabel(game)} ajouté au canal.`);
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.offerGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+    }, {
+      key,
     });
   }
 
@@ -135,16 +155,14 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.clearActionError(key);
     this.clearActionNotice(key);
     const newEnabled = !game.enabledOnChannel;
-    this.api.toggleGame(drawChannelId, tenantGameId, newEnabled, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, `${this.gameLabel(game)} ${newEnabled ? 'activé' : 'désactivé'}.`);
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.toggleGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+      enabled: newEnabled,
+    }, {
+      key,
     });
   }
 
@@ -156,16 +174,13 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     this.acting.set(key);
     this.clearActionError(key);
     this.clearActionNotice(key);
-    this.api.removeGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, `${this.gameLabel(game)} retiré du canal.`);
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.removeGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+    }, {
+      key,
     });
   }
 
@@ -173,40 +188,6 @@ export class AdminDrawSalesMatrixPage implements OnInit {
     const dialogGame = this.toDialogGame(game);
     const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '520px' });
     ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
-  }
-
-  actionError(drawChannelId: string, tenantGameId: string): ErrorViewModel | null {
-    return this.actionErrors()[this.actingKey(drawChannelId, tenantGameId)] ?? null;
-  }
-
-  actionNotice(drawChannelId: string, tenantGameId: string): string | null {
-    return this.actionNotices()[this.actingKey(drawChannelId, tenantGameId)] ?? null;
-  }
-
-  severityIcon(w: SetupWarning): string {
-    if (w.severity === 'ERROR') return 'error';
-    if (w.severity === 'WARN') return 'warning';
-    return 'info';
-  }
-
-  slotStatusTone(slot: SlotMatrixView): 'success' | 'warning' | 'danger' | 'neutral' {
-    if (slot.slotReady) return 'success';
-    const hasError = slot.warnings.some(w => w.severity === 'ERROR');
-    return hasError ? 'danger' : 'warning';
-  }
-
-  gameStatusTone(game: ChannelGameSetupView): 'success' | 'warning' | 'danger' | 'neutral' {
-    if (game.saleReady) return 'success';
-    if (!game.offeredOnChannel) return 'neutral';
-    const hasError = game.warnings.some(w => w.severity === 'ERROR');
-    return hasError ? 'danger' : 'warning';
-  }
-
-  gameStatusLabel(game: ChannelGameSetupView): string {
-    if (game.saleReady) return 'Prêt';
-    if (!game.offeredOnChannel) return 'Non offert';
-    if (!game.enabledOnChannel) return 'Désactivé';
-    return 'Incomplet';
   }
 
   isMaryajGratis(game: ChannelGameSetupView): boolean {
@@ -218,34 +199,24 @@ export class AdminDrawSalesMatrixPage implements OnInit {
 
   gameLabel(game: ChannelGameSetupView): string {
     if (this.isMaryajGratis(game)) return 'Maryaj gratis';
-    return game.displayName?.trim() || this.readableGameCode(game.gameCode);
+    return consoleGameName(game.gameCode, game.displayName);
   }
 
-  gameCodeLabel(game: ChannelGameSetupView): string {
-    if (this.isMaryajGratis(game)) return 'MG';
-    return this.readableGameCode(game.gameCode);
-  }
-
-  warningLabel(warning: SetupWarning): string {
-    const labels: Record<string, string> = {
-      TENANT_GAME_DISABLED: 'Jeu désactivé pour le tenant',
-      NOT_VISIBLE_IN_POS: 'Masqué au POS',
-      CHANNEL_NOT_CONFIGURED: 'Canal non configuré',
-      CHANNEL_INACTIVE: 'Canal inactif',
-      GAME_NOT_OFFERED_ON_CHANNEL: 'Jeu non offert sur ce canal',
-      CHANNEL_GAME_DISABLED: 'Jeu désactivé sur ce canal',
-      STAKE_CONFIG_MISSING: 'Mises à configurer',
-      LIMITS_MISSING: 'Limites à configurer',
-    };
-    return labels[warning.code] ?? this.readableGameCode(warning.code);
-  }
-
-  private readableGameCode(code: string): string {
-    return code
-      .replace(/^HT_/, '')
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, char => char.toUpperCase());
+  onMatrixGameAction(event: MatrixProviderGameActionEvent): void {
+    switch (event.action) {
+      case 'configure':
+        this.configureGame(event.game);
+        break;
+      case 'offer':
+        this.offerGame(event.slot, event.game);
+        break;
+      case 'toggle':
+        this.toggleGame(event.slot, event.game);
+        break;
+      case 'remove':
+        this.removeGame(event.slot, event.game);
+        break;
+    }
   }
 
   private toDialogGame(game: ChannelGameSetupView): TenantGameView {

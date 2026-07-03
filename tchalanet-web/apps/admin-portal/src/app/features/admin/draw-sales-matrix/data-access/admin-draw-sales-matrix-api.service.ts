@@ -91,8 +91,11 @@ export interface TenantDrawSalesMatrixView {
 export class AdminDrawSalesMatrixApi {
   private readonly backend = inject(TchBackendClient);
 
-  getMatrix(options?: TchRequestOptions): Observable<TenantDrawSalesMatrixView> {
-    return this.backend.get<TenantDrawSalesMatrixView>('/admin/setup/draw-sales-matrix', options);
+  getMatrixResource(options?: TchRequestOptions) {
+    return this.backend.getResource<TenantDrawSalesMatrixView>(() => ({
+      path: '/admin/setup/draw-sales-matrix',
+      options,
+    }));
   }
 
   offerGame(drawChannelId: string, tenantGameId: string, options?: TchRequestOptions): Observable<unknown> {

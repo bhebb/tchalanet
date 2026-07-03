@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -36,6 +37,7 @@ import { AssignTenantDialog, AssignTenantResult } from '../../../shared/assign-t
     TchErrorPanel,
     TchSectionError,
     MatButtonModule,
+    TranslatePipe,
   ],
   templateUrl: './platform-admin-user-detail.page.html',
   styleUrls: ['./platform-admin-user-detail.page.scss'],

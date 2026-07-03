@@ -1,0 +1,73 @@
+@let slotVm = slot();
+<mat-expansion-panel>
+  <mat-expansion-panel-header>
+    <mat-panel-title class="matrix-slot-header">
+      <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
+      <span class="matrix-slot-header__meta">
+        <tch-status-badge [status]="slotStatus(slotVm)" [label]="slotStatusLabelKey(slotVm) | translate" />
+        <code>{{ slotVm.slotKey }}</code>
+        <span>
+          {{ 'admin.drawSalesMatrix.slot.offeredCount' | translate: { active: activeOfferedCount(), offered: offeredCount() } }}
+        </span>
+        @if (!slotVm.channel) {
+          <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.slot.channelMissing' | translate }}</span>
+        } @else if (!slotVm.channel.active) {
+          <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.slot.channelInactive' | translate }}</span>
+        }
+      </span>
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  @if (slotVm.channel; as channel) {
+    <div class="matrix-channel-info">
+      <span class="material-symbols-outlined">router</span>
+      <span class="matrix-channel-info__title">
+        {{ 'admin.drawSalesMatrix.channel.label' | translate }}
+        <strong>{{ channel.channelCode }}</strong>
+      </span>
+      <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
+      <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>
+      <span>{{ 'admin.drawSalesMatrix.channel.activeGames' | translate: { count: activeOfferedCount() } }}</span>
+      @if (availableGames().length > 0) {
+        <span>{{ 'admin.drawSalesMatrix.channel.availableToAdd' | translate: { count: availableGames().length } }}</span>
+      }
+      @if (channel.dependsOnChannelId) {
+        <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
+      }
+    </div>
+  }
+
+  @if (offeredGames().length > 0) {
+    <p class="matrix-section-label">{{ 'admin.drawSalesMatrix.section.offered' | translate }}</p>
+    <div class="matrix-games">
+      @for (game of offeredGames(); track game.gameCode) {
+        <tch-draw-sales-matrix-game-card
+          mode="offered"
+          [game]="game"
+          [channel]="slotVm.channel"
+          [acting]="isActing(slotVm, game)"
+          [actionError]="actionError(slotVm, game)"
+          [actionNotice]="actionNotice(slotVm, game)"
+          (gameAction)="onGameAction($event)"
+        />
+      }
+    </div>
+  }
+
+  @if (slotVm.channel && availableGames().length > 0) {
+    <p class="matrix-section-label matrix-section-label--secondary">{{ 'admin.drawSalesMatrix.section.available' | translate }}</p>
+    <div class="matrix-games matrix-games--available">
+      @for (game of availableGames(); track game.gameCode) {
+        <tch-draw-sales-matrix-game-card
+          mode="available"
+          [game]="game"
+          [channel]="slotVm.channel"
+          [acting]="isActing(slotVm, game)"
+          [actionError]="actionError(slotVm, game)"
+          [actionNotice]="actionNotice(slotVm, game)"
+          (gameAction)="onGameAction($event)"
+        />
+      }
+    </div>
+  }
+</mat-expansion-panel>

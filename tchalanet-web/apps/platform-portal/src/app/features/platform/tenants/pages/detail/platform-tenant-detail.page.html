@@ -177,36 +177,10 @@
                   [title]="'platform.tenants.detail.section.address' | translate"
                   icon="location_on"
                 >
-                  @if (hasAddress()) {
-                    <dl class="tenant-detail__facts">
-                      @if (tenant()!.address!.country) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.field.country' | translate }}</dt>
-                          <dd>{{ tenant()!.address!.country }}</dd>
-                        </div>
-                      }
-                      @if (tenant()!.address!.city) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.field.city' | translate }}</dt>
-                          <dd>{{ tenant()!.address!.city }}</dd>
-                        </div>
-                      }
-                      @if (tenant()!.address!.line1) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.field.addressLine' | translate }}</dt>
-                          <dd>{{ tenant()!.address!.line1 }}</dd>
-                        </div>
-                      }
-                      @if (tenant()!.address!.postalCode) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.field.postalCode' | translate }}</dt>
-                          <dd>{{ tenant()!.address!.postalCode }}</dd>
-                        </div>
-                      }
-                    </dl>
-                  } @else {
-                    <p class="tenant-detail__empty-hint">{{ 'platform.tenants.detail.address.empty' | translate }}</p>
-                  }
+                  <tch-console-address-summary
+                    [address]="tenant()!.address"
+                    emptyKey="platform.tenants.detail.address.empty"
+                  />
                 </tch-admin-section-card>
 
                 <tch-admin-section-card

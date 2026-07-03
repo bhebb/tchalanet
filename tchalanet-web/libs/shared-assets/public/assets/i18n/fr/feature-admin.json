@@ -86,6 +86,61 @@
         "sourceWarning": "Vente configurée · Source à vérifier"
       }
     },
+    "games": {
+      "title": "Jeux",
+      "description": "Gestion des jeux activés pour ce tenant.",
+      "tabs": {
+        "enabled": "Jeux activés",
+        "catalog": "Catalogue"
+      },
+      "status": {
+        "readyForSale": "Prêt à vendre",
+        "incomplete": "Configuration incomplète",
+        "enabledForTenant": "Activé",
+        "available": "Disponible"
+      },
+      "empty": {
+        "enabled": {
+          "title": "Aucun jeu activé",
+          "message": "Activez des jeux depuis le catalogue."
+        },
+        "catalog": {
+          "title": "Catalogue vide",
+          "message": "Aucun jeu disponible dans le catalogue."
+        }
+      },
+      "settings": {
+        "title": "Configurer le jeu - {{name}}",
+        "description": "Paramètres tenant utilisés pour la vente POS.",
+        "intro": {
+          "aria": "Paramètres de vente du jeu",
+          "title": "Paramètres utilisés dans la vente",
+          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce tenant. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
+        },
+        "field": {
+          "displayName": "Nom affiché au POS",
+          "minStake": "Mise minimum par ligne",
+          "maxStake": "Mise maximum par ligne",
+          "displayOrder": "Ordre d'affichage",
+          "visibleInPos": "Afficher ce jeu dans le POS",
+          "availabilityEnabled": "Restreindre les horaires de vente",
+          "startLocalTime": "Heure de début (HH:mm)",
+          "endLocalTime": "Heure de fin (HH:mm)"
+        },
+        "options": {
+          "title": "Options de pari / gains",
+          "description": "Lecture seule ici. Ces options viennent du catalogue et du barème du jeu."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Grille de cotes",
+      "description": "Cotes par défaut pour tous les types de mises.",
+      "empty": {
+        "title": "Aucune cote configurée",
+        "message": "La grille de cotes est vide."
+      }
+    },
     "generatedDraws": {
       "title": "Tirages générés",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
@@ -186,6 +241,158 @@
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
     },
+    "gamesPricing": {
+      "title": "Jeux disponibles",
+      "description": "Choisissez les jeux supportés par ce tenant et complétez leurs spécificités de vente.",
+      "loading": "Chargement des jeux...",
+      "action": {
+        "backToSetup": "Configuration générale",
+        "refresh": "Rafraîchir"
+      },
+      "empty": {
+        "title": "Aucun jeu disponible",
+        "message": "Contactez Tchalanet pour activer un catalogue de jeux."
+      },
+      "summary": {
+        "aria": "Résumé des jeux disponibles",
+        "systemGames": {
+          "label": "Jeux système",
+          "help": "Jeux disponibles pour ce tenant."
+        },
+        "activeGames": {
+          "label": "Jeux actifs",
+          "help": "Jeux activés pour la vente."
+        },
+        "needsConfig": {
+          "label": "À configurer",
+          "help": "Jeux activés avec mise ou barème incomplet."
+        },
+        "inactiveGames": {
+          "label": "Inactifs",
+          "help": "Jeux disponibles mais non supportés actuellement."
+        }
+      },
+      "issues": {
+        "aria": "Jeux à compléter",
+        "title": "À compléter",
+        "description": "Corrigez ces points avant d'activer le jeu pour ce tenant.",
+        "missingStake": "Mise non configurée pour ce jeu.",
+        "configure": "Configurer"
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "NEEDS_CONFIG": "À configurer",
+        "INACTIVE": "Inactif",
+        "UNAVAILABLE": "Non disponible"
+      },
+      "readiness": {
+        "READY": "Prêt",
+        "TODO": "À configurer",
+        "BLOCKED": "Non disponible"
+      },
+      "card": {
+        "unavailable": "Bientôt disponible",
+        "systemGame": "Jeu système · {{name}}",
+        "stakeUnavailable": "Mise indisponible",
+        "stakeConfigured": "Mise configurée",
+        "stakeMissing": "Mise non configurée",
+        "pricingMissing": "Barème non configuré",
+        "pricingOptions": "{{count}} option(s) de barème",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "standardPricingProfile": "Barème standard",
+        "limitConfigured": "Limite tirage configurée",
+        "limitMissing": "Limite tirage non configurée",
+        "action": {
+          "configure": "Configurer",
+          "disable": "Désactiver",
+          "activate": "Activer",
+          "reactivate": "Réactiver",
+          "edit": "Modifier",
+          "unavailable": "Non disponible",
+          "maryaj": "Configurer Maryaj gratis",
+          "limits": "Configurer les limites",
+          "pricing": "Voir les barèmes"
+        }
+      }
+    },
+    "drawSalesMatrix": {
+      "title": "Jeux par canal",
+      "description": "Vérifiez quels jeux sont actifs sur chaque canal et configurez les mises avant la vente.",
+      "loading": "Chargement de la matrice...",
+      "action": {
+        "refresh": "Actualiser"
+      },
+      "summary": {
+        "aria": "Résumé de la matrice des jeux par canal",
+        "saleReady": "Prêts à vendre",
+        "offeredGames": "Jeux offerts",
+        "activeChannels": "Canaux actifs",
+        "availableGames": "Jeux disponibles",
+        "missingStake": "Mise non configurée",
+        "missingLimits": "Limites manquantes"
+      },
+      "slot": {
+        "status": {
+          "ready": "Prêt",
+          "review": "À vérifier",
+          "notConfigured": "Non configuré"
+        },
+        "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "channelMissing": "Canal manquant",
+        "channelInactive": "Canal inactif"
+      },
+      "channel": {
+        "label": "Canal",
+        "salesOpen": "Ouverture vente : {{value}}",
+        "cutoff": "Cutoff : {{seconds}}s avant le tirage",
+        "activeGames": "{{count}} jeu(x) actif(s)",
+        "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
+        "dependsOnAnother": "Dépend d'un autre canal"
+      },
+      "section": {
+        "offered": "Jeux activés ou offerts sur ce canal",
+        "available": "Jeux disponibles à ajouter sur ce canal"
+      },
+      "game": {
+        "status": {
+          "ready": "Prêt",
+          "notOffered": "Non offert",
+          "disabled": "Désactivé",
+          "incomplete": "Incomplet"
+        },
+        "stakeRange": "Mises autorisées : {{min}} à {{max}} HTG",
+        "minStake": "Mise minimum : {{min}} HTG",
+        "maxStake": "Mise maximum : {{max}} HTG",
+        "stakeMissing": "Mises à configurer",
+        "limitsMissing": "Limites manquantes",
+        "hiddenPos": "Masqué POS",
+        "action": {
+          "configureMaryaj": "Configurer Maryaj gratis",
+          "configureStake": "Configurer les mises",
+          "add": "Ajouter",
+          "activate": "Activer",
+          "disable": "Désactiver",
+          "remove": "Retirer du canal"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Jeu désactivé pour le tenant",
+        "NOT_VISIBLE_IN_POS": "Masqué au POS",
+        "CHANNEL_NOT_CONFIGURED": "Canal non configuré",
+        "CHANNEL_INACTIVE": "Canal inactif",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Jeu non offert sur ce canal",
+        "CHANNEL_GAME_DISABLED": "Jeu désactivé sur ce canal",
+        "STAKE_CONFIG_MISSING": "Mises à configurer",
+        "LIMITS_MISSING": "Limites à configurer"
+      },
+      "feedback": {
+        "actionDone": "Action effectuée",
+        "added": "{{game}} ajouté au canal.",
+        "activated": "{{game}} activé.",
+        "disabled": "{{game}} désactivé.",
+        "removed": "{{game}} retiré du canal."
+      }
+    },
     "setup": {
       "title": "Configuration du tenant",
       "optional": "Optionnel",
@@ -203,6 +410,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "channelMatrix": "Jeux par canal",
+        "channelMatrixDesc": "Choisissez les jeux proposés sur chaque canal de tirage du tenant.",
+        "channelMatrixCta": "Configurer les jeux par canal",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
         "drawChannelsCta": "Configurer les canaux",
@@ -296,7 +506,216 @@
       "description": "Complétez les informations nécessaires pour démarrer."
     },
     "sellerTerminals": {
-      "title": "Vendeurs"
+      "title": "Vendeurs",
+      "description": "Gérez les vendeurs et leurs accès de vente.",
+      "list": {
+        "title": "Liste vendeurs",
+        "description": "Gérez les accès de vente, les commissions et les terminaux autorisés à vendre des tickets.",
+        "loading": "Chargement des vendeurs...",
+        "action": {
+          "new": "Nouveau vendeur",
+          "detail": "Voir le détail",
+          "openPos": "Ouvrir POS",
+          "resetPin": "Réinitialiser PIN",
+          "block": "Bloquer",
+          "unblock": "Débloquer",
+          "disable": "Désactiver",
+          "limits": "Limites",
+          "tickets": "Voir tickets"
+        },
+        "kpi": {
+          "active": "Actifs",
+          "blocked": "Bloqués",
+          "salesToday": "Ventes aujourd'hui",
+          "averageCommission": "Commission moyenne"
+        },
+        "filter": {
+          "search": "Recherche",
+          "searchPlaceholder": "Rechercher un vendeur...",
+          "status": "Statut",
+          "allStatuses": "Tous les statuts",
+          "reset": "Réinitialiser"
+        },
+        "empty": {
+          "title": "Aucun vendeur enregistré",
+          "message": "Créez un premier vendeur pour commencer à vendre des tickets."
+        },
+        "column": {
+          "terminalCode": "Code terminal",
+          "seller": "Vendeur",
+          "email": "Email",
+          "phone": "Téléphone",
+          "status": "Statut",
+          "commission": "Commission",
+          "lastSeenAt": "Dernière activité"
+        },
+        "pagination": {
+          "page": "Page {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN à remettre",
+          "activeNeverSeen": "Actif · jamais connecté"
+        }
+      },
+      "new": {
+        "title": "Nouveau vendeur",
+        "description": "Enregistrez un nouveau point de vente sur le réseau.",
+        "section": {
+          "terminal": "Terminal",
+          "terminalDesc": "Code et libellé affichés pour ce point de vente.",
+          "identity": "Identité",
+          "identityDesc": "Informations d'identification du vendeur.",
+          "address": "Adresse",
+          "addressDesc": "Adresse physique du point de vente, si disponible.",
+          "access": "Accès",
+          "accessDesc": "PIN de connexion initial du vendeur.",
+          "commission": "Commission",
+          "commissionDesc": "Taux de commission appliqué à ce vendeur.",
+          "status": "Statut",
+          "statusDesc": "Le vendeur sera immédiatement disponible si activé."
+        },
+        "field": {
+          "terminalCode": "Code terminal",
+          "displayName": "Nom d'affichage",
+          "firstName": "Prénom (optionnel)",
+          "lastName": "Nom (optionnel)",
+          "email": "Email (optionnel)",
+          "phoneNumber": "Téléphone (optionnel)",
+          "addressLine1": "Rue / Ligne 1",
+          "addressLine2": "Appartement / Ligne 2 (optionnel)",
+          "city": "Ville",
+          "region": "Région / Département (optionnel)",
+          "country": "Pays (code ISO)",
+          "postalCode": "Code postal (optionnel)",
+          "initialPin": "PIN initial",
+          "confirmPin": "Confirmer le PIN",
+          "commissionRate": "Taux de commission (%)",
+          "active": "Activer le vendeur à la création"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Ex : Point Vente Centre-Ville",
+          "email": "vendeur@exemple.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Ex : 12 Rue Pavée",
+          "addressLine2": "Ex : Apt 3B",
+          "city": "Ex : Port-au-Prince",
+          "region": "Ex : Ouest",
+          "country": "HT",
+          "pin": "6 chiffres",
+          "confirmPin": "Répéter le PIN"
+        },
+        "hint": {
+          "pin": "Exactement 6 chiffres.",
+          "confirmPin": "Répétez les 6 chiffres."
+        },
+        "validation": {
+          "terminalCodeRequired": "Le code terminal est requis.",
+          "terminalCodeMax": "Maximum 64 caractères.",
+          "displayNameRequired": "Le nom d'affichage est requis.",
+          "displayNameMin": "Minimum 2 caractères.",
+          "displayNameMax": "Maximum 64 caractères.",
+          "email": "Email invalide.",
+          "emailMax": "Maximum 254 caractères.",
+          "max200": "Maximum 200 caractères.",
+          "max100": "Maximum 100 caractères.",
+          "country": "Code ISO 2 lettres.",
+          "postalCode": "Maximum 20 caractères.",
+          "pinRequired": "Le PIN est requis.",
+          "pinFormat": "Le PIN doit contenir exactement 6 chiffres.",
+          "confirmPinRequired": "La confirmation est requise.",
+          "confirmPinFormat": "La confirmation doit contenir exactement 6 chiffres.",
+          "pinMismatch": "Les PINs ne correspondent pas.",
+          "commissionRequired": "Le taux de commission est requis.",
+          "commissionRange": "Le taux doit être compris entre 0 et 100."
+        },
+        "action": {
+          "backToList": "Retour à la liste",
+          "regenerateCode": "Générer un nouveau code",
+          "showPin": "Afficher le PIN",
+          "hidePin": "Masquer le PIN",
+          "create": "Créer le vendeur",
+          "creating": "Création en cours…",
+          "openPos": "Ouvrir le Web POS",
+          "copy": "Copier",
+          "copied": "Copié !",
+          "copyTerminalCode": "Copier le code terminal",
+          "createAnother": "Créer un autre vendeur"
+        },
+        "preview": {
+          "title": "Aperçu du vendeur",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Nom du vendeur",
+          "commission": "Commission : {{rate}}%",
+          "hint": "Le code terminal et le PIN initial seront affichés après la création."
+        },
+        "success": {
+          "title": "Vendeur créé avec succès !",
+          "description": "Le nouveau point de vente est désormais actif sur le réseau.",
+          "noticePrefix": "Veuillez communiquer ces identifiants au vendeur. Le PIN initial devra être modifié lors de la première connexion.",
+          "noticeStrong": "Il ne sera plus affiché après la fermeture de cet écran."
+        }
+      },
+      "detail": {
+        "title": "Détail vendeur",
+        "description": "Consultez l'identité, les états et l'activité du vendeur.",
+        "loading": "Chargement du vendeur...",
+        "action": {
+          "openPos": "Ouvrir POS",
+          "tickets": "Tickets"
+        },
+        "summary": {
+          "eyebrow": "Vendeur"
+        },
+        "today": {
+          "eyebrow": "Aujourd’hui",
+          "title": "Stats du jour",
+          "ticketsSold": "Tickets vendus",
+          "grossSales": "Ventes",
+          "commission": "Commissions",
+          "netRevenue": "Revenu net estimé"
+        },
+        "section": {
+          "identity": "Identité",
+          "identityDesc": "Informations utilisées pour identifier ce vendeur.",
+          "states": "États",
+          "statesDesc": "États opérationnels qui déterminent ce que le vendeur peut faire.",
+          "activity": "Activité",
+          "activityDesc": "Dernières dates connues pour ce vendeur.",
+          "security": "Sécurité",
+          "securityDesc": "État du PIN et informations de blocage.",
+          "control": "Contrôle"
+        },
+        "field": {
+          "currentStatus": "Statut courant",
+          "canSell": "Peut vendre",
+          "blocked": "Bloqué",
+          "disabled": "Désactivé",
+          "mustChangePin": "PIN à changer",
+          "pinResetAt": "PIN réinitialisé le",
+          "blockedReason": "Raison du blocage",
+          "activatedAt": "Activé le",
+          "lastSeenAt": "Dernière connexion",
+          "blockedAt": "Bloqué le",
+          "disabledAt": "Désactivé le",
+          "commissionRate": "Commission",
+          "addressId": "Adresse",
+          "tenantId": "Tenant"
+        }
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "PENDING": "En attente",
+        "BLOCKED": "Bloqué",
+        "DISABLED": "Désactivé"
+      },
+      "field": {
+        "seller_terminal_code": "Code terminal",
+        "first_name": "Prénom",
+        "last_name": "Nom",
+        "email": "Email",
+        "phone": "Téléphone"
+      }
     },
     "kpi": {
       "sales_today": {

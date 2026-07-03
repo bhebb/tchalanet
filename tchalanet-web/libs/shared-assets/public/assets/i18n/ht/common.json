@@ -26,6 +26,8 @@
     "traceId": "Trace ID",
     "not_available": "Pa disponib",
     "validation": {
+      "email": "Adrès email la pa valid.",
+      "invalid": "Valè a pa valid.",
       "required": "Chan sa a obligatwa."
     },
     "not_set": "Pa renseye",
@@ -90,6 +92,8 @@
     "dateRange": {
       "from": "Soti",
       "to": "Jiska"
-    }
+    },
+    "openMenu": "Louvri meni",
+    "resetPassword": "Reyinisyalize modpas"
   }
 }

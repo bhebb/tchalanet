@@ -47,6 +47,26 @@
         "title": "Demandes de contact récentes"
       }
     },
+    "superAdmins": {
+      "title": "Super admins",
+      "description": "Gérez les comptes qui accèdent à l’espace plateforme.",
+      "create": {
+        "title": "Ajouter un super admin",
+        "description": "Identité et contact du compte plateforme."
+      },
+      "empty": {
+        "title": "Aucun super admin",
+        "message": "Ajoutez un premier compte plateforme."
+      },
+      "column": {
+        "email": "Email",
+        "name": "Nom",
+        "assignedAt": "Assigné le"
+      },
+      "action": {
+        "revoke": "Retirer"
+      }
+    },
     "tenants": {
       "title": "Tenants",
       "description": "Liste, filtre et suivi opérationnel des tenants Tchalanet.",
@@ -374,7 +394,6 @@
       "column": {
         "admin": "Administrateur",
         "tenant": "Tenant",
-        "status": "Statut",
         "assignedAt": "Affecté le"
       },
       "status": {
@@ -385,15 +404,9 @@
         "archived": "Archivé"
       },
       "action": {
-        "openMenu": "Ouvrir le menu",
-        "viewDetail": "Voir le détail",
-        "resetPassword": "Réinitialiser le mot de passe",
-        "activate": "Activer",
-        "block": "Bloquer",
-        "archive": "Archiver",
+        "assignTenant": "Assigner à un tenant",
         "manageAdmins": "Gérer les admins",
-        "addAdmin": "Ajouter un admin",
-        "resetFilters": "Réinitialiser les filtres"
+        "addAdmin": "Ajouter un admin"
       },
       "confirm": {
         "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
@@ -422,8 +435,6 @@
       "detail": {
         "title": "Détail administrateur",
         "description": "Informations et actions sur cet administrateur tenant.",
-        "back": "Retour à la liste",
-        "loading": "Chargement...",
         "error": {
           "load": "Impossible de charger cet administrateur."
         },
@@ -433,7 +444,6 @@
           "assignedAt": "Affecté le"
         },
         "actions": {
-          "title": "Actions",
           "manageInTenant": "Gérer dans le tenant"
         }
       },
@@ -558,6 +568,110 @@
         "borlette": "Banque borlette ou opérateur gérant plusieurs vendeurs.",
         "reseau": "Organisation qui supervise plusieurs points, zones ou opérateurs.",
         "ambulant": "Vendeur indépendant ou petite activité mobile."
+      }
+    },
+    "catalog": {
+      "games": {
+        "title": "Jeux catalogue",
+        "description": "Référentiel global des jeux disponibles sur la plateforme.",
+        "action": {
+          "create": "Nouveau jeu"
+        },
+        "dialog": {
+          "create": {
+            "title": "Nouveau jeu"
+          },
+          "edit": {
+            "title": "Modifier — {{name}}"
+          }
+        },
+        "field": {
+          "code": "Code",
+          "name": "Nom",
+          "category": "Catégorie",
+          "sortOrder": "Ordre d'affichage",
+          "active": "Actif"
+        },
+        "validation": {
+          "codeRequired": "Le code est requis.",
+          "nameRequired": "Le nom est requis."
+        },
+        "feedback": {
+          "created": "Jeu créé.",
+          "updated": "Jeu mis à jour.",
+          "deactivated": "Jeu désactivé.",
+          "deleted": "Jeu supprimé."
+        },
+        "confirm": {
+          "deactivate": "Désactiver « {{name}} » ?",
+          "delete": "Supprimer définitivement « {{name}} » ?"
+        },
+        "search": {
+          "placeholder": "Rechercher un jeu..."
+        },
+        "empty": {
+          "title": "Aucun jeu",
+          "message": "Créez le premier jeu du catalogue."
+        }
+      },
+      "pricing": {
+        "title": "Cotes & pricing",
+        "description": "Référentiel global des cotes de la plateforme, par jeu et type de pari.",
+        "action": {
+          "create": "Nouvelle cote"
+        },
+        "dialog": {
+          "create": {
+            "title": "Nouvelle cote"
+          },
+          "edit": {
+            "title": "Modifier la cote"
+          }
+        },
+        "field": {
+          "gameCode": "Jeu (gameCode)",
+          "betType": "Type de pari",
+          "betOption": "Option de pari (betOption)",
+          "odds": "Cote (odds)",
+          "tenant": "Tenant",
+          "tenantPlaceholder": "Laisser vide = global",
+          "active": "Actif"
+        },
+        "validation": {
+          "gameCodeRequired": "Le jeu est requis.",
+          "betTypeRequired": "Le type de pari est requis.",
+          "oddsMin": "La cote doit être supérieure à 0."
+        },
+        "feedback": {
+          "created": "Cote créée.",
+          "updated": "Cote mise à jour.",
+          "deleted": "Cote supprimée."
+        },
+        "confirm": {
+          "delete": "Supprimer la cote {{gameCode}} / {{betType}} ?"
+        },
+        "search": {
+          "placeholder": "Filtrer par jeu (BORLETTE…)"
+        },
+        "filter": {
+          "betType": "Type de pari"
+        },
+        "scope": {
+          "global": "Global"
+        },
+        "empty": {
+          "title": "Aucune cote",
+          "message": "Créez la première cote du catalogue.",
+          "filtered": {
+            "title": "Aucun résultat",
+            "message": "Aucune cote ne correspond aux filtres."
+          },
+          "tenants": "Aucun tenant trouvé"
+        },
+        "footer": {
+          "count": "{{count}} cote(s)",
+          "filtered": "(filtré sur {{total}})"
+        }
       }
     },
     "contactRequests": {

@@ -1,0 +1,77 @@
+<tch-admin-page-shell
+  [title]="title()"
+  [description]="'admin.sellerTerminals.detail.description' | translate"
+>
+  <div actions class="seller-terminal-detail__actions">
+    <a mat-stroked-button routerLink="/app/admin/sellers">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'common.back' | translate }}
+    </a>
+    @if (terminal(); as t) {
+      <a mat-stroked-button [routerLink]="['/app/admin/tickets']" [queryParams]="{ sellerTerminalId: t.id.value }">
+        <mat-icon>receipt_long</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.tickets' | translate }}
+      </a>
+      <a mat-flat-button color="primary" [routerLink]="['/app/admin/sellers', t.id.value, 'pos']">
+        <mat-icon>point_of_sale</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.openPos' | translate }}
+      </a>
+    }
+  </div>
+
+  <tch-async-view
+    [resource]="sellerTerminal"
+    [error]="sellerTerminalError()"
+    [loadingLabel]="'admin.sellerTerminals.detail.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (terminal(); as t) {
+        <tch-admin-detail-layout>
+          <div main class="seller-terminal-detail__main">
+            <tch-seller-terminal-identity-card [terminal]="t" />
+
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.states"
+              descriptionKey="admin.sellerTerminals.detail.section.statesDesc"
+              icon="flag"
+              [facts]="stateFacts()"
+            />
+
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.activity"
+              descriptionKey="admin.sellerTerminals.detail.section.activityDesc"
+              icon="timeline"
+              [facts]="activityFacts()"
+            />
+
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.security"
+              descriptionKey="admin.sellerTerminals.detail.section.securityDesc"
+              icon="lock"
+              [facts]="securityFacts()"
+            />
+          </div>
+
+          <aside aside class="seller-terminal-detail__aside">
+            <tch-seller-terminal-detail-summary-card [terminal]="t" />
+
+            <tch-seller-terminal-today-stats-card
+              [stats]="todayStats()"
+              [error]="todayFinancialsError()"
+              (retry)="reloadTodayStats()"
+            />
+
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.control"
+              icon="tune"
+              [facts]="controlFacts()"
+              [compact]="true"
+            />
+          </aside>
+        </tch-admin-detail-layout>
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

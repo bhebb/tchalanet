@@ -35,8 +35,9 @@ export const adminSellerTerminalsRoutes: Route[] = [
   {
     path: ':sellerTerminalId',
     loadComponent: () =>
-      import('../pages/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
-    data: { titleKey: 'admin.sellerTerminals.title', icon: 'point_of_sale' },
+      import('./pages/detail/admin-seller-terminal-detail.page').then(
+        m => m.AdminSellerTerminalDetailPage,
+      ),
   },
   {
     path: ':sellerTerminalId/pos',

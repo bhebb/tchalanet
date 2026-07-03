@@ -1,0 +1,216 @@
+<form class="seller-terminal-create-form" (submit)="$event.preventDefault(); create.emit()" novalidate>
+  <div class="seller-terminal-create-form__form-col">
+    @if (error(); as pageError) {
+      <tch-error-panel [title]="pageError.title" [message]="pageError.message" />
+    }
+
+    <tch-admin-section-card
+      [title]="'admin.sellerTerminals.new.section.terminal' | translate"
+      icon="point_of_sale"
+      [description]="'admin.sellerTerminals.new.section.terminalDesc' | translate"
+    >
+      <div class="seller-terminal-create-form__field-group">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.terminalCode' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().terminalCode"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.terminalCode' | translate"
+            autocomplete="off"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="regenerateCode.emit()"
+            [matTooltip]="'admin.sellerTerminals.new.action.regenerateCode' | translate"
+          >
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+          @if (form().terminalCode().touched() && form().terminalCode().invalid()) {
+            @for (error of form().terminalCode().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.terminalCodeRequired') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.displayName' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().displayName"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.displayName' | translate"
+            autocomplete="off"
+          />
+          @if (form().displayName().touched() && form().displayName().invalid()) {
+            @for (error of form().displayName().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.displayNameRequired') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+    </tch-admin-section-card>
+
+    <tch-console-person-identity-form-section
+      [form]="form()"
+      titleKey="admin.sellerTerminals.new.section.identity"
+      descriptionKey="admin.sellerTerminals.new.section.identityDesc"
+    />
+
+    <tch-console-address-form-section
+      [form]="form().address"
+      titleKey="admin.sellerTerminals.new.section.address"
+      descriptionKey="admin.sellerTerminals.new.section.addressDesc"
+    />
+
+    <tch-admin-section-card
+      [title]="'admin.sellerTerminals.new.section.access' | translate"
+      icon="lock"
+      [description]="'admin.sellerTerminals.new.section.accessDesc' | translate"
+    >
+      <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+        <mat-label>{{ 'admin.sellerTerminals.new.field.initialPin' | translate }}</mat-label>
+        <input
+          matInput
+          [formField]="form().initialPin"
+          [type]="showPin() ? 'text' : 'password'"
+          [placeholder]="'admin.sellerTerminals.new.placeholder.pin' | translate"
+          autocomplete="new-password"
+          inputmode="numeric"
+          minlength="6"
+          maxlength="6"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="toggleShowPin.emit()"
+          [attr.aria-label]="(showPin() ? 'admin.sellerTerminals.new.action.hidePin' : 'admin.sellerTerminals.new.action.showPin') | translate"
+        >
+          <span class="material-symbols-outlined">{{ showPin() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
+        <mat-hint>{{ 'admin.sellerTerminals.new.hint.pin' | translate }}</mat-hint>
+        <mat-hint align="end">
+          <span class="seller-terminal-create-form__pin-size" [class.seller-terminal-create-form__pin-size--complete]="pinLength('initialPin') === 6">
+            {{ pinLength('initialPin') }}/6
+          </span>
+        </mat-hint>
+        @if (form().initialPin().touched() && form().initialPin().invalid()) {
+          @for (error of form().initialPin().errors(); track error.kind) {
+            <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.pinFormat') | translate }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+        <mat-label>{{ 'admin.sellerTerminals.new.field.confirmPin' | translate }}</mat-label>
+        <input
+          matInput
+          [formField]="form().confirmPin"
+          [type]="showConfirmPin() ? 'text' : 'password'"
+          [placeholder]="'admin.sellerTerminals.new.placeholder.confirmPin' | translate"
+          autocomplete="new-password"
+          inputmode="numeric"
+          minlength="6"
+          maxlength="6"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="toggleShowConfirmPin.emit()"
+          [attr.aria-label]="(showConfirmPin() ? 'admin.sellerTerminals.new.action.hidePin' : 'admin.sellerTerminals.new.action.showPin') | translate"
+        >
+          <span class="material-symbols-outlined">{{ showConfirmPin() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
+        <mat-hint>{{ 'admin.sellerTerminals.new.hint.confirmPin' | translate }}</mat-hint>
+        <mat-hint align="end">
+          <span class="seller-terminal-create-form__pin-size" [class.seller-terminal-create-form__pin-size--complete]="pinLength('confirmPin') === 6">
+            {{ pinLength('confirmPin') }}/6
+          </span>
+        </mat-hint>
+        @if (form().confirmPin().touched() && form().confirmPin().invalid()) {
+          @for (error of form().confirmPin().errors(); track error.kind) {
+            <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.confirmPinFormat') | translate }}</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      @if (pinMismatch()) {
+        <div class="seller-terminal-create-form__pin-error">
+          <span class="material-symbols-outlined">error</span>
+          {{ 'admin.sellerTerminals.new.validation.pinMismatch' | translate }}
+        </div>
+      }
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'admin.sellerTerminals.new.section.commission' | translate"
+      icon="percent"
+      [description]="'admin.sellerTerminals.new.section.commissionDesc' | translate"
+    >
+      <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+        <mat-label>{{ 'admin.sellerTerminals.new.field.commissionRate' | translate }}</mat-label>
+        <input
+          matInput
+          [formField]="form().commissionRate"
+          type="number"
+          min="0"
+          max="100"
+          step="0.5"
+          inputmode="decimal"
+        />
+        @if (form().commissionRate().touched() && form().commissionRate().invalid()) {
+          @for (error of form().commissionRate().errors(); track error.kind) {
+            <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.commissionRange') | translate }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'admin.sellerTerminals.new.section.status' | translate"
+      icon="toggle_on"
+      [description]="'admin.sellerTerminals.new.section.statusDesc' | translate"
+    >
+      <div class="seller-terminal-create-form__toggle-row">
+        <mat-slide-toggle [formField]="form().active" color="primary">
+          {{ 'admin.sellerTerminals.new.field.active' | translate }}
+        </mat-slide-toggle>
+      </div>
+    </tch-admin-section-card>
+
+    <div class="seller-terminal-create-form__footer">
+      <a mat-stroked-button routerLink="/app/admin/seller-terminals">
+        {{ 'common.cancel' | translate }}
+      </a>
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="seller-terminal-create-form__submit-btn"
+        [disabled]="saving() || pinMismatch()"
+      >
+        @if (saving()) {
+          <span class="material-symbols-outlined seller-terminal-create-form__spin">progress_activity</span>
+          {{ 'admin.sellerTerminals.new.action.creating' | translate }}
+        } @else {
+          <span class="material-symbols-outlined">add</span>
+          {{ 'admin.sellerTerminals.new.action.create' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="seller-terminal-create-form__preview-col">
+    <tch-seller-terminal-preview-card
+      [terminalCode]="model().terminalCode"
+      [displayName]="model().displayName"
+      [firstName]="model().firstName"
+      [lastName]="model().lastName"
+      [phoneNumber]="model().phoneNumber"
+      [active]="model().active"
+      [commissionRate]="model().commissionRate"
+    />
+  </div>
+</form>

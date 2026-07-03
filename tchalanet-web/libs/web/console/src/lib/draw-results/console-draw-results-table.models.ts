@@ -8,6 +8,7 @@ export interface ConsoleRowAction {
   readonly icon?: string;
   readonly tone?: ConsoleRowActionTone;
   readonly variant?: 'button' | 'icon';
+  readonly disabled?: boolean;
 }
 
 export interface ConsoleDrawResultRow {

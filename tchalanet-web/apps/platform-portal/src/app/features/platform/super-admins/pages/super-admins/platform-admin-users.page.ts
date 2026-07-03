@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, maxLength, pattern, required, submit } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -15,27 +14,32 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminSectionCardComponent } from '@tch/ui/console';
+import { ConsolePersonIdentityFormSectionComponent } from '@tch/web/console';
 import { PlatformAdminApi, PlatformSuperAdminView } from '../../../tenants/data-access/platform-admin-api.service';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
+
+interface SuperAdminCreateFormModel {
+  readonly email: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly phoneNumber: string;
+}
 
 @Component({
   selector: 'tch-platform-admin-users-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ReactiveFormsModule,
     RouterLink,
     DatePipe,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
+    ConsolePersonIdentityFormSectionComponent,
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,
+    TranslatePipe,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     MatTableModule,
   ],
   templateUrl: './platform-admin-users.page.html',
@@ -44,7 +48,6 @@ import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-c
 export class PlatformAdminUsersPage implements OnInit {
   private readonly api = inject(PlatformAdminApi);
   private readonly identityApi = inject(IdentityUserCrudApi);
-  private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
 
   readonly displayedColumns = ['email', 'displayName', 'status', 'assignedAt', 'actions'];
@@ -52,11 +55,19 @@ export class PlatformAdminUsersPage implements OnInit {
   readonly saving = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly superAdmins = signal<PlatformSuperAdminView[]>([]);
-
-  readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    displayName: ['', Validators.required],
-    phoneNumber: [''],
+  readonly model = signal<SuperAdminCreateFormModel>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+  });
+  readonly form = form(this.model, path => {
+    required(path.email, { message: 'common.validation.required' });
+    pattern(path.email, /^[^@\s]+@[^@\s]+\.[^@\s]+$/, { message: 'common.validation.email' });
+    required(path.firstName, { message: 'common.validation.required' });
+    maxLength(path.firstName, 100, { message: 'common.validation.invalid' });
+    maxLength(path.lastName, 100, { message: 'common.validation.invalid' });
+    maxLength(path.phoneNumber, 32, { message: 'common.validation.invalid' });
   });
 
   ngOnInit(): void {
@@ -64,28 +75,31 @@ export class PlatformAdminUsersPage implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || this.saving()) return;
-    const v = this.form.value;
-    if (!v.email || !v.displayName) return;
-    this.saving.set(true);
-    this.error.set(null);
-    this.api
-      .createSuperAdmin({
-        email: v.email,
-        displayName: v.displayName,
-        phoneNumber: v.phoneNumber || null,
-      }, { suppressShellFeedback: true })
-      .subscribe({
-        next: created => {
-          this.superAdmins.set([created, ...this.superAdmins()]);
-          this.form.reset({ email: '', displayName: '', phoneNumber: '' });
-          this.saving.set(false);
-        },
-        error: err => {
-          this.error.set(this.errorViewModel(err, 'platform.superAdmins.create'));
-          this.saving.set(false);
-        },
-      });
+    if (this.saving()) return;
+    submit(this.form, async () => {
+      const v = this.model();
+      const displayName = [v.firstName, v.lastName].filter(Boolean).join(' ').trim();
+
+      this.saving.set(true);
+      this.error.set(null);
+      this.api
+        .createSuperAdmin({
+          email: v.email,
+          displayName,
+          phoneNumber: v.phoneNumber || null,
+        }, { suppressShellFeedback: true })
+        .subscribe({
+          next: created => {
+            this.superAdmins.set([created, ...this.superAdmins()]);
+            this.model.set({ email: '', firstName: '', lastName: '', phoneNumber: '' });
+            this.saving.set(false);
+          },
+          error: err => {
+            this.error.set(this.errorViewModel(err, 'platform.superAdmins.create'));
+            this.saving.set(false);
+          },
+        });
+    });
   }
 
   revoke(row: PlatformSuperAdminView): void {

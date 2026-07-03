@@ -1,52 +1,59 @@
-<h2 mat-dialog-title>Configurer le jeu - {{ data.game.displayName ?? data.game.catalogName }}</h2>
-
-<mat-dialog-content>
-  <form [formGroup]="form" class="game-settings-dialog__form">
-    @if (error(); as errorVm) {
-      <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
+<tch-admin-dialog-shell
+  [title]="'admin.games.settings.title' | translate: { name: (data.game.gameCode | consoleGameName:(data.game.displayName ?? data.game.catalogName)) }"
+  [description]="'admin.games.settings.description' | translate"
+  icon="tune"
+>
+  <form class="game-settings-dialog__form" (submit)="submit($event)">
+    @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+      <tch-section-error [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
     }
 
-    <section class="game-settings-dialog__intro">
+    <section class="game-settings-dialog__intro" [attr.aria-label]="'admin.games.settings.intro.aria' | translate">
       <span class="material-symbols-outlined" aria-hidden="true">tune</span>
       <div>
-        <strong>Paramètres utilisés dans la vente</strong>
-        <p>Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce tenant. Les gains et barèmes globaux restent gérés dans le catalogue plateforme.</p>
+        <strong>{{ 'admin.games.settings.intro.title' | translate }}</strong>
+        <p>{{ 'admin.games.settings.intro.message' | translate }}</p>
       </div>
     </section>
 
     <mat-form-field appearance="outline" class="game-settings-dialog__field">
-      <mat-label>Nom affiché au POS</mat-label>
-      <input matInput formControlName="displayName" [placeholder]="data.game.catalogName" />
+      <mat-label>{{ 'admin.games.settings.field.displayName' | translate }}</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        [formField]="form.displayName"
+        [placeholder]="data.game.gameCode | consoleGameName:data.game.catalogName"
+      />
     </mat-form-field>
 
     <div class="game-settings-dialog__row">
       <mat-form-field appearance="outline" class="game-settings-dialog__field">
-        <mat-label>Mise minimum par ligne</mat-label>
-        <input matInput type="number" formControlName="minStake" />
+        <mat-label>{{ 'admin.games.settings.field.minStake' | translate }}</mat-label>
+        <input matInput type="number" [formField]="form.minStake" />
       </mat-form-field>
       <mat-form-field appearance="outline" class="game-settings-dialog__field">
-        <mat-label>Mise maximum par ligne</mat-label>
-        <input matInput type="number" formControlName="maxStake" />
+        <mat-label>{{ 'admin.games.settings.field.maxStake' | translate }}</mat-label>
+        <input matInput type="number" [formField]="form.maxStake" />
       </mat-form-field>
     </div>
 
     <mat-form-field appearance="outline" class="game-settings-dialog__field">
-      <mat-label>Ordre d'affichage</mat-label>
-      <input matInput type="number" formControlName="displayOrder" />
+      <mat-label>{{ 'admin.games.settings.field.displayOrder' | translate }}</mat-label>
+      <input matInput type="number" [formField]="form.displayOrder" />
     </mat-form-field>
 
-    <mat-checkbox formControlName="visibleInPos">Afficher ce jeu dans le POS</mat-checkbox>
-    <mat-checkbox formControlName="availabilityEnabled">Restreindre les horaires de vente</mat-checkbox>
+    <mat-checkbox [formField]="form.visibleInPos">{{ 'admin.games.settings.field.visibleInPos' | translate }}</mat-checkbox>
+    <mat-checkbox [formField]="form.availabilityEnabled">{{ 'admin.games.settings.field.availabilityEnabled' | translate }}</mat-checkbox>
 
-    @if (form.value.availabilityEnabled) {
+    @if (model().availabilityEnabled) {
       <div class="game-settings-dialog__row">
         <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>Heure de début (HH:mm)</mat-label>
-          <input matInput formControlName="startLocalTime" placeholder="08:00" />
+          <mat-label>{{ 'admin.games.settings.field.startLocalTime' | translate }}</mat-label>
+          <input matInput [formField]="form.startLocalTime" placeholder="08:00" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>Heure de fin (HH:mm)</mat-label>
-          <input matInput formControlName="endLocalTime" placeholder="20:00" />
+          <mat-label>{{ 'admin.games.settings.field.endLocalTime' | translate }}</mat-label>
+          <input matInput [formField]="form.endLocalTime" placeholder="20:00" />
         </mat-form-field>
       </div>
     }
@@ -54,14 +61,14 @@
     @if (data.game.betOptions?.length) {
       <section class="game-settings-dialog__section">
         <div class="game-settings-dialog__section-header">
-          <h3>Options de pari / gains</h3>
-          <p>Lecture seule ici. Ces options viennent du catalogue et du barème du jeu.</p>
+          <h3>{{ 'admin.games.settings.options.title' | translate }}</h3>
+          <p>{{ 'admin.games.settings.options.description' | translate }}</p>
         </div>
 
         <div class="game-settings-dialog__options">
           @for (option of data.game.betOptions; track option.betType + ':' + option.betOption) {
             <div class="game-settings-dialog__option">
-              <span class="game-settings-dialog__option-label">{{ option.label }}</span>
+              <span class="game-settings-dialog__option-label">{{ option.betType | consoleBetLabel:option.betOption }}</span>
               <span class="game-settings-dialog__option-value">{{ option.value }}</span>
             </div>
           }
@@ -69,14 +76,21 @@
       </section>
     }
   </form>
-</mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close [disabled]="submitting()">Annuler</button>
-  <button mat-flat-button color="primary" [disabled]="submitting()" (click)="submit()">
-    @if (submitting()) {
-      <span class="material-symbols-outlined game-settings-dialog__spin" aria-hidden="true">progress_activity</span>
-    }
-    Enregistrer
+  <button actions mat-button mat-dialog-close [disabled]="saveSettings.pending()">
+    {{ 'common.cancel' | translate }}
   </button>
-</mat-dialog-actions>
+  <button
+    actions
+    mat-flat-button
+    color="primary"
+    type="submit"
+    [disabled]="form().invalid() || saveSettings.pending()"
+    (click)="submit($event)"
+  >
+    @if (saveSettings.pending()) {
+      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'common.save' | translate }}
+  </button>
+</tch-admin-dialog-shell>

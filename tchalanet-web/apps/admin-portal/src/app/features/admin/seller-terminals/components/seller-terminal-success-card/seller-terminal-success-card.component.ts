@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CreateSellerTerminalResult } from '../../../data-access/seller-terminal-api.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { CreateSellerTerminalResult } from '../../data-access/seller-terminal-api.service';
 
 @Component({
   selector: 'tch-seller-terminal-success-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './seller-terminal-success-card.component.html',
   styleUrls: ['./seller-terminal-success-card.component.scss'],
 })

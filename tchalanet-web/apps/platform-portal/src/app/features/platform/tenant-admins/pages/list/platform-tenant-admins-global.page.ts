@@ -190,9 +190,9 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   resetPassword(row: TenantAdminGlobalRow): void {
     const name = row.displayName || row.email || row.id;
     const data: TchConfirmDialogData = {
-      title: this.translate.instant('platform.tenantAdmins.action.resetPassword'),
+      title: this.translate.instant('common.resetPassword'),
       message: this.translate.instant('platform.tenantAdmins.confirm.resetPassword', { name }),
-      confirmLabel: this.translate.instant('platform.tenantAdmins.action.resetPassword'),
+      confirmLabel: this.translate.instant('common.resetPassword'),
     };
     this.dialog.open(TchConfirmDialog, { data })
       .afterClosed()
@@ -202,7 +202,7 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
         this.actionNotice.set(null);
         this.identityApi.resetPassword(row.id, { suppressShellFeedback: true }).subscribe({
           next: ({ tempPassword }) => this.actionNotice.set({
-            title: this.translate.instant('platform.tenantAdmins.action.resetPassword'),
+            title: this.translate.instant('common.resetPassword'),
             message: tempPassword,
           }),
           error: err => this.error.set(this.errorViewModel(err, 'platform.tenantAdmins.resetPassword')),
@@ -213,9 +213,9 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   activateUser(row: TenantAdminGlobalRow): void {
     const name = row.displayName || row.email || row.id;
     const data: TchConfirmDialogData = {
-      title: this.translate.instant('platform.tenantAdmins.action.activate'),
+      title: this.translate.instant('common.activate'),
       message: this.translate.instant('platform.tenantAdmins.confirm.activate', { name }),
-      confirmLabel: this.translate.instant('platform.tenantAdmins.action.activate'),
+      confirmLabel: this.translate.instant('common.activate'),
     };
     this.dialog.open(TchConfirmDialog, { data })
       .afterClosed()
@@ -233,9 +233,9 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   blockUser(row: TenantAdminGlobalRow): void {
     const name = row.displayName || row.email || row.id;
     const data: TchConfirmDialogData = {
-      title: this.translate.instant('platform.tenantAdmins.action.block'),
+      title: this.translate.instant('common.block'),
       message: this.translate.instant('platform.tenantAdmins.confirm.block', { name }),
-      confirmLabel: this.translate.instant('platform.tenantAdmins.action.block'),
+      confirmLabel: this.translate.instant('common.block'),
       destructive: true,
     };
     this.dialog.open(TchConfirmDialog, { data })
@@ -254,9 +254,9 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
   archiveUser(row: TenantAdminGlobalRow): void {
     const name = row.displayName || row.email || row.id;
     const data: TchConfirmDialogData = {
-      title: this.translate.instant('platform.tenantAdmins.action.archive'),
+      title: this.translate.instant('common.archive'),
       message: this.translate.instant('platform.tenantAdmins.confirm.archive', { name }),
-      confirmLabel: this.translate.instant('platform.tenantAdmins.action.archive'),
+      confirmLabel: this.translate.instant('common.archive'),
       destructive: true,
       sensitive: true,
     };

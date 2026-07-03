@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
@@ -34,6 +35,7 @@ import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-c
     TchErrorPanel,
     TchSectionError,
     MatButtonModule,
+    TranslatePipe,
   ],
   templateUrl: './platform-tenant-admin-detail.page.html',
   styleUrls: ['./platform-tenant-admin-detail.page.scss'],

@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
+import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
 import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
@@ -13,7 +14,7 @@ import {
   selector: 'tch-console-draw-results-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminStatusPillComponent, MatButtonModule, MatTableModule],
+  imports: [AdminStatusPillComponent, ConsoleDrawSlotIdentityComponent, MatButtonModule, MatTableModule],
   templateUrl: './console-draw-results-table.component.html',
   styleUrls: ['./console-draw-results-table.component.scss'],
 })

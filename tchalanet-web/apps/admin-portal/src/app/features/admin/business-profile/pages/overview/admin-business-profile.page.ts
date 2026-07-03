@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, maxLength, required, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,6 +32,10 @@ import {
 } from '@tch/ui/console';
 import { AdminStatusTone } from '@tch/ui/console';
 import { TchIdentityCardComponent } from '@tch/ui/console';
+import {
+  ConsoleAddressFormSectionComponent,
+  ConsoleAddressSummaryComponent,
+} from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   applyServerFieldErrors,
@@ -48,6 +53,15 @@ import {
 
 type PageState = 'loading' | 'ready' | 'error';
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
+
+interface AddressFormModel {
+  readonly line1: string;
+  readonly line2: string;
+  readonly city: string;
+  readonly region: string;
+  readonly country: string;
+  readonly postalCode: string;
+}
 
 const IDENTITY_SECTION_TARGET = 'admin.businessProfile.identity';
 const REGION_SECTION_TARGET = 'admin.businessProfile.region';
@@ -70,6 +84,8 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
     AdminSectionCardComponent,
     AdminSectionErrorTargetDirective,
     TchIdentityCardComponent,
+    ConsoleAddressFormSectionComponent,
+    ConsoleAddressSummaryComponent,
     TchLoading,
     TchErrorPanel,
     TchFieldError,
@@ -119,13 +135,24 @@ export class AdminBusinessProfilePage implements OnInit {
   readonly showAddressForm = signal(false);
   readonly addressFormState = signal<FormState>('idle');
   readonly addressFormError = signal<string | null>(null);
-  readonly addressForm = this.fb.group({
-    line1: ['', [Validators.required, Validators.maxLength(200)]],
-    line2: ['', Validators.maxLength(200)],
-    city: ['', [Validators.required, Validators.maxLength(100)]],
-    region: ['', Validators.maxLength(100)],
-    country: ['HT', [Validators.required, Validators.maxLength(2)]],
-    postalCode: ['', Validators.maxLength(20)],
+  readonly addressModel = signal<AddressFormModel>({
+    line1: '',
+    line2: '',
+    city: '',
+    region: '',
+    country: 'HT',
+    postalCode: '',
+  });
+  readonly addressForm = form(this.addressModel, path => {
+    required(path.line1, { message: 'common.validation.required' });
+    maxLength(path.line1, 200, { message: 'common.validation.invalid' });
+    maxLength(path.line2, 200, { message: 'common.validation.invalid' });
+    required(path.city, { message: 'common.validation.required' });
+    maxLength(path.city, 100, { message: 'common.validation.invalid' });
+    maxLength(path.region, 100, { message: 'common.validation.invalid' });
+    required(path.country, { message: 'common.validation.required' });
+    maxLength(path.country, 2, { message: 'common.validation.invalid' });
+    maxLength(path.postalCode, 20, { message: 'common.validation.invalid' });
   });
 
   readonly header = computed(() => this.overview()?.header ?? null);
@@ -313,7 +340,6 @@ export class AdminBusinessProfilePage implements OnInit {
     this.showAddressForm.set(true);
     this.addressFormState.set('idle');
     this.addressFormError.set(null);
-    clearServerFieldErrors(this.addressForm);
     this.showIdentityForm.set(false);
     this.showRegionForm.set(false);
     this.showCommissionForm.set(false);
@@ -322,30 +348,29 @@ export class AdminBusinessProfilePage implements OnInit {
   cancelAddressForm(): void {
     this.showAddressForm.set(false);
     this.addressFormError.set(null);
-    clearServerFieldErrors(this.addressForm);
     this.prefillAddressForm(this.header()?.address ?? null);
   }
 
   submitAddress(): void {
-    clearServerFieldErrors(this.addressForm);
-    if (this.addressForm.invalid) { this.addressForm.markAllAsTouched(); return; }
-    this.addressFormState.set('submitting');
-    this.addressFormError.set(null);
-    this.clearSectionError(ADDRESS_SECTION_TARGET);
-    const v = this.addressForm.getRawValue();
-    this.api.upsertAddress({
-      line1: v.line1 ?? '',
-      line2: v.line2 || null,
-      city: v.city ?? '',
-      region: v.region || null,
-      country: v.country ?? '',
-      postalCode: v.postalCode || null,
-    }, { suppressShellFeedback: true }).subscribe({
-      next: () => { this.addressFormState.set('success'); this.showAddressForm.set(false); this.load(); },
-      error: (err: unknown) => {
-        this.handleAddressSubmitError(err);
-        this.addressFormState.set('error');
-      },
+    submit(this.addressForm, async () => {
+      this.addressFormState.set('submitting');
+      this.addressFormError.set(null);
+      this.clearSectionError(ADDRESS_SECTION_TARGET);
+      const v = this.addressModel();
+      this.api.upsertAddress({
+        line1: v.line1,
+        line2: v.line2 || null,
+        city: v.city,
+        region: v.region || null,
+        country: v.country,
+        postalCode: v.postalCode || null,
+      }, { suppressShellFeedback: true }).subscribe({
+        next: () => { this.addressFormState.set('success'); this.showAddressForm.set(false); this.load(); },
+        error: (err: unknown) => {
+          this.handleAddressSubmitError(err);
+          this.addressFormState.set('error');
+        },
+      });
     });
   }
 
@@ -389,9 +414,13 @@ export class AdminBusinessProfilePage implements OnInit {
   }
 
   private prefillAddressForm(addr: AddressView | null): void {
-    this.addressForm.patchValue({
-      line1: addr?.line1 ?? '', line2: addr?.line2 ?? '', city: addr?.city ?? '',
-      region: addr?.region ?? '', country: addr?.country ?? 'HT', postalCode: addr?.postalCode ?? '',
+    this.addressModel.set({
+      line1: addr?.line1 ?? '',
+      line2: addr?.line2 ?? '',
+      city: addr?.city ?? '',
+      region: addr?.region ?? '',
+      country: addr?.country ?? 'HT',
+      postalCode: addr?.postalCode ?? '',
     });
   }
 
@@ -423,29 +452,8 @@ export class AdminBusinessProfilePage implements OnInit {
         webAppErrorsFromProblemDetailFields(problem, 'admin.businessProfile.address'),
         key => this.translate.instant(key),
       );
-      const remaining = applyServerFieldErrors(this.addressForm, fieldErrors, {
-        'address.line1': 'line1',
-        'admin.businessProfile.address.line1': 'line1',
-        'tenant.address.line1': 'line1',
-        'address.line2': 'line2',
-        'admin.businessProfile.address.line2': 'line2',
-        'tenant.address.line2': 'line2',
-        'address.city': 'city',
-        'admin.businessProfile.address.city': 'city',
-        'tenant.address.city': 'city',
-        'address.region': 'region',
-        'admin.businessProfile.address.region': 'region',
-        'tenant.address.region': 'region',
-        'address.country': 'country',
-        'admin.businessProfile.address.country': 'country',
-        'tenant.address.country': 'country',
-        'address.postalCode': 'postalCode',
-        'admin.businessProfile.address.postalCode': 'postalCode',
-        'tenant.address.postalCode': 'postalCode',
-      });
-
-      if (fieldErrors.length && !remaining.length) {
-        this.addressFormError.set(null);
+      if (fieldErrors.length) {
+        this.addressFormError.set(fieldErrors[0]?.message ?? null);
         return;
       }
     }

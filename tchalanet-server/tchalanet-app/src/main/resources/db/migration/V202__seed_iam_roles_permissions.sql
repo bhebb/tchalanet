@@ -69,7 +69,8 @@ INSERT INTO app_role (id, tenant_id, code, name, description, scope, system, cus
   ('00000000-0000-0000-0000-000000000301'::uuid, NULL, 'SUPER_ADMIN',   'Super Admin',   'System super administrator',      'PLATFORM', true, false, true),
   ('00000000-0000-0000-0000-000000000302'::uuid, NULL, 'TENANT_ADMIN',  'Tenant Admin',  'Tenant-level administrator',      'TENANT',   true, false, true),
   ('00000000-0000-0000-0000-000000000303'::uuid, NULL, 'OPERATOR',      'Operator',      'Outlet operator / supervisor',    'TENANT',   true, false, true),
-  ('00000000-0000-0000-0000-000000000304'::uuid, NULL, 'CASHIER',       'Cashier',       'Point-of-sale cashier',           'TENANT',   true, false, true)
+  ('00000000-0000-0000-0000-000000000304'::uuid, NULL, 'CASHIER',       'Cashier',       'Point-of-sale cashier',           'TENANT',   true, false, true),
+  ('00000000-0000-0000-0000-000000000305'::uuid, NULL, 'TENANT_OWNER',  'Tenant Owner',  'Full owner of a tenant',          'TENANT',   true, false, true)
 -- ON CONFLICT (id) using fixed UUIDs — tenant_id IS NULL cannot be used in ON CONFLICT target
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, description = EXCLUDED.description,
@@ -210,3 +211,92 @@ DO $$ DECLARE cnt int; BEGIN
   IF cnt < 4 THEN RAISE EXCEPTION 'V202 sanity: expected >=4 system roles, found %', cnt; END IF;
   RAISE NOTICE 'V202 sanity OK: % system roles', cnt;
 END $$;
+
+-- ═════════════════════════════════════════════════════════════════════════════
+-- Additional permission seeds (seller-terminal, tenant-admin features, archive)
+-- and platform/user role assignments. All additive & idempotent.
+-- ═════════════════════════════════════════════════════════════════════════════
+
+-- ── Seller-terminal management permissions + grant to TENANT_ADMIN (302) ──
+INSERT INTO permission (code, name, category, system, active)
+VALUES
+    ('seller_terminal.manage', 'Manage seller terminals',        'seller_terminal', true, true),
+    ('seller_terminal.block',  'Block/unblock seller terminals', 'seller_terminal', true, true),
+    ('seller_terminal.pin.reset', 'Reset seller terminal PIN',   'seller_terminal', true, true)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO role_permission (role_id, permission_code)
+SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
+    'seller_terminal.manage',
+    'seller_terminal.block',
+    'seller_terminal.pin.reset'
+]) ON CONFLICT DO NOTHING;
+
+-- ── Tenant-admin feature permissions (config/settings/limit/promotion/theme) ──
+INSERT INTO permission (code, name, category, system, active) VALUES
+  ('tenant.address.read',    'Read tenant address',           'tenant',    true, true),
+  ('tenant.address.manage',  'Manage tenant address',         'tenant',    true, true),
+  ('tenant.config.read',     'Read tenant configuration',      'tenant',    true, true),
+  ('tenant.config.manage',   'Manage tenant configuration',    'tenant',    true, true),
+  ('settings.read',          'Read settings',                  'settings',  true, true),
+  ('settings.update',        'Update settings',                'settings',  true, true),
+  ('limit.read',             'Read limits',                    'limit',     true, true),
+  ('limit.manage',           'Manage limits',                  'limit',     true, true),
+  ('promotion.read',         'Read promotions',                'promotion', true, true),
+  ('promotion.manage',       'Manage promotions',              'promotion', true, true),
+  ('theme.read',             'Read tenant theme',              'theme',     true, true),
+  ('theme.manage',           'Manage tenant theme',            'theme',     true, true)
+ON CONFLICT (code) DO UPDATE SET
+  name = EXCLUDED.name, category = EXCLUDED.category,
+  system = EXCLUDED.system, active = EXCLUDED.active, updated_at = now();
+
+-- Grant the feature set to TENANT_ADMIN (302), TENANT_OWNER (305) and SUPER_ADMIN (301).
+INSERT INTO role_permission (role_id, permission_code)
+SELECT r.role_id, unnest(ARRAY[
+  'tenant.address.read','tenant.address.manage','tenant.config.read','tenant.config.manage',
+  'settings.read','settings.update','limit.read','limit.manage',
+  'promotion.read','promotion.manage','theme.read','theme.manage'
+])
+FROM (VALUES
+  ('00000000-0000-0000-0000-000000000302'::uuid),
+  ('00000000-0000-0000-0000-000000000305'::uuid),
+  ('00000000-0000-0000-0000-000000000301'::uuid)
+) AS r(role_id)
+ON CONFLICT DO NOTHING;
+
+-- ── Archive permission codes (lookup + platform management) ──
+INSERT INTO permission (code, name, category, description, system, active)
+VALUES
+    ('archive.read',         'Read archived entities', 'archive',
+     'View archived tickets, payouts and audit records via the archive lookup index.', true, true),
+    ('archive.run',          'Trigger archive run', 'archive',
+     'Initiate a platform-level archive run (SUPER_ADMIN scope only).', true, true),
+    ('archive.restore',      'Restore from archive', 'archive',
+     'Copy archived rows into temporary restore tables for investigation (SUPER_ADMIN scope only).', true, true),
+    ('archive.objects.list', 'List archive objects', 'archive',
+     'List archive run metadata and archive objects (SUPER_ADMIN scope only).', true, true)
+ON CONFLICT (code) DO NOTHING;
+
+-- ── Platform-scoped SUPER_ADMIN assignment for the local/E2E super admin user ──
+INSERT INTO platform_user_role (id, user_id, role_id, assigned_at, assigned_by)
+SELECT gen_random_uuid(), u.id, r.id, now(), null
+FROM app_user u
+JOIN app_role r
+  ON r.code = 'SUPER_ADMIN'
+ AND r.scope = 'PLATFORM'
+ AND r.tenant_id IS NULL
+WHERE u.id = '00000000-0000-0000-0000-000000010001'::uuid
+  AND u.deleted_at IS NULL
+  AND r.deleted_at IS NULL
+ON CONFLICT DO NOTHING;
+
+-- ── Give the seed cashier (010003) a real human name for receipts ──
+SELECT set_config('app.api_scope', 'platform', true);
+SELECT set_config('app.is_super_admin', 'true', true);
+UPDATE app_user
+SET first_name = 'Marie', last_name = 'Joseph', display_name = 'Marie Joseph', updated_at = now()
+WHERE id = '00000000-0000-0000-0000-000000010003'::uuid
+  AND (display_name IS NULL OR display_name = 'Cashier')
+  AND deleted_at IS NULL;
+SELECT set_config('app.api_scope', '', true);
+SELECT set_config('app.is_super_admin', 'false', true);

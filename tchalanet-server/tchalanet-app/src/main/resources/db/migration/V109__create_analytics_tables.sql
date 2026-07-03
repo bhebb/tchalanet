@@ -41,6 +41,17 @@ CREATE TABLE analytics_daily (
   net_revenue_estimated_cents bigint NOT NULL DEFAULT 0,
   net_revenue_paid_basis_cents bigint NOT NULL DEFAULT 0,
 
+  -- financial snapshots (projected from sale-time ticket snapshots; never recalculated)
+  seller_commission_cents bigint NOT NULL DEFAULT 0,
+  buyer_charge_cents bigint NOT NULL DEFAULT 0,
+  seller_charge_cents bigint NOT NULL DEFAULT 0,
+  tenant_charge_cents bigint NOT NULL DEFAULT 0,
+  waived_charge_cents bigint NOT NULL DEFAULT 0,
+  promotion_line_count bigint NOT NULL DEFAULT 0,
+  promotion_priced_line_count bigint NOT NULL DEFAULT 0,
+  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
+  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
+
   -- session counts (V1: updated when session events are available via public API)
   sessions_opened_count    bigint NOT NULL DEFAULT 0,
   sessions_closed_count    bigint NOT NULL DEFAULT 0,
@@ -78,7 +89,7 @@ CREATE TABLE analytics_draw (
 
   draw_id         uuid         NOT NULL UNIQUE REFERENCES draw(id),
   tenant_id       uuid         NOT NULL REFERENCES tenant(id),
-  game_code       varchar(255) NOT NULL,
+  game_code       varchar(64) NOT NULL,
   draw_channel_code varchar(255),
   scheduled_at    timestamptz  NOT NULL,
   ref_date        date         NOT NULL,
@@ -92,6 +103,19 @@ CREATE TABLE analytics_draw (
   stake_total_cents        bigint NOT NULL DEFAULT 0,
   winnings_calculated_cents bigint NOT NULL DEFAULT 0,
   payouts_paid_cents       bigint NOT NULL DEFAULT 0,
+
+  -- financial snapshots (projected from sale-time ticket snapshots; never recalculated)
+  seller_commission_cents bigint NOT NULL DEFAULT 0,
+  buyer_charge_cents bigint NOT NULL DEFAULT 0,
+  seller_charge_cents bigint NOT NULL DEFAULT 0,
+  tenant_charge_cents bigint NOT NULL DEFAULT 0,
+  waived_charge_cents bigint NOT NULL DEFAULT 0,
+  promotion_line_count bigint NOT NULL DEFAULT 0,
+  promotion_priced_line_count bigint NOT NULL DEFAULT 0,
+  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
+  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
+  net_revenue_estimated_cents bigint NOT NULL DEFAULT 0,
+  net_revenue_paid_basis_cents bigint NOT NULL DEFAULT 0,
 
   created_at      timestamptz  NOT NULL DEFAULT now(),
   updated_at      timestamptz  NOT NULL DEFAULT now()
@@ -144,18 +168,31 @@ CREATE OR REPLACE FUNCTION public.upsert_analytics_daily(
   p_stake_total    bigint,
   p_winnings_calc  bigint,
   p_payouts_paid   bigint,
+  p_seller_commission bigint,
+  p_buyer_charge bigint,
+  p_seller_charge bigint,
+  p_tenant_charge bigint,
+  p_waived_charge bigint,
+  p_promotion_line_count bigint,
+  p_promotion_priced_line_count bigint,
+  p_promotion_payout_base bigint,
+  p_promotion_potential_payout bigint,
   p_sessions_opened bigint,
   p_sessions_closed bigint
 ) RETURNS void AS $$
 DECLARE
-  v_net_estimated  bigint := p_gross_sales - p_winnings_calc;
-  v_net_paid_basis bigint := p_gross_sales - p_payouts_paid;
+  v_net_estimated  bigint := p_gross_sales - p_winnings_calc - p_seller_commission - p_tenant_charge;
+  v_net_paid_basis bigint := p_gross_sales - p_payouts_paid - p_seller_commission - p_tenant_charge;
 BEGIN
   INSERT INTO analytics_daily (
     dimension_type, dimension_id, tenant_id, ref_date,
     tickets_sold_count, tickets_cancelled_count,
     gross_sales_cents, stake_total_cents,
     winnings_calculated_cents, payouts_paid_cents,
+    seller_commission_cents,
+    buyer_charge_cents, seller_charge_cents, tenant_charge_cents, waived_charge_cents,
+    promotion_line_count, promotion_priced_line_count,
+    promotion_payout_base_cents, promotion_potential_payout_cents,
     net_revenue_estimated_cents, net_revenue_paid_basis_cents,
     sessions_opened_count, sessions_closed_count
   ) VALUES (
@@ -163,6 +200,10 @@ BEGIN
     p_tickets_sold, p_tickets_cancelled,
     p_gross_sales, p_stake_total,
     p_winnings_calc, p_payouts_paid,
+    p_seller_commission,
+    p_buyer_charge, p_seller_charge, p_tenant_charge, p_waived_charge,
+    p_promotion_line_count, p_promotion_priced_line_count,
+    p_promotion_payout_base, p_promotion_potential_payout,
     v_net_estimated, v_net_paid_basis,
     p_sessions_opened, p_sessions_closed
   )
@@ -178,6 +219,15 @@ BEGIN
     stake_total_cents             = analytics_daily.stake_total_cents             + EXCLUDED.stake_total_cents,
     winnings_calculated_cents     = analytics_daily.winnings_calculated_cents     + EXCLUDED.winnings_calculated_cents,
     payouts_paid_cents            = analytics_daily.payouts_paid_cents            + EXCLUDED.payouts_paid_cents,
+    seller_commission_cents       = analytics_daily.seller_commission_cents       + EXCLUDED.seller_commission_cents,
+    buyer_charge_cents            = analytics_daily.buyer_charge_cents            + EXCLUDED.buyer_charge_cents,
+    seller_charge_cents           = analytics_daily.seller_charge_cents           + EXCLUDED.seller_charge_cents,
+    tenant_charge_cents           = analytics_daily.tenant_charge_cents           + EXCLUDED.tenant_charge_cents,
+    waived_charge_cents           = analytics_daily.waived_charge_cents           + EXCLUDED.waived_charge_cents,
+    promotion_line_count          = analytics_daily.promotion_line_count          + EXCLUDED.promotion_line_count,
+    promotion_priced_line_count   = analytics_daily.promotion_priced_line_count   + EXCLUDED.promotion_priced_line_count,
+    promotion_payout_base_cents   = analytics_daily.promotion_payout_base_cents   + EXCLUDED.promotion_payout_base_cents,
+    promotion_potential_payout_cents = analytics_daily.promotion_potential_payout_cents + EXCLUDED.promotion_potential_payout_cents,
     net_revenue_estimated_cents   = analytics_daily.net_revenue_estimated_cents   + EXCLUDED.net_revenue_estimated_cents,
     net_revenue_paid_basis_cents  = analytics_daily.net_revenue_paid_basis_cents  + EXCLUDED.net_revenue_paid_basis_cents,
     sessions_opened_count         = analytics_daily.sessions_opened_count         + EXCLUDED.sessions_opened_count,
@@ -186,3 +236,136 @@ BEGIN
     updated_at                    = now();
 END;
 $$ LANGUAGE plpgsql;
+
+-- ============================================================
+-- analytics_selection — per-selection profitability (self-contained: table + indexes + RLS + upsert)
+-- ============================================================
+CREATE TABLE analytics_selection
+(
+    id                        uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id                 uuid         NOT NULL REFERENCES tenant (id),
+    ref_date                  date         NOT NULL,
+    draw_channel_id           uuid         NULL,
+    game_code                 varchar(64)  NOT NULL,
+    bet_type                  varchar(64)  NOT NULL,
+    bet_option                smallint     NULL,
+    selection_key             varchar(128) NULL,
+
+    tickets_count             bigint       NOT NULL DEFAULT 0,
+    stake_sum_cents           bigint       NOT NULL DEFAULT 0,
+    winnings_calculated_cents bigint       NOT NULL DEFAULT 0,
+
+    version                   bigint       NOT NULL DEFAULT 0,
+    created_at                timestamptz  NOT NULL DEFAULT now(),
+    updated_at                timestamptz  NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX uix_analytics_selection__natural
+    ON analytics_selection (
+        tenant_id,
+        ref_date,
+        game_code,
+        bet_type,
+        COALESCE(bet_option, -1),
+        COALESCE(selection_key, ''),
+        COALESCE(draw_channel_id, '00000000-0000-0000-0000-000000000000'::uuid)
+    );
+
+CREATE INDEX ix_analytics_selection__tenant_date
+    ON analytics_selection (tenant_id, ref_date);
+CREATE INDEX ix_analytics_selection__game_date
+    ON analytics_selection (game_code, ref_date);
+
+CREATE TRIGGER trg_analytics_selection__set_updated_at
+    BEFORE UPDATE ON analytics_selection
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- RLS ENABLE only (no FORCE, no policy): analytics is read globally for the
+-- platform dashboard; the owner (app_user) bypasses RLS, tenant filtering is
+-- applied in Java query handlers. Same pattern as analytics_daily/analytics_draw.
+ALTER TABLE analytics_selection ENABLE ROW LEVEL SECURITY;
+GRANT SELECT, INSERT, UPDATE ON analytics_selection TO app_user;
+
+CREATE OR REPLACE FUNCTION public.upsert_analytics_selection(
+    p_tenant_id      uuid,
+    p_ref_date       date,
+    p_draw_channel_id uuid,
+    p_game_code      varchar,
+    p_bet_type       varchar,
+    p_bet_option     smallint,
+    p_selection_key  varchar,
+    p_tickets_delta  bigint,
+    p_stake_delta    bigint,
+    p_winnings_delta bigint
+) RETURNS void AS
+$$
+BEGIN
+    INSERT INTO analytics_selection
+        (tenant_id, ref_date, draw_channel_id, game_code, bet_type, bet_option,
+         selection_key, tickets_count, stake_sum_cents, winnings_calculated_cents)
+    VALUES (p_tenant_id, p_ref_date, p_draw_channel_id, p_game_code, p_bet_type,
+            p_bet_option, p_selection_key, p_tickets_delta, p_stake_delta, p_winnings_delta)
+    ON CONFLICT (
+        tenant_id,
+        ref_date,
+        game_code,
+        bet_type,
+        COALESCE(bet_option, -1),
+        COALESCE(selection_key, ''),
+        COALESCE(draw_channel_id, '00000000-0000-0000-0000-000000000000'::uuid)
+        ) DO UPDATE SET
+        tickets_count             = analytics_selection.tickets_count + EXCLUDED.tickets_count,
+        stake_sum_cents           = analytics_selection.stake_sum_cents + EXCLUDED.stake_sum_cents,
+        winnings_calculated_cents = analytics_selection.winnings_calculated_cents +
+                                    EXCLUDED.winnings_calculated_cents,
+        version                   = analytics_selection.version + 1;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ============================================================
+-- analytics_seller_terminal_draw — exact per-terminal/per-draw projection
+-- ============================================================
+CREATE TABLE analytics_seller_terminal_draw (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  seller_terminal_id uuid NOT NULL,
+  draw_id uuid NOT NULL,
+  ref_date date NOT NULL,
+  scheduled_at timestamptz NOT NULL,
+  game_code varchar(64) NOT NULL DEFAULT 'UNKNOWN',
+  draw_channel_code varchar(128),
+
+  tickets_sold_count bigint NOT NULL DEFAULT 0,
+  gross_sales_cents bigint NOT NULL DEFAULT 0,
+  stake_total_cents bigint NOT NULL DEFAULT 0,
+  winnings_calculated_cents bigint NOT NULL DEFAULT 0,
+  payouts_paid_cents bigint NOT NULL DEFAULT 0,
+  seller_commission_cents bigint NOT NULL DEFAULT 0,
+  buyer_charge_cents bigint NOT NULL DEFAULT 0,
+  seller_charge_cents bigint NOT NULL DEFAULT 0,
+  tenant_charge_cents bigint NOT NULL DEFAULT 0,
+  waived_charge_cents bigint NOT NULL DEFAULT 0,
+  promotion_line_count bigint NOT NULL DEFAULT 0,
+  promotion_priced_line_count bigint NOT NULL DEFAULT 0,
+  promotion_payout_base_cents bigint NOT NULL DEFAULT 0,
+  promotion_potential_payout_cents bigint NOT NULL DEFAULT 0,
+  net_revenue_estimated_cents bigint NOT NULL DEFAULT 0,
+  net_revenue_paid_basis_cents bigint NOT NULL DEFAULT 0,
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  version bigint NOT NULL DEFAULT 0,
+
+  CONSTRAINT uq_analytics_seller_terminal_draw
+    UNIQUE (tenant_id, seller_terminal_id, draw_id)
+);
+
+CREATE INDEX idx_analytics_seller_terminal_draw_tenant_date
+  ON analytics_seller_terminal_draw (tenant_id, ref_date DESC);
+CREATE INDEX idx_analytics_seller_terminal_draw_terminal_date
+  ON analytics_seller_terminal_draw (tenant_id, seller_terminal_id, ref_date DESC);
+CREATE INDEX idx_analytics_seller_terminal_draw_draw
+  ON analytics_seller_terminal_draw (tenant_id, draw_id);
+
+COMMENT ON TABLE analytics_seller_terminal_draw
+  IS 'Exact financial projection by tenant, seller terminal and draw.';

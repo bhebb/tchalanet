@@ -12,6 +12,7 @@ CREATE TABLE tenant (
   address_id uuid,
   config jsonb NOT NULL DEFAULT '{}'::jsonb,
   active_theme_id uuid,
+  default_commission_rate numeric(5,2), -- tenant-proposed default commission (%) for seller_terminals; NULL = no default
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
@@ -288,7 +289,7 @@ CREATE TABLE tenant_theme (
 
 CREATE TABLE game (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  code varchar(32) NOT NULL UNIQUE,
+  code varchar(64) NOT NULL UNIQUE,
   name varchar(128) NOT NULL,
   category varchar(32) NOT NULL,
   combination varchar(32) NOT NULL,
@@ -310,7 +311,7 @@ CREATE TABLE tenant_game (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   game_id uuid NOT NULL REFERENCES game(id),
-  game_code varchar(32) NOT NULL,
+  game_code varchar(64) NOT NULL,
   enabled boolean NOT NULL DEFAULT true,
   visible_in_pos boolean NOT NULL DEFAULT true,
   display_name varchar(128),
@@ -477,7 +478,7 @@ CREATE TABLE sales_zone (
 CREATE TABLE pricing_odds (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
-  game_code varchar(32) NOT NULL,
+  game_code varchar(64) NOT NULL,
   bet_type varchar(32) NOT NULL,
   bet_option smallint,
   odds numeric(12,4) NOT NULL,
@@ -632,7 +633,7 @@ CREATE TABLE IF NOT EXISTS limit_assignment (
     deleted_by uuid,
 
     CONSTRAINT ck_limit_assignment_scope_type
-    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'AGENT')),
+    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'AGENT', 'SELLER_TERMINAL')),
 
     CONSTRAINT ck_limit_assignment_on_breach
     CHECK (on_breach IN ('ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK')),
@@ -671,7 +672,7 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
     deleted_by uuid,
 
     CONSTRAINT ck_draw_exposure_scope_type
-    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'AGENT')),
+    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'AGENT', 'SELLER_TERMINAL')),
 
     CONSTRAINT ck_draw_exposure_amounts_non_negative
     CHECK (
@@ -1015,6 +1016,8 @@ CREATE TABLE seller_terminal (
   blocked_by uuid,
   blocked_reason varchar(500),
   disabled_at timestamptz,
+  must_change_pin boolean NOT NULL DEFAULT false,
+  pin_reset_at timestamptz,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
@@ -1023,11 +1026,13 @@ CREATE TABLE seller_terminal (
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_seller_terminal_code UNIQUE (tenant_id, terminal_code),
+  CONSTRAINT uq_seller_terminal__tenant_id_id UNIQUE (tenant_id, id),
   CONSTRAINT chk_seller_terminal__status CHECK (status IN ('PENDING','ACTIVE','BLOCKED','DISABLED'))
 );
 
 CREATE TABLE seller_terminal_external_identity (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
   seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
   provider varchar(32) NOT NULL,
   issuer varchar(512) NOT NULL,
@@ -1039,10 +1044,11 @@ CREATE TABLE seller_terminal_external_identity (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_seller_terminal_external_identity__provider
-    CHECK (provider IN ('FIREBASE')),
+  -- provider CHECK intentionally omitted (relaxed to allow non-FIREBASE providers)
   CONSTRAINT uq_seller_terminal_ext_identity
-    UNIQUE (provider, issuer, external_subject)
+    UNIQUE (provider, issuer, external_subject),
+  CONSTRAINT fk_seller_terminal_ext_identity__tenant_terminal
+    FOREIGN KEY (tenant_id, seller_terminal_id) REFERENCES seller_terminal (tenant_id, id)
 );
 
 -- =========================================================
@@ -1230,6 +1236,11 @@ CREATE TABLE promotion_rule_effect (
   generation_strategy varchar(32) NULL,
   regenerable_before_confirm boolean NOT NULL DEFAULT false,
   max_regenerations_before_confirm integer NOT NULL DEFAULT 3,
+  quantity_mode varchar(32) NOT NULL DEFAULT 'FIXED',
+  step_paid_amount numeric(19,4),
+  quantity_per_step integer,
+  max_quantity integer,
+  quantity_tiers jsonb NOT NULL DEFAULT '[]'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   created_by uuid NULL,
   updated_at timestamptz NULL,
@@ -1241,7 +1252,12 @@ CREATE TABLE promotion_rule_effect (
   CONSTRAINT chk_promotion_rule_effect_quantity CHECK (quantity IS NULL OR quantity > 0),
   CONSTRAINT chk_promotion_rule_effect_amount CHECK (payout_base_amount IS NULL OR payout_base_amount > 0),
   CONSTRAINT chk_promotion_rule_effect_odds CHECK (odds_override IS NULL OR odds_override > 0),
-  CONSTRAINT chk_promotion_rule_effect_regenerations CHECK (max_regenerations_before_confirm >= 0)
+  CONSTRAINT chk_promotion_rule_effect_regenerations CHECK (max_regenerations_before_confirm >= 0),
+  CONSTRAINT chk_promotion_rule_effect_quantity_mode CHECK (quantity_mode IN ('FIXED','PER_PAID_AMOUNT','TIERED_PAID_AMOUNT')),
+  CONSTRAINT chk_promotion_rule_effect_step_paid_amount_positive CHECK (step_paid_amount IS NULL OR step_paid_amount > 0),
+  CONSTRAINT chk_promotion_rule_effect_quantity_per_step_positive CHECK (quantity_per_step IS NULL OR quantity_per_step > 0),
+  CONSTRAINT chk_promotion_rule_effect_max_quantity_positive CHECK (max_quantity IS NULL OR max_quantity > 0),
+  CONSTRAINT chk_promotion_rule_effect_quantity_tiers_array CHECK (jsonb_typeof(quantity_tiers) = 'array')
 );
 
 CREATE TABLE promotion_rule_eligibility_line (
@@ -1370,3 +1386,144 @@ COMMENT ON TABLE result_slot_calendar_override IS
      XOR shape: slot_local_date (specific dated occurrence) vs recurring_md (year-less MM-dd
      annual rule). Both dates are in result_slot.timezone. A specific dated row overrides a
      recurring rule for the same day. Runtime truth (SUPER_ADMIN managed); seeds are bootstrap.';
+
+-- =========================================================
+-- SALE PREPARATION (server-side sale working trace)
+-- Retention: DRAFT TTL 10 min; EXPIRED/CANCELLED purged after 7 days;
+-- CONFIRMED kept 30 days or until reconciliation. Indexes -> V103, RLS -> V105.
+-- =========================================================
+
+CREATE TABLE sale_preparation (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
+  draw_id uuid NOT NULL,
+  status varchar(16) NOT NULL DEFAULT 'DRAFT',
+  input_hash varchar(64) NOT NULL,
+  paid_lines_json jsonb NOT NULL,
+  promotion_decision_id uuid NULL,
+  idempotency_key varchar(96) NULL,
+  ticket_id uuid NULL,
+  expires_at timestamptz NOT NULL,
+  confirmed_at timestamptz NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_sale_preparation_status
+    CHECK (status IN ('DRAFT','CONFIRMED','EXPIRED','CANCELLED')),
+  CONSTRAINT chk_sale_preparation_confirmed
+    CHECK (status <> 'CONFIRMED' OR (ticket_id IS NOT NULL AND confirmed_at IS NOT NULL))
+);
+
+CREATE TABLE sale_preparation_promotion_line (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  preparation_id uuid NOT NULL REFERENCES sale_preparation(id) ON DELETE CASCADE,
+  line_ref varchar(36) NOT NULL,
+  game_code varchar(64) NOT NULL,
+  bet_type varchar(32) NOT NULL,
+  bet_option smallint NULL,
+  selection varchar(32) NOT NULL,
+  payout_base_amount numeric(19,4) NOT NULL,
+  promotion_decision_id uuid NULL,
+  promotion_rule_id uuid NULL,
+  regenerable boolean NOT NULL DEFAULT false,
+  max_regenerations integer NOT NULL DEFAULT 3,
+  regeneration_count integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_sale_preparation_line_ref UNIQUE (preparation_id, line_ref),
+  CONSTRAINT chk_sale_preparation_line_regen
+    CHECK (regeneration_count >= 0 AND regeneration_count <= max_regenerations)
+);
+
+-- =========================================================
+-- PER-SELLER-TERMINAL ODDS OVERRIDE (core.pricing)
+-- Resolution: seller_terminal override (active) -> tenant default -> error.
+-- Indexes -> V103, RLS -> V105.
+-- =========================================================
+
+CREATE TABLE seller_terminal_pricing_odds_override (
+  id                 uuid          NOT NULL DEFAULT gen_random_uuid(),
+  tenant_id          uuid          NOT NULL,
+  seller_terminal_id uuid          NOT NULL,
+  game_code          varchar(64)   NOT NULL,
+  bet_type           varchar(32)   NOT NULL,
+  bet_option         smallint      NULL,
+  odds               numeric(12,4) NOT NULL,
+  active             boolean       NOT NULL DEFAULT true,
+  effective_from     timestamptz   NULL,
+  effective_to       timestamptz   NULL,
+  reason             varchar(500)  NULL,
+  created_at         timestamptz   NOT NULL DEFAULT now(),
+  created_by         uuid          NULL,
+  updated_at         timestamptz   NULL,
+  updated_by         uuid          NULL,
+  deleted_at         timestamptz   NULL,
+  deleted_by         uuid          NULL,
+  version            bigint        NOT NULL DEFAULT 0,
+  CONSTRAINT pk_st_pricing_odds_override PRIMARY KEY (id),
+  CONSTRAINT ck_st_odds_positive CHECK (odds > 0),
+  CONSTRAINT fk_st_pricing_override_seller_terminal
+    FOREIGN KEY (seller_terminal_id) REFERENCES seller_terminal (id)
+);
+
+-- =========================================================
+-- PLATFORM USER ROLE (platform-scoped role assignments, not tenant membership)
+-- Indexes -> V103, seed -> V202.
+-- =========================================================
+
+CREATE TABLE platform_user_role (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES app_user(id),
+  role_id uuid NOT NULL REFERENCES app_role(id),
+  assigned_at timestamptz NOT NULL DEFAULT now(),
+  assigned_by uuid NULL REFERENCES app_user(id),
+  deleted_at timestamptz NULL
+);
+
+-- =========================================================
+-- PUBLIC CONTACT REQUEST (platform-level, non-tenanted public form)
+-- Indexes -> V103.
+-- =========================================================
+
+CREATE SEQUENCE contact_request_ref_seq START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE public_contact_request (
+  id                     uuid         PRIMARY KEY,
+  reference              varchar(32)  NOT NULL,
+  intent                 varchar(40)  NOT NULL,
+  full_name              varchar(160) NOT NULL,
+  phone                  varchar(64)  NOT NULL,
+  email                  varchar(160),
+  organization_name      varchar(180),
+  city                   varchar(120),
+  country                varchar(120),
+  outlet_count           integer,
+  preferred_contact_time varchar(120),
+  message                text         NOT NULL,
+  consent_to_contact     boolean      NOT NULL,
+  status                 varchar(40)  NOT NULL,
+  internal_notes         text,
+  external_tool          varchar(80),
+  external_reference     varchar(160),
+  exported_at            timestamptz,
+  source_page            varchar(160),
+  created_at             timestamptz,
+  updated_at             timestamptz,
+  created_by             uuid,
+  updated_by             uuid,
+  deleted_at             timestamptz,
+  deleted_by             uuid,
+  version                bigint       NOT NULL DEFAULT 0,
+  CONSTRAINT public_contact_request_reference_uq UNIQUE (reference)
+);

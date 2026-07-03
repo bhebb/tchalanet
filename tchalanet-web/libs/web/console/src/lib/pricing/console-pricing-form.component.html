@@ -1,0 +1,54 @@
+<form class="tch-admin-dialog-form" (submit)="$event.preventDefault(); submit()">
+  @if (readonlyIdentity()) {
+    <div class="tch-admin-dialog-readonly">
+      <span>{{ 'component.console.pricingForm.field.identity' | translate }}</span>
+      <code>{{ model().gameCode | consoleGameName }} / {{ model().betType | consoleBetLabel:model().betOption }}</code>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'component.console.pricingForm.field.gameCode' | translate }}</mat-label>
+      <input matInput autocomplete="off" placeholder="BORLETTE" [formField]="form.gameCode" />
+      @if (form.gameCode().touched() && form.gameCode().invalid()) {
+        @for (error of form.gameCode().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'component.console.pricingForm.field.betType' | translate }}</mat-label>
+      <mat-select [formField]="form.betType">
+        <mat-option value="">-</mat-option>
+        @for (betType of betTypes(); track betType) {
+          <mat-option [value]="betType">{{ betType | consoleBetTypeLabel }}</mat-option>
+        }
+      </mat-select>
+      @if (form.betType().touched() && form.betType().invalid()) {
+        @for (error of form.betType().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
+        }
+      }
+    </mat-form-field>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'component.console.pricingForm.field.betOption' | translate }}</mat-label>
+    <input matInput type="number" placeholder="1" [formField]="form.betOption" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'component.console.pricingForm.field.odds' | translate }}</mat-label>
+    <input matInput type="number" placeholder="55" [formField]="form.odds" />
+    @if (form.odds().touched() && form.odds().invalid()) {
+      @for (error of form.odds().errors(); track error.kind) {
+        <mat-error>{{ (error.message ?? 'component.console.pricingForm.validation.oddsMin') | translate }}</mat-error>
+      }
+    }
+  </mat-form-field>
+
+  <ng-content select="[extraFields]" />
+
+  @if (showActive()) {
+    <mat-checkbox [formField]="form.active">{{ 'component.console.pricingForm.field.active' | translate }}</mat-checkbox>
+  }
+</form>

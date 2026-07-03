@@ -193,67 +193,20 @@
             </tch-notice>
           }
           @if (!showAddressForm()) {
-            @if (hasAddress()) {
-              <dl class="biz-profile__facts">
-                @if (header()!.address!.line1) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.line1' | translate }}</dt>
-                    <dd>{{ header()!.address!.line1 }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.line2) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.line2' | translate }}</dt>
-                    <dd>{{ header()!.address!.line2 }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.city) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.city' | translate }}</dt>
-                    <dd>{{ header()!.address!.city }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.country) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.country' | translate }}</dt>
-                    <dd>{{ header()!.address!.country }}</dd>
-                  </div>
-                }
-              </dl>
-            } @else {
-              <p class="biz-profile__empty-hint">{{ 'admin.businessProfile.address.empty' | translate }}</p>
-            }
+            <tch-console-address-summary
+              [address]="header()!.address"
+              emptyKey="admin.businessProfile.address.empty"
+            />
             <button mat-stroked-button class="biz-profile__cta" (click)="openAddressForm()">
               {{ (hasAddress() ? 'common.edit' : 'admin.businessProfile.address.add') | translate }}
             </button>
           } @else {
-            <form [formGroup]="addressForm" (ngSubmit)="submitAddress()" class="biz-profile__form">
-              <mat-form-field appearance="outline" class="biz-profile__form-field">
-                <mat-label>{{ 'admin.setup.address.line1' | translate }}</mat-label>
-                <input matInput formControlName="line1" />
-              </mat-form-field>
-              <tch-field-error [control]="addressForm.controls.line1" />
-              <mat-form-field appearance="outline" class="biz-profile__form-field">
-                <mat-label>{{ 'admin.setup.address.line2' | translate }}</mat-label>
-                <input matInput formControlName="line2" />
-              </mat-form-field>
-              <tch-field-error [control]="addressForm.controls.line2" />
-              <div class="biz-profile__form-row">
-                <div class="biz-profile__field-group">
-                  <mat-form-field appearance="outline" class="biz-profile__form-field">
-                    <mat-label>{{ 'admin.setup.address.city' | translate }}</mat-label>
-                    <input matInput formControlName="city" />
-                  </mat-form-field>
-                  <tch-field-error [control]="addressForm.controls.city" />
-                </div>
-                <div class="biz-profile__field-group biz-profile__field-group--sm">
-                  <mat-form-field appearance="outline" class="biz-profile__form-field biz-profile__form-field--sm">
-                    <mat-label>{{ 'admin.setup.address.country' | translate }}</mat-label>
-                    <input matInput formControlName="country" maxlength="2" />
-                  </mat-form-field>
-                  <tch-field-error [control]="addressForm.controls.country" />
-                </div>
-              </div>
+            <form (submit)="$event.preventDefault(); submitAddress()" class="biz-profile__form" novalidate>
+              <tch-console-address-form-section
+                [form]="addressForm()"
+                [framed]="false"
+                [required]="true"
+              />
               @if (addressFormError()) {
                 <tch-notice type="error">{{ addressFormError() }}</tch-notice>
               }
@@ -261,7 +214,7 @@
                 <button mat-button type="button" [disabled]="addressFormState() === 'submitting'" (click)="cancelAddressForm()">
                   {{ 'common.cancel' | translate }}
                 </button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="addressFormState() === 'submitting'">
+                <button mat-flat-button color="primary" type="submit" [disabled]="addressFormState() === 'submitting' || addressForm().invalid()">
                   {{ addressFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
                 </button>
               </div>

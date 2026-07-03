@@ -5,9 +5,9 @@
     <div class="ssc__check-ring">
       <span class="material-symbols-outlined ssc__check-icon">check_circle</span>
     </div>
-    <h2 class="ssc__title">Seller-terminal créé avec succès !</h2>
+    <h2 class="ssc__title">{{ 'admin.sellerTerminals.new.success.title' | translate }}</h2>
     <p class="ssc__description">
-      Le nouveau point de vente est désormais actif sur le réseau.
+      {{ 'admin.sellerTerminals.new.success.description' | translate }}
     </p>
   </div>
 
@@ -17,10 +17,15 @@
     <div class="ssc__credentials">
       <!-- Code terminal -->
       <div class="ssc__cred-card">
-        <span class="ssc__cred-label">Code terminal</span>
+        <span class="ssc__cred-label">{{ 'admin.sellerTerminals.new.field.terminalCode' | translate }}</span>
         <div class="ssc__cred-value-row">
           <span class="ssc__cred-value ssc__cred-value--mono">{{ result().terminalCode }}</span>
-          <button mat-icon-button class="ssc__copy-btn" (click)="copyCredentials()" aria-label="Copier le code terminal">
+          <button
+            mat-icon-button
+            class="ssc__copy-btn"
+            (click)="copyCredentials()"
+            [attr.aria-label]="'admin.sellerTerminals.new.action.copyTerminalCode' | translate"
+          >
             <span class="material-symbols-outlined">content_copy</span>
           </button>
         </div>
@@ -28,12 +33,17 @@
 
       <!-- PIN initial -->
       <div class="ssc__cred-card">
-        <span class="ssc__cred-label">PIN initial</span>
+        <span class="ssc__cred-label">{{ 'admin.sellerTerminals.new.field.initialPin' | translate }}</span>
         <div class="ssc__cred-value-row">
           <span class="ssc__cred-value ssc__cred-value--mono ssc__cred-value--pin">
             {{ showPin() ? result().initialPin : '•'.repeat(result().initialPin.length) }}
           </span>
-          <button mat-icon-button class="ssc__copy-btn" (click)="togglePin()" [attr.aria-label]="showPin() ? 'Masquer le PIN' : 'Afficher le PIN'">
+          <button
+            mat-icon-button
+            class="ssc__copy-btn"
+            (click)="togglePin()"
+            [attr.aria-label]="(showPin() ? 'admin.sellerTerminals.new.action.hidePin' : 'admin.sellerTerminals.new.action.showPin') | translate"
+          >
             <span class="material-symbols-outlined">{{ showPin() ? 'visibility_off' : 'visibility' }}</span>
           </button>
         </div>
@@ -44,9 +54,8 @@
     <div class="ssc__notice">
       <span class="material-symbols-outlined ssc__notice-icon">info</span>
       <p class="ssc__notice-text">
-        Veuillez communiquer ces identifiants au vendeur.
-        Le PIN initial devra être modifié lors de la première connexion.
-        <strong>Il ne sera plus affiché après la fermeture de cet écran.</strong>
+        {{ 'admin.sellerTerminals.new.success.noticePrefix' | translate }}
+        <strong>{{ 'admin.sellerTerminals.new.success.noticeStrong' | translate }}</strong>
       </p>
     </div>
 
@@ -55,22 +64,22 @@
       <div class="ssc__actions-row">
         <button mat-flat-button color="primary" class="ssc__cta" (click)="openPos.emit(result())">
           <span class="material-symbols-outlined">launch</span>
-          Ouvrir le Web POS
+          {{ 'admin.sellerTerminals.new.action.openPos' | translate }}
         </button>
         <button mat-stroked-button class="ssc__copy-all" (click)="copyCredentials()">
           <span class="material-symbols-outlined">{{ copied() ? 'check' : 'content_copy' }}</span>
-          {{ copied() ? 'Copié !' : 'Copier' }}
+          {{ (copied() ? 'admin.sellerTerminals.new.action.copied' : 'admin.sellerTerminals.new.action.copy') | translate }}
         </button>
       </div>
 
       <div class="ssc__actions-secondary">
         <button mat-button (click)="createAnother.emit()">
           <span class="material-symbols-outlined">add</span>
-          Créer un autre terminal vendeur
+          {{ 'admin.sellerTerminals.new.action.createAnother' | translate }}
         </button>
         <button mat-button (click)="backToList.emit()">
           <span class="material-symbols-outlined">arrow_back</span>
-          Retour à la liste des terminaux
+          {{ 'admin.sellerTerminals.new.action.backToList' | translate }}
         </button>
       </div>
     </div>

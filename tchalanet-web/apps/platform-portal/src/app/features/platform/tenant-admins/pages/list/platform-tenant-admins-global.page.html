@@ -8,7 +8,7 @@
     [searchValue]="searchQuery()"
     [showReset]="hasActiveFilters()"
     [filtersExpanded]="hasActiveFilters()"
-    [resetLabel]="'platform.tenantAdmins.action.resetFilters' | translate"
+    [resetLabel]="'common.resetFilters' | translate"
     (searchChange)="onSearchFilter($event)"
     (resetFilters)="resetFilters()"
   >
@@ -32,7 +32,7 @@
           />
           <div class="tenant-admins-global__empty-actions">
             <button mat-button type="button" (click)="resetFilters()">
-              {{ 'platform.tenantAdmins.action.resetFilters' | translate }}
+              {{ 'common.resetFilters' | translate }}
             </button>
           </div>
         } @else {
@@ -91,7 +91,7 @@
 
             <!-- Statut -->
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header="status">{{ 'platform.tenantAdmins.column.status' | translate }}</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="status">{{ 'common.status' | translate }}</th>
               <td mat-cell *matCellDef="let row">
                 <tch-status-badge [status]="statusBadge(row.status)" [label]="statusLabel(row.status)" />
               </td>
@@ -113,7 +113,7 @@
                   mat-icon-button
                   [matMenuTriggerFor]="rowMenu"
                   [matMenuTriggerData]="{ row }"
-                  [attr.aria-label]="'platform.tenantAdmins.action.openMenu' | translate"
+                  [attr.aria-label]="'common.openMenu' | translate"
                   (click)="$event.stopPropagation()"
                 >
                   <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
@@ -131,28 +131,28 @@
             <ng-template matMenuContent let-row="row">
               <a mat-menu-item [routerLink]="['/app/platform/tenant-admins', row.id]">
                 <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-                {{ 'platform.tenantAdmins.action.viewDetail' | translate }}
+                {{ 'common.details' | translate }}
               </a>
               <button mat-menu-item (click)="resetPassword(row)">
                 <span class="material-symbols-outlined" aria-hidden="true">lock_reset</span>
-                {{ 'platform.tenantAdmins.action.resetPassword' | translate }}
+                {{ 'common.resetPassword' | translate }}
               </button>
               @if (canActivate(row)) {
                 <button mat-menu-item (click)="activateUser(row)">
                   <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-                  {{ 'platform.tenantAdmins.action.activate' | translate }}
+                  {{ 'common.activate' | translate }}
                 </button>
               }
               @if (canBlock(row)) {
                 <button mat-menu-item (click)="blockUser(row)">
                   <span class="material-symbols-outlined" aria-hidden="true">block</span>
-                  {{ 'platform.tenantAdmins.action.block' | translate }}
+                  {{ 'common.block' | translate }}
                 </button>
               }
               @if (canArchive(row)) {
                 <button mat-menu-item (click)="archiveUser(row)">
                   <span class="material-symbols-outlined" aria-hidden="true">archive</span>
-                  {{ 'platform.tenantAdmins.action.archive' | translate }}
+                  {{ 'common.archive' | translate }}
                 </button>
               }
             </ng-template>

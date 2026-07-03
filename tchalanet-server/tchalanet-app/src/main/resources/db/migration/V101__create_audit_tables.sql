@@ -104,3 +104,68 @@ CREATE TABLE seller_terminal_aud
     CONSTRAINT pk_seller_terminal_aud PRIMARY KEY (id, rev),
     CONSTRAINT fk_seller_terminal_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
 );
+
+-- ============================================================
+-- audit_log — business audit trail (data-lifecycle-archive-v1)
+-- Partitioned by occurred_at (monthly RANGE). Progressively replaces audit_event.
+-- actor_id is always app_user.id (UUID). Self-contained: partitions + indexes + RLS + grant.
+-- Future monthly partitions are added by the archive scheduler.
+-- ============================================================
+CREATE TABLE audit_log
+(
+    id               uuid         NOT NULL,
+    tenant_id        uuid         NULL,
+    occurred_at      timestamptz  NOT NULL,
+    business_date    date         NULL,
+    actor_id         uuid         NULL,
+    actor_type       varchar(32)  NULL,
+    action           varchar(96)  NOT NULL,
+    entity_type      varchar(64)  NOT NULL,
+    entity_id        uuid         NULL,
+    severity         varchar(16)  NOT NULL DEFAULT 'INFO',
+    source           varchar(32)  NOT NULL DEFAULT 'API',
+    correlation_id   varchar(96)  NULL,
+    request_id       varchar(96)  NULL,
+    details          jsonb        NULL,
+    created_at       timestamptz  NOT NULL DEFAULT now(),
+    CONSTRAINT pk_audit_log PRIMARY KEY (id, occurred_at),
+    CONSTRAINT chk_audit_log__severity
+        CHECK (severity IN ('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL')),
+    CONSTRAINT chk_audit_log__source
+        CHECK (source IN ('API', 'SYSTEM', 'BATCH', 'SCHEDULER', 'IMPORT', 'MIGRATION'))
+) PARTITION BY RANGE (occurred_at);
+
+CREATE TABLE audit_log_2026_06
+    PARTITION OF audit_log
+    FOR VALUES FROM ('2026-06-01') TO ('2026-07-01');
+
+CREATE TABLE audit_log_2026_07
+    PARTITION OF audit_log
+    FOR VALUES FROM ('2026-07-01') TO ('2026-08-01');
+
+CREATE INDEX ix_audit_log__business_date
+    ON audit_log (business_date);
+CREATE INDEX ix_audit_log__tenant_time
+    ON audit_log (tenant_id, occurred_at DESC);
+CREATE INDEX ix_audit_log__tenant_entity
+    ON audit_log (tenant_id, entity_type, entity_id, occurred_at DESC);
+CREATE INDEX ix_audit_log__actor_time
+    ON audit_log (tenant_id, actor_id, occurred_at DESC);
+CREATE INDEX ix_audit_log__action_time
+    ON audit_log (tenant_id, action, occurred_at DESC);
+
+ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_log FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY audit_log_rls_tenant ON audit_log
+    FOR SELECT
+    USING (
+    public.allow_platform_cross_tenant_select()
+        OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    );
+
+CREATE POLICY audit_log_rls_insert ON audit_log
+    FOR INSERT
+    WITH CHECK (true);
+
+GRANT SELECT, INSERT ON audit_log TO app_user;

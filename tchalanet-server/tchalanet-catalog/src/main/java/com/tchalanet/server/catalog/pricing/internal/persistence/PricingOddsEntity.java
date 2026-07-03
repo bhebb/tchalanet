@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @Setter
 public class PricingOddsEntity extends BaseTenantEntity {
 
-    @Column(name = "game_code", nullable = false, length = 32)
+    @Column(name = "game_code", nullable = false, length = 64)
     private String gameCode;
 
     @Enumerated(EnumType.STRING)

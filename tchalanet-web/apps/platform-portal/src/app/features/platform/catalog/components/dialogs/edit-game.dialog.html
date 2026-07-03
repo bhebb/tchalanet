@@ -1,0 +1,47 @@
+<tch-admin-dialog-shell
+  [title]="'platform.catalog.games.dialog.edit.title' | translate: { name: game.name }"
+  icon="tune"
+>
+  <form class="tch-admin-dialog-form" (submit)="submit($event)">
+    @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+      <tch-section-error [title]="errorVm.title" [message]="errorVm.message" />
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'platform.catalog.games.field.name' | translate }}</mat-label>
+      <input matInput autocomplete="off" [formField]="form.name" />
+      @if (form.name().touched() && form.name().invalid()) {
+        @for (error of form.name().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'platform.catalog.games.field.category' | translate }}</mat-label>
+      <mat-select [formField]="form.category">
+        <mat-option value="">-</mat-option>
+        @for (category of categories; track category) {
+          <mat-option [value]="category">{{ category }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'platform.catalog.games.field.sortOrder' | translate }}</mat-label>
+      <input matInput type="number" [formField]="form.sortOrder" />
+    </mat-form-field>
+
+    <mat-checkbox [formField]="form.active">{{ 'platform.catalog.games.field.active' | translate }}</mat-checkbox>
+  </form>
+
+  <button actions mat-stroked-button type="button" [mat-dialog-close]="null" [disabled]="saveGame.pending()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button actions mat-flat-button color="primary" type="submit" [disabled]="form().invalid() || saveGame.pending()" (click)="submit($event)">
+    @if (saveGame.pending()) {
+      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'common.save' | translate }}
+  </button>
+</tch-admin-dialog-shell>

@@ -3,24 +3,15 @@
     <ng-container matColumnDef="draw">
       <th mat-header-cell *matHeaderCellDef>Tirage</th>
       <td mat-cell *matCellDef="let row" data-label="Tirage">
-        <div class="console-draw-results-table__draw">
-          <div class="console-draw-results-table__provider-logo" [title]="row.logoAlt || row.title">
-            @if (row.logoUrl) {
-              <img [src]="row.logoUrl" [alt]="row.logoAlt || row.title" loading="lazy" />
-            } @else {
-              <span>{{ row.logoText || row.slotKey || '—' }}</span>
-            }
-          </div>
-          <div>
-            <p class="console-draw-results-table__draw-label">{{ row.title }}</p>
-            @if (row.subtitle) {
-              <p class="console-draw-results-table__draw-code">{{ row.subtitle }}</p>
-            }
-            @if (row.meta) {
-              <p class="console-draw-results-table__draw-meta">{{ row.meta }}</p>
-            }
-          </div>
-        </div>
+        <tch-console-draw-slot-identity
+          [identity]="{
+            providerName: row.logoAlt,
+            providerLogoUrl: row.logoUrl,
+            logoText: row.logoText,
+            slotLabel: row.title,
+            slotKey: row.subtitle || row.slotKey
+          }"
+        />
       </td>
     </ng-container>
 
@@ -89,6 +80,7 @@
                 mat-icon-button
                 type="button"
                 [title]="action.label"
+                [disabled]="action.disabled"
                 [class.console-draw-results-table__action--danger]="action.tone === 'danger'"
                 (click)="emitAction(row, action)"
               >
@@ -102,6 +94,7 @@
               <button
                 mat-stroked-button
                 type="button"
+                [disabled]="action.disabled"
                 [class.console-draw-results-table__action--danger]="action.tone === 'danger'"
                 [class.console-draw-results-table__action--primary]="action.tone === 'primary'"
                 (click)="emitAction(row, action)"

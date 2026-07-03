@@ -1,16 +1,16 @@
 <tch-admin-page-shell
-  [title]="cardUser()?.displayName || cardUser()?.email || 'Administrateur'"
-  description="Détail du compte administrateur tenant."
+  [title]="cardUser()?.displayName || cardUser()?.email || ('platform.tenantAdmins.detail.title' | translate)"
+  [description]="'platform.tenantAdmins.detail.description' | translate"
 >
   <div actions>
     <button mat-stroked-button type="button" (click)="goBack()">
       <span class="material-symbols-outlined">arrow_back</span>
-      Retour
+      {{ 'common.back' | translate }}
     </button>
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement..." />
+    <tch-loading [label]="'common.loading' | translate" />
   } @else if (error(); as errorVm) {
     <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
   } @else if (cardUser(); as u) {

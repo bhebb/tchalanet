@@ -1,0 +1,119 @@
+<div class="seller-terminal-table">
+  <table mat-table [dataSource]="rows()">
+    <ng-container matColumnDef="terminalCode">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.terminalCode' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <span class="seller-terminal-table__code">{{ row.terminalCode }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="displayName">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.seller' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.email' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.email ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="phoneNumber">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.phone' | translate }}</th>
+      <td mat-cell *matCellDef="let row">{{ row.phoneNumber ?? '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.status' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <tch-status-badge [label]="statusLabelKey(row) | translate" [status]="statusBadge(row)" />
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="commissionRate">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.commission' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.commissionRate !== null ? row.commissionRate + '%' : '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="lastSeenAt">
+      <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.lastSeenAt' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.lastSeenAt ? (row.lastSeenAt | date: 'dd/MM/yyyy HH:mm') : '—' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td
+        mat-cell
+        *matCellDef="let row"
+        class="seller-terminal-table__actions-cell"
+        (click)="$event.stopPropagation()"
+      >
+        @if (row.status === 'BLOCKED') {
+          <button mat-stroked-button (click)="unblock.emit(row)" class="seller-terminal-table__unblock-btn">
+            <span class="material-symbols-outlined">lock_open</span>
+            {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
+          </button>
+        } @else if (canOpenPos(row.status)) {
+          <button mat-stroked-button color="primary" (click)="openPos.emit(row)" class="seller-terminal-table__pos-btn">
+            <span class="material-symbols-outlined">point_of_sale</span>
+            {{ 'admin.sellerTerminals.list.action.openPos' | translate }}
+          </button>
+        }
+
+        <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ row }">
+          <span class="material-symbols-outlined">more_vert</span>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      class="seller-terminal-table__row"
+      *matRowDef="let row; columns: displayedColumns"
+      [routerLink]="['/app/admin/sellers', row.id.value]"
+    ></tr>
+  </table>
+</div>
+
+<mat-menu #rowMenu="matMenu">
+  <ng-template matMenuContent let-row="row">
+    <button mat-menu-item [routerLink]="['/app/admin/sellers', row.id.value]">
+      <span class="material-symbols-outlined">edit</span>
+      {{ 'admin.sellerTerminals.list.action.detail' | translate }}
+    </button>
+    <button mat-menu-item (click)="resetPin.emit(row)" [disabled]="row.status === 'DISABLED'">
+      <span class="material-symbols-outlined">lock_reset</span>
+      {{ 'admin.sellerTerminals.list.action.resetPin' | translate }}
+    </button>
+    @if (row.status !== 'BLOCKED') {
+      <button mat-menu-item (click)="blockSeller.emit(row)" [disabled]="row.status === 'DISABLED'">
+        <span class="material-symbols-outlined">block</span>
+        {{ 'admin.sellerTerminals.list.action.block' | translate }}
+      </button>
+    }
+    @if (row.status === 'BLOCKED') {
+      <button mat-menu-item (click)="unblock.emit(row)">
+        <span class="material-symbols-outlined">lock_open</span>
+        {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
+      </button>
+    }
+    @if (row.status !== 'DISABLED') {
+      <button mat-menu-item (click)="disable.emit(row)">
+        <span class="material-symbols-outlined">do_not_disturb_on</span>
+        {{ 'admin.sellerTerminals.list.action.disable' | translate }}
+      </button>
+    }
+    <button mat-menu-item (click)="limits.emit(row)">
+      <span class="material-symbols-outlined">shield</span>
+      {{ 'admin.sellerTerminals.list.action.limits' | translate }}
+    </button>
+    <button mat-menu-item [routerLink]="['/app/admin/tickets']" [queryParams]="{ sellerTerminalId: row.id.value }">
+      <span class="material-symbols-outlined">receipt_long</span>
+      {{ 'admin.sellerTerminals.list.action.tickets' | translate }}
+    </button>
+  </ng-template>
+</mat-menu>

@@ -1,0 +1,32 @@
+<tch-admin-dialog-shell [title]="'platform.catalog.pricing.dialog.create.title' | translate" icon="percent">
+  @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+    <tch-section-error [title]="errorVm.title" [message]="errorVm.message" />
+  }
+
+  <tch-console-pricing-form
+    [initialValue]="formValue()"
+    [betTypes]="betTypes"
+    (submitted)="save($event)"
+  >
+    <tch-search-select
+      extraFields
+      [label]="'platform.catalog.pricing.field.tenant' | translate"
+      [placeholder]="'platform.catalog.pricing.field.tenantPlaceholder' | translate"
+      icon="apartment"
+      [clearLabel]="'platform.catalog.pricing.scope.global' | translate"
+      [emptyLabel]="'platform.catalog.pricing.empty.tenants' | translate"
+      [searchFn]="searchTenants"
+      (valueChange)="selectTenant($event)"
+    />
+  </tch-console-pricing-form>
+
+  <button actions mat-stroked-button type="button" [mat-dialog-close]="null" [disabled]="savePricing.pending()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button actions mat-flat-button color="primary" type="submit" [disabled]="pricingForm().invalid() || savePricing.pending()" (click)="submit()">
+    @if (savePricing.pending()) {
+      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'common.create' | translate }}
+  </button>
+</tch-admin-dialog-shell>

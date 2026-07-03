@@ -5,6 +5,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
+import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
 import {
   ConsoleDrawActionEvent,
   ConsoleDrawRow,
@@ -18,6 +19,7 @@ import { ConsoleRowAction } from '../draw-results/console-draw-results-table.mod
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminStatusPillComponent,
+    ConsoleDrawSlotIdentityComponent,
     MatButtonModule,
     MatCheckboxModule,
     MatMenuModule,
