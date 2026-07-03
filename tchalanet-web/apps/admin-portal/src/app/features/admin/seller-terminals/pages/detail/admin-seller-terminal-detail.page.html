@@ -1,0 +1,140 @@
+<tch-admin-page-shell
+  [title]="title()"
+  [description]="'admin.sellerTerminals.detail.description' | translate"
+>
+  <div actions class="seller-terminal-detail__actions">
+    <a mat-stroked-button routerLink="/app/admin/sellers">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'common.back' | translate }}
+    </a>
+    @if (terminal(); as t) {
+      <a mat-stroked-button [routerLink]="['/app/admin/tickets']" [queryParams]="{ sellerTerminalId: t.id.value }">
+        <mat-icon>receipt_long</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.tickets' | translate }}
+      </a>
+      <a mat-flat-button color="primary" [routerLink]="['/app/admin/sellers', t.id.value, 'pos']">
+        <mat-icon>point_of_sale</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.openPos' | translate }}
+      </a>
+    }
+  </div>
+
+  <tch-async-view
+    [resource]="sellerTerminal"
+    [error]="sellerTerminalError()"
+    [loadingLabel]="'admin.sellerTerminals.detail.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (terminal(); as t) {
+        <tch-admin-detail-layout>
+          <div main class="seller-terminal-detail__main">
+            <tch-admin-section-card
+              [title]="'admin.sellerTerminals.detail.section.identity' | translate"
+              [description]="'admin.sellerTerminals.detail.section.identityDesc' | translate"
+              icon="badge"
+            >
+              <dl class="seller-terminal-detail__facts">
+                @for (fact of identityFacts(); track fact.labelKey) {
+                  <div class="seller-terminal-detail__fact">
+                    <dt>{{ fact.labelKey | translate }}</dt>
+                    <dd>{{ value(fact.value) }}</dd>
+                  </div>
+                }
+              </dl>
+            </tch-admin-section-card>
+
+            <tch-admin-section-card
+              [title]="'admin.sellerTerminals.detail.section.states' | translate"
+              [description]="'admin.sellerTerminals.detail.section.statesDesc' | translate"
+              icon="flag"
+            >
+              <dl class="seller-terminal-detail__facts">
+                @for (fact of stateFacts(); track fact.labelKey) {
+                  <div class="seller-terminal-detail__fact">
+                    <dt>{{ fact.labelKey | translate }}</dt>
+                    <dd>{{ value(fact.value) }}</dd>
+                  </div>
+                }
+              </dl>
+            </tch-admin-section-card>
+
+            <tch-admin-section-card
+              [title]="'admin.sellerTerminals.detail.section.activity' | translate"
+              [description]="'admin.sellerTerminals.detail.section.activityDesc' | translate"
+              icon="timeline"
+            >
+              <dl class="seller-terminal-detail__facts">
+                @for (fact of activityFacts(); track fact.labelKey) {
+                  <div class="seller-terminal-detail__fact">
+                    <dt>{{ fact.labelKey | translate }}</dt>
+                    <dd>{{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}</dd>
+                  </div>
+                }
+              </dl>
+            </tch-admin-section-card>
+
+            <tch-admin-section-card
+              [title]="'admin.sellerTerminals.detail.section.security' | translate"
+              [description]="'admin.sellerTerminals.detail.section.securityDesc' | translate"
+              icon="lock"
+            >
+              <dl class="seller-terminal-detail__facts">
+                @for (fact of securityFacts(); track fact.labelKey) {
+                  <div class="seller-terminal-detail__fact">
+                    <dt>{{ fact.labelKey | translate }}</dt>
+                    <dd>
+                      @if (fact.labelKey === 'admin.sellerTerminals.detail.field.pinResetAt') {
+                        {{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}
+                      } @else {
+                        {{ value(fact.value) }}
+                      }
+                    </dd>
+                  </div>
+                }
+              </dl>
+            </tch-admin-section-card>
+          </div>
+
+          <aside aside class="seller-terminal-detail__aside">
+            <section class="seller-terminal-detail__summary">
+              <span class="seller-terminal-detail__eyebrow">
+                {{ 'admin.sellerTerminals.detail.summary.eyebrow' | translate }}
+              </span>
+              <h2>{{ t.displayName }}</h2>
+              <p>{{ t.terminalCode }}</p>
+              <tch-status-badge [label]="statusLabel(t.status)" [status]="statusBadge(t.status)" />
+            </section>
+
+            <tch-admin-section-card
+              [title]="'admin.sellerTerminals.detail.section.control' | translate"
+              icon="tune"
+            >
+              <dl class="seller-terminal-detail__facts seller-terminal-detail__facts--compact">
+                <div class="seller-terminal-detail__fact">
+                  <dt>{{ 'admin.sellerTerminals.detail.field.commissionRate' | translate }}</dt>
+                  <dd>
+                    @if (t.commissionRate !== null && t.commissionRate !== undefined) {
+                      {{ t.commissionRate | number: '1.0-2' }} %
+                    } @else {
+                      {{ 'common.not_available' | translate }}
+                    }
+                  </dd>
+                </div>
+                <div class="seller-terminal-detail__fact">
+                  <dt>{{ 'admin.sellerTerminals.detail.field.addressId' | translate }}</dt>
+                  <dd>{{ value(controlFacts()[1].value) }}</dd>
+                </div>
+                <div class="seller-terminal-detail__fact">
+                  <dt>{{ 'admin.sellerTerminals.detail.field.tenantId' | translate }}</dt>
+                  <dd>{{ value(controlFacts()[2].value) }}</dd>
+                </div>
+              </dl>
+            </tch-admin-section-card>
+          </aside>
+        </tch-admin-detail-layout>
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

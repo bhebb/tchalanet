@@ -446,7 +446,43 @@
         "submit": "Create seller terminal"
       },
       "detail": {
-        "title": "Seller-terminal detail"
+        "title": "Seller-terminal detail",
+        "description": "Review seller identity, states and activity.",
+        "loading": "Loading seller-terminal...",
+        "action": {
+          "openPos": "Open POS",
+          "tickets": "Tickets"
+        },
+        "summary": {
+          "eyebrow": "Seller"
+        },
+        "section": {
+          "identity": "Identity",
+          "identityDesc": "Information used to identify this seller.",
+          "states": "States",
+          "statesDesc": "Operational states that define what this seller can do.",
+          "activity": "Activity",
+          "activityDesc": "Latest known dates for this seller.",
+          "security": "Security",
+          "securityDesc": "PIN state and blocking information.",
+          "control": "Control"
+        },
+        "field": {
+          "currentStatus": "Current status",
+          "canSell": "Can sell",
+          "blocked": "Blocked",
+          "disabled": "Disabled",
+          "mustChangePin": "PIN change required",
+          "pinResetAt": "PIN reset at",
+          "blockedReason": "Block reason",
+          "activatedAt": "Activated at",
+          "lastSeenAt": "Last seen",
+          "blockedAt": "Blocked at",
+          "disabledAt": "Disabled at",
+          "commissionRate": "Commission",
+          "addressId": "Address",
+          "tenantId": "Tenant"
+        }
       },
       "status": {
         "ALL": "All",
@@ -470,6 +506,7 @@
         "commission_rate": "Commission rate",
         "commission_rate_hint": "Leave blank to use the tenant default rate.",
         "commission_rate_error": "Rate must be between 0 and 100.",
+        "email": "Email",
         "pin": "PIN (6 chiffres)",
         "pin_required": "PIN is required and must contain 6 digits.",
         "seller_terminal_code": "Seller-terminal code",

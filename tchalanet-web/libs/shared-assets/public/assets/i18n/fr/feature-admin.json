@@ -506,7 +506,60 @@
       "description": "Complétez les informations nécessaires pour démarrer."
     },
     "sellerTerminals": {
-      "title": "Vendeurs"
+      "title": "Vendeurs",
+      "description": "Gérez les vendeurs et leurs accès de vente.",
+      "detail": {
+        "title": "Détail vendeur",
+        "description": "Consultez l'identité, les états et l'activité du vendeur.",
+        "loading": "Chargement du vendeur...",
+        "action": {
+          "openPos": "Ouvrir POS",
+          "tickets": "Tickets"
+        },
+        "summary": {
+          "eyebrow": "Vendeur"
+        },
+        "section": {
+          "identity": "Identité",
+          "identityDesc": "Informations utilisées pour identifier ce vendeur.",
+          "states": "États",
+          "statesDesc": "États opérationnels qui déterminent ce que le vendeur peut faire.",
+          "activity": "Activité",
+          "activityDesc": "Dernières dates connues pour ce vendeur.",
+          "security": "Sécurité",
+          "securityDesc": "État du PIN et informations de blocage.",
+          "control": "Contrôle"
+        },
+        "field": {
+          "currentStatus": "Statut courant",
+          "canSell": "Peut vendre",
+          "blocked": "Bloqué",
+          "disabled": "Désactivé",
+          "mustChangePin": "PIN à changer",
+          "pinResetAt": "PIN réinitialisé le",
+          "blockedReason": "Raison du blocage",
+          "activatedAt": "Activé le",
+          "lastSeenAt": "Dernière connexion",
+          "blockedAt": "Bloqué le",
+          "disabledAt": "Désactivé le",
+          "commissionRate": "Commission",
+          "addressId": "Adresse",
+          "tenantId": "Tenant"
+        }
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "PENDING": "En attente",
+        "BLOCKED": "Bloqué",
+        "DISABLED": "Désactivé"
+      },
+      "field": {
+        "seller_terminal_code": "Code terminal",
+        "first_name": "Prénom",
+        "last_name": "Nom",
+        "email": "Email",
+        "phone": "Téléphone"
+      }
     },
     "kpi": {
       "sales_today": {

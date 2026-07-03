@@ -441,7 +441,59 @@
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Jere seller-terminals",
-      "search_placeholder": "Chèche seller-terminal…"
+      "search_placeholder": "Chèche seller-terminal…",
+      "detail": {
+        "title": "Detay vandè",
+        "description": "Gade idantite, eta ak aktivite vandè a.",
+        "loading": "Ap chaje vandè a...",
+        "action": {
+          "openPos": "Louvri POS",
+          "tickets": "Tikè"
+        },
+        "summary": {
+          "eyebrow": "Vandè"
+        },
+        "section": {
+          "identity": "Idantite",
+          "identityDesc": "Enfòmasyon pou idantifye vandè sa a.",
+          "states": "Eta",
+          "statesDesc": "Eta operasyonèl ki detèmine sa vandè a ka fè.",
+          "activity": "Aktivite",
+          "activityDesc": "Dènye dat yo konnen pou vandè sa a.",
+          "security": "Sekirite",
+          "securityDesc": "Eta PIN ak enfòmasyon blokaj.",
+          "control": "Kontwòl"
+        },
+        "field": {
+          "currentStatus": "Eta aktyèl",
+          "canSell": "Ka vann",
+          "blocked": "Bloke",
+          "disabled": "Dezaktive",
+          "mustChangePin": "PIN pou chanje",
+          "pinResetAt": "PIN re-inisyalize",
+          "blockedReason": "Rezon blokaj",
+          "activatedAt": "Aktive",
+          "lastSeenAt": "Dènye koneksyon",
+          "blockedAt": "Bloke",
+          "disabledAt": "Dezaktive",
+          "commissionRate": "Komisyon",
+          "addressId": "Adrès",
+          "tenantId": "Tenant"
+        }
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "PENDING": "An atant",
+        "BLOCKED": "Bloke",
+        "DISABLED": "Dezaktive"
+      },
+      "field": {
+        "seller_terminal_code": "Kòd terminal",
+        "first_name": "Prenon",
+        "last_name": "Non",
+        "email": "Email",
+        "phone": "Telefòn"
+      }
     },
     "drawChannels": {
       "title": "Tirages",

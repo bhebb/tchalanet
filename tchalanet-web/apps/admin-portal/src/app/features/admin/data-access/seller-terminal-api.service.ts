@@ -7,6 +7,7 @@ export type SellerTerminalStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'BLOCKED'
 
 export interface SellerTerminalSummaryRow {
   id: { value: string };
+  tenantId?: { value: string } | string | null;
   terminalCode: string;
   displayName: string;
   email?: string | null;
@@ -31,6 +32,13 @@ export interface SellerTerminalsSummary {
 export interface SellerTerminalView extends SellerTerminalSummaryRow {
   firstName?: string | null;
   lastName?: string | null;
+  addressId?: { value: string } | string | null;
+  blockedAt?: string | null;
+  blockedBy?: { value: string } | string | null;
+  blockedReason?: string | null;
+  disabledAt?: string | null;
+  mustChangePin?: boolean | null;
+  pinResetAt?: string | null;
 }
 
 export interface AddressRequest {
@@ -142,6 +150,15 @@ export class SellerTerminalApi {
 
   get(id: string): Observable<SellerTerminalView> {
     return this.backend.get<SellerTerminalView>(`/admin/seller-terminals/${id}`);
+  }
+
+  getResource(id: () => string | null | undefined, options?: TchRequestOptions) {
+    return this.backend.getResource<SellerTerminalView>(() => {
+      const sellerTerminalId = id();
+      return sellerTerminalId
+        ? { path: `/admin/seller-terminals/${sellerTerminalId}`, options }
+        : undefined;
+    });
   }
 
   create(req: CreateSellerTerminalRequest, options?: TchRequestOptions): Observable<{ value: string }> {
