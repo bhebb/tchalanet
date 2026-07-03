@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TchConfirmDialog, TchConfirmDialogData } from '@tch/ui/components';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
@@ -117,15 +118,24 @@ export class PlatformCatalogPricingPage {
   }
 
   delete(row: CatalogPricingView): void {
-    if (!confirm(this.translate.instant('platform.catalog.pricing.confirm.delete', { gameCode: row.gameCode, betType: row.betType }))) return;
-    this.api.deletePricing(row.id).subscribe({
-      next: () => {
-        this.snackBar.open(this.translate.instant('platform.catalog.pricing.feedback.deleted'), 'OK', { duration: 4000 });
-        this.load();
-      },
-      error: (err: unknown) => {
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'), 'OK', { duration: 5000 });
-      },
+    const data: TchConfirmDialogData = {
+      title: this.translate.instant('common.delete'),
+      message: this.translate.instant('platform.catalog.pricing.confirm.delete', { gameCode: row.gameCode, betType: row.betType }),
+      confirmLabel: this.translate.instant('common.delete'),
+      destructive: true,
+      icon: 'delete',
+    };
+    this.dialog.open(TchConfirmDialog, { data }).afterClosed().subscribe(result => {
+      if (!result?.confirmed) return;
+      this.api.deletePricing(row.id).subscribe({
+        next: () => {
+          this.snackBar.open(this.translate.instant('platform.catalog.pricing.feedback.deleted'), 'OK', { duration: 4000 });
+          this.load();
+        },
+        error: (err: unknown) => {
+          this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'), 'OK', { duration: 5000 });
+        },
+      });
     });
   }
 

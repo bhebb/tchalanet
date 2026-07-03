@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
+import { TchConfirmDialog, TchConfirmDialogData } from '@tch/ui/components';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
@@ -124,36 +125,54 @@ export class PlatformCatalogGamesPage {
   }
 
   deactivate(game: CatalogGameView): void {
-    if (!confirm(this.translate.instant('platform.catalog.games.confirm.deactivate', { name: game.name }))) return;
-    this.api.deactivateGame(game.id).subscribe({
-      next: () => {
-        this.snackBar.open(this.translate.instant('platform.catalog.games.feedback.deactivated'), 'OK', { duration: 4000 });
-        this.load();
-      },
-      error: (err: unknown) => {
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'),
-          'OK',
-          { duration: 5000 },
-        );
-      },
+    const data: TchConfirmDialogData = {
+      title: this.translate.instant('common.deactivate'),
+      message: this.translate.instant('platform.catalog.games.confirm.deactivate', { name: game.name }),
+      confirmLabel: this.translate.instant('common.deactivate'),
+      destructive: true,
+      icon: 'block',
+    };
+    this.dialog.open(TchConfirmDialog, { data }).afterClosed().subscribe(result => {
+      if (!result?.confirmed) return;
+      this.api.deactivateGame(game.id).subscribe({
+        next: () => {
+          this.snackBar.open(this.translate.instant('platform.catalog.games.feedback.deactivated'), 'OK', { duration: 4000 });
+          this.load();
+        },
+        error: (err: unknown) => {
+          this.snackBar.open(
+            (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'),
+            'OK',
+            { duration: 5000 },
+          );
+        },
+      });
     });
   }
 
   delete(game: CatalogGameView): void {
-    if (!confirm(this.translate.instant('platform.catalog.games.confirm.delete', { name: game.name }))) return;
-    this.api.deleteGame(game.id).subscribe({
-      next: () => {
-        this.snackBar.open(this.translate.instant('platform.catalog.games.feedback.deleted'), 'OK', { duration: 4000 });
-        this.load();
-      },
-      error: (err: unknown) => {
-        this.snackBar.open(
-          (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'),
-          'OK',
-          { duration: 5000 },
-        );
-      },
+    const data: TchConfirmDialogData = {
+      title: this.translate.instant('common.delete'),
+      message: this.translate.instant('platform.catalog.games.confirm.delete', { name: game.name }),
+      confirmLabel: this.translate.instant('common.delete'),
+      destructive: true,
+      icon: 'delete',
+    };
+    this.dialog.open(TchConfirmDialog, { data }).afterClosed().subscribe(result => {
+      if (!result?.confirmed) return;
+      this.api.deleteGame(game.id).subscribe({
+        next: () => {
+          this.snackBar.open(this.translate.instant('platform.catalog.games.feedback.deleted'), 'OK', { duration: 4000 });
+          this.load();
+        },
+        error: (err: unknown) => {
+          this.snackBar.open(
+            (err as { error?: { title?: string } })?.error?.title ?? this.translate.instant('common.error.title'),
+            'OK',
+            { duration: 5000 },
+          );
+        },
+      });
     });
   }
 
