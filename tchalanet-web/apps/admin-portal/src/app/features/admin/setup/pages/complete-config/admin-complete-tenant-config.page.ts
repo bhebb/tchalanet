@@ -23,7 +23,7 @@ import {
   TenantAdminOverviewView,
   ReadinessSection,
   TenantSetupView,
-} from '../../../admin-overview-api.service';
+} from '../../../data-access/admin-overview-api.service';
 
 const REQUIRED_SETUP_SECTION_IDS = [
   'identity',

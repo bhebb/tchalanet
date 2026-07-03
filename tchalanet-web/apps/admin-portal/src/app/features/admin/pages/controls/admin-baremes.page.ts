@@ -14,7 +14,7 @@ import {
   AdminEmptyState,
 } from '@tch/ui/components';
 
-import { BaremesAdminApi, type PricingOddsEntry } from '../../baremes-admin.api.service';
+import { BaremesAdminApi, type PricingOddsEntry } from '../../data-access/baremes-admin.api.service';
 
 // Display labels for each bet type
 const BET_TYPE_LABELS: Record<string, string> = {

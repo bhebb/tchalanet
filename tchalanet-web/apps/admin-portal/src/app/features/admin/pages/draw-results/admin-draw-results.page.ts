@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
@@ -18,22 +20,43 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
+import { AdminStatusTone } from '@tch/ui/console';
 import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
+  ConsoleDrawResultActionEvent,
+  ConsoleDrawResultRow,
+  ConsoleDrawResultsTableComponent,
+  consoleDrawResultQualityLabel,
+  consoleDrawResultQualityTone,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
+} from '@tch/web/console';
 import {
   AdminDrawResultsApi,
   DrawResultView,
   DrawResultStatus,
   DrawResultQuality,
-} from '../../admin-draw-results-api.service';
+} from '../../data-access/admin-draw-results-api.service';
 import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../shared/lottery/lottery-assets';
 import {
   generatedDrawProviderAndTenantTimeLabel,
   generatedDrawTenantDateTimeLabel,
   generatedDrawTimezoneShortLabel,
 } from '../../draws/data-access/admin-generated-draws.models';
+
+const RESULT_STATUS_OPTIONS: Array<{ value: DrawResultStatus | ''; label: string }> = [
+  { value: '', label: 'Tous les statuts' },
+  { value: 'PROVISIONAL', label: consoleDrawResultStatusLabel('PROVISIONAL') },
+  { value: 'CONFIRMED', label: consoleDrawResultStatusLabel('CONFIRMED') },
+  { value: 'OVERRIDDEN', label: consoleDrawResultStatusLabel('OVERRIDDEN') },
+  { value: 'ERROR', label: consoleDrawResultStatusLabel('ERROR') },
+];
+
+const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: string }> = [
+  { value: '', label: 'Toutes qualités' },
+  { value: 'COMPLETE', label: consoleDrawResultQualityLabel('COMPLETE') },
+  { value: 'SUSPECT', label: consoleDrawResultQualityLabel('SUSPECT') },
+  { value: 'INVALID', label: consoleDrawResultQualityLabel('INVALID') },
+];
 
 @Component({
   selector: 'tch-admin-draw-results-page',
@@ -44,17 +67,18 @@ import {
     AdminEmptyStateComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
-    AdminStatusPillComponent,
+    ConsoleDrawResultsTableComponent,
+    FormsModule,
     TchLoading,
     TchErrorPanel,
-    RouterLink,
     MatButtonModule,
+    MatDatepickerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatNativeDateModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatTableModule,
   ],
   templateUrl: './admin-draw-results.page.html',
   styleUrls: ['./admin-draw-results.page.scss'],
@@ -63,8 +87,7 @@ export class AdminDrawResultsPage implements OnInit {
   private readonly api = inject(AdminDrawResultsApi);
   private readonly translate = inject(TranslateService);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
-
-  readonly columns = ['draw', 'numbers', 'status', 'quality', 'fetchedAt', 'appliedAt', 'source'];
+  private readonly router = inject(Router);
 
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
@@ -81,6 +104,13 @@ export class AdminDrawResultsPage implements OnInit {
   readonly toFilter = signal('');
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
+  readonly statusOptions = RESULT_STATUS_OPTIONS;
+  readonly qualityOptions = RESULT_QUALITY_OPTIONS;
+  readonly fromDateValue = computed(() => this.fromFilter() ? isoDateToLocalDate(this.fromFilter()) : null);
+  readonly toDateValue = computed(() => this.toFilter() ? isoDateToLocalDate(this.toFilter()) : null);
+  readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
+    (this.page()?.items ?? []).map(row => this.toConsoleRow(row)),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -143,6 +173,14 @@ export class AdminDrawResultsPage implements OnInit {
     this.load();
   }
 
+  onFromDatePicker(value: Date | null): void {
+    this.onFromFilter(value ? toIsoDate(value) : '');
+  }
+
+  onToDatePicker(value: Date | null): void {
+    this.onToFilter(value ? toIsoDate(value) : '');
+  }
+
   resetFilters(): void {
     this.slotKeyFilter.set('');
     this.statusFilter.set('');
@@ -153,53 +191,26 @@ export class AdminDrawResultsPage implements OnInit {
     this.load();
   }
 
-  statusTone(status: DrawResultStatus): AdminStatusTone {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'APPLIED': return 'success';
-      case 'PROVISIONAL':
-      case 'CORRECTED': return 'warning';
-      case 'ERROR':
-      case 'VOIDED': return 'danger';
-      default: return 'neutral';
+  onResultAction(event: ConsoleDrawResultActionEvent): void {
+    if (event.action.id === 'detail') {
+      void this.router.navigate(['/app/admin/draws/results', event.row.id]);
     }
+  }
+
+  statusTone(status: DrawResultStatus): AdminStatusTone {
+    return consoleDrawResultStatusTone(status);
   }
 
   qualityTone(quality: DrawResultQuality): AdminStatusTone {
-    switch (quality) {
-      case 'COMPLETE':
-      case 'OFFICIAL': return 'success';
-      case 'SUSPECT':
-      case 'MANUAL': return 'warning';
-      case 'ESTIMATED': return 'warning';
-      case 'INVALID': return 'danger';
-      default: return 'neutral';
-    }
+    return consoleDrawResultQualityTone(quality);
   }
 
   statusLabel(status: DrawResultStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Confirmé';
-      case 'PROVISIONAL': return 'Provisoire';
-      case 'OVERRIDDEN': return 'Remplacé';
-      case 'ERROR': return 'Erreur';
-      case 'APPLIED': return 'Appliqué';
-      case 'CORRECTED': return 'Corrigé';
-      case 'VOIDED': return 'Annulé';
-      case 'PENDING': return 'En attente';
-    }
+    return consoleDrawResultStatusLabel(status);
   }
 
   qualityLabel(quality: DrawResultQuality): string {
-    switch (quality) {
-      case 'COMPLETE': return 'Complet';
-      case 'SUSPECT': return 'À vérifier';
-      case 'INVALID': return 'Invalide';
-      case 'OFFICIAL': return 'Officiel';
-      case 'MANUAL': return 'Manuel';
-      case 'ESTIMATED': return 'Estimé';
-      case 'UNKNOWN': return 'Inconnu';
-    }
+    return consoleDrawResultQualityLabel(quality);
   }
 
   sourceLabel(row: DrawResultView): string {
@@ -358,6 +369,37 @@ export class AdminDrawResultsPage implements OnInit {
       severity: 'error',
     };
   }
+
+  private toConsoleRow(row: DrawResultView): ConsoleDrawResultRow {
+    const drawDate = this.resultDrawDate(row);
+    const occurredTime = row.occurredAt ? this.resultDrawTime(row) : null;
+    return {
+      id: row.id,
+      title: this.drawTitle(row),
+      subtitle: this.slotCode(row),
+      meta: occurredTime ? `${drawDate} · ${occurredTime}` : drawDate,
+      logoUrl: this.providerLogo(row),
+      logoAlt: this.providerLabel(row),
+      logoText: this.providerCode(row),
+      slotKey: this.slotCode(row),
+      numbers: this.resultNumbers(row),
+      statusLabel: this.statusLabel(row.status),
+      statusTone: this.statusTone(row.status),
+      qualityLabel: this.qualityLabel(row.quality),
+      qualityTone: this.qualityTone(row.quality),
+      sourceLabel: this.sourceLabel(row),
+      fetchedAtLabel: this.tenantTimestamp(row.fetchedAt),
+      appliedAtLabel: row.appliedAt ? this.tenantTimestamp(row.appliedAt) : undefined,
+      actions: [
+        {
+          id: 'detail',
+          label: 'Voir détail',
+          icon: 'open_in_new',
+          variant: 'button',
+        },
+      ],
+    };
+  }
 }
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -384,3 +426,15 @@ const SLOT_LABELS: Record<string, string> = {
   MIDDAY: 'Midday',
   MORNING: 'Morning',
 };
+
+function isoDateToLocalDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

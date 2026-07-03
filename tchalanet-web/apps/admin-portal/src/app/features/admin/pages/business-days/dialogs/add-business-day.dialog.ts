@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
-import { BusinessDayStatus, UpsertBusinessDayRequest } from '../../../business-days-api.service';
+import { BusinessDayStatus, UpsertBusinessDayRequest } from '../../../data-access/business-days-api.service';
 
 @Component({
   selector: 'tch-add-business-day-dialog',

@@ -18,12 +18,16 @@ interface AccessRequirement {
   feature?: string;         // feature flag key
   featureDefault?: boolean; // value while the flag is unresolved (default false)
   entitlement?: string;     // exported entitlement key
+  role?: UserRole | UserRole[];
+  permission?: string | string[];
 }
 
-AccessService.can(req): boolean   // featureOk && entitlementOk
+AccessService.can(req): boolean      // featureOk && entitlementOk && roleOk && permissionOk
+AccessService.can(req[]): boolean    // OR between requirements
 ```
 
 `can` is `true` when each provided part passes; an omitted part is treated as satisfied.
+Arrays inside `role` / `permission` mean "any of these"; an array of requirements means OR.
 
 ## Three call shapes
 
@@ -31,10 +35,12 @@ AccessService.can(req): boolean   // featureOk && entitlementOk
 // 1. Structural directive — show/hide an element
 <a *tchCan="{ feature: 'web.payouts', entitlement: 'payouts' }">Payouts</a>
 <a *tchCan="{ feature: 'web.x' }; else off">…</a>
+<button *tchCan="[{ role: 'SUPER_ADMIN' }, { permission: 'draw-results.manual' }]">…</button>
 <ng-template #off>…</ng-template>
 
 // 2. Pipe — binding contexts (disabled, aria, @if) where a structural directive doesn't fit
 <button [disabled]="!({ feature: 'web.payouts', entitlement: 'payouts' } | can)">…</button>
+<button [disabled]="!([{ role: 'SUPER_ADMIN' }, { permission: 'draw-results.override' }] | can)">…</button>
 @if ({ feature: 'web.x' } | can) { … }
 
 // 3. Route guard

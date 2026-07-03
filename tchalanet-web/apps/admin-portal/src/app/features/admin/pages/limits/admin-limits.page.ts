@@ -39,7 +39,7 @@ import {
   LimitAssignmentItem,
   LimitRuleSpec,
   TargetType,
-} from './admin-limits-api.service';
+} from './data-access/admin-limits-api.service';
 
 const BREACH_OUTCOMES: BreachOutcome[] = ['ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK'];
 const EDITABLE_TENANT_SCOPES = new Set<LimitPageScope>(['global']);

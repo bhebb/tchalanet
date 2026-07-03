@@ -27,7 +27,7 @@ import {
   AdminNotificationItem,
   AdminNotificationSeverity,
   AdminNotificationsApi,
-} from './admin-notifications-api.service';
+} from '../data-access/admin-notifications-api.service';
 
 const SEVERITIES: AdminNotificationSeverity[] = ['INFO', 'WARNING', 'ERROR', 'CRITICAL'];
 const CATEGORIES: AdminNotificationCategory[] = [

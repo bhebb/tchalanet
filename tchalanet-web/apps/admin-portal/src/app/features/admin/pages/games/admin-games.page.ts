@@ -16,7 +16,7 @@ import {
   GamesAdminApiService,
   TenantGameView,
   CatalogGameView,
-} from '../../games-admin-api.service';
+} from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from './dialogs/game-settings.dialog';
 
 @Component({

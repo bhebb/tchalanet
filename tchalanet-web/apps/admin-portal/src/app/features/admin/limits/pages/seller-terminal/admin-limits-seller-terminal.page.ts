@@ -19,7 +19,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
-import { SellerTerminalApi } from '../../../seller-terminal-api.service';
+import { SellerTerminalApi } from '../../../data-access/seller-terminal-api.service';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import type { LimitRuleSpec, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';

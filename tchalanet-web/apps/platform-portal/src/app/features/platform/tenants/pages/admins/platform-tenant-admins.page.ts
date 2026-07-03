@@ -25,7 +25,7 @@ import {
   TenantAdminView,
   TenantSummaryView,
 } from '../../data-access/platform-tenants-api.service';
-import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
+import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 import {
   AssignUserDialog,
   AssignUserResult,

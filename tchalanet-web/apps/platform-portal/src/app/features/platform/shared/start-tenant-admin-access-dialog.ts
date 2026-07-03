@@ -14,7 +14,7 @@ import { SupportAccessStore } from '@tch/core/auth';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
-import { PlatformTenantAdminAccessApi } from '../platform-tenant-admin-access-api.service';
+import { PlatformTenantAdminAccessApi } from '../data-access/platform-tenant-admin-access-api.service';
 import type { TenantStatus } from '../tenants/data-access/platform-tenants-api.service';
 
 export interface StartTenantAdminAccessDialogData {

@@ -16,7 +16,7 @@ import {
   BusinessDaysApiService,
   BusinessDayView,
   UpsertBusinessDayRequest,
-} from '../../business-days-api.service';
+} from '../../data-access/business-days-api.service';
 import { AddBusinessDayDialog } from './dialogs/add-business-day.dialog';
 
 function startOfMonth(year: number, month: number): string {

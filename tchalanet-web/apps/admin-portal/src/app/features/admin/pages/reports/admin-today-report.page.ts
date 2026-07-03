@@ -22,7 +22,7 @@ import {
   AdminEmptyState,
 } from '@tch/ui/components';
 
-import { ReportsAdminApi, type SalesReportLine } from '../../reports-admin.api.service';
+import { ReportsAdminApi, type SalesReportLine } from '../../data-access/reports-admin.api.service';
 
 function toIso(date: Date): string {
   return date.toISOString().slice(0, 10);

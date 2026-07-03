@@ -24,7 +24,7 @@ import {
   AdminPayoutsApi,
   PayoutRowView,
   PayoutStatus,
-} from '../../admin-payouts-api.service';
+} from '../../data-access/admin-payouts-api.service';
 import { PayoutActionDialog } from './dialogs/payout-action.dialog';
 
 @Component({

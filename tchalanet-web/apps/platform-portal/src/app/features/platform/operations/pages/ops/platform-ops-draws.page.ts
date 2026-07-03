@@ -6,16 +6,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -27,7 +23,20 @@ import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { AdminStatusTone } from '@tch/ui/console';
+import {
+  ConsoleDrawActionEvent,
+  ConsoleDrawRow,
+  ConsoleDrawSelectionEvent,
+  ConsoleDrawsTableComponent,
+  ConsoleRowAction,
+  consoleDrawLifecycleActionIcon,
+  consoleDrawLifecycleActionLabel,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
+  consoleDrawStatusLabel,
+  consoleDrawStatusTone,
+} from '@tch/web/console';
 import {
   PlatformOpsApi,
   DrawView,
@@ -51,17 +60,6 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
 import { Observable, map } from 'rxjs';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function toneForStatus(status: string): AdminStatusTone {
-  switch (status) {
-    case 'OPEN': return 'success';
-    case 'RESULTED': case 'SETTLED': return 'info';
-    case 'LOCKED': return 'warning';
-    case 'CANCELLED': return 'danger';
-    case 'ARCHIVED': return 'neutral';
-    default: return 'neutral';
-  }
-}
 
 type DrawActionItem =
   | { kind: 'cancel' }
@@ -99,39 +97,19 @@ function relativeIsoDate(offsetDays: number): string {
 
 const MAX_BULK_DRAW_ACTIONS = 50;
 
-const ACTION_ICON: Record<string, string> = {
-  cancel: 'cancel',
-  lock: 'lock',
-  unlock: 'lock_open',
-  reschedule: 'schedule',
-  settle: 'paid',
-  archive: 'inventory_2',
-  correct: 'edit',
-};
-
 const STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
-  { value: 'SCHEDULED', label: 'Planifié' },
-  { value: 'OPEN', label: 'Ouvert' },
-  { value: 'LOCKED', label: 'Verrouillé' },
-  { value: 'CLOSED', label: 'Fermé' },
-  { value: 'RESULTED', label: 'Résultat appliqué' },
-  { value: 'SETTLED', label: 'Réglé' },
-  { value: 'CANCELLED', label: 'Annulé' },
-  { value: 'ARCHIVED', label: 'Archivé' },
+  { value: 'SCHEDULED', label: consoleDrawStatusLabel('SCHEDULED') },
+  { value: 'OPEN', label: consoleDrawStatusLabel('OPEN') },
+  { value: 'LOCKED', label: consoleDrawStatusLabel('LOCKED') },
+  { value: 'CLOSED', label: consoleDrawStatusLabel('CLOSED') },
+  { value: 'RESULTED', label: consoleDrawStatusLabel('RESULTED') },
+  { value: 'SETTLED', label: consoleDrawStatusLabel('SETTLED') },
+  { value: 'CANCELLED', label: consoleDrawStatusLabel('CANCELLED') },
+  { value: 'ARCHIVED', label: consoleDrawStatusLabel('ARCHIVED') },
 ];
 
 const DEFAULT_DRAW_TENANT_CODE = 'tchalanet';
-
-const DRAW_ACTION_LABELS: Record<string, string> = {
-  cancel: 'Annuler',
-  lock: 'Verrouiller',
-  unlock: 'Déverrouiller',
-  reschedule: 'Reprogrammer',
-  settle: 'Régler',
-  archive: 'Archiver',
-  correct: 'Corriger résultat',
-};
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -140,24 +118,20 @@ const DRAW_ACTION_LABELS: Record<string, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
-    AdminStatusPillComponent,
+    ConsoleDrawsTableComponent,
     TchErrorPanel,
     TchLoading,
     TchSearchSelect,
     TchSectionError,
     MatButtonModule,
-    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatMenuModule,
     MatSelectModule,
-    MatTableModule,
     MatTooltipModule,
   ],
   templateUrl: './platform-ops-draws.page.html',
@@ -169,7 +143,6 @@ export class PlatformOpsDrawsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = ['select', 'drawDate', 'channel', 'slot', 'status', 'scheduledAt', 'lastResult', 'actions'];
   readonly statusOptions = STATUS_OPTIONS;
 
   readonly loading = signal(false);
@@ -193,11 +166,13 @@ export class PlatformOpsDrawsPage implements OnInit {
   readonly commonBulkActions = computed(() => this.resolveCommonBulkActions(this.selectedDraws()));
   readonly bulkSelectionMessage = computed(() => this.resolveBulkSelectionMessage(this.selectedDraws()));
   readonly maxBulkDrawActions = MAX_BULK_DRAW_ACTIONS;
+  readonly drawRows = computed<readonly ConsoleDrawRow[]>(() =>
+    this.draws().map(draw => this.toConsoleDrawRow(draw)),
+  );
 
-  toneForStatus = toneForStatus;
   actionsForDraw = actionsForDraw;
-  actionIcon = (kind: string) => ACTION_ICON[kind] ?? 'settings';
-  actionLabel = (kind: string) => DRAW_ACTION_LABELS[kind] ?? kind;
+  actionIcon = (kind: string) => consoleDrawLifecycleActionIcon(kind as Parameters<typeof consoleDrawLifecycleActionIcon>[0]);
+  actionLabel = (kind: string) => consoleDrawLifecycleActionLabel(kind as Parameters<typeof consoleDrawLifecycleActionLabel>[0]);
 
   private currentBatchDialog: BatchOpDialog | null = null;
 
@@ -293,6 +268,11 @@ export class PlatformOpsDrawsPage implements OnInit {
     if (checked) next.add(draw.id);
     else next.delete(draw.id);
     this.selectedIds.set(next);
+  }
+
+  onDrawSelection(event: ConsoleDrawSelectionEvent): void {
+    const draw = this.draws().find(row => row.id === event.row.id);
+    if (draw) this.toggleDraw(draw, event.selected);
   }
 
   allPageSelected(): boolean {
@@ -504,6 +484,12 @@ export class PlatformOpsDrawsPage implements OnInit {
     }
   }
 
+  onDrawAction(event: ConsoleDrawActionEvent): void {
+    const draw = this.draws().find(row => row.id === event.row.id);
+    if (!draw) return;
+    this.openRowAction(draw, { kind: event.action.id } as DrawActionItem);
+  }
+
   private openAndReload(component: unknown, data: unknown, width: string): void {
     const ref = this.dialog.open(component as Parameters<MatDialog['open']>[0], { data, width });
     ref.afterClosed().subscribe((done: boolean | null) => {
@@ -526,6 +512,47 @@ export class PlatformOpsDrawsPage implements OnInit {
 
   lotteryAsset(slotKey: string): string | null {
     return lotteryAssetForSlot(slotKey);
+  }
+
+  private toConsoleDrawRow(draw: DrawView): ConsoleDrawRow {
+    return {
+      id: draw.id,
+      groupLabel: draw.drawDate,
+      title: draw.channel.name,
+      subtitle: draw.slot.key,
+      meta: draw.channel.code,
+      logoUrl: this.lotteryAsset(draw.slot.key),
+      logoAlt: draw.slot.label ?? draw.slot.key,
+      logoText: draw.channel.code,
+      scheduledDateLabel: draw.drawDate,
+      scheduledTimeLabel: draw.scheduledAt,
+      statusLabel: consoleDrawStatusLabel(draw.status),
+      statusTone: consoleDrawStatusTone(draw.status),
+      resultLabel: draw.lastResult ? consoleDrawResultStatusLabel(draw.lastResult.status) : undefined,
+      resultTone: draw.lastResult ? consoleDrawResultStatusTone(draw.lastResult.status) : 'neutral',
+      resultNumbers: this.resultNumbers(draw),
+      modeLabel: draw.active ? 'Actif' : 'Inactif',
+      publicationLabel: undefined,
+      actions: actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
+    };
+  }
+
+  private toConsoleDrawAction(action: DrawActionItem): ConsoleRowAction {
+    return {
+      id: action.kind,
+      label: this.actionLabel(action.kind),
+      icon: this.actionIcon(action.kind),
+      tone: action.kind === 'cancel' ? 'danger' : 'default',
+      variant: 'icon',
+    };
+  }
+
+  private resultNumbers(draw: DrawView): string[] {
+    const result = draw.lastResult;
+    if (!result) return [];
+    return [result.lot1, result.lot2, result.lot3, result.lot4]
+      .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
+      .filter(Boolean);
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

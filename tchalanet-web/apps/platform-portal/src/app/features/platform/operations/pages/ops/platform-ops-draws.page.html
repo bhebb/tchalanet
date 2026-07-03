@@ -120,122 +120,21 @@
           />
         }
 
-        <table mat-table [dataSource]="draws()">
-
-          <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef>
-              <mat-checkbox
-                [checked]="allPageSelected()"
-                [indeterminate]="somePageSelected()"
-                (change)="togglePage($event.checked)"
-                aria-label="Sélectionner la page"
-              />
-            </th>
-            <td mat-cell *matCellDef="let row">
-              <mat-checkbox
-                [checked]="isSelected(row)"
-                (change)="toggleDraw(row, $event.checked)"
-                aria-label="Sélectionner le tirage"
-              />
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="drawDate">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let row">{{ row.drawDate }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="channel">
-            <th mat-header-cell *matHeaderCellDef>Canal</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="draws-page__channel-code">{{ row.channel.code }}</span>
-              <span class="draws-page__channel-name">{{ row.channel.name }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="slot">
-            <th mat-header-cell *matHeaderCellDef>Slot</th>
-            <td mat-cell *matCellDef="let row">
-              <div class="draws-page__slot-cell">
-                @if (lotteryAsset(row.slot.key); as asset) {
-                  <img class="draws-page__lottery-logo" [src]="asset" [alt]="row.slot.key" loading="lazy" />
-                }
-                <div>
-                  <code>{{ row.slot.key }}</code>
-                  @if (row.slot.label) {
-                    <span>{{ row.slot.label }}</span>
-                  }
-                </div>
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Statut</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [label]="row.status" [tone]="toneForStatus(row.status)" />
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="scheduledAt">
-            <th mat-header-cell *matHeaderCellDef>Planifié</th>
-            <td mat-cell *matCellDef="let row">{{ row.scheduledAt | date:'dd/MM HH:mm' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="lastResult">
-            <th mat-header-cell *matHeaderCellDef>Résultat</th>
-            <td mat-cell *matCellDef="let row">
-              @if (row.lastResult) {
-                <span class="draws-page__lot-summary">{{ lotSummary(row) }}</span>
-              } @else {
-                <span class="draws-page__muted">—</span>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              @if (actionsForDraw(row).length > 0) {
-                <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ draw: row }"
-                  matTooltip="Actions">
-                  <span class="material-symbols-outlined">more_vert</span>
-                </button>
-              }
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
+        <tch-console-draws-table
+          [rows]="drawRows()"
+          [selectable]="true"
+          [selectedIds]="selectedIds()"
+          [totalElements]="totalElements()"
+          [page]="page()"
+          [pageSize]="25"
+          [hasPrevious]="hasPrevious()"
+          [hasNext]="hasNext()"
+          (rowSelection)="onDrawSelection($event)"
+          (rowAction)="onDrawAction($event)"
+          (previousPage)="prevPage()"
+          (nextPage)="nextPage()"
+        />
       }
-    </div>
-
-    <div footer>
-      <span>{{ totalElements() }} tirage(s)</span>
-      <div class="draws-page__pagination">
-        <button mat-icon-button [disabled]="!hasPrevious()" (click)="prevPage()">
-          <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <span>Page {{ page() + 1 }} / {{ totalPages() }}</span>
-        <button mat-icon-button [disabled]="!hasNext()" (click)="nextPage()">
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
     </div>
   </tch-admin-crud-shell>
 </tch-admin-page-shell>
-
-<!-- Shared row action menu (matMenuTriggerData passes 'draw') -->
-<mat-menu #rowMenu="matMenu">
-  <ng-template matMenuContent let-draw="draw">
-    @for (action of actionsForDraw(draw); track action.kind) {
-      <button mat-menu-item
-        [class.draws-page__menu-item--danger]="action.kind === 'cancel'"
-        (click)="openRowAction(draw, action)">
-        <span class="material-symbols-outlined draws-page__action-icon">{{ actionIcon(action.kind) }}</span>
-        {{ actionLabel(action.kind) }}
-      </button>
-    }
-  </ng-template>
-</mat-menu>

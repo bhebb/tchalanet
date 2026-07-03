@@ -34,7 +34,7 @@ import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
-import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
+import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 
 const PAGE_SIZE = 20;
 

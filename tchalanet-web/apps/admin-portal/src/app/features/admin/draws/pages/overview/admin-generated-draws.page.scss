@@ -10,6 +10,17 @@
     flex-wrap: wrap;
   }
 
+  &__date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  &__date-field {
+    width: min(100%, 11rem);
+  }
+
   &__chip {
     padding: 0.25rem 0.875rem;
     border: 1px solid var(--tch-color-outline-variant, #c7c5d0);

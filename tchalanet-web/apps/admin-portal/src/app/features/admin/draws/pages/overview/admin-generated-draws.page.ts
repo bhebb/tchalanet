@@ -1,10 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { AuthSessionService } from '@tch/core/auth';
 import { TchSectionError } from '@tch/ui/components';
@@ -30,8 +35,13 @@ import {
 import { GeneratedDrawsSummaryComponent } from '../../components/generated-draws-summary/generated-draws-summary.component';
 import { GeneratedDrawsTableComponent } from '../../components/generated-draws-table/generated-draws-table.component';
 import { AdminDrawLifecycleDialog } from './dialogs/admin-draw-lifecycle.dialog';
+import {
+  consoleDrawResultStatusLabel,
+  consoleDrawStatusLabel,
+} from '@tch/web/console';
 
 const TODAY = new Date().toISOString().slice(0, 10);
+const YESTERDAY = relativeIsoDate(-1);
 
 const LIFECYCLE_LABELS: Record<DrawLifecycleAction, string> = {
   open: 'Ouvert',
@@ -54,9 +64,14 @@ interface LifecycleInput {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatButtonModule,
+    FormsModule,
+    MatDatepickerModule,
     MatDialogModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatMenuModule,
+    MatNativeDateModule,
     AdminPageShellComponent,
     AdminCrudShellComponent,
     AdminDataToolbarComponent,
@@ -82,15 +97,25 @@ export class AdminGeneratedDrawsPage {
 
   readonly statusFilters: { key: DrawStatusFilter; label: string }[] = [
     { key: 'all',          label: 'Tous les statuts' },
-    { key: 'OPEN',         label: 'Ouverts à la vente' },
+    { key: 'SCHEDULED',    label: consoleDrawStatusLabel('SCHEDULED') },
+    { key: 'OPEN',         label: consoleDrawStatusLabel('OPEN') },
+    { key: 'LOCKED',       label: consoleDrawStatusLabel('LOCKED') },
+    { key: 'CLOSED',       label: consoleDrawStatusLabel('CLOSED') },
+    { key: 'RESULTED',     label: consoleDrawStatusLabel('RESULTED') },
+    { key: 'SETTLED',      label: consoleDrawStatusLabel('SETTLED') },
+    { key: 'CANCELLED',    label: consoleDrawStatusLabel('CANCELLED') },
+    { key: 'ARCHIVED',     label: consoleDrawStatusLabel('ARCHIVED') },
     { key: 'PAST',         label: 'Terminés / à traiter' },
-    { key: 'EXPECTED',     label: 'Résultats attendus' },
-    { key: 'MISSING',      label: 'Résultats manquants' },
-    { key: 'CONFIRMED',    label: 'Confirmés' },
-    { key: 'SOURCE_ERROR', label: 'Erreur source' },
+    { key: 'NOT_DUE',      label: consoleDrawResultStatusLabel('NOT_DUE') },
+    { key: 'EXPECTED',     label: consoleDrawResultStatusLabel('EXPECTED') },
+    { key: 'MISSING',      label: consoleDrawResultStatusLabel('MISSING') },
+    { key: 'PROVISIONAL',  label: consoleDrawResultStatusLabel('PROVISIONAL') },
+    { key: 'CONFIRMED',    label: consoleDrawResultStatusLabel('CONFIRMED') },
+    { key: 'SOURCE_ERROR', label: consoleDrawResultStatusLabel('SOURCE_ERROR') },
   ];
 
   readonly datePresets: { key: DatePreset; label: string }[] = [
+    { key: 'LAST_48H',  label: '48 dernières heures' },
     { key: 'TODAY',     label: "Aujourd'hui" },
     { key: 'TOMORROW',  label: 'Demain' },
     { key: 'THIS_WEEK', label: 'Cette semaine' },
@@ -101,6 +126,11 @@ export class AdminGeneratedDrawsPage {
     initialValue: this.route.snapshot.queryParamMap,
   });
   readonly datePreset = computed<DatePreset>(() => datePresetFromQuery(this.qp().get('date')));
+  readonly fromDate = computed(() => dateParam(this.qp().get('from'), YESTERDAY));
+  readonly toDate = computed(() => dateParam(this.qp().get('to'), TODAY));
+  readonly fromDateValue = computed(() => isoDateToLocalDate(this.fromDate()));
+  readonly toDateValue = computed(() => isoDateToLocalDate(this.toDate()));
+  readonly hasCustomDateRange = computed(() => this.qp().has('from') || this.qp().has('to'));
   readonly statusFilter = computed<DrawStatusFilter>(() => statusFilterFromQuery(this.qp().get('status')));
   readonly searchQuery = computed(() => this.qp().get('q')?.trim() ?? '');
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
@@ -108,6 +138,8 @@ export class AdminGeneratedDrawsPage {
   // ── Lecture (resource créée par le client, statut filtré côté client) ───────
   readonly draws = this.api.generatedDrawsResource(() => ({
     datePreset: this.datePreset(),
+    from: this.hasCustomDateRange() ? this.fromDate() : null,
+    to: this.hasCustomDateRange() ? this.toDate() : null,
     q: this.searchQuery() || null,
     page: this.page(),
   }));
@@ -183,7 +215,28 @@ export class AdminGeneratedDrawsPage {
 
   // ── Filtres → URL ───────────────────────────────────────────────────────────
   onDatePreset(preset: DatePreset): void {
-    this.navigate({ date: preset === 'TODAY' ? null : preset, page: null });
+    this.navigate({
+      date: preset === 'LAST_48H' ? null : preset,
+      from: null,
+      to: null,
+      page: null,
+    });
+  }
+
+  onFromDate(value: string): void {
+    this.navigate({ from: dateParam(value, YESTERDAY), date: null, page: null });
+  }
+
+  onToDate(value: string): void {
+    this.navigate({ to: dateParam(value, TODAY), date: null, page: null });
+  }
+
+  onFromDatePicker(value: Date | null): void {
+    if (value) this.onFromDate(toIsoDate(value));
+  }
+
+  onToDatePicker(value: Date | null): void {
+    if (value) this.onToDate(toIsoDate(value));
   }
 
   onStatusFilter(status: DrawStatusFilter): void {
@@ -318,22 +371,55 @@ export class AdminGeneratedDrawsPage {
 
 function datePresetFromQuery(value: string | null): DatePreset {
   switch (value?.trim().toUpperCase()) {
+    case 'TODAY': return 'TODAY';
     case 'TOMORROW': return 'TOMORROW';
     case 'THIS_WEEK': return 'THIS_WEEK';
-    default: return 'TODAY';
+    default: return 'LAST_48H';
   }
 }
 
 function statusFilterFromQuery(value: string | null): DrawStatusFilter {
   switch (value?.trim().toUpperCase()) {
+    case 'SCHEDULED': return 'SCHEDULED';
     case 'OPEN': return 'OPEN';
+    case 'LOCKED': return 'LOCKED';
+    case 'CLOSED': return 'CLOSED';
+    case 'RESULTED': return 'RESULTED';
+    case 'SETTLED': return 'SETTLED';
+    case 'CANCELLED': return 'CANCELLED';
+    case 'ARCHIVED': return 'ARCHIVED';
     case 'PAST': return 'PAST';
+    case 'NOT_DUE': return 'NOT_DUE';
     case 'EXPECTED': return 'EXPECTED';
     case 'MISSING': return 'MISSING';
+    case 'PROVISIONAL': return 'PROVISIONAL';
     case 'CONFIRMED': return 'CONFIRMED';
     case 'SOURCE_ERROR': return 'SOURCE_ERROR';
     default: return 'all';
   }
+}
+
+function relativeIsoDate(offsetDays: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + offsetDays);
+  return date.toISOString().slice(0, 10);
+}
+
+function dateParam(value: string | null, fallback: string): string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return fallback;
+  return value;
+}
+
+function isoDateToLocalDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function numberParam(value: string | null, fallback: number): number {

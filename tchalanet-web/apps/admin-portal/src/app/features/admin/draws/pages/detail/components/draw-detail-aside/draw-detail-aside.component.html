@@ -1,0 +1,43 @@
+<section class="draw-detail-aside">
+  <div class="draw-detail-aside__header">
+    <p>SUIVI DU TIRAGE</p>
+    <mat-icon aria-hidden="true">event</mat-icon>
+  </div>
+
+  <h2>{{ view().title }}</h2>
+  <div class="draw-detail-aside__context">
+    <span>{{ view().dateTime }}</span>
+    <code>{{ view().slotKey }}</code>
+  </div>
+
+  <div class="draw-detail-aside__grid">
+    <div class="draw-detail-aside__row">
+      <span>Fin des ventes</span>
+      <strong>{{ view().countdown }}</strong>
+      <em [class.is-open]="view().salesOpen">{{ view().salesStatus }}</em>
+    </div>
+
+    <div class="draw-detail-aside__row">
+      <span>Ventes</span>
+      <strong>{{ view().ticketCount }}</strong>
+      <em>{{ view().salesAmount }}</em>
+    </div>
+
+    <div class="draw-detail-aside__row">
+      <span>Terrain</span>
+      <strong>{{ view().sellerCount }}</strong>
+    </div>
+
+    <div class="draw-detail-aside__row">
+      <span>Sélections chaudes</span>
+      <strong>{{ view().hotSelections }}</strong>
+    </div>
+
+    <div class="draw-detail-aside__row">
+      <span>Résultat</span>
+      <strong>{{ view().resultFollowup }}</strong>
+    </div>
+  </div>
+
+  <p class="draw-detail-aside__advice">{{ view().advice }}</p>
+</section>

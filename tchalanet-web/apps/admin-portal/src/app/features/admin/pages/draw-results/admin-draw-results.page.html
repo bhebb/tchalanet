@@ -27,32 +27,44 @@
         <mat-form-field appearance="outline">
           <mat-label>Statut</mat-label>
           <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
-            <mat-option value="">Tous les statuts</mat-option>
-            <mat-option value="PROVISIONAL">Provisoire</mat-option>
-            <mat-option value="CONFIRMED">Confirmé</mat-option>
-            <mat-option value="OVERRIDDEN">Remplacé</mat-option>
-            <mat-option value="ERROR">Erreur</mat-option>
+            @for (opt of statusOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Qualité</mat-label>
           <mat-select [value]="qualityFilter()" (selectionChange)="onQualityFilter($event.value)">
-            <mat-option value="">Toutes qualités</mat-option>
-            <mat-option value="COMPLETE">Complet</mat-option>
-            <mat-option value="SUSPECT">À vérifier</mat-option>
-            <mat-option value="INVALID">Invalide</mat-option>
+            @for (opt of qualityOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Du</mat-label>
-          <input matInput type="date" [value]="fromFilter()" (change)="onFromFilter($any($event.target).value)" />
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [ngModel]="fromDateValue()"
+            (ngModelChange)="onFromDatePicker($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+          <mat-datepicker #fromPicker />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Au</mat-label>
-          <input matInput type="date" [value]="toFilter()" (change)="onToFilter($any($event.target).value)" />
+          <input
+            matInput
+            [matDatepicker]="toPicker"
+            [ngModel]="toDateValue()"
+            [min]="fromDateValue()"
+            (ngModelChange)="onToDatePicker($event)"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+          <mat-datepicker #toPicker />
         </mat-form-field>
 
         <button class="draw-results-page__reset-filter" mat-stroked-button type="button" (click)="resetFilters()">
@@ -75,94 +87,10 @@
       } @else if ((page()?.items?.length ?? 0) === 0) {
         <tch-admin-empty-state icon="ballot" title="Aucun résultat" message="Aucun résultat trouvé pour les filtres sélectionnés." />
       } @else {
-        <div class="draw-results-page__table">
-          <table mat-table [dataSource]="page()?.items ?? []">
-            <ng-container matColumnDef="draw">
-              <th mat-header-cell *matHeaderCellDef>Tirage</th>
-              <td mat-cell *matCellDef="let row" data-label="Tirage">
-                <div class="draw-results-page__draw">
-                  <div class="draw-results-page__provider-logo" [title]="providerLabel(row)">
-                    @if (providerLogo(row); as logo) {
-                      <img [src]="logo" [alt]="providerLabel(row)" loading="lazy" />
-                    } @else {
-                      <span>{{ providerCode(row) }}</span>
-                    }
-                  </div>
-                  <div>
-                    <p class="draw-results-page__draw-label">{{ drawTitle(row) }}</p>
-                    <p class="draw-results-page__draw-code">{{ slotCode(row) }}</p>
-                    <p class="draw-results-page__draw-meta">
-                      {{ resultDrawDate(row) }}
-                      @if (row.occurredAt) {
-                        · {{ resultDrawTime(row) }}
-                      }
-                    </p>
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="numbers">
-              <th mat-header-cell *matHeaderCellDef>Numéros</th>
-              <td mat-cell *matCellDef="let row" data-label="Numéros">
-                @if (resultNumbers(row).length > 0) {
-                  <span class="draw-results-page__numbers">
-                    @for (n of resultNumbers(row); track n) {
-                      <span class="draw-results-page__number">{{ n }}</span>
-                    }
-                  </span>
-                } @else {
-                  <span class="draw-results-page__empty-value">—</span>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Statut</th>
-              <td mat-cell *matCellDef="let row" data-label="Statut">
-                <tch-admin-status-pill [label]="statusLabel(row.status)" [tone]="statusTone(row.status)" />
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="quality">
-              <th mat-header-cell *matHeaderCellDef>Qualité</th>
-              <td mat-cell *matCellDef="let row" data-label="Qualité">
-                <tch-admin-status-pill [label]="qualityLabel(row.quality)" [tone]="qualityTone(row.quality)" />
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="fetchedAt">
-              <th mat-header-cell *matHeaderCellDef>Récupéré</th>
-              <td mat-cell *matCellDef="let row" data-label="Récupéré">
-                {{ tenantTimestamp(row.fetchedAt) }}
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="appliedAt">
-              <th mat-header-cell *matHeaderCellDef>Appliqué le</th>
-              <td mat-cell *matCellDef="let row" data-label="Appliqué">
-                <span class="draw-results-page__application-state" [class.draw-results-page__application-state--pending]="!row.appliedAt">
-                  {{ appliedLabel(row) }}
-                </span>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="source">
-              <th mat-header-cell *matHeaderCellDef>Source</th>
-              <td mat-cell *matCellDef="let row" data-label="Source">
-                <div class="draw-results-page__source">
-                  <span class="draw-results-page__source-pill">{{ sourceLabel(row) }}</span>
-                  <a class="draw-results-page__detail-link" mat-stroked-button [routerLink]="['/app/admin/draws/results', row.id]">
-                    Voir détail
-                  </a>
-                </div>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns"></tr>
-          </table>
-        </div>
+        <tch-console-draw-results-table
+          [rows]="rows()"
+          (rowAction)="onResultAction($event)"
+        />
       }
     </ng-container>
 

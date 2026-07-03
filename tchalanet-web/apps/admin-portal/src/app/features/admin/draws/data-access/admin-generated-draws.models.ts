@@ -42,7 +42,9 @@ export interface GeneratedDrawGroup {
 }
 
 export interface GeneratedDrawsQuery {
-  readonly datePreset?: 'TODAY' | 'TOMORROW' | 'THIS_WEEK';
+  readonly datePreset?: DatePreset;
+  readonly from?: string | null;
+  readonly to?: string | null;
   readonly status?: string | null;
   readonly provider?: string | null;
   readonly q?: string | null;
@@ -69,8 +71,24 @@ export interface PlanNextDrawsResult {
   readonly rangeEnd: string;
 }
 
-export type DrawStatusFilter = 'all' | 'OPEN' | 'PAST' | 'EXPECTED' | 'MISSING' | 'CONFIRMED' | 'SOURCE_ERROR';
-export type DatePreset = 'TODAY' | 'TOMORROW' | 'THIS_WEEK';
+export type DrawStatusFilter =
+  | 'all'
+  | 'SCHEDULED'
+  | 'OPEN'
+  | 'LOCKED'
+  | 'CLOSED'
+  | 'RESULTED'
+  | 'SETTLED'
+  | 'CANCELLED'
+  | 'ARCHIVED'
+  | 'PAST'
+  | 'EXPECTED'
+  | 'MISSING'
+  | 'PROVISIONAL'
+  | 'CONFIRMED'
+  | 'SOURCE_ERROR'
+  | 'NOT_DUE';
+export type DatePreset = 'LAST_48H' | 'TODAY' | 'TOMORROW' | 'THIS_WEEK';
 
 export type DrawResultSaveMode = 'provisional' | 'confirmed';
 

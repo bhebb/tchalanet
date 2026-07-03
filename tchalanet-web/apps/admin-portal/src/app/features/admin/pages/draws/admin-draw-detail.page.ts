@@ -26,7 +26,7 @@ import {
 } from '@tch/ui/components';
 
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { DrawAdminApi, DrawStatus, DrawSummary } from '../../draw-admin.api.service';
+import { DrawAdminApi, DrawStatus, DrawSummary } from '../../data-access/draw-admin.api.service';
 
 type PageState =
   | { readonly status: 'loading' }

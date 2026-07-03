@@ -24,6 +24,11 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import {
+  consoleDrawLifecycleActionLabel,
+  consoleDrawStatusLabel,
+  consoleDrawStatusTone,
+} from '@tch/web/console';
+import {
   DrawView,
   PlatformOpsApi,
 } from '../../data-access/platform-ops-api.service';
@@ -31,21 +36,10 @@ import {
   DrawLifecycleActionDialog,
   DrawAction,
   ActionDialogResult,
-  ACTION_LABELS,
 } from '../../components/dialogs/draw-lifecycle-action.dialog';
 
 function toneForStatus(status: string): AdminStatusTone {
-  switch (status) {
-    case 'OPEN':
-    case 'SETTLED':
-      return 'success';
-    case 'LOCKED':
-      return 'warning';
-    case 'CANCELLED':
-      return 'danger';
-    default:
-      return 'neutral';
-  }
+  return consoleDrawStatusTone(status);
 }
 
 function actionsForStatus(status: string): DrawAction[] {
@@ -67,13 +61,13 @@ function actionsForStatus(status: string): DrawAction[] {
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
-  { value: 'SCHEDULED', label: 'Planifié' },
-  { value: 'OPEN', label: 'Ouvert' },
-  { value: 'LOCKED', label: 'Verrouillé' },
-  { value: 'CLOSED', label: 'Fermé' },
-  { value: 'SETTLED', label: 'Réglé' },
-  { value: 'ARCHIVED', label: 'Archivé' },
-  { value: 'CANCELLED', label: 'Annulé' },
+  { value: 'SCHEDULED', label: consoleDrawStatusLabel('SCHEDULED') },
+  { value: 'OPEN', label: consoleDrawStatusLabel('OPEN') },
+  { value: 'LOCKED', label: consoleDrawStatusLabel('LOCKED') },
+  { value: 'CLOSED', label: consoleDrawStatusLabel('CLOSED') },
+  { value: 'SETTLED', label: consoleDrawStatusLabel('SETTLED') },
+  { value: 'ARCHIVED', label: consoleDrawStatusLabel('ARCHIVED') },
+  { value: 'CANCELLED', label: consoleDrawStatusLabel('CANCELLED') },
 ];
 
 @Component({
@@ -124,7 +118,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
 
   toneForStatus = toneForStatus;
   actionsForStatus = actionsForStatus;
-  actionLabel = (a: DrawAction) => ACTION_LABELS[a];
+  actionLabel = (a: DrawAction) => consoleDrawLifecycleActionLabel(a);
 
   ngOnInit(): void {
     this.load();
@@ -192,7 +186,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     if (this.dryRun()) {
       this.actionFeedback.set({
         title: 'Dry-run',
-        message: `Dry-run: ${ACTION_LABELS[action]} serait exécuté sur ${draw.channel.name}.`,
+        message: `Dry-run: ${this.actionLabel(action)} serait exécuté sur ${draw.channel.name}.`,
         severity: 'info',
       });
       return;
@@ -251,7 +245,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
       next: () => {
         this.busy.set(false);
         this.actionFeedback.set({
-          title: `${ACTION_LABELS[action]} exécuté`,
+          title: `${this.actionLabel(action)} exécuté`,
           message: `${draw.channel.name} a été mis à jour.`,
           severity: 'info',
         });

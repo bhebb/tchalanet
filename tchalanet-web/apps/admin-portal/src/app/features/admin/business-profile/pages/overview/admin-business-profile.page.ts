@@ -44,7 +44,7 @@ import {
   AddressView,
   TenantAdminOverviewView,
   TenantHeader,
-} from '../../../admin-overview-api.service';
+} from '../../../data-access/admin-overview-api.service';
 
 type PageState = 'loading' | 'ready' | 'error';
 type FormState = 'idle' | 'submitting' | 'error' | 'success';

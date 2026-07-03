@@ -13,7 +13,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
-import type { TenantGameView } from '../../games-admin-api.service';
+import type { TenantGameView } from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
 import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
 import {

@@ -39,10 +39,37 @@
             @for (preset of datePresets; track preset.key) {
               <button
                 class="gd-page__chip"
-                [class.gd-page__chip--active]="datePreset() === preset.key"
+                [class.gd-page__chip--active]="!hasCustomDateRange() && datePreset() === preset.key"
                 (click)="onDatePreset(preset.key)"
               >{{ preset.label }}</button>
             }
+          </div>
+
+          <div class="gd-page__date-range">
+            <mat-form-field appearance="outline" class="gd-page__date-field">
+              <mat-label>Du</mat-label>
+              <input
+                matInput
+                [matDatepicker]="fromPicker"
+                [ngModel]="fromDateValue()"
+                (ngModelChange)="onFromDatePicker($event)"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+              <mat-datepicker #fromPicker />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="gd-page__date-field">
+              <mat-label>Au</mat-label>
+              <input
+                matInput
+                [matDatepicker]="toPicker"
+                [ngModel]="toDateValue()"
+                [min]="fromDateValue()"
+                (ngModelChange)="onToDatePicker($event)"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+              <mat-datepicker #toPicker />
+            </mat-form-field>
           </div>
 
           <!-- Status filter -->

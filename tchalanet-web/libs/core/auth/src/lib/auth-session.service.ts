@@ -52,6 +52,7 @@ export class AuthSessionService {
           [...(bootstrap.user.roles ?? []), ...(bootstrap.entitlements.roles ?? [])],
           bootstrap.space,
         ),
+        permissions: normalizePermissions(bootstrap.entitlements.permissions),
         tokenExpiresAt: await this.auth.getTokenExpiresAt(),
         entryRoute: bootstrap.entryRoute ?? bootstrap.pageModelRef?.route ?? undefined,
         mustChangePassword: bootstrap.user.mustChangePassword ?? false,
@@ -74,6 +75,11 @@ export class AuthSessionService {
 
   hasRole(role: UserRole): boolean {
     return this.session().roles.includes(role);
+  }
+
+  hasPermission(permission: string): boolean {
+    const normalized = permission.trim().toLowerCase();
+    return !!normalized && (this.session().permissions ?? []).includes(normalized);
   }
 
   async login(email: string, password: string): Promise<UserSession> {
@@ -175,4 +181,12 @@ function normalizeRoles(roles: readonly string[] | undefined, space?: string | n
   if (space === 'CASHIER') rolesFromSpace.push('CASHIER');
 
   return Array.from(new Set([...normalized, ...rolesFromSpace]));
+}
+
+function normalizePermissions(permissions: readonly string[] | undefined): readonly string[] {
+  return Array.from(new Set(
+    (permissions ?? [])
+      .map(permission => permission.trim().toLowerCase())
+      .filter(Boolean),
+  ));
 }

@@ -24,8 +24,8 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
-import { DrawAdminApi } from '../../../draw-admin.api.service';
-import type { DrawChannelSummary } from '../../../draw-admin.api.service';
+import { DrawAdminApi } from '../../../data-access/draw-admin.api.service';
+import type { DrawChannelSummary } from '../../../data-access/draw-admin.api.service';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import type { LimitRuleSpec, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';

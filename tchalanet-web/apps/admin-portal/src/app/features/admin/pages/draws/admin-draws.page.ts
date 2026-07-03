@@ -17,7 +17,7 @@ import {
   AdminStatusPillComponent,
   AdminStatusTone,
 } from '@tch/ui/console';
-import { AdminDrawsApi, DrawSummaryView, DrawStatus } from '../../admin-draws-api.service';
+import { AdminDrawsApi, DrawSummaryView, DrawStatus } from '../../data-access/admin-draws-api.service';
 
 @Component({
   selector: 'tch-admin-draws-page',

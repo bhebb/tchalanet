@@ -1,7 +1,21 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import {
+  ConsoleDrawActionEvent,
+  ConsoleDrawRow,
+  ConsoleDrawSelectionEvent,
+  ConsoleDrawsTableComponent,
+  ConsoleRowAction,
+  consoleDrawLifecycleActionIcon,
+  consoleDrawLifecycleActionLabel,
+  consoleDrawPublicationStatusLabel,
+  consoleDrawPublicationStatusTone,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
+  consoleDrawSalesStatusLabel,
+  consoleDrawSalesStatusTone,
+} from '@tch/web/console';
 import {
   DrawLifecycleAction,
   GeneratedDrawGroup,
@@ -12,7 +26,6 @@ import {
   generatedDrawProviderAndTenantTimeLabel,
   generatedDrawTenantDateTimeLabel,
 } from '../../data-access/admin-generated-draws.models';
-import { GeneratedDrawStatusBadgeComponent } from '../generated-draw-status-badge/generated-draw-status-badge.component';
 import { lotteryLogoForSlot } from '../../../../../shared/lottery/lottery-assets';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 
@@ -20,7 +33,7 @@ import { RuntimeSettingsStore } from '@tch/shared-config';
   selector: 'tch-generated-draws-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, GeneratedDrawStatusBadgeComponent],
+  imports: [ConsoleDrawsTableComponent, MatButtonModule, MatIconModule],
   templateUrl: './generated-draws-table.component.html',
   styleUrls: ['./generated-draws-table.component.scss'],
 })
@@ -77,6 +90,11 @@ export class GeneratedDrawsTableComponent {
       rest.every(draw => this.lifecycleActions(draw).includes(action)),
     );
   });
+  readonly drawRows = computed<readonly ConsoleDrawRow[]>(() =>
+    this.groups().flatMap(group =>
+      group.draws.map(draw => this.toConsoleDrawRow(draw, this.groupDateLabel(group.date))),
+    ),
+  );
 
   get hasPrev(): boolean { return this.page() > 0; }
   get hasNext(): boolean { return (this.page() + 1) * this.pageSize() < this.totalElements(); }
@@ -165,25 +183,11 @@ export class GeneratedDrawsTableComponent {
   }
 
   lifecycleLabel(action: DrawLifecycleAction): string {
-    switch (action) {
-      case 'open':    return 'Ouvrir la vente';
-      case 'close':   return 'Fermer la vente';
-      case 'lock':    return 'Verrouiller';
-      case 'unlock':  return 'Déverrouiller';
-      case 'cancel':  return 'Annuler';
-      case 'archive': return 'Archiver';
-    }
+    return consoleDrawLifecycleActionLabel(action);
   }
 
   lifecycleIcon(action: DrawLifecycleAction): string {
-    switch (action) {
-      case 'open':    return 'play_arrow';
-      case 'close':   return 'stop';
-      case 'lock':    return 'lock';
-      case 'unlock':  return 'lock_open';
-      case 'cancel':  return 'cancel';
-      case 'archive': return 'inventory_2';
-    }
+    return consoleDrawLifecycleActionIcon(action);
   }
 
   onLifecycleAction(draw: GeneratedDrawView, action: DrawLifecycleAction): void {
@@ -195,6 +199,36 @@ export class GeneratedDrawsTableComponent {
       case 'cancel':  this.cancelDraw.emit(draw);  break;
       case 'archive': this.archiveDraw.emit(draw); break;
     }
+  }
+
+  onRowAction(event: ConsoleDrawActionEvent): void {
+    const draw = this.findDraw(event.row.id);
+    if (!draw) return;
+
+    if (event.action.id.startsWith('lifecycle:')) {
+      this.onLifecycleAction(draw, event.action.id.slice('lifecycle:'.length) as DrawLifecycleAction);
+      return;
+    }
+
+    switch (event.action.id) {
+      case 'enterResult':
+        this.enterResult.emit(draw);
+        break;
+      case 'viewResult':
+        this.viewResult.emit(draw);
+        break;
+      case 'verifySource':
+        this.verifySource.emit(draw);
+        break;
+      case 'viewDetails':
+        this.viewDetails.emit(draw);
+        break;
+    }
+  }
+
+  onRowSelection(event: ConsoleDrawSelectionEvent): void {
+    const draw = this.findDraw(event.row.id);
+    if (draw) this.toggleSelection(draw, event.selected);
   }
 
   isPending(draw: GeneratedDrawView): boolean {
@@ -239,4 +273,78 @@ export class GeneratedDrawsTableComponent {
     if (scheduledAt == null) return false;
     return Date.now() >= scheduledAt + 30 * 60 * 1000;
   }
+
+  private findDraw(drawId: string): GeneratedDrawView | null {
+    return this.groups()
+      .flatMap(group => group.draws)
+      .find(draw => draw.drawId === drawId) ?? null;
+  }
+
+  private toConsoleDrawRow(draw: GeneratedDrawView, groupLabel: string): ConsoleDrawRow {
+    return {
+      id: draw.drawId,
+      groupLabel,
+      title: draw.label,
+      subtitle: `${draw.slotLabel} · ${draw.slotKey}`,
+      meta: draw.providerLabel,
+      logoUrl: this.providerLogo(draw),
+      logoAlt: draw.providerLabel,
+      logoText: draw.providerCode,
+      scheduledDateLabel: this.scheduledDate(draw),
+      scheduledTimeLabel: this.scheduledTime(draw),
+      countdownLabel: this.salesCountdown(draw),
+      countdownTone: this.isClosingSoon(draw) ? 'warning' : 'default',
+      statusLabel: consoleDrawSalesStatusLabel(draw.salesStatus),
+      statusTone: consoleDrawSalesStatusTone(draw.salesStatus),
+      resultLabel: consoleDrawResultStatusLabel(draw.resultStatus),
+      resultTone: consoleDrawResultStatusTone(draw.resultStatus),
+      resultNumbers: draw.numbers?.map(n => String(n)) ?? [],
+      resultHint: this.resultHint(draw),
+      modeLabel: draw.resultMode,
+      publicationLabel: draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED'
+        ? consoleDrawPublicationStatusLabel(draw.publicationStatus)
+        : undefined,
+      publicationTone: consoleDrawPublicationStatusTone(draw.publicationStatus),
+      pending: this.isPending(draw),
+      actions: this.consoleActions(draw),
+    };
+  }
+
+  private consoleActions(draw: GeneratedDrawView): readonly ConsoleRowAction[] {
+    const actions: ConsoleRowAction[] = [this.primaryAction(draw)];
+    for (const action of this.lifecycleActions(draw)) {
+      actions.push({
+        id: `lifecycle:${action}`,
+        label: this.lifecycleLabel(action),
+        icon: this.lifecycleIcon(action),
+        tone: action === 'cancel' ? 'danger' : 'default',
+        variant: 'icon',
+      });
+    }
+    return actions;
+  }
+
+  private primaryAction(draw: GeneratedDrawView): ConsoleRowAction {
+    switch (draw.resultStatus) {
+      case 'MISSING':
+        return this.canEnterManualResult(draw)
+          ? { id: 'enterResult', label: 'Saisir résultat', icon: 'edit_note', tone: 'primary' }
+          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+      case 'CONFIRMED':
+        return { id: 'viewResult', label: 'Voir résultat', icon: 'fact_check' };
+      case 'SOURCE_ERROR':
+        return this.canEnterManualResult(draw)
+          ? { id: 'verifySource', label: 'Vérifier', icon: 'warning', tone: 'danger' }
+          : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+      default:
+        return { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
+    }
+  }
+
+  private resultHint(draw: GeneratedDrawView): string | undefined {
+    if (draw.sourceError) return this.sourceErrorAtLabel(draw);
+    if (draw.fetchedAt) return `Récupéré ${this.fetchedAtLabel(draw)}`;
+    return undefined;
+  }
+
 }

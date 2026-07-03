@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,11 +10,17 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccessService } from '@tch/core/auth';
 import {
-  AdminDetailLayoutComponent,
-  AdminPageShellComponent,
+  CONSOLE_DRAW_RESULT_ACCESS,
+  ConsoleEntityDetailActionEvent,
+  ConsoleEntityDetailComponent,
+  consoleDrawPublicationStatusLabel,
+  consoleDrawResultStatusLabel,
+  consoleDrawSalesStatusLabel,
+} from '@tch/web/console';
+import {
   AdminSectionCardComponent,
 } from '@tch/ui/console';
 
@@ -29,6 +35,10 @@ import {
   DrawResultDrawerComponent,
   DrawResultDrawerState,
 } from '../../components/draw-result-drawer/draw-result-drawer.component';
+import {
+  DrawDetailAsideComponent,
+  DrawDetailAsideView,
+} from './components/draw-detail-aside/draw-detail-aside.component';
 import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../../shared/lottery/lottery-assets';
 import {
   AdminFinancialsApi,
@@ -36,19 +46,19 @@ import {
   DrawTopSelectionItem,
   SellerTerminalDrawFinancialRow,
 } from '../../../financials/data-access/admin-financials-api.service';
+import {
+  DrawActivityReport,
+  DrawDetailActivityView,
+  DrawDetailActivityComponent,
+} from './components/draw-detail-activity/draw-detail-activity.component';
+import {
+  DrawDetailOverviewComponent,
+  DrawDetailOverviewView,
+} from './components/draw-detail-overview/draw-detail-overview.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
 type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
-
-interface DrawActivityReport {
-  readonly ticketsSold: number;
-  readonly grossSales: number;
-  readonly sellerCommission: number;
-  readonly activeSellerCount: number;
-  readonly netRevenueEstimated: number;
-  readonly promotionPotentialPayout: number;
-}
 
 @Component({
   selector: 'tch-admin-draw-detail-page',
@@ -56,24 +66,24 @@ interface DrawActivityReport {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    DecimalPipe,
-    RouterLink,
     MatButtonModule,
     MatIconModule,
-    AdminPageShellComponent,
-    AdminDetailLayoutComponent,
+    ConsoleEntityDetailComponent,
     AdminSectionCardComponent,
-    TchLoading,
-    TchErrorPanel,
     DrawResultDrawerComponent,
+    DrawDetailAsideComponent,
+    DrawDetailActivityComponent,
+    DrawDetailOverviewComponent,
   ],
   templateUrl: './admin-draw-detail.page.html',
   styleUrls: ['./admin-draw-detail.page.scss'],
 })
 export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly api = inject(AdminGeneratedDrawsApiService);
   private readonly financials = inject(AdminFinancialsApi);
+  private readonly access = inject(AccessService);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
   readonly pageState = signal<PageState>('loading');
@@ -98,6 +108,81 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
     return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
   });
+  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
+  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
+  readonly detailMeta = computed(() => {
+    const draw = this.draw();
+    if (!draw) return [];
+    const values = [draw.slotKey, draw.timezone];
+    if (draw.lifecycleStatus) values.push(draw.lifecycleStatus);
+    return values;
+  });
+  readonly detailError = computed(() =>
+    this.errorTitle()
+      ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
+      : null,
+  );
+  readonly detailActions = computed(() => [
+    { id: 'back', label: 'Retour', icon: 'arrow_back' },
+  ]);
+  readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    return {
+      providerLogo: this.providerLogo(draw),
+      providerLabel: draw.providerLabel,
+      providerCode: this.providerCode(draw),
+      slotCode: this.providerSlotCode(draw),
+      displayName: this.drawDisplayName(draw),
+      supporting: `${this.slotDisplayLabel(draw)} · ${this.scheduledLocalSummary(draw)} — ${draw.timezone}`,
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      facts: [
+        { label: 'Code du slot', value: draw.slotKey, code: true },
+        { label: 'Créneau de vente', value: this.slotDisplayLabel(draw) },
+        { label: 'Date métier', value: draw.businessDate },
+        { label: 'Heure du tirage', value: this.scheduledTime(draw) },
+        { label: 'Tirage prévu', value: this.scheduledLocalDateTime(draw) },
+        { label: 'Fin des ventes', value: this.cutoffLocalDateTime(draw) },
+        { label: 'Fuseau horaire', value: draw.timezone },
+        { label: 'État technique', value: draw.lifecycleStatus ?? 'Non disponible' },
+      ],
+    };
+  });
+  readonly activityView = computed<DrawDetailActivityView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    const report = this.activityReport();
+    return {
+      countdown: this.countdownLabel(draw),
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      activityState: this.activityState(),
+      activityReport: report,
+      noSalesHint: this.noSalesHint(report),
+      sellersReportQueryParams: this.sellersReportQueryParams(draw),
+      topSelectionsState: this.topSelectionsState(),
+      topSelections: this.topSelections(),
+    };
+  });
+  readonly asideView = computed<DrawDetailAsideView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    return {
+      title: this.drawDisplayName(draw),
+      dateTime: this.asideDrawDateTime(draw),
+      slotKey: draw.slotKey,
+      countdown: this.countdownLabel(draw),
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      ticketCount: this.asideTicketCountLabel(this.activityReport()),
+      salesAmount: this.asideSalesAmountLabel(this.activityReport()),
+      sellerCount: this.asideSellerCountLabel(this.activityReport()),
+      hotSelections: this.asideHotSelectionsLabel(),
+      resultFollowup: this.resultFollowupLabel(draw),
+      advice: this.operationalHint(draw),
+    };
+  });
 
   ngOnInit(): void {
     this.load();
@@ -108,6 +193,12 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (this.timerId) {
       clearInterval(this.timerId);
       this.timerId = null;
+    }
+  }
+
+  onDetailAction(event: ConsoleEntityDetailActionEvent): void {
+    if (event.action.id === 'back') {
+      void this.router.navigate(['/app/admin/draws']);
     }
   }
 
@@ -238,36 +329,23 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     };
   }
 
-  topSelectionStake(selection: DrawTopSelectionItem): number {
-    return selection.totalStakeCents / 100;
-  }
-
   salesStatusLabel(status: GeneratedDrawSalesStatus): string {
-    switch (status) {
-      case 'OPEN': return 'Ouvert à la vente';
-      case 'CLOSED': return 'Vente fermée';
-      case 'CANCELLED': return 'Annulé';
-      case 'UPCOMING': return 'À venir';
-    }
+    return consoleDrawSalesStatusLabel(status);
   }
 
   resultStatusLabel(status: GeneratedDrawResultStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Résultat confirmé';
-      case 'PROVISIONAL': return 'Résultat provisoire';
-      case 'EXPECTED': return 'Résultat attendu';
-      case 'MISSING': return 'Résultat manquant';
-      case 'SOURCE_ERROR': return 'Erreur source';
-      case 'NOT_DUE': return 'Attendu après fermeture';
-    }
+    return consoleDrawResultStatusLabel(status);
   }
 
   publicationStatusLabel(status: GeneratedDrawView['publicationStatus']): string {
-    return status === 'PUBLISHED' ? 'Publié' : 'Non publié';
+    return consoleDrawPublicationStatusLabel(status);
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {
-    return this.isDrawPastSales(draw) && this.hasNoResult(draw) && this.isManualResultDue(draw);
+    return this.canEnterManualResults()
+      && this.isDrawPastSales(draw)
+      && this.hasNoResult(draw)
+      && this.isManualResultDue(draw);
   }
 
   resultActionLabel(draw: GeneratedDrawView): string {
@@ -294,6 +372,9 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
 
   resultUnavailableReason(draw: GeneratedDrawView): string | null {
     if (this.hasResult(draw)) return null;
+    if (!this.canEnterManualResults()) {
+      return 'Vous n’avez pas l’autorisation de saisir un résultat manuel.';
+    }
     if (!this.isDrawPastSales(draw)) return null;
     if (!this.isManualResultDue(draw)) {
       return 'La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage.';

@@ -12,7 +12,7 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
-import { AdminPricingApi, PricingView } from '../../admin-pricing-api.service';
+import { AdminPricingApi, PricingView } from '../../data-access/admin-pricing-api.service';
 
 @Component({
   selector: 'tch-admin-pricing-page',

@@ -24,7 +24,7 @@ import {
   DayOfWeek,
   GameSummary,
   ChannelGames,
-} from '../../draw-admin.api.service';
+} from '../../data-access/draw-admin.api.service';
 
 interface DayEntry {
   readonly key: DayOfWeek;

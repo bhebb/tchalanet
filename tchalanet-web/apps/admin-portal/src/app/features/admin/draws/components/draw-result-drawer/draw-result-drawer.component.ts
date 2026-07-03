@@ -20,6 +20,7 @@ import {
   SaveDrawResultRequest,
 } from '../../data-access/admin-generated-draws.models';
 import { GeneratedDrawStatusBadgeComponent } from '../generated-draw-status-badge/generated-draw-status-badge.component';
+import { consoleDrawSalesStatusLabel } from '@tch/web/console';
 
 export type DrawerMode = 'saisie' | 'lecture' | 'source-error' | 'modification';
 export type DrawResultDrawerState = 'ready' | 'saving' | 'success' | 'error';
@@ -30,10 +31,6 @@ const TZ_ABBREV: Record<string, string> = {
   'America/Los_Angeles':'PDT',
   'America/Denver':     'MDT',
   'America/Phoenix':    'MST',
-};
-
-const SALES_LABELS: Record<string, string> = {
-  OPEN: 'Ouverte', CLOSED: 'Fermée', UPCOMING: 'À venir', CANCELLED: 'Annulé',
 };
 
 @Component({
@@ -103,7 +100,7 @@ export class DrawResultDrawerComponent implements OnInit {
     return `${d.slotLabel} · ${date} · ${time}${tz ? ` ${tz}` : ''}`;
   });
 
-  readonly salesStatusLabel = computed(() => SALES_LABELS[this.draw().salesStatus] ?? this.draw().salesStatus);
+  readonly salesStatusLabel = computed(() => consoleDrawSalesStatusLabel(this.draw().salesStatus));
 
   readonly isProvisional = computed(() =>
     this.mode() === 'lecture' && this.draw().resultStatus === 'PROVISIONAL',
