@@ -1,13 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormField, form, min, submit } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSectionError } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
+import { ConsolePricingFormComponent, ConsolePricingFormValue } from '@tch/web/console';
 import { tchMutation } from '@tch/web/async';
 
 import {
@@ -16,23 +13,14 @@ import {
   UpdatePricingRequest,
 } from '../../data-access/platform-catalog-api.service';
 
-interface EditPricingFormModel {
-  readonly odds: number;
-  readonly betOption: number;
-  readonly active: boolean;
-}
-
 @Component({
   selector: 'tch-edit-pricing-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormField,
     AdminDialogShellComponent,
+    ConsolePricingFormComponent,
     MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
     TchSectionError,
     TranslatePipe,
   ],
@@ -43,13 +31,13 @@ export class EditPricingDialog {
   private readonly dialogRef = inject(MatDialogRef<EditPricingDialog>);
   readonly row = inject<CatalogPricingView>(MAT_DIALOG_DATA);
 
-  readonly model = signal<EditPricingFormModel>({
+  readonly pricingForm = viewChild.required(ConsolePricingFormComponent);
+  readonly formValue = signal<ConsolePricingFormValue>({
+    gameCode: this.row.gameCode,
+    betType: this.row.betType,
     odds: this.row.odds,
     betOption: this.row.betOption ?? 0,
     active: this.row.active,
-  });
-  readonly form = form(this.model, path => {
-    min(path.odds, 0.01, { message: 'platform.catalog.pricing.validation.oddsMin' });
   });
 
   readonly savePricing = tchMutation<UpdatePricingRequest, CatalogPricingView>({
@@ -59,14 +47,15 @@ export class EditPricingDialog {
   });
   readonly feedback = computed(() => this.savePricing.feedback());
 
-  submit(event: Event): void {
-    event.preventDefault();
-    submit(this.form, async () => {
-      this.savePricing.execute(this.toRequest(this.model()));
-    });
+  submit(): void {
+    this.pricingForm().submit();
   }
 
-  private toRequest(value: EditPricingFormModel): UpdatePricingRequest {
+  save(value: ConsolePricingFormValue): void {
+    this.savePricing.execute(this.toRequest(value));
+  }
+
+  private toRequest(value: ConsolePricingFormValue): UpdatePricingRequest {
     return {
       odds: value.odds,
       betOption: value.betOption > 0 ? value.betOption : null,

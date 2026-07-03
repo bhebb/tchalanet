@@ -1,50 +1,15 @@
 <tch-admin-dialog-shell [title]="'platform.catalog.pricing.dialog.create.title' | translate" icon="percent">
-  <form class="tch-admin-dialog-form" (submit)="submit($event)">
-    @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
-      <tch-section-error [title]="errorVm.title" [message]="errorVm.message" />
-    }
+  @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+    <tch-section-error [title]="errorVm.title" [message]="errorVm.message" />
+  }
 
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'platform.catalog.pricing.field.gameCode' | translate }}</mat-label>
-      <input matInput autocomplete="off" placeholder="BORLETTE" [formField]="form.gameCode" />
-      @if (form.gameCode().touched() && form.gameCode().invalid()) {
-        @for (error of form.gameCode().errors(); track error.kind) {
-          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
-        }
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'platform.catalog.pricing.field.betType' | translate }}</mat-label>
-      <mat-select [formField]="form.betType">
-        <mat-option value="">-</mat-option>
-        @for (betType of betTypes; track betType) {
-          <mat-option [value]="betType">{{ betType }}</mat-option>
-        }
-      </mat-select>
-      @if (form.betType().touched() && form.betType().invalid()) {
-        @for (error of form.betType().errors(); track error.kind) {
-          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
-        }
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'platform.catalog.pricing.field.betOption' | translate }}</mat-label>
-      <input matInput type="number" placeholder="1" [formField]="form.betOption" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>{{ 'platform.catalog.pricing.field.odds' | translate }}</mat-label>
-      <input matInput type="number" placeholder="55" [formField]="form.odds" />
-      @if (form.odds().touched() && form.odds().invalid()) {
-        @for (error of form.odds().errors(); track error.kind) {
-          <mat-error>{{ (error.message ?? 'platform.catalog.pricing.validation.oddsMin') | translate }}</mat-error>
-        }
-      }
-    </mat-form-field>
-
+  <tch-console-pricing-form
+    [initialValue]="formValue()"
+    [betTypes]="betTypes"
+    (submitted)="save($event)"
+  >
     <tch-search-select
+      extraFields
       [label]="'platform.catalog.pricing.field.tenant' | translate"
       [placeholder]="'platform.catalog.pricing.field.tenantPlaceholder' | translate"
       icon="apartment"
@@ -53,14 +18,12 @@
       [searchFn]="searchTenants"
       (valueChange)="selectTenant($event)"
     />
-
-    <mat-checkbox [formField]="form.active">{{ 'platform.catalog.pricing.field.active' | translate }}</mat-checkbox>
-  </form>
+  </tch-console-pricing-form>
 
   <button actions mat-stroked-button type="button" [mat-dialog-close]="null" [disabled]="savePricing.pending()">
     {{ 'common.cancel' | translate }}
   </button>
-  <button actions mat-flat-button color="primary" type="submit" [disabled]="form().invalid() || savePricing.pending()" (click)="submit($event)">
+  <button actions mat-flat-button color="primary" type="submit" [disabled]="pricingForm().invalid() || savePricing.pending()" (click)="submit()">
     @if (savePricing.pending()) {
       <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
     }

@@ -11,5 +11,7 @@ export * from './lib/entity-detail/console-entity-detail.models';
 export * from './lib/entity-detail/console-facts.component';
 export * from './lib/games/console-games-table.component';
 export * from './lib/games/console-games-table.models';
+export * from './lib/pricing/console-pricing-form.component';
+export * from './lib/pricing/console-pricing-form.models';
 export * from './lib/pricing/console-pricing-table.component';
 export * from './lib/pricing/console-pricing-table.models';

@@ -23,6 +23,21 @@
         "tenant": "Tenant",
         "status": "Status"
       }
+    },
+    "pricingForm": {
+      "field": {
+        "identity": "Game / bet type",
+        "gameCode": "Game (gameCode)",
+        "betType": "Bet type",
+        "betOption": "Bet option",
+        "odds": "Odds",
+        "active": "Active"
+      },
+      "validation": {
+        "gameCodeRequired": "Game is required.",
+        "betTypeRequired": "Bet type is required.",
+        "oddsMin": "Odds must be greater than 0."
+      }
     }
   },
   "layout": {

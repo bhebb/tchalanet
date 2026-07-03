@@ -23,6 +23,21 @@
         "tenant": "Tenant",
         "status": "Statut"
       }
+    },
+    "pricingForm": {
+      "field": {
+        "identity": "Jeu / type de pari",
+        "gameCode": "Jeu (gameCode)",
+        "betType": "Type de pari",
+        "betOption": "Option de pari (betOption)",
+        "odds": "Cote (odds)",
+        "active": "Actif"
+      },
+      "validation": {
+        "gameCodeRequired": "Le jeu est requis.",
+        "betTypeRequired": "Le type de pari est requis.",
+        "oddsMin": "La cote doit être supérieure à 0."
+      }
     }
   },
   "layout": {

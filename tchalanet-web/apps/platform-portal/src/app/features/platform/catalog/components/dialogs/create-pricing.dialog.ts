@@ -1,15 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormField, form, min, required, submit } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { TchSectionError } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
+import { ConsolePricingFormComponent, ConsolePricingFormValue } from '@tch/web/console';
 import { tchMutation } from '@tch/web/async';
 import { Observable, map } from 'rxjs';
 
@@ -22,27 +18,14 @@ import {
 } from '../../data-access/platform-catalog-api.service';
 import { CATALOG_BET_TYPES } from './catalog-pricing-options';
 
-interface CreatePricingFormModel {
-  readonly gameCode: string;
-  readonly betType: BetType | '';
-  readonly betOption: number;
-  readonly odds: number;
-  readonly tenantId: string;
-  readonly active: boolean;
-}
-
 @Component({
   selector: 'tch-create-pricing-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormField,
     AdminDialogShellComponent,
+    ConsolePricingFormComponent,
     MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     TchSearchSelect,
     TchSectionError,
     TranslatePipe,
@@ -54,20 +37,16 @@ export class CreatePricingDialog {
   private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly dialogRef = inject(MatDialogRef<CreatePricingDialog>);
 
+  readonly pricingForm = viewChild.required(ConsolePricingFormComponent);
   readonly betTypes = CATALOG_BET_TYPES;
-  readonly model = signal<CreatePricingFormModel>({
+  readonly formValue = signal<ConsolePricingFormValue>({
     gameCode: '',
     betType: '',
     betOption: 0,
     odds: 0,
-    tenantId: '',
     active: true,
   });
-  readonly form = form(this.model, path => {
-    required(path.gameCode, { message: 'platform.catalog.pricing.validation.gameCodeRequired' });
-    required(path.betType, { message: 'platform.catalog.pricing.validation.betTypeRequired' });
-    min(path.odds, 0.01, { message: 'platform.catalog.pricing.validation.oddsMin' });
-  });
+  readonly tenantId = signal('');
 
   readonly savePricing = tchMutation<CreatePricingRequest, CatalogPricingView>({
     source: 'platform.catalog.pricing.create',
@@ -83,26 +62,24 @@ export class CreatePricingDialog {
 
   selectTenant(option: TchSearchOption | null): void {
     const tenant = option?.data as TenantSummaryView | undefined;
-    this.model.update(current => ({
-      ...current,
-      tenantId: tenant?.id ?? tenant?.tenantId ?? '',
-    }));
+    this.tenantId.set(tenant?.id ?? tenant?.tenantId ?? '');
   }
 
-  submit(event: Event): void {
-    event.preventDefault();
-    submit(this.form, async () => {
-      this.savePricing.execute(this.toRequest(this.model()));
-    });
+  submit(): void {
+    this.pricingForm().submit();
   }
 
-  private toRequest(value: CreatePricingFormModel): CreatePricingRequest {
+  save(value: ConsolePricingFormValue): void {
+    this.savePricing.execute(this.toRequest(value));
+  }
+
+  private toRequest(value: ConsolePricingFormValue): CreatePricingRequest {
     return {
       gameCode: value.gameCode.trim().toUpperCase(),
       betType: value.betType as BetType,
       betOption: value.betOption > 0 ? value.betOption : null,
       odds: value.odds,
-      tenantId: value.tenantId || null,
+      tenantId: this.tenantId() || null,
       active: value.active,
     };
   }

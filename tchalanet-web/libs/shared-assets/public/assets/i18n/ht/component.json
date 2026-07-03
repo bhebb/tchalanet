@@ -23,6 +23,21 @@
         "tenant": "Tenant",
         "status": "Estati"
       }
+    },
+    "pricingForm": {
+      "field": {
+        "identity": "Jwèt / tip pari",
+        "gameCode": "Jwèt (gameCode)",
+        "betType": "Tip pari",
+        "betOption": "Opsyon pari",
+        "odds": "Kòt",
+        "active": "Aktif"
+      },
+      "validation": {
+        "gameCodeRequired": "Jwèt la obligatwa.",
+        "betTypeRequired": "Tip pari a obligatwa.",
+        "oddsMin": "Kòt la dwe pi gran pase 0."
+      }
     }
   },
   "layout": {
