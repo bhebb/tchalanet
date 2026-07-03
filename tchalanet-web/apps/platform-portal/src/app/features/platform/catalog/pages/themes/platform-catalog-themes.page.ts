@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,12 +9,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import { PlatformCatalogApi, CatalogThemeView, CreateThemeRequest, UpdateThemeRequest } from '../../data-access/platform-catalog-api.service';
 
 @Component({
@@ -165,41 +169,30 @@ export class EditThemeDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
   ],
   templateUrl: './platform-catalog-themes.page.html',
 })
-export class PlatformCatalogThemesPage implements OnInit {
+export class PlatformCatalogThemesPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['code', 'vendor', 'labelKey', 'active', 'isDefault', 'actions'];
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly themes = signal<CatalogThemeView[]>([]);
+  readonly themes = this.api.listThemesResource({ suppressShellFeedback: true });
+  readonly themesError = resourceErrorVm(this.themes, 'platform.catalog.themes');
+  readonly themeRows = computed(() => this.themes.value() ?? []);
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
-  ngOnInit(): void { this.load(); }
-
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listThemes().subscribe({
-      next: list => { this.themes.set(list); this.loading.set(false); },
-      error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
-        this.loading.set(false);
-      },
-    });
+    this.themes.reload();
   }
 
   openCreate(): void {

@@ -677,6 +677,78 @@
         "loadError": "Impossible de charger les révisions."
       }
     },
+    "pageEngine": {
+      "title": "Moteur de page",
+      "description": "Modifiez les PageModels runtime, publiez les brouillons et inspectez le JSON effectif.",
+      "action": {
+        "create": "Créer un brouillon",
+        "retry": "Réessayer",
+        "save": "Enregistrer le JSON",
+        "publish": "Publier",
+        "duplicate": "Dupliquer",
+        "reset": "Réinitialiser",
+        "archive": "Archiver"
+      },
+      "filter": {
+        "search": "Logical ID..."
+      },
+      "state": {
+        "loading": "Chargement des PageModels...",
+        "loadingDetail": "Chargement du PageModel..."
+      },
+      "empty": {
+        "title": "Aucun PageModel",
+        "message": "Créez un brouillon ou ajustez le filtre."
+      },
+      "detail": {
+        "emptyTitle": "Aucun PageModel sélectionné",
+        "emptyMessage": "Sélectionnez une ligne pour afficher et modifier son JSON."
+      },
+      "column": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "status": "Statut",
+        "schemaVersion": "Schéma",
+        "updatedAt": "Mis à jour"
+      },
+      "field": {
+        "json": "JSON PageModel"
+      },
+      "footer": {
+        "count": "PageModel(s)"
+      },
+      "status": {
+        "DRAFT": "Brouillon",
+        "PUBLISHED": "Publié",
+        "ARCHIVED": "Archivé"
+      },
+      "prompt": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "duplicateLogicalId": "Logical ID de la copie"
+      },
+      "confirm": {
+        "reset": "Réinitialiser ce PageModel depuis son template ?"
+      },
+      "feedback": {
+        "created": "Brouillon créé.",
+        "saved": "JSON enregistré.",
+        "published": "PageModel publié.",
+        "duplicated": "PageModel dupliqué.",
+        "reset": "PageModel réinitialisé.",
+        "archiveUnavailable": "L’API d’archivage PageModel n’est pas exposée côté backend."
+      },
+      "error": {
+        "invalidJson": "JSON invalide.",
+        "create": "Impossible de créer le PageModel.",
+        "save": "Impossible d’enregistrer le PageModel.",
+        "publish": "Impossible de publier le PageModel.",
+        "duplicate": "Impossible de dupliquer le PageModel.",
+        "reset": "Impossible de réinitialiser le PageModel."
+      }
+    },
     "i18nOverrides": {
       "title": "Traductions",
       "description": "Gérez les overrides de traduction par locale et niveau.",

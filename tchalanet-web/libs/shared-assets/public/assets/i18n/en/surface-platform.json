@@ -66,6 +66,7 @@
       "providers": "Providers",
       "schedulers": "Scheduled tasks",
       "cache": "Cache",
+      "pageEngine": "Page engine",
       "archives": "Archives",
       "archiveRuns": "Runs",
       "archiveIssues": "Failures & invalid objects",

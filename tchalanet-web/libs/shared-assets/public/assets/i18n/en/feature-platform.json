@@ -677,6 +677,78 @@
         "loadError": "Unable to load revisions."
       }
     },
+    "pageEngine": {
+      "title": "Page engine",
+      "description": "Edit runtime PageModels, publish drafts, and inspect the effective JSON.",
+      "action": {
+        "create": "Create draft",
+        "retry": "Retry",
+        "save": "Save JSON",
+        "publish": "Publish",
+        "duplicate": "Duplicate",
+        "reset": "Reset",
+        "archive": "Archive"
+      },
+      "filter": {
+        "search": "Logical ID..."
+      },
+      "state": {
+        "loading": "Loading PageModels...",
+        "loadingDetail": "Loading PageModel..."
+      },
+      "empty": {
+        "title": "No PageModels",
+        "message": "Create a draft or adjust the filter."
+      },
+      "detail": {
+        "emptyTitle": "No PageModel selected",
+        "emptyMessage": "Select a row to view and edit its JSON."
+      },
+      "column": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "status": "Status",
+        "schemaVersion": "Schema",
+        "updatedAt": "Updated"
+      },
+      "field": {
+        "json": "PageModel JSON"
+      },
+      "footer": {
+        "count": "PageModel(s)"
+      },
+      "status": {
+        "DRAFT": "Draft",
+        "PUBLISHED": "Published",
+        "ARCHIVED": "Archived"
+      },
+      "prompt": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "duplicateLogicalId": "Copy logical ID"
+      },
+      "confirm": {
+        "reset": "Reset this PageModel from its template?"
+      },
+      "feedback": {
+        "created": "Draft created.",
+        "saved": "JSON saved.",
+        "published": "PageModel published.",
+        "duplicated": "PageModel duplicated.",
+        "reset": "PageModel reset.",
+        "archiveUnavailable": "The PageModel archive API is not exposed by the backend."
+      },
+      "error": {
+        "invalidJson": "Invalid JSON.",
+        "create": "Unable to create the PageModel.",
+        "save": "Unable to save the PageModel.",
+        "publish": "Unable to publish the PageModel.",
+        "duplicate": "Unable to duplicate the PageModel.",
+        "reset": "Unable to reset the PageModel."
+      }
+    },
     "i18nOverrides": {
       "title": "Translations",
       "description": "Manage translation overrides by locale and level.",

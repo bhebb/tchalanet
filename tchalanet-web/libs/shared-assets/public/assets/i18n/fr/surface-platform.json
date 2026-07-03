@@ -66,6 +66,7 @@
       "providers": "Providers",
       "schedulers": "Tâches planifiées",
       "cache": "Cache",
+      "pageEngine": "Moteur de page",
       "archives": "Archives",
       "archiveRuns": "Runs",
       "archiveIssues": "Échecs & objets invalides",

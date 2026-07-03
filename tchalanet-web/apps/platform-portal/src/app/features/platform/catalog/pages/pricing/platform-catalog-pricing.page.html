@@ -26,14 +26,20 @@
       </tch-admin-data-toolbar>
     </div>
 
-    <div content>
-      @if (loading()) {
-        <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-      } @else if (rows().length === 0) {
-        <tch-admin-empty-state icon="percent" title="Aucune cote" message="Créez la première cote du catalogue." />
-      } @else {
+    <tch-async-view
+      content
+      [resource]="pricing"
+      [error]="pricingError()"
+      loadingLabel="Chargement..."
+      retryLabel="Réessayer"
+      (retry)="load()"
+    >
+      <tch-admin-empty-state empty icon="percent" title="Aucune cote" message="Créez la première cote du catalogue." />
+
+      <ng-container *tchAsyncReady>
+        @if (allRows().length > 0 && rows().length === 0) {
+          <tch-admin-empty-state icon="search_off" title="Aucun résultat" message="Aucune cote ne correspond aux filtres." />
+        } @else {
         <table mat-table [dataSource]="rows()">
           <ng-container matColumnDef="gameCode">
             <th mat-header-cell *matHeaderCellDef>Jeu</th>
@@ -81,8 +87,9 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
-      }
-    </div>
+        }
+      </ng-container>
+    </tch-async-view>
 
     <div footer>
       <span>{{ rows().length }} cote(s) {{ allRows().length !== rows().length ? '(filtré sur ' + allRows().length + ')' : '' }}</span>

@@ -88,14 +88,52 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
   nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
+  openCreate(): void {
+    const code = window.prompt('Code du template');
+    if (!code) return;
+    const logicalId = window.prompt('Logical ID', code) ?? code;
+    const name = window.prompt('Nom', code) ?? code;
+    const slug = window.prompt('Slug', 'dashboard') ?? 'dashboard';
+    const template = minimalTemplate(code, logicalId, slug, name);
+
+    this.busy.set(true);
+    this.api.createTemplate(template).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.snackBar.open('Template créé.', 'OK', { duration: 4000 });
+        this.load();
+      },
+      error: err => this.handleActionError(err, 'Erreur lors de la création.'),
+    });
+  }
+
+  openEdit(template: PageModelTemplateView): void {
+    const name = window.prompt('Nom', template.name);
+    if (name == null) return;
+    const label = window.prompt('Libellé', template.label) ?? template.label;
+    const description = window.prompt('Description', template.description ?? '') ?? template.description;
+
+    this.busy.set(true);
+    this.api.updateTemplate(template.id, {
+      ...template,
+      name: name.trim(),
+      label: label.trim(),
+      description: description?.trim() || undefined,
+    }).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.snackBar.open('Template mis à jour.', 'OK', { duration: 4000 });
+        this.load();
+      },
+      error: err => this.handleActionError(err, 'Erreur lors de la mise à jour.'),
+    });
+  }
+
   setDefault(template: PageModelTemplateView): void {
     this.busy.set(true);
     this.api.setDefault(template.id).subscribe({
       next: () => { this.busy.set(false); this.snackBar.open('Template défini comme défaut.', 'OK', { duration: 4000 }); this.load(); },
-      error: (err: unknown) => {
-        this.busy.set(false);
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 5000 });
-      },
+      error: (err: unknown) => this.handleActionError(err, 'Erreur.'),
     });
   }
 
@@ -103,10 +141,16 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
     this.busy.set(true);
     this.api.duplicate(template.id).subscribe({
       next: () => { this.busy.set(false); this.snackBar.open('Template dupliqué.', 'OK', { duration: 4000 }); this.load(); },
-      error: (err: unknown) => {
-        this.busy.set(false);
-        this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur lors de la duplication.', 'OK', { duration: 5000 });
-      },
+      error: (err: unknown) => this.handleActionError(err, 'Erreur lors de la duplication.'),
+    });
+  }
+
+  reset(template: PageModelTemplateView): void {
+    if (!confirm(`Réinitialiser le template « ${template.name} » ?`)) return;
+    this.busy.set(true);
+    this.api.reset(template.id).subscribe({
+      next: () => { this.busy.set(false); this.snackBar.open('Template réinitialisé.', 'OK', { duration: 4000 }); this.load(); },
+      error: (err: unknown) => this.handleActionError(err, 'Erreur lors de la réinitialisation.'),
     });
   }
 
@@ -122,4 +166,51 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
       });
     });
   }
+
+  private handleActionError(err: unknown, fallback: string): void {
+    this.busy.set(false);
+    this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? fallback, 'OK', {
+      duration: 5000,
+    });
+  }
+}
+
+function minimalTemplate(
+  code: string,
+  logicalId: string,
+  slug: string,
+  name: string,
+): PageModelTemplateView {
+  return {
+    id: '',
+    code: code.trim(),
+    logicalId: logicalId.trim(),
+    scope: 'private',
+    slug: slug.trim(),
+    name: name.trim(),
+    label: name.trim(),
+    description: '',
+    schema: {},
+    model: {
+      meta: {
+        id: logicalId.trim(),
+        scope: 'private',
+        slug: slug.trim(),
+        schemaVersion: 2,
+      },
+      content: {
+        layout: {
+          component: 'GridLayout',
+          rows: [],
+        },
+        widgets: {},
+      },
+    },
+    schemaVersion: 2,
+    isDefault: false,
+    level: 'GLOBAL',
+    tenantId: null,
+    createdAt: '',
+    updatedAt: '',
+  };
 }

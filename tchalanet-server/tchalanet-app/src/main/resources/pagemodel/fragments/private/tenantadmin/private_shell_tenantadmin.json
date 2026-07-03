@@ -417,6 +417,13 @@
                 "icon": "notifications"
               },
               {
+                "id": "company-page-models",
+                "label_key": "nav.admin.company_page_models",
+                "path": "/app/admin/pagemodels",
+                "kind": "internal",
+                "icon": "dashboard_customize"
+              },
+              {
                 "id": "company-support",
                 "label_key": "nav.admin.company_support",
                 "path": "/app/admin/company/support",

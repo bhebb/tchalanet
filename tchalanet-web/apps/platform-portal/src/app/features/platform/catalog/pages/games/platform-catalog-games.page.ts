@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,13 +11,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TchPage } from '@tch/api';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import { TchPaginationComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import {
   PlatformCatalogApi,
   CatalogGameView,
@@ -220,8 +228,9 @@ export class EditGameDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchPaginationComponent,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -229,68 +238,61 @@ export class EditGameDialog {
   ],
   templateUrl: './platform-catalog-games.page.html',
 })
-export class PlatformCatalogGamesPage implements OnInit {
+export class PlatformCatalogGamesPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly displayedColumns = ['code', 'name', 'category', 'sortOrder', 'active', 'actions'];
 
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly games = signal<CatalogGameView[]>([]);
-  readonly search = signal('');
-  readonly page = signal(0);
-  readonly totalElements = signal(0);
-  readonly totalPages = signal(1);
-  readonly hasNext = signal(false);
-  readonly hasPrevious = signal(false);
+  readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+  readonly search = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
+  readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), 20));
+
+  readonly games = this.api.listGamesResource(
+    () => ({
+      q: this.search() || undefined,
+      page: this.page(),
+      size: this.size(),
+    }),
+    { suppressShellFeedback: true },
+  );
+  readonly gamesError = resourceErrorVm(this.games, 'platform.catalog.games');
+  readonly gamePage = computed<TchPage<CatalogGameView> | null>(() => {
+    const status = this.games.status();
+    if (status !== 'resolved' && status !== 'local' && status !== 'reloading') return null;
+    return this.games.value() ?? null;
+  });
+  readonly gameRows = computed(() => this.gamePage()?.items ?? []);
+  readonly hasGames = computed(() => this.gameRows().length > 0);
+  readonly totalElements = computed(() => this.gamePage()?.totalElements ?? 0);
+  readonly pageIndex = computed(() => this.gamePage()?.page ?? this.page());
+  readonly pageSize = computed(() => this.gamePage()?.size ?? this.size());
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-  }
-
-  ngOnInit(): void {
-    this.load();
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listGames({ q: this.search() || undefined, page: this.page(), size: 20 }).subscribe({
-      next: p => {
-        this.games.set(p.items);
-        this.totalElements.set(p.totalElements);
-        this.page.set(p.page);
-        this.totalPages.set(p.totalPages || 1);
-        this.hasNext.set(p.hasNext ?? false);
-        this.hasPrevious.set(p.hasPrevious ?? false);
-        this.loading.set(false);
-      },
-      error: (err: unknown) => {
-        this.error.set(
-          (err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.',
-        );
-        this.loading.set(false);
-      },
-    });
+    this.games.reload();
   }
 
   onSearch(v: string): void {
-    this.search.set(v);
-    this.page.set(0);
-    this.load();
+    const value = v.trim();
+    this.navigateList({ q: value || null, page: null });
   }
-  prevPage(): void {
-    if (!this.hasPrevious()) return;
-    this.page.set(this.page() - 1);
-    this.load();
+
+  onPageChange(page: number): void {
+    this.navigateList({ page: page > 0 ? page : null });
   }
-  nextPage(): void {
-    if (!this.hasNext()) return;
-    this.page.set(this.page() + 1);
-    this.load();
+
+  onSizeChange(size: number): void {
+    this.navigateList({ size: size !== 20 ? size : null, page: null });
   }
 
   openCreate(): void {
@@ -343,4 +345,22 @@ export class PlatformCatalogGamesPage implements OnInit {
       },
     });
   }
+
+  private navigateList(params: {
+    readonly q?: string | null;
+    readonly page?: number | null;
+    readonly size?: number | null;
+  }): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+    });
+  }
+}
+
+function numberParam(value: string | null, fallback: number): number {
+  if (value === null || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
 }

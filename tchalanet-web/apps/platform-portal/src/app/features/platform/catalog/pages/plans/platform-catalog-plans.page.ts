@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,12 +10,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import { PlatformCatalogApi, CatalogPlanView, CreatePlanRequest, UpdatePlanRequest } from '../../data-access/platform-catalog-api.service';
 
 @Component({
@@ -207,41 +211,30 @@ export class EditPlanDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
   ],
   templateUrl: './platform-catalog-plans.page.html',
 })
-export class PlatformCatalogPlansPage implements OnInit {
+export class PlatformCatalogPlansPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['code', 'name', 'priceAmount', 'billingPeriod', 'active', 'isDefault', 'actions'];
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly plans = signal<CatalogPlanView[]>([]);
+  readonly plans = this.api.listPlansResource({ suppressShellFeedback: true });
+  readonly plansError = resourceErrorVm(this.plans, 'platform.catalog.plans');
+  readonly planRows = computed(() => this.plans.value() ?? []);
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
-  ngOnInit(): void { this.load(); }
-
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listPlans().subscribe({
-      next: list => { this.plans.set(list); this.loading.set(false); },
-      error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
-        this.loading.set(false);
-      },
-    });
+    this.plans.reload();
   }
 
   openCreate(): void {

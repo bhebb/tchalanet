@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
@@ -8,13 +10,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { TchPage } from '@tch/api';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import { TchPaginationComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import {
   PlatformCatalogApi,
   CatalogDrawChannelView,
@@ -281,8 +289,9 @@ export class EditDrawChannelDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchPaginationComponent,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -290,10 +299,12 @@ export class EditDrawChannelDialog {
   ],
   templateUrl: './platform-catalog-draw-channels.page.html',
 })
-export class PlatformCatalogDrawChannelsPage implements OnInit {
+export class PlatformCatalogDrawChannelsPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly displayedColumns = [
     'code',
@@ -306,63 +317,52 @@ export class PlatformCatalogDrawChannelsPage implements OnInit {
     'actions',
   ];
 
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly channels = signal<CatalogDrawChannelView[]>([]);
-  readonly search = signal('');
-  readonly page = signal(0);
-  readonly totalElements = signal(0);
-  readonly totalPages = signal(1);
-  readonly hasNext = signal(false);
-  readonly hasPrevious = signal(false);
+  readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+  readonly search = computed(() => this.queryParamMap().get('q')?.trim() ?? '');
+  readonly page = computed(() => numberParam(this.queryParamMap().get('page'), 0));
+  readonly size = computed(() => numberParam(this.queryParamMap().get('size'), 20));
+
+  readonly channels = this.api.listDrawChannelsResource(
+    () => ({
+      q: this.search() || undefined,
+      page: this.page(),
+      size: this.size(),
+    }),
+    { suppressShellFeedback: true },
+  );
+  readonly channelsError = resourceErrorVm(this.channels, 'platform.catalog.drawChannels');
+  readonly channelPage = computed<TchPage<CatalogDrawChannelView> | null>(() => {
+    const status = this.channels.status();
+    if (status !== 'resolved' && status !== 'local' && status !== 'reloading') return null;
+    return this.channels.value() ?? null;
+  });
+  readonly channelRows = computed(() => this.channelPage()?.items ?? []);
+  readonly hasChannels = computed(() => this.channelRows().length > 0);
+  readonly totalElements = computed(() => this.channelPage()?.totalElements ?? 0);
+  readonly pageIndex = computed(() => this.channelPage()?.page ?? this.page());
+  readonly pageSize = computed(() => this.channelPage()?.size ?? this.size());
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-  }
-
-  ngOnInit(): void {
-    this.load();
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api
-      .listDrawChannels({ q: this.search() || undefined, page: this.page(), size: 20 })
-      .subscribe({
-        next: p => {
-          this.channels.set(p.items);
-          this.totalElements.set(p.totalElements);
-          this.page.set(p.page);
-          this.totalPages.set(p.totalPages || 1);
-          this.hasNext.set(p.hasNext ?? false);
-          this.hasPrevious.set(p.hasPrevious ?? false);
-          this.loading.set(false);
-        },
-        error: (err: unknown) => {
-          this.error.set(
-            (err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.',
-          );
-          this.loading.set(false);
-        },
-      });
+    this.channels.reload();
   }
 
   onSearch(v: string): void {
-    this.search.set(v);
-    this.page.set(0);
-    this.load();
+    const value = v.trim();
+    this.navigateList({ q: value || null, page: null });
   }
-  prevPage(): void {
-    if (!this.hasPrevious()) return;
-    this.page.set(this.page() - 1);
-    this.load();
+
+  onPageChange(page: number): void {
+    this.navigateList({ page: page > 0 ? page : null });
   }
-  nextPage(): void {
-    if (!this.hasNext()) return;
-    this.page.set(this.page() + 1);
-    this.load();
+
+  onSizeChange(size: number): void {
+    this.navigateList({ size: size !== 20 ? size : null, page: null });
   }
 
   openCreate(): void {
@@ -415,4 +415,22 @@ export class PlatformCatalogDrawChannelsPage implements OnInit {
       },
     });
   }
+
+  private navigateList(params: {
+    readonly q?: string | null;
+    readonly page?: number | null;
+    readonly size?: number | null;
+  }): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+    });
+  }
+}
+
+function numberParam(value: string | null, fallback: number): number {
+  if (value === null || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback;
 }

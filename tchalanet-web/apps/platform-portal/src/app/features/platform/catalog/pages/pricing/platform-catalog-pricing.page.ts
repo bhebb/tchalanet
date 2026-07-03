@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { TchErrorPanel, TchLoading, TchSearchOption, TchSearchSelect } from '@tch/ui/components';
+import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { Observable, map } from 'rxjs';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
@@ -17,6 +17,11 @@ import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 import {
   BetType,
@@ -212,8 +217,8 @@ export class EditPricingDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
@@ -222,7 +227,7 @@ export class EditPricingDialog {
   ],
   templateUrl: './platform-catalog-pricing.page.html',
 })
-export class PlatformCatalogPricingPage implements OnInit {
+export class PlatformCatalogPricingPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -230,9 +235,9 @@ export class PlatformCatalogPricingPage implements OnInit {
   readonly displayedColumns = ['gameCode', 'betType', 'betOption', 'odds', 'tenantId', 'active', 'actions'];
   readonly betTypes = BET_TYPES;
 
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly allRows = signal<CatalogPricingView[]>([]);
+  readonly pricing = this.api.listPricingResource({ suppressShellFeedback: true });
+  readonly pricingError = resourceErrorVm(this.pricing, 'platform.catalog.pricing');
+  readonly allRows = computed(() => this.pricing.value() ?? []);
   readonly gameFilter = signal('');
   readonly betTypeFilter = signal<BetType | ''>('');
 
@@ -246,22 +251,11 @@ export class PlatformCatalogPricingPage implements OnInit {
   });
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
-  ngOnInit(): void { this.load(); }
-
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listPricing().subscribe({
-      next: list => { this.allRows.set(list); this.loading.set(false); },
-      error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
-        this.loading.set(false);
-      },
-    });
+    this.pricing.reload();
   }
 
   onGameFilter(v: string): void { this.gameFilter.set(v); }

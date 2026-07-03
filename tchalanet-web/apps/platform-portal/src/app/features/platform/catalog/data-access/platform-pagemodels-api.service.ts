@@ -11,6 +11,9 @@ export interface PageModelTemplateView {
   name: string;
   label: string;
   description?: string;
+  schema?: unknown;
+  model?: unknown;
+  schemaVersion?: number;
   isDefault: boolean;
   level: 'GLOBAL' | 'TENANT';
   tenantId?: { value: string } | null;
@@ -37,12 +40,24 @@ export class PlatformPageModelsApi {
     return this.backend.get<PageModelTemplateView>(`/platform/page-model-templates/${id}`);
   }
 
+  createTemplate(template: PageModelTemplateView): Observable<PageModelTemplateView> {
+    return this.backend.post<PageModelTemplateView>('/platform/page-model-templates', template);
+  }
+
+  updateTemplate(id: string, template: PageModelTemplateView): Observable<PageModelTemplateView> {
+    return this.backend.put<PageModelTemplateView>(`/platform/page-model-templates/${id}`, template);
+  }
+
   setDefault(id: string): Observable<PageModelTemplateView> {
     return this.backend.post<PageModelTemplateView>(`/platform/page-model-templates/${id}/default`, {});
   }
 
   duplicate(id: string): Observable<PageModelTemplateView> {
     return this.backend.post<PageModelTemplateView>(`/platform/page-model-templates/${id}/duplicate`, {});
+  }
+
+  reset(id: string): Observable<PageModelTemplateView> {
+    return this.backend.post<PageModelTemplateView>(`/platform/page-model-templates/${id}/reset`, {});
   }
 
   deleteTemplate(id: string): Observable<void> {

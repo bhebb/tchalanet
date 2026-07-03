@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchPage } from '@tch/api';
+import { Injectable, ResourceRef, inject } from '@angular/core';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 // ─── Games ─────────────────────────────────────────────────────────────────
@@ -226,6 +226,65 @@ export interface UpdateDrawChannelRequest {
   defaultSource?: string | null;
 }
 
+export type CatalogId = string | { value: string };
+
+export interface CatalogDrawChannelGameView {
+  id: CatalogId;
+  drawChannelId: CatalogId;
+  tenantGameId: CatalogId;
+  enabled: boolean;
+  flags: unknown;
+}
+
+export interface CreateDrawChannelGameRequest {
+  tenantGameId: string;
+  enabled: boolean;
+  flags?: unknown;
+}
+
+export interface UpdateDrawChannelGameRequest {
+  enabled?: boolean | null;
+  flags?: unknown;
+}
+
+export interface CatalogResultSlotCalendarOverrideView {
+  id: CatalogId;
+  resultSlotId: CatalogId;
+  slotLocalDate: string | null;
+  recurringMd: string | null;
+  available: boolean;
+  reasonCode: string;
+  reasonLabel: string | null;
+}
+
+export interface CreateResultSlotCalendarOverrideRequest {
+  slotLocalDate?: string | null;
+  recurringMd?: string | null;
+  available: boolean;
+  reasonCode: string;
+  reasonLabel?: string | null;
+}
+
+export interface UpdateResultSlotCalendarOverrideRequest {
+  available: boolean;
+  reasonCode: string;
+  reasonLabel?: string | null;
+}
+
+export interface CatalogGameListParams {
+  readonly active?: boolean;
+  readonly q?: string;
+  readonly page?: number;
+  readonly size?: number;
+}
+
+export interface CatalogDrawChannelListParams {
+  readonly q?: string;
+  readonly active?: boolean;
+  readonly page?: number;
+  readonly size?: number;
+}
+
 // ─── Service ───────────────────────────────────────────────────────────────
 @Injectable({ providedIn: 'root' })
 export class PlatformCatalogApi {
@@ -233,17 +292,26 @@ export class PlatformCatalogApi {
 
   // Games
   listGames(
-    params: { active?: boolean; q?: string; page?: number; size?: number } = {},
+    params: CatalogGameListParams = {},
+    options?: TchRequestOptions,
   ): Observable<TchPage<CatalogGameView>> {
-    const q = new URLSearchParams();
-    if (params.active != null) q.set('active', String(params.active));
-    if (params.q) q.set('q', params.q);
-    if (params.page != null) q.set('page', String(params.page));
-    if (params.size != null) q.set('size', String(params.size));
-    const qs = q.toString();
-    return this.backend.get<TchPage<CatalogGameView>>(
-      `/platform/catalog/games${qs ? '?' + qs : ''}`,
-    );
+    return this.backend.getPage<CatalogGameView>('/platform/catalog/games', {
+      ...options,
+      params: catalogGameListQueryParams(params),
+    });
+  }
+
+  listGamesResource(
+    params: () => CatalogGameListParams,
+    options?: TchRequestOptions,
+  ): ResourceRef<TchPage<CatalogGameView> | undefined> {
+    return this.backend.getPageResource<CatalogGameView>(() => ({
+      path: '/platform/catalog/games',
+      options: {
+        ...options,
+        params: catalogGameListQueryParams(params()),
+      },
+    }));
   }
 
   createGame(req: CreateGameRequest): Observable<CatalogGameView> {
@@ -267,6 +335,15 @@ export class PlatformCatalogApi {
     return this.backend.get<CatalogResultSlotView[]>('/platform/result-slots/active');
   }
 
+  listResultSlotsResource(
+    options?: TchRequestOptions,
+  ): ResourceRef<CatalogResultSlotView[] | undefined> {
+    return this.backend.getResource<CatalogResultSlotView[]>(() => ({
+      path: '/platform/result-slots/active',
+      options,
+    }));
+  }
+
   createResultSlot(req: CreateResultSlotRequest): Observable<CatalogResultSlotView> {
     return this.backend.post<CatalogResultSlotView>('/platform/result-slots', req);
   }
@@ -286,6 +363,13 @@ export class PlatformCatalogApi {
   // Plans
   listPlans(): Observable<CatalogPlanView[]> {
     return this.backend.get<CatalogPlanView[]>('/platform/plans');
+  }
+
+  listPlansResource(options?: TchRequestOptions): ResourceRef<CatalogPlanView[] | undefined> {
+    return this.backend.getResource<CatalogPlanView[]>(() => ({
+      path: '/platform/plans',
+      options,
+    }));
   }
 
   createPlan(req: CreatePlanRequest): Observable<CatalogPlanView> {
@@ -309,6 +393,13 @@ export class PlatformCatalogApi {
     return this.backend.get<CatalogThemeView[]>('/platform/catalog/theme-presets');
   }
 
+  listThemesResource(options?: TchRequestOptions): ResourceRef<CatalogThemeView[] | undefined> {
+    return this.backend.getResource<CatalogThemeView[]>(() => ({
+      path: '/platform/catalog/theme-presets',
+      options,
+    }));
+  }
+
   createTheme(req: CreateThemeRequest): Observable<CatalogThemeView> {
     return this.backend.post<CatalogThemeView>('/platform/catalog/theme-presets', req);
   }
@@ -323,17 +414,26 @@ export class PlatformCatalogApi {
 
   // Draw Channels
   listDrawChannels(
-    params: { q?: string; active?: boolean; page?: number; size?: number } = {},
+    params: CatalogDrawChannelListParams = {},
+    options?: TchRequestOptions,
   ): Observable<TchPage<CatalogDrawChannelView>> {
-    const q = new URLSearchParams();
-    if (params.q) q.set('nameContains', params.q);
-    if (params.active != null) q.set('active', String(params.active));
-    if (params.page != null) q.set('page', String(params.page));
-    if (params.size != null) q.set('size', String(params.size));
-    const qs = q.toString();
-    return this.backend.get<TchPage<CatalogDrawChannelView>>(
-      `/platform/draw-channels${qs ? '?' + qs : ''}`,
-    );
+    return this.backend.getPage<CatalogDrawChannelView>('/platform/draw-channels', {
+      ...options,
+      params: catalogDrawChannelListQueryParams(params),
+    });
+  }
+
+  listDrawChannelsResource(
+    params: () => CatalogDrawChannelListParams,
+    options?: TchRequestOptions,
+  ): ResourceRef<TchPage<CatalogDrawChannelView> | undefined> {
+    return this.backend.getPageResource<CatalogDrawChannelView>(() => ({
+      path: '/platform/draw-channels',
+      options: {
+        ...options,
+        params: catalogDrawChannelListQueryParams(params()),
+      },
+    }));
   }
 
   createDrawChannel(req: CreateDrawChannelRequest): Observable<CatalogDrawChannelView> {
@@ -352,9 +452,106 @@ export class PlatformCatalogApi {
     return this.backend.delete<void>(`/platform/draw-channels/${id}`);
   }
 
+  listDrawChannelGames(channelId: string): Observable<CatalogDrawChannelGameView[]> {
+    return this.backend.get<CatalogDrawChannelGameView[]>(`/platform/draw-channels/${channelId}/games`);
+  }
+
+  listDrawChannelGamesResource(
+    channelId: () => string | undefined,
+    options?: TchRequestOptions,
+  ): ResourceRef<CatalogDrawChannelGameView[] | undefined> {
+    return this.backend.getResource<CatalogDrawChannelGameView[]>(() => {
+      const id = channelId();
+      return id
+        ? {
+            path: `/platform/draw-channels/${id}/games`,
+            options,
+          }
+        : undefined;
+    });
+  }
+
+  upsertDrawChannelGame(
+    channelId: string,
+    req: CreateDrawChannelGameRequest,
+  ): Observable<CatalogDrawChannelGameView> {
+    return this.backend.post<CatalogDrawChannelGameView>(
+      `/platform/draw-channels/${channelId}/games`,
+      req,
+    );
+  }
+
+  updateDrawChannelGame(
+    channelId: string,
+    tenantGameId: string,
+    req: UpdateDrawChannelGameRequest,
+  ): Observable<CatalogDrawChannelGameView> {
+    return this.backend.put<CatalogDrawChannelGameView>(
+      `/platform/draw-channels/${channelId}/games/${tenantGameId}`,
+      req,
+    );
+  }
+
+  deleteDrawChannelGame(channelId: string, tenantGameId: string): Observable<void> {
+    return this.backend.delete<void>(`/platform/draw-channels/${channelId}/games/${tenantGameId}`);
+  }
+
+  listResultSlotCalendarOverrides(slotId: string): Observable<CatalogResultSlotCalendarOverrideView[]> {
+    return this.backend.get<CatalogResultSlotCalendarOverrideView[]>(
+      `/platform/result-slots/${slotId}/calendar`,
+    );
+  }
+
+  listResultSlotCalendarOverridesResource(
+    slotId: () => string | undefined,
+    options?: TchRequestOptions,
+  ): ResourceRef<CatalogResultSlotCalendarOverrideView[] | undefined> {
+    return this.backend.getResource<CatalogResultSlotCalendarOverrideView[]>(() => {
+      const id = slotId();
+      return id
+        ? {
+            path: `/platform/result-slots/${id}/calendar`,
+            options,
+          }
+        : undefined;
+    });
+  }
+
+  createResultSlotCalendarOverride(
+    slotId: string,
+    req: CreateResultSlotCalendarOverrideRequest,
+  ): Observable<CatalogResultSlotCalendarOverrideView> {
+    return this.backend.post<CatalogResultSlotCalendarOverrideView>(
+      `/platform/result-slots/${slotId}/calendar`,
+      req,
+    );
+  }
+
+  updateResultSlotCalendarOverride(
+    slotId: string,
+    overrideId: string,
+    req: UpdateResultSlotCalendarOverrideRequest,
+  ): Observable<CatalogResultSlotCalendarOverrideView> {
+    return this.backend.put<CatalogResultSlotCalendarOverrideView>(
+      `/platform/result-slots/${slotId}/calendar/${overrideId}`,
+      req,
+    );
+  }
+
+  deleteResultSlotCalendarOverride(slotId: string, overrideId: string): Observable<void> {
+    return this.backend.delete<void>(`/platform/result-slots/${slotId}/calendar/${overrideId}`);
+  }
+
   // Pricing
   listPricing(): Observable<CatalogPricingView[]> {
     return this.backend.get<CatalogPricingView[]>('/platform/pricing');
+  }
+
+  listPricingResource(options?: TchRequestOptions): ResourceRef<CatalogPricingView[] | undefined> {
+    return this.backend.getResource<CatalogPricingView[]>(() => ({
+      path: '/platform/pricing',
+      options,
+    }));
   }
 
   createPricing(req: CreatePricingRequest): Observable<CatalogPricingView> {
@@ -368,4 +565,22 @@ export class PlatformCatalogApi {
   deletePricing(id: string): Observable<void> {
     return this.backend.delete<void>(`/platform/pricing/${id}`);
   }
+}
+
+function catalogGameListQueryParams(params: CatalogGameListParams): Record<string, string> {
+  return {
+    page: String(params.page ?? 0),
+    size: String(params.size ?? 20),
+    ...(params.active != null ? { active: String(params.active) } : {}),
+    ...(params.q ? { q: params.q } : {}),
+  };
+}
+
+function catalogDrawChannelListQueryParams(params: CatalogDrawChannelListParams): Record<string, string> {
+  return {
+    page: String(params.page ?? 0),
+    size: String(params.size ?? 20),
+    ...(params.q ? { nameContains: params.q } : {}),
+    ...(params.active != null ? { active: String(params.active) } : {}),
+  };
 }

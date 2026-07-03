@@ -17,13 +17,10 @@ export const platformCatalogRoutes: Route[] = [
   },
   {
     path: 'draw-channel-games',
-    data: {
-      titleKey: 'platform.nav.drawChannelGames',
-      descriptionKey: 'platform.placeholder.descriptions.drawChannelGames',
-      icon: 'link',
-    },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/draw-channel-games/platform-catalog-draw-channel-games.page').then(
+        m => m.PlatformCatalogDrawChannelGamesPage,
+      ),
   },
   {
     path: 'result-slots',
@@ -34,13 +31,10 @@ export const platformCatalogRoutes: Route[] = [
   },
   {
     path: 'result-slot-calendars',
-    data: {
-      titleKey: 'platform.nav.resultSlotCalendars',
-      descriptionKey: 'platform.placeholder.descriptions.resultSlotCalendars',
-      icon: 'calendar_month',
-    },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('./pages/result-slot-calendars/platform-catalog-result-slot-calendars.page').then(
+        m => m.PlatformCatalogResultSlotCalendarsPage,
+      ),
   },
   {
     path: 'plans',
