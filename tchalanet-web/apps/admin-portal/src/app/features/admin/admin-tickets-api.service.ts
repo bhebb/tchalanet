@@ -7,9 +7,7 @@ export type TicketStatus =
   | 'APPROVED'
   | 'REJECTED'
   | 'CANCELLED'
-  | 'VOIDED'
-  | 'PAID'
-  | 'EXPIRED';
+  | 'VOIDED';
 
 export interface TicketRowView {
   readonly id: string;

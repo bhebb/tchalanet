@@ -11,6 +11,10 @@ import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch
 
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import { PosTicketDetailsView } from '../../data-access/pos-sale.models';
+import {
+  ticketStatusLabelKey,
+  ticketStatusTone,
+} from '../../../../admin/admin-ticket-status.util';
 
 @Component({
   selector: 'tch-pos-ticket-detail-page',
@@ -86,41 +90,11 @@ export class PosTicketDetailPage implements OnInit {
   }
 
   statusLabel(status: string): string {
-    switch (status) {
-      case 'APPROVED':
-        return 'Approuvé';
-      case 'PENDING_APPROVAL':
-        return 'En approbation';
-      case 'REJECTED':
-        return 'Rejeté';
-      case 'PAID':
-        return 'Payé';
-      case 'CANCELLED':
-        return 'Annulé';
-      case 'VOIDED':
-        return 'Invalidé';
-      case 'EXPIRED':
-        return 'Expiré';
-      default:
-        return status || 'Statut inconnu';
-    }
+    return this.translate.instant(ticketStatusLabelKey(status));
   }
 
   statusTone(status: string): AdminStatusTone {
-    switch (status) {
-      case 'APPROVED':
-      case 'PAID':
-        return 'success';
-      case 'PENDING_APPROVAL':
-      case 'EXPIRED':
-        return 'warning';
-      case 'REJECTED':
-      case 'CANCELLED':
-      case 'VOIDED':
-        return 'danger';
-      default:
-        return 'neutral';
-    }
+    return ticketStatusTone(status);
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

@@ -126,5 +126,82 @@
     "sessions": "Koneksyon",
     "language": "Lang",
     "profile": "Pwofil"
+  },
+  "admin": {
+    "tickets": {
+      "common": {
+        "ticketCountSuffix": "tikè"
+      },
+      "status": {
+        "pendingApproval": "Ap tann apwobasyon",
+        "approved": "Apwouve",
+        "rejected": "Rejte",
+        "cancelled": "Anile",
+        "voided": "Invalid",
+        "unknown": "Estati enkoni"
+      },
+      "list": {
+        "title": "Tikè",
+        "description": "Istwa tikè tenant lan.",
+        "loading": "Chajman tikè yo...",
+        "emptyTitle": "Pa gen tikè",
+        "emptyMessage": "Pa gen tikè pou kritè sa yo.",
+        "filters": {
+          "code": "Kòd",
+          "status": "Estati",
+          "allStatuses": "Tout",
+          "from": "Soti",
+          "to": "Jiska",
+          "sort": "Triye"
+        },
+        "sort": {
+          "createdDesc": "Pi resan",
+          "createdAsc": "Pi ansyen",
+          "amountDesc": "Montan desandan",
+          "amountAsc": "Montan asandan",
+          "codeAsc": "Kòd A-Z",
+          "codeDesc": "Kòd Z-A"
+        },
+        "actions": {
+          "sell": "Vann yon tikè"
+        },
+        "columns": {
+          "code": "Kòd",
+          "status": "Estati",
+          "channel": "Kanal",
+          "draw": "Tiraj",
+          "amount": "Montan",
+          "placedAt": "Emèt le"
+        }
+      },
+      "overview": {
+        "title": "Apèsi Tikè",
+        "description": "Rezime operasyonèl vant jounen an.",
+        "loading": "Chajman apèsi a...",
+        "kpisAria": "Endikatè tikè jounen an",
+        "kpis": {
+          "soldTickets": "Tikè vann",
+          "grossSales": "Montan vann",
+          "averageTicket": "Mwayèn tikè",
+          "cancelled": "Anile"
+        },
+        "drawSales": {
+          "title": "Vant pa tiraj jodi a",
+          "emptyTitle": "Pa gen vant pa tiraj",
+          "emptyMessage": "Vant projetées yo ap parèt isit la."
+        },
+        "recent": {
+          "title": "Dènye tikè vann",
+          "viewAll": "Gade tout tikè",
+          "emptyTitle": "Pa gen tikè resan",
+          "emptyMessage": "Dènye tikè vann yo ap parèt isit la."
+        },
+        "topTerminals": {
+          "title": "Pi bon terminal vandè jodi a",
+          "emptyTitle": "Pa gen terminal aktif",
+          "emptyMessage": "Terminal yo ap parèt isit la apre analytics."
+        }
+      }
+    }
   }
 }

@@ -123,5 +123,82 @@
     "connexion": "Connexion",
     "language": "Langue",
     "profile": "Profil"
+  },
+  "admin": {
+    "tickets": {
+      "common": {
+        "ticketCountSuffix": "tickets"
+      },
+      "status": {
+        "pendingApproval": "En approbation",
+        "approved": "Approuvé",
+        "rejected": "Rejeté",
+        "cancelled": "Annulé",
+        "voided": "Invalidé",
+        "unknown": "Statut inconnu"
+      },
+      "list": {
+        "title": "Tickets",
+        "description": "Historique des billets du tenant.",
+        "loading": "Chargement des tickets...",
+        "emptyTitle": "Aucun billet",
+        "emptyMessage": "Aucun billet trouvé pour ces critères.",
+        "filters": {
+          "code": "Code",
+          "status": "Statut",
+          "allStatuses": "Tous",
+          "from": "Du",
+          "to": "Au",
+          "sort": "Tri"
+        },
+        "sort": {
+          "createdDesc": "Plus récents",
+          "createdAsc": "Plus anciens",
+          "amountDesc": "Montant décroissant",
+          "amountAsc": "Montant croissant",
+          "codeAsc": "Code A-Z",
+          "codeDesc": "Code Z-A"
+        },
+        "actions": {
+          "sell": "Vendre un billet"
+        },
+        "columns": {
+          "code": "Code",
+          "status": "Statut",
+          "channel": "Canal",
+          "draw": "Tirage",
+          "amount": "Montant",
+          "placedAt": "Émis le"
+        }
+      },
+      "overview": {
+        "title": "Vue d'ensemble Tickets",
+        "description": "Synthèse opérationnelle des ventes du jour.",
+        "loading": "Chargement de la vue d'ensemble...",
+        "kpisAria": "Indicateurs tickets du jour",
+        "kpis": {
+          "soldTickets": "Tickets vendus",
+          "grossSales": "Montant vendu",
+          "averageTicket": "Ticket moyen",
+          "cancelled": "Annulés"
+        },
+        "drawSales": {
+          "title": "Ventes par tirage aujourd'hui",
+          "emptyTitle": "Aucune vente par tirage",
+          "emptyMessage": "Les ventes projetées apparaîtront ici."
+        },
+        "recent": {
+          "title": "Derniers tickets vendus",
+          "viewAll": "Voir tous les tickets",
+          "emptyTitle": "Aucun ticket récent",
+          "emptyMessage": "Les derniers tickets vendus apparaîtront ici."
+        },
+        "topTerminals": {
+          "title": "Top terminaux vendeurs aujourd'hui",
+          "emptyTitle": "Aucun terminal actif",
+          "emptyMessage": "Les terminaux apparaîtront ici après projection analytics."
+        }
+      }
+    }
   }
 }
