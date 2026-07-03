@@ -6,7 +6,7 @@ import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer
 import { AUTH_CLIENT } from './auth-client';
 import { UserRole, UserSession } from './auth.types';
 
-const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
+const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
 const AUTH_OPERATION_TIMEOUT_MS = 15_000;
 
 @Injectable({ providedIn: 'root' })
@@ -169,7 +169,9 @@ function normalizeRoles(roles: readonly string[] | undefined, space?: string | n
     .map(role => role.toUpperCase())
     .map(role => {
       if (role === 'ROLE_SUPER_ADMIN' || role === 'PLATFORM_ADMIN') return 'SUPER_ADMIN';
-      if (role === 'ROLE_TENANT_ADMIN' || role === 'TENANT_OWNER') return 'TENANT_ADMIN';
+      if (role === 'ROLE_TENANT_OWNER') return 'TENANT_OWNER';
+      if (role === 'ROLE_TENANT_ADMIN') return 'TENANT_ADMIN';
+      if (role === 'TENANT_OWNER') return 'TENANT_OWNER';
       if (role === 'ROLE_CASHIER' || role === 'OPERATOR' || role === 'ACTOR_SELLER_TERMINAL') return 'CASHIER';
       return role;
     })
@@ -177,7 +179,7 @@ function normalizeRoles(roles: readonly string[] | undefined, space?: string | n
 
   const rolesFromSpace: UserRole[] = [];
   if (space === 'PLATFORM') rolesFromSpace.push('SUPER_ADMIN');
-  if (space === 'ADMIN') rolesFromSpace.push('TENANT_ADMIN');
+  if (space === 'ADMIN' && !normalized.includes('TENANT_OWNER')) rolesFromSpace.push('TENANT_ADMIN');
   if (space === 'CASHIER') rolesFromSpace.push('CASHIER');
 
   return Array.from(new Set([...normalized, ...rolesFromSpace]));

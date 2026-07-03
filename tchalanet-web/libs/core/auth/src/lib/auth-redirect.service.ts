@@ -45,7 +45,7 @@ export class AuthRedirectService {
     if (session.roles.includes('SUPER_ADMIN')) {
       return '/app/platform';
     }
-    if (session.roles.includes('TENANT_ADMIN')) {
+    if (session.roles.includes('TENANT_OWNER') || session.roles.includes('TENANT_ADMIN')) {
       return '/app/admin';
     }
 
@@ -70,7 +70,7 @@ export class AuthRedirectService {
     if (session.roles.includes('SUPER_ADMIN')) {
       return 'platform-portal';
     }
-    if (session.roles.includes('TENANT_ADMIN')) {
+    if (session.roles.includes('TENANT_OWNER') || session.roles.includes('TENANT_ADMIN')) {
       return 'admin-portal';
     }
 

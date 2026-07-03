@@ -89,6 +89,22 @@ describe('AuthSessionService', () => {
     expect(session.entryRoute).toBe('/app/platform');
   });
 
+  it('preserves tenant owner as a distinct role', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    runtime.initialize.mockReturnValue(of({
+      ...bootstrap(),
+      entitlements: {
+        roles: ['TENANT_OWNER'],
+        permissions: [],
+      },
+    } satisfies RuntimeBootstrapResponse));
+
+    const session = await TestBed.inject(AuthSessionService).refreshSession();
+
+    expect(session.roles).toEqual(['TENANT_OWNER']);
+  });
+
   it('exposes normalized permissions from private runtime entitlements', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
     vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);

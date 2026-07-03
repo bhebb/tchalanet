@@ -1,4 +1,4 @@
-export type UserRole = 'CASHIER' | 'TENANT_ADMIN' | 'SUPER_ADMIN';
+export type UserRole = 'CASHIER' | 'TENANT_OWNER' | 'TENANT_ADMIN' | 'SUPER_ADMIN';
 
 export interface UserSession {
   readonly authenticated: boolean;
