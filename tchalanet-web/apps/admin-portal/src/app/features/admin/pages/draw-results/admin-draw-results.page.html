@@ -27,21 +27,18 @@
         <mat-form-field appearance="outline">
           <mat-label>Statut</mat-label>
           <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
-            <mat-option value="">Tous les statuts</mat-option>
-            <mat-option value="PROVISIONAL">Provisoire</mat-option>
-            <mat-option value="CONFIRMED">Confirmé</mat-option>
-            <mat-option value="OVERRIDDEN">Remplacé</mat-option>
-            <mat-option value="ERROR">Erreur</mat-option>
+            @for (opt of statusOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Qualité</mat-label>
           <mat-select [value]="qualityFilter()" (selectionChange)="onQualityFilter($event.value)">
-            <mat-option value="">Toutes qualités</mat-option>
-            <mat-option value="COMPLETE">Complet</mat-option>
-            <mat-option value="SUSPECT">À vérifier</mat-option>
-            <mat-option value="INVALID">Invalide</mat-option>
+            @for (opt of qualityOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
           </mat-select>
         </mat-form-field>
 

@@ -12,6 +12,9 @@ import {
   ConsoleEntityDetailComponent,
   ConsoleFact,
   ConsoleFactsComponent,
+  consoleDrawResultQualityLabel,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
 } from '@tch/web/console';
 
 import {
@@ -164,28 +167,11 @@ export class AdminDrawResultDetailPage implements OnInit {
   }
 
   statusLabel(status: DrawResultStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Confirmé';
-      case 'PROVISIONAL': return 'Provisoire';
-      case 'OVERRIDDEN': return 'Remplacé';
-      case 'ERROR': return 'Erreur';
-      case 'APPLIED': return 'Appliqué';
-      case 'CORRECTED': return 'Corrigé';
-      case 'VOIDED': return 'Annulé';
-      case 'PENDING': return 'En attente';
-    }
+    return consoleDrawResultStatusLabel(status);
   }
 
   qualityLabel(quality: DrawResultQuality): string {
-    switch (quality) {
-      case 'COMPLETE': return 'Complet';
-      case 'SUSPECT': return 'À vérifier';
-      case 'INVALID': return 'Invalide';
-      case 'OFFICIAL': return 'Officiel';
-      case 'MANUAL': return 'Manuel';
-      case 'ESTIMATED': return 'Estimé';
-      case 'UNKNOWN': return 'Inconnu';
-    }
+    return consoleDrawResultQualityLabel(quality);
   }
 
   onDetailAction(event: ConsoleEntityDetailActionEvent): void {
@@ -202,16 +188,7 @@ export class AdminDrawResultDetailPage implements OnInit {
   }
 
   statusTone(status: DrawResultStatus): AdminStatusTone {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'APPLIED': return 'success';
-      case 'PROVISIONAL':
-      case 'CORRECTED': return 'warning';
-      case 'ERROR':
-      case 'VOIDED': return 'danger';
-      case 'PENDING': return 'neutral';
-      case 'OVERRIDDEN': return 'warning';
-    }
+    return consoleDrawResultStatusTone(status);
   }
 
   private setError(title: string, message: string): void {

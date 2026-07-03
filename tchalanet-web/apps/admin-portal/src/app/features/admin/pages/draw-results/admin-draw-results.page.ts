@@ -22,6 +22,10 @@ import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
   ConsoleDrawResultsTableComponent,
+  consoleDrawResultQualityLabel,
+  consoleDrawResultQualityTone,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
 } from '@tch/web/console';
 import {
   AdminDrawResultsApi,
@@ -35,6 +39,21 @@ import {
   generatedDrawTenantDateTimeLabel,
   generatedDrawTimezoneShortLabel,
 } from '../../draws/data-access/admin-generated-draws.models';
+
+const RESULT_STATUS_OPTIONS: Array<{ value: DrawResultStatus | ''; label: string }> = [
+  { value: '', label: 'Tous les statuts' },
+  { value: 'PROVISIONAL', label: consoleDrawResultStatusLabel('PROVISIONAL') },
+  { value: 'CONFIRMED', label: consoleDrawResultStatusLabel('CONFIRMED') },
+  { value: 'OVERRIDDEN', label: consoleDrawResultStatusLabel('OVERRIDDEN') },
+  { value: 'ERROR', label: consoleDrawResultStatusLabel('ERROR') },
+];
+
+const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: string }> = [
+  { value: '', label: 'Toutes qualités' },
+  { value: 'COMPLETE', label: consoleDrawResultQualityLabel('COMPLETE') },
+  { value: 'SUSPECT', label: consoleDrawResultQualityLabel('SUSPECT') },
+  { value: 'INVALID', label: consoleDrawResultQualityLabel('INVALID') },
+];
 
 @Component({
   selector: 'tch-admin-draw-results-page',
@@ -79,6 +98,8 @@ export class AdminDrawResultsPage implements OnInit {
   readonly toFilter = signal('');
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
+  readonly statusOptions = RESULT_STATUS_OPTIONS;
+  readonly qualityOptions = RESULT_QUALITY_OPTIONS;
   readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
     (this.page()?.items ?? []).map(row => this.toConsoleRow(row)),
   );
@@ -161,52 +182,19 @@ export class AdminDrawResultsPage implements OnInit {
   }
 
   statusTone(status: DrawResultStatus): AdminStatusTone {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'APPLIED': return 'success';
-      case 'PROVISIONAL':
-      case 'CORRECTED': return 'warning';
-      case 'ERROR':
-      case 'VOIDED': return 'danger';
-      default: return 'neutral';
-    }
+    return consoleDrawResultStatusTone(status);
   }
 
   qualityTone(quality: DrawResultQuality): AdminStatusTone {
-    switch (quality) {
-      case 'COMPLETE':
-      case 'OFFICIAL': return 'success';
-      case 'SUSPECT':
-      case 'MANUAL': return 'warning';
-      case 'ESTIMATED': return 'warning';
-      case 'INVALID': return 'danger';
-      default: return 'neutral';
-    }
+    return consoleDrawResultQualityTone(quality);
   }
 
   statusLabel(status: DrawResultStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Confirmé';
-      case 'PROVISIONAL': return 'Provisoire';
-      case 'OVERRIDDEN': return 'Remplacé';
-      case 'ERROR': return 'Erreur';
-      case 'APPLIED': return 'Appliqué';
-      case 'CORRECTED': return 'Corrigé';
-      case 'VOIDED': return 'Annulé';
-      case 'PENDING': return 'En attente';
-    }
+    return consoleDrawResultStatusLabel(status);
   }
 
   qualityLabel(quality: DrawResultQuality): string {
-    switch (quality) {
-      case 'COMPLETE': return 'Complet';
-      case 'SUSPECT': return 'À vérifier';
-      case 'INVALID': return 'Invalide';
-      case 'OFFICIAL': return 'Officiel';
-      case 'MANUAL': return 'Manuel';
-      case 'ESTIMATED': return 'Estimé';
-      case 'UNKNOWN': return 'Inconnu';
-    }
+    return consoleDrawResultQualityLabel(quality);
   }
 
   sourceLabel(row: DrawResultView): string {

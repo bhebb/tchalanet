@@ -7,6 +7,14 @@ import {
   ConsoleDrawSelectionEvent,
   ConsoleDrawsTableComponent,
   ConsoleRowAction,
+  consoleDrawLifecycleActionIcon,
+  consoleDrawLifecycleActionLabel,
+  consoleDrawPublicationStatusLabel,
+  consoleDrawPublicationStatusTone,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
+  consoleDrawSalesStatusLabel,
+  consoleDrawSalesStatusTone,
 } from '@tch/web/console';
 import {
   DrawLifecycleAction,
@@ -175,25 +183,11 @@ export class GeneratedDrawsTableComponent {
   }
 
   lifecycleLabel(action: DrawLifecycleAction): string {
-    switch (action) {
-      case 'open':    return 'Ouvrir la vente';
-      case 'close':   return 'Fermer la vente';
-      case 'lock':    return 'Verrouiller';
-      case 'unlock':  return 'Déverrouiller';
-      case 'cancel':  return 'Annuler';
-      case 'archive': return 'Archiver';
-    }
+    return consoleDrawLifecycleActionLabel(action);
   }
 
   lifecycleIcon(action: DrawLifecycleAction): string {
-    switch (action) {
-      case 'open':    return 'play_arrow';
-      case 'close':   return 'stop';
-      case 'lock':    return 'lock';
-      case 'unlock':  return 'lock_open';
-      case 'cancel':  return 'cancel';
-      case 'archive': return 'inventory_2';
-    }
+    return consoleDrawLifecycleActionIcon(action);
   }
 
   onLifecycleAction(draw: GeneratedDrawView, action: DrawLifecycleAction): void {
@@ -299,17 +293,17 @@ export class GeneratedDrawsTableComponent {
       scheduledTimeLabel: this.scheduledTime(draw),
       countdownLabel: this.salesCountdown(draw),
       countdownTone: this.isClosingSoon(draw) ? 'warning' : 'default',
-      statusLabel: draw.salesStatus,
-      statusTone: this.salesTone(draw.salesStatus),
-      resultLabel: draw.resultStatus,
-      resultTone: this.resultTone(draw.resultStatus),
+      statusLabel: consoleDrawSalesStatusLabel(draw.salesStatus),
+      statusTone: consoleDrawSalesStatusTone(draw.salesStatus),
+      resultLabel: consoleDrawResultStatusLabel(draw.resultStatus),
+      resultTone: consoleDrawResultStatusTone(draw.resultStatus),
       resultNumbers: draw.numbers?.map(n => String(n)) ?? [],
       resultHint: this.resultHint(draw),
       modeLabel: draw.resultMode,
       publicationLabel: draw.publicationStatus && draw.publicationStatus !== 'NOT_PUBLISHED'
-        ? draw.publicationStatus
+        ? consoleDrawPublicationStatusLabel(draw.publicationStatus)
         : undefined,
-      publicationTone: draw.publicationStatus ? this.publicationTone(draw.publicationStatus) : 'neutral',
+      publicationTone: consoleDrawPublicationStatusTone(draw.publicationStatus),
       pending: this.isPending(draw),
       actions: this.consoleActions(draw),
     };
@@ -352,30 +346,4 @@ export class GeneratedDrawsTableComponent {
     return undefined;
   }
 
-  private salesTone(status: string) {
-    switch (status) {
-      case 'OPEN': return 'success';
-      case 'LOCKED': return 'warning';
-      case 'CANCELLED': return 'danger';
-      default: return 'neutral';
-    }
-  }
-
-  private resultTone(status: string) {
-    switch (status) {
-      case 'CONFIRMED': return 'success';
-      case 'PROVISIONAL': return 'warning';
-      case 'MISSING':
-      case 'SOURCE_ERROR': return 'danger';
-      default: return 'neutral';
-    }
-  }
-
-  private publicationTone(status: string) {
-    switch (status) {
-      case 'PUBLISHED': return 'success';
-      case 'PROVISIONAL': return 'warning';
-      default: return 'neutral';
-    }
-  }
 }

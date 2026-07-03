@@ -30,6 +30,12 @@ import {
   ConsoleDrawSelectionEvent,
   ConsoleDrawsTableComponent,
   ConsoleRowAction,
+  consoleDrawLifecycleActionIcon,
+  consoleDrawLifecycleActionLabel,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
+  consoleDrawStatusLabel,
+  consoleDrawStatusTone,
 } from '@tch/web/console';
 import {
   PlatformOpsApi,
@@ -54,17 +60,6 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-acc
 import { Observable, map } from 'rxjs';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function toneForStatus(status: string): AdminStatusTone {
-  switch (status) {
-    case 'OPEN': return 'success';
-    case 'RESULTED': case 'SETTLED': return 'info';
-    case 'LOCKED': return 'warning';
-    case 'CANCELLED': return 'danger';
-    case 'ARCHIVED': return 'neutral';
-    default: return 'neutral';
-  }
-}
 
 type DrawActionItem =
   | { kind: 'cancel' }
@@ -102,39 +97,19 @@ function relativeIsoDate(offsetDays: number): string {
 
 const MAX_BULK_DRAW_ACTIONS = 50;
 
-const ACTION_ICON: Record<string, string> = {
-  cancel: 'cancel',
-  lock: 'lock',
-  unlock: 'lock_open',
-  reschedule: 'schedule',
-  settle: 'paid',
-  archive: 'inventory_2',
-  correct: 'edit',
-};
-
 const STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
-  { value: 'SCHEDULED', label: 'Planifié' },
-  { value: 'OPEN', label: 'Ouvert' },
-  { value: 'LOCKED', label: 'Verrouillé' },
-  { value: 'CLOSED', label: 'Fermé' },
-  { value: 'RESULTED', label: 'Résultat appliqué' },
-  { value: 'SETTLED', label: 'Réglé' },
-  { value: 'CANCELLED', label: 'Annulé' },
-  { value: 'ARCHIVED', label: 'Archivé' },
+  { value: 'SCHEDULED', label: consoleDrawStatusLabel('SCHEDULED') },
+  { value: 'OPEN', label: consoleDrawStatusLabel('OPEN') },
+  { value: 'LOCKED', label: consoleDrawStatusLabel('LOCKED') },
+  { value: 'CLOSED', label: consoleDrawStatusLabel('CLOSED') },
+  { value: 'RESULTED', label: consoleDrawStatusLabel('RESULTED') },
+  { value: 'SETTLED', label: consoleDrawStatusLabel('SETTLED') },
+  { value: 'CANCELLED', label: consoleDrawStatusLabel('CANCELLED') },
+  { value: 'ARCHIVED', label: consoleDrawStatusLabel('ARCHIVED') },
 ];
 
 const DEFAULT_DRAW_TENANT_CODE = 'tchalanet';
-
-const DRAW_ACTION_LABELS: Record<string, string> = {
-  cancel: 'Annuler',
-  lock: 'Verrouiller',
-  unlock: 'Déverrouiller',
-  reschedule: 'Reprogrammer',
-  settle: 'Régler',
-  archive: 'Archiver',
-  correct: 'Corriger résultat',
-};
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -195,10 +170,9 @@ export class PlatformOpsDrawsPage implements OnInit {
     this.draws().map(draw => this.toConsoleDrawRow(draw)),
   );
 
-  toneForStatus = toneForStatus;
   actionsForDraw = actionsForDraw;
-  actionIcon = (kind: string) => ACTION_ICON[kind] ?? 'settings';
-  actionLabel = (kind: string) => DRAW_ACTION_LABELS[kind] ?? kind;
+  actionIcon = (kind: string) => consoleDrawLifecycleActionIcon(kind as Parameters<typeof consoleDrawLifecycleActionIcon>[0]);
+  actionLabel = (kind: string) => consoleDrawLifecycleActionLabel(kind as Parameters<typeof consoleDrawLifecycleActionLabel>[0]);
 
   private currentBatchDialog: BatchOpDialog | null = null;
 
@@ -551,10 +525,10 @@ export class PlatformOpsDrawsPage implements OnInit {
       logoAlt: draw.slot.label ?? draw.slot.key,
       scheduledDateLabel: draw.drawDate,
       scheduledTimeLabel: draw.scheduledAt,
-      statusLabel: draw.status,
-      statusTone: this.toneForStatus(draw.status),
-      resultLabel: draw.lastResult?.status,
-      resultTone: draw.lastResult ? this.toneForStatus(draw.lastResult.status) : 'neutral',
+      statusLabel: consoleDrawStatusLabel(draw.status),
+      statusTone: consoleDrawStatusTone(draw.status),
+      resultLabel: draw.lastResult ? consoleDrawResultStatusLabel(draw.lastResult.status) : undefined,
+      resultTone: draw.lastResult ? consoleDrawResultStatusTone(draw.lastResult.status) : 'neutral',
       resultNumbers: this.resultNumbers(draw),
       modeLabel: draw.active ? 'Actif' : 'Inactif',
       publicationLabel: undefined,

@@ -16,6 +16,9 @@ import {
   CONSOLE_DRAW_RESULT_ACCESS,
   ConsoleEntityDetailActionEvent,
   ConsoleEntityDetailComponent,
+  consoleDrawPublicationStatusLabel,
+  consoleDrawResultStatusLabel,
+  consoleDrawSalesStatusLabel,
 } from '@tch/web/console';
 import {
   AdminSectionCardComponent,
@@ -327,27 +330,15 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   salesStatusLabel(status: GeneratedDrawSalesStatus): string {
-    switch (status) {
-      case 'OPEN': return 'Ouvert à la vente';
-      case 'CLOSED': return 'Vente fermée';
-      case 'CANCELLED': return 'Annulé';
-      case 'UPCOMING': return 'À venir';
-    }
+    return consoleDrawSalesStatusLabel(status);
   }
 
   resultStatusLabel(status: GeneratedDrawResultStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Résultat confirmé';
-      case 'PROVISIONAL': return 'Résultat provisoire';
-      case 'EXPECTED': return 'Résultat attendu';
-      case 'MISSING': return 'Résultat manquant';
-      case 'SOURCE_ERROR': return 'Erreur source';
-      case 'NOT_DUE': return 'Attendu après fermeture';
-    }
+    return consoleDrawResultStatusLabel(status);
   }
 
   publicationStatusLabel(status: GeneratedDrawView['publicationStatus']): string {
-    return status === 'PUBLISHED' ? 'Publié' : 'Non publié';
+    return consoleDrawPublicationStatusLabel(status);
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {

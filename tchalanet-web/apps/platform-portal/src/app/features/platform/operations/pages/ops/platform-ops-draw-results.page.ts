@@ -25,10 +25,15 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
+import { AdminStatusTone } from '@tch/ui/console';
 import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
   ConsoleDrawResultsTableComponent,
+  consoleDrawResultQualityLabel,
+  consoleDrawResultQualityTone,
+  consoleDrawResultStatusLabel,
+  consoleDrawResultStatusTone,
 } from '@tch/web/console';
 import {
   PlatformOpsApi,
@@ -43,17 +48,17 @@ import { lotteryAssetForSlot } from '../../../../../shared/lottery/lottery-asset
 
 const RESULT_STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
-  { value: 'PROVISIONAL', label: 'Provisoire' },
-  { value: 'CONFIRMED', label: 'Confirmé' },
-  { value: 'OVERRIDDEN', label: 'Override' },
-  { value: 'ERROR', label: 'Erreur' },
+  { value: 'PROVISIONAL', label: consoleDrawResultStatusLabel('PROVISIONAL') },
+  { value: 'CONFIRMED', label: consoleDrawResultStatusLabel('CONFIRMED') },
+  { value: 'OVERRIDDEN', label: consoleDrawResultStatusLabel('OVERRIDDEN') },
+  { value: 'ERROR', label: consoleDrawResultStatusLabel('ERROR') },
 ];
 
 const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string }[] = [
   { value: '', label: 'Toutes qualités' },
-  { value: 'COMPLETE', label: 'Complète' },
-  { value: 'SUSPECT', label: 'Suspecte' },
-  { value: 'INVALID', label: 'Invalide' },
+  { value: 'COMPLETE', label: consoleDrawResultQualityLabel('COMPLETE') },
+  { value: 'SUSPECT', label: consoleDrawResultQualityLabel('SUSPECT') },
+  { value: 'INVALID', label: consoleDrawResultQualityLabel('INVALID') },
 ];
 
 @Component({
@@ -226,24 +231,12 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     }
   }
 
-  statusTone(status: string): 'success' | 'warning' | 'danger' | 'neutral' | 'info' {
-    const map: Record<string, 'success' | 'warning' | 'danger' | 'neutral' | 'info'> = {
-      CONFIRMED: 'success',
-      PROVISIONAL: 'warning',
-      OVERRIDDEN: 'info',
-      MANUAL: 'info',
-      REJECTED: 'danger',
-    };
-    return map[status] ?? 'neutral';
+  statusTone(status: string): AdminStatusTone {
+    return consoleDrawResultStatusTone(status);
   }
 
-  qualityTone(quality: string): 'success' | 'warning' | 'danger' | 'neutral' {
-    const map: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> = {
-      COMPLETE: 'success',
-      SUSPECT: 'warning',
-      INVALID: 'danger',
-    };
-    return map[quality] ?? 'neutral';
+  qualityTone(quality: string): AdminStatusTone {
+    return consoleDrawResultQualityTone(quality);
   }
 
   lotteryAsset(slotKey: string): string | null {
@@ -266,9 +259,9 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       logoAlt: row.slotKey,
       slotKey: row.slotKey,
       numbers: this.resultNumbers(row),
-      statusLabel: row.status,
+      statusLabel: consoleDrawResultStatusLabel(row.status),
       statusTone: this.statusTone(row.status),
-      qualityLabel: row.quality,
+      qualityLabel: consoleDrawResultQualityLabel(row.quality),
       qualityTone: this.qualityTone(row.quality),
       sourceLabel: row.source || '—',
       fetchedAtLabel: row.fetchedAt ?? '—',
