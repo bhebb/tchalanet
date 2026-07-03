@@ -16,15 +16,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
-import { AdminListStatusOption, AdminListSurface, TchErrorPanel } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, BadgeStatus, TchErrorPanel, TchStatusBadge } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import {
-  AdminStatusPillComponent,
-  AdminStatusTone,
-} from '@tch/ui/console';
 import {
   TchAsyncReadyDirective,
   TchAsyncViewComponent,
@@ -51,7 +47,7 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
     AdminPageShellComponent,
     AdminListSurface,
     AdminEmptyStateComponent,
-    AdminStatusPillComponent,
+    TchStatusBadge,
     TchErrorPanel,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
@@ -209,12 +205,11 @@ export class AdminSellerTerminalsPage {
     return this.translate.instant(`admin.sellerTerminals.status.${row.status}`);
   }
 
-  statusTone(row: SellerTerminalSummaryRow): AdminStatusTone {
-    if (row.status === 'BLOCKED') return 'danger';
-    if (row.pinResetRequired) return 'warning';
-    if (row.status === 'PENDING') return 'warning';
-    if (row.status === 'DISABLED') return 'neutral';
-    return 'success';
+  statusBadge(row: SellerTerminalSummaryRow): BadgeStatus {
+    if (row.status === 'ACTIVE' && !row.pinResetRequired) return 'ready';
+    if (row.status === 'BLOCKED') return 'blocked';
+    if (row.status === 'PENDING' || row.pinResetRequired) return 'pending';
+    return 'missing';
   }
 
   private navigateList(params: {
