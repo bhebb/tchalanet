@@ -30,12 +30,7 @@
       @if (terminal(); as t) {
         <tch-admin-detail-layout>
           <div main class="seller-terminal-detail__main">
-            <tch-seller-terminal-detail-facts-card
-              titleKey="admin.sellerTerminals.detail.section.identity"
-              descriptionKey="admin.sellerTerminals.detail.section.identityDesc"
-              icon="badge"
-              [facts]="identityFacts()"
-            />
+            <tch-seller-terminal-identity-card [terminal]="t" />
 
             <tch-seller-terminal-detail-facts-card
               titleKey="admin.sellerTerminals.detail.section.states"

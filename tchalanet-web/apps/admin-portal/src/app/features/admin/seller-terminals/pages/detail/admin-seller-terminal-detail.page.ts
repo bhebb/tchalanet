@@ -23,6 +23,7 @@ import {
 } from '../../components/seller-terminal-detail-facts-card/seller-terminal-detail-facts-card.component';
 import { SellerTerminalDetailSummaryCardComponent } from '../../components/seller-terminal-detail-summary-card/seller-terminal-detail-summary-card.component';
 import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-terminal-today-stats-card/seller-terminal-today-stats-card.component';
+import { SellerTerminalIdentityCardComponent } from '../../components/seller-terminal-identity-card/seller-terminal-identity-card.component';
 
 @Component({
   selector: 'tch-admin-seller-terminal-detail-page',
@@ -33,6 +34,7 @@ import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-t
     AdminDetailLayoutComponent,
     AdminPageShellComponent,
     SellerTerminalDetailFactsCardComponent,
+    SellerTerminalIdentityCardComponent,
     SellerTerminalDetailSummaryCardComponent,
     SellerTerminalTodayStatsCardComponent,
     TchAsyncReadyDirective,
@@ -83,22 +85,11 @@ export class AdminSellerTerminalDetailPage {
     return terminal?.displayName || terminal?.terminalCode || this.translate.instant('admin.sellerTerminals.detail.title');
   });
 
-  readonly identityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
-    const terminal = this.terminal();
-    if (!terminal) return [];
-    return [
-      { labelKey: 'admin.sellerTerminals.field.seller_terminal_code', value: terminal.terminalCode },
-      { labelKey: 'admin.sellerTerminals.field.first_name', value: terminal.firstName },
-      { labelKey: 'admin.sellerTerminals.field.last_name', value: terminal.lastName },
-      { labelKey: 'admin.sellerTerminals.field.email', value: terminal.email },
-      { labelKey: 'admin.sellerTerminals.field.phone', value: terminal.phoneNumber },
-    ];
-  });
-
   readonly controlFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
+      { labelKey: 'admin.sellerTerminals.field.seller_terminal_code', value: terminal.terminalCode },
       {
         labelKey: 'admin.sellerTerminals.detail.field.commissionRate',
         value: terminal.commissionRate,

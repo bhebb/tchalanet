@@ -1,0 +1,30 @@
+<tch-admin-section-card
+  [title]="'admin.sellerTerminals.detail.section.identity' | translate"
+  [description]="'admin.sellerTerminals.detail.section.identityDesc' | translate"
+  icon="badge"
+>
+  <tch-console-person-identity-summary
+    [fields]="[
+      {
+        labelKey: 'component.console.personIdentity.field.firstName',
+        value: terminal().firstName,
+        readonly: true
+      },
+      {
+        labelKey: 'component.console.personIdentity.field.lastName',
+        value: terminal().lastName,
+        readonly: true
+      },
+      {
+        labelKey: 'component.console.personIdentity.field.email',
+        value: terminal().email,
+        readonly: true
+      },
+      {
+        labelKey: 'component.console.personIdentity.field.phoneNumber',
+        value: terminal().phoneNumber,
+        readonly: true
+      }
+    ]"
+  />
+</tch-admin-section-card>
