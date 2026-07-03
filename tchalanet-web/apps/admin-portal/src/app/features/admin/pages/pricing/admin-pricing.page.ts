@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
@@ -11,7 +10,10 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import {
+  ConsolePricingRow,
+  ConsolePricingTableComponent,
+} from '@tch/web/console';
 import { AdminPricingApi, PricingView } from '../../data-access/admin-pricing-api.service';
 
 @Component({
@@ -21,12 +23,11 @@ import { AdminPricingApi, PricingView } from '../../data-access/admin-pricing-ap
   imports: [
     AdminPageShellComponent,
     AdminEmptyStateComponent,
-    AdminStatusPillComponent,
+    ConsolePricingTableComponent,
     TchLoading,
     TchErrorPanel,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
   ],
   templateUrl: './admin-pricing.page.html',
   styleUrls: ['./admin-pricing.page.scss'],
@@ -35,11 +36,20 @@ export class AdminPricingPage implements OnInit {
   private readonly api       = inject(AdminPricingApi);
   private readonly translate = inject(TranslateService);
 
-  readonly columns = ['gameCode', 'betType', 'betOption', 'odds', 'active'];
-
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly odds = signal<PricingView[]>([]);
+  readonly rows = computed<readonly ConsolePricingRow[]>(() =>
+    this.odds().map(row => ({
+      id: `${row.gameCode}:${row.betType}:${row.betOption}`,
+      gameCode: row.gameCode,
+      betType: row.betType,
+      betOption: row.betOption,
+      odds: row.odds,
+      statusLabel: row.active ? 'Actif' : 'Inactif',
+      statusTone: row.active ? 'success' : 'neutral',
+    })),
+  );
 
   ngOnInit(): void {
     this.load();
@@ -55,10 +65,6 @@ export class AdminPricingPage implements OnInit {
         this.loading.set(false);
       },
     });
-  }
-
-  activeTone(active: boolean): AdminStatusTone {
-    return active ? 'success' : 'neutral';
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {

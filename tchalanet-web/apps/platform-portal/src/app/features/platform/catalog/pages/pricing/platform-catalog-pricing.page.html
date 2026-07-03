@@ -40,53 +40,11 @@
         @if (allRows().length > 0 && rows().length === 0) {
           <tch-admin-empty-state icon="search_off" title="Aucun résultat" message="Aucune cote ne correspond aux filtres." />
         } @else {
-        <table mat-table [dataSource]="rows()">
-          <ng-container matColumnDef="gameCode">
-            <th mat-header-cell *matHeaderCellDef>Jeu</th>
-            <td mat-cell *matCellDef="let row"><code>{{ row.gameCode }}</code></td>
-          </ng-container>
-          <ng-container matColumnDef="betType">
-            <th mat-header-cell *matHeaderCellDef>Type de pari</th>
-            <td mat-cell *matCellDef="let row"><span class="chip">{{ row.betType }}</span></td>
-          </ng-container>
-          <ng-container matColumnDef="betOption">
-            <th mat-header-cell *matHeaderCellDef>Option</th>
-            <td mat-cell *matCellDef="let row">{{ row.betOption ?? '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="odds">
-            <th mat-header-cell *matHeaderCellDef>Cote</th>
-            <td mat-cell *matCellDef="let row"><strong>{{ row.odds }}</strong></td>
-          </ng-container>
-          <ng-container matColumnDef="tenantId">
-            <th mat-header-cell *matHeaderCellDef>Tenant</th>
-            <td mat-cell *matCellDef="let row">
-              @if (!row.tenantId) {
-                <span class="chip chip--muted">Global</span>
-              } @else {
-                <code title="{{ row.tenantId.value }}">{{ tenantLabel(row) }}</code>
-              }
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Statut</th>
-            <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                <span class="material-symbols-outlined">edit</span>
-              </button>
-              <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
+          <tch-console-pricing-table
+            [rows]="pricingRows()"
+            [showTenant]="true"
+            (rowAction)="onPricingAction($event)"
+          />
         }
       </ng-container>
     </tch-async-view>
@@ -96,8 +54,3 @@
     </div>
   </tch-admin-crud-shell>
 </tch-admin-page-shell>
-
-<style>
-.chip { font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: var(--tch-surface-variant, #f0f0f0); font-family: monospace; }
-.chip--muted { color: var(--tch-text-secondary, #666); }
-</style>

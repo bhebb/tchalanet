@@ -16,7 +16,11 @@ import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  ConsolePricingActionEvent,
+  ConsolePricingRow,
+  ConsolePricingTableComponent,
+} from '@tch/web/console';
 import {
   TchAsyncReadyDirective,
   TchAsyncViewComponent,
@@ -216,13 +220,12 @@ export class EditPricingDialog {
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
-    AdminStatusPillComponent,
+    ConsolePricingTableComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
-    MatTableModule,
     ReactiveFormsModule,
   ],
   templateUrl: './platform-catalog-pricing.page.html',
@@ -232,7 +235,6 @@ export class PlatformCatalogPricingPage {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly displayedColumns = ['gameCode', 'betType', 'betOption', 'odds', 'tenantId', 'active', 'actions'];
   readonly betTypes = BET_TYPES;
 
   readonly pricing = this.api.listPricingResource({ suppressShellFeedback: true });
@@ -249,6 +251,22 @@ export class PlatformCatalogPricingPage {
     if (btf) r = r.filter(x => x.betType === btf);
     return r;
   });
+  readonly pricingRows = computed<readonly ConsolePricingRow[]>(() =>
+    this.rows().map(row => ({
+      id: row.id,
+      gameCode: row.gameCode,
+      betType: row.betType,
+      betOption: row.betOption,
+      odds: row.odds,
+      tenantLabel: this.tenantLabel(row),
+      statusLabel: row.active ? 'Actif' : 'Inactif',
+      statusTone: row.active ? 'success' : 'neutral',
+      actions: [
+        { id: 'edit', label: 'Modifier', icon: 'edit', variant: 'icon' },
+        { id: 'delete', label: 'Supprimer', icon: 'delete', tone: 'danger', variant: 'icon' },
+      ],
+    })),
+  );
 
   private showError(msg: string): void {
     this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -286,6 +304,19 @@ export class PlatformCatalogPricingPage {
         this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? 'Erreur.', 'OK', { duration: 5000 });
       },
     });
+  }
+
+  onPricingAction(event: ConsolePricingActionEvent): void {
+    const row = this.rows().find(item => item.id === event.row.id);
+    if (!row) return;
+    switch (event.action.id) {
+      case 'edit':
+        this.openEdit(row);
+        break;
+      case 'delete':
+        this.delete(row);
+        break;
+    }
   }
 
   tenantLabel(row: CatalogPricingView): string {

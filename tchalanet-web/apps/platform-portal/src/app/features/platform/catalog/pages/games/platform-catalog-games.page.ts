@@ -17,8 +17,12 @@ import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent } from '@tch/ui/console';
 import { TchPaginationComponent } from '@tch/ui/console';
+import {
+  ConsoleGameActionEvent,
+  ConsoleGameRow,
+  ConsoleGamesTableComponent,
+} from '@tch/web/console';
 import {
   TchAsyncReadyDirective,
   TchAsyncViewComponent,
@@ -227,13 +231,12 @@ export class EditGameDialog {
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
-    AdminStatusPillComponent,
+    ConsoleGamesTableComponent,
     TchPaginationComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
-    MatTableModule,
     ReactiveFormsModule,
   ],
   templateUrl: './platform-catalog-games.page.html',
@@ -244,8 +247,6 @@ export class PlatformCatalogGamesPage {
   private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
-  readonly displayedColumns = ['code', 'name', 'category', 'sortOrder', 'active', 'actions'];
 
   readonly queryParamMap = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
@@ -268,8 +269,9 @@ export class PlatformCatalogGamesPage {
     if (status !== 'resolved' && status !== 'local' && status !== 'reloading') return null;
     return this.games.value() ?? null;
   });
-  readonly gameRows = computed(() => this.gamePage()?.items ?? []);
-  readonly hasGames = computed(() => this.gameRows().length > 0);
+  readonly gamesData = computed(() => this.gamePage()?.items ?? []);
+  readonly gameRows = computed<readonly ConsoleGameRow[]>(() => this.gamesData().map(game => this.toConsoleGameRow(game)));
+  readonly hasGames = computed(() => this.gamesData().length > 0);
   readonly totalElements = computed(() => this.gamePage()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.gamePage()?.page ?? this.page());
   readonly pageSize = computed(() => this.gamePage()?.size ?? this.size());
@@ -344,6 +346,39 @@ export class PlatformCatalogGamesPage {
         );
       },
     });
+  }
+
+  onGameAction(event: ConsoleGameActionEvent): void {
+    const game = this.gamesData().find(item => item.id === event.row.id);
+    if (!game) return;
+    switch (event.action.id) {
+      case 'edit':
+        this.openEdit(game);
+        break;
+      case 'deactivate':
+        this.deactivate(game);
+        break;
+      case 'delete':
+        this.delete(game);
+        break;
+    }
+  }
+
+  private toConsoleGameRow(game: CatalogGameView): ConsoleGameRow {
+    return {
+      id: game.id,
+      code: game.code,
+      name: game.name,
+      category: game.category,
+      sortOrder: game.sortOrder,
+      statusLabel: game.active ? 'Actif' : 'Inactif',
+      statusTone: game.active ? 'success' : 'neutral',
+      actions: [
+        { id: 'edit', label: 'Modifier', icon: 'edit', variant: 'icon' },
+        ...(game.active ? [{ id: 'deactivate', label: 'Désactiver', icon: 'block', variant: 'icon' as const }] : []),
+        { id: 'delete', label: 'Supprimer', icon: 'delete', tone: 'danger', variant: 'icon' },
+      ],
+    };
   }
 
   private navigateList(params: {
