@@ -1,30 +1,26 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { catchError, forkJoin, of, startWith, switchMap } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import {
-  AdminFinancialsApi,
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
+import {
+  AdminTicketsOverviewApi,
+  AdminTicketsOverviewView,
+} from '../../admin-tickets-overview-api.service';
+import {
   TenantFinancialBreakdownView,
 } from '../../financials/data-access/admin-financials-api.service';
-import { AdminTicketsApi, TicketRowView } from '../../admin-tickets-api.service';
-
-type PageState =
-  | { readonly status: 'loading' }
-  | { readonly status: 'error' }
-  | {
-      readonly status: 'ready';
-      readonly financials: TenantFinancialBreakdownView;
-      readonly recentTickets: readonly TicketRowView[];
-      readonly cancelledCount: number;
-    };
+import { ticketStatusLabelKey } from '../../admin-ticket-status.util';
 
 interface OverviewRow {
   readonly id: string;
@@ -44,79 +40,36 @@ const DEFAULT_CURRENCY = 'HTG';
     DatePipe,
     DecimalPipe,
     RouterLink,
+    TranslatePipe,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatIconModule,
-    TchErrorPanel,
-    TchLoading,
   ],
   templateUrl: './admin-tickets-overview.page.html',
   styleUrls: ['./admin-tickets-overview.page.scss'],
 })
 export class AdminTicketsOverviewPage {
-  private readonly financialsApi = inject(AdminFinancialsApi);
-  private readonly ticketsApi = inject(AdminTicketsApi);
+  private readonly api = inject(AdminTicketsOverviewApi);
 
   readonly refreshTick = signal(0);
-
-  readonly state = toSignal(
-    toObservable(this.refreshTick).pipe(
-      switchMap(() =>
-        this.financialsApi.getBreakdown({
-          drawLimit: 10,
-          sellerTerminalLimit: 10,
-        }, { suppressShellFeedback: true }).pipe(
-          switchMap(financials =>
-            forkJoin({
-              recent: this.ticketsApi.list({
-                fromDate: financials.from,
-                toDate: financials.to,
-                sort: 'createdAt,DESC',
-                page: 0,
-                size: 8,
-              }, { suppressShellFeedback: true }),
-              cancelled: this.ticketsApi.list({
-                status: 'CANCELLED',
-                fromDate: financials.from,
-                toDate: financials.to,
-                sort: 'createdAt,DESC',
-                page: 0,
-                size: 1,
-              }, { suppressShellFeedback: true }),
-            }).pipe(
-              switchMap(({ recent, cancelled }) => of({
-                status: 'ready',
-                financials,
-                recentTickets: recent.items,
-                cancelledCount: cancelled.totalElements,
-              } as PageState)),
-            ),
-          ),
-          catchError(() => of({ status: 'error' } as PageState)),
-          startWith({ status: 'loading' } as PageState),
-        ),
-      ),
-    ),
-    { initialValue: { status: 'loading' } as PageState },
+  readonly overview = this.api.overviewResource(
+    () => this.refreshTick(),
+    { suppressShellFeedback: true },
   );
+  readonly overviewError = resourceErrorVm(this.overview, 'admin.tickets.overview');
 
-  readonly summary = computed(() => {
-    const state = this.state();
-    return state.status === 'ready' ? state.financials.summary : null;
-  });
-
-  readonly ticketAverage = computed(() => {
-    const summary = this.summary();
+  ticketAverage(vm: AdminTicketsOverviewView): number {
+    const summary = vm.financials.summary;
     if (!summary || summary.ticketsSold === 0) return 0;
     return summary.grossSales / summary.ticketsSold;
-  });
+  }
 
-  readonly drawRows = computed<readonly OverviewRow[]>(() => {
-    const state = this.state();
-    if (state.status !== 'ready') return [];
-    return state.financials.drawRows
+  drawRows(financials: TenantFinancialBreakdownView): readonly OverviewRow[] {
+    return financials.drawRows
       .slice(0, 6)
       .map(row => ({
         id: row.drawId,
@@ -125,12 +78,10 @@ export class AdminTicketsOverviewPage {
         grossSales: row.grossSales,
         meta: row.scheduledAt,
       }));
-  });
+  }
 
-  readonly sellerRows = computed<readonly OverviewRow[]>(() => {
-    const state = this.state();
-    if (state.status !== 'ready') return [];
-    return [...state.financials.sellerTerminalDailyRows]
+  sellerRows(financials: TenantFinancialBreakdownView): readonly OverviewRow[] {
+    return [...financials.sellerTerminalDailyRows]
       .sort((a, b) => b.grossSales - a.grossSales)
       .slice(0, 6)
       .map(row => ({
@@ -139,19 +90,14 @@ export class AdminTicketsOverviewPage {
         ticketCount: row.ticketsSold,
         grossSales: row.grossSales,
       }));
-  });
-
-  readonly recentTickets = computed(() => {
-    const state = this.state();
-    return state.status === 'ready' ? state.recentTickets : [];
-  });
+  }
 
   reload(): void {
     this.refreshTick.update(value => value + 1);
   }
 
-  currency(): string {
-    const ticket = this.recentTickets()[0];
+  currency(vm: AdminTicketsOverviewView): string {
+    const ticket = vm.recentTickets[0];
     return ticket?.currency ?? DEFAULT_CURRENCY;
   }
 
@@ -163,17 +109,8 @@ export class AdminTicketsOverviewPage {
     return (cents / 100).toFixed(2);
   }
 
-  statusLabel(status: string): string {
-    switch (status) {
-      case 'APPROVED': return 'Valide';
-      case 'PENDING_APPROVAL': return 'En attente';
-      case 'REJECTED': return 'Rejeté';
-      case 'CANCELLED': return 'Annulé';
-      case 'VOIDED': return 'Invalidé';
-      case 'PAID': return 'Payé';
-      case 'EXPIRED': return 'Expiré';
-      default: return status;
-    }
+  statusLabelKey(status: string): string {
+    return ticketStatusLabelKey(status);
   }
 
   private drawLabel(channel: string | null, game: string): string {
