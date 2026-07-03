@@ -9,34 +9,7 @@ import {
   TenantGameOddView,
   TenantGameStatus,
 } from './admin-games-pricing.models';
-
-const BET_TYPE_LABELS: Record<string, string> = {
-  STRAIGHT:   'Straight',
-  BOX:        'Box',
-  FRONT_PAIR: 'Front Pair',
-  BACK_PAIR:  'Back Pair',
-  LOTTO:      'Loto',
-  COMBO:      'Combo',
-  MARIAGE:    'Mariage',
-};
-
-const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
-  MARRIAGE_2D2D: {
-    1: 'Ordre exact',
-    2: 'Revers / Double',
-  },
-  LOTTO4_PATTERN: {
-    1: 'Exact',
-    2: 'Désordre / Box',
-    3: '2 premiers chiffres',
-    4: '2 derniers chiffres',
-  },
-  LOTTO5_PATTERN: {
-    1: '1er lot + 2e lot',
-    2: '1er lot + 3e lot',
-    3: 'Mixte 1er/2e/3e lot',
-  },
-};
+import { adminBetLabel, adminGameName } from './admin-game-display';
 
 interface BffPricingEntry {
   betType: string;
@@ -107,7 +80,7 @@ export class AdminGamesPricingApiService {
     return {
       gameCode:          row.gameCode,
       tenantGameId:      row.tenantGameId?.value ?? null,
-      gameName:          row.displayName || row.catalogName,
+      gameName:          adminGameName(row.gameCode, row.displayName || row.catalogName),
       catalogStatus:     'AVAILABLE',
       tenantStatus,
       pricingProfileLabel: row.pricing.configured ? 'Barème standard' : null,
@@ -133,10 +106,7 @@ export class AdminGamesPricingApiService {
   }
 
   private oddLabel(entry: BffPricingEntry): string {
-    const optionLabel = entry.betOption == null
-      ? null
-      : (BET_OPTION_LABELS[entry.betType]?.[entry.betOption] ?? `Option ${entry.betOption}`);
-    return optionLabel ?? BET_TYPE_LABELS[entry.betType] ?? entry.betType;
+    return adminBetLabel(entry.betType, entry.betOption);
   }
 
   private toLimits(row: BffGameRow): TenantGamePricingView['limits'] {

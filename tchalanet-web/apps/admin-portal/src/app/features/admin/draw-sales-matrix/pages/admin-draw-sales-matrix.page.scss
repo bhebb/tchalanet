@@ -147,6 +147,19 @@
   margin-bottom: 0.375rem;
 }
 
+.dsm-game__logo {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--tch-radius-sm);
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-font-weight-bold, 700);
+}
+
 .dsm-game__name {
   font-size: var(--tch-font-size-label-sm);
   color: var(--tch-color-on-surface-variant);

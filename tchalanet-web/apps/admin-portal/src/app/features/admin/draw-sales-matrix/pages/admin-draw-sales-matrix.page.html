@@ -110,9 +110,11 @@
                     @for (game of offered; track game.gameCode) {
                       <div class="dsm-game" [class.dsm-game--ready]="game.saleReady" [class.dsm-game--disabled]="!game.enabledOnChannel">
                         <div class="dsm-game__header">
+                          <span class="dsm-game__logo" aria-hidden="true">
+                            {{ game.gameCode | adminGameLogoText:game.displayName }}
+                          </span>
                           <tch-admin-status-pill [tone]="gameStatusTone(game)" [label]="gameStatusLabel(game)" />
-                          <strong>{{ gameLabel(game) }}</strong>
-                          <span class="dsm-game__name">{{ gameCodeLabel(game) }}</span>
+                          <strong>{{ game.gameCode | adminGameName:game.displayName }}</strong>
                         </div>
                         <div class="dsm-game__meta">
                           @if (game.minStake !== null && game.maxStake !== null) {
@@ -218,8 +220,10 @@
                       @for (game of available; track game.gameCode) {
                         <div class="dsm-game dsm-game--available">
                           <div class="dsm-game__header">
-                            <strong>{{ gameLabel(game) }}</strong>
-                            <span class="dsm-game__name">{{ gameCodeLabel(game) }}</span>
+                            <span class="dsm-game__logo" aria-hidden="true">
+                              {{ game.gameCode | adminGameLogoText:game.displayName }}
+                            </span>
+                            <strong>{{ game.gameCode | adminGameName:game.displayName }}</strong>
                           </div>
                           <div class="dsm-game__meta">
                             @if (game.minStake !== null && game.maxStake !== null) {

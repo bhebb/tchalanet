@@ -1,4 +1,6 @@
-<h2 mat-dialog-title>Configurer le jeu - {{ data.game.displayName ?? data.game.catalogName }}</h2>
+<h2 mat-dialog-title>
+  Configurer le jeu - {{ data.game.gameCode | adminGameName:(data.game.displayName ?? data.game.catalogName) }}
+</h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" class="game-settings-dialog__form">
@@ -14,10 +16,10 @@
       </div>
     </section>
 
-    <mat-form-field appearance="outline" class="game-settings-dialog__field">
-      <mat-label>Nom affiché au POS</mat-label>
-      <input matInput formControlName="displayName" [placeholder]="data.game.catalogName" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="game-settings-dialog__field">
+        <mat-label>Nom affiché au POS</mat-label>
+        <input matInput formControlName="displayName" [placeholder]="data.game.gameCode | adminGameName:data.game.catalogName" />
+      </mat-form-field>
 
     <div class="game-settings-dialog__row">
       <mat-form-field appearance="outline" class="game-settings-dialog__field">
@@ -61,7 +63,7 @@
         <div class="game-settings-dialog__options">
           @for (option of data.game.betOptions; track option.betType + ':' + option.betOption) {
             <div class="game-settings-dialog__option">
-              <span class="game-settings-dialog__option-label">{{ option.label }}</span>
+              <span class="game-settings-dialog__option-label">{{ option.betType | adminBetLabel:option.betOption }}</span>
               <span class="game-settings-dialog__option-value">{{ option.value }}</span>
             </div>
           }

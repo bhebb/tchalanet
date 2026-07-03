@@ -12,6 +12,7 @@ import { TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from '../../../data-access/games-admin-api.service';
+import { AdminBetLabelPipe, AdminGameNamePipe } from '../../../games-pricing/ui/admin-game-labels.pipe';
 
 @Component({
   selector: 'tch-game-settings-dialog',
@@ -25,6 +26,8 @@ import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from 
     MatFormFieldModule,
     MatInputModule,
     TchErrorPanel,
+    AdminBetLabelPipe,
+    AdminGameNamePipe,
   ],
   templateUrl: './game-settings.dialog.html',
   styleUrls: ['./game-settings.dialog.scss'],

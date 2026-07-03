@@ -15,6 +15,8 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 import type { TenantGameView } from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
+import { adminGameName } from '../../games-pricing/data-access/admin-game-display';
+import { AdminGameLogoTextPipe, AdminGameNamePipe } from '../../games-pricing/ui/admin-game-labels.pipe';
 import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
 import {
   AdminDrawSalesMatrixApi,
@@ -41,6 +43,8 @@ import {
     MatIconModule,
     OfferedGamesPipe,
     AvailableGamesPipe,
+    AdminGameLogoTextPipe,
+    AdminGameNamePipe,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
   styleUrl: './admin-draw-sales-matrix.page.scss',
@@ -218,12 +222,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
 
   gameLabel(game: ChannelGameSetupView): string {
     if (this.isMaryajGratis(game)) return 'Maryaj gratis';
-    return game.displayName?.trim() || this.readableGameCode(game.gameCode);
-  }
-
-  gameCodeLabel(game: ChannelGameSetupView): string {
-    if (this.isMaryajGratis(game)) return 'MG';
-    return this.readableGameCode(game.gameCode);
+    return adminGameName(game.gameCode, game.displayName);
   }
 
   warningLabel(warning: SetupWarning): string {
@@ -237,15 +236,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
       STAKE_CONFIG_MISSING: 'Mises à configurer',
       LIMITS_MISSING: 'Limites à configurer',
     };
-    return labels[warning.code] ?? this.readableGameCode(warning.code);
-  }
-
-  private readableGameCode(code: string): string {
-    return code
-      .replace(/^HT_/, '')
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, char => char.toUpperCase());
+    return labels[warning.code] ?? warning.code;
   }
 
   private toDialogGame(game: ChannelGameSetupView): TenantGameView {

@@ -23,6 +23,19 @@
   padding: 1.25rem 1.25rem 1rem;
 }
 
+.game-card__logo {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--tch-radius-md, 0.5rem);
+  background: var(--tch-color-primary-container, #e0e0ff);
+  color: var(--tch-color-on-primary-container, #14145f);
+  font-size: var(--tch-font-size-label-md, 0.875rem);
+  font-weight: var(--tch-font-weight-bold, 700);
+}
+
 .game-card__title-block {
   flex: 1;
   min-width: 0;

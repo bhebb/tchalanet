@@ -4,6 +4,7 @@
 
   <!-- Header -->
   <div class="game-card__header">
+    <div class="game-card__logo" aria-hidden="true">{{ logoText() }}</div>
     <div class="game-card__title-block">
       <h3 class="game-card__title">{{ g.gameName }}</h3>
       <tch-admin-status-pill [label]="statusLabel()" [tone]="statusTone()" />
