@@ -6,17 +6,14 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
-import { AdminListStatusOption, AdminListSurface, BadgeStatus, TchErrorPanel, TchStatusBadge } from '@tch/ui/components';
+import { AdminListStatusOption, AdminListSurface, TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
@@ -31,6 +28,8 @@ import {
   SellerTerminalSummaryRow,
   SellerTerminalStatus,
 } from '../../data-access/seller-terminal-api.service';
+import { SellerTerminalKpiStripComponent } from '../../components/seller-terminal-kpi-strip/seller-terminal-kpi-strip.component';
+import { SellerTerminalTableComponent } from '../../components/seller-terminal-table/seller-terminal-table.component';
 import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialog';
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
@@ -41,21 +40,18 @@ import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dia
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
-    DecimalPipe,
     RouterLink,
     AdminPageShellComponent,
     AdminListSurface,
     AdminEmptyStateComponent,
-    TchStatusBadge,
     TchErrorPanel,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    SellerTerminalKpiStripComponent,
+    SellerTerminalTableComponent,
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
-    MatMenuModule,
-    MatTableModule,
   ],
   templateUrl: './admin-seller-terminals.page.html',
   styleUrls: ['./admin-seller-terminals.page.scss'],
@@ -66,17 +62,6 @@ export class AdminSellerTerminalsPage {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-
-  readonly displayedColumns = [
-    'terminalCode',
-    'displayName',
-    'email',
-    'phoneNumber',
-    'status',
-    'commissionRate',
-    'lastSeenAt',
-    'actions',
-  ];
 
   readonly actionError = signal<ErrorViewModel | null>(null);
   private readonly queryParamMap = toSignal(this.route.queryParamMap, {
@@ -193,23 +178,6 @@ export class AdminSellerTerminalsPage {
         },
       });
     });
-  }
-
-  statusLabel(row: SellerTerminalSummaryRow): string {
-    if (row.pinResetRequired) {
-      return this.translate.instant('admin.sellerTerminals.list.statusLabel.pinResetRequired');
-    }
-    if (row.status === 'ACTIVE' && !row.lastSeenAt) {
-      return this.translate.instant('admin.sellerTerminals.list.statusLabel.activeNeverSeen');
-    }
-    return this.translate.instant(`admin.sellerTerminals.status.${row.status}`);
-  }
-
-  statusBadge(row: SellerTerminalSummaryRow): BadgeStatus {
-    if (row.status === 'ACTIVE' && !row.pinResetRequired) return 'ready';
-    if (row.status === 'BLOCKED') return 'blocked';
-    if (row.status === 'PENDING' || row.pinResetRequired) return 'pending';
-    return 'missing';
   }
 
   private navigateList(params: {

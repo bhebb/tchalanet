@@ -9,30 +9,8 @@
     </a>
   </div>
 
-  <!-- KPI cards -->
   @if (summary(); as s) {
-    <div class="seller-terminals-page__kpis">
-      <div class="seller-terminals-page__kpi-card">
-        <span class="material-symbols-outlined seller-terminals-page__kpi-icon seller-terminals-page__kpi-icon--success">check_circle</span>
-        <span class="seller-terminals-page__kpi-value">{{ s.activeCount }}</span>
-        <span class="seller-terminals-page__kpi-label">{{ 'admin.sellerTerminals.list.kpi.active' | translate }}</span>
-      </div>
-      <div class="seller-terminals-page__kpi-card">
-        <span class="material-symbols-outlined seller-terminals-page__kpi-icon seller-terminals-page__kpi-icon--danger">block</span>
-        <span class="seller-terminals-page__kpi-value">{{ s.blockedCount }}</span>
-        <span class="seller-terminals-page__kpi-label">{{ 'admin.sellerTerminals.list.kpi.blocked' | translate }}</span>
-      </div>
-      <div class="seller-terminals-page__kpi-card">
-        <span class="material-symbols-outlined seller-terminals-page__kpi-icon seller-terminals-page__kpi-icon--gold">payments</span>
-        <span class="seller-terminals-page__kpi-value">{{ s.salesTodayAmount | number:'1.0-0' }} HTG</span>
-        <span class="seller-terminals-page__kpi-label">{{ 'admin.sellerTerminals.list.kpi.salesToday' | translate }}</span>
-      </div>
-      <div class="seller-terminals-page__kpi-card">
-        <span class="material-symbols-outlined seller-terminals-page__kpi-icon seller-terminals-page__kpi-icon--neutral">percent</span>
-        <span class="seller-terminals-page__kpi-value">{{ s.averageCommissionRate | number:'1.1-1' }}%</span>
-        <span class="seller-terminals-page__kpi-label">{{ 'admin.sellerTerminals.list.kpi.averageCommission' | translate }}</span>
-      </div>
-    </div>
+    <tch-seller-terminal-kpi-strip [summary]="s" />
   }
 
   <tch-async-view
@@ -69,116 +47,15 @@
           <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
         }
 
-          <div class="seller-terminals-page__table">
-            <table mat-table [dataSource]="items()">
-              <ng-container matColumnDef="terminalCode">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.terminalCode' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <span class="seller-terminals-page__code">{{ row.terminalCode }}</span>
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="displayName">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.seller' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
-              </ng-container>
-              <ng-container matColumnDef="email">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.email' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.email ?? '—' }}</td>
-              </ng-container>
-              <ng-container matColumnDef="phoneNumber">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.phone' | translate }}</th>
-                <td mat-cell *matCellDef="let row">{{ row.phoneNumber ?? '—' }}</td>
-              </ng-container>
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.status' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <tch-status-badge [label]="statusLabel(row)" [status]="statusBadge(row)" />
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="commissionRate">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.commission' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.commissionRate !== null ? row.commissionRate + '%' : '—' }}
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="lastSeenAt">
-                <th mat-header-cell *matHeaderCellDef>{{ 'admin.sellerTerminals.list.column.lastSeenAt' | translate }}</th>
-                <td mat-cell *matCellDef="let row">
-                  {{ row.lastSeenAt ? (row.lastSeenAt | date: 'dd/MM/yyyy HH:mm') : '—' }}
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef></th>
-                <td
-                  mat-cell
-                  *matCellDef="let row"
-                  class="seller-terminals-page__actions-cell"
-                  (click)="$event.stopPropagation()"
-                >
-                  @if (row.status === 'BLOCKED') {
-                    <button mat-stroked-button (click)="unblock(row)" class="seller-terminals-page__unblock-btn">
-                      <span class="material-symbols-outlined">lock_open</span>
-                      {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
-                    </button>
-                  } @else if (row.status === 'ACTIVE') {
-                    <button mat-stroked-button color="primary" (click)="openPOS(row)" class="seller-terminals-page__pos-btn">
-                      <span class="material-symbols-outlined">point_of_sale</span>
-                      {{ 'admin.sellerTerminals.list.action.openPos' | translate }}
-                    </button>
-                  }
-                  <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ row }">
-                    <span class="material-symbols-outlined">more_vert</span>
-                  </button>
-                </td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr
-                mat-row
-                class="seller-terminals-page__row"
-                *matRowDef="let row; columns: displayedColumns"
-                [routerLink]="['/app/admin/sellers', row.id.value]"
-              ></tr>
-            </table>
-          </div>
-
-          <mat-menu #rowMenu="matMenu">
-            <ng-template matMenuContent let-row="row">
-              <button mat-menu-item [routerLink]="['/app/admin/sellers', row.id.value]">
-                <span class="material-symbols-outlined">edit</span>
-                {{ 'admin.sellerTerminals.list.action.detail' | translate }}
-              </button>
-              <button mat-menu-item (click)="openResetPin(row)" [disabled]="row.status === 'DISABLED'">
-                <span class="material-symbols-outlined">lock_reset</span>
-                {{ 'admin.sellerTerminals.list.action.resetPin' | translate }}
-              </button>
-              @if (row.status !== 'BLOCKED') {
-                <button mat-menu-item (click)="openBlock(row)" [disabled]="row.status === 'DISABLED'">
-                  <span class="material-symbols-outlined">block</span>
-                  {{ 'admin.sellerTerminals.list.action.block' | translate }}
-                </button>
-              }
-              @if (row.status === 'BLOCKED') {
-                <button mat-menu-item (click)="unblock(row)">
-                  <span class="material-symbols-outlined">lock_open</span>
-                  {{ 'admin.sellerTerminals.list.action.unblock' | translate }}
-                </button>
-              }
-              @if (row.status !== 'DISABLED') {
-                <button mat-menu-item (click)="openDisable(row)">
-                  <span class="material-symbols-outlined">do_not_disturb_on</span>
-                  {{ 'admin.sellerTerminals.list.action.disable' | translate }}
-                </button>
-              }
-              <button mat-menu-item (click)="openLimits(row)">
-                <span class="material-symbols-outlined">shield</span>
-                {{ 'admin.sellerTerminals.list.action.limits' | translate }}
-              </button>
-              <button mat-menu-item [routerLink]="['/app/admin/tickets']" [queryParams]="{ sellerTerminalId: row.id.value }">
-                <span class="material-symbols-outlined">receipt_long</span>
-                {{ 'admin.sellerTerminals.list.action.tickets' | translate }}
-              </button>
-            </ng-template>
-          </mat-menu>
+          <tch-seller-terminal-table
+            [rows]="items()"
+            (openPos)="openPOS($event)"
+            (resetPin)="openResetPin($event)"
+            (blockSeller)="openBlock($event)"
+            (unblock)="unblock($event)"
+            (disable)="openDisable($event)"
+            (limits)="openLimits($event)"
+          />
       </ng-container>
 
       <ng-container list-footer>

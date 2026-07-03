@@ -1,0 +1,38 @@
+.seller-terminal-table {
+  overflow-x: auto;
+}
+
+.seller-terminal-table table {
+  width: 100%;
+}
+
+.seller-terminal-table__code {
+  color: var(--tch-color-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.seller-terminal-table__row {
+  cursor: pointer;
+}
+
+.seller-terminal-table__row:hover {
+  background: color-mix(in oklab, var(--tch-color-primary) 6%, transparent);
+}
+
+.seller-terminal-table__actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.seller-terminal-table__pos-btn,
+.seller-terminal-table__unblock-btn {
+  height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 2rem;
+}
