@@ -1,0 +1,26 @@
+@if (resolvedFields().length) {
+  <dl class="tch-console-person-identity-summary" [class.tch-console-person-identity-summary--inline]="layout() === 'inline'">
+    @for (field of resolvedFields(); track field.labelKey) {
+      <div class="tch-console-person-identity-summary__item">
+        <dt>
+          {{ field.labelKey | translate }}
+          @if (field.required) {
+            <span class="tch-console-person-identity-summary__required">*</span>
+          }
+          @if (field.readonly) {
+            <span class="material-symbols-outlined tch-console-person-identity-summary__readonly" aria-hidden="true">lock</span>
+          }
+        </dt>
+        <dd>
+          @if (field.valueKey) {
+            {{ field.valueKey | translate }}
+          } @else {
+            {{ field.value }}
+          }
+        </dd>
+      </div>
+    }
+  </dl>
+} @else {
+  <p class="tch-console-person-identity-summary__empty">{{ emptyKey() | translate }}</p>
+}

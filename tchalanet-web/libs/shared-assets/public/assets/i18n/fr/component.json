@@ -46,12 +46,17 @@
         "firstName": "Prénom (optionnel)",
         "lastName": "Nom (optionnel)",
         "email": "Email (optionnel)",
-        "phoneNumber": "Téléphone (optionnel)"
+        "phoneNumber": "Téléphone (optionnel)",
+        "displayName": "Nom affiché",
+        "assignedAt": "Assigné le"
       },
       "placeholder": {
         "email": "nom@exemple.com",
         "phoneNumber": "+509 XXXX XXXX"
       }
+    },
+    "personIdentitySummary": {
+      "empty": "Identité non renseignée."
     },
     "address": {
       "title": "Adresse",

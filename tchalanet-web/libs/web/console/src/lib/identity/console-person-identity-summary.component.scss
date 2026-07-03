@@ -1,0 +1,44 @@
+.tch-console-person-identity-summary {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+
+  &--inline {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+
+  &__item {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  dt {
+    align-items: center;
+    color: var(--tch-color-on-surface-variant);
+    display: inline-flex;
+    font-size: 0.75rem;
+    font-weight: 700;
+    gap: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  dd {
+    color: var(--tch-color-on-surface);
+    font-size: 0.95rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__required {
+    color: var(--tch-color-error);
+  }
+
+  &__readonly {
+    font-size: 0.875rem;
+  }
+}
+
+.tch-console-person-identity-summary__empty {
+  color: var(--tch-color-on-surface-variant);
+  margin: 0;
+}

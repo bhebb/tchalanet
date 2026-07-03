@@ -14,15 +14,22 @@
     </div>
 
     <div class="admin-user-card__fields">
-      <div class="admin-user-card__field">
-        <span class="admin-user-card__label">Email</span>
-        <span>{{ u.email || '—' }}</span>
-      </div>
-
-      <div class="admin-user-card__field">
-        <span class="admin-user-card__label">Assigné le</span>
-        <span>{{ u.assignedAt | date: 'dd MMM y, HH:mm' }}</span>
-      </div>
+      <tch-console-person-identity-summary
+        layout="inline"
+        [fields]="[
+          {
+            labelKey: 'component.console.personIdentity.field.email',
+            value: u.email,
+            required: true,
+            readonly: true
+          },
+          {
+            labelKey: 'component.console.personIdentity.field.assignedAt',
+            value: (u.assignedAt | date: 'dd MMM y, HH:mm'),
+            readonly: true
+          }
+        ]"
+      />
 
       @if (u.tenantId) {
         <div class="admin-user-card__field">

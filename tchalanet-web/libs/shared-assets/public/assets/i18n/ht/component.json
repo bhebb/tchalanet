@@ -46,12 +46,17 @@
         "firstName": "Prenon (opsyonèl)",
         "lastName": "Non (opsyonèl)",
         "email": "Email (opsyonèl)",
-        "phoneNumber": "Telefòn (opsyonèl)"
+        "phoneNumber": "Telefòn (opsyonèl)",
+        "displayName": "Non pou afiche",
+        "assignedAt": "Atribye le"
       },
       "placeholder": {
         "email": "non@example.com",
         "phoneNumber": "+509 XXXX XXXX"
       }
+    },
+    "personIdentitySummary": {
+      "empty": "Idantite pa renseye."
     },
     "address": {
       "title": "Adrès",

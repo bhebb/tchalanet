@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TchConfirmDialog, TchConfirmDialogData, TchStatusBadge } from '@tch/ui/components';
 import type { BadgeStatus } from '@tch/ui/components';
+import { ConsolePersonIdentitySummaryComponent } from '@tch/web/console';
 
 import { adminUserStatusBadge } from '../platform-admin-user.utils';
 import type { AdminUserCardData } from './admin-user-card.model';
@@ -13,7 +14,13 @@ import type { AdminUserCardData } from './admin-user-card.model';
   selector: 'tch-platform-admin-user-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, MatButtonModule, TchStatusBadge],
+  imports: [
+    DatePipe,
+    RouterLink,
+    MatButtonModule,
+    TchStatusBadge,
+    ConsolePersonIdentitySummaryComponent,
+  ],
   templateUrl: './platform-admin-user-card.component.html',
   styleUrls: ['./platform-admin-user-card.component.scss'],
 })
