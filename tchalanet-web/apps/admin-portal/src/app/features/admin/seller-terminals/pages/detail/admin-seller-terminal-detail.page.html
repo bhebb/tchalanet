@@ -30,137 +30,46 @@
       @if (terminal(); as t) {
         <tch-admin-detail-layout>
           <div main class="seller-terminal-detail__main">
-            <tch-admin-section-card
-              [title]="'admin.sellerTerminals.detail.section.identity' | translate"
-              [description]="'admin.sellerTerminals.detail.section.identityDesc' | translate"
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.identity"
+              descriptionKey="admin.sellerTerminals.detail.section.identityDesc"
               icon="badge"
-            >
-              <dl class="seller-terminal-detail__facts">
-                @for (fact of identityFacts(); track fact.labelKey) {
-                  <div class="seller-terminal-detail__fact">
-                    <dt>{{ fact.labelKey | translate }}</dt>
-                    <dd>{{ value(fact.value) }}</dd>
-                  </div>
-                }
-              </dl>
-            </tch-admin-section-card>
+              [facts]="identityFacts()"
+            />
 
-            <tch-admin-section-card
-              [title]="'admin.sellerTerminals.detail.section.states' | translate"
-              [description]="'admin.sellerTerminals.detail.section.statesDesc' | translate"
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.states"
+              descriptionKey="admin.sellerTerminals.detail.section.statesDesc"
               icon="flag"
-            >
-              <dl class="seller-terminal-detail__facts">
-                @for (fact of stateFacts(); track fact.labelKey) {
-                  <div class="seller-terminal-detail__fact">
-                    <dt>{{ fact.labelKey | translate }}</dt>
-                    <dd>{{ value(fact.value) }}</dd>
-                  </div>
-                }
-              </dl>
-            </tch-admin-section-card>
+              [facts]="stateFacts()"
+            />
 
-            <tch-admin-section-card
-              [title]="'admin.sellerTerminals.detail.section.activity' | translate"
-              [description]="'admin.sellerTerminals.detail.section.activityDesc' | translate"
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.activity"
+              descriptionKey="admin.sellerTerminals.detail.section.activityDesc"
               icon="timeline"
-            >
-              <dl class="seller-terminal-detail__facts">
-                @for (fact of activityFacts(); track fact.labelKey) {
-                  <div class="seller-terminal-detail__fact">
-                    <dt>{{ fact.labelKey | translate }}</dt>
-                    <dd>{{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}</dd>
-                  </div>
-                }
-              </dl>
-            </tch-admin-section-card>
+              [facts]="activityFacts()"
+            />
 
-            <tch-admin-section-card
-              [title]="'admin.sellerTerminals.detail.section.security' | translate"
-              [description]="'admin.sellerTerminals.detail.section.securityDesc' | translate"
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.security"
+              descriptionKey="admin.sellerTerminals.detail.section.securityDesc"
               icon="lock"
-            >
-              <dl class="seller-terminal-detail__facts">
-                @for (fact of securityFacts(); track fact.labelKey) {
-                  <div class="seller-terminal-detail__fact">
-                    <dt>{{ fact.labelKey | translate }}</dt>
-                    <dd>
-                      @if (fact.labelKey === 'admin.sellerTerminals.detail.field.pinResetAt') {
-                        {{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}
-                      } @else {
-                        {{ value(fact.value) }}
-                      }
-                    </dd>
-                  </div>
-                }
-              </dl>
-            </tch-admin-section-card>
+              [facts]="securityFacts()"
+            />
           </div>
 
           <aside aside class="seller-terminal-detail__aside">
-            <section class="seller-terminal-detail__summary">
-              <span class="seller-terminal-detail__eyebrow">
-                {{ 'admin.sellerTerminals.detail.summary.eyebrow' | translate }}
-              </span>
-              <h2>{{ t.displayName }}</h2>
-              <p>{{ t.terminalCode }}</p>
-              <tch-status-badge [label]="statusLabel(t.status)" [status]="statusBadge(t.status)" />
-            </section>
+            <tch-seller-terminal-detail-summary-card [terminal]="t" />
 
-            <section class="seller-terminal-detail__today">
-              <div class="seller-terminal-detail__today-head">
-                <span class="seller-terminal-detail__eyebrow">
-                  {{ 'admin.sellerTerminals.detail.today.eyebrow' | translate }}
-                </span>
-                <strong>{{ 'admin.sellerTerminals.detail.today.title' | translate }}</strong>
-              </div>
-              @if (todayStats(); as stats) {
-                <div class="seller-terminal-detail__today-grid">
-                  <div class="seller-terminal-detail__today-row">
-                    <span>{{ 'admin.sellerTerminals.detail.today.ticketsSold' | translate }}</span>
-                    <strong>{{ stats.ticketsSold | number: '1.0-0' }}</strong>
-                  </div>
-                  <div class="seller-terminal-detail__today-row">
-                    <span>{{ 'admin.sellerTerminals.detail.today.grossSales' | translate }}</span>
-                    <strong>{{ stats.grossSales | number: '1.0-2' }} HTG</strong>
-                  </div>
-                  <div class="seller-terminal-detail__today-row">
-                    <span>{{ 'admin.sellerTerminals.detail.today.commission' | translate }}</span>
-                    <strong>{{ stats.sellerCommission | number: '1.0-2' }} HTG</strong>
-                  </div>
-                  <div class="seller-terminal-detail__today-row">
-                    <span>{{ 'admin.sellerTerminals.detail.today.netRevenue' | translate }}</span>
-                    <strong>{{ stats.netRevenueEstimated | number: '1.0-2' }} HTG</strong>
-                  </div>
-                </div>
-              }
-            </section>
+            <tch-seller-terminal-today-stats-card [stats]="todayStats()" />
 
-            <tch-admin-section-card
-              [title]="'admin.sellerTerminals.detail.section.control' | translate"
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.control"
               icon="tune"
-            >
-              <dl class="seller-terminal-detail__facts seller-terminal-detail__facts--compact">
-                <div class="seller-terminal-detail__fact">
-                  <dt>{{ 'admin.sellerTerminals.detail.field.commissionRate' | translate }}</dt>
-                  <dd>
-                    @if (t.commissionRate !== null && t.commissionRate !== undefined) {
-                      {{ t.commissionRate | number: '1.0-2' }} %
-                    } @else {
-                      {{ 'common.not_available' | translate }}
-                    }
-                  </dd>
-                </div>
-                <div class="seller-terminal-detail__fact">
-                  <dt>{{ 'admin.sellerTerminals.detail.field.addressId' | translate }}</dt>
-                  <dd>{{ value(controlFacts()[1].value) }}</dd>
-                </div>
-                <div class="seller-terminal-detail__fact">
-                  <dt>{{ 'admin.sellerTerminals.detail.field.tenantId' | translate }}</dt>
-                  <dd>{{ value(controlFacts()[2].value) }}</dd>
-                </div>
-              </dl>
-            </tch-admin-section-card>
+              [facts]="controlFacts()"
+              [compact]="true"
+            />
           </aside>
         </tch-admin-detail-layout>
       }

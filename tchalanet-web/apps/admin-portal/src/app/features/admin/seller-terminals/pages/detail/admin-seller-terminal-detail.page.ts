@@ -1,47 +1,42 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
-  AdminSectionCardComponent,
 } from '@tch/ui/console';
 import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 
 import {
   SellerTerminalApi,
-  SellerTerminalStatus,
-  SellerTerminalView,
 } from '../../data-access/seller-terminal-api.service';
 import {
   AdminFinancialsApi,
   SellerTerminalDailyFinancialRow,
 } from '../../../financials/data-access/admin-financials-api.service';
-
-interface DetailFact {
-  readonly labelKey: string;
-  readonly value: string | number | null | undefined;
-}
+import {
+  SellerTerminalDetailFact,
+  SellerTerminalDetailFactsCardComponent,
+} from '../../components/seller-terminal-detail-facts-card/seller-terminal-detail-facts-card.component';
+import { SellerTerminalDetailSummaryCardComponent } from '../../components/seller-terminal-detail-summary-card/seller-terminal-detail-summary-card.component';
+import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-terminal-today-stats-card/seller-terminal-today-stats-card.component';
 
 @Component({
   selector: 'tch-admin-seller-terminal-detail-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
-    DecimalPipe,
     RouterLink,
     AdminDetailLayoutComponent,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
+    SellerTerminalDetailFactsCardComponent,
+    SellerTerminalDetailSummaryCardComponent,
+    SellerTerminalTodayStatsCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
-    TchStatusBadge,
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
@@ -81,7 +76,7 @@ export class AdminSellerTerminalDetailPage {
     return terminal?.displayName || terminal?.terminalCode || this.translate.instant('admin.sellerTerminals.detail.title');
   });
 
-  readonly identityFacts = computed<readonly DetailFact[]>(() => {
+  readonly identityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
@@ -93,63 +88,77 @@ export class AdminSellerTerminalDetailPage {
     ];
   });
 
-  readonly controlFacts = computed<readonly DetailFact[]>(() => {
+  readonly controlFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
-      { labelKey: 'admin.sellerTerminals.detail.field.commissionRate', value: terminal.commissionRate },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.commissionRate',
+        value: terminal.commissionRate,
+        kind: 'percent',
+      },
       { labelKey: 'admin.sellerTerminals.detail.field.addressId', value: idValue(terminal.addressId) },
       { labelKey: 'admin.sellerTerminals.detail.field.tenantId', value: idValue(terminal.tenantId) },
     ];
   });
 
-  readonly stateFacts = computed<readonly DetailFact[]>(() => {
+  readonly stateFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
-      { labelKey: 'admin.sellerTerminals.detail.field.currentStatus', value: this.statusLabel(terminal.status) },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.currentStatus',
+        valueKey: `admin.sellerTerminals.status.${terminal.status}`,
+      },
       {
         labelKey: 'admin.sellerTerminals.detail.field.canSell',
-        value: this.translate.instant(terminal.status === 'ACTIVE' ? 'common.yes' : 'common.no'),
+        value: terminal.status === 'ACTIVE',
+        kind: 'boolean',
       },
       {
         labelKey: 'admin.sellerTerminals.detail.field.mustChangePin',
-        value: this.translate.instant(terminal.mustChangePin ? 'common.yes' : 'common.no'),
+        value: !!terminal.mustChangePin,
+        kind: 'boolean',
       },
       {
         labelKey: 'admin.sellerTerminals.detail.field.blocked',
-        value: this.translate.instant(terminal.status === 'BLOCKED' ? 'common.yes' : 'common.no'),
+        value: terminal.status === 'BLOCKED',
+        kind: 'boolean',
       },
       {
         labelKey: 'admin.sellerTerminals.detail.field.disabled',
-        value: this.translate.instant(terminal.status === 'DISABLED' ? 'common.yes' : 'common.no'),
+        value: terminal.status === 'DISABLED',
+        kind: 'boolean',
       },
     ];
   });
 
-  readonly securityFacts = computed<readonly DetailFact[]>(() => {
+  readonly securityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
       {
         labelKey: 'admin.sellerTerminals.detail.field.mustChangePin',
-        value: this.translate.instant(
-          terminal.mustChangePin ? 'common.yes' : 'common.no',
-        ),
+        value: !!terminal.mustChangePin,
+        kind: 'boolean',
       },
-      { labelKey: 'admin.sellerTerminals.detail.field.pinResetAt', value: terminal.pinResetAt },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.pinResetAt',
+        value: terminal.pinResetAt,
+        kind: 'date',
+      },
       { labelKey: 'admin.sellerTerminals.detail.field.blockedReason', value: terminal.blockedReason },
     ];
   });
 
-  readonly activityFacts = computed<readonly DetailFact[]>(() => {
+  readonly activityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
     return [
-      { labelKey: 'admin.sellerTerminals.detail.field.activatedAt', value: terminal.activatedAt },
-      { labelKey: 'admin.sellerTerminals.detail.field.lastSeenAt', value: terminal.lastSeenAt },
-      { labelKey: 'admin.sellerTerminals.detail.field.blockedAt', value: terminal.blockedAt },
-      { labelKey: 'admin.sellerTerminals.detail.field.disabledAt', value: terminal.disabledAt },
+      { labelKey: 'admin.sellerTerminals.detail.field.activatedAt', value: terminal.activatedAt, kind: 'date' },
+      { labelKey: 'admin.sellerTerminals.detail.field.lastSeenAt', value: terminal.lastSeenAt, kind: 'date' },
+      { labelKey: 'admin.sellerTerminals.detail.field.blockedAt', value: terminal.blockedAt, kind: 'date' },
+      { labelKey: 'admin.sellerTerminals.detail.field.disabledAt', value: terminal.disabledAt, kind: 'date' },
     ];
   });
 
@@ -157,20 +166,6 @@ export class AdminSellerTerminalDetailPage {
     this.sellerTerminal.reload();
   }
 
-  statusLabel(status: SellerTerminalStatus): string {
-    return this.translate.instant(`admin.sellerTerminals.status.${status}`);
-  }
-
-  statusBadge(status: SellerTerminalStatus): BadgeStatus {
-    if (status === 'ACTIVE') return 'ready';
-    if (status === 'BLOCKED') return 'blocked';
-    if (status === 'PENDING') return 'pending';
-    return 'missing';
-  }
-
-  value(value: string | number | null | undefined): string | number {
-    return value ?? this.translate.instant('common.not_available');
-  }
 }
 
 function idValue(value: { value?: string | null } | string | null | undefined): string | null {

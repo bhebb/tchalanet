@@ -1,0 +1,30 @@
+<tch-admin-section-card
+  [title]="titleKey() | translate"
+  [description]="descriptionKey() ? (descriptionKey() | translate) : undefined"
+  [icon]="icon()"
+>
+  <dl class="seller-terminal-detail-facts" [class.seller-terminal-detail-facts--compact]="compact()">
+    @for (fact of facts(); track fact.labelKey) {
+      <div class="seller-terminal-detail-facts__item">
+        <dt>{{ fact.labelKey | translate }}</dt>
+        <dd>
+          @if (fact.valueKey) {
+            {{ fact.valueKey | translate }}
+          } @else if (fact.kind === 'date') {
+            {{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}
+          } @else if (fact.kind === 'percent') {
+            @if (fact.value !== null && fact.value !== undefined) {
+              {{ fact.value | number: '1.0-2' }} %
+            } @else {
+              {{ 'common.not_available' | translate }}
+            }
+          } @else if (fact.kind === 'boolean') {
+            {{ fact.value ? ('common.yes' | translate) : ('common.no' | translate) }}
+          } @else {
+            {{ fact.value ?? ('common.not_available' | translate) }}
+          }
+        </dd>
+      </div>
+    }
+  </dl>
+</tch-admin-section-card>
