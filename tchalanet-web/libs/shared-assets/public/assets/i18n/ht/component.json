@@ -2,6 +2,29 @@
   "readiness": {
     "noIssues": "Pa gen pwoblèm"
   },
+  "console": {
+    "gamesTable": {
+      "column": {
+        "code": "Kòd",
+        "name": "Non",
+        "category": "Kategori",
+        "sortOrder": "Lòd",
+        "status": "Estati"
+      }
+    },
+    "pricingTable": {
+      "globalTenant": "Global",
+      "column": {
+        "game": "Jwèt",
+        "betType": "Tip pari",
+        "betTypeShort": "Tip",
+        "betOption": "Opsyon",
+        "odds": "Kòt",
+        "tenant": "Tenant",
+        "status": "Estati"
+      }
+    }
+  },
   "layout": {
     "public_home": {
       "contact_cta": "Kontak",

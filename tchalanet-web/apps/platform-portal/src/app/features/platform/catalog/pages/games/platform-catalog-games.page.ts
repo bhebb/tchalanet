@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
@@ -235,6 +235,7 @@ export class EditGameDialog {
     TchPaginationComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
@@ -245,6 +246,7 @@ export class PlatformCatalogGamesPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -371,12 +373,19 @@ export class PlatformCatalogGamesPage {
       name: game.name,
       category: game.category,
       sortOrder: game.sortOrder,
-      statusLabel: game.active ? 'Actif' : 'Inactif',
+      statusLabel: this.translate.instant(game.active ? 'common.enabled' : 'common.disabled'),
       statusTone: game.active ? 'success' : 'neutral',
       actions: [
-        { id: 'edit', label: 'Modifier', icon: 'edit', variant: 'icon' },
-        ...(game.active ? [{ id: 'deactivate', label: 'Désactiver', icon: 'block', variant: 'icon' as const }] : []),
-        { id: 'delete', label: 'Supprimer', icon: 'delete', tone: 'danger', variant: 'icon' },
+        { id: 'edit', label: this.translate.instant('common.edit'), icon: 'edit', variant: 'icon' },
+        ...(game.active
+          ? [{
+              id: 'deactivate',
+              label: this.translate.instant('common.deactivate'),
+              icon: 'block',
+              variant: 'icon' as const,
+            }]
+          : []),
+        { id: 'delete', label: this.translate.instant('common.delete'), icon: 'delete', tone: 'danger', variant: 'icon' },
       ],
     };
   }

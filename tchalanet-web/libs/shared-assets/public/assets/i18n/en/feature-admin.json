@@ -365,6 +365,38 @@
         "sourceWarning": "Vente configurée · Source à vérifier"
       }
     },
+    "games": {
+      "title": "Games",
+      "description": "Manage the games enabled for this tenant.",
+      "tabs": {
+        "enabled": "Enabled games",
+        "catalog": "Catalog"
+      },
+      "status": {
+        "readyForSale": "Ready for sale",
+        "incomplete": "Incomplete configuration",
+        "enabledForTenant": "Enabled",
+        "available": "Available"
+      },
+      "empty": {
+        "enabled": {
+          "title": "No enabled games",
+          "message": "Enable games from the catalog."
+        },
+        "catalog": {
+          "title": "Empty catalog",
+          "message": "No catalog game is available."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Odds grid",
+      "description": "Default odds for all bet types.",
+      "empty": {
+        "title": "No odds configured",
+        "message": "The odds grid is empty."
+      }
+    },
     "generatedDraws": {
       "title": "Tirages générés",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",

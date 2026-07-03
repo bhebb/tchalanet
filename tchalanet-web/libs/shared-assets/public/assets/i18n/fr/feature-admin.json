@@ -86,6 +86,38 @@
         "sourceWarning": "Vente configurée · Source à vérifier"
       }
     },
+    "games": {
+      "title": "Jeux",
+      "description": "Gestion des jeux activés pour ce tenant.",
+      "tabs": {
+        "enabled": "Jeux activés",
+        "catalog": "Catalogue"
+      },
+      "status": {
+        "readyForSale": "Prêt à vendre",
+        "incomplete": "Configuration incomplète",
+        "enabledForTenant": "Activé",
+        "available": "Disponible"
+      },
+      "empty": {
+        "enabled": {
+          "title": "Aucun jeu activé",
+          "message": "Activez des jeux depuis le catalogue."
+        },
+        "catalog": {
+          "title": "Catalogue vide",
+          "message": "Aucun jeu disponible dans le catalogue."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Grille de cotes",
+      "description": "Cotes par défaut pour tous les types de mises.",
+      "empty": {
+        "title": "Aucune cote configurée",
+        "message": "La grille de cotes est vide."
+      }
+    },
     "generatedDraws": {
       "title": "Tirages générés",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",

@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
@@ -33,6 +33,7 @@ import { GameSettingsDialog } from './dialogs/game-settings.dialog';
     TchLoading,
     TchErrorPanel,
     ConsoleGamesTableComponent,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
@@ -153,17 +154,19 @@ export class AdminGamesPage implements OnInit {
       name: game.displayName ?? game.catalogName,
       category: game.category,
       sortOrder: game.displayOrder,
-      statusLabel: game.enabled ? 'Actif' : 'Inactif',
+      statusLabel: this.translate.instant(game.enabled ? 'common.enabled' : 'common.disabled'),
       statusTone: game.enabled ? 'success' : 'neutral',
-      supporting: game.readyForSale ? 'Prêt à vendre' : 'Configuration incomplète',
+      supporting: this.translate.instant(
+        game.readyForSale ? 'admin.games.status.readyForSale' : 'admin.games.status.incomplete',
+      ),
       actions: [
         {
           id: 'toggle',
-          label: game.enabled ? 'Désactiver' : 'Activer',
+          label: this.translate.instant(game.enabled ? 'common.deactivate' : 'common.activate'),
           icon: game.enabled ? 'block' : 'check_circle',
           tone: game.enabled ? 'danger' : 'primary',
         },
-        { id: 'settings', label: 'Paramètres', icon: 'tune', variant: 'icon' },
+        { id: 'settings', label: this.translate.instant('common.details'), icon: 'tune', variant: 'icon' },
       ],
     };
   }
@@ -174,19 +177,25 @@ export class AdminGamesPage implements OnInit {
       code: game.gameCode,
       name: game.name,
       category: game.category,
-      statusLabel: game.enabledForTenant ? 'Activé' : game.catalogActive ? 'Disponible' : 'Inactif',
+      statusLabel: this.catalogStatusLabel(game),
       statusTone: game.enabledForTenant ? 'success' : game.catalogActive ? 'info' : 'neutral',
       supporting: game.disabledReason,
       actions: game.enabledForTenant
         ? []
         : [{
             id: 'enable',
-            label: 'Activer',
+            label: this.translate.instant('common.activate'),
             icon: 'add',
             tone: 'primary',
             variant: 'button',
           }],
     };
+  }
+
+  private catalogStatusLabel(game: CatalogGameView): string {
+    if (game.enabledForTenant) return this.translate.instant('admin.games.status.enabledForTenant');
+    if (game.catalogActive) return this.translate.instant('admin.games.status.available');
+    return this.translate.instant('common.disabled');
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

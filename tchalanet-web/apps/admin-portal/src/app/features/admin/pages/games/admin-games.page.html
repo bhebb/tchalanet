@@ -1,18 +1,25 @@
-<tch-admin-page-shell title="Jeux" description="Gestion des jeux activés pour ce tenant.">
+<tch-admin-page-shell
+  [title]="'admin.games.title' | translate"
+  [description]="'admin.games.description' | translate"
+>
   <mat-tab-group>
-    <mat-tab label="Jeux activés">
+    <mat-tab [label]="'admin.games.tabs.enabled' | translate">
       @if (loadingGames()) {
-        <tch-loading label="Chargement..." />
+        <tch-loading [label]="'common.loading' | translate" />
       } @else if (errorGames(); as gamesError) {
         <tch-error-panel
           [title]="gamesError.title"
           [message]="gamesError.message"
           [showRetry]="true"
-          retryLabel="Réessayer"
+          [retryLabel]="'common.retry' | translate"
           (retry)="loadGames()"
         />
       } @else if (games().length === 0) {
-        <tch-admin-empty-state icon="casino" title="Aucun jeu activé" message="Activez des jeux depuis le catalogue." />
+        <tch-admin-empty-state
+          icon="casino"
+          [title]="'admin.games.empty.enabled.title' | translate"
+          [message]="'admin.games.empty.enabled.message' | translate"
+        />
       } @else {
         <tch-console-games-table
           [rows]="gameRows()"
@@ -22,19 +29,23 @@
       }
     </mat-tab>
 
-    <mat-tab label="Catalogue">
+    <mat-tab [label]="'admin.games.tabs.catalog' | translate">
       @if (loadingCatalog()) {
-        <tch-loading label="Chargement..." />
+        <tch-loading [label]="'common.loading' | translate" />
       } @else if (errorCatalog(); as catalogError) {
         <tch-error-panel
           [title]="catalogError.title"
           [message]="catalogError.message"
           [showRetry]="true"
-          retryLabel="Réessayer"
+          [retryLabel]="'common.retry' | translate"
           (retry)="loadCatalog()"
         />
       } @else if (catalog().length === 0) {
-        <tch-admin-empty-state icon="inventory" title="Catalogue vide" message="Aucun jeu disponible dans le catalogue." />
+        <tch-admin-empty-state
+          icon="inventory"
+          [title]="'admin.games.empty.catalog.title' | translate"
+          [message]="'admin.games.empty.catalog.message' | translate"
+        />
       } @else {
         <tch-console-games-table
           [rows]="catalogRows()"

@@ -483,6 +483,50 @@
         "ambulant": "Vendeur indépendant ou petite activité mobile."
       }
     },
+    "catalog": {
+      "games": {
+        "title": "Jwèt katalòg",
+        "description": "Referans global jwèt ki disponib sou platfòm nan.",
+        "action": {
+          "create": "Nouvo jwèt"
+        },
+        "search": {
+          "placeholder": "Chèche yon jwèt..."
+        },
+        "empty": {
+          "title": "Pa gen jwèt",
+          "message": "Kreye premye jwèt katalòg la."
+        }
+      },
+      "pricing": {
+        "title": "Kòt & pricing",
+        "description": "Referans global kòt platfòm nan pa jwèt ak tip pari.",
+        "action": {
+          "create": "Nouvo kòt"
+        },
+        "search": {
+          "placeholder": "Filtre pa jwèt (BORLETTE...)"
+        },
+        "filter": {
+          "betType": "Tip pari"
+        },
+        "scope": {
+          "global": "Global"
+        },
+        "empty": {
+          "title": "Pa gen kòt",
+          "message": "Kreye premye kòt katalòg la.",
+          "filtered": {
+            "title": "Pa gen rezilta",
+            "message": "Pa gen kòt ki koresponn ak filtè yo."
+          }
+        },
+        "footer": {
+          "count": "{{count}} kòt",
+          "filtered": "(filtre sou {{total}})"
+        }
+      }
+    },
     "contactRequests": {
       "title": "Demann kontak",
       "description": "Jesyon demann ki rive"

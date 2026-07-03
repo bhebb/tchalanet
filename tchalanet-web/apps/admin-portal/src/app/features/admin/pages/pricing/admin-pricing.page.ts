@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
@@ -26,6 +26,7 @@ import { AdminPricingApi, PricingView } from '../../data-access/admin-pricing-ap
     ConsolePricingTableComponent,
     TchLoading,
     TchErrorPanel,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
   ],
@@ -46,7 +47,7 @@ export class AdminPricingPage implements OnInit {
       betType: row.betType,
       betOption: row.betOption,
       odds: row.odds,
-      statusLabel: row.active ? 'Actif' : 'Inactif',
+      statusLabel: this.translate.instant(row.active ? 'common.enabled' : 'common.disabled'),
       statusTone: row.active ? 'success' : 'neutral',
     })),
   );

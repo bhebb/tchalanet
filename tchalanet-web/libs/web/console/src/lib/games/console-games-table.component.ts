@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
@@ -10,7 +11,7 @@ import { ConsoleGameActionEvent, ConsoleGameRow } from './console-games-table.mo
   selector: 'tch-console-games-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminStatusPillComponent, MatButtonModule, MatTableModule],
+  imports: [AdminStatusPillComponent, MatButtonModule, MatTableModule, TranslatePipe],
   templateUrl: './console-games-table.component.html',
   styleUrls: ['./console-games-table.component.scss'],
 })

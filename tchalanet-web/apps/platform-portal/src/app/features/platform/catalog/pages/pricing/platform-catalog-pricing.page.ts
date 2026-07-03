@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { Observable, map } from 'rxjs';
 
@@ -223,6 +223,7 @@ export class EditPricingDialog {
     ConsolePricingTableComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
@@ -234,6 +235,7 @@ export class PlatformCatalogPricingPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly betTypes = BET_TYPES;
 
@@ -259,11 +261,11 @@ export class PlatformCatalogPricingPage {
       betOption: row.betOption,
       odds: row.odds,
       tenantLabel: this.tenantLabel(row),
-      statusLabel: row.active ? 'Actif' : 'Inactif',
+      statusLabel: this.translate.instant(row.active ? 'common.enabled' : 'common.disabled'),
       statusTone: row.active ? 'success' : 'neutral',
       actions: [
-        { id: 'edit', label: 'Modifier', icon: 'edit', variant: 'icon' },
-        { id: 'delete', label: 'Supprimer', icon: 'delete', tone: 'danger', variant: 'icon' },
+        { id: 'edit', label: this.translate.instant('common.edit'), icon: 'edit', variant: 'icon' },
+        { id: 'delete', label: this.translate.instant('common.delete'), icon: 'delete', tone: 'danger', variant: 'icon' },
       ],
     })),
   );
@@ -320,7 +322,7 @@ export class PlatformCatalogPricingPage {
   }
 
   tenantLabel(row: CatalogPricingView): string {
-    if (!row.tenantId) return 'Global';
+    if (!row.tenantId) return this.translate.instant('platform.catalog.pricing.scope.global');
     return row.tenantId.slice(0, 8) + '…';
   }
 }

@@ -332,6 +332,38 @@
         "sourceWarning": "Vente configurée · Source à vérifier"
       }
     },
+    "games": {
+      "title": "Jwèt",
+      "description": "Jere jwèt ki aktive pou tenant sa a.",
+      "tabs": {
+        "enabled": "Jwèt aktive",
+        "catalog": "Katalòg"
+      },
+      "status": {
+        "readyForSale": "Pare pou vann",
+        "incomplete": "Konfigirasyon pa konplè",
+        "enabledForTenant": "Aktive",
+        "available": "Disponib"
+      },
+      "empty": {
+        "enabled": {
+          "title": "Pa gen jwèt aktive",
+          "message": "Aktive jwèt yo apati katalòg la."
+        },
+        "catalog": {
+          "title": "Katalòg vid",
+          "message": "Pa gen jwèt disponib nan katalòg la."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Tablo kòt",
+      "description": "Kòt pa defo pou tout tip pari yo.",
+      "empty": {
+        "title": "Pa gen kòt konfigire",
+        "message": "Tablo kòt la vid."
+      }
+    },
     "generatedDraws": {
       "title": "Tirages générés",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",

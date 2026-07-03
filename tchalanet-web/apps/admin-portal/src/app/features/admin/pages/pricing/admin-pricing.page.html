@@ -1,23 +1,30 @@
-<tch-admin-page-shell title="Grille de cotes" description="Cotes par défaut pour tous les types de mises.">
+<tch-admin-page-shell
+  [title]="'admin.pricing.title' | translate"
+  [description]="'admin.pricing.description' | translate"
+>
   <div actions>
     <button mat-stroked-button [disabled]="loading()" (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
-      Rafraîchir
+      {{ 'common.refresh' | translate }}
     </button>
   </div>
 
   @if (loading()) {
-    <tch-loading label="Chargement..." />
+    <tch-loading [label]="'common.loading' | translate" />
   } @else if (error(); as errorVm) {
     <tch-error-panel
       [title]="errorVm.title"
       [message]="errorVm.message"
       [showRetry]="true"
-      retryLabel="Réessayer"
+      [retryLabel]="'common.retry' | translate"
       (retry)="load()"
     />
   } @else if (odds().length === 0) {
-    <tch-admin-empty-state icon="casino" title="Aucune cote configurée" message="La grille de cotes est vide." />
+    <tch-admin-empty-state
+      icon="casino"
+      [title]="'admin.pricing.empty.title' | translate"
+      [message]="'admin.pricing.empty.message' | translate"
+    />
   } @else {
     <tch-console-pricing-table [rows]="rows()" [showActions]="false" />
   }

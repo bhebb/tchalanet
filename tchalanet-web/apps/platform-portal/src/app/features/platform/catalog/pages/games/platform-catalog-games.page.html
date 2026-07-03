@@ -1,15 +1,18 @@
-<tch-admin-page-shell title="Jeux catalogue" description="Référentiel global des jeux disponibles sur la plateforme.">
+<tch-admin-page-shell
+  [title]="'platform.catalog.games.title' | translate"
+  [description]="'platform.catalog.games.description' | translate"
+>
   <div actions>
     <button mat-flat-button color="primary" (click)="openCreate()">
       <span class="material-symbols-outlined">add</span>
-      Nouveau jeu
+      {{ 'platform.catalog.games.action.create' | translate }}
     </button>
   </div>
 
   <tch-admin-crud-shell>
     <tch-admin-data-toolbar
       toolbar
-        searchPlaceholder="Rechercher un jeu..."
+        [searchPlaceholder]="'platform.catalog.games.search.placeholder' | translate"
         [searchValue]="search()"
         (searchChange)="onSearch($event)"
       >
@@ -22,11 +25,16 @@
       content
       [resource]="games"
       [error]="gamesError()"
-      loadingLabel="Chargement..."
-      retryLabel="Réessayer"
+      [loadingLabel]="'common.loading' | translate"
+      [retryLabel]="'common.retry' | translate"
       (retry)="load()"
     >
-      <tch-admin-empty-state empty icon="casino" title="Aucun jeu" message="Créez le premier jeu du catalogue." />
+      <tch-admin-empty-state
+        empty
+        icon="casino"
+        [title]="'platform.catalog.games.empty.title' | translate"
+        [message]="'platform.catalog.games.empty.message' | translate"
+      />
       <ng-template tchAsyncReady>
         <tch-console-games-table
           [rows]="gameRows()"

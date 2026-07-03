@@ -2,6 +2,29 @@
   "readiness": {
     "noIssues": "No issues"
   },
+  "console": {
+    "gamesTable": {
+      "column": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Category",
+        "sortOrder": "Order",
+        "status": "Status"
+      }
+    },
+    "pricingTable": {
+      "globalTenant": "Global",
+      "column": {
+        "game": "Game",
+        "betType": "Bet type",
+        "betTypeShort": "Type",
+        "betOption": "Option",
+        "odds": "Odds",
+        "tenant": "Tenant",
+        "status": "Status"
+      }
+    }
+  },
   "layout": {
     "public_home": {
       "contact_cta": "Contact",

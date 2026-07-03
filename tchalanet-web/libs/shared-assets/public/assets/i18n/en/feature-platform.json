@@ -483,6 +483,50 @@
         "ambulant": "Vendeur indépendant ou petite activité mobile."
       }
     },
+    "catalog": {
+      "games": {
+        "title": "Catalog games",
+        "description": "Global reference of games available on the platform.",
+        "action": {
+          "create": "New game"
+        },
+        "search": {
+          "placeholder": "Search for a game..."
+        },
+        "empty": {
+          "title": "No games",
+          "message": "Create the first catalog game."
+        }
+      },
+      "pricing": {
+        "title": "Odds & pricing",
+        "description": "Global platform odds by game and bet type.",
+        "action": {
+          "create": "New odds"
+        },
+        "search": {
+          "placeholder": "Filter by game (BORLETTE...)"
+        },
+        "filter": {
+          "betType": "Bet type"
+        },
+        "scope": {
+          "global": "Global"
+        },
+        "empty": {
+          "title": "No odds",
+          "message": "Create the first catalog odds.",
+          "filtered": {
+            "title": "No results",
+            "message": "No odds match the selected filters."
+          }
+        },
+        "footer": {
+          "count": "{{count}} odds",
+          "filtered": "(filtered from {{total}})"
+        }
+      }
+    },
     "contactRequests": {
       "title": "Contact Requests",
       "description": "Manage incoming contact requests"

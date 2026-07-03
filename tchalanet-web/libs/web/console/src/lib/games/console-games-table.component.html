@@ -1,13 +1,13 @@
 <div class="console-games-table">
   <table mat-table [dataSource]="rows()">
     <ng-container matColumnDef="code">
-      <th mat-header-cell *matHeaderCellDef>Code</th>
-      <td mat-cell *matCellDef="let row" data-label="Code"><code>{{ row.code }}</code></td>
+      <th mat-header-cell *matHeaderCellDef>{{ 'component.console.gamesTable.column.code' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.gamesTable.column.code' | translate"><code>{{ row.code }}</code></td>
     </ng-container>
 
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Nom</th>
-      <td mat-cell *matCellDef="let row" data-label="Nom">
+      <th mat-header-cell *matHeaderCellDef>{{ 'component.console.gamesTable.column.name' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.gamesTable.column.name' | translate">
         <div class="console-games-table__identity">
           <strong>{{ row.name }}</strong>
           @if (row.supporting) {
@@ -18,18 +18,18 @@
     </ng-container>
 
     <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef>Catégorie</th>
-      <td mat-cell *matCellDef="let row" data-label="Catégorie">{{ row.category || '—' }}</td>
+      <th mat-header-cell *matHeaderCellDef>{{ 'component.console.gamesTable.column.category' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.gamesTable.column.category' | translate">{{ row.category || '—' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="sortOrder">
-      <th mat-header-cell *matHeaderCellDef>Ordre</th>
-      <td mat-cell *matCellDef="let row" data-label="Ordre">{{ row.sortOrder ?? '—' }}</td>
+      <th mat-header-cell *matHeaderCellDef>{{ 'component.console.gamesTable.column.sortOrder' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.gamesTable.column.sortOrder' | translate">{{ row.sortOrder ?? '—' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Statut</th>
-      <td mat-cell *matCellDef="let row" data-label="Statut">
+      <th mat-header-cell *matHeaderCellDef>{{ 'component.console.gamesTable.column.status' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.gamesTable.column.status' | translate">
         <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
       </td>
     </ng-container>

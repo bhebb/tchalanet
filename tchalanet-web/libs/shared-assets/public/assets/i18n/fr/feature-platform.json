@@ -560,6 +560,50 @@
         "ambulant": "Vendeur indépendant ou petite activité mobile."
       }
     },
+    "catalog": {
+      "games": {
+        "title": "Jeux catalogue",
+        "description": "Référentiel global des jeux disponibles sur la plateforme.",
+        "action": {
+          "create": "Nouveau jeu"
+        },
+        "search": {
+          "placeholder": "Rechercher un jeu..."
+        },
+        "empty": {
+          "title": "Aucun jeu",
+          "message": "Créez le premier jeu du catalogue."
+        }
+      },
+      "pricing": {
+        "title": "Cotes & pricing",
+        "description": "Référentiel global des cotes de la plateforme, par jeu et type de pari.",
+        "action": {
+          "create": "Nouvelle cote"
+        },
+        "search": {
+          "placeholder": "Filtrer par jeu (BORLETTE…)"
+        },
+        "filter": {
+          "betType": "Type de pari"
+        },
+        "scope": {
+          "global": "Global"
+        },
+        "empty": {
+          "title": "Aucune cote",
+          "message": "Créez la première cote du catalogue.",
+          "filtered": {
+            "title": "Aucun résultat",
+            "message": "Aucune cote ne correspond aux filtres."
+          }
+        },
+        "footer": {
+          "count": "{{count}} cote(s)",
+          "filtered": "(filtré sur {{total}})"
+        }
+      }
+    },
     "contactRequests": {
       "title": "Demandes de contact",
       "description": "Gestion des demandes entrantes"
