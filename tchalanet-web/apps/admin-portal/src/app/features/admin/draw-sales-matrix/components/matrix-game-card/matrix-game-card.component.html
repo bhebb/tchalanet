@@ -9,8 +9,8 @@
       {{ gameVm.gameCode | consoleGameLogoText:gameVm.displayName }}
     </span>
     @if (mode() === 'offered') {
-      <tch-admin-status-pill
-        [tone]="gameStatusTone(gameVm)"
+      <tch-status-badge
+        [status]="gameStatus(gameVm)"
         [label]="gameStatusLabelKey(gameVm) | translate"
       />
     }

@@ -8,7 +8,7 @@ import type { ProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
+import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 import { consoleGameName } from '@tch/web/console';
 import type { TenantGameView } from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
@@ -22,6 +22,17 @@ import {
   MatrixProviderGameActionEvent,
 } from '../components/matrix-provider-list/matrix-provider-list.component';
 import { DrawSalesMatrixSummaryComponent } from '../components/matrix-summary/matrix-summary.component';
+
+interface MatrixGameMutationInput {
+  readonly key: string;
+  readonly drawChannelId: string;
+  readonly tenantGameId: string;
+  readonly game: ChannelGameSetupView;
+}
+
+interface MatrixToggleGameInput extends MatrixGameMutationInput {
+  readonly enabled: boolean;
+}
 
 @Component({
   selector: 'tch-admin-draw-sales-matrix-page',
@@ -37,7 +48,7 @@ import { DrawSalesMatrixSummaryComponent } from '../components/matrix-summary/ma
     DrawSalesMatrixSummaryComponent,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
-  styleUrl: './admin-draw-sales-matrix.page.scss',
+  styleUrls: ['./admin-draw-sales-matrix.page.scss'],
 })
 export class AdminDrawSalesMatrixPage {
   private readonly api = inject(AdminDrawSalesMatrixApi);
@@ -50,6 +61,56 @@ export class AdminDrawSalesMatrixPage {
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
   readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
   readonly actionNotices = signal<Readonly<Record<string, string>>>({});
+  readonly offerGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
+    run: input => this.api.offerGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.offer',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.added', {
+        game: this.gameLabel(input.game),
+      }));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
+  readonly toggleGameMutation = tchMutation<MatrixToggleGameInput, unknown>({
+    run: input =>
+      this.api.toggleGame(input.drawChannelId, input.tenantGameId, input.enabled, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.toggle',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant(
+        input.enabled ? 'admin.drawSalesMatrix.feedback.activated' : 'admin.drawSalesMatrix.feedback.disabled',
+        { game: this.gameLabel(input.game) },
+      ));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
+  readonly removeGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
+    run: input => this.api.removeGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
+    source: 'admin.setup.draw_sales_matrix.remove',
+    onSuccess: (_result, input) => {
+      this.acting.set(null);
+      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.removed', {
+        game: this.gameLabel(input.game),
+      }));
+      this.load(true);
+    },
+    onError: (err, input) => {
+      this.acting.set(null);
+      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
+      return true;
+    },
+  });
 
   load(preserveActionFeedback = false): void {
     if (!preserveActionFeedback) {
@@ -75,18 +136,13 @@ export class AdminDrawSalesMatrixPage {
     this.acting.set(key);
     this.clearActionError(key);
     this.clearActionNotice(key);
-    this.api.offerGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, this.translate.instant('admin.drawSalesMatrix.feedback.added', {
-          game: this.gameLabel(game),
-        }));
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.offerGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+    }, {
+      key,
     });
   }
 
@@ -99,19 +155,14 @@ export class AdminDrawSalesMatrixPage {
     this.clearActionError(key);
     this.clearActionNotice(key);
     const newEnabled = !game.enabledOnChannel;
-    this.api.toggleGame(drawChannelId, tenantGameId, newEnabled, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, this.translate.instant(
-          newEnabled ? 'admin.drawSalesMatrix.feedback.activated' : 'admin.drawSalesMatrix.feedback.disabled',
-          { game: this.gameLabel(game) },
-        ));
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.toggleGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+      enabled: newEnabled,
+    }, {
+      key,
     });
   }
 
@@ -123,18 +174,13 @@ export class AdminDrawSalesMatrixPage {
     this.acting.set(key);
     this.clearActionError(key);
     this.clearActionNotice(key);
-    this.api.removeGame(drawChannelId, tenantGameId, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.acting.set(null);
-        this.setActionNotice(key, this.translate.instant('admin.drawSalesMatrix.feedback.removed', {
-          game: this.gameLabel(game),
-        }));
-        this.load(true);
-      },
-      error: (err: unknown) => {
-        this.acting.set(null);
-        this.setActionError(key, err, drawChannelId, tenantGameId);
-      },
+    this.removeGameMutation.execute({
+      key,
+      drawChannelId,
+      tenantGameId,
+      game,
+    }, {
+      key,
     });
   }
 

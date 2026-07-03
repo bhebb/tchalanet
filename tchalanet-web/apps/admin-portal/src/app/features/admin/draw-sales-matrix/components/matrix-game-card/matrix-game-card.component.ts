@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchSectionError } from '@tch/ui/components';
-import { AdminStatusPillComponent } from '@tch/ui/console';
+import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import { TchErrorViewModel } from '@tch/web/errors';
 import {
   ConsoleGameLogoTextPipe,
@@ -36,7 +36,7 @@ export interface MatrixGameActionEvent {
     MatIconModule,
     TranslatePipe,
     TchSectionError,
-    AdminStatusPillComponent,
+    TchStatusBadge,
     ConsoleGameLogoTextPipe,
     ConsoleGameNamePipe,
   ],
@@ -61,11 +61,11 @@ export class DrawSalesMatrixGameCardComponent {
     );
   });
 
-  protected gameStatusTone(game: ChannelGameSetupView): 'success' | 'warning' | 'danger' | 'neutral' {
-    if (game.saleReady) return 'success';
-    if (!game.offeredOnChannel) return 'neutral';
+  protected gameStatus(game: ChannelGameSetupView): BadgeStatus {
+    if (game.saleReady) return 'ready';
+    if (!game.offeredOnChannel) return 'missing';
     const hasError = game.warnings.some(w => w.severity === 'ERROR');
-    return hasError ? 'danger' : 'warning';
+    return hasError ? 'blocked' : 'warning';
   }
 
   protected gameStatusLabelKey(game: ChannelGameSetupView): string {

@@ -4,7 +4,7 @@
     <mat-panel-title class="matrix-slot-header">
       <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
       <span class="matrix-slot-header__meta">
-        <tch-admin-status-pill [tone]="slotStatusTone(slotVm)" [label]="slotStatusLabelKey(slotVm) | translate" />
+        <tch-status-badge [status]="slotStatus(slotVm)" [label]="slotStatusLabelKey(slotVm) | translate" />
         <code>{{ slotVm.slotKey }}</code>
         <span>
           {{ 'admin.drawSalesMatrix.slot.offeredCount' | translate: { active: activeOfferedCount(), offered: offeredCount() } }}

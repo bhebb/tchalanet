@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { MatExpansionModule } from '@angular/material/expansion';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { AdminStatusPillComponent } from '@tch/ui/console';
+import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import { TchErrorViewModel } from '@tch/web/errors';
 import {
   ConsoleDrawSlotIdentity,
@@ -32,7 +32,7 @@ export interface MatrixSlotGameActionEvent {
   imports: [
     MatExpansionModule,
     TranslatePipe,
-    AdminStatusPillComponent,
+    TchStatusBadge,
     ConsoleDrawSlotIdentityComponent,
     DrawSalesMatrixGameCardComponent,
   ],
@@ -75,10 +75,10 @@ export class DrawSalesMatrixSlotPanelComponent {
     this.slot().games.filter(game => game.offeredOnChannel).length,
   );
 
-  protected slotStatusTone(slot: SlotMatrixView): 'success' | 'warning' | 'danger' | 'neutral' {
-    if (slot.slotReady) return 'success';
+  protected slotStatus(slot: SlotMatrixView): BadgeStatus {
+    if (slot.slotReady) return 'ready';
     const hasError = slot.warnings.some(w => w.severity === 'ERROR');
-    return hasError ? 'danger' : 'warning';
+    return hasError ? 'blocked' : 'warning';
   }
 
   protected slotStatusLabelKey(slot: SlotMatrixView): string {

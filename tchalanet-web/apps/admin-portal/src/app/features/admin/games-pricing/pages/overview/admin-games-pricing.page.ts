@@ -9,7 +9,7 @@ import type { ProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
+import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import {
@@ -62,6 +62,24 @@ export class AdminGamesPricingPage {
   readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
   readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
+  readonly enableGame = tchMutation<string, void>({
+    run: gameCode => this.api.enableGame(gameCode, { suppressShellFeedback: true }),
+    source: 'admin.setup.games_pricing.enable',
+    onSuccess: () => this.load(),
+    onError: (err, gameCode) => {
+      this.setActionError(gameCode, err);
+      return true;
+    },
+  });
+  readonly disableGame = tchMutation<string, void>({
+    run: gameCode => this.api.disableGame(gameCode, { suppressShellFeedback: true }),
+    source: 'admin.setup.games_pricing.disable',
+    onSuccess: () => this.load(),
+    onError: (err, gameCode) => {
+      this.setActionError(gameCode, err);
+      return true;
+    },
+  });
   readonly summaryItems = computed<readonly GamesSetupSummaryItem[]>(() => {
     const summary = this.matrixSummary();
 
@@ -97,18 +115,12 @@ export class AdminGamesPricingPage {
 
   onActivate(gameCode: string): void {
     this.clearActionError(gameCode);
-    this.api.enableGame(gameCode, { suppressShellFeedback: true }).subscribe({
-      next: () => this.load(),
-      error: (err: unknown) => this.setActionError(gameCode, err),
-    });
+    this.enableGame.execute(gameCode, { key: gameCode });
   }
 
   onDisable(gameCode: string): void {
     this.clearActionError(gameCode);
-    this.api.disableGame(gameCode, { suppressShellFeedback: true }).subscribe({
-      next: () => this.load(),
-      error: (err: unknown) => this.setActionError(gameCode, err),
-    });
+    this.disableGame.execute(gameCode, { key: gameCode });
   }
 
   onConfigure(gameCode: string): void {
