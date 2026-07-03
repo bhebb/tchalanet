@@ -34,7 +34,7 @@ public class AnalyticsDrawEntity {
   @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
   private UUID tenantId;
 
-  @Column(name = "game_code", nullable = false)
+  @Column(name = "game_code", nullable = false, length = 64)
   private String gameCode;
 
   @Column(name = "draw_channel_code")

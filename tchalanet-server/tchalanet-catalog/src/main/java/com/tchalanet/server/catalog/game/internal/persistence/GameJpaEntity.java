@@ -16,7 +16,7 @@ import lombok.Setter;
 @Setter
 public class GameJpaEntity extends BaseEntity {
 
-    @Column(name = "code", nullable = false, length = 32, unique = true)
+    @Column(name = "code", nullable = false, length = 64, unique = true)
     private String code;
 
     @Column(name = "name", nullable = false, length = 128)

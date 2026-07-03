@@ -142,21 +142,10 @@ CREATE POLICY pricing_odds_rls_select ON pricing_odds
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
 
-ALTER TABLE tenant_user ENABLE ROW LEVEL SECURITY;
-ALTER TABLE tenant_user FORCE ROW LEVEL SECURITY;
-CREATE POLICY tenant_user_rls_all ON tenant_user
-  FOR ALL
-  USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
-  )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY tenant_user_rls_select ON tenant_user
-  FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+-- tenant_user: RLS intentionally NOT enabled. IdentityBootstrapFilter must resolve
+-- the actor before any tenant context exists; isolation is enforced by module
+-- boundaries, repository scoping and status checks. One-active-membership is guarded
+-- by uq_tenant_user_one_active_per_user (V103).
 
 ALTER TABLE seller_terminal ENABLE ROW LEVEL SECURITY;
 ALTER TABLE seller_terminal FORCE ROW LEVEL SECURITY;
@@ -174,43 +163,33 @@ CREATE POLICY seller_terminal_rls_select ON seller_terminal
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+-- seller_terminal_external_identity is tenant-scoped directly via its tenant_id
+-- column (composite FK to seller_terminal(tenant_id, id) keeps it consistent).
+-- Simple tenant_id predicate avoids fragile parent EXISTS checks during flush.
 ALTER TABLE seller_terminal_external_identity ENABLE ROW LEVEL SECURITY;
 ALTER TABLE seller_terminal_external_identity FORCE ROW LEVEL SECURITY;
-CREATE POLICY seller_terminal_external_identity_rls_all ON seller_terminal_external_identity
+CREATE POLICY seller_terminal_external_identity_rls_all
+  ON seller_terminal_external_identity
   FOR ALL
   USING (
     public.current_tenant() IS NOT NULL
-    AND EXISTS (
-      SELECT 1
-      FROM seller_terminal st
-      WHERE st.id = seller_terminal_id
-        AND st.tenant_id = public.current_tenant()
-        AND (public.deleted_visibility() = 'all'
-          OR (public.deleted_visibility() = 'active' AND st.deleted_at IS NULL)
-          OR (public.deleted_visibility() = 'deleted' AND st.deleted_at IS NOT NULL))
-    )
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
   )
   WITH CHECK (
     public.current_tenant() IS NOT NULL
-    AND EXISTS (
-      SELECT 1
-      FROM seller_terminal st
-      WHERE st.id = seller_terminal_id
-        AND st.tenant_id = public.current_tenant()
-    )
+    AND tenant_id = public.current_tenant()
   );
-CREATE POLICY seller_terminal_external_identity_rls_select ON seller_terminal_external_identity
+CREATE POLICY seller_terminal_external_identity_rls_select
+  ON seller_terminal_external_identity
   FOR SELECT
   USING (
     public.allow_platform_cross_tenant_select()
     OR (
       public.current_tenant() IS NOT NULL
-      AND EXISTS (
-        SELECT 1
-        FROM seller_terminal st
-        WHERE st.id = seller_terminal_id
-          AND st.tenant_id = public.current_tenant()
-      )
+      AND tenant_id = public.current_tenant()
     )
   );
 
@@ -704,3 +683,49 @@ CREATE POLICY business_day_override_rls_select ON business_day_override
 -- as result_slot itself (no RLS). Writes are gated by the SUPER_ADMIN
 -- controller layer.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- sale_preparation / sale_preparation_promotion_line (tenant-scoped)
+-- ─────────────────────────────────────────────────────────────────────────────
+ALTER TABLE sale_preparation ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sale_preparation FORCE ROW LEVEL SECURITY;
+CREATE POLICY sale_preparation_rls_all ON sale_preparation
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+
+ALTER TABLE sale_preparation_promotion_line ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sale_preparation_promotion_line FORCE ROW LEVEL SECURITY;
+CREATE POLICY sale_preparation_promotion_line_rls_all ON sale_preparation_promotion_line
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- seller_terminal_pricing_odds_override (tenant-scoped)
+-- ─────────────────────────────────────────────────────────────────────────────
+ALTER TABLE seller_terminal_pricing_odds_override ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_terminal_pricing_odds_override FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_terminal_pricing_odds_override_rls_all ON seller_terminal_pricing_odds_override
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY seller_terminal_pricing_odds_override_rls_select ON seller_terminal_pricing_odds_override
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));

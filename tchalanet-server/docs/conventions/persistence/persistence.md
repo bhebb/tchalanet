@@ -183,10 +183,23 @@ Tant que le projet **n'est pas en production** :
 
 ```
 V001            extensions + RLS helpers
-V100-V107       schéma core, audit, technical, indexes, triggers, RLS, permissions, batch
+V100            schéma core (tables métier)
+V101            tables audit (_aud Envers + audit_log métier partitionné)
+V102            tables techniques + domaine archive (self-contained)
+V103            indexes
+V104            triggers
+V105            RLS (policies)
+V106            permissions
+V107            schéma Spring Batch (+ grants batch)
 V108            vues read-model (fichier dédié)
-V200-V209       seeds
+V109            tables + fonctions analytics (self-contained : index/trigger/RLS inline)
+V200-V212       seeds (contigus, regroupés par domaine)
 ```
+
+> Consolidé le 2026-07-03 : 60 fichiers (V001→V254, patches `ALTER`/repair épars) fondus en
+> 24 fichiers propres et contigus. Les domaines tardifs auto-contenus (analytics V109, archive
+> dans V102, `audit_log` dans V101) co-localisent leurs index/RLS/fonctions dans leur fichier
+> plutôt que dans V103/V105.
 
 **Mapping des évolutions vers le fichier d'origine** :
 

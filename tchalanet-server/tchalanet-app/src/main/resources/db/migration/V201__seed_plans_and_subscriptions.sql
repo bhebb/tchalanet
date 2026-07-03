@@ -389,3 +389,44 @@ BEGIN
 
   RAISE NOTICE 'V201__seed_plans sanity check OK: % plans present, % default plan', plan_count, default_count;
 END $$;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Ensure every plan carries the admin-setup entitlement keys (tenantgame/limit/
+-- promotion/theme.preset_selection). Additive & idempotent.
+-- ─────────────────────────────────────────────────────────────────────────────
+UPDATE billing_plan
+SET features_json = coalesce(features_json, '{}'::jsonb) || '{
+    "tenantgame.management": true,
+    "tenantgame.settings": true,
+    "tenantgame.availability": true,
+    "limitpolicy.basic": true,
+    "promotion.campaigns.config": true,
+    "promotion.rules.basic": true,
+    "promotion.free_game": true,
+    "theme.preset_selection": true
+  }'::jsonb,
+  updated_at = now()
+WHERE code IN ('STARTER', 'STANDARD', 'PRO', 'DEMO')
+  AND deleted_at IS NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Seed a default-plan subscription for every active/draft tenant that lacks one,
+-- so setup surfaces (theme/limits/promotions) expose plan entitlements. Idempotent.
+-- ─────────────────────────────────────────────────────────────────────────────
+INSERT INTO tenant_subscription (id, tenant_id, plan_code, status, started_at, metadata_json, created_at, updated_at)
+SELECT gen_random_uuid(), t.id, p.code, 'ACTIVE', now(),
+       jsonb_build_object('source', 'V201__seed_plans_and_subscriptions'), now(), now()
+FROM tenant t
+CROSS JOIN LATERAL (
+  SELECT code FROM billing_plan
+  WHERE is_default = true AND active = true AND deleted_at IS NULL
+  ORDER BY code LIMIT 1
+) p
+WHERE t.deleted_at IS NULL
+  AND t.status IN ('ACTIVE', 'DRAFT')
+  AND NOT EXISTS (
+    SELECT 1 FROM tenant_subscription s
+    WHERE s.tenant_id = t.id AND s.deleted_at IS NULL
+      AND s.status IN ('ACTIVE', 'TRIAL')
+      AND (s.ends_at IS NULL OR s.ends_at > now())
+  );

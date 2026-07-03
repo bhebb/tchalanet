@@ -383,3 +383,36 @@ SELECT set_config('app.current_tenant', '', true);
 SELECT set_config('app.deleted_visibility', 'active', true);
 SELECT set_config('app.api_scope', '', true);
 SELECT set_config('app.is_super_admin', 'false', true);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Bootstrap provider no-draw days (recurring fixed holidays, e.g. Christmas).
+-- recurring_md is a year-less 'MM-dd' rule in the slot timezone (XOR: slot_local_date NULL).
+-- Runtime truth is managed by SUPER_ADMIN; this only pre-loads well-known closures.
+-- ─────────────────────────────────────────────────────────────────────────────
+WITH closures (slot_key, recurring_md, reason_code, reason_label) AS (
+    VALUES
+        ('NY_MID',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no NY Numbers midday draw'),
+        ('NY_EVE',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no NY Numbers evening draw'),
+        ('FL_MID',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no FL Pick midday draw'),
+        ('FL_EVE',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no FL Pick evening draw'),
+        ('GA_MID',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no GA Cash midday draw'),
+        ('GA_EVE',  '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no GA Cash evening draw'),
+        ('GA_LATE', '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no GA Cash night draw'),
+        ('TX_1000', '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no TX Pick3 morning draw'),
+        ('TX_1227', '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no TX Pick3 day draw'),
+        ('TX_1800', '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no TX Pick3 evening draw'),
+        ('TX_2212', '12-25', 'PROVIDER_CLOSED', 'Christmas Day — no TX Pick3 night draw')
+)
+INSERT INTO result_slot_calendar_override (
+    id, result_slot_id, slot_local_date, recurring_md, available, reason_code, reason_label,
+    created_at, updated_at, version
+)
+SELECT gen_random_uuid(), rs.id, NULL, c.recurring_md, false, c.reason_code, c.reason_label,
+       now(), now(), 0
+FROM closures c
+JOIN result_slot rs
+  ON rs.slot_key = c.slot_key
+ AND rs.deleted_at IS NULL
+ON CONFLICT (result_slot_id, recurring_md)
+  WHERE recurring_md IS NOT NULL AND deleted_at IS NULL
+  DO NOTHING;

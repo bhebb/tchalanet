@@ -251,6 +251,25 @@ WHERE NOT EXISTS (
     AND existing.deleted_at IS NULL
 );
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- French label corrections (accents/wording) applied in place; idempotent.
+-- ─────────────────────────────────────────────────────────────────────────────
+UPDATE i18n_override SET i18n_value = 'Vérification'
+ WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
+   AND locale = 'fr' AND i18n_key = 'receipt.verification' AND deleted_at IS NULL;
+UPDATE i18n_override SET i18n_value = 'Gain maximal'
+ WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
+   AND locale = 'fr' AND i18n_key = 'receipt.total.max_payout' AND deleted_at IS NULL;
+UPDATE i18n_override SET i18n_value = 'Scannez le code QR'
+ WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
+   AND locale = 'fr' AND i18n_key = 'receipt.scan_to_verify' AND deleted_at IS NULL;
+UPDATE i18n_override SET i18n_value = 'Devise : {code}'
+ WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
+   AND locale = 'fr' AND i18n_key = 'receipt.currency_note' AND deleted_at IS NULL;
+UPDATE i18n_override SET i18n_value = 'Vérifier sur {url}'
+ WHERE level = 'GLOBAL' AND tenant_id IS NULL AND surface = 'CASHIER'
+   AND locale = 'fr' AND i18n_key = 'receipt.message.backup.verify' AND deleted_at IS NULL;
+
 SELECT set_config('app.current_tenant', '', true);
 SELECT set_config('app.deleted_visibility', 'active', true);
 SELECT set_config('app.api_scope', '', true);

@@ -19,7 +19,7 @@ public class TenantGameJpaEntity extends BaseTenantEntity {
   @Column(name = "game_id", nullable = false)
   private UUID gameId;
 
-  @Column(name = "game_code", nullable = false, length = 32)
+  @Column(name = "game_code", nullable = false, length = 64)
   private String gameCode;
 
   @Column(name = "enabled", nullable = false)

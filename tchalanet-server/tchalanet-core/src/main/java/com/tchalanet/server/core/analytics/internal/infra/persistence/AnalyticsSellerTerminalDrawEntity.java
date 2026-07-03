@@ -44,7 +44,7 @@ public class AnalyticsSellerTerminalDrawEntity {
   @Column(name = "scheduled_at", nullable = false)
   private Instant scheduledAt;
 
-  @Column(name = "game_code", nullable = false)
+  @Column(name = "game_code", nullable = false, length = 64)
   private String gameCode;
 
   @Column(name = "draw_channel_code")

@@ -237,3 +237,61 @@ WHERE slot_local_date IS NOT NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_result_slot_calendar_override__recurring
 ON result_slot_calendar_override (result_slot_id, recurring_md)
 WHERE recurring_md IS NOT NULL AND deleted_at IS NULL;
+
+-- ─── Access-context / resolution ────────────────────────────────────
+-- One active membership per app_user (guards identity bootstrap before tenant resolve).
+CREATE UNIQUE INDEX uq_tenant_user_one_active_per_user
+    ON tenant_user (user_id)
+    WHERE status = 'ACTIVE';
+-- Scoped access resolution on every request.
+CREATE INDEX idx_tenant_user_role_active_user
+    ON tenant_user_role (user_id)
+    WHERE deleted_at IS NULL;
+CREATE INDEX idx_tenant_user_active_user_tenant
+    ON tenant_user (user_id, tenant_id)
+    WHERE deleted_at IS NULL;
+CREATE INDEX idx_role_permission_role
+    ON role_permission (role_id);
+CREATE INDEX idx_user_permission_override_active_user
+    ON user_permission_override (user_id)
+    WHERE deleted_at IS NULL;
+
+-- ─── Platform user role ─────────────────────────────────────────────
+CREATE UNIQUE INDEX uq_platform_user_role__active
+    ON platform_user_role (user_id, role_id)
+    WHERE deleted_at IS NULL;
+CREATE INDEX ix_platform_user_role__user
+    ON platform_user_role (user_id)
+    WHERE deleted_at IS NULL;
+CREATE INDEX ix_platform_user_role__role
+    ON platform_user_role (role_id)
+    WHERE deleted_at IS NULL;
+
+-- ─── Seller terminal external identity (tenant-scoped) ──────────────
+CREATE INDEX idx_seller_terminal_ext_identity_tenant
+    ON seller_terminal_external_identity (tenant_id);
+
+-- ─── Sale preparation ───────────────────────────────────────────────
+CREATE INDEX idx_sale_preparation_tenant_status_expires
+    ON sale_preparation (tenant_id, status, expires_at);
+CREATE UNIQUE INDEX uq_sale_preparation_tenant_idem
+    ON sale_preparation (tenant_id, idempotency_key)
+    WHERE idempotency_key IS NOT NULL;
+CREATE INDEX idx_sale_preparation_promotion_line_prep
+    ON sale_preparation_promotion_line (preparation_id);
+
+-- ─── Seller terminal odds override ──────────────────────────────────
+CREATE INDEX idx_st_pricing_odds_tenant
+    ON seller_terminal_pricing_odds_override (tenant_id);
+CREATE INDEX idx_st_pricing_odds_seller_terminal
+    ON seller_terminal_pricing_odds_override (seller_terminal_id);
+CREATE UNIQUE INDEX uq_st_pricing_odds_override_active
+    ON seller_terminal_pricing_odds_override (
+        tenant_id, seller_terminal_id, game_code, bet_type, COALESCE(bet_option, -1)
+    )
+    WHERE deleted_at IS NULL AND active = true;
+
+-- ─── Public contact request ─────────────────────────────────────────
+CREATE INDEX ix_contact_request__status     ON public_contact_request (status);
+CREATE INDEX ix_contact_request__intent     ON public_contact_request (intent);
+CREATE INDEX ix_contact_request__created_at ON public_contact_request (created_at DESC);

@@ -24,7 +24,7 @@ public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
     @Column(name = "seller_terminal_id", nullable = false)
     private UUID sellerTerminalId;
 
-    @Column(name = "game_code", nullable = false, length = 32)
+    @Column(name = "game_code", nullable = false, length = 64)
     private String gameCode;
 
     @Column(name = "bet_type", nullable = false, length = 32)
