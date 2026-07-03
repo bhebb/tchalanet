@@ -176,7 +176,9 @@
                   }
 
                   <!-- Lifecycle action menu -->
-                  @if (lifecycleActions(draw).length > 0) {
+                  @if (isPending(draw)) {
+                    <span class="material-symbols-outlined gdt__row-spinner" aria-label="Action en cours">progress_activity</span>
+                  } @else if (lifecycleActions(draw).length > 0) {
                     <button mat-icon-button class="gdt__more-btn"
                       [matMenuTriggerFor]="rowMenu"
                       [matMenuTriggerData]="{ draw: draw }"
