@@ -435,6 +435,55 @@
       "description": "Manage seller-terminals",
       "search_placeholder": "Search seller-terminals…",
       "load_error": "Could not load seller-terminals.",
+      "list": {
+        "title": "Seller list",
+        "description": "Manage seller access, commissions and terminals authorized to sell tickets.",
+        "loading": "Loading sellers...",
+        "action": {
+          "new": "New seller",
+          "detail": "View details",
+          "openPos": "Open POS",
+          "resetPin": "Reset PIN",
+          "block": "Block",
+          "unblock": "Unblock",
+          "disable": "Disable",
+          "limits": "Limits",
+          "tickets": "View tickets"
+        },
+        "kpi": {
+          "active": "Active",
+          "blocked": "Blocked",
+          "salesToday": "Sales today",
+          "averageCommission": "Average commission"
+        },
+        "filter": {
+          "search": "Search",
+          "searchPlaceholder": "Search a seller...",
+          "status": "Status",
+          "allStatuses": "All statuses",
+          "reset": "Reset"
+        },
+        "empty": {
+          "title": "No sellers",
+          "message": "Create a first seller to start selling tickets."
+        },
+        "column": {
+          "terminalCode": "Terminal code",
+          "seller": "Seller",
+          "email": "Email",
+          "phone": "Phone",
+          "status": "Status",
+          "commission": "Commission",
+          "lastSeenAt": "Last activity"
+        },
+        "pagination": {
+          "page": "Page {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN reset required",
+          "activeNeverSeen": "Active · never connected"
+        }
+      },
       "empty": {
         "title": "No seller-terminals",
         "message": "Add your first seller-terminal to get started."

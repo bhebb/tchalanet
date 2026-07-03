@@ -508,6 +508,55 @@
     "sellerTerminals": {
       "title": "Vendeurs",
       "description": "Gérez les vendeurs et leurs accès de vente.",
+      "list": {
+        "title": "Liste vendeurs",
+        "description": "Gérez les accès de vente, les commissions et les terminaux autorisés à vendre des tickets.",
+        "loading": "Chargement des vendeurs...",
+        "action": {
+          "new": "Nouveau vendeur",
+          "detail": "Voir le détail",
+          "openPos": "Ouvrir POS",
+          "resetPin": "Réinitialiser PIN",
+          "block": "Bloquer",
+          "unblock": "Débloquer",
+          "disable": "Désactiver",
+          "limits": "Limites",
+          "tickets": "Voir tickets"
+        },
+        "kpi": {
+          "active": "Actifs",
+          "blocked": "Bloqués",
+          "salesToday": "Ventes aujourd'hui",
+          "averageCommission": "Commission moyenne"
+        },
+        "filter": {
+          "search": "Recherche",
+          "searchPlaceholder": "Rechercher un vendeur...",
+          "status": "Statut",
+          "allStatuses": "Tous les statuts",
+          "reset": "Réinitialiser"
+        },
+        "empty": {
+          "title": "Aucun vendeur enregistré",
+          "message": "Créez un premier vendeur pour commencer à vendre des tickets."
+        },
+        "column": {
+          "terminalCode": "Code terminal",
+          "seller": "Vendeur",
+          "email": "Email",
+          "phone": "Téléphone",
+          "status": "Statut",
+          "commission": "Commission",
+          "lastSeenAt": "Dernière activité"
+        },
+        "pagination": {
+          "page": "Page {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN à remettre",
+          "activeNeverSeen": "Actif · jamais connecté"
+        }
+      },
       "detail": {
         "title": "Détail vendeur",
         "description": "Consultez l'identité, les états et l'activité du vendeur.",

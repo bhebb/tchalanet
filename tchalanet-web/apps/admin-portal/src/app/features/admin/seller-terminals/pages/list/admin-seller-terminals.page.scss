@@ -71,6 +71,14 @@
     letter-spacing: 0;
   }
 
+  &__row {
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in oklab, var(--tch-color-primary) 6%, transparent);
+    }
+  }
+
   &__status-select {
     width: 100%;
 

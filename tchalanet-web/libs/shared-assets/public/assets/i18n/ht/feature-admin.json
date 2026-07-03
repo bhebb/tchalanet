@@ -442,6 +442,55 @@
       "title": "Seller-terminals",
       "description": "Jere seller-terminals",
       "search_placeholder": "Chèche seller-terminal…",
+      "list": {
+        "title": "Lis vandè",
+        "description": "Jere aksè lavant, komisyon ak terminal ki gen dwa vann tikè.",
+        "loading": "Ap chaje vandè yo...",
+        "action": {
+          "new": "Nouvo vandè",
+          "detail": "Gade detay",
+          "openPos": "Louvri POS",
+          "resetPin": "Re-inisyalize PIN",
+          "block": "Bloke",
+          "unblock": "Debloke",
+          "disable": "Dezaktive",
+          "limits": "Limit",
+          "tickets": "Gade tikè"
+        },
+        "kpi": {
+          "active": "Aktif",
+          "blocked": "Bloke",
+          "salesToday": "Lavant jodi a",
+          "averageCommission": "Komisyon mwayèn"
+        },
+        "filter": {
+          "search": "Rechèch",
+          "searchPlaceholder": "Chèche yon vandè...",
+          "status": "Eta",
+          "allStatuses": "Tout eta",
+          "reset": "Re-inisyalize"
+        },
+        "empty": {
+          "title": "Pa gen vandè",
+          "message": "Kreye yon premye vandè pou kòmanse vann tikè."
+        },
+        "column": {
+          "terminalCode": "Kòd terminal",
+          "seller": "Vandè",
+          "email": "Email",
+          "phone": "Telefòn",
+          "status": "Eta",
+          "commission": "Komisyon",
+          "lastSeenAt": "Dènye aktivite"
+        },
+        "pagination": {
+          "page": "Paj {{page}} / {{total}}"
+        },
+        "statusLabel": {
+          "pinResetRequired": "PIN pou remèt",
+          "activeNeverSeen": "Aktif · poko konekte"
+        }
+      },
       "detail": {
         "title": "Detay vandè",
         "description": "Gade idantite, eta ak aktivite vandè a.",

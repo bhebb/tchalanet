@@ -3,7 +3,7 @@ import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type SellerTerminalStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'BLOCKED' | 'DISABLED';
+export type SellerTerminalStatus = 'PENDING' | 'ACTIVE' | 'BLOCKED' | 'DISABLED';
 
 export interface SellerTerminalSummaryRow {
   id: { value: string };
@@ -120,6 +120,13 @@ export class SellerTerminalApi {
     return this.backend.get<SellerTerminalsSummary>('/admin/seller-terminals/summary');
   }
 
+  getSummaryResource(options?: TchRequestOptions) {
+    return this.backend.getResource<SellerTerminalsSummary>(() => ({
+      path: '/admin/seller-terminals/summary',
+      options,
+    }));
+  }
+
   getCommissionOverview(): Observable<SellerTerminalCommissionOverview> {
     return this.backend.get<SellerTerminalCommissionOverview>('/admin/commission/overview');
   }
@@ -146,6 +153,19 @@ export class SellerTerminalApi {
       '/admin/seller-terminals',
       requestOptions,
     );
+  }
+
+  listResource(params: () => ListSellerTerminalsParams, options?: TchRequestOptions) {
+    return this.backend.getPageResource<SellerTerminalSummaryRow>(() => {
+      const value = params();
+      return {
+        path: '/admin/seller-terminals',
+        options: {
+          ...(options ?? {}),
+          params: this.listParams(value),
+        },
+      };
+    });
   }
 
   get(id: string): Observable<SellerTerminalView> {
