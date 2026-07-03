@@ -1,0 +1,45 @@
+.page-engine {
+  display: grid;
+  grid-template-columns: minmax(420px, 0.95fr) minmax(520px, 1.05fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.page-engine__row {
+  cursor: pointer;
+}
+
+.page-engine__row--selected {
+  background: color-mix(in srgb, var(--tch-color-primary) 10%, transparent);
+}
+
+.page-engine__detail-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.page-engine__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.page-engine__json-field {
+  width: 100%;
+}
+
+.page-engine__json-field textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 1180px) {
+  .page-engine {
+    grid-template-columns: 1fr;
+  }
+}

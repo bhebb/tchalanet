@@ -90,6 +90,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             icon: 'cached',
             destination: { kind: 'route', value: '/app/platform/ops/cache' },
           },
+          {
+            id: 'ops-page-engine',
+            labelKey: 'platform.nav.pageEngine',
+            icon: 'dashboard_customize',
+            destination: { kind: 'route', value: '/app/platform/ops/page-engine' },
+          },
         ],
       },
       {
@@ -173,16 +179,40 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/platform/catalog/draw-channels' },
           },
           {
+            id: 'catalog-draw-channel-games',
+            labelKey: 'platform.nav.drawChannelGames',
+            icon: 'link',
+            destination: { kind: 'route', value: '/app/platform/catalog/draw-channel-games' },
+          },
+          {
             id: 'catalog-result-slots',
             labelKey: 'platform.nav.resultSlots',
             icon: 'view_timeline',
             destination: { kind: 'route', value: '/app/platform/catalog/result-slots' },
           },
           {
+            id: 'catalog-result-slot-calendars',
+            labelKey: 'platform.nav.resultSlotCalendars',
+            icon: 'event_note',
+            destination: { kind: 'route', value: '/app/platform/catalog/result-slot-calendars' },
+          },
+          {
+            id: 'catalog-plans',
+            labelKey: 'platform.nav.plans',
+            icon: 'workspace_premium',
+            destination: { kind: 'route', value: '/app/platform/catalog/plans' },
+          },
+          {
             id: 'catalog-pricing',
             labelKey: 'platform.nav.pricing',
             icon: 'payments',
             destination: { kind: 'route', value: '/app/platform/catalog/pricing' },
+          },
+          {
+            id: 'catalog-settings',
+            labelKey: 'platform.nav.globalSettings',
+            icon: 'settings',
+            destination: { kind: 'route', value: '/app/platform/catalog/settings' },
           },
           {
             id: 'catalog-themes',
@@ -195,6 +225,12 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'platform.nav.translations',
             icon: 'translate',
             destination: { kind: 'route', value: '/app/platform/catalog/translations' },
+          },
+          {
+            id: 'catalog-page-model-templates',
+            labelKey: 'platform.nav.pageModelTemplates',
+            icon: 'dashboard_customize',
+            destination: { kind: 'route', value: '/app/platform/catalog/page-model-templates' },
           },
         ],
       },
@@ -587,6 +623,12 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             labelKey: 'nav.admin.company_notifications',
             icon: 'notifications',
             destination: { kind: 'route', value: '/app/admin/notifications' },
+          },
+          {
+            id: 'company-page-models',
+            labelKey: 'nav.admin.company_page_models',
+            icon: 'dashboard_customize',
+            destination: { kind: 'route', value: '/app/admin/pagemodels' },
           },
           {
             id: 'company-support',

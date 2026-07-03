@@ -225,6 +225,13 @@
                 "path": "/app/platform/ops/cache",
                 "kind": "internal",
                 "icon": "cached"
+              },
+              {
+                "id": "ops-page-engine",
+                "label_key": "platform.nav.pageEngine",
+                "path": "/app/platform/ops/page-engine",
+                "kind": "internal",
+                "icon": "dashboard_customize"
               }
             ]
           },

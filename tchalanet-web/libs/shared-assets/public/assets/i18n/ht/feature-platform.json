@@ -677,6 +677,78 @@
         "loadError": "Pa ka chaje revizyon yo."
       }
     },
+    "pageEngine": {
+      "title": "Motè paj",
+      "description": "Modifye PageModels runtime yo, pibliye bouyon yo, epi verifye JSON lan.",
+      "action": {
+        "create": "Kreye bouyon",
+        "retry": "Eseye ankò",
+        "save": "Anrejistre JSON",
+        "publish": "Pibliye",
+        "duplicate": "Duplike",
+        "reset": "Reyinisyalize",
+        "archive": "Achive"
+      },
+      "filter": {
+        "search": "Logical ID..."
+      },
+      "state": {
+        "loading": "Chajman PageModels...",
+        "loadingDetail": "Chajman PageModel..."
+      },
+      "empty": {
+        "title": "Pa gen PageModel",
+        "message": "Kreye yon bouyon oswa ajiste filtè a."
+      },
+      "detail": {
+        "emptyTitle": "Pa gen PageModel chwazi",
+        "emptyMessage": "Chwazi yon liy pou wè ak modifye JSON li."
+      },
+      "column": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "status": "Estati",
+        "schemaVersion": "Schema",
+        "updatedAt": "Mizajou"
+      },
+      "field": {
+        "json": "JSON PageModel"
+      },
+      "footer": {
+        "count": "PageModel"
+      },
+      "status": {
+        "DRAFT": "Bouyon",
+        "PUBLISHED": "Pibliye",
+        "ARCHIVED": "Achive"
+      },
+      "prompt": {
+        "logicalId": "Logical ID",
+        "scope": "Scope",
+        "slug": "Slug",
+        "duplicateLogicalId": "Logical ID kopi a"
+      },
+      "confirm": {
+        "reset": "Reyinisyalize PageModel sa a apati template li?"
+      },
+      "feedback": {
+        "created": "Bouyon kreye.",
+        "saved": "JSON anrejistre.",
+        "published": "PageModel pibliye.",
+        "duplicated": "PageModel duplike.",
+        "reset": "PageModel reyinisyalize.",
+        "archiveUnavailable": "API pou achiv PageModel pa ekspoze nan backend lan."
+      },
+      "error": {
+        "invalidJson": "JSON pa valid.",
+        "create": "Pa ka kreye PageModel la.",
+        "save": "Pa ka anrejistre PageModel la.",
+        "publish": "Pa ka pibliye PageModel la.",
+        "duplicate": "Pa ka duplike PageModel la.",
+        "reset": "Pa ka reyinisyalize PageModel la."
+      }
+    },
     "i18nOverrides": {
       "title": "Tradiksyon",
       "description": "Jere chanjman tradiksyon yo pa lang ak nivo.",

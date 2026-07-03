@@ -1,0 +1,160 @@
+<tch-admin-page-shell
+  [title]="'platform.pageEngine.title' | translate"
+  [description]="'platform.pageEngine.description' | translate"
+>
+  <div actions>
+    <button mat-flat-button color="primary" [disabled]="busy()" (click)="createDraft()">
+      <span class="material-symbols-outlined">add</span>
+      {{ 'platform.pageEngine.action.create' | translate }}
+    </button>
+  </div>
+
+  <div class="page-engine">
+    <tch-admin-crud-shell>
+      <div toolbar>
+        <tch-admin-data-toolbar
+          [searchPlaceholder]="'platform.pageEngine.filter.search' | translate"
+          [searchValue]="q()"
+          (searchChange)="search($event)"
+        >
+          <button mat-stroked-button (click)="reload()">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </tch-admin-data-toolbar>
+      </div>
+
+      <tch-async-view
+        content
+        [resource]="pageModels"
+        [error]="pageModelsError()"
+        [loadingLabel]="'platform.pageEngine.state.loading' | translate"
+        [retryLabel]="'platform.pageEngine.action.retry' | translate"
+        (retry)="pageModels.reload()"
+      >
+        <tch-admin-empty-state
+          empty
+          icon="dashboard_customize"
+          [title]="'platform.pageEngine.empty.title' | translate"
+          [message]="'platform.pageEngine.empty.message' | translate"
+        />
+
+        <ng-container *tchAsyncReady>
+          <table mat-table [dataSource]="rows()">
+            <ng-container matColumnDef="logicalId">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.logicalId' | translate }}</th>
+              <td mat-cell *matCellDef="let row"><code>{{ row.logicalId }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="scope">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.scope' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.scope }}</td>
+            </ng-container>
+            <ng-container matColumnDef="slug">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.slug' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.slug }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.status' | translate }}</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="statusTone(row.status)" [label]="statusLabel(row.status)" />
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="schemaVersion">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.schemaVersion' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.schemaVersion }}</td>
+            </ng-container>
+            <ng-container matColumnDef="updatedAt">
+              <th mat-header-cell *matHeaderCellDef>{{ 'platform.pageEngine.column.updatedAt' | translate }}</th>
+              <td mat-cell *matCellDef="let row">{{ row.updatedAt | date:'short' }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: columns"
+              class="page-engine__row"
+              [class.page-engine__row--selected]="selectedId() === rowId(row)"
+              (click)="select(row)"
+            ></tr>
+          </table>
+        </ng-container>
+      </tch-async-view>
+
+      <div footer>
+        <span>{{ page()?.totalElements ?? rows().length }} {{ 'platform.pageEngine.footer.count' | translate }}</span>
+      </div>
+    </tch-admin-crud-shell>
+
+    <tch-admin-crud-shell>
+      <div toolbar>
+        <div class="page-engine__detail-toolbar">
+          <strong>{{ selectedDetail()?.logicalId ?? ('platform.pageEngine.detail.emptyTitle' | translate) }}</strong>
+          @if (selectedDetail(); as detail) {
+            <tch-admin-status-pill [tone]="statusTone(detail.status)" [label]="statusLabel(detail.status)" />
+          }
+        </div>
+      </div>
+
+      <tch-async-view
+        content
+        [resource]="detail"
+        [error]="detailError()"
+        [loadingLabel]="'platform.pageEngine.state.loadingDetail' | translate"
+        [retryLabel]="'platform.pageEngine.action.retry' | translate"
+        (retry)="detail.reload()"
+      >
+        <tch-admin-empty-state
+          empty
+          icon="code"
+          [title]="'platform.pageEngine.detail.emptyTitle' | translate"
+          [message]="'platform.pageEngine.detail.emptyMessage' | translate"
+        />
+
+        <ng-container *tchAsyncReady>
+          @if (selectedDetail(); as detail) {
+            <div class="page-engine__meta">
+              <span>{{ 'platform.pageEngine.column.scope' | translate }}: <code>{{ detail.scope }}</code></span>
+              <span>{{ 'platform.pageEngine.column.slug' | translate }}: <code>{{ detail.slug }}</code></span>
+              <span>{{ 'platform.pageEngine.column.schemaVersion' | translate }}: {{ detail.schemaVersion }}</span>
+            </div>
+
+            <mat-form-field appearance="outline" class="page-engine__json-field">
+              <mat-label>{{ 'platform.pageEngine.field.json' | translate }}</mat-label>
+              <textarea
+                matInput
+                rows="24"
+                [ngModel]="jsonText()"
+                (ngModelChange)="jsonText.set($event)"
+                spellcheck="false"
+              ></textarea>
+              @if (jsonError(); as message) {
+                <mat-error>{{ message }}</mat-error>
+              }
+            </mat-form-field>
+          }
+        </ng-container>
+      </tch-async-view>
+
+      <div footer>
+        <button mat-flat-button color="primary" [disabled]="busy() || !selectedDetail()" (click)="saveJson()">
+          <span class="material-symbols-outlined">save</span>
+          {{ 'platform.pageEngine.action.save' | translate }}
+        </button>
+        <button mat-stroked-button [disabled]="busy() || !selectedDetail()" (click)="publish()">
+          <span class="material-symbols-outlined">publish</span>
+          {{ 'platform.pageEngine.action.publish' | translate }}
+        </button>
+        <button mat-stroked-button [disabled]="busy() || !selectedDetail()" (click)="duplicate()">
+          <span class="material-symbols-outlined">content_copy</span>
+          {{ 'platform.pageEngine.action.duplicate' | translate }}
+        </button>
+        <button mat-stroked-button [disabled]="busy() || !selectedDetail()" (click)="reset()">
+          <span class="material-symbols-outlined">restart_alt</span>
+          {{ 'platform.pageEngine.action.reset' | translate }}
+        </button>
+        <button mat-stroked-button [disabled]="!selectedDetail()" (click)="archiveUnavailable()">
+          <span class="material-symbols-outlined">archive</span>
+          {{ 'platform.pageEngine.action.archive' | translate }}
+        </button>
+      </div>
+    </tch-admin-crud-shell>
+  </div>
+</tch-admin-page-shell>

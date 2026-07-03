@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,12 +9,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+} from '@tch/web/async';
 import { PlatformCatalogApi, CatalogResultSlotView, CreateResultSlotRequest, UpdateResultSlotRequest } from '../../data-access/platform-catalog-api.service';
 import { FetchResultsDialog } from '../../../operations/components/dialogs/fetch-results.dialog';
 import { ApplyResultsDialog } from '../../../operations/components/dialogs/apply-results.dialog';
@@ -185,8 +189,8 @@ export class EditResultSlotDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
-    TchErrorPanel,
-    TchLoading,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     MatButtonModule,
     MatCheckboxModule,
     MatIconModule,
@@ -194,7 +198,7 @@ export class EditResultSlotDialog {
   ],
   templateUrl: './platform-catalog-result-slots.page.html',
 })
-export class PlatformCatalogResultSlotsPage implements OnInit {
+export class PlatformCatalogResultSlotsPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -202,31 +206,22 @@ export class PlatformCatalogResultSlotsPage implements OnInit {
   readonly displayedColumns = ['select', 'slotKey', 'provider', 'drawTime', 'daysOfWeek', 'timezone', 'active', 'actions'];
   readonly q = signal('');
   readonly selectedSlotKeys = signal<string[]>([]);
+  readonly slots = this.api.listResultSlotsResource({ suppressShellFeedback: true });
+  readonly slotsError = resourceErrorVm(this.slots, 'platform.catalog.resultSlots');
+  readonly slotRows = computed(() => this.slots.value() ?? []);
   readonly filteredSlots = computed(() => {
     const term = this.q().toLowerCase().trim();
-    return term ? this.slots().filter(s => s.slotKey.toLowerCase().includes(term)) : this.slots();
+    const rows = this.slotRows();
+    return term ? rows.filter(s => s.slotKey.toLowerCase().includes(term)) : rows;
   });
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly slots = signal<CatalogResultSlotView[]>([]);
+  readonly hasSlots = computed(() => this.slotRows().length > 0);
 
   private showError(msg: string): void {
-    this.error.set(msg);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    this.snackBar.open(msg, 'OK', { duration: 5000 });
   }
 
-  ngOnInit(): void { this.load(); }
-
   load(): void {
-    this.loading.set(true);
-    this.error.set(null);
-    this.api.listResultSlots().subscribe({
-      next: list => { this.slots.set(list); this.loading.set(false); },
-      error: (err: unknown) => {
-        this.error.set((err as { error?: { title?: string } })?.error?.title ?? 'Erreur de chargement.');
-        this.loading.set(false);
-      },
-    });
+    this.slots.reload();
   }
 
   onSearch(term: string): void {
@@ -258,7 +253,7 @@ export class PlatformCatalogResultSlotsPage implements OnInit {
         title: `Fetch résultats — ${keys.length} slot(s)`,
         mode: 'fetch' as const,
         slotKeys: keys,
-        onSuccess: () => this.load(),
+      onSuccess: () => this.load(),
       },
       width: '560px',
     });

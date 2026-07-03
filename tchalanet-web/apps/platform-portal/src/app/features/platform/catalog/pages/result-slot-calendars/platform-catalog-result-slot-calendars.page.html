@@ -1,0 +1,97 @@
+<tch-admin-page-shell title="Calendriers des slots" description="Exceptions globales de calendrier par slot de résultat.">
+  <div actions>
+    <button mat-stroked-button (click)="reload()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar searchPlaceholder="Code raison..." [searchValue]="reasonCode()" (searchChange)="reasonCode.set($event)">
+        <mat-form-field appearance="outline" style="min-width:240px">
+          <mat-label>Slot</mat-label>
+          <mat-select [value]="selectedSlotId()" (valueChange)="selectSlot($event)">
+            @for (slot of slotRows(); track slot.id) {
+              <mat-option [value]="idText(slot.id)">{{ slotLabel(slot) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="width:160px">
+          <mat-label>Date</mat-label>
+          <input matInput type="date" [ngModel]="slotLocalDate()" (ngModelChange)="slotLocalDate.set($event)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="width:140px">
+          <mat-label>MM-dd</mat-label>
+          <input matInput placeholder="12-25" [ngModel]="recurringMd()" (ngModelChange)="recurringMd.set($event)" />
+        </mat-form-field>
+        <mat-checkbox [checked]="available()" (change)="available.set($event.checked)">Disponible</mat-checkbox>
+        <mat-form-field appearance="outline" style="min-width:200px">
+          <mat-label>Libellé</mat-label>
+          <input matInput [ngModel]="reasonLabel()" (ngModelChange)="reasonLabel.set($event)" />
+        </mat-form-field>
+        <button mat-flat-button color="primary" [disabled]="busy() || !selectedSlotId()" (click)="create()">
+          <span class="material-symbols-outlined">add</span>
+          Ajouter
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <tch-async-view
+      content
+      [resource]="overrides"
+      [error]="overridesError()"
+      loadingLabel="Chargement..."
+      retryLabel="Réessayer"
+      (retry)="overrides.reload()"
+    >
+      <tch-admin-empty-state empty icon="event_available" title="Aucune exception" message="Sélectionnez un slot puis ajoutez une exception." />
+
+      <ng-container *tchAsyncReady>
+        @if (!selectedSlotId()) {
+          <tch-admin-empty-state icon="view_timeline" title="Sélectionnez un slot" message="Choisissez un slot pour afficher son calendrier." />
+        } @else {
+          <table mat-table [dataSource]="overrideRows()">
+            <ng-container matColumnDef="shape">
+              <th mat-header-cell *matHeaderCellDef>Date / Récurrence</th>
+              <td mat-cell *matCellDef="let row"><code>{{ shape(row) }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="available">
+              <th mat-header-cell *matHeaderCellDef>Disponibilité</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="row.available ? 'success' : 'warning'" [label]="row.available ? 'Disponible' : 'Indisponible'" />
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="reasonCode">
+              <th mat-header-cell *matHeaderCellDef>Code</th>
+              <td mat-cell *matCellDef="let row"><code>{{ row.reasonCode }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="reasonLabel">
+              <th mat-header-cell *matHeaderCellDef>Libellé</th>
+              <td mat-cell *matCellDef="let row">{{ row.reasonLabel ?? '-' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button [disabled]="busy()" title="Changer disponibilité" (click)="toggle(row)">
+                  <span class="material-symbols-outlined">published_with_changes</span>
+                </button>
+                <button mat-icon-button [disabled]="busy()" title="Modifier" (click)="edit(row)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        }
+      </ng-container>
+    </tch-async-view>
+
+    <div footer>
+      <span>{{ overrideRows().length }} exception(s)</span>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>

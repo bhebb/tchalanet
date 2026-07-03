@@ -31,16 +31,20 @@
       </tch-admin-data-toolbar>
     </div>
 
-    <div content>
-      @if (loading()) {
-        <tch-loading label="Chargement..." />
-      } @else if (error()) {
-        <tch-error-panel [title]="error()!" [showRetry]="true" retryLabel="Réessayer" (retry)="load()" />
-      } @else if (slots().length === 0) {
-        <tch-admin-empty-state icon="view_timeline" title="Aucun slot" message="Créez le premier slot de résultat." />
-      } @else if (filteredSlots().length === 0) {
-        <tch-admin-empty-state icon="search_off" title="Aucun résultat" message="Aucun slot ne correspond au filtre." />
-      } @else {
+    <tch-async-view
+      content
+      [resource]="slots"
+      [error]="slotsError()"
+      loadingLabel="Chargement..."
+      retryLabel="Réessayer"
+      (retry)="load()"
+    >
+      <tch-admin-empty-state empty icon="view_timeline" title="Aucun slot" message="Créez le premier slot de résultat." />
+
+      <ng-container *tchAsyncReady>
+        @if (hasSlots() && filteredSlots().length === 0) {
+          <tch-admin-empty-state icon="search_off" title="Aucun résultat" message="Aucun slot ne correspond au filtre." />
+        } @else {
         <table mat-table [dataSource]="filteredSlots()">
           <ng-container matColumnDef="select">
             <th mat-header-cell *matHeaderCellDef style="width:48px">
@@ -99,11 +103,12 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
-      }
-    </div>
+        }
+      </ng-container>
+    </tch-async-view>
 
     <div footer>
-      <span>{{ filteredSlots().length }} / {{ slots().length }} slot(s){{ selectedSlotKeys().length > 0 ? ' · ' + selectedSlotKeys().length + ' sélectionné(s)' : '' }}</span>
+      <span>{{ filteredSlots().length }} / {{ slotRows().length }} slot(s){{ selectedSlotKeys().length > 0 ? ' · ' + selectedSlotKeys().length + ' sélectionné(s)' : '' }}</span>
     </div>
   </tch-admin-crud-shell>
 </tch-admin-page-shell>

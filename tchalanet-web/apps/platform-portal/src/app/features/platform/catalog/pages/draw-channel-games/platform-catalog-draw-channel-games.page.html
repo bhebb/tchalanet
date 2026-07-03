@@ -1,0 +1,85 @@
+<tch-admin-page-shell title="Jeux par canal" description="Référentiel des jeux rattachés aux canaux de tirage.">
+  <div actions>
+    <button mat-stroked-button (click)="reload()">
+      <span class="material-symbols-outlined">refresh</span>
+    </button>
+  </div>
+
+  <tch-admin-crud-shell>
+    <div toolbar>
+      <tch-admin-data-toolbar searchPlaceholder="Tenant game id..." [searchValue]="tenantGameId()" (searchChange)="tenantGameId.set($event)">
+        <mat-form-field appearance="outline" style="min-width:260px">
+          <mat-label>Canal</mat-label>
+          <mat-select [value]="selectedChannelId()" (valueChange)="selectChannel($event)">
+            @for (channel of channelRows(); track channel.id) {
+              <mat-option [value]="idText(channel.id)">{{ channelLabel(channel) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-checkbox [checked]="enabled()" (change)="enabled.set($event.checked)">Actif</mat-checkbox>
+        <mat-form-field appearance="outline" style="min-width:220px">
+          <mat-label>Flags JSON</mat-label>
+          <input matInput [ngModel]="flagsJson()" (ngModelChange)="flagsJson.set($event)" />
+        </mat-form-field>
+        <button mat-flat-button color="primary" [disabled]="busy() || !selectedChannelId() || !tenantGameId().trim()" (click)="upsert()">
+          <span class="material-symbols-outlined">add</span>
+          Enregistrer
+        </button>
+      </tch-admin-data-toolbar>
+    </div>
+
+    <tch-async-view
+      content
+      [resource]="games"
+      [error]="gamesError()"
+      loadingLabel="Chargement..."
+      retryLabel="Réessayer"
+      (retry)="games.reload()"
+    >
+      <tch-admin-empty-state empty icon="link_off" title="Aucune association" message="Sélectionnez un canal puis rattachez un jeu." />
+
+      <ng-container *tchAsyncReady>
+        @if (!selectedChannelId()) {
+          <tch-admin-empty-state icon="calendar_month" title="Sélectionnez un canal" message="Choisissez un canal pour afficher ses jeux." />
+        } @else {
+          <table mat-table [dataSource]="gameRows()">
+            <ng-container matColumnDef="tenantGameId">
+              <th mat-header-cell *matHeaderCellDef>Tenant game</th>
+              <td mat-cell *matCellDef="let row"><code>{{ idText(row.tenantGameId) }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="enabled">
+              <th mat-header-cell *matHeaderCellDef>Statut</th>
+              <td mat-cell *matCellDef="let row">
+                <tch-admin-status-pill [tone]="row.enabled ? 'success' : 'neutral'" [label]="row.enabled ? 'Actif' : 'Inactif'" />
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="flags">
+              <th mat-header-cell *matHeaderCellDef>Flags</th>
+              <td mat-cell *matCellDef="let row"><code>{{ flagsText(row.flags) }}</code></td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-icon-button [disabled]="busy()" title="Activer / désactiver" (click)="toggle(row)">
+                  <span class="material-symbols-outlined">published_with_changes</span>
+                </button>
+                <button mat-icon-button [disabled]="busy()" title="Modifier les flags" (click)="editFlags(row)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="channelColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: channelColumns"></tr>
+          </table>
+        }
+      </ng-container>
+    </tch-async-view>
+
+    <div footer>
+      <span>{{ gameRows().length }} association(s)</span>
+    </div>
+  </tch-admin-crud-shell>
+</tch-admin-page-shell>
