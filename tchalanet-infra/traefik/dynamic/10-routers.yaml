@@ -16,7 +16,7 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Edge service
+    # Edge service (dev)
     edge:
       rule: Host(`edge.localtest.me`)
       entryPoints: [ websecure, mobile-https ]
@@ -24,7 +24,7 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Web App (Angular/Nx — dev server sur host:4200)
+    # Web App (Angular/Nx)
     web-app:
       rule: Host(`app.localtest.me`)
       entryPoints: [ websecure ]
@@ -32,7 +32,7 @@ http:
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]
 
-    # Mobile App (Flutter/dev — dev server sur host:4201)
+    # Mobile App (Ionic/Angular)
     mobile-app:
       rule: Host(`mob.localtest.me`)
       entryPoints: [ websecure ]
