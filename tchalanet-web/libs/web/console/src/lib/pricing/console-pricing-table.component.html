@@ -2,19 +2,23 @@
   <table mat-table [dataSource]="rows()">
     <ng-container matColumnDef="gameCode">
       <th mat-header-cell *matHeaderCellDef>{{ 'component.console.pricingTable.column.game' | translate }}</th>
-      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.pricingTable.column.game' | translate"><code>{{ row.gameCode }}</code></td>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.pricingTable.column.game' | translate">
+        {{ row.gameCode | consoleGameName }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="betType">
       <th mat-header-cell *matHeaderCellDef>{{ 'component.console.pricingTable.column.betType' | translate }}</th>
       <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.pricingTable.column.betTypeShort' | translate">
-        <span class="console-pricing-table__chip">{{ row.betType }}</span>
+        <span class="console-pricing-table__chip">{{ row.betType | consoleBetTypeLabel }}</span>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="betOption">
       <th mat-header-cell *matHeaderCellDef>{{ 'component.console.pricingTable.column.betOption' | translate }}</th>
-      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.pricingTable.column.betOption' | translate">{{ row.betOption ?? '—' }}</td>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'component.console.pricingTable.column.betOption' | translate">
+        {{ (row.betType | consoleBetOptionLabel:row.betOption) ?? '—' }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="odds">
@@ -47,6 +51,7 @@
               mat-icon-button
               type="button"
               [title]="action.label"
+              [disabled]="action.disabled"
               [class.console-pricing-table__action--danger]="action.tone === 'danger'"
               (click)="emitAction(row, action)"
             >

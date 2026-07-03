@@ -43,7 +43,7 @@ export class ConsoleBetTypeLabelPipe implements PipeTransform {
   standalone: true,
 })
 export class ConsoleBetOptionLabelPipe implements PipeTransform {
-  transform(betType: string, betOption: number | null = null): string | null {
+  transform(betType: string, betOption: number | string | null = null): string | null {
     return consoleBetOptionLabel(betType, betOption);
   }
 }
@@ -53,7 +53,7 @@ export class ConsoleBetOptionLabelPipe implements PipeTransform {
   standalone: true,
 })
 export class ConsoleBetLabelPipe implements PipeTransform {
-  transform(betType: string, betOption: number | null = null): string {
+  transform(betType: string, betOption: number | string | null = null): string {
     return consoleBetLabel(betType, betOption);
   }
 }

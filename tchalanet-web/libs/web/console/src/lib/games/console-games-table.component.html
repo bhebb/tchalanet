@@ -44,6 +44,7 @@
                 mat-icon-button
                 type="button"
                 [title]="action.label"
+                [disabled]="action.disabled"
                 [class.console-games-table__action--danger]="action.tone === 'danger'"
                 (click)="emitAction(row, action)"
               >
@@ -53,6 +54,7 @@
               <button
                 mat-stroked-button
                 type="button"
+                [disabled]="action.disabled"
                 [class.console-games-table__action--danger]="action.tone === 'danger'"
                 [class.console-games-table__action--primary]="action.tone === 'primary'"
                 (click)="emitAction(row, action)"

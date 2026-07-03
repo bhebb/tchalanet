@@ -13,7 +13,34 @@ export interface ConsoleGameRow {
   readonly actions?: readonly ConsoleRowAction[];
 }
 
+export interface ConsoleGameCardSummaryItem {
+  readonly icon: string;
+  readonly label: string;
+  readonly warning?: boolean;
+}
+
+export interface ConsoleGameCardView {
+  readonly id: string;
+  readonly code: string;
+  readonly name: string;
+  readonly logoText?: string | null;
+  readonly statusLabel: string;
+  readonly statusTone: AdminStatusTone;
+  readonly badgeLabel?: string | null;
+  readonly badgeTone?: 'ready' | 'warning' | 'blocked' | 'info' | 'neutral';
+  readonly unavailable?: boolean;
+  readonly unavailableLabel?: string | null;
+  readonly summaryItems?: readonly ConsoleGameCardSummaryItem[];
+  readonly actions?: readonly ConsoleRowAction[];
+  readonly secondaryActions?: readonly ConsoleRowAction[];
+}
+
 export interface ConsoleGameActionEvent {
   readonly row: ConsoleGameRow;
+  readonly action: ConsoleRowAction;
+}
+
+export interface ConsoleGameCardActionEvent {
+  readonly row: ConsoleGameCardView;
   readonly action: ConsoleRowAction;
 }

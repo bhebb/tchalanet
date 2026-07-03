@@ -1,0 +1,75 @@
+@let game = row();
+
+<tch-card class="console-game-card console-game-card--{{ game.statusTone | lowercase }}">
+  <div class="console-game-card__header">
+    <div class="console-game-card__logo" aria-hidden="true">{{ game.logoText || game.name.slice(0, 2) }}</div>
+    <div class="console-game-card__title-block">
+      <h3 class="console-game-card__title">{{ game.name }}</h3>
+      <tch-admin-status-pill [label]="game.statusLabel" [tone]="game.statusTone" />
+    </div>
+
+    @if (game.badgeLabel && game.badgeTone) {
+      <tch-status-badge [status]="game.badgeTone" [label]="game.badgeLabel" />
+    }
+  </div>
+
+  @if (actionError(); as err) {
+    <tch-section-error
+      class="console-game-card__error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity ?? 'error'"
+    />
+  }
+
+  @if (!game.unavailable) {
+    <div class="console-game-card__body">
+      @for (item of game.summaryItems ?? []; track item.icon + ':' + item.label) {
+        <div class="console-game-card__summary-row" [class.console-game-card__summary-row--warning]="item.warning">
+          <span class="material-symbols-outlined">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="console-game-card__unavailable-body">
+      <span class="material-symbols-outlined console-game-card__unavailable-icon">lock</span>
+      <p class="console-game-card__unavailable-label">{{ game.unavailableLabel || 'Non disponible' }}</p>
+    </div>
+  }
+
+  <div class="console-game-card__actions">
+    @for (action of game.actions ?? []; track action.id) {
+      <button
+        mat-stroked-button
+        type="button"
+        class="console-game-card__btn"
+        [class.console-game-card__btn--primary]="action.tone === 'primary'"
+        [class.console-game-card__btn--danger]="action.tone === 'danger'"
+        [disabled]="action.disabled"
+        (click)="emitAction(game, action)"
+      >
+        @if (action.icon) {
+          <mat-icon>{{ action.icon }}</mat-icon>
+        }
+        {{ action.label }}
+      </button>
+    }
+
+    @if (!game.unavailable && (game.secondaryActions?.length ?? 0) > 0) {
+      <div class="console-game-card__secondary-actions">
+        @for (action of game.secondaryActions ?? []; track action.id) {
+          <button
+            mat-icon-button
+            type="button"
+            [matTooltip]="action.label"
+            [class.console-game-card__icon-action--danger]="action.tone === 'danger'"
+            (click)="emitAction(game, action)"
+          >
+            <mat-icon>{{ action.icon || 'more_horiz' }}</mat-icon>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</tch-card>

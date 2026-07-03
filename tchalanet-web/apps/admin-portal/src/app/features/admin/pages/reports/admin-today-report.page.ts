@@ -21,6 +21,7 @@ import {
   AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
+import { consoleGameName } from '@tch/web/console';
 
 import { ReportsAdminApi, type SalesReportLine } from '../../data-access/reports-admin.api.service';
 
@@ -49,15 +50,6 @@ type PageState =
       readonly from: string;
       readonly to: string;
     };
-
-const GAME_LABELS: Record<string, string> = {
-  HT_BOLET: 'Borlette',
-  HT_MARYAJ: 'Mariage',
-  HT_MARYAJ_GRATUIT: 'Mariage Gratuit',
-  HT_LOTO3: 'Loto 3',
-  HT_LOTO4: 'Loto 4',
-  HT_LOTO5: 'Loto 5',
-};
 
 @Component({
   selector: 'tch-admin-today-report-page',
@@ -125,6 +117,6 @@ export class AdminTodayReportPage {
   }
 
   gameLabel(code: string): string {
-    return GAME_LABELS[code] ?? code;
+    return consoleGameName(code);
   }
 }

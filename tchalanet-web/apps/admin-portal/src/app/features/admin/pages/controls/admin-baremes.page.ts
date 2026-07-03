@@ -13,36 +13,13 @@ import {
   AdminPageHeader,
   AdminEmptyState,
 } from '@tch/ui/components';
+import {
+  consoleBetOptionLabel,
+  consoleBetTypeLabel,
+  consoleGameName,
+} from '@tch/web/console';
 
 import { BaremesAdminApi, type PricingOddsEntry } from '../../data-access/baremes-admin.api.service';
-
-// Display labels for each bet type
-const BET_TYPE_LABELS: Record<string, string> = {
-  MATCH_1_2D: '1er lot',
-  MATCH_2_2D: '2e lot',
-  MATCH_3_2D: '3e lot',
-  MARRIAGE_2D2D: 'Mariage',
-  LOTTO3_3D: 'Loto 3',
-  LOTTO4_PATTERN: 'Loto 4',
-  LOTTO5_PATTERN: 'Loto 5',
-};
-
-// Display labels for bet options
-const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
-  MARRIAGE_2D2D: { 1: 'Ordre exact', 2: 'Revers / Double' },
-  LOTTO3_3D: { 1: 'Exact', 2: 'Désordre / Box' },
-  LOTTO4_PATTERN: { 1: 'Exact', 2: 'Désordre / Box', 3: '2 premiers', 4: '2 derniers' },
-  LOTTO5_PATTERN: { 1: 'Lot1 + Lot2', 2: 'Lot1 + Lot3', 3: 'Mixte' },
-};
-
-const GAME_LABELS: Record<string, string> = {
-  HT_BOLET: 'Borlette',
-  HT_MARYAJ: 'Mariage',
-  HT_MARYAJ_GRATUIT: 'Mariage Gratuit',
-  HT_LOTO3: 'Loto 3',
-  HT_LOTO4: 'Loto 4',
-  HT_LOTO5: 'Loto 5',
-};
 
 export interface GameGroup {
   readonly gameCode: string;
@@ -64,7 +41,7 @@ function groupByGame(entries: PricingOddsEntry[]): GameGroup[] {
   }
   return Array.from(map.entries()).map(([code, rows]) => ({
     gameCode: code,
-    gameLabel: GAME_LABELS[code] ?? code,
+    gameLabel: consoleGameName(code),
     rows,
   }));
 }
@@ -99,11 +76,10 @@ export class AdminBaremesPage {
   );
 
   betTypeLabel(betType: string): string {
-    return BET_TYPE_LABELS[betType] ?? betType;
+    return consoleBetTypeLabel(betType);
   }
 
   optionLabel(betType: string, betOption: number | null): string {
-    if (betOption == null) return '';
-    return BET_OPTION_LABELS[betType]?.[betOption] ?? `Option ${betOption}`;
+    return consoleBetOptionLabel(betType, betOption) ?? '';
   }
 }

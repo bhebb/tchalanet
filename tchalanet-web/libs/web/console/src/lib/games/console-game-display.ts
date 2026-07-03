@@ -1,5 +1,6 @@
 const GAME_LABELS: Record<string, string> = {
   BORLETTE: 'Borlette',
+  HT_BOLET: 'Borlette',
   HT_BORLETTE: 'Borlette',
   MARYAJ: 'Maryaj',
   HT_MARYAJ: 'Maryaj',
@@ -14,6 +15,7 @@ const GAME_LABELS: Record<string, string> = {
 
 const GAME_LOGO_TEXT: Record<string, string> = {
   BORLETTE: 'Bo',
+  HT_BOLET: 'Bo',
   HT_BORLETTE: 'Bo',
   MARYAJ: 'Ma',
   HT_MARYAJ: 'Ma',
@@ -35,11 +37,15 @@ const BET_TYPE_LABELS: Record<string, string> = {
   COMBO: 'Combiné',
   MARIAGE: 'Maryaj',
   MARYAJ: 'Maryaj',
+  MATCH_1_2D: '1er lot',
+  MATCH_2_2D: '2e lot',
+  MATCH_3_2D: '3e lot',
   PATTERN2X2: 'Maryaj 2x2',
   PATTERN2_2: 'Maryaj 2x2',
   PATTERN2STAR2: 'Maryaj 2x2',
   PATTERN_2X2: 'Maryaj 2x2',
   MARRIAGE_2D2D: 'Maryaj 2x2',
+  LOTTO3_3D: 'Loto 3',
   LOTTO4_PATTERN: 'Loto 4',
   LOTTO5_PATTERN: 'Loto 5',
 };
@@ -52,6 +58,10 @@ const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
   PATTERN2X2: {
     1: 'Ordre exact',
     2: 'Revers / double',
+  },
+  LOTTO3_3D: {
+    1: 'Exact',
+    2: 'Permuté',
   },
   LOTTO4_PATTERN: {
     1: 'Exact',
@@ -80,12 +90,14 @@ export function consoleBetTypeLabel(betType: string): string {
   return BET_TYPE_LABELS[normalizeBetType(betType)] ?? readableCode(betType);
 }
 
-export function consoleBetOptionLabel(betType: string, betOption: number | null): string | null {
+export function consoleBetOptionLabel(betType: string, betOption: number | string | null): string | null {
   if (betOption == null) return null;
-  return BET_OPTION_LABELS[normalizeBetType(betType)]?.[betOption] ?? `Option ${betOption}`;
+  const option = typeof betOption === 'number' ? betOption : Number(betOption);
+  if (!Number.isFinite(option)) return String(betOption);
+  return BET_OPTION_LABELS[normalizeBetType(betType)]?.[option] ?? `Option ${option}`;
 }
 
-export function consoleBetLabel(betType: string, betOption: number | null): string {
+export function consoleBetLabel(betType: string, betOption: number | string | null): string {
   return consoleBetOptionLabel(betType, betOption) ?? consoleBetTypeLabel(betType);
 }
 
