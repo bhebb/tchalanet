@@ -64,8 +64,15 @@ export class AdminSellerTerminalDetailPage {
     () => ({ drawLimit: 1, sellerTerminalLimit: 500 }),
     { suppressShellFeedback: true },
   );
+  readonly todayFinancialsError = resourceErrorVm(
+    this.todayFinancials,
+    'admin.sellerTerminals.detail.today',
+  );
   readonly todayStats = computed<SellerTerminalDailyFinancialRow>(() => {
     const id = this.sellerTerminalId;
+    if (this.todayFinancials.status() === 'error') {
+      return emptyTodayStats(id ?? '');
+    }
     const row = this.todayFinancials.value()?.sellerTerminalDailyRows
       .find(item => item.sellerTerminalId === id);
     return row ?? emptyTodayStats(id ?? '');
@@ -164,6 +171,11 @@ export class AdminSellerTerminalDetailPage {
 
   reload(): void {
     this.sellerTerminal.reload();
+    this.todayFinancials.reload();
+  }
+
+  reloadTodayStats(): void {
+    this.todayFinancials.reload();
   }
 
 }

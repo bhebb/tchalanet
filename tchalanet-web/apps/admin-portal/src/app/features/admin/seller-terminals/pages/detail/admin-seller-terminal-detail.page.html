@@ -62,7 +62,11 @@
           <aside aside class="seller-terminal-detail__aside">
             <tch-seller-terminal-detail-summary-card [terminal]="t" />
 
-            <tch-seller-terminal-today-stats-card [stats]="todayStats()" />
+            <tch-seller-terminal-today-stats-card
+              [stats]="todayStats()"
+              [error]="todayFinancialsError()"
+              (retry)="reloadTodayStats()"
+            />
 
             <tch-seller-terminal-detail-facts-card
               titleKey="admin.sellerTerminals.detail.section.control"

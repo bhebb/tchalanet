@@ -6,22 +6,32 @@
     <strong>{{ 'admin.sellerTerminals.detail.today.title' | translate }}</strong>
   </div>
 
-  <div class="seller-terminal-today-stats-card__grid">
-    <div class="seller-terminal-today-stats-card__row">
-      <span>{{ 'admin.sellerTerminals.detail.today.ticketsSold' | translate }}</span>
-      <strong>{{ stats().ticketsSold | number: '1.0-0' }}</strong>
+  @if (error(); as statsError) {
+    <tch-error-panel
+      [title]="statsError.title"
+      [message]="statsError.message"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="retry.emit()"
+    />
+  } @else {
+    <div class="seller-terminal-today-stats-card__grid">
+      <div class="seller-terminal-today-stats-card__row">
+        <span>{{ 'admin.sellerTerminals.detail.today.ticketsSold' | translate }}</span>
+        <strong>{{ stats().ticketsSold | number: '1.0-0' }}</strong>
+      </div>
+      <div class="seller-terminal-today-stats-card__row">
+        <span>{{ 'admin.sellerTerminals.detail.today.grossSales' | translate }}</span>
+        <strong>{{ stats().grossSales | number: '1.0-2' }} HTG</strong>
+      </div>
+      <div class="seller-terminal-today-stats-card__row">
+        <span>{{ 'admin.sellerTerminals.detail.today.commission' | translate }}</span>
+        <strong>{{ stats().sellerCommission | number: '1.0-2' }} HTG</strong>
+      </div>
+      <div class="seller-terminal-today-stats-card__row">
+        <span>{{ 'admin.sellerTerminals.detail.today.netRevenue' | translate }}</span>
+        <strong>{{ stats().netRevenueEstimated | number: '1.0-2' }} HTG</strong>
+      </div>
     </div>
-    <div class="seller-terminal-today-stats-card__row">
-      <span>{{ 'admin.sellerTerminals.detail.today.grossSales' | translate }}</span>
-      <strong>{{ stats().grossSales | number: '1.0-2' }} HTG</strong>
-    </div>
-    <div class="seller-terminal-today-stats-card__row">
-      <span>{{ 'admin.sellerTerminals.detail.today.commission' | translate }}</span>
-      <strong>{{ stats().sellerCommission | number: '1.0-2' }} HTG</strong>
-    </div>
-    <div class="seller-terminal-today-stats-card__row">
-      <span>{{ 'admin.sellerTerminals.detail.today.netRevenue' | translate }}</span>
-      <strong>{{ stats().netRevenueEstimated | number: '1.0-2' }} HTG</strong>
-    </div>
-  </div>
+  }
 </section>
