@@ -1,8 +1,28 @@
 @use 'index' as ui;
 
 .tickets-page {
+  &__filters {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__code-filter {
+    width: min(260px, 100%);
+  }
+
   &__status-filter {
-    width: 160px;
+    width: 180px;
+  }
+
+  &__date-filter {
+    width: 150px;
+  }
+
+  &__sort-filter {
+    width: 190px;
   }
 
   &__table {
@@ -11,6 +31,14 @@
     table {
       width: 100%;
     }
+  }
+
+  &__row {
+    cursor: pointer;
+  }
+
+  &__row:hover {
+    background: var(--tch-color-surface-container-high, #e6e6ee);
   }
 
   &__code {
@@ -25,12 +53,19 @@
   }
 
   &__pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    display: block;
     padding: 1rem;
-    font-size: 0.875rem;
-    color: var(--tch-color-on-surface-variant);
+  }
+}
+
+@media (max-width: 720px) {
+  .tickets-page {
+    &__filters,
+    &__code-filter,
+    &__status-filter,
+    &__date-filter,
+    &__sort-filter {
+      width: 100%;
+    }
   }
 }

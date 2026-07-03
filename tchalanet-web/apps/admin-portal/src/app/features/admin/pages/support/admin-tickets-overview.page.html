@@ -1,0 +1,96 @@
+<tch-admin-page-shell title="Vue d'ensemble Tickets" description="Synthèse opérationnelle des ventes du jour.">
+  @if (state(); as vm) {
+    @if (vm.status === 'loading') {
+      <tch-loading label="Chargement de la vue d'ensemble..." />
+    } @else if (vm.status === 'error') {
+      <tch-error-panel
+        title="Erreur"
+        message="Impossible de charger les indicateurs tickets."
+        [showRetry]="true"
+        retryLabel="Réessayer"
+        (retry)="reload()"
+      />
+    } @else {
+      <section class="tickets-overview__kpis" aria-label="Indicateurs tickets du jour">
+        <article class="tickets-overview__kpi">
+          <span class="tickets-overview__kpi-label">Tickets vendus</span>
+          <strong>{{ vm.financials.summary.ticketsSold | number }}</strong>
+        </article>
+        <article class="tickets-overview__kpi">
+          <span class="tickets-overview__kpi-label">Montant vendu</span>
+          <strong>{{ amountDisplay(vm.financials.summary.grossSales) }} {{ currency() }}</strong>
+        </article>
+        <article class="tickets-overview__kpi">
+          <span class="tickets-overview__kpi-label">Ticket moyen</span>
+          <strong>{{ amountDisplay(ticketAverage()) }} {{ currency() }}</strong>
+        </article>
+        <article class="tickets-overview__kpi">
+          <span class="tickets-overview__kpi-label">Annulés</span>
+          <strong>{{ vm.cancelledCount | number }}</strong>
+        </article>
+      </section>
+
+      <div class="tickets-overview__main">
+        <tch-admin-section-card title="Ventes par tirage aujourd'hui" icon="event">
+          @if (drawRows().length === 0) {
+            <tch-admin-empty-state icon="event_busy" title="Aucune vente par tirage" message="Les ventes projetées apparaîtront ici." />
+          } @else {
+            <div class="tickets-overview__rows">
+              @for (row of drawRows(); track row.id) {
+                <div class="tickets-overview__row">
+                  <div>
+                    <strong>{{ row.label }}</strong>
+                    @if (row.meta) {
+                      <span>{{ row.meta | date:'HH:mm' }}</span>
+                    }
+                  </div>
+                  <span>{{ row.ticketCount | number }} tickets</span>
+                  <strong>{{ amountDisplay(row.grossSales) }} {{ currency() }}</strong>
+                </div>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+
+        <tch-admin-section-card title="Derniers tickets vendus" icon="confirmation_number">
+          <a actions mat-button routerLink="/app/admin/tickets">
+            Voir tous les tickets
+          </a>
+          @if (recentTickets().length === 0) {
+            <tch-admin-empty-state icon="confirmation_number" title="Aucun ticket récent" message="Les derniers tickets vendus apparaîtront ici." />
+          } @else {
+            <div class="tickets-overview__rows">
+              @for (ticket of recentTickets(); track ticket.id) {
+                <a class="tickets-overview__row tickets-overview__row--link" [routerLink]="['/app/admin/tickets', ticket.id]">
+                  <div>
+                    <strong class="tickets-overview__code">{{ ticket.ticketCode }}</strong>
+                    <span>{{ ticket.placedAt | date:'HH:mm' }}</span>
+                  </div>
+                  <span>{{ ticket.drawChannelName }}</span>
+                  <strong>{{ ticketAmountDisplay(ticket.totalAmountCents) }} {{ ticket.currency }}</strong>
+                  <span>{{ statusLabel(ticket.status) }}</span>
+                </a>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+
+        <tch-admin-section-card title="Top terminaux vendeurs aujourd'hui" icon="point_of_sale">
+          @if (sellerRows().length === 0) {
+            <tch-admin-empty-state icon="point_of_sale" title="Aucun terminal actif" message="Les terminaux apparaîtront ici après projection analytics." />
+          } @else {
+            <div class="tickets-overview__rows">
+              @for (row of sellerRows(); track row.id) {
+                <div class="tickets-overview__row">
+                  <strong>{{ row.label }}</strong>
+                  <span>{{ row.ticketCount | number }} tickets</span>
+                  <strong>{{ amountDisplay(row.grossSales) }} {{ currency() }}</strong>
+                </div>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+      </div>
+    }
+  }
+</tch-admin-page-shell>

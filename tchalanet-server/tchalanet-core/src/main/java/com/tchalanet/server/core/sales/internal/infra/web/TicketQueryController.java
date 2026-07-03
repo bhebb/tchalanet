@@ -48,17 +48,18 @@ public class TicketQueryController {
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<TchPage<TicketSummaryResponse>> list(
-      @RequestParam(required = false) SellerTerminalId sellerTerminalId,
-      @RequestParam(required = false) DrawId drawId,
-      @RequestParam(required = false) String status,
-      @RequestParam(required = false) Instant from,
-      @RequestParam(required = false) Instant to,
+	      @RequestParam(required = false) SellerTerminalId sellerTerminalId,
+	      @RequestParam(required = false) DrawId drawId,
+	      @RequestParam(required = false) String status,
+	      @RequestParam(required = false) String q,
+	      @RequestParam(required = false) Instant from,
+	      @RequestParam(required = false) Instant to,
       @TchPaging(
               allowedSort = {"createdAt", "totalAmount", "ticketCode"},
               defaultSort = {"createdAt,DESC"})
           TchPageRequest pageReq) {
-    var query =
-        mapper.toListTicketsQuery(sellerTerminalId, drawId, status, from, to, pageReq);
+	    var query =
+	        mapper.toListTicketsQuery(sellerTerminalId, drawId, status, q, from, to, pageReq);
     var result = queryBus.ask(query);
     return ApiResponse.success(mapper.toPagedSummaryResponse(result));
   }

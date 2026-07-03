@@ -5,6 +5,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.web.error.ProblemRestException;
@@ -118,9 +119,17 @@ public class PosTicketsService {
         );
     }
 
-    public TchPage<PosTicketPageResponse> listTickets(Pageable pageable) {
+    public TchPage<PosTicketPageResponse> listTickets(
+        SellerTerminalId sellerTerminalId,
+        DrawId drawId,
+        String status,
+        String q,
+        Instant from,
+        Instant to,
+        Pageable pageable
+    ) {
         var result = queryBus.ask(new ListTicketsQuery(
-            null, null, null, null, null, new TchPageRequest(pageable)));
+            sellerTerminalId, drawId, status, q, from, to, new TchPageRequest(pageable)));
         return TchPageMapper.map(result, mapper::toPageResponse);
     }
 

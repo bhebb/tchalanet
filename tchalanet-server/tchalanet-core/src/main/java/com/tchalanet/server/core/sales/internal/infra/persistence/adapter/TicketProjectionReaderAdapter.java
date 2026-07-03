@@ -99,6 +99,23 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             if (status != null) {
                 predicates.add(cb.equal(root.get("saleStatus"), status));
             }
+            var codeQuery = codeQuery(query.q());
+            if (codeQuery != null) {
+                var rawPattern = "%" + escapeLike(codeQuery.raw()) + "%";
+                var compactPattern = "%" + escapeLike(codeQuery.compact()) + "%";
+                var compactTicketCode = cb.lower(
+                    cb.function("replace", String.class, root.get("ticketCode"), cb.literal("-"), cb.literal(""))
+                );
+                var compactPublicCode = cb.lower(
+                    cb.function("replace", String.class, root.get("publicCode"), cb.literal("-"), cb.literal(""))
+                );
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("ticketCode")), rawPattern, '\\'),
+                    cb.like(cb.lower(root.get("publicCode")), rawPattern, '\\'),
+                    cb.like(compactTicketCode, compactPattern, '\\'),
+                    cb.like(compactPublicCode, compactPattern, '\\')
+                ));
+            }
             if (query.from() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), query.from()));
             }
@@ -133,6 +150,23 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             default -> throw ProblemRest.badRequest("ticket.filter.invalid_sort");
         };
     }
+
+    private CodeQuery codeQuery(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        var normalized = raw.trim().toLowerCase(Locale.ROOT);
+        return new CodeQuery(normalized, normalized.replace("-", ""));
+    }
+
+    private String escapeLike(String value) {
+        return value
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_");
+    }
+
+    private record CodeQuery(String raw, String compact) {}
 
     private TicketSaleStatus parseStatus(String rawStatus) {
         if (rawStatus == null || rawStatus.isBlank()) {

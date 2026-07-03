@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.analytics.internal.infra.event;
 
+import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDailyProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsDrawProjector;
 import com.tchalanet.server.core.analytics.internal.application.service.AnalyticsSelectionProjector;
@@ -11,8 +12,10 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementReversedEvent;
+import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +50,7 @@ public class AnalyticsEventListener {
   private final AnalyticsDrawProjector      drawProjector;
   private final AnalyticsSelectionProjector selectionProjector;
   private final AnalyticsSellerTerminalDrawProjector sellerTerminalDrawProjector;
+  private final TenantZoneApi               tenantZoneApi;
 
   // ── ticket placed ─────────────────────────────────────────────────────────
 
@@ -56,7 +60,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPlacedEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketPlaced(event, refDate);
   }
 
@@ -68,7 +72,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketCancelledEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketCancelled(event, refDate);
   }
 
@@ -80,7 +84,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketWinningSettlementCreatedEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketWinningSettlementCreated(event, refDate);
   }
 
@@ -90,7 +94,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketWinningSettlementReversedEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketWinningSettlementReversed(event, refDate);
   }
 
@@ -100,7 +104,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketWinningSettlementCreatedEvent (draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     drawProjector.applyTicketWinningSettlementCreated(event, refDate);
   }
 
@@ -111,7 +115,7 @@ public class AnalyticsEventListener {
           event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketWinningSettlementCreated(event, refDate);
   }
 
@@ -121,7 +125,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketWinningSettlementReversedEvent (draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     drawProjector.applyTicketWinningSettlementReversed(event, refDate);
   }
 
@@ -132,7 +136,7 @@ public class AnalyticsEventListener {
           event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketWinningSettlementReversed(event, refDate);
   }
 
@@ -144,7 +148,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutPaidEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketPayoutPaid(event, refDate);
   }
 
@@ -154,7 +158,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutReversedEvent {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     dailyProjector.applyTicketPayoutReversed(event, refDate);
   }
 
@@ -164,7 +168,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutPaidEvent (draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     drawProjector.applyTicketPayoutPaid(event, refDate);
   }
 
@@ -174,7 +178,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutPaidEvent (seller-terminal-draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketPayoutPaid(event, refDate);
   }
 
@@ -184,7 +188,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutReversedEvent (draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     drawProjector.applyTicketPayoutReversed(event, refDate);
   }
 
@@ -194,7 +198,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPayoutReversedEvent (seller-terminal-draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketPayoutReversed(event, refDate);
   }
 
@@ -206,7 +210,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPlacedEvent (selection) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     selectionProjector.applyTicketPlaced(event, refDate);
   }
 
@@ -216,7 +220,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPlacedEvent (draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     drawProjector.applyTicketPlaced(event, refDate);
   }
 
@@ -226,7 +230,7 @@ public class AnalyticsEventListener {
       log.debug("analytics: duplicate TicketPlacedEvent (seller-terminal-draw) {}", event.eventId().value());
       return;
     }
-    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    LocalDate refDate = refDate(event);
     sellerTerminalDrawProjector.applyTicketPlaced(event, refDate);
   }
 
@@ -239,5 +243,19 @@ public class AnalyticsEventListener {
       return;
     }
     drawProjector.ensureDrawRow(event);
+  }
+
+  private LocalDate refDate(DomainEvent event) {
+    return LocalDate.ofInstant(event.occurredAt(), tenantZone(event));
+  }
+
+  private ZoneId tenantZone(DomainEvent event) {
+    try {
+      ZoneId zoneId = tenantZoneApi.resolveTenantZone(event.tenantId());
+      return zoneId != null ? zoneId : ZoneOffset.UTC;
+    } catch (RuntimeException e) {
+      log.warn("analytics: failed to resolve tenant timezone for {} — using UTC", event.tenantId(), e);
+      return ZoneOffset.UTC;
+    }
   }
 }

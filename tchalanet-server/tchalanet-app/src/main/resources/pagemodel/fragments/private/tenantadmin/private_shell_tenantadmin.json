@@ -167,6 +167,13 @@
                 "path": "/app/admin/sellers/new",
                 "kind": "internal",
                 "icon": "add_circle"
+              },
+              {
+                "id": "sellers-commissions",
+                "label_key": "nav.admin.controls_commissions",
+                "path": "/app/admin/sellers/commissions",
+                "kind": "internal",
+                "icon": "percent"
               }
             ]
           },
@@ -282,27 +289,6 @@
             ]
           },
           {
-            "id": "controls",
-            "label_key": "nav.admin.controls_sale",
-            "icon": "tune",
-            "children": [
-              {
-                "id": "controls-gains",
-                "label_key": "nav.admin.controls_gains",
-                "path": "/app/admin/controls/gains",
-                "kind": "internal",
-                "icon": "format_list_numbered"
-              },
-              {
-                "id": "controls-commissions",
-                "label_key": "nav.admin.controls_commissions",
-                "path": "/app/admin/controls/commissions",
-                "kind": "internal",
-                "icon": "percent"
-              }
-            ]
-          },
-          {
             "id": "promotions",
             "label_key": "nav.promotions",
             "icon": "local_activity",
@@ -366,6 +352,14 @@
             "icon": "confirmation_number",
             "children": [
               {
+                "id": "tickets-overview",
+                "label_key": "nav.admin.tickets_overview",
+                "path": "/app/admin/tickets/overview",
+                "kind": "internal",
+                "icon": "dashboard",
+                "active_match": "exact"
+              },
+              {
                 "id": "tickets-list",
                 "label_key": "nav.admin.tickets_list",
                 "path": "/app/admin/tickets",
@@ -379,13 +373,6 @@
                 "path": "/app/admin/tickets/sell",
                 "kind": "internal",
                 "icon": "point_of_sale"
-              },
-              {
-                "id": "tickets-verify",
-                "label_key": "nav.admin.tickets_verify",
-                "path": "/app/admin/tickets/verify",
-                "kind": "internal",
-                "icon": "verified"
               }
             ]
           },
