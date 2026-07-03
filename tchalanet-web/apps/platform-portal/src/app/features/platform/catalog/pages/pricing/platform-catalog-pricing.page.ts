@@ -13,9 +13,12 @@ import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import {
+  consoleBetLabel,
+  ConsoleBetTypeLabelPipe,
   ConsolePricingActionEvent,
   ConsolePricingRow,
   ConsolePricingTableComponent,
+  consoleGameName,
 } from '@tch/web/console';
 import {
   TchAsyncReadyDirective,
@@ -41,11 +44,13 @@ import { EditPricingDialog } from '../../components/dialogs/edit-pricing.dialog'
     AdminDataToolbarComponent,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
+    ConsoleBetTypeLabelPipe,
     ConsolePricingTableComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     TranslatePipe,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
     MatSelectModule,
   ],
@@ -120,7 +125,10 @@ export class PlatformCatalogPricingPage {
   delete(row: CatalogPricingView): void {
     const data: TchConfirmDialogData = {
       title: this.translate.instant('common.delete'),
-      message: this.translate.instant('platform.catalog.pricing.confirm.delete', { gameCode: row.gameCode, betType: row.betType }),
+      message: this.translate.instant('platform.catalog.pricing.confirm.delete', {
+        gameCode: consoleGameName(row.gameCode),
+        betType: consoleBetLabel(row.betType, row.betOption),
+      }),
       confirmLabel: this.translate.instant('common.delete'),
       destructive: true,
       icon: 'delete',

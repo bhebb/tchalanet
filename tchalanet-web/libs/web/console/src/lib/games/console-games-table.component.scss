@@ -13,13 +13,40 @@
 
   &__identity {
     display: grid;
-    gap: 0.125rem;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.625rem;
     min-width: 0;
 
-    span {
+    .console-games-table__supporting {
+      grid-column: 2;
       color: var(--tch-color-on-surface-variant);
       font-size: 0.75rem;
     }
+  }
+
+  &__logo {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--tch-radius-sm);
+    background: var(--tch-color-primary-container);
+    color: var(--tch-color-on-primary-container);
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-font-weight-bold, 700);
+  }
+
+  &__copy {
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  &__code {
+    color: var(--tch-color-on-surface-variant);
+    font-family: var(--tch-font-family-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace);
+    font-size: 0.75rem;
   }
 
   &__actions {

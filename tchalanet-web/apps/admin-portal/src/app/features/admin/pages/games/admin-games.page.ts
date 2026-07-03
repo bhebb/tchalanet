@@ -15,6 +15,7 @@ import {
   ConsoleGameActionEvent,
   ConsoleGameRow,
   ConsoleGamesTableComponent,
+  consoleGameName,
 } from '@tch/web/console';
 import {
   GamesAdminApiService,
@@ -151,7 +152,7 @@ export class AdminGamesPage implements OnInit {
     return {
       id: game.gameCode,
       code: game.gameCode,
-      name: game.displayName ?? game.catalogName,
+      name: consoleGameName(game.gameCode, game.displayName ?? game.catalogName),
       category: game.category,
       sortOrder: game.displayOrder,
       statusLabel: this.translate.instant(game.enabled ? 'common.enabled' : 'common.disabled'),
@@ -175,7 +176,7 @@ export class AdminGamesPage implements OnInit {
     return {
       id: game.gameCode,
       code: game.gameCode,
-      name: game.name,
+      name: consoleGameName(game.gameCode, game.name),
       category: game.category,
       statusLabel: this.catalogStatusLabel(game),
       statusTone: game.enabledForTenant ? 'success' : game.catalogActive ? 'info' : 'neutral',

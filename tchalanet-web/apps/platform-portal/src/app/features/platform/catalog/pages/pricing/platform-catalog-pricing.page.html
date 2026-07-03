@@ -20,7 +20,7 @@
           <mat-label>{{ 'platform.catalog.pricing.filter.betType' | translate }}</mat-label>
           <mat-select [value]="betTypeFilter()" (valueChange)="onBetTypeFilter($event)">
             <mat-option value="">{{ 'common.all' | translate }}</mat-option>
-            @for (bt of betTypes; track bt) { <mat-option [value]="bt">{{ bt }}</mat-option> }
+            @for (bt of betTypes; track bt) { <mat-option [value]="bt">{{ bt | consoleBetTypeLabel }}</mat-option> }
           </mat-select>
         </mat-form-field>
         <button mat-stroked-button (click)="load()">

@@ -10,6 +10,7 @@ import {
   ConsolePricingFormValue,
   EMPTY_CONSOLE_PRICING_FORM_VALUE,
 } from './console-pricing-form.models';
+import { ConsoleBetLabelPipe, ConsoleBetTypeLabelPipe, ConsoleGameNamePipe } from '../games/console-game-labels.pipe';
 
 @Component({
   selector: 'tch-console-pricing-form',
@@ -21,6 +22,9 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    ConsoleBetLabelPipe,
+    ConsoleBetTypeLabelPipe,
+    ConsoleGameNamePipe,
     TranslatePipe,
   ],
   templateUrl: './console-pricing-form.component.html',

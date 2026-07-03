@@ -15,6 +15,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { TchPaginationComponent } from '@tch/ui/console';
 import {
+  consoleGameName,
   ConsoleGameActionEvent,
   ConsoleGameRow,
   ConsoleGamesTableComponent,
@@ -196,7 +197,7 @@ export class PlatformCatalogGamesPage {
     return {
       id: game.id,
       code: game.code,
-      name: game.name,
+      name: consoleGameName(game.code, game.name),
       category: game.category,
       sortOrder: game.sortOrder,
       statusLabel: this.translate.instant(game.active ? 'common.enabled' : 'common.disabled'),
