@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSectionError } from '@tch/ui/components';
+import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
 
 import {
@@ -29,9 +30,9 @@ interface EditGameFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
+    AdminDialogShellComponent,
     MatButtonModule,
     MatCheckboxModule,
-    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -39,7 +40,6 @@ interface EditGameFormModel {
     TranslatePipe,
   ],
   templateUrl: './edit-game.dialog.html',
-  styleUrl: './catalog-dialog.scss',
 })
 export class EditGameDialog {
   private readonly api = inject(PlatformCatalogApi);

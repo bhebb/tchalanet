@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, min, submit } from '@angular/forms/signals';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSectionError } from '@tch/ui/components';
+import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
 
 import {
@@ -27,16 +28,15 @@ interface EditPricingFormModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
+    AdminDialogShellComponent,
     MatButtonModule,
     MatCheckboxModule,
-    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     TchSectionError,
     TranslatePipe,
   ],
   templateUrl: './edit-pricing.dialog.html',
-  styleUrl: './catalog-dialog.scss',
 })
 export class EditPricingDialog {
   private readonly api = inject(PlatformCatalogApi);
