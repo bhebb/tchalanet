@@ -42,44 +42,59 @@ Invariants :
    slot `[meta]` (badges), slot `[actions]` (boutons d'en-tête).
 2. **i18n obligatoire** — `TranslatePipe` + clés dans les bundles de la surface. Pas de texte
    FR codé en dur dans une nouvelle page (décision 2026-07-02).
-3. **État = signals séparés** dans la page (standard, 58 pages) :
+3. **Lecture = resource, pas de signals loading/error à la main** (`@tch/web/async`, standard depuis
+   `web-async-state-resource-v1`, pilotes : setup + overview draws). Le resource est créé **par
+   `TchBackendClient`** (`getResource`/`getPageResource`, seul point de création) et exposé par le
+   service data-access ; la page le consomme :
    ```ts
-   readonly loading = signal(false);
-   readonly error = signal<ErrorViewModel | null>(null);
-   readonly items = signal<Xxx[]>([]);          // ou readonly item = signal<Xxx | null>(null)
-   readonly actionFeedback = signal<ErrorViewModel | null>(null);
+   // data-access : mapping DTO -> vue au niveau du client (param project)
+   tenantsResource(query: () => TenantQuery) {
+     return this.client.getPageResource<TenantView, TenantDto>(
+       () => ({ path: '/platform/tenants', options: { params: toParams(query()), suppressShellFeedback: true } }),
+       mapTenant,
+     );
+   }
+   // page
+   readonly tenants = this.api.tenantsResource(() => this.query());   // params dérivés de l'URL
+   readonly tenantsError = resourceErrorVm(this.tenants, 'platform.tenants.list');
    ```
-   Ne pas introduire d'enum `pageState()` dans les nouvelles pages.
-4. **Squelette d'états** dans le template, toujours dans cet ordre :
+   Interdits : `loading`/`error`/`items` en signals manuels, enum `pageState()`, `Subject`+`switchMap`,
+   et instancier `rxResource`/`httpResource` dans une feature (monopole du client).
+4. **Squelette d'états = `<tch-async-view>`** (loading / erreur+retry / empty / ready) :
    ```html
-   @if (loading()) { <tch-loading … /> }
-   @else if (error(); as vm) { <tch-error-panel [title]="vm.title" … (retry)="load()" /> }
-   @else if (vide) { <tch-admin-empty-state … /> }
-   @else { <!-- contenu --> }
+   <tch-async-view [resource]="tenants" [error]="tenantsError()" [isEmpty]="isEmpty"
+                   loadingLabel="…" (retry)="tenants.reload()">
+     <tch-admin-empty-state empty … />
+     <ng-template tchAsyncReady>
+       @if (tenants.value(); as page) { <!-- table typée sur `page` --> }
+     </ng-template>
+   </tch-async-view>
    ```
-   (Cible : ce squelette devient `<tch-async-view>` — change `web-async-state-resource-v1`.)
+   **Règle ready : lire `resource.value()` via `@if (…; as vm)`** pour obtenir la valeur typée —
+   **ne pas** utiliser `let-vm` (le contexte est `unknown`, source de bugs).
 
-   **Loading — 4 niveaux, à ne jamais mélanger :**
+   **Loading — 4 niveaux, gérés par `tch-async-view` (anti-flash ~300 ms / min ~500 ms intégré) :**
 
    | Situation | Indicateur |
    | --------- | ---------- |
    | Chargement initial (page/section) | `tch-loading` à la place du contenu |
-   | **Rechargement** (filtre changé, reload après action) | **Les données restent affichées** + indicateur discret — **jamais de blanchiment** de la zone (stale-while-revalidate) |
-   | Action en cours (submit) | Bouton désactivé + spinner inline + label « en cours » |
-   | Action de ligne | Indicateur sur la ligne concernée seulement, les autres restent actionnables |
+   | **Rechargement** (filtre changé, reload après action) | **Données conservées** + barre discrète — **jamais de blanchiment** (stale-while-revalidate) |
+   | Action en cours (submit) | `mutation.pending()` → bouton désactivé + spinner inline |
+   | Action de ligne | `mutation.pending(key)` → indicateur sur la seule ligne concernée |
+5. **Écriture = `tchMutation`, erreurs = `resourceErrorVm`** (`@tch/web/async`). Une mutation par
+   opération : `pending()` (global/par clé), `feedback()` succès/erreur mappé, `onSuccess` (→
+   `reload()`), `onError` (mapping champ serveur, renvoyer `true` = géré), double-submit bloqué,
+   `idempotency.keyFactory` pour vente/reset PIN/résultat/override. Choix du composant d'affichage :
 
-   Anti-flash : pas d'indicateur pour une réponse < ~300 ms ; une fois montré, il reste ≥ ~500 ms
-   (porté par `tch-async-view` à terme — en attendant, ne pas faire flasher un spinner à la main).
-5. **Erreurs** — mapper via `webAppErrorFromProblemDetail` + `resolveErrorFeedbackCopy` +
-   `toErrorViewModel` (`@tch/web/errors`). Choix du composant :
+   | Portée | Composant | Source |
+   | ------ | --------- | ------ |
+   | La page ne peut pas charger | `tch-error-panel` (retry) | `tch-async-view` + `resourceErrorVm` |
+   | Feedback d'une action | `tch-section-error` | `mutation.feedback()` |
+   | Message ponctuel succès/erreur | `tch-notice` | mutation / signal local |
+   | Erreur serveur d'un champ | `tch-field-error` | `serverFieldMessage(control)` |
 
-   | Portée | Composant |
-   | ------ | --------- |
-   | La page entière ne peut pas se charger | `tch-error-panel` (avec retry) |
-   | Feedback d'une action (succès/échec) au-dessus du contenu | `tch-section-error` |
-   | Message ponctuel succès/erreur | `tch-notice` |
-   | Erreur serveur d'un champ de formulaire | `tch-field-error` |
-
+   Ne plus recopier le mapping `webAppErrorFromProblemDetail` + `resolveErrorFeedbackCopy` +
+   `toErrorViewModel` dans les pages : `resourceErrorVm` / `tchMutation` le font.
 6. **API service dans `data-access/` de la feature**, `{ suppressShellFeedback: true }` quand la
    page gère elle-même son affichage d'erreur. Contrats génériques : `@tch/api`.
 7. **Statuts métier** → `tch-status-badge` avec mapping explicite vers `BadgeStatus` :
@@ -104,7 +119,7 @@ Invariants :
    | `@if` / `@for` / `@switch` / `@defer` | Control flow natif — jamais `*ngIf`/`*ngFor` | `components.md` |
    | **Signal Forms** (`@angular/forms/signals`) | **Défaut pour tout nouveau formulaire** (précédent : `tch-login.page.ts`) | `signal-forms.md` |
    | `ReactiveFormsModule` | Accepté pour l'existant (65 fichiers) et les cas non couverts par signal forms ; migration opportuniste | `reactive-forms.md` |
-   | Resources (`TchBackendClient.getResource`/`getPageResource`) | **Standard cible pour le chargement** (décision 2026-07-02, change `web-async-state-resource-v1`) : le client crée les resources (rxResource interne), les services exposent des ResourceRefs typés, la page consomme — remplace `Subject`+`switchMap`. Jamais de `rxResource`/`httpResource` instancié dans une feature pour un appel backend. Le squelette §2 décrit l'existant en attendant les pilotes | `resource.md` |
+   | Resources (`TchBackendClient.getResource`/`getPageResource`, param `project`) | **Standard de chargement** (§1.3) : le client crée les resources (rxResource interne + projection DTO→vue), les services exposent des ResourceRefs typés, la page consomme. Jamais de `rxResource`/`httpResource` dans une feature | `resource.md` |
    | `effect()` | Dernier recours — préférer `computed()`/`linkedSignal()` | `effects.md` |
 
    Toujours : `standalone: true` + `ChangeDetectionStrategy.OnPush`.
@@ -170,7 +185,10 @@ Params métier additionnels : préfixés par le domaine (ex. `drawDate`, `channe
 **Filtres :**
 
 - **Jamais de filtre en signal local** : l'état de vue complet vit dans l'URL
-  (deep-link, bouton retour, partage). Un filtre = `router.navigate` + lecture `queryParamMap`.
+  (deep-link, bouton retour, partage). Lecture via `toSignal(route.queryParamMap)` +
+  computeds ; écriture via `router.navigate({ queryParams, queryParamsHandling: 'merge' })`.
+- **Parsing via `@tch/web/async`** — ne pas recopier de helpers par page :
+  `numberParam(v, fallback)`, `dateParam(v)`, `textParam(v)`, `enumParam(v, allowed, fallback)`.
 - Changer un filtre remet `page` à 0.
 - Reset = navigation qui efface les params (pas un `form.reset()` seul).
 
@@ -183,9 +201,10 @@ Params métier additionnels : préfixés par le domaine (ex. `drawDate`, `channe
 **Pagination :**
 
 - Serveur via `TchPage<T>` (`totalElements`, `hasNext`, `hasPrevious`).
-- Affichage : total + « page X / Y » (cible : `tch-pagination` partagé avec
-  « N–M sur Total » + sélecteur de taille 10/20/50 — change `web-async-state-resource-v1` ;
-  en attendant, copier le footer de `platform-tenants.page`, ne pas inventer un autre).
+- Affichage : `tch-pagination` (`@tch/ui/console`) — « N–M sur Total » + prev/next + sélecteur de
+  taille (10/20/50), piloté par les query params `page`/`size`. Ne pas recoder de footer de
+  pagination (exception : une table à présentation bespoke qui possède déjà son pied, ex.
+  `generated-draws-table` groupée par date).
 - Au changement de page/filtre : **pas de blanchiment** — voir §1.4.
 
 ---
@@ -376,6 +395,13 @@ readiness/next-steps en `[aside]` si utile (`admin-next-steps-card`,
 | Confirmation d'action | `TchConfirmDialog` | `@tch/ui/components` |
 | CTA principal/secondaire | `tch-action` (`TchActionButton`) | `@tch/ui/components` |
 | Table de données | `mat-table` à la main (brique console à venir — C2) | Material |
+| **Lecture async (resource)** | `TchBackendClient.getResource`/`getPageResource` (param `project`) | `@tch/api` |
+| **États de vue (loading/erreur/empty/ready)** | `tch-async-view` + `ng-template tchAsyncReady` | `@tch/web/async` |
+| **Écriture (pending/feedback/idempotency)** | `tchMutation` | `@tch/web/async` |
+| **Erreur resource → ViewModel** | `resourceErrorVm` | `@tch/web/async` |
+| **Erreur serveur de champ (helper)** | `serverFieldMessage` | `@tch/web/async` |
+| **Parsing query params (page/size/sort/date/enum)** | `numberParam`/`dateParam`/`textParam`/`enumParam` | `@tch/web/async` |
+| **Pagination (N–M sur Total + taille)** | `tch-pagination` | `@tch/ui/console` |
 
 ---
 
@@ -386,10 +412,16 @@ Kit admin-crud deprecated (AdminDataTable, AdminFormShell, AdminListToolbar,
   AdminMobileCardList, AdminFormActions, AdminStatusPill)   → ne plus utiliser
 Texte FR codé en dur dans une nouvelle page                  → TranslatePipe obligatoire
 Appel HTTP dans un component de feature ou un drawer         → la page/API service orchestre
+Signals loading/error/items à la main pour un fetch          → resource + tch-async-view
+Enum pageState() dans une nouvelle page                      → resource (status intégré)
+Subject + switchMap pour un chargement                       → resource (anti-race natif)
+rxResource/httpResource instancié dans une feature           → TchBackendClient.get*Resource
+Mapping ProblemDetail recopié dans la page                   → resourceErrorVm / tchMutation
+let-vm sur ng-template tchAsyncReady                         → @if (resource.value(); as vm)
+Helpers numberParam/dateParam recopiés par page              → @tch/web/async
 Filtres/pagination en état local sans passer par l'URL       → queryParams source de vérité
+Footer de pagination recodé                                  → tch-pagination
 Dialog de création pour un formulaire riche                  → page routée new/
-Enum pageState() dans une nouvelle page                      → signals séparés
-subscribe sans switchMap sur un rechargement filtrable       → race condition
 Page edit/ dédiée pour 3 champs                              → édition inline (archétype D)
 Styler la page au lieu d'enrichir la brique console          → la brique va dans ui/console
 ```

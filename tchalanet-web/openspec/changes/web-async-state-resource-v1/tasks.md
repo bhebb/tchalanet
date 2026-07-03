@@ -29,9 +29,12 @@
 
 ## 4. Codification
 
-- [ ] Playbook §1.3 : le standard d'état de page devient resources + tchMutation (+ squelette tch-async-view §1.4)
-- [ ] Playbook §2 (archétype liste) : pagination `tch-pagination`, params URL standard (`q`/`status`/`sort`/`page`/`size`), tri par défaut explicite, règle « jamais de blanchiment au reload »
-- [ ] Playbook §1.9 : ligne resource() mise à jour (décision prise, référence à ce change)
-- [ ] `state-management.md` : section 3.2 réécrite (rxResource par défaut, plus de Subject+switchMap pour les nouveaux écrans)
-- [ ] `AGENTS.md` : ligne de routage état async → `@tch/web/async` + références angular-developer (`resource.md`)
-- [ ] `openspec validate --strict` puis archive du change
+- [x] Playbook §1.3 : le standard de lecture devient resource (créé par le client) + §1.5 tchMutation
+- [x] Playbook §1.4 : squelette = `tch-async-view` ; règle ready = `@if (resource.value(); as vm)` (jamais `let-vm`)
+- [x] Playbook §2 (archétype liste) : `tch-pagination`, params URL standard, helpers `@tch/web/async`, tri par défaut explicite, « jamais de blanchiment au reload »
+- [x] Playbook §1.9 + §8 (table des briques) + §9 (anti-patterns) alignés
+- [x] Helpers URL partagés `@tch/web/async` (`numberParam`/`dateParam`/`textParam`/`enumParam`) + tests — dédup des 4 pages qui les recopiaient
+- [x] `state-management.md` §3.2 réécrite (resource par défaut, plus de Subject+switchMap)
+- [x] `AGENTS.md` : routage état async → `@tch/web/async` + Key libs
+- [ ] Adoption des helpers URL dans les pages existantes (draws, tickets, catalog×2) — fil de l'eau
+- [ ] `openspec validate --strict` puis archive du change (après merge des pilotes #214/#215)

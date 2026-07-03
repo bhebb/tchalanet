@@ -83,21 +83,25 @@ Component-local state stays in the component.
 
 ### 3.2 Screen / feature state
 
-**Pattern par défaut (réel, 2026-07) : les signals vivent directement dans la page.**
-La quasi-totalité des pages console (58) gèrent leur état ainsi ; il n'existe qu'un seul
-`*.store.ts` dans le monorepo. Ne pas créer de store par réflexe.
+**Pattern par défaut : l'état vit dans la page, et l'état async passe par les primitives
+`@tch/web/async` (pas de signals loading/error à la main).** Ne pas créer de store par réflexe.
 
-Standard d'une page (signals séparés — décision 2026-07-02) :
+Standard d'une page (depuis `web-async-state-resource-v1`) :
 
 ```ts
-readonly loading = signal(false);
-readonly error = signal<ErrorViewModel | null>(null);
-readonly items = signal<Xxx[]>([]);
-readonly actionFeedback = signal<ErrorViewModel | null>(null);
-// + pagination/filters pilotés par les queryParams (URL = source de vérité)
+// lecture : resource créé par le client, exposé par le service data-access
+readonly items = this.api.itemsResource(() => this.query());   // query dérivée de l'URL
+readonly itemsError = resourceErrorVm(this.items, 'surface.feature.list');
+// écriture : une mutation par opération
+readonly save = tchMutation({ run: …, source: …, onSuccess: () => this.items.reload() });
+// UI locale seulement : sélection, drawer, filtres (dérivés des queryParams)
 ```
 
-Ne pas utiliser un enum `pageState()` unique dans les nouvelles pages.
+Détail du contrat (loading 4 niveaux, tch-async-view, tchMutation, filtres URL) :
+`feature-playbook.md` §1.3–1.5 et §2.
+
+À éviter dans une nouvelle page : signals `loading`/`error`/`items` à la main, enum `pageState()`,
+`Subject`+`switchMap`, `rxResource`/`httpResource` instancié dans la feature.
 
 Extraire un `*.store.ts` **seulement quand** :
 
