@@ -31,6 +31,7 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminStatusTone } from '@tch/ui/console';
 import { TchIdentityCardComponent } from '@tch/ui/console';
+import { ConsoleAddressSummaryComponent } from '@tch/web/console';
 import {
   PlatformTenantsApi,
   TenantAdminView,
@@ -61,6 +62,7 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
     AdminSectionCardComponent,
     AdminEmptyStateComponent,
     TchIdentityCardComponent,
+    ConsoleAddressSummaryComponent,
     TchLoading,
     TchErrorPanel,
     TchStatusBadge,

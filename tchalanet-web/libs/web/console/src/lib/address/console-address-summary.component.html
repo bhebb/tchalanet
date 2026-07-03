@@ -1,0 +1,12 @@
+@if (facts().length) {
+  <dl class="tch-console-address-summary">
+    @for (fact of facts(); track fact.labelKey) {
+      <div class="tch-console-address-summary__item">
+        <dt>{{ fact.labelKey | translate }}</dt>
+        <dd>{{ fact.value }}</dd>
+      </div>
+    }
+  </dl>
+} @else {
+  <p class="tch-console-address-summary__empty">{{ emptyKey() | translate }}</p>
+}

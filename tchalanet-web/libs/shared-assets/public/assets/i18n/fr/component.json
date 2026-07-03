@@ -71,6 +71,9 @@
         "region": "Ex : Ouest",
         "country": "HT"
       }
+    },
+    "addressSummary": {
+      "empty": "Adresse non renseignée."
     }
   },
   "layout": {

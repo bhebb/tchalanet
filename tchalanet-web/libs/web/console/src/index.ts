@@ -1,4 +1,5 @@
 export * from './lib/draws/console-draws-table.component';
+export * from './lib/address/console-address-summary.component';
 export * from './lib/draws/console-draws-table.models';
 export * from './lib/draws/console-draw-labels';
 export * from './lib/draw-lifecycle/console-draw-lifecycle-api.service';

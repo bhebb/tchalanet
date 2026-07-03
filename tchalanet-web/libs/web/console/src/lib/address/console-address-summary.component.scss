@@ -1,0 +1,29 @@
+.tch-console-address-summary {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+
+  &__item {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  dt {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--tch-color-on-surface);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.tch-console-address-summary__empty {
+  color: var(--tch-color-on-surface-variant);
+  margin: 0;
+}

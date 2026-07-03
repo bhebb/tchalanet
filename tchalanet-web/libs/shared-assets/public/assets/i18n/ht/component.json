@@ -71,6 +71,9 @@
         "region": "Egz: Lwès",
         "country": "HT"
       }
+    },
+    "addressSummary": {
+      "empty": "Adrès pa renseye."
     }
   },
   "layout": {

@@ -71,6 +71,9 @@
         "region": "Ex: Ouest",
         "country": "HT"
       }
+    },
+    "addressSummary": {
+      "empty": "No address set."
     }
   },
   "layout": {

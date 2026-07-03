@@ -193,36 +193,10 @@
             </tch-notice>
           }
           @if (!showAddressForm()) {
-            @if (hasAddress()) {
-              <dl class="biz-profile__facts">
-                @if (header()!.address!.line1) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.line1' | translate }}</dt>
-                    <dd>{{ header()!.address!.line1 }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.line2) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.line2' | translate }}</dt>
-                    <dd>{{ header()!.address!.line2 }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.city) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.city' | translate }}</dt>
-                    <dd>{{ header()!.address!.city }}</dd>
-                  </div>
-                }
-                @if (header()!.address!.country) {
-                  <div>
-                    <dt>{{ 'admin.setup.address.country' | translate }}</dt>
-                    <dd>{{ header()!.address!.country }}</dd>
-                  </div>
-                }
-              </dl>
-            } @else {
-              <p class="biz-profile__empty-hint">{{ 'admin.businessProfile.address.empty' | translate }}</p>
-            }
+            <tch-console-address-summary
+              [address]="header()!.address"
+              emptyKey="admin.businessProfile.address.empty"
+            />
             <button mat-stroked-button class="biz-profile__cta" (click)="openAddressForm()">
               {{ (hasAddress() ? 'common.edit' : 'admin.businessProfile.address.add') | translate }}
             </button>

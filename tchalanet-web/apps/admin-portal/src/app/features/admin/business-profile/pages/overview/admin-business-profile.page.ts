@@ -32,7 +32,10 @@ import {
 } from '@tch/ui/console';
 import { AdminStatusTone } from '@tch/ui/console';
 import { TchIdentityCardComponent } from '@tch/ui/console';
-import { ConsoleAddressFormSectionComponent } from '@tch/web/console';
+import {
+  ConsoleAddressFormSectionComponent,
+  ConsoleAddressSummaryComponent,
+} from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   applyServerFieldErrors,
@@ -82,6 +85,7 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
     AdminSectionErrorTargetDirective,
     TchIdentityCardComponent,
     ConsoleAddressFormSectionComponent,
+    ConsoleAddressSummaryComponent,
     TchLoading,
     TchErrorPanel,
     TchFieldError,
