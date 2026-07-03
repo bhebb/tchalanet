@@ -1,20 +1,20 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { ConsoleDrawLifecycleApi } from '@tch/web/console';
 import {
   DatePreset,
+  DrawStatusFilter,
   GeneratedDrawView,
   GeneratedDrawSalesStatus,
   GeneratedDrawResultStatus,
   DrawLifecycleAction,
   GeneratedDrawsQuery,
-  PagedResult,
   SaveDrawResultRequest,
   isGeneratedDrawSellableNow,
 } from './admin-generated-draws.models';
 
-interface DrawView {
+export interface DrawView {
   readonly id: string;
   readonly tenantId: string;
   readonly channel: { readonly id: string; readonly code: string; readonly name: string };
@@ -167,35 +167,46 @@ export class AdminGeneratedDrawsApiService {
   private readonly backend = inject(TchBackendClient);
   private readonly lifecycle = inject(ConsoleDrawLifecycleApi);
 
-  getGeneratedDraws(
-    params: GeneratedDrawsQuery = {},
-    options?: TchRequestOptions,
-  ): Observable<PagedResult<GeneratedDrawView>> {
-    const { from, to } = datePresetToRange(params.datePreset ?? 'TODAY');
-    const q = new URLSearchParams(
-      Object.fromEntries(
-        ([
-          ['from', from],
-          ['to', to],
-          ['size', String(params.size ?? 100)],
-          ['page', String(params.page ?? 0)],
-          ...(params.q ? [['q', params.q]] : []),
-        ] as [string, string][]).filter(([, v]) => v != null && v !== ''),
-      ),
-    ).toString();
-
-    return this.backend.get<TchPage<DrawView>>(`/admin/draws?${q}`, options).pipe(
-      map(page => {
-        const mapped = page.items.map(mapDrawView);
-        const filtered = applyStatusFilter(mapped, params.status);
+  /**
+   * Resource de lecture des tirages générés (créée par TchBackendClient).
+   * Le filtre de statut n'est PAS envoyé au backend : il est appliqué côté client
+   * par {@link projectDraws} — donc ne pas l'inclure dans `query` évite un refetch inutile.
+   */
+  generatedDrawsResource(
+    query: () => GeneratedDrawsQuery,
+  ): ResourceRef<TchPage<GeneratedDrawView> | undefined> {
+    // mapping DTO -> vue au niveau du client (project) ; le resource yield des vues métier
+    return this.backend.getPageResource<GeneratedDrawView, DrawView>(
+      () => {
+        const q = query();
+        const { from, to } = datePresetToRange(q.datePreset ?? 'TODAY');
         return {
-          content: filtered,
-          totalElements: filtered.length,
-          page: page.page,
-          size: page.size,
+          path: '/admin/draws',
+          options: {
+            suppressShellFeedback: true,
+            params: {
+              from,
+              to,
+              size: String(q.size ?? 100),
+              page: String(q.page ?? 0),
+              ...(q.q ? { q: q.q } : {}),
+            },
+          },
         };
-      }),
+      },
+      mapDrawView,
     );
+  }
+
+  /**
+   * Filtre de statut client (indépendant du fetch — ne pas l'envoyer au backend).
+   * Le mapping DTO -> vue est fait par le resource ({@link generatedDrawsResource}).
+   */
+  filterDrawsByStatus(
+    draws: readonly GeneratedDrawView[],
+    status?: DrawStatusFilter | null,
+  ): GeneratedDrawView[] {
+    return applyStatusFilter([...draws], status && status !== 'all' ? status : null);
   }
 
   getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {

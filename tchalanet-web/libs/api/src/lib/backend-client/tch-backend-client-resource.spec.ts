@@ -171,4 +171,30 @@ describe('TchBackendClient resources', () => {
     expect(value?.totalPages).toBe(3);
     expect(value?.hasNext).toBe(true);
   });
+
+  it('getResource projette le DTO brut vers la vue métier', async () => {
+    const res = client.getResource<{ label: string }, { name: string }>(
+      () => ({ path: '/tenants/t-1' }),
+      raw => ({ label: raw.name.toUpperCase() }),
+    );
+
+    TestBed.tick();
+    await flushLatest({ name: 'borlette' });
+
+    expect(res.value()).toEqual({ label: 'BORLETTE' });
+  });
+
+  it('getPageResource projette chaque item et préserve la pagination', async () => {
+    const res = client.getPageResource<{ code: string }, { id: string }>(
+      () => ({ path: '/tenants' }),
+      raw => ({ code: `T-${raw.id}` }),
+    );
+
+    TestBed.tick();
+    await flushLatest({ items: [{ id: '1' }, { id: '2' }], totalElements: 2, page: 0, size: 20 });
+
+    const value = res.value();
+    expect(value?.items).toEqual([{ code: 'T-1' }, { code: 'T-2' }]);
+    expect(value?.totalElements).toBe(2);
+  });
 });

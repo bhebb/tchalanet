@@ -143,29 +143,46 @@ export class TchBackendClient {
    * `request()` est réactif : tout signal lu dedans redéclenche le chargement en
    * annulant la requête précédente. Renvoyer `undefined` laisse le resource `idle`
    * (chargement lazy — onglet non visité, paramètre manquant).
+   *
+   * `project` mappe le DTO backend (`TRaw`) vers la vue métier (`T`) au niveau du
+   * client : le data-access expose ainsi un resource déjà projeté, sans mapping
+   * dans la page.
    */
-  getResource<T>(request: () => TchResourceRequest | undefined): ResourceRef<T | undefined> {
+  getResource<T, TRaw = T>(
+    request: () => TchResourceRequest | undefined,
+    project?: (raw: TRaw) => T,
+  ): ResourceRef<T | undefined> {
     return rxResource<T, TchResourceRequest | undefined>({
       injector: this.injector,
       params: () => request(),
       // le runtime ne déclenche pas le stream quand params est undefined (lazy)
       stream: ({ params }) => {
         const req = params as TchResourceRequest;
-        return this.get<T>(req.path, req.options);
+        const raw$ = this.get<TRaw>(req.path, req.options);
+        return (project ? raw$.pipe(map(project)) : raw$) as unknown as Observable<T>;
       },
     });
   }
 
-  /** Comme {@link getResource}, pour les listes paginées `TchPage<T>`. */
-  getPageResource<T>(
+  /**
+   * Comme {@link getResource}, pour les listes paginées `TchPage<T>`.
+   * `project` mappe chaque item du DTO backend (`TRaw`) vers la vue métier (`T`).
+   */
+  getPageResource<T, TRaw = T>(
     request: () => TchResourceRequest | undefined,
+    project?: (raw: TRaw) => T,
   ): ResourceRef<TchPage<T> | undefined> {
     return rxResource<TchPage<T>, TchResourceRequest | undefined>({
       injector: this.injector,
       params: () => request(),
       stream: ({ params }) => {
         const req = params as TchResourceRequest;
-        return this.getPage<T>(req.path, req.options);
+        const page$ = this.getPage<TRaw>(req.path, req.options);
+        return (
+          project
+            ? page$.pipe(map(page => ({ ...page, items: page.items.map(project) })))
+            : page$
+        ) as unknown as Observable<TchPage<T>>;
       },
     });
   }

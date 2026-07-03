@@ -33,6 +33,8 @@ export class GeneratedDrawsTableComponent {
   readonly totalElements = input<number>(0);
   readonly page          = input<number>(0);
   readonly pageSize      = input<number>(20);
+  /** Draws avec une action de cycle de vie en cours (spinner + actions désactivées sur la ligne). */
+  readonly pendingIds    = input<ReadonlySet<string>>(new Set());
 
   readonly enterResult   = output<GeneratedDrawView>();
   readonly viewResult    = output<GeneratedDrawView>();
@@ -193,6 +195,10 @@ export class GeneratedDrawsTableComponent {
       case 'cancel':  this.cancelDraw.emit(draw);  break;
       case 'archive': this.archiveDraw.emit(draw); break;
     }
+  }
+
+  isPending(draw: GeneratedDrawView): boolean {
+    return this.pendingIds().has(draw.drawId);
   }
 
   isSelected(draw: GeneratedDrawView): boolean {

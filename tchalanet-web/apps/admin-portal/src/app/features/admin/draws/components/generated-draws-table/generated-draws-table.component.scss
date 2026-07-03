@@ -154,6 +154,16 @@
   &__more-btn { opacity: 0.6; }
   .gdt__row:hover &__more-btn { opacity: 1; }
 
+  &__row-spinner {
+    display: inline-flex;
+    color: var(--tch-color-on-surface-variant);
+    animation: gdt-spin 1s linear infinite;
+  }
+
+  @keyframes gdt-spin {
+    to { transform: rotate(360deg); }
+  }
+
   &__accent {
     width: 0.25rem;
     height: 2.5rem;

@@ -3,7 +3,7 @@
   description="Suivez les tirages générés, leur état de vente et les résultats attendus."
 >
   <div actions>
-    <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
+    <button mat-stroked-button [disabled]="draws.isLoading()" (click)="draws.reload()">
       <span class="material-symbols-outlined">refresh</span>
       Actualiser
     </button>
@@ -20,109 +20,106 @@
     </mat-menu>
   </div>
 
-  @if (pageState() === 'loading') {
-    <tch-loading label="Chargement des tirages…" />
-  } @else if (pageState() === 'error') {
-    @if (pageError(); as errorVm) {
-      <tch-error-panel
-        [title]="errorVm.title"
-        [message]="errorVm.message"
-        [showRetry]="true"
-        retryLabel="Réessayer"
-        (retry)="load()"
-      />
-    }
-  } @else {
+  <tch-async-view
+    [resource]="draws"
+    [error]="drawsError()"
+    [isEmpty]="isEmpty"
+    loadingLabel="Chargement des tirages…"
+    (retry)="draws.reload()"
+  >
+    <ng-template tchAsyncReady>
+      <!-- KPI summary -->
+      <tch-generated-draws-summary [draws]="allDraws()" [today]="today" />
 
-    <!-- KPI summary -->
-    <tch-generated-draws-summary [draws]="allDraws()" [today]="today" />
+      <!-- Toolbar -->
+      <tch-admin-crud-shell>
+        <div toolbar>
+          <!-- Date preset chips -->
+          <div class="gd-page__date-chips">
+            @for (preset of datePresets; track preset.key) {
+              <button
+                class="gd-page__chip"
+                [class.gd-page__chip--active]="datePreset() === preset.key"
+                (click)="onDatePreset(preset.key)"
+              >{{ preset.label }}</button>
+            }
+          </div>
 
-    <!-- Toolbar -->
-    <tch-admin-crud-shell>
-      <div toolbar>
-        <!-- Date preset chips -->
-        <div class="gd-page__date-chips">
-          @for (preset of datePresets; track preset.key) {
-            <button
-              class="gd-page__chip"
-              [class.gd-page__chip--active]="datePreset() === preset.key"
-              (click)="onDatePreset(preset.key)"
-            >{{ preset.label }}</button>
-          }
+          <!-- Status filter -->
+          <select class="gd-page__select" [value]="statusFilter()"
+            (change)="onStatusFilter($any($event.target).value)">
+            @for (f of statusFilters; track f.key) {
+              <option [value]="f.key">{{ f.label }}</option>
+            }
+          </select>
         </div>
 
-        <!-- Status filter -->
-        <select class="gd-page__select" [value]="statusFilter()"
-          (change)="onStatusFilter($any($event.target).value)">
-          @for (f of statusFilters; track f.key) {
-            <option [value]="f.key">{{ f.label }}</option>
+        <div toolbar>
+          <tch-admin-data-toolbar
+            searchPlaceholder="Rechercher provider, slot…"
+            [searchValue]="searchQuery()"
+            (searchChange)="onSearch($event)"
+          />
+        </div>
+
+        <!-- Table or empty state -->
+        <div content>
+          @if (lifecycle.feedback(); as fb) {
+            @if (fb.kind === 'error') {
+              <tch-section-error
+                class="gd-page__action-feedback"
+                [title]="fb.vm?.title ?? 'Action impossible'"
+                [message]="fb.vm?.message ?? ''"
+                severity="error"
+              />
+            }
+          } @else if (lifecycleNotice(); as notice) {
+            <tch-section-error
+              class="gd-page__action-feedback"
+              title="Action effectuée"
+              [message]="notice"
+              severity="info"
+            />
           }
-        </select>
-      </div>
 
-      <div toolbar>
-        <tch-admin-data-toolbar
-          searchPlaceholder="Rechercher provider, slot…"
-          [searchValue]="searchQuery()"
-          (searchChange)="onSearch($event)"
-        />
-      </div>
-
-      <!-- Table or empty state -->
-      <div content>
-        @if (actionError(); as errorVm) {
-          <tch-section-error
-            class="gd-page__action-feedback"
-            [title]="errorVm.title"
-            [message]="errorVm.message"
-            [severity]="errorVm.severity"
-          />
-        } @else if (actionNotice(); as notice) {
-          <tch-section-error
-            class="gd-page__action-feedback"
-            title="Action effectuée"
-            [message]="notice"
-            severity="info"
-          />
-        }
-
-        @if (groupedDraws().length === 0) {
-          <tch-admin-empty-state
-            icon="confirmation_number"
-            title="Aucun tirage généré pour cette période."
-            message="Ajustez les filtres ou planifiez les prochains tirages."
-          >
-            <div class="gd-page__empty-actions">
-              <button mat-stroked-button (click)="onConfigureDrawChannels()">
-                Configurer les canaux de tirage
-              </button>
-            </div>
-          </tch-admin-empty-state>
-        } @else {
-          <tch-generated-draws-table
-            [groups]="groupedDraws()"
-            [todayDate]="today"
-            [totalElements]="totalElements()"
-            [page]="page()"
-            (enterResult)="onEnterResult($event)"
-            (viewResult)="onViewResult($event)"
-            (viewDetails)="onViewDetails($event)"
-            (verifySource)="onVerifySource($event)"
-            (openDraw)="onOpenDraw($event)"
-            (closeDraw)="onCloseDraw($event)"
-            (lockDraw)="onLockDraw($event)"
-            (unlockDraw)="onUnlockDraw($event)"
-            (cancelDraw)="onCancelDraw($event)"
-            (archiveDraw)="onArchiveDraw($event)"
-            (bulkLifecycle)="onBulkLifecycle($event)"
-            (nextPage)="onNextPage()"
-            (prevPage)="onPrevPage()"
-          />
-        }
-      </div>
-    </tch-admin-crud-shell>
-
-  }
+          @if (groupedDraws().length === 0) {
+            <tch-admin-empty-state
+              icon="confirmation_number"
+              title="Aucun tirage généré pour cette période."
+              message="Ajustez les filtres ou planifiez les prochains tirages."
+            >
+              <div class="gd-page__empty-actions">
+                <button mat-stroked-button (click)="onConfigureDrawChannels()">
+                  Configurer les canaux de tirage
+                </button>
+              </div>
+            </tch-admin-empty-state>
+          } @else {
+            <tch-generated-draws-table
+              [groups]="groupedDraws()"
+              [todayDate]="today"
+              [totalElements]="totalElements()"
+              [page]="page()"
+              [pendingIds]="pendingDrawIds()"
+              (enterResult)="onEnterResult($event)"
+              (viewResult)="onViewResult($event)"
+              (viewDetails)="onViewDetails($event)"
+              (verifySource)="onVerifySource($event)"
+              (openDraw)="onOpenDraw($event)"
+              (closeDraw)="onCloseDraw($event)"
+              (lockDraw)="onLockDraw($event)"
+              (unlockDraw)="onUnlockDraw($event)"
+              (cancelDraw)="onCancelDraw($event)"
+              (archiveDraw)="onArchiveDraw($event)"
+              (bulkLifecycle)="onBulkLifecycle($event)"
+              (nextPage)="onNextPage()"
+              (prevPage)="onPrevPage()"
+            />
+          }
+        </div>
+      </tch-admin-crud-shell>
+    </ng-template>
+  </tch-async-view>
 </tch-admin-page-shell>
 
 @if (selectedDraw(); as draw) {
