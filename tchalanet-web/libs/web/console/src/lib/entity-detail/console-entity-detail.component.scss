@@ -1,0 +1,33 @@
+.console-entity-detail {
+  &__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  &__meta-chip {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta-dot {
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  &__main {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  &__action--danger {
+    color: var(--tch-color-error);
+  }
+
+  &__action--primary {
+    color: var(--tch-color-primary);
+  }
+}

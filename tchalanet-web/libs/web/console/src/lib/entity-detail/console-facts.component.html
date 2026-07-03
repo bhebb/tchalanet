@@ -1,0 +1,14 @@
+<dl class="console-facts" [class.console-facts--compact]="compact()">
+  @for (fact of facts(); track fact.label) {
+    <div>
+      <dt>{{ fact.label }}</dt>
+      <dd>
+        @if (fact.code) {
+          <code>{{ fact.value ?? '—' }}</code>
+        } @else {
+          {{ fact.value ?? '—' }}
+        }
+      </dd>
+    </div>
+  }
+</dl>

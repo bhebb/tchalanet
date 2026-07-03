@@ -1,36 +1,16 @@
-<tch-admin-page-shell [title]="title()" [description]="description()">
+<tch-console-entity-detail
+  [title]="title()"
+  [description]="description()"
+  [state]="pageState()"
+  loadingLabel="Chargement du tirage..."
+  [error]="detailError()"
+  [meta]="detailMeta()"
+  [actions]="detailActions()"
+  (retry)="load()"
+  (action)="onDetailAction($event)"
+>
   @if (draw()) {
-    <div meta class="draw-detail__meta">
-      <span class="draw-detail__meta-chip">{{ draw()!.slotKey }}</span>
-      <span class="draw-detail__meta-dot" aria-hidden="true">·</span>
-      <span class="draw-detail__meta-chip">{{ draw()!.timezone }}</span>
-      @if (draw()!.lifecycleStatus) {
-        <span class="draw-detail__meta-dot" aria-hidden="true">·</span>
-        <span class="draw-detail__meta-chip">{{ draw()!.lifecycleStatus }}</span>
-      }
-    </div>
-  }
-
-  <div actions>
-    <a mat-button routerLink="/app/admin/draws">
-      <mat-icon aria-hidden="true">arrow_back</mat-icon>
-      Retour
-    </a>
-  </div>
-
-  @if (pageState() === 'loading') {
-    <tch-loading label="Chargement du tirage..." />
-  } @else if (pageState() === 'error') {
-    <tch-error-panel
-      [title]="errorTitle() ?? 'Problème détecté'"
-      [message]="errorMessage() ?? ''"
-      [showRetry]="true"
-      retryLabel="Réessayer"
-      (retry)="load()"
-    />
-  } @else if (draw()) {
-    <tch-admin-detail-layout>
-      <div main class="draw-detail__main">
+      <ng-container main>
         <tch-admin-section-card title="Tirage" icon="event">
           @if (overviewView(); as view) {
             <tch-draw-detail-overview [view]="view" />
@@ -127,16 +107,15 @@
           }
         </tch-admin-section-card>
 
-      </div>
+      </ng-container>
 
-      <div aside>
+      <ng-container aside>
         @if (asideView(); as view) {
           <tch-draw-detail-aside [view]="view" />
         }
-      </div>
-    </tch-admin-detail-layout>
+      </ng-container>
   }
-</tch-admin-page-shell>
+</tch-console-entity-detail>
 
 @if (selectedDraw(); as draw) {
   <tch-draw-result-drawer

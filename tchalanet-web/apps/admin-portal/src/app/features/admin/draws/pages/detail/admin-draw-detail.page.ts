@@ -10,13 +10,14 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AccessService } from '@tch/core/auth';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { CONSOLE_DRAW_RESULT_ACCESS } from '@tch/web/console';
 import {
-  AdminDetailLayoutComponent,
-  AdminPageShellComponent,
+  CONSOLE_DRAW_RESULT_ACCESS,
+  ConsoleEntityDetailActionEvent,
+  ConsoleEntityDetailComponent,
+} from '@tch/web/console';
+import {
   AdminSectionCardComponent,
 } from '@tch/ui/console';
 
@@ -62,14 +63,10 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    RouterLink,
     MatButtonModule,
     MatIconModule,
-    AdminPageShellComponent,
-    AdminDetailLayoutComponent,
+    ConsoleEntityDetailComponent,
     AdminSectionCardComponent,
-    TchLoading,
-    TchErrorPanel,
     DrawResultDrawerComponent,
     DrawDetailAsideComponent,
     DrawDetailActivityComponent,
@@ -80,6 +77,7 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
 })
 export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly api = inject(AdminGeneratedDrawsApiService);
   private readonly financials = inject(AdminFinancialsApi);
   private readonly access = inject(AccessService);
@@ -109,6 +107,21 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   });
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
+  readonly detailMeta = computed(() => {
+    const draw = this.draw();
+    if (!draw) return [];
+    const values = [draw.slotKey, draw.timezone];
+    if (draw.lifecycleStatus) values.push(draw.lifecycleStatus);
+    return values;
+  });
+  readonly detailError = computed(() =>
+    this.errorTitle()
+      ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
+      : null,
+  );
+  readonly detailActions = computed(() => [
+    { id: 'back', label: 'Retour', icon: 'arrow_back' },
+  ]);
   readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;
@@ -177,6 +190,12 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (this.timerId) {
       clearInterval(this.timerId);
       this.timerId = null;
+    }
+  }
+
+  onDetailAction(event: ConsoleEntityDetailActionEvent): void {
+    if (event.action.id === 'back') {
+      void this.router.navigate(['/app/admin/draws']);
     }
   }
 

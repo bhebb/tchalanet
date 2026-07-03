@@ -5,3 +5,6 @@ export * from './lib/draw-lifecycle/console-draw-lifecycle.models';
 export * from './lib/draw-results/console-draw-result-access';
 export * from './lib/draw-results/console-draw-results-table.component';
 export * from './lib/draw-results/console-draw-results-table.models';
+export * from './lib/entity-detail/console-entity-detail.component';
+export * from './lib/entity-detail/console-entity-detail.models';
+export * from './lib/entity-detail/console-facts.component';

@@ -1,17 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AdminDetailLayoutComponent,
-  AdminPageShellComponent,
   AdminSectionCardComponent,
   AdminStatusTone,
   TchIdentityCardComponent,
   TchIdentityCardMeta,
 } from '@tch/ui/console';
+import {
+  ConsoleEntityDetailActionEvent,
+  ConsoleEntityDetailComponent,
+  ConsoleFact,
+  ConsoleFactsComponent,
+} from '@tch/web/console';
 
 import {
   AdminDrawResultsApi,
@@ -29,15 +30,10 @@ type PageState = 'loading' | 'ready' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    RouterLink,
-    MatButtonModule,
-    MatIconModule,
-    AdminPageShellComponent,
-    AdminDetailLayoutComponent,
+    ConsoleEntityDetailComponent,
+    ConsoleFactsComponent,
     AdminSectionCardComponent,
     TchIdentityCardComponent,
-    TchLoading,
-    TchErrorPanel,
   ],
   templateUrl: './admin-draw-result-detail.page.html',
   styleUrls: ['./admin-draw-result-detail.page.scss'],
@@ -45,6 +41,7 @@ type PageState = 'loading' | 'ready' | 'error';
 export class AdminDrawResultDetailPage implements OnInit {
   private readonly api = inject(AdminDrawResultsApi);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly pageState = signal<PageState>('loading');
   readonly result = signal<DrawResultView | null>(null);
@@ -57,6 +54,26 @@ export class AdminDrawResultDetailPage implements OnInit {
     if (!result) return 'Consultez le résultat appliqué à ce tirage.';
     return `${result.channelName ?? result.provider ?? 'Tirage'} · ${result.drawDate ?? result.resultDate ?? '—'}`;
   });
+  readonly detailMeta = computed(() => {
+    const result = this.result();
+    return result
+      ? [result.slotKey ?? '—', result.drawDate ?? result.resultDate ?? '—', result.status]
+      : [];
+  });
+  readonly detailError = computed(() =>
+    this.errorTitle()
+      ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
+      : null,
+  );
+  readonly detailActions = computed(() => {
+    const actions = [
+      { id: 'back', label: 'Tirages', icon: 'arrow_back' },
+    ];
+    if (this.result()?.drawId) {
+      actions.push({ id: 'draw', label: 'Détail du tirage', icon: 'event' });
+    }
+    return actions;
+  });
 
   readonly identityMeta = computed<readonly TchIdentityCardMeta[]>(() => {
     const result = this.result();
@@ -66,6 +83,27 @@ export class AdminDrawResultDetailPage implements OnInit {
       { label: 'Qualité', value: this.qualityLabel(result.quality) },
       { label: 'Tirage', value: result.drawDate ?? result.resultDate ?? '—' },
       { label: 'Slot', value: result.slotKey ?? '—' },
+    ];
+  });
+  readonly resultFacts = computed<readonly ConsoleFact[]>(() => {
+    const result = this.result();
+    if (!result) return [];
+    return [
+      { label: 'Statut', value: this.statusLabel(result.status) },
+      { label: 'Qualité', value: this.qualityLabel(result.quality) },
+      { label: 'Appliqué le', value: result.appliedAt ? this.formatDate(result.appliedAt) : 'Non appliqué' },
+      { label: 'Publié le', value: result.publishedAt ? this.formatDate(result.publishedAt) : 'Non publié' },
+    ];
+  });
+  readonly linkedDrawFacts = computed<readonly ConsoleFact[]>(() => {
+    const result = this.result();
+    if (!result) return [];
+    return [
+      { label: 'Slot', value: result.slotKey ?? '—', code: true },
+      { label: 'Créneau', value: result.slotLabel ?? '—' },
+      { label: 'Date', value: result.drawDate ?? result.resultDate ?? '—' },
+      { label: 'Heure officielle', value: result.occurredAt ? this.formatDate(result.occurredAt) : 'Non disponible' },
+      { label: 'Récupéré le', value: result.fetchedAt ? this.formatDate(result.fetchedAt) : 'Non disponible' },
     ];
   });
 
@@ -150,6 +188,19 @@ export class AdminDrawResultDetailPage implements OnInit {
     }
   }
 
+  onDetailAction(event: ConsoleEntityDetailActionEvent): void {
+    switch (event.action.id) {
+      case 'back':
+        void this.router.navigate(['/app/admin/draws']);
+        break;
+      case 'draw':
+        if (this.result()?.drawId) {
+          void this.router.navigate(['/app/admin/draws', this.result()!.drawId]);
+        }
+        break;
+    }
+  }
+
   statusTone(status: DrawResultStatus): AdminStatusTone {
     switch (status) {
       case 'CONFIRMED':
@@ -167,5 +218,15 @@ export class AdminDrawResultDetailPage implements OnInit {
     this.pageState.set('error');
     this.errorTitle.set(title);
     this.errorMessage.set(message);
+  }
+
+  private formatDate(value: string): string {
+    return new Intl.DateTimeFormat('fr-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
   }
 }

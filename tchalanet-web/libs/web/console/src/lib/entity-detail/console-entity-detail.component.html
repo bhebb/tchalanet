@@ -1,0 +1,52 @@
+<tch-admin-page-shell [title]="title()" [description]="description()">
+  @if (meta().length > 0) {
+    <div meta class="console-entity-detail__meta">
+      @for (item of meta(); track item) {
+        <span class="console-entity-detail__meta-chip">{{ item }}</span>
+        @if (!$last) {
+          <span class="console-entity-detail__meta-dot" aria-hidden="true">·</span>
+        }
+      }
+    </div>
+  }
+
+  <div actions>
+    @for (item of actions(); track item.id) {
+      <button
+        mat-button
+        type="button"
+        [class.console-entity-detail__action--danger]="item.tone === 'danger'"
+        [class.console-entity-detail__action--primary]="item.tone === 'primary'"
+        (click)="emitAction(item)"
+      >
+        @if (item.icon) {
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        }
+        {{ item.label }}
+      </button>
+    }
+    <ng-content select="[actions]" />
+  </div>
+
+  @if (state() === 'loading') {
+    <tch-loading [label]="loadingLabel()" />
+  } @else if (state() === 'error') {
+    <tch-error-panel
+      [title]="error()?.title ?? 'Problème détecté'"
+      [message]="error()?.message ?? ''"
+      [showRetry]="true"
+      retryLabel="Réessayer"
+      (retry)="retry.emit()"
+    />
+  } @else {
+    <tch-admin-detail-layout>
+      <div main class="console-entity-detail__main">
+        <ng-content select="[main]" />
+      </div>
+
+      <div aside>
+        <ng-content select="[aside]" />
+      </div>
+    </tch-admin-detail-layout>
+  }
+</tch-admin-page-shell>
