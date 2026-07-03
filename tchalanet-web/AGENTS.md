@@ -33,6 +33,7 @@ Conventions par sujet (load the relevant file for your task — do not load all)
 | Tu travailles sur… | Lis |
 |---|---|
 | Un écran console : liste, détail, création, édition, drawer | `docs/conventions/feature-playbook.md` |
+| État async : lecture (resource), écriture (mutation), loading/erreur/empty, filtres URL | `feature-playbook.md` §1.3–1.5 + §2 ; primitives dans `@tch/web/async` + `TchBackendClient.get*Resource` |
 | APIs Angular modernes (signals, signal forms, control flow, DI) | playbook §1.9 (baseline) + skill `angular-developer` — références par sujet dans `.agents/skills/angular-developer/references/` (`signal-forms.md`, `signals-overview.md`, `linked-signal.md`, `inputs.md`, `outputs.md`…) |
 | Style, SCSS, tokens CSS `--tch-*`/`--comp-*` (public + consoles) | `docs/conventions/style.md` + `docs/conventions/theme.md` |
 | Composants : lequel utiliser, où le créer | `feature-playbook.md` §8 (table des briques) + `docs/conventions/placement-guide.md` |
@@ -62,10 +63,15 @@ Full index: `docs/conventions/README.md`
 - `@tch/ui/components` — primitives transverses : `TchLoading`, `TchErrorPanel`, `TchSectionError`,
   `TchNotice`, `TchFieldError`, `TchStatusBadge`, `TchConfirmDialog`, `TchActionButton`,
   `AdminListSurface`, … (le dossier `admin-crud/` hors `admin-list-surface` est deprecated — ne pas utiliser)
-- `@tch/api` — `TchBackendClient`, `ActionItem`, `ProblemDetail`, contrats génériques
-  (les services API métier restent dans `features/<feature>/data-access/`)
-- `@tch/web/errors` — mapping erreurs : `webAppErrorFromProblemDetail`,
-  `resolveErrorFeedbackCopy`, `toErrorViewModel`
+- `@tch/api` — `TchBackendClient` (dont `getResource`/`getPageResource` avec projection DTO→vue),
+  `ActionItem`, `ProblemDetail`, contrats génériques (les services API métier restent dans
+  `features/<feature>/data-access/`)
+- `@tch/web/async` — primitives des pages liste/CRUD : `tch-async-view` (+ `tchAsyncReady`),
+  `tchMutation`, `resourceErrorVm`, `serverFieldMessage`, helpers URL
+  (`numberParam`/`dateParam`/`textParam`/`enumParam`), `delayedVisibility`
+- `@tch/ui/console` — DS console (+ `tch-pagination`)
+- `@tch/web/errors` — mapping erreurs bas niveau : `webAppErrorFromProblemDetail`,
+  `resolveErrorFeedbackCopy`, `toErrorViewModel` (préférer `resourceErrorVm`/`tchMutation` en page)
 - `@tch/ui/styles` — SCSS mixins and design token helpers
 - `@tch/ui/theme` — Material 3 theme pipeline, tokens `--tch-*`
 - `@tch/page-model` — moteur de rendu public : contrats runtime, renderer, `WidgetHost`
