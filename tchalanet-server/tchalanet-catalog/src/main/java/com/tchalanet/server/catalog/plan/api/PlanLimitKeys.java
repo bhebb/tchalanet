@@ -6,23 +6,15 @@ public final class PlanLimitKeys {
 
     private PlanLimitKeys() {}
 
-    public static final String USERS_MAX = "limits.users.max";
-    public static final String OUTLETS_MAX = "limits.outlets.max";
-    public static final String TERMINALS_MAX = "limits.terminals.max";
-    public static final String MOBILE_DEVICES_MAX = "limits.mobile_devices.max";
+    public static final String ADMIN_USERS_MAX = "limits.admin_users.max";
+    public static final String SELLER_TERMINALS_MAX = "limits.seller_terminals.max";
+    public static final String DRAW_CHANNELS_MAX = "limits.draw_channels.max";
     public static final String PROMOTION_RULES_MAX = "limits.promotion_rules.max";
-    public static final String OFFLINE_DAYS_MAX = "limits.offline_days.max";
-    public static final String OFFLINE_TICKETS_PER_DEVICE_MAX = "limits.offline_tickets_per_device.max";
-    public static final String EXPORTS_ROWS_MAX = "limits.exports.rows.max";
 
     public static final Set<String> ALL = Set.of(
-        USERS_MAX,
-        OUTLETS_MAX,
-        TERMINALS_MAX,
-        MOBILE_DEVICES_MAX,
-        PROMOTION_RULES_MAX,
-        OFFLINE_DAYS_MAX,
-        OFFLINE_TICKETS_PER_DEVICE_MAX,
-        EXPORTS_ROWS_MAX
+        ADMIN_USERS_MAX,
+        SELLER_TERMINALS_MAX,
+        DRAW_CHANNELS_MAX,
+        PROMOTION_RULES_MAX
     );
 }

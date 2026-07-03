@@ -43,6 +43,7 @@ public final class PermissionKeys {
   public static final String PERMISSION_READ      = "permission.read";
 
   // Seller terminals — admin
+  public static final String SELLER_TERMINAL_READ = "seller_terminal.read";
   public static final String SELLER_TERMINAL_MANAGE = "seller_terminal.manage";
   public static final String SELLER_TERMINAL_BLOCK = "seller_terminal.block";
   public static final String SELLER_TERMINAL_RESET_ACCESS = "seller_terminal.reset_access";
@@ -65,6 +66,8 @@ public final class PermissionKeys {
   public static final String GAME_PRICING_UPDATE  = "game-pricing.update";
   public static final String THEME_READ           = "theme.read";
   public static final String THEME_MANAGE         = "theme.manage";
+  public static final String DRAW_CHANNEL_READ    = "draw_channel.read";
+  public static final String DRAW_CHANNEL_MANAGE  = "draw_channel.manage";
 
   // Limits / promotions
   public static final String LIMIT_READ           = "limit.read";
@@ -76,9 +79,17 @@ public final class PermissionKeys {
   public static final String REPORT_READ          = "report.read";
   public static final String AUDIT_READ           = "audit.read";
 
-  // Cashier / operator
+  // Draws / results
+  public static final String DRAW_READ            = "draw.read";
+  public static final String DRAW_LIFECYCLE_MANAGE = "draw.lifecycle.manage";
+  public static final String DRAW_LIFECYCLE_SETTLE = "draw.lifecycle.settle";
+  public static final String DRAW_SCHEDULE_MANAGE = "draw.schedule.manage";
+  public static final String DRAW_RESULT_READ     = "draw_result.read";
+  public static final String DRAW_RESULT_RECORD_MANUAL = "draw_result.record_manual";
+  public static final String DRAW_RESULT_OVERRIDE = "draw_result.override";
+
+  // Legacy POS surface
   public static final String CASHIER_ACCESS       = "cashier.access";
-  public static final String OPERATOR_ACCESS      = "operator.access";
 
   // Operational context
   public static final String OPERATIONAL_CONTEXT_READ   = "operational-context.read";
@@ -92,6 +103,9 @@ public final class PermissionKeys {
   public static final String TICKET_PRINT         = "ticket.print";
   public static final String TICKET_RESEND        = "ticket.resend";
   public static final String TICKET_VERIFY        = "ticket.verify";
+  public static final String TICKET_APPROVE       = "ticket.approve";
+  public static final String TICKET_REJECT        = "ticket.reject";
+  public static final String TICKET_CANCEL        = "ticket.cancel";
   public static final String TICKET_CANCEL_OWN    = "ticket.cancel-own";
 
   // Cashier / POS (hardcoded for SELLER_TERMINAL actor)

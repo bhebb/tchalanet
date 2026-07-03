@@ -15,7 +15,6 @@ Un PageModel est un document JSON qui décrit le layout et les widgets d'une sur
 | `PUBLIC_HOME` | public | Page d'accueil publique |
 | `DASHBOARD_SUPERADMIN` | private | Dashboard super-admin |
 | `DASHBOARD_TENANT_ADMIN` | private | Dashboard admin tenant |
-| `DASHBOARD_OPERATOR` | private | Dashboard opérateur |
 | `DASHBOARD_CASHIER` | private | Dashboard cashier mobile |
 | `DASHBOARD_CASHIER_WEB` | private | Dashboard cashier web |
 

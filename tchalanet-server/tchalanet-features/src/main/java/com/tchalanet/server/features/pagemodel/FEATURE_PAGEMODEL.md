@@ -33,7 +33,6 @@ Pour savoir si un seller peut vendre → utiliser le cashier home BFF, pas le Pa
 | `PUBLIC_HOME` | `public.home` | public | Web public, anonymous |
 | `DASHBOARD_SUPERADMIN` | `private.dashboard.superadmin` | private | Super-admin |
 | `DASHBOARD_TENANT_ADMIN` | `private.dashboard.tenant_admin` | private | Tenant admin |
-| `DASHBOARD_OPERATOR` | `private.dashboard.operator` | private | Opérateur |
 | `DASHBOARD_CASHIER` | `private.dashboard.cashier` | private | Cashier (legacy) |
 | `DASHBOARD_CASHIER_WEB` | `private.dashboard.cashier.web` | private | Cashier web dashboard |
 

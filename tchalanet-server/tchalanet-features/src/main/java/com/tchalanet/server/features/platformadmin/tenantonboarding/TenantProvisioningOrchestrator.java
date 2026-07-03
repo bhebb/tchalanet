@@ -229,9 +229,8 @@ public class TenantProvisioningOrchestrator {
   private static List<String> defaultHaitiLotteryGameCodes() {
     return List.of(
         "HT_BOLET",
-        "HT_NUMERO",
         "HT_MARYAJ",
-        "HT_MARYAJ_GRATUIT",
+        "HT_MARYAJ_GRATIS",
         "HT_LOTO3",
         "HT_LOTO4",
         "HT_LOTO5");

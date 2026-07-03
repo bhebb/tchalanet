@@ -12,30 +12,22 @@ public final class ClientSurfacePolicy {
     if (hasRole(roles, TchRole.SUPER_ADMIN)) {
       return ClientSurface.PLATFORM_ADMIN_WEB;
     }
-    if (hasRole(roles, TchRole.TENANT_ADMIN) || hasRole(roles, TchRole.SYSTEM)) {
+    if (hasRole(roles, TchRole.TENANT_OWNER) || hasRole(roles, TchRole.TENANT_ADMIN)) {
       return ClientSurface.TENANT_ADMIN_WEB;
     }
-    if (hasRole(roles, TchRole.CASHIER) || hasRole(roles, TchRole.OPERATOR)) {
-      return ClientSurface.MOBILE_POS;
-    }
-    return ClientSurface.CASHIER_WEB;
+    return ClientSurface.TENANT_ADMIN_WEB;
   }
 
   public static Set<ClientSurface> availableSurfaces(Set<TchRole> roles) {
     EnumSet<ClientSurface> surfaces = EnumSet.noneOf(ClientSurface.class);
-    if (hasRole(roles, TchRole.CASHIER) || hasRole(roles, TchRole.OPERATOR)) {
-      surfaces.add(ClientSurface.MOBILE_POS);
-      surfaces.add(ClientSurface.CASHIER_WEB);
-    }
-    if (hasRole(roles, TchRole.TENANT_ADMIN) || hasRole(roles, TchRole.SYSTEM)) {
+    if (hasRole(roles, TchRole.TENANT_OWNER) || hasRole(roles, TchRole.TENANT_ADMIN)) {
       surfaces.add(ClientSurface.TENANT_ADMIN_WEB);
-      surfaces.add(ClientSurface.CASHIER_WEB);
     }
     if (hasRole(roles, TchRole.SUPER_ADMIN)) {
       surfaces.add(ClientSurface.PLATFORM_ADMIN_WEB);
     }
     if (surfaces.isEmpty()) {
-      surfaces.add(ClientSurface.CASHIER_WEB);
+      surfaces.add(ClientSurface.TENANT_ADMIN_WEB);
     }
     return Set.copyOf(surfaces);
   }

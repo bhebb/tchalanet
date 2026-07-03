@@ -108,7 +108,7 @@ public record TchRequestContext(
 
     /**
      * Rôle principal courant dérivé de systemRoles, avec priorité :
-     * SUPER_ADMIN > TENANT_ADMIN > OPERATOR > SYSTEM.
+     * SUPER_ADMIN > TENANT_OWNER > TENANT_ADMIN.
      */
     public TchRole currentRole() {
         if (systemRoles == null || systemRoles.isEmpty()) {
@@ -119,16 +119,12 @@ public record TchRequestContext(
             return TchRole.SUPER_ADMIN;
         }
 
+        if (systemRoles.contains(TchRole.TENANT_OWNER)) {
+            return TchRole.TENANT_OWNER;
+        }
+
         if (systemRoles.contains(TchRole.TENANT_ADMIN)) {
             return TchRole.TENANT_ADMIN;
-        }
-
-        if (systemRoles.contains(TchRole.OPERATOR)) {
-            return TchRole.OPERATOR;
-        }
-
-        if (systemRoles.contains(TchRole.SYSTEM)) {
-            return TchRole.SYSTEM;
         }
 
         return null;
@@ -301,7 +297,7 @@ public record TchRequestContext(
     }
 
     public boolean isOperator() {
-        return systemRoles != null && systemRoles.contains(TchRole.OPERATOR);
+        return false;
     }
 
     public boolean isTenantAdmin() {

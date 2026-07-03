@@ -138,7 +138,7 @@ public class ContactRequestSubmissionService implements ContactRequestApi {
     private static String intentLabel(ContactRequestJpaEntity entity) {
         return switch (entity.getIntent()) {
             case REQUEST_DEMO -> "Demande de démo";
-            case BECOME_OPERATOR -> "Devenir opérateur";
+            case BECOME_SELLER_TERMINAL -> "Devenir seller terminal";
             case SUPPORT -> "Support";
             case PARTNERSHIP -> "Partenariat";
             case OTHER -> "Autre";

@@ -68,6 +68,7 @@ public class TenantThemeAdminController {
     @PatchMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasPermission(null, 'theme.manage')")
+    @RequiredFeature(PlanFeatureKeys.THEME_PRESET_SELECTION)
     public ApiResponse<Void> updateSettings(
         @Valid @RequestBody UpdateSettingsRequest body,
         @CurrentContext TchRequestContext ctx) {

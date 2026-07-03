@@ -52,7 +52,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/approve")
-    @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasPermission(null, 'ticket.approve')")
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -81,7 +81,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/reject")
-    @PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasPermission(null, 'ticket.reject')")
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -110,7 +110,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PatchMapping("/{ticketId}/cancel")
-    @PreAuthorize("hasPermission(null, 'ticket.sell') or hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasPermission(null, 'ticket.cancel') or hasPermission(null, 'ticket.cancel-own')")
     @AuditLog(
         action = AuditAction.CANCEL_TICKET,
         entity = AuditEntityType.TICKET,

@@ -1,21 +1,21 @@
-package com.tchalanet.server.platform.identity.internal.entitlement;
+package com.tchalanet.server.core.sellerterminal.internal.entitlement;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.sellerterminal.internal.infra.persistence.SellerTerminalJpaRepository;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import com.tchalanet.server.platform.entitlement.api.UsageProvider;
-import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserUsageProvider implements UsageProvider {
+public class SellerTerminalUsageProvider implements UsageProvider {
 
-    private final AppUserJpaRepository repository;
+    private final SellerTerminalJpaRepository repository;
 
     @Override
     public boolean supports(String usageKey) {
-        return UsageKeys.ADMIN_USERS_ACTIVE.equals(usageKey);
+        return UsageKeys.SELLER_TERMINALS_ACTIVE.equals(usageKey);
     }
 
     @Override
@@ -24,6 +24,6 @@ public class UserUsageProvider implements UsageProvider {
             throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
         }
 
-        return Math.toIntExact(repository.countActiveTenantAdmins(tenantId.value()));
+        return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
     }
 }

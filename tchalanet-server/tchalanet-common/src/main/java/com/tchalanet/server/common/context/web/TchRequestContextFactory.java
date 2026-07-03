@@ -183,10 +183,6 @@ public class TchRequestContextFactory {
             }
         }
 
-        if (actorType == TchActorType.SYSTEM) {
-            roles.add(TchRole.SYSTEM);
-        }
-
         return Set.copyOf(roles);
     }
 

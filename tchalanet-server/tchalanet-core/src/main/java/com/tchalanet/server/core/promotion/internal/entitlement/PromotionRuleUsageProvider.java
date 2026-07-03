@@ -1,21 +1,21 @@
-package com.tchalanet.server.platform.identity.internal.entitlement;
+package com.tchalanet.server.core.promotion.internal.entitlement;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionRuleRepository;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import com.tchalanet.server.platform.entitlement.api.UsageProvider;
-import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserUsageProvider implements UsageProvider {
+public class PromotionRuleUsageProvider implements UsageProvider {
 
-    private final AppUserJpaRepository repository;
+    private final PromotionRuleRepository repository;
 
     @Override
     public boolean supports(String usageKey) {
-        return UsageKeys.ADMIN_USERS_ACTIVE.equals(usageKey);
+        return UsageKeys.PROMOTION_RULES_ACTIVE.equals(usageKey);
     }
 
     @Override
@@ -24,6 +24,6 @@ public class UserUsageProvider implements UsageProvider {
             throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
         }
 
-        return Math.toIntExact(repository.countActiveTenantAdmins(tenantId.value()));
+        return Math.toIntExact(repository.countByTenantIdAndDeletedAtIsNull(tenantId.value()));
     }
 }

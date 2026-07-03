@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.contactrequest.api;
 
 public enum ContactRequestIntent {
     REQUEST_DEMO,
-    BECOME_OPERATOR,
+    BECOME_SELLER_TERMINAL,
     SUPPORT,
     PARTNERSHIP,
     OTHER

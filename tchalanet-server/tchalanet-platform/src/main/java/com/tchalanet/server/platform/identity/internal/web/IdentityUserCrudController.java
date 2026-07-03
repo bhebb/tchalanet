@@ -35,7 +35,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/identity/users")
-@PreAuthorize("hasAnyRole('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Identity • User CRUD")
 public class IdentityUserCrudController {

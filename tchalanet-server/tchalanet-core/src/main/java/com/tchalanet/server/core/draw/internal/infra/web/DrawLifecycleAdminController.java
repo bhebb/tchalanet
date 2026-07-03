@@ -41,7 +41,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/draws/lifecycle")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'draw.lifecycle.manage')")
 @Tag(name = "Draws • Lifecycle")
 public class DrawLifecycleAdminController {
 
@@ -129,7 +129,7 @@ public class DrawLifecycleAdminController {
 
     @Operation(summary = "Settle multiple draws")
     @PostMapping("/settle")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw.lifecycle.settle')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_SETTLE,

@@ -24,4 +24,6 @@ public interface PromotionRuleRepository extends JpaRepository<PromotionRuleJpaE
     List<PromotionRuleJpaEntity> findByCampaignIdOrderByPriorityAscRuleKeyAsc(UUID campaignId);
 
     boolean existsByCampaignIdAndRuleKey(UUID campaignId, String ruleKey);
+
+    long countByTenantIdAndDeletedAtIsNull(UUID tenantId);
 }

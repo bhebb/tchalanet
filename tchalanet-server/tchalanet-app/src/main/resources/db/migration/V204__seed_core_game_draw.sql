@@ -16,10 +16,9 @@ SELECT set_config('app.is_super_admin', 'false', true);
 WITH g_src AS (
     SELECT *
     FROM (VALUES
-              ('HT_BOLET',  'Bolet',   'HAITI', 'SINGLE',         2, 4, 'Jeu haïtien basé sur lots (lot1..lot4).', true, 10),
-              ('HT_NUMERO', 'Numéros', 'HAITI', 'EXACT',          2, 4, 'Numéros exacts dérivés des résultats externes.', true, 20),
-              ('HT_MARYAJ', 'Mariage', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Mariage, paire non ordonnée.', true, 30),
-              ('HT_MARYAJ_GRATUIT', 'Maryaj gratuit', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Variante promotionnelle du Maryaj.', true, 35),
+              ('HT_BOLET',  'Bolèt',   'HAITI', 'SINGLE',         2, 4, 'Jeu haïtien basé sur lots (lot1..lot4).', true, 10),
+              ('HT_MARYAJ', 'Maryaj', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Mariage, paire non ordonnée.', true, 30),
+              ('HT_MARYAJ_GRATIS', 'Maryaj gratis', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Variante promotionnelle du Maryaj.', true, 35),
               ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3, 3 chiffres.', true, 40),
               ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4, 4 chiffres.', true, 50),
               ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5, 5 chiffres.', true, 60)
@@ -57,7 +56,7 @@ WITH t AS (
      g AS (
          SELECT id AS game_id, code, name
           FROM game
-          WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+          WHERE code IN ('HT_BOLET','HT_MARYAJ','HT_MARYAJ_GRATIS','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND deleted_at IS NULL
      ),
      tg_src AS (
@@ -348,7 +347,7 @@ WITH t AS (
          SELECT tg.id AS tenant_game_id
          FROM tenant_game tg
          JOIN game g ON g.id = tg.game_id
-          WHERE g.code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+          WHERE g.code IN ('HT_BOLET','HT_MARYAJ','HT_MARYAJ_GRATIS','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND tg.tenant_id = (SELECT tenant_id FROM t)
            AND tg.deleted_at IS NULL
      ),

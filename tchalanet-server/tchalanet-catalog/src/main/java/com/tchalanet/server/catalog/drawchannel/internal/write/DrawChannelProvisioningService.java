@@ -26,9 +26,8 @@ public class DrawChannelProvisioningService implements DrawChannelProvisioningAp
   private static final LocalTime DEFAULT_SALES_OPEN_TIME = LocalTime.of(5, 30);
   private static final Set<String> DEFAULT_HAITI_GAME_CODES = Set.of(
       "HT_BOLET",
-      "HT_NUMERO",
       "HT_MARYAJ",
-      "HT_MARYAJ_GRATUIT",
+      "HT_MARYAJ_GRATIS",
       "HT_LOTO3",
       "HT_LOTO4",
       "HT_LOTO5");

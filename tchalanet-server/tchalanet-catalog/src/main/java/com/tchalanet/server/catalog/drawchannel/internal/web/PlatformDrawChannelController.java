@@ -36,6 +36,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Search draw channels (platform)")
     @GetMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.read')")
     public ApiResponse<TchPage<DrawChannelView>> list(
         @RequestParam(required = false) String code,
         @RequestParam(required = false) String nameContains,
@@ -61,6 +62,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Get draw channel by id (platform)")
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.read')")
     public ApiResponse<DrawChannelView> get(@PathVariable DrawChannelId id, @CurrentContext TchRequestContext ctx) {
         var tenantId = ctx.tenantIdSafe();
         var opt = catalog.findById(tenantId, id);
@@ -70,6 +72,7 @@ public class PlatformDrawChannelController {
     @Operation(summary = "Create a draw channel (platform)")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
     public ApiResponse<DrawChannelView> create(@RequestBody CreateDrawChannelRequest req) {
         var view = adminService.createFromRequest(req);
         return ApiResponse.success(view);
@@ -77,6 +80,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Update a draw channel (platform)")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
     public ApiResponse<DrawChannelView> update(@PathVariable DrawChannelId id, @RequestBody UpdateDrawChannelRequest req) {
         var view = adminService.updateFromRequest(id, req);
         return ApiResponse.success(view);
@@ -84,6 +88,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Patch flags for a draw channel (platform)")
     @PatchMapping("/{id}/flags")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
     public ApiResponse<DrawChannelView> patchFlags(@PathVariable DrawChannelId id, @Valid @RequestBody UpdateDrawChannelFlagsRequest req) {
         var view = adminService.updateFlagsFromRequest(id, req);
         return ApiResponse.success(view);
@@ -91,6 +96,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Soft-delete a draw channel (platform)")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
     public ApiResponse<Void> delete(@PathVariable DrawChannelId id) {
         adminService.softDelete(id);
         return ApiResponse.success(null);
@@ -98,6 +104,7 @@ public class PlatformDrawChannelController {
 
     @Operation(summary = "Disable a draw channel — kill switch (platform)")
     @PostMapping("/{id}/disable")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_channel.manage')")
     public ApiResponse<Void> disable(@PathVariable DrawChannelId id) {
         adminService.disableChannel(id);
         return ApiResponse.success(null);
