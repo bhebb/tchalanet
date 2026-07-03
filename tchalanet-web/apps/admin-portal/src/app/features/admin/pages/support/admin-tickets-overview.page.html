@@ -9,7 +9,8 @@
     [retryLabel]="'common.retry' | translate"
     (retry)="overview.reload()"
   >
-    <ng-template tchAsyncReady let-vm>
+    <ng-template tchAsyncReady>
+      @if (overview.value(); as vm) {
       <section class="tickets-overview__kpis" [attr.aria-label]="'admin.tickets.overview.kpisAria' | translate">
         <article class="tickets-overview__kpi">
           <span class="tickets-overview__kpi-label">{{ 'admin.tickets.overview.kpis.soldTickets' | translate }}</span>
@@ -102,6 +103,7 @@
           }
         </tch-admin-section-card>
       </div>
+      }
     </ng-template>
   </tch-async-view>
 </tch-admin-page-shell>
