@@ -3,29 +3,32 @@
   [description]="'admin.pricing.description' | translate"
 >
   <div actions>
-    <button mat-stroked-button [disabled]="loading()" (click)="load()">
+    <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
       {{ 'common.refresh' | translate }}
     </button>
   </div>
 
-  @if (loading()) {
-    <tch-loading [label]="'common.loading' | translate" />
-  } @else if (error(); as errorVm) {
-    <tch-error-panel
-      [title]="errorVm.title"
-      [message]="errorVm.message"
-      [showRetry]="true"
-      [retryLabel]="'common.retry' | translate"
-      (retry)="load()"
-    />
-  } @else if (odds().length === 0) {
+  <tch-async-view
+    [resource]="oddsResource"
+    [error]="oddsError()"
+    [loadingLabel]="'common.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  >
     <tch-admin-empty-state
+      empty
       icon="casino"
       [title]="'admin.pricing.empty.title' | translate"
       [message]="'admin.pricing.empty.message' | translate"
     />
-  } @else {
-    <tch-console-pricing-table [rows]="rows()" [showActions]="false" />
-  }
+
+    <ng-template tchAsyncReady>
+      @if (odds(); as oddsVm) {
+        @if (oddsVm.length > 0) {
+          <tch-console-pricing-table [rows]="rows()" [showActions]="false" />
+        }
+      }
+    </ng-template>
+  </tch-async-view>
 </tch-admin-page-shell>

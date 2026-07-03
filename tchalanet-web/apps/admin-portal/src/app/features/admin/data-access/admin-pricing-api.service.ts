@@ -42,6 +42,13 @@ export class AdminPricingApi {
     return this.backend.get<PricingView[]>('/admin/controls/odds', options);
   }
 
+  getDefaultOddsResource(options?: TchRequestOptions) {
+    return this.backend.getResource<PricingView[]>(() => ({
+      path: '/admin/controls/odds',
+      options,
+    }));
+  }
+
   getTerminalOverrides(sellerTerminalId: string, options?: TchRequestOptions): Observable<SellerTerminalOddsOverrideView[]> {
     return this.backend.get<SellerTerminalOddsOverrideView[]>(
       `/admin/controls/odds/seller-terminals/${sellerTerminalId}`,
