@@ -246,11 +246,11 @@
           "empty": "Adresse non renseignée."
         },
         "admins": {
-          "loading": "Chargement des administrateurs…",
-          "error": "Erreur lors du chargement des administrateurs.",
+          "loading": "Ap chaje administratè yo…",
+          "error": "Enposib pou chaje administratè yo.",
           "empty": {
-            "title": "Aucun administrateur",
-            "message": "Ce tenant n'a pas encore d'administrateur."
+            "title": "Pa gen administratè",
+            "message": "Tenant sa a poko gen administratè."
           }
         },
         "config": {
@@ -668,82 +668,71 @@
       }
     },
     "tenantAdmins": {
-      "title": "Administrateurs tenant",
-      "description": "Consultez et gérez les administrateurs de chaque tenant.",
-      "loading": "Chargement des administrateurs...",
+      "title": "Administratè tenant",
+      "description": "Gade epi jere administratè pou chak tenant.",
+      "loading": "Ap chaje administratè yo...",
       "filter": {
-        "search": "Rechercher",
-        "searchPlaceholder": "Nom ou email..."
+        "search": "Chèche",
+        "searchPlaceholder": "Non oswa email..."
       },
       "column": {
-        "admin": "Administrateur",
+        "admin": "Administratè",
         "tenant": "Tenant",
-        "status": "Statut",
-        "assignedAt": "Affecté le"
+        "assignedAt": "Atribye le"
       },
       "status": {
-        "active": "Actif",
-        "pending": "En attente",
-        "suspended": "Bloqué",
-        "inactive": "Inactif",
-        "archived": "Archivé"
+        "active": "Aktif",
+        "pending": "Ann atant",
+        "suspended": "Bloke",
+        "inactive": "Inaktif",
+        "archived": "Achive"
       },
       "action": {
-        "openMenu": "Ouvrir le menu",
-        "viewDetail": "Voir le détail",
-        "resetPassword": "Réinitialiser le mot de passe",
-        "activate": "Activer",
-        "block": "Bloquer",
-        "archive": "Archiver",
         "assignTenant": "Asiyen ak yon tenant",
-        "manageAdmins": "Gérer les admins",
-        "addAdmin": "Ajouter un admin",
-        "resetFilters": "Réinitialiser les filtres"
+        "manageAdmins": "Jere admin yo",
+        "addAdmin": "Ajoute admin"
       },
       "confirm": {
-        "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
-        "activate": "Activer le compte de {{ name }} ?",
-        "block": "Bloquer le compte de {{ name }} ? Cet administrateur ne pourra plus se connecter.",
-        "archive": "Archiver le compte de {{ name }} ? Cette action est irréversible."
+        "resetPassword": "Voye yon lyen reyinisyalizasyon modpas bay {{ name }}?",
+        "activate": "Aktive kont {{ name }}?",
+        "block": "Bloke kont {{ name }}? Administratè sa a p ap ka konekte ankò.",
+        "archive": "Achive kont {{ name }}? Aksyon sa a pa ka defèt fasil."
       },
       "success": {
-        "resetPassword": "Lien de réinitialisation envoyé."
+        "resetPassword": "Lyen reyinisyalizasyon modpas la voye."
       },
       "error": {
-        "load": "Impossible de charger les administrateurs.",
-        "resetPassword": "Échec de l'envoi du lien de réinitialisation.",
-        "activate": "Échec de l'activation du compte.",
-        "block": "Échec du blocage du compte.",
-        "archive": "Échec de l'archivage du compte."
+        "load": "Enposib pou chaje administratè yo.",
+        "resetPassword": "Echèk pandan voye lyen reyinisyalizasyon modpas la.",
+        "activate": "Echèk pandan aktivasyon kont lan.",
+        "block": "Echèk pandan blokaj kont lan.",
+        "archive": "Echèk pandan achivaj kont lan."
       },
       "empty": {
-        "title": "Aucun administrateur trouvé",
-        "message": "Aucun administrateur ne correspond à vos critères.",
+        "title": "Pa gen administratè",
+        "message": "Pa gen administratè ki koresponn ak kritè ou yo.",
         "filtered": {
-          "title": "Aucun résultat",
-          "message": "Aucun administrateur ne correspond à votre recherche."
+          "title": "Pa gen rezilta",
+          "message": "Pa gen administratè ki koresponn ak rechèch ou a."
         }
       },
       "detail": {
-        "title": "Détail administrateur",
-        "description": "Informations et actions sur cet administrateur tenant.",
-        "back": "Retour à la liste",
-        "loading": "Chargement...",
+        "title": "Detay administratè",
+        "description": "Enfòmasyon ak aksyon pou administratè tenant sa a.",
         "error": {
-          "load": "Impossible de charger cet administrateur."
+          "load": "Enposib pou chaje administratè sa a."
         },
         "field": {
           "tenant": "Tenant",
           "email": "Email",
-          "assignedAt": "Affecté le"
+          "assignedAt": "Atribye le"
         },
         "actions": {
-          "title": "Actions",
-          "manageInTenant": "Gérer dans le tenant"
+          "manageInTenant": "Jere nan tenant lan"
         }
       },
-      "pagination": "Page {{page}} / {{total}}",
-      "paginationTotal": "{{count}} administrateur(s)"
+      "pagination": "Paj {{page}} / {{total}}",
+      "paginationTotal": "{{count}} administratè"
     },
     "entityHistory": {
       "title": "Revizyon teknik — Envers",

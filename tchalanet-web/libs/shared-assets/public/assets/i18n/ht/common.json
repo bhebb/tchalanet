@@ -92,6 +92,8 @@
     "dateRange": {
       "from": "Soti",
       "to": "Jiska"
-    }
+    },
+    "openMenu": "Louvri meni",
+    "resetPassword": "Reyinisyalize modpas"
   }
 }

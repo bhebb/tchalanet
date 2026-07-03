@@ -92,6 +92,8 @@
     "dateRange": {
       "from": "From",
       "to": "To"
-    }
+    },
+    "openMenu": "Open menu",
+    "resetPassword": "Reset password"
   }
 }

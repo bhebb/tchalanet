@@ -86,7 +86,7 @@ export class PlatformAdminUserCardComponent {
   confirmResetPassword(): void {
     const u = this.user();
     this.openConfirm(
-      'platform.tenantAdmins.action.resetPassword',
+      'common.resetPassword',
       'platform.tenantAdmins.confirm.resetPassword',
       { name: this.userName(u) },
     ).subscribe(r => { if (r?.confirmed) this.resetPassword.emit(); });

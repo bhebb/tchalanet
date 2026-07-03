@@ -394,7 +394,6 @@
       "column": {
         "admin": "Administrateur",
         "tenant": "Tenant",
-        "status": "Statut",
         "assignedAt": "Affecté le"
       },
       "status": {
@@ -405,16 +404,9 @@
         "archived": "Archivé"
       },
       "action": {
-        "openMenu": "Ouvrir le menu",
-        "viewDetail": "Voir le détail",
-        "resetPassword": "Réinitialiser le mot de passe",
-        "activate": "Activer",
-        "block": "Bloquer",
-        "archive": "Archiver",
         "assignTenant": "Assigner à un tenant",
         "manageAdmins": "Gérer les admins",
-        "addAdmin": "Ajouter un admin",
-        "resetFilters": "Réinitialiser les filtres"
+        "addAdmin": "Ajouter un admin"
       },
       "confirm": {
         "resetPassword": "Envoyer un lien de réinitialisation à {{ name }} ?",
@@ -443,8 +435,6 @@
       "detail": {
         "title": "Détail administrateur",
         "description": "Informations et actions sur cet administrateur tenant.",
-        "back": "Retour à la liste",
-        "loading": "Chargement...",
         "error": {
           "load": "Impossible de charger cet administrateur."
         },
@@ -454,7 +444,6 @@
           "assignedAt": "Affecté le"
         },
         "actions": {
-          "title": "Actions",
           "manageInTenant": "Gérer dans le tenant"
         }
       },
