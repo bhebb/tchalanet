@@ -112,7 +112,9 @@ export class AdminGeneratedDrawsPage {
     page: this.page(),
   }));
   readonly drawsError = resourceErrorVm(this.draws, 'admin.generatedDraws.list');
-  readonly allDraws = computed(() => this.api.projectDraws(this.draws.value(), this.statusFilter()));
+  readonly allDraws = computed(() =>
+    this.api.filterDrawsByStatus(this.draws.value()?.items ?? [], this.statusFilter()),
+  );
   readonly totalElements = computed(() => this.draws.value()?.totalElements ?? 0);
   readonly isEmpty = (): boolean => this.groupedDraws().length === 0;
 

@@ -174,33 +174,39 @@ export class AdminGeneratedDrawsApiService {
    */
   generatedDrawsResource(
     query: () => GeneratedDrawsQuery,
-  ): ResourceRef<TchPage<DrawView> | undefined> {
-    return this.backend.getPageResource<DrawView>(() => {
-      const q = query();
-      const { from, to } = datePresetToRange(q.datePreset ?? 'TODAY');
-      return {
-        path: '/admin/draws',
-        options: {
-          suppressShellFeedback: true,
-          params: {
-            from,
-            to,
-            size: String(q.size ?? 100),
-            page: String(q.page ?? 0),
-            ...(q.q ? { q: q.q } : {}),
+  ): ResourceRef<TchPage<GeneratedDrawView> | undefined> {
+    // mapping DTO -> vue au niveau du client (project) ; le resource yield des vues métier
+    return this.backend.getPageResource<GeneratedDrawView, DrawView>(
+      () => {
+        const q = query();
+        const { from, to } = datePresetToRange(q.datePreset ?? 'TODAY');
+        return {
+          path: '/admin/draws',
+          options: {
+            suppressShellFeedback: true,
+            params: {
+              from,
+              to,
+              size: String(q.size ?? 100),
+              page: String(q.page ?? 0),
+              ...(q.q ? { q: q.q } : {}),
+            },
           },
-        },
-      };
-    });
+        };
+      },
+      mapDrawView,
+    );
   }
 
-  /** Projette la page brute en vues métier + applique le filtre de statut client. */
-  projectDraws(
-    page: TchPage<DrawView> | undefined,
+  /**
+   * Filtre de statut client (indépendant du fetch — ne pas l'envoyer au backend).
+   * Le mapping DTO -> vue est fait par le resource ({@link generatedDrawsResource}).
+   */
+  filterDrawsByStatus(
+    draws: readonly GeneratedDrawView[],
     status?: DrawStatusFilter | null,
   ): GeneratedDrawView[] {
-    const mapped = (page?.items ?? []).map(mapDrawView);
-    return applyStatusFilter(mapped, status && status !== 'all' ? status : null);
+    return applyStatusFilter([...draws], status && status !== 'all' ? status : null);
   }
 
   getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
