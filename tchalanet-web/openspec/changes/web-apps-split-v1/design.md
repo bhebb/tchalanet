@@ -222,6 +222,24 @@ feature flags
 config proxy/app metadata si nécessaire
 ```
 
+## Audit 2026-07-03
+
+État vérifié :
+
+- les trois apps cibles existent et utilisent des routes lazy par surface/feature/page ;
+- `libs/ui/theme`, `libs/ui/styles`, `libs/ui/components`, `libs/web/shell`, `libs/page-model` et
+  `libs/shared-config` existent avec les responsabilités prévues ;
+- aucun composant UI pur inspecté n'injecte `HttpClient` directement ;
+- le chargement Markdown public passe désormais par un service `data-access`.
+
+Bloquants avant archive :
+
+- 23 services API métier restent hors dossier `data-access/` ;
+- 19 pages routées restent sans triplet complet `*.page.ts` / `*.page.html` / `*.page.scss` ;
+- des couleurs/fallbacks hardcodés et quelques `::ng-deep` existent encore dans des styles feature ;
+- `admin-tenant-sidenav-v0` est un ancien change sans `proposal.md`/`tasks.md`, visible dans
+  `openspec list` mais non validable par nom.
+
 ## Structure Standard Des Features
 
 Les features sont organisées par surface puis feature :

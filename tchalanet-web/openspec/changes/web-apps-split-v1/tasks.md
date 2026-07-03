@@ -45,11 +45,11 @@
 - [x] Créer/valider `libs/ui/theme`.
 - [x] Créer/valider `libs/ui/styles`.
 - [x] Créer/valider `libs/ui/components`.
-- [ ] Vérifier que `libs/ui/theme` contient runtime theme, `ThemeStore`, `ThemeDomApplier`, preset
+- [x] Vérifier que `libs/ui/theme` contient runtime theme, `ThemeStore`, `ThemeDomApplier`, preset
   registry et mapping backend tokens vers `--tch-*`.
-- [ ] Vérifier que `libs/ui/styles` contient SCSS primitives, breakpoints, mixins, typography et
+- [x] Vérifier que `libs/ui/styles` contient SCSS primitives, breakpoints, mixins, typography et
   Material overrides globaux.
-- [ ] Vérifier que `libs/ui/components` contient des composants UI réutilisables/stateless sans appel
+- [x] Vérifier que `libs/ui/components` contient des composants UI réutilisables/stateless sans appel
   HTTP direct.
 
 ### 2.4 `libs/web`
@@ -70,7 +70,7 @@
   utilitaires et le contenu spécifiques à l'app.
 - [x] Extraire le layout visuel du shell public dans `libs/web/shell`, avec projection du contenu
   routé et wiring i18n/login conservé dans l'app.
-- [ ] Placer public shell, private/admin shell, platform shell et layout shell utilities dans
+- [x] Placer public shell, private/admin shell, platform shell et layout shell utilities dans
   `libs/web/shell`.
 - [x] Placer page error, section error, API error presenter et mapping UI depuis `ProblemDetail`
   dans `libs/web/errors`.
@@ -79,15 +79,15 @@
 
 - [x] Valider `libs/page-model` sans le déplacer si la lib est déjà bien placée.
 - [x] Valider `libs/shared-config` sans le déplacer si la lib est déjà bien placée.
-- [ ] Vérifier que `libs/page-model` contient contrats runtime PageModel, renderer, widget host
+- [x] Vérifier que `libs/page-model` contient contrats runtime PageModel, renderer, widget host
   abstrait et helpers de rendu.
-- [ ] Vérifier que `libs/page-model` ne contient aucun shell, thème runtime ou client métier.
-- [ ] Vérifier que `libs/shared-config` contient runtime config, feature flags et config
+- [x] Vérifier que `libs/page-model` ne contient aucun shell, thème runtime ou client métier.
+- [x] Vérifier que `libs/shared-config` contient runtime config, feature flags et config
   proxy/app metadata si nécessaire.
 
 ## 3. Structure standard des features
 
-- [ ] Organiser les features par surface puis feature : `features/admin`, `features/platform`,
+- [x] Organiser les features par surface puis feature : `features/admin`, `features/platform`,
   `features/public`, `features/pos`.
 - [ ] Organiser chaque feature par page/flow avec `list`, `new`, `edit`, `components`,
   `data-access` selon besoin réel.
@@ -96,7 +96,7 @@
 - [ ] Mettre `*.page.store.ts` avec la page quand la page a de l'état.
 - [ ] Mettre les composants page-only dans `<page-folder>/components/`.
 - [ ] Mettre les composants feature-shared dans `<feature>/components/`.
-- [ ] Mettre les composants globaux dans `libs/ui/components/`.
+- [x] Mettre les composants globaux dans `libs/ui/components/`.
 - [ ] Mettre les clients API métier dans `<feature>/data-access/`.
 - [ ] Mettre les types/mappers/query builders API de feature dans `<feature>/data-access/`.
 - [ ] Garder les stores page-specific avec leur page, pas dans `data-access/`.
@@ -132,35 +132,35 @@
 - [ ] Ne pas créer de registre central `libs/api/clients`.
 - [ ] Chaque slice possède son propre `XxxApiService` dans `data-access/`.
 - [ ] Ne sortir un client métier de sa slice que lorsqu'il a au moins deux consommateurs réels.
-- [ ] Interdire `HttpClient` direct dans les composants UI.
-- [ ] Interdire l'injection directe de clients API métier dans les composants UI.
+- [x] Interdire `HttpClient` direct dans les composants UI.
+- [x] Interdire l'injection directe de clients API métier dans les composants UI.
 - [ ] Faire orchestrer les appels API par les pages/stores via `data-access`.
 
 ## 7. Admin portal
 
 - [x] Brancher `admin-portal` sur le login partagé depuis `libs/core/auth`.
-- [ ] Mettre les routes tenant admin dans `admin-portal`.
+- [x] Mettre les routes tenant admin dans `admin-portal`.
 - [x] Ajouter une route lazy pour la vente POS admin.
 - [x] Garder la vente POS lazy-loaded dans `admin-portal` en V0.
 - [ ] Masquer/désactiver la vente pour les admins qui ne veulent pas cette fonction.
 - [ ] Garder les features POS dans `features/pos/home` et `features/pos/sale`.
-- [ ] Préparer l'extraction future vers `pos-portal` sans refonte majeure.
+- [x] Préparer l'extraction future vers `pos-portal` sans refonte majeure.
 
 ## 8. Platform portal
 
 - [x] Brancher `platform-portal` sur le login partagé depuis `libs/core/auth`.
-- [ ] Mettre les routes superadmin/platform dans `platform-portal`.
-- [ ] Garder les features platform sous `features/platform`.
-- [ ] Ne pas mélanger les écrans platform avec les écrans tenant admin.
-- [ ] Garder les opérations platform séparées des features admin tenant.
+- [x] Mettre les routes superadmin/platform dans `platform-portal`.
+- [x] Garder les features platform sous `features/platform`.
+- [x] Ne pas mélanger les écrans platform avec les écrans tenant admin.
+- [x] Garder les opérations platform séparées des features admin tenant.
 
 ## 9. Public portal
 
 - [x] Mettre les routes publiques dans `public-portal`.
 - [x] Garder les features publiques sous `features/public`.
 - [x] Brancher `public-portal` sur `libs/page-model` si la page est rendue par PageModel.
-- [ ] Ne pas mettre le shell public dans PageModel.
-- [ ] Ne pas mettre le thème runtime dans PageModel.
+- [x] Ne pas mettre le shell public dans PageModel.
+- [x] Ne pas mettre le thème runtime dans PageModel.
 - [x] Prioriser SSR/SSG pour `public-portal`.
 
 ## 10. Proxy / sous-routes locales
@@ -175,7 +175,7 @@
 
 - [x] Utiliser standalone components.
 - [x] Utiliser `bootstrapApplication`.
-- [ ] Utiliser lazy routes par surface/feature/page.
+- [x] Utiliser lazy routes par surface/feature/page.
 - [ ] Utiliser Signals pour état local.
 - [ ] Utiliser stores explicites pour pages complexes.
 - [x] Ne pas introduire NgRx par défaut.
@@ -208,7 +208,7 @@
 - [x] Utiliser les fichiers `.scss` séparés pour pages/composants.
 - [ ] Garder les Material overrides globaux dans `libs/ui/styles` ou `libs/ui/theme`.
 - [ ] Ne pas utiliser `::ng-deep` sauf exception temporaire documentée.
-- [ ] Garder les composants globaux stateless et réutilisables.
+- [x] Garder les composants globaux stateless et réutilisables.
 
 ## 14. Critères d'acceptation
 
@@ -225,8 +225,8 @@
 - [ ] Les stores page-specific vivent avec leur page.
 - [ ] Les composants page-only vivent dans `<page>/components`.
 - [ ] Les composants feature-shared vivent dans `<feature>/components`.
-- [ ] Les composants globaux vivent dans `libs/ui/components`.
-- [ ] Aucun composant UI pur n'injecte `HttpClient`.
+- [x] Les composants globaux vivent dans `libs/ui/components`.
+- [x] Aucun composant UI pur n'injecte `HttpClient`.
 - [x] Les contrats `ApiResponse`, `ProblemDetail`, `TchPage` vivent dans `libs/api/src/lib/contracts`.
 - [x] Les shells vivent dans `libs/web/shell`.
 - [x] Le proxy local supporte les sous-routes des apps.
