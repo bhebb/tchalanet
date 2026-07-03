@@ -66,7 +66,7 @@ SELECT
     rule.tenant_id,
     rule.id,
     'FREE_GAME_LINE',
-    'HT_MARYAJ_GRATUIT',
+    'HT_MARYAJ_GRATIS',
     50,
     1,
     'TIERED_PAID_AMOUNT',
@@ -89,6 +89,6 @@ WHERE NOT EXISTS (
     WHERE effect.tenant_id = rule.tenant_id
       AND effect.rule_id = rule.id
       AND effect.effect_type = 'FREE_GAME_LINE'
-      AND effect.game_code = 'HT_MARYAJ_GRATUIT'
+      AND effect.game_code = 'HT_MARYAJ_GRATIS'
       AND effect.deleted_at IS NULL
 );

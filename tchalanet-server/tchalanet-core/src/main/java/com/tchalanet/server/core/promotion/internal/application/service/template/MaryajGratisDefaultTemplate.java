@@ -80,7 +80,7 @@ public final class MaryajGratisDefaultTemplate {
         var maxRegenerations = positiveIntOrDefault(cmd.maxRegenerationsBeforeConfirm(), 3);
 
         var effectParams = new LinkedHashMap<String, Object>();
-        effectParams.put("gameCode", "HT_MARYAJ_GRATUIT");
+        effectParams.put("gameCode", "HT_MARYAJ_GRATIS");
         effectParams.put("payoutBaseAmount", payoutBaseAmount);
         effectParams.put("quantityMode", quantityMode.name());
         effectParams.put("quantity", String.valueOf(quantity));

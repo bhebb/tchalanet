@@ -211,15 +211,15 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     -- Game titles
     ,('fr', 'receipt.game.HT_BOLET', 'Borlette')
     ,('fr', 'receipt.game.HT_MARYAJ', 'Mariage')
-    ,('fr', 'receipt.game.HT_MARYAJ_GRATUIT', 'Mariage gratuit')
+    ,('fr', 'receipt.game.HT_MARYAJ_GRATIS', 'Mariage gratuit')
 
     ,('en', 'receipt.game.HT_BOLET', 'Bolet')
     ,('en', 'receipt.game.HT_MARYAJ', 'Marriage')
-    ,('en', 'receipt.game.HT_MARYAJ_GRATUIT', 'Free Marriage')
+    ,('en', 'receipt.game.HT_MARYAJ_GRATIS', 'Free Marriage')
 
     ,('ht', 'receipt.game.HT_BOLET', 'Bolèt')
     ,('ht', 'receipt.game.HT_MARYAJ', 'Maryaj')
-    ,('ht', 'receipt.game.HT_MARYAJ_GRATUIT', 'Maryaj gratis')
+    ,('ht', 'receipt.game.HT_MARYAJ_GRATIS', 'Maryaj gratis')
 
     -- Bet / option labels
     ,('fr', 'receipt.bet_type.MATCH_1_2D', '1er lot')

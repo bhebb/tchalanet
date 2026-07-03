@@ -78,7 +78,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
                     "stakeAmount", "25"))),
             null, null, null, expiresAt, null,
             List.of(new SalePreparationPromotionLine(
-                "ref-1", "HT_MARYAJ_GRATUIT", "MARRIAGE_2D2D", (short) 1, "34-78",
+                "ref-1", "HT_MARYAJ_GRATIS", "MARRIAGE_2D2D", (short) 1, "34-78",
                 new BigDecimal("50"), null, null, true, 3, 1)));
     }
 
@@ -106,7 +106,7 @@ class ConfirmPreparedSaleCommandHandlerTest {
         var choices = bus.captured.promotionChoices();
         assertThat(choices).hasSize(1);
         assertThat(choices.get(0).rawSelection()).isEqualTo("34-78");
-        assertThat(choices.get(0).gameCode()).isEqualTo("HT_MARYAJ_GRATUIT");
+        assertThat(choices.get(0).gameCode()).isEqualTo("HT_MARYAJ_GRATIS");
         assertThat(choices.get(0).selectionSource())
             .isEqualTo(TicketLineSelectionSource.PROMOTION_GENERATED);
         assertThat(bus.captured.lines()).hasSize(1);

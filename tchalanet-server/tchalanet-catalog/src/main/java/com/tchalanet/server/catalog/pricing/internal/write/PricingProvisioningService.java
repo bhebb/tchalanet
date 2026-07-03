@@ -61,7 +61,7 @@ public class PricingProvisioningService implements PricingProvisioningApi {
         new DefaultPricingOdds("HT_BOLET", BetType.MATCH_2_2D, null, new BigDecimal("20.0000")),
         new DefaultPricingOdds("HT_BOLET", BetType.MATCH_3_2D, null, new BigDecimal("10.0000")),
         new DefaultPricingOdds("HT_MARYAJ", BetType.MARRIAGE_2D2D, null, new BigDecimal("1000.0000")),
-        new DefaultPricingOdds("HT_MARYAJ_GRATUIT", BetType.MARRIAGE_2D2D, null, new BigDecimal("10.0000")),
+        new DefaultPricingOdds("HT_MARYAJ_GRATIS", BetType.MARRIAGE_2D2D, null, new BigDecimal("10.0000")),
         new DefaultPricingOdds("HT_LOTO3", BetType.LOTTO3_3D, null, new BigDecimal("500.0000")),
         new DefaultPricingOdds("HT_LOTO4", BetType.LOTTO4_PATTERN, (short) 1, new BigDecimal("5000.0000")),
         new DefaultPricingOdds("HT_LOTO4", BetType.LOTTO4_PATTERN, (short) 2, new BigDecimal("5000.0000")),

@@ -17,7 +17,7 @@ VALUES
 
     -- Promotional Maryaj: free customer stake, payout uses TicketLine.payoutBaseAmount × odds.
     -- Example: payoutBaseAmount=50, odds=10 => potential payout=500.
-    ('00000000-0000-0000-0000-000000000003'::uuid, 'HT_MARYAJ_GRATUIT', 'MARRIAGE_2D2D', NULL, 10.0000),
+    ('00000000-0000-0000-0000-000000000003'::uuid, 'HT_MARYAJ_GRATIS', 'MARRIAGE_2D2D', NULL, 10.0000),
 
     ('00000000-0000-0000-0000-000000000003'::uuid, 'HT_LOTO3',   'LOTTO3_3D',     NULL, 500.0000),
 
