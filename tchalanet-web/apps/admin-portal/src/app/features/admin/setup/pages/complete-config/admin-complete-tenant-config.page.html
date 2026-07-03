@@ -110,8 +110,9 @@
         </a>
       </div>
 
-      <!-- Draw channels (config) -->
       @let drawsStatus = sectionStatus('draws');
+
+      <!-- Draw channels (config) -->
       <div class="setup__card" [class.setup__card--missing]="drawsStatus === 'MISSING'" [class.setup__card--ready]="drawsStatus === 'READY'">
         <div class="setup__card-header">
           <mat-icon class="{{ statusClass(drawsStatus) }}">{{ statusIcon(drawsStatus) }}</mat-icon>
@@ -129,6 +130,24 @@
         <p class="setup__card-body">{{ 'admin.setup.section.drawChannelsDesc' | translate }}</p>
         <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/draw-channels">
           {{ 'admin.setup.section.drawChannelsCta' | translate }}
+        </a>
+      </div>
+
+      <!-- Games by channel -->
+      @let channelMatrixStatus = gamesStatus === 'READY' && drawsStatus === 'READY' ? 'READY' : 'MISSING';
+      <div class="setup__card" [class.setup__card--missing]="channelMatrixStatus === 'MISSING'" [class.setup__card--ready]="channelMatrixStatus === 'READY'">
+        <div class="setup__card-header">
+          <mat-icon class="{{ statusClass(channelMatrixStatus) }}">{{ statusIcon(channelMatrixStatus) }}</mat-icon>
+          <mat-icon class="setup__card-domain-icon">grid_view</mat-icon>
+          <span class="setup__card-title">{{ 'admin.setup.section.channelMatrix' | translate }}</span>
+          <span class="setup__card-badge setup__card-badge--required">{{ 'admin.setup.required' | translate }}</span>
+        </div>
+        @if (sectionError('admin.setup.draw_sales_matrix'); as err) {
+          <tch-section-error class="setup__card-error" [title]="err.title" [message]="err.message" [severity]="err.severity ?? 'error'" />
+        }
+        <p class="setup__card-body">{{ 'admin.setup.section.channelMatrixDesc' | translate }}</p>
+        <a mat-stroked-button class="setup__card-cta" routerLink="/app/admin/games/channel-matrix">
+          {{ 'admin.setup.section.channelMatrixCta' | translate }}
         </a>
       </div>
 

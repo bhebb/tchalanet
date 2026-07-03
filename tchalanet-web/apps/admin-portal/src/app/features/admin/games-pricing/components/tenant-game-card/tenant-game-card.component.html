@@ -25,22 +25,29 @@
   @if (g.tenantStatus !== 'UNAVAILABLE') {
     <div class="game-card__body">
       <div class="game-card__summary-row">
-        <span class="material-symbols-outlined">storefront</span>
-        <span>{{ channelLabel() }}</span>
+        <span class="material-symbols-outlined">casino</span>
+        <span>{{ systemLabel() }}</span>
       </div>
       <div
         class="game-card__summary-row"
-        [class.game-card__summary-row--warning]="channelStats().missingStakeChannelCount > 0 || !hasStakeConfig"
+        [class.game-card__summary-row--warning]="!hasStakeConfig"
       >
         <span class="material-symbols-outlined">payments</span>
         <span>{{ stakeLabel() }}</span>
       </div>
       <div
         class="game-card__summary-row"
-        [class.game-card__summary-row--warning]="channelStats().missingLimitChannelCount > 0"
+        [class.game-card__summary-row--warning]="g.odds.length === 0"
+      >
+        <span class="material-symbols-outlined">price_change</span>
+        <span>{{ pricingLabel() }}</span>
+      </div>
+      <div
+        class="game-card__summary-row"
+        [class.game-card__summary-row--warning]="g.limits.maxPerDraw === null"
       >
         <span class="material-symbols-outlined">shield</span>
-        <span>{{ limitsLabel() }}</span>
+        <span>{{ limitLabel() }}</span>
       </div>
     </div>
   } @else {
@@ -94,7 +101,7 @@
         <a mat-icon-button routerLink="/app/admin/limits" matTooltip="Configurer les limites">
           <mat-icon>shield</mat-icon>
         </a>
-        <a mat-icon-button routerLink="/app/admin/controls/gains" matTooltip="Voir les gains et barèmes">
+        <a mat-icon-button routerLink="/app/admin/pricing" matTooltip="Voir les barèmes">
           <mat-icon>format_list_numbered</mat-icon>
         </a>
       </div>

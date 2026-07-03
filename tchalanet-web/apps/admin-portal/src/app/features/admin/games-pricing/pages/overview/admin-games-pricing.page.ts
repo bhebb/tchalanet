@@ -3,7 +3,6 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { forkJoin } from 'rxjs';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
@@ -17,22 +16,16 @@ import { TenantGamePricingView } from '../../data-access/admin-games-pricing.mod
 import {
   TenantGameCardComponent,
   TenantGameCardError,
-  TenantGameChannelStats,
 } from '../../components/tenant-game-card/tenant-game-card.component';
 import { GameSettingsDialog } from '../../../pages/games/dialogs/game-settings.dialog';
-import {
-  AdminDrawSalesMatrixApi,
-  ChannelGameSetupView,
-  TenantDrawSalesMatrixView,
-} from '../../../draw-sales-matrix/data-access/admin-draw-sales-matrix-api.service';
 
 type PageState = 'loading' | 'ready' | 'error';
 
 interface GamesOverviewSummary {
-  readonly supportedGameCount: number;
+  readonly catalogGameCount: number;
   readonly activeGameCount: number;
-  readonly readyChannelCount: number;
-  readonly missingStakeCombinationCount: number;
+  readonly needsConfigCount: number;
+  readonly inactiveGameCount: number;
 }
 
 interface GamesOverviewIssue {
@@ -40,7 +33,7 @@ interface GamesOverviewIssue {
   readonly gameName: string;
   readonly message: string;
   readonly actionLabel: string;
-  readonly action: 'configure-game' | 'open-channel-matrix';
+  readonly action: 'configure-game';
   readonly tone: 'warning' | 'danger';
 }
 
@@ -62,7 +55,6 @@ interface GamesOverviewIssue {
 })
 export class AdminGamesPricingPage implements OnInit {
   private readonly api = inject(AdminGamesPricingApiService);
-  private readonly matrixApi = inject(AdminDrawSalesMatrixApi);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
@@ -70,7 +62,6 @@ export class AdminGamesPricingPage implements OnInit {
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly games = signal<TenantGamePricingView[]>([]);
-  readonly gameChannelStats = signal<Readonly<Record<string, TenantGameChannelStats>>>({});
   readonly matrixSummary = signal<GamesOverviewSummary | null>(null);
   readonly issues = signal<readonly GamesOverviewIssue[]>([]);
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
@@ -80,9 +71,9 @@ export class AdminGamesPricingPage implements OnInit {
 
     return [
       {
-        label: 'Jeux supportés',
-        value: summary.supportedGameCount,
-        help: 'Jeux disponibles dans le catalogue tenant.',
+        label: 'Jeux système',
+        value: summary.catalogGameCount,
+        help: 'Jeux disponibles pour ce tenant.',
       },
       {
         label: 'Jeux actifs',
@@ -90,15 +81,15 @@ export class AdminGamesPricingPage implements OnInit {
         help: 'Jeux activés pour la vente.',
       },
       {
-        label: 'Canaux prêts à vendre',
-        value: summary.readyChannelCount,
-        help: 'Canaux actifs et configurés.',
+        label: 'À configurer',
+        value: summary.needsConfigCount,
+        help: 'Jeux activés avec mise ou barème incomplet.',
+        tone: summary.needsConfigCount > 0 ? 'warning' : 'success',
       },
       {
-        label: 'Mises à compléter',
-        value: summary.missingStakeCombinationCount,
-        help: 'Combinaisons jeu/canal avec mise non configurée.',
-        tone: summary.missingStakeCombinationCount > 0 ? 'warning' : 'success',
+        label: 'Inactifs',
+        value: summary.inactiveGameCount,
+        help: 'Jeux disponibles mais non supportés actuellement.',
       },
     ];
   });
@@ -109,15 +100,11 @@ export class AdminGamesPricingPage implements OnInit {
     this.pageState.set('loading');
     this.pageError.set(null);
     this.actionErrors.set({});
-    forkJoin({
-      games:  this.api.getGamesPricing({ suppressShellFeedback: true }),
-      matrix: this.matrixApi.getMatrix({ suppressShellFeedback: true }),
-    }).subscribe({
-      next: ({ games, matrix }) => {
+    this.api.getGamesPricing({ suppressShellFeedback: true }).subscribe({
+      next: games => {
         this.games.set(games);
-        this.gameChannelStats.set(this.buildGameChannelStats(matrix));
-        this.matrixSummary.set(this.buildOverviewSummary(games, matrix));
-        this.issues.set(this.buildOverviewIssues(games, matrix));
+        this.matrixSummary.set(this.buildOverviewSummary(games));
+        this.issues.set(this.buildOverviewIssues(games));
         this.pageState.set('ready');
       },
       error: (err: unknown) => {
@@ -126,16 +113,6 @@ export class AdminGamesPricingPage implements OnInit {
         this.pageState.set('error');
       },
     });
-  }
-
-  channelStats(gameCode: string): TenantGameChannelStats {
-    return this.gameChannelStats()[gameCode] ?? {
-      offeredChannelCount:       0,
-      activeChannelCount:        0,
-      readyChannelCount:         0,
-      missingStakeChannelCount:  0,
-      missingLimitChannelCount:  0,
-    };
   }
 
   onActivate(gameCode: string): void {
@@ -187,11 +164,6 @@ export class AdminGamesPricingPage implements OnInit {
   }
 
   onIssueAction(issue: GamesOverviewIssue): void {
-    if (issue.action === 'open-channel-matrix') {
-      void this.router.navigate(['/app/admin/games/channel-matrix']);
-      return;
-    }
-
     this.onConfigure(issue.gameCode);
   }
 
@@ -217,60 +189,20 @@ export class AdminGamesPricingPage implements OnInit {
     });
   }
 
-  private buildOverviewSummary(
-    games: readonly TenantGamePricingView[],
-    matrix: TenantDrawSalesMatrixView,
-  ): GamesOverviewSummary {
+  private buildOverviewSummary(games: readonly TenantGamePricingView[]): GamesOverviewSummary {
     return {
-      supportedGameCount:            games.filter(game => game.catalogStatus === 'AVAILABLE').length,
-      activeGameCount:               games.filter(game => game.tenantStatus === 'ACTIVE').length,
-      readyChannelCount:             matrix.summary.activeChannelCount,
-      missingStakeCombinationCount:  matrix.summary.missingStakeConfigCount,
+      catalogGameCount:  games.filter(game => game.catalogStatus === 'AVAILABLE').length,
+      activeGameCount:   games.filter(game => game.tenantStatus === 'ACTIVE').length,
+      needsConfigCount:  games.filter(game => game.tenantStatus === 'NEEDS_CONFIG').length,
+      inactiveGameCount: games.filter(game => game.tenantStatus === 'INACTIVE').length,
     };
   }
 
-  private buildGameChannelStats(matrix: TenantDrawSalesMatrixView): Readonly<Record<string, TenantGameChannelStats>> {
-    const stats: Record<string, TenantGameChannelStats> = {};
-
-    for (const provider of matrix.providers) {
-      for (const slot of provider.slots) {
-        if (!slot.channel?.active) continue;
-
-        for (const game of slot.games) {
-          const current = stats[game.gameCode] ?? {
-            offeredChannelCount:       0,
-            activeChannelCount:        0,
-            readyChannelCount:         0,
-            missingStakeChannelCount:  0,
-            missingLimitChannelCount:  0,
-          };
-
-          stats[game.gameCode] = this.addChannelGameStats(current, game);
-        }
-      }
-    }
-
-    return stats;
-  }
-
-  private buildOverviewIssues(
-    games: readonly TenantGamePricingView[],
-    matrix: TenantDrawSalesMatrixView,
-  ): readonly GamesOverviewIssue[] {
-    const stats = this.buildGameChannelStats(matrix);
-    const activeChannelTotal = matrix.summary.activeChannelCount;
+  private buildOverviewIssues(games: readonly TenantGamePricingView[]): readonly GamesOverviewIssue[] {
     const issues: GamesOverviewIssue[] = [];
 
     for (const game of games) {
       if (game.catalogStatus !== 'AVAILABLE' || game.tenantStatus === 'UNAVAILABLE') continue;
-
-      const gameStats = stats[game.gameCode] ?? {
-        offeredChannelCount:       0,
-        activeChannelCount:        0,
-        readyChannelCount:         0,
-        missingStakeChannelCount:  0,
-        missingLimitChannelCount:  0,
-      };
 
       if (game.tenantStatus === 'NEEDS_CONFIG' || !this.hasGameStakeConfig(game)) {
         issues.push({
@@ -283,46 +215,6 @@ export class AdminGamesPricingPage implements OnInit {
         });
         continue;
       }
-
-      if (gameStats.activeChannelCount === 0 && game.tenantStatus === 'ACTIVE') {
-        issues.push({
-          gameCode:    game.gameCode,
-          gameName:    game.gameName,
-          message:     'Ce jeu est actif, mais il n’est vendu sur aucun canal.',
-          actionLabel: 'Voir les canaux',
-          action:      'open-channel-matrix',
-          tone:        'warning',
-        });
-        continue;
-      }
-
-      if (gameStats.missingStakeChannelCount > 0) {
-        issues.push({
-          gameCode:    game.gameCode,
-          gameName:    game.gameName,
-          message:     `Mise manquante sur ${gameStats.missingStakeChannelCount} canal${gameStats.missingStakeChannelCount > 1 ? 'aux' : ''}.`,
-          actionLabel: 'Compléter',
-          action:      'open-channel-matrix',
-          tone:        'warning',
-        });
-        continue;
-      }
-
-      if (
-        game.tenantStatus === 'ACTIVE' &&
-        activeChannelTotal > 1 &&
-        gameStats.activeChannelCount > 0 &&
-        gameStats.activeChannelCount < activeChannelTotal
-      ) {
-        issues.push({
-          gameCode:    game.gameCode,
-          gameName:    game.gameName,
-          message:     `Actif sur ${gameStats.activeChannelCount} canal${gameStats.activeChannelCount > 1 ? 'aux' : ''} seulement.`,
-          actionLabel: 'Voir les canaux',
-          action:      'open-channel-matrix',
-          tone:        'warning',
-        });
-      }
     }
 
     return issues.slice(0, 6);
@@ -330,25 +222,6 @@ export class AdminGamesPricingPage implements OnInit {
 
   private hasGameStakeConfig(game: TenantGamePricingView): boolean {
     return game.limits.minStake !== null && game.limits.maxStake !== null;
-  }
-
-  private addChannelGameStats(
-    current: TenantGameChannelStats,
-    game: ChannelGameSetupView,
-  ): TenantGameChannelStats {
-    if (!game.offeredOnChannel) return current;
-
-    const active = game.enabledForTenant && game.enabledOnChannel;
-    const missingStake = active && (game.minStake === null || game.maxStake === null);
-    const missingLimit = active && !game.limits.configured;
-
-    return {
-      offeredChannelCount:       current.offeredChannelCount + 1,
-      activeChannelCount:        current.activeChannelCount + (active ? 1 : 0),
-      readyChannelCount:         current.readyChannelCount + (game.saleReady ? 1 : 0),
-      missingStakeChannelCount:  current.missingStakeChannelCount + (missingStake ? 1 : 0),
-      missingLimitChannelCount:  current.missingLimitChannelCount + (missingLimit ? 1 : 0),
-    };
   }
 
   private pageErrorViewModel(problem: ProblemDetail | undefined): ErrorViewModel {

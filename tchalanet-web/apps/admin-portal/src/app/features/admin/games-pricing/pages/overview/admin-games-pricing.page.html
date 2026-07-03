@@ -1,6 +1,6 @@
 <tch-admin-page-shell
   title="Jeux disponibles"
-  description="Vérifiez les jeux actifs, les canaux prêts à vendre et les mises à compléter."
+  description="Choisissez les jeux supportés par ce tenant et complétez leurs spécificités de vente."
 >
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/setup" class="gp-page__back-btn">
@@ -48,11 +48,8 @@
         <div class="gp-page__issues-header">
           <div>
             <h2>À compléter</h2>
-            <p>Corrigez ces points avant d’ouvrir l’offre de jeux à la vente.</p>
+            <p>Corrigez ces points avant d’activer le jeu pour ce tenant.</p>
           </div>
-          <a mat-stroked-button routerLink="/app/admin/games/channel-matrix">
-            Jeux par canal
-          </a>
         </div>
 
         <div class="gp-page__issue-list">
@@ -78,7 +75,6 @@
       @for (game of games(); track game.gameCode) {
         <tch-tenant-game-card
           [game]="game"
-          [channelStats]="channelStats(game.gameCode)"
           [actionError]="actionError(game.gameCode)"
           (activate)="onActivate($event)"
           (disable)="onDisable($event)"

@@ -34,14 +34,6 @@ export interface TenantGameCardError {
   readonly severity?: TchSectionErrorSeverity;
 }
 
-export interface TenantGameChannelStats {
-  readonly offeredChannelCount: number;
-  readonly activeChannelCount: number;
-  readonly readyChannelCount: number;
-  readonly missingStakeChannelCount: number;
-  readonly missingLimitChannelCount: number;
-}
-
 @Component({
   selector: 'tch-tenant-game-card',
   standalone: true,
@@ -62,13 +54,6 @@ export interface TenantGameChannelStats {
 })
 export class TenantGameCardComponent {
   readonly game = input.required<TenantGamePricingView>();
-  readonly channelStats = input<TenantGameChannelStats>({
-    offeredChannelCount:       0,
-    activeChannelCount:        0,
-    readyChannelCount:         0,
-    missingStakeChannelCount:  0,
-    missingLimitChannelCount:  0,
-  });
   readonly actionError = input<TenantGameCardError | null>(null);
 
   readonly activate  = output<string>();
@@ -78,21 +63,18 @@ export class TenantGameCardComponent {
   readonly statusTone    = computed<AdminStatusTone>(() => STATUS_TONE[this.game().tenantStatus]);
   readonly statusLabel   = computed<string>(() => STATUS_LABEL[this.game().tenantStatus]);
   readonly readinessBadge = computed<BadgeStatus>(() => READINESS_BADGE[this.game().readiness.status]);
-  readonly channelLabel = computed(() => {
-    const count = this.channelStats().activeChannelCount;
-    return count > 0 ? `Actif sur ${count} canal${count > 1 ? 'aux' : ''}` : 'Non actif sur les canaux';
-  });
+  readonly systemLabel = computed(() => `Jeu système · ${this.game().gameCode}`);
   readonly stakeLabel = computed(() => {
-    const missing = this.channelStats().missingStakeChannelCount;
     if (this.game().tenantStatus === 'UNAVAILABLE') return 'Mise indisponible';
-    if (missing > 0) return `Mise manquante sur ${missing} canal${missing > 1 ? 'aux' : ''}`;
     return this.hasStakeConfig ? 'Mise configurée' : 'Mise non configurée';
   });
-  readonly limitsLabel = computed(() => {
-    const missing = this.channelStats().missingLimitChannelCount;
-    if (this.game().tenantStatus === 'UNAVAILABLE') return 'Limites indisponibles';
-    return missing > 0 ? `Limites à vérifier sur ${missing} canal${missing > 1 ? 'aux' : ''}` : 'Limites OK';
+  readonly pricingLabel = computed(() => {
+    const oddsCount = this.game().odds.length;
+    if (oddsCount === 0) return 'Barème non configuré';
+    const profile = this.game().pricingProfileLabel;
+    return profile ? `${profile} · ${oddsCount} option${oddsCount > 1 ? 's' : ''}` : `${oddsCount} option${oddsCount > 1 ? 's' : ''} de barème`;
   });
+  readonly limitLabel = computed(() => this.game().limits.maxPerDraw === null ? 'Limite tirage non configurée' : 'Limite tirage configurée');
 
   get hasStakeConfig(): boolean {
     const l = this.game().limits;
