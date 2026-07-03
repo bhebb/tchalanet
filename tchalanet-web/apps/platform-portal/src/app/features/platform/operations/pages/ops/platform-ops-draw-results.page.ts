@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { AuthSessionService } from '@tch/core/auth';
 import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { canUseDrawResultCapability } from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -99,7 +100,16 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly auth = inject(AuthSessionService);
 
-  readonly canManageResults = computed(() => this.auth.hasRole('SUPER_ADMIN'));
+  readonly canManageResults = computed(() =>
+    canUseDrawResultCapability(this.auth, 'manual')
+      || canUseDrawResultCapability(this.auth, 'fetch')
+      || canUseDrawResultCapability(this.auth, 'confirm')
+      || canUseDrawResultCapability(this.auth, 'override'),
+  );
+  readonly canFetchResults = computed(() => canUseDrawResultCapability(this.auth, 'fetch'));
+  readonly canEnterManualResults = computed(() => canUseDrawResultCapability(this.auth, 'manual'));
+  readonly canConfirmResults = computed(() => canUseDrawResultCapability(this.auth, 'confirm'));
+  readonly canOverrideResults = computed(() => canUseDrawResultCapability(this.auth, 'override'));
   readonly displayedColumns = computed<readonly string[]>(() =>
     this.canManageResults() ? DRAW_RESULT_ACTION_COLUMNS : DRAW_RESULT_COLUMNS,
   );

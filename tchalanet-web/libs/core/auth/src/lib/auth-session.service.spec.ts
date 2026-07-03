@@ -44,6 +44,7 @@ describe('AuthSessionService', () => {
       tenantId: 'tenant-1',
       tenantCode: 'TCH',
       roles: ['TENANT_ADMIN'],
+      permissions: ['draw-results.manual'],
       tokenExpiresAt: '2026-06-13T20:00:00.000Z',
       entryRoute: '/app/admin',
       mustChangePassword: false,
@@ -62,6 +63,7 @@ describe('AuthSessionService', () => {
     expect(runtime.initialize).toHaveBeenCalledOnce();
     expect(session.authenticated).toBe(true);
     expect(session.roles).toEqual(['TENANT_ADMIN']);
+    expect(session.permissions).toEqual(['draw-results.manual']);
   });
 
   it('derives the platform role from the private runtime space', async () => {
@@ -85,6 +87,24 @@ describe('AuthSessionService', () => {
 
     expect(session.roles).toEqual(['SUPER_ADMIN']);
     expect(session.entryRoute).toBe('/app/platform');
+  });
+
+  it('exposes normalized permissions from private runtime entitlements', async () => {
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    runtime.initialize.mockReturnValue(of({
+      ...bootstrap(),
+      entitlements: {
+        roles: ['tenant_admin'],
+        permissions: [' Draw-Results.Manual ', 'draw-results.manual'],
+      },
+    } satisfies RuntimeBootstrapResponse));
+
+    const service = TestBed.inject(AuthSessionService);
+    const session = await service.refreshSession();
+
+    expect(session.permissions).toEqual(['draw-results.manual']);
+    expect(service.hasPermission('DRAW-RESULTS.MANUAL')).toBe(true);
   });
 
   it('does not bootstrap private runtime when provider session is anonymous', async () => {
@@ -152,7 +172,7 @@ function bootstrap(): RuntimeBootstrapResponse {
     settings: { locale: 'fr', timezone: 'America/Toronto', currency: 'HTG', features: {} },
     theme: { presetCode: 'default', mode: 'light', tokens: {}, isDefault: true, version: 1 },
     i18n: { locale: 'fr', messages: {} },
-    entitlements: { roles: ['tenant_admin'], permissions: [] },
+    entitlements: { roles: ['tenant_admin'], permissions: ['draw-results.manual'] },
     readiness: { status: 'READY', checks: [] },
     notifications: { unreadCount: 0, criticalCount: 0 },
     pageModelRef: { route: '/app/admin', endpoint: '/pages/admin' },

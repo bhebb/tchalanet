@@ -143,7 +143,7 @@
     [draw]="draw"
     [canSaveProvisional]="canEnterManualResult(draw)"
     [canSaveConfirmed]="false"
-    [canOverrideResult]="false"
+    [canOverrideResult]="canOverrideResults()"
     [unavailableReason]="resultUnavailableReason(draw)"
     [saveState]="resultSaveState()"
     [saveMessage]="resultSaveMessage()"

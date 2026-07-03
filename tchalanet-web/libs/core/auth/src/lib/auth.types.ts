@@ -8,6 +8,7 @@ export interface UserSession {
   readonly tenantId?: string;
   readonly tenantCode?: string;
   readonly roles: readonly UserRole[];
+  readonly permissions?: readonly string[];
   readonly tokenExpiresAt?: string;
   readonly entryRoute?: string;
   readonly mustChangePassword?: boolean;

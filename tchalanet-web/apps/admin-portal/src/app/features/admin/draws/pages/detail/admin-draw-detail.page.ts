@@ -11,7 +11,9 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthSessionService } from '@tch/core/auth';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
+import { canUseDrawResultCapability } from '@tch/web/console';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
@@ -80,6 +82,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(AdminGeneratedDrawsApiService);
   private readonly financials = inject(AdminFinancialsApi);
+  private readonly auth = inject(AuthSessionService);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
   readonly pageState = signal<PageState>('loading');
@@ -104,6 +107,8 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
     return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
   });
+  readonly canEnterManualResults = computed(() => canUseDrawResultCapability(this.auth, 'manual'));
+  readonly canOverrideResults = computed(() => canUseDrawResultCapability(this.auth, 'override'));
   readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;
@@ -327,7 +332,10 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {
-    return this.isDrawPastSales(draw) && this.hasNoResult(draw) && this.isManualResultDue(draw);
+    return this.canEnterManualResults()
+      && this.isDrawPastSales(draw)
+      && this.hasNoResult(draw)
+      && this.isManualResultDue(draw);
   }
 
   resultActionLabel(draw: GeneratedDrawView): string {
@@ -354,6 +362,9 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
 
   resultUnavailableReason(draw: GeneratedDrawView): string | null {
     if (this.hasResult(draw)) return null;
+    if (!this.canEnterManualResults()) {
+      return 'Vous n’avez pas l’autorisation de saisir un résultat manuel.';
+    }
     if (!this.isDrawPastSales(draw)) return null;
     if (!this.isManualResultDue(draw)) {
       return 'La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage.';

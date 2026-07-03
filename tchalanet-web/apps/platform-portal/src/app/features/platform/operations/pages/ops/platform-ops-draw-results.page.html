@@ -4,14 +4,18 @@
 >
   @if (canManageResults()) {
     <div actions>
-      <button mat-stroked-button [disabled]="actionLoading()" (click)="openManual()">
-        <span class="material-symbols-outlined">edit_note</span>
-        Saisie manuelle
-      </button>
-      <button mat-stroked-button [disabled]="actionLoading()" (click)="openFetch('fetch')">
-        <span class="material-symbols-outlined">download</span>
-        Fetch
-      </button>
+      @if (canEnterManualResults()) {
+        <button mat-stroked-button [disabled]="actionLoading()" (click)="openManual()">
+          <span class="material-symbols-outlined">edit_note</span>
+          Saisie manuelle
+        </button>
+      }
+      @if (canFetchResults()) {
+        <button mat-stroked-button [disabled]="actionLoading()" (click)="openFetch('fetch')">
+          <span class="material-symbols-outlined">download</span>
+          Fetch
+        </button>
+      }
     </div>
   }
 
@@ -133,15 +137,17 @@
               <td mat-cell *matCellDef="let row">
                 @if (canManageResults()) {
                   <div class="draw-results-page__row-actions">
-                    @if (row.status === 'PROVISIONAL') {
+                    @if (canConfirmResults() && row.status === 'PROVISIONAL') {
                       <button mat-stroked-button (click)="confirmResult(row)">
                         <span class="material-symbols-outlined">check_circle</span>
                         Confirmer
                       </button>
                     }
-                    <button mat-icon-button title="Override" (click)="openOverride(row)">
-                      <span class="material-symbols-outlined">edit</span>
-                    </button>
+                    @if (canOverrideResults()) {
+                      <button mat-icon-button title="Override" (click)="openOverride(row)">
+                        <span class="material-symbols-outlined">edit</span>
+                      </button>
+                    }
                   </div>
                 }
               </td>
