@@ -17,4 +17,3 @@
 - [x] Add an “À compléter” overview list for missing stakes, games without channels, and partial channel coverage.
 - [x] Update admin navigation translations.
 - [x] Validate JSON and admin-portal TypeScript.
-- [ ] Future: add a dedicated backend BFF if the overview/channel matrix needs richer combined state.
