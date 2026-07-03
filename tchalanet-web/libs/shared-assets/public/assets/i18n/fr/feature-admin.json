@@ -519,6 +519,14 @@
         "summary": {
           "eyebrow": "Vendeur"
         },
+        "today": {
+          "eyebrow": "Aujourd’hui",
+          "title": "Stats du jour",
+          "ticketsSold": "Tickets vendus",
+          "grossSales": "Ventes",
+          "commission": "Commissions",
+          "netRevenue": "Revenu net estimé"
+        },
         "section": {
           "identity": "Identité",
           "identityDesc": "Informations utilisées pour identifier ce vendeur.",

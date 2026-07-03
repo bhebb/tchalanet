@@ -23,6 +23,57 @@
   background: var(--tch-color-surface);
 }
 
+.seller-terminal-detail__today {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--tch-color-primary) 28%, var(--tch-color-outline-variant));
+  border-radius: var(--tch-radius-md, 0.5rem);
+  background: color-mix(in oklab, var(--tch-color-primary-container) 36%, var(--tch-color-surface));
+}
+
+.seller-terminal-detail__today-head {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.seller-terminal-detail__today-head strong {
+  color: var(--tch-color-on-surface);
+  font-size: 1rem;
+}
+
+.seller-terminal-detail__today-grid {
+  display: grid;
+  gap: 0.625rem;
+}
+
+.seller-terminal-detail__today-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  padding-block: 0.25rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--tch-color-on-surface) 10%, transparent);
+}
+
+.seller-terminal-detail__today-row:last-child {
+  border-bottom: 0;
+}
+
+.seller-terminal-detail__today-row span {
+  min-width: 0;
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.seller-terminal-detail__today-row strong {
+  flex: 0 0 auto;
+  color: var(--tch-color-on-surface);
+  font-size: 1rem;
+  text-align: right;
+}
+
 .seller-terminal-detail__summary h2 {
   margin: 0;
   overflow-wrap: anywhere;

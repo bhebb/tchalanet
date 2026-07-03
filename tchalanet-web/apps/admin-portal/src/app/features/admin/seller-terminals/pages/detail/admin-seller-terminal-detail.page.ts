@@ -18,6 +18,10 @@ import {
   SellerTerminalStatus,
   SellerTerminalView,
 } from '../../../data-access/seller-terminal-api.service';
+import {
+  AdminFinancialsApi,
+  SellerTerminalDailyFinancialRow,
+} from '../../../financials/data-access/admin-financials-api.service';
 
 interface DetailFact {
   readonly labelKey: string;
@@ -48,6 +52,7 @@ interface DetailFact {
 export class AdminSellerTerminalDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(SellerTerminalApi);
+  private readonly financialsApi = inject(AdminFinancialsApi);
   private readonly translate = inject(TranslateService);
 
   readonly sellerTerminalId = this.route.snapshot.paramMap.get('sellerTerminalId');
@@ -60,6 +65,16 @@ export class AdminSellerTerminalDetailPage {
     'admin.sellerTerminals.detail',
   );
   readonly terminal = computed(() => this.sellerTerminal.value() ?? null);
+  readonly todayFinancials = this.financialsApi.getBreakdownResource(
+    () => ({ drawLimit: 1, sellerTerminalLimit: 500 }),
+    { suppressShellFeedback: true },
+  );
+  readonly todayStats = computed<SellerTerminalDailyFinancialRow>(() => {
+    const id = this.sellerTerminalId;
+    const row = this.todayFinancials.value()?.sellerTerminalDailyRows
+      .find(item => item.sellerTerminalId === id);
+    return row ?? emptyTodayStats(id ?? '');
+  });
 
   readonly title = computed(() => {
     const terminal = this.terminal();
@@ -161,4 +176,24 @@ export class AdminSellerTerminalDetailPage {
 function idValue(value: { value?: string | null } | string | null | undefined): string | null {
   if (!value) return null;
   return typeof value === 'string' ? value : value.value ?? null;
+}
+
+function emptyTodayStats(sellerTerminalId: string): SellerTerminalDailyFinancialRow {
+  return {
+    sellerTerminalId,
+    refDate: '',
+    ticketsSold: 0,
+    grossSales: 0,
+    sellerCommission: 0,
+    buyerCharges: 0,
+    sellerCharges: 0,
+    tenantCharges: 0,
+    waivedCharges: 0,
+    promotionLines: 0,
+    promotionPricedLines: 0,
+    promotionPayoutBase: 0,
+    promotionPotentialPayout: 0,
+    netRevenueEstimated: 0,
+    netRevenuePaidBasis: 0,
+  };
 }

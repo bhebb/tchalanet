@@ -107,6 +107,35 @@
               <tch-status-badge [label]="statusLabel(t.status)" [status]="statusBadge(t.status)" />
             </section>
 
+            <section class="seller-terminal-detail__today">
+              <div class="seller-terminal-detail__today-head">
+                <span class="seller-terminal-detail__eyebrow">
+                  {{ 'admin.sellerTerminals.detail.today.eyebrow' | translate }}
+                </span>
+                <strong>{{ 'admin.sellerTerminals.detail.today.title' | translate }}</strong>
+              </div>
+              @if (todayStats(); as stats) {
+                <div class="seller-terminal-detail__today-grid">
+                  <div class="seller-terminal-detail__today-row">
+                    <span>{{ 'admin.sellerTerminals.detail.today.ticketsSold' | translate }}</span>
+                    <strong>{{ stats.ticketsSold | number: '1.0-0' }}</strong>
+                  </div>
+                  <div class="seller-terminal-detail__today-row">
+                    <span>{{ 'admin.sellerTerminals.detail.today.grossSales' | translate }}</span>
+                    <strong>{{ stats.grossSales | number: '1.0-2' }} HTG</strong>
+                  </div>
+                  <div class="seller-terminal-detail__today-row">
+                    <span>{{ 'admin.sellerTerminals.detail.today.commission' | translate }}</span>
+                    <strong>{{ stats.sellerCommission | number: '1.0-2' }} HTG</strong>
+                  </div>
+                  <div class="seller-terminal-detail__today-row">
+                    <span>{{ 'admin.sellerTerminals.detail.today.netRevenue' | translate }}</span>
+                    <strong>{{ stats.netRevenueEstimated | number: '1.0-2' }} HTG</strong>
+                  </div>
+                </div>
+              }
+            </section>
+
             <tch-admin-section-card
               [title]="'admin.sellerTerminals.detail.section.control' | translate"
               icon="tune"

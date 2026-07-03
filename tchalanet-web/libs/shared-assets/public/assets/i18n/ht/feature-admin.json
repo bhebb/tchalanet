@@ -453,6 +453,14 @@
         "summary": {
           "eyebrow": "Vandè"
         },
+        "today": {
+          "eyebrow": "Jodi a",
+          "title": "Estatistik jounen an",
+          "ticketsSold": "Tikè vann",
+          "grossSales": "Lavant",
+          "commission": "Komisyon",
+          "netRevenue": "Revni nèt estime"
+        },
         "section": {
           "identity": "Idantite",
           "identityDesc": "Enfòmasyon pou idantifye vandè sa a.",

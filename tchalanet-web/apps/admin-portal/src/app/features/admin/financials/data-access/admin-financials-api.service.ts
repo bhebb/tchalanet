@@ -94,16 +94,25 @@ export class AdminFinancialsApi {
     drawLimit?: number;
     sellerTerminalLimit?: number;
   }, options?: TchRequestOptions): Observable<TenantFinancialBreakdownView> {
-    const query: Record<string, string> = {
-      drawLimit: String(params.drawLimit ?? 100),
-      sellerTerminalLimit: String(params.sellerTerminalLimit ?? 100),
-      ...(params.from ? { from: params.from } : {}),
-      ...(params.to ? { to: params.to } : {}),
-    };
     return this.backend.get<TenantFinancialBreakdownView>('/admin/financials/breakdown', {
-      params: query,
+      params: this.breakdownParams(params),
       ...options,
     });
+  }
+
+  getBreakdownResource(params: () => {
+    from?: string;
+    to?: string;
+    drawLimit?: number;
+    sellerTerminalLimit?: number;
+  }, options?: TchRequestOptions) {
+    return this.backend.getResource<TenantFinancialBreakdownView>(() => ({
+      path: '/admin/financials/breakdown',
+      options: {
+        ...options,
+        params: this.breakdownParams(params()),
+      },
+    }));
   }
 
   getDrawTopSelections(
@@ -115,5 +124,19 @@ export class AdminFinancialsApi {
       params: { limit: String(params.limit ?? 5) },
       ...options,
     });
+  }
+
+  private breakdownParams(params: {
+    from?: string;
+    to?: string;
+    drawLimit?: number;
+    sellerTerminalLimit?: number;
+  }): Record<string, string> {
+    return {
+      drawLimit: String(params.drawLimit ?? 100),
+      sellerTerminalLimit: String(params.sellerTerminalLimit ?? 100),
+      ...(params.from ? { from: params.from } : {}),
+      ...(params.to ? { to: params.to } : {}),
+    };
   }
 }

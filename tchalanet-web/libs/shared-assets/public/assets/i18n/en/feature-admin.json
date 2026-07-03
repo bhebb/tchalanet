@@ -456,6 +456,14 @@
         "summary": {
           "eyebrow": "Seller"
         },
+        "today": {
+          "eyebrow": "Today",
+          "title": "Today's stats",
+          "ticketsSold": "Tickets sold",
+          "grossSales": "Sales",
+          "commission": "Commissions",
+          "netRevenue": "Estimated net revenue"
+        },
         "section": {
           "identity": "Identity",
           "identityDesc": "Information used to identify this seller.",
