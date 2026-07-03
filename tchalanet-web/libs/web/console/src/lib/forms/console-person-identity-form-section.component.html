@@ -7,6 +7,11 @@
     <mat-form-field appearance="outline" class="tch-console-form-section__field">
       <mat-label>{{ 'component.console.personIdentity.field.firstName' | translate }}</mat-label>
       <input matInput [formField]="form().firstName" autocomplete="given-name" />
+      @if (form().firstName().touched() && form().firstName().invalid()) {
+        @for (error of form().firstName().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'common.validation.required') | translate }}</mat-error>
+        }
+      }
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="tch-console-form-section__field">

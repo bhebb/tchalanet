@@ -26,6 +26,8 @@
     "traceId": "Trace ID",
     "not_available": "Not available",
     "validation": {
+      "email": "Invalid email address.",
+      "invalid": "Invalid value.",
       "required": "This field is required."
     },
     "not_set": "Not set",

@@ -47,6 +47,26 @@
         "title": "Recent Contact Requests"
       }
     },
+    "superAdmins": {
+      "title": "Super admins",
+      "description": "Manage accounts with access to the platform workspace.",
+      "create": {
+        "title": "Add a super admin",
+        "description": "Identity and contact information for the platform account."
+      },
+      "empty": {
+        "title": "No super admin",
+        "message": "Add the first platform account."
+      },
+      "column": {
+        "email": "Email",
+        "name": "Name",
+        "assignedAt": "Assigned at"
+      },
+      "action": {
+        "revoke": "Remove"
+      }
+    },
     "tenants": {
       "title": "Tenants",
       "description": "List, filter, and monitor Tchalanet tenants.",

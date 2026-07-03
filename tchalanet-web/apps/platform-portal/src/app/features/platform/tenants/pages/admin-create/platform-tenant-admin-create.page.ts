@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, maxLength, pattern, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -12,8 +10,15 @@ import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminSectionCardComponent } from '@tch/ui/console';
+import { ConsolePersonIdentityFormSectionComponent } from '@tch/web/console';
 import { PlatformTenantsApi, TenantSummaryView } from '../../data-access/platform-tenants-api.service';
+
+interface TenantAdminCreateFormModel {
+  readonly email: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly phoneNumber: string;
+}
 
 @Component({
   selector: 'tch-platform-tenant-admin-create-page',
@@ -21,15 +26,12 @@ import { PlatformTenantsApi, TenantSummaryView } from '../../data-access/platfor
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    ReactiveFormsModule,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
+    ConsolePersonIdentityFormSectionComponent,
     TchLoading,
     TchErrorPanel,
     MatButtonModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     TranslatePipe,
   ],
   templateUrl: './platform-tenant-admin-create.page.html',
@@ -39,25 +41,31 @@ export class PlatformTenantAdminCreatePage implements OnInit {
   private readonly api = inject(PlatformTenantsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
   readonly loadingTenant = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly tenant = signal<TenantSummaryView | null>(null);
+  readonly model = signal<TenantAdminCreateFormModel>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+  });
+  readonly form = form(this.model, path => {
+    required(path.email, { message: 'common.validation.required' });
+    pattern(path.email, /^[^@\s]+@[^@\s]+\.[^@\s]+$/, { message: 'common.validation.email' });
+    required(path.firstName, { message: 'common.validation.required' });
+    maxLength(path.firstName, 100, { message: 'common.validation.invalid' });
+    maxLength(path.lastName, 100, { message: 'common.validation.invalid' });
+    maxLength(path.phoneNumber, 32, { message: 'common.validation.invalid' });
+  });
   readonly pageTitle = computed(() => {
     const tenant = this.tenant();
     return tenant
       ? this.translate.instant('platform.tenants.admin.pageTitleWithTenant', { name: tenant.name })
       : this.translate.instant('platform.tenants.admin.pageTitle');
-  });
-
-  readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    firstName: ['', Validators.required],
-    lastName: [''],
-    phone: [''],
   });
 
   private get tenantId(): string | null {
@@ -85,33 +93,34 @@ export class PlatformTenantAdminCreatePage implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || this.loading()) return;
-
-    const v = this.form.getRawValue();
     const tenantId = this.tenantId;
-    if (!v.email || !tenantId) return;
+    if (this.loading() || !tenantId) return;
 
-    this.loading.set(true);
-    this.error.set(null);
+    submit(this.form, async () => {
+      const v = this.model();
 
-    this.api
-      .createTenantAdmin(tenantId, {
-        email: v.email,
-        firstName: v.firstName || null,
-        lastName: v.lastName || null,
-        phone: v.phone || null,
-        role: 'TENANT_ADMIN',
-      }, { suppressShellFeedback: true })
-      .subscribe({
-        next: () => {
-          this.loading.set(false);
-          void this.router.navigate(['..'], { relativeTo: this.route });
-        },
-        error: (err: unknown) => {
-          this.loading.set(false);
-          this.error.set(this.errorViewModel(err, 'platform.tenants.adminCreate.create'));
-        },
-      });
+      this.loading.set(true);
+      this.error.set(null);
+
+      this.api
+        .createTenantAdmin(tenantId, {
+          email: v.email,
+          firstName: v.firstName || null,
+          lastName: v.lastName || null,
+          phone: v.phoneNumber || null,
+          role: 'TENANT_ADMIN',
+        }, { suppressShellFeedback: true })
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            void this.router.navigate(['..'], { relativeTo: this.route });
+          },
+          error: (err: unknown) => {
+            this.loading.set(false);
+            this.error.set(this.errorViewModel(err, 'platform.tenants.adminCreate.create'));
+          },
+        });
+    });
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

@@ -47,6 +47,26 @@
         "title": "Demann kontak resan"
       }
     },
+    "superAdmins": {
+      "title": "Super admins",
+      "description": "Jere kont ki gen aksè ak espas platfòm nan.",
+      "create": {
+        "title": "Ajoute yon super admin",
+        "description": "Idantite ak kontak pou kont platfòm nan."
+      },
+      "empty": {
+        "title": "Pa gen super admin",
+        "message": "Ajoute premye kont platfòm nan."
+      },
+      "column": {
+        "email": "Email",
+        "name": "Non",
+        "assignedAt": "Atribye le"
+      },
+      "action": {
+        "revoke": "Retire"
+      }
+    },
     "tenants": {
       "title": "Tenant",
       "description": "Lis, filtre, epi swiv tenant Tchalanet yo.",

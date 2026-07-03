@@ -47,6 +47,26 @@
         "title": "Demandes de contact récentes"
       }
     },
+    "superAdmins": {
+      "title": "Super admins",
+      "description": "Gérez les comptes qui accèdent à l’espace plateforme.",
+      "create": {
+        "title": "Ajouter un super admin",
+        "description": "Identité et contact du compte plateforme."
+      },
+      "empty": {
+        "title": "Aucun super admin",
+        "message": "Ajoutez un premier compte plateforme."
+      },
+      "column": {
+        "email": "Email",
+        "name": "Nom",
+        "assignedAt": "Assigné le"
+      },
+      "action": {
+        "revoke": "Retirer"
+      }
+    },
     "tenants": {
       "title": "Tenants",
       "description": "Liste, filtre et suivi opérationnel des tenants Tchalanet.",
