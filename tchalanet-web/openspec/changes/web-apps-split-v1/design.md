@@ -235,7 +235,9 @@ config proxy/app metadata si nécessaire
 
 Bloquants avant archive :
 
-- 19 pages routées restent sans triplet complet `*.page.ts` / `*.page.html` / `*.page.scss` ;
+- 79 pages routées dépassent encore le seuil d'extraction (`*.page.ts` > 160 lignes ou page totale
+  > 300 lignes) et doivent être dégraissées en composants page-only/stateless selon
+  `structure.md` ;
 - des couleurs/fallbacks hardcodés et quelques `::ng-deep` existent encore dans des styles feature ;
 - `admin-tenant-sidenav-v0` est un ancien change sans `proposal.md`/`tasks.md`, visible dans
   `openspec list` mais non validable par nom.
