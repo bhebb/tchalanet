@@ -1,0 +1,21 @@
+@for (provider of providers(); track provider.providerCode) {
+  <section class="matrix-provider">
+    <h3 class="matrix-provider__title">
+      <span class="material-symbols-outlined">business</span>
+      {{ provider.providerCode }}
+    </h3>
+
+    <mat-accordion multi>
+      @for (slot of provider.slots; track slot.slotKey) {
+        <tch-draw-sales-matrix-slot-panel
+          [providerCode]="provider.providerCode"
+          [slot]="slot"
+          [actingKey]="actingKey()"
+          [actionErrors]="actionErrors()"
+          [actionNotices]="actionNotices()"
+          (gameAction)="onGameAction($event)"
+        />
+      }
+    </mat-accordion>
+  </section>
+}

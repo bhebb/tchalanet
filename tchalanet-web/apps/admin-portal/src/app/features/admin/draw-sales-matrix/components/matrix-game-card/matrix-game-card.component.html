@@ -1,0 +1,130 @@
+@let gameVm = game();
+<article
+  class="matrix-game matrix-game--{{ mode() }}"
+  [class.matrix-game--ready]="gameVm.saleReady"
+  [class.matrix-game--disabled]="mode() === 'offered' && !gameVm.enabledOnChannel"
+>
+  <div class="matrix-game__header">
+    <span class="matrix-game__logo" aria-hidden="true">
+      {{ gameVm.gameCode | consoleGameLogoText:gameVm.displayName }}
+    </span>
+    @if (mode() === 'offered') {
+      <tch-admin-status-pill
+        [tone]="gameStatusTone(gameVm)"
+        [label]="gameStatusLabelKey(gameVm) | translate"
+      />
+    }
+    <strong>{{ gameVm.gameCode | consoleGameName:gameVm.displayName }}</strong>
+  </div>
+
+  <div class="matrix-game__meta">
+    @if (gameVm.minStake !== null && gameVm.maxStake !== null) {
+      <span>{{ 'admin.drawSalesMatrix.game.stakeRange' | translate: { min: gameVm.minStake, max: gameVm.maxStake } }}</span>
+    } @else if (gameVm.minStake !== null) {
+      <span>{{ 'admin.drawSalesMatrix.game.minStake' | translate: { min: gameVm.minStake } }}</span>
+    } @else if (gameVm.maxStake !== null) {
+      <span>{{ 'admin.drawSalesMatrix.game.maxStake' | translate: { max: gameVm.maxStake } }}</span>
+    } @else {
+      <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.game.stakeMissing' | translate }}</span>
+    }
+    @if (!gameVm.limits.configured) {
+      <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.game.limitsMissing' | translate }}</span>
+    }
+    @if (!gameVm.visibleInPos) {
+      <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.game.hiddenPos' | translate }}</span>
+    }
+  </div>
+
+  @if (gameVm.warnings.length > 0 && !gameVm.saleReady) {
+    <ul class="matrix-game__warnings">
+      @for (warning of gameVm.warnings; track warning.code) {
+        <li>
+          <span
+            class="material-symbols-outlined matrix-game__warning-icon"
+            [class.matrix-game__warning-icon--error]="warning.severity === 'ERROR'"
+            [class.matrix-game__warning-icon--warn]="warning.severity === 'WARN'"
+            [class.matrix-game__warning-icon--info]="warning.severity === 'INFO'"
+          >
+            {{ severityIcon(warning) }}
+          </span>
+          <span>{{ warningLabelKey(warning) | translate }}</span>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (channel()) {
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="matrix-game__error"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice(); as notice) {
+      <tch-section-error
+        class="matrix-game__error"
+        [title]="'admin.drawSalesMatrix.feedback.actionDone' | translate"
+        [message]="notice"
+        severity="info"
+      />
+    }
+
+    <div class="matrix-game__actions">
+      @if (isMaryajGratis()) {
+        <a
+          mat-stroked-button
+          class="matrix-game__btn"
+          routerLink="/app/admin/maryaj-gratis"
+          fragment="game"
+        >
+          {{ 'admin.drawSalesMatrix.game.action.configureMaryaj' | translate }}
+        </a>
+      } @else {
+        <button
+          mat-stroked-button
+          class="matrix-game__btn"
+          type="button"
+          (click)="gameAction.emit({ action: 'configure', game: gameVm })"
+        >
+          <mat-icon>tune</mat-icon>
+          {{ 'admin.drawSalesMatrix.game.action.configureStake' | translate }}
+        </button>
+
+        @if (mode() === 'available') {
+          <button
+            mat-flat-button
+            color="primary"
+            class="matrix-game__btn"
+            type="button"
+            [disabled]="acting()"
+            (click)="gameAction.emit({ action: 'offer', game: gameVm })"
+          >
+            <mat-icon>add</mat-icon>
+            {{ 'admin.drawSalesMatrix.game.action.add' | translate }}
+          </button>
+        } @else {
+          <button
+            mat-stroked-button
+            class="matrix-game__btn"
+            type="button"
+            [disabled]="acting()"
+            (click)="gameAction.emit({ action: 'toggle', game: gameVm })"
+          >
+            {{ (gameVm.enabledOnChannel ? 'admin.drawSalesMatrix.game.action.disable' : 'admin.drawSalesMatrix.game.action.activate') | translate }}
+          </button>
+          <button
+            mat-icon-button
+            class="matrix-game__btn-remove"
+            type="button"
+            [disabled]="acting()"
+            [attr.title]="'admin.drawSalesMatrix.game.action.remove' | translate"
+            (click)="gameAction.emit({ action: 'remove', game: gameVm })"
+          >
+            <mat-icon>remove_circle_outline</mat-icon>
+          </button>
+        }
+      }
+    </div>
+  }
+</article>

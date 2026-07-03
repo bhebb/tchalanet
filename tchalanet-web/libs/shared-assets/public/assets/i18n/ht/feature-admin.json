@@ -246,6 +246,84 @@
         }
       }
     },
+    "drawSalesMatrix": {
+      "title": "Jwèt pa kanal",
+      "description": "Verifye ki jwèt ki aktif sou chak kanal epi konfigire miz yo avan vant.",
+      "loading": "Chajman matriks la...",
+      "action": {
+        "refresh": "Rafrechi"
+      },
+      "summary": {
+        "aria": "Rezime matriks jwèt pa kanal",
+        "saleReady": "Pare pou vann",
+        "offeredGames": "Jwèt yo ofri",
+        "activeChannels": "Kanal aktif",
+        "availableGames": "Jwèt disponib",
+        "missingStake": "Miz pa konfigire",
+        "missingLimits": "Limit manke"
+      },
+      "slot": {
+        "status": {
+          "ready": "Pare",
+          "review": "Pou verifye",
+          "notConfigured": "Pa konfigire"
+        },
+        "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "channelMissing": "Kanal manke",
+        "channelInactive": "Kanal inaktif"
+      },
+      "channel": {
+        "label": "Kanal",
+        "salesOpen": "Ouvèti vant : {{value}}",
+        "cutoff": "Cutoff : {{seconds}}s avan tiraj la",
+        "activeGames": "{{count}} jwèt aktif",
+        "availableToAdd": "{{count}} jwèt disponib pou ajoute",
+        "dependsOnAnother": "Depann de yon lòt kanal"
+      },
+      "section": {
+        "offered": "Jwèt aktive oswa ofri sou kanal sa a",
+        "available": "Jwèt disponib pou ajoute sou kanal sa a"
+      },
+      "game": {
+        "status": {
+          "ready": "Pare",
+          "notOffered": "Pa ofri",
+          "disabled": "Dezaktive",
+          "incomplete": "Enkonplè"
+        },
+        "stakeRange": "Miz otorize : {{min}} a {{max}} HTG",
+        "minStake": "Miz minimòm : {{min}} HTG",
+        "maxStake": "Miz maksimòm : {{max}} HTG",
+        "stakeMissing": "Miz pou konfigire",
+        "limitsMissing": "Limit manke",
+        "hiddenPos": "Kache nan POS",
+        "action": {
+          "configureMaryaj": "Konfigire Maryaj gratis",
+          "configureStake": "Konfigire miz yo",
+          "add": "Ajoute",
+          "activate": "Aktive",
+          "disable": "Dezaktive",
+          "remove": "Retire nan kanal la"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Jwèt dezaktive pou tenant lan",
+        "NOT_VISIBLE_IN_POS": "Kache nan POS",
+        "CHANNEL_NOT_CONFIGURED": "Kanal pa konfigire",
+        "CHANNEL_INACTIVE": "Kanal inaktif",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Jwèt pa ofri sou kanal sa a",
+        "CHANNEL_GAME_DISABLED": "Jwèt dezaktive sou kanal sa a",
+        "STAKE_CONFIG_MISSING": "Miz pou konfigire",
+        "LIMITS_MISSING": "Limit pou konfigire"
+      },
+      "feedback": {
+        "actionDone": "Aksyon fèt",
+        "added": "{{game}} ajoute sou kanal la.",
+        "activated": "{{game}} aktive.",
+        "disabled": "{{game}} dezaktive.",
+        "removed": "{{game}} retire nan kanal la."
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",

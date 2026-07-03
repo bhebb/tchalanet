@@ -238,6 +238,84 @@
         }
       }
     },
+    "drawSalesMatrix": {
+      "title": "Games by channel",
+      "description": "Check which games are active on each channel and configure stakes before sales.",
+      "loading": "Loading matrix...",
+      "action": {
+        "refresh": "Refresh"
+      },
+      "summary": {
+        "aria": "Games by channel matrix summary",
+        "saleReady": "Ready to sell",
+        "offeredGames": "Offered games",
+        "activeChannels": "Active channels",
+        "availableGames": "Available games",
+        "missingStake": "Stake not configured",
+        "missingLimits": "Missing limits"
+      },
+      "slot": {
+        "status": {
+          "ready": "Ready",
+          "review": "Review",
+          "notConfigured": "Not configured"
+        },
+        "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "channelMissing": "Missing channel",
+        "channelInactive": "Inactive channel"
+      },
+      "channel": {
+        "label": "Channel",
+        "salesOpen": "Sales open: {{value}}",
+        "cutoff": "Cutoff: {{seconds}}s before draw",
+        "activeGames": "{{count}} active game(s)",
+        "availableToAdd": "{{count}} game(s) available to add",
+        "dependsOnAnother": "Depends on another channel"
+      },
+      "section": {
+        "offered": "Games enabled or offered on this channel",
+        "available": "Games available to add on this channel"
+      },
+      "game": {
+        "status": {
+          "ready": "Ready",
+          "notOffered": "Not offered",
+          "disabled": "Disabled",
+          "incomplete": "Incomplete"
+        },
+        "stakeRange": "Allowed stakes: {{min}} to {{max}} HTG",
+        "minStake": "Minimum stake: {{min}} HTG",
+        "maxStake": "Maximum stake: {{max}} HTG",
+        "stakeMissing": "Stakes to configure",
+        "limitsMissing": "Missing limits",
+        "hiddenPos": "Hidden from POS",
+        "action": {
+          "configureMaryaj": "Configure free Maryaj",
+          "configureStake": "Configure stakes",
+          "add": "Add",
+          "activate": "Activate",
+          "disable": "Disable",
+          "remove": "Remove from channel"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Game disabled for tenant",
+        "NOT_VISIBLE_IN_POS": "Hidden from POS",
+        "CHANNEL_NOT_CONFIGURED": "Channel not configured",
+        "CHANNEL_INACTIVE": "Channel inactive",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Game not offered on this channel",
+        "CHANNEL_GAME_DISABLED": "Game disabled on this channel",
+        "STAKE_CONFIG_MISSING": "Stakes to configure",
+        "LIMITS_MISSING": "Limits to configure"
+      },
+      "feedback": {
+        "actionDone": "Action completed",
+        "added": "{{game}} added to channel.",
+        "activated": "{{game}} activated.",
+        "disabled": "{{game}} disabled.",
+        "removed": "{{game}} removed from channel."
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} required steps completed",

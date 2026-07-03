@@ -292,6 +292,84 @@
         }
       }
     },
+    "drawSalesMatrix": {
+      "title": "Jeux par canal",
+      "description": "Vérifiez quels jeux sont actifs sur chaque canal et configurez les mises avant la vente.",
+      "loading": "Chargement de la matrice...",
+      "action": {
+        "refresh": "Actualiser"
+      },
+      "summary": {
+        "aria": "Résumé de la matrice des jeux par canal",
+        "saleReady": "Prêts à vendre",
+        "offeredGames": "Jeux offerts",
+        "activeChannels": "Canaux actifs",
+        "availableGames": "Jeux disponibles",
+        "missingStake": "Mise non configurée",
+        "missingLimits": "Limites manquantes"
+      },
+      "slot": {
+        "status": {
+          "ready": "Prêt",
+          "review": "À vérifier",
+          "notConfigured": "Non configuré"
+        },
+        "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "channelMissing": "Canal manquant",
+        "channelInactive": "Canal inactif"
+      },
+      "channel": {
+        "label": "Canal",
+        "salesOpen": "Ouverture vente : {{value}}",
+        "cutoff": "Cutoff : {{seconds}}s avant le tirage",
+        "activeGames": "{{count}} jeu(x) actif(s)",
+        "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
+        "dependsOnAnother": "Dépend d'un autre canal"
+      },
+      "section": {
+        "offered": "Jeux activés ou offerts sur ce canal",
+        "available": "Jeux disponibles à ajouter sur ce canal"
+      },
+      "game": {
+        "status": {
+          "ready": "Prêt",
+          "notOffered": "Non offert",
+          "disabled": "Désactivé",
+          "incomplete": "Incomplet"
+        },
+        "stakeRange": "Mises autorisées : {{min}} à {{max}} HTG",
+        "minStake": "Mise minimum : {{min}} HTG",
+        "maxStake": "Mise maximum : {{max}} HTG",
+        "stakeMissing": "Mises à configurer",
+        "limitsMissing": "Limites manquantes",
+        "hiddenPos": "Masqué POS",
+        "action": {
+          "configureMaryaj": "Configurer Maryaj gratis",
+          "configureStake": "Configurer les mises",
+          "add": "Ajouter",
+          "activate": "Activer",
+          "disable": "Désactiver",
+          "remove": "Retirer du canal"
+        }
+      },
+      "warning": {
+        "TENANT_GAME_DISABLED": "Jeu désactivé pour le tenant",
+        "NOT_VISIBLE_IN_POS": "Masqué au POS",
+        "CHANNEL_NOT_CONFIGURED": "Canal non configuré",
+        "CHANNEL_INACTIVE": "Canal inactif",
+        "GAME_NOT_OFFERED_ON_CHANNEL": "Jeu non offert sur ce canal",
+        "CHANNEL_GAME_DISABLED": "Jeu désactivé sur ce canal",
+        "STAKE_CONFIG_MISSING": "Mises à configurer",
+        "LIMITS_MISSING": "Limites à configurer"
+      },
+      "feedback": {
+        "actionDone": "Action effectuée",
+        "added": "{{game}} ajouté au canal.",
+        "activated": "{{game}} activé.",
+        "disabled": "{{game}} désactivé.",
+        "removed": "{{game}} retiré du canal."
+      }
+    },
     "setup": {
       "title": "Configuration du tenant",
       "optional": "Optionnel",
