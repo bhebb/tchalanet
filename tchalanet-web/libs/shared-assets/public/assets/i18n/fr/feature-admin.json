@@ -108,6 +108,29 @@
           "title": "Catalogue vide",
           "message": "Aucun jeu disponible dans le catalogue."
         }
+      },
+      "settings": {
+        "title": "Configurer le jeu - {{name}}",
+        "description": "Paramètres tenant utilisés pour la vente POS.",
+        "intro": {
+          "aria": "Paramètres de vente du jeu",
+          "title": "Paramètres utilisés dans la vente",
+          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce tenant. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
+        },
+        "field": {
+          "displayName": "Nom affiché au POS",
+          "minStake": "Mise minimum par ligne",
+          "maxStake": "Mise maximum par ligne",
+          "displayOrder": "Ordre d'affichage",
+          "visibleInPos": "Afficher ce jeu dans le POS",
+          "availabilityEnabled": "Restreindre les horaires de vente",
+          "startLocalTime": "Heure de début (HH:mm)",
+          "endLocalTime": "Heure de fin (HH:mm)"
+        },
+        "options": {
+          "title": "Options de pari / gains",
+          "description": "Lecture seule ici. Ces options viennent du catalogue et du barème du jeu."
+        }
       }
     },
     "pricing": {

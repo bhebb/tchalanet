@@ -509,6 +509,29 @@
           "title": "Katalòg vid",
           "message": "Pa gen jwèt disponib nan katalòg la."
         }
+      },
+      "settings": {
+        "title": "Konfigire jwèt la - {{name}}",
+        "description": "Paramèt tenant ki itilize pou vant POS.",
+        "intro": {
+          "aria": "Paramèt vant jwèt la",
+          "title": "Paramèt ki itilize nan vant",
+          "message": "Valè sa yo kontwole afichaj POS la ak miz tenant lan aksepte. Gain ak barèm global yo rete jere nan katalòg platform lan."
+        },
+        "field": {
+          "displayName": "Non ki parèt nan POS",
+          "minStake": "Miz minimòm pa liy",
+          "maxStake": "Miz maksimòm pa liy",
+          "displayOrder": "Lòd afichaj",
+          "visibleInPos": "Montre jwèt sa a nan POS",
+          "availabilityEnabled": "Limite lè vant yo",
+          "startLocalTime": "Lè kòmansman (HH:mm)",
+          "endLocalTime": "Lè fen (HH:mm)"
+        },
+        "options": {
+          "title": "Opsyon pari / gain",
+          "description": "Lekti sèlman isit la. Opsyon sa yo soti nan katalòg jwèt la ak barèm lan."
+        }
       }
     },
     "pricing": {

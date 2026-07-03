@@ -542,6 +542,29 @@
           "title": "Empty catalog",
           "message": "No catalog game is available."
         }
+      },
+      "settings": {
+        "title": "Configure game - {{name}}",
+        "description": "Tenant settings used for POS sales.",
+        "intro": {
+          "aria": "Game sales settings",
+          "title": "Settings used for sales",
+          "message": "These values control POS display and accepted stakes for this tenant. Global payouts and pricing remain managed in the platform catalog."
+        },
+        "field": {
+          "displayName": "POS display name",
+          "minStake": "Minimum stake per line",
+          "maxStake": "Maximum stake per line",
+          "displayOrder": "Display order",
+          "visibleInPos": "Show this game in POS",
+          "availabilityEnabled": "Restrict sales hours",
+          "startLocalTime": "Start time (HH:mm)",
+          "endLocalTime": "End time (HH:mm)"
+        },
+        "options": {
+          "title": "Bet options / payouts",
+          "description": "Read-only here. These options come from the game catalog and pricing."
+        }
       }
     },
     "pricing": {

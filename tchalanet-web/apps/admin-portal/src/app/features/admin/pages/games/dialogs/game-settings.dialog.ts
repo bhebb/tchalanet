@@ -1,31 +1,43 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormField, form, submit as submitForm } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateService } from '@ngx-translate/core';
-import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchErrorPanel } from '@tch/ui/components';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TchSectionError } from '@tch/ui/components';
+import { AdminDialogShellComponent } from '@tch/ui/console';
+import { tchMutation } from '@tch/web/async';
 
-import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { ConsoleBetLabelPipe, ConsoleGameNamePipe } from '@tch/web/console';
 import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from '../../../data-access/games-admin-api.service';
+
+interface GameSettingsFormModel {
+  readonly displayName: string;
+  readonly visibleInPos: boolean;
+  readonly minStake: number | null;
+  readonly maxStake: number | null;
+  readonly displayOrder: number;
+  readonly availabilityEnabled: boolean;
+  readonly startLocalTime: string;
+  readonly endLocalTime: string;
+}
 
 @Component({
   selector: 'tch-game-settings-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ReactiveFormsModule,
+    FormField,
+    AdminDialogShellComponent,
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    TchErrorPanel,
+    TchSectionError,
+    TranslatePipe,
     ConsoleBetLabelPipe,
     ConsoleGameNamePipe,
   ],
@@ -36,64 +48,43 @@ export class GameSettingsDialog {
   protected readonly data = inject<{ game: TenantGameView }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<GameSettingsDialog>);
   private readonly api = inject(GamesAdminApiService);
-  private readonly fb = inject(FormBuilder);
-  private readonly translate = inject(TranslateService);
 
-  readonly submitting = signal(false);
-  readonly error = signal<ErrorViewModel | null>(null);
-
-  readonly form = this.fb.group({
-    displayName: [this.data.game.displayName ?? ''],
-    visibleInPos: [this.data.game.visibleInPos],
-    minStake: [this.data.game.minStake],
-    maxStake: [this.data.game.maxStake],
-    displayOrder: [this.data.game.displayOrder],
-    availabilityEnabled: [this.data.game.availabilityEnabled],
-    startLocalTime: [this.data.game.startLocalTime ?? ''],
-    endLocalTime: [this.data.game.endLocalTime ?? ''],
+  readonly model = signal<GameSettingsFormModel>({
+    displayName: this.data.game.displayName ?? '',
+    visibleInPos: this.data.game.visibleInPos,
+    minStake: this.data.game.minStake,
+    maxStake: this.data.game.maxStake,
+    displayOrder: this.data.game.displayOrder,
+    availabilityEnabled: this.data.game.availabilityEnabled,
+    startLocalTime: this.data.game.startLocalTime ?? '',
+    endLocalTime: this.data.game.endLocalTime ?? '',
   });
+  readonly form = form(this.model);
 
-  submit(): void {
-    if (this.submitting()) return;
-    this.submitting.set(true);
-    this.error.set(null);
+  readonly saveSettings = tchMutation<UpdateGameSettingsRequest, void>({
+    source: 'admin.games.settings',
+    run: req => this.api.updateGameSettings(this.data.game.gameCode, req, { suppressShellFeedback: true }),
+    onSuccess: () => this.dialogRef.close(true),
+  });
+  readonly feedback = computed(() => this.saveSettings.feedback());
 
-    const v = this.form.getRawValue();
-    const req: UpdateGameSettingsRequest = {
-      displayName: v.displayName || null,
-      visibleInPos: v.visibleInPos,
-      minStake: v.minStake,
-      maxStake: v.maxStake,
-      displayOrder: v.displayOrder,
-      availabilityEnabled: v.availabilityEnabled,
-      startLocalTime: v.availabilityEnabled ? (v.startLocalTime || null) : null,
-      endLocalTime: v.availabilityEnabled ? (v.endLocalTime || null) : null,
-    };
-
-    this.api.updateGameSettings(this.data.game.gameCode, req, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.dialogRef.close(true);
-      },
-      error: (err: unknown) => {
-        this.submitting.set(false);
-        this.error.set(this.errorViewModel(err));
-      },
+  submit(event: Event): void {
+    event.preventDefault();
+    submitForm(this.form, async () => {
+      this.saveSettings.execute(this.toRequest(this.model()));
     });
   }
 
-  private errorViewModel(err: unknown): ErrorViewModel {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.games.settings', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      return toErrorViewModel(normalized, copy);
-    }
-
+  private toRequest(value: GameSettingsFormModel): UpdateGameSettingsRequest {
     return {
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
+      displayName: value.displayName || null,
+      visibleInPos: value.visibleInPos,
+      minStake: value.minStake,
+      maxStake: value.maxStake,
+      displayOrder: value.displayOrder,
+      availabilityEnabled: value.availabilityEnabled,
+      startLocalTime: value.availabilityEnabled ? (value.startLocalTime || null) : null,
+      endLocalTime: value.availabilityEnabled ? (value.endLocalTime || null) : null,
     };
   }
 }
