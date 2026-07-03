@@ -66,22 +66,27 @@ const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
   },
 };
 
-export function adminGameName(gameCode: string, displayName?: string | null): string {
+export function consoleGameName(gameCode: string, displayName?: string | null): string {
   const explicit = displayName?.trim();
   if (explicit && explicit !== gameCode && !isTechnicalCode(explicit)) return explicit;
   return GAME_LABELS[gameCode] ?? readableCode(gameCode);
 }
 
-export function adminGameLogoText(gameCode: string, displayName?: string | null): string {
-  return GAME_LOGO_TEXT[gameCode] ?? initials(adminGameName(gameCode, displayName));
+export function consoleGameLogoText(gameCode: string, displayName?: string | null): string {
+  return GAME_LOGO_TEXT[gameCode] ?? initials(consoleGameName(gameCode, displayName));
 }
 
-export function adminBetLabel(betType: string, betOption: number | null): string {
-  const normalizedType = normalizeBetType(betType);
-  const optionLabel = betOption == null
-    ? null
-    : (BET_OPTION_LABELS[normalizedType]?.[betOption] ?? `Option ${betOption}`);
-  return optionLabel ?? BET_TYPE_LABELS[normalizedType] ?? readableCode(betType);
+export function consoleBetTypeLabel(betType: string): string {
+  return BET_TYPE_LABELS[normalizeBetType(betType)] ?? readableCode(betType);
+}
+
+export function consoleBetOptionLabel(betType: string, betOption: number | null): string | null {
+  if (betOption == null) return null;
+  return BET_OPTION_LABELS[normalizeBetType(betType)]?.[betOption] ?? `Option ${betOption}`;
+}
+
+export function consoleBetLabel(betType: string, betOption: number | null): string {
+  return consoleBetOptionLabel(betType, betOption) ?? consoleBetTypeLabel(betType);
 }
 
 function normalizeBetType(value: string): string {

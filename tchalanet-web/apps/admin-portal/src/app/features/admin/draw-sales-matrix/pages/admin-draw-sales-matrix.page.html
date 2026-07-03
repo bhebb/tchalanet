@@ -65,17 +65,17 @@
             <mat-expansion-panel>
               <mat-expansion-panel-header>
                 <mat-panel-title class="dsm-slot-header">
-                  <span class="dsm-slot-header__main">
-                    <strong>{{ slotTitle(slot) }}</strong>
-                    <span>{{ channelLabel(slot) }} · {{ activeOfferedCount(slot) }} jeu(x) actif(s) sur {{ offeredCount(slot) }} offert(s)</span>
-                  </span>
+                  <tch-console-draw-slot-identity
+                    [identity]="slotIdentity(provider.providerCode, slot)"
+                    density="compact"
+                  />
                   <span class="dsm-slot-header__meta">
                     <tch-admin-status-pill
                       [tone]="slotStatusTone(slot)"
                       [label]="slot.slotReady ? 'Prêt' : (slot.channel ? 'À vérifier' : 'Non configuré')"
                     />
                     <code>{{ slot.slotKey }}</code>
-                    <span>{{ slot.resultSlot.drawTime ?? '—' }}</span>
+                    <span>{{ activeOfferedCount(slot) }} jeu(x) actif(s) sur {{ offeredCount(slot) }} offert(s)</span>
                     @if (!slot.channel) {
                       <span class="dsm-badge dsm-badge--neutral">Canal manquant</span>
                     } @else if (!slot.channel.active) {
@@ -111,10 +111,10 @@
                       <div class="dsm-game" [class.dsm-game--ready]="game.saleReady" [class.dsm-game--disabled]="!game.enabledOnChannel">
                         <div class="dsm-game__header">
                           <span class="dsm-game__logo" aria-hidden="true">
-                            {{ game.gameCode | adminGameLogoText:game.displayName }}
+                            {{ game.gameCode | consoleGameLogoText:game.displayName }}
                           </span>
                           <tch-admin-status-pill [tone]="gameStatusTone(game)" [label]="gameStatusLabel(game)" />
-                          <strong>{{ game.gameCode | adminGameName:game.displayName }}</strong>
+                          <strong>{{ game.gameCode | consoleGameName:game.displayName }}</strong>
                         </div>
                         <div class="dsm-game__meta">
                           @if (game.minStake !== null && game.maxStake !== null) {
@@ -221,9 +221,9 @@
                         <div class="dsm-game dsm-game--available">
                           <div class="dsm-game__header">
                             <span class="dsm-game__logo" aria-hidden="true">
-                              {{ game.gameCode | adminGameLogoText:game.displayName }}
+                              {{ game.gameCode | consoleGameLogoText:game.displayName }}
                             </span>
-                            <strong>{{ game.gameCode | adminGameName:game.displayName }}</strong>
+                            <strong>{{ game.gameCode | consoleGameName:game.displayName }}</strong>
                           </div>
                           <div class="dsm-game__meta">
                             @if (game.minStake !== null && game.maxStake !== null) {

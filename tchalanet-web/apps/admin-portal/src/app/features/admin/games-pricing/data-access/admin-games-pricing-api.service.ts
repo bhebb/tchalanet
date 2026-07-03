@@ -9,7 +9,7 @@ import {
   TenantGameOddView,
   TenantGameStatus,
 } from './admin-games-pricing.models';
-import { adminBetLabel, adminGameName } from './admin-game-display';
+import { consoleBetLabel, consoleGameName } from '@tch/web/console';
 
 interface BffPricingEntry {
   betType: string;
@@ -80,7 +80,7 @@ export class AdminGamesPricingApiService {
     return {
       gameCode:          row.gameCode,
       tenantGameId:      row.tenantGameId?.value ?? null,
-      gameName:          adminGameName(row.gameCode, row.displayName || row.catalogName),
+      gameName:          consoleGameName(row.gameCode, row.displayName || row.catalogName),
       catalogStatus:     'AVAILABLE',
       tenantStatus,
       pricingProfileLabel: row.pricing.configured ? 'Barème standard' : null,
@@ -106,7 +106,7 @@ export class AdminGamesPricingApiService {
   }
 
   private oddLabel(entry: BffPricingEntry): string {
-    return adminBetLabel(entry.betType, entry.betOption);
+    return consoleBetLabel(entry.betType, entry.betOption);
   }
 
   private toLimits(row: BffGameRow): TenantGamePricingView['limits'] {

@@ -1,0 +1,27 @@
+@let view = identity();
+
+<div class="console-draw-slot console-draw-slot--{{ density() }}">
+  <div class="console-draw-slot__logo" [title]="view.providerName || view.providerCode || title()">
+    @if (view.providerLogoUrl) {
+      <img [src]="view.providerLogoUrl" [alt]="view.providerName || view.providerCode || title()" loading="lazy" />
+    } @else {
+      <span>{{ logoText() }}</span>
+    }
+  </div>
+
+  <div class="console-draw-slot__body">
+    <p class="console-draw-slot__title">{{ title() }}</p>
+    @if (subtitle(); as subtitleText) {
+      <p class="console-draw-slot__subtitle">{{ subtitleText }}</p>
+    }
+    @if (providerNameLabel(); as providerName) {
+      <p class="console-draw-slot__meta">{{ providerName }}</p>
+    }
+    @if (localLabel(); as local) {
+      <p class="console-draw-slot__meta">Local: {{ local }}</p>
+    }
+    @if (providerLabel(); as provider) {
+      <p class="console-draw-slot__meta">Provider: {{ provider }}</p>
+    }
+  </div>
+</div>

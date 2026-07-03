@@ -13,10 +13,16 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
+import {
+  ConsoleDrawSlotIdentity,
+  ConsoleDrawSlotIdentityComponent,
+  ConsoleGameLogoTextPipe,
+  ConsoleGameNamePipe,
+  consoleGameName,
+} from '@tch/web/console';
 import type { TenantGameView } from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from '../../pages/games/dialogs/game-settings.dialog';
-import { adminGameName } from '../../games-pricing/data-access/admin-game-display';
-import { AdminGameLogoTextPipe, AdminGameNamePipe } from '../../games-pricing/ui/admin-game-labels.pipe';
+import { lotteryAssetForProvider } from '../../../../shared/lottery/lottery-assets';
 import { OfferedGamesPipe, AvailableGamesPipe } from '../pipes/channel-game-filter.pipe';
 import {
   AdminDrawSalesMatrixApi,
@@ -41,10 +47,11 @@ import {
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
+    ConsoleDrawSlotIdentityComponent,
     OfferedGamesPipe,
     AvailableGamesPipe,
-    AdminGameLogoTextPipe,
-    AdminGameNamePipe,
+    ConsoleGameLogoTextPipe,
+    ConsoleGameNamePipe,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
   styleUrl: './admin-draw-sales-matrix.page.scss',
@@ -95,6 +102,20 @@ export class AdminDrawSalesMatrixPage implements OnInit {
 
   slotTitle(slot: SlotMatrixView): string {
     return slot.labelKey?.trim() || slot.slotKey;
+  }
+
+  slotIdentity(providerCode: string, slot: SlotMatrixView): ConsoleDrawSlotIdentity {
+    return {
+      providerCode,
+      providerName: providerCode,
+      providerLogoUrl: lotteryAssetForProvider(providerCode),
+      slotKey: slot.slotKey,
+      slotLabel: this.slotTitle(slot),
+      channelCode: slot.channel?.channelCode ?? null,
+      channelName: slot.channel?.channelCode ?? null,
+      localTimeLabel: slot.channel?.drawTime ?? null,
+      providerTimeLabel: slot.resultSlot.drawTime,
+    };
   }
 
   channelLabel(slot: SlotMatrixView): string {
@@ -222,7 +243,7 @@ export class AdminDrawSalesMatrixPage implements OnInit {
 
   gameLabel(game: ChannelGameSetupView): string {
     if (this.isMaryajGratis(game)) return 'Maryaj gratis';
-    return adminGameName(game.gameCode, game.displayName);
+    return consoleGameName(game.gameCode, game.displayName);
   }
 
   warningLabel(warning: SetupWarning): string {

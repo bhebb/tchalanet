@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TchCard, TchSectionError, TchSectionErrorSeverity, TchStatusBadge, BadgeStatus } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { consoleGameLogoText } from '@tch/web/console';
 import { TenantGamePricingView, TenantGameStatus, ReadinessStatus } from '../../data-access/admin-games-pricing.models';
-import { adminGameLogoText } from '../../data-access/admin-game-display';
 
 const STATUS_TONE: Record<TenantGameStatus, AdminStatusTone> = {
   ACTIVE:       'success',
@@ -64,7 +64,7 @@ export class TenantGameCardComponent {
   readonly statusTone    = computed<AdminStatusTone>(() => STATUS_TONE[this.game().tenantStatus]);
   readonly statusLabel   = computed<string>(() => STATUS_LABEL[this.game().tenantStatus]);
   readonly readinessBadge = computed<BadgeStatus>(() => READINESS_BADGE[this.game().readiness.status]);
-  readonly logoText = computed(() => adminGameLogoText(this.game().gameCode, this.game().gameName));
+  readonly logoText = computed(() => consoleGameLogoText(this.game().gameCode, this.game().gameName));
   readonly systemLabel = computed(() => `Jeu système · ${this.game().gameName}`);
   readonly stakeLabel = computed(() => {
     if (this.game().tenantStatus === 'UNAVAILABLE') return 'Mise indisponible';
