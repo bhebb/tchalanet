@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +12,7 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgTemplateOutlet,
     FormField,
     AdminSectionCardComponent,
     TranslatePipe,
@@ -26,4 +28,5 @@ export class ConsoleAddressFormSectionComponent {
   readonly descriptionKey = input<string | null>('component.console.address.description');
   readonly icon = input('location_on');
   readonly required = input(false);
+  readonly framed = input(true);
 }

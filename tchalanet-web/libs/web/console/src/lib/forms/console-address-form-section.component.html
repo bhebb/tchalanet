@@ -1,8 +1,16 @@
-<tch-admin-section-card
-  [title]="titleKey() | translate"
-  [description]="descriptionKey() ? (descriptionKey() | translate) : undefined"
-  [icon]="icon()"
->
+@if (framed()) {
+  <tch-admin-section-card
+    [title]="titleKey() | translate"
+    [description]="descriptionKey() ? (descriptionKey() | translate) : undefined"
+    [icon]="icon()"
+  >
+    <ng-container [ngTemplateOutlet]="addressFields" />
+  </tch-admin-section-card>
+} @else {
+  <ng-container [ngTemplateOutlet]="addressFields" />
+}
+
+<ng-template #addressFields>
   <div class="tch-console-form-section__grid">
     <mat-form-field appearance="outline" class="tch-console-form-section__field tch-console-form-section__field--full">
       <mat-label>{{ 'component.console.address.field.line1' | translate }}</mat-label>
@@ -97,4 +105,4 @@
       </mat-form-field>
     </div>
   </div>
-</tch-admin-section-card>
+</ng-template>
