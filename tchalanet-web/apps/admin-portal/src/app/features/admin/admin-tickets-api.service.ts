@@ -1,8 +1,15 @@
-import { Injectable, inject } from '@angular/core';
-import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
+import { Injectable, ResourceRef, inject } from '@angular/core';
+import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export type TicketStatus = 'PLACED' | 'PAID' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
+export type TicketStatus =
+  | 'PENDING_APPROVAL'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'CANCELLED'
+  | 'VOIDED'
+  | 'PAID'
+  | 'EXPIRED';
 
 export interface TicketRowView {
   readonly id: string;
@@ -64,6 +71,12 @@ export interface AdminSoldTicketView {
 
 export interface AdminTicketListParams {
   readonly status?: string;
+  readonly q?: string;
+  readonly from?: string;
+  readonly to?: string;
+  readonly fromDate?: string;
+  readonly toDate?: string;
+  readonly sort?: string;
   readonly page?: number;
   readonly size?: number;
 }
@@ -76,15 +89,23 @@ export class AdminTicketsApi {
     params: AdminTicketListParams = {},
     options?: TchRequestOptions,
   ): Observable<TchPage<TicketRowView>> {
-    return this.backend.get<TchPage<TicketRowView>>(
-      appendQuery('/tenant/cashier/tickets', {
-        page: params.page ?? 0,
-        size: params.size ?? 20,
-        sort: 'placedAt,desc',
-        status: params.status,
-      }),
-      options,
-    );
+    return this.backend.getPage<TicketRowView>('/tenant/cashier/tickets', {
+      ...options,
+      params: ticketListQueryParams(params),
+    });
+  }
+
+  listResource(
+    params: () => AdminTicketListParams,
+    options?: TchRequestOptions,
+  ): ResourceRef<TchPage<TicketRowView> | undefined> {
+    return this.backend.getPageResource<TicketRowView>(() => ({
+      path: '/tenant/cashier/tickets',
+      options: {
+        ...options,
+        params: ticketListQueryParams(params()),
+      },
+    }));
   }
 
   preview(
@@ -100,4 +121,18 @@ export class AdminTicketsApi {
   ): Observable<AdminSoldTicketView> {
     return this.backend.post<AdminSoldTicketView>('/tenant/cashier/tickets/sell', req, options);
   }
+}
+
+function ticketListQueryParams(params: AdminTicketListParams): Record<string, string> {
+  return {
+    page: String(params.page ?? 0),
+    size: String(params.size ?? 20),
+    sort: params.sort || 'createdAt,DESC',
+    ...(params.status ? { status: params.status } : {}),
+    ...(params.q ? { q: params.q } : {}),
+    ...(params.from ? { from: params.from } : {}),
+    ...(params.to ? { to: params.to } : {}),
+    ...(params.fromDate ? { fromDate: params.fromDate } : {}),
+    ...(params.toDate ? { toDate: params.toDate } : {}),
+  };
 }

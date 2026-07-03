@@ -87,12 +87,18 @@ export class PosTicketDetailPage implements OnInit {
 
   statusLabel(status: string): string {
     switch (status) {
-      case 'PLACED':
-        return 'Vendu';
+      case 'APPROVED':
+        return 'Approuvé';
+      case 'PENDING_APPROVAL':
+        return 'En approbation';
+      case 'REJECTED':
+        return 'Rejeté';
       case 'PAID':
         return 'Payé';
       case 'CANCELLED':
         return 'Annulé';
+      case 'VOIDED':
+        return 'Invalidé';
       case 'EXPIRED':
         return 'Expiré';
       default:
@@ -102,12 +108,16 @@ export class PosTicketDetailPage implements OnInit {
 
   statusTone(status: string): AdminStatusTone {
     switch (status) {
+      case 'APPROVED':
       case 'PAID':
         return 'success';
-      case 'CANCELLED':
-        return 'danger';
+      case 'PENDING_APPROVAL':
       case 'EXPIRED':
         return 'warning';
+      case 'REJECTED':
+      case 'CANCELLED':
+      case 'VOIDED':
+        return 'danger';
       default:
         return 'neutral';
     }

@@ -109,11 +109,12 @@ public class TicketWebMapper {
         SellerTerminalId sellerTerminalId,
         DrawId drawId,
         String status,
+        String q,
         java.time.Instant from,
         java.time.Instant to,
         TchPageRequest pageReq
     ) {
-        return new ListTicketsQuery(sellerTerminalId, drawId, status, from, to, pageReq);
+        return new ListTicketsQuery(sellerTerminalId, drawId, status, q, from, to, pageReq);
     }
 
     public TchPage<TicketSummaryResponse> toPagedSummaryResponse(TchPage<TicketRow> page) {

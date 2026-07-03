@@ -2,6 +2,8 @@ package com.tchalanet.server.features.pos.tickets;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -31,6 +33,10 @@ import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -110,12 +116,24 @@ public class PosTicketsController {
     @GetMapping
     @Operation(summary = "List cashier tickets")
     public ApiResponse<TchPage<PosTicketPageResponse>> list(
+        @CurrentContext TchRequestContext ctx,
+        @RequestParam(required = false) SellerTerminalId sellerTerminalId,
+        @RequestParam(required = false) DrawId drawId,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) String q,
+        @RequestParam(required = false) Instant from,
+        @RequestParam(required = false) Instant to,
+        @RequestParam(required = false) LocalDate fromDate,
+        @RequestParam(required = false) LocalDate toDate,
         @TchPaging(
             allowedSort = {"createdAt", "totalAmount", "ticketCode"},
             defaultSort = {"createdAt,desc"})
         TchPageRequest page
     ) {
-        return ApiResponse.success(ticketsService.listTickets(page.pageable()));
+        Instant effectiveFrom = from != null ? from : startOfDay(fromDate, ctx);
+        Instant effectiveTo = to != null ? to : endOfDay(toDate, ctx);
+        return ApiResponse.success(ticketsService.listTickets(
+            sellerTerminalId, drawId, status, q, effectiveFrom, effectiveTo, page.pageable()));
     }
 
     @GetMapping("/{ticketId}")
@@ -149,5 +167,17 @@ public class PosTicketsController {
         @Valid @RequestBody SendTicketReceiptRequest request
     ) {
         return ApiResponse.accepted(receiptService.send(ctx, ticketId, request));
+    }
+
+    private static Instant startOfDay(LocalDate date, TchRequestContext ctx) {
+        return date == null ? null : date.atStartOfDay(tenantZone(ctx)).toInstant();
+    }
+
+    private static Instant endOfDay(LocalDate date, TchRequestContext ctx) {
+        return date == null ? null : date.plusDays(1).atStartOfDay(tenantZone(ctx)).minusNanos(1).toInstant();
+    }
+
+    private static ZoneId tenantZone(TchRequestContext ctx) {
+        return ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
     }
 }

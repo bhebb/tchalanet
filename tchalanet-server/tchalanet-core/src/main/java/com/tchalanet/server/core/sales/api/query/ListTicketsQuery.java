@@ -14,6 +14,7 @@ public record ListTicketsQuery(
     SellerTerminalId sellerTerminalId,
     DrawId drawId,
     String status,
+    String q,
     Instant from,
     Instant to,
     TchPageRequest page

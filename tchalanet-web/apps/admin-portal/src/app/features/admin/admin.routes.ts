@@ -140,10 +140,20 @@ export const adminRoutes: Route[] = [
   { path: 'reports/export', redirectTo: 'reports/exports', pathMatch: 'full' },
   // ── Tickets ────────────────────────────────────────────────────────────────
   {
+    path: 'tickets/overview',
+    loadComponent: () =>
+      import('./pages/support/admin-tickets-overview.page').then(m => m.AdminTicketsOverviewPage),
+  },
+  {
     path: 'tickets/verify',
     loadComponent: () =>
       import('../pos/sale/pages/verify/pos-ticket-verify.page').then(m => m.PosTicketVerifyPage),
     data: { titleKey: 'nav.admin.tickets_verify', icon: 'verified' },
+  },
+  {
+    path: 'tickets/sell',
+    redirectTo: '/app/admin/pos/sale',
+    pathMatch: 'full',
   },
   {
     path: 'tickets/:ticketId',
@@ -156,11 +166,6 @@ export const adminRoutes: Route[] = [
     path: 'tickets',
     loadComponent: () =>
       import('./pages/support/admin-tickets.page').then(m => m.AdminTicketsPage),
-  },
-  {
-    path: 'tickets/sell',
-    loadComponent: () =>
-      import('./pages/support/admin-sell-ticket.page').then(m => m.AdminSellTicketPage),
   },
   { path: 'support/tickets', redirectTo: 'tickets', pathMatch: 'full' },
   { path: 'support/sell', redirectTo: 'tickets/sell', pathMatch: 'full' },

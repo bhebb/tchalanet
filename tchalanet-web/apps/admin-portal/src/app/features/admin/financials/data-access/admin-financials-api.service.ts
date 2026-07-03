@@ -89,16 +89,16 @@ export class AdminFinancialsApi {
   private readonly backend = inject(TchBackendClient);
 
   getBreakdown(params: {
-    from: string;
-    to: string;
+    from?: string;
+    to?: string;
     drawLimit?: number;
     sellerTerminalLimit?: number;
   }, options?: TchRequestOptions): Observable<TenantFinancialBreakdownView> {
     const query: Record<string, string> = {
-      from: params.from,
-      to: params.to,
       drawLimit: String(params.drawLimit ?? 100),
       sellerTerminalLimit: String(params.sellerTerminalLimit ?? 100),
+      ...(params.from ? { from: params.from } : {}),
+      ...(params.to ? { to: params.to } : {}),
     };
     return this.backend.get<TenantFinancialBreakdownView>('/admin/financials/breakdown', {
       params: query,

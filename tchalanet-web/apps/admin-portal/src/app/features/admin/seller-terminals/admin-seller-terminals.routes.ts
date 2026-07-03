@@ -16,6 +16,11 @@ export const adminSellerTerminalsRoutes: Route[] = [
       ),
   },
   {
+    path: 'commissions',
+    loadComponent: () =>
+      import('../pages/commission/admin-commission.page').then(m => m.AdminCommissionPage),
+  },
+  {
     path: 'activation',
     loadComponent: () =>
       import('./pages/activation/seller-terminal-activation.page').then(
