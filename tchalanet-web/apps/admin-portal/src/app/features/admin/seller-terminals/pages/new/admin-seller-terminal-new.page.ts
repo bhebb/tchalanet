@@ -37,7 +37,7 @@ import {
   AddressRequest,
   CreateSellerTerminalResult,
   SellerTerminalApi,
-} from '../../../data-access/seller-terminal-api.service';
+} from '../../data-access/seller-terminal-api.service';
 import { SellerTerminalSuccessCardComponent } from '../../components/seller-terminal-success-card/seller-terminal-success-card.component';
 import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../seller-terminal-error-targets';
 

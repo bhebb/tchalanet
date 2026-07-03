@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CreateSellerTerminalResult } from '../../../data-access/seller-terminal-api.service';
+import { CreateSellerTerminalResult } from '../../data-access/seller-terminal-api.service';
 
 @Component({
   selector: 'tch-seller-terminal-success-card',

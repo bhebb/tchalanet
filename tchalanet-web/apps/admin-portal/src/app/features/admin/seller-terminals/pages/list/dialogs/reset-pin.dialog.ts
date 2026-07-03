@@ -22,7 +22,7 @@ import {
   ResetSellerTerminalPinResponse,
   SellerTerminalApi,
   SellerTerminalSummaryRow,
-} from '../../../../data-access/seller-terminal-api.service';
+} from '../../../data-access/seller-terminal-api.service';
 
 type DialogState = 'confirming' | 'submitting' | 'success' | 'error';
 

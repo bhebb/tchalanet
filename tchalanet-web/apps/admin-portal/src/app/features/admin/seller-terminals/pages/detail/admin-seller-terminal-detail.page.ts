@@ -17,7 +17,7 @@ import {
   SellerTerminalApi,
   SellerTerminalStatus,
   SellerTerminalView,
-} from '../../../data-access/seller-terminal-api.service';
+} from '../../data-access/seller-terminal-api.service';
 import {
   AdminFinancialsApi,
   SellerTerminalDailyFinancialRow,
