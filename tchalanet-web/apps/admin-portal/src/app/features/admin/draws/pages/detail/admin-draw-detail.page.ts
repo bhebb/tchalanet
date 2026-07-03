@@ -11,9 +11,9 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { AuthSessionService } from '@tch/core/auth';
+import { AccessService } from '@tch/core/auth';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { canUseDrawResultCapability } from '@tch/web/console';
+import { CONSOLE_DRAW_RESULT_ACCESS } from '@tch/web/console';
 import {
   AdminDetailLayoutComponent,
   AdminPageShellComponent,
@@ -82,7 +82,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(AdminGeneratedDrawsApiService);
   private readonly financials = inject(AdminFinancialsApi);
-  private readonly auth = inject(AuthSessionService);
+  private readonly access = inject(AccessService);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
   readonly pageState = signal<PageState>('loading');
@@ -107,8 +107,8 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
     return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
   });
-  readonly canEnterManualResults = computed(() => canUseDrawResultCapability(this.auth, 'manual'));
-  readonly canOverrideResults = computed(() => canUseDrawResultCapability(this.auth, 'override'));
+  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
+  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
   readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;

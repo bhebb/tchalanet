@@ -7,6 +7,7 @@ import { AccessRequirement, AccessService } from './access.service';
  * e.g. `[disabled]`, `[attr.aria-hidden]`, or an `@if` condition.
  *
  *   <button [disabled]="!({ feature: 'web.payouts', entitlement: 'payouts' } | can)">…</button>
+ *   <button [disabled]="!([{ role: 'SUPER_ADMIN' }, { permission: 'draw-results.manual' }] | can)">…</button>
  *   @if ({ feature: 'web.x' } | can) { … }
  *
  * Impure so it re-evaluates as flags/entitlements resolve (the decision reads signals). The check is
@@ -16,7 +17,7 @@ import { AccessRequirement, AccessService } from './access.service';
 export class CanPipe implements PipeTransform {
   private readonly access = inject(AccessService);
 
-  transform(requirement: AccessRequirement): boolean {
+  transform(requirement: AccessRequirement | readonly AccessRequirement[]): boolean {
     return this.access.can(requirement);
   }
 }

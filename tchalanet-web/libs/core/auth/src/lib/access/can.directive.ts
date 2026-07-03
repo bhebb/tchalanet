@@ -15,6 +15,7 @@ import { AccessRequirement, AccessService } from './access.service';
  *
  * Usage:
  *   <a *tchCan="{ feature: 'web.payouts', entitlement: 'payouts' }">Payouts</a>
+ *   <button *tchCan="[{ role: 'SUPER_ADMIN' }, { permission: 'draw-results.manual' }]">…</button>
  *   <a *tchCan="{ feature: 'web.x' }; else off">…</a>
  *   <ng-template #off>…</ng-template>
  *
@@ -27,7 +28,7 @@ export class CanDirective {
   private readonly templateRef = inject(TemplateRef<unknown>);
   private readonly viewContainer = inject(ViewContainerRef);
 
-  readonly requirement = input.required<AccessRequirement>({ alias: 'tchCan' });
+  readonly requirement = input.required<AccessRequirement | readonly AccessRequirement[]>({ alias: 'tchCan' });
   // eslint-disable-next-line @angular-eslint/no-input-rename
   readonly elseTemplate = input<TemplateRef<unknown> | null>(null, { alias: 'tchCanElse' });
 

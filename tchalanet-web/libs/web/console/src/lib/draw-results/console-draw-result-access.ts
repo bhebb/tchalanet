@@ -1,4 +1,4 @@
-import { AuthSessionService } from '@tch/core/auth';
+import { AccessRequirement } from '@tch/core/auth';
 
 export type ConsoleDrawResultCapability = 'manual' | 'confirm' | 'override' | 'fetch';
 
@@ -9,10 +9,12 @@ const CAPABILITY_PERMISSIONS: Record<ConsoleDrawResultCapability, readonly strin
   fetch: ['draw-results.fetch', 'platform.ops.draw-results.fetch'],
 };
 
-export function canUseDrawResultCapability(
-  auth: AuthSessionService,
-  capability: ConsoleDrawResultCapability,
-): boolean {
-  if (auth.hasRole('SUPER_ADMIN')) return true;
-  return CAPABILITY_PERMISSIONS[capability].some(permission => auth.hasPermission(permission));
-}
+export const CONSOLE_DRAW_RESULT_ACCESS: Record<
+  ConsoleDrawResultCapability,
+  readonly AccessRequirement[]
+> = {
+  manual: [{ role: 'SUPER_ADMIN' }, { permission: CAPABILITY_PERMISSIONS.manual }],
+  confirm: [{ role: 'SUPER_ADMIN' }, { permission: CAPABILITY_PERMISSIONS.confirm }],
+  override: [{ role: 'SUPER_ADMIN' }, { permission: CAPABILITY_PERMISSIONS.override }],
+  fetch: [{ role: 'SUPER_ADMIN' }, { permission: CAPABILITY_PERMISSIONS.fetch }],
+};

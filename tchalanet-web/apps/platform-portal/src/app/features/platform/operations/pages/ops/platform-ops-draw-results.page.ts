@@ -18,9 +18,9 @@ import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { AuthSessionService } from '@tch/core/auth';
+import { AccessService } from '@tch/core/auth';
 import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
-import { canUseDrawResultCapability } from '@tch/web/console';
+import { CONSOLE_DRAW_RESULT_ACCESS } from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -98,18 +98,20 @@ export class PlatformOpsDrawResultsPage implements OnInit {
   private readonly api = inject(PlatformOpsApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
-  private readonly auth = inject(AuthSessionService);
+  private readonly access = inject(AccessService);
 
   readonly canManageResults = computed(() =>
-    canUseDrawResultCapability(this.auth, 'manual')
-      || canUseDrawResultCapability(this.auth, 'fetch')
-      || canUseDrawResultCapability(this.auth, 'confirm')
-      || canUseDrawResultCapability(this.auth, 'override'),
+    this.access.can([
+      ...CONSOLE_DRAW_RESULT_ACCESS.manual,
+      ...CONSOLE_DRAW_RESULT_ACCESS.fetch,
+      ...CONSOLE_DRAW_RESULT_ACCESS.confirm,
+      ...CONSOLE_DRAW_RESULT_ACCESS.override,
+    ]),
   );
-  readonly canFetchResults = computed(() => canUseDrawResultCapability(this.auth, 'fetch'));
-  readonly canEnterManualResults = computed(() => canUseDrawResultCapability(this.auth, 'manual'));
-  readonly canConfirmResults = computed(() => canUseDrawResultCapability(this.auth, 'confirm'));
-  readonly canOverrideResults = computed(() => canUseDrawResultCapability(this.auth, 'override'));
+  readonly canFetchResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.fetch));
+  readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
+  readonly canConfirmResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.confirm));
+  readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
   readonly displayedColumns = computed<readonly string[]>(() =>
     this.canManageResults() ? DRAW_RESULT_ACTION_COLUMNS : DRAW_RESULT_COLUMNS,
   );
