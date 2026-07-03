@@ -411,6 +411,7 @@
         "activate": "Activer",
         "block": "Bloquer",
         "archive": "Archiver",
+        "assignTenant": "Assigner à un tenant",
         "manageAdmins": "Gérer les admins",
         "addAdmin": "Ajouter un admin",
         "resetFilters": "Réinitialiser les filtres"

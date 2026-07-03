@@ -46,38 +46,38 @@
   </div>
 
   <div class="admin-user-card__card admin-user-card__card--actions">
-    <div class="admin-user-card__actions-title">Actions</div>
+    <div class="admin-user-card__actions-title">{{ 'common.actionLabel' | translate }}</div>
 
     @if (!u.tenantId) {
       <button mat-flat-button color="primary" class="admin-user-card__action-btn" (click)="assignTenant.emit()">
         <span class="material-symbols-outlined">business</span>
-        Assigner à un tenant
+        {{ 'platform.tenantAdmins.action.assignTenant' | translate }}
       </button>
     }
 
     <button mat-stroked-button class="admin-user-card__action-btn" (click)="confirmResetPassword()">
       <span class="material-symbols-outlined">lock_reset</span>
-      Réinitialiser le mot de passe
+      {{ 'platform.tenantAdmins.action.resetPassword' | translate }}
     </button>
 
     @if (canActivate(u.status)) {
       <button mat-stroked-button class="admin-user-card__action-btn" (click)="confirmActivate()">
         <span class="material-symbols-outlined">check_circle</span>
-        Activer
+        {{ 'common.activate' | translate }}
       </button>
     }
 
     @if (canBlock(u.status)) {
       <button mat-stroked-button color="warn" class="admin-user-card__action-btn" (click)="confirmBlock()">
         <span class="material-symbols-outlined">block</span>
-        Bloquer
+        {{ 'common.block' | translate }}
       </button>
     }
 
     @if (canArchive(u.status)) {
       <button mat-stroked-button color="warn" class="admin-user-card__action-btn" (click)="confirmArchive()">
         <span class="material-symbols-outlined">archive</span>
-        Archiver
+        {{ 'common.archive' | translate }}
       </button>
     }
 
@@ -85,7 +85,7 @@
       <div class="admin-user-card__nav-link">
         <a [routerLink]="['/app/platform/tenants', u.tenantId, 'admins']">
           <span class="material-symbols-outlined">manage_accounts</span>
-          Gérer dans le tenant
+          {{ 'platform.tenantAdmins.detail.actions.manageInTenant' | translate }}
         </a>
       </div>
     }

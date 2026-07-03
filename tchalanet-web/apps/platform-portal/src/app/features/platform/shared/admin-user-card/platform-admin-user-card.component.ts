@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchConfirmDialog, TchConfirmDialogData, TchStatusBadge } from '@tch/ui/components';
 import type { BadgeStatus } from '@tch/ui/components';
 import { ConsolePersonIdentitySummaryComponent } from '@tch/web/console';
@@ -20,12 +21,14 @@ import type { AdminUserCardData } from './admin-user-card.model';
     MatButtonModule,
     TchStatusBadge,
     ConsolePersonIdentitySummaryComponent,
+    TranslatePipe,
   ],
   templateUrl: './platform-admin-user-card.component.html',
   styleUrls: ['./platform-admin-user-card.component.scss'],
 })
 export class PlatformAdminUserCardComponent {
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   readonly user = input.required<AdminUserCardData>();
 
@@ -54,16 +57,18 @@ export class PlatformAdminUserCardComponent {
   confirmActivate(): void {
     const u = this.user();
     this.openConfirm(
-      'Activer ce compte',
-      `Le compte de ${u.displayName || u.email} sera réactivé.`,
+      'common.activate',
+      'platform.tenantAdmins.confirm.activate',
+      { name: this.userName(u) },
     ).subscribe(r => { if (r?.confirmed) this.activate.emit(); });
   }
 
   confirmBlock(): void {
     const u = this.user();
     this.openConfirm(
-      'Bloquer ce compte',
-      `Le compte de ${u.displayName || u.email} sera suspendu.`,
+      'common.block',
+      'platform.tenantAdmins.confirm.block',
+      { name: this.userName(u) },
       true,
     ).subscribe(r => { if (r?.confirmed) this.block.emit(); });
   }
@@ -71,8 +76,9 @@ export class PlatformAdminUserCardComponent {
   confirmArchive(): void {
     const u = this.user();
     this.openConfirm(
-      'Archiver ce compte',
-      `Le compte de ${u.displayName || u.email} sera archivé. Cette action est irréversible.`,
+      'common.archive',
+      'platform.tenantAdmins.confirm.archive',
+      { name: this.userName(u) },
       true,
     ).subscribe(r => { if (r?.confirmed) this.archive.emit(); });
   }
@@ -80,16 +86,26 @@ export class PlatformAdminUserCardComponent {
   confirmResetPassword(): void {
     const u = this.user();
     this.openConfirm(
-      'Réinitialiser le mot de passe',
-      `Confirmer la réinitialisation du mot de passe de ${u.displayName || u.email}.`,
+      'platform.tenantAdmins.action.resetPassword',
+      'platform.tenantAdmins.confirm.resetPassword',
+      { name: this.userName(u) },
     ).subscribe(r => { if (r?.confirmed) this.resetPassword.emit(); });
   }
 
-  private openConfirm(title: string, message: string, destructive = false) {
+  private openConfirm(titleKey: string, messageKey: string, params: Record<string, string>, destructive = false) {
     return this.dialog
       .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
-        data: { title, message, confirmLabel: 'Confirmer', destructive },
+        data: {
+          title: this.translate.instant(titleKey, params),
+          message: this.translate.instant(messageKey, params),
+          confirmLabel: this.translate.instant('common.confirm'),
+          destructive,
+        },
       })
       .afterClosed();
+  }
+
+  private userName(user: AdminUserCardData): string {
+    return user.displayName || user.email || user.id;
   }
 }
