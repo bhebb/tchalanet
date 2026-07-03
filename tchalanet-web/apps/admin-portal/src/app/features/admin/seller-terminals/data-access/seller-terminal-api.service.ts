@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -112,7 +112,7 @@ export interface ListSellerTerminalsParams {
   tenantId?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SellerTerminalApi {
   private readonly backend = inject(TchBackendClient);
 

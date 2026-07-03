@@ -23,6 +23,26 @@ Feature placement:
 apps/<portal>/src/app/features/**/data-access/*-api.service.ts
 ```
 
+## API Client Decorator
+
+Use Angular `@Service()` for new feature API clients when they are root singleton services and use
+`inject()` for dependencies:
+
+```ts
+import { Service, inject } from '@angular/core';
+import { TchBackendClient } from '@tch/api';
+
+@Service()
+export class SellerTerminalApi {
+  private readonly backend = inject(TchBackendClient);
+}
+```
+
+Keep `@Injectable()` only when the service needs constructor-based dependency injection, advanced
+provider configuration (`useClass`, `useValue`, `useExisting`, `useFactory`), or non-root scopes.
+This follows the Angular v22 DI guidance:
+<https://angular.dev/guide/di/creating-and-using-services#when-to-use-service-vs-injectable>.
+
 Reusable web runtime placement:
 
 ```text
