@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ 'platform.catalog.pricing.dialog.edit.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <form class="catalog-dialog" (submit)="submit($event)">
+    @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+      <tch-section-error [title]="errorVm.title" [message]="errorVm.message" />
+    }
+
+    <div class="catalog-dialog__readonly">
+      <span>{{ 'platform.catalog.pricing.field.gameCode' | translate }}</span>
+      <code>{{ row.gameCode }} / {{ row.betType }}</code>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'platform.catalog.pricing.field.odds' | translate }}</mat-label>
+      <input matInput type="number" [formField]="form.odds" />
+      @if (form.odds().touched() && form.odds().invalid()) {
+        @for (error of form.odds().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'platform.catalog.pricing.validation.oddsMin') | translate }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'platform.catalog.pricing.field.betOption' | translate }}</mat-label>
+      <input matInput type="number" [formField]="form.betOption" />
+    </mat-form-field>
+
+    <mat-checkbox [formField]="form.active">{{ 'platform.catalog.pricing.field.active' | translate }}</mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" [mat-dialog-close]="null" [disabled]="savePricing.pending()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="primary" type="submit" [disabled]="form().invalid() || savePricing.pending()" (click)="submit($event)">
+    @if (savePricing.pending()) {
+      <span class="material-symbols-outlined catalog-dialog__spinner" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'common.save' | translate }}
+  </button>
+</mat-dialog-actions>

@@ -490,6 +490,35 @@
         "action": {
           "create": "Nouvo jwèt"
         },
+        "dialog": {
+          "create": {
+            "title": "Nouvo jwèt"
+          },
+          "edit": {
+            "title": "Modifye — {{name}}"
+          }
+        },
+        "field": {
+          "code": "Kòd",
+          "name": "Non",
+          "category": "Kategori",
+          "sortOrder": "Lòd afichaj",
+          "active": "Aktif"
+        },
+        "validation": {
+          "codeRequired": "Kòd la obligatwa.",
+          "nameRequired": "Non an obligatwa."
+        },
+        "feedback": {
+          "created": "Jwèt kreye.",
+          "updated": "Jwèt mete ajou.",
+          "deactivated": "Jwèt dezaktive.",
+          "deleted": "Jwèt efase."
+        },
+        "confirm": {
+          "deactivate": "Dezaktive « {{name}} » ?",
+          "delete": "Efase « {{name}} » nèt ?"
+        },
         "search": {
           "placeholder": "Chèche yon jwèt..."
         },
@@ -503,6 +532,36 @@
         "description": "Referans global kòt platfòm nan pa jwèt ak tip pari.",
         "action": {
           "create": "Nouvo kòt"
+        },
+        "dialog": {
+          "create": {
+            "title": "Nouvo kòt"
+          },
+          "edit": {
+            "title": "Modifye kòt la"
+          }
+        },
+        "field": {
+          "gameCode": "Jwèt (gameCode)",
+          "betType": "Tip pari",
+          "betOption": "Opsyon pari",
+          "odds": "Kòt",
+          "tenant": "Tenant",
+          "tenantPlaceholder": "Kite vid pou global",
+          "active": "Aktif"
+        },
+        "validation": {
+          "gameCodeRequired": "Jwèt la obligatwa.",
+          "betTypeRequired": "Tip pari a obligatwa.",
+          "oddsMin": "Kòt la dwe pi gran pase 0."
+        },
+        "feedback": {
+          "created": "Kòt kreye.",
+          "updated": "Kòt mete ajou.",
+          "deleted": "Kòt efase."
+        },
+        "confirm": {
+          "delete": "Efase kòt {{gameCode}} / {{betType}} ?"
         },
         "search": {
           "placeholder": "Filtre pa jwèt (BORLETTE...)"
@@ -519,7 +578,8 @@
           "filtered": {
             "title": "Pa gen rezilta",
             "message": "Pa gen kòt ki koresponn ak filtè yo."
-          }
+          },
+          "tenants": "Pa gen tenant jwenn"
         },
         "footer": {
           "count": "{{count}} kòt",

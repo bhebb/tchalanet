@@ -567,6 +567,35 @@
         "action": {
           "create": "Nouveau jeu"
         },
+        "dialog": {
+          "create": {
+            "title": "Nouveau jeu"
+          },
+          "edit": {
+            "title": "Modifier — {{name}}"
+          }
+        },
+        "field": {
+          "code": "Code",
+          "name": "Nom",
+          "category": "Catégorie",
+          "sortOrder": "Ordre d'affichage",
+          "active": "Actif"
+        },
+        "validation": {
+          "codeRequired": "Le code est requis.",
+          "nameRequired": "Le nom est requis."
+        },
+        "feedback": {
+          "created": "Jeu créé.",
+          "updated": "Jeu mis à jour.",
+          "deactivated": "Jeu désactivé.",
+          "deleted": "Jeu supprimé."
+        },
+        "confirm": {
+          "deactivate": "Désactiver « {{name}} » ?",
+          "delete": "Supprimer définitivement « {{name}} » ?"
+        },
         "search": {
           "placeholder": "Rechercher un jeu..."
         },
@@ -580,6 +609,36 @@
         "description": "Référentiel global des cotes de la plateforme, par jeu et type de pari.",
         "action": {
           "create": "Nouvelle cote"
+        },
+        "dialog": {
+          "create": {
+            "title": "Nouvelle cote"
+          },
+          "edit": {
+            "title": "Modifier la cote"
+          }
+        },
+        "field": {
+          "gameCode": "Jeu (gameCode)",
+          "betType": "Type de pari",
+          "betOption": "Option de pari (betOption)",
+          "odds": "Cote (odds)",
+          "tenant": "Tenant",
+          "tenantPlaceholder": "Laisser vide = global",
+          "active": "Actif"
+        },
+        "validation": {
+          "gameCodeRequired": "Le jeu est requis.",
+          "betTypeRequired": "Le type de pari est requis.",
+          "oddsMin": "La cote doit être supérieure à 0."
+        },
+        "feedback": {
+          "created": "Cote créée.",
+          "updated": "Cote mise à jour.",
+          "deleted": "Cote supprimée."
+        },
+        "confirm": {
+          "delete": "Supprimer la cote {{gameCode}} / {{betType}} ?"
         },
         "search": {
           "placeholder": "Filtrer par jeu (BORLETTE…)"
@@ -596,7 +655,8 @@
           "filtered": {
             "title": "Aucun résultat",
             "message": "Aucune cote ne correspond aux filtres."
-          }
+          },
+          "tenants": "Aucun tenant trouvé"
         },
         "footer": {
           "count": "{{count}} cote(s)",

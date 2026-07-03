@@ -490,6 +490,35 @@
         "action": {
           "create": "New game"
         },
+        "dialog": {
+          "create": {
+            "title": "New game"
+          },
+          "edit": {
+            "title": "Edit — {{name}}"
+          }
+        },
+        "field": {
+          "code": "Code",
+          "name": "Name",
+          "category": "Category",
+          "sortOrder": "Display order",
+          "active": "Active"
+        },
+        "validation": {
+          "codeRequired": "Code is required.",
+          "nameRequired": "Name is required."
+        },
+        "feedback": {
+          "created": "Game created.",
+          "updated": "Game updated.",
+          "deactivated": "Game deactivated.",
+          "deleted": "Game deleted."
+        },
+        "confirm": {
+          "deactivate": "Deactivate \"{{name}}\"?",
+          "delete": "Permanently delete \"{{name}}\"?"
+        },
         "search": {
           "placeholder": "Search for a game..."
         },
@@ -503,6 +532,36 @@
         "description": "Global platform odds by game and bet type.",
         "action": {
           "create": "New odds"
+        },
+        "dialog": {
+          "create": {
+            "title": "New odds"
+          },
+          "edit": {
+            "title": "Edit odds"
+          }
+        },
+        "field": {
+          "gameCode": "Game (gameCode)",
+          "betType": "Bet type",
+          "betOption": "Bet option",
+          "odds": "Odds",
+          "tenant": "Tenant",
+          "tenantPlaceholder": "Leave empty for global",
+          "active": "Active"
+        },
+        "validation": {
+          "gameCodeRequired": "Game is required.",
+          "betTypeRequired": "Bet type is required.",
+          "oddsMin": "Odds must be greater than 0."
+        },
+        "feedback": {
+          "created": "Odds created.",
+          "updated": "Odds updated.",
+          "deleted": "Odds deleted."
+        },
+        "confirm": {
+          "delete": "Delete odds {{gameCode}} / {{betType}}?"
         },
         "search": {
           "placeholder": "Filter by game (BORLETTE...)"
@@ -519,7 +578,8 @@
           "filtered": {
             "title": "No results",
             "message": "No odds match the selected filters."
-          }
+          },
+          "tenants": "No tenant found"
         },
         "footer": {
           "count": "{{count}} odds",
