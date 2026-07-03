@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,6 +29,10 @@ import {
   DrawResultDrawerComponent,
   DrawResultDrawerState,
 } from '../../components/draw-result-drawer/draw-result-drawer.component';
+import {
+  DrawDetailAsideComponent,
+  DrawDetailAsideView,
+} from './components/draw-detail-aside/draw-detail-aside.component';
 import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../../shared/lottery/lottery-assets';
 import {
   AdminFinancialsApi,
@@ -36,19 +40,19 @@ import {
   DrawTopSelectionItem,
   SellerTerminalDrawFinancialRow,
 } from '../../../financials/data-access/admin-financials-api.service';
+import {
+  DrawActivityReport,
+  DrawDetailActivityView,
+  DrawDetailActivityComponent,
+} from './components/draw-detail-activity/draw-detail-activity.component';
+import {
+  DrawDetailOverviewComponent,
+  DrawDetailOverviewView,
+} from './components/draw-detail-overview/draw-detail-overview.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
 type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
-
-interface DrawActivityReport {
-  readonly ticketsSold: number;
-  readonly grossSales: number;
-  readonly sellerCommission: number;
-  readonly activeSellerCount: number;
-  readonly netRevenueEstimated: number;
-  readonly promotionPotentialPayout: number;
-}
 
 @Component({
   selector: 'tch-admin-draw-detail-page',
@@ -56,7 +60,6 @@ interface DrawActivityReport {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    DecimalPipe,
     RouterLink,
     MatButtonModule,
     MatIconModule,
@@ -66,6 +69,9 @@ interface DrawActivityReport {
     TchLoading,
     TchErrorPanel,
     DrawResultDrawerComponent,
+    DrawDetailAsideComponent,
+    DrawDetailActivityComponent,
+    DrawDetailOverviewComponent,
   ],
   templateUrl: './admin-draw-detail.page.html',
   styleUrls: ['./admin-draw-detail.page.scss'],
@@ -97,6 +103,64 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     const draw = this.draw();
     if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
     return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
+  });
+  readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    return {
+      providerLogo: this.providerLogo(draw),
+      providerLabel: draw.providerLabel,
+      providerCode: this.providerCode(draw),
+      slotCode: this.providerSlotCode(draw),
+      displayName: this.drawDisplayName(draw),
+      supporting: `${this.slotDisplayLabel(draw)} · ${this.scheduledLocalSummary(draw)} — ${draw.timezone}`,
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      facts: [
+        { label: 'Code du slot', value: draw.slotKey, code: true },
+        { label: 'Créneau de vente', value: this.slotDisplayLabel(draw) },
+        { label: 'Date métier', value: draw.businessDate },
+        { label: 'Heure du tirage', value: this.scheduledTime(draw) },
+        { label: 'Tirage prévu', value: this.scheduledLocalDateTime(draw) },
+        { label: 'Fin des ventes', value: this.cutoffLocalDateTime(draw) },
+        { label: 'Fuseau horaire', value: draw.timezone },
+        { label: 'État technique', value: draw.lifecycleStatus ?? 'Non disponible' },
+      ],
+    };
+  });
+  readonly activityView = computed<DrawDetailActivityView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    const report = this.activityReport();
+    return {
+      countdown: this.countdownLabel(draw),
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      activityState: this.activityState(),
+      activityReport: report,
+      noSalesHint: this.noSalesHint(report),
+      sellersReportQueryParams: this.sellersReportQueryParams(draw),
+      topSelectionsState: this.topSelectionsState(),
+      topSelections: this.topSelections(),
+    };
+  });
+  readonly asideView = computed<DrawDetailAsideView | null>(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    return {
+      title: this.drawDisplayName(draw),
+      dateTime: this.asideDrawDateTime(draw),
+      slotKey: draw.slotKey,
+      countdown: this.countdownLabel(draw),
+      salesStatus: this.salesStatusLabel(draw.salesStatus),
+      salesOpen: draw.salesStatus === 'OPEN',
+      ticketCount: this.asideTicketCountLabel(this.activityReport()),
+      salesAmount: this.asideSalesAmountLabel(this.activityReport()),
+      sellerCount: this.asideSellerCountLabel(this.activityReport()),
+      hotSelections: this.asideHotSelectionsLabel(),
+      resultFollowup: this.resultFollowupLabel(draw),
+      advice: this.operationalHint(draw),
+    };
   });
 
   ngOnInit(): void {
@@ -236,10 +300,6 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       drawId: draw.drawId,
       tab: 'sellers',
     };
-  }
-
-  topSelectionStake(selection: DrawTopSelectionItem): number {
-    return selection.totalStakeCents / 100;
   }
 
   salesStatusLabel(status: GeneratedDrawSalesStatus): string {

@@ -32,151 +32,14 @@
     <tch-admin-detail-layout>
       <div main class="draw-detail__main">
         <tch-admin-section-card title="Tirage" icon="event">
-          <div class="draw-detail__section-head">
-            <div class="draw-detail__provider">
-              <div class="draw-detail__provider-logo">
-                @if (providerLogo(draw()!); as logo) {
-                  <img [src]="logo" [alt]="draw()!.providerLabel" loading="lazy" />
-                } @else {
-                  <span>{{ providerCode(draw()!) }}</span>
-                }
-              </div>
-              <div>
-                <p class="draw-detail__eyebrow">{{ providerSlotCode(draw()!) }}</p>
-                <h2>{{ drawDisplayName(draw()!) }}</h2>
-                <p class="draw-detail__supporting">
-                  {{ slotDisplayLabel(draw()!) }} · {{ scheduledLocalSummary(draw()!) }} — {{ draw()!.timezone }}
-                </p>
-              </div>
-            </div>
-            <span class="draw-detail__status" [class.is-open]="draw()!.salesStatus === 'OPEN'">
-              {{ salesStatusLabel(draw()!.salesStatus) }}
-            </span>
-          </div>
-
-          <dl class="draw-detail__facts">
-            <div>
-              <dt>Code du slot</dt>
-              <dd><code>{{ draw()!.slotKey }}</code></dd>
-            </div>
-            <div>
-              <dt>Créneau de vente</dt>
-              <dd>{{ slotDisplayLabel(draw()!) }}</dd>
-            </div>
-            <div>
-              <dt>Date métier</dt>
-              <dd>{{ draw()!.businessDate }}</dd>
-            </div>
-            <div>
-              <dt>Heure du tirage</dt>
-              <dd>{{ scheduledTime(draw()!) }}</dd>
-            </div>
-            <div>
-              <dt>Tirage prévu</dt>
-              <dd>{{ scheduledLocalDateTime(draw()!) }}</dd>
-            </div>
-            <div>
-              <dt>Fin des ventes</dt>
-              <dd>{{ cutoffLocalDateTime(draw()!) }}</dd>
-            </div>
-            <div>
-              <dt>Fuseau horaire</dt>
-              <dd>{{ draw()!.timezone }}</dd>
-            </div>
-            <div>
-              <dt>État technique</dt>
-              <dd>{{ draw()!.lifecycleStatus ?? 'Non disponible' }}</dd>
-            </div>
-          </dl>
+          @if (overviewView(); as view) {
+            <tch-draw-detail-overview [view]="view" />
+          }
         </tch-admin-section-card>
 
         <tch-admin-section-card title="Activité du tirage" icon="monitoring">
-          <div class="draw-detail__activity-head">
-            <div>
-              <p class="draw-detail__eyebrow">Fin des ventes</p>
-              <h2>{{ countdownLabel(draw()!) }}</h2>
-            </div>
-            @if (draw()!.salesStatus === 'OPEN') {
-              <span class="draw-detail__status is-open">En cours</span>
-            } @else {
-              <span class="draw-detail__status">{{ salesStatusLabel(draw()!.salesStatus) }}</span>
-            }
-          </div>
-
-          @if (activityState() === 'loading') {
-            <tch-loading label="Chargement de l’activité..." />
-          } @else if (activityState() === 'error') {
-            <div class="draw-detail__activity-error">
-              Impossible de charger les indicateurs de vente du tirage.
-            </div>
-          } @else if (activityReport(); as report) {
-            @if (noSalesHint(report); as hint) {
-              <p class="draw-detail__notice">{{ hint }}</p>
-            }
-
-            <div class="draw-detail__activity-grid">
-              <div class="draw-detail__metric">
-                <span>Tickets vendus</span>
-                <strong>{{ report.ticketsSold | number: '1.0-0' }}</strong>
-              </div>
-              <div class="draw-detail__metric">
-                <span>Montant vendu</span>
-                <strong>{{ report.grossSales | number: '1.0-2' }} HTG</strong>
-              </div>
-              <a
-                class="draw-detail__metric draw-detail__metric--link"
-                routerLink="/app/admin/reports/draws"
-                [queryParams]="sellersReportQueryParams(draw()!)"
-              >
-                <span>Vendeurs actifs</span>
-                <strong>{{ report.activeSellerCount | number: '1.0-0' }}</strong>
-              </a>
-              <div class="draw-detail__metric">
-                <span>Commission estimée</span>
-                <strong>{{ report.sellerCommission | number: '1.0-2' }} HTG</strong>
-              </div>
-              <div class="draw-detail__metric">
-                <span>Net estimé</span>
-                <strong>{{ report.netRevenueEstimated | number: '1.0-2' }} HTG</strong>
-              </div>
-              <div class="draw-detail__metric">
-                <span>Promo / gains gratuits</span>
-                <strong>{{ report.promotionPotentialPayout | number: '1.0-2' }} HTG</strong>
-              </div>
-            </div>
-
-            <div class="draw-detail__hot">
-              <div class="draw-detail__hot-head">
-                <div>
-                  <p class="draw-detail__eyebrow">Sélections chaudes</p>
-                  <h3>Top 5 du tirage</h3>
-                </div>
-                @if (topSelectionsState() === 'loading') {
-                  <span>Chargement...</span>
-                }
-              </div>
-
-              @if (topSelectionsState() === 'error') {
-                <p class="draw-detail__empty-hint">
-                  Impossible de charger les sélections les plus jouées.
-                </p>
-              } @else if (topSelections().length) {
-                <ol class="draw-detail__hot-list">
-                  @for (selection of topSelections(); track selection.rank) {
-                    <li>
-                      <span class="draw-detail__hot-rank">{{ selection.rank }}</span>
-                      <span class="draw-detail__hot-selection">{{ selection.displaySelection }}</span>
-                      <span class="draw-detail__hot-game">{{ selection.gameCode }} · {{ selection.betType }}</span>
-                      <strong>{{ topSelectionStake(selection) | number: '1.0-2' }} HTG</strong>
-                    </li>
-                  }
-                </ol>
-              } @else if (topSelectionsState() === 'ready') {
-                <p class="draw-detail__empty-hint">
-                  Aucune sélection vendue sur ce tirage pour le moment.
-                </p>
-              }
-            </div>
+          @if (activityView(); as view) {
+            <tch-draw-detail-activity [view]="view" />
           }
         </tch-admin-section-card>
 
@@ -267,51 +130,9 @@
       </div>
 
       <div aside>
-        <section class="draw-detail__aside-summary">
-          <div class="draw-detail__aside-header">
-            <p>SUIVI DU TIRAGE</p>
-            <mat-icon aria-hidden="true">event</mat-icon>
-          </div>
-
-          <h2>{{ drawDisplayName(draw()!) }}</h2>
-          <div class="draw-detail__aside-context">
-            <span>{{ asideDrawDateTime(draw()!) }}</span>
-            <code>{{ draw()!.slotKey }}</code>
-          </div>
-
-          <div class="draw-detail__aside-grid">
-            <div class="draw-detail__aside-row">
-              <span>Fin des ventes</span>
-              <strong>{{ countdownLabel(draw()!) }}</strong>
-              <em [class.is-open]="draw()!.salesStatus === 'OPEN'">
-                {{ salesStatusLabel(draw()!.salesStatus) }}
-              </em>
-            </div>
-
-            <div class="draw-detail__aside-row">
-              <span>Ventes</span>
-              <strong>{{ asideTicketCountLabel(activityReport()) }}</strong>
-              <em>{{ asideSalesAmountLabel(activityReport()) }}</em>
-            </div>
-
-            <div class="draw-detail__aside-row">
-              <span>Terrain</span>
-              <strong>{{ asideSellerCountLabel(activityReport()) }}</strong>
-            </div>
-
-            <div class="draw-detail__aside-row">
-              <span>Sélections chaudes</span>
-              <strong>{{ asideHotSelectionsLabel() }}</strong>
-            </div>
-
-            <div class="draw-detail__aside-row">
-              <span>Résultat</span>
-              <strong>{{ resultFollowupLabel(draw()!) }}</strong>
-            </div>
-          </div>
-
-          <p class="draw-detail__aside-advice">{{ operationalHint(draw()!) }}</p>
-        </section>
+        @if (asideView(); as view) {
+          <tch-draw-detail-aside [view]="view" />
+        }
       </div>
     </tch-admin-detail-layout>
   }

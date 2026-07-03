@@ -115,6 +115,9 @@
 
 ## 5. Règle d'extraction des composants
 
+- [x] Extraire le panneau page-only `admin-draw-detail` vers un composant stateless local.
+- [x] Extraire l'activité page-only `admin-draw-detail` vers un composant stateless local.
+- [x] Extraire l'aperçu page-only `admin-draw-detail` vers un composant stateless local.
 - [ ] Extraire si `*.page.ts`, `*.page.html` ou `*.page.scss` dépasse environ 100 lignes.
 - [ ] Extraire en priorité table, filter bar, form, summary card, dialog, empty state, error state,
   toolbar locale et section complexe.

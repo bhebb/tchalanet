@@ -1,0 +1,34 @@
+<div class="draw-detail-overview__section-head">
+  <div class="draw-detail-overview__provider">
+    <div class="draw-detail-overview__provider-logo">
+      @if (view().providerLogo; as logo) {
+        <img [src]="logo" [alt]="view().providerLabel" loading="lazy" />
+      } @else {
+        <span>{{ view().providerCode }}</span>
+      }
+    </div>
+    <div>
+      <p class="draw-detail-overview__eyebrow">{{ view().slotCode }}</p>
+      <h2>{{ view().displayName }}</h2>
+      <p class="draw-detail-overview__supporting">{{ view().supporting }}</p>
+    </div>
+  </div>
+  <span class="draw-detail-overview__status" [class.is-open]="view().salesOpen">
+    {{ view().salesStatus }}
+  </span>
+</div>
+
+<dl class="draw-detail-overview__facts">
+  @for (fact of view().facts; track fact.label) {
+    <div>
+      <dt>{{ fact.label }}</dt>
+      <dd>
+        @if (fact.code) {
+          <code>{{ fact.value }}</code>
+        } @else {
+          {{ fact.value }}
+        }
+      </dd>
+    </div>
+  }
+</dl>
