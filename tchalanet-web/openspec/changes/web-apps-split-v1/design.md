@@ -230,11 +230,11 @@ config proxy/app metadata si nécessaire
 - `libs/ui/theme`, `libs/ui/styles`, `libs/ui/components`, `libs/web/shell`, `libs/page-model` et
   `libs/shared-config` existent avec les responsabilités prévues ;
 - aucun composant UI pur inspecté n'injecte `HttpClient` directement ;
+- les services API métier inspectés vivent désormais sous un dossier `data-access/` ;
 - le chargement Markdown public passe désormais par un service `data-access`.
 
 Bloquants avant archive :
 
-- 23 services API métier restent hors dossier `data-access/` ;
 - 19 pages routées restent sans triplet complet `*.page.ts` / `*.page.html` / `*.page.scss` ;
 - des couleurs/fallbacks hardcodés et quelques `::ng-deep` existent encore dans des styles feature ;
 - `admin-tenant-sidenav-v0` est un ancien change sans `proposal.md`/`tasks.md`, visible dans

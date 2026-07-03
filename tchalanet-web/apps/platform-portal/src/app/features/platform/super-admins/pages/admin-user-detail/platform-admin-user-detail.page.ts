@@ -22,7 +22,7 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { PlatformAdminUserCardComponent } from '../../../shared/admin-user-card/platform-admin-user-card.component';
 import type { AdminUserCardData } from '../../../shared/admin-user-card/admin-user-card.model';
 import { PlatformAdminApi, PlatformSuperAdminView } from '../../../tenants/data-access/platform-admin-api.service';
-import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
+import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 import { AssignTenantDialog, AssignTenantResult } from '../../../shared/assign-tenant-dialog/assign-tenant-dialog.component';
 
 @Component({

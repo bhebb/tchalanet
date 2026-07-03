@@ -22,7 +22,7 @@ import {
   AdminCommissionApi,
   CommissionOverviewView,
   SellerTerminalCommissionRow,
-} from '../../admin-commission-api.service';
+} from '../../data-access/admin-commission-api.service';
 import { SetDefaultRateDialog } from './dialogs/set-default-rate.dialog';
 import { SetSellerRateDialog } from './dialogs/set-seller-rate.dialog';
 

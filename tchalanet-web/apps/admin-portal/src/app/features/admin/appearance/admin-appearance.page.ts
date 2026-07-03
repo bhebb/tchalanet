@@ -18,7 +18,7 @@ import {
   AdminThemeApi,
   TenantThemeAdminView,
   ThemePresetView,
-} from './admin-theme-api.service';
+} from '../data-access/admin-theme-api.service';
 
 type PageState = 'loading' | 'ready' | 'error';
 

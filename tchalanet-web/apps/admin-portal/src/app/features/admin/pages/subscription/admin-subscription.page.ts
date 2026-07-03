@@ -24,7 +24,7 @@ import {
   AdminSubscriptionApi,
   SubscriptionView,
   SubscriptionStatus,
-} from '../../admin-subscription-api.service';
+} from '../../data-access/admin-subscription-api.service';
 import { RenewSubscriptionDialog } from './dialogs/renew-subscription.dialog';
 import { CancelSubscriptionDialog } from './dialogs/cancel-subscription.dialog';
 

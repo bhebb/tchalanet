@@ -11,7 +11,7 @@ import {
 import {
   PlatformRecipientSellerTerminalRow,
   PlatformRecipientSellerTerminalsApi,
-} from '../platform-recipient-seller-terminals-api.service';
+} from '../data-access/platform-recipient-seller-terminals-api.service';
 
 export type PlatformRecipientKind = 'SUPER_ADMIN' | 'TENANT_ADMIN' | 'SELLER_TERMINAL';
 export type PlatformRecipientActorType = 'APP_USER' | 'SELLER_TERMINAL';

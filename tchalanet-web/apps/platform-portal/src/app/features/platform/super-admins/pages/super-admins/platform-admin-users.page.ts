@@ -17,7 +17,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { PlatformAdminApi, PlatformSuperAdminView } from '../../../tenants/data-access/platform-admin-api.service';
-import { IdentityUserCrudApi } from '../../../shared/identity-user-crud-api.service';
+import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 
 @Component({
   selector: 'tch-platform-admin-users-page',

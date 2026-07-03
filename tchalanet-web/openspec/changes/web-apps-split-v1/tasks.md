@@ -97,7 +97,7 @@
 - [ ] Mettre les composants page-only dans `<page-folder>/components/`.
 - [ ] Mettre les composants feature-shared dans `<feature>/components/`.
 - [x] Mettre les composants globaux dans `libs/ui/components/`.
-- [ ] Mettre les clients API métier dans `<feature>/data-access/`.
+- [x] Mettre les clients API métier dans `<feature>/data-access/`.
 - [ ] Mettre les types/mappers/query builders API de feature dans `<feature>/data-access/`.
 - [ ] Garder les stores page-specific avec leur page, pas dans `data-access/`.
 - [ ] Ne pas créer de dossier `shared` dans une feature sans usage réel.
@@ -126,11 +126,11 @@
 ## 6. Placement des clients API
 
 - [ ] Garder `libs/api` pour contrats + HTTP technique + `BackendClient` générique.
-- [ ] Garder les clients API métier + types locaux + mappers + query builders dans
+- [x] Garder les clients API métier + types locaux + mappers + query builders dans
   `features/*/*/data-access`.
 - [ ] Ne pas mettre les clients métier dans `libs/api`.
 - [ ] Ne pas créer de registre central `libs/api/clients`.
-- [ ] Chaque slice possède son propre `XxxApiService` dans `data-access/`.
+- [x] Chaque slice possède son propre `XxxApiService` dans `data-access/`.
 - [ ] Ne sortir un client métier de sa slice que lorsqu'il a au moins deux consommateurs réels.
 - [x] Interdire `HttpClient` direct dans les composants UI.
 - [x] Interdire l'injection directe de clients API métier dans les composants UI.
@@ -219,7 +219,7 @@
 - [x] La vente POS est lazy-loaded dans `admin-portal`.
 - [x] Aucune app ne dépend directement d'une autre app.
 - [x] Aucun client métier n'est centralisé dans `libs/api`.
-- [ ] Les clients métier vivent dans `features/**/data-access`.
+- [x] Les clients métier vivent dans `features/**/data-access`.
 - [ ] Chaque page routée vit dans son propre dossier.
 - [ ] Les pages utilisent des fichiers `.ts`, `.html`, `.scss` séparés.
 - [ ] Les stores page-specific vivent avec leur page.

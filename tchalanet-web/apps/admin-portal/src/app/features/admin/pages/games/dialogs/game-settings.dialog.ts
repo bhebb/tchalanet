@@ -11,7 +11,7 @@ import { TchErrorPanel } from '@tch/ui/components';
 
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
-import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from '../../../games-admin-api.service';
+import { GamesAdminApiService, UpdateGameSettingsRequest, TenantGameView } from '../../../data-access/games-admin-api.service';
 
 @Component({
   selector: 'tch-game-settings-dialog',

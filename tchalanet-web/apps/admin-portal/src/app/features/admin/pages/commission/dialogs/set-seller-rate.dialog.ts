@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import { SellerTerminalCommissionRow } from '../../../admin-commission-api.service';
+import { SellerTerminalCommissionRow } from '../../../data-access/admin-commission-api.service';
 
 @Component({
   selector: 'tch-set-seller-rate-dialog',

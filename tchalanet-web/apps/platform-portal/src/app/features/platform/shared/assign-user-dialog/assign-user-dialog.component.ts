@@ -4,7 +4,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { Observable, map } from 'rxjs';
 
-import { IdentityUserCrudApi, IdentityUserView } from '../identity-user-crud-api.service';
+import { IdentityUserCrudApi, IdentityUserView } from '../data-access/identity-user-crud-api.service';
 
 export interface AssignUserResult {
   userId: string;

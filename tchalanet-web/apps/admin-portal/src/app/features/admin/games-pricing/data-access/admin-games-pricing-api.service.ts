@@ -3,7 +3,7 @@ import { Observable, map } from 'rxjs';
 
 import { TchBackendClient } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
-import { GamesAdminApiService, UpdateGameSettingsRequest } from '../../games-admin-api.service';
+import { GamesAdminApiService, UpdateGameSettingsRequest } from '../../data-access/games-admin-api.service';
 import {
   TenantGamePricingView,
   TenantGameOddView,

@@ -29,7 +29,7 @@ import {
   SellerTerminalSummaryRow,
   SellerTerminalsSummary,
   SellerTerminalStatus,
-} from '../../../seller-terminal-api.service';
+} from '../../../data-access/seller-terminal-api.service';
 import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialog';
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';

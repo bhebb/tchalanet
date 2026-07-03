@@ -1,6 +1,6 @@
 import { AdminStatusTone } from '@tch/ui/console';
 
-import { TicketStatus } from './admin-tickets-api.service';
+import { TicketStatus } from './data-access/admin-tickets-api.service';
 
 export const TICKET_STATUS_VALUES: readonly TicketStatus[] = [
   'PENDING_APPROVAL',

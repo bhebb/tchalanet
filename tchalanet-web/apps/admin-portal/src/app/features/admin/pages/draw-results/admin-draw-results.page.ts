@@ -27,7 +27,7 @@ import {
   DrawResultView,
   DrawResultStatus,
   DrawResultQuality,
-} from '../../admin-draw-results-api.service';
+} from '../../data-access/admin-draw-results-api.service';
 import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../shared/lottery/lottery-assets';
 import {
   generatedDrawProviderAndTenantTimeLabel,

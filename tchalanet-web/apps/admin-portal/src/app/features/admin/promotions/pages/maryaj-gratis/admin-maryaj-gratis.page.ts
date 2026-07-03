@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminDetailLayoutComponent, AdminPageShellComponent } from '@tch/ui/console';
-import { TenantGameView } from '../../../games-admin-api.service';
+import { TenantGameView } from '../../../data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import { GameSettingsDialog } from '../../../pages/games/dialogs/game-settings.dialog';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';

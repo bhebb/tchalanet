@@ -12,7 +12,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 import type { AdminStatusTone } from '@tch/ui/console';
-import { AdminLimitsApi, BreachOutcome, LimitRuleSpec } from './admin-limits-api.service';
+import { AdminLimitsApi, BreachOutcome, LimitRuleSpec } from './data-access/admin-limits-api.service';
 
 @Component({
   selector: 'tch-admin-limits-rules-page',

@@ -25,7 +25,7 @@ import {
   TchAsyncViewComponent,
   resourceErrorVm,
 } from '@tch/web/async';
-import { AdminTicketsApi, TicketRowView, TicketStatus } from '../../admin-tickets-api.service';
+import { AdminTicketsApi, TicketRowView, TicketStatus } from '../../data-access/admin-tickets-api.service';
 import {
   TICKET_STATUS_VALUES,
   isTicketStatus,

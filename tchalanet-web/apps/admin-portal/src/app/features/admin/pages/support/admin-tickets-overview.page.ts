@@ -16,7 +16,7 @@ import {
 import {
   AdminTicketsOverviewApi,
   AdminTicketsOverviewView,
-} from '../../admin-tickets-overview-api.service';
+} from '../../data-access/admin-tickets-overview-api.service';
 import {
   TenantFinancialBreakdownView,
 } from '../../financials/data-access/admin-financials-api.service';
