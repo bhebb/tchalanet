@@ -172,6 +172,80 @@
         "title": "Sipò"
       }
     },
+    "gamesPricing": {
+      "title": "Jwèt disponib",
+      "description": "Chwazi jwèt tenant lan sipòte epi konplete paramèt vant yo.",
+      "loading": "Chajman jwèt yo...",
+      "action": {
+        "backToSetup": "Konfigirasyon jeneral",
+        "refresh": "Rafrechi"
+      },
+      "empty": {
+        "title": "Pa gen jwèt disponib",
+        "message": "Kontakte Tchalanet pou aktive yon katalòg jwèt."
+      },
+      "summary": {
+        "aria": "Rezime jwèt disponib yo",
+        "systemGames": {
+          "label": "Jwèt sistèm",
+          "help": "Jwèt ki disponib pou tenant sa a."
+        },
+        "activeGames": {
+          "label": "Jwèt aktif",
+          "help": "Jwèt ki aktive pou vant."
+        },
+        "needsConfig": {
+          "label": "Pou konfigire",
+          "help": "Jwèt aktive ki manke miz oswa barèm."
+        },
+        "inactiveGames": {
+          "label": "Inaktif",
+          "help": "Jwèt disponib men ki pa sipòte kounye a."
+        }
+      },
+      "issues": {
+        "aria": "Jwèt pou konplete",
+        "title": "Pou konplete",
+        "description": "Korije pwen sa yo avan ou aktive jwèt la pou tenant sa a.",
+        "missingStake": "Miz la pa konfigire pou jwèt sa a.",
+        "configure": "Konfigire"
+      },
+      "status": {
+        "ACTIVE": "Aktif",
+        "NEEDS_CONFIG": "Pou konfigire",
+        "INACTIVE": "Inaktif",
+        "UNAVAILABLE": "Pa disponib"
+      },
+      "readiness": {
+        "READY": "Pare",
+        "TODO": "Pou konfigire",
+        "BLOCKED": "Pa disponib"
+      },
+      "card": {
+        "unavailable": "Ap vini",
+        "systemGame": "Jwèt sistèm · {{name}}",
+        "stakeUnavailable": "Miz pa disponib",
+        "stakeConfigured": "Miz konfigire",
+        "stakeMissing": "Miz pa konfigire",
+        "pricingMissing": "Barèm pa konfigire",
+        "pricingOptions": "{{count}} opsyon barèm",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
+        "standardPricingProfile": "Barèm estanda",
+        "limitConfigured": "Limit tiraj konfigire",
+        "limitMissing": "Limit tiraj pa konfigire",
+        "action": {
+          "configure": "Konfigire",
+          "disable": "Dezaktive",
+          "activate": "Aktive",
+          "reactivate": "Reaktive",
+          "edit": "Modifye",
+          "unavailable": "Pa disponib",
+          "maryaj": "Konfigire Maryaj gratis",
+          "limits": "Konfigire limit yo",
+          "pricing": "Gade barèm yo"
+        }
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} etap obligatwa konplète",

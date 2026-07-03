@@ -218,6 +218,80 @@
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
     },
+    "gamesPricing": {
+      "title": "Jeux disponibles",
+      "description": "Choisissez les jeux supportés par ce tenant et complétez leurs spécificités de vente.",
+      "loading": "Chargement des jeux...",
+      "action": {
+        "backToSetup": "Configuration générale",
+        "refresh": "Rafraîchir"
+      },
+      "empty": {
+        "title": "Aucun jeu disponible",
+        "message": "Contactez Tchalanet pour activer un catalogue de jeux."
+      },
+      "summary": {
+        "aria": "Résumé des jeux disponibles",
+        "systemGames": {
+          "label": "Jeux système",
+          "help": "Jeux disponibles pour ce tenant."
+        },
+        "activeGames": {
+          "label": "Jeux actifs",
+          "help": "Jeux activés pour la vente."
+        },
+        "needsConfig": {
+          "label": "À configurer",
+          "help": "Jeux activés avec mise ou barème incomplet."
+        },
+        "inactiveGames": {
+          "label": "Inactifs",
+          "help": "Jeux disponibles mais non supportés actuellement."
+        }
+      },
+      "issues": {
+        "aria": "Jeux à compléter",
+        "title": "À compléter",
+        "description": "Corrigez ces points avant d'activer le jeu pour ce tenant.",
+        "missingStake": "Mise non configurée pour ce jeu.",
+        "configure": "Configurer"
+      },
+      "status": {
+        "ACTIVE": "Actif",
+        "NEEDS_CONFIG": "À configurer",
+        "INACTIVE": "Inactif",
+        "UNAVAILABLE": "Non disponible"
+      },
+      "readiness": {
+        "READY": "Prêt",
+        "TODO": "À configurer",
+        "BLOCKED": "Non disponible"
+      },
+      "card": {
+        "unavailable": "Bientôt disponible",
+        "systemGame": "Jeu système · {{name}}",
+        "stakeUnavailable": "Mise indisponible",
+        "stakeConfigured": "Mise configurée",
+        "stakeMissing": "Mise non configurée",
+        "pricingMissing": "Barème non configuré",
+        "pricingOptions": "{{count}} option(s) de barème",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "standardPricingProfile": "Barème standard",
+        "limitConfigured": "Limite tirage configurée",
+        "limitMissing": "Limite tirage non configurée",
+        "action": {
+          "configure": "Configurer",
+          "disable": "Désactiver",
+          "activate": "Activer",
+          "reactivate": "Réactiver",
+          "edit": "Modifier",
+          "unavailable": "Non disponible",
+          "maryaj": "Configurer Maryaj gratis",
+          "limits": "Configurer les limites",
+          "pricing": "Voir les barèmes"
+        }
+      }
+    },
     "setup": {
       "title": "Configuration du tenant",
       "optional": "Optionnel",

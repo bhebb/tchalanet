@@ -1,0 +1,25 @@
+<section class="games-issues" [attr.aria-label]="'admin.gamesPricing.issues.aria' | translate">
+  <div class="games-issues__header">
+    <div>
+      <h2>{{ 'admin.gamesPricing.issues.title' | translate }}</h2>
+      <p>{{ 'admin.gamesPricing.issues.description' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="games-issues__list">
+    @for (issue of issues(); track issue.gameCode + issue.messageKey) {
+      <article class="games-issues__item games-issues__item--{{ issue.tone }}">
+        <span class="material-symbols-outlined games-issues__icon" aria-hidden="true">
+          {{ issue.tone === 'danger' ? 'error' : 'warning' }}
+        </span>
+        <div class="games-issues__copy">
+          <h3>{{ issue.gameName }}</h3>
+          <p>{{ issue.messageKey | translate }}</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="issueAction.emit(issue)">
+          {{ issue.actionLabelKey | translate }}
+        </button>
+      </article>
+    }
+  </div>
+</section>

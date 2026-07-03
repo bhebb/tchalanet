@@ -60,6 +60,13 @@ export class AdminGamesPricingApiService {
       .pipe(map(res => res.games.map(row => this.toView(row))));
   }
 
+  getGamesPricingResource(options?: TchRequestOptions) {
+    return this.backend.getResource<TenantGamePricingView[], BffResponse>(
+      () => ({ path: '/admin/setup/games-pricing', options }),
+      res => res.games.map(row => this.toView(row)),
+    );
+  }
+
   enableGame(gameCode: string, options?: TchRequestOptions): Observable<void> {
     return this.gamesApi.enableGame(gameCode, options);
   }

@@ -164,6 +164,80 @@
         "title": "Support"
       }
     },
+    "gamesPricing": {
+      "title": "Available games",
+      "description": "Choose the games supported by this tenant and complete their sales settings.",
+      "loading": "Loading games...",
+      "action": {
+        "backToSetup": "General setup",
+        "refresh": "Refresh"
+      },
+      "empty": {
+        "title": "No games available",
+        "message": "Contact Tchalanet to enable a game catalog."
+      },
+      "summary": {
+        "aria": "Available games summary",
+        "systemGames": {
+          "label": "System games",
+          "help": "Games available for this tenant."
+        },
+        "activeGames": {
+          "label": "Active games",
+          "help": "Games enabled for sales."
+        },
+        "needsConfig": {
+          "label": "Needs setup",
+          "help": "Enabled games with incomplete stake or pricing setup."
+        },
+        "inactiveGames": {
+          "label": "Inactive",
+          "help": "Games available but not currently supported."
+        }
+      },
+      "issues": {
+        "aria": "Games to complete",
+        "title": "To complete",
+        "description": "Fix these points before enabling the game for this tenant.",
+        "missingStake": "Stake is not configured for this game.",
+        "configure": "Configure"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "NEEDS_CONFIG": "Needs setup",
+        "INACTIVE": "Inactive",
+        "UNAVAILABLE": "Unavailable"
+      },
+      "readiness": {
+        "READY": "Ready",
+        "TODO": "Needs setup",
+        "BLOCKED": "Unavailable"
+      },
+      "card": {
+        "unavailable": "Coming soon",
+        "systemGame": "System game · {{name}}",
+        "stakeUnavailable": "Stake unavailable",
+        "stakeConfigured": "Stake configured",
+        "stakeMissing": "Stake not configured",
+        "pricingMissing": "Pricing not configured",
+        "pricingOptions": "{{count}} pricing option(s)",
+        "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "standardPricingProfile": "Standard pricing",
+        "limitConfigured": "Draw limit configured",
+        "limitMissing": "Draw limit not configured",
+        "action": {
+          "configure": "Configure",
+          "disable": "Disable",
+          "activate": "Activate",
+          "reactivate": "Reactivate",
+          "edit": "Edit",
+          "unavailable": "Unavailable",
+          "maryaj": "Configure free Maryaj",
+          "limits": "Configure limits",
+          "pricing": "View pricing"
+        }
+      }
+    },
     "setup": {
       "progress": {
         "title": "{{completed}} / {{total}} required steps completed",

@@ -1,0 +1,52 @@
+.games-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-block: 1rem 1.25rem;
+
+  &__card {
+    display: grid;
+    gap: 0.35rem;
+    min-height: 7rem;
+    padding: 1rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-lg);
+    background: var(--tch-color-surface-container-lowest);
+    box-shadow: var(--tch-elevation-1);
+
+    &--warning {
+      border-color: color-mix(in oklab, var(--tch-color-status-warning) 55%, var(--tch-color-outline-variant));
+      background: color-mix(in oklab, var(--tch-color-status-warning) 6%, var(--tch-color-surface-container-lowest));
+    }
+
+    &--success {
+      border-color: color-mix(in oklab, var(--tch-color-status-ready) 45%, var(--tch-color-outline-variant));
+    }
+  }
+
+  &__label {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-font-weight-bold);
+    text-transform: uppercase;
+  }
+
+  &__value {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-display-xs);
+    line-height: 1;
+  }
+
+  &__help {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  @media (min-width: 760px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1120px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

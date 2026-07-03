@@ -1,40 +1,34 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
-import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
+import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import {
-  TenantGameCardComponent,
-  TenantGameCardError,
-} from '../../components/tenant-game-card/tenant-game-card.component';
+  GamesSetupIssue,
+  GamesSetupIssuesComponent,
+} from '../../components/games-setup-issues/games-setup-issues.component';
+import {
+  GamesSetupSummaryComponent,
+  GamesSetupSummaryItem,
+} from '../../components/games-setup-summary/games-setup-summary.component';
+import { TenantGameCardError } from '../../components/tenant-game-card/tenant-game-card.component';
+import { TenantGamesGridComponent } from '../../components/tenant-games-grid/tenant-games-grid.component';
 import { GameSettingsDialog } from '../../../pages/games/dialogs/game-settings.dialog';
-
-type PageState = 'loading' | 'ready' | 'error';
 
 interface GamesOverviewSummary {
   readonly catalogGameCount: number;
   readonly activeGameCount: number;
   readonly needsConfigCount: number;
   readonly inactiveGameCount: number;
-}
-
-interface GamesOverviewIssue {
-  readonly gameCode: string;
-  readonly gameName: string;
-  readonly message: string;
-  readonly actionLabel: string;
-  readonly action: 'configure-game';
-  readonly tone: 'warning' | 'danger';
 }
 
 @Component({
@@ -44,75 +38,61 @@ interface GamesOverviewIssue {
   imports: [
     RouterLink,
     MatButtonModule,
+    TranslatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
-    TchLoading,
-    TchErrorPanel,
-    TenantGameCardComponent,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
+    GamesSetupIssuesComponent,
+    GamesSetupSummaryComponent,
+    TenantGamesGridComponent,
   ],
   templateUrl: './admin-games-pricing.page.html',
   styleUrls: ['./admin-games-pricing.page.scss'],
 })
-export class AdminGamesPricingPage implements OnInit {
+export class AdminGamesPricingPage {
   private readonly api = inject(AdminGamesPricingApiService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
-  readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<ErrorViewModel | null>(null);
-  readonly games = signal<TenantGamePricingView[]>([]);
-  readonly matrixSummary = signal<GamesOverviewSummary | null>(null);
-  readonly issues = signal<readonly GamesOverviewIssue[]>([]);
+  readonly gamesResource = this.api.getGamesPricingResource({ suppressShellFeedback: true });
+  readonly gamesError = resourceErrorVm(this.gamesResource, 'admin.setup.games_pricing');
+  readonly games = computed(() => this.gamesResource.value() ?? []);
+  readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
+  readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
-  readonly summaryItems = computed(() => {
+  readonly summaryItems = computed<readonly GamesSetupSummaryItem[]>(() => {
     const summary = this.matrixSummary();
-    if (!summary) return [];
 
     return [
       {
-        label: 'Jeux système',
+        labelKey: 'admin.gamesPricing.summary.systemGames.label',
         value: summary.catalogGameCount,
-        help: 'Jeux disponibles pour ce tenant.',
+        helpKey: 'admin.gamesPricing.summary.systemGames.help',
       },
       {
-        label: 'Jeux actifs',
+        labelKey: 'admin.gamesPricing.summary.activeGames.label',
         value: summary.activeGameCount,
-        help: 'Jeux activés pour la vente.',
+        helpKey: 'admin.gamesPricing.summary.activeGames.help',
       },
       {
-        label: 'À configurer',
+        labelKey: 'admin.gamesPricing.summary.needsConfig.label',
         value: summary.needsConfigCount,
-        help: 'Jeux activés avec mise ou barème incomplet.',
+        helpKey: 'admin.gamesPricing.summary.needsConfig.help',
         tone: summary.needsConfigCount > 0 ? 'warning' : 'success',
       },
       {
-        label: 'Inactifs',
+        labelKey: 'admin.gamesPricing.summary.inactiveGames.label',
         value: summary.inactiveGameCount,
-        help: 'Jeux disponibles mais non supportés actuellement.',
+        helpKey: 'admin.gamesPricing.summary.inactiveGames.help',
       },
     ];
   });
 
-  ngOnInit(): void { this.load(); }
-
   load(): void {
-    this.pageState.set('loading');
-    this.pageError.set(null);
     this.actionErrors.set({});
-    this.api.getGamesPricing({ suppressShellFeedback: true }).subscribe({
-      next: games => {
-        this.games.set(games);
-        this.matrixSummary.set(this.buildOverviewSummary(games));
-        this.issues.set(this.buildOverviewIssues(games));
-        this.pageState.set('ready');
-      },
-      error: (err: unknown) => {
-        const problem = (err as { error?: ProblemDetail })?.error;
-        this.pageError.set(this.pageErrorViewModel(problem));
-        this.pageState.set('error');
-      },
-    });
+    this.gamesResource.reload();
   }
 
   onActivate(gameCode: string): void {
@@ -163,12 +143,8 @@ export class AdminGamesPricingPage implements OnInit {
     ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
   }
 
-  onIssueAction(issue: GamesOverviewIssue): void {
+  onIssueAction(issue: GamesSetupIssue): void {
     this.onConfigure(issue.gameCode);
-  }
-
-  actionError(gameCode: string): TenantGameCardError | null {
-    return this.actionErrors()[gameCode] ?? null;
   }
 
   private setActionError(gameCode: string, err: unknown): void {
@@ -198,8 +174,8 @@ export class AdminGamesPricingPage implements OnInit {
     };
   }
 
-  private buildOverviewIssues(games: readonly TenantGamePricingView[]): readonly GamesOverviewIssue[] {
-    const issues: GamesOverviewIssue[] = [];
+  private buildOverviewIssues(games: readonly TenantGamePricingView[]): readonly GamesSetupIssue[] {
+    const issues: GamesSetupIssue[] = [];
 
     for (const game of games) {
       if (game.catalogStatus !== 'AVAILABLE' || game.tenantStatus === 'UNAVAILABLE') continue;
@@ -208,8 +184,8 @@ export class AdminGamesPricingPage implements OnInit {
         issues.push({
           gameCode:    game.gameCode,
           gameName:    game.gameName,
-          message:     'Mise non configurée pour ce jeu.',
-          actionLabel: 'Configurer',
+          messageKey:  'admin.gamesPricing.issues.missingStake',
+          actionLabelKey: 'admin.gamesPricing.issues.configure',
           action:      'configure-game',
           tone:        'danger',
         });
@@ -222,20 +198,6 @@ export class AdminGamesPricingPage implements OnInit {
 
   private hasGameStakeConfig(game: TenantGamePricingView): boolean {
     return game.limits.minStake !== null && game.limits.maxStake !== null;
-  }
-
-  private pageErrorViewModel(problem: ProblemDetail | undefined): ErrorViewModel {
-    if (!problem) {
-      return {
-        severity: 'error',
-        title: this.translate.instant('common.errors.categories.unexpected.title'),
-        message: this.translate.instant('common.errors.categories.unexpected.message'),
-      };
-    }
-
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.games_pricing', 'page');
-    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-    return toErrorViewModel(normalized, copy);
   }
 
   private errorCopy(
