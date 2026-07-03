@@ -523,6 +523,7 @@ export class PlatformOpsDrawsPage implements OnInit {
       meta: draw.channel.code,
       logoUrl: this.lotteryAsset(draw.slot.key),
       logoAlt: draw.slot.label ?? draw.slot.key,
+      logoText: draw.channel.code,
       scheduledDateLabel: draw.drawDate,
       scheduledTimeLabel: draw.scheduledAt,
       statusLabel: consoleDrawStatusLabel(draw.status),

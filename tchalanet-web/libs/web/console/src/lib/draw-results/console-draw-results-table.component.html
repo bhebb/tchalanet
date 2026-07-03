@@ -8,7 +8,7 @@
             @if (row.logoUrl) {
               <img [src]="row.logoUrl" [alt]="row.logoAlt || row.title" loading="lazy" />
             } @else {
-              <span>{{ row.slotKey || '—' }}</span>
+              <span>{{ row.logoText || row.slotKey || '—' }}</span>
             }
           </div>
           <div>

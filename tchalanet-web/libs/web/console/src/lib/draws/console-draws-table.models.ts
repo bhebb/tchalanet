@@ -9,6 +9,7 @@ export interface ConsoleDrawRow {
   readonly meta?: string;
   readonly logoUrl?: string | null;
   readonly logoAlt?: string;
+  readonly logoText?: string;
   readonly scheduledDateLabel?: string;
   readonly scheduledTimeLabel?: string;
   readonly countdownLabel?: string | null;

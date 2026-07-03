@@ -257,6 +257,7 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       meta: row.occurredAt,
       logoUrl: this.lotteryAsset(row.slotKey),
       logoAlt: row.slotKey,
+      logoText: row.slotKey,
       slotKey: row.slotKey,
       numbers: this.resultNumbers(row),
       statusLabel: consoleDrawResultStatusLabel(row.status),

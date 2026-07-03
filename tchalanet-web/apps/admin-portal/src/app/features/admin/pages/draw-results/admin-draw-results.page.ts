@@ -364,6 +364,7 @@ export class AdminDrawResultsPage implements OnInit {
       meta: occurredTime ? `${drawDate} · ${occurredTime}` : drawDate,
       logoUrl: this.providerLogo(row),
       logoAlt: this.providerLabel(row),
+      logoText: this.providerCode(row),
       slotKey: this.slotCode(row),
       numbers: this.resultNumbers(row),
       statusLabel: this.statusLabel(row.status),

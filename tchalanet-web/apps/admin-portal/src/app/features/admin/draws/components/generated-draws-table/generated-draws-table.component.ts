@@ -289,6 +289,7 @@ export class GeneratedDrawsTableComponent {
       meta: draw.providerLabel,
       logoUrl: this.providerLogo(draw),
       logoAlt: draw.providerLabel,
+      logoText: draw.providerCode,
       scheduledDateLabel: this.scheduledDate(draw),
       scheduledTimeLabel: this.scheduledTime(draw),
       countdownLabel: this.salesCountdown(draw),

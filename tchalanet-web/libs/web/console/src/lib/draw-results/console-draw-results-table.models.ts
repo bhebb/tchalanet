@@ -17,6 +17,7 @@ export interface ConsoleDrawResultRow {
   readonly meta?: string;
   readonly logoUrl?: string | null;
   readonly logoAlt?: string;
+  readonly logoText?: string;
   readonly slotKey?: string;
   readonly numbers: readonly string[];
   readonly statusLabel: string;
