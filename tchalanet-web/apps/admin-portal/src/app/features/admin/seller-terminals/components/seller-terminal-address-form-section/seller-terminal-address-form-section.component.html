@@ -1,0 +1,90 @@
+<tch-admin-section-card
+  [title]="'admin.sellerTerminals.new.section.address' | translate"
+  icon="location_on"
+  [description]="'admin.sellerTerminals.new.section.addressDesc' | translate"
+>
+  <div class="seller-terminal-create-form__address-grid">
+    <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+      <mat-label>{{ 'admin.sellerTerminals.new.field.addressLine1' | translate }}</mat-label>
+      <input
+        matInput
+        [formField]="form().address.line1"
+        [placeholder]="'admin.sellerTerminals.new.placeholder.addressLine1' | translate"
+        autocomplete="address-line1"
+      />
+      @if (form().address.line1().touched() && form().address.line1().invalid()) {
+        @for (error of form().address.line1().errors(); track error.kind) {
+          <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.max200') | translate }}</mat-error>
+        }
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="seller-terminal-create-form__field seller-terminal-create-form__field--full">
+      <mat-label>{{ 'admin.sellerTerminals.new.field.addressLine2' | translate }}</mat-label>
+      <input
+        matInput
+        [formField]="form().address.line2"
+        [placeholder]="'admin.sellerTerminals.new.placeholder.addressLine2' | translate"
+        autocomplete="address-line2"
+      />
+    </mat-form-field>
+
+    <div class="seller-terminal-create-form__row">
+      <div class="seller-terminal-create-form__field-stack">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.city' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().address.city"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.city' | translate"
+            autocomplete="address-level2"
+          />
+          @if (form().address.city().touched() && form().address.city().invalid()) {
+            @for (error of form().address.city().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.max100') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="seller-terminal-create-form__field-stack">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.region' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().address.region"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.region' | translate"
+            autocomplete="address-level1"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="seller-terminal-create-form__row">
+      <div class="seller-terminal-create-form__field-stack">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.country' | translate }}</mat-label>
+          <input
+            matInput
+            [formField]="form().address.country"
+            [placeholder]="'admin.sellerTerminals.new.placeholder.country' | translate"
+            maxlength="2"
+            autocomplete="country"
+          />
+          @if (form().address.country().touched() && form().address.country().invalid()) {
+            @for (error of form().address.country().errors(); track error.kind) {
+              <mat-error>{{ (error.message ?? 'admin.sellerTerminals.new.validation.country') | translate }}</mat-error>
+            }
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="seller-terminal-create-form__field-stack">
+        <mat-form-field appearance="outline" class="seller-terminal-create-form__field">
+          <mat-label>{{ 'admin.sellerTerminals.new.field.postalCode' | translate }}</mat-label>
+          <input matInput [formField]="form().address.postalCode" autocomplete="postal-code" />
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+</tch-admin-section-card>

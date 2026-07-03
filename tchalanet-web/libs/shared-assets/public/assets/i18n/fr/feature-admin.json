@@ -557,6 +557,103 @@
           "activeNeverSeen": "Actif · jamais connecté"
         }
       },
+      "new": {
+        "title": "Nouveau vendeur",
+        "description": "Enregistrez un nouveau point de vente sur le réseau.",
+        "section": {
+          "identity": "Identité",
+          "identityDesc": "Informations d'identification du vendeur.",
+          "address": "Adresse",
+          "addressDesc": "Adresse physique du point de vente, si disponible.",
+          "access": "Accès",
+          "accessDesc": "PIN de connexion initial du vendeur.",
+          "commission": "Commission",
+          "commissionDesc": "Taux de commission appliqué à ce vendeur.",
+          "status": "Statut",
+          "statusDesc": "Le vendeur sera immédiatement disponible si activé."
+        },
+        "field": {
+          "terminalCode": "Code terminal",
+          "displayName": "Nom d'affichage",
+          "firstName": "Prénom (optionnel)",
+          "lastName": "Nom (optionnel)",
+          "email": "Email (optionnel)",
+          "phoneNumber": "Téléphone (optionnel)",
+          "addressLine1": "Rue / Ligne 1",
+          "addressLine2": "Appartement / Ligne 2 (optionnel)",
+          "city": "Ville",
+          "region": "Région / Département (optionnel)",
+          "country": "Pays (code ISO)",
+          "postalCode": "Code postal (optionnel)",
+          "initialPin": "PIN initial",
+          "confirmPin": "Confirmer le PIN",
+          "commissionRate": "Taux de commission (%)",
+          "active": "Activer le vendeur à la création"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Ex : Point Vente Centre-Ville",
+          "email": "vendeur@exemple.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Ex : 12 Rue Pavée",
+          "addressLine2": "Ex : Apt 3B",
+          "city": "Ex : Port-au-Prince",
+          "region": "Ex : Ouest",
+          "country": "HT",
+          "pin": "6 chiffres",
+          "confirmPin": "Répéter le PIN"
+        },
+        "hint": {
+          "pin": "Exactement 6 chiffres.",
+          "confirmPin": "Répétez les 6 chiffres."
+        },
+        "validation": {
+          "terminalCodeRequired": "Le code terminal est requis.",
+          "terminalCodeMax": "Maximum 64 caractères.",
+          "displayNameRequired": "Le nom d'affichage est requis.",
+          "displayNameMin": "Minimum 2 caractères.",
+          "displayNameMax": "Maximum 64 caractères.",
+          "email": "Email invalide.",
+          "emailMax": "Maximum 254 caractères.",
+          "max200": "Maximum 200 caractères.",
+          "max100": "Maximum 100 caractères.",
+          "country": "Code ISO 2 lettres.",
+          "postalCode": "Maximum 20 caractères.",
+          "pinRequired": "Le PIN est requis.",
+          "pinFormat": "Le PIN doit contenir exactement 6 chiffres.",
+          "confirmPinRequired": "La confirmation est requise.",
+          "confirmPinFormat": "La confirmation doit contenir exactement 6 chiffres.",
+          "pinMismatch": "Les PINs ne correspondent pas.",
+          "commissionRequired": "Le taux de commission est requis.",
+          "commissionRange": "Le taux doit être compris entre 0 et 100."
+        },
+        "action": {
+          "backToList": "Retour à la liste",
+          "regenerateCode": "Générer un nouveau code",
+          "showPin": "Afficher le PIN",
+          "hidePin": "Masquer le PIN",
+          "create": "Créer le vendeur",
+          "creating": "Création en cours…",
+          "openPos": "Ouvrir le Web POS",
+          "copy": "Copier",
+          "copied": "Copié !",
+          "copyTerminalCode": "Copier le code terminal",
+          "createAnother": "Créer un autre vendeur"
+        },
+        "preview": {
+          "title": "Aperçu du vendeur",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Nom du vendeur",
+          "commission": "Commission : {{rate}}%",
+          "hint": "Le code terminal et le PIN initial seront affichés après la création."
+        },
+        "success": {
+          "title": "Vendeur créé avec succès !",
+          "description": "Le nouveau point de vente est désormais actif sur le réseau.",
+          "noticePrefix": "Veuillez communiquer ces identifiants au vendeur. Le PIN initial devra être modifié lors de la première connexion.",
+          "noticeStrong": "Il ne sera plus affiché après la fermeture de cet écran."
+        }
+      },
       "detail": {
         "title": "Détail vendeur",
         "description": "Consultez l'identité, les états et l'activité du vendeur.",

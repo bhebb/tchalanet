@@ -489,10 +489,101 @@
         "message": "Add your first seller-terminal to get started."
       },
       "new": {
-        "title": "New seller-terminal",
-        "action": "Add a seller-terminal",
-        "description": "Fill in the information to create a new seller-terminal.",
-        "submit": "Create seller terminal"
+        "title": "New seller",
+        "description": "Register a new point of sale on the network.",
+        "section": {
+          "identity": "Identity",
+          "identityDesc": "Seller identification information.",
+          "address": "Address",
+          "addressDesc": "Physical point-of-sale address, when available.",
+          "access": "Access",
+          "accessDesc": "Initial login PIN for the seller.",
+          "commission": "Commission",
+          "commissionDesc": "Commission rate applied to this seller.",
+          "status": "Status",
+          "statusDesc": "The seller will be available immediately when active."
+        },
+        "field": {
+          "terminalCode": "Terminal code",
+          "displayName": "Display name",
+          "firstName": "First name (optional)",
+          "lastName": "Last name (optional)",
+          "email": "Email (optional)",
+          "phoneNumber": "Phone (optional)",
+          "addressLine1": "Street / Line 1",
+          "addressLine2": "Apartment / Line 2 (optional)",
+          "city": "City",
+          "region": "Region / Department (optional)",
+          "country": "Country (ISO code)",
+          "postalCode": "Postal code (optional)",
+          "initialPin": "Initial PIN",
+          "confirmPin": "Confirm PIN",
+          "commissionRate": "Commission rate (%)",
+          "active": "Activate seller on creation"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Ex: Downtown point of sale",
+          "email": "seller@example.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Ex: 12 Rue Pavee",
+          "addressLine2": "Ex: Apt 3B",
+          "city": "Ex: Port-au-Prince",
+          "region": "Ex: Ouest",
+          "country": "HT",
+          "pin": "6 digits",
+          "confirmPin": "Repeat the PIN"
+        },
+        "hint": {
+          "pin": "Exactly 6 digits.",
+          "confirmPin": "Repeat the 6 digits."
+        },
+        "validation": {
+          "terminalCodeRequired": "Terminal code is required.",
+          "terminalCodeMax": "Maximum 64 characters.",
+          "displayNameRequired": "Display name is required.",
+          "displayNameMin": "Minimum 2 characters.",
+          "displayNameMax": "Maximum 64 characters.",
+          "email": "Invalid email.",
+          "emailMax": "Maximum 254 characters.",
+          "max200": "Maximum 200 characters.",
+          "max100": "Maximum 100 characters.",
+          "country": "2-letter ISO code.",
+          "postalCode": "Maximum 20 characters.",
+          "pinRequired": "PIN is required.",
+          "pinFormat": "PIN must contain exactly 6 digits.",
+          "confirmPinRequired": "Confirmation is required.",
+          "confirmPinFormat": "Confirmation must contain exactly 6 digits.",
+          "pinMismatch": "PINs do not match.",
+          "commissionRequired": "Commission rate is required.",
+          "commissionRange": "Rate must be between 0 and 100."
+        },
+        "action": {
+          "backToList": "Back to list",
+          "regenerateCode": "Generate a new code",
+          "showPin": "Show PIN",
+          "hidePin": "Hide PIN",
+          "create": "Create seller",
+          "creating": "Creating…",
+          "openPos": "Open Web POS",
+          "copy": "Copy",
+          "copied": "Copied!",
+          "copyTerminalCode": "Copy terminal code",
+          "createAnother": "Create another seller"
+        },
+        "preview": {
+          "title": "Seller preview",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Seller name",
+          "commission": "Commission: {{rate}}%",
+          "hint": "The terminal code and initial PIN will be shown after creation."
+        },
+        "success": {
+          "title": "Seller created successfully!",
+          "description": "The new point of sale is now active on the network.",
+          "noticePrefix": "Share these credentials with the seller. The initial PIN must be changed on first login.",
+          "noticeStrong": "It will not be shown again after this screen is closed."
+        }
       },
       "detail": {
         "title": "Seller-terminal detail",

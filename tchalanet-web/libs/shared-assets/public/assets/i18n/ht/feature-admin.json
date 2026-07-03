@@ -491,6 +491,103 @@
           "activeNeverSeen": "Aktif · poko konekte"
         }
       },
+      "new": {
+        "title": "Nouvo vandè",
+        "description": "Anrejistre yon nouvo pwen lavant sou rezo a.",
+        "section": {
+          "identity": "Idantite",
+          "identityDesc": "Enfòmasyon pou idantifye vandè a.",
+          "address": "Adrès",
+          "addressDesc": "Adrès fizik pwen lavant lan, si li disponib.",
+          "access": "Aksè",
+          "accessDesc": "PIN inisyal pou vandè a konekte.",
+          "commission": "Komisyon",
+          "commissionDesc": "Pousantaj komisyon pou vandè sa a.",
+          "status": "Eta",
+          "statusDesc": "Vandè a ap disponib touswit si li aktive."
+        },
+        "field": {
+          "terminalCode": "Kòd terminal",
+          "displayName": "Non afichaj",
+          "firstName": "Prenon (opsyonèl)",
+          "lastName": "Non (opsyonèl)",
+          "email": "Email (opsyonèl)",
+          "phoneNumber": "Telefòn (opsyonèl)",
+          "addressLine1": "Ri / Liy 1",
+          "addressLine2": "Apatman / Liy 2 (opsyonèl)",
+          "city": "Vil",
+          "region": "Rejyon / Depatman (opsyonèl)",
+          "country": "Peyi (kòd ISO)",
+          "postalCode": "Kòd postal (opsyonèl)",
+          "initialPin": "PIN inisyal",
+          "confirmPin": "Konfime PIN",
+          "commissionRate": "Pousantaj komisyon (%)",
+          "active": "Aktive vandè a lè li kreye"
+        },
+        "placeholder": {
+          "terminalCode": "TCH-XXXXXX",
+          "displayName": "Egz: Pwen lavant sant vil",
+          "email": "vande@example.com",
+          "phoneNumber": "+509 XXXX XXXX",
+          "addressLine1": "Egz: 12 Rue Pavee",
+          "addressLine2": "Egz: Apt 3B",
+          "city": "Egz: Port-au-Prince",
+          "region": "Egz: Lwès",
+          "country": "HT",
+          "pin": "6 chif",
+          "confirmPin": "Repete PIN nan"
+        },
+        "hint": {
+          "pin": "Egzakteman 6 chif.",
+          "confirmPin": "Repete 6 chif yo."
+        },
+        "validation": {
+          "terminalCodeRequired": "Kòd terminal la obligatwa.",
+          "terminalCodeMax": "Maksimòm 64 karaktè.",
+          "displayNameRequired": "Non afichaj la obligatwa.",
+          "displayNameMin": "Minimòm 2 karaktè.",
+          "displayNameMax": "Maksimòm 64 karaktè.",
+          "email": "Email pa valid.",
+          "emailMax": "Maksimòm 254 karaktè.",
+          "max200": "Maksimòm 200 karaktè.",
+          "max100": "Maksimòm 100 karaktè.",
+          "country": "Kòd ISO 2 lèt.",
+          "postalCode": "Maksimòm 20 karaktè.",
+          "pinRequired": "PIN nan obligatwa.",
+          "pinFormat": "PIN nan dwe gen egzakteman 6 chif.",
+          "confirmPinRequired": "Konfimasyon an obligatwa.",
+          "confirmPinFormat": "Konfimasyon an dwe gen egzakteman 6 chif.",
+          "pinMismatch": "PIN yo pa menm.",
+          "commissionRequired": "Pousantaj komisyon an obligatwa.",
+          "commissionRange": "Pousantaj la dwe ant 0 ak 100."
+        },
+        "action": {
+          "backToList": "Retounen nan lis la",
+          "regenerateCode": "Jenere yon nouvo kòd",
+          "showPin": "Montre PIN",
+          "hidePin": "Kache PIN",
+          "create": "Kreye vandè",
+          "creating": "Ap kreye…",
+          "openPos": "Louvri Web POS",
+          "copy": "Kopye",
+          "copied": "Kopye!",
+          "copyTerminalCode": "Kopye kòd terminal la",
+          "createAnother": "Kreye yon lòt vandè"
+        },
+        "preview": {
+          "title": "Aperçu vandè",
+          "codeFallback": "TCH-??????",
+          "nameFallback": "Non vandè",
+          "commission": "Komisyon : {{rate}}%",
+          "hint": "Kòd terminal la ak PIN inisyal la ap parèt apre kreyasyon an."
+        },
+        "success": {
+          "title": "Vandè a kreye avèk siksè!",
+          "description": "Nouvo pwen lavant lan aktif sou rezo a kounye a.",
+          "noticePrefix": "Bay vandè a idantifyan sa yo. PIN inisyal la dwe chanje nan premye koneksyon an.",
+          "noticeStrong": "Li p ap parèt ankò apre ekran sa a fèmen."
+        }
+      },
       "detail": {
         "title": "Detay vandè",
         "description": "Gade idantite, eta ak aktivite vandè a.",

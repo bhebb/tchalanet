@@ -1,45 +1,32 @@
 import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
-import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
+import { form, max, maxLength, min, minLength, pattern, required, submit } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 
-import { TchErrorPanel, TchFieldError } from '@tch/ui/components';
 import {
-  applyServerFieldErrors,
-  clearServerFieldErrors,
   ErrorViewModel,
   toErrorViewModel,
   withResolvedErrorCopies,
 } from '@tch/web/errors';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   AddressRequest,
   CreateSellerTerminalResult,
   SellerTerminalApi,
 } from '../../data-access/seller-terminal-api.service';
+import { SellerTerminalCreateFormComponent } from '../../components/seller-terminal-create-form/seller-terminal-create-form.component';
 import { SellerTerminalSuccessCardComponent } from '../../components/seller-terminal-success-card/seller-terminal-success-card.component';
-import { SELLER_TERMINAL_CREATE_FIELD_TARGETS } from '../../seller-terminal-error-targets';
 
 function generateTerminalCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -50,13 +37,25 @@ function generateTerminalCode(): string {
   return `TCH-${suffix}`;
 }
 
-function pinMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const pin = group.get('initialPin')?.value as string;
-  const confirm = group.get('confirmPin')?.value as string;
-  if (pin && confirm && pin !== confirm) {
-    return { pinMismatch: true };
-  }
-  return null;
+export interface SellerTerminalCreateFormModel {
+  readonly terminalCode: string;
+  readonly displayName: string;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phoneNumber: string;
+  readonly initialPin: string;
+  readonly confirmPin: string;
+  readonly commissionRate: number;
+  readonly active: boolean;
+  readonly address: {
+    readonly line1: string;
+    readonly line2: string;
+    readonly city: string;
+    readonly region: string;
+    readonly country: string;
+    readonly postalCode: string;
+  };
 }
 
 @Component({
@@ -65,18 +64,11 @@ function pinMatchValidator(group: AbstractControl): ValidationErrors | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    ReactiveFormsModule,
     AdminPageShellComponent,
-    AdminSectionCardComponent,
+    SellerTerminalCreateFormComponent,
     SellerTerminalSuccessCardComponent,
-    TchErrorPanel,
-    TchFieldError,
+    TranslatePipe,
     MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
   ],
   templateUrl: './admin-seller-terminal-new.page.html',
   styleUrls: ['./admin-seller-terminal-new.page.scss'],
@@ -84,7 +76,6 @@ function pinMatchValidator(group: AbstractControl): ValidationErrors | null {
 export class AdminSellerTerminalNewPage implements OnInit {
   private readonly api = inject(SellerTerminalApi);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
 
   private readonly fallbackCommissionRate = 15;
@@ -96,52 +87,43 @@ export class AdminSellerTerminalNewPage implements OnInit {
   readonly showPin = signal(false);
   readonly showConfirmPin = signal(false);
 
-  readonly form = this.fb.nonNullable.group(
-    {
-      terminalCode: [generateTerminalCode(), [Validators.required, Validators.maxLength(64)]],
-      displayName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(64)]],
-      firstName: [''],
-      lastName: [''],
-      email: ['', [Validators.email, Validators.maxLength(254)]],
-      phoneNumber: [''],
-      initialPin: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(6),
-          Validators.pattern(/^\d{6}$/),
-        ],
-      ],
-      confirmPin: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(6),
-          Validators.maxLength(6),
-          Validators.pattern(/^\d{6}$/),
-        ],
-      ],
-      commissionRate: [this.fallbackCommissionRate, [Validators.required, Validators.min(0), Validators.max(100)]],
-      active: [true],
-      address: this.fb.group({
-        line1: ['', [Validators.maxLength(200)]],
-        line2: ['', [Validators.maxLength(200)]],
-        city: ['', [Validators.maxLength(100)]],
-        region: ['', [Validators.maxLength(100)]],
-        country: ['HT', [Validators.maxLength(2)]],
-        postalCode: ['', [Validators.maxLength(20)]],
-      }),
-    },
-    { validators: pinMatchValidator },
-  );
+  readonly model = signal<SellerTerminalCreateFormModel>(this.initialFormModel());
+  readonly form = form(this.model, path => {
+    required(path.terminalCode, { message: 'admin.sellerTerminals.new.validation.terminalCodeRequired' });
+    maxLength(path.terminalCode, 64, { message: 'admin.sellerTerminals.new.validation.terminalCodeMax' });
+    required(path.displayName, { message: 'admin.sellerTerminals.new.validation.displayNameRequired' });
+    minLength(path.displayName, 2, { message: 'admin.sellerTerminals.new.validation.displayNameMin' });
+    maxLength(path.displayName, 64, { message: 'admin.sellerTerminals.new.validation.displayNameMax' });
+    maxLength(path.email, 254, { message: 'admin.sellerTerminals.new.validation.emailMax' });
+    pattern(path.email, /^[^@\s]+@[^@\s]+\.[^@\s]+$|^$/, { message: 'admin.sellerTerminals.new.validation.email' });
+    required(path.initialPin, { message: 'admin.sellerTerminals.new.validation.pinRequired' });
+    pattern(path.initialPin, /^\d{6}$/, { message: 'admin.sellerTerminals.new.validation.pinFormat' });
+    required(path.confirmPin, { message: 'admin.sellerTerminals.new.validation.confirmPinRequired' });
+    pattern(path.confirmPin, /^\d{6}$/, { message: 'admin.sellerTerminals.new.validation.confirmPinFormat' });
+    required(path.commissionRate, { message: 'admin.sellerTerminals.new.validation.commissionRequired' });
+    min(path.commissionRate, 0, { message: 'admin.sellerTerminals.new.validation.commissionRange' });
+    max(path.commissionRate, 100, { message: 'admin.sellerTerminals.new.validation.commissionRange' });
+    maxLength(path.address.line1, 200, { message: 'admin.sellerTerminals.new.validation.max200' });
+    maxLength(path.address.line2, 200, { message: 'admin.sellerTerminals.new.validation.max200' });
+    maxLength(path.address.city, 100, { message: 'admin.sellerTerminals.new.validation.max100' });
+    maxLength(path.address.region, 100, { message: 'admin.sellerTerminals.new.validation.max100' });
+    maxLength(path.address.country, 2, { message: 'admin.sellerTerminals.new.validation.country' });
+    maxLength(path.address.postalCode, 20, { message: 'admin.sellerTerminals.new.validation.postalCode' });
+  });
+  readonly pinMismatch = computed(() => {
+    const value = this.model();
+    return this.form.confirmPin().touched() &&
+      !!value.initialPin &&
+      !!value.confirmPin &&
+      value.initialPin !== value.confirmPin;
+  });
 
   ngOnInit(): void {
     this.api.getCommissionOverview().subscribe({
       next: overview => {
         const rate = overview.tenantDefaultRate ?? this.fallbackCommissionRate;
         this.tenantDefaultCommissionRate.set(overview.tenantDefaultRate);
-        this.form.controls.commissionRate.setValue(rate);
+        this.model.update(value => ({ ...value, commissionRate: rate }));
       },
       error: () => {
         this.tenantDefaultCommissionRate.set(null);
@@ -150,7 +132,7 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   regenerateCode(): void {
-    this.form.controls.terminalCode.setValue(generateTerminalCode());
+    this.model.update(value => ({ ...value, terminalCode: generateTerminalCode() }));
   }
 
   toggleShowPin(): void {
@@ -162,55 +144,54 @@ export class AdminSellerTerminalNewPage implements OnInit {
   }
 
   pinLength(controlName: 'initialPin' | 'confirmPin'): number {
-    return this.form.controls[controlName].value.length;
+    return this.model()[controlName].length;
   }
 
   onSubmit(): void {
     if (this.saving()) return;
-    clearServerFieldErrors(this.form);
     this.error.set(null);
-    this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    submit(this.form, async () => {
+      const raw = this.model();
+      if (raw.initialPin !== raw.confirmPin) return;
+      this.saving.set(true);
 
-    const raw = this.form.getRawValue();
-    this.saving.set(true);
+      const addr = raw.address;
+      const addressPayload: AddressRequest | null =
+        addr.line1 || addr.city
+          ? {
+              line1: addr.line1,
+              line2: addr.line2 || null,
+              city: addr.city,
+              region: addr.region || null,
+              country: addr.country || 'HT',
+              postalCode: addr.postalCode || null,
+            }
+          : null;
 
-    const addr = raw.address;
-    const addressPayload: AddressRequest | null =
-      addr?.line1 || addr?.city
-        ? {
-            line1: addr.line1 ?? '',
-            line2: addr.line2 || null,
-            city: addr.city ?? '',
-            region: addr.region || null,
-            country: addr.country || 'HT',
-            postalCode: addr.postalCode || null,
-          }
-        : null;
-
-    this.api
-      .createFull({
-        terminalCode: raw.terminalCode,
-        displayName: raw.displayName,
-        firstName: raw.firstName || null,
-        lastName: raw.lastName || null,
-        email: raw.email || null,
-        phoneNumber: raw.phoneNumber || null,
-        commissionRate: raw.commissionRate,
-        initialPin: raw.initialPin,
-        active: raw.active,
-        address: addressPayload,
-      }, { suppressShellFeedback: true })
-      .subscribe({
-        next: result => {
-          this.successResult.set(result);
-          this.saving.set(false);
-        },
-        error: (err: unknown) => {
-          this.handleCreateError(err);
-          this.saving.set(false);
-        },
-      });
+      this.api
+        .createFull({
+          terminalCode: raw.terminalCode,
+          displayName: raw.displayName,
+          firstName: raw.firstName || null,
+          lastName: raw.lastName || null,
+          email: raw.email || null,
+          phoneNumber: raw.phoneNumber || null,
+          commissionRate: raw.commissionRate,
+          initialPin: raw.initialPin,
+          active: raw.active,
+          address: addressPayload,
+        }, { suppressShellFeedback: true })
+        .subscribe({
+          next: result => {
+            this.successResult.set(result);
+            this.saving.set(false);
+          },
+          error: (err: unknown) => {
+            this.handleCreateError(err);
+            this.saving.set(false);
+          },
+        });
+    });
   }
 
   goBackToList(): void {
@@ -225,8 +206,35 @@ export class AdminSellerTerminalNewPage implements OnInit {
     this.successResult.set(null);
     this.error.set(null);
     const rate = this.tenantDefaultCommissionRate() ?? this.fallbackCommissionRate;
-    clearServerFieldErrors(this.form);
-    this.form.reset({
+    this.model.set(this.initialFormModel(rate));
+  }
+
+  private handleCreateError(err: unknown): void {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (problem) {
+      const fieldErrors = withResolvedErrorCopies(
+        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
+        key => this.translate.instant(key),
+      );
+
+      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
+      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+      this.error.set(toErrorViewModel(normalized, {
+        ...copy,
+        message: fieldErrors[0]?.message ?? copy.message,
+      }));
+      return;
+    }
+
+    this.error.set({
+      title: this.translate.instant('common.errors.fallback.title'),
+      message: this.translate.instant('common.errors.fallback.message'),
+      severity: 'error',
+    });
+  }
+
+  private initialFormModel(rate = this.fallbackCommissionRate): SellerTerminalCreateFormModel {
+    return {
       terminalCode: generateTerminalCode(),
       displayName: '',
       firstName: '',
@@ -237,44 +245,14 @@ export class AdminSellerTerminalNewPage implements OnInit {
       confirmPin: '',
       commissionRate: rate,
       active: true,
-      address: { line1: '', line2: '', city: '', region: '', country: 'HT', postalCode: '' },
-    });
-  }
-
-  serverFieldMessage(control: AbstractControl | null): string {
-    const server = control?.errors?.['server'];
-    return typeof server === 'object' &&
-      server !== null &&
-      'message' in server &&
-      typeof (server as { message?: unknown }).message === 'string'
-      ? (server as { message: string }).message
-      : '';
-  }
-
-  private handleCreateError(err: unknown): void {
-    const problem = (err as { error?: ProblemDetail })?.error;
-    if (problem) {
-      const fieldErrors = withResolvedErrorCopies(
-        webAppErrorsFromProblemDetailFields(problem, 'admin.sellerTerminal.create'),
-        key => this.translate.instant(key),
-      );
-      const remaining = applyServerFieldErrors(this.form, fieldErrors, SELLER_TERMINAL_CREATE_FIELD_TARGETS);
-
-      if (fieldErrors.length && !remaining.length) {
-        this.error.set(null);
-        return;
-      }
-
-      const normalized = webAppErrorFromProblemDetail(problem, 'admin.sellerTerminal.create', 'page');
-      const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-      this.error.set(toErrorViewModel(normalized, copy));
-      return;
-    }
-
-    this.error.set({
-      title: this.translate.instant('common.errors.fallback.title'),
-      message: this.translate.instant('common.errors.fallback.message'),
-      severity: 'error',
-    });
+      address: {
+        line1: '',
+        line2: '',
+        city: '',
+        region: '',
+        country: 'HT',
+        postalCode: '',
+      },
+    };
   }
 }
