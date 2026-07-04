@@ -1,4 +1,22 @@
 <tch-admin-page-shell title="Centre de notifications">
+  @if (actionError(); as errorVm) {
+    <tch-section-error
+      feedback
+      class="notifications-feedback"
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
+  } @else if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="notifications-feedback"
+      title="Action effectuée"
+      [message]="notice"
+      severity="info"
+    />
+  }
+
   <section class="notifications-summary" aria-label="Résumé notifications">
     <div class="notifications-summary__metric">
       <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -218,22 +236,6 @@
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
-
-    @if (actionError(); as errorVm) {
-      <tch-section-error
-        class="notifications-feedback"
-        [title]="errorVm.title"
-        [message]="errorVm.message"
-        [severity]="errorVm.severity"
-      />
-    } @else if (actionNotice(); as notice) {
-      <tch-section-error
-        class="notifications-feedback"
-        title="Action effectuée"
-        [message]="notice"
-        severity="info"
-      />
-    }
 
     @if (loading()) {
       <tch-loading label="Chargement des notifications..." />

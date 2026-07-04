@@ -9,6 +9,19 @@
     </button>
   </div>
 
+  @if (successKey(); as key) {
+    <tch-notice feedback type="success" class="appearance__notice">{{ key | translate }}</tch-notice>
+  }
+  @if (errorKey(); as key) {
+    <tch-notice feedback type="error" class="appearance__notice">{{ key | translate }}</tch-notice>
+  }
+  @if (featureLocked()) {
+    <tch-notice feedback type="warning" class="appearance__notice">
+      <strong>{{ 'admin.appearance.locked.title' | translate }}</strong>
+      — {{ 'admin.appearance.locked.message' | translate }}
+    </tch-notice>
+  }
+
   @if (loading()) {
     <tch-loading [label]="'admin.appearance.loading' | translate" />
   } @else if (pageState() === 'error') {
@@ -20,19 +33,6 @@
       (retry)="load()"
     />
   } @else {
-
-    @if (successKey(); as key) {
-      <tch-notice type="success" class="appearance__notice">{{ key | translate }}</tch-notice>
-    }
-    @if (errorKey(); as key) {
-      <tch-notice type="error" class="appearance__notice">{{ key | translate }}</tch-notice>
-    }
-    @if (featureLocked()) {
-      <tch-notice type="warning" class="appearance__notice">
-        <strong>{{ 'admin.appearance.locked.title' | translate }}</strong>
-        — {{ 'admin.appearance.locked.message' | translate }}
-      </tch-notice>
-    }
 
     <section class="appearance__current">
       <div class="appearance__current-icon">

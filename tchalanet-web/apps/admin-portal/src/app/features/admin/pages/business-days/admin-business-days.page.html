@@ -6,6 +6,24 @@
     </button>
   </div>
 
+  @if (actionError(); as err) {
+    <tch-section-error
+      feedback
+      class="business-days-page__action-error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity"
+    />
+  } @else if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="business-days-page__action-error"
+      title="Action effectuée"
+      [message]="notice"
+      severity="info"
+    />
+  }
+
   @if (loading()) {
     <tch-loading label="Chargement..." />
   } @else if (error(); as pageError) {
@@ -17,22 +35,6 @@
       (retry)="loadMonth()"
     />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="business-days-page__action-error"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice(); as notice) {
-      <tch-section-error
-        class="business-days-page__action-error"
-        title="Action effectuée"
-        [message]="notice"
-        severity="info"
-      />
-    }
-
     <div class="business-days-page__month-nav">
       <button mat-icon-button (click)="prevMonth()">
         <span class="material-symbols-outlined">chevron_left</span>

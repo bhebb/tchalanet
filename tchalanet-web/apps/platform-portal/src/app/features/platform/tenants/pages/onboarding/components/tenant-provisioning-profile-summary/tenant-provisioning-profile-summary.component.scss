@@ -1,0 +1,23 @@
+.tenant-provisioning-profile-summary__text {
+  margin: 0.25rem 0 1rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tenant-provisioning-profile-summary__domain-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+}
+
+.tenant-provisioning-profile-summary__domain-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--tch-radius-pill, 999px);
+  background: color-mix(in oklab, var(--tch-color-primary) 10%, transparent);
+  color: var(--tch-color-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}

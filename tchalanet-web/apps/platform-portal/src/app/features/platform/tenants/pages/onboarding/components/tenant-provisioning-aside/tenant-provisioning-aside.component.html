@@ -1,0 +1,60 @@
+<tch-identity-card
+  variant="compact"
+  [eyebrow]="'platform.tenantProvisioning.identityCard.eyebrow' | translate"
+  [title]="tenantName() || ('platform.tenantProvisioning.identityCard.fallbackTitle' | translate)"
+  [code]="tenantCode() || ('platform.tenantProvisioning.identityCard.unassignedCode' | translate)"
+  [status]="status()"
+  [statusTone]="statusTone()"
+  icon="shield"
+  [meta]="identityMeta()"
+/>
+
+@if (!submitted()) {
+  <tch-admin-provisioning-health-card
+    [title]="'platform.tenantProvisioning.health.title' | translate"
+    [eyebrow]="'platform.tenantProvisioning.health.eyebrow' | translate"
+    [loading]="previewLoading()"
+    [loadingLabel]="'platform.tenantProvisioning.health.loading' | translate"
+    [errorTitle]="previewError()?.title ?? null"
+    [errorMessage]="previewError()?.message ?? null"
+    [errorSeverity]="previewError()?.severity ?? 'warn'"
+    [readinessLabel]="readinessLabel()"
+    [readinessTone]="readinessTone()"
+    [progress]="healthProgress()"
+    [items]="healthItems()"
+    [emptyLabel]="'platform.tenantProvisioning.health.fallback' | translate"
+  />
+}
+
+@if (submitted() && nextStepsItems().length) {
+  <tch-admin-next-steps-card
+    [title]="'platform.tenantProvisioning.result.nextSteps' | translate"
+    [steps]="nextStepsItems()"
+  />
+}
+
+@if (submitted() && resultWarningLabels().length) {
+  <tch-admin-section-card
+    [title]="'platform.tenantProvisioning.result.warnings' | translate"
+    icon="warning"
+  >
+    <ul class="tenant-provisioning-aside__list">
+      @for (warning of resultWarningLabels(); track warning) {
+        <li>{{ warning }}</li>
+      }
+    </ul>
+  </tch-admin-section-card>
+}
+
+@if (!submitted() && previewWarningLabels().length) {
+  <tch-admin-section-card
+    [title]="'platform.tenantProvisioning.result.warnings' | translate"
+    icon="warning"
+  >
+    <ul class="tenant-provisioning-aside__list">
+      @for (warning of previewWarningLabels(); track warning) {
+        <li>{{ warning }}</li>
+      }
+    </ul>
+  </tch-admin-section-card>
+}

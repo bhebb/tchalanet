@@ -1,0 +1,91 @@
+.tenant-type-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tenant-type-picker__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.tenant-type-picker__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tenant-type-picker__tile {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  border: 1.5px solid var(--tch-color-outline-variant, #c8c5d0);
+  border-radius: var(--tch-radius-lg, 1rem);
+  background: var(--tch-color-surface-container-lowest);
+  box-shadow: var(--tch-elevation-1);
+  color: var(--tch-color-on-surface);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+
+  &:hover {
+    border-color: var(--tch-color-primary);
+    background: color-mix(in oklab, var(--tch-color-primary) 5%, var(--tch-color-surface-container-lowest));
+  }
+
+  &.is-selected {
+    border-color: var(--tch-color-primary);
+    border-width: 2px;
+    background: color-mix(in oklab, var(--tch-color-primary) 12%, var(--tch-color-surface-container-lowest));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tch-color-primary) 24%, transparent);
+  }
+}
+
+.tenant-type-picker__icon {
+  font-size: 1.75rem;
+  color: var(--tch-color-on-surface-variant);
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  transition: color 150ms ease;
+
+  .tenant-type-picker__tile.is-selected & {
+    color: var(--tch-color-primary);
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+.tenant-type-picker__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+
+  .tenant-type-picker__tile.is-selected & {
+    color: var(--tch-color-primary);
+    font-weight: 600;
+  }
+}
+
+.tenant-type-picker__desc {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.75rem;
+  line-height: 1.4;
+
+  .tenant-type-picker__tile.is-selected & {
+    color: var(--tch-color-primary);
+    opacity: 0.85;
+  }
+}
+
+.tenant-type-picker__error {
+  color: var(--tch-color-error);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 44rem) {
+  .tenant-type-picker__tiles {
+    grid-template-columns: 1fr;
+  }
+}

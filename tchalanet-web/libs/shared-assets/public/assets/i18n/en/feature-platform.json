@@ -481,7 +481,9 @@
         "templatesAvailable": "Templates available",
         "none": "None",
         "planned": "Planned",
-        "expected": "Expected"
+        "expected": "Expected",
+        "previewed": "Previewed",
+        "toValidate": "To validate"
       },
       "step": {
         "createInitialAdmin": "Create initial admin",

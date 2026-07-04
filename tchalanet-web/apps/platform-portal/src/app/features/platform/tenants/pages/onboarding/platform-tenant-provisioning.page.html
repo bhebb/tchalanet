@@ -7,7 +7,32 @@
     {{ 'platform.tenantProvisioning.backToTenants' | translate }}
   </a>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="tenant-provisioning">
+  @if (submitted() && result(); as provisionedTenant) {
+    <section class="tenant-provisioning__completion">
+      <tch-tenant-provisioning-success [result]="provisionedTenant" />
+
+      <div class="tenant-provisioning__completion-actions">
+        @if (tenantDetailLink(); as detailLink) {
+          <a tch-action variant="primary" [routerLink]="detailLink">
+            <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+            {{ 'platform.tenantProvisioning.action.viewTenant' | translate }}
+          </a>
+        }
+        @if (tenantAdminsLink(); as adminsLink) {
+          <a tch-action variant="secondary" [routerLink]="adminsLink">
+            {{ 'platform.tenantProvisioning.action.addAdmin' | translate }}
+          </a>
+        }
+        <button tch-action variant="tertiary" type="button" (click)="startAnother()">
+          {{ 'platform.tenantProvisioning.action.createAnother' | translate }}
+        </button>
+        <a tch-action variant="tertiary" routerLink="/app/platform/tenants">
+          {{ 'platform.tenantProvisioning.action.backToList' | translate }}
+        </a>
+      </div>
+    </section>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="tenant-provisioning">
     @if (submitting()) {
       <div class="tenant-provisioning__page-loader" role="status" aria-live="polite">
         <div class="tenant-provisioning__page-loader-card">
@@ -22,52 +47,6 @@
 
     <tch-admin-detail-layout>
       <div main>
-        @if (submitted()) {
-          <tch-notice type="success" class="tenant-provisioning__success-notice">
-            <strong>{{ 'platform.tenantProvisioning.success.title' | translate }}</strong>
-            <span>
-              {{ 'platform.tenantProvisioning.success.message' | translate: { code: $safeNavigationMigration(successNotices()?.tenantCode) } }}
-            </span>
-          </tch-notice>
-
-          @if (result()?.initialAdminEmail) {
-            <tch-admin-section-card
-              [title]="'platform.tenantProvisioning.result.initialAdmin' | translate"
-              icon="admin_panel_settings"
-            >
-              <dl class="tenant-provisioning__result">
-                <div>
-                  <dt>{{ 'platform.tenantProvisioning.result.adminEmail' | translate }}</dt>
-                  <dd>{{ result()!.initialAdminEmail }}</dd>
-                </div>
-                <div>
-                  <dt>{{ 'platform.tenantProvisioning.result.adminStatus' | translate }}</dt>
-                  <dd>{{ 'platform.tenantProvisioning.result.temporaryAccessCreated' | translate }}</dd>
-                </div>
-                @if (result()?.initialAdminTemporaryPassword) {
-                  <div>
-                    <dt>{{ 'platform.tenantProvisioning.result.temporaryPassword' | translate }}</dt>
-                    <dd><code>{{ result()!.initialAdminTemporaryPassword }}</code></dd>
-                  </div>
-                }
-              </dl>
-              <p class="tenant-provisioning__supporting-text">
-                {{ 'platform.tenantProvisioning.result.adminNextInstruction' | translate }}
-              </p>
-            </tch-admin-section-card>
-          }
-
-          @if (successNotices()?.warnings?.length) {
-            <tch-notice type="warning" class="tenant-provisioning__success-notice">
-              <strong>{{ 'platform.tenantProvisioning.result.warnings' | translate }}</strong>
-              <ul class="tenant-provisioning__notice-list">
-                @for (w of successNotices()!.warnings; track w) {
-                  <li>{{ warningLabel(w) }}</li>
-                }
-              </ul>
-            </tch-notice>
-          }
-        } @else {
           <tch-admin-section-card
             [title]="'platform.tenantProvisioning.section.identity' | translate"
             icon="badge"
@@ -89,35 +68,13 @@
                 }
               </mat-form-field>
 
-              <div class="tenant-provisioning__type-group">
-                <span class="tenant-provisioning__type-label">
-                  {{ 'platform.tenantProvisioning.field.type' | translate }}
-                  <span aria-hidden="true"> *</span>
-                </span>
-                <div class="tenant-provisioning__type-tiles" role="radiogroup">
-                  @for (tenantType of tenantTypes; track tenantType.value) {
-                    <button
-                      type="button"
-                      role="radio"
-                      class="tenant-provisioning__type-tile"
-                      [class.is-selected]="form.controls.type.value === tenantType.value"
-                      [attr.aria-checked]="form.controls.type.value === tenantType.value"
-                      (click)="form.controls.type.setValue(tenantType.value); form.controls.type.markAsTouched()"
-                    >
-                      <span class="material-symbols-outlined tenant-provisioning__type-icon" aria-hidden="true">
-                        {{ tenantType.icon }}
-                      </span>
-                      <span class="tenant-provisioning__type-name">{{ tenantType.label }}</span>
-                      <span class="tenant-provisioning__type-desc">{{ tenantType.descriptionKey | translate }}</span>
-                    </button>
-                  }
-                </div>
-                @if (form.controls.type.invalid && form.controls.type.touched) {
-                  <span class="tenant-provisioning__type-error">
-                    {{ 'platform.tenantProvisioning.error.required' | translate }}
-                  </span>
-                }
-              </div>
+              <tch-tenant-type-picker
+                class="tenant-provisioning__type-picker"
+                [options]="tenantTypes"
+                [selected]="form.controls.type.value"
+                [invalid]="form.controls.type.invalid && form.controls.type.touched"
+                (selectedChange)="selectTenantType($event)"
+              />
             </div>
           </tch-admin-section-card>
 
@@ -191,17 +148,10 @@
               </mat-select>
             </mat-form-field>
 
-            @if (selectedProfileDesc()) {
-              <p class="tenant-provisioning__supporting-text">{{ selectedProfileDesc() }}</p>
-            }
-
-            @if (previewDomainLabels().length) {
-              <div class="tenant-provisioning__domain-tags" aria-label="Domaines inclus">
-                @for (label of previewDomainLabels(); track label) {
-                  <span class="tenant-provisioning__domain-tag">{{ label }}</span>
-                }
-              </div>
-            }
+            <tch-tenant-provisioning-profile-summary
+              [description]="selectedProfileDesc()"
+              [preview]="preview()"
+            />
           </tch-admin-section-card>
 
           <tch-admin-section-card
@@ -219,70 +169,19 @@
               <mat-hint>{{ 'platform.tenantProvisioning.hint.initialAdminEmail' | translate }}</mat-hint>
             </mat-form-field>
           </tch-admin-section-card>
-        }
       </div>
 
       <div aside>
-        <tch-identity-card
-          variant="compact"
-          [eyebrow]="'platform.tenantProvisioning.identityCard.eyebrow' | translate"
-          [title]="form.controls.name.value || ('platform.tenantProvisioning.identityCard.fallbackTitle' | translate)"
-          [code]="form.controls.code.value || ('platform.tenantProvisioning.identityCard.unassignedCode' | translate)"
-          [status]="result()?.readiness?.status || 'DRAFT'"
-          [statusTone]="submitted() ? 'success' : 'neutral'"
-          icon="shield"
-          [meta]="identityMeta()"
+        <tch-tenant-provisioning-aside
+          [submitted]="false"
+          [tenantName]="form.controls.name.value"
+          [tenantCode]="form.controls.code.value"
+          [identityMeta]="identityMeta()"
+          [preview]="preview()"
+          [result]="result()"
+          [previewLoading]="previewLoading()"
+          [previewError]="previewError()"
         />
-
-        @if (!submitted()) {
-          <tch-admin-provisioning-health-card
-            [title]="'platform.tenantProvisioning.health.title' | translate"
-            [eyebrow]="'platform.tenantProvisioning.health.eyebrow' | translate"
-            [loading]="previewLoading()"
-            [loadingLabel]="'platform.tenantProvisioning.health.loading' | translate"
-            [errorTitle]="previewError()?.title ?? null"
-            [errorMessage]="previewError()?.message ?? null"
-            [errorSeverity]="previewError()?.severity ?? 'warn'"
-            [readinessLabel]="readinessLabel()"
-            [readinessTone]="readinessTone()"
-            [progress]="healthProgress()"
-            [items]="healthItems()"
-            [emptyLabel]="'platform.tenantProvisioning.health.fallback' | translate"
-          />
-        }
-
-        @if (submitted() && nextStepsItems().length) {
-          <tch-admin-next-steps-card
-            [title]="'platform.tenantProvisioning.result.nextSteps' | translate"
-            [steps]="nextStepsItems()"
-          />
-        }
-
-        @if (submitted() && result()?.warnings?.length) {
-          <tch-admin-section-card
-            [title]="'platform.tenantProvisioning.result.warnings' | translate"
-            icon="warning"
-          >
-            <ul class="tenant-provisioning__list">
-              @for (warning of result()!.warnings; track warning) {
-                <li>{{ warningLabel(warning) }}</li>
-              }
-            </ul>
-          </tch-admin-section-card>
-        }
-
-        @if (!submitted() && preview()?.warnings?.length) {
-          <tch-admin-section-card
-            [title]="'platform.tenantProvisioning.result.warnings' | translate"
-            icon="warning"
-          >
-            <ul class="tenant-provisioning__list">
-              @for (warning of preview()!.warnings; track warning) {
-                <li>{{ warningLabel(warning) }}</li>
-              }
-            </ul>
-          </tch-admin-section-card>
-        }
       </div>
 
       <div footer>
@@ -293,25 +192,6 @@
           />
         }
 
-        @if (submitted()) {
-          <button tch-action variant="tertiary" type="button" class="tenant-provisioning__action-reset" (click)="startAnother()">
-            {{ 'platform.tenantProvisioning.action.createAnother' | translate }}
-          </button>
-          @if (tenantDetailLink(); as detailLink) {
-            <a tch-action variant="primary" [routerLink]="detailLink">
-              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-              {{ 'platform.tenantProvisioning.action.viewTenant' | translate }}
-            </a>
-          }
-          @if (tenantAdminsLink(); as adminsLink) {
-            <a tch-action variant="secondary" [routerLink]="adminsLink">
-              {{ 'platform.tenantProvisioning.action.addAdmin' | translate }}
-            </a>
-          }
-          <a tch-action variant="tertiary" routerLink="/app/platform/tenants">
-            {{ 'platform.tenantProvisioning.action.backToList' | translate }}
-          </a>
-        } @else {
           @if (form.invalid && !submitting()) {
             <span class="tenant-provisioning__submit-hint">
               {{ 'platform.tenantProvisioning.action.completeRequired' | translate }}
@@ -325,8 +205,8 @@
             [loading]="submitting()"
             [disabled]="form.invalid"
           />
-        }
       </div>
     </tch-admin-detail-layout>
-  </form>
+    </form>
+  }
 </tch-admin-page-shell>

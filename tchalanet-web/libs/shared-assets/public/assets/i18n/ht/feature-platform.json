@@ -481,7 +481,9 @@
         "templatesAvailable": "Modèl disponib",
         "none": "Okenn",
         "planned": "Prevwa",
-        "expected": "Atann"
+        "expected": "Atann",
+        "previewed": "Previsualize",
+        "toValidate": "Pou valide"
       },
       "step": {
         "createInitialAdmin": "Kreye admin inisyal la",

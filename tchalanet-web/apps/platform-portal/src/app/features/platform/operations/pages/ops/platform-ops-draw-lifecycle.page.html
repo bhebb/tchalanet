@@ -9,6 +9,15 @@
     </label>
   </div>
 
+  @if (actionFeedback(); as feedback) {
+    <tch-section-error
+      feedback
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
   <tch-admin-crud-shell>
     <div toolbar>
       <tch-admin-data-toolbar
@@ -44,16 +53,6 @@
       } @else if (draws().length === 0) {
         <tch-admin-empty-state icon="event_busy" title="Aucun tirage" message="Aucun tirage trouvé pour ce filtre." />
       } @else {
-        @if (actionFeedback(); as feedback) {
-          <div class="draw-lifecycle-page__feedback">
-            <tch-section-error
-              [title]="feedback.title"
-              [message]="feedback.message"
-              [severity]="feedback.severity"
-            />
-          </div>
-        }
-
         <div class="draw-lifecycle-page__table">
           <table mat-table [dataSource]="filteredDraws()">
             <ng-container matColumnDef="channelCode">

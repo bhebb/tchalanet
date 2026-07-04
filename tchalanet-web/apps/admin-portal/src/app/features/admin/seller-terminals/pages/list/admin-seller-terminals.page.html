@@ -13,6 +13,10 @@
     <tch-seller-terminal-kpi-strip [summary]="s" />
   }
 
+  @if (actionError(); as actionErrorVm) {
+    <tch-error-panel feedback [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
+  }
+
   <tch-async-view
     [resource]="sellers"
     [error]="sellersError()"
@@ -43,10 +47,6 @@
       (resetFilters)="resetFilters()"
     >
       <ng-container list-content>
-        @if (actionError(); as actionErrorVm) {
-          <tch-error-panel [title]="actionErrorVm.title" [message]="actionErrorVm.message" />
-        }
-
           <tch-seller-terminal-table
             [rows]="items()"
             (openPos)="openPOS($event)"

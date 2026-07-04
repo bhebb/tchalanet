@@ -18,6 +18,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
           <ng-content select="[actions]" />
         </div>
       </header>
+      <div class="page-shell__feedback">
+        <ng-content select="[feedback]" />
+      </div>
       <div class="page-shell__body">
         <ng-content />
       </div>
@@ -60,6 +63,16 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         justify-content: flex-start;
         gap: 0.5rem;
         flex-wrap: wrap;
+      }
+
+      .page-shell__feedback {
+        display: grid;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .page-shell__feedback:empty {
+        display: none;
       }
 
       @media (min-width: 760px) {

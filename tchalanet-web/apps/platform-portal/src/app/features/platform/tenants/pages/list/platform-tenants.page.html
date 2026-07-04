@@ -9,6 +9,15 @@
     </a>
   </div>
 
+  @if (actionFeedback(); as feedback) {
+    <tch-section-error
+      feedback
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
   <tch-admin-list-surface
     [searchLabel]="'platform.tenants.filter.search' | translate"
     [searchPlaceholder]="'platform.tenants.filter.search' | translate"
@@ -59,16 +68,6 @@
           />
         }
       } @else {
-        @if (actionFeedback(); as feedback) {
-          <div class="tenants-page__feedback">
-            <tch-section-error
-              [title]="feedback.title"
-              [message]="feedback.message"
-              [severity]="feedback.severity"
-            />
-          </div>
-        }
-
         <div class="tenants-page__table">
           <table mat-table [dataSource]="items()" matSort
                  [matSortActive]="parsedSort().active"

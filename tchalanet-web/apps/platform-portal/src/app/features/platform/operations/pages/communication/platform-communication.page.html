@@ -17,6 +17,15 @@
     </button>
   </div>
 
+  @if (actionFeedback(); as feedback) {
+    <tch-section-error
+      feedback
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
   <form class="provider-tests" [formGroup]="testForm">
     <div class="provider-test-header">
       <div>
@@ -92,16 +101,6 @@
       </mat-tab>
     </mat-tab-group>
   </form>
-
-  @if (actionFeedback(); as feedback) {
-    <div class="platform-communication-page__feedback">
-      <tch-section-error
-        [title]="feedback.title"
-        [message]="feedback.message"
-        [severity]="feedback.severity"
-      />
-    </div>
-  }
 
   @if (summary(); as s) {
     <div class="summary-bar">

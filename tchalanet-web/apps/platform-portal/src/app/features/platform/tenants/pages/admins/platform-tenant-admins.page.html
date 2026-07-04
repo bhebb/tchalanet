@@ -17,6 +17,15 @@
     </a>
   </div>
 
+  @if (actionFeedback(); as feedback) {
+    <tch-section-error
+      feedback
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
+  }
+
   @if (loading()) {
     <tch-loading label="Chargement..." />
   } @else if (error(); as errorVm) {
@@ -34,16 +43,6 @@
       message="Ajoutez le premier administrateur pour ce tenant."
     />
   } @else {
-    @if (actionFeedback(); as feedback) {
-      <div class="tenant-admins-page__feedback">
-        <tch-section-error
-          [title]="feedback.title"
-          [message]="feedback.message"
-          [severity]="feedback.severity"
-        />
-      </div>
-    }
-
     <tch-admin-crud-shell>
       <ng-container content>
         <div class="tenant-admins-page__table">

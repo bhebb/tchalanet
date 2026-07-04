@@ -9,20 +9,21 @@
     </button>
   </div>
 
+  @if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="platform-admin-user-detail__notice"
+      [title]="notice.title"
+      [message]="notice.message"
+      severity="info"
+    />
+  }
+
   @if (loading()) {
     <tch-loading [label]="'common.loading' | translate" />
   } @else if (error(); as errorVm) {
     <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
   } @else if (cardUser(); as u) {
-    @if (actionNotice(); as notice) {
-      <tch-section-error
-        class="platform-admin-user-detail__notice"
-        [title]="notice.title"
-        [message]="notice.message"
-        severity="info"
-      />
-    }
-
     <tch-platform-admin-user-card
       [user]="u"
       (activate)="activate()"

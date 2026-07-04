@@ -1,0 +1,11 @@
+@if (description()) {
+  <p class="tenant-provisioning-profile-summary__text">{{ description() }}</p>
+}
+
+@if (domainLabels().length) {
+  <div class="tenant-provisioning-profile-summary__domain-tags" aria-label="Domaines inclus">
+    @for (label of domainLabels(); track label) {
+      <span class="tenant-provisioning-profile-summary__domain-tag">{{ label }}</span>
+    }
+  </div>
+}

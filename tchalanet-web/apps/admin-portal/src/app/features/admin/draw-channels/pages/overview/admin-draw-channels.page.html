@@ -17,6 +17,16 @@
     </button>
   </div>
 
+  @if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="dc-page__notice"
+      title="Action non disponible"
+      [message]="notice"
+      severity="info"
+    />
+  }
+
   @if (pageState() === 'loading') {
     <tch-loading label="Chargement des tirages..." />
   } @else if (pageState() === 'error') {
@@ -58,15 +68,6 @@
     <p class="dc-page__count">
       Affichage de <strong>{{ filteredProviders().length }}</strong> provider{{ filteredProviders().length !== 1 ? 's' : '' }}
     </p>
-
-    @if (actionNotice(); as notice) {
-      <tch-section-error
-        class="dc-page__notice"
-        title="Action non disponible"
-        [message]="notice"
-        severity="info"
-      />
-    }
 
     <!-- Provider cards grid -->
     @if (filteredProviders().length === 0) {

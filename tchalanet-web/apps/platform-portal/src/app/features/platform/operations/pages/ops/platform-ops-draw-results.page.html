@@ -20,13 +20,12 @@
   }
 
   @if (actionFeedback(); as feedback) {
-    <div class="draw-results-page__feedback">
-      <tch-section-error
-        [title]="feedback.title"
-        [message]="feedback.message"
-        [severity]="feedback.severity"
-      />
-    </div>
+    <tch-section-error
+      feedback
+      [title]="feedback.title"
+      [message]="feedback.message"
+      [severity]="feedback.severity"
+    />
   }
 
   <tch-admin-crud-shell>

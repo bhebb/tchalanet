@@ -8,6 +8,24 @@
     </button>
   </div>
 
+  @if (actionError(); as err) {
+    <tch-section-error
+      feedback
+      class="limits-page__action-error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity"
+    />
+  } @else if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="limits-page__action-error"
+      title="Action effectuée"
+      [message]="notice"
+      severity="info"
+    />
+  }
+
   @if (loading()) {
     <tch-loading label="Chargement..." />
   } @else if (error(); as pageError) {
@@ -21,22 +39,6 @@
   } @else if (rules().length === 0) {
     <tch-admin-empty-state icon="policy" title="Aucune règle disponible" message="Le catalogue de règles est vide." />
   } @else {
-    @if (actionError(); as err) {
-      <tch-section-error
-        class="limits-page__action-error"
-        [title]="err.title"
-        [message]="err.message"
-        [severity]="err.severity"
-      />
-    } @else if (actionNotice(); as notice) {
-      <tch-section-error
-        class="limits-page__action-error"
-        title="Action effectuée"
-        [message]="notice"
-        severity="info"
-      />
-    }
-
     @if (!canEditScope()) {
       <section class="limits-page__scope-note">
         <span class="material-symbols-outlined">info</span>

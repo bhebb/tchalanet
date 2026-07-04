@@ -2,6 +2,15 @@
   title="Tests canaux"
   description="Envoyer des tests contrôlés vers les providers email, Slack, SMS et WhatsApp."
 >
+  @if (feedback(); as feedbackVm) {
+    <tch-section-error
+      feedback
+      [title]="feedbackVm.title"
+      [message]="feedbackVm.message"
+      [severity]="feedbackVm.severity"
+    />
+  }
+
   <form class="provider-tests" [formGroup]="testForm">
     <div class="provider-test-header">
       <div>
@@ -78,13 +87,4 @@
     </mat-tab-group>
   </form>
 
-  @if (feedback(); as feedbackVm) {
-    <div class="platform-communication-page__feedback">
-      <tch-section-error
-        [title]="feedbackVm.title"
-        [message]="feedbackVm.message"
-        [severity]="feedbackVm.severity"
-      />
-    </div>
-  }
 </tch-admin-page-shell>
