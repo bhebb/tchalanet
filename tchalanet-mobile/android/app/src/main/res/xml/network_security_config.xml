@@ -13,7 +13,7 @@
 -->
 <network-security-config>
 
-    <!-- Trust mkcert CA for local HTTPS domains (Traefik + Keycloak) -->
+    <!-- Trust mkcert CA for local HTTPS domains (Traefik dev proxy) -->
     <domain-config>
         <domain includeSubdomains="true">localtest.me</domain>
         <trust-anchors>
