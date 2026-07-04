@@ -32,7 +32,7 @@ export const appRoutes: Route[] = [
     path: 'seller-terminal/activation',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/admin/seller-terminals/pages/activation/seller-terminal-activation.page').then(
+      import('./features/seller-terminals/pages/activation/seller-terminal-activation.page').then(
         m => m.SellerTerminalActivationPage,
       ),
   },
@@ -65,7 +65,7 @@ export const appRoutes: Route[] = [
   {
     path: 'app/admin',
     canActivate: [roleGuard('TENANT_ADMIN')],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+    loadChildren: () => import('./features/admin.routes').then(m => m.adminRoutes),
   },
   {
     path: 'forbidden',
@@ -74,7 +74,7 @@ export const appRoutes: Route[] = [
   {
     path: '',
     canActivate: [roleGuard('TENANT_ADMIN')],
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+    loadChildren: () => import('./features/admin.routes').then(m => m.adminRoutes),
   },
   {
     path: '**',
