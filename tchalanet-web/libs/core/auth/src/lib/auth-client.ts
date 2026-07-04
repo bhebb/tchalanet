@@ -15,6 +15,7 @@ export interface AuthClient {
   logout(): Promise<void>;
   getAccessToken(forceRefresh?: boolean): Promise<string | null>;
   getTokenExpiresAt(): Promise<string | undefined>;
+  signInWithCustomToken?(customToken: string): Promise<void>;
 }
 
 export const AUTH_CLIENT = new InjectionToken<AuthClient>('AUTH_CLIENT');

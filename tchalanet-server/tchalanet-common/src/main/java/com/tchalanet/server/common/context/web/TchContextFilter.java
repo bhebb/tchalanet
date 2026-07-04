@@ -44,6 +44,15 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        var path = request.getRequestURI();
+        return (path.startsWith("/api/v1/platform/auth/portal-handoffs/")
+            && path.endsWith("/consume"))
+            || (path.startsWith("/platform/auth/portal-handoffs/")
+            && path.endsWith("/consume"));
+    }
+
+    @Override
     protected void doFilterInternal(
         @Nonnull HttpServletRequest req,
         @Nonnull HttpServletResponse res,

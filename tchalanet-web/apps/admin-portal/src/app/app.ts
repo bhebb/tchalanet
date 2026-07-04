@@ -2,7 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ActionItem } from '@tch/api';
-import { AuthSessionService, PrivateBootstrapStore, sectionsFromRuntimeNavigation } from '@tch/core/auth';
+import {
+  AuthSessionService,
+  PrivateBootstrapStore,
+  SupportAccessStore,
+  sectionsFromRuntimeNavigation,
+} from '@tch/core/auth';
+import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
 import { PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
@@ -26,12 +32,48 @@ export class App {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthSessionService);
   private readonly bootstrap = inject(PrivateBootstrapStore);
+  private readonly runtimeConfig = inject(TchRuntimeConfigStore);
+  private readonly supportAccess = inject(SupportAccessStore);
   private readonly theme = inject(ThemeStore);
 
   protected readonly brand = ADMIN_BRAND;
-  protected readonly sections = computed(() =>
-    sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_NAVIGATION,
-  );
+  protected readonly primary = computed<readonly ActionItem[]>(() => {
+    const session = this.supportAccess.session();
+    if (!session) {
+      return [];
+    }
+
+    const platformBaseUrl = withoutTrailingSlash(
+      this.runtimeConfig.config().portalBaseUrls?.['platform-portal'] ?? '/platform',
+    );
+
+    return [
+      {
+        id: 'support-access-active',
+        label: `Support: ${session.tenantName}`,
+        icon: session.mode === 'SUPPORT_READONLY' ? 'visibility' : 'support_agent',
+        destination: { kind: 'route', value: '/app/admin' },
+        disabled: true,
+        badge: {
+          kind: 'status',
+          value: session.mode === 'SUPPORT_READONLY' ? 'RO' : 'ON',
+          severity: session.mode === 'SUPPORT_READONLY' ? 'info' : 'warning',
+        },
+      },
+      {
+        id: 'support-access-platform',
+        label: 'Retour plateforme',
+        icon: 'arrow_back',
+        destination: { kind: 'url', value: `${platformBaseUrl}/app/platform` },
+      },
+    ];
+  });
+  protected readonly sections = computed(() => {
+    if (this.bootstrap.space() !== 'ADMIN') {
+      return TENANT_ADMIN_NAVIGATION;
+    }
+    return sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_NAVIGATION;
+  });
   protected readonly titleKey = 'surface.tenant_admin';
   protected readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -64,4 +106,8 @@ function isPrivateShellRoute(url: string): boolean {
   return !['/login', '/forgot-password', '/forbidden'].some(publicPath =>
     path.startsWith(publicPath),
   );
+}
+
+function withoutTrailingSlash(value: string): string {
+  return value.length > 1 ? value.replace(/\/+$/, '') : value;
 }

@@ -26,6 +26,10 @@ public class TchAccessContextPipelineFilter extends OncePerRequestFilter {
 
         return path.startsWith("/public/")
             || path.startsWith("/api/v1/public/")
+            || (path.startsWith("/api/v1/platform/auth/portal-handoffs/")
+                && path.endsWith("/consume"))
+            || (path.startsWith("/platform/auth/portal-handoffs/")
+                && path.endsWith("/consume"))
             || path.startsWith("/actuator/health")
             || path.startsWith("/api/v1/actuator/health")
             || path.startsWith("/swagger-ui")

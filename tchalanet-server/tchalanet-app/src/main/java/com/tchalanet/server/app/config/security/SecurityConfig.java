@@ -58,6 +58,8 @@ public class SecurityConfig {
                 .permitAll()
 
                 .requestMatchers(
+                    "/api/v1/platform/auth/portal-handoffs/*/consume",
+                    "/platform/auth/portal-handoffs/*/consume",
                     "/actuator/health",
                     "/actuator/health/**",
                     "/swagger-ui.html",

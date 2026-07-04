@@ -15,6 +15,8 @@ export * from './lib/firebase/firebase-auth.service';
 export * from './lib/firebase/login.page';
 export * from './lib/forgot-password/forgot-password.page';
 export * from './lib/forbidden.page';
+export * from './lib/handoff/portal-handoff-api.service';
+export * from './lib/handoff/portal-handoff.page';
 export * from './lib/login/tch-login.page';
 export * from './lib/operational-context.types';
 export * from './lib/runtime/private-bootstrap.model';

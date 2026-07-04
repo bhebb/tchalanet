@@ -17,5 +17,6 @@ public record RuntimeBootstrapResponse(
     @Nullable Map<String, Object> navigationDrawer,
     PageModelRef pageModelRef,
     String entryRoute,
+    RuntimePortalConfigView portalConfig,
     @Nullable List<RuntimeBootstrapNotice> notices
 ) {}

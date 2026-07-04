@@ -4,6 +4,7 @@ import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.TenantUserRoleJpaRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -41,11 +42,12 @@ public class EffectiveTenantResolver {
     static final String PERMISSION_TENANT_OVERRIDE = "platform.tenant.override";
 
     private final TenantUserRoleJpaRepository tenantUserRoleRepository;
+    private final SupportAccessApi supportAccess;
 
     /** Effective tenant decision for an APP_USER request. */
-    public record EffectiveTenant(TenantId tenantId, boolean tenantOverride) {
+    public record EffectiveTenant(TenantId tenantId, boolean tenantOverride, boolean supportSession) {
         static EffectiveTenant none() {
-            return new EffectiveTenant(null, false);
+            return new EffectiveTenant(null, false, false);
         }
     }
 
@@ -62,6 +64,10 @@ public class EffectiveTenantResolver {
         }
 
         if (superAdmin) {
+            var supportTenant = resolveSupportSession(userId, permissionKeys);
+            if (supportTenant != null) {
+                return supportTenant;
+            }
             // A SUPER_ADMIN has no tenant by default. They enter a tenant only via an explicit
             // override (above), never from membership.
             return EffectiveTenant.none();
@@ -85,6 +91,10 @@ public class EffectiveTenantResolver {
         }
 
         if (superAdmin) {
+            var supportTenant = resolveSupportSession(userId, permissionKeys);
+            if (supportTenant != null) {
+                return supportTenant;
+            }
             return EffectiveTenant.none();
         }
 
@@ -110,7 +120,22 @@ public class EffectiveTenantResolver {
 
         var target = parseTenantId(overrideHeader, "tenant.override_invalid");
         log.info("tenant_override.requested userId={} targetTenant={}", userId.value(), target.value());
-        return new EffectiveTenant(target, true);
+        return new EffectiveTenant(target, true, false);
+    }
+
+    private EffectiveTenant resolveSupportSession(UserId userId, Set<String> permissionKeys) {
+        if (userId == null || userId.value() == null) {
+            return null;
+        }
+        var target = supportAccess.currentTenant(userId).orElse(null);
+        if (target == null) {
+            return null;
+        }
+        if (permissionKeys == null || !permissionKeys.contains(PERMISSION_TENANT_OVERRIDE)) {
+            throw ProblemRest.forbidden("tenant.override_forbidden");
+        }
+        log.info("tenant_support_session.restored userId={} targetTenant={}", userId.value(), target.value());
+        return new EffectiveTenant(target, false, true);
     }
 
     private EffectiveTenant resolveSingleMembership(UserId userId) {
@@ -124,7 +149,7 @@ public class EffectiveTenantResolver {
         if (tenantIds.size() > 1) {
             throw ProblemRest.forbidden("tenant.ambiguous_membership");
         }
-        return new EffectiveTenant(TenantId.of(tenantIds.getFirst()), false);
+        return new EffectiveTenant(TenantId.of(tenantIds.getFirst()), false, false);
     }
 
     private EffectiveTenant resolveSingleMembership(Collection<TenantId> tenantIds) {
@@ -136,7 +161,7 @@ public class EffectiveTenantResolver {
         if (distinct.size() > 1) {
             throw ProblemRest.forbidden("tenant.ambiguous_membership");
         }
-        return new EffectiveTenant(distinct.iterator().next(), false);
+        return new EffectiveTenant(distinct.iterator().next(), false, false);
     }
 
     private static TenantId parseTenantId(String raw, String errorCode) {

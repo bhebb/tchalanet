@@ -5,5 +5,9 @@
   "authBaseUrl": "https://auth.localtest.me",
   "assetsBaseUrl": "/assets",
   "firebaseAuthEmulatorUrl": null,
+  "portalBaseUrls": {
+    "admin-portal": "http://localhost:4302",
+    "platform-portal": "http://localhost:4202"
+  },
   "enableSandbox": true
 }

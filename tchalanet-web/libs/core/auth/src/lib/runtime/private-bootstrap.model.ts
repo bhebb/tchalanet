@@ -15,7 +15,12 @@ export interface RuntimeBootstrapResponse {
   readonly navigationDrawer?: RuntimeNavigationDrawer | null;
   readonly pageModelRef: PageModelRef;
   readonly entryRoute?: string | null;
+  readonly portalConfig?: RuntimePortalConfigView | null;
   readonly notices?: readonly RuntimeBootstrapNotice[] | null;
+}
+
+export interface RuntimePortalConfigView {
+  readonly portalBaseUrls?: Readonly<Partial<Record<'admin-portal' | 'platform-portal', string>>> | null;
 }
 
 export interface RuntimeNavigationDrawer {

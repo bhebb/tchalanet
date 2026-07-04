@@ -5,7 +5,16 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { filter, map } from 'rxjs';
 
-import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionText, isRouteAction } from '@tch/api';
+import {
+  ActionItem,
+  NavigationSection,
+  actionHref,
+  actionQueryParams,
+  actionRoute,
+  actionText,
+  isExternalAction,
+  isRouteAction,
+} from '@tch/api';
 
 @Component({
   selector: 'tch-sidebar-nav',
@@ -90,6 +99,22 @@ import { ActionItem, NavigationSection, actionQueryParams, actionRoute, actionTe
               </span>
             }
           </a>
+        } @else if (isExternalAction(item)) {
+          <a [href]="actionHref(item)"
+             [class.is-disabled]="item.disabled"
+             [attr.aria-disabled]="item.disabled ? 'true' : null"
+             [attr.tabindex]="item.disabled ? -1 : null"
+             (click)="onItemClick($event, item)">
+            @if (item.icon) {
+              <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+            }
+            <span class="sidebar__label">{{ actionText(item) | translate }}</span>
+            @if ($safeNavigationMigration(item.badge?.value) !== undefined && $safeNavigationMigration(item.badge?.value) !== null) {
+              <span class="sidebar__badge" [attr.data-severity]="item.badge?.severity ?? 'info'">
+                {{ item.badge?.value }}
+              </span>
+            }
+          </a>
         }
       }
     </ng-template>
@@ -127,8 +152,10 @@ export class TchSidebarNav {
   readonly secondary = input<readonly ActionItem[]>([]);
   readonly ariaLabel = input('Navigation principale');
   readonly actionRoute = actionRoute;
+  readonly actionHref = actionHref;
   readonly actionQueryParams = actionQueryParams;
   readonly actionText = actionText;
+  readonly isExternalAction = isExternalAction;
   readonly isRouteAction = isRouteAction;
 
   /** Current URL, tracked reactively so an active group opens automatically. */

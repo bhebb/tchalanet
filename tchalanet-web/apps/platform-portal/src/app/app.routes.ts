@@ -3,6 +3,7 @@ import {
   ForbiddenPage,
   ForgotPasswordPage,
   LoginPage,
+  PortalHandoffPage,
   authGuard,
   roleGuard,
   spaceDispatchGuard,
@@ -10,6 +11,10 @@ import {
 import { consoleAccountRoutes, consoleProfileRoutes } from '@tch/ui/console';
 
 export const appRoutes: Route[] = [
+  {
+    path: 'login/handoff',
+    component: PortalHandoffPage,
+  },
   {
     path: 'login',
     component: LoginPage,

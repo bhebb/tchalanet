@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService, TranslationObject } from '@ngx-translate/core';
-import { RuntimeSettingsStore } from '@tch/shared-config';
+import { RuntimeSettingsStore, TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { Observable, tap } from 'rxjs';
 
@@ -15,6 +15,7 @@ export class PrivateRuntimeInitializer {
   private readonly translate = inject(TranslateService);
   private readonly theme = inject(ThemeStore);
   private readonly settings = inject(RuntimeSettingsStore);
+  private readonly runtimeConfig = inject(TchRuntimeConfigStore);
 
   initialize(): Observable<RuntimeBootstrapResponse> {
     this.bootstrapStore.setLoading();
@@ -27,6 +28,7 @@ export class PrivateRuntimeInitializer {
 
   private applyBootstrap(response: RuntimeBootstrapResponse): void {
     this.mergeI18n(response);
+    this.mergePortalConfig(response);
 
     // Theme + settings come from the bootstrap payload — no separate runtime HTTP calls.
     this.theme.applyBootstrapTheme({
@@ -66,5 +68,21 @@ export class PrivateRuntimeInitializer {
     if (Object.keys(messages).length > 0) {
       this.translate.setTranslation(locale, messages as unknown as TranslationObject, true);
     }
+  }
+
+  private mergePortalConfig(response: RuntimeBootstrapResponse): void {
+    const portalBaseUrls = response.portalConfig?.portalBaseUrls;
+    if (!portalBaseUrls || Object.keys(portalBaseUrls).length === 0) {
+      return;
+    }
+
+    const current = this.runtimeConfig.config();
+    this.runtimeConfig.setConfig({
+      ...current,
+      portalBaseUrls: {
+        ...(current.portalBaseUrls ?? {}),
+        ...portalBaseUrls,
+      },
+    });
   }
 }
