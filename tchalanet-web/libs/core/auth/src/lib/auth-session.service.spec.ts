@@ -29,6 +29,10 @@ describe('AuthSessionService', () => {
     });
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('builds the application session from private runtime data', async () => {
     vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
     vi.mocked(auth.getTokenExpiresAt).mockResolvedValue('2026-06-13T20:00:00.000Z');
@@ -121,6 +125,31 @@ describe('AuthSessionService', () => {
 
     expect(session.permissions).toEqual(['draw-results.manual']);
     expect(service.hasPermission('DRAW-RESULTS.MANUAL')).toBe(true);
+  });
+
+  it('refreshes runtime permissions every 30 minutes', async () => {
+    vi.useFakeTimers();
+    vi.mocked(auth.isAuthenticated).mockResolvedValue(true);
+    vi.mocked(auth.getTokenExpiresAt).mockResolvedValue(undefined);
+    runtime.initialize
+      .mockReturnValueOnce(of({
+        ...bootstrap(),
+        entitlements: { roles: ['tenant_admin'], permissions: ['ticket.read'] },
+      } satisfies RuntimeBootstrapResponse))
+      .mockReturnValueOnce(of({
+        ...bootstrap(),
+        entitlements: { roles: ['tenant_admin'], permissions: ['ticket.read', 'ticket.cancel'] },
+      } satisfies RuntimeBootstrapResponse));
+
+    const service = TestBed.inject(AuthSessionService);
+    await service.refreshSession();
+
+    expect(service.hasPermission('ticket.cancel')).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
+
+    expect(runtime.initialize).toHaveBeenCalledTimes(2);
+    expect(service.hasPermission('ticket.cancel')).toBe(true);
   });
 
   it('does not bootstrap private runtime when provider session is anonymous', async () => {

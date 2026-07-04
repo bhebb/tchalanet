@@ -1,26 +1,37 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { computed, DestroyRef, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { firstValueFrom, timeout } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { PrivateRuntimeInitializer } from './runtime/private-runtime-initializer';
 import { AUTH_CLIENT } from './auth-client';
 import { UserRole, UserSession } from './auth.types';
 
 const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN'];
 const AUTH_OPERATION_TIMEOUT_MS = 15_000;
+const PERMISSION_REFRESH_INTERVAL_MS = 30 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private readonly auth = inject(AUTH_CLIENT);
   private readonly runtime = inject(PrivateRuntimeInitializer);
+  private readonly runtimeConfig = inject(TchRuntimeConfigStore);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly sessionState = signal<UserSession>({
     authenticated: false,
     roles: [],
   });
+  private refreshTimerId: ReturnType<typeof setInterval> | null = null;
 
   readonly session = this.sessionState.asReadonly();
   readonly authenticated = computed(() => this.session().authenticated);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.stopPermissionRefresh());
+  }
 
   async refreshSession(force = false): Promise<UserSession> {
     if (!(await this.auth.isAuthenticated())) {
@@ -60,6 +71,7 @@ export class AuthSessionService {
       };
 
       this.sessionState.set(session);
+      this.startPermissionRefresh();
       return session;
     } catch (err) {
       // 401/403 = Tchalanet refuses access (no AppUser mapping, missing role/tenant).
@@ -134,6 +146,7 @@ export class AuthSessionService {
   }
 
   private setAnonymousSession(): UserSession {
+    this.stopPermissionRefresh();
     const session: UserSession = {
       authenticated: false,
       roles: [],
@@ -141,6 +154,30 @@ export class AuthSessionService {
 
     this.sessionState.set(session);
     return session;
+  }
+
+  private startPermissionRefresh(): void {
+    if (this.refreshTimerId !== null || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.refreshTimerId = setInterval(() => {
+      void this.refreshSession(true);
+    }, this.sessionRefreshIntervalMs());
+  }
+
+  private stopPermissionRefresh(): void {
+    if (this.refreshTimerId === null) {
+      return;
+    }
+    clearInterval(this.refreshTimerId);
+    this.refreshTimerId = null;
+  }
+
+  private sessionRefreshIntervalMs(): number {
+    const configured = this.runtimeConfig.config().sessionRefreshIntervalMs;
+    return typeof configured === 'number' && configured > 0
+      ? configured
+      : PERMISSION_REFRESH_INTERVAL_MS;
   }
 }
 
