@@ -33,7 +33,7 @@
     <!-- Library versions -->
     <archunit.version>1.4.2</archunit.version>
     <caffeine.version>3.2.4</caffeine.version>
-    <firebase-admin.version>9.9.0</firebase-admin.version>
+    <firebase-admin.version>9.10.0</firebase-admin.version>
     <json-schema-validator.version>3.0.5</json-schema-validator.version>
     <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
