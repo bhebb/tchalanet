@@ -44,6 +44,11 @@ class _FakeNotificationRepository implements NotificationRepository {
   Future<void> markRead(String id) async {
     unread = unread.where((item) => item.id != id).toList();
   }
+
+  @override
+  Future<void> markAllRead() async {
+    unread = [];
+  }
 }
 
 void main() {

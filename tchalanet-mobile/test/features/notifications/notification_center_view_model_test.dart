@@ -9,9 +9,16 @@ class _FakeNotificationRepository implements NotificationRepository {
   final pages = <NotificationStatus, List<NotificationItem>>{};
   final markedRead = <String>[];
   final archived = <String>[];
+  var markedAllRead = false;
 
   @override
   Future<void> archive(String id) async => archived.add(id);
+
+  @override
+  Future<void> markAllRead() async {
+    markedAllRead = true;
+    pages[NotificationStatus.unread] = const [];
+  }
 
   @override
   Future<NotificationPage> fetchNotifications({

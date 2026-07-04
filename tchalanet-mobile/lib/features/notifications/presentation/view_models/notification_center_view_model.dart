@@ -197,6 +197,21 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
     ];
   }
 
+  Future<void> markAllRead() async {
+    final revision = _revision;
+    try {
+      await _repository.markAllRead();
+      if (revision != _revision) return;
+      ref
+          .read(notificationSummaryProvider.notifier)
+          .applyRuntimeSummary(unreadCount: 0, criticalCount: 0);
+      await load();
+    } catch (_) {
+      if (revision != _revision) return;
+      state = state.copyWith(errorKey: 'notifications.center.action_error');
+    }
+  }
+
   void _setBusy(String id, bool busy) {
     final ids = {...state.busyIds};
     if (busy) {
