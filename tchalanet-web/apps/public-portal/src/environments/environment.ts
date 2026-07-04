@@ -10,8 +10,8 @@ export const environment = {
     authBaseUrl: '/auth',
     assetsBaseUrl: '/assets',
     portalBaseUrls: {
-      'admin-portal': '/admin',
-      'platform-portal': '/platform',
+      'admin-portal': 'http://localhost:4302',
+      'platform-portal': 'http://localhost:4202',
     },
     enableSandbox: true,
     firebaseAuthEmulatorUrl: null,

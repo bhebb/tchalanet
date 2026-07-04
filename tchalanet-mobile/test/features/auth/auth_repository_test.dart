@@ -1,9 +1,7 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tchalanet_mobile/core/auth/auth_token_client.dart';
 import 'package:tchalanet_mobile/core/runtime/runtime_models.dart';
 import 'package:tchalanet_mobile/core/runtime/runtime_repository.dart';
-import 'package:tchalanet_mobile/core/storage/op_context_storage.dart';
 import 'package:tchalanet_mobile/core/storage/token_storage.dart';
 import 'package:tchalanet_mobile/features/auth/data/models/user_role.dart';
 import 'package:tchalanet_mobile/features/auth/data/repositories/auth_repository_impl.dart';
@@ -27,15 +25,6 @@ class _FakeTokenStorage implements TokenStorage {
 
   @override
   Future<void> writeRefreshToken(String token) async => refreshToken = token;
-}
-
-class _FakeOpContextStorage extends OpContextStorage {
-  _FakeOpContextStorage() : super(const FlutterSecureStorage());
-
-  var cleared = false;
-
-  @override
-  Future<void> clear() async => cleared = true;
 }
 
 class _FakeAuthService implements AuthTokenClient {
@@ -70,20 +59,17 @@ class _FakeRuntimeRepository implements RuntimeRepository {
 }
 
 void main() {
-  test('logout clears tokens and tenant operational context', () async {
+  test('logout clears tokens', () async {
     final tokens = _FakeTokenStorage();
-    final opContext = _FakeOpContextStorage();
     final repository = AuthRepositoryImpl(
       _FakeAuthService(AuthTokenData(accessToken: _validJwt())),
       tokens,
-      opContext,
       _FakeRuntimeRepository(_runtimeBootstrap()),
     );
 
     await repository.logout();
 
     expect(tokens.cleared, isTrue);
-    expect(opContext.cleared, isTrue);
   });
 
   test('login builds application session from private runtime', () async {
@@ -91,7 +77,6 @@ void main() {
     final repository = AuthRepositoryImpl(
       _FakeAuthService(AuthTokenData(accessToken: _validJwt())),
       tokens,
-      _FakeOpContextStorage(),
       _FakeRuntimeRepository(_runtimeBootstrap()),
     );
 
@@ -116,7 +101,6 @@ void main() {
       final repository = AuthRepositoryImpl(
         _FakeAuthService(AuthTokenData(accessToken: _validJwt())),
         tokens,
-        _FakeOpContextStorage(),
         _FakeRuntimeRepository(_runtimeBootstrap(user: null)),
       );
 

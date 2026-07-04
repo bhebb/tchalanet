@@ -26,21 +26,21 @@ class CashierTicketLineRequest {
 
 class CashierTicketPreviewRequest {
   const CashierTicketPreviewRequest({
-    required this.terminalId,
+    required this.sellerTerminalId,
     required this.drawId,
     required this.currency,
     required this.lines,
     this.drawChannelId,
   });
 
-  final String terminalId;
+  final String sellerTerminalId;
   final String drawId;
   final String? drawChannelId;
   final String currency;
   final List<CashierTicketLineRequest> lines;
 
   Map<String, dynamic> toJson() => {
-        'terminalId': terminalId,
+        'sellerTerminalId': sellerTerminalId,
         'drawId': drawId,
         if (drawChannelId != null) 'drawChannelId': drawChannelId,
         'currency': currency,
@@ -50,7 +50,7 @@ class CashierTicketPreviewRequest {
 
 class CashierSellTicketRequest {
   const CashierSellTicketRequest({
-    required this.terminalId,
+    required this.sellerTerminalId,
     required this.drawId,
     required this.currency,
     required this.lines,
@@ -58,7 +58,7 @@ class CashierSellTicketRequest {
     this.promotionChoices,
   });
 
-  final String terminalId;
+  final String sellerTerminalId;
   final String drawId;
   final String? drawChannelId;
   final String currency;
@@ -66,7 +66,7 @@ class CashierSellTicketRequest {
   final List<Map<String, dynamic>>? promotionChoices;
 
   Map<String, dynamic> toJson() => {
-        'terminalId': terminalId,
+        'sellerTerminalId': sellerTerminalId,
         'drawId': drawId,
         if (drawChannelId != null) 'drawChannelId': drawChannelId,
         'currency': currency,

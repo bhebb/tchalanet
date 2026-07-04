@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../../core/storage/op_context_storage.dart';
+import '../../../../../core/network/api_exception.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -219,21 +219,14 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     });
 
     try {
-      final terminalId =
-          await ref.read(opContextStorageProvider).readTerminalId();
-      if (terminalId == null || terminalId.isEmpty) {
-        setState(() => _error = 'Aucun terminal actif. Rouvrez une session.');
-        return;
-      }
       await ref.read(cashierTicketServiceProvider).sendReceipt(
             widget.ticketId,
-            terminalId: terminalId,
             channel: _mode.serverKey,
             to: value,
           );
       setState(() => _sent = true);
     } catch (e) {
-      setState(() => _error = e.toString());
+      setState(() => _error = userMessage(e));
     } finally {
       setState(() => _sending = false);
     }

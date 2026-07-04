@@ -15,6 +15,7 @@ import {
   sendPasswordResetEmail,
   sendSignInLinkToEmail,
   setPersistence,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signOut,
@@ -111,5 +112,9 @@ export class FirebaseAuthService implements AuthClient {
     }
 
     return (await currentUser.getIdTokenResult()).expirationTime;
+  }
+
+  async signInWithCustomToken(customToken: string): Promise<void> {
+    await signInWithCustomToken(this.auth, customToken);
   }
 }

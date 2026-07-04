@@ -6,7 +6,7 @@
   "assetsBaseUrl": "/assets",
   "enableSandbox": true,
   "portalBaseUrls": {
-    "admin-portal": "/admin",
-    "platform-portal": "/platform"
+    "admin-portal": "http://localhost:4302",
+    "platform-portal": "http://localhost:4202"
   }
 }

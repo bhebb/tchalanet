@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/network/api_exception.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -142,7 +143,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                     Icon(Icons.cloud_off_rounded,
                         size: 48, color: scheme.error),
                     const SizedBox(height: TchSpacing.s16),
-                    Text(e.toString(), textAlign: TextAlign.center),
+                    Text(userMessage(e), textAlign: TextAlign.center),
                     const SizedBox(height: TchSpacing.s24),
                     FilledButton.tonal(
                       onPressed: () => ref.invalidate(_historyProvider),

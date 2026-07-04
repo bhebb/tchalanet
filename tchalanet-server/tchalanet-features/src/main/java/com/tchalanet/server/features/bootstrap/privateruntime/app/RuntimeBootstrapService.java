@@ -63,6 +63,7 @@ public class RuntimeBootstrapService {
     private final RuntimeReadinessFacade readinessFacade;
     private final PageModelRefResolver pageModelRefResolver;
     private final PrivateShellNavigationResolver navigationResolver;
+    private final RuntimePortalConfigProperties portalConfigProperties;
     private final QueryBus queryBus;
 
     public RuntimeBootstrapResponse privateBootstrap(TchRequestContext ctx) {
@@ -100,6 +101,7 @@ public class RuntimeBootstrapService {
             navigationDrawer,
             pageModelRef,
             entryRoute,
+            portalConfigProperties.toView(),
             notices.isEmpty() ? null : notices);
     }
 
@@ -164,6 +166,7 @@ public class RuntimeBootstrapService {
         return new RuntimeBootstrapResponse(
             space, user, tenantCtx, settings, theme, i18n, entitlements, readiness,
             RuntimeNotificationSummary.empty(), navigationDrawer, pageModelRef, pageModelRef.route(),
+            portalConfigProperties.toView(),
             notices.isEmpty() ? null : notices);
     }
 

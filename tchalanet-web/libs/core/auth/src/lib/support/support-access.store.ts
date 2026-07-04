@@ -1,5 +1,8 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DestroyRef, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { TchBackendClient } from '@tch/api';
+import { firstValueFrom } from 'rxjs';
 
 export interface TenantAdminAccessSession {
   sessionId: string;
@@ -17,6 +20,8 @@ export interface TenantAdminAccessSession {
 export class SupportAccessStore {
   private static readonly STORAGE_KEY = 'tch.support.tenantAdminAccess';
 
+  private readonly backend = inject(TchBackendClient);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly _session = signal<TenantAdminAccessSession | null>(this.readStoredSession());
@@ -29,9 +34,42 @@ export class SupportAccessStore {
 
   readonly tenantName = computed(() => this._session()?.tenantName ?? null);
 
+  constructor() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const window = this.document.defaultView;
+    if (!window) {
+      return;
+    }
+    const hydrate = () => void this.hydrateCurrent();
+    window.addEventListener('focus', hydrate);
+    window.document.addEventListener('visibilitychange', hydrate);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('focus', hydrate);
+      window.document.removeEventListener('visibilitychange', hydrate);
+    });
+    void this.hydrateCurrent();
+  }
+
   startSession(session: TenantAdminAccessSession): void {
     this._session.set(session);
     this.storage()?.setItem(SupportAccessStore.STORAGE_KEY, JSON.stringify(session));
+  }
+
+  async hydrateCurrent(): Promise<void> {
+    try {
+      const session = await firstValueFrom(
+        this.backend.get<TenantAdminAccessSession>('/platform/tenants/admin-access/current', {
+          suppressShellFeedback: true,
+        }),
+      );
+      this.startSession(session);
+    } catch (err) {
+      if (isAbsentSupportSession(err)) {
+        this.clearSession();
+      }
+    }
   }
 
   clearSession(): void {
@@ -57,4 +95,8 @@ export class SupportAccessStore {
     }
     return this.document.defaultView?.sessionStorage ?? null;
   }
+}
+
+function isAbsentSupportSession(err: unknown): boolean {
+  return err instanceof HttpErrorResponse && (err.status === 401 || err.status === 403 || err.status === 404 || err.status === 410);
 }

@@ -9,8 +9,6 @@ import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
-import '../features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart';
-import '../features/cashier/session/presentation/views/cashier_session_open_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
@@ -47,14 +45,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/login', builder: (context, _) => const LoginPage()),
       GoRoute(path: '/pos', builder: (context, _) => const CashierHomePage()),
-      GoRoute(
-        path: '/pos/setup',
-        builder: (context, _) => const CashierSetupPage(),
-      ),
-      GoRoute(
-        path: '/pos/session/open',
-        builder: (context, _) => const CashierSessionOpenPage(),
-      ),
       // Bottom nav: Ventes | Historique | Scanner | Profil
       GoRoute(
         path: '/pos/history',

@@ -11,11 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { SupportAccessStore } from '@tch/core/auth';
+import { PortalHandoffApi, SupportAccessStore } from '@tch/core/auth';
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
+import { firstValueFrom } from 'rxjs';
 import { PlatformTenantAdminAccessApi } from '../tenant-admins/data-access/platform-tenant-admin-access-api.service';
 import type { TenantStatus } from '../tenants/data-access/platform-tenants-api.service';
 
@@ -50,6 +51,7 @@ export class StartTenantAdminAccessDialog {
   private readonly store = inject(SupportAccessStore);
   private readonly document = inject(DOCUMENT);
   private readonly fb = inject(FormBuilder);
+  private readonly handoffs = inject(PortalHandoffApi);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
   private readonly translate = inject(TranslateService);
@@ -83,7 +85,7 @@ export class StartTenantAdminAccessDialog {
           this.store.startSession(session);
           this.loading.set(false);
           this.dialogRef.close(session);
-          this.openAdminPortal();
+          void this.openAdminPortal(session.sessionId);
         },
         error: (err: unknown) => {
           this.loading.set(false);
@@ -107,7 +109,7 @@ export class StartTenantAdminAccessDialog {
     };
   }
 
-  private openAdminPortal(): void {
+  private async openAdminPortal(supportAccessSessionId: string): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -115,7 +117,32 @@ export class StartTenantAdminAccessDialog {
     const adminBaseUrl = withoutTrailingSlash(
       this.runtimeConfig.config().portalBaseUrls?.['admin-portal'] ?? '/admin',
     );
-    this.document.defaultView?.location.assign(`${adminBaseUrl}/app/admin`);
+    if (!this.isCrossOrigin(adminBaseUrl)) {
+      this.document.defaultView?.location.assign(`${adminBaseUrl}/app/admin`);
+      return;
+    }
+
+    const handoff = await firstValueFrom(
+      this.handoffs.create(
+        {
+          targetPortal: 'ADMIN',
+          entryRoute: '/app/admin',
+          supportAccessSessionId,
+        },
+        { suppressShellFeedback: true },
+      ),
+    );
+    this.document.defaultView?.location.assign(
+      `${withoutTrailingSlash(handoff.targetUrl)}/login/handoff#code=${handoff.handoffId}.${handoff.code}`,
+    );
+  }
+
+  private isCrossOrigin(targetBaseUrl: string): boolean {
+    const window = this.document.defaultView;
+    if (!window) {
+      return false;
+    }
+    return new URL(targetBaseUrl, window.location.origin).origin !== window.location.origin;
   }
 }
 

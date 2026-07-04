@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { RuntimeSettingsStore } from '@tch/shared-config';
+import { RuntimeSettingsStore, TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { of } from 'rxjs';
 
@@ -65,6 +65,47 @@ describe('PrivateRuntimeInitializer', () => {
     });
     expect(translate.setTranslation).not.toHaveBeenCalled();
     expect(bootstrapStore.setBootstrap).toHaveBeenCalled();
+  });
+
+  it('merges portal URLs from private bootstrap into runtime config', () => {
+    const runtimeConfig = TestBed.inject(TchRuntimeConfigStore);
+    runtimeConfig.setConfig({
+      appId: 'platform-portal',
+      production: false,
+      apiBaseUrl: '/api/v1',
+      authBaseUrl: '/auth',
+      assetsBaseUrl: '/assets',
+      portalBaseUrls: {
+        'admin-portal': '/admin',
+        'platform-portal': '/platform',
+      },
+      enableSandbox: false,
+      firebaseAuthEmulatorUrl: null,
+      firebase: {
+        apiKey: '',
+        authDomain: '',
+        projectId: '',
+        storageBucket: '',
+        messagingSenderId: '',
+        appId: '',
+      },
+    });
+    bootstrapApi.bootstrap.mockReturnValue(of({
+      ...bootstrapWithoutRuntimeBlocks(),
+      portalConfig: {
+        portalBaseUrls: {
+          'admin-portal': 'http://localhost:4302',
+          'platform-portal': 'http://localhost:4202',
+        },
+      },
+    }));
+
+    TestBed.inject(PrivateRuntimeInitializer).initialize().subscribe();
+
+    expect(runtimeConfig.config().portalBaseUrls).toEqual({
+      'admin-portal': 'http://localhost:4302',
+      'platform-portal': 'http://localhost:4202',
+    });
   });
 });
 

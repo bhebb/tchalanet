@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.tenant.internal.web;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -20,6 +20,9 @@ import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdenti
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.service.TenantConfigService;
+import com.tchalanet.server.platform.accesscontrol.api.SupportAccessApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.StartSupportAccessSessionRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessSessionView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,7 +41,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Tag(name = "Platform - Tenants")
 @RestController
@@ -47,7 +49,8 @@ import java.time.temporal.ChronoUnit;
 public class TenantAdminController {
 
   private final TenantConfigService tenants;
-  private final IdGenerator idGenerator;
+  private final SupportAccessApi supportAccess;
+  private final TchContextResolver contextResolver;
 
   @Operation(summary = "List tenants with search, status filter and pagination")
   @GetMapping
@@ -123,18 +126,25 @@ public class TenantAdminController {
     var mode = requestedMode == SupportAccessMode.SUPPORT_READONLY || tenant.status() != TenantStatus.ACTIVE
         ? SupportAccessMode.SUPPORT_READONLY
         : SupportAccessMode.SUPPORT_OVERRIDE;
-    var startedAt = Instant.now();
-    return ApiResponse.success(new TenantAdminAccessSessionResponse(
-        idGenerator.newUuid().toString(),
-        tenant.tenantId().value().toString(),
+    var actor = contextResolver.currentOrThrow().userId();
+    var session = supportAccess.start(new StartSupportAccessSessionRequest(
+        actor,
+        tenant.tenantId(),
         tenant.code(),
         tenant.name(),
-        startedAt,
-        startedAt.plus(30, ChronoUnit.MINUTES),
-        "SUPER_ADMIN",
-        mode,
-        mode == SupportAccessMode.SUPPORT_READONLY
-    ));
+        body.reason(),
+        com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessMode.valueOf(mode.name())));
+    return ApiResponse.success(toResponse(session));
+  }
+
+  @GetMapping("/admin-access/current")
+  @Operation(summary = "Get the current platform support tenant-admin access session")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ApiResponse<TenantAdminAccessSessionResponse> currentAdminAccess() {
+    var actor = contextResolver.currentOrThrow().userId();
+    return supportAccess.current(actor)
+        .map(session -> ApiResponse.success(toResponse(session)))
+        .orElseThrow(() -> ProblemRest.notFound("support_access.current_not_found"));
   }
 
   @DeleteMapping("/admin-access/current")
@@ -142,7 +152,7 @@ public class TenantAdminController {
   @Operation(summary = "Stop the current platform support tenant-admin access session")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   public void stopAdminAccess() {
-    // V0 support access is client-session scoped; tenant override authorization is enforced per request.
+    supportAccess.stop(contextResolver.currentOrThrow().userId());
   }
 
   public record ReasonRequest(String reason) {}
@@ -172,4 +182,17 @@ public class TenantAdminController {
       SupportAccessMode mode,
       boolean sensitiveDataMasked
   ) {}
+
+  private static TenantAdminAccessSessionResponse toResponse(SupportAccessSessionView session) {
+    return new TenantAdminAccessSessionResponse(
+        session.sessionId().toString(),
+        session.tenantId().toString(),
+        session.tenantCode(),
+        session.tenantName(),
+        session.startedAt(),
+        session.expiresAt(),
+        session.actorRole(),
+        SupportAccessMode.valueOf(session.mode().name()),
+        session.sensitiveDataMasked());
+  }
 }

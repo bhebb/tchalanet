@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../core/network/api_exception.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
-
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../data/models/cashier_ticket_models.dart';
@@ -48,7 +48,7 @@ class VerifyController extends Notifier<VerifyState> {
           .verify(CashierVerifyTicketRequest(scannedValue: scannedValue.trim()));
       state = VerifyResult(result, scannedValue.trim());
     } catch (e) {
-      state = VerifyError(e.toString());
+      state = VerifyError(userMessage(e));
     }
   }
 

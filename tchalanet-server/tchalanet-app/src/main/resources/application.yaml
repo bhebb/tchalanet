@@ -43,6 +43,18 @@ tch:
         default-pin-length: ${TCH_SELLER_TEMP_PIN_LENGTH:6}
         generate-pin: ${TCH_SELLER_TEMP_GENERATE_PIN:true}
 
+  portal-auth-handoff:
+    ttl: ${TCH_PORTAL_AUTH_HANDOFF_TTL:60s}
+    portal-base-urls:
+      admin: ${TCH_ADMIN_PORTAL_BASE_URL:/admin}
+      platform: ${TCH_PLATFORM_PORTAL_BASE_URL:/platform}
+    allowed-entry-routes:
+      - /app/admin
+      - /app/platform
+      - /app/account/activation
+      - /app/profile
+      - /app/seller-terminal/activation
+
   runtime:
     zone-id: ${TCH_RUNTIME_ZONE_ID:UTC}
 

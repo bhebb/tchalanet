@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/auth/auth_token_client.dart';
 import '../../../../core/auth/firebase_auth_token_client.dart';
 import '../../../../core/runtime/runtime_repository.dart';
-import '../../../../core/storage/op_context_storage.dart';
 import '../../../../core/storage/secure_token_storage.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../models/user_role.dart';
@@ -16,13 +15,11 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(
     this._service,
     this._tokenStorage,
-    this._opContextStorage,
     this._runtimeRepository,
   );
 
   final AuthTokenClient _service;
   final TokenStorage _tokenStorage;
-  final OpContextStorage _opContextStorage;
   final RuntimeRepository _runtimeRepository;
 
   @override
@@ -71,7 +68,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     await _service.logout();
     await _tokenStorage.clear();
-    await _opContextStorage.clear();
   }
 
   Future<void> _storeTokens(AuthTokenData tokens) async {
@@ -140,7 +136,6 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
     FirebaseAuthTokenClient(),
     ref.watch(tokenStorageProvider),
-    ref.watch(opContextStorageProvider),
     ref.watch(runtimeRepositoryProvider),
   );
 });

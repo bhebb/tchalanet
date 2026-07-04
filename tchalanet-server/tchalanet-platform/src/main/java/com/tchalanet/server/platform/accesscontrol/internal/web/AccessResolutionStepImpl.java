@@ -81,9 +81,14 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
             var roleCodes = new HashSet<>(platform.roleCodes());
             var permissionKeys = new HashSet<>(platform.permissionKeys());
             if (effectiveTenantId != null) {
-                var tenantAccess = snapshotResolver.resolveTenant(userId, effectiveTenantId);
-                roleCodes.addAll(tenantAccess.roleCodes());
-                permissionKeys.addAll(tenantAccess.permissionKeys());
+                if (effectiveTenant.tenantOverride() || effectiveTenant.supportSession()) {
+                    roleCodes.remove("SUPER_ADMIN");
+                    roleCodes.add("TENANT_ADMIN");
+                } else {
+                    var tenantAccess = snapshotResolver.resolveTenant(userId, effectiveTenantId);
+                    roleCodes.addAll(tenantAccess.roleCodes());
+                    permissionKeys.addAll(tenantAccess.permissionKeys());
+                }
             }
             return new ResolvedAccessContext(
                 TchActorType.APP_USER, userId, null, effectiveTenantId,
