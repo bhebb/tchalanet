@@ -164,7 +164,10 @@ class _SellerTerminalScaffold extends ConsumerWidget {
   final CashierHomeResponse home;
 
   void _showDrawDetail(
-      BuildContext context, WidgetRef ref, CashierAvailableDrawView draw) {
+    BuildContext context,
+    WidgetRef ref,
+    CashierAvailableDrawView draw,
+  ) {
     final statsAsync = ref.read(terminalDailyStatsProvider);
     final drawLine = statsAsync.asData?.value.breakdown
         .where((b) => b.drawId == draw.drawId)
@@ -250,11 +253,7 @@ class _SellerTerminalScaffold extends ConsumerWidget {
                           for (final draw in draws)
                             _DrawTile(
                               draw: draw,
-                              onTap: () => _showDrawDetail(
-                                context,
-                                ref,
-                                draw,
-                              ),
+                              onTap: () => _showDrawDetail(context, ref, draw),
                             ),
                         ],
                       ),
@@ -305,10 +304,17 @@ class _StatsPlaceholder extends StatelessWidget {
     return const Row(
       children: [
         Expanded(
-          child: StatCardLarge(label: "Ventes aujourd'hui", value: '—', unit: ''),
+          child: StatCardLarge(
+            label: "Ventes aujourd'hui",
+            value: '—',
+            unit: '',
+          ),
         ),
         SizedBox(width: TchSpacing.s12),
-        SizedBox(width: 100, child: StatCard(label: 'Tickets', value: '—')),
+        SizedBox(
+          width: 100,
+          child: StatCard(label: 'Tickets', value: '—'),
+        ),
       ],
     );
   }
@@ -337,7 +343,11 @@ class _DrawDetailSheet extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          TchSpacing.s24, TchSpacing.s8, TchSpacing.s24, TchSpacing.s32),
+        TchSpacing.s24,
+        TchSpacing.s8,
+        TchSpacing.s24,
+        TchSpacing.s32,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -369,20 +379,24 @@ class _DrawDetailSheet extends StatelessWidget {
                 children: [
                   Text(
                     slot,
-                    style: textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   Text(
                     draw.formattedCutoff,
-                    style: textTheme.bodySmall
-                        ?.copyWith(color: scheme.onSurfaceVariant),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: TchSpacing.s8, vertical: TchSpacing.s4),
+                  horizontal: TchSpacing.s8,
+                  vertical: TchSpacing.s4,
+                ),
                 decoration: BoxDecoration(
                   color: TchColors.successContainer,
                   borderRadius: BorderRadius.circular(TchRadius.pill),
@@ -427,8 +441,9 @@ class _DrawDetailSheet extends StatelessWidget {
           else
             Text(
               'Aucune vente pour ce tirage aujourd\'hui',
-              style: textTheme.bodyMedium
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+              style: textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
             ),
 
           const SizedBox(height: TchSpacing.s24),
@@ -475,8 +490,9 @@ class _DrawTile extends StatelessWidget {
     final isMidi = slot.toLowerCase().contains('midi');
 
     final slotBg = isMidi ? scheme.primaryContainer : scheme.secondaryContainer;
-    final slotFg =
-        isMidi ? scheme.onPrimaryContainer : scheme.onSecondaryContainer;
+    final slotFg = isMidi
+        ? scheme.onPrimaryContainer
+        : scheme.onSecondaryContainer;
 
     return InkWell(
       onTap: onTap,
@@ -523,8 +539,9 @@ class _DrawTile extends StatelessWidget {
             const SizedBox(height: TchSpacing.s8),
             Text(
               draw.formattedCutoff,
-              style: textTheme.bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+              style: textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -542,14 +559,17 @@ class _NoDraws extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: TchSpacing.s32),
       child: Column(
         children: [
-          Icon(Icons.event_busy_rounded, size: 48, color: scheme.outlineVariant),
+          Icon(
+            Icons.event_busy_rounded,
+            size: 48,
+            color: scheme.outlineVariant,
+          ),
           const SizedBox(height: TchSpacing.s12),
           Text(
             'Aucun tirage disponible',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: scheme.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -568,8 +588,10 @@ class _DrawsError extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: TchSpacing.s16),
-          Text('Impossible de charger les tirages',
-              style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            'Impossible de charger les tirages',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: TchSpacing.s12),
           TextButton(onPressed: onRetry, child: const Text('Réessayer')),
         ],
@@ -634,13 +656,16 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
               ],
             ),
           ),
-        _NotificationCenterAction(
-          unreadCount: ref.watch(
-            notificationSummaryProvider.select(
-              (state) => state.summary.unreadCount,
-            ),
-          ),
-          tooltip: translations.translate('notifications.center.open'),
+        Builder(
+          builder: (context) {
+            final summary = ref.watch(notificationSummaryProvider).summary;
+            return _NotificationCenterAction(
+              unreadCount: summary.unreadCount,
+              criticalCount: summary.criticalCount,
+              actionRequiredCount: summary.actionRequiredCount,
+              tooltip: translations.translate('notifications.center.open'),
+            );
+          },
         ),
         Padding(
           padding: const EdgeInsets.only(right: TchSpacing.s12),
@@ -665,19 +690,33 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
 class _NotificationCenterAction extends StatelessWidget {
   const _NotificationCenterAction({
     required this.unreadCount,
+    required this.criticalCount,
+    required this.actionRequiredCount,
     required this.tooltip,
   });
 
   final int unreadCount;
+  final int criticalCount;
+  final int actionRequiredCount;
   final String tooltip;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // Badge count is the unread total; its colour signals the highest severity
+    // present so the seller reads urgency at a glance (matches the design).
+    final Color badgeColor = criticalCount > 0
+        ? scheme.error
+        : actionRequiredCount > 0
+        ? TchColors.warning
+        : scheme.primary;
+
     return IconButton(
       tooltip: tooltip,
       onPressed: () => context.push('/pos/notifications'),
       icon: Badge(
         isLabelVisible: unreadCount > 0,
+        backgroundColor: badgeColor,
         label: Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
         child: const Icon(Icons.notifications_outlined),
       ),
@@ -706,4 +745,3 @@ class _UserAvatar extends StatelessWidget {
     );
   }
 }
-
