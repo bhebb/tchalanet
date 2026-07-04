@@ -167,6 +167,7 @@ public class FetchExternalResultsWindowCommandHandler
                     date,
                     expectedOccurredAt,
                     external,
+                    sourceCfg,
                     projection,
                     cmd.includeRaw());
 

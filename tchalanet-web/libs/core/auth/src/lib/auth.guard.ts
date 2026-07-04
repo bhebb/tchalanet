@@ -34,7 +34,7 @@ export const spaceDispatchGuard: CanActivateFn = async (): Promise<UrlTree> => {
   if (session.roles.includes('SUPER_ADMIN')) {
     return router.parseUrl('/app/platform');
   }
-  if (session.roles.includes('TENANT_ADMIN')) {
+  if (session.roles.includes('TENANT_OWNER') || session.roles.includes('TENANT_ADMIN')) {
     return router.parseUrl('/app/admin');
   }
   if (session.roles.includes('CASHIER')) {
@@ -56,7 +56,7 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
     }
 
     if (
-      !auth.hasRole(requiredRole) &&
+      !hasRequiredRole(auth, requiredRole) &&
       !isSupportTenantAdminAccess(requiredRole, session.roles, supportAccess.isActive())
     ) {
       return router.parseUrl('/forbidden');
@@ -74,6 +74,13 @@ export function roleGuard(requiredRole: UserRole): CanActivateFn {
 
     return true;
   };
+}
+
+function hasRequiredRole(auth: AuthSessionService, requiredRole: UserRole): boolean {
+  if (auth.hasRole(requiredRole)) {
+    return true;
+  }
+  return requiredRole === 'TENANT_ADMIN' && auth.hasRole('TENANT_OWNER');
 }
 
 function isSupportTenantAdminAccess(

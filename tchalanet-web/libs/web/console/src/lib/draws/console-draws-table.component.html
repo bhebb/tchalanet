@@ -4,153 +4,181 @@
       <div class="console-draws-table__group-label">{{ group.label }}</div>
     }
 
-    <table mat-table [dataSource]="group.rows">
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row" data-label="Sélection">
-          <mat-checkbox
-            [checked]="isSelected(row)"
-            [attr.aria-label]="'Sélectionner ' + row.title"
-            (change)="emitSelection(row, $event.checked)"
-          />
-        </td>
-      </ng-container>
+    <div class="console-draws-table__scroller">
+      <table mat-table [dataSource]="group.rows">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row" data-label="Sélection">
+            <mat-checkbox
+              [checked]="isSelected(row)"
+              [attr.aria-label]="'Sélectionner ' + row.title"
+              (change)="emitSelection(row, $event.checked)"
+            />
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="draw">
-        <th mat-header-cell *matHeaderCellDef>Tirage</th>
-        <td mat-cell *matCellDef="let row" data-label="Tirage">
-          <tch-console-draw-slot-identity
-            [identity]="{
-              providerName: row.logoAlt || row.meta,
-              providerLogoUrl: row.logoUrl,
-              logoText: row.logoText,
-              slotLabel: row.title,
-              slotKey: row.subtitle
-            }"
-          />
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="draw">
+          <th mat-header-cell *matHeaderCellDef>Tirage</th>
+          <td mat-cell *matCellDef="let row" data-label="Tirage">
+            <tch-console-draw-slot-identity
+              [identity]="{
+                providerName: row.logoAlt || row.meta,
+                providerLogoUrl: row.logoUrl,
+                logoText: row.logoText,
+                slotLabel: row.title,
+                slotKey: row.subtitle,
+              }"
+            />
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="scheduledAt">
-        <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
-        <td mat-cell *matCellDef="let row" data-label="Date">
-          <p class="console-draws-table__date">{{ row.scheduledDateLabel || '—' }}</p>
-          <p class="console-draws-table__time">{{ row.scheduledTimeLabel || '—' }}</p>
-          @if (row.countdownLabel) {
-            <p
-              class="console-draws-table__countdown"
-              [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
-            >
-              {{ row.countdownLabel }}
-            </p>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Statut</th>
-        <td mat-cell *matCellDef="let row" data-label="Statut">
-          <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="result">
-        <th mat-header-cell *matHeaderCellDef>Résultat</th>
-        <td mat-cell *matCellDef="let row" data-label="Résultat">
-          <div class="console-draws-table__result">
-            @if (row.resultLabel) {
-              <tch-admin-status-pill [label]="row.resultLabel" [tone]="row.resultTone || 'neutral'" />
+        <ng-container matColumnDef="scheduledAt">
+          <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
+          <td mat-cell *matCellDef="let row" data-label="Date">
+            <p class="console-draws-table__date">{{ row.scheduledDateLabel || '—' }}</p>
+            <p class="console-draws-table__time">{{ row.scheduledTimeLabel || '—' }}</p>
+            @if (row.countdownLabel) {
+              <p
+                class="console-draws-table__countdown"
+                [class.console-draws-table__countdown--warning]="row.countdownTone === 'warning'"
+              >
+                {{ row.countdownLabel }}
+              </p>
             }
-            @if ((row.resultNumbers?.length ?? 0) > 0) {
-              <div class="console-draws-table__numbers">
-                @for (n of row.resultNumbers; track n) {
-                  <span class="console-draws-table__number">{{ n }}</span>
-                }
-              </div>
-            }
-            @if (row.resultHint) {
-              <p class="console-draws-table__hint">{{ row.resultHint }}</p>
-            }
-            @if (!row.resultLabel && (row.resultNumbers?.length ?? 0) === 0 && !row.resultHint) {
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let row" data-label="Statut">
+            <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="result">
+          <th mat-header-cell *matHeaderCellDef>Résultat</th>
+          <td mat-cell *matCellDef="let row" data-label="Résultat">
+            <div class="console-draws-table__result">
+              @if (row.resultLabel) {
+                <tch-admin-status-pill
+                  [label]="row.resultLabel"
+                  [tone]="row.resultTone || 'neutral'"
+                />
+              }
+              @if ((row.resultNumbers?.length ?? 0) > 0) {
+                <div class="console-draws-table__numbers">
+                  @for (n of row.resultNumbers; track n) {
+                    <span class="console-draws-table__number">{{ n }}</span>
+                  }
+                </div>
+              }
+              @if (row.resultHint) {
+                <p class="console-draws-table__hint">{{ row.resultHint }}</p>
+              }
+              @if (!row.resultLabel && (row.resultNumbers?.length ?? 0) === 0 && !row.resultHint) {
+                <span class="console-draws-table__dash">—</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="mode">
+          <th mat-header-cell *matHeaderCellDef>Mode</th>
+          <td mat-cell *matCellDef="let row" data-label="Mode">
+            <span class="console-draws-table__chip">{{ row.modeLabel || '—' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="publication">
+          <th mat-header-cell *matHeaderCellDef>Publication</th>
+          <td mat-cell *matCellDef="let row" data-label="Publication">
+            @if (row.publicationLabel) {
+              <tch-admin-status-pill
+                [label]="row.publicationLabel"
+                [tone]="row.publicationTone || 'neutral'"
+              />
+            } @else {
               <span class="console-draws-table__dash">—</span>
             }
-          </div>
-        </td>
-      </ng-container>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="mode">
-        <th mat-header-cell *matHeaderCellDef>Mode</th>
-        <td mat-cell *matCellDef="let row" data-label="Mode">
-          <span class="console-draws-table__chip">{{ row.modeLabel || '—' }}</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="publication">
-        <th mat-header-cell *matHeaderCellDef>Publication</th>
-        <td mat-cell *matCellDef="let row" data-label="Publication">
-          @if (row.publicationLabel) {
-            <tch-admin-status-pill [label]="row.publicationLabel" [tone]="row.publicationTone || 'neutral'" />
-          } @else {
-            <span class="console-draws-table__dash">—</span>
-          }
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let row">
-          <div class="console-draws-table__actions">
-            @if (row.pending) {
-              <span class="material-symbols-outlined console-draws-table__spinner" aria-label="Action en cours">progress_activity</span>
-            } @else {
-              @for (action of row.actions ?? []; track action.id) {
-                @if (action.variant === 'icon') {
-                  <button
-                    mat-icon-button
-                    type="button"
-                    [title]="action.label"
-                    [disabled]="action.disabled"
-                    [class.console-draws-table__action--danger]="action.tone === 'danger'"
-                    (click)="emitAction(row, action)"
-                  >
-                    <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
-                  </button>
-                } @else {
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    [disabled]="action.disabled"
-                    [class.console-draws-table__action--danger]="action.tone === 'danger'"
-                    [class.console-draws-table__action--primary]="action.tone === 'primary'"
-                    (click)="emitAction(row, action)"
-                  >
-                    @if (action.icon) {
-                      <span class="material-symbols-outlined">{{ action.icon }}</span>
-                    }
-                    {{ action.label }}
-                  </button>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <div class="console-draws-table__actions">
+              @if (row.pending) {
+                <span
+                  class="material-symbols-outlined console-draws-table__spinner"
+                  aria-label="Action en cours"
+                  >progress_activity</span
+                >
+              } @else {
+                @for (action of row.actions ?? []; track action.id) {
+                  @if (action.variant === 'icon') {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [title]="action.label"
+                      [disabled]="action.disabled"
+                      [class.console-draws-table__action--danger]="action.tone === 'danger'"
+                      (click)="emitAction(row, action)"
+                    >
+                      <span class="material-symbols-outlined">{{
+                        action.icon || 'more_horiz'
+                      }}</span>
+                    </button>
+                  } @else {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      [disabled]="action.disabled"
+                      [class.console-draws-table__action--danger]="action.tone === 'danger'"
+                      [class.console-draws-table__action--primary]="action.tone === 'primary'"
+                      (click)="emitAction(row, action)"
+                    >
+                      @if (action.icon) {
+                        <span class="material-symbols-outlined">{{ action.icon }}</span>
+                      }
+                      {{ action.label }}
+                    </button>
+                  }
                 }
               }
-            }
-          </div>
-        </td>
-      </ng-container>
+            </div>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columns()"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns()"></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns()"></tr>
+      </table>
+    </div>
   }
 
   @if (showFooter()) {
     <div class="console-draws-table__footer">
       <p class="console-draws-table__count">
-        Affichage de {{ rangeStart() }}–{{ rangeEnd() }} sur {{ totalElements() }} tirage{{ totalElements() === 1 ? '' : 's' }}
+        Affichage de {{ rangeStart() }}–{{ rangeEnd() }} sur {{ totalElements() }} tirage{{
+          totalElements() === 1 ? '' : 's'
+        }}
       </p>
       <div class="console-draws-table__pagination">
-        <button mat-icon-button type="button" [disabled]="!hasPrevious()" (click)="previousPage.emit()" aria-label="Page précédente">
+        <button
+          mat-icon-button
+          type="button"
+          [disabled]="!hasPrevious()"
+          (click)="previousPage.emit()"
+          aria-label="Page précédente"
+        >
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
-        <button mat-icon-button type="button" [disabled]="!hasNext()" (click)="nextPage.emit()" aria-label="Page suivante">
+        <button
+          mat-icon-button
+          type="button"
+          [disabled]="!hasNext()"
+          (click)="nextPage.emit()"
+          aria-label="Page suivante"
+        >
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>

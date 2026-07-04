@@ -15,7 +15,7 @@ public class UserUsageProvider implements UsageProvider {
 
     @Override
     public boolean supports(String usageKey) {
-        return UsageKeys.USERS_ACTIVE.equals(usageKey);
+        return UsageKeys.ADMIN_USERS_ACTIVE.equals(usageKey);
     }
 
     @Override
@@ -24,6 +24,6 @@ public class UserUsageProvider implements UsageProvider {
             throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
         }
 
-        return Math.toIntExact(repository.countActiveTenantUsers(tenantId.value()));
+        return Math.toIntExact(repository.countActiveTenantAdmins(tenantId.value()));
     }
 }

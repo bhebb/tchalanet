@@ -32,6 +32,7 @@ export interface TchRuntimeConfig {
   readonly assetsBaseUrl: string;
   readonly portalBaseUrls?: Partial<Record<Exclude<TchAppId, 'public-portal'>, string>>;
   readonly enableSandbox: boolean;
+  readonly sessionRefreshIntervalMs?: number;
   readonly firebase: TchFirebaseRuntimeConfig;
   readonly firebaseAuthEmulatorUrl: string | null;
 }
@@ -61,6 +62,7 @@ export class TchRuntimeConfigStore {
       'platform-portal': '/platform',
     },
     enableSandbox: false,
+    sessionRefreshIntervalMs: 30 * 60 * 1000,
     firebaseAuthEmulatorUrl: null,
     firebase: {
       apiKey: '',

@@ -41,6 +41,14 @@ public interface DrawChannelCatalog {
   List<DrawChannelView> listAllFull(TenantId tenantId);
 
   /**
+   * Count active, non-deleted draw channels in the current tenant scope.
+   *
+   * <p>The tenant id is part of the public API contract. Implementations may rely on RLS for
+   * physical scoping, consistent with other tenant-scoped draw-channel reads.
+   */
+  long countActiveChannels(TenantId tenantId);
+
+  /**
    * Find a single draw channel by its typed id within the tenant scope.
    *
    * Contract:

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'draw.read')")
 @Tag(name = "Draws • Admin")
 public class DrawAdminOpsController {
 
@@ -36,7 +36,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Correct an already applied draw result")
     @PostMapping("/{drawId}/results/correct")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw_result.override')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_CORRECT_APPLIED_RESULT,
@@ -58,7 +58,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Reschedule a draw")
     @PostMapping("/{drawId}/reschedule")
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasRole('SUPER_ADMIN') and hasPermission(null, 'draw.schedule.manage')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_RESCHEDULE,
@@ -84,6 +84,7 @@ public class DrawAdminOpsController {
 
     @Operation(summary = "Record a manual draw result (TENANT_ADMIN+)")
     @PostMapping("/{drawId}/manual-result")
+    @PreAuthorize("hasPermission(null, 'draw_result.record_manual')")
     @AuditLog(
         entity = AuditEntityType.DRAW_RESULT,
         action = AuditAction.DRAW_RESULT_MANUAL,

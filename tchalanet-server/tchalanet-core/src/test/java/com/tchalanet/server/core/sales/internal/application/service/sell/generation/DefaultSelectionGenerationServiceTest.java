@@ -31,7 +31,7 @@ class DefaultSelectionGenerationServiceTest {
         var service = service(42);
         for (int i = 0; i < ITERATIONS; i++) {
             var selection = service.generate(
-                GameCode.HT_MARYAJ_GRATUIT,
+                GameCode.HT_MARYAJ_GRATIS,
                 BetType.MARRIAGE_2D2D,
                 MARRIAGE_EXACT,
                 SelectionGenerationStrategy.RANDOM,
@@ -108,7 +108,7 @@ class DefaultSelectionGenerationServiceTest {
     @DisplayName("LOW_EXPOSURE_RANDOM is rejected in V1")
     void lowExposureRejected() {
         assertThatThrownBy(() -> service(1).generate(
-            GameCode.HT_MARYAJ_GRATUIT,
+            GameCode.HT_MARYAJ_GRATIS,
             BetType.MARRIAGE_2D2D,
             MARRIAGE_EXACT,
             SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM,
@@ -136,7 +136,7 @@ class DefaultSelectionGenerationServiceTest {
     @DisplayName("maryaj without bet option is rejected")
     void maryajWithoutOptionRejected() {
         assertThatThrownBy(() -> service(1).generate(
-            GameCode.HT_MARYAJ_GRATUIT,
+            GameCode.HT_MARYAJ_GRATIS,
             BetType.MARRIAGE_2D2D,
             null,
             SelectionGenerationStrategy.RANDOM,

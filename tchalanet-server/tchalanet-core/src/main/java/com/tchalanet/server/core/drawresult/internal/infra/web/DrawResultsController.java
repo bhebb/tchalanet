@@ -27,7 +27,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/admin/draw-results")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasPermission(null, 'draw_result.read')")
 @Tag(name = "Admin • Draw Results")
 public class DrawResultsController {
 

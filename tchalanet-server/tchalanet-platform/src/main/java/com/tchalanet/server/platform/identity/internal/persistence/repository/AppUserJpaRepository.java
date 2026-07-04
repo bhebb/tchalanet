@@ -97,15 +97,27 @@ public interface AppUserJpaRepository extends JpaRepository<AppUserJpaEntity, UU
     @Query(
         value =
             """
-                    select count(*) from app_user u
-                    join tenant_user tu on tu.user_id = u.id
+                    select count(distinct u.id)
+                    from app_user u
+                    join tenant_user tu
+                      on tu.user_id = u.id
+                    join tenant_user_role tur
+                      on tur.user_id = u.id
+                     and tur.tenant_id = tu.tenant_id
+                    join app_role ar
+                      on ar.id = tur.role_id
                     where tu.tenant_id = :tenantId
                       and tu.deleted_at is null
                       and tu.status = 'ACTIVE'
+                      and tur.deleted_at is null
+                      and ar.deleted_at is null
+                      and ar.active = true
+                      and ar.code in ('TENANT_OWNER', 'TENANT_ADMIN')
                       and u.deleted_at is null
+                      and u.status = 'ACTIVE'
                 """,
         nativeQuery = true)
-    long countActiveTenantUsers(@Param("tenantId") UUID tenantId);
+    long countActiveTenantAdmins(@Param("tenantId") UUID tenantId);
 
     @Query(
         value =

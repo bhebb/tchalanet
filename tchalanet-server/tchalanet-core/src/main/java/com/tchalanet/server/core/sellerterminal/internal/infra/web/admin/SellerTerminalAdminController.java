@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
 import com.tchalanet.server.core.sellerterminal.api.command.BlockSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.CreateSellerTerminalCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.DisableSellerTerminalCommand;
@@ -31,6 +32,8 @@ import com.tchalanet.server.platform.accesscontrol.api.RequiresPermission;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
+import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -67,6 +70,7 @@ public class SellerTerminalAdminController {
     // ── Queries ───────────────────────────────────────────────────────────────
 
     @GetMapping("/summary")
+    @RequiresPermission("seller_terminal.read")
     @Operation(summary = "Seller terminals summary")
     public ApiResponse<SellerTerminalsSummaryResponse> summary(@CurrentContext TchRequestContext ctx) {
         var page = queryBus.ask(new ListSellerTerminalsQuery(
@@ -108,6 +112,7 @@ public class SellerTerminalAdminController {
     }
 
     @GetMapping
+    @RequiresPermission("seller_terminal.read")
     @Operation(summary = "List seller terminals")
     public ApiResponse<TchPage<SellerTerminalSummaryRow>> list(
         @CurrentContext TchRequestContext ctx,
@@ -122,6 +127,7 @@ public class SellerTerminalAdminController {
     }
 
     @GetMapping("/{id}")
+    @RequiresPermission("seller_terminal.read")
     @Operation(summary = "Get seller terminal by id")
     public ApiResponse<SellerTerminalView> get(
         @CurrentContext TchRequestContext ctx,
@@ -136,6 +142,10 @@ public class SellerTerminalAdminController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @RequiresPermission("seller_terminal.manage")
+    @RequiredQuota(
+        limit = PlanLimitKeys.SELLER_TERMINALS_MAX,
+        usage = UsageKeys.SELLER_TERMINALS_ACTIVE
+    )
     @Operation(summary = "Create a seller-terminal")
     @AuditLog(
         entity = AuditEntityType.SELLER_TERMINAL,

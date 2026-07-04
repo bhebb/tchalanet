@@ -17,7 +17,7 @@ import java.util.List;
  * Ops controller for batch job management.
  * NOTE: /api/v1 prefix is added automatically by platform config.
  * Endpoints:
- * - GET    /platform/ops/batch/jobs
+ * - GET    /platform/ops/batchzxx/jobs
  * - GET    /platform/ops/batch/jobs/{jobKey}
  * - POST   /platform/ops/batch/jobs/{jobKey}:start
  */

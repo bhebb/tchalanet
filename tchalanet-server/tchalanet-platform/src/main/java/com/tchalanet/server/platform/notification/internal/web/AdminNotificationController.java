@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Notifications")
-@PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 public class AdminNotificationController {
 
   private final NotificationAdminGate notificationAdminGate;

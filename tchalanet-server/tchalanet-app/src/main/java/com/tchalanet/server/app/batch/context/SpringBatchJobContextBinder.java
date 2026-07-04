@@ -47,7 +47,7 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
 
     private void bindPlatform(String requestId, String actor) {
         var ctx = new TchRequestContext(
-            null, null, null, null, actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            null, null, null, null, actor, null, Set.of(), Set.of(),
             Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
             ApiScope.PLATFORM, null, null, ZoneId.of("UTC"), null, null,
             TchActorType.SYSTEM, null, Set.of(), Set.of(), null
@@ -72,7 +72,7 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
 
         var ctx = new TchRequestContext(
             info.tenantCode(), info.tenantId().value(), info.tenantCode(), info.tenantId().value(),
-            actor, null, Set.of(TchRole.SYSTEM), Set.of(),
+            actor, null, Set.of(), Set.of(),
             Locale.FRENCH, requestId, "batch", "batch", false, null, "active",
             ApiScope.TENANT, null, info.tenantId(), zone, info.currency(), null,
             TchActorType.SYSTEM, null, Set.of(), Set.of(), null

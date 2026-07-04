@@ -1,4 +1,4 @@
-import { TCH_LOTTERY_ASSET_BASE_PATH } from '@tch/shared-assets';
+import { TCH_LOTTERY_ASSET_BASE_PATH, TCH_LOTTERY_LOGO_ASSET_BASE_PATH } from '@tch/shared-assets';
 
 const SLOT_ASSETS: Record<string, string> = {
   'ca-pick3': 'ca_pick3.svg',
@@ -65,11 +65,26 @@ const DRAW_CHANNEL_ASSETS: Record<string, string> = {
   win4: 'logo-win4.png.webp',
 };
 
+const PROVIDER_LOGO_ASSETS: Record<string, string> = {
+  ca: 'calottery-logo.png',
+  fl: 'florida-lottery.jpeg',
+  ga: 'ga_logo.png',
+  il: 'illinois-logo.svg',
+  mi: 'mi_logo.webp',
+  ms: 'msl-logo.svg',
+  nj: 'nj_lottery_logo.png',
+  ny: 'ny_logo.png',
+  oh: 'oh_logo.png',
+  pa: 'PALotteryBlack.svg',
+  tx: 'tx_logo.png',
+};
+
 export function lotteryAssetForSlot(slotKey?: string | null): string | null {
   const normalized = normalize(slotKey);
   if (!normalized) return null;
   const asset = SLOT_ASSETS[normalized];
-  return asset ? `${TCH_LOTTERY_ASSET_BASE_PATH}/${asset}` : null;
+  if (asset) return `${TCH_LOTTERY_ASSET_BASE_PATH}/${asset}`;
+  return providerLogoAsset(providerFromSlot(normalized));
 }
 
 export function lotteryAssetForDrawChannel(drawChannelCode?: string | null): string | null {
@@ -80,7 +95,7 @@ export function lotteryAssetForDrawChannel(drawChannelCode?: string | null): str
 }
 
 export function lotteryAssetForProvider(providerCode?: string | null): string | null {
-  return lotteryAssetForDrawChannel(providerCode);
+  return providerLogoAsset(normalize(providerCode)) ?? lotteryAssetForDrawChannel(providerCode);
 }
 
 function normalize(value?: unknown): string | null {
@@ -96,4 +111,14 @@ function inferChannelAsset(value: string): string | null {
   if (value.includes('numbers')) return 'logo-numbers.png.webp';
   if (value.includes('win4')) return 'logo-win4.png.webp';
   return null;
+}
+
+function providerFromSlot(value: string): string | null {
+  return value.split('-', 1)[0] || null;
+}
+
+function providerLogoAsset(providerCode?: string | null): string | null {
+  if (!providerCode) return null;
+  const asset = PROVIDER_LOGO_ASSETS[providerCode];
+  return asset ? `${TCH_LOTTERY_LOGO_ASSET_BASE_PATH}/${asset}` : null;
 }

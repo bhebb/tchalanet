@@ -17,7 +17,7 @@ public enum GameCode {
 
     HT_MARYAJ(Set.of(BetType.MARRIAGE_2D2D)),
 
-    HT_MARYAJ_GRATUIT(Set.of(BetType.MARRIAGE_2D2D)),
+    HT_MARYAJ_GRATIS(Set.of(BetType.MARRIAGE_2D2D)),
 
     HT_LOTO3(Set.of(BetType.LOTTO3_3D)),
 

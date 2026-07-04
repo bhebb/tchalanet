@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { LabelPipe } from '@tch/page-model';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
 import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
+  ConsoleDrawResultSourceEvent,
   ConsoleRowAction,
 } from './console-draw-results-table.models';
 
@@ -14,7 +16,13 @@ import {
   selector: 'tch-console-draw-results-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminStatusPillComponent, ConsoleDrawSlotIdentityComponent, MatButtonModule, MatTableModule],
+  imports: [
+    AdminStatusPillComponent,
+    ConsoleDrawSlotIdentityComponent,
+    LabelPipe,
+    MatButtonModule,
+    MatTableModule,
+  ],
   templateUrl: './console-draw-results-table.component.html',
   styleUrls: ['./console-draw-results-table.component.scss'],
 })
@@ -22,11 +30,14 @@ export class ConsoleDrawResultsTableComponent {
   readonly rows = input.required<readonly ConsoleDrawResultRow[]>();
   readonly showAppliedAt = input(true);
   readonly showActions = input(true);
+  readonly showSourceFlags = input(false);
+  private readonly expandedRows = signal<ReadonlySet<string>>(new Set());
 
   readonly rowAction = output<ConsoleDrawResultActionEvent>();
+  readonly sourceAction = output<ConsoleDrawResultSourceEvent>();
 
   readonly columns = computed(() => {
-    const columns = ['draw', 'numbers', 'status', 'quality', 'fetchedAt'];
+    const columns = ['draw', 'occurredAt', 'numbers', 'status', 'quality', 'fetchedAt'];
     if (this.showAppliedAt()) columns.push('appliedAt');
     columns.push('source');
     if (this.showActions() && this.rows().some(row => (row.actions?.length ?? 0) > 0)) {
@@ -37,5 +48,29 @@ export class ConsoleDrawResultsTableComponent {
 
   emitAction(row: ConsoleDrawResultRow, action: ConsoleRowAction): void {
     this.rowAction.emit({ row, action });
+  }
+
+  isExpanded(row: ConsoleDrawResultRow): boolean {
+    return this.expandedRows().has(row.id);
+  }
+
+  toggleDetails(row: ConsoleDrawResultRow): void {
+    this.expandedRows.update(current => {
+      const next = new Set(current);
+      if (next.has(row.id)) {
+        next.delete(row.id);
+      } else {
+        next.add(row.id);
+      }
+      return next;
+    });
+  }
+
+  canShowSource(row: ConsoleDrawResultRow): boolean {
+    return row.hasSourceDetails === true || row.sourceLabel.trim().toUpperCase() === 'EXTERNAL';
+  }
+
+  emitSource(row: ConsoleDrawResultRow): void {
+    this.sourceAction.emit({ row });
   }
 }

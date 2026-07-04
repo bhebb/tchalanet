@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.infra.web.admin;
 
 import com.tchalanet.server.catalog.plan.api.PlanFeatureKeys;
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
@@ -19,6 +20,8 @@ import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.Upda
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleEligibilityRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleRequest;
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
+import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
+import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,10 @@ public class PromotionRuleAdminController {
     private final PromotionRuleAdminWebMapper mapper;
 
     @PostMapping
+    @RequiredQuota(
+        limit = PlanLimitKeys.PROMOTION_RULES_MAX,
+        usage = UsageKeys.PROMOTION_RULES_ACTIVE
+    )
     public ApiResponse<PromotionCampaignView> addRule(
         @CurrentContext TchRequestContext ctx,
         @PathVariable UUID campaignId,

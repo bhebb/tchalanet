@@ -56,7 +56,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/admin/identity/users")
-@PreAuthorize("hasAnyRole('TENANT_ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('TENANT_OWNER','TENANT_ADMIN','SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Identity Users")
 public class IdentityUserAdminController {
@@ -107,8 +107,8 @@ public class IdentityUserAdminController {
     @PostMapping
     @Operation(summary = "Create identity user")
     @RequiredQuota(
-        limit = PlanLimitKeys.USERS_MAX,
-        usage = UsageKeys.USERS_ACTIVE
+        limit = PlanLimitKeys.ADMIN_USERS_MAX,
+        usage = UsageKeys.ADMIN_USERS_ACTIVE
     )
     @AuditLog(action = AuditAction.USER_CREATE, entity = AuditEntityType.USER, idExpression = "#result.data().id()")
     public ApiResponse<TenantUserAdminResponse> create(

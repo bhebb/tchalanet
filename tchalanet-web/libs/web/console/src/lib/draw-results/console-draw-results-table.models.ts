@@ -14,6 +14,7 @@ export interface ConsoleRowAction {
 export interface ConsoleDrawResultRow {
   readonly id: string;
   readonly title: string;
+  readonly labelKey?: string | null;
   readonly subtitle?: string;
   readonly meta?: string;
   readonly logoUrl?: string | null;
@@ -26,6 +27,11 @@ export interface ConsoleDrawResultRow {
   readonly qualityLabel: string;
   readonly qualityTone: AdminStatusTone;
   readonly sourceLabel: string;
+  readonly sourceFlags?: readonly string[];
+  readonly hasSourceDetails?: boolean;
+  readonly occurredDateLabel?: string;
+  readonly providerTimeLabel?: string;
+  readonly localTimeLabel?: string;
   readonly fetchedAtLabel?: string;
   readonly appliedAtLabel?: string;
   readonly actions?: readonly ConsoleRowAction[];
@@ -34,4 +40,8 @@ export interface ConsoleDrawResultRow {
 export interface ConsoleDrawResultActionEvent {
   readonly row: ConsoleDrawResultRow;
   readonly action: ConsoleRowAction;
+}
+
+export interface ConsoleDrawResultSourceEvent {
+  readonly row: ConsoleDrawResultRow;
 }

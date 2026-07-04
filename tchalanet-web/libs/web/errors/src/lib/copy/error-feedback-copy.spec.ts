@@ -38,6 +38,16 @@ describe('resolveErrorFeedbackCopy', () => {
     expect(result.message).toBe('Try again later.');
   });
 
+  it('uses built-in copy for entitlement quota errors when translations are absent', () => {
+    const result = resolveErrorFeedbackCopy(
+      { ...baseError, code: 'entitlement.limit_exceeded', category: 'access_denied' },
+      key => key,
+    );
+
+    expect(result.title).toBe('Quota du plan atteint');
+    expect(result.message).toBe('Cette action depasse la limite autorisee par le plan actif.');
+  });
+
   it('falls back to safe generic copy when no translation exists', () => {
     const result = resolveErrorFeedbackCopy(baseError, key => ({
       'common.errors.fallback.title': 'Problem detected',

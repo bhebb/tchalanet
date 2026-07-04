@@ -23,6 +23,8 @@ public interface SellerTerminalJpaRepository
         SellerTerminalStatus status
     );
 
+    long countByTenantIdAndDeletedAtIsNull(UUID tenantId);
+
     List<SellerTerminalJpaEntity> findByTenantIdAndIdInAndDeletedAtIsNull(
         UUID tenantId,
         Collection<UUID> ids

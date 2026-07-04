@@ -51,8 +51,8 @@ export class GenerateDrawsDialog {
   readonly outcomeColumns = ['tenantId', 'ok', 'detail'];
 
   readonly form = this.fb.group({
-    from: ['', Validators.required],
-    to: ['', Validators.required],
+    from: [todayIsoDate(), Validators.required],
+    to: [relativeIsoDate(6), Validators.required],
     tenantCodes: [''],
     dryRun: [true],
     force: [false],
@@ -96,4 +96,17 @@ export class GenerateDrawsDialog {
       severity: 'error',
     };
   }
+}
+
+function todayIsoDate(): string {
+  return relativeIsoDate(0);
+}
+
+function relativeIsoDate(offsetDays: number): string {
+  const now = new Date();
+  now.setDate(now.getDate() + offsetDays);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

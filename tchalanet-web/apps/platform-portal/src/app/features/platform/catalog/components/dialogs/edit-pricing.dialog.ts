@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSectionError } from '@tch/ui/components';
@@ -21,6 +21,7 @@ import {
     AdminDialogShellComponent,
     ConsolePricingFormComponent,
     MatButtonModule,
+    MatDialogClose,
     TchSectionError,
     TranslatePipe,
   ],

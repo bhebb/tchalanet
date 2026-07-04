@@ -164,7 +164,7 @@ class InstantiateDefaultMaryajGratisCommandHandlerTest {
         var effect = create.rules().get(0).effectItems().get(0);
         assertThat(effect.type()).isEqualTo(PromotionEffectType.FREE_GAME_LINE);
         assertThat(effect.params())
-            .containsEntry("gameCode", "HT_MARYAJ_GRATUIT")
+            .containsEntry("gameCode", "HT_MARYAJ_GRATIS")
             .containsEntry("payoutBaseAmount", "50")
             .containsEntry("quantityMode", "TIERED_PAID_AMOUNT")
             .containsEntry("quantity", "1")
@@ -271,7 +271,7 @@ class InstantiateDefaultMaryajGratisCommandHandlerTest {
                 List.of(),
                 List.of(new PromotionEffectConfigView(
                     PromotionEffectType.FREE_GAME_LINE,
-                    Map.of("gameCode", "HT_MARYAJ_GRATUIT", "generationStrategy", "RANDOM")))))
+                    Map.of("gameCode", "HT_MARYAJ_GRATIS", "generationStrategy", "RANDOM")))))
         );
     }
 }

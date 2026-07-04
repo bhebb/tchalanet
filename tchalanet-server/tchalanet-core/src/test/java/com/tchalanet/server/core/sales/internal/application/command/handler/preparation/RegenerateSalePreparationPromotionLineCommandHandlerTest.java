@@ -47,7 +47,7 @@ class RegenerateSalePreparationPromotionLineCommandHandlerTest {
             PREP_ID, status, SellerTerminalId.of(UUID.randomUUID()), UUID.randomUUID(),
             "hash", Map.of(), null, null, null, expiresAt, null,
             List.of(new SalePreparationPromotionLine(
-                "ref-1", "HT_MARYAJ_GRATUIT", "MARRIAGE_2D2D", (short) 1, "34-78",
+                "ref-1", "HT_MARYAJ_GRATIS", "MARRIAGE_2D2D", (short) 1, "34-78",
                 new BigDecimal("50"), null, null, regenerable, max, count)));
     }
 

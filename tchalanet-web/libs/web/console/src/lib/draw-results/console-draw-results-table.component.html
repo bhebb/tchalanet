@@ -5,11 +5,10 @@
       <td mat-cell *matCellDef="let row" data-label="Tirage">
         <tch-console-draw-slot-identity
           [identity]="{
-            providerName: row.logoAlt,
             providerLogoUrl: row.logoUrl,
             logoText: row.logoText,
-            slotLabel: row.title,
-            slotKey: row.subtitle || row.slotKey
+            slotLabel: row.labelKey ? (row.labelKey | tchLabel) : row.title,
+            slotKey: row.subtitle || row.slotKey,
           }"
         />
       </td>
@@ -18,15 +17,29 @@
     <ng-container matColumnDef="numbers">
       <th mat-header-cell *matHeaderCellDef>Numéros</th>
       <td mat-cell *matCellDef="let row" data-label="Numéros">
-        @if (row.numbers.length > 0) {
-          <span class="console-draw-results-table__numbers">
-            @for (n of row.numbers; track n) {
-              <span class="console-draw-results-table__number">{{ n }}</span>
-            }
-          </span>
-        } @else {
-          <span class="console-draw-results-table__empty-value">—</span>
-        }
+        <div class="console-draw-results-table__numbers-cell">
+          @if (row.numbers.length > 0) {
+            <span class="console-draw-results-table__numbers">
+              @for (n of row.numbers; track n) {
+                <span class="console-draw-results-table__number">{{ n }}</span>
+              }
+            </span>
+          } @else {
+            <span class="console-draw-results-table__empty-value">—</span>
+          }
+          <button
+            mat-button
+            type="button"
+            class="console-draw-results-table__mobile-details-toggle"
+            [attr.aria-expanded]="isExpanded(row)"
+            (click)="toggleDetails(row)"
+          >
+            <span class="material-symbols-outlined">
+              {{ isExpanded(row) ? 'expand_less' : 'expand_more' }}
+            </span>
+            {{ isExpanded(row) ? 'Masquer' : 'Détails' }}
+          </button>
+        </div>
       </td>
     </ng-container>
 
@@ -44,10 +57,36 @@
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="occurredAt">
+      <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
+      <td mat-cell *matCellDef="let row" data-label="Date & heure">
+        <div class="console-draw-results-table__time-stack">
+          <p class="console-draw-results-table__date">{{ row.occurredDateLabel || '—' }}</p>
+          @if (row.providerTimeLabel) {
+            <p class="console-draw-results-table__time">
+              <span>Officiel</span>
+              {{ row.providerTimeLabel }}
+            </p>
+          }
+          @if (row.localTimeLabel) {
+            <p class="console-draw-results-table__time">
+              <span>Local</span>
+              {{ row.localTimeLabel }}
+            </p>
+          }
+        </div>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="fetchedAt">
       <th mat-header-cell *matHeaderCellDef>Récupéré</th>
       <td mat-cell *matCellDef="let row" data-label="Récupéré">
-        {{ row.fetchedAtLabel || '—' }}
+        <span
+          class="console-draw-results-table__fetched-at"
+          [class.console-draw-results-table__fetched-at--empty]="!row.fetchedAtLabel"
+        >
+          {{ row.fetchedAtLabel || '—' }}
+        </span>
       </td>
     </ng-container>
 
@@ -66,7 +105,20 @@
     <ng-container matColumnDef="source">
       <th mat-header-cell *matHeaderCellDef>Source</th>
       <td mat-cell *matCellDef="let row" data-label="Source">
-        <span class="console-draw-results-table__source-pill">{{ row.sourceLabel }}</span>
+        <div class="console-draw-results-table__source-stack">
+          <span class="console-draw-results-table__source-pill">{{ row.sourceLabel }}</span>
+          @if (showSourceFlags() && canShowSource(row)) {
+            <button
+              mat-button
+              type="button"
+              class="console-draw-results-table__source-button"
+              (click)="emitSource(row)"
+            >
+              <span class="material-symbols-outlined">data_object</span>
+              Afficher source
+            </button>
+          }
+        </div>
       </td>
     </ng-container>
 
@@ -111,6 +163,10 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="columns()"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns()"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columns()"
+      [class.console-draw-results-table__row--expanded]="isExpanded(row)"
+    ></tr>
   </table>
 </div>

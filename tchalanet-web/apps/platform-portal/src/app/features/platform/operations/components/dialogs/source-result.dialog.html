@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>Source externe — {{ data.row.slotKey }}</h2>
+
+<mat-dialog-content>
+  <div class="source-result-dialog">
+    @for (pick of picks; track pick.label) {
+      <section class="source-result-dialog__pick">
+        <header class="source-result-dialog__pick-header">
+          <h3>{{ pick.label }}</h3>
+          <span
+            class="source-result-dialog__status"
+            [class.source-result-dialog__status--missing]="!pick.present"
+          >
+            {{ pick.present ? 'Présent' : 'Absent' }}
+          </span>
+        </header>
+
+        <dl class="source-result-dialog__facts">
+          <div>
+            <dt>Game code</dt>
+            <dd>{{ pick.gameCode || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Statut</dt>
+            <dd>{{ pick.status || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Qualité</dt>
+            <dd>{{ pick.quality || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Occurred at</dt>
+            <dd>{{ pick.occurredAt || '—' }}</dd>
+          </div>
+        </dl>
+
+        <div class="source-result-dialog__numbers">
+          <span>Main</span>
+          @if (pick.main.length > 0) {
+            <strong>{{ pick.main.join(' ') }}</strong>
+          } @else {
+            <strong>—</strong>
+          }
+        </div>
+
+        @if (pick.extras.length > 0) {
+          <div class="source-result-dialog__numbers">
+            <span>Extras</span>
+            <strong>{{ pick.extras.join(' ') }}</strong>
+          </div>
+        }
+
+        @if (pick.flags.length > 0) {
+          <dl class="source-result-dialog__flags">
+            @for (flag of pick.flags; track flag.label) {
+              <div>
+                <dt>{{ flag.label }}</dt>
+                <dd>{{ flag.value }}</dd>
+              </div>
+            }
+          </dl>
+        }
+      </section>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

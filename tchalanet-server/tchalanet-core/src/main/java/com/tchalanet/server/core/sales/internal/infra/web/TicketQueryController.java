@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('TENANT_OWNER', 'TENANT_ADMIN', 'SUPER_ADMIN') or hasAuthority('ACTOR_SELLER_TERMINAL')")
+@PreAuthorize("hasPermission(null, 'ticket.read') or hasPermission(null, 'ticket.read_own')")
 @Tag(name = "Sales • Ticket Queries", description = "Read endpoints for ticket listing and details")
 public class TicketQueryController {
 
