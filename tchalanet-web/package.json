@@ -46,7 +46,7 @@
     "@nx/angular": "23.1.0-beta.4",
     "@nx/devkit": "23.1.0-beta.4",
     "@nx/eslint": "23.1.0-beta.4",
-    "@nx/eslint-plugin": "23.1.0-beta.4",
+    "@nx/eslint-plugin": "23.1.0-pr.36127.8b9019b",
     "@nx/js": "23.1.0-beta.4",
     "@nx/playwright": "23.1.0-beta.4",
     "@nx/web": "23.1.0-beta.4",
