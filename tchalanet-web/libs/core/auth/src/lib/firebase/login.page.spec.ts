@@ -6,12 +6,20 @@ import { AuthRedirectService } from '../auth-redirect.service';
 import { AuthSessionService } from '../auth-session.service';
 import { LoginPage } from './login.page';
 import { AUTH_CLIENT } from '../auth-client';
-import { Router } from '@angular/router';
-import { TchRuntimeConfigStore } from '@tch/shared-config';
 
 describe('LoginPage', () => {
-  it('redirects a restored admin provider session without bootstrapping private runtime on login', async () => {
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    sessionStorage.clear();
+  });
+
+  it('redirects a restored tenant admin session through the post-login dispatcher', async () => {
+    const session = {
+      authenticated: true,
+      roles: ['TENANT_ADMIN' as const],
+    };
     const authSession = {
+      refreshSession: vi.fn().mockResolvedValue(session),
       login: vi.fn(),
     };
     const authRedirect = {
@@ -20,20 +28,45 @@ describe('LoginPage', () => {
     const authClient = {
       isAuthenticated: vi.fn().mockResolvedValue(true),
     };
-    const router = {
-      navigateByUrl: vi.fn().mockResolvedValue(true),
-    };
 
-    await configure(authSession, authRedirect, authClient, router);
+    await configure(authSession, authRedirect, authClient);
 
     const page = TestBed.runInInjectionContext(() => new LoginPage());
     page.ngOnInit();
     await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(authClient.isAuthenticated).toHaveBeenCalledOnce();
+    expect(authSession.refreshSession).toHaveBeenCalledWith(true);
     expect(authSession.login).not.toHaveBeenCalled();
-    expect(authRedirect.navigateAfterLogin).not.toHaveBeenCalled();
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/app/admin');
+    expect(authRedirect.navigateAfterLogin).toHaveBeenCalledWith(session);
+  });
+
+  it('redirects a restored super admin session through the post-login dispatcher', async () => {
+    const session = {
+      authenticated: true,
+      roles: ['SUPER_ADMIN' as const],
+    };
+    const authSession = {
+      refreshSession: vi.fn().mockResolvedValue(session),
+      login: vi.fn(),
+    };
+    const authRedirect = {
+      navigateAfterLogin: vi.fn().mockResolvedValue(undefined),
+    };
+    const authClient = {
+      isAuthenticated: vi.fn().mockResolvedValue(true),
+    };
+
+    await configure(authSession, authRedirect, authClient);
+
+    const page = TestBed.runInInjectionContext(() => new LoginPage());
+    page.ngOnInit();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(authClient.isAuthenticated).toHaveBeenCalledOnce();
+    expect(authSession.refreshSession).toHaveBeenCalledWith(true);
+    expect(authSession.login).not.toHaveBeenCalled();
+    expect(authRedirect.navigateAfterLogin).toHaveBeenCalledWith(session);
   });
 
   it('redirects after a successful credential login', async () => {
@@ -51,11 +84,8 @@ describe('LoginPage', () => {
     const authClient = {
       isAuthenticated: vi.fn().mockResolvedValue(false),
     };
-    const router = {
-      navigateByUrl: vi.fn().mockResolvedValue(true),
-    };
 
-    await configure(authSession, authRedirect, authClient, router);
+    await configure(authSession, authRedirect, authClient);
 
     const page = TestBed.runInInjectionContext(() => new LoginPage());
     page.email = 'admin@example.com';
@@ -73,20 +103,12 @@ async function configure(
   authSession: Partial<AuthSessionService>,
   authRedirect: Partial<AuthRedirectService>,
   authClient: { isAuthenticated: ReturnType<typeof vi.fn> },
-  router: { navigateByUrl: ReturnType<typeof vi.fn> },
 ): Promise<void> {
   await TestBed.configureTestingModule({
     providers: [
       { provide: AuthSessionService, useValue: authSession },
       { provide: AuthRedirectService, useValue: authRedirect },
       { provide: AUTH_CLIENT, useValue: authClient },
-      { provide: Router, useValue: router },
-      {
-        provide: TchRuntimeConfigStore,
-        useValue: {
-          config: () => ({ appId: 'admin-portal' }),
-        },
-      },
     ],
   });
 }

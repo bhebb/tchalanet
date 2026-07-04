@@ -1,4 +1,6 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { PLATFORM_ID } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -6,11 +8,11 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { SupportAccessStore } from '@tch/core/auth';
+import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
@@ -46,8 +48,10 @@ export class StartTenantAdminAccessDialog {
   private readonly dialogRef = inject(MatDialogRef<StartTenantAdminAccessDialog>);
   private readonly api = inject(PlatformTenantAdminAccessApi);
   private readonly store = inject(SupportAccessStore);
-  private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
   private readonly fb = inject(FormBuilder);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly runtimeConfig = inject(TchRuntimeConfigStore);
   private readonly translate = inject(TranslateService);
 
   protected readonly mode =
@@ -79,7 +83,7 @@ export class StartTenantAdminAccessDialog {
           this.store.startSession(session);
           this.loading.set(false);
           this.dialogRef.close(session);
-          void this.router.navigate(['/app/admin']);
+          this.openAdminPortal();
         },
         error: (err: unknown) => {
           this.loading.set(false);
@@ -102,4 +106,19 @@ export class StartTenantAdminAccessDialog {
       severity: 'error',
     };
   }
+
+  private openAdminPortal(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const adminBaseUrl = withoutTrailingSlash(
+      this.runtimeConfig.config().portalBaseUrls?.['admin-portal'] ?? '/admin',
+    );
+    this.document.defaultView?.location.assign(`${adminBaseUrl}/app/admin`);
+  }
+}
+
+function withoutTrailingSlash(value: string): string {
+  return value.length > 1 ? value.replace(/\/+$/, '') : value;
 }

@@ -3,9 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchRuntimeConfigStore } from '@tch/shared-config';
 
 import { TCH_BRAND_ASSETS } from '@tch/shared-assets';
 
@@ -44,8 +43,6 @@ export class LoginPage implements OnInit {
   private readonly authSession = inject(AuthSessionService);
   private readonly authRedirect = inject(AuthRedirectService);
   private readonly authClient = inject(AUTH_CLIENT);
-  private readonly router = inject(Router);
-  private readonly runtimeConfig = inject(TchRuntimeConfigStore);
 
   // sessionStorage key used to detect guard-bounce loops.
   // Set just before redirecting; if we land back on /login within the window, skip redirect.
@@ -64,9 +61,10 @@ export class LoginPage implements OnInit {
   private async redirectRestoredSession(): Promise<void> {
     // Guard-bounce detection: if the last redirect attempt was within the window and
     // we're back on /login, the backend rejected the session — don't loop again.
-    const lastAttempt = Number(sessionStorage.getItem(LoginPage.RESTORE_TS_KEY) ?? 0);
+    const storage = this.sessionStorage();
+    const lastAttempt = Number(storage?.getItem(LoginPage.RESTORE_TS_KEY) ?? 0);
     if (Date.now() - lastAttempt < LoginPage.RESTORE_WINDOW_MS) {
-      sessionStorage.removeItem(LoginPage.RESTORE_TS_KEY);
+      storage?.removeItem(LoginPage.RESTORE_TS_KEY);
       return;
     }
 
@@ -74,21 +72,18 @@ export class LoginPage implements OnInit {
       if (!(await withTimeout(this.authClient.isAuthenticated(), 2_000))) {
         return;
       }
-      const route = this.localAuthenticatedEntryRoute();
-      if (!route) return;
-      sessionStorage.setItem(LoginPage.RESTORE_TS_KEY, String(Date.now()));
-      await this.router.navigateByUrl(route);
+      const session = await this.authSession.refreshSession(true);
+      if (!session.authenticated) return;
+      storage?.setItem(LoginPage.RESTORE_TS_KEY, String(Date.now()));
+      await this.authRedirect.navigateAfterLogin(session);
     } catch {
-      sessionStorage.removeItem(LoginPage.RESTORE_TS_KEY);
+      storage?.removeItem(LoginPage.RESTORE_TS_KEY);
       // Keep the form immediately usable when provider restoration is slow.
     }
   }
 
-  private localAuthenticatedEntryRoute(): string | null {
-    const appId = this.runtimeConfig.config().appId;
-    if (appId === 'admin-portal') return '/app/admin';
-    if (appId === 'platform-portal') return '/app/platform';
-    return null;
+  private sessionStorage(): Storage | null {
+    return globalThis.window?.sessionStorage ?? null;
   }
 
   togglePasswordVisibility(): void {
