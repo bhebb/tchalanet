@@ -1,6 +1,6 @@
-package com.tchalanet.server.catalog.drawchannel.internal.entitlement;
+package com.tchalanet.server.platform.entitlement.internal.usage;
 
-import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import com.tchalanet.server.platform.entitlement.api.UsageProvider;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DrawChannelUsageProvider implements UsageProvider {
 
-  private final DrawChannelRepository repository;
+  private final DrawChannelCatalog drawChannelCatalog;
 
   @Override
   public boolean supports(String usageKey) {
@@ -24,6 +24,6 @@ public class DrawChannelUsageProvider implements UsageProvider {
       throw new IllegalArgumentException("Unsupported usageKey: " + usageKey);
     }
 
-    return Math.toIntExact(repository.countByTenantIdAndActiveTrueAndDeletedAtIsNull(tenantId.value()));
+    return Math.toIntExact(drawChannelCatalog.countActiveChannels(tenantId));
   }
 }

@@ -16,7 +16,7 @@ public interface DrawChannelRepository extends JpaRepository<DrawChannelEntity, 
 
   List<DrawChannelEntity> findByTenantIdAndActiveTrueAndDeletedAtIsNull(UUID tenantId);
 
-  long countByTenantIdAndActiveTrueAndDeletedAtIsNull(UUID tenantId);
+  long countByActiveTrueAndDeletedAtIsNull();
 
   List<DrawChannelEntity> findByTenantIdAndActiveTrueAndDeletedAtIsNullOrderBySortOrderAsc(UUID tenantId);
 

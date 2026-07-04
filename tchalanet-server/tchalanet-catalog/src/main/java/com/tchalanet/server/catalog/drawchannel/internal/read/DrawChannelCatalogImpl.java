@@ -225,6 +225,11 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         .toList();
   }
 
+  @Override
+  public long countActiveChannels(TenantId tenantId) {
+    return repository.countByActiveTrueAndDeletedAtIsNull();
+  }
+
   private DrawChannelSummaryView toLightSummary(DrawChannelEntity e) {
     ZoneId zone;
     try {
