@@ -5,18 +5,18 @@ import 'package:flutter_test/flutter_test.dart';
 const _knownCoreFeatureImports = <String>{};
 
 const _knownViewDataSourceImports = {
+  'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../data/services/terminal_stats_service.dart',
+  'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart|../../data/services/terminal_stats_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart|../../data/services/cashier_ticket_service.dart',
-  'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart|../../../../../core/storage/op_context_storage.dart',
   'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart|../../data/services/cashier_ticket_service.dart',
 };
 
 const _knownViewModelDataSourceImports = {
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/cashier_home_service.dart',
-  'lib/features/cashier/operationalcontext/presentation/view_models/op_context_setup_controller.dart|../../data/services/cashier_op_context_service.dart',
-  'lib/features/cashier/session/presentation/view_models/cashier_session_controller.dart|../../../../../core/storage/op_context_storage.dart',
-  'lib/features/cashier/session/presentation/view_models/cashier_session_controller.dart|../../data/services/cashier_session_service.dart',
+  'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/terminal_stats_service.dart',
+  'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/draw/presentation/view_models/draw_providers.dart|../../data/services/draw_result_service.dart',
@@ -26,8 +26,6 @@ const _knownCrossFeatureImports = {
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
   'lib/features/cashier/home/presentation/views/cashier_home_page.dart|../../../../notifications/presentation/view_models/notification_summary_controller.dart',
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart|../../../../auth/presentation/view_models/auth_controller.dart',
-  'lib/features/pos/presentation/views/pos_dashboard_page.dart|../../../auth/data/models/user_session.dart',
-  'lib/features/pos/presentation/views/pos_dashboard_page.dart|../../../auth/presentation/view_models/auth_controller.dart',
 };
 
 const _knownProvidersDeclaredInViews = {
@@ -37,11 +35,10 @@ const _knownProvidersDeclaredInViews = {
 };
 
 const _knownHardcodedUiLiteralCounts = <String, int>{
-  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 7,
-  'lib/features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart':
-      7,
-  'lib/features/cashier/session/presentation/views/cashier_session_open_page.dart':
-      4,
+  'lib/features/cashier/home/presentation/views/cashier_home_page.dart': 17,
+  'lib/features/cashier/home/presentation/views/seller_terminal_nav_bar.dart': 3,
+  'lib/features/cashier/home/presentation/views/seller_terminal_stats_page.dart':
+      11,
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart':
       5,
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart': 14,
@@ -51,16 +48,14 @@ const _knownHardcodedUiLiteralCounts = <String, int>{
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart':
       23,
   'lib/features/cashier/tickets/presentation/views/send_receipt_sheet.dart': 2,
-  'lib/features/pos/presentation/views/pos_dashboard_page.dart': 9,
   'lib/features/pos/presentation/views/pos_stub_page.dart': 1,
 };
 
 const _routedScreens = {
   '/login': 'LoginPage',
   '/pos': 'CashierHomePage',
-  '/pos/setup': 'CashierSetupPage',
-  '/pos/session/open': 'CashierSessionOpenPage',
   '/pos/history': 'CashierHistoryPage',
+  '/pos/stats': 'SellerTerminalStatsPage',
   '/pos/scan': 'CashierScanPage',
   '/pos/profile': 'PosStubPage',
   '/pos/notifications': 'NotificationCenterPage',

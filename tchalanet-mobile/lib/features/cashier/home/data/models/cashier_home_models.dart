@@ -37,21 +37,15 @@ class CashierHomeOpCtx {
     required this.trusted,
     required this.missing,
     this.source,
-    this.outletId,
-    this.outletName,
-    this.terminalId,
-    this.terminalLabel,
-    this.salesSessionId,
+    this.sellerTerminalId,
+    this.sellerTerminalLabel,
   });
 
   final bool ready;
   final bool trusted;
   final String? source;
-  final String? outletId;
-  final String? outletName;
-  final String? terminalId;
-  final String? terminalLabel;
-  final String? salesSessionId;
+  final String? sellerTerminalId;
+  final String? sellerTerminalLabel;
   final List<String> missing;
 
   factory CashierHomeOpCtx.fromJson(Map<String, dynamic> json) =>
@@ -59,11 +53,8 @@ class CashierHomeOpCtx {
         ready: json['ready'] as bool? ?? false,
         trusted: json['trusted'] as bool? ?? false,
         source: json['source'] as String?,
-        outletId: json['outletId'] as String?,
-        outletName: json['outletName'] as String?,
-        terminalId: json['terminalId'] as String?,
-        terminalLabel: json['terminalLabel'] as String?,
-        salesSessionId: json['salesSessionId'] as String?,
+        sellerTerminalId: json['sellerTerminalId'] as String?,
+        sellerTerminalLabel: json['sellerTerminalLabel'] as String?,
         missing: (json['missing'] as List<dynamic>?)
                 ?.map((e) => e as String)
                 .toList() ??
@@ -231,9 +222,10 @@ class CashierHomeResponse {
   final String? currency;
 
   bool get isOperational => requiredStep == null;
-  bool get needsOpContext =>
-      requiredStep?.type == 'SELECT_OPERATIONAL_CONTEXT';
-  bool get needsSession => requiredStep?.type == 'OPEN_SESSION';
+
+  /// Server emits a blocking step only for `MUST_CHANGE_PIN` in V1
+  /// (session/outlet selection were removed with the SellerTerminal model).
+  bool get mustChangePin => requiredStep?.type == 'MUST_CHANGE_PIN';
 
   factory CashierHomeResponse.fromJson(Map<String, dynamic> json) =>
       CashierHomeResponse(

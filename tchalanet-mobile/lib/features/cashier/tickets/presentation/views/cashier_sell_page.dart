@@ -123,15 +123,15 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             onRemoveLine: (i) =>
                 ref.read(sellControllerProvider.notifier).removeLine(i),
             onPreview: () {
-              if (opCtx?.terminalId == null) return;
+              if (opCtx?.sellerTerminalId == null) return;
               ref.read(sellControllerProvider.notifier).preview(
-                    opCtx!.terminalId!,
+                    opCtx!.sellerTerminalId!,
                   );
             },
             onConfirm: () {
-              if (opCtx?.terminalId == null) return;
+              if (opCtx?.sellerTerminalId == null) return;
               ref.read(sellControllerProvider.notifier).confirmSell(
-                    opCtx!.terminalId!,
+                    opCtx!.sellerTerminalId!,
                   );
             },
           ),
@@ -172,9 +172,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             onRemoveLine: (_) {},
             onPreview: () {},
             onConfirm: () {
-              if (opCtx?.terminalId == null) return;
+              if (opCtx?.sellerTerminalId == null) return;
               ref.read(sellControllerProvider.notifier).confirmSell(
-                    opCtx!.terminalId!,
+                    opCtx!.sellerTerminalId!,
                   );
             },
           ),

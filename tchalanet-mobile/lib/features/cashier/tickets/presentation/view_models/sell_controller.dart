@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/network/api_exception.dart';
 import '../../data/models/cashier_sell_catalog_models.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_sell_catalog_service.dart';
@@ -217,7 +218,7 @@ class SellController extends Notifier<SellState> {
         currency: resolvedCurrency,
       ));
     } catch (e) {
-      state = SellCatalogError(e.toString());
+      state = SellCatalogError(userMessage(e));
     }
   }
 
@@ -313,7 +314,7 @@ class SellController extends Notifier<SellState> {
     );
   }
 
-  Future<void> preview(String terminalId) async {
+  Future<void> preview(String sellerTerminalId) async {
     final current = state;
     if (current is! SellReady || !current.form.canPreview) return;
     final form = current.form;
@@ -324,7 +325,7 @@ class SellController extends Notifier<SellState> {
     try {
       final result = await ref.read(cashierTicketServiceProvider).preview(
             CashierTicketPreviewRequest(
-              terminalId: terminalId,
+              sellerTerminalId: sellerTerminalId,
               drawId: form.selectedDrawId!,
               drawChannelId: form.selectedDraw?.drawChannelId,
               currency: form.currency,
@@ -333,11 +334,11 @@ class SellController extends Notifier<SellState> {
           );
       state = SellReady(form, previewResult: result);
     } catch (e) {
-      state = SellReady(form, error: e.toString());
+      state = SellReady(form, error: userMessage(e));
     }
   }
 
-  Future<void> confirmSell(String terminalId) async {
+  Future<void> confirmSell(String sellerTerminalId) async {
     final current = state;
     if (current is! SellReady) return;
     final form = current.form;
@@ -350,7 +351,7 @@ class SellController extends Notifier<SellState> {
     try {
       final response = await ref.read(cashierTicketServiceProvider).sell(
             CashierSellTicketRequest(
-              terminalId: terminalId,
+              sellerTerminalId: sellerTerminalId,
               drawId: form.selectedDrawId!,
               drawChannelId: form.selectedDraw?.drawChannelId,
               currency: form.currency,
@@ -360,7 +361,7 @@ class SellController extends Notifier<SellState> {
           );
       state = SellSuccess(response);
     } catch (e) {
-      state = SellReady(form, previewResult: preview, error: e.toString());
+      state = SellReady(form, previewResult: preview, error: userMessage(e));
     }
   }
 

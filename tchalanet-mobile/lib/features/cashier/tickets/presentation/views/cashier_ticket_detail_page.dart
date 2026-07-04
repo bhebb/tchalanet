@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/network/api_exception.dart';
 import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -39,7 +40,7 @@ class CashierTicketDetailPage extends ConsumerWidget {
             children: [
               Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
               const SizedBox(height: TchSpacing.s16),
-              Text(e.toString(), textAlign: TextAlign.center),
+              Text(userMessage(e), textAlign: TextAlign.center),
               const SizedBox(height: TchSpacing.s24),
               FilledButton.tonal(
                 onPressed: () => ref.invalidate(_ticketDetailProvider(ticketId)),

@@ -120,7 +120,7 @@ issues: List<CashierSaleIssue>    // Why rejected if !accepted
 **Request:**
 ```json
 {
-  "terminalId": "string",
+  "sellerTerminalId": "string",
   "drawId": "string",
   "drawChannelId": "string (optional)",
   "currency": "string (HTG)",
@@ -158,10 +158,12 @@ issues: List<CashierSaleIssue>    // Why rejected if !accepted
 **Headers:**
 ```
 X-Idempotency-Key: <UUID v4>
-X-Tch-Terminal-Id: <from OpContextInterceptor>
-X-Tch-Outlet-Id: <from OpContextInterceptor>
-X-Tch-Sales-Session-Id: <from OpContextInterceptor>
+X-Device-Binding: <from OpContextInterceptor>
 ```
+> The SellerTerminal identity and its operational context are derived
+> server-side from the auth token. The client no longer sends outlet,
+> terminal, or sales-session headers (removed with the SellerTerminal model —
+> there is no more outlet/session concept on mobile).
 
 **Response:**
 ```json
@@ -254,13 +256,14 @@ X-Tch-Sales-Session-Id: <from OpContextInterceptor>
 
 ## Offline Behavior
 
-**No explicit offline detection.** When network unavailable:
+**No offline sync.** V1 is online-only — there is no local queue, no pending
+state, and no background sync. When the network is unavailable:
 - `Dio` throws `DioException`
-- Controller catches → shows error state
+- Controller catches → shows error state (message via `userMessage()`)
 - User must retry when online
 - Idempotency key preserved across retries (safe)
 
-**Submitted tickets (optimistic):** Not stored locally; rely on server idempotency key for safety.
+**Submitted tickets:** Not stored locally; rely on server idempotency key for safety.
 
 ## Future Enhancements
 

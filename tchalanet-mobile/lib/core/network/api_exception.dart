@@ -20,3 +20,11 @@ class ApiException implements Exception {
   @override
   String toString() => 'ApiException($statusCode): $message';
 }
+
+/// User-facing message for any caught error.
+///
+/// For [ApiException] this returns the clean [ApiException.message] (already
+/// localized by `mapDioException`), avoiding the `ApiException(400): …` prefix
+/// leaking into the UI. Any other error falls back to `toString()`.
+String userMessage(Object error) =>
+    error is ApiException ? error.message : error.toString();

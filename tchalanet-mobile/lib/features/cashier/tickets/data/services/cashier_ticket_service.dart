@@ -65,14 +65,13 @@ class CashierTicketService {
   /// Print a ticket. Returns raw bytes (PDF or ESC/POS).
   Future<Uint8List> print(
     String ticketId, {
-    String? terminalId,
     bool recordPrint = true,
   }) async {
     try {
       final response = await _dio.post<List<int>>(
         '/tenant/cashier/tickets/$ticketId/print',
+        // sellerTerminalId is derived server-side from the auth token.
         data: {
-          'terminalId': terminalId,
           'recordPrint': recordPrint,
           'deliveryOptions': ['RETURN_FILE'],
         },
@@ -117,12 +116,12 @@ class CashierTicketService {
   }
 
   /// Send a ticket receipt through an external channel (text-only).
-  /// Backend contract: SendTicketReceiptRequest { terminalId, channel, to }.
+  /// Backend contract: SendTicketReceiptRequest { channel, to }.
+  /// sellerTerminalId is derived server-side from the auth token.
   /// [channel] is a CommunicationChannel: EMAIL | SMS | WHATSAPP | SLACK | ...
   /// [to] is the recipient for that channel (email address, phone number, …).
   Future<void> sendReceipt(
     String ticketId, {
-    required String terminalId,
     required String channel,
     required String to,
   }) async {
@@ -130,7 +129,6 @@ class CashierTicketService {
       await _dio.post<void>(
         '/tenant/cashier/tickets/$ticketId/send',
         data: {
-          'terminalId': terminalId,
           'channel': channel,
           'to': to,
         },

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/i18n/i18n_repository.dart';
+import '../../../../../core/network/api_exception.dart';
+import '../../../../../core/network/connectivity_repository.dart';
 import '../../../../../design_system/components/online_badge.dart';
-import '../../../../../design_system/components/pos_action_button.dart';
-import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/components/stat_card.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -27,15 +27,14 @@ class CashierHomePage extends ConsumerWidget {
 
     return homeAsync.when(
       loading: () => const _LoadingScaffold(),
-      error: (e, _) => _ErrorScaffold(error: e.toString(), ref: ref),
+      error: (e, _) => _ErrorScaffold(error: userMessage(e), ref: ref),
       data: (home) {
-        if (home.needsOpContext) {
-          return _SetupRequiredScaffold(home: home);
+        // V1 SellerTerminal model: the only blocking step the server emits is
+        // MUST_CHANGE_PIN. No more outlet/session selection.
+        if (home.requiredStep != null) {
+          return _BlockedStepScaffold(home: home);
         }
-        if (home.needsSession) {
-          return _SessionClosedScaffold(home: home);
-        }
-        return _OperationalScaffold(home: home);
+        return _SellerTerminalScaffold(home: home);
       },
     );
   }
@@ -94,10 +93,10 @@ class _ErrorScaffold extends StatelessWidget {
   }
 }
 
-// ─── State 1: setup required (no operational context) ────────────────────────
+// ─── Blocking step (V1: MUST_CHANGE_PIN only) ────────────────────────────────
 
-class _SetupRequiredScaffold extends ConsumerWidget {
-  const _SetupRequiredScaffold({required this.home});
+class _BlockedStepScaffold extends ConsumerWidget {
+  const _BlockedStepScaffold({required this.home});
 
   final CashierHomeResponse home;
 
@@ -108,7 +107,10 @@ class _SetupRequiredScaffold extends ConsumerWidget {
     final step = home.requiredStep!;
 
     return Scaffold(
-      appBar: _PosAppBar(terminalLabel: home.header?.subtitle, onMenuTap: null),
+      appBar: _PosAppBar(
+        terminalLabel: home.operationalContext?.sellerTerminalLabel,
+        onMenuTap: null,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(TchSpacing.s24),
@@ -116,11 +118,7 @@ class _SetupRequiredScaffold extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Icon(
-                Icons.settings_input_component_rounded,
-                size: 64,
-                color: scheme.primary,
-              ),
+              Icon(Icons.lock_outline_rounded, size: 64, color: scheme.primary),
               const SizedBox(height: TchSpacing.s24),
               Text(
                 step.title,
@@ -139,9 +137,9 @@ class _SetupRequiredScaffold extends ConsumerWidget {
               ),
               const Spacer(),
               FilledButton.icon(
-                onPressed: () => context.push('/pos/setup'),
-                icon: const Icon(Icons.tune_rounded),
-                label: Text(home.primaryAction?.label ?? 'Configurer le poste'),
+                onPressed: () => ref.invalidate(cashierHomeProvider),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Réessayer'),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                   shape: RoundedRectangleBorder(
@@ -150,172 +148,6 @@ class _SetupRequiredScaffold extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: TchSpacing.s16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── State 2: session closed ──────────────────────────────────────────────────
-
-class _SessionClosedScaffold extends ConsumerWidget {
-  const _SessionClosedScaffold({required this.home});
-
-  final CashierHomeResponse home;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final step = home.requiredStep!;
-
-    return Scaffold(
-      appBar: _PosAppBar(
-        terminalLabel: home.operationalContext != null
-            ? _subtitle(home.operationalContext!)
-            : home.header?.subtitle,
-        onMenuTap: null,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(TchSpacing.s24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              Icon(Icons.lock_clock_rounded, size: 64, color: scheme.secondary),
-              const SizedBox(height: TchSpacing.s24),
-              Text(
-                step.title,
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: TchSpacing.s12),
-              Text(
-                step.message,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: () => context.push('/pos/session/open'),
-                icon: const Icon(Icons.play_circle_outline_rounded),
-                label: Text(home.primaryAction?.label ?? 'Ouvrir session'),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(TchRadius.md),
-                  ),
-                ),
-              ),
-              const SizedBox(height: TchSpacing.s16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── State 3: operational home ────────────────────────────────────────────────
-
-class _OperationalScaffold extends ConsumerWidget {
-  const _OperationalScaffold({required this.home});
-
-  final CashierHomeResponse home;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isSellerTerminal =
-        home.operationalContext?.source == 'SELLER_TERMINAL';
-
-    if (isSellerTerminal) {
-      return _SellerTerminalScaffold(home: home);
-    }
-
-    final session = home.session;
-    final primaryAction = home.primaryAction;
-    final quickActions = home.quickActions;
-    final payoutWidget = home.widgets
-        .where((w) => w.type == 'POS_PAYOUT_STATUS')
-        .firstOrNull;
-
-    return Scaffold(
-      appBar: _PosAppBar(
-        terminalLabel: home.operationalContext != null
-            ? _subtitle(home.operationalContext!)
-            : null,
-        onMenuTap: null,
-      ),
-      bottomNavigationBar: const PosBottomNavBar(currentIndex: 0),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            TchSpacing.s16,
-            TchSpacing.s16,
-            TchSpacing.s16,
-            TchSpacing.s8,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (primaryAction != null)
-                PosActionButton(
-                  label: primaryAction.label,
-                  icon: Icons.confirmation_number_rounded,
-                  size: PosActionButtonSize.large,
-                  enabled: primaryAction.enabled,
-                  onPressed: primaryAction.enabled
-                      ? () => context.push(primaryAction.route)
-                      : null,
-                ),
-              const SizedBox(height: TchSpacing.s16),
-              if (quickActions.isNotEmpty)
-                _QuickActionsGrid(actions: quickActions),
-              const SizedBox(height: TchSpacing.s12),
-              _SyncButton(onPressed: () => ref.invalidate(cashierHomeProvider)),
-              const SizedBox(height: TchSpacing.s24),
-              if (session != null) ...[
-                StatCardLarge(
-                  label: "Ventes Aujourd'hui",
-                  value: session.salesTotal?.split(' ').first ?? '0.00',
-                  unit: session.salesTotal?.contains(' ') == true
-                      ? session.salesTotal!.split(' ').last
-                      : 'HTG',
-                ),
-                const SizedBox(height: TchSpacing.s12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatCard(
-                        label: 'Tickets',
-                        value: session.ticketCount.toString(),
-                      ),
-                    ),
-                    if (payoutWidget != null) ...[
-                      const SizedBox(width: TchSpacing.s12),
-                      Expanded(
-                        child: StatCard(
-                          label: payoutWidget.title ?? 'Gagnants',
-                          value: payoutWidget.data['total']?.toString() ?? '—',
-                          accentColor: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-              if (session?.openedAtLabel != null) ...[
-                const SizedBox(height: TchSpacing.s12),
-                _SessionInfoRow(session: session!),
-              ],
-              const SizedBox(height: TchSpacing.s8),
             ],
           ),
         ),
@@ -361,7 +193,7 @@ class _SellerTerminalScaffold extends ConsumerWidget {
 
     return Scaffold(
       appBar: _PosAppBar(
-        terminalLabel: home.operationalContext?.terminalLabel,
+        terminalLabel: home.operationalContext?.sellerTerminalLabel,
         onMenuTap: null,
       ),
       bottomNavigationBar: const SellerTerminalNavBar(currentIndex: 0),
@@ -746,120 +578,6 @@ class _DrawsError extends StatelessWidget {
   }
 }
 
-// ─── Quick actions grid ───────────────────────────────────────────────────────
-
-class _QuickActionsGrid extends StatelessWidget {
-  const _QuickActionsGrid({required this.actions});
-
-  final List<HomeAction> actions;
-
-  static const _icons = {
-    'VERIFY_TICKET': Icons.fact_check_rounded,
-    'PAY_WINNER': Icons.payments_rounded,
-    'RECENT_TICKETS': Icons.receipt_long_rounded,
-    'SESSION': Icons.timer_rounded,
-    'PROFILE': Icons.person_rounded,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final visible = actions.take(2).toList(); // max 2 in grid
-    if (visible.isEmpty) return const SizedBox.shrink();
-
-    return Row(
-      children: [
-        for (int i = 0; i < visible.length; i++) ...[
-          if (i > 0) const SizedBox(width: TchSpacing.s12),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                final a = visible[i];
-                return PosActionButton(
-                  label: a.label,
-                  icon: _icons[a.type] ?? Icons.touch_app_rounded,
-                  tone: PosActionButtonTone.secondary,
-                  size: PosActionButtonSize.medium,
-                  enabled: a.enabled,
-                  onPressed: a.enabled ? () => context.push(a.route) : null,
-                );
-              },
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-// ─── Sync button ──────────────────────────────────────────────────────────────
-
-class _SyncButton extends StatelessWidget {
-  const _SyncButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 56,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(Icons.sync_rounded, color: scheme.primary),
-        label: Text(
-          'ACTUALISER',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: scheme.primary,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-          ),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: scheme.outlineVariant),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(TchRadius.md),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Session info row ─────────────────────────────────────────────────────────
-
-class _SessionInfoRow extends StatelessWidget {
-  const _SessionInfoRow({required this.session});
-
-  final CashierHomeSession session;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: TchSpacing.s16,
-        vertical: TchSpacing.s12,
-      ),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(TchRadius.md),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.access_time_rounded, size: 16, color: scheme.outline),
-          const SizedBox(width: TchSpacing.s8),
-          Text(
-            'Session ouverte à ${session.openedAtLabel}',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── Top app bar ──────────────────────────────────────────────────────────────
 
 class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -909,7 +627,7 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
                 OnlineBadge(
-                  online: true,
+                  online: ref.watch(isOnlineProvider).asData?.value ?? true,
                   onlineLabel: translations.translate('common.status.online'),
                   offlineLabel: translations.translate('common.status.offline'),
                 ),
@@ -989,13 +707,3 @@ class _UserAvatar extends StatelessWidget {
   }
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-String _subtitle(CashierHomeOpCtx ctx) {
-  final outlet = ctx.outletName;
-  final terminal = ctx.terminalLabel;
-  if (outlet == null && terminal == null) return '';
-  if (outlet == null) return terminal!;
-  if (terminal == null) return outlet;
-  return '$outlet • $terminal';
-}
