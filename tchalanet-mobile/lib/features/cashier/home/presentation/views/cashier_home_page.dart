@@ -204,12 +204,15 @@ class _SellerTerminalScaffold extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(cashierHomeProvider);
+            ref.invalidate(cashierReadinessProvider);
             ref.invalidate(terminalDailyStatsProvider);
             ref.invalidate(availableDrawsProvider);
           },
           child: ListView(
             padding: const EdgeInsets.all(TchSpacing.s16),
             children: [
+              // Readiness attention banner (blockers / urgent notices).
+              const _ReadinessBanner(),
               // Stats
               statsAsync.when(
                 loading: () => const _StatsPlaceholder(),
@@ -264,6 +267,96 @@ class _SellerTerminalScaffold extends ConsumerWidget {
       ),
     );
   }
+}
+
+// ─── Readiness attention banner ───────────────────────────────────────────────
+
+class _ReadinessBanner extends ConsumerWidget {
+  const _ReadinessBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final readiness = ref.watch(cashierReadinessProvider).asData?.value;
+    if (readiness == null) return const SizedBox.shrink();
+
+    // Priority: a hard blocker first, then the most urgent attention notice.
+    final blocker = readiness.blockers.firstOrNull;
+    final notice = readiness.notifications
+        .where(
+          (n) =>
+              n.attentionLevel == CashierAttentionLevel.blocked ||
+              n.attentionLevel == CashierAttentionLevel.card,
+        )
+        .firstOrNull;
+    if (blocker == null && notice == null) return const SizedBox.shrink();
+
+    final translations = ref.watch(i18nBundleProvider);
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final danger =
+        blocker != null ||
+        notice?.attentionLevel == CashierAttentionLevel.blocked;
+    final color = danger ? scheme.error : TchColors.warning;
+
+    final titleKey = blocker?.titleKey ?? notice!.titleKey;
+    final messageKey = blocker?.messageKey ?? notice!.messageKey;
+    final params = blocker?.params ?? notice!.params;
+    final title = _interpolate(translations.translate(titleKey), params);
+    final message = _interpolate(translations.translate(messageKey), params);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: TchSpacing.s16),
+      padding: const EdgeInsets.all(TchSpacing.s12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            danger ? Icons.error_outline_rounded : Icons.warning_amber_rounded,
+            size: 20,
+            color: color,
+          ),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+                if (message.isNotEmpty) ...[
+                  const SizedBox(height: TchSpacing.s4),
+                  Text(
+                    message,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Fills `{name}` placeholders from server params (the i18n bundle has no
+  /// interpolation of its own).
+  static String _interpolate(String value, Map<String, dynamic> params) =>
+      value.replaceAllMapped(
+        RegExp(r'\{(\w+)\}'),
+        (m) => params[m[1]]?.toString() ?? m[0]!,
+      );
 }
 
 class _TerminalStatsRow extends StatelessWidget {
