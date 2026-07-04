@@ -90,7 +90,9 @@
         <tch-console-draw-results-table
           [rows]="rows()"
           [showAppliedAt]="false"
+          [showSourceFlags]="true"
           (rowAction)="onResultAction($event)"
+          (sourceAction)="openSource($event.row)"
         />
       }
     </ng-container>

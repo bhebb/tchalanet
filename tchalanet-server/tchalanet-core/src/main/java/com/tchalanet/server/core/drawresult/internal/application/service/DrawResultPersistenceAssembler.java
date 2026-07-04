@@ -2,6 +2,7 @@ package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 import com.tchalanet.server.core.drawresult.internal.infra.util.SourceResultBuilder;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class DrawResultPersistenceAssembler {
         LocalDate date,
         Instant occurredAt,
         ResolvedExternalResults external,
+        ResultSlotSourceConfig sourceCfg,
         HaitiProjectionResult projection,
         boolean includeRaw) {
 
@@ -54,7 +56,7 @@ public class DrawResultPersistenceAssembler {
             projection.haitiResult(),
             includeRaw ? buildRawPayload(external) : null,
             flags,
-            resolveQuality(external.pick3(), external.pick4()),
+            resolveQuality(sourceCfg, external, projection).name(),
             combinedSourceHash(slot.slotKey(), date, external.pick3(), external.pick4()));
     }
 
@@ -76,14 +78,62 @@ public class DrawResultPersistenceAssembler {
         return raw;
     }
 
-    private String resolveQuality(ExternalResultItem p3, ExternalResultItem p4) {
-        if (p3 != null && p3.found() && p3.quality() != null) {
-            return p3.quality().name();
+    private ResultQuality resolveQuality(
+        ResultSlotSourceConfig sourceCfg,
+        ResolvedExternalResults external,
+        HaitiProjectionResult projection) {
+
+        var cfg = sourceCfg == null ? ResultSlotSourceConfig.empty() : sourceCfg;
+        var quality = ResultQuality.COMPLETE;
+        var expectedAny = false;
+
+        if (cfg.activePick3().isPresent()) {
+            expectedAny = true;
+            quality = combine(quality, qualityForExpected(external.pick3()));
         }
-        if (p4 != null && p4.found() && p4.quality() != null) {
-            return p4.quality().name();
+
+        if (cfg.activePick4().isPresent()) {
+            expectedAny = true;
+            quality = combine(quality, qualityForExpected(external.pick4()));
         }
-        return null;
+
+        if (!expectedAny) {
+            quality = combine(quality, qualityForOptional(external.pick3()));
+            quality = combine(quality, qualityForOptional(external.pick4()));
+        }
+
+        if (projection != null
+            && projection.flags() != null
+            && !projection.flags().projectionOk()
+            && quality == ResultQuality.COMPLETE) {
+            return ResultQuality.SUSPECT;
+        }
+
+        return quality;
+    }
+
+    private ResultQuality qualityForExpected(ExternalResultItem item) {
+        if (item == null || !item.found()) {
+            return ResultQuality.SUSPECT;
+        }
+        return item.quality() == null ? ResultQuality.SUSPECT : item.quality();
+    }
+
+    private ResultQuality qualityForOptional(ExternalResultItem item) {
+        if (item == null || !item.found()) {
+            return ResultQuality.COMPLETE;
+        }
+        return item.quality() == null ? ResultQuality.SUSPECT : item.quality();
+    }
+
+    private ResultQuality combine(ResultQuality left, ResultQuality right) {
+        if (left == ResultQuality.INVALID || right == ResultQuality.INVALID) {
+            return ResultQuality.INVALID;
+        }
+        if (left == ResultQuality.SUSPECT || right == ResultQuality.SUSPECT) {
+            return ResultQuality.SUSPECT;
+        }
+        return ResultQuality.COMPLETE;
     }
 
     private String combinedSourceHash(

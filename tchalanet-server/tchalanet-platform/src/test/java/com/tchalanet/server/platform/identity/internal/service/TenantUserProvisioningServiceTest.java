@@ -41,7 +41,7 @@ class TenantUserProvisioningServiceTest {
         .thenReturn(new CreateUserResult(createdUserId));
 
     var result = service.provisionTenantUser(
-        tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", TchRole.CASHIER);
+        tenantId, actor, "cashier@tchalanet.test", "+509", "Cash", "Ier", TchRole.TENANT_ADMIN);
 
     assertThat(result.userId()).isEqualTo(createdUserId);
     verify(memberships).assign(tenantId, createdUserId, false);

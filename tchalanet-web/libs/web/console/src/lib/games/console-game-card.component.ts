@@ -3,11 +3,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TchCard, TchSectionError, TchSectionErrorSeverity, TchStatusBadge } from '@tch/ui/components';
+import { BadgeStatus, TchCard, TchSectionError, TchSectionErrorSeverity, TchStatusBadge } from '@tch/ui/components';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
-import { ConsoleGameCardActionEvent, ConsoleGameCardView } from './console-games-table.models';
+import { ConsoleGameCardActionEvent, ConsoleGameCardBadgeTone, ConsoleGameCardView } from './console-games-table.models';
 
 export interface ConsoleGameCardError {
   readonly title: string;
@@ -37,6 +37,12 @@ export class ConsoleGameCardComponent {
   readonly actionError = input<ConsoleGameCardError | null>(null);
 
   readonly rowAction = output<ConsoleGameCardActionEvent>();
+
+  badgeStatus(tone: ConsoleGameCardBadgeTone): BadgeStatus {
+    if (tone === 'info') return 'pending';
+    if (tone === 'neutral') return 'missing';
+    return tone;
+  }
 
   emitAction(row: ConsoleGameCardView, action: ConsoleRowAction): void {
     this.rowAction.emit({ row, action });

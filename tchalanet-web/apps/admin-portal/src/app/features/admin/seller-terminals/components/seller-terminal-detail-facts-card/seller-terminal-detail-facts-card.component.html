@@ -11,10 +11,10 @@
           @if (fact.valueKey) {
             {{ fact.valueKey | translate }}
           } @else if (fact.kind === 'date') {
-            {{ fact.value ? (fact.value | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}
+            {{ dateValue(fact.value) ? (dateValue(fact.value) | date: 'dd/MM/yyyy HH:mm') : ('common.not_available' | translate) }}
           } @else if (fact.kind === 'percent') {
-            @if (fact.value !== null && fact.value !== undefined) {
-              {{ fact.value | number: '1.0-2' }} %
+            @if (numericValue(fact.value) !== null) {
+              {{ numericValue(fact.value) | number: '1.0-2' }} %
             } @else {
               {{ 'common.not_available' | translate }}
             }

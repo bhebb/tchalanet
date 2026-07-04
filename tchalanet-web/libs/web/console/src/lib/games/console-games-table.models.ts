@@ -1,5 +1,8 @@
 import { AdminStatusTone } from '@tch/ui/console';
+import { BadgeStatus } from '@tch/ui/components';
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
+
+export type ConsoleGameCardBadgeTone = BadgeStatus | 'info' | 'neutral';
 
 export interface ConsoleGameRow {
   readonly id: string;
@@ -27,7 +30,7 @@ export interface ConsoleGameCardView {
   readonly statusLabel: string;
   readonly statusTone: AdminStatusTone;
   readonly badgeLabel?: string | null;
-  readonly badgeTone?: 'ready' | 'warning' | 'blocked' | 'info' | 'neutral';
+  readonly badgeTone?: ConsoleGameCardBadgeTone;
   readonly unavailable?: boolean;
   readonly unavailableLabel?: string | null;
   readonly summaryItems?: readonly ConsoleGameCardSummaryItem[];

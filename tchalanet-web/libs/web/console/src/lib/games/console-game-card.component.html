@@ -9,7 +9,7 @@
     </div>
 
     @if (game.badgeLabel && game.badgeTone) {
-      <tch-status-badge [status]="game.badgeTone" [label]="game.badgeLabel" />
+      <tch-status-badge [status]="badgeStatus(game.badgeTone)" [label]="game.badgeLabel" />
     }
   </div>
 

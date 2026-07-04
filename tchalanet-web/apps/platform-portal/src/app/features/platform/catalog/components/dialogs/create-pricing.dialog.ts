@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogClose, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { TchSectionError } from '@tch/ui/components';
@@ -26,6 +26,7 @@ import { CATALOG_BET_TYPES } from './catalog-pricing-options';
     AdminDialogShellComponent,
     ConsolePricingFormComponent,
     MatButtonModule,
+    MatDialogClose,
     TchSearchSelect,
     TchSectionError,
     TranslatePipe,

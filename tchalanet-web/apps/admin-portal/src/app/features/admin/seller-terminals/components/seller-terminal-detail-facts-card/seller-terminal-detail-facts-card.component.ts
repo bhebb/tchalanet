@@ -25,4 +25,14 @@ export class SellerTerminalDetailFactsCardComponent {
   readonly icon = input.required<string>();
   readonly facts = input.required<readonly SellerTerminalDetailFact[]>();
   readonly compact = input(false);
+
+  dateValue(value: SellerTerminalDetailFact['value']): string | number | Date | null {
+    if (typeof value === 'string' || typeof value === 'number') return value;
+    return null;
+  }
+
+  numericValue(value: SellerTerminalDetailFact['value']): string | number | null {
+    if (typeof value === 'string' || typeof value === 'number') return value;
+    return null;
+  }
 }

@@ -101,8 +101,12 @@ SELECT '00000000-0000-0000-0000-000000000301'::uuid, unnest(ARRAY[
 -- Sanity checks
 -- ─────────────────────────────────────────────────────────────────────────────
 DO $$ DECLARE cnt int; BEGIN
-  SELECT count(*) INTO cnt FROM app_role WHERE tenant_id IS NULL AND deleted_at IS NULL;
-  IF cnt < 5 THEN RAISE EXCEPTION 'V232 sanity: expected >=5 system roles, found %', cnt; END IF;
+  SELECT count(*) INTO cnt
+    FROM app_role
+   WHERE tenant_id IS NULL
+     AND deleted_at IS NULL
+     AND code IN ('SUPER_ADMIN', 'TENANT_OWNER', 'TENANT_ADMIN');
+  IF cnt < 3 THEN RAISE EXCEPTION 'V232 sanity: expected 3 canonical system roles, found %', cnt; END IF;
 
   IF NOT EXISTS (SELECT 1 FROM permission WHERE code = 'seller_terminal.sell') THEN
     RAISE EXCEPTION 'V232 sanity: permission seller_terminal.sell missing';

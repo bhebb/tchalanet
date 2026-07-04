@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccessService } from '@tch/core/auth';
 import {
   CONSOLE_DRAW_RESULT_ACCESS,
@@ -66,6 +66,7 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
     ConsoleEntityDetailComponent,
