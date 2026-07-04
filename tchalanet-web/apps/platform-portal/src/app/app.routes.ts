@@ -47,7 +47,7 @@ export const appRoutes: Route[] = [
   {
     path: 'app/platform',
     canActivate: [roleGuard('SUPER_ADMIN')],
-    loadChildren: () => import('./features/platform/platform.routes').then(m => m.platformRoutes),
+    loadChildren: () => import('./features/platform.routes').then(m => m.platformRoutes),
   },
   {
     path: 'forbidden',
@@ -56,7 +56,7 @@ export const appRoutes: Route[] = [
   {
     path: '',
     canActivate: [roleGuard('SUPER_ADMIN')],
-    loadChildren: () => import('./features/platform/platform.routes').then(m => m.platformRoutes),
+    loadChildren: () => import('./features/platform.routes').then(m => m.platformRoutes),
   },
   {
     path: '**',

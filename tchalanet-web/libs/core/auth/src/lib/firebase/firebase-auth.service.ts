@@ -1,4 +1,11 @@
-import { EnvironmentInjector, inject, Injectable, runInInjectionContext } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  EnvironmentInjector,
+  PLATFORM_ID,
+  inject,
+  Injectable,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   Auth,
   browserLocalPersistence,
@@ -21,8 +28,13 @@ export class FirebaseAuthService implements AuthClient {
   private readonly passwordlessEmailStorageKey = 'tchalanet.passwordlessLoginEmail';
   private readonly auth = inject(Auth);
   private readonly injector = inject(EnvironmentInjector);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Business admin tool: always persist sessions in localStorage so users
     // stay logged in across tab close and browser restart.
     // runInInjectionContext ensures setPersistence (an AngularFire functional API)

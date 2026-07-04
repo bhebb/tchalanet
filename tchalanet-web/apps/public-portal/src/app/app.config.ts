@@ -6,7 +6,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter } from '@angular/router';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { TCH_API_BASE, correlationRequestInterceptor, problemDetailInterceptor } from '@tch/api';
-import { provideFirebaseAuthClient } from '@tch/core/auth';
+import { authBearerInterceptor, provideFirebaseAuthClient } from '@tch/core/auth';
 import {
   I18nEffects,
   MERGED_TRANSLATE_LOADER_OPTIONS,
@@ -45,7 +45,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     provideHttpClient(
       withFetch(),
-      withInterceptors([correlationRequestInterceptor, problemDetailInterceptor]),
+      withInterceptors([
+        correlationRequestInterceptor,
+        authBearerInterceptor,
+        problemDetailInterceptor,
+      ]),
     ),
     provideAnimationsAsync(),
     { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-outlined' } },

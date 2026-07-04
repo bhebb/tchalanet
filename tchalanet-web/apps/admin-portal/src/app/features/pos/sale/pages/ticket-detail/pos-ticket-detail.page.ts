@@ -14,7 +14,7 @@ import { PosTicketDetailsView } from '../../data-access/pos-sale.models';
 import {
   ticketStatusLabelKey,
   ticketStatusTone,
-} from '../../../../admin/admin-ticket-status.util';
+} from '../../../../../shared/ticket/admin-ticket-status.util';
 
 @Component({
   selector: 'tch-pos-ticket-detail-page',

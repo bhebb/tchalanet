@@ -548,7 +548,9 @@
         "templatesAvailable": "Modèles disponibles",
         "none": "Aucun",
         "planned": "Prévu",
-        "expected": "Attendu"
+        "expected": "Attendu",
+        "previewed": "Prévisualisé",
+        "toValidate": "À valider"
       },
       "step": {
         "createInitialAdmin": "Créer l’admin initial",

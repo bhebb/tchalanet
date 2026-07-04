@@ -1,0 +1,10 @@
+:host {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.tenant-provisioning-aside__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--tch-color-on-surface);
+}

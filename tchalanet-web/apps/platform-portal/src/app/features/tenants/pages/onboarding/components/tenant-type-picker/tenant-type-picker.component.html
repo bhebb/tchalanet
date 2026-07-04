@@ -1,0 +1,31 @@
+<div class="tenant-type-picker">
+  <span class="tenant-type-picker__label">
+    {{ 'platform.tenantProvisioning.field.type' | translate }}
+    <span aria-hidden="true"> *</span>
+  </span>
+
+  <div class="tenant-type-picker__tiles" role="radiogroup">
+    @for (tenantType of options(); track tenantType.value) {
+      <button
+        type="button"
+        role="radio"
+        class="tenant-type-picker__tile"
+        [class.is-selected]="selected() === tenantType.value"
+        [attr.aria-checked]="selected() === tenantType.value"
+        (click)="select(tenantType.value)"
+      >
+        <span class="material-symbols-outlined tenant-type-picker__icon" aria-hidden="true">
+          {{ tenantType.icon }}
+        </span>
+        <span class="tenant-type-picker__name">{{ tenantType.label }}</span>
+        <span class="tenant-type-picker__desc">{{ tenantType.descriptionKey | translate }}</span>
+      </button>
+    }
+  </div>
+
+  @if (invalid()) {
+    <span class="tenant-type-picker__error">
+      {{ 'platform.tenantProvisioning.error.required' | translate }}
+    </span>
+  }
+</div>
