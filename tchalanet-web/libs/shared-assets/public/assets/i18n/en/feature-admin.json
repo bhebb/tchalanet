@@ -861,6 +861,29 @@
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
+    },
+    "drawResults": {
+      "detail": {
+        "tab": {
+          "results": "Results",
+          "combinations": "Combinations & rules",
+          "raw": "Raw result"
+        },
+        "combinations": {
+          "intro": "For each supported play option, the winning numbers computed from the draw.",
+          "playType": "Play type",
+          "winWith": "Win with",
+          "winningNumbers": "Winning numbers",
+          "empty": "No combination can be computed for this result."
+        },
+        "winWith": {
+          "exact": "Exact order",
+          "any": "Any order"
+        },
+        "raw": {
+          "empty": "No raw data available."
+        }
+      }
     }
   },
   "readiness": {

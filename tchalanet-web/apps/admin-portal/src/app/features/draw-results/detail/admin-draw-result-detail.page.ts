@@ -1,19 +1,17 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  AdminSectionCardComponent,
-  AdminStatusTone,
-  TchIdentityCardComponent,
-  TchIdentityCardMeta,
-} from '@tch/ui/console';
+import { MatTabsModule } from '@angular/material/tabs';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AdminStatusTone, TchIdentityCardComponent, TchIdentityCardMeta } from '@tch/ui/console';
 import {
   ConsoleEntityDetailActionEvent,
   ConsoleEntityDetailComponent,
   ConsoleFact,
-  ConsoleFactsComponent,
+  DrawCombinationRow,
   consoleDrawResultQualityLabel,
   consoleDrawResultStatusLabel,
   consoleDrawResultStatusTone,
+  drawCombinationRowsFromResult,
 } from '@tch/web/console';
 
 import {
@@ -22,7 +20,9 @@ import {
   DrawResultStatus,
   DrawResultView,
 } from '.././data-access/admin-draw-results-api.service';
-import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../shared/lottery/lottery-assets';
+import { DrawResultCombinationsComponent } from './components/draw-result-combinations/draw-result-combinations.component';
+import { DrawResultRawComponent } from './components/draw-result-raw/draw-result-raw.component';
+import { DrawResultSummaryComponent } from './components/draw-result-summary/draw-result-summary.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -32,9 +32,12 @@ type PageState = 'loading' | 'ready' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ConsoleEntityDetailComponent,
-    ConsoleFactsComponent,
-    AdminSectionCardComponent,
     TchIdentityCardComponent,
+    MatTabsModule,
+    TranslatePipe,
+    DrawResultSummaryComponent,
+    DrawResultCombinationsComponent,
+    DrawResultRawComponent,
   ],
   templateUrl: './admin-draw-result-detail.page.html',
   styleUrls: ['./admin-draw-result-detail.page.scss'],
@@ -48,6 +51,20 @@ export class AdminDrawResultDetailPage implements OnInit {
   readonly result = signal<DrawResultView | null>(null);
   readonly errorTitle = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
+
+  /** Winning combinations per supported play option, derived from the drawn numbers. */
+  readonly combinationRows = computed<readonly DrawCombinationRow[]>(() => {
+    const result = this.result();
+    if (!result) return [];
+    return drawCombinationRowsFromResult(result);
+  });
+
+  readonly rawResult = computed<string | null>(() => {
+    const result = this.result();
+    if (!result) return null;
+    const payload = result.rawPayload ?? result.sourceResult ?? result.haitiResult ?? null;
+    return payload ? JSON.stringify(payload, null, 2) : null;
+  });
 
   readonly title = computed(() => this.result()?.slotLabel ?? this.result()?.slotKey ?? 'Détail du résultat');
   readonly description = computed(() => {
@@ -151,15 +168,11 @@ export class AdminDrawResultDetailPage implements OnInit {
     });
   }
 
-  providerLogo(result: DrawResultView): string | null {
-    return lotteryLogoForSlot(result.slotKey ?? result.provider);
-  }
-
   providerCode(result: DrawResultView): string {
     return (
-      lotteryProviderCodeFromSlot(result.slotKey)?.toUpperCase() ??
       result.provider?.toUpperCase() ??
       result.channelCode?.toUpperCase() ??
+      result.slotKey?.toUpperCase() ??
       '—'
     );
   }

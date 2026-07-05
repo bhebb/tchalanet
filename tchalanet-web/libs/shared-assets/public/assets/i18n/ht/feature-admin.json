@@ -849,6 +849,29 @@
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
       }
+    },
+    "drawResults": {
+      "detail": {
+        "tab": {
+          "results": "Rezilta",
+          "combinations": "Konbinezon & règ",
+          "raw": "Rezilta brit"
+        },
+        "combinations": {
+          "intro": "Pou chak opsyon jwèt sipòte a, nimewo ki genyen yo kalkile apati tiraj la.",
+          "playType": "Tip jwèt",
+          "winWith": "Genyen ak",
+          "winningNumbers": "Nimewo ki genyen",
+          "empty": "Pa gen konbinezon ki ka kalkile pou rezilta sa a."
+        },
+        "winWith": {
+          "exact": "Lòd egzak",
+          "any": "Nenpòt lòd"
+        },
+        "raw": {
+          "empty": "Pa gen done brit disponib."
+        }
+      }
     }
   },
   "readiness": {

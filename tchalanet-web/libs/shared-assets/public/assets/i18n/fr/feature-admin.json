@@ -734,6 +734,29 @@
     "users": {
       "title": "Utilisateurs",
       "description": "Gérez les accès des utilisateurs de votre entreprise."
+    },
+    "drawResults": {
+      "detail": {
+        "tab": {
+          "results": "Résultats",
+          "combinations": "Combinaisons & règles",
+          "raw": "Résultat brut"
+        },
+        "combinations": {
+          "intro": "Pour chaque option de jeu supportée, les numéros gagnants calculés à partir du tirage.",
+          "playType": "Type de jeu",
+          "winWith": "Gagne avec",
+          "winningNumbers": "Numéros gagnants",
+          "empty": "Aucune combinaison calculable pour ce résultat."
+        },
+        "winWith": {
+          "exact": "Ordre exact",
+          "any": "N'importe quel ordre"
+        },
+        "raw": {
+          "empty": "Aucune donnée brute disponible."
+        }
+      }
     }
   },
   "readiness": {

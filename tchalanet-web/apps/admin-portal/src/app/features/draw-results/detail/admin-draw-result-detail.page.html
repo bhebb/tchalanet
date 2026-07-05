@@ -9,46 +9,36 @@
   (retry)="load()"
   (action)="onDetailAction($event)"
 >
-  @if (result()) {
+  @if (result(); as result) {
     <ng-container main>
-      <tch-admin-section-card title="Résultat" icon="fact_check">
-        <div class="draw-result-detail__source">
-          <div class="draw-result-detail__logo">
-            @if (providerLogo(result()!); as logo) {
-              <img [src]="logo" [alt]="result()!.channelName ?? result()!.provider ?? 'Source'" loading="lazy" />
-            } @else {
-              <span>{{ providerCode(result()!) }}</span>
-            }
-          </div>
-          <div>
-            <p class="draw-result-detail__eyebrow">{{ providerCode(result()!) }}</p>
-            <h2>{{ result()!.channelName ?? result()!.provider ?? result()!.slotKey }}</h2>
-          </div>
-        </div>
+      <mat-tab-group class="draw-result-detail__tabs" animationDuration="120ms">
+        <mat-tab [label]="'admin.drawResults.detail.tab.results' | translate">
+          <tch-draw-result-summary
+            [result]="result"
+            [resultFacts]="resultFacts()"
+            [linkedDrawFacts]="linkedDrawFacts()"
+          />
+        </mat-tab>
 
-        <div class="draw-result-detail__numbers" aria-label="Numéros gagnants">
-          @for (number of result()!.numbers ?? []; track number) {
-            <span>{{ number }}</span>
-          }
-        </div>
+        <mat-tab [label]="'admin.drawResults.detail.tab.combinations' | translate">
+          <tch-draw-result-combinations [rows]="combinationRows()" />
+        </mat-tab>
 
-        <tch-console-facts [facts]="resultFacts()" />
-      </tch-admin-section-card>
-
-      <tch-admin-section-card title="Tirage lié" icon="event">
-        <tch-console-facts [facts]="linkedDrawFacts()" />
-      </tch-admin-section-card>
+        <mat-tab [label]="'admin.drawResults.detail.tab.raw' | translate">
+          <tch-draw-result-raw [content]="rawResult()" />
+        </mat-tab>
+      </mat-tab-group>
     </ng-container>
   }
 
-  @if (result()) {
+  @if (result(); as result) {
     <ng-container aside>
       <tch-identity-card
         eyebrow="Résumé"
-        [title]="result()!.slotLabel ?? result()!.slotKey ?? 'Résultat'"
-        [code]="providerCode(result()!)"
-        [status]="statusLabel(result()!.status)"
-        [statusTone]="statusTone(result()!.status)"
+        [title]="result.slotLabel ?? result.slotKey ?? 'Résultat'"
+        [code]="providerCode(result)"
+        [status]="statusLabel(result.status)"
+        [statusTone]="statusTone(result.status)"
         [meta]="identityMeta()"
         icon="fact_check"
         variant="compact"

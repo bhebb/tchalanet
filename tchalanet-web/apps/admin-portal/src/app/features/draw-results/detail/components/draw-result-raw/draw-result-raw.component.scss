@@ -1,0 +1,18 @@
+.draw-result-raw__code {
+  margin: 0;
+  padding: 1rem;
+  max-height: 32rem;
+  overflow: auto;
+  border-radius: var(--tch-radius-md, 0.75rem);
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-on-surface);
+  font-family: var(--tch-font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.draw-result-raw__empty {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+}

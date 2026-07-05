@@ -1,7 +1,8 @@
 const GAME_LABELS: Record<string, string> = {
-  BORLETTE: 'Borlette',
-  HT_BOLET: 'Borlette',
-  HT_BORLETTE: 'Borlette',
+  BOLET: 'Bòlèt',
+  BORLETTE: 'Bòlèt',
+  HT_BOLET: 'Bòlèt',
+  HT_BORLETTE: 'Bòlèt',
   MARYAJ: 'Maryaj',
   HT_MARYAJ: 'Maryaj',
   HT_MARYAJ_GRATUIT: 'Maryaj gratis',
@@ -75,6 +76,96 @@ const BET_OPTION_LABELS: Record<string, Record<number, string>> = {
     3: 'Mixte 1er/2e/3e lot',
   },
 };
+
+/**
+ * Admin/support labels for computed settlement variants. Mirrors the backend
+ * `SettlementVariant.adminLabel()` and is used only as a fallback when the backend does not
+ * provide `adminLabel`. Technical variants are shown in console/admin/support contexts only —
+ * never on the seller terminal or the customer receipt.
+ */
+const SETTLEMENT_VARIANT_LABELS: Record<string, string> = {
+  MATCH_1_2D: '1er lot',
+  MATCH_2_2D: '2e lot',
+  MATCH_3_2D: '3e lot',
+  MARRIAGE_EXACT_ORDER: 'Maryaj · ordre exact',
+  MARRIAGE_REVERSE_ALLOWED: 'Maryaj · revers/double',
+  LOTTO3_STRAIGHT: 'Exact',
+  LOTTO3_BOX_3_WAY: 'Permuté · 3-way',
+  LOTTO3_BOX_6_WAY: 'Permuté · 6-way',
+  LOTTO4_STRAIGHT: 'Exact',
+  LOTTO4_BOX_4_WAY: 'Permuté · 4-way',
+  LOTTO4_BOX_6_WAY: 'Permuté · 6-way',
+  LOTTO4_BOX_12_WAY: 'Permuté · 12-way',
+  LOTTO4_BOX_24_WAY: 'Permuté · 24-way',
+  LOTTO4_FRONT_PAIR: 'Deux premiers',
+  LOTTO4_BACK_PAIR: 'Deux derniers',
+  LOTTO5_LOT1_LOT2: '1er + 2e lot',
+  LOTTO5_LOT1_LOT3: '1er + 3e lot',
+  LOTTO5_MIXED_1_2_3: 'Mixte 1er/2e/3e lot',
+};
+
+/** One settlement line as returned by the backend admin endpoint. */
+export interface ConsoleSettlementLine {
+  readonly lineNo: number;
+  readonly gameCode: string;
+  readonly betType: string;
+  readonly betOption: number | null;
+  readonly selection: string | null;
+  readonly commercialLabel: string | null;
+  readonly variant: string | null;
+  readonly adminLabel: string | null;
+  readonly resolved: boolean;
+  readonly error: string | null;
+}
+
+/** A display row for the console "Combinaisons & règles" tab. */
+export interface ConsoleBetVariationRow {
+  readonly lineNo: number;
+  readonly gameLabel: string;
+  readonly selection: string | null;
+  /** Commercial label shown by default (customer-safe). */
+  readonly commercialLabel: string;
+  /** Technical/admin label (may expose 24-way etc.). Null when unresolved. */
+  readonly variantLabel: string | null;
+  readonly resolved: boolean;
+  readonly error: string | null;
+}
+
+/**
+ * Admin/support label for a computed settlement variant. Prefers the backend-provided
+ * `adminLabel`, falls back to the local map, then to a readable code.
+ */
+export function consoleSettlementVariantLabel(
+  variant: string | null | undefined,
+  adminLabel?: string | null,
+): string | null {
+  const provided = adminLabel?.trim();
+  if (provided) return provided;
+  if (!variant) return null;
+  return SETTLEMENT_VARIANT_LABELS[variant] ?? readableCode(variant);
+}
+
+/**
+ * Maps backend settlement lines to console display rows. Formats backend/result-derived data — it
+ * is NOT a static provider-doc matrix. Unresolved lines keep their commercial label and carry the
+ * error, so support can spot legacy/corrupted lines without the row breaking.
+ */
+export function consoleBetVariationRows(
+  lines: readonly ConsoleSettlementLine[] | null | undefined,
+): ConsoleBetVariationRow[] {
+  if (!lines) return [];
+  return lines.map(line => ({
+    lineNo: line.lineNo,
+    gameLabel: consoleGameName(line.gameCode),
+    selection: line.selection,
+    commercialLabel: line.commercialLabel?.trim() || consoleBetLabel(line.betType, line.betOption),
+    variantLabel: line.resolved
+      ? consoleSettlementVariantLabel(line.variant, line.adminLabel)
+      : null,
+    resolved: line.resolved,
+    error: line.error,
+  }));
+}
 
 export function consoleGameName(gameCode: string, displayName?: string | null): string {
   const explicit = displayName?.trim();
