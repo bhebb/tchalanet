@@ -1,5 +1,6 @@
 import {
   drawCombinationRows,
+  drawCombinationGameSectionsFromResult,
   drawCombinationRowsFromResult,
   drawDigitsFromNumbers,
   uniquePermutations,
@@ -84,8 +85,8 @@ describe('drawCombinationRowsFromResult', () => {
       haitiResult: { lot1: '536', lot2: '76', lot3: '06' },
     });
 
-    expect(rows.map(r => r.playType)).toEqual(['Loto 3 · Exact', 'Loto 3 · Permuté · 6-way']);
-    expect(rows[0].winningNumbers).toEqual(['536']);
+    expect(rows.map(r => r.playType)).toContain('Loto 3 · Exact');
+    expect(rows.find(r => r.playType === 'Loto 3 · Exact')?.winningNumbers).toEqual(['536']);
   });
 
   it('uses explicit pick4 facts before numbers fallbacks', () => {
@@ -96,5 +97,26 @@ describe('drawCombinationRowsFromResult', () => {
 
     expect(rows.map(r => r.playType)).toContain('Loto 4 · Permuté · 24-way');
     expect(rows.find(r => r.playType === 'Loto 4 · Exact')?.winningNumbers).toEqual(['1234']);
+  });
+});
+
+describe('drawCombinationGameSectionsFromResult', () => {
+  it('shows a single Loto 3 game section for a 3-digit provider result', () => {
+    const sections = drawCombinationGameSectionsFromResult({ numbers: ['418'] });
+
+    expect(sections.map(section => section.gameLabel)).toEqual(['Loto 3']);
+    expect(sections[0].resultNumbers).toEqual(['418']);
+    expect(sections[0].rows.map(row => row.playType)).toEqual(['Exact', 'Permuté · 6-way']);
+  });
+
+  it('shows Haiti lot games only when explicit lot facts are present', () => {
+    const sections = drawCombinationGameSectionsFromResult({
+      numbers: ['536', '76', '06'],
+      haitiResult: { lot1: '536', lot2: '76', lot3: '06' },
+    });
+
+    expect(sections.map(section => section.gameLabel)).toEqual(['Bòlèt', 'Maryaj', 'Loto 3', 'Loto 5']);
+    expect(sections.find(section => section.gameLabel === 'Bòlèt')?.resultNumbers).toEqual(['36', '76', '06']);
+    expect(sections.find(section => section.gameLabel === 'Maryaj')?.resultNumbers).toEqual(['36', '76']);
   });
 });

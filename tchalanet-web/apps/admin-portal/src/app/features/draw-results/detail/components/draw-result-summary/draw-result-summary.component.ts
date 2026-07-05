@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import { ConsoleFact, ConsoleFactsComponent } from '@tch/web/console';
+import { ConsoleFact, ConsoleFactsComponent, consoleDrawIdentity } from '@tch/web/console';
 
 import { DrawResultView } from '../../../data-access/admin-draw-results-api.service';
-import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../../shared/lottery/lottery-assets';
 
 /** Tab « Résultats » — présentation seule du résultat appliqué et du tirage lié. */
 @Component({
@@ -19,13 +18,14 @@ export class DrawResultSummaryComponent {
   readonly resultFacts = input.required<readonly ConsoleFact[]>();
   readonly linkedDrawFacts = input.required<readonly ConsoleFact[]>();
 
-  readonly logo = computed(() => lotteryLogoForSlot(this.result().slotKey ?? this.result().provider));
-  readonly providerCode = computed(
-    () =>
-      lotteryProviderCodeFromSlot(this.result().slotKey ?? undefined)?.toUpperCase() ??
-      this.result().provider?.toUpperCase() ??
-      this.result().channelCode?.toUpperCase() ??
-      '—',
-  );
+  readonly identity = computed(() => consoleDrawIdentity({
+    providerCode: this.result().provider,
+    channelCode: this.result().channelCode,
+    channelName: this.result().channelName,
+    slotKey: this.result().slotKey,
+    slotLabel: this.result().slotLabel,
+  }));
+  readonly logo = computed(() => this.identity().providerLogoUrl);
+  readonly providerCode = computed(() => this.identity().providerCode ?? '—');
   readonly numbers = computed(() => this.result().numbers ?? []);
 }

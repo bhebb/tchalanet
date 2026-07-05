@@ -7,11 +7,11 @@ import {
   ConsoleEntityDetailActionEvent,
   ConsoleEntityDetailComponent,
   ConsoleFact,
-  DrawCombinationRow,
+  DrawCombinationGameSection,
   consoleDrawResultQualityLabel,
   consoleDrawResultStatusLabel,
   consoleDrawResultStatusTone,
-  drawCombinationRowsFromResult,
+  drawCombinationGameSectionsFromResult,
 } from '@tch/web/console';
 
 import {
@@ -52,11 +52,11 @@ export class AdminDrawResultDetailPage implements OnInit {
   readonly errorTitle = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
-  /** Winning combinations per supported play option, derived from the drawn numbers. */
-  readonly combinationRows = computed<readonly DrawCombinationRow[]>(() => {
+  /** Winning combinations per supported game, derived from the drawn numbers. */
+  readonly combinationSections = computed<readonly DrawCombinationGameSection[]>(() => {
     const result = this.result();
     if (!result) return [];
-    return drawCombinationRowsFromResult(result);
+    return drawCombinationGameSectionsFromResult(result);
   });
 
   readonly rawResult = computed<string | null>(() => {

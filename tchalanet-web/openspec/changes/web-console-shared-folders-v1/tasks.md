@@ -11,7 +11,7 @@
       ticket details, print views, pricing/barèmes, and stats.
 - [ ] 0.4a Inventory dedicated game logo assets for Bòlèt, Maryaj, Maryaj gratis, Loto 3, Loto 4,
       and Loto 5, and confirm which game matrix surfaces should render them.
-- [ ] 0.5 Define the canonical display API names and placement for each stable technical term.
+- [x] 0.5 Define the canonical display API names and placement for each stable technical term.
 - [ ] 0.5a Define `consoleGameIdentity` / `consoleGameLogoUrl` so game matrix cards use logo +
       readable label and fall back to compact text only when the logo is unavailable.
 - [ ] 0.6 Define the domain bet glossary: game code, bet type, bet option, pattern meaning,
@@ -34,18 +34,18 @@
 ## 1. Move console-private shared code
 
 - [ ] 1.1 Move reusable admin/platform console helpers and components into `libs/web/console`.
-- [ ] 1.2 Add or update `libs/web/console` public exports.
+- [x] 1.2 Add or update `libs/web/console` public exports.
 - [ ] 1.3 Update admin-portal imports to use the new ownership boundary.
 - [ ] 1.4 Update platform-portal imports to use the new ownership boundary.
 - [ ] 1.5 Remove empty app-local shared folders left by the move.
 - [ ] 1.6 Consolidate duplicated lottery/provider/result-slot helpers currently living under
       admin/platform local shared folders.
-- [ ] 1.7 Introduce `consoleDrawIdentity`, `consoleDrawChannelIdentity`, and
+- [x] 1.7 Introduce `consoleDrawIdentity`, `consoleDrawChannelIdentity`, and
       `consoleResultSlotIdentity` builders that derive typed identities from code/result-slot/provider
       data and treat legacy `draw_channel.name` as fallback or tenant override.
 - [ ] 1.8 Ensure draw/channel/result-slot labels are read from identity fields instead of broad
       string formatter helpers.
-- [ ] 1.9 Introduce a structured draw identity model with provider short/long labels,
+- [x] 1.9 Introduce a structured draw identity model with provider short/long labels,
       provider logo, channel short/long labels, slot short/long labels, draw date, official/provider
       date/time, local/tenant date/time, timezone labels, and stable code fallback.
 - [ ] 1.10 Move duplicated Haiti lot provider mapping from admin/platform shared folders into
@@ -60,7 +60,7 @@
 - [ ] 2.2 Avoid moving app-specific page placeholders or feature-owned dialog orchestration unless
       reuse/ownership is clear.
 - [ ] 2.3 Keep `libs/shared-assets` and `libs/shared-config` unchanged.
-- [ ] 2.4 Keep stable technical-code labels deterministic and local to `@tch/web/console`; use i18n
+- [x] 2.4 Keep stable technical-code labels deterministic and local to `@tch/web/console`; use i18n
       only for user-facing copy that is not a stable technical term.
 - [ ] 2.5 Ensure print, ticket detail, draw, draw result, draw channel, pricing, and stats surfaces
       can all use the same helpers/pipes instead of local mappings.
@@ -70,7 +70,7 @@
       screenshots/examples.
 - [x] 2.6b Do not show settlement variants such as 3-way/6-way/12-way/24-way in seller/POS or
       customer receipt flows by default.
-- [ ] 2.7 Do not make the visible `Haïti • ...` draw-channel seed names canonical in web display
+- [x] 2.7 Do not make the visible `Haïti • ...` draw-channel seed names canonical in web display
       helpers; prefer stable codes and structured result-slot/provider fields.
 - [ ] 2.8 Keep public portal copy/i18n ownership intact while aligning public result display with the
       shared draw identity rules; do not move public-only page composition into `@tch/web/console`.
@@ -95,7 +95,7 @@
       the same identity semantics as the public list.
 - [ ] 3.5 Replace admin generated-draw mappings to use the shared identity helper and remove
       app-local lottery asset imports.
-- [ ] 3.6 Replace admin draw-results mappings to remove local `PROVIDER_LABELS`, `SLOT_LABELS`, and
+- [x] 3.6 Replace admin draw-results mappings to remove local `PROVIDER_LABELS`, `SLOT_LABELS`, and
       legacy `channelName` as the preferred title.
 - [ ] 3.6a Update admin draw-results rows to populate official/provider date/time and local/tenant
       date/time separately; show the local date when timezone conversion crosses a day boundary.
@@ -124,7 +124,7 @@
 
 ## 4. Validation
 
-- [ ] 4.1 Run `pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit`.
+- [x] 4.1 Run `pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit`.
 - [ ] 4.2 Run `pnpm exec tsc -p apps/platform-portal/tsconfig.app.json --noEmit`.
 - [x] 4.3 Run focused tests/lint for touched libraries when available.
 - [x] 4.4 Add focused unit tests for new or moved display helpers/pipes.

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { DrawCombinationRow } from '@tch/web/console';
+import { DrawCombinationGameSection } from '@tch/web/console';
 
 /** Tab « Combinaisons & règles » — présentation seule des numéros gagnants par option supportée. */
 @Component({
@@ -13,5 +13,5 @@ import { DrawCombinationRow } from '@tch/web/console';
   styleUrls: ['./draw-result-combinations.component.scss'],
 })
 export class DrawResultCombinationsComponent {
-  readonly rows = input.required<readonly DrawCombinationRow[]>();
+  readonly rows = input.required<readonly DrawCombinationGameSection[]>();
 }

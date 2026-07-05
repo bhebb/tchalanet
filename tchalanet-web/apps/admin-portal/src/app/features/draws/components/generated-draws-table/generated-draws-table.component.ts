@@ -268,6 +268,10 @@ export class GeneratedDrawsTableComponent {
       && (draw.numbers?.length ?? 0) === 0;
   }
 
+  private hasResult(draw: GeneratedDrawView): boolean {
+    return !this.hasNoResult(draw);
+  }
+
   private isManualResultDue(draw: GeneratedDrawView): boolean {
     const scheduledAt = generatedDrawDateTimeToEpochMs(draw.scheduledAt, draw.timezone);
     if (scheduledAt == null) return false;
@@ -312,6 +316,14 @@ export class GeneratedDrawsTableComponent {
 
   private consoleActions(draw: GeneratedDrawView): readonly ConsoleRowAction[] {
     const actions: ConsoleRowAction[] = [this.primaryAction(draw)];
+    if (this.hasResult(draw)) {
+      actions.push({
+        id: 'viewResult',
+        label: 'Voir résultat',
+        icon: 'fact_check',
+        variant: 'icon',
+      });
+    }
     for (const action of this.lifecycleActions(draw)) {
       actions.push({
         id: `lifecycle:${action}`,
@@ -331,7 +343,8 @@ export class GeneratedDrawsTableComponent {
           ? { id: 'enterResult', label: 'Saisir résultat', icon: 'edit_note', tone: 'primary' }
           : { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
       case 'CONFIRMED':
-        return { id: 'viewResult', label: 'Voir résultat', icon: 'fact_check' };
+      case 'PROVISIONAL':
+        return { id: 'viewDetails', label: 'Voir détails', icon: 'visibility' };
       case 'SOURCE_ERROR':
         return this.canEnterManualResult(draw)
           ? { id: 'verifySource', label: 'Vérifier', icon: 'warning', tone: 'danger' }
