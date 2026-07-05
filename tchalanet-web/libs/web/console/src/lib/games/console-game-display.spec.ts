@@ -1,6 +1,7 @@
 import {
   ConsoleSettlementLine,
   consoleBetVariationRows,
+  consoleGameLogoUrl,
   consoleGameName,
   consoleSettlementVariantLabel,
 } from './console-game-display';
@@ -9,6 +10,21 @@ describe('consoleGameName', () => {
   it('renders Bòlèt as the canonical Haiti game label', () => {
     expect(consoleGameName('HT_BOLET')).toBe('Bòlèt');
     expect(consoleGameName('BORLETTE')).toBe('Bòlèt');
+  });
+});
+
+describe('consoleGameLogoUrl', () => {
+  it('maps supported Haiti game codes to shared SVG assets', () => {
+    expect(consoleGameLogoUrl('HT_BOLET')).toBe('/assets/images/games/ht-bolet.svg');
+    expect(consoleGameLogoUrl('HT_MARYAJ')).toBe('/assets/images/games/ht-maryaj.svg');
+    expect(consoleGameLogoUrl('HT_MARYAJ_GRATUIT')).toBe('/assets/images/games/ht-maryaj-gratis.svg');
+    expect(consoleGameLogoUrl('HT_LOTO3')).toBe('/assets/images/games/ht-loto-3.svg');
+    expect(consoleGameLogoUrl('HT_LOTO4')).toBe('/assets/images/games/ht-loto-4.svg');
+    expect(consoleGameLogoUrl('HT_LOTO5')).toBe('/assets/images/games/ht-loto-5.svg');
+  });
+
+  it('returns null for unknown game codes so components can use their fallback', () => {
+    expect(consoleGameLogoUrl('UNKNOWN_GAME')).toBeNull();
   });
 });
 

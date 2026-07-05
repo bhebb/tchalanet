@@ -71,6 +71,18 @@ describe('consoleDrawIdentity', () => {
     expect(identity.channelShortName).toBe('Numbers');
     expect(identity.channelName).toBe('New York · Numbers');
   });
+
+  it('turns matrix technical slot/channel codes into product labels', () => {
+    const identity = consoleDrawIdentity({
+      providerCode: 'GA',
+      slotKey: 'HT_GA_LATE',
+      channelCode: 'GA_LATE',
+    });
+
+    expect(identity.channelShortName).toBe('Late');
+    expect(identity.channelName).toBe('Georgia · Late');
+    expect(identity.slotLabel).toBe('Georgia · Late');
+  });
 });
 
 describe('lottery asset helpers', () => {

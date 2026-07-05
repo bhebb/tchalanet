@@ -8,6 +8,7 @@ import { TchSectionError } from '@tch/ui/components';
 import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import { TchErrorViewModel } from '@tch/web/errors';
 import {
+  ConsoleGameLogoUrlPipe,
   ConsoleGameLogoTextPipe,
   ConsoleGameNamePipe,
   consoleGameName,
@@ -37,6 +38,7 @@ export interface MatrixGameActionEvent {
     TranslatePipe,
     TchSectionError,
     TchStatusBadge,
+    ConsoleGameLogoUrlPipe,
     ConsoleGameLogoTextPipe,
     ConsoleGameNamePipe,
   ],

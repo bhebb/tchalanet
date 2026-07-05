@@ -6,7 +6,11 @@
 >
   <div class="matrix-game__header">
     <span class="matrix-game__logo" aria-hidden="true">
-      {{ gameVm.gameCode | consoleGameLogoText:gameVm.displayName }}
+      @if (gameVm.gameCode | consoleGameLogoUrl; as logoUrl) {
+        <img [src]="logoUrl" [alt]="''" />
+      } @else {
+        {{ gameVm.gameCode | consoleGameLogoText:gameVm.displayName }}
+      }
     </span>
     @if (mode() === 'offered') {
       <tch-status-badge

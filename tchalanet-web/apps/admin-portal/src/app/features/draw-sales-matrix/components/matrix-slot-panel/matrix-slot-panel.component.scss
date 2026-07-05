@@ -1,9 +1,26 @@
+.matrix-slot-panel__header {
+  height: auto;
+  min-height: 4.75rem;
+  padding-block: 0.625rem;
+
+  &.mat-expanded {
+    height: auto;
+  }
+}
+
+:host ::ng-deep .matrix-slot-panel__header .mat-content {
+  align-items: center;
+  overflow: visible;
+  min-width: 0;
+}
+
 .matrix-slot-header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
   min-width: 0;
+  width: 100%;
 
   &__meta {
     display: flex;

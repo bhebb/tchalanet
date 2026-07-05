@@ -20,10 +20,8 @@ export class ConsoleDrawSlotIdentityComponent {
 
   readonly subtitle = computed(() => {
     const view = this.identity();
-    const parts = [
-      firstText(view.channelCode, view.slotKey),
-      view.slotLabel && view.slotLabel !== this.title() ? view.slotLabel : null,
-    ].filter(Boolean);
+    const title = this.title();
+    const parts = displayLabels(title, view.channelName, view.slotLabel, view.providerName);
     return parts.length > 0 ? parts.join(' · ') : null;
   });
 
@@ -61,4 +59,19 @@ function firstText(...values: readonly (string | null | undefined)[]): string | 
     if (text) return text;
   }
   return null;
+}
+
+function displayLabels(currentTitle: string, ...values: readonly (string | null | undefined)[]): string[] {
+  const labels: string[] = [];
+  for (const value of values) {
+    const text = value?.trim();
+    if (!text || text === currentTitle || isTechnicalCode(text)) continue;
+    const alreadyCovered = labels.some(label => label === text || label.includes(text) || text.includes(label));
+    if (!alreadyCovered) labels.push(text);
+  }
+  return labels;
+}
+
+function isTechnicalCode(value: string): boolean {
+  return /^[A-Z]{2,}(?:_[A-Z0-9]+)+$/.test(value) || /^HT_[A-Z0-9_]+$/.test(value);
 }

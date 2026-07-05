@@ -4,6 +4,7 @@ import {
   consoleBetLabel,
   consoleBetOptionLabel,
   consoleBetTypeLabel,
+  consoleGameLogoUrl,
   consoleGameLogoText,
   consoleGameName,
 } from './console-game-display';
@@ -25,6 +26,16 @@ export class ConsoleGameNamePipe implements PipeTransform {
 export class ConsoleGameLogoTextPipe implements PipeTransform {
   transform(gameCode: string, displayName?: string | null): string {
     return consoleGameLogoText(gameCode, displayName);
+  }
+}
+
+@Pipe({
+  name: 'consoleGameLogoUrl',
+  standalone: true,
+})
+export class ConsoleGameLogoUrlPipe implements PipeTransform {
+  transform(gameCode: string): string | null {
+    return consoleGameLogoUrl(gameCode);
   }
 }
 

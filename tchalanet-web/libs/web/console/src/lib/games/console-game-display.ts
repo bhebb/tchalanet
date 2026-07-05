@@ -1,3 +1,5 @@
+import { TCH_GAME_ASSET_BASE_PATH } from '@tch/shared-assets';
+
 const GAME_LABELS: Record<string, string> = {
   BOLET: 'Bòlèt',
   BORLETTE: 'Bòlèt',
@@ -15,6 +17,7 @@ const GAME_LABELS: Record<string, string> = {
 };
 
 const GAME_LOGO_TEXT: Record<string, string> = {
+  BOLET: 'Bo',
   BORLETTE: 'Bo',
   HT_BOLET: 'Bo',
   HT_BORLETTE: 'Bo',
@@ -27,6 +30,31 @@ const GAME_LOGO_TEXT: Record<string, string> = {
   HT_LOTO4: 'L4',
   LOTO5: 'L5',
   HT_LOTO5: 'L5',
+};
+
+const GAME_LOGO_ASSETS: Record<string, string> = {
+  BOLET: 'ht-bolet.svg',
+  BORLETTE: 'ht-bolet.svg',
+  HT_BOLET: 'ht-bolet.svg',
+  HT_BORLETTE: 'ht-bolet.svg',
+  MARYAJ: 'ht-maryaj.svg',
+  HT_MARYAJ: 'ht-maryaj.svg',
+  MARYAJ_GRATUIT: 'ht-maryaj-gratis.svg',
+  MARYAJ_GRATIS: 'ht-maryaj-gratis.svg',
+  HT_MARYAJ_GRATUIT: 'ht-maryaj-gratis.svg',
+  HT_MARYAJ_GRATIS: 'ht-maryaj-gratis.svg',
+  LOTO3: 'ht-loto-3.svg',
+  LOTO_3: 'ht-loto-3.svg',
+  HT_LOTO3: 'ht-loto-3.svg',
+  HT_LOTO_3: 'ht-loto-3.svg',
+  LOTO4: 'ht-loto-4.svg',
+  LOTO_4: 'ht-loto-4.svg',
+  HT_LOTO4: 'ht-loto-4.svg',
+  HT_LOTO_4: 'ht-loto-4.svg',
+  LOTO5: 'ht-loto-5.svg',
+  LOTO_5: 'ht-loto-5.svg',
+  HT_LOTO5: 'ht-loto-5.svg',
+  HT_LOTO_5: 'ht-loto-5.svg',
 };
 
 const BET_TYPE_LABELS: Record<string, string> = {
@@ -177,6 +205,11 @@ export function consoleGameLogoText(gameCode: string, displayName?: string | nul
   return GAME_LOGO_TEXT[gameCode] ?? initials(consoleGameName(gameCode, displayName));
 }
 
+export function consoleGameLogoUrl(gameCode: string): string | null {
+  const asset = GAME_LOGO_ASSETS[normalizeGameCode(gameCode)];
+  return asset ? `${TCH_GAME_ASSET_BASE_PATH}/${asset}` : null;
+}
+
 export function consoleBetTypeLabel(betType: string): string {
   return BET_TYPE_LABELS[normalizeBetType(betType)] ?? readableCode(betType);
 }
@@ -198,6 +231,14 @@ function normalizeBetType(value: string): string {
     .toUpperCase()
     .replace(/\s+/g, '_')
     .replace(/\*/g, 'STAR')
+    .replace(/-/g, '_');
+}
+
+function normalizeGameCode(value: string): string {
+  return value
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '_')
     .replace(/-/g, '_');
 }
 
