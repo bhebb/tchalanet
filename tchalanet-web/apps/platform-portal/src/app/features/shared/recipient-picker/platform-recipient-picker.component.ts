@@ -3,11 +3,14 @@ import { TchMultiSearchSelect, TchSearchOption, TchSearchSelect } from '@tch/ui/
 import { Observable, forkJoin, map } from 'rxjs';
 
 import {
-  PlatformSuperAdminView,
   PlatformTenantsApi,
   TenantAdminView,
   TenantSummaryView,
 } from '../../tenants/data-access/platform-tenants-api.service';
+import {
+  PlatformSuperAdminsApi,
+  PlatformSuperAdminView,
+} from '../../super-admins/data-access/platform-super-admins-api.service';
 import {
   PlatformRecipientSellerTerminalRow,
   PlatformRecipientSellerTerminalsApi,
@@ -49,6 +52,7 @@ export interface PlatformRecipientPickerSelection {
 })
 export class PlatformRecipientPickerComponent {
   private readonly tenantsApi = inject(PlatformTenantsApi);
+  private readonly superAdminsApi = inject(PlatformSuperAdminsApi);
   private readonly sellerTerminalApi = inject(PlatformRecipientSellerTerminalsApi);
 
   readonly selectionChange = output<PlatformRecipientPickerSelection>();
@@ -66,7 +70,7 @@ export class PlatformRecipientPickerComponent {
     const tenantId = tenant?.id ?? tenant?.tenantId ?? '';
     const normalized = query.trim().toLowerCase();
 
-    const superAdmins$ = this.tenantsApi.listSuperAdmins().pipe(
+    const superAdmins$ = this.superAdminsApi.listSuperAdmins().pipe(
       map(admins => admins
         .map(admin => this.recipientSearchOption(this.superAdminRecipient(admin)))
         .filter(option => this.matchesQuery(option, normalized))),

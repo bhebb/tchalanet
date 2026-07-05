@@ -92,7 +92,7 @@ Voir flow complet : [`tenant-onboarding`](../../../../../../tchalanet-docs/docs/
 
 **Preview** : retourne domaines provisionnés, warnings, données non copiées, readiness attendue. Aucune donnée écrite.
 
-**Provision** : orchestre 11 domaines dans l'ordre (tenant base, identity, theme, settings, i18n, games, pricing, draw channels, promotions, limitpolicy, pagemodels). Retourne statut par domaine + readiness + next steps.
+**Provision** : orchestre 12 domaines dans l'ordre (tenant base, identity, theme, settings, i18n, games, pricing, draw channels, promotions, limitpolicy, subscription, pagemodels). Retourne statut par domaine + readiness + next steps.
 
 ---
 

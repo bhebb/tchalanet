@@ -169,6 +169,18 @@
               <mat-hint>{{ 'platform.tenantProvisioning.hint.initialAdminEmail' | translate }}</mat-hint>
             </mat-form-field>
           </tch-admin-section-card>
+
+          <tch-admin-section-card
+            [title]="'platform.tenantProvisioning.section.plan' | translate"
+            icon="workspace_premium"
+          >
+            <tch-tenant-plan-picker
+              [plans]="plans()"
+              [selected]="form.controls.planCode.value"
+              [loading]="plansLoading()"
+              (selectedChange)="selectPlan($event)"
+            />
+          </tch-admin-section-card>
       </div>
 
       <div aside>

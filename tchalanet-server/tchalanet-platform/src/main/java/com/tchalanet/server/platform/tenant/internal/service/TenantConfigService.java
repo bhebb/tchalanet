@@ -94,10 +94,11 @@ public class TenantConfigService {
                 request.name(),
                 request.type(),
                 request.timezone(),
-                request.currency(),
-                addressId,
-                request.activeThemeId(),
-                tenantInternalJson);
+	                request.currency(),
+	                addressId,
+	                request.activeThemeId(),
+	                request.defaultCommissionRate(),
+	                tenantInternalJson);
         if (Boolean.TRUE.equals(request.activate())) {
             tenant = tenant.activate(now);
         }

@@ -8,7 +8,7 @@ import { TchConfirmDialog, TchConfirmDialogData, TchStatusBadge } from '@tch/ui/
 import type { BadgeStatus } from '@tch/ui/components';
 import { ConsolePersonIdentitySummaryComponent } from '@tch/web/console';
 
-import { adminUserStatusBadge } from '../platform-admin-user.utils';
+import { adminUserStatusBadge } from './platform-admin-user.utils';
 import type { AdminUserCardData } from './admin-user-card.model';
 
 @Component({

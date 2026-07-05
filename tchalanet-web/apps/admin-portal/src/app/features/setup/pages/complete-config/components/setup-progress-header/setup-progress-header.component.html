@@ -1,0 +1,15 @@
+<div class="setup__progress-block">
+  <div class="setup__progress-header">
+    <span class="material-symbols-outlined setup__progress-icon">
+      {{ complete() ? 'check_circle' : 'pending' }}
+    </span>
+    <div>
+      <p class="setup__progress-title">
+        {{ 'admin.setup.progress.title' | translate : { completed: completed(), total: total() } }}
+      </p>
+      <p class="setup__progress-subtitle">{{ 'admin.setup.progress.subtitle' | translate }}</p>
+    </div>
+    <span class="setup__progress-pct">{{ pct() }}%</span>
+  </div>
+  <mat-progress-bar mode="determinate" [value]="pct()" />
+</div>

@@ -72,7 +72,11 @@
     }
 
     <div class="tenant-detail">
-      <mat-tab-group animationDuration="150ms" class="tenant-detail__tabs" (selectedIndexChange)="$event === 1 && onAdminsTabSelected()">
+      <mat-tab-group
+        animationDuration="150ms"
+        class="tenant-detail__tabs"
+        (selectedIndexChange)="onTabSelected($event)"
+      >
 
         <!-- ═══ APERÇU ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.overview' | translate">
@@ -436,11 +440,70 @@
         <!-- ═══ ABONNEMENT ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.subscription' | translate">
           <div class="tenant-detail__tab-content">
-            <tch-admin-empty-state
-              icon="workspace_premium"
-              [title]="'common.placeholder.title' | translate"
-              [message]="'common.placeholder.message' | translate"
-            />
+            @if (subscriptionLoading()) {
+              <tch-loading [label]="'platform.tenants.detail.subscription.loading' | translate" />
+            } @else if (subscriptionError()) {
+              <tch-error-panel [title]="subscriptionError()!" />
+            } @else {
+              <tch-admin-section-card
+                [title]="'platform.tenants.detail.subscription.title' | translate"
+                icon="workspace_premium"
+              >
+                @if (subscription(); as sub) {
+                  <dl class="tenant-detail__facts">
+                    <div>
+                      <dt>{{ 'platform.tenants.detail.subscription.field.plan' | translate }}</dt>
+                      <dd>{{ sub.planCode }}</dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'platform.tenants.detail.subscription.field.status' | translate }}</dt>
+                      <dd><tch-status-badge [status]="subscriptionStatusBadge(sub.status)">{{ sub.status }}</tch-status-badge></dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'platform.tenants.detail.subscription.field.startedAt' | translate }}</dt>
+                      <dd>{{ sub.startedAt | date : 'medium' }}</dd>
+                    </div>
+                    @if (sub.endsAt) {
+                      <div>
+                        <dt>{{ 'platform.tenants.detail.subscription.field.endsAt' | translate }}</dt>
+                        <dd>{{ sub.endsAt | date : 'medium' }}</dd>
+                      </div>
+                    }
+                  </dl>
+                } @else {
+                  <p class="tenant-detail__empty-hint">{{ 'platform.tenants.detail.subscription.empty' | translate }}</p>
+                }
+
+                @if (!showPlanPicker()) {
+                  <button mat-stroked-button type="button" (click)="openPlanPicker()">
+                    {{ (subscription() ? 'platform.tenants.detail.subscription.action.change' : 'platform.tenants.detail.subscription.action.apply') | translate }}
+                  </button>
+                } @else {
+                  @if (applyPlanError()) {
+                    <tch-error-panel [title]="applyPlanError()!" />
+                  }
+                  <tch-tenant-plan-picker
+                    [plans]="plans()"
+                    [selected]="selectedPlanCode()"
+                    (selectedChange)="selectPlan($event)"
+                  />
+                  <div class="tenant-detail__form-actions">
+                    <button mat-button type="button" (click)="cancelPlanPicker()">
+                      {{ 'common.cancel' | translate }}
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      type="button"
+                      [disabled]="!selectedPlanCode() || applyingPlan()"
+                      (click)="applyPlan()"
+                    >
+                      {{ 'platform.tenants.detail.subscription.action.confirm' | translate }}
+                    </button>
+                  </div>
+                }
+              </tch-admin-section-card>
+            }
           </div>
         </mat-tab>
 

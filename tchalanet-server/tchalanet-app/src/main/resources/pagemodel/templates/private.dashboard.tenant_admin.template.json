@@ -22,7 +22,7 @@
       "defaultLang": "fr"
     },
     "theme": {
-      "presetId": "tchalanet_default",
+      "presetId": "tchalanet",
       "mode": "light",
       "density": 0
     },

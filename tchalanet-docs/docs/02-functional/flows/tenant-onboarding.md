@@ -77,7 +77,10 @@ POST /platform/tenant-onboarding/provision
   10. core.limitpolicy
       → Templates de limit policy selon profil
 
-  11. core.pagemodel
+  11. core.subscription
+      → Plan DEMO appliqué par défaut pour la V1, sauf plan explicite
+
+  12. core.pagemodel
       → PageModels dupliqués depuis templates globaux
 
   → Résultat : statut par domaine + readiness + next steps

@@ -245,6 +245,24 @@
         "address": {
           "empty": "Adresse non renseignée."
         },
+        "subscription": {
+          "title": "Subscription",
+          "loading": "Loading subscription…",
+          "error": "Unable to load the subscription.",
+          "empty": "No plan applied to this tenant.",
+          "applyError": "Unable to apply the plan.",
+          "field": {
+            "plan": "Plan",
+            "status": "Status",
+            "startedAt": "Started on",
+            "endsAt": "Ends on"
+          },
+          "action": {
+            "apply": "Apply a plan",
+            "change": "Change plan",
+            "confirm": "Confirm"
+          }
+        },
         "admins": {
           "loading": "Loading administrators…",
           "error": "Unable to load administrators.",
@@ -392,7 +410,13 @@
         "regional": "Regional settings",
         "commercial": "Commercial settings",
         "profile": "Provisioning profile",
-        "initialAdmin": "Initial admin"
+        "initialAdmin": "Initial admin",
+        "plan": "Tenant plan"
+      },
+      "plan": {
+        "loading": "Loading plans...",
+        "empty": "No active plan available.",
+        "default": "Default"
       },
       "field": {
         "code": "Tenant code",
@@ -434,6 +458,7 @@
         "existingUserAttached": "An existing user was attached as the tenant administrator.",
         "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
         "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
+        "noPlanSelected": "No plan selected. The tenant will be created without an active subscription — apply a plan before creating seller-terminals.",
         "fallback": "A configuration point needs verification."
       },
       "identityCard": {
@@ -470,7 +495,8 @@
         "promotionsTemplates": "Promotion templates",
         "limitsTemplates": "Limit templates",
         "demoUsers": "Demo users",
-        "demoSellerTerminals": "Demo seller-terminals"
+        "demoSellerTerminals": "Demo seller-terminals",
+        "subscription": "Subscription"
       },
       "status": {
         "created": "Created",
@@ -479,6 +505,7 @@
         "defaultLottery": "Default lottery",
         "defaultHaiti": "Default Haiti",
         "templatesAvailable": "Templates available",
+        "planApplied": "Plan applied",
         "none": "None",
         "planned": "Planned",
         "expected": "Expected",

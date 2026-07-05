@@ -1,0 +1,86 @@
+// `display: contents` so `.setup__card` is the actual CSS grid item
+// (matches the pre-extraction markup where the card div was the direct grid child).
+:host {
+  display: contents;
+}
+
+.setup__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border-radius: var(--tch-radius-md, 0.75rem);
+  border: 1.5px solid var(--tch-color-outline-variant);
+  background: var(--tch-color-surface);
+  transition: border-color 0.2s;
+
+  &--ready {
+    border-color: var(--tch-color-tertiary);
+    background: color-mix(in srgb, var(--tch-color-tertiary) 5%, var(--tch-color-surface));
+  }
+
+  &--missing {
+    border-color: var(--tch-color-error);
+  }
+}
+
+.setup__card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.setup__card-domain-icon {
+  color: var(--tch-color-on-surface-variant);
+}
+
+.setup__card-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--tch-color-on-surface);
+  flex: 1;
+}
+
+.setup__card-badge {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 99px;
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface-variant);
+  font-weight: 500;
+  white-space: nowrap;
+
+  &--blocking {
+    background: color-mix(in srgb, var(--tch-color-error) 12%, transparent);
+    color: var(--tch-color-error);
+  }
+
+  &--required {
+    background: color-mix(in srgb, var(--tch-color-primary) 10%, transparent);
+    color: var(--tch-color-primary);
+  }
+}
+
+.setup__card-body {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tch-color-on-surface-variant);
+  flex: 1;
+
+  &--hint { font-style: italic; }
+  &--address { font-size: 0.8125rem; }
+}
+
+.setup__card-error {
+  display: block;
+  margin: 0.25rem 0;
+}
+
+.setup__card-cta {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.status--ready   { color: var(--tch-color-tertiary); }
+.status--missing { color: var(--tch-color-error); }
+.status--unknown { color: var(--tch-color-outline); }

@@ -245,6 +245,24 @@
         "address": {
           "empty": "Adresse non renseignée."
         },
+        "subscription": {
+          "title": "Abonnement",
+          "loading": "Chargement de l'abonnement…",
+          "error": "Impossible de charger l'abonnement.",
+          "empty": "Aucun plan appliqué à ce tenant.",
+          "applyError": "Impossible d'appliquer le plan.",
+          "field": {
+            "plan": "Plan",
+            "status": "Statut",
+            "startedAt": "Débuté le",
+            "endsAt": "Se termine le"
+          },
+          "action": {
+            "apply": "Appliquer un plan",
+            "change": "Changer de plan",
+            "confirm": "Confirmer"
+          }
+        },
         "admins": {
           "loading": "Chargement des administrateurs…",
           "error": "Erreur lors du chargement des administrateurs.",
@@ -459,7 +477,13 @@
         "regional": "Paramètres régionaux",
         "commercial": "Paramètres commerciaux",
         "profile": "Profil de provisioning",
-        "initialAdmin": "Admin initial"
+        "initialAdmin": "Admin initial",
+        "plan": "Plan du tenant"
+      },
+      "plan": {
+        "loading": "Chargement des plans...",
+        "empty": "Aucun plan actif disponible.",
+        "default": "Par défaut"
       },
       "field": {
         "code": "Code du tenant",
@@ -501,6 +525,7 @@
         "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du tenant.",
         "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du tenant.",
         "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
+        "noPlanSelected": "Aucun plan sélectionné. Le tenant sera créé sans abonnement actif — appliquez un plan avant de créer des seller-terminals.",
         "fallback": "Un point de configuration demande une vérification."
       },
       "identityCard": {
@@ -537,7 +562,8 @@
         "promotionsTemplates": "Modèles de promotions",
         "limitsTemplates": "Modèles de limites",
         "demoUsers": "Utilisateurs démo",
-        "demoSellerTerminals": "Seller-terminals de démo"
+        "demoSellerTerminals": "Seller-terminals de démo",
+        "subscription": "Abonnement"
       },
       "status": {
         "created": "Créé",
@@ -546,6 +572,7 @@
         "defaultLottery": "Loterie par défaut",
         "defaultHaiti": "Haïti par défaut",
         "templatesAvailable": "Modèles disponibles",
+        "planApplied": "Plan appliqué",
         "none": "Aucun",
         "planned": "Prévu",
         "expected": "Attendu",

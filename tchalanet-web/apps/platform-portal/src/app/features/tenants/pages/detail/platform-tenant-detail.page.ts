@@ -39,11 +39,17 @@ import {
   TenantDeliveryChannelConfig,
   TenantDetailView,
   TenantInternalSettings,
+  TenantReceiptConfig,
+} from '../../data-access/platform-tenants-api.service';
+import {
+  PlanSummaryView,
+  SubscriptionView,
   TenantProvisioningProfile,
   TenantReadinessStatus,
-  TenantReceiptConfig,
   TenantStatus,
-} from '../../data-access/platform-tenants-api.service';
+} from '../../data-access/platform-tenant-contracts';
+import { PlatformSubscriptionApi } from '../../data-access/platform-subscription-api.service';
+import { TenantPlanPickerComponent } from '../../components/tenant-plan-picker/tenant-plan-picker.component';
 
 type ProblemLike = { title?: string; detail?: string; traceId?: string; errorId?: string; requestId?: string };
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
@@ -63,6 +69,7 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
     AdminEmptyStateComponent,
     TchIdentityCardComponent,
     ConsoleAddressSummaryComponent,
+    TenantPlanPickerComponent,
     TchLoading,
     TchErrorPanel,
     TchStatusBadge,
@@ -80,6 +87,7 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
 })
 export class PlatformTenantDetailPage implements OnInit {
   private readonly api = inject(PlatformTenantsApi);
+  private readonly subscriptionApi = inject(PlatformSubscriptionApi);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
@@ -108,6 +116,16 @@ export class PlatformTenantDetailPage implements OnInit {
   readonly activateError = signal<string | null>(null);
   readonly suspending = signal(false);
   readonly suspendError = signal<string | null>(null);
+
+  readonly subscriptionLoading = signal(false);
+  readonly subscriptionError = signal<string | null>(null);
+  readonly subscriptionLoaded = signal(false);
+  readonly subscription = signal<SubscriptionView | null>(null);
+  readonly plans = signal<readonly PlanSummaryView[]>([]);
+  readonly showPlanPicker = signal(false);
+  readonly selectedPlanCode = signal<string | null>(null);
+  readonly applyingPlan = signal(false);
+  readonly applyPlanError = signal<string | null>(null);
 
   readonly adminsColumns = ['displayName', 'email', 'status', 'createdAt'];
 
@@ -236,6 +254,83 @@ export class PlatformTenantDetailPage implements OnInit {
         this.adminsLoading.set(false);
       },
     });
+  }
+
+  onTabSelected(index: number): void {
+    if (index === 1) this.onAdminsTabSelected();
+    if (index === 3) this.onSubscriptionTabSelected();
+  }
+
+  onSubscriptionTabSelected(): void {
+    if (this.subscriptionLoaded()) return;
+    const id = this.tenantId();
+    if (!id) return;
+    this.subscriptionLoading.set(true);
+    this.subscriptionError.set(null);
+    this.subscriptionApi.resolve(id).subscribe({
+      next: subscription => {
+        this.subscription.set(subscription);
+        this.subscriptionLoaded.set(true);
+        this.subscriptionLoading.set(false);
+        this.selectedPlanCode.set(subscription?.planCode ?? null);
+      },
+      error: (err: unknown) => {
+        const pd = this.problem(err);
+        this.subscriptionError.set(pd.title ?? this.translate.instant('platform.tenants.detail.subscription.error'));
+        this.subscriptionLoading.set(false);
+      },
+    });
+    this.subscriptionApi.listActivePlans().subscribe({
+      next: plans => this.plans.set(plans),
+      error: () => this.plans.set([]),
+    });
+  }
+
+  openPlanPicker(): void {
+    this.showPlanPicker.set(true);
+    this.applyPlanError.set(null);
+    this.selectedPlanCode.set(this.subscription()?.planCode ?? null);
+  }
+
+  cancelPlanPicker(): void {
+    this.showPlanPicker.set(false);
+    this.applyPlanError.set(null);
+  }
+
+  selectPlan(code: string): void {
+    this.selectedPlanCode.set(code);
+  }
+
+  applyPlan(): void {
+    const id = this.tenantId();
+    const code = this.selectedPlanCode();
+    if (!id || !code || this.applyingPlan()) return;
+    this.applyingPlan.set(true);
+    this.applyPlanError.set(null);
+    this.subscriptionApi.apply(id, code).subscribe({
+      next: () => {
+        this.applyingPlan.set(false);
+        this.showPlanPicker.set(false);
+        this.subscriptionLoaded.set(false);
+        this.onSubscriptionTabSelected();
+      },
+      error: (err: unknown) => {
+        const pd = this.problem(err);
+        this.applyPlanError.set(pd.title ?? this.translate.instant('platform.tenants.detail.subscription.applyError'));
+        this.applyingPlan.set(false);
+      },
+    });
+  }
+
+  subscriptionStatusBadge(status: string | null | undefined): BadgeStatus {
+    const map: Record<string, BadgeStatus> = {
+      ACTIVE: 'ready',
+      TRIAL: 'pending',
+      SUSPENDED: 'warning',
+      CANCELED: 'blocked',
+      EXPIRED: 'missing',
+    };
+    return (status ? map[status] : null) ?? 'missing';
   }
 
   activate(): void {

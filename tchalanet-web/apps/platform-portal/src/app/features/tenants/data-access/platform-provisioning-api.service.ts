@@ -2,8 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { TchBackendClient } from '@tch/api';
 import { Observable } from 'rxjs';
 
-export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
-export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
+import {
+  TenantProvisioningProfile,
+  TenantReadinessView,
+  TenantType,
+} from './platform-tenant-contracts';
 
 export interface TenantProvisioningRequest {
   code: string;
@@ -15,6 +18,7 @@ export interface TenantProvisioningRequest {
   defaultCommissionRate: number;
   profile: TenantProvisioningProfile;
   initialAdminEmail?: string | null;
+  planCode?: string | null;
 }
 
 export interface TenantProvisioningPreviewView {
@@ -25,19 +29,30 @@ export interface TenantProvisioningPreviewView {
   expectedReadinessSections: string[];
 }
 
+export interface TenantProvisioningDomainStatuses {
+  tenant_identity: string;
+  pagemodels: string;
+  theme: string;
+  settings: string;
+  i18n: string;
+  games: string;
+  pricing: string;
+  draw_channels: string;
+  promotions_templates: string;
+  limits_templates: string;
+  subscription: string;
+}
+
 export interface TenantProvisioningResultView {
   tenantId: string;
   tenantCode: string;
   profile: TenantProvisioningProfile;
   defaultCommissionRate?: number;
-  domainStatuses: Record<string, string>;
+  domainStatuses: TenantProvisioningDomainStatuses;
   nextSteps: string[];
   warnings: string[];
-  readiness: {
-    status: 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
-    missingCount: number;
-    sections: Array<{ id: string; labelKey: string; status: string; route: string; issues: unknown[] }>;
-  };
+  appliedPlanCode?: string | null;
+  readiness: TenantReadinessView;
   initialAdminUserId?: string | null;
   initialAdminEmail?: string | null;
   initialAdminCredentialStatus?: string | null;

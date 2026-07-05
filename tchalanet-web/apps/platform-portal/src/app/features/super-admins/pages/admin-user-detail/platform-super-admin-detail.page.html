@@ -1,0 +1,36 @@
+<tch-admin-page-shell
+  [title]="cardUser()?.displayName || cardUser()?.email || ('platform.superAdmins.title' | translate)"
+  [description]="'platform.superAdmins.description' | translate"
+>
+  <div actions>
+    <button mat-stroked-button type="button" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ 'common.back' | translate }}
+    </button>
+  </div>
+
+  @if (actionNotice(); as notice) {
+    <tch-section-error
+      feedback
+      class="platform-super-admin-detail__notice"
+      [title]="notice.title"
+      [message]="notice.message"
+      severity="info"
+    />
+  }
+
+  @if (loading()) {
+    <tch-loading [label]="'common.loading' | translate" />
+  } @else if (error(); as errorVm) {
+    <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
+  } @else if (cardUser(); as u) {
+    <tch-platform-admin-user-card
+      [user]="u"
+      (activate)="activate()"
+      (block)="block()"
+      (archive)="archive()"
+      (resetPassword)="resetPassword()"
+      (assignTenant)="assignTenant()"
+    />
+  }
+</tch-admin-page-shell>

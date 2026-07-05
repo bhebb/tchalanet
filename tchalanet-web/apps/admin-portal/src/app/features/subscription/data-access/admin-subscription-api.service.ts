@@ -4,10 +4,9 @@ import { Observable } from 'rxjs';
 
 export type SubscriptionStatus =
   | 'ACTIVE'
-  | 'TRIALING'
-  | 'PAST_DUE'
-  | 'CANCELLED'
+  | 'TRIAL'
   | 'SUSPENDED'
+  | 'CANCELED'
   | 'EXPIRED';
 
 export interface SubscriptionView {
