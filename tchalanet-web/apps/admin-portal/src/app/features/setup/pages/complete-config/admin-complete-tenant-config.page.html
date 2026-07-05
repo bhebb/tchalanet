@@ -39,19 +39,6 @@
         />
       }
     </div>
-
-    <!-- Advanced settings link -->
-    <div class="setup__settings-link">
-      <mat-icon class="setup__settings-link__icon">settings</mat-icon>
-      <div class="setup__settings-link__body">
-        <span class="setup__settings-link__title">{{ 'admin.setup.advancedSettings.title' | translate }}</span>
-        <span class="setup__settings-link__desc">{{ 'admin.setup.advancedSettings.description' | translate }}</span>
-      </div>
-      <a mat-stroked-button routerLink="/app/admin/settings/config">
-        {{ 'admin.setup.advancedSettings.action' | translate }}
-      </a>
-    </div>
-
     <tch-setup-seller-terminal-card
       [unlocked]="canCreateSellerTerminal()"
       [blockingSteps]="setup()?.blockingSteps ?? []"

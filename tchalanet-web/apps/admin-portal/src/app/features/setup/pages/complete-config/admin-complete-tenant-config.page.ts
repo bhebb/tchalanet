@@ -32,9 +32,9 @@ import {
   SetupChecklistBodyVariant,
   SetupChecklistCardComponent,
   SetupChecklistStatus,
-} from './components/setup-checklist-card/setup-checklist-card.component';
-import { SetupProgressHeaderComponent } from './components/setup-progress-header/setup-progress-header.component';
-import { SetupSellerTerminalCardComponent } from './components/setup-seller-terminal-card/setup-seller-terminal-card.component';
+} from '../../components/setup-checklist-card/setup-checklist-card.component';
+import { SetupProgressHeaderComponent } from '../../components/setup-progress-header/setup-progress-header.component';
+import { SetupSellerTerminalCardComponent } from '../../components/setup-seller-terminal-card/setup-seller-terminal-card.component';
 
 // Mirrors TenantReadinessAssembler.REQUIRED_STEP_GROUPS (tchalanet-server) — identity+address
 // count as one group since they're a single merged card here. generated_draws is required too:
