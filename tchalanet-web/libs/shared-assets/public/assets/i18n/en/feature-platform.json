@@ -59,6 +59,7 @@
         "message": "Add the first platform account."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Name",
         "assignedAt": "Assigned at"

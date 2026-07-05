@@ -64,14 +64,10 @@
             <ng-container matColumnDef="user">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="displayName">{{ 'platform.tenantAdmins.column.admin' | translate }}</th>
               <td mat-cell *matCellDef="let row">
-                <div class="tenant-admins-global__cell-main">
-                  <a class="tenant-admins-global__name-link" [routerLink]="['/app/platform/tenant-admins', row.id]">
-                    {{ row.displayName || row.email || '—' }}
-                  </a>
-                  @if (row.displayName && row.email) {
-                    <span class="tenant-admins-global__email">{{ row.email }}</span>
-                  }
-                </div>
+                <tch-console-actor-row
+                  [actor]="actorIdentity(row)"
+                  [showStatus]="false"
+                />
               </td>
             </ng-container>
 

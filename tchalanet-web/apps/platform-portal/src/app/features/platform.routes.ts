@@ -119,7 +119,7 @@ export const platformRoutes: Route[] = [
       icon: 'verified_user',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'access/permissions',
@@ -152,7 +152,7 @@ export const platformRoutes: Route[] = [
       icon: 'vpn_key',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   // ── Support tenant ─────────────────────────────────────────────────────────
   {
@@ -171,7 +171,7 @@ export const platformRoutes: Route[] = [
       icon: 'lightbulb',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'tchala/import',
@@ -181,7 +181,7 @@ export const platformRoutes: Route[] = [
       icon: 'upload_file',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'tchala/cleanup',
@@ -191,7 +191,7 @@ export const platformRoutes: Route[] = [
       icon: 'auto_fix_high',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   { path: 'tchala', redirectTo: 'tchala/suggestions', pathMatch: 'full' },
   // ── Communication / Support & contenu ──────────────────────────────────────
@@ -277,7 +277,7 @@ export const platformRoutes: Route[] = [
       icon: 'bar_chart',
     },
     loadComponent: () =>
-      import('../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'releases',

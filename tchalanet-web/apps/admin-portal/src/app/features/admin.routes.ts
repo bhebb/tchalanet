@@ -115,19 +115,19 @@ export const adminRoutes: Route[] = [
   {
     path: 'reports/sellers',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.reports_sellers', icon: 'people' },
   },
   {
     path: 'reports/draws',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.reports_draws', icon: 'event' },
   },
   {
     path: 'reports/exports',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.reports_exports', icon: 'download' },
   },
   {
@@ -175,13 +175,13 @@ export const adminRoutes: Route[] = [
   {
     path: 'company/identity',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.company_identity', icon: 'domain' },
   },
   {
     path: 'company/address',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.company_address', icon: 'location_on' },
   },
   {
@@ -193,13 +193,13 @@ export const adminRoutes: Route[] = [
   {
     path: 'company/settings',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.company_settings', icon: 'tune' },
   },
   {
     path: 'company/support',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.company_support', icon: 'headset_mic' },
   },
   {
@@ -212,7 +212,7 @@ export const adminRoutes: Route[] = [
   {
     path: 'help',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.admin.help', icon: 'help_outline' },
   },
   // ── Legacy paths (preserved for deep-links and bookmarks) ──────────────────
@@ -271,13 +271,13 @@ export const adminRoutes: Route[] = [
   {
     path: 'i18n',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.translations', icon: 'translate' },
   },
   {
     path: 'pagemodels',
     loadComponent: () =>
-      import('../shared/admin-placeholder/admin-placeholder.page').then(m => m.AdminPlaceholderPage),
+        import('@tch/ui/components').then(m => m.PlaceholderPage),
     data: { titleKey: 'nav.pagemodels', icon: 'dashboard_customize' },
   },
 ];

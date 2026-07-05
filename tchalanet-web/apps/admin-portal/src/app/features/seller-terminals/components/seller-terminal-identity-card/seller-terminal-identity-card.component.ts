@@ -2,7 +2,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import { ConsolePersonIdentitySummaryComponent } from '@tch/web/console';
+import {
+  ConsoleActorIdentity,
+  ConsoleActorRowComponent,
+  ConsolePersonIdentitySummaryComponent,
+  consoleSellerTerminalActorIdentity,
+} from '@tch/web/console';
 
 import { SellerTerminalView } from '../../data-access/seller-terminal-api.service';
 
@@ -12,6 +17,7 @@ import { SellerTerminalView } from '../../data-access/seller-terminal-api.servic
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminSectionCardComponent,
+    ConsoleActorRowComponent,
     ConsolePersonIdentitySummaryComponent,
     TranslatePipe,
   ],
@@ -19,4 +25,8 @@ import { SellerTerminalView } from '../../data-access/seller-terminal-api.servic
 })
 export class SellerTerminalIdentityCardComponent {
   readonly terminal = input.required<SellerTerminalView>();
+
+  actorIdentity(terminal: SellerTerminalView): ConsoleActorIdentity {
+    return consoleSellerTerminalActorIdentity(terminal);
+  }
 }

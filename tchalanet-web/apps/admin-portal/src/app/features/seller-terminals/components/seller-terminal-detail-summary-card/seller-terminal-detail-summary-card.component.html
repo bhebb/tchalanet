@@ -2,10 +2,8 @@
   <span class="seller-terminal-detail-summary-card__eyebrow">
     {{ 'admin.sellerTerminals.detail.summary.eyebrow' | translate }}
   </span>
-  <h2>{{ terminal().displayName }}</h2>
-  <p>{{ terminal().terminalCode }}</p>
-  <tch-status-badge
-    [label]="'admin.sellerTerminals.status.' + terminal().status | translate"
-    [status]="statusBadge(terminal().status)"
+  <tch-console-actor-row
+    [actor]="actorIdentity(terminal())"
+    [statusLabel]="'admin.sellerTerminals.status.' + terminal().status | translate"
   />
 </section>

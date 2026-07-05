@@ -1,5 +1,5 @@
 <tch-admin-page-shell
-  [title]="cardUser()?.displayName || cardUser()?.email || ('platform.superAdmins.title' | translate)"
+  [title]="actorIdentity()?.displayName || actorIdentity()?.email || ('platform.superAdmins.title' | translate)"
   [description]="'platform.superAdmins.description' | translate"
 >
   <div actions>
@@ -23,9 +23,9 @@
     <tch-loading [label]="'common.loading' | translate" />
   } @else if (error(); as errorVm) {
     <tch-error-panel [title]="errorVm.title" [message]="errorVm.message" />
-  } @else if (cardUser(); as u) {
-    <tch-platform-admin-user-card
-      [user]="u"
+  } @else if (actorIdentity(); as actor) {
+    <tch-console-actor-card
+      [actor]="actor"
       (activate)="activate()"
       (block)="block()"
       (archive)="archive()"

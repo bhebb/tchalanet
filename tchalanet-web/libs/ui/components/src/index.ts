@@ -35,3 +35,4 @@ export * from './lib/sidebar-nav/sidebar-nav';
 export * from './lib/status-badge/status-badge';
 export * from './lib/submit-button/submit-button';
 export * from './lib/user-menu/user-menu';
+export * from './lib/placeholder/placeholder.page';

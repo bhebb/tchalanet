@@ -34,7 +34,7 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'cloud_sync',
     },
     loadComponent: () =>
-      import('../../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'resources',
@@ -44,7 +44,7 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'memory',
     },
     loadComponent: () =>
-      import('../../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'archives/purges',
@@ -114,6 +114,6 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'sync_alt',
     },
     loadComponent: () =>
-      import('../../shared/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
 ];

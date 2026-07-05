@@ -6,12 +6,12 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 
 @Component({
-  selector: 'tch-admin-placeholder-page',
+  selector: 'tch-placeholder-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslatePipe, AdminPageShellComponent, AdminEmptyStateComponent],
-  templateUrl: './admin-placeholder.page.html',
+  templateUrl: './placeholder.page.html',
 })
-export class AdminPlaceholderPage {
+export class PlaceholderPage {
   protected readonly data = inject(ActivatedRoute).snapshot.data;
 }

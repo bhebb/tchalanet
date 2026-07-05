@@ -25,9 +25,13 @@
   } @else {
     @if (sellerTerminal(); as terminal) {
       <tch-notice type="info" class="pos-page__acting-notice">
-        Mode admin : vous vendez au nom de {{ terminal.displayName }}. Les tickets seront rattachés au terminal
-        {{ terminal.terminalCode }}.
+        Mode admin : les tickets seront rattachés à ce terminal vendeur.
       </tch-notice>
+      @if (sellerTerminalActor(); as actor) {
+        <div class="pos-page__terminal-strip">
+          <tch-console-actor-row [actor]="actor" [statusLabel]="terminal.status" />
+        </div>
+      }
     }
 
     <!-- Terminal bloqué -->

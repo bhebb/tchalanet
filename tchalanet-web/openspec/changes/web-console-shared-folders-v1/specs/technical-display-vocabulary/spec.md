@@ -236,6 +236,42 @@ tablet, desktop, and print/receipt layouts.
   time, local/tenant date/time when relevant, and short code only as reference
 - **AND** it does not introduce print-only label mappings.
 
+### Requirement: Console actor identity uses one display contract
+
+Platform console surfaces SHALL render super-admins, tenant-admins, seller terminals, and seller
+actors through a shared `@tch/web/console` actor identity model instead of app-local user-card
+models per role.
+
+#### Scenario: A platform page displays a super-admin
+
+- **GIVEN** a platform page loads a super-admin from the platform-scoped super-admin API
+- **WHEN** the page renders the user card, list row, or recipient option
+- **THEN** the API DTO is adapted into `ConsoleActorIdentity`
+- **AND** the visible identity uses the shared console actor component/model
+- **AND** the component does not know the actor came from `/platform/super-admins`.
+
+#### Scenario: A tenant page displays a tenant-admin
+
+- **GIVEN** a platform page loads a tenant-admin through tenant-scoped identity access
+- **WHEN** the page renders the user card, list row, or recipient option
+- **THEN** the API DTO is adapted into the same `ConsoleActorIdentity`
+- **AND** tenant scope fields such as tenant id/code/name are carried on the identity
+- **AND** the tenant-scoped data-access layer remains responsible for `asTenantAdmin` options.
+
+#### Scenario: A recipient picker displays mixed actors
+
+- **GIVEN** a recipient picker returns super-admins, tenant-admins, and seller terminals
+- **WHEN** it displays search options
+- **THEN** each option is derived from the shared actor identity fields
+- **AND** local per-role label/status formatting is not duplicated in the picker.
+
+#### Scenario: A seller terminal is displayed as an actor
+
+- **GIVEN** a seller terminal has an id, code/name, status, and tenant scope
+- **WHEN** it is displayed in support, recipient, detail, or audit surfaces
+- **THEN** it uses the same actor identity contract with actor kind `SELLER_TERMINAL`
+- **AND** missing person fields such as email do not produce blank labels.
+
 ### Requirement: Display helpers support print, tickets, details, and stats
 
 The console display vocabulary SHALL be reusable outside interactive tables, including print and

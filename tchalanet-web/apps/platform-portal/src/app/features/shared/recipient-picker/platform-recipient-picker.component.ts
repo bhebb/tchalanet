@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
 import { TchMultiSearchSelect, TchSearchOption, TchSearchSelect } from '@tch/ui/components';
 import { Observable, forkJoin, map } from 'rxjs';
+import {
+  ConsoleActorIdentity,
+  consoleActorPrimaryLabel,
+  consoleActorSecondaryLabel,
+} from '@tch/web/console';
 
 import {
   PlatformTenantsApi,
@@ -15,6 +20,11 @@ import {
   PlatformRecipientSellerTerminalRow,
   PlatformRecipientSellerTerminalsApi,
 } from '../data-access/platform-recipient-seller-terminals-api.service';
+import {
+  platformSellerTerminalActorIdentity,
+  platformSuperAdminActorIdentity,
+  platformTenantAdminActorIdentity,
+} from '../console-actor-adapters';
 
 export type PlatformRecipientKind = 'SUPER_ADMIN' | 'TENANT_ADMIN' | 'SELLER_TERMINAL';
 export type PlatformRecipientActorType = 'APP_USER' | 'SELLER_TERMINAL';
@@ -134,41 +144,35 @@ export class PlatformRecipientPickerComponent {
   }
 
   private superAdminRecipient(admin: PlatformSuperAdminView): PlatformRecipientOption {
-    return {
-      key: `SUPER_ADMIN:${admin.id}`,
-      kind: 'SUPER_ADMIN',
-      label: admin.displayName || admin.email || admin.id,
-      detail: admin.email || '',
-      status: admin.status,
-      email: admin.email || null,
-      phone: null,
-      target: { actorType: 'APP_USER', actorId: admin.id },
-    };
+    return this.actorRecipient(platformSuperAdminActorIdentity(admin), 'SUPER_ADMIN', 'APP_USER');
   }
 
   private tenantAdminRecipient(admin: TenantAdminView): PlatformRecipientOption {
-    return {
-      key: `TENANT_ADMIN:${admin.id}`,
-      kind: 'TENANT_ADMIN',
-      label: admin.displayName || admin.email || admin.id,
-      detail: admin.email || admin.phone || '',
-      status: admin.status,
-      email: admin.email || null,
-      phone: admin.phone || null,
-      target: { actorType: 'APP_USER', actorId: admin.id },
-    };
+    return this.actorRecipient(platformTenantAdminActorIdentity(admin), 'TENANT_ADMIN', 'APP_USER');
   }
 
   private sellerTerminalRecipient(terminal: PlatformRecipientSellerTerminalRow): PlatformRecipientOption {
+    return this.actorRecipient(
+      platformSellerTerminalActorIdentity(terminal),
+      'SELLER_TERMINAL',
+      'SELLER_TERMINAL',
+    );
+  }
+
+  private actorRecipient(
+    actor: ConsoleActorIdentity,
+    kind: PlatformRecipientKind,
+    actorType: PlatformRecipientActorType,
+  ): PlatformRecipientOption {
     return {
-      key: `SELLER_TERMINAL:${terminal.id.value}`,
-      kind: 'SELLER_TERMINAL',
-      label: terminal.displayName || terminal.terminalCode || terminal.id.value,
-      detail: [terminal.terminalCode, terminal.email, terminal.phoneNumber].filter(Boolean).join(' · '),
-      status: terminal.status,
-      email: terminal.email || null,
-      phone: terminal.phoneNumber || null,
-      target: { actorType: 'SELLER_TERMINAL', actorId: terminal.id.value },
+      key: `${kind}:${actor.id}`,
+      kind,
+      label: consoleActorPrimaryLabel(actor),
+      detail: consoleActorSecondaryLabel(actor) ?? '',
+      status: actor.status,
+      email: actor.email || null,
+      phone: actor.phone || null,
+      target: { actorType, actorId: actor.id },
     };
   }
 

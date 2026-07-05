@@ -15,9 +15,14 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { ConsolePersonIdentityFormSectionComponent } from '@tch/web/console';
+import {
+  ConsoleActorIdentity,
+  ConsoleActorRowComponent,
+  ConsolePersonIdentityFormSectionComponent,
+} from '@tch/web/console';
 import { PlatformSuperAdminsApi, PlatformSuperAdminView } from '../../data-access/platform-super-admins-api.service';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
+import { platformSuperAdminActorIdentity } from '../../../shared/console-actor-adapters';
 
 interface SuperAdminCreateFormModel {
   readonly email: string;
@@ -41,6 +46,7 @@ const EMPTY_SUPER_ADMIN_CREATE_FORM: SuperAdminCreateFormModel = {
     RouterLink,
     DatePipe,
     AdminPageShellComponent,
+    ConsoleActorRowComponent,
     ConsolePersonIdentityFormSectionComponent,
     AdminEmptyStateComponent,
     TchLoading,
@@ -58,7 +64,7 @@ export class PlatformSuperAdminsPage implements OnInit {
   private readonly identityApi = inject(IdentityUserCrudApi);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = ['email', 'displayName', 'status', 'assignedAt', 'actions'];
+  readonly displayedColumns = ['actor', 'assignedAt', 'actions'];
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
@@ -127,6 +133,10 @@ export class PlatformSuperAdminsPage implements OnInit {
       next: () => this.updateStatus(row.id, 'ACTIVE'),
       error: err => this.error.set(this.errorViewModel(err, 'platform.superAdmins.reactivate')),
     });
+  }
+
+  actorIdentity(row: PlatformSuperAdminView): ConsoleActorIdentity {
+    return platformSuperAdminActorIdentity(row);
   }
 
   private load(): void {

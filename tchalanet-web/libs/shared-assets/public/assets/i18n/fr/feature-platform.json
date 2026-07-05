@@ -59,6 +59,7 @@
         "message": "Ajoutez un premier compte plateforme."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Nom",
         "assignedAt": "Assigné le"

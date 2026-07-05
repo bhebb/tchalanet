@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchPageError } from '@tch/ui/components';
+import { TchPageError } from 'libs/ui/components/src';
 
 @Component({
     selector: 'tch-not-found-page',

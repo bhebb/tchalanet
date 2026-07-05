@@ -33,8 +33,10 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { ProblemDetail, TchBackendClient, webAppErrorFromProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
+import { ConsoleActorIdentity, ConsoleActorRowComponent } from '@tch/web/console';
 import type { TenantAdminGlobalRow, TenantAdminGlobalPage } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
+import { platformTenantAdminActorIdentity } from '../../../shared/console-actor-adapters';
 
 const PAGE_SIZE = 20;
 
@@ -53,6 +55,7 @@ const PAGE_SIZE = 20;
     TchErrorPanel,
     TchSectionError,
     TchStatusBadge,
+    ConsoleActorRowComponent,
     MatButtonModule,
     MatMenuModule,
     MatSortModule,
@@ -169,6 +172,10 @@ export class PlatformTenantAdminsGlobalPage implements OnInit {
 
   statusLabel(status: string): string {
     return this.translate.instant(`platform.tenantAdmins.status.${status.toLowerCase()}`) || status;
+  }
+
+  actorIdentity(row: TenantAdminGlobalRow): ConsoleActorIdentity {
+    return platformTenantAdminActorIdentity(row);
   }
 
   canActivate(row: TenantAdminGlobalRow): boolean {

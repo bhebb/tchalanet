@@ -1,0 +1,18 @@
+@let a = actor();
+
+<div class="console-actor-row">
+  <span class="material-symbols-outlined console-actor-row__avatar" aria-hidden="true">
+    {{ avatarIcon() }}
+  </span>
+
+  <span class="console-actor-row__body">
+    <span class="console-actor-row__primary">{{ primaryLabel(a) }}</span>
+    @if (secondaryLabel(a); as secondary) {
+      <span class="console-actor-row__secondary">{{ secondary }}</span>
+    }
+  </span>
+
+  @if (showStatus()) {
+    <tch-status-badge [status]="statusBadge(a.status)" [label]="statusLabel() || a.status" />
+  }
+</div>

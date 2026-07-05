@@ -122,10 +122,48 @@
 - [x] 3.16 Add `Combinaisons & règles` only as a secondary result/detail tab or support view; it
       must use the current draw/result numbers and must not clutter the main result table.
 
-## 4. Validation
+## 4. Console actor identity migration
 
-- [x] 4.1 Run `pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit`.
-- [ ] 4.2 Run `pnpm exec tsc -p apps/platform-portal/tsconfig.app.json --noEmit`.
-- [x] 4.3 Run focused tests/lint for touched libraries when available.
-- [x] 4.4 Add focused unit tests for new or moved display helpers/pipes.
-- [x] 4.5 Run `git diff --check`.
+- [x] 4.1 Inventory current actor identity surfaces. **Result:** super-admin detail and tenant-admin
+      detail already reuse the app-local `PlatformAdminUserCardComponent`; tenant-admin create and
+      super-admin create both use signal forms; recipient picker independently maps super-admins,
+      tenant-admins, and seller terminals into local options. The reusable card still lives under
+      `apps/platform-portal/features/shared/admin-user-card`, so the ownership is not yet
+      `@tch/web/console`.
+- [x] 4.2 Define `ConsoleActorIdentity` in `libs/web/console/src/lib/identity/` with actor kind
+      (`SUPER_ADMIN`, `TENANT_ADMIN`, `SELLER_TERMINAL`, `SELLER` when needed), id, display name,
+      email/phone, status, roles, tenant/scope labels, assigned/created dates, and stable fallback
+      labels.
+- [x] 4.3 Move/promote the reusable admin-user card into `@tch/web/console` as
+      `tch-console-actor-card` or equivalent, with the same action outputs: activate, block,
+      archive, reset password, assign tenant/support action where allowed.
+- [x] 4.4 Add adapter helpers at the owning app/feature boundary:
+      `toConsoleActorIdentity(superAdmin)`, `toConsoleActorIdentity(tenantAdmin)`, and
+      `toConsoleActorIdentity(sellerTerminal)`; components must not know which backend endpoint
+      produced the actor.
+- [x] 4.5 Replace platform super-admin detail/list usage to render via the shared console actor
+      identity/card while keeping `PlatformSuperAdminsApi` as the platform-scoped data source.
+      **Result:** detail page uses `tch-console-actor-card`; list table uses
+      `tch-console-actor-row` from the same `ConsoleActorIdentity`.
+- [x] 4.6 Replace tenant-admin detail/list usage to render via the same console actor identity/card
+      while keeping tenant-scoped identity calls (`asTenantAdmin`) in the owning data-access layer.
+      **Result:** global platform tenant-admin list and tenant-scoped `tenants/:id/admins` list both
+      use `tch-console-actor-row`; detail page uses `tch-console-actor-card`.
+- [x] 4.7 Update recipient picker mapping to reuse the actor identity adapter for super-admin,
+      tenant-admin, and seller-terminal labels/statuses instead of maintaining separate local label
+      logic.
+- [x] 4.8 Add focused tests for actor identity fallback behavior: blank display name, missing email,
+      tenant-scoped actor, seller-terminal actor, archived/suspended/active status badges.
+- [x] 4.9 Replace seller-terminal identity usage in admin seller-terminal and POS seller-terminal
+      picker/sale surfaces with the same `ConsoleActorIdentity` row contract.
+      **Result:** seller-terminal table, seller-terminal detail summary/identity card, POS seller
+      picker, and POS terminal sale context all use `tch-console-actor-row` from
+      `consoleSellerTerminalActorIdentity`.
+
+## 5. Validation
+
+- [x] 5.1 Run `pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit`.
+- [x] 5.2 Run `pnpm exec tsc -p apps/platform-portal/tsconfig.app.json --noEmit`.
+- [x] 5.3 Run focused tests/lint for touched libraries when available.
+- [x] 5.4 Add focused unit tests for new or moved display helpers/pipes.
+- [x] 5.5 Run `git diff --check`.

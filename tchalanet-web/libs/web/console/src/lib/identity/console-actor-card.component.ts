@@ -5,14 +5,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchConfirmDialog, TchConfirmDialogData, TchStatusBadge } from '@tch/ui/components';
-import type { BadgeStatus } from '@tch/ui/components';
-import { ConsolePersonIdentitySummaryComponent } from '@tch/web/console';
 
-import { adminUserStatusBadge } from './platform-admin-user.utils';
-import type { AdminUserCardData } from './admin-user-card.model';
+import {
+  ConsoleActorIdentity,
+  consoleActorPrimaryLabel,
+  consoleActorStatusBadge,
+  consoleActorTenantLabel,
+} from './console-actor-identity';
+import { ConsolePersonIdentitySummaryComponent } from './console-person-identity-summary.component';
 
 @Component({
-  selector: 'tch-platform-admin-user-card',
+  selector: 'tch-console-actor-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -23,14 +26,16 @@ import type { AdminUserCardData } from './admin-user-card.model';
     ConsolePersonIdentitySummaryComponent,
     TranslatePipe,
   ],
-  templateUrl: './platform-admin-user-card.component.html',
-  styleUrls: ['./platform-admin-user-card.component.scss'],
+  templateUrl: './console-actor-card.component.html',
+  styleUrls: ['./console-actor-card.component.scss'],
 })
-export class PlatformAdminUserCardComponent {
+export class ConsoleActorCardComponent {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly user = input.required<AdminUserCardData>();
+  readonly actor = input.required<ConsoleActorIdentity>();
+  readonly showAssignTenant = input(true);
+  readonly showManageTenantAdmins = input(true);
 
   readonly activate = output<void>();
   readonly block = output<void>();
@@ -38,8 +43,16 @@ export class PlatformAdminUserCardComponent {
   readonly resetPassword = output<void>();
   readonly assignTenant = output<void>();
 
-  statusBadge(status: string): BadgeStatus {
-    return adminUserStatusBadge(status);
+  primaryLabel(actor: ConsoleActorIdentity): string {
+    return consoleActorPrimaryLabel(actor);
+  }
+
+  tenantLabel(actor: ConsoleActorIdentity): string | null {
+    return consoleActorTenantLabel(actor);
+  }
+
+  statusBadge(status: string) {
+    return consoleActorStatusBadge(status);
   }
 
   canActivate(status: string): boolean {
@@ -55,44 +68,49 @@ export class PlatformAdminUserCardComponent {
   }
 
   confirmActivate(): void {
-    const u = this.user();
+    const actor = this.actor();
     this.openConfirm(
       'common.activate',
       'platform.tenantAdmins.confirm.activate',
-      { name: this.userName(u) },
-    ).subscribe(r => { if (r?.confirmed) this.activate.emit(); });
+      { name: this.primaryLabel(actor) },
+    ).subscribe(result => { if (result?.confirmed) this.activate.emit(); });
   }
 
   confirmBlock(): void {
-    const u = this.user();
+    const actor = this.actor();
     this.openConfirm(
       'common.block',
       'platform.tenantAdmins.confirm.block',
-      { name: this.userName(u) },
+      { name: this.primaryLabel(actor) },
       true,
-    ).subscribe(r => { if (r?.confirmed) this.block.emit(); });
+    ).subscribe(result => { if (result?.confirmed) this.block.emit(); });
   }
 
   confirmArchive(): void {
-    const u = this.user();
+    const actor = this.actor();
     this.openConfirm(
       'common.archive',
       'platform.tenantAdmins.confirm.archive',
-      { name: this.userName(u) },
+      { name: this.primaryLabel(actor) },
       true,
-    ).subscribe(r => { if (r?.confirmed) this.archive.emit(); });
+    ).subscribe(result => { if (result?.confirmed) this.archive.emit(); });
   }
 
   confirmResetPassword(): void {
-    const u = this.user();
+    const actor = this.actor();
     this.openConfirm(
       'common.resetPassword',
       'platform.tenantAdmins.confirm.resetPassword',
-      { name: this.userName(u) },
-    ).subscribe(r => { if (r?.confirmed) this.resetPassword.emit(); });
+      { name: this.primaryLabel(actor) },
+    ).subscribe(result => { if (result?.confirmed) this.resetPassword.emit(); });
   }
 
-  private openConfirm(titleKey: string, messageKey: string, params: Record<string, string>, destructive = false) {
+  private openConfirm(
+    titleKey: string,
+    messageKey: string,
+    params: Record<string, string>,
+    destructive = false,
+  ) {
     return this.dialog
       .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
         data: {
@@ -103,9 +121,5 @@ export class PlatformAdminUserCardComponent {
         },
       })
       .afterClosed();
-  }
-
-  private userName(user: AdminUserCardData): string {
-    return user.displayName || user.email || user.id;
   }
 }

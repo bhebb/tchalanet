@@ -20,11 +20,11 @@ import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { PlatformAdminUserCardComponent } from '../../../shared/admin-user-card/platform-admin-user-card.component';
-import type { AdminUserCardData } from '../../../shared/admin-user-card/admin-user-card.model';
+import { ConsoleActorCardComponent, ConsoleActorIdentity } from '@tch/web/console';
 import { PlatformSuperAdminsApi, PlatformSuperAdminView } from '../../data-access/platform-super-admins-api.service';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
 import { AssignTenantDialog, AssignTenantResult } from '../../../shared/assign-tenant-dialog/assign-tenant-dialog.component';
+import { platformSuperAdminActorIdentity } from '../../../shared/console-actor-adapters';
 
 @Component({
   selector: 'tch-platform-super-admin-detail-page',
@@ -32,7 +32,7 @@ import { AssignTenantDialog, AssignTenantResult } from '../../../shared/assign-t
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminPageShellComponent,
-    PlatformAdminUserCardComponent,
+    ConsoleActorCardComponent,
     TchLoading,
     TchErrorPanel,
     TchSectionError,
@@ -58,16 +58,9 @@ export class PlatformSuperAdminDetailPage implements OnInit {
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<{ title: string; message: string } | null>(null);
 
-  readonly cardUser = computed((): AdminUserCardData | null => {
+  readonly actorIdentity = computed((): ConsoleActorIdentity | null => {
     const u = this.superAdmin();
-    if (!u) return null;
-    return {
-      id: u.id,
-      email: u.email,
-      displayName: u.displayName,
-      status: u.status,
-      assignedAt: u.assignedAt,
-    };
+    return u ? platformSuperAdminActorIdentity(u) : null;
   });
 
   ngOnInit(): void {

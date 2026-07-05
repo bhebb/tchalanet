@@ -59,6 +59,7 @@
         "message": "Ajoute premye kont platfòm nan."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Non",
         "assignedAt": "Atribye le"
