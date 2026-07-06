@@ -1,7 +1,5 @@
 {
   "locale": {
-    "defaultLanguage": "fr",
-    "defaultLocale": "fr-HT",
     "supportedLanguages": ["fr", "ht", "en"],
     "fallbackLanguage": "fr"
   }

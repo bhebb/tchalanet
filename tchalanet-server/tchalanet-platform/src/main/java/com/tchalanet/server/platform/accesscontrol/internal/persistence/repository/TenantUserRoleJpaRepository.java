@@ -68,7 +68,7 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
           coalesce(nullif(u.display_name,''), u.username, u.email::text)   as "displayName",
           u.status                                                          as "status",
           tur.tenant_id                                                     as "tenantId",
-          t.name                                                            as "tenantName",
+          t.display_name                                                    as "tenantName",
           t.code                                                            as "tenantCode",
           tur.assigned_at                                                   as "assignedAt"
         from tenant_user_role tur
@@ -114,7 +114,7 @@ public interface TenantUserRoleJpaRepository extends JpaRepository<TenantUserRol
           coalesce(nullif(u.display_name,''), u.username, u.email::text)   as "displayName",
           u.status                                                          as "status",
           tur.tenant_id                                                     as "tenantId",
-          t.name                                                            as "tenantName",
+          t.display_name                                                    as "tenantName",
           t.code                                                            as "tenantCode",
           tur.assigned_at                                                   as "assignedAt"
         from tenant_user_role tur

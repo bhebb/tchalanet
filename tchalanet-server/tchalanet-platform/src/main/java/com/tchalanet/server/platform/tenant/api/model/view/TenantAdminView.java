@@ -18,6 +18,7 @@ public record TenantAdminView(
     TenantId tenantId,
     String code,
     String name,
+    String displayName,
     TenantType type,
     TenantStatus status,
     ZoneId timezone,

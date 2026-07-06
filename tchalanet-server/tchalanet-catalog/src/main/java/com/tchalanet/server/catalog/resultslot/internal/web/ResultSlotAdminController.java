@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/result-slots")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Result Slots")
 public class ResultSlotAdminController {
 
@@ -28,12 +27,14 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "List active result slots (platform)")
   @GetMapping("/active")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<List<ResultSlotView>> listActive() {
     return ApiResponse.success(catalog.listActive());
   }
 
   @Operation(summary = "Get result slot by id (platform)")
   @GetMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<ResultSlotView> getById(@PathVariable ResultSlotId id) {
     return ApiResponse.success(
         catalog.findById(id)
@@ -42,12 +43,14 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Get result slot by key (platform)")
   @GetMapping("/by-key/{slotKey}")
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<ResultSlotView> getByKey(@PathVariable String slotKey) {
     return ApiResponse.success(catalog.findByKey(slotKey).orElse(null));
   }
 
   @Operation(summary = "Create result slot (platform)")
   @PostMapping
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<ResultSlotView> create(@Valid @RequestBody CreateResultSlotRequest request) {
     var createdView = admin.create(request);
     return ApiResponse.created(createdView);
@@ -55,6 +58,7 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Update result slot (platform)")
   @PutMapping("/{id}")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @Valid @RequestBody UpdateResultSlotRequest request) {
     var updatedView = admin.update(id, request);
     return ApiResponse.success(updatedView);
@@ -62,6 +66,7 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Soft-delete result slot (platform)")
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<Void> delete(@PathVariable ResultSlotId id) {
     admin.softDelete(id);
     return ApiResponse.success(null);
@@ -69,6 +74,7 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Disable result slot — kill switch (platform)")
   @PostMapping("/{slotKey}/disable")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<Void> disableSlot(@PathVariable String slotKey) {
     admin.disableSlot(slotKey);
     return ApiResponse.success(null);
@@ -76,6 +82,7 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Disable a game within a result slot — kill switch (platform)")
   @PostMapping("/{slotKey}/games/{gameKey}/disable")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<Void> disableGame(@PathVariable String slotKey, @PathVariable String gameKey) {
     admin.disableGame(slotKey, gameKey);
     return ApiResponse.success(null);

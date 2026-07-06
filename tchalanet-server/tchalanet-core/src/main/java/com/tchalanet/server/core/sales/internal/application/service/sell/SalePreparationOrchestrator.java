@@ -16,12 +16,14 @@ import com.tchalanet.server.core.sales.internal.application.service.sell.model.P
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
+import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +46,7 @@ public class SalePreparationOrchestrator {
     private final TchTimeProvider tchTimeProvider;
     private final PosSaleContextResolver posSaleContextResolver;
     private final SaleMoneyCalculator saleMoneyCalculator;
+    private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
     private final QueryBus queryBus;
 
     public PreparedSale prepareSale(
@@ -59,6 +62,7 @@ public class SalePreparationOrchestrator {
 
         var now = tchTimeProvider.now();
         var tenantId = ctx.effectiveTenantIdRequired();
+        assertTenantBusinessOpen(ctx, tenantId, now);
 
         if (ctx.sellerTerminalId() != null) {
             return prepareSaleForSellerTerminal(command, ctx, now, tenantId);
@@ -131,5 +135,14 @@ public class SalePreparationOrchestrator {
 
     private static long toCents(BigDecimal amount) {
         return amount.movePointRight(2).longValue();
+    }
+
+    private void assertTenantBusinessOpen(TchRequestContext ctx, TenantId tenantId, Instant now) {
+        var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
+        var businessDate = now.atZone(zone).toLocalDate();
+        var day = tenantBusinessCalendarApi.resolveBusinessDay(tenantId, businessDate);
+        if (day != null && !day.open()) {
+            throw ProblemRest.forbidden("sales.tenant_closed");
+        }
     }
 }

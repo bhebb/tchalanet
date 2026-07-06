@@ -44,7 +44,7 @@ public class TenantAdminDrawResultController {
     ) {
         var res = commandBus.execute(
             new RecordManualDrawResultCommand(
-                ctx.tenantId(),
+                ctx.tenantIdRequired(),
                 req.drawDate(),
                 req.slotKey().trim().toUpperCase(Locale.ROOT),
                 ctx.externalSubject(),

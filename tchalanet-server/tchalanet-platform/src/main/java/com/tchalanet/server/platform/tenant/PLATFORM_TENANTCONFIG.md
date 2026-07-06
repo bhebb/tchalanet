@@ -70,7 +70,7 @@ String         resolveDefaultLanguage(TenantId)
 List<String>   resolveSupportedLanguages(TenantId)
 
 // TenantBusinessCalendarApi
-TenantBusinessDayView resolveBusinessDay(TenantId, OutletId, LocalDate)
+TenantBusinessDayView resolveBusinessDay(TenantId, LocalDate)
 ```
 
 ---
@@ -81,7 +81,8 @@ TenantBusinessDayView resolveBusinessDay(TenantId, OutletId, LocalDate)
 |---|---|---|
 | `tenantId` | `TenantId` | — |
 | `code` | `String` | Code stable du tenant |
-| `name` | `String` | Nom affiché |
+| `name` | `String` | Nom administratif |
+| `displayName` | `String` | Nom affiché tenant, initialisé depuis `code` |
 | `type` | `TenantType` | Type d'opérateur |
 | `timezone` | `ZoneId` | Fuseau horaire opérationnel |
 | `currency` | `Currency` | Devise (ex: HTG) |
@@ -102,9 +103,8 @@ internalSettings:
       email:     { enabled, amount, currency, paidBy }
   document:
     receipt:
-      { enabled, displayName, headerMessage, footerMessage,
-        defaultPaperSize, showQrCode, showSellerName,
-        showOutletName, showPotentialPayout, defaultTemplateKey }
+      { enabled, headerMessage, footerMessage,
+        defaultPaperSize, showQrCode, defaultTemplateKey }
   rules:     { ... }
   locale:    { ... }
 ```

@@ -7,7 +7,7 @@ export const supportAccessInterceptor: HttpInterceptorFn = (req, next) => {
   const store = inject(SupportAccessStore);
   const session = store.session();
 
-  if (!session || req.headers.has('X-Tch-Tenant-Override') || !isTenantAdminApi(req.url)) {
+  if (!session || req.headers.has('X-Tch-Tenant-Override') || !isTenantScopedSupportApi(req.url)) {
     return next(req);
   }
 
@@ -20,6 +20,6 @@ export const supportAccessInterceptor: HttpInterceptorFn = (req, next) => {
   }));
 };
 
-function isTenantAdminApi(url: string): boolean {
-  return /\/admin(\/|$)/.test(url);
+function isTenantScopedSupportApi(url: string): boolean {
+  return /\/admin(\/|$)/.test(url) || /\/tenant(\/|$)/.test(url);
 }

@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
@@ -38,6 +39,7 @@ function daysInMonth(year: number, month: number): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminPageShellComponent,
+    RouterLink,
     AdminEmptyStateComponent,
     TchLoading,
     TchErrorPanel,

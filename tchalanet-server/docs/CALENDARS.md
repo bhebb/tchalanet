@@ -5,17 +5,21 @@ have **different owners, different sources of truth, and different effects**.
 Never mix them.
 
 ```
-Business calendar (tenant/outlet)      ≠      Provider/result-slot calendar
+Business calendar (tenant)             ≠      Provider/result-slot calendar
 "can this commerce sell right now?"           "is there a real draw for this slot?"
-owner: TENANT_ADMIN / outlet manager          owner: SUPER_ADMIN / platform ops
+owner: TENANT_ADMIN                            owner: SUPER_ADMIN / platform ops
 ```
 
 ## 1. The two calendars
 
 ### Business calendar — *can this commerce sell?*
-Drives `OpenSalesSession` eligibility and the ability to sell. Owned by the
-tenant. Examples: tenant closed on Sundays, outlet closed for maintenance, local
-holiday, voluntary closure.
+Drives tenant-level sale availability. Owned by the tenant. Examples: tenant
+closed on Sundays, local holiday, voluntary closure.
+
+Seller-terminal availability is not a tenant-settings calendar concern. The
+active operational actor is `SellerTerminal`; its immediate availability is
+represented by `core.sellerterminal` status and validation. If V2 needs planned,
+dated seller-terminal closures, the writer must live in `core.sellerterminal`.
 
 ### Provider/result-slot calendar — *is there a real draw?*
 Drives draw **generation** and **opening**. Owned by the platform. Examples:
@@ -23,7 +27,7 @@ NY Lottery has no draw on Christmas; a provider is exceptionally unavailable.
 
 ## 2. Business cases
 
-- **A — tenant/outlet closed, provider runs.** The POS cannot sell; the provider
+- **A — tenant closed, provider runs.** The POS cannot sell; the provider
   may still produce a global result. A draw generated with zero sales settles
   normally with zero payouts — settlement of an empty draw is valid.
 - **B — provider closed (no draw).** No real draw exists; we must not generate /
@@ -33,40 +37,41 @@ NY Lottery has no draw on Christmas; a provider is exceptionally unavailable.
 
 ## 3. Storage and priority
 
-### Business day (tenant/outlet)
+### Business day (tenant)
 Evaluated highest-wins:
 ```
-1. outlet.day_closed = true   → CLOSED   (immediate operational flag, absolute gate)
+1. tenant business_day_override (outlet_id IS NULL, dated)
    else ↓
-2. outlet business_day_override (outlet_id = X, dated)   → wins over tenant
+2. tenant.config.rules.businessCalendar.holidays         (recurring MM-dd)
    else ↓
-3. tenant business_day_override (outlet_id IS NULL, dated)
+3. tenant.config.rules.businessCalendar.closedWeekdays   (e.g. SUNDAY)
    else ↓
-4. tenant.config.rules.businessCalendar.closedWeekdays   (e.g. SUNDAY)
-   else ↓
-5. defaultOpen                → else OPEN
+4. defaultOpen                → else OPEN
 ```
 `business_day_override` is tenant-scoped (RLS). `business_date` is a `LocalDate`
-in the resolved business timezone (outlet → tenant → UTC).
+in the resolved tenant business timezone.
 
-**Where it's resolved (single source of truth):** the full ladder is assembled
-in `JdbcSalesSessionOpeningContextAdapter` (core.session): step 1
-(`outlet.day_closed`) short-circuits to closed; otherwise it calls
-`TenantBusinessCalendarApi.resolveBusinessDay(...)` (platform.tenantconfig) for
-steps 2-5. The split exists because `outlet.day_closed` lives in `core.outlet`
-and the platform API must not depend on core — so core.session does the merge. A
-force-open override (`open=true`) **cannot** reopen an outlet whose
-`day_closed=true` (step 1 wins).
+**Where it's resolved:** `TenantBusinessCalendarApi.resolveBusinessDay(...)`
+(`platform.tenantconfig`) resolves tenant-level overrides and recurring tenant
+rules. Seller-terminal sale eligibility is validated separately by
+`core.sellerterminal` / `core.sales`.
 
-**One table, ownership split (V1):** `business_day_override` has a nullable
-`outlet_id`. Each module touches only its slice — never the other's:
-| Slice | Writer module | Rows |
-|-------|---------------|------|
-| Tenant-level | `platform.tenantconfig` | `outlet_id IS NULL` |
-| Outlet-level | `core.outlet` (validates outlet exists/belongs/active) | `outlet_id IS NOT NULL` |
+**Where it's applied:**
 
-The calendar reader (`JdbcTenantBusinessCalendarOverrideReader`) reads both slices
-(it partitions on `outlet_id`), so resolution is unaffected by the write split.
+| Surface | Class | Effect |
+|---------|-------|--------|
+| POS available draws | `PosDrawsService` | Returns no sellable draw when the tenant business day is closed. |
+| POS home primary action | `PosHomeService` via `PosDrawsService` | Disables the sell action when no draw is available because the tenant is closed. |
+| Final/prepared sale | `SalePreparationOrchestrator` | Rejects sale with `sales.tenant_closed` before ticket persistence. |
+
+Tenant business calendar is **not** used by draw generation/opening. A tenant
+can be closed while the provider draw still exists; in that case the draw may
+settle with zero sales.
+
+**Table shape:** `business_day_override` still has a nullable legacy `outlet_id`
+column. In the current model, tenant-level rows use `outlet_id IS NULL`.
+Seller-terminal-specific dated closures are not implemented; if introduced, they
+must use seller-terminal concepts rather than reviving outlet ownership.
 
 ### Provider/result-slot calendar
 Global table `result_slot_calendar_override` (**no `tenant_id`** — provider truth
@@ -105,11 +110,9 @@ Status model: V1 uses `CANCELED` + `cancel_reason_code`
 
 | Class | Path | Role |
 |-------|------|------|
-| `SalesSessionBusinessDateResolver` / `Default…` | `core/session/internal/application/service/time/` | Business date for session open: outlet tz → tenant tz → UTC |
-| `OutletOperationalSettingsReaderPort` | `core/session/internal/application/port/out/` | Reads `outlet.timezone` |
 | `TenantZoneApi` / `DefaultTenantZoneApi` | `platform/tenantconfig/…` | Tenant timezone |
 | `TenantBusinessCalendarApi` / `Default…` | `platform/tenantconfig/…` | Resolves business-day open/closed via the priority chain |
-| `TenantBusinessCalendarOverrideReader` / `Jdbc…` | `platform/tenantconfig/internal/…` | Reads `business_day_override` |
+| `TenantBusinessCalendarOverrideReader` / `Jdbc…` | `platform/tenantconfig/internal/…` | Reads tenant-level `business_day_override` |
 | `TenantLocaleApi` / `ConfigBackedTenantLocaleApi` | `platform/tenantconfig/…` | Tenant locale / language |
 | `ResultSlotCalendarCatalog` / `ResultSlotCalendarCatalogImpl` | `catalog/resultslot/…` | Cached (24h) read of provider overrides per slot |
 | `ResultSlotCalendarReaderPort` / `ResultSlotCalendarReaderAdapter` | `core/draw/internal/…` | Materializes no-draw dates (specific + recurring) over the cached catalog |
@@ -147,30 +150,22 @@ ORDER BY off_date;
 ## 7. Admin surfaces
 
 ### How a tenant says "we are closed"
-Four mechanisms, by need and owner (each maps to a precise endpoint):
+Two active tenant-level mechanisms:
 
 | Need | Mechanism | Endpoint (owner) |
 |------|-----------|------------------|
-| Seller/responsable: "close **my current outlet** today" (POS, sick manager, emergency) | `outlet.day_closed` | `POST /tenant/outlet/current/close-day` — outlet resolved from **trusted operational context**, perm `outlet.day.close` (`CurrentOutletDayController`, core.outlet) |
-| Admin: "this POS is closed **now / today**" | `outlet.day_closed` | `POST /admin/outlets/{outletId}/close-day` (`OutletAdminController`, core.outlet); reopen via the matching endpoint |
-| Planned, dated, **one outlet** ("outlet A closed June 10") | `business_day_override` (`outlet_id` set) | `PUT /admin/outlets/{outletId}/business-days` + `GET …?from&to` + `DELETE …/{id}` (`OutletBusinessDayController`, core.outlet) |
 | Planned, dated, **whole commerce** ("closed Jan 1") | `business_day_override` (`outlet_id IS NULL`) | `PUT /admin/business-days` + `GET …?from&to` + `DELETE …/{id}` (`BusinessDayOverrideController`, platform.tenantconfig) |
 | Recurring ("closed every **Sunday**") | `tenant.config.rules.businessCalendar.closedWeekdays` | tenant config |
 
 Notes:
-- Outlet-level writes live in **core.outlet** because they validate the outlet
-  (exists / belongs to tenant / ACTIVE); tenant-level writes live in
-  **platform.tenantconfig** (no outlet knowledge). Same table, disjoint slices.
-- The dated upserts are idempotent on (tenant, outlet-or-null, date) — calling
-  twice just updates. Tenant from request context; RLS enforces isolation.
-- The seller endpoint resolves the outlet from the **trusted** POS frame only —
-  a seller can never close another outlet; it reuses the same
-  `CloseOutletDayCommand` (validates open sessions, publishes `OutletDayClosedEvent`).
+- Tenant-level writes live in **platform.tenantconfig**. Tenant comes from
+  request context; RLS enforces isolation.
+- Seller-terminal status and sale eligibility live in **core.sellerterminal** /
+  **core.sales**. Planned seller-terminal-specific closures are not part of V1.
 
-These all feed `TenantBusinessCalendarApi.resolveBusinessDay(...)` /
-`outlet.day_closed`, which session-opening eligibility consults (ladder in §3).
+These tenant mechanisms feed `TenantBusinessCalendarApi.resolveBusinessDay(...)`.
 
-- **Tenant admin**: `outlet.day_closed`, `business_day_override`,
+- **Tenant admin**: `business_day_override`,
   `tenant.config.rules.businessCalendar`. Cannot touch the provider calendar.
 - **Super admin / platform**: `result_slot_calendar_override` (provider no-draw
   days, global), via SUPER_ADMIN CRUD under

@@ -49,7 +49,7 @@ public class TenantAdminDrawChannelGameController {
         @RequestBody OfferChannelGameRequest body,
         @CurrentContext TchRequestContext ctx) {
 
-        var tenantId = ctx.tenantId();
+        var tenantId = ctx.tenantIdRequired();
 
         drawChannelCatalog.findById(tenantId, drawChannelId)
             .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
@@ -78,7 +78,7 @@ public class TenantAdminDrawChannelGameController {
         @RequestBody UpdateDrawChannelGameRequest body,
         @CurrentContext TchRequestContext ctx) {
 
-        var tenantId = ctx.tenantId();
+        var tenantId = ctx.tenantIdRequired();
 
         drawChannelCatalog.findById(tenantId, drawChannelId)
             .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));
@@ -94,7 +94,7 @@ public class TenantAdminDrawChannelGameController {
         @PathVariable TenantGameId tenantGameId,
         @CurrentContext TchRequestContext ctx) {
 
-        var tenantId = ctx.tenantId();
+        var tenantId = ctx.tenantIdRequired();
 
         drawChannelCatalog.findById(tenantId, drawChannelId)
             .orElseThrow(() -> ProblemRest.notFound("draw_channel.not_found", drawChannelId));

@@ -47,7 +47,7 @@ public class TenantGameAdminController {
     @Operation(summary = "List tenant games")
     @GetMapping
     public ApiResponse<List<TenantGameAdminView>> list(@CurrentContext TchRequestContext ctx) {
-        var tenantId = ctx.effectiveTenantIdRequired();
+        var tenantId = ctx.tenantIdRequired();
         var games = adminService.listGames(tenantId);
         var views = games.stream().map(g -> {
             var catalogName = gameCatalog.findByCode(g.gameCode()).map(gv -> gv.name()).orElse(g.gameCode());
@@ -67,7 +67,7 @@ public class TenantGameAdminController {
     @Operation(summary = "Catalog projection — all catalog games with tenant status")
     @GetMapping("/catalog")
     public ApiResponse<List<TenantGameCatalogItemView>> catalog(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(catalogProjection.getCatalogProjection(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(catalogProjection.getCatalogProjection(ctx.tenantIdRequired()));
     }
 
     @Operation(summary = "Enable a catalog game for this tenant")
@@ -79,7 +79,7 @@ public class TenantGameAdminController {
         @PathVariable String gameCode,
         @CurrentContext TchRequestContext ctx) {
         var result = adminService.enableGame(EnableTenantGameRequest.builder()
-            .tenantId(ctx.effectiveTenantIdRequired())
+            .tenantId(ctx.tenantIdRequired())
             .gameCode(gameCode)
             .build());
         return ApiResponse.created(result);
@@ -92,7 +92,7 @@ public class TenantGameAdminController {
         @PathVariable String gameCode,
         @CurrentContext TchRequestContext ctx) {
         var result = adminService.disableGame(DisableTenantGameRequest.builder()
-            .tenantId(ctx.effectiveTenantIdRequired())
+            .tenantId(ctx.tenantIdRequired())
             .gameCode(gameCode)
             .build());
         return ApiResponse.success(result);
@@ -106,7 +106,7 @@ public class TenantGameAdminController {
         @Valid @RequestBody UpdateGameSettingsWebRequest body,
         @CurrentContext TchRequestContext ctx) {
         adminService.updateSettings(UpdateTenantGameSettingsRequest.builder()
-            .tenantId(ctx.effectiveTenantIdRequired())
+            .tenantId(ctx.tenantIdRequired())
             .gameCode(gameCode)
             .displayName(body.displayName())
             .displayOrder(body.displayOrder())

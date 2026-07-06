@@ -11,6 +11,7 @@ public record TenantBootstrapRow(
     UUID id,
     String code,
     String name,
+    String displayName,
     String status,
     String type,
     String timezone,

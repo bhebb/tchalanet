@@ -74,7 +74,7 @@ public class PromotionCampaignAdminController {
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody CreatePromotionCampaignRequest request
     ) {
-        var command = mapper.toCommand(ctx.effectiveTenantIdRequired(), request);
+        var command = mapper.toCommand(ctx.tenantIdRequired(), request);
         var result = commandBus.execute(command);
         return ApiResponse.success(result);
     }
@@ -87,7 +87,7 @@ public class PromotionCampaignAdminController {
         @PathVariable UUID campaignId,
         @Valid @RequestBody UpdatePromotionCampaignRequest request
     ) {
-        var command = mapper.toCommand(ctx.effectiveTenantIdRequired(), PromotionCampaignId.of(campaignId), request);
+        var command = mapper.toCommand(ctx.tenantIdRequired(), PromotionCampaignId.of(campaignId), request);
         var result = commandBus.execute(command);
         return ApiResponse.success(result);
     }
@@ -100,7 +100,7 @@ public class PromotionCampaignAdminController {
         @Valid @RequestBody(required = false) InstantiateMaryajGratisRequest request
     ) {
         var result = commandBus.execute(new InstantiateDefaultMaryajGratisCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             request == null ? null : request.payoutBaseAmount(),
             request == null ? null : request.quantityMode(),
             request == null ? null : request.quantity(),
@@ -124,7 +124,7 @@ public class PromotionCampaignAdminController {
         @PathVariable UUID campaignId
     ) {
         var result = commandBus.execute(new ActivatePromotionCampaignCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(result);
@@ -138,7 +138,7 @@ public class PromotionCampaignAdminController {
         @PathVariable UUID campaignId
     ) {
         var result = commandBus.execute(new DeactivatePromotionCampaignCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(result);
@@ -152,7 +152,7 @@ public class PromotionCampaignAdminController {
         @PathVariable UUID campaignId
     ) {
         var out = commandBus.execute(new PausePromotionCampaignCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(out);
@@ -166,7 +166,7 @@ public class PromotionCampaignAdminController {
         @PathVariable UUID campaignId
     ) {
         var out = commandBus.execute(new ArchivePromotionCampaignCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId)
         ));
         return ApiResponse.success(out);

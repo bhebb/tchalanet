@@ -15,16 +15,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class JdbcTenantBusinessCalendarOverrideReader implements TenantBusinessCalendarOverrideReader {
 
-    private static final String OUTLET_SQL = """
-        SELECT open, reason_code, label
-        FROM business_day_override
-        WHERE tenant_id = :tenant_id
-          AND outlet_id = :outlet_id
-          AND business_date = :business_date
-          AND deleted_at IS NULL
-        LIMIT 1
-        """;
-
     private static final String TENANT_SQL = """
         SELECT open, reason_code, label
         FROM business_day_override

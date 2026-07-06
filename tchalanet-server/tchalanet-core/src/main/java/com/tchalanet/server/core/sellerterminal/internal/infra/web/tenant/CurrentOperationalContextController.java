@@ -33,7 +33,7 @@ public class CurrentOperationalContextController {
     public ApiResponse<CurrentOperationalContextView> current(@CurrentContext TchRequestContext ctx) {
         var operationalContext = ctx.operationalContext();
         return ApiResponse.success(queryBus.ask(new GetCurrentOperationalContextQuery(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             ctx.sellerTerminalIdRequired(),
             operationalContext != null ? operationalContext.source() : null,
             operationalContext != null ? operationalContext.trust() : null,

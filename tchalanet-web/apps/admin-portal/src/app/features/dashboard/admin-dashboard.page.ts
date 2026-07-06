@@ -2,8 +2,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageModelApi, PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
+import {
+  RuntimeSettingsStore,
+  TENANT_DASHBOARD_SETTINGS_WIDGET_KEY,
+  TenantDashboardSettingsInput,
+} from '@tch/shared-config';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
-import { catchError, map, of, startWith } from 'rxjs';
+import { catchError, map, of, startWith, tap } from 'rxjs';
 
 type DashboardState =
   | { readonly status: 'loading' }
@@ -19,9 +24,13 @@ type DashboardState =
 })
 export class AdminDashboardPage {
   private readonly pageModelApi = inject(PageModelApi);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
 
   protected readonly state = toSignal(
     this.pageModelApi.getTenantPage().pipe(
+      tap(response => {
+        this.runtimeSettings.applyTenantDashboardSettings(tenantSettingsFrom(response));
+      }),
       map(response => ({ status: 'ready', response }) as DashboardState),
       catchError(() =>
         this.pageModelApi.getPrivateFallbackPage().pipe(
@@ -33,4 +42,16 @@ export class AdminDashboardPage {
     ),
     { initialValue: { status: 'loading' } as DashboardState },
   );
+}
+
+function tenantSettingsFrom(response: PageRuntimeResponse): TenantDashboardSettingsInput | null {
+  const value = response.dynamic.widgets[TENANT_DASHBOARD_SETTINGS_WIDGET_KEY];
+  if (!isTenantDashboardSettings(value)) {
+    return null;
+  }
+  return value;
+}
+
+function isTenantDashboardSettings(value: unknown): value is TenantDashboardSettingsInput {
+  return typeof value === 'object' && value !== null;
 }

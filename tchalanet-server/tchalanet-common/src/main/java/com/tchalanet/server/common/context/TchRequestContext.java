@@ -216,6 +216,14 @@ public record TchRequestContext(
         return effectiveTenantId;
     }
 
+    /**
+     * Preferred alias for tenant-scoped endpoints. This returns the effective tenant, including
+     * any validated support/admin override carried by the request context.
+     */
+    public TenantId tenantIdRequired() {
+        return effectiveTenantIdRequired();
+    }
+
     public boolean hasTenant() {
         return effectiveTenantIdOrNull() != null;
     }

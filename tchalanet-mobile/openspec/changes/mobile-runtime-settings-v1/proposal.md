@@ -17,6 +17,8 @@ or notification catalogs independently.
   session and re-run the tenant bootstrap once when its runtime version hints change.
 - Apply bootstrap settings, i18n overrides, gates/entitlements, readiness,
   notification summary, and notices through typed app-scoped Riverpod state.
+- Treat tenant settings as read-only mobile runtime inputs; tenant settings edits remain
+  owned by backend/web-admin contracts.
 - Keep bundled Haitian Creole translations, the single Tchalanet Material 3 theme,
   and safe settings values as startup and failure fallbacks.
 - Document settings as the V1 configuration/feature-toggle mechanism before any

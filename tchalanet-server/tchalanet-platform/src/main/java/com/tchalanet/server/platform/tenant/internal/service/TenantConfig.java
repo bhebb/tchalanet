@@ -24,6 +24,7 @@ public record TenantConfig(
     TenantId id,
     String code,                    // immutable, normalized lower-case, unique
     String name,
+    String displayName,
     TenantType type,
     ZoneId timezone,
     Currency currency,
@@ -48,6 +49,10 @@ public record TenantConfig(
         if (name.isBlank()) {
             throw new IllegalArgumentException("name is non-blank");
         }
+        Objects.requireNonNull(displayName, "displayName is required");
+        if (displayName.isBlank()) {
+            throw new IllegalArgumentException("displayName is non-blank");
+        }
         Objects.requireNonNull(type, "type is required");
         Objects.requireNonNull(timezone, "timezone is required");
         Objects.requireNonNull(currency, "currency is required");
@@ -64,10 +69,12 @@ public record TenantConfig(
         TenantType type,
         ZoneId timezone,
         Currency currency, AddressId addressId, ThemePresetId activeThemeId, JsonNode config) {
+        var normalizedCode = normalizeCode(code);
         return new TenantConfig(
             id,
-            normalizeCode(code),
+            normalizedCode,
             name,
+            normalizedCode,
             type,
             timezone,
             currency,
@@ -88,6 +95,7 @@ public record TenantConfig(
             registryView.tenantId(),
             registryView.code(),
             registryView.name(),
+            registryView.displayName(),
             registryView.type(),
             registryView.timezone(),                  // ZoneId → ZoneId (no conversion!)
             registryView.currency(),                  // Currency → Currency (no conversion!)
@@ -120,7 +128,7 @@ public record TenantConfig(
             return this; // idempotent
         }
         return new TenantConfig(
-            id, code, name, type, timezone, currency,
+            id, code, name, displayName, type, timezone, currency,
             TenantStatus.ACTIVE,
             config,
             addressId, activeThemeId);
@@ -134,7 +142,7 @@ public record TenantConfig(
             throw new IllegalStateException("Cannot suspend non-ACTIVE tenant");
         }
         return new TenantConfig(
-            id, code, name, type, timezone, currency,
+            id, code, name, displayName, type, timezone, currency,
             TenantStatus.SUSPENDED,
             config,
             addressId, activeThemeId);
@@ -148,7 +156,7 @@ public record TenantConfig(
             return this; // idempotent
         }
         return new TenantConfig(
-            id, code, name, type, timezone, currency,
+            id, code, name, displayName, type, timezone, currency,
             TenantStatus.ARCHIVED,
             config,
             addressId, activeThemeId);
@@ -163,7 +171,18 @@ public record TenantConfig(
             throw new IllegalArgumentException("name is non-blank");
         }
         return new TenantConfig(
-            id, code, newName, type, timezone, currency, status,
+            id, code, newName, displayName, type, timezone, currency, status,
+            config,
+            addressId, activeThemeId);
+    }
+
+    public TenantConfig renameDisplay(String newDisplayName, Instant now) {
+        Objects.requireNonNull(newDisplayName, "newDisplayName is required");
+        if (newDisplayName.isBlank()) {
+            throw new IllegalArgumentException("displayName is non-blank");
+        }
+        return new TenantConfig(
+            id, code, name, newDisplayName, type, timezone, currency, status,
             config,
             addressId, activeThemeId);
     }
@@ -175,7 +194,7 @@ public record TenantConfig(
         Objects.requireNonNull(newTimezone, "newTimezone is required");
         Objects.requireNonNull(newCurrency, "newCurrency is required");
         return new TenantConfig(
-            id, code, name, type, newTimezone, newCurrency, status,
+            id, code, name, displayName, type, newTimezone, newCurrency, status,
             config,
             addressId, activeThemeId);
     }
@@ -185,7 +204,7 @@ public record TenantConfig(
      */
     public TenantConfig withAddressId(AddressId newAddressId, Instant now) {
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             config,
             newAddressId, activeThemeId);
     }
@@ -195,7 +214,7 @@ public record TenantConfig(
      */
     public TenantConfig withAddressId(AddressId newAddressId) {
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             config,
             newAddressId, activeThemeId);
     }
@@ -205,7 +224,7 @@ public record TenantConfig(
      */
     public TenantConfig clearAddressId(Instant now) {
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             config,
             null, activeThemeId);
     }
@@ -215,7 +234,7 @@ public record TenantConfig(
      */
     public TenantConfig withActiveThemeId(ThemePresetId themeId, Instant now) {
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             config,
             addressId, themeId);
     }
@@ -225,7 +244,7 @@ public record TenantConfig(
      */
     public TenantConfig clearActiveThemeId(Instant now) {
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             config,
             addressId, null);
     }
@@ -233,7 +252,7 @@ public record TenantConfig(
     public TenantConfig updateConfig(JsonNode newConfig, Instant now) {
         Objects.requireNonNull(newConfig, "newConfig is required");
         return new TenantConfig(
-            id, code, name, type, timezone, currency, status,
+            id, code, name, displayName, type, timezone, currency, status,
             newConfig,
             addressId, activeThemeId);
     }

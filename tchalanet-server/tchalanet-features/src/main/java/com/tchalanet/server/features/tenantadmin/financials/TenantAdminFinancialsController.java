@@ -45,7 +45,7 @@ public class TenantAdminFinancialsController {
     LocalDate effectiveFrom = from != null ? from : effectiveTo;
 
     return ApiResponse.success(queryBus.ask(new GetTenantFinancialBreakdownQuery(
-        ctx.effectiveTenantIdRequired(),
+        ctx.tenantIdRequired(),
         effectiveFrom,
         effectiveTo,
         drawLimit,
@@ -61,7 +61,7 @@ public class TenantAdminFinancialsController {
       @RequestParam(defaultValue = "5") int limit
   ) {
     return ApiResponse.success(queryBus.ask(new ListDrawTopSelectionsQuery(
-        ctx.effectiveTenantIdRequired(),
+        ctx.tenantIdRequired(),
         drawId,
         limit
     )));

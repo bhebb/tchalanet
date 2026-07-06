@@ -136,7 +136,7 @@ public class RuntimeBootstrapService {
 
     private RuntimeBootstrapResponse sellerTerminalBootstrap(TchRequestContext ctx) {
         var terminal = queryBus.ask(new GetSellerTerminalQuery(
-            ctx.effectiveTenantIdRequired(), ctx.sellerTerminalIdRequired()));
+            ctx.tenantIdRequired(), ctx.sellerTerminalIdRequired()));
         var space = PrivateBootstrapSpace.CASHIER;
         var notices = new ArrayList<RuntimeBootstrapNotice>();
         var user = new AuthenticatedUserView(
@@ -216,7 +216,7 @@ public class RuntimeBootstrapService {
             .map(t -> new TenantContextView(
                 t.tenantId().value().toString(),
                 t.code(),
-                t.name()))
+                t.displayName()))
             .orElse(new TenantContextView(
                 tenantId.value().toString(),
                 ctx.effectiveTenantCode(),
@@ -332,12 +332,13 @@ public class RuntimeBootstrapService {
     }
 
     private Map<String, Boolean> resolveFeatureFlags(TchRequestContext ctx, PrivateBootstrapSpace space) {
-        if (space == PrivateBootstrapSpace.PLATFORM || ctx.tenantId() == null) {
+        var tenantId = ctx.effectiveTenantIdOrNull();
+        if (space == PrivateBootstrapSpace.PLATFORM || tenantId == null) {
             return Map.of();
         }
         try {
             var resolved = settingsCatalog.resolve(
-                ResolveSettingsCriteria.forTenant(ctx.tenantId(), List.of()));
+                ResolveSettingsCriteria.forTenant(tenantId, List.of()));
             var flags = new HashMap<String, Boolean>();
             for (var s : resolved) {
                 if (s.valueType() == SettingValueType.BOOLEAN) {
@@ -346,7 +347,7 @@ public class RuntimeBootstrapService {
             }
             return Map.copyOf(flags);
         } catch (Exception e) {
-            log.warn("runtime.bootstrap: failed to load feature flags for tenant {}", ctx.tenantId(), e);
+            log.warn("runtime.bootstrap: failed to load feature flags for tenant {}", tenantId, e);
             return Map.of();
         }
     }
@@ -356,16 +357,17 @@ public class RuntimeBootstrapService {
     private RuntimeThemeView resolveTheme(
         TchRequestContext ctx, String locale, PrivateBootstrapSpace space,
         List<RuntimeBootstrapNotice> notices) {
-        if (space == PrivateBootstrapSpace.PLATFORM || ctx.tenantId() == null) {
+        var tenantId = ctx.effectiveTenantIdOrNull();
+        if (space == PrivateBootstrapSpace.PLATFORM || tenantId == null) {
             return RuntimeThemeView.fallback();
         }
         try {
             String mode = "light";
-            var tv = tenantThemeApi.resolveTenantThemeRuntime(ctx.tenantId(), mode);
+            var tv = tenantThemeApi.resolveTenantThemeRuntime(tenantId, mode);
             return new RuntimeThemeView(
                 tv.presetCode(), tv.mode(), tv.tokens(), tv.isDefault(), tv.version());
         } catch (Exception e) {
-            log.warn("runtime.bootstrap: theme resolution failed for tenant {}", ctx.tenantId(), e);
+            log.warn("runtime.bootstrap: theme resolution failed for tenant {}", tenantId, e);
             notices.add(RuntimeBootstrapNotice.warning("theme.fallback",
                 "Theme could not be loaded; default applied."));
             return RuntimeThemeView.fallback();

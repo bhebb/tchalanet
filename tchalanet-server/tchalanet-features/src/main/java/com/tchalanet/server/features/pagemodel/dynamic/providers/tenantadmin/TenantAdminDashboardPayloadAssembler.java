@@ -83,11 +83,11 @@ public class TenantAdminDashboardPayloadAssembler {
     private final NotificationApi notificationApi;
 
     public Payload assemble(TchRequestContext ctx) {
-        if (ctx == null || ctx.tenantId() == null) {
+        if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
             return Payload.empty();
         }
 
-        TenantId tenantId = ctx.tenantId();
+        TenantId tenantId = ctx.tenantIdRequired();
 
         // Use tenant timezone for business-date "today"
         ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
@@ -237,7 +237,8 @@ public class TenantAdminDashboardPayloadAssembler {
     // ---------------------- per-widget builders ----------------------
 
     private TenantDashboardHeaderPayload buildHeader(TchRequestContext ctx, TenantContextLookupView registry) {
-        return new TenantDashboardHeaderPayload(ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "", registry != null && registry.name() != null ? registry.name() : "", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
+        var tenantId = ctx.effectiveTenantIdOrNull();
+        return new TenantDashboardHeaderPayload(ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "", tenantId != null ? tenantId.value().toString() : "", registry != null && registry.displayName() != null ? registry.displayName() : "", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
     }
 
     private TenantKpiGridPayload buildKpis(TenantDashboardStatsView view, TenantKpisView kpisView,

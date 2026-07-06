@@ -3,6 +3,7 @@ CREATE TABLE tenant (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   code varchar(64) NOT NULL UNIQUE,
   name varchar(255) NOT NULL,
+  display_name varchar(255) NOT NULL,
   type varchar(32) NOT NULL DEFAULT 'PERSONAL',
   timezone varchar(64) NOT NULL DEFAULT 'UTC',
   currency varchar(3) NOT NULL DEFAULT 'USD',

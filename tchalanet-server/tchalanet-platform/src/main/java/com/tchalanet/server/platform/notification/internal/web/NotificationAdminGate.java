@@ -85,7 +85,7 @@ class NotificationAdminGate {
   }
 
   void createForTenant(CreateNotificationBody request, TchRequestContext context) {
-    var tenantId = context.effectiveTenantIdRequired();
+    var tenantId = context.tenantIdRequired();
     var audienceType =
         request.audienceType() == null ? NotificationAudienceType.TENANT_ADMINS : request.audienceType();
     if (audienceType == NotificationAudienceType.PLATFORM_ADMINS

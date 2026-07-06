@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/result-slots/{resultSlotId}/calendar")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Platform • Result Slot Calendar")
 public class ResultSlotCalendarAdminController {
 
@@ -29,6 +28,7 @@ public class ResultSlotCalendarAdminController {
 
   @Operation(summary = "List provider calendar overrides for a result slot")
   @GetMapping
+  @PreAuthorize("hasAnyRole('SUPER_ADMIN','TENANT_OWNER','TENANT_ADMIN')")
   public ApiResponse<List<ResultSlotCalendarOverrideView>> list(
       @PathVariable ResultSlotId resultSlotId) {
     return ApiResponse.success(catalog.listBySlot(resultSlotId));
@@ -36,6 +36,7 @@ public class ResultSlotCalendarAdminController {
 
   @Operation(summary = "Create a provider calendar override (specific date or recurring MM-dd)")
   @PostMapping
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<ResultSlotCalendarOverrideView> create(
       @PathVariable ResultSlotId resultSlotId,
       @Valid @RequestBody CreateResultSlotCalendarOverrideRequest request) {
@@ -44,6 +45,7 @@ public class ResultSlotCalendarAdminController {
 
   @Operation(summary = "Update a provider calendar override (availability/reason)")
   @PutMapping("/{overrideId}")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<ResultSlotCalendarOverrideView> update(
       @PathVariable ResultSlotId resultSlotId,
       @PathVariable ResultSlotCalendarOverrideId overrideId,
@@ -53,6 +55,7 @@ public class ResultSlotCalendarAdminController {
 
   @Operation(summary = "Soft-delete a provider calendar override")
   @DeleteMapping("/{overrideId}")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
   public ApiResponse<Void> delete(
       @PathVariable ResultSlotId resultSlotId,
       @PathVariable ResultSlotCalendarOverrideId overrideId) {

@@ -3,9 +3,9 @@ import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface TenantRuntimeView {
-  code: string;
-  name: string;
-  status: string;
+  tenantCode: string;
+  displayName: string;
+  statusPublic: string;
   timezone: string;
   currency: string;
   defaultLanguage?: string | null;

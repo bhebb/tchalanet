@@ -20,6 +20,7 @@ public record TenantConfigView(
     TenantId tenantId,
     String code,
     String name,
+    String displayName,
     TenantType type,
     ZoneId timezone,
     Currency currency,

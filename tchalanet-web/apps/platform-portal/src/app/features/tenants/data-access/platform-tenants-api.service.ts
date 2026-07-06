@@ -11,8 +11,6 @@ import {
 } from './platform-tenant-contracts';
 
 export interface TenantInternalLocaleConfig {
-  defaultLanguage?: string | null;
-  defaultLocale?: string | null;
   supportedLanguages?: string[] | null;
   fallbackLanguage?: string | null;
 }
@@ -34,14 +32,10 @@ export interface TenantInternalCommunicationConfig {
 
 export interface TenantReceiptConfig {
   enabled?: boolean | null;
-  displayName?: string | null;
   headerMessage?: string | null;
   footerMessage?: string | null;
   defaultPaperSize?: string | null;
   showQrCode?: boolean | null;
-  showSellerName?: boolean | null;
-  showOutletName?: boolean | null;
-  showPotentialPayout?: boolean | null;
   defaultTemplateKey?: string | null;
 }
 
@@ -52,7 +46,14 @@ export interface TenantInternalDocumentConfig {
 export interface TenantBusinessCalendarRules {
   defaultOpen?: boolean | null;
   closedWeekdays?: string[] | null;
-  holidaySalesAllowed?: boolean | null;
+  holidays?: TenantRecurringHolidayRule[] | null;
+}
+
+export interface TenantRecurringHolidayRule {
+  key?: string | null;
+  monthDay?: string | null;
+  open?: boolean | null;
+  label?: string | null;
 }
 
 export interface TenantInternalRules {

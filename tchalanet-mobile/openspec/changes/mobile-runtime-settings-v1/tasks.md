@@ -22,7 +22,7 @@
 - [x] Ignore bootstrap `pageModelRef` values and keep feature data behind explicit
   typed POS Services and Repositories.
 - [x] Add typed feature-toggle/config and authorization-gate helpers outside Views.
-- [ ] Document V1 settings ownership and future Unleash boundary.
+- [x] Document V1 settings ownership and future Unleash boundary.
 - [ ] Test public-to-tenant precedence, missing sections, backend failures, typed
   values, and bundled/safe fallbacks.
 - [ ] Test polling cadence, changed/unchanged versions, cooldown, refresh failure,

@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
 import {
@@ -74,6 +75,7 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     TranslatePipe,
     MatButtonModule,
     MatFormFieldModule,
@@ -243,6 +245,7 @@ export class AdminBusinessProfilePage implements OnInit {
     const v = this.identityForm.getRawValue();
     this.api.updateIdentity({
       name: v.name ?? '',
+      displayName: v.name ?? '',
       timezone: h.timezone ?? '',
       currency: h.currency ?? '',
     }, { suppressShellFeedback: true }).subscribe({
@@ -283,6 +286,7 @@ export class AdminBusinessProfilePage implements OnInit {
     const v = this.regionForm.getRawValue();
     this.api.updateIdentity({
       name: h.tenantName ?? '',
+      displayName: h.tenantName ?? '',
       timezone: v.timezone ?? '',
       currency: v.currency ?? '',
     }, { suppressShellFeedback: true }).subscribe({

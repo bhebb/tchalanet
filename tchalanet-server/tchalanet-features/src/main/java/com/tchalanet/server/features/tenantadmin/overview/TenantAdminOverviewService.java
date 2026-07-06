@@ -44,19 +44,20 @@ public class TenantAdminOverviewService {
   }
 
   private TenantAdminOverviewView.TenantHeader buildHeader(TchRequestContext ctx) {
-    if (ctx == null || ctx.tenantId() == null) {
+    if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
       return new TenantAdminOverviewView.TenantHeader(null, null, null, null, null, null, null, null);
     }
 
+    var tenantId = ctx.tenantIdRequired();
     AddressView address = null;
     try {
-      address = addressApi.findPrimaryByTenantId(ctx.tenantId()).orElse(null);
+      address = addressApi.findPrimaryByTenantId(tenantId).orElse(null);
     } catch (RuntimeException ignored) {}
 
     var registry = safeFindTenant(ctx);
     if (registry == null) {
       return new TenantAdminOverviewView.TenantHeader(
-          ctx.tenantId().value().toString(),
+          tenantId.value().toString(),
           ctx.effectiveTenantCode(),
           null,
           ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : null,
@@ -68,7 +69,7 @@ public class TenantAdminOverviewService {
     return new TenantAdminOverviewView.TenantHeader(
         registry.tenantId().value().toString(),
         registry.code(),
-        registry.name(),
+        registry.displayName(),
         registry.timezone() != null ? registry.timezone().toString() : null,
         registry.currency() != null ? registry.currency().getCurrencyCode() : null,
         registry.type() != null ? registry.type().name() : null,
@@ -79,7 +80,7 @@ public class TenantAdminOverviewService {
   private com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView safeFindTenant(
       TchRequestContext ctx) {
     try {
-      return tenantCatalog.findById(ctx.tenantId()).orElse(null);
+      return tenantCatalog.findById(ctx.tenantIdRequired()).orElse(null);
     } catch (RuntimeException ignored) {
       return null;
     }

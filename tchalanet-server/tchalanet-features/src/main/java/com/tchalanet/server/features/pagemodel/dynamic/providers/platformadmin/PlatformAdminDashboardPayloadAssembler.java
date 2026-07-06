@@ -190,7 +190,7 @@ public class PlatformAdminDashboardPayloadAssembler {
             items.add(new OnboardingAlertItem(
                 t.tenantId().value().toString(),
                 t.code() != null ? t.code() : "",
-                t.name() != null ? t.name() : "",
+                t.displayName() != null ? t.displayName() : "",
                 t.status().name()));
           }
         }

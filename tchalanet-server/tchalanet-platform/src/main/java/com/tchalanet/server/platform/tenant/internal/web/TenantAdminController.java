@@ -112,7 +112,7 @@ public class TenantAdminController {
   @Operation(summary = "Update identity fields of a tenant")
   @PreAuthorize("hasPermission(null, 'tenant.update')")
   public void update(@PathVariable TenantId id, @Valid @RequestBody UpdateTenantIdentityBody body) {
-    tenants.updateTenantIdentity(new UpdateTenantIdentityRequest(id, body.name(), body.timezone(), body.currency()));
+    tenants.updateTenantIdentity(new UpdateTenantIdentityRequest(id, body.name(), body.displayName(), body.timezone(), body.currency()));
   }
 
   @PostMapping("/{id}/admin-access")
@@ -131,7 +131,7 @@ public class TenantAdminController {
         actor,
         tenant.tenantId(),
         tenant.code(),
-        tenant.name(),
+        tenant.displayName(),
         body.reason(),
         com.tchalanet.server.platform.accesscontrol.api.model.SupportAccessMode.valueOf(mode.name())));
     return ApiResponse.success(toResponse(session));
@@ -156,7 +156,7 @@ public class TenantAdminController {
   }
 
   public record ReasonRequest(String reason) {}
-  public record UpdateTenantIdentityBody(String name, String timezone, String currency) {}
+  public record UpdateTenantIdentityBody(String name, String displayName, String timezone, String currency) {}
   public record StartTenantAdminAccessRequest(String reason, SupportAccessMode mode) {
     public StartTenantAdminAccessRequest {
       if (reason == null || reason.trim().length() < 10) {

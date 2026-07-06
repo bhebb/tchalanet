@@ -46,7 +46,7 @@ public class PricingOverrideAdminController {
     ) {
         // PricingCatalog exposes list via stats or direct catalog lookup.
         // Delegate to the catalog stats until a dedicated ListTenantOddsQuery exists.
-        var stats = pricingCatalog.getOdds(ctx.effectiveTenantIdRequired());
+        var stats = pricingCatalog.getOdds(ctx.tenantIdRequired());
 
 
         return ApiResponse.success(this.toPricingView(stats));
@@ -65,7 +65,7 @@ public class PricingOverrideAdminController {
         @PathVariable SellerTerminalId sellerTerminalId
     ) {
         var result = queryBus.ask(new ListSellerTerminalOddsOverridesQuery(
-            ctx.effectiveTenantIdRequired(), sellerTerminalId));
+            ctx.tenantIdRequired(), sellerTerminalId));
         return ApiResponse.success(result);
     }
 
@@ -77,7 +77,7 @@ public class PricingOverrideAdminController {
         @Valid @RequestBody UpsertOddsOverrideRequest req
     ) {
         var cmd = new UpsertSellerTerminalOddsOverrideCommand(
-            ctx.effectiveTenantIdRequired(), sellerTerminalId,
+            ctx.tenantIdRequired(), sellerTerminalId,
             req.gameCode(), req.betType(), req.betOption(),
             req.odds(), req.effectiveFrom(), req.effectiveTo(),
             req.reason(), ctx.userId());

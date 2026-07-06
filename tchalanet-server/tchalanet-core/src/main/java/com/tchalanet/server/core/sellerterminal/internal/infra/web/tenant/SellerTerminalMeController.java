@@ -37,7 +37,7 @@ public class SellerTerminalMeController {
     @Operation(summary = "Get the current authenticated seller terminal profile")
     public ApiResponse<SellerTerminalView> me(@CurrentContext TchRequestContext ctx) {
         return ApiResponse.success(queryBus.ask(new GetSellerTerminalMeQuery(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             ctx.sellerTerminalIdRequired())));
     }
 
@@ -52,7 +52,7 @@ public class SellerTerminalMeController {
         @Valid @RequestBody ChangePinRequest request
     ) {
         commandBus.execute(new ChangeSellerTerminalPinCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             ctx.sellerTerminalIdRequired(),
             request.newPin()));
     }

@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * {@code outlet_id IS NULL}). This is how a TENANT_ADMIN says "the whole commerce
  * is closed on date X".
  *
- * <p>Outlet-level closures live in core.outlet
- * ({@code /admin/outlets/{outletId}/business-days}); an immediate "this POS is
- * closed now" flag is {@code POST /admin/outlets/{id}/close-day}.
+ * <p>Seller-terminal operational availability is not modeled here.
  *
  * <p>Tenant is resolved from the request context (never from client input);
  * RLS enforces isolation.
@@ -45,7 +43,7 @@ public class BusinessDayOverrideController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
     return ApiResponse.success(
-        service.list(ctx.effectiveTenantIdRequired(), from, to));
+        service.list(ctx.tenantIdRequired(), from, to));
   }
 
   @Operation(summary = "Mark a business day open/closed (idempotent upsert)")
@@ -54,7 +52,7 @@ public class BusinessDayOverrideController {
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody UpsertBusinessDayOverrideRequest request) {
     return ApiResponse.success(
-        service.upsert(ctx.effectiveTenantIdRequired(), request));
+        service.upsert(ctx.tenantIdRequired(), request));
   }
 
   @Operation(summary = "Remove an override (revert to calendar rules / default)")
@@ -62,7 +60,7 @@ public class BusinessDayOverrideController {
   public ApiResponse<Void> delete(
       @CurrentContext TchRequestContext ctx,
       @PathVariable BusinessDayOverrideId id) {
-    service.softDelete(ctx.effectiveTenantIdRequired(), id);
+    service.softDelete(ctx.tenantIdRequired(), id);
     return ApiResponse.success(null);
   }
 }

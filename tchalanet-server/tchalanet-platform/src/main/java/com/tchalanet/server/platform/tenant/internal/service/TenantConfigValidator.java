@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
+import java.time.MonthDay;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Validates the tenant config JSONB structure for all 4 sections:
@@ -21,7 +24,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TenantConfigValidator {
 
-    private static final Set<String> ALLOWED_TOP_LEVEL_KEYS = Set.of(
+    private static final Pattern MONTH_DAY = Pattern.compile("^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$");
+
+    private static final List<String> TOP_LEVEL_KEYS = List.of(
         "rules", "document", "communication", "locale"
     );
 
@@ -32,6 +37,7 @@ public class TenantConfigValidator {
             throw new IllegalArgumentException("tenant config must not be null");
         }
         rejectUnknownTopLevelKeys(config);
+        requireTopLevelSections(config);
         validateRulesConfig(config);
         validateLocaleConfig(config);
         validateCommunicationConfig(config);
@@ -40,11 +46,20 @@ public class TenantConfigValidator {
 
     private void rejectUnknownTopLevelKeys(JsonNode config) {
         config.properties().forEach(entry -> {
-            if (!ALLOWED_TOP_LEVEL_KEYS.contains(entry.getKey())) {
+            if (!TOP_LEVEL_KEYS.contains(entry.getKey())) {
                 throw new IllegalArgumentException(
-                    "tenant config contains unknown top-level key: '" + entry.getKey() + "'. Allowed: " + ALLOWED_TOP_LEVEL_KEYS);
+                    "tenant config contains unknown top-level key: '" + entry.getKey() + "'. Allowed: " + TOP_LEVEL_KEYS);
             }
         });
+    }
+
+    private void requireTopLevelSections(JsonNode config) {
+        for (var section : TOP_LEVEL_KEYS) {
+            var value = config.get(section);
+            if (value == null || value.isNull() || !value.isObject()) {
+                throw new IllegalArgumentException("tenant config section is required: " + section);
+            }
+        }
     }
 
     public void validateRulesConfig(JsonNode config) {
@@ -60,9 +75,10 @@ public class TenantConfigValidator {
         if (cal.defaultOpen() == null) {
             throw new IllegalArgumentException("rules.businessCalendar.defaultOpen must be a boolean");
         }
-        if (cal.holidaySalesAllowed() == null) {
-            throw new IllegalArgumentException("rules.businessCalendar.holidaySalesAllowed must be a boolean");
+        if (cal.closedWeekdays() == null) {
+            throw new IllegalArgumentException("rules.businessCalendar.closedWeekdays must be an array");
         }
+        validateHolidayRules(cal.holidays());
     }
 
     public void validateLocaleConfig(JsonNode config) {
@@ -71,12 +87,6 @@ public class TenantConfigValidator {
             return;
         }
         var locale = typed.locale();
-        if (locale.defaultLanguage() == null || locale.defaultLanguage().isBlank()) {
-            throw new IllegalArgumentException("locale.defaultLanguage is required");
-        }
-        if (locale.defaultLocale() == null || locale.defaultLocale().isBlank()) {
-            throw new IllegalArgumentException("locale.defaultLocale is required");
-        }
         var supported = locale.effectiveSupportedLanguages();
         if (supported.isEmpty()) {
             throw new IllegalArgumentException("locale.supportedLanguages must not be empty");
@@ -134,6 +144,35 @@ public class TenantConfigValidator {
         var paidBy = channel.paidBy().trim().toUpperCase(Locale.ROOT);
         if (!"BUYER".equals(paidBy) && !"TENANT".equals(paidBy) && !"SELLER".equals(paidBy)) {
             throw new IllegalArgumentException(path + ".paidBy must be BUYER, TENANT, or SELLER");
+        }
+    }
+
+    private void validateHolidayRules(
+        List<com.tchalanet.server.platform.tenant.api.model.view.TenantBusinessCalendarRules.TenantRecurringHolidayRule> holidays
+    ) {
+        if (holidays == null) {
+            return;
+        }
+        for (int i = 0; i < holidays.size(); i++) {
+            var holiday = holidays.get(i);
+            var path = "rules.businessCalendar.holidays[" + i + "]";
+            if (holiday == null) {
+                throw new IllegalArgumentException(path + " must not be null");
+            }
+            if (holiday.key() == null || holiday.key().isBlank()) {
+                throw new IllegalArgumentException(path + ".key is required");
+            }
+            if (holiday.monthDay() == null || !MONTH_DAY.matcher(holiday.monthDay()).matches()) {
+                throw new IllegalArgumentException(path + ".monthDay must be MM-dd");
+            }
+            try {
+                MonthDay.parse("--" + holiday.monthDay());
+            } catch (DateTimeParseException ex) {
+                throw new IllegalArgumentException(path + ".monthDay must be a valid month/day", ex);
+            }
+            if (holiday.open() == null) {
+                throw new IllegalArgumentException(path + ".open must be a boolean");
+            }
         }
     }
 }

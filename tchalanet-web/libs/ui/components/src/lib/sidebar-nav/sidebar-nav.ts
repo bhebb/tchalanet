@@ -192,6 +192,13 @@ export class TchSidebarNav {
     ].filter(item => item.children?.length);
     let best: { id: string; length: number } | null = null;
     for (const group of groups) {
+      const groupRoute = actionRoute(group);
+      if (groupRoute && this.isRouteActive(group, groupRoute, group.children ?? [])) {
+        const length = groupRoute.length;
+        if (!best || length > best.length) {
+          best = { id: group.id, length };
+        }
+      }
       for (const child of group.children ?? []) {
         const route = actionRoute(child);
         if (!route || !this.isRouteActive(child, route, group.children ?? [])) continue;
@@ -238,9 +245,16 @@ export class TchSidebarNav {
 
   private isRouteActive(item: ActionItem, route: string, siblings: readonly ActionItem[] = []): boolean {
     const url = this.activeComparableUrl();
-    const routeMatches = this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route);
+    const routeMatches = this.isActiveRouteAlias(item, url)
+      || (this.isExactActiveMatch(item, siblings) ? url === route : url.startsWith(route));
     if (!routeMatches) return false;
     return this.queryParamsMatch(item);
+  }
+
+  private isActiveRouteAlias(item: ActionItem, url: string): boolean {
+    return (item.activeRoutes ?? [])
+      .map(route => route.split('?')[0].split('#')[0].replace(/\/$/, '') || '/')
+      .some(route => url === route || url.startsWith(`${route}/`));
   }
 
   private hasLongerSiblingRoute(route: string, siblings: readonly ActionItem[]): boolean {
