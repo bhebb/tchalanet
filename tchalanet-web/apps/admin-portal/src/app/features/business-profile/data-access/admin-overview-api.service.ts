@@ -60,6 +60,7 @@ export interface TenantAdminOverviewView {
 
 export interface UpdateTenantIdentityRequest {
   readonly name: string;
+  readonly displayName?: string | null;
   readonly timezone: string;
   readonly currency: string;
 }

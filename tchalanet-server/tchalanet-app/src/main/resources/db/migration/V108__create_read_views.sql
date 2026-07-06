@@ -53,8 +53,8 @@ SELECT t.id                         AS ticket_id,
        COALESCE(st.display_name, t.seller_terminal_id::text) AS seller_display_name,
 
        COALESCE(
-           NULLIF(tn.config #>> '{document,receipt,displayName}', ''),
-           tn.name,
+           NULLIF(tn.display_name, ''),
+           tn.code,
            'Tchalanet'
        )                            AS tenant_display_name,
        NULLIF(
@@ -79,8 +79,8 @@ SELECT t.id                         AS ticket_id,
 
        t.placed_at,
        t.sale_channel               AS sale_origin,
-       'fr'                         AS locale,
-       COALESCE(NULLIF(tn.config #>> '{timezone}', ''), 'America/Port-au-Prince') AS timezone,
+       COALESCE(NULLIF(tn.default_locale, ''), NULLIF(tn.default_language, ''), 'fr') AS locale,
+       COALESCE(NULLIF(tn.timezone, ''), 'America/Port-au-Prince') AS timezone,
 
        t.seller_terminal_id         AS seller_terminal_id,
        st.terminal_code             AS seller_terminal_code,

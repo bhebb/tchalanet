@@ -41,7 +41,7 @@ public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID
         select t from TenantJpaEntity t
         where t.deletedAt is null
           and (:status is null or t.status = :status)
-          and (:q is null or lower(t.code) like :q or lower(t.name) like :q)
+          and (:q is null or lower(t.code) like :q or lower(t.name) like :q or lower(t.displayName) like :q)
         """)
     Page<TenantJpaEntity> search(
         @Param("q") String q,

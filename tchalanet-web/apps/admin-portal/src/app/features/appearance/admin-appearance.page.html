@@ -3,6 +3,10 @@
   [description]="'admin.appearance.description' | translate"
 >
   <div actions>
+    <a mat-stroked-button routerLink="/app/admin/setup">
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'admin.setup.backToSetup' | translate }}
+    </a>
     <button mat-stroked-button [disabled]="loading() || resetting()" (click)="resetTheme()">
       <mat-icon>restart_alt</mat-icon>
       {{ 'admin.appearance.reset.action' | translate }}

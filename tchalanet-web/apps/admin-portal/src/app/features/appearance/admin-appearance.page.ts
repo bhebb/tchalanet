@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchNotice } from '@tch/ui/components';
@@ -40,6 +41,7 @@ const MODE_OPTIONS: readonly ModeOption[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslatePipe,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
     AdminPageShellComponent,

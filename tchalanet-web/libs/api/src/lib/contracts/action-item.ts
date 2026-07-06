@@ -16,6 +16,7 @@ export interface ActionItem {
   readonly icon?: string | null;
   readonly image?: string | null;
   readonly activeMatch?: 'exact' | 'prefix' | string | null;
+  readonly activeRoutes?: readonly string[];
   readonly disabled?: boolean;
   readonly reasonKey?: string | null;
   readonly badge?: AdminNavBadge | null;

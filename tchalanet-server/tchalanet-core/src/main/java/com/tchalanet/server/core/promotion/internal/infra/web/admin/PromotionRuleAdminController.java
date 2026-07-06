@@ -57,7 +57,7 @@ public class PromotionRuleAdminController {
         @Valid @RequestBody AddPromotionRuleRequest request
     ) {
         AddPromotionRuleCommand command = mapper.toCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             request
         );
@@ -74,7 +74,7 @@ public class PromotionRuleAdminController {
         @Valid @RequestBody UpdatePromotionRuleRequest request
     ) {
         UpdatePromotionRuleCommand command = mapper.toCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId),
             request
@@ -91,7 +91,7 @@ public class PromotionRuleAdminController {
         @PathVariable UUID ruleId
     ) {
         var out = commandBus.execute(new DeletePromotionRuleCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId)
         ));
@@ -107,7 +107,7 @@ public class PromotionRuleAdminController {
         @Valid @RequestBody UpdatePromotionRuleEligibilityRequest request
     ) {
         UpdatePromotionRuleEligibilityCommand command = mapper.toCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId),
             request
@@ -125,7 +125,7 @@ public class PromotionRuleAdminController {
         @Valid @RequestBody UpdatePromotionRuleEffectsRequest request
     ) {
         UpdatePromotionRuleEffectsCommand command = mapper.toCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             PromotionCampaignId.of(campaignId),
             PromotionRuleId.of(ruleId),
             request

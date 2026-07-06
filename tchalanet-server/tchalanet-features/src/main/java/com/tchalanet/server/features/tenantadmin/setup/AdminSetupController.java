@@ -26,12 +26,12 @@ public class AdminSetupController {
     @Operation(summary = "Games & pricing configuration card")
     @GetMapping("/games-pricing")
     public ApiResponse<TenantGamesPricingView> gamesPricing(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(gamesPricingService.get(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(gamesPricingService.get(ctx.tenantIdRequired()));
     }
 
     @Operation(summary = "Draw sales matrix — channels × games readiness card")
     @GetMapping("/draw-sales-matrix")
     public ApiResponse<TenantDrawSalesMatrixView> drawSalesMatrix(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(drawSalesMatrixService.get(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(drawSalesMatrixService.get(ctx.tenantIdRequired()));
     }
 }

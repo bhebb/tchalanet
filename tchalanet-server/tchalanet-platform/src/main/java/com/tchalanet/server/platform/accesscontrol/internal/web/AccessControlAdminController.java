@@ -58,7 +58,7 @@ public class AccessControlAdminController {
   @GetMapping("/roles")
   @PreAuthorize("hasRole('SUPER_ADMIN') or hasPermission(null, 'role.read')")
   public ApiResponse<List<RoleView>> listRoles(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(accessControlApi.listRoles(new ListRolesRequest(ctx.tenantId())));
+    return ApiResponse.success(accessControlApi.listRoles(new ListRolesRequest(ctx.effectiveTenantIdOrNull())));
   }
 
   @Operation(summary = "List permissions")
@@ -206,6 +206,6 @@ public class AccessControlAdminController {
   public record OverrideReasonRequest(String reason) {}
 
   private TenantId effectiveTenant(TchRequestContext ctx, UUID tenantId) {
-    return tenantId != null ? TenantId.of(tenantId) : ctx.tenantId();
+    return tenantId != null ? TenantId.of(tenantId) : ctx.effectiveTenantIdOrNull();
   }
 }

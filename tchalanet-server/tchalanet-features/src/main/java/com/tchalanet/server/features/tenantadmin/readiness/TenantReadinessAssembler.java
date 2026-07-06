@@ -23,6 +23,7 @@ import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantSettingsReadinessView;
 import com.tchalanet.server.platform.tenanttheme.api.TenantThemeApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
  * configuration. Operational signal, not a setup blocker.
  * 7. theme           → TenantThemeApi active tenant theme
  * 8. promotions      → ListPromotionCampaignsQuery (page size 1)
- * 9. settings        → receipt display name customized away from its seed placeholder
+ * 9. settings        → TenantConfigApi settings readiness service
  * 10. subscription    → ResolveTenantSubscriptionQuery — READY if ACTIVE/TRIAL, PARTIAL if any
  * other known status, MISSING if none applied. Visible section, not (yet) blocking.
  * <p>
@@ -93,11 +94,6 @@ public class TenantReadinessAssembler {
         List.of("draws"),
         List.of("generated_draws"));
 
-    /**
-     * Literal placeholder from `tenantconfig/document_config.json` — untouched means unconfigured.
-     */
-    private static final String DEFAULT_RECEIPT_DISPLAY_NAME = "CHEZ Toto";
-
     private final TenantPreContextLookupApi tenantPreContextLookupApi;
     private final AddressApi addressApi;
     private final TenantConfigApi tenantConfigApi;
@@ -130,7 +126,7 @@ public class TenantReadinessAssembler {
      * Returns {@link TenantReadinessView#unknown()} when no tenant is bound to the context.
      */
     public TenantReadinessView assemble(TchRequestContext ctx) {
-        if (ctx == null || ctx.tenantId() == null) {
+        if (ctx == null || ctx.effectiveTenantIdOrNull() == null) {
             return TenantReadinessView.unknown();
         }
 
@@ -142,7 +138,7 @@ public class TenantReadinessAssembler {
         var generatedDrawsStatus = checkGeneratedDraws(ctx);
         var themeStatus = checkTheme(ctx);
         var promotionsStatus = checkPromotions(ctx);
-        var settingsStatus = checkSettings(ctx);
+        var settingsReadiness = checkSettings(ctx);
         var subscriptionStatus = checkSubscription(ctx);
 
         List<TenantReadinessSection> sections = new ArrayList<>(SECTIONS.size());
@@ -204,9 +200,21 @@ public class TenantReadinessAssembler {
                 case "theme" -> status = themeStatus;
                 case "promotions" -> status = promotionsStatus;
                 case "settings" -> {
-                    status = settingsStatus;
-                    if (status == TenantReadinessStatus.MISSING) {
-                        issues.add(new TenantReadinessIssue("settings", "readiness.settings.missing", d.route()));
+                    if (settingsReadiness == null) {
+                        status = TenantReadinessStatus.UNKNOWN;
+                    } else if (settingsReadiness.ready()) {
+                        status = TenantReadinessStatus.READY;
+                    } else {
+                        status = TenantReadinessStatus.MISSING;
+                        var reasonCodes = settingsReadiness.sections().stream()
+                            .flatMap(section -> section.blockingReasons().stream())
+                            .toList();
+                        if (reasonCodes.isEmpty()) {
+                            issues.add(new TenantReadinessIssue("settings", "readiness.settings.missing", d.route()));
+                        } else {
+                            reasonCodes.forEach(reason ->
+                                issues.add(new TenantReadinessIssue("settings", reason, d.route())));
+                        }
                     }
                 }
                 case "subscription" -> {
@@ -291,7 +299,7 @@ public class TenantReadinessAssembler {
 
     private boolean checkIdentity(TchRequestContext ctx) {
         try {
-            return tenantPreContextLookupApi.findById(ctx.tenantId()).isPresent();
+            return tenantPreContextLookupApi.findById(ctx.tenantIdRequired()).isPresent();
         } catch (RuntimeException e) {
             log.warn("Failed to check tenant identity for readiness: {}", e.getMessage(), e);
         }
@@ -300,7 +308,7 @@ public class TenantReadinessAssembler {
 
     private boolean checkAddress(TchRequestContext ctx) {
         try {
-            return addressApi.findPrimaryByTenantId(ctx.tenantId()).isPresent();
+            return addressApi.findPrimaryByTenantId(ctx.tenantIdRequired()).isPresent();
         } catch (RuntimeException e) {
             log.warn("Failed to check tenant address for readiness: {}", e.getMessage(), e);
         }
@@ -310,7 +318,7 @@ public class TenantReadinessAssembler {
     private boolean checkSellerTerminals(TchRequestContext ctx) {
         try {
             var page = queryBus.ask(new ListSellerTerminalsQuery(
-                ctx.tenantId(),
+                ctx.tenantIdRequired(),
                 SellerTerminalSearchCriteria.empty(),
                 new TchPageRequest(PageRequest.of(0, 1))));
             return page != null && page.totalElements() > 0;
@@ -322,7 +330,7 @@ public class TenantReadinessAssembler {
 
     private TenantReadinessStatus checkGamesPricing(TchRequestContext ctx) {
         try {
-            TenantGamesPricingView view = gamesPricingService.get(ctx.tenantId());
+            TenantGamesPricingView view = gamesPricingService.get(ctx.tenantIdRequired());
             if (view == null || view.games() == null || view.games().isEmpty()) {
                 return TenantReadinessStatus.MISSING;
             }
@@ -355,7 +363,7 @@ public class TenantReadinessAssembler {
 
     private TenantReadinessStatus checkDraws(TchRequestContext ctx) {
         try {
-            TenantDrawSalesMatrixView view = drawSalesMatrixService.get(ctx.tenantId());
+            TenantDrawSalesMatrixView view = drawSalesMatrixService.get(ctx.tenantIdRequired());
             if (view == null || view.summary() == null) {
                 return TenantReadinessStatus.MISSING;
             }
@@ -402,7 +410,7 @@ public class TenantReadinessAssembler {
      */
     private TenantReadinessStatus checkSubscription(TchRequestContext ctx) {
         try {
-            var subscription = queryBus.ask(new ResolveTenantSubscriptionQuery(ctx.tenantId()));
+            var subscription = queryBus.ask(new ResolveTenantSubscriptionQuery(ctx.tenantIdRequired()));
             if (subscription == null) {
                 return TenantReadinessStatus.MISSING;
             }
@@ -417,29 +425,18 @@ public class TenantReadinessAssembler {
         return TenantReadinessStatus.UNKNOWN;
     }
 
-    /**
-     * Whether the tenant customized their settings, using the receipt display name as signal:
-     * it ships as the literal placeholder {@link #DEFAULT_RECEIPT_DISPLAY_NAME} until a human
-     * edits it. Currency/timezone/locale are always set at provisioning so they're not useful
-     * "still on defaults" signals on their own.
-     */
-    private TenantReadinessStatus checkSettings(TchRequestContext ctx) {
+    private TenantSettingsReadinessView checkSettings(TchRequestContext ctx) {
         try {
-            var doc = tenantConfigApi.getTenantDocumentConfig(new GetTenantByIdRequest(ctx.tenantId()));
-            String displayName = doc == null || doc.receipt() == null ? null : doc.receipt().displayName();
-            boolean customized = displayName != null
-                && !displayName.isBlank()
-                && !DEFAULT_RECEIPT_DISPLAY_NAME.equals(displayName.trim());
-            return customized ? TenantReadinessStatus.READY : TenantReadinessStatus.MISSING;
+            return tenantConfigApi.getTenantSettingsReadiness(new GetTenantByIdRequest(ctx.tenantIdRequired()));
         } catch (RuntimeException e) {
             log.warn("Failed to check tenant settings for readiness: {}", e.getMessage(), e);
         }
-        return TenantReadinessStatus.UNKNOWN;
+        return null;
     }
 
     private TenantReadinessStatus checkTheme(TchRequestContext ctx) {
         try {
-            return tenantThemeApi.findActiveTenantTheme(ctx.tenantId())
+            return tenantThemeApi.findActiveTenantTheme(ctx.tenantIdRequired())
                 .filter(theme -> theme.active() && theme.presetCode() != null && !theme.presetCode().isBlank())
                 .isPresent()
                 ? TenantReadinessStatus.READY

@@ -341,20 +341,22 @@
             "supportedLanguages": "Langues supportées",
             "fallbackLanguage": "Langue de secours",
             "defaultOpen": "Ouvert par défaut",
-            "holidaySalesAllowed": "Vente les jours fériés",
             "closedWeekdays": "Jours fermés",
-            "receiptDisplayName": "Nom affiché",
+            "holidays": "Jours fériés",
+            "open": "Ouvert",
+            "closed": "Fermé",
+            "receiptEnabled": "Reçu activé",
+            "defaultTemplateKey": "Template",
             "headerMessage": "Message d'en-tête",
             "footerMessage": "Message de pied",
             "paperSize": "Format papier",
-            "showQrCode": "Afficher QR code",
-            "showSellerName": "Afficher nom vendeur",
-            "showPotentialPayout": "Afficher gain potentiel"
+            "showQrCode": "Afficher QR code"
           },
           "paidBy": {
             "buyer": "Payé par l'acheteur",
             "tenant": "Payé par le tenant",
-            "platform": "Payé par la plateforme"
+            "platform": "Payé par la plateforme",
+            "seller": "Payé par le seller-terminal"
           }
         }
       },

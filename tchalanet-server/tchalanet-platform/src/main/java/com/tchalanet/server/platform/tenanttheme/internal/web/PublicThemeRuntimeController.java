@@ -33,6 +33,6 @@ public class PublicThemeRuntimeController {
         @CurrentContext TchRequestContext ctx,
         @RequestParam(required = false) String mode) {
         return ApiResponse.success(
-            runtimeService.getRuntime(ctx.effectiveTenantIdRequired(), mode));
+            runtimeService.getRuntime(ctx.tenantIdRequired(), mode));
     }
 }

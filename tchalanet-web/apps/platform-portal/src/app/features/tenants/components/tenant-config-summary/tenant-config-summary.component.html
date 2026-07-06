@@ -14,18 +14,6 @@
         icon="translate"
       >
         <dl class="tenant-config-summary__facts">
-          @if (loc.defaultLanguage) {
-            <div>
-              <dt>{{ 'platform.tenants.detail.config.field.defaultLanguage' | translate }}</dt>
-              <dd>{{ loc.defaultLanguage }}</dd>
-            </div>
-          }
-          @if (loc.defaultLocale) {
-            <div>
-              <dt>{{ 'platform.tenants.detail.config.field.defaultLocale' | translate }}</dt>
-              <dd>{{ loc.defaultLocale }}</dd>
-            </div>
-          }
           @if (loc.supportedLanguages?.length) {
             <div>
               <dt>{{ 'platform.tenants.detail.config.field.supportedLanguages' | translate }}</dt>
@@ -53,14 +41,28 @@
             <dt>{{ 'platform.tenants.detail.config.field.defaultOpen' | translate }}</dt>
             <dd>{{ (cal.defaultOpen ? 'common.yes' : 'common.no') | translate }}</dd>
           </div>
-          <div>
-            <dt>{{ 'platform.tenants.detail.config.field.holidaySalesAllowed' | translate }}</dt>
-            <dd>{{ (cal.holidaySalesAllowed ? 'common.yes' : 'common.no') | translate }}</dd>
-          </div>
           @if (cal.closedWeekdays?.length) {
             <div>
               <dt>{{ 'platform.tenants.detail.config.field.closedWeekdays' | translate }}</dt>
               <dd>{{ cal.closedWeekdays!.map(d => weekdayLabel(d)).join(', ') }}</dd>
+            </div>
+          }
+          @if (cal.holidays?.length) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.holidays' | translate }}</dt>
+              <dd>
+                <ul class="tenant-config-summary__inline-list">
+                  @for (holiday of cal.holidays; track holiday.key ?? holiday.monthDay) {
+                    <li>
+                      {{ holiday.label || holiday.key || holiday.monthDay }}
+                      @if (holiday.monthDay) {
+                        <span>({{ holiday.monthDay }})</span>
+                      }
+                      <span>· {{ (holiday.open ? 'platform.tenants.detail.config.field.open' : 'platform.tenants.detail.config.field.closed') | translate }}</span>
+                    </li>
+                  }
+                </ul>
+              </dd>
             </div>
           }
         </dl>
@@ -97,10 +99,14 @@
         icon="receipt_long"
       >
         <dl class="tenant-config-summary__facts">
-          @if (rec.displayName) {
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.receiptEnabled' | translate }}</dt>
+            <dd>{{ (rec.enabled ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+          @if (rec.defaultTemplateKey) {
             <div>
-              <dt>{{ 'platform.tenants.detail.config.field.receiptDisplayName' | translate }}</dt>
-              <dd>{{ rec.displayName }}</dd>
+              <dt>{{ 'platform.tenants.detail.config.field.defaultTemplateKey' | translate }}</dt>
+              <dd>{{ rec.defaultTemplateKey }}</dd>
             </div>
           }
           @if (rec.headerMessage) {
@@ -124,14 +130,6 @@
           <div>
             <dt>{{ 'platform.tenants.detail.config.field.showQrCode' | translate }}</dt>
             <dd>{{ (rec.showQrCode ? 'common.yes' : 'common.no') | translate }}</dd>
-          </div>
-          <div>
-            <dt>{{ 'platform.tenants.detail.config.field.showSellerName' | translate }}</dt>
-            <dd>{{ (rec.showSellerName ? 'common.yes' : 'common.no') | translate }}</dd>
-          </div>
-          <div>
-            <dt>{{ 'platform.tenants.detail.config.field.showPotentialPayout' | translate }}</dt>
-            <dd>{{ (rec.showPotentialPayout ? 'common.yes' : 'common.no') | translate }}</dd>
           </div>
         </dl>
       </tch-admin-section-card>

@@ -41,6 +41,9 @@ public class TenantJpaEntity extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "display_name", nullable = false)
+    private String displayName;
+
     @Column(name = "type", nullable = false, length = 32)
     @Enumerated(EnumType.STRING)
     private TenantType type;

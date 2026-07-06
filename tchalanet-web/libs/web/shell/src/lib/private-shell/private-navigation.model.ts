@@ -32,6 +32,11 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         id: 'tenants',
         labelKey: 'platform.nav.tenantsGroup',
         icon: 'business',
+        destination: { kind: 'route', value: '/app/platform/tenants' },
+        activeRoutes: [
+          '/app/platform/tenants',
+          '/app/platform/support-tenant',
+        ],
         children: [
           {
             id: 'tenant-list',
@@ -58,6 +63,11 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
         id: 'operations',
         labelKey: 'platform.nav.operations',
         icon: 'manufacturing',
+        destination: { kind: 'route', value: '/app/platform/ops' },
+        activeRoutes: [
+          '/app/platform/ops/draws',
+          '/app/platform/ops/draw-results',
+        ],
         children: [
           {
             id: 'ops-overview',
@@ -373,6 +383,14 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'nav.admin.general_configuration',
         icon: 'checklist',
         destination: { kind: 'route', value: '/app/admin/setup' },
+        activeRoutes: [
+          '/app/admin/business-profile',
+          '/app/admin/settings',
+          '/app/admin/settings/runtime',
+          '/app/admin/settings/config',
+          '/app/admin/business-days',
+          '/app/admin/subscription',
+        ],
       },
       {
         id: 'sellers',
@@ -406,6 +424,9 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'nav.draws',
         icon: 'event',
         destination: { kind: 'route', value: '/app/admin/draws' },
+        activeRoutes: [
+          '/app/admin/draws',
+        ],
         children: [
           {
             id: 'draws-all',

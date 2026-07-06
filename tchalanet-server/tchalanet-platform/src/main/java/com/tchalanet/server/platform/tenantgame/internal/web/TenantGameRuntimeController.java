@@ -25,6 +25,6 @@ public class TenantGameRuntimeController {
     @Operation(summary = "Runtime games for POS/sales/bootstrap — enabled games only, safe view")
     @GetMapping("/runtime")
     public ApiResponse<List<TenantGameRuntimeView>> runtime(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(runtimeService.getRuntimeGames(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(runtimeService.getRuntimeGames(ctx.tenantIdRequired()));
     }
 }

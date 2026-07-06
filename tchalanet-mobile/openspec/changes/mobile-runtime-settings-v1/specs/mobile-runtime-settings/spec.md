@@ -43,6 +43,32 @@ notification catalogs directly to compose runtime state.
 - **THEN** it keeps the single Tchalanet Mobile Material 3 theme
 - **AND** it does not dynamically apply tenant theme data in V1
 
+### Requirement: Mobile treats runtime settings as read-only inputs
+
+The Mobile application SHALL consume tenant settings only through the server-composed
+runtime bootstrap and runtime-state contracts. Tenant settings editing, validation,
+readiness computation, and persistence SHALL remain owned by backend and web-admin
+contracts in V1.
+
+Future Unleash adoption MAY own rollout flags, but it SHALL NOT become the owner of
+tenant business settings such as receipt, send-option, locale-policy, or business
+calendar configuration.
+
+#### Scenario: Mobile needs a tenant setting
+
+- **GIVEN** the tenant runtime bootstrap contains settings values
+- **WHEN** a mobile ViewModel or service needs a setting
+- **THEN** it reads a typed value from app-scoped runtime state
+- **AND** it does not call tenant settings read/write endpoints directly
+- **AND** it does not persist tenant settings back to the server
+
+#### Scenario: Runtime settings are missing or stale
+
+- **GIVEN** a setting is missing, unsupported, or unavailable during bootstrap refresh
+- **WHEN** mobile evaluates a local feature gate or display preference
+- **THEN** it applies the declared safe fallback
+- **AND** backend APIs remain authoritative for business validation and side effects
+
 ### Requirement: Mobile runtime bootstrap fails safely
 
 The Mobile application SHALL expose bootstrap data through typed app-scoped state and

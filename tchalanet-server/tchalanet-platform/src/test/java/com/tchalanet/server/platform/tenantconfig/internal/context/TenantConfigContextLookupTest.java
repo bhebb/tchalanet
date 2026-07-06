@@ -26,7 +26,7 @@ class TenantConfigContextLookupTest {
     void implementsCommonTenantContextLookupAndMapsRegistryView() {
         var tenantId = TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
         var view = new TenantContextLookupView(
-            tenantId, "demo", "Demo Tenant",
+            tenantId, "demo", "Demo Tenant", "demo",
             TenantStatus.ACTIVE, TenantType.BORLETTE,
             ZoneId.of("America/Toronto"), Currency.getInstance("CAD"),
             "fr", "fr-HT",

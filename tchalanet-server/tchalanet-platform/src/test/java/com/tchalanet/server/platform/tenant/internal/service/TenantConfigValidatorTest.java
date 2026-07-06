@@ -15,13 +15,13 @@ class TenantConfigValidatorTest {
     /** Full valid config matching the 4 merged classpath fragments. */
     private static final String VALID_CONFIG = """
         {
-          "rules": {
-            "businessCalendar": {
-              "defaultOpen": true,
-              "closedWeekdays": [],
-              "holidaySalesAllowed": false
-            }
-          },
+              "rules": {
+                "businessCalendar": {
+                  "defaultOpen": true,
+                  "closedWeekdays": [],
+                  "holidays": []
+                }
+              },
           "document": {
             "receipt": {
               "enabled": true,
@@ -38,8 +38,6 @@ class TenantConfigValidatorTest {
             }
           },
           "locale": {
-            "defaultLanguage": "fr",
-            "defaultLocale": "fr-HT",
             "supportedLanguages": ["fr", "ht", "en"],
             "fallbackLanguage": "fr"
           }
@@ -73,6 +71,20 @@ class TenantConfigValidatorTest {
             .hasMessageContaining("fees");
     }
 
+    @Test
+    void missingTopLevelSectionIsRejectedByFullValidation() {
+        var config = """
+            {
+              "document": { "receipt": { "enabled": false } },
+              "communication": {},
+              "locale": {}
+            }
+            """;
+        assertThatThrownBy(() -> validator.validateAll(parse(config)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("rules");
+    }
+
     // ── validateRulesConfig ────────────────────────────────────────────────
 
     @Test
@@ -84,11 +96,34 @@ class TenantConfigValidatorTest {
     }
 
     @Test
-    void rulesHolidaySalesAllowedNullIsRejected() {
-        var config = VALID_CONFIG.replace("\"holidaySalesAllowed\": false", "\"holidaySalesAllowed\": null");
+    void validRecurringTenantHolidayPassesRulesValidation() {
+        var config = VALID_CONFIG.replace(
+            "\"holidays\": []",
+            "\"holidays\": [{ \"key\": \"christmas_day\", \"monthDay\": \"12-25\", \"open\": false, \"label\": \"Noel\" }]");
+
+        assertThatNoException().isThrownBy(() -> validator.validateRulesConfig(parse(config)));
+    }
+
+    @Test
+    void invalidRecurringTenantHolidayMonthDayIsRejected() {
+        var config = VALID_CONFIG.replace(
+            "\"holidays\": []",
+            "\"holidays\": [{ \"key\": \"bad_date\", \"monthDay\": \"02-30\", \"open\": false, \"label\": \"Bad\" }]");
+
         assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("holidaySalesAllowed");
+            .hasMessageContaining("monthDay");
+    }
+
+    @Test
+    void recurringTenantHolidayOpenIntentIsRequired() {
+        var config = VALID_CONFIG.replace(
+            "\"holidays\": []",
+            "\"holidays\": [{ \"key\": \"christmas_day\", \"monthDay\": \"12-25\", \"label\": \"Noel\" }]");
+
+        assertThatThrownBy(() -> validator.validateRulesConfig(parse(config)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("open");
     }
 
     @Test
@@ -101,14 +136,6 @@ class TenantConfigValidatorTest {
     }
 
     // ── validateLocaleConfig ───────────────────────────────────────────────
-
-    @Test
-    void localeDefaultLanguageBlankIsRejected() {
-        var config = VALID_CONFIG.replace("\"defaultLanguage\": \"fr\"", "\"defaultLanguage\": \"\"");
-        assertThatThrownBy(() -> validator.validateLocaleConfig(parse(config)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("defaultLanguage");
-    }
 
     @Test
     void localeSupportedLanguagesEmptyIsRejected() {

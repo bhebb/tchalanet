@@ -74,7 +74,7 @@ public class SellerTerminalAdminController {
     @Operation(summary = "Seller terminals summary")
     public ApiResponse<SellerTerminalsSummaryResponse> summary(@CurrentContext TchRequestContext ctx) {
         var page = queryBus.ask(new ListSellerTerminalsQuery(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             SellerTerminalSearchCriteria.empty(),
             new TchPageRequest(PageRequest.of(0, SUMMARY_MAX_TERMINALS))));
 
@@ -123,7 +123,7 @@ public class SellerTerminalAdminController {
     ) {
         var criteria = new SellerTerminalSearchCriteria(q, status);
         return ApiResponse.success(queryBus.ask(
-            new ListSellerTerminalsQuery(ctx.effectiveTenantIdRequired(), criteria, pageRequest)));
+            new ListSellerTerminalsQuery(ctx.tenantIdRequired(), criteria, pageRequest)));
     }
 
     @GetMapping("/{id}")
@@ -134,7 +134,7 @@ public class SellerTerminalAdminController {
         @PathVariable SellerTerminalId id
     ) {
         return ApiResponse.success(queryBus.ask(
-            new GetSellerTerminalQuery(ctx.effectiveTenantIdRequired(), id)));
+            new GetSellerTerminalQuery(ctx.tenantIdRequired(), id)));
     }
 
     // ── Commands ──────────────────────────────────────────────────────────────
@@ -157,7 +157,7 @@ public class SellerTerminalAdminController {
         @Valid @RequestBody CreateSellerTerminalRequest request
     ) {
         var id = commandBus.execute(new CreateSellerTerminalCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             request.terminalCode(),
             request.displayName(),
             request.firstName(),
@@ -185,7 +185,7 @@ public class SellerTerminalAdminController {
         @Valid @RequestBody UpdateSellerTerminalRequest request
     ) {
         commandBus.execute(new UpdateSellerTerminalCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             request.displayName(),
             request.firstName(),
             request.lastName(),
@@ -210,7 +210,7 @@ public class SellerTerminalAdminController {
         @Valid @RequestBody BlockSellerTerminalRequest request
     ) {
         commandBus.execute(new BlockSellerTerminalCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             request.reason(),
             ctx.currentUserIdRequired()));
     }
@@ -227,7 +227,7 @@ public class SellerTerminalAdminController {
         @PathVariable SellerTerminalId id
     ) {
         commandBus.execute(new UnblockSellerTerminalCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             ctx.currentUserIdRequired()));
     }
 
@@ -243,7 +243,7 @@ public class SellerTerminalAdminController {
         @PathVariable SellerTerminalId id
     ) {
         commandBus.execute(new DisableSellerTerminalCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             ctx.currentUserIdRequired()));
     }
 
@@ -260,7 +260,7 @@ public class SellerTerminalAdminController {
         @Valid @RequestBody ResetPinRequest request
     ) {
         commandBus.execute(new ResetSellerTerminalAccessCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             request.newPin(),
             ctx.currentUserIdRequired()));
     }
@@ -279,7 +279,7 @@ public class SellerTerminalAdminController {
         @Valid @RequestBody PinResetRequest request
     ) {
         var result = commandBus.execute(new ResetSellerTerminalPinCommand(
-            ctx.effectiveTenantIdRequired(), id,
+            ctx.tenantIdRequired(), id,
             request.reason(),
             ctx.currentUserIdRequired()));
         return ApiResponse.success(result);

@@ -78,6 +78,7 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
             TenantId.of(row.id()),
             row.code(),
             row.name(),
+            safe(row.displayName(), row.code()),
             safeStatus(row.status()),
             safeType(row.type()),
             safeZoneId(row.timezone()),

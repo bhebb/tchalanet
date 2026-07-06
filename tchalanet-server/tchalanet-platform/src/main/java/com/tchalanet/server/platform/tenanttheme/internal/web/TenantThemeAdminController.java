@@ -43,7 +43,7 @@ public class TenantThemeAdminController {
     @Operation(summary = "Get current tenant theme")
     @GetMapping
     public ApiResponse<TenantThemeAdminView> get(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(adminService.getAdminView(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(adminService.getAdminView(ctx.tenantIdRequired()));
     }
 
     @Operation(summary = "List available theme presets")
@@ -60,7 +60,7 @@ public class TenantThemeAdminController {
     public ApiResponse<Void> applyPreset(
         @Valid @RequestBody ApplyPresetRequest body,
         @CurrentContext TchRequestContext ctx) {
-        adminService.applyPreset(new ApplyTenantThemeRequest(ctx.effectiveTenantIdRequired(), body.presetCode()));
+        adminService.applyPreset(new ApplyTenantThemeRequest(ctx.tenantIdRequired(), body.presetCode()));
         return ApiResponse.success(null);
     }
 
@@ -73,7 +73,7 @@ public class TenantThemeAdminController {
         @Valid @RequestBody UpdateSettingsRequest body,
         @CurrentContext TchRequestContext ctx) {
         adminService.updateSettings(new UpdateTenantThemeSettingsRequest(
-            ctx.effectiveTenantIdRequired(), body.defaultMode()));
+            ctx.tenantIdRequired(), body.defaultMode()));
         return ApiResponse.success(null);
     }
 
@@ -82,7 +82,7 @@ public class TenantThemeAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasPermission(null, 'theme.manage')")
     public ApiResponse<Void> deactivate(@CurrentContext TchRequestContext ctx) {
-        adminService.deactivate(new DeactivateTenantThemeRequest(ctx.effectiveTenantIdRequired()));
+        adminService.deactivate(new DeactivateTenantThemeRequest(ctx.tenantIdRequired()));
         return ApiResponse.success(null);
     }
 

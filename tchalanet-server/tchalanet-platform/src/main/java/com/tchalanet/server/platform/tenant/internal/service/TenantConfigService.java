@@ -18,15 +18,19 @@ import com.tchalanet.server.platform.tenant.api.model.request.ArchiveTenantReque
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantInternalSettingsSectionRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ListTenantsRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.SuspendTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdentityRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantHolidayTemplateView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalCommunicationConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantRuntimeView;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantSettingsReadinessView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantSummaryView;
 import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
 import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
@@ -60,8 +64,9 @@ import java.util.Set;
  * <p>Internal settings are stored in tenant `config` (jsonb). During tenant creation,
  * settings are assembled by merging classpath fragments from `tenantconfig/*.json`.
  *
- * <p>For mutable settings updates, `communication` and `document.receipt` blocks are validated.
- * Schema-level validation can be introduced later without changing this persistence contract.
+ * <p>After provisioning, the persisted tenant config is the source of truth. Mutable settings
+ * updates patch that persisted blob before validating the full document, so one form cannot drop
+ * sibling slices.
  */
 @Service
 @RequiredArgsConstructor
@@ -77,6 +82,7 @@ public class TenantConfigService {
     private final IdGenerator idGenerator;
     private final JsonUtils jsonUtils;
     private final TenantConfigValidator configValidator;
+    private final TenantSettingsReadinessService settingsReadiness;
 
     @Transactional
     public void createTenant(CreateTenantRequest request) {
@@ -86,7 +92,7 @@ public class TenantConfigService {
             request.address() == null
                 ? null
                 : addressApi.upsertTenantPrimary(tenantId, request.address());
-        JsonNode tenantInternalJson = getTenantInternalSettings();
+        JsonNode tenantInternalJson = loadDefaultTenantInternalSettings();
         var tenant =
             TenantConfig.createDraft(
                 tenantId,
@@ -94,11 +100,11 @@ public class TenantConfigService {
                 request.name(),
                 request.type(),
                 request.timezone(),
-	                request.currency(),
-	                addressId,
-	                request.activeThemeId(),
-	                request.defaultCommissionRate(),
-	                tenantInternalJson);
+                request.currency(),
+                addressId,
+                request.activeThemeId(),
+                request.defaultCommissionRate(),
+                tenantInternalJson);
         if (Boolean.TRUE.equals(request.activate())) {
             tenant = tenant.activate(now);
         }
@@ -110,7 +116,7 @@ public class TenantConfigService {
      * Builds default tenant settings by deep-merging all JSON fragments under
      * `classpath*:tenantconfig/*.json`.
      */
-    private JsonNode getTenantInternalSettings() {
+    private JsonNode loadDefaultTenantInternalSettings() {
         var resolver = new PathMatchingResourcePatternResolver();
         try {
             var resources = resolver.getResources("classpath*:tenantconfig/*.json");
@@ -158,6 +164,20 @@ public class TenantConfigService {
         });
     }
 
+    private void deepPatch(ObjectNode target, JsonNode source) {
+        source.properties().forEach(entry -> {
+            var fieldName = entry.getKey();
+            var sourceValue = entry.getValue();
+            var targetValue = target.get(fieldName);
+
+            if (targetValue != null && targetValue.isObject() && sourceValue.isObject()) {
+                deepPatch((ObjectNode) targetValue, sourceValue);
+                return;
+            }
+            target.set(fieldName, sourceValue);
+        });
+    }
+
     public TenantConfigView getTenantById(GetTenantByIdRequest request) {
         return toView(
             tenantRegistry
@@ -184,7 +204,7 @@ public class TenantConfigService {
 
     private TenantSummaryView toSummaryView(TenantJpaEntity e) {
         return new TenantSummaryView(
-            e.getId(), e.getCode(), e.getName(), e.getType(), e.getStatus(),
+            e.getId(), e.getCode(), e.getName(), e.getDisplayName(), e.getType(), e.getStatus(),
             e.getCurrency(), e.getTimezone(), e.getDefaultCommissionRate(),
             e.getCreatedAt(), e.getUpdatedAt()
         );
@@ -232,6 +252,10 @@ public class TenantConfigService {
             tenant = tenant.rename(request.name(), now);
             changed.add("name");
         }
+        if (request.displayName() != null && !Objects.equals(request.displayName(), tenant.displayName())) {
+            tenant = tenant.renameDisplay(request.displayName(), now);
+            changed.add("displayName");
+        }
         if (request.timezone() != null || request.currency() != null) {
             var timezone = request.timezone() == null ? tenant.timezone() : ZoneId.of(request.timezone());
             var currency = request.currency() == null ? tenant.currency() : Currency.getInstance(request.currency());
@@ -250,11 +274,45 @@ public class TenantConfigService {
 
     @Transactional
     public void updateTenantInternalSettings(UpdateTenantInternalSettingsRequest request) {
-        configValidator.validateAll(request.settings());
-
         var tenant = load(request.tenantId());
+        var merged = mergeWithPersistedConfig(tenant, request.settings());
+        configValidator.validateAll(merged);
+
         var now = Instant.now(clock);
-        tenants.update(tenant.updateConfig(request.settings(), now));
+        tenants.update(tenant.updateConfig(merged, now));
+    }
+
+    @Transactional
+    public void updateTenantInternalSettingsSection(UpdateTenantInternalSettingsSectionRequest request) {
+        var tenant = load(request.tenantId());
+        var sectionPatch = jsonUtils.emptyObject();
+        sectionPatch.set(request.section().jsonKey(), request.value());
+        var merged = mergeWithPersistedConfig(tenant, sectionPatch);
+        configValidator.validateAll(merged);
+
+        var now = Instant.now(clock);
+        tenants.update(tenant.updateConfig(merged, now));
+    }
+
+    private ObjectNode mergeWithPersistedConfig(TenantConfig tenant, JsonNode patch) {
+        if (patch == null || patch.isNull() || !patch.isObject()) {
+            throw new IllegalArgumentException("settings patch must be a JSON object");
+        }
+        var merged = persistedConfigCopy(tenant);
+        deepPatch(merged, patch);
+        return merged;
+    }
+
+    private ObjectNode persistedConfigCopy(TenantConfig tenant) {
+        if (tenant.config() == null || tenant.config().isNull()) {
+            throw new IllegalStateException("tenant config is missing");
+        }
+        if (!tenant.config().isObject()) {
+            throw new IllegalArgumentException("tenant config must be a JSON object");
+        }
+        var merged = jsonUtils.emptyObject();
+        deepPatch(merged, tenant.config());
+        return merged;
     }
 
     /**
@@ -264,24 +322,53 @@ public class TenantConfigService {
      */
     @Transactional(readOnly = true)
     public TenantInternalCommunicationConfig getTenantCommunicationConfig(GetTenantByIdRequest request) {
-        var tenant = tenants.getRequiredByIdActive(request.tenantId());
-        var config = tenant.config();
-        if (config == null || config.isNull()) {
-            return null;
-        }
-        var typed = jsonUtils.treeToValue(config, TenantInternalSettings.class);
+        var typed = getTenantInternalSettings(request);
         return typed == null ? null : typed.communication();
     }
 
     @Transactional(readOnly = true)
     public TenantInternalDocumentConfig getTenantDocumentConfig(GetTenantByIdRequest request) {
-        var tenant = tenants.getRequiredByIdActive(request.tenantId());
-        var config = tenant.config();
-        if (config == null || config.isNull()) {
-            return null;
-        }
-        var typed = jsonUtils.treeToValue(config, TenantInternalSettings.class);
+        var typed = getTenantInternalSettings(request);
         return typed == null ? null : typed.document();
+    }
+
+    public List<TenantHolidayTemplateView> listTenantHolidayTemplates() {
+        return TenantHolidayTemplates.haitiV0();
+    }
+
+    @Transactional(readOnly = true)
+    public TenantInternalSettings getTenantInternalSettings(GetTenantByIdRequest request) {
+        var tenant = tenants.getRequiredByIdActive(request.tenantId());
+        return jsonUtils.treeToValue(persistedConfigCopy(tenant), TenantInternalSettings.class);
+    }
+
+    @Transactional(readOnly = true)
+    public JsonNode getTenantInternalSettingsSection(GetTenantInternalSettingsSectionRequest request) {
+        var tenant = tenants.getRequiredByIdActive(request.tenantId());
+        return persistedConfigCopy(tenant).get(request.section().jsonKey());
+    }
+
+    @Transactional(readOnly = true)
+    public TenantSettingsReadinessView getTenantSettingsReadiness(GetTenantByIdRequest request) {
+        var tenant = tenants.getRequiredByIdActive(request.tenantId());
+        var registry = tenantRegistry.findById(request.tenantId())
+            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + request.tenantId()));
+        var settings = tenant.config() == null || tenant.config().isNull()
+            ? null
+            : jsonUtils.treeToValue(persistedConfigCopy(tenant), TenantInternalSettings.class);
+        var supportedLocales = settings != null && settings.locale() != null
+            ? settings.locale().effectiveSupportedLanguages()
+            : java.util.List.<String>of();
+        var runtime = new TenantRuntimeView(
+            registry.code(),
+            registry.displayName(),
+            registry.status().name(),
+            registry.timezone(),
+            registry.currency(),
+            registry.defaultLanguage(),
+            registry.defaultLocale(),
+            supportedLocales);
+        return settingsReadiness.evaluate(runtime, settings);
     }
 
     @Transactional(readOnly = true)
@@ -289,6 +376,13 @@ public class TenantConfigService {
         var code = tenantCode.trim().toLowerCase();
         var registry = tenantRegistry.findByCode(code)
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + code));
+        return getTenantRuntimeView(registry.tenantId());
+    }
+
+    @Transactional(readOnly = true)
+    public TenantRuntimeView getTenantRuntimeView(com.tchalanet.server.common.types.id.TenantId tenantId) {
+        var registry = tenantRegistry.findById(tenantId)
+            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
         var locale = tenants.findByIdActive(registry.tenantId())
             .map(tc -> {
                 if (tc.config() == null || tc.config().isNull()) return null;
@@ -299,7 +393,7 @@ public class TenantConfigService {
         List<String> supportedLocales = locale != null ? locale.effectiveSupportedLanguages() : java.util.List.of();
         return new TenantRuntimeView(
             registry.code(),
-            registry.name(),
+            registry.displayName(),
             registry.status().name(),
             registry.timezone(),
             registry.currency(),
@@ -338,6 +432,7 @@ public class TenantConfigService {
             registry.tenantId(),
             registry.code(),
             registry.name(),
+            registry.displayName(),
             registry.type(),
             registry.timezone(),
             registry.currency(),

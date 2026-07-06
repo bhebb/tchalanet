@@ -9,6 +9,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 
+import { AuthSessionService } from '@tch/core/auth';
+import { TchNotice } from '@tch/ui/components';
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
@@ -40,6 +42,7 @@ import {
     AdminStatusPillComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TchNotice,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -49,12 +52,15 @@ import {
     MatTableModule,
   ],
   templateUrl: './platform-catalog-result-slot-calendars.page.html',
+  styleUrls: ['./platform-catalog-result-slot-calendars.page.scss'],
 })
 export class PlatformCatalogResultSlotCalendarsPage {
   private readonly api = inject(PlatformCatalogApi);
+  private readonly auth = inject(AuthSessionService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly columns = ['shape', 'available', 'reasonCode', 'reasonLabel', 'actions'];
+  readonly canManage = computed(() => this.auth.hasRole('SUPER_ADMIN'));
   readonly slots = this.api.listResultSlotsResource({ suppressShellFeedback: true });
   readonly slotError = resourceErrorVm(this.slots, 'platform.catalog.resultSlotCalendars.slots');
   readonly slotRows = computed(() => this.slots.value() ?? []);
@@ -84,6 +90,7 @@ export class PlatformCatalogResultSlotCalendarsPage {
   }
 
   create(): void {
+    if (!this.canManage()) return;
     const slotId = this.selectedSlotId();
     const slotLocalDate = this.slotLocalDate().trim();
     const recurringMd = this.recurringMd().trim();
@@ -116,6 +123,7 @@ export class PlatformCatalogResultSlotCalendarsPage {
   }
 
   edit(row: CatalogResultSlotCalendarOverrideView): void {
+    if (!this.canManage()) return;
     const slotId = this.selectedSlotId();
     const overrideId = idValue(row.id);
     if (!slotId || !overrideId) return;
@@ -140,6 +148,7 @@ export class PlatformCatalogResultSlotCalendarsPage {
   }
 
   toggle(row: CatalogResultSlotCalendarOverrideView): void {
+    if (!this.canManage()) return;
     const slotId = this.selectedSlotId();
     const overrideId = idValue(row.id);
     if (!slotId || !overrideId) return;
@@ -160,6 +169,7 @@ export class PlatformCatalogResultSlotCalendarsPage {
   }
 
   delete(row: CatalogResultSlotCalendarOverrideView): void {
+    if (!this.canManage()) return;
     const slotId = this.selectedSlotId();
     const overrideId = idValue(row.id);
     if (!slotId || !overrideId) return;

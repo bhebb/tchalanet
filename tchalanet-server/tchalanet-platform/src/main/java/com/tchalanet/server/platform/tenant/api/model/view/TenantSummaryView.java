@@ -15,6 +15,7 @@ public record TenantSummaryView(
     UUID id,
     String code,
     String name,
+    String displayName,
     TenantType type,
     TenantStatus status,
     String currency,

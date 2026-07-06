@@ -36,7 +36,7 @@ public class AdminTenantController {
   @PreAuthorize("hasPermission(null, 'tenant.address.read')")
   @Operation(summary = "Get primary address of the current tenant")
   public ApiResponse<Optional<AddressView>> getAddress(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(addressApi.findPrimaryByTenantId(ctx.tenantId()));
+    return ApiResponse.success(addressApi.findPrimaryByTenantId(ctx.tenantIdRequired()));
   }
 
   @PutMapping
@@ -47,7 +47,7 @@ public class AdminTenantController {
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody UpdateTenantIdentityBody body) {
     tenantConfigApi.updateTenantIdentity(
-        new UpdateTenantIdentityRequest(ctx.tenantId(), body.name(), body.timezone(), body.currency()));
+        new UpdateTenantIdentityRequest(ctx.tenantIdRequired(), body.name(), body.displayName(), body.timezone(), body.currency()));
   }
 
   @PutMapping("/address")
@@ -58,9 +58,9 @@ public class AdminTenantController {
       @CurrentContext TchRequestContext ctx,
       @Valid @RequestBody UpsertTenantAddressRequest req) {
     addressApi.upsertTenantPrimary(
-        ctx.tenantId(),
+        ctx.tenantIdRequired(),
         new AddressInput(req.line1(), req.line2(), req.city(), req.region(), req.country(), req.postalCode()));
   }
 
-  public record UpdateTenantIdentityBody(String name, String timezone, String currency) {}
+  public record UpdateTenantIdentityBody(String name, String displayName, String timezone, String currency) {}
 }

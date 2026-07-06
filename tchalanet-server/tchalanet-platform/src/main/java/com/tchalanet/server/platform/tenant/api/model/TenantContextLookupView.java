@@ -16,6 +16,7 @@ public record TenantContextLookupView(
     TenantId tenantId,
     String code,
     String name,
+    String displayName,
     TenantStatus status,
     TenantType type,
     ZoneId timezone,

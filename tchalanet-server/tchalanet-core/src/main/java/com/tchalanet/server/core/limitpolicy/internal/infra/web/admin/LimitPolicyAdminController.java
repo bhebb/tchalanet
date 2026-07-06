@@ -72,7 +72,7 @@ public class LimitPolicyAdminController {
             req.targetId());
 
         var cmd = new UpsertLimitAssignmentCommand(
-            context.effectiveTenantIdRequired(),
+            context.tenantIdRequired(),
             req.ruleKey(),
             scope,
             req.enabled(),
@@ -109,7 +109,7 @@ public class LimitPolicyAdminController {
         }
 
         return switch (targetType) {
-            case TENANT -> LimitScopeRef.tenant(context.effectiveTenantIdRequired());
+            case TENANT -> LimitScopeRef.tenant(context.tenantIdRequired());
 
             case AGENT -> {
                 requireTargetId(targetType, targetId);
@@ -140,7 +140,7 @@ public class LimitPolicyAdminController {
         }
 
         return switch (targetType) {
-            case TENANT -> LimitScopeQueryRef.tenant(context.effectiveTenantIdRequired());
+            case TENANT -> LimitScopeQueryRef.tenant(context.tenantIdRequired());
 
             case AGENT -> {
                 requireTargetId(targetType, targetId);

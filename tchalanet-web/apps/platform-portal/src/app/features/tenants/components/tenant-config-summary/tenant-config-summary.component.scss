@@ -29,3 +29,20 @@
     padding-block: 0.25rem;
   }
 }
+
+.tenant-config-summary__inline-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    overflow-wrap: anywhere;
+  }
+
+  span {
+    color: var(--tch-color-on-surface-variant);
+    font-weight: 400;
+  }
+}

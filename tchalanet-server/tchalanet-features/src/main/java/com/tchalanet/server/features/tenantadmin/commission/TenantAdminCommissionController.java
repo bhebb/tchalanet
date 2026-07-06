@@ -59,7 +59,7 @@ public class TenantAdminCommissionController {
      */
     @GetMapping("/overview")
     public ApiResponse<CommissionOverviewView> overview(@CurrentContext TchRequestContext ctx) {
-        TenantId tenantId = ctx.effectiveTenantIdRequired();
+        TenantId tenantId = ctx.tenantIdRequired();
         BigDecimal defaultRate = resolveDefaultRate(tenantId);
 
         var stats = queryBus.ask(new GetSellerTerminalCommissionStatsQuery(tenantId, defaultRate));
@@ -82,7 +82,7 @@ public class TenantAdminCommissionController {
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody SetDefaultCommissionRateRequest req
     ) {
-        tenantPersistence.updateDefaultCommissionRate(ctx.effectiveTenantIdRequired(), req.rate());
+        tenantPersistence.updateDefaultCommissionRate(ctx.tenantIdRequired(), req.rate());
         return ApiResponse.success(null);
     }
 
@@ -96,7 +96,7 @@ public class TenantAdminCommissionController {
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "50") int size
     ) {
-        TenantId tenantId = ctx.effectiveTenantIdRequired();
+        TenantId tenantId = ctx.tenantIdRequired();
         BigDecimal defaultRate = resolveDefaultRate(tenantId);
 
         int safeSize = Math.min(size, SELLER_LIST_MAX);
@@ -122,7 +122,7 @@ public class TenantAdminCommissionController {
         @Valid @RequestBody SetSellerTerminalCommissionRateRequest req
     ) {
         commandBus.execute(new SetSellerTerminalCommissionRateCommand(
-            ctx.effectiveTenantIdRequired(),
+            ctx.tenantIdRequired(),
             sellerTerminalId,
             req.rate(),
             ctx.userId()));
@@ -138,7 +138,7 @@ public class TenantAdminCommissionController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable SellerTerminalId sellerTerminalId
     ) {
-        TenantId tenantId = ctx.effectiveTenantIdRequired();
+        TenantId tenantId = ctx.tenantIdRequired();
         BigDecimal defaultRate = resolveDefaultRate(tenantId);
         if (defaultRate == null) {
             throw new TchBusinessRuleException(

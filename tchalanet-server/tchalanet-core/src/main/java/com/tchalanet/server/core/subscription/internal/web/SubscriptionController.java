@@ -31,18 +31,18 @@ public class SubscriptionController {
 
     @GetMapping
     public ApiResponse<SubscriptionView> getMySubscription(@CurrentContext TchRequestContext ctx) {
-        var view = queryBus.ask(new ResolveTenantSubscriptionQuery(ctx.effectiveTenantIdRequired()));
+        var view = queryBus.ask(new ResolveTenantSubscriptionQuery(ctx.tenantIdRequired()));
         return ApiResponse.success(view);
     }
 
     @PostMapping("/cancel")
     @AuditLog(action = AuditAction.DELETE, entity = AuditEntityType.SUBSCRIPTION,
               idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'tenantId': #ctx.effectiveTenantIdRequired().value() }")
+              detailsExpression = "{ 'tenantId': #ctx.tenantIdRequired().value() }")
     public ApiResponse<CancelSubscriptionResult> cancel(
             @CurrentContext TchRequestContext ctx,
             @RequestBody(required = false) CancelRequest req) {
-        var cmd = new CancelSubscriptionCommand(ctx.effectiveTenantIdRequired(), req != null ? req.reason() : null, null);
+        var cmd = new CancelSubscriptionCommand(ctx.tenantIdRequired(), req != null ? req.reason() : null, null);
         var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_CANCELED", "Abonnement annulé", "subscription", NoticeSeverity.INFO);
         return ApiResponse.success(result);
@@ -51,11 +51,11 @@ public class SubscriptionController {
     @PostMapping("/renew")
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION,
               idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'newEndsAt': #result.newEndsAt, 'tenantId': #ctx.effectiveTenantIdRequired().value() }")
+              detailsExpression = "{ 'newEndsAt': #result.newEndsAt, 'tenantId': #ctx.tenantIdRequired().value() }")
     public ApiResponse<RenewSubscriptionResult> renew(
             @CurrentContext TchRequestContext ctx,
             @Valid @RequestBody RenewRequest req) {
-        var cmd = new RenewSubscriptionCommand(ctx.effectiveTenantIdRequired(), req.newEndsAt(), null);
+        var cmd = new RenewSubscriptionCommand(ctx.tenantIdRequired(), req.newEndsAt(), null);
         var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_RENEWED", "Abonnement renouvelé", "subscription", NoticeSeverity.INFO);
         return ApiResponse.success(result);
@@ -64,9 +64,9 @@ public class SubscriptionController {
     @PostMapping("/resume")
     @AuditLog(action = AuditAction.RESTORE, entity = AuditEntityType.SUBSCRIPTION,
               idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'tenantId': #ctx.effectiveTenantIdRequired().value() }")
+              detailsExpression = "{ 'tenantId': #ctx.tenantIdRequired().value() }")
     public ApiResponse<ResumeSubscriptionResult> resume(@CurrentContext TchRequestContext ctx) {
-        var cmd = new ResumeSubscriptionCommand(ctx.effectiveTenantIdRequired(), null);
+        var cmd = new ResumeSubscriptionCommand(ctx.tenantIdRequired(), null);
         var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_RESUMED", "Abonnement réactivé", "subscription", NoticeSeverity.INFO);
         return ApiResponse.success(result);
@@ -75,9 +75,9 @@ public class SubscriptionController {
     @PostMapping("/suspend")
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION,
               idExpression = "#result.subscriptionId",
-              detailsExpression = "{ 'tenantId': #ctx.effectiveTenantIdRequired().value() }")
+              detailsExpression = "{ 'tenantId': #ctx.tenantIdRequired().value() }")
     public ApiResponse<SuspendSubscriptionResult> suspend(@CurrentContext TchRequestContext ctx) {
-        var cmd = new SuspendSubscriptionCommand(ctx.effectiveTenantIdRequired(), null);
+        var cmd = new SuspendSubscriptionCommand(ctx.tenantIdRequired(), null);
         var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_SUSPENDED", "Abonnement suspendu", "subscription", NoticeSeverity.INFO);
         return ApiResponse.success(result);

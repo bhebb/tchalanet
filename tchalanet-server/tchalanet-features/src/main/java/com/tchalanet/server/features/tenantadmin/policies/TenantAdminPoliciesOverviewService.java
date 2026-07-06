@@ -23,7 +23,7 @@ public class TenantAdminPoliciesOverviewService {
   private final QueryBus queryBus;
 
   public TenantAdminPoliciesOverviewView getOverview(TchRequestContext ctx) {
-    var tenantId = ctx.effectiveTenantIdRequired();
+    var tenantId = ctx.tenantIdRequired();
     List<LimitRuleSpec> rules = queryBus.ask(new ListAvailableLimitRulesQuery());
     ListLimitAssignmentsView assignments = queryBus.ask(
         new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));

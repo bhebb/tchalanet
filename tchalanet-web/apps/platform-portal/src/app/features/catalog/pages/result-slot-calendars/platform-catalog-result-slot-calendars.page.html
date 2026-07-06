@@ -5,10 +5,17 @@
     </button>
   </div>
 
+  @if (!canManage()) {
+    <tch-notice type="info">
+      Lecture seule : les calendriers provider sont renseignés par un super admin.
+    </tch-notice>
+  }
+
   <tch-admin-crud-shell>
     <div toolbar>
-      <tch-admin-data-toolbar searchPlaceholder="Code raison..." [searchValue]="reasonCode()" (searchChange)="reasonCode.set($event)">
-        <mat-form-field appearance="outline" style="min-width:240px">
+      <tch-admin-data-toolbar>
+        <div class="result-slot-calendar-toolbar">
+        <mat-form-field appearance="outline" class="result-slot-calendar-toolbar__slot">
           <mat-label>Slot</mat-label>
           <mat-select [value]="selectedSlotId()" (valueChange)="selectSlot($event)">
             @for (slot of slotRows(); track slot.id) {
@@ -16,23 +23,30 @@
             }
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline" style="width:160px">
+        <mat-form-field appearance="outline" class="result-slot-calendar-toolbar__date">
           <mat-label>Date</mat-label>
-          <input matInput type="date" [ngModel]="slotLocalDate()" (ngModelChange)="slotLocalDate.set($event)" />
+          <input matInput type="date" [disabled]="!canManage()" [ngModel]="slotLocalDate()" (ngModelChange)="slotLocalDate.set($event)" />
         </mat-form-field>
-        <mat-form-field appearance="outline" style="width:140px">
+        <mat-form-field appearance="outline" class="result-slot-calendar-toolbar__recurrence">
           <mat-label>MM-dd</mat-label>
-          <input matInput placeholder="12-25" [ngModel]="recurringMd()" (ngModelChange)="recurringMd.set($event)" />
+          <input matInput placeholder="12-25" [disabled]="!canManage()" [ngModel]="recurringMd()" (ngModelChange)="recurringMd.set($event)" />
         </mat-form-field>
-        <mat-checkbox [checked]="available()" (change)="available.set($event.checked)">Disponible</mat-checkbox>
-        <mat-form-field appearance="outline" style="min-width:200px">
+        <mat-checkbox [disabled]="!canManage()" [checked]="available()" (change)="available.set($event.checked)">Disponible</mat-checkbox>
+        <mat-form-field appearance="outline" class="result-slot-calendar-toolbar__reason">
+          <mat-label>Code raison</mat-label>
+          <input matInput [disabled]="!canManage()" [ngModel]="reasonCode()" (ngModelChange)="reasonCode.set($event)" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="result-slot-calendar-toolbar__label">
           <mat-label>Libellé</mat-label>
-          <input matInput [ngModel]="reasonLabel()" (ngModelChange)="reasonLabel.set($event)" />
+          <input matInput [disabled]="!canManage()" [ngModel]="reasonLabel()" (ngModelChange)="reasonLabel.set($event)" />
         </mat-form-field>
-        <button mat-flat-button color="primary" [disabled]="busy() || !selectedSlotId()" (click)="create()">
-          <span class="material-symbols-outlined">add</span>
-          Ajouter
-        </button>
+        @if (canManage()) {
+          <button mat-flat-button color="primary" [disabled]="busy() || !selectedSlotId()" (click)="create()">
+            <span class="material-symbols-outlined">add</span>
+            Ajouter
+          </button>
+        }
+        </div>
       </tch-admin-data-toolbar>
     </div>
 
@@ -72,15 +86,19 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
-                <button mat-icon-button [disabled]="busy()" title="Changer disponibilité" (click)="toggle(row)">
-                  <span class="material-symbols-outlined">published_with_changes</span>
-                </button>
-                <button mat-icon-button [disabled]="busy()" title="Modifier" (click)="edit(row)">
-                  <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
+                @if (canManage()) {
+                  <button mat-icon-button [disabled]="busy()" title="Changer disponibilité" (click)="toggle(row)">
+                    <span class="material-symbols-outlined">published_with_changes</span>
+                  </button>
+                  <button mat-icon-button [disabled]="busy()" title="Modifier" (click)="edit(row)">
+                    <span class="material-symbols-outlined">edit</span>
+                  </button>
+                  <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                } @else {
+                  <span class="result-slot-calendar-readonly">Lecture seule</span>
+                }
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="columns"></tr>

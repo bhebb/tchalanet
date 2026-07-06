@@ -11,7 +11,7 @@ public interface BusinessDayOverrideJpaRepository
 
   Optional<BusinessDayOverrideJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-  // TENANT-LEVEL only (outlet_id IS NULL). Outlet-level rows are owned by core.outlet.
+  // Active tenant-level rows only (outlet_id IS NULL).
   Optional<BusinessDayOverrideJpaEntity>
       findByTenantIdAndOutletIdIsNullAndBusinessDateAndDeletedAtIsNull(
           UUID tenantId, LocalDate businessDate);

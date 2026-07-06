@@ -7,8 +7,8 @@ import java.time.LocalDate;
 /**
  * Upsert a TENANT-LEVEL business-day override (whole commerce).
  *
- * <p>Outlet-level closures are a separate, core.outlet-owned surface
- * ({@code /admin/outlets/{outletId}/business-days}). Idempotent on (tenant, date).
+ * <p>Seller-terminal operational availability is not modeled here. Idempotent on
+ * (tenant, date).
  *
  * <p>{@code open = false} marks the day closed (the common case); {@code true}
  * forces the day open against a recurring closed-weekday rule.

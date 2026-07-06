@@ -22,7 +22,7 @@ import java.util.UUID;
 class JdbcTenantRegistryReader implements TenantRegistryReader {
 
     private static final String SELECT =
-        "SELECT id, code, name, status, type, timezone, currency, " +
+        "SELECT id, code, name, display_name, status, type, timezone, currency, " +
             "default_language, default_locale, address_id, active_theme_id, " +
             "default_commission_rate " +
             "FROM tenant WHERE deleted_at IS NULL";
@@ -121,8 +121,9 @@ class JdbcTenantRegistryReader implements TenantRegistryReader {
             rs.getString(7),
             rs.getString(8),
             rs.getString(9),
-            (UUID) rs.getObject(10),
+            rs.getString(10),
             (UUID) rs.getObject(11),
-            rs.getBigDecimal(12));
+            (UUID) rs.getObject(12),
+            rs.getBigDecimal(13));
     }
 }

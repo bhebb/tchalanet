@@ -3,11 +3,12 @@ DO $$ BEGIN
   RAISE NOTICE 'V200__seed_tenant: seeding tenant tchalanet';
 END $$;
 
-INSERT INTO tenant (id, code, name, timezone, currency, status, type)
+INSERT INTO tenant (id, code, name, display_name, timezone, currency, status, type)
 SELECT
     '00000000-0000-0000-0000-000000000003'::uuid,
     'tchalanet',
     'Tchalanet',
+    'tchalanet',
     'America/Toronto',
     'USD',
     'ACTIVE',
@@ -25,4 +26,3 @@ BEGIN
     RAISE NOTICE 'V40__seed_tenant sanity check OK: tenant tchalanet present';
   END IF;
 END $$;
-

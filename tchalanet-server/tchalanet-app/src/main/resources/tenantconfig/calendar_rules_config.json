@@ -3,7 +3,7 @@
     "businessCalendar": {
       "defaultOpen": true,
       "closedWeekdays": [],
-      "holidaySalesAllowed": false
+      "holidays": []
     }
   }
 }

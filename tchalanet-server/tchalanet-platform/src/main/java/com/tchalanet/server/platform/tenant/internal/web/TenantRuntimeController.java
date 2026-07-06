@@ -29,6 +29,6 @@ public class TenantRuntimeController {
     @GetMapping("/tenant/runtime")
     public ApiResponse<TenantRuntimeView> runtime(
         @CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(tenants.getTenantRuntimeView(ctx.effectiveTenantCode()));
+        return ApiResponse.success(tenants.getTenantRuntimeView(ctx.tenantIdRequired()));
     }
 }

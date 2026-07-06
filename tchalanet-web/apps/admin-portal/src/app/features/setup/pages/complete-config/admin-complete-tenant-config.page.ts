@@ -136,6 +136,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     // actually exists, not just that channels/games are configured.
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
+    const settingsTarget = this.settingsTarget();
 
     return [
       {
@@ -155,14 +156,15 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         id: 'settings',
         icon: 'tune',
         titleKey: 'admin.setup.section.settings',
-        // Real check now (readiness section "settings"): READY once the receipt display name
-        // is customized away from its seed placeholder ("CHEZ Toto").
+        // Real check now (readiness section "settings"): backend evaluates tenant settings
+        // structurally and returns stable missing-reason codes.
         status: settingsStatus,
         badgeKind: 'required',
         body: this.translate.instant('admin.setup.section.settingsDesc'),
         bodyVariant: 'default',
         ctaKey: 'admin.setup.section.settingsCta',
-        route: '/app/admin/settings/config',
+        route: settingsTarget.route,
+        fragment: settingsTarget.fragment,
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.settings'],
       },
@@ -293,6 +295,27 @@ export class AdminCompleteTenantConfigPage implements OnInit {
 
   sectionErrorsFor(targets: readonly string[]): readonly AdminSectionTargetError[] {
     return this.sectionErrors().filter(error => error.target != null && targets.includes(error.target));
+  }
+
+  private settingsTarget(): { route: string; fragment?: string } {
+    const issue = this.sectionMap().get('settings')?.issues?.find(item => item.messageKey?.startsWith('settings.'));
+    const reason = issue?.messageKey ?? '';
+    if (reason.startsWith('settings.print.')) {
+      return { route: '/app/admin/settings/config', fragment: 'print' };
+    }
+    if (reason.startsWith('settings.send.')) {
+      return { route: '/app/admin/settings/config', fragment: 'send' };
+    }
+    if (reason.startsWith('settings.calendar.')) {
+      return { route: '/app/admin/settings/config', fragment: 'calendar' };
+    }
+    if (reason.startsWith('settings.locale.')) {
+      return { route: '/app/admin/settings/config', fragment: 'languages' };
+    }
+    if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
+      return { route: '/app/admin/business-profile' };
+    }
+    return { route: '/app/admin/settings/config' };
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {

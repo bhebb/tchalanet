@@ -43,7 +43,7 @@ public interface UserAccessSnapshotJpaRepository
             assignment.user_id as "userId",
             assignment.tenant_id as "tenantId",
             t.code as "tenantCode",
-            t.name as "tenantName",
+            t.display_name as "tenantName",
             t.status as "tenantStatus",
             'TENANT' as "scope",
             ar.code as "roleCode",

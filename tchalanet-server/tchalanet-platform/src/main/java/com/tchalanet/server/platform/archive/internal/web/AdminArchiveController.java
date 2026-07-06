@@ -42,7 +42,7 @@ public class AdminArchiveController {
       @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
-        archiveApi.findArchivedTicket(ctx.effectiveTenantIdRequired().value(), ticketId));
+        archiveApi.findArchivedTicket(ctx.tenantIdRequired().value(), ticketId));
   }
 
   @Operation(summary = "Find archived ticket by public code")
@@ -52,7 +52,7 @@ public class AdminArchiveController {
       @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
-        archiveApi.findArchivedTicketByPublicCode(ctx.effectiveTenantIdRequired().value(), publicCode));
+        archiveApi.findArchivedTicketByPublicCode(ctx.tenantIdRequired().value(), publicCode));
   }
 
   @Operation(summary = "Find archived payout by ID")
@@ -62,7 +62,7 @@ public class AdminArchiveController {
       @CurrentContext TchRequestContext ctx) {
 
     return ApiResponse.success(
-        archiveApi.findArchivedPayout(ctx.effectiveTenantIdRequired().value(), payoutId));
+        archiveApi.findArchivedPayout(ctx.tenantIdRequired().value(), payoutId));
   }
 
   @Operation(summary = "Find archived audit records by entity")
@@ -74,6 +74,6 @@ public class AdminArchiveController {
 
     return ApiResponse.success(
         archiveApi.findArchivedAuditRecords(
-            ctx.effectiveTenantIdRequired().value(), entityType, entityId));
+            ctx.tenantIdRequired().value(), entityType, entityId));
   }
 }

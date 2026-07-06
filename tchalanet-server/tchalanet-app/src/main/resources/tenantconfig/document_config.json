@@ -2,16 +2,11 @@
   "document": {
     "receipt": {
       "enabled": true,
-      "displayName": "CHEZ Toto",
       "headerMessage": "Lotto officiel - Bonne chance",
       "footerMessage": "Merci de votre confiance",
       "defaultPaperSize": "RECEIPT_80MM",
       "showQrCode": true,
-      "showSellerName": true,
-      "showOutletName": true,
-      "showPotentialPayout": true,
       "defaultTemplateKey": "sales.ticket.receipt.v1"
     }
   }
 }
-

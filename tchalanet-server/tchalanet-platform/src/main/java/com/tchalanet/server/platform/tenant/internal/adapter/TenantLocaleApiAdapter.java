@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.tenant.internal.adapter;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.TenantLocaleApi;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalLocaleConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
@@ -19,22 +20,23 @@ public class TenantLocaleApiAdapter implements TenantLocaleApi {
     private static final Locale FALLBACK_LOCALE = Locale.forLanguageTag("fr-HT");
     private static final List<String> FALLBACK_SUPPORTED = List.of("fr", "ht", "en");
 
+    private final TenantPreContextLookupApi registry;
     private final TenantConfigReader reader;
 
     @Override
     public Locale resolveDefaultLocale(TenantId tenantId) {
-        var tag = locale(tenantId)
-            .map(TenantInternalLocaleConfig::defaultLocale)
-            .filter(s -> s != null && !s.isBlank())
+        var tag = registry.findById(tenantId)
+            .map(view -> view.defaultLocale())
+            .filter(value -> value != null && !value.isBlank())
             .orElse(null);
         return tag == null ? FALLBACK_LOCALE : Locale.forLanguageTag(tag);
     }
 
     @Override
     public String resolveDefaultLanguage(TenantId tenantId) {
-        return locale(tenantId)
-            .map(TenantInternalLocaleConfig::defaultLanguage)
-            .filter(s -> s != null && !s.isBlank())
+        return registry.findById(tenantId)
+            .map(view -> view.defaultLanguage())
+            .filter(value -> value != null && !value.isBlank())
             .orElse(FALLBACK_LANGUAGE);
     }
 

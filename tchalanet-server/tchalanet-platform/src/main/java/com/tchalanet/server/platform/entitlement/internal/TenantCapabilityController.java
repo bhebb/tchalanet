@@ -21,6 +21,6 @@ public class TenantCapabilityController {
 
     @GetMapping
     public ApiResponse<TenantCapabilitySnapshot> getMyCapabilities(@CurrentContext TchRequestContext ctx) {
-        return ApiResponse.success(entitlementApi.getSnapshot(ctx.effectiveTenantIdRequired()));
+        return ApiResponse.success(entitlementApi.getSnapshot(ctx.tenantIdRequired()));
     }
 }

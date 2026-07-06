@@ -19,10 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * TENANT-LEVEL writes for {@code business_day_override} ({@code outlet_id IS NULL}).
  *
- * <p>Outlet-level overrides are owned by {@code core.outlet} (it validates the
- * outlet belongs to the tenant / is active). This service must never touch
- * outlet-scoped rows — keeping {@code platform.tenantconfig} free of any
- * {@code core.outlet} dependency.
+ * <p>Rows with non-null {@code outlet_id} are legacy database compatibility data.
+ * This service must never touch them — keeping {@code platform.tenantconfig}
+ * scoped to tenant-wide calendar policy only.
  *
  * <p>Idempotent upsert on the natural key (tenant, NULL, date). Tenant isolation
  * is enforced by RLS; {@code tenantId} comes from the request context, never

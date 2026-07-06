@@ -6,16 +6,24 @@ import com.tchalanet.server.common.exception.TchForbiddenException;
 import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelType;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
 import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeResponse;
 import com.tchalanet.server.features.pagemodel.security.PageModelAccessPolicy;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -37,6 +45,8 @@ public class DashboardPageModelService {
     private final PageModelDynamicResolver dynamicResolver;
     private final PageModelAccessPolicy accessPolicy;
     private final PageRuntimeAssembler runtimeAssembler;
+    private final TenantConfigApi tenantConfigApi;
+    private final TenantPreContextLookupApi tenantLookupApi;
 
     public PageRuntimeResponse resolve(
         String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
@@ -80,7 +90,7 @@ public class DashboardPageModelService {
         var currentLang = resolveLang(doc, langFromUrl);
         var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
 
-        return runtimeAssembler.assemble(doc, dynamic);
+        return withTenantSettings(logicalId, ctxHolder, runtimeAssembler.assemble(doc, dynamic));
     }
 
     private String resolveLang(PageModelDoc doc, Optional<String> langFromUrl) {
@@ -96,6 +106,63 @@ public class DashboardPageModelService {
                 Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
                 hasDocLangs ? doc.meta().langs() : List.of(),
                 "fr"));
+    }
+
+    private PageRuntimeResponse withTenantSettings(
+        String logicalId,
+        com.tchalanet.server.common.context.TchRequestContext ctx,
+        PageRuntimeResponse response) {
+        if (!PageModelType.DASHBOARD_TENANT_ADMIN.logicalId().equals(logicalId)
+            || ctx == null
+            || ctx.effectiveTenantIdOrNull() == null
+            || response == null
+            || response.dynamic() == null) {
+            return response;
+        }
+
+        try {
+            var tenantId = ctx.tenantIdRequired();
+            TenantContextLookupView tenant = tenantLookupApi.findById(tenantId).orElse(null);
+            TenantInternalSettings settings = tenantConfigApi.getTenantInternalSettings(new GetTenantByIdRequest(tenantId));
+            Map<String, Object> widgets = new LinkedHashMap<>(response.dynamic().widgets());
+            widgets.put("tenant.settings", TenantDashboardSettingsPayload.from(tenant, settings));
+            return new PageRuntimeResponse(
+                response.meta(),
+                response.theme(),
+                response.shell(),
+                response.content(),
+                new PageRuntimeResponse.DynamicPayload(widgets, response.dynamic().errors()));
+        } catch (RuntimeException e) {
+            return response;
+        }
+    }
+
+    private record TenantDashboardSettingsPayload(
+        String tenantCode,
+        String displayName,
+        String timezone,
+        String currency,
+        String defaultLanguage,
+        String defaultLocale,
+        List<String> supportedLanguages,
+        List<String> supportedCurrencies,
+        String fallbackLanguage,
+        TenantInternalSettings settings) {
+
+        static TenantDashboardSettingsPayload from(TenantContextLookupView tenant, TenantInternalSettings settings) {
+            var locale = settings != null ? settings.locale() : null;
+            return new TenantDashboardSettingsPayload(
+                tenant != null ? tenant.code() : null,
+                tenant != null ? tenant.displayName() : null,
+                tenant != null && tenant.timezone() != null ? tenant.timezone().getId() : null,
+                tenant != null && tenant.currency() != null ? tenant.currency().getCurrencyCode() : null,
+                tenant != null ? tenant.defaultLanguage() : null,
+                tenant != null ? tenant.defaultLocale() : null,
+                locale != null ? locale.effectiveSupportedLanguages() : List.of(),
+                tenant != null && tenant.currency() != null ? List.of(tenant.currency().getCurrencyCode()) : List.of(),
+                locale != null ? locale.fallbackLanguage() : null,
+                settings);
+        }
     }
 
 }

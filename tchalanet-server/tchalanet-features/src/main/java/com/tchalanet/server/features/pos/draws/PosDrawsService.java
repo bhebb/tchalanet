@@ -5,11 +5,14 @@ import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
 import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
+import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.time.ZoneId;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +24,18 @@ public class PosDrawsService {
     private final QueryBus queryBus;
     private final DrawChannelCatalog drawChannelCatalog;
     private final DrawChannelDisplayFormatter drawChannelDisplayFormatter;
+    private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
+    private final TchTimeProvider timeProvider;
 
     public List<PosAvailableDrawView> listAvailable(
         TchRequestContext ctx,
         int lookaheadHours,
         int limit
     ) {
+        if (!tenantBusinessOpen(ctx)) {
+            return List.of();
+        }
+
         var rows = queryBus.ask(new ListCashierNextDrawsQuery(lookaheadHours, limit));
         if (rows.isEmpty()) {
             return List.of();
@@ -67,5 +76,13 @@ public class PosDrawsService {
             d.scheduledAt(),
             d.cutoffAt()
         );
+    }
+
+    private boolean tenantBusinessOpen(TchRequestContext ctx) {
+        var tenantId = ctx.tenantIdRequired();
+        var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
+        var businessDate = timeProvider.now().atZone(zone).toLocalDate();
+        var day = tenantBusinessCalendarApi.resolveBusinessDay(tenantId, businessDate);
+        return day == null || day.open();
     }
 }

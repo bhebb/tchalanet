@@ -35,7 +35,7 @@ public class TenantUserAdminViewAssembler {
    */
   public void assertTenantScoped(TchRequestContext ctx, UserId userId) {
     if (ctx.isSuperAdmin() && !ctx.hasTenant()) return;
-    if (memberships.findByTenantAndUser(ctx.effectiveTenantIdRequired(), userId).isEmpty()) {
+    if (memberships.findByTenantAndUser(ctx.tenantIdRequired(), userId).isEmpty()) {
       throw ProblemRest.forbidden("User is outside effective tenant scope");
     }
   }
@@ -57,7 +57,7 @@ public class TenantUserAdminViewAssembler {
           profile.firstName(), profile.lastName(), profile.displayName(),
           null, null, null);
     }
-    var tenantId = ctx.effectiveTenantIdRequired();
+    var tenantId = ctx.tenantIdRequired();
     var membership = memberships.findByTenantAndUser(tenantId, userId).orElse(null);
     var createdAt =
         createdAtOverride != null

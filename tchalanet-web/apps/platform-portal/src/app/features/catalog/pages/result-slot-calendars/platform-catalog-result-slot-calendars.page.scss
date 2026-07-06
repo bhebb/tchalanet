@@ -1,0 +1,45 @@
+@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+
+.result-slot-calendar-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  @include ui.up(medium) {
+    grid-template-columns: minmax(16rem, 1.6fr) minmax(9rem, 1fr) minmax(8rem, 0.8fr);
+    align-items: center;
+
+    &__label {
+      grid-column: span 2;
+    }
+
+    button {
+      width: auto;
+      justify-self: start;
+    }
+  }
+
+  @include ui.up(expanded) {
+    grid-template-columns: minmax(18rem, 1.8fr) 10rem 8.5rem auto minmax(12rem, 1fr) auto;
+
+    &__label {
+      grid-column: auto;
+    }
+  }
+}
+
+.result-slot-calendar-readonly {
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-medium);
+  white-space: nowrap;
+}
