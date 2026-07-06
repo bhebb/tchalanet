@@ -163,62 +163,14 @@
                   }
                 </tch-admin-section-card>
 
-                @if (tenant()!.defaultCommissionRate !== null) {
-                  <tch-admin-section-card
-                    [title]="'platform.tenants.detail.section.commerce' | translate"
-                    icon="percent"
-                  >
-                    <dl class="tenant-detail__facts">
-                      <div>
-                        <dt>{{ 'platform.tenantProvisioning.field.defaultCommissionRate' | translate }}</dt>
-                        <dd>{{ tenant()!.defaultCommissionRate }} %</dd>
-                      </div>
-                    </dl>
-                  </tch-admin-section-card>
-                }
-
-                <tch-admin-section-card
-                  [title]="'platform.tenants.detail.section.address' | translate"
-                  icon="location_on"
-                >
-                  <tch-console-address-summary
-                    [address]="tenant()!.address"
-                    emptyKey="platform.tenants.detail.address.empty"
-                  />
-                </tch-admin-section-card>
-
-                <tch-admin-section-card
-                  [title]="'platform.tenants.detail.section.profile' | translate"
-                  icon="rocket_launch"
-                >
-                  <dl class="tenant-detail__facts">
-                    <div>
-                      <dt>{{ 'platform.tenants.column.profile' | translate }}</dt>
-                      <dd>{{ profileLabel(tenant()!.profile) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'platform.tenants.column.readiness' | translate }}</dt>
-                      <dd>
-                        <tch-status-badge
-                          [label]="readinessLabel(tenant()!.readinessStatus)"
-                          [status]="readinessBadge(tenant()!.readinessStatus)"
-                        />
-                      </dd>
-                    </div>
-                    @if (tenant()!.primaryAdminEmail) {
-                      <div>
-                        <dt>{{ 'platform.tenants.column.primaryAdmin' | translate }}</dt>
-                        <dd>{{ tenant()!.primaryAdminEmail }}</dd>
-                      </div>
-                    }
-                    @if (tenant()!.themeCode) {
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.field.theme' | translate }}</dt>
-                        <dd><code>{{ tenant()!.themeCode }}</code></dd>
-                      </div>
-                    }
-                  </dl>
-                </tch-admin-section-card>
+                <tch-tenant-commercial-summary [defaultCommissionRate]="tenant()!.defaultCommissionRate ?? null" />
+                <tch-tenant-detail-overview
+                  [address]="tenant()!.address"
+                  [profile]="tenant()!.profile"
+                  [primaryAdminEmail]="tenant()!.primaryAdminEmail"
+                  [themeCode]="tenant()!.themeCode"
+                />
+                <tch-tenant-readiness-card [status]="tenant()!.readinessStatus" />
               </div>
 
               <div aside>
@@ -266,26 +218,7 @@
                 [message]="'platform.tenants.detail.admins.empty.message' | translate"
               />
             } @else if (admins().length > 0) {
-              <table mat-table [dataSource]="admins()" class="tenant-detail__table">
-                <ng-container matColumnDef="displayName">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.name' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.displayName }}</td>
-                </ng-container>
-                <ng-container matColumnDef="email">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.email' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.email }}</td>
-                </ng-container>
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.status' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ adminStatusLabel(row.status) }}</td>
-                </ng-container>
-                <ng-container matColumnDef="createdAt">
-                  <th mat-header-cell *matHeaderCellDef>{{ 'platform.tenants.column.createdAt' | translate }}</th>
-                  <td mat-cell *matCellDef="let row">{{ row.createdAt | date: 'dd MMM y' }}</td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="adminsColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: adminsColumns;"></tr>
-              </table>
+              <tch-tenant-admins-table [admins]="admins()" />
             }
           </div>
         </mat-tab>
@@ -293,147 +226,7 @@
         <!-- ═══ CONFIGURATION ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.configuration' | translate">
           <div class="tenant-detail__tab-content">
-            @if (!settings()) {
-              <tch-admin-empty-state
-                icon="settings"
-                [title]="'platform.tenants.detail.config.empty.title' | translate"
-                [message]="'platform.tenants.detail.config.empty.message' | translate"
-              />
-            } @else {
-              <div class="tenant-detail__config-grid">
-
-                <!-- Langue & région -->
-                @if (locale()) {
-                  <tch-admin-section-card
-                    [title]="'platform.tenants.detail.config.section.locale' | translate"
-                    icon="translate"
-                  >
-                    <dl class="tenant-detail__facts">
-                      @if (locale()!.defaultLanguage) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.defaultLanguage' | translate }}</dt>
-                          <dd>{{ locale()!.defaultLanguage }}</dd>
-                        </div>
-                      }
-                      @if (locale()!.defaultLocale) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.defaultLocale' | translate }}</dt>
-                          <dd>{{ locale()!.defaultLocale }}</dd>
-                        </div>
-                      }
-                      @if (locale()!.supportedLanguages?.length) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.supportedLanguages' | translate }}</dt>
-                          <dd>{{ locale()!.supportedLanguages!.join(', ') }}</dd>
-                        </div>
-                      }
-                      @if (locale()!.fallbackLanguage) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.fallbackLanguage' | translate }}</dt>
-                          <dd>{{ locale()!.fallbackLanguage }}</dd>
-                        </div>
-                      }
-                    </dl>
-                  </tch-admin-section-card>
-                }
-
-                <!-- Calendrier commercial -->
-                @if (calendar()) {
-                  <tch-admin-section-card
-                    [title]="'platform.tenants.detail.config.section.calendar' | translate"
-                    icon="calendar_month"
-                  >
-                    <dl class="tenant-detail__facts">
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.config.field.defaultOpen' | translate }}</dt>
-                        <dd>{{ (calendar()!.defaultOpen ? 'common.yes' : 'common.no') | translate }}</dd>
-                      </div>
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.config.field.holidaySalesAllowed' | translate }}</dt>
-                        <dd>{{ (calendar()!.holidaySalesAllowed ? 'common.yes' : 'common.no') | translate }}</dd>
-                      </div>
-                      @if (calendar()!.closedWeekdays?.length) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.closedWeekdays' | translate }}</dt>
-                          <dd>{{ calendar()!.closedWeekdays!.map(d => weekdayLabel(d)).join(', ') }}</dd>
-                        </div>
-                      }
-                    </dl>
-                  </tch-admin-section-card>
-                }
-
-                <!-- Communication ticket -->
-                @if (communication()) {
-                  <tch-admin-section-card
-                    [title]="'platform.tenants.detail.config.section.communication' | translate"
-                    icon="send"
-                  >
-                    <dl class="tenant-detail__facts">
-                      <div>
-                        <dt>SMS</dt>
-                        <dd>{{ channelLabel(communication()!.sms) }}</dd>
-                      </div>
-                      <div>
-                        <dt>WhatsApp</dt>
-                        <dd>{{ channelLabel(communication()!.whatsapp) }}</dd>
-                      </div>
-                      <div>
-                        <dt>Email</dt>
-                        <dd>{{ channelLabel(communication()!.email) }}</dd>
-                      </div>
-                    </dl>
-                  </tch-admin-section-card>
-                }
-
-                <!-- Reçu / documents -->
-                @if (receipt()) {
-                  <tch-admin-section-card
-                    [title]="'platform.tenants.detail.config.section.receipt' | translate"
-                    icon="receipt_long"
-                  >
-                    <dl class="tenant-detail__facts">
-                      @if (receipt()!.displayName) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.receiptDisplayName' | translate }}</dt>
-                          <dd>{{ receipt()!.displayName }}</dd>
-                        </div>
-                      }
-                      @if (receipt()!.headerMessage) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.headerMessage' | translate }}</dt>
-                          <dd>{{ receipt()!.headerMessage }}</dd>
-                        </div>
-                      }
-                      @if (receipt()!.footerMessage) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.footerMessage' | translate }}</dt>
-                          <dd>{{ receipt()!.footerMessage }}</dd>
-                        </div>
-                      }
-                      @if (receipt()!.defaultPaperSize) {
-                        <div>
-                          <dt>{{ 'platform.tenants.detail.config.field.paperSize' | translate }}</dt>
-                          <dd>{{ receipt()!.defaultPaperSize }}</dd>
-                        </div>
-                      }
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.config.field.showQrCode' | translate }}</dt>
-                        <dd>{{ (receipt()!.showQrCode ? 'common.yes' : 'common.no') | translate }}</dd>
-                      </div>
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.config.field.showSellerName' | translate }}</dt>
-                        <dd>{{ (receipt()!.showSellerName ? 'common.yes' : 'common.no') | translate }}</dd>
-                      </div>
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.config.field.showPotentialPayout' | translate }}</dt>
-                        <dd>{{ (receipt()!.showPotentialPayout ? 'common.yes' : 'common.no') | translate }}</dd>
-                      </div>
-                    </dl>
-                  </tch-admin-section-card>
-                }
-
-              </div>
-            }
+            <tch-tenant-config-summary [settings]="tenant()!.internalSettings" />
           </div>
         </mat-tab>
 
@@ -445,64 +238,18 @@
             } @else if (subscriptionError()) {
               <tch-error-panel [title]="subscriptionError()!" />
             } @else {
-              <tch-admin-section-card
-                [title]="'platform.tenants.detail.subscription.title' | translate"
-                icon="workspace_premium"
-              >
-                @if (subscription(); as sub) {
-                  <dl class="tenant-detail__facts">
-                    <div>
-                      <dt>{{ 'platform.tenants.detail.subscription.field.plan' | translate }}</dt>
-                      <dd>{{ sub.planCode }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'platform.tenants.detail.subscription.field.status' | translate }}</dt>
-                      <dd><tch-status-badge [status]="subscriptionStatusBadge(sub.status)">{{ sub.status }}</tch-status-badge></dd>
-                    </div>
-                    <div>
-                      <dt>{{ 'platform.tenants.detail.subscription.field.startedAt' | translate }}</dt>
-                      <dd>{{ sub.startedAt | date : 'medium' }}</dd>
-                    </div>
-                    @if (sub.endsAt) {
-                      <div>
-                        <dt>{{ 'platform.tenants.detail.subscription.field.endsAt' | translate }}</dt>
-                        <dd>{{ sub.endsAt | date : 'medium' }}</dd>
-                      </div>
-                    }
-                  </dl>
-                } @else {
-                  <p class="tenant-detail__empty-hint">{{ 'platform.tenants.detail.subscription.empty' | translate }}</p>
-                }
-
-                @if (!showPlanPicker()) {
-                  <button mat-stroked-button type="button" (click)="openPlanPicker()">
-                    {{ (subscription() ? 'platform.tenants.detail.subscription.action.change' : 'platform.tenants.detail.subscription.action.apply') | translate }}
-                  </button>
-                } @else {
-                  @if (applyPlanError()) {
-                    <tch-error-panel [title]="applyPlanError()!" />
-                  }
-                  <tch-tenant-plan-picker
-                    [plans]="plans()"
-                    [selected]="selectedPlanCode()"
-                    (selectedChange)="selectPlan($event)"
-                  />
-                  <div class="tenant-detail__form-actions">
-                    <button mat-button type="button" (click)="cancelPlanPicker()">
-                      {{ 'common.cancel' | translate }}
-                    </button>
-                    <button
-                      mat-flat-button
-                      color="primary"
-                      type="button"
-                      [disabled]="!selectedPlanCode() || applyingPlan()"
-                      (click)="applyPlan()"
-                    >
-                      {{ 'platform.tenants.detail.subscription.action.confirm' | translate }}
-                    </button>
-                  </div>
-                }
-              </tch-admin-section-card>
+              <tch-tenant-subscription-panel
+                [subscription]="subscription()"
+                [plans]="plans()"
+                [showPicker]="showPlanPicker()"
+                [selectedPlanCode]="selectedPlanCode()"
+                [applying]="applyingPlan()"
+                [applyError]="applyPlanError()"
+                (openPicker)="openPlanPicker()"
+                (cancelPicker)="cancelPlanPicker()"
+                (selectPlan)="selectPlan($event)"
+                (applyPlan)="applyPlan()"
+              />
             }
           </div>
         </mat-tab>
@@ -510,33 +257,78 @@
         <!-- ═══ DROITS D'USAGE ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.entitlements' | translate">
           <div class="tenant-detail__tab-content">
-            <tch-admin-empty-state
-              icon="verified_user"
-              [title]="'common.placeholder.title' | translate"
-              [message]="'common.placeholder.message' | translate"
-            />
+            @if (entitlementsLoading()) {
+              <tch-loading [label]="'platform.tenants.detail.entitlements.loading' | translate" />
+            } @else if (entitlementsError()) {
+              <tch-error-panel
+                [title]="entitlementsError()!"
+                [showRetry]="true"
+                [retryLabel]="'common.retry' | translate"
+                (retry)="onEntitlementsTabSelected()"
+              />
+            } @else {
+              <tch-tenant-entitlements-panel [snapshot]="entitlements()" />
+            }
           </div>
         </mat-tab>
 
         <!-- ═══ SELLER-TERMINALS ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.sellerTerminals' | translate">
           <div class="tenant-detail__tab-content">
-            <tch-admin-empty-state
-              icon="point_of_sale"
-              [title]="'common.placeholder.title' | translate"
-              [message]="'common.placeholder.message' | translate"
-            />
+            @if (sellerTerminalsLoading()) {
+              <tch-loading [label]="'platform.tenants.detail.sellerTerminals.loading' | translate" />
+            } @else if (sellerTerminalsError()) {
+              <tch-error-panel
+                [title]="sellerTerminalsError()!"
+                [showRetry]="true"
+                [retryLabel]="'common.retry' | translate"
+                (retry)="onSellerTerminalsTabSelected()"
+              />
+            } @else if (sellerTerminals().length === 0 && sellerTerminalsLoaded()) {
+              <tch-admin-empty-state
+                icon="point_of_sale"
+                [title]="'platform.tenants.detail.sellerTerminals.empty.title' | translate"
+                [message]="'platform.tenants.detail.sellerTerminals.empty.message' | translate"
+              />
+            } @else if (sellerTerminals().length > 0) {
+              <tch-tenant-seller-terminals-table
+                [terminals]="sellerTerminals()"
+                [page]="sellerTerminalsPage()"
+                [size]="sellerTerminalsPageSize"
+                [totalElements]="sellerTerminalsTotal()"
+                (pageChange)="sellerTerminalsPageChange($event)"
+              />
+            }
           </div>
         </mat-tab>
 
         <!-- ═══ AUDIT ═══ -->
         <mat-tab [label]="'platform.tenants.detail.tab.audit' | translate">
           <div class="tenant-detail__tab-content">
-            <tch-admin-empty-state
-              icon="history"
-              [title]="'common.placeholder.title' | translate"
-              [message]="'common.placeholder.message' | translate"
-            />
+            @if (auditLoading()) {
+              <tch-loading [label]="'platform.tenants.detail.audit.loading' | translate" />
+            } @else if (auditError()) {
+              <tch-error-panel
+                [title]="auditError()!"
+                [showRetry]="true"
+                [retryLabel]="'common.retry' | translate"
+                (retry)="onAuditTabSelected()"
+              />
+            } @else if (auditEvents().length === 0 && auditLoaded()) {
+              <tch-admin-empty-state
+                icon="history"
+                [title]="'platform.tenants.detail.audit.empty.title' | translate"
+                [message]="'platform.tenants.detail.audit.empty.message' | translate"
+              />
+            } @else if (auditEvents().length > 0) {
+              <tch-tenant-audit-table
+                [events]="auditEvents()"
+                [page]="auditPage()"
+                [size]="auditPageSize"
+                [totalElements]="auditTotal()"
+                (pageChange)="auditPageChange($event)"
+              />
+            }
           </div>
         </mat-tab>
 

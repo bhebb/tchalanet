@@ -1,6 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { ConsoleDrawLifecycleApi } from '@tch/web/console';
+import type {
+  ConsoleDrawResultQuality,
+  ConsoleDrawResultStatus,
+  ConsoleDrawStatus,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -185,9 +190,9 @@ export interface DrawResultOpsResponse {
   id: string;
   slotKey: string;
   occurredAt: string;
-  status: string;
+  status: ConsoleDrawResultStatus;
   source: string;
-  quality: string;
+  quality: ConsoleDrawResultQuality;
   sourceHash?: string;
   fetchedAt?: string;
   sourceResult?: unknown;
@@ -196,7 +201,7 @@ export interface DrawResultOpsResponse {
   overrideReason?: string;
 }
 
-export type OpsDrawResultQuality = 'COMPLETE' | 'SUSPECT' | 'INVALID';
+export type OpsDrawResultQuality = Extract<ConsoleDrawResultQuality, 'COMPLETE' | 'SUSPECT' | 'INVALID'>;
 
 // ── Draw Lifecycle (admin/draws) ─────────────────────────────────────────────
 
@@ -209,12 +214,12 @@ export interface DrawView {
   drawDate: string;
   scheduledAt: string;
   cutoffAt: string;
-  status: string;
+  status: ConsoleDrawStatus;
   active: boolean;
   lastResult: {
     id: string;
     occurredAt: string;
-    status: string;
+    status: ConsoleDrawResultStatus;
     lot1: string | null;
     lot2: string | null;
     lot3: string | null;
@@ -420,6 +425,13 @@ export class PlatformOpsApi {
   /** @deprecated Use listDraws */
   listDrawsForLifecycle(params: { status?: string; page?: number; size?: number; suppressShellFeedback?: boolean }): Observable<TchPage<DrawView>> {
     return this.listDraws(params);
+  }
+
+  getDraw(drawId: string, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {
+    return this.backend.get<DrawView>(
+      `/admin/draws/${drawId}`,
+      tenantAdminOptions(tenantId, 'SUPER_ADMIN: get draw detail', options),
+    );
   }
 
   cancelDraw(drawId: string, req: CancelDrawRequest, tenantId?: string | null, options?: TchRequestOptions): Observable<DrawView> {

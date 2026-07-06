@@ -5,13 +5,11 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.api.model.surface.ClientSurfacePolicy;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
-import com.tchalanet.server.platform.identity.internal.service.UserBootstrapService;
 import com.tchalanet.server.platform.identity.internal.web.model.EffectiveUiContextResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.LandingResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.MeResponse;
@@ -29,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CurrentUserProfileController {
 
   private final CurrentUserProfileService profiles;
-  private final UserBootstrapService bootstrapService;
 
   @GetMapping
   @Operation(summary = "Get current user profile")
@@ -51,28 +47,6 @@ public class CurrentUserProfileController {
       throw ProblemRest.notFound("User not found for current principal");
     }
     return ApiResponse.success(toMeResponse(profiles.getCurrentUser(ctx.userId()), ctx, false));
-  }
-
-  @PostMapping("/bootstrap")
-  @Operation(summary = "Bootstrap current user profile from external identity")
-  public ApiResponse<MeResponse> bootstrap(@CurrentContext TchRequestContext ctx) {
-    if (ctx.keycloakUserId() == null) {
-      throw ProblemRest.forbidden("Missing external identity subject in token");
-    }
-    var result =
-        bootstrapService.bootstrap(
-            new BootstrapCurrentUserRequest(
-                ctx.keycloakUserId(),
-                ctx.effectiveTenantCode(),
-                ctx.keycloakUserId(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                ctx.locale(),
-                ctx.tenantZoneId()));
-    return ApiResponse.success(toMeResponse(profiles.getCurrentUser(result.userId()), ctx, result.isNew()));
   }
 
   @PatchMapping

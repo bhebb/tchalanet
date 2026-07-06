@@ -1,0 +1,165 @@
+<tch-console-entity-detail
+  [title]="title()"
+  [description]="description()"
+  [state]="state()"
+  [loadingLabel]="loadingLabel()"
+  [error]="error()"
+  [meta]="meta()"
+  [actions]="actions()"
+  (retry)="retry.emit()"
+  (action)="action.emit($event)"
+>
+  <ng-container main>
+    @if (view(); as draw) {
+      <tch-admin-section-card title="Tirage" icon="event">
+        <div class="console-draw-detail__hero">
+          <tch-console-draw-slot-identity [identity]="draw.identity" />
+          @if (draw.statusLabel) {
+            <tch-admin-status-pill
+              [label]="draw.statusLabel"
+              [tone]="draw.statusTone ?? 'neutral'"
+            />
+          }
+        </div>
+
+        @if ((draw.overviewFacts?.length ?? 0) > 0) {
+          <tch-console-facts [facts]="draw.overviewFacts ?? []" />
+        }
+      </tch-admin-section-card>
+
+      @if (draw.result; as result) {
+        <tch-admin-section-card title="Résultat" icon="fact_check">
+          <div class="console-draw-detail__section-head">
+            <div>
+              <p class="console-draw-detail__eyebrow">État</p>
+              <h2>{{ result.statusLabel }}</h2>
+            </div>
+            @if (result.publicationLabel) {
+              <tch-admin-status-pill
+                [label]="result.publicationLabel"
+                [tone]="result.publicationTone ?? 'neutral'"
+              />
+            }
+          </div>
+
+          @if ((result.numbers?.length ?? 0) > 0) {
+            <div class="console-draw-detail__numbers" aria-label="Numéros gagnants">
+              @for (number of result.numbers ?? []; track number) {
+                <span>{{ number }}</span>
+              }
+            </div>
+            <tch-console-facts
+              [compact]="true"
+              [facts]="[
+                { label: 'Mode', value: result.modeLabel ?? '—' },
+                { label: 'Récupéré le', value: result.fetchedAtLabel ?? '—' },
+              ]"
+            />
+          } @else {
+            <p class="console-draw-detail__empty">
+              {{ result.emptyLabel ?? 'Aucun résultat n’est encore disponible pour ce tirage.' }}
+            </p>
+          }
+
+          @if (result.sourceErrorLabel) {
+            <div class="console-draw-detail__source-error">
+              <strong>Erreur source</strong>
+              <span>{{ result.sourceErrorLabel }}</span>
+            </div>
+          }
+        </tch-admin-section-card>
+      }
+
+      @for (section of draw.sections ?? []; track section.id) {
+        <tch-admin-section-card [title]="section.title" [icon]="section.icon ?? 'view_list'">
+          @if (section.description) {
+            <p class="console-draw-detail__section-description">{{ section.description }}</p>
+          }
+
+          @if ((section.metrics?.length ?? 0) > 0) {
+            <div class="console-draw-detail__metrics">
+              @for (metric of section.metrics ?? []; track metric.label) {
+                <div class="console-draw-detail__metric">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value ?? '—' }}</strong>
+                  @if (metric.hint) {
+                    <em>{{ metric.hint }}</em>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if ((section.facts?.length ?? 0) > 0) {
+            <tch-console-facts [facts]="section.facts ?? []" />
+          }
+
+          @if ((section.actions?.length ?? 0) > 0) {
+            <div class="console-draw-detail__actions">
+              @for (item of section.actions ?? []; track item.id) {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  [disabled]="item.disabled"
+                  [class.console-draw-detail__action--danger]="item.tone === 'danger'"
+                  [class.console-draw-detail__action--primary]="item.tone === 'primary'"
+                  (click)="emitSectionAction(section, item)"
+                >
+                  @if (item.icon) {
+                    <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                  }
+                  {{ item.label }}
+                </button>
+              }
+            </div>
+          }
+        </tch-admin-section-card>
+      }
+
+      <ng-content select="[main]" />
+    }
+  </ng-container>
+
+  <ng-container aside>
+    @if (view(); as draw) {
+      @if (draw.aside; as aside) {
+        <section class="console-draw-detail__aside">
+          <div class="console-draw-detail__aside-head">
+            <p>{{ aside.eyebrow ?? 'SUIVI DU TIRAGE' }}</p>
+            <mat-icon aria-hidden="true">event</mat-icon>
+          </div>
+
+          <h2>{{ aside.title }}</h2>
+          @if (aside.subtitle || aside.code) {
+            <div class="console-draw-detail__aside-context">
+              @if (aside.subtitle) {
+                <span>{{ aside.subtitle }}</span>
+              }
+              @if (aside.code) {
+                <code>{{ aside.code }}</code>
+              }
+            </div>
+          }
+
+          <div class="console-draw-detail__aside-grid">
+            @for (item of aside.items; track item.label) {
+              <div class="console-draw-detail__aside-row">
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value ?? '—' }}</strong>
+                @if (item.hint) {
+                  <em>{{ item.hint }}</em>
+                }
+              </div>
+            }
+          </div>
+
+          @if (aside.advice) {
+            <p class="console-draw-detail__aside-advice">{{ aside.advice }}</p>
+          }
+        </section>
+      }
+
+      <ng-content select="[aside]" />
+    }
+  </ng-container>
+</tch-console-entity-detail>

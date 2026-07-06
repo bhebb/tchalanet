@@ -264,6 +264,55 @@
             "confirm": "Confirmer"
           }
         },
+        "entitlements": {
+          "title": "Droits d'usage",
+          "loading": "Chargement des droits d'usage…",
+          "error": "Impossible de charger les droits d'usage.",
+          "empty": "Aucun droit d'usage résolu pour ce tenant.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Abonnement actif",
+            "resolvedAt": "Résolu le"
+          },
+          "features": {
+            "title": "Fonctionnalités",
+            "empty": "Aucune fonctionnalité définie.",
+            "column": {
+              "key": "Fonctionnalité",
+              "status": "Statut"
+            }
+          },
+          "limits": {
+            "title": "Limites",
+            "empty": "Aucune limite définie.",
+            "column": {
+              "key": "Limite",
+              "value": "Valeur"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Chargement des seller-terminals…",
+          "error": "Impossible de charger les seller-terminals.",
+          "empty": {
+            "title": "Aucun seller-terminal",
+            "message": "Ce tenant n'a pas encore de seller-terminal."
+          },
+          "status": {
+            "active": "Actif",
+            "pending": "En attente",
+            "blocked": "Bloqué",
+            "disabled": "Désactivé"
+          }
+        },
+        "audit": {
+          "loading": "Chargement du journal d'audit…",
+          "error": "Impossible de charger le journal d'audit.",
+          "empty": {
+            "title": "Aucun événement",
+            "message": "Aucun événement d'audit pour ce tenant."
+          }
+        },
         "admins": {
           "loading": "Chargement des administrateurs…",
           "error": "Erreur lors du chargement des administrateurs.",

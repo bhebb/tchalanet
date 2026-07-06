@@ -1,0 +1,33 @@
+<tch-admin-section-card
+  [title]="'platform.tenants.detail.section.address' | translate"
+  icon="location_on"
+>
+  <tch-console-address-summary
+    [address]="address()"
+    emptyKey="platform.tenants.detail.address.empty"
+  />
+</tch-admin-section-card>
+
+<tch-admin-section-card
+  [title]="'platform.tenants.detail.section.profile' | translate"
+  icon="rocket_launch"
+>
+  <dl class="tenant-detail-overview__facts">
+    <div>
+      <dt>{{ 'platform.tenants.column.profile' | translate }}</dt>
+      <dd>{{ profileLabel() }}</dd>
+    </div>
+    @if (primaryAdminEmail()) {
+      <div>
+        <dt>{{ 'platform.tenants.column.primaryAdmin' | translate }}</dt>
+        <dd>{{ primaryAdminEmail() }}</dd>
+      </div>
+    }
+    @if (themeCode()) {
+      <div>
+        <dt>{{ 'platform.tenants.detail.field.theme' | translate }}</dt>
+        <dd><code>{{ themeCode() }}</code></dd>
+      </div>
+    }
+  </dl>
+</tch-admin-section-card>

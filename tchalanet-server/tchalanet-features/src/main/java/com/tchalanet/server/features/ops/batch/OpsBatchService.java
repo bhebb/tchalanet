@@ -79,7 +79,7 @@ public class OpsBatchService {
         );
     }
 
-    public Map<String, Object> getGateStatus(String jobKeyStr, String tenantIdStr) {
+    public GateStatusResponse getGateStatus(String jobKeyStr, String tenantIdStr) {
         JobKey jobKey = JobKey.of(jobKeyStr);
 
         TenantId tenantId = null;
@@ -89,12 +89,11 @@ public class OpsBatchService {
 
         var enabled = gate.enabled(jobKey, tenantId);
 
-        Map<String, Object> out = new LinkedHashMap<>();
-        out.put("job_key", jobKey.value());
-        out.put("enabled", enabled);
-        out.put("scope", tenantId == null ? "GLOBAL_OR_DEFAULT" : "TENANT_OR_DEFAULT");
-        out.put("tenant_id", tenantId != null ? tenantId.toString() : null);
-        return out;
+        return new GateStatusResponse(
+            jobKey.value(),
+            enabled,
+            tenantId == null ? "GLOBAL_OR_DEFAULT" : "TENANT_OR_DEFAULT",
+            tenantId != null ? tenantId.toString() : null);
     }
 
     public Map<String, Boolean> getGateStatusBulk(List<String> jobKeys, String tenantIdStr) {

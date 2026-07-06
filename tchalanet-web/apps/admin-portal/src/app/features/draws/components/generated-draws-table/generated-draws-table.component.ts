@@ -7,6 +7,7 @@ import {
   ConsoleDrawSelectionEvent,
   ConsoleDrawsTableComponent,
   ConsoleRowAction,
+  consoleDrawRowViewModel,
   consoleDrawLifecycleActionIcon,
   consoleDrawLifecycleActionLabel,
   consoleDrawPublicationStatusLabel,
@@ -23,10 +24,10 @@ import {
   generatedDrawCountdownMs,
   generatedDrawDateTimeToEpochMs,
   generatedDrawLocalDateLabel,
+  generatedDrawLocalTimeLabel,
   generatedDrawProviderAndTenantTimeLabel,
   generatedDrawTenantDateTimeLabel,
 } from '../../data-access/admin-generated-draws.models';
-import { lotteryLogoForSlot } from '../../../../shared/lottery/lottery-assets';
 import { RuntimeSettingsStore } from '@tch/shared-config';
 
 @Component({
@@ -135,6 +136,20 @@ export class GeneratedDrawsTableComponent {
     return generatedDrawProviderAndTenantTimeLabel(draw.scheduledAt, draw.timezone, this.tenantTimezone()) ?? '—';
   }
 
+  private scheduledProviderTime(draw: GeneratedDrawView): string | undefined {
+    return generatedDrawLocalTimeLabel(draw.scheduledAt, draw.timezone) ?? undefined;
+  }
+
+  private scheduledTenantDate(draw: GeneratedDrawView): string | undefined {
+    const providerDate = this.scheduledDate(draw);
+    const tenantDate = generatedDrawLocalDateLabel(draw.scheduledAt, this.tenantTimezone());
+    return tenantDate && tenantDate !== providerDate ? tenantDate : undefined;
+  }
+
+  private scheduledTenantTime(draw: GeneratedDrawView): string | undefined {
+    return generatedDrawLocalTimeLabel(draw.scheduledAt, this.tenantTimezone()) ?? undefined;
+  }
+
   fetchedAtLabel(draw: GeneratedDrawView): string {
     return generatedDrawTenantDateTimeLabel(draw.fetchedAt, this.tenantTimezone());
   }
@@ -160,10 +175,6 @@ export class GeneratedDrawsTableComponent {
   isClosingSoon(draw: GeneratedDrawView): boolean {
     const remainingMs = generatedDrawCountdownMs(draw, this.nowMs());
     return remainingMs != null && remainingMs > 0 && remainingMs <= 5 * 60 * 1000;
-  }
-
-  providerLogo(draw: GeneratedDrawView): string | null {
-    return lotteryLogoForSlot(draw.slotKey);
   }
 
   canEnterManualResult(draw: GeneratedDrawView): boolean {
@@ -285,15 +296,27 @@ export class GeneratedDrawsTableComponent {
   }
 
   private toConsoleDrawRow(draw: GeneratedDrawView, groupLabel: string): ConsoleDrawRow {
-    return {
+    return consoleDrawRowViewModel({
       id: draw.drawId,
       groupLabel,
+      identityInput: {
+        providerCode: draw.providerCode,
+        providerName: draw.providerLabel,
+        channelCode: draw.drawChannelCode,
+        channelName: draw.label,
+        slotKey: draw.slotKey,
+        slotLabel: draw.slotLabel,
+        officialDateLabel: this.scheduledDate(draw),
+        officialTimeLabel: this.scheduledProviderTime(draw),
+        officialTimezoneLabel: draw.timezone,
+        localDateLabel: this.scheduledTenantDate(draw),
+        localTimeLabel: this.scheduledTenantTime(draw),
+        localTimezoneLabel: this.tenantTimezone(),
+        fallbackTitle: draw.label,
+      },
       title: draw.label,
       subtitle: `${draw.slotLabel} · ${draw.slotKey}`,
       meta: draw.providerLabel,
-      logoUrl: this.providerLogo(draw),
-      logoAlt: draw.providerLabel,
-      logoText: draw.providerCode,
       scheduledDateLabel: this.scheduledDate(draw),
       scheduledTimeLabel: this.scheduledTime(draw),
       countdownLabel: this.salesCountdown(draw),
@@ -311,7 +334,7 @@ export class GeneratedDrawsTableComponent {
       publicationTone: consoleDrawPublicationStatusTone(draw.publicationStatus),
       pending: this.isPending(draw),
       actions: this.consoleActions(draw),
-    };
+    });
   }
 
   private consoleActions(draw: GeneratedDrawView): readonly ConsoleRowAction[] {

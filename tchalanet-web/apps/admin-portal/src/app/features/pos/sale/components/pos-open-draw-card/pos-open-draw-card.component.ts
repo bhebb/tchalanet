@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { PosOpenDrawView } from '../../data-access/pos-sale.models';
 
 @Component({
@@ -64,5 +65,16 @@ export class PosOpenDrawCardComponent implements OnInit {
 
   selectDraw(draw: PosOpenDrawView): void {
     this.drawSelected.emit(draw);
+  }
+
+  drawLabel(draw: PosOpenDrawView): string {
+    return consoleTicketDrawIdentity({
+      channelCode: draw.channelCode,
+      channelLabel: draw.channelLabel,
+      resultSlotKey: draw.resultSlotKey,
+      drawDateLabel: draw.drawDate,
+      scheduledAt: draw.scheduledAt,
+      fallbackLabel: draw.label,
+    }).receiptLabel;
   }
 }

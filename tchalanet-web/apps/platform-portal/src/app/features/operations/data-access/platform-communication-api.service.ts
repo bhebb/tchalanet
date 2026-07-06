@@ -1,17 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import type {
+  ConsoleCommunicationChannel,
+  ConsoleDeliveryStatus,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type CommunicationChannel =
-  | 'SLACK'
-  | 'SLACK_INTERNAL'
-  | 'SLACK_TENANT_WEBHOOK'
-  | 'EMAIL'
-  | 'SMS'
-  | 'WHATSAPP'
-  | 'PUSH';
+export type CommunicationChannel = ConsoleCommunicationChannel;
 
-export type DeliveryStatus = 'PENDING' | 'DISPATCHING' | 'SENT' | 'FAILED' | 'SKIPPED' | 'CANCELLED';
+export type DeliveryStatus = ConsoleDeliveryStatus;
 
 export interface CommunicationQueueSummary {
   pending: number;

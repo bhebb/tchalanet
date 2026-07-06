@@ -11,6 +11,7 @@ import {
 } from '../results/public-draw-results.service';
 import type { PublicResultDetail } from './public-result-detail.model';
 import { publicResultFallback, resultStatusView } from './public-result-detail.utils';
+import { publicResultIdentity } from '../results/public-results.utils';
 
 @Component({
   selector: 'tch-public-result-detail-page',
@@ -56,22 +57,16 @@ export class PublicResultDetailPage {
   readonly isLoading = computed(() => this.resource.isLoading());
   readonly hasError = computed(() => !!this.resource.error() && !this.resource.value());
 
-  /** Channel label: uses drawChannelLabelKey translated, fallback to drawChannelLabel. */
-  readonly channelLabel = computed(() => {
-    const r = this.result();
-    return r.drawChannelLabelKey || r.drawChannelLabel;
-  });
+  readonly resultIdentity = computed(() => publicResultIdentity(this.result()));
+
+  readonly channelLabel = computed(() => this.resultIdentity().identity.channelName ?? this.result().drawChannelLabel);
+
+  readonly drawDateTimeLabel = computed(() => this.resultIdentity().dateTimeLabel);
 
   readonly statusView = computed(() => resultStatusView(this.result().status));
 
   statusLabel(status: ResultStatus): string {
     return `domain.result.status.${status}`;
-  }
-
-  /** Strips seconds from a time string: "14:30:00" → "14:30". */
-  hhmm(time: string | undefined): string {
-    if (!time) return '';
-    return time.length > 5 ? time.substring(0, 5) : time;
   }
 
   /**

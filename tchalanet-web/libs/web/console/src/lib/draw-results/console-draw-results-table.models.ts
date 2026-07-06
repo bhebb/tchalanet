@@ -1,4 +1,5 @@
 import { AdminStatusTone } from '@tch/ui/console';
+import { ConsoleDrawSlotIdentity } from '../draw-slots/console-draw-slot-identity.models';
 
 export type ConsoleRowActionTone = 'default' | 'primary' | 'danger';
 
@@ -21,6 +22,7 @@ export interface ConsoleDrawResultRow {
   readonly logoAlt?: string;
   readonly logoText?: string;
   readonly slotKey?: string;
+  readonly identity: ConsoleDrawSlotIdentity;
   readonly numbers: readonly string[];
   readonly statusLabel: string;
   readonly statusTone: AdminStatusTone;
@@ -30,7 +32,9 @@ export interface ConsoleDrawResultRow {
   readonly sourceFlags?: readonly string[];
   readonly hasSourceDetails?: boolean;
   readonly occurredDateLabel?: string;
+  readonly providerDateLabel?: string;
   readonly providerTimeLabel?: string;
+  readonly localDateLabel?: string;
   readonly localTimeLabel?: string;
   readonly fetchedAtLabel?: string;
   readonly appliedAtLabel?: string;

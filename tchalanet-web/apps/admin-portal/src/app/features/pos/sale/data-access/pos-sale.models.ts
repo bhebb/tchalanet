@@ -6,6 +6,7 @@ export interface PosOpenDrawView {
   drawId: string;
   drawChannelId: string;
   drawDate: string;
+  resultSlotKey: string;
   channelCode: string;
   channelLabel: string;
   gameCodes: string[];

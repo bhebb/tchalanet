@@ -24,7 +24,13 @@
         @for (group of vm.groups; track group.gameCode) {
           <div class="game-card">
             <div class="game-card__header">
-              <mat-icon class="game-card__icon">casino</mat-icon>
+              <span class="game-card__logo" aria-hidden="true">
+                @if (group.logoUrl) {
+                  <img [src]="group.logoUrl" alt="" />
+                } @else {
+                  {{ group.logoText }}
+                }
+              </span>
               <span class="game-card__title">{{ group.gameLabel }}</span>
               <code class="game-card__code">{{ group.gameCode }}</code>
             </div>

@@ -24,9 +24,12 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import {
+  ConsoleDrawSlotIdentityComponent,
+  consoleDrawIdentity,
   consoleDrawLifecycleActionLabel,
   consoleDrawStatusLabel,
   consoleDrawStatusTone,
+  type ConsoleDrawSlotIdentity,
 } from '@tch/web/console';
 import {
   DrawView,
@@ -89,6 +92,7 @@ const STATUS_OPTIONS = [
     MatIconModule,
     MatSelectModule,
     MatTableModule,
+    ConsoleDrawSlotIdentityComponent,
   ],
   templateUrl: './platform-ops-draw-lifecycle.page.html',
   styleUrls: ['./platform-ops-draw-lifecycle.page.scss'],
@@ -98,7 +102,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = ['channelCode', 'channelName', 'status', 'scheduledAt', 'openedAt', 'actions'];
+  readonly displayedColumns = ['channel', 'status', 'scheduledAt', 'openedAt', 'actions'];
   readonly statusOptions = STATUS_OPTIONS;
 
   readonly loading = signal(false);
@@ -178,7 +182,21 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
   private applySearch(): void {
     const q = this.search().toLowerCase();
     this.filteredDraws.set(
-      q ? this.draws().filter(d => d.channel.code.toLowerCase().includes(q) || d.channel.name.toLowerCase().includes(q)) : this.draws(),
+      q
+        ? this.draws().filter(d => {
+            const identity = this.drawIdentity(d);
+            return [
+              d.channel.code,
+              d.channel.name,
+              d.slot.key,
+              identity.channelName,
+              identity.providerName,
+              identity.slotLabel,
+            ]
+              .filter(Boolean)
+              .some(value => value!.toLowerCase().includes(q));
+          })
+        : this.draws(),
     );
   }
 
@@ -186,14 +204,14 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     if (this.dryRun()) {
       this.actionFeedback.set({
         title: 'Dry-run',
-        message: `Dry-run: ${this.actionLabel(action)} serait exécuté sur ${draw.channel.name}.`,
+        message: `Dry-run: ${this.actionLabel(action)} serait exécuté sur ${this.drawDisplayLabel(draw)}.`,
         severity: 'info',
       });
       return;
     }
 
     const ref = this.dialog.open(DrawLifecycleActionDialog, {
-      data: { draw, action },
+      data: { draw, action, drawLabel: this.drawDisplayLabel(draw) },
       width: '460px',
     });
 
@@ -246,7 +264,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
         this.busy.set(false);
         this.actionFeedback.set({
           title: `${this.actionLabel(action)} exécuté`,
-          message: `${draw.channel.name} a été mis à jour.`,
+          message: `${this.drawDisplayLabel(draw)} a été mis à jour.`,
           severity: 'info',
         });
         this.load();
@@ -256,6 +274,24 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
         this.actionFeedback.set(this.errorViewModel(err, `platform.ops.drawLifecycle.${action}`));
       },
     });
+  }
+
+  drawIdentity(draw: DrawView): ConsoleDrawSlotIdentity {
+    return consoleDrawIdentity({
+      channelCode: draw.channel.code,
+      channelName: draw.channel.name,
+      slotKey: draw.slot.key,
+      slotLabel: draw.slot.label,
+      officialDateLabel: draw.drawDate,
+      officialTimeLabel: hhmm(draw.slot.drawTime),
+      officialTimezoneLabel: draw.slot.timezone,
+      fallbackTitle: draw.channel.code,
+    });
+  }
+
+  private drawDisplayLabel(draw: DrawView): string {
+    const identity = this.drawIdentity(draw);
+    return identity.channelName ?? identity.channelShortName ?? draw.channel.code;
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {
@@ -272,4 +308,9 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
       severity: 'error',
     };
   }
+}
+
+function hhmm(time: string | null | undefined): string | null {
+  if (!time) return null;
+  return time.length > 5 ? time.substring(0, 5) : time;
 }

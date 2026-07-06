@@ -91,7 +91,7 @@
         <p>{{ 'public.results.load_error' | translate }}</p>
         <button type="button" (click)="result.reload()">{{ 'common.retry' | translate }}</button>
       </div>
-      } @else if (rows().length) {
+      } @else if (resultRows().length) {
       <!-- Desktop table -->
       <div class="results-page__table-wrap">
         <table class="results-page__table">
@@ -110,17 +110,29 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of rows(); track row.drawResultId) {
+            @for (row of resultRows(); track row.drawResultId) {
             <tr>
               <td class="results-page__td--date">{{ row.resultDate }}</td>
               <td class="results-page__td--draw">
-                <span class="results-page__draw-label"
-                  >{{ row.drawChannelLabelKey | translate }}</span
-                >
-                <span class="results-page__draw-code">{{ row.slotKey }}</span>
+                <span class="results-page__draw-identity">
+                  @if (row.identity.providerLogoUrl) {
+                    <img
+                      [src]="row.identity.providerLogoUrl"
+                      [alt]="row.identity.providerName ?? row.identity.logoText"
+                    />
+                  } @else {
+                    <span class="results-page__draw-logo-text">{{ row.identity.logoText }}</span>
+                  }
+                  <span>
+                    <span class="results-page__draw-label">{{ row.identity.channelName }}</span>
+                    <span class="results-page__draw-code">
+                      {{ row.identity.providerShortName }} · {{ row.identity.slotLabel }}
+                    </span>
+                  </span>
+                </span>
               </td>
               <td class="results-page__td--right results-page__td--mono">
-                {{ hhmm(row.drawTime) }}
+                {{ row.identity.providerTimeLabel }}
               </td>
               <td>
                 <span class="results-page__status-chip" [attr.data-status]="row.status">
@@ -157,12 +169,22 @@
 
       <!-- Mobile cards -->
       <div class="results-page__mobile-cards">
-        @for (row of rows(); track row.drawResultId) {
+        @for (row of resultRows(); track row.drawResultId) {
         <div class="results-page__card">
           <div class="results-page__card-top">
-            <div>
-              <p class="results-page__card-label">{{ row.drawChannelLabelKey | translate }}</p>
-              <p class="results-page__card-meta">{{ row.resultDate }} · {{ hhmm(row.drawTime) }}</p>
+            <div class="results-page__card-heading">
+              @if (row.identity.providerLogoUrl) {
+                <img
+                  [src]="row.identity.providerLogoUrl"
+                  [alt]="row.identity.providerName ?? row.identity.logoText"
+                />
+              } @else {
+                <span class="results-page__draw-logo-text">{{ row.identity.logoText }}</span>
+              }
+              <span>
+                <p class="results-page__card-label">{{ row.identity.channelName }}</p>
+                <p class="results-page__card-meta">{{ row.dateTimeLabel }}</p>
+              </span>
             </div>
             <span class="results-page__status-chip" [attr.data-status]="row.status">
               {{ statusLabel(row) | translate }}
@@ -202,7 +224,7 @@
     </ng-container>
 
     <!-- Footer slot: pagination (only when rows are loaded) -->
-    @if (rows().length) {
+    @if (resultRows().length) {
     <tch-public-pagination-bar
       footer
       [page]="currentPage()"

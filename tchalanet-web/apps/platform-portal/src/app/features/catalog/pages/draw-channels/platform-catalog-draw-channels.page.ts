@@ -24,11 +24,24 @@ import {
   resourceErrorVm,
 } from '@tch/web/async';
 import {
+  ConsoleDrawSlotIdentity,
+  ConsoleDrawSlotIdentityComponent,
+  consoleDrawIdentity,
+} from '@tch/web/console';
+import {
   PlatformCatalogApi,
   CatalogDrawChannelView,
   CreateDrawChannelRequest,
   UpdateDrawChannelRequest,
 } from '../../data-access/platform-catalog-api.service';
+
+type CatalogDrawChannelRow = CatalogDrawChannelView & {
+  readonly identity: ConsoleDrawSlotIdentity;
+  readonly drawTimeLabel: string;
+  readonly daysLabel: string;
+  readonly statusLabel: string;
+  readonly statusTone: 'success' | 'neutral';
+};
 
 // ── Create Dialog ────────────────────────────────────────────────────────────
 @Component({
@@ -289,6 +302,7 @@ export class EditDrawChannelDialog {
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminStatusPillComponent,
+    ConsoleDrawSlotIdentityComponent,
     TchPaginationComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
@@ -298,6 +312,7 @@ export class EditDrawChannelDialog {
     ReactiveFormsModule,
   ],
   templateUrl: './platform-catalog-draw-channels.page.html',
+  styleUrls: ['./platform-catalog-draw-channels.page.scss'],
 })
 export class PlatformCatalogDrawChannelsPage {
   private readonly api = inject(PlatformCatalogApi);
@@ -307,8 +322,7 @@ export class PlatformCatalogDrawChannelsPage {
   private readonly router = inject(Router);
 
   readonly displayedColumns = [
-    'code',
-    'name',
+    'identity',
     'drawTime',
     'timezone',
     'daysOfWeek',
@@ -338,7 +352,9 @@ export class PlatformCatalogDrawChannelsPage {
     if (status !== 'resolved' && status !== 'local' && status !== 'reloading') return null;
     return this.channels.value() ?? null;
   });
-  readonly channelRows = computed(() => this.channelPage()?.items ?? []);
+  readonly channelRows = computed<readonly CatalogDrawChannelRow[]>(() =>
+    (this.channelPage()?.items ?? []).map(channel => this.toRow(channel)),
+  );
   readonly hasChannels = computed(() => this.channelRows().length > 0);
   readonly totalElements = computed(() => this.channelPage()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.channelPage()?.page ?? this.page());
@@ -414,6 +430,28 @@ export class PlatformCatalogDrawChannelsPage {
         );
       },
     });
+  }
+
+  private toRow(channel: CatalogDrawChannelView): CatalogDrawChannelRow {
+    return {
+      ...channel,
+      identity: consoleDrawIdentity({
+        channelCode: channel.code,
+        channelName: channel.name,
+        channelShortName: channel.label,
+        slotKey: channel.code,
+        officialTimeLabel: this.timeLabel(channel.drawTime),
+        officialTimezoneLabel: channel.timezone,
+      }),
+      drawTimeLabel: this.timeLabel(channel.drawTime) || '—',
+      daysLabel: channel.daysOfWeek?.length ? channel.daysOfWeek.join(', ') : '—',
+      statusLabel: channel.active ? 'Actif' : 'Inactif',
+      statusTone: channel.active ? 'success' : 'neutral',
+    };
+  }
+
+  private timeLabel(time: string | null | undefined): string {
+    return time ? time.substring(0, 5) : '';
   }
 
   private navigateList(params: {

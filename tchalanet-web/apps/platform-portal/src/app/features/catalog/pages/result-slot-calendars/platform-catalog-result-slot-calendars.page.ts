@@ -19,6 +19,7 @@ import {
   TchAsyncViewComponent,
   resourceErrorVm,
 } from '@tch/web/async';
+import { consoleResultSlotIdentity } from '@tch/web/console';
 import {
   CatalogId,
   CatalogResultSlotCalendarOverrideView,
@@ -176,7 +177,12 @@ export class PlatformCatalogResultSlotCalendarsPage {
   }
 
   slotLabel(slot: CatalogResultSlotView): string {
-    return `${slot.slotKey} - ${slot.drawTime}`;
+    const identity = consoleResultSlotIdentity({
+      slotKey: slot.slotKey,
+      providerCode: slot.provider,
+      providerName: slot.provider,
+    });
+    return [identity.longLabel, slot.drawTime].filter(Boolean).join(' · ');
   }
 
   shape(row: CatalogResultSlotCalendarOverrideView): string {

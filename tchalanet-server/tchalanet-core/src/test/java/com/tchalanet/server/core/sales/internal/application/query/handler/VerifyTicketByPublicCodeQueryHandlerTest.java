@@ -111,7 +111,6 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
             TENANT_ID.value(),
             "demo",
             TENANT_ID.value(),
-            "10000000-0000-0000-0000-000000000001",
             UUID.fromString("10000000-0000-0000-0000-000000000001"),
             Set.of(),
             Set.of(),
@@ -150,6 +149,9 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
                 new TicketVerificationProjection.DrawProjection(
                     "HAITI",
                     "Haiti",
+                    "GA_LATE",
+                    "GA",
+                    "America/New_York",
                     LocalDate.parse("2026-05-27"),
                     Instant.parse("2026-05-27T20:00:00Z")
                 ),

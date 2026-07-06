@@ -13,19 +13,23 @@
     <ng-container main>
       <mat-tab-group class="draw-result-detail__tabs" animationDuration="120ms">
         <mat-tab [label]="'admin.drawResults.detail.tab.results' | translate">
-          <tch-draw-result-summary
-            [result]="result"
-            [resultFacts]="resultFacts()"
-            [linkedDrawFacts]="linkedDrawFacts()"
-          />
+          @if (summaryView(); as summary) {
+            <tch-console-draw-result-summary
+              [summary]="summary"
+              [facts]="summaryFacts()"
+            />
+          }
         </mat-tab>
 
         <mat-tab [label]="'admin.drawResults.detail.tab.combinations' | translate">
-          <tch-draw-result-combinations [rows]="combinationSections()" />
+          <tch-console-draw-result-combinations [rows]="combinationSections()" />
         </mat-tab>
 
         <mat-tab [label]="'admin.drawResults.detail.tab.raw' | translate">
-          <tch-draw-result-raw [content]="rawResult()" />
+          <tch-console-draw-result-raw
+            [content]="rawResult()"
+            [emptyLabel]="'admin.drawResults.detail.raw.empty' | translate"
+          />
         </mat-tab>
       </mat-tab-group>
     </ng-container>

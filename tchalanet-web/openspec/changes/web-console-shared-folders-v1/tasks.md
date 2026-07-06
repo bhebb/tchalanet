@@ -12,7 +12,7 @@
 - [ ] 0.4a Inventory dedicated game logo assets for Bòlèt, Maryaj, Maryaj gratis, Loto 3, Loto 4,
       and Loto 5, and confirm which game matrix surfaces should render them.
 - [x] 0.5 Define the canonical display API names and placement for each stable technical term.
-- [ ] 0.5a Define `consoleGameIdentity` / `consoleGameLogoUrl` so game matrix cards use logo +
+- [x] 0.5a Define `consoleGameIdentity` / `consoleGameLogoUrl` so game matrix cards use logo +
       readable label and fall back to compact text only when the logo is unavailable.
 - [ ] 0.6 Define the domain bet glossary: game code, bet type, bet option, pattern meaning,
       short label, long label, and fallback behavior.
@@ -28,31 +28,37 @@
 - [ ] 0.9 Audit game/bet translations so technical `LOTTO`/`lotto*` identifiers render as French
       `Loto` labels in UI copy, unless an official external provider/product name requires
       `Lotto`.
-- [ ] 0.10 Inventory provider Pick 3/Pick 4 product labels and logos used for Haiti lot mapping in
+- [x] 0.10 Inventory provider Pick 3/Pick 4 product labels and logos used for Haiti lot mapping in
       manual result, override result, source-result, and draw-result detail surfaces.
 
 ## 1. Move console-private shared code
 
-- [ ] 1.1 Move reusable admin/platform console helpers and components into `libs/web/console`.
+- [x] 1.1 Move reusable admin/platform console helpers and components into `libs/web/console`.
 - [x] 1.2 Add or update `libs/web/console` public exports.
-- [ ] 1.3 Update admin-portal imports to use the new ownership boundary.
-- [ ] 1.4 Update platform-portal imports to use the new ownership boundary.
-- [ ] 1.5 Remove empty app-local shared folders left by the move.
-- [ ] 1.6 Consolidate duplicated lottery/provider/result-slot helpers currently living under
+- [x] 1.3 Update admin-portal imports to use the new ownership boundary.
+- [x] 1.4 Update platform-portal imports to use the new ownership boundary.
+- [x] 1.5 Remove empty app-local shared folders left by the move.
+- [x] 1.6 Consolidate duplicated lottery/provider/result-slot helpers currently living under
       admin/platform local shared folders.
 - [x] 1.7 Introduce `consoleDrawIdentity`, `consoleDrawChannelIdentity`, and
       `consoleResultSlotIdentity` builders that derive typed identities from code/result-slot/provider
       data and treat legacy `draw_channel.name` as fallback or tenant override.
-- [ ] 1.8 Ensure draw/channel/result-slot labels are read from identity fields instead of broad
-      string formatter helpers.
+- [x] 1.8 Ensure draw/channel/result-slot labels are read from identity fields instead of broad
+      string formatter helpers. **Result:** admin/platform draw, draw-result, draw-channel, matrix,
+      and result-slot catalog surfaces no longer keep local provider/slot/channel label helpers.
 - [x] 1.9 Introduce a structured draw identity model with provider short/long labels,
       provider logo, channel short/long labels, slot short/long labels, draw date, official/provider
       date/time, local/tenant date/time, timezone labels, and stable code fallback.
-- [ ] 1.10 Move duplicated Haiti lot provider mapping from admin/platform shared folders into
+- [x] 1.10 Move duplicated Haiti lot provider mapping from admin/platform shared folders into
       `@tch/web/console`, including provider game labels, logo URLs, alt text, and fallback Pick
       3/Pick 4 assets.
-- [ ] 1.11 Add focused tests proving each known provider resolves lot1/lot2/lot3 mapping labels and
+- [x] 1.11 Add focused tests proving each known provider resolves lot1/lot2/lot3 mapping labels and
       logos, and unknown providers resolve fallback labels/logos without blanks.
+- [x] 1.12 Add shared functional domain vocabulary types in `@tch/web/console` for tenant,
+      subscription, seller-terminal, draw lifecycle, draw-result status, quality, publication,
+      source, acquisition, game readiness, limit target/rule/outcome, contact, notification,
+      public content, page model, delivery, and action semantics; app APIs may keep DTO ownership
+      but must alias these shared types instead of redefining string unions.
 
 ## 2. Guardrails
 
@@ -63,7 +69,10 @@
 - [x] 2.4 Keep stable technical-code labels deterministic and local to `@tch/web/console`; use i18n
       only for user-facing copy that is not a stable technical term.
 - [ ] 2.5 Ensure print, ticket detail, draw, draw result, draw channel, pricing, and stats surfaces
-      can all use the same helpers/pipes instead of local mappings.
+      can all use the same helpers/pipes instead of local mappings. **Remaining gap:** public
+      ticket verification, persisted ticket detail, and server-generated PDF receipt models still
+      expose pre-composed channel labels; the backend contract must expose result slot/channel/provider
+      identity fields before those persisted receipt surfaces can use `consoleDrawIdentity` cleanly.
 - [ ] 2.6 Ensure bet options are defined from the domain glossary rather than directly inside pipe
       classes or page components.
 - [ ] 2.6a Ensure sellable option lists use supported option metadata, not provider documentation
@@ -72,7 +81,7 @@
       customer receipt flows by default.
 - [x] 2.7 Do not make the visible `Haïti • ...` draw-channel seed names canonical in web display
       helpers; prefer stable codes and structured result-slot/provider fields.
-- [ ] 2.8 Keep public portal copy/i18n ownership intact while aligning public result display with the
+- [x] 2.8 Keep public portal copy/i18n ownership intact while aligning public result display with the
       shared draw identity rules; do not move public-only page composition into `@tch/web/console`.
 - [x] 2.9 Do not surface `Lotto` as the French Tchalanet game label; display `Loto` while keeping
       `LOTTO`/`lotto*` only as technical ids, enum values, route/data ids, or i18n key names.
@@ -82,38 +91,38 @@
 
 ## 3. Responsive draw/result/channel display migration
 
-- [ ] 3.1 Define display density rules for draw identity:
+- [x] 3.1 Define display density rules for draw identity:
       mobile cards use logo/short provider + compact slot/period + official draw date/time plus
       local date/time on admin/operator surfaces; tablet uses compact rows/cards; desktop tables use
       long provider/channel labels and separate official/local date-time columns or stacks.
-- [ ] 3.2 Update `tch-console-draw-slot-identity`, `tch-console-draws-table`, and
+- [x] 3.2 Update `tch-console-draw-slot-identity`, `tch-console-draws-table`, and
       `tch-console-draw-results-table` to accept structured identity data instead of relying only
       on pre-composed `title`, `subtitle`, `meta`, and `logoText` fields.
-- [ ] 3.3 Replace public latest-results list/card mappings so provider filters, table rows, mobile
+- [x] 3.3 Replace public latest-results list/card mappings so provider filters, table rows, mobile
       cards, and date/time text use the same provider/channel/date identity semantics.
-- [ ] 3.4 Replace public result-detail hero, metadata card, receipt, and related result labels with
+- [x] 3.4 Replace public result-detail hero, metadata card, receipt, and related result labels with
       the same identity semantics as the public list.
-- [ ] 3.5 Replace admin generated-draw mappings to use the shared identity helper and remove
+- [x] 3.5 Replace admin generated-draw mappings to use the shared identity helper and remove
       app-local lottery asset imports.
 - [x] 3.6 Replace admin draw-results mappings to remove local `PROVIDER_LABELS`, `SLOT_LABELS`, and
       legacy `channelName` as the preferred title.
-- [ ] 3.6a Update admin draw-results rows to populate official/provider date/time and local/tenant
+- [x] 3.6a Update admin draw-results rows to populate official/provider date/time and local/tenant
       date/time separately; show the local date when timezone conversion crosses a day boundary.
-- [ ] 3.7 Replace platform ops-draw mappings that currently use `draw.channel.name` as title with
+- [x] 3.7 Replace platform ops-draw mappings that currently use `draw.channel.name` as title with
       provider/channel/date identity derived from code, result slot, provider, scheduled time, and
       timezone.
-- [ ] 3.8 Replace platform ops draw-results mappings that currently use local `humanizeSlotKey`,
+- [x] 3.8 Replace platform ops draw-results mappings that currently use local `humanizeSlotKey`,
       label-key generation, and app-local lottery assets.
-- [ ] 3.9 Replace platform catalog draw-channel raw table display with a mobile-first channel
+- [x] 3.9 Replace platform catalog draw-channel raw table display with a mobile-first channel
       identity row/card layout that highlights provider, slot/period, official time, timezone,
       code, status, and actions.
-- [ ] 3.10 Replace manual-result and override-result dialogs so both use the same shared Haiti lot
+- [x] 3.10 Replace manual-result and override-result dialogs so both use the same shared Haiti lot
       mapping component before `lot1`, `lot2`, and `lot3` inputs.
-- [ ] 3.11 Ensure result-entry mapping cards show provider identity, provider game label, Haiti lot
+- [x] 3.11 Ensure result-entry mapping cards show provider identity, provider game label, Haiti lot
       label, and provider game logo on mobile and desktop.
-- [ ] 3.12 Verify the same sample draw channel renders consistently across public, admin, and
+- [x] 3.12 Verify the same sample draw channel renders consistently across public, admin, and
       platform at mobile, tablet, and desktop widths.
-- [ ] 3.13 Update game matrix/card surfaces to use dedicated game logos from `@tch/shared-assets`
+- [x] 3.13 Update game matrix/card surfaces to use dedicated game logos from `@tch/shared-assets`
       through `@tch/web/console` game identity helpers.
 - [x] 3.14 Add `consoleSettlementVariantLabel` for admin/support labels when backend exposes a
       computed settlement variant.
@@ -121,6 +130,31 @@
       rows; it must not generate a static provider-doc matrix without the selected result facts.
 - [x] 3.16 Add `Combinaisons & règles` only as a secondary result/detail tab or support view; it
       must use the current draw/result numbers and must not clutter the main result table.
+- [x] 3.17 Add shared `tch-console-draw-detail` so admin/platform draw detail pages can pass
+      different draw view models, actions, sections, result state, and aside metrics into one
+      canonical draw detail renderer; migrate admin generated-draw detail off local overview/aside
+      components while keeping admin financial activity projected as feature-owned content, and add
+      platform ops draw detail as a second consumer using the same renderer with platform actions.
+- [x] 3.18 Add shared `consoleDrawRowViewModel` and `consoleDrawDetailViewModel` builders so pages
+      map backend DTOs into one final console row/detail contract instead of reconstructing identity,
+      logo, title, and fallback fields per app.
+- [x] 3.19 Add shared `consoleDrawResultRowViewModel`,
+      `consoleDrawResultSummaryViewModel`, and `consoleDrawResultSummaryFacts` builders so admin and
+      platform draw-result rows/details use one final console contract while pages keep ownership of
+      backend DTO parsing, source labels, status labels, and actions.
+- [x] 3.20 Route public latest-results and public result-detail identity through
+      `consoleDrawResultSummaryViewModel` so public, admin, and platform result surfaces share the
+      same result identity semantics while public keeps its page composition and i18n ownership.
+- [x] 3.21 Replace platform draw-lifecycle display labels with shared draw identity semantics so the
+      lifecycle table, dry-run feedback, and action dialog use canonical provider/slot labels while
+      legacy `channel.name` remains only a search/fallback field.
+- [x] 3.22 Add `consoleTicketDrawIdentity` for ticket/receipt surfaces and migrate POS open-draw
+      selection plus local ticket preview receipt to use structured `resultSlotKey/channelCode`
+      instead of showing the backend pre-composed channel label as the canonical draw label.
+- [ ] 3.23 Backend follow-up: extend public ticket verification, ticket detail, and server print
+      receipt contracts with structured draw identity fields (`resultSlotKey`, `channelCode`,
+      provider/slot/timezone where available) so public verification and PDF print can use the same
+      display semantics without parsing legacy labels.
 
 ## 4. Console actor identity migration
 

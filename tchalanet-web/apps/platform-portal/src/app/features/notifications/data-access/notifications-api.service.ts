@@ -1,34 +1,24 @@
 import { inject, Injectable } from '@angular/core';
 import type { TchRequestOptions } from '@tch/api';
 import { TchBackendClient, TchPage } from '@tch/api';
+import type {
+    ConsoleNotificationActorType,
+    ConsoleNotificationAudienceType,
+    ConsoleNotificationCategory,
+    ConsoleNotificationChannel,
+    ConsoleNotificationKind,
+    ConsoleNotificationSeverity,
+    ConsoleNotificationStatus,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type NotificationStatus = 'PUBLISHED' | 'EXPIRED' | 'CANCELLED' | 'PURGED';
-export type NotificationAudienceType =
-    | 'SPECIFIC_ACTORS'
-    | 'PLATFORM_ADMINS'
-    | 'ALL_APP_USERS'
-    | 'TENANT_ADMINS'
-    | 'TENANT_APP_USERS'
-    | 'TENANT_SELLER_TERMINALS';
-export type NotificationSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
-export type NotificationKind = 'INFO' | 'WARNING' | 'ACTION_REQUIRED' | 'SYSTEM_ERROR';
-export type NotificationCategory =
-    | 'PAGE_MODEL'
-    | 'TENANT_CONFIG'
-    | 'USER'
-    | 'OUTLET'
-    | 'TERMINAL'
-    | 'SESSION'
-    | 'SALES'
-    | 'DRAW'
-    | 'RESULT'
-    | 'PAYOUT'
-    | 'BATCH'
-    | 'SYSTEM'
-    | 'SECURITY';
-export type NotificationChannel = 'EMAIL' | 'SLACK' | 'SMS' | 'WHATSAPP' | 'PUSH' | 'WEB' | 'IN_APP';
-export type NotificationActorType = 'APP_USER' | 'SELLER_TERMINAL';
+export type NotificationStatus = ConsoleNotificationStatus;
+export type NotificationAudienceType = ConsoleNotificationAudienceType;
+export type NotificationSeverity = ConsoleNotificationSeverity;
+export type NotificationKind = ConsoleNotificationKind;
+export type NotificationCategory = ConsoleNotificationCategory;
+export type NotificationChannel = ConsoleNotificationChannel;
+export type NotificationActorType = ConsoleNotificationActorType;
 
 export interface NotificationTarget {
     actorType: NotificationActorType;

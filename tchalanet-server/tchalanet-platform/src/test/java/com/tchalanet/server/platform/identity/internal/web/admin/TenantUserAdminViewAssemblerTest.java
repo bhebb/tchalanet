@@ -94,7 +94,6 @@ class TenantUserAdminViewAssemblerTest {
         tenantId.value(),
         "tenant-demo",
         tenantId.value(),
-        UUID.randomUUID().toString(),
         UUID.randomUUID(),
         Set.of(TchRole.TENANT_ADMIN),
         Set.of(),

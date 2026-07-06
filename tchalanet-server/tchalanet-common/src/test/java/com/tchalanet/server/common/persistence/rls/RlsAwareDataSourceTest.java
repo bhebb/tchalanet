@@ -75,7 +75,6 @@ class RlsAwareDataSourceTest {
         tenantUuid,
         "tenant",
         tenantUuid,
-        "external-subject",
         UUID.randomUUID(),
         superAdmin ? Set.of(TchRole.SUPER_ADMIN) : Set.of(),
         Set.of(),

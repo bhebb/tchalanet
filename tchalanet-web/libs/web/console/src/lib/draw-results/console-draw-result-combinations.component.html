@@ -1,0 +1,58 @@
+@if (rows().length === 0) {
+  <tch-admin-empty-state
+    icon="apps"
+    title="Aucune combinaison"
+    message=""
+  />
+} @else {
+  <p class="console-draw-result-combinations__intro">
+    Pour chaque option de jeu supportée, les numéros gagnants calculés à partir du tirage.
+  </p>
+
+  <div class="console-draw-result-combinations__sections">
+    @for (section of rows(); track section.gameLabel) {
+      <section class="console-draw-result-combinations__section">
+        <header class="console-draw-result-combinations__section-header">
+          <div>
+            <p class="console-draw-result-combinations__eyebrow">Jeu</p>
+            <h3>{{ section.gameLabel }}</h3>
+          </div>
+
+          <div class="console-draw-result-combinations__drawn">
+            <span>Résultat</span>
+            <div class="console-draw-result-combinations__numbers">
+              @for (number of section.resultNumbers; track number) {
+                <strong>{{ number }}</strong>
+              }
+            </div>
+          </div>
+        </header>
+
+        <table class="console-draw-result-combinations__table">
+          <thead>
+            <tr>
+              <th scope="col">Type de jeu</th>
+              <th scope="col">Gagne avec</th>
+              <th scope="col">Numéros gagnants</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of section.rows; track row.playType) {
+              <tr>
+                <th scope="row">{{ row.playType }}</th>
+                <td>{{ row.winWith === 'exact' ? 'Ordre exact' : "N'importe quel ordre" }}</td>
+                <td>
+                  <div class="console-draw-result-combinations__numbers">
+                    @for (number of row.winningNumbers; track number) {
+                      <span>{{ number }}</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  </div>
+}

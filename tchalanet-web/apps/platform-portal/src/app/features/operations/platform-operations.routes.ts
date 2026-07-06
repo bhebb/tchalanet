@@ -76,6 +76,11 @@ export const platformOperationsRoutes: Route[] = [
       import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
   },
   {
+    path: 'draws/:tenantId/:drawId',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-draw-detail.page').then(m => m.PlatformOpsDrawDetailPage),
+  },
+  {
     path: 'draw-results',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draw-results.page').then(m => m.PlatformOpsDrawResultsPage),

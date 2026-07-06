@@ -7,13 +7,22 @@ const GAME_LABELS: Record<string, string> = {
   HT_BORLETTE: 'Bòlèt',
   MARYAJ: 'Maryaj',
   HT_MARYAJ: 'Maryaj',
+  MARYAJ_GRATIS: 'Maryaj gratis',
+  MARYAJ_GRATUIT: 'Maryaj gratis',
+  HT_MARYAJ_GRATIS: 'Maryaj gratis',
   HT_MARYAJ_GRATUIT: 'Maryaj gratis',
   LOTO3: 'Loto 3',
+  LOTO_3: 'Loto 3',
   HT_LOTO3: 'Loto 3',
+  HT_LOTO_3: 'Loto 3',
   LOTO4: 'Loto 4',
+  LOTO_4: 'Loto 4',
   HT_LOTO4: 'Loto 4',
+  HT_LOTO_4: 'Loto 4',
   LOTO5: 'Loto 5',
+  LOTO_5: 'Loto 5',
   HT_LOTO5: 'Loto 5',
+  HT_LOTO_5: 'Loto 5',
 };
 
 const GAME_LOGO_TEXT: Record<string, string> = {
@@ -23,13 +32,22 @@ const GAME_LOGO_TEXT: Record<string, string> = {
   HT_BORLETTE: 'Bo',
   MARYAJ: 'Ma',
   HT_MARYAJ: 'Ma',
+  MARYAJ_GRATIS: 'MG',
+  MARYAJ_GRATUIT: 'MG',
+  HT_MARYAJ_GRATIS: 'MG',
   HT_MARYAJ_GRATUIT: 'MG',
   LOTO3: 'L3',
+  LOTO_3: 'L3',
   HT_LOTO3: 'L3',
+  HT_LOTO_3: 'L3',
   LOTO4: 'L4',
+  LOTO_4: 'L4',
   HT_LOTO4: 'L4',
+  HT_LOTO_4: 'L4',
   LOTO5: 'L5',
+  LOTO_5: 'L5',
   HT_LOTO5: 'L5',
+  HT_LOTO_5: 'L5',
 };
 
 const GAME_LOGO_ASSETS: Record<string, string> = {
@@ -159,6 +177,13 @@ export interface ConsoleBetVariationRow {
   readonly error: string | null;
 }
 
+export interface ConsoleGameIdentity {
+  readonly code: string;
+  readonly name: string;
+  readonly logoText: string;
+  readonly logoUrl: string | null;
+}
+
 /**
  * Admin/support label for a computed settlement variant. Prefers the backend-provided
  * `adminLabel`, falls back to the local map, then to a readable code.
@@ -198,16 +223,25 @@ export function consoleBetVariationRows(
 export function consoleGameName(gameCode: string, displayName?: string | null): string {
   const explicit = displayName?.trim();
   if (explicit && explicit !== gameCode && !isTechnicalCode(explicit)) return explicit;
-  return GAME_LABELS[gameCode] ?? readableCode(gameCode);
+  return GAME_LABELS[normalizeGameCode(gameCode)] ?? readableCode(gameCode);
 }
 
 export function consoleGameLogoText(gameCode: string, displayName?: string | null): string {
-  return GAME_LOGO_TEXT[gameCode] ?? initials(consoleGameName(gameCode, displayName));
+  return GAME_LOGO_TEXT[normalizeGameCode(gameCode)] ?? initials(consoleGameName(gameCode, displayName));
 }
 
 export function consoleGameLogoUrl(gameCode: string): string | null {
   const asset = GAME_LOGO_ASSETS[normalizeGameCode(gameCode)];
   return asset ? `${TCH_GAME_ASSET_BASE_PATH}/${asset}` : null;
+}
+
+export function consoleGameIdentity(gameCode: string, displayName?: string | null): ConsoleGameIdentity {
+  return {
+    code: gameCode,
+    name: consoleGameName(gameCode, displayName),
+    logoText: consoleGameLogoText(gameCode, displayName),
+    logoUrl: consoleGameLogoUrl(gameCode),
+  };
 }
 
 export function consoleBetTypeLabel(betType: string): string {

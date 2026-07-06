@@ -1,0 +1,5 @@
+@if (content(); as json) {
+  <pre class="console-draw-result-raw__code"><code>{{ json }}</code></pre>
+} @else {
+  <p class="console-draw-result-raw__empty">{{ emptyLabel() }}</p>
+}

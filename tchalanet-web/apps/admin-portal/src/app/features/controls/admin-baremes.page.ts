@@ -4,7 +4,6 @@ import {
   inject,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith } from 'rxjs';
 import {
@@ -16,7 +15,7 @@ import {
 import {
   consoleBetOptionLabel,
   consoleBetTypeLabel,
-  consoleGameName,
+  consoleGameIdentity,
 } from '@tch/web/console';
 
 import { BaremesAdminApi, type PricingOddsEntry } from './data-access/baremes-admin.api.service';
@@ -24,6 +23,8 @@ import { BaremesAdminApi, type PricingOddsEntry } from './data-access/baremes-ad
 export interface GameGroup {
   readonly gameCode: string;
   readonly gameLabel: string;
+  readonly logoText: string;
+  readonly logoUrl: string | null;
   readonly rows: readonly PricingOddsEntry[];
 }
 
@@ -39,11 +40,16 @@ function groupByGame(entries: PricingOddsEntry[]): GameGroup[] {
     rows.push(e);
     map.set(e.gameCode, rows);
   }
-  return Array.from(map.entries()).map(([code, rows]) => ({
-    gameCode: code,
-    gameLabel: consoleGameName(code),
-    rows,
-  }));
+  return Array.from(map.entries()).map(([code, rows]) => {
+    const game = consoleGameIdentity(code);
+    return {
+      gameCode: code,
+      gameLabel: game.name,
+      logoText: game.logoText,
+      logoUrl: game.logoUrl,
+      rows,
+    };
+  });
 }
 
 @Component({
@@ -51,7 +57,6 @@ function groupByGame(entries: PricingOddsEntry[]): GameGroup[] {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe,
-    MatIconModule,
     TchLoading,
     TchErrorPanel,
     AdminPageHeader,

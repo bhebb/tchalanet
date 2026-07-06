@@ -14,7 +14,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   BadgeStatus,
@@ -31,25 +30,34 @@ import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminStatusTone } from '@tch/ui/console';
 import { TchIdentityCardComponent } from '@tch/ui/console';
-import { ConsoleAddressSummaryComponent } from '@tch/web/console';
 import {
   PlatformTenantsApi,
   TenantAdminView,
-  TenantBusinessCalendarRules,
-  TenantDeliveryChannelConfig,
   TenantDetailView,
-  TenantInternalSettings,
-  TenantReceiptConfig,
 } from '../../data-access/platform-tenants-api.service';
 import {
   PlanSummaryView,
   SubscriptionView,
+  TenantCapabilitySnapshot,
   TenantProvisioningProfile,
-  TenantReadinessStatus,
   TenantStatus,
 } from '../../data-access/platform-tenant-contracts';
 import { PlatformSubscriptionApi } from '../../data-access/platform-subscription-api.service';
-import { TenantPlanPickerComponent } from '../../components/tenant-plan-picker/tenant-plan-picker.component';
+import { PlatformEntitlementApi } from '../../data-access/platform-entitlement-api.service';
+import {
+  PlatformRecipientSellerTerminalRow,
+  PlatformRecipientSellerTerminalsApi,
+} from '../../../shared/data-access/platform-recipient-seller-terminals-api.service';
+import { AuditEventView, PlatformAuditApi } from '../../../operations/data-access/platform-audit-api.service';
+import { TenantDetailOverviewComponent } from '../../components/tenant-detail-overview/tenant-detail-overview.component';
+import { TenantCommercialSummaryComponent } from '../../components/tenant-commercial-summary/tenant-commercial-summary.component';
+import { TenantReadinessCardComponent } from '../../components/tenant-readiness-card/tenant-readiness-card.component';
+import { TenantAdminsTableComponent } from '../../components/tenant-admins-table/tenant-admins-table.component';
+import { TenantConfigSummaryComponent } from '../../components/tenant-config-summary/tenant-config-summary.component';
+import { TenantSubscriptionPanelComponent } from '../../components/tenant-subscription-panel/tenant-subscription-panel.component';
+import { TenantEntitlementsPanelComponent } from '../../components/tenant-entitlements-panel/tenant-entitlements-panel.component';
+import { TenantSellerTerminalsTableComponent } from '../../components/tenant-seller-terminals-table/tenant-seller-terminals-table.component';
+import { TenantAuditTableComponent } from '../../components/tenant-audit-table/tenant-audit-table.component';
 
 type ProblemLike = { title?: string; detail?: string; traceId?: string; errorId?: string; requestId?: string };
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
@@ -68,8 +76,15 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
     AdminSectionCardComponent,
     AdminEmptyStateComponent,
     TchIdentityCardComponent,
-    ConsoleAddressSummaryComponent,
-    TenantPlanPickerComponent,
+    TenantDetailOverviewComponent,
+    TenantCommercialSummaryComponent,
+    TenantReadinessCardComponent,
+    TenantAdminsTableComponent,
+    TenantConfigSummaryComponent,
+    TenantSubscriptionPanelComponent,
+    TenantEntitlementsPanelComponent,
+    TenantSellerTerminalsTableComponent,
+    TenantAuditTableComponent,
     TchLoading,
     TchErrorPanel,
     TchStatusBadge,
@@ -80,7 +95,6 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
     MatIconModule,
     MatInputModule,
     MatTabsModule,
-    MatTableModule,
   ],
   templateUrl: './platform-tenant-detail.page.html',
   styleUrls: ['./platform-tenant-detail.page.scss'],
@@ -88,6 +102,9 @@ type FormState = 'idle' | 'submitting' | 'error' | 'success';
 export class PlatformTenantDetailPage implements OnInit {
   private readonly api = inject(PlatformTenantsApi);
   private readonly subscriptionApi = inject(PlatformSubscriptionApi);
+  private readonly entitlementApi = inject(PlatformEntitlementApi);
+  private readonly sellerTerminalsApi = inject(PlatformRecipientSellerTerminalsApi);
+  private readonly auditApi = inject(PlatformAuditApi);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
@@ -127,7 +144,26 @@ export class PlatformTenantDetailPage implements OnInit {
   readonly applyingPlan = signal(false);
   readonly applyPlanError = signal<string | null>(null);
 
-  readonly adminsColumns = ['displayName', 'email', 'status', 'createdAt'];
+  readonly entitlementsLoading = signal(false);
+  readonly entitlementsError = signal<string | null>(null);
+  readonly entitlementsLoaded = signal(false);
+  readonly entitlements = signal<TenantCapabilitySnapshot | null>(null);
+
+  readonly sellerTerminalsLoading = signal(false);
+  readonly sellerTerminalsError = signal<string | null>(null);
+  readonly sellerTerminalsLoaded = signal(false);
+  readonly sellerTerminals = signal<readonly PlatformRecipientSellerTerminalRow[]>([]);
+  readonly sellerTerminalsPage = signal(0);
+  readonly sellerTerminalsTotal = signal(0);
+  readonly sellerTerminalsPageSize = 20;
+
+  readonly auditLoading = signal(false);
+  readonly auditError = signal<string | null>(null);
+  readonly auditLoaded = signal(false);
+  readonly auditEvents = signal<readonly AuditEventView[]>([]);
+  readonly auditPage = signal(0);
+  readonly auditTotal = signal(0);
+  readonly auditPageSize = 20;
 
   readonly title = computed(() =>
     this.tenant()?.name ?? this.translate.instant('platform.tenants.detail.title'),
@@ -160,11 +196,6 @@ export class PlatformTenantDetailPage implements OnInit {
         : []),
       { label: this.translate.instant('platform.tenants.column.profile'), value: this.profileLabel(t.profile) },
     ];
-  });
-
-  readonly hasAddress = computed(() => {
-    const a = this.tenant()?.address;
-    return !!(a && (a.country || a.city || a.line1));
   });
 
   ngOnInit(): void {
@@ -259,6 +290,9 @@ export class PlatformTenantDetailPage implements OnInit {
   onTabSelected(index: number): void {
     if (index === 1) this.onAdminsTabSelected();
     if (index === 3) this.onSubscriptionTabSelected();
+    if (index === 4) this.onEntitlementsTabSelected();
+    if (index === 5) this.onSellerTerminalsTabSelected();
+    if (index === 6) this.onAuditTabSelected();
   }
 
   onSubscriptionTabSelected(): void {
@@ -283,6 +317,94 @@ export class PlatformTenantDetailPage implements OnInit {
     this.subscriptionApi.listActivePlans().subscribe({
       next: plans => this.plans.set(plans),
       error: () => this.plans.set([]),
+    });
+  }
+
+  onEntitlementsTabSelected(): void {
+    if (this.entitlementsLoaded()) return;
+    const id = this.tenantId();
+    if (!id) return;
+    this.entitlementsLoading.set(true);
+    this.entitlementsError.set(null);
+    this.entitlementApi.getSnapshot(id).subscribe({
+      next: snapshot => {
+        this.entitlements.set(snapshot);
+        this.entitlementsLoaded.set(true);
+        this.entitlementsLoading.set(false);
+      },
+      error: (err: unknown) => {
+        const pd = this.problem(err);
+        this.entitlementsError.set(pd.title ?? this.translate.instant('platform.tenants.detail.entitlements.error'));
+        this.entitlementsLoading.set(false);
+      },
+    });
+  }
+
+  onSellerTerminalsTabSelected(): void {
+    if (this.sellerTerminalsLoaded()) return;
+    this.loadSellerTerminals();
+  }
+
+  sellerTerminalsPageChange(page: number): void {
+    this.sellerTerminalsPage.set(page);
+    this.loadSellerTerminals();
+  }
+
+  private loadSellerTerminals(): void {
+    const id = this.tenantId();
+    if (!id) return;
+    this.sellerTerminalsLoading.set(true);
+    this.sellerTerminalsError.set(null);
+    this.sellerTerminalsApi.list({
+      tenantId: id,
+      page: this.sellerTerminalsPage(),
+      size: this.sellerTerminalsPageSize,
+    }).subscribe({
+      next: page => {
+        this.sellerTerminals.set(page.items);
+        this.sellerTerminalsTotal.set(page.totalElements);
+        this.sellerTerminalsLoaded.set(true);
+        this.sellerTerminalsLoading.set(false);
+      },
+      error: (err: unknown) => {
+        const pd = this.problem(err);
+        this.sellerTerminalsError.set(pd.title ?? this.translate.instant('platform.tenants.detail.sellerTerminals.error'));
+        this.sellerTerminalsLoading.set(false);
+      },
+    });
+  }
+
+  onAuditTabSelected(): void {
+    if (this.auditLoaded()) return;
+    this.loadAudit();
+  }
+
+  auditPageChange(page: number): void {
+    this.auditPage.set(page);
+    this.loadAudit();
+  }
+
+  private loadAudit(): void {
+    const id = this.tenantId();
+    if (!id) return;
+    this.auditLoading.set(true);
+    this.auditError.set(null);
+    this.auditApi.listAuditEvents({
+      tenantId: id,
+      page: this.auditPage(),
+      size: this.auditPageSize,
+    }).subscribe({
+      next: page => {
+        this.auditEvents.set(page.items);
+        this.auditTotal.set(page.totalElements);
+        this.auditLoaded.set(true);
+        this.auditLoading.set(false);
+      },
+      error: (err: unknown) => {
+        const pd = this.problem(err);
+        this.auditError.set(pd.title ?? this.translate.instant('platform.tenants.detail.audit.error'));
+        this.auditLoading.set(false);
+      },
     });
   }
 
@@ -320,17 +442,6 @@ export class PlatformTenantDetailPage implements OnInit {
         this.applyingPlan.set(false);
       },
     });
-  }
-
-  subscriptionStatusBadge(status: string | null | undefined): BadgeStatus {
-    const map: Record<string, BadgeStatus> = {
-      ACTIVE: 'ready',
-      TRIAL: 'pending',
-      SUSPENDED: 'warning',
-      CANCELED: 'blocked',
-      EXPIRED: 'missing',
-    };
-    return (status ? map[status] : null) ?? 'missing';
   }
 
   activate(): void {
@@ -383,20 +494,8 @@ export class PlatformTenantDetailPage implements OnInit {
     return map[status] ?? 'neutral';
   }
 
-  readinessBadge(status: TenantReadinessStatus | null | undefined): BadgeStatus {
-    const map: Record<string, BadgeStatus> = {
-      READY: 'ready', INCOMPLETE: 'warning', MISSING: 'missing', BLOCKED: 'blocked', UNKNOWN: 'missing',
-    };
-    return status ? (map[status] ?? 'missing') : 'missing';
-  }
-
   statusLabel(status: TenantStatus | string): string {
     return this.translate.instant(`platform.tenants.status.${status.toLowerCase()}`);
-  }
-
-  readinessLabel(status: TenantReadinessStatus | null | undefined): string {
-    if (!status || status === 'UNKNOWN') return this.translate.instant('platform.tenants.readiness.unknown');
-    return this.translate.instant(`platform.tenants.readiness.${status.toLowerCase()}`);
   }
 
   profileLabel(profile: TenantProvisioningProfile | string | null | undefined): string {
@@ -417,51 +516,6 @@ export class PlatformTenantDetailPage implements OnInit {
       AMBULANT: 'platform.tenants.type.ambulant',
     };
     return this.translate.instant(keys[type] ?? type);
-  }
-
-  adminStatusLabel(status: string): string {
-    const key = `platform.tenants.adminStatus.${status.toLowerCase()}`;
-    const translated = this.translate.instant(key);
-    return translated === key ? status : translated;
-  }
-
-  settings(): TenantInternalSettings | null | undefined {
-    return this.tenant()?.internalSettings;
-  }
-
-  locale() {
-    return this.settings()?.locale;
-  }
-
-  communication() {
-    return this.settings()?.communication?.buyerTicketDelivery;
-  }
-
-  receipt(): TenantReceiptConfig | null | undefined {
-    return this.settings()?.document?.receipt;
-  }
-
-  calendar(): TenantBusinessCalendarRules | null | undefined {
-    return this.settings()?.rules?.businessCalendar;
-  }
-
-  channelLabel(channel: TenantDeliveryChannelConfig | null | undefined): string {
-    if (!channel) return this.translate.instant('common.not_available');
-    const enabledLabel = channel.enabled
-      ? this.translate.instant('common.enabled')
-      : this.translate.instant('common.disabled');
-    if (!channel.enabled) return enabledLabel;
-    const amount = channel.amount != null ? `${channel.amount} ${channel.currency ?? ''}`.trim() : '';
-    const paidBy = channel.paidBy
-      ? this.translate.instant(`platform.tenants.detail.config.paidBy.${channel.paidBy.toLowerCase()}`)
-      : '';
-    return [enabledLabel, amount, paidBy].filter(Boolean).join(' · ');
-  }
-
-  weekdayLabel(day: string): string {
-    const key = `common.weekday.${day.toLowerCase()}`;
-    const translated = this.translate.instant(key);
-    return translated === key ? day : translated;
   }
 
   private problem(err: unknown): ProblemLike {

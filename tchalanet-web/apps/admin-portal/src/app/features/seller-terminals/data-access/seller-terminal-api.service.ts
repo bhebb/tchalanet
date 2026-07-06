@@ -1,9 +1,13 @@
 import { Service, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import type { ConsoleSellerTerminalStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type SellerTerminalStatus = 'PENDING' | 'ACTIVE' | 'BLOCKED' | 'DISABLED';
+export type SellerTerminalStatus = Extract<
+  ConsoleSellerTerminalStatus,
+  'PENDING' | 'ACTIVE' | 'BLOCKED' | 'DISABLED'
+>;
 
 export interface SellerTerminalSummaryRow {
   id: { value: string };
@@ -68,7 +72,7 @@ export interface CreateSellerTerminalResult {
   terminalCode: string;
   displayName: string;
   initialPin: string;
-  status: 'ACTIVE' | 'BLOCKED' | 'PENDING';
+  status: Extract<SellerTerminalStatus, 'ACTIVE' | 'BLOCKED' | 'PENDING'>;
 }
 
 export interface SellerTerminalCommissionOverview {

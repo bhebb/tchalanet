@@ -13,6 +13,7 @@ export type DrawAction = 'cancel' | 'lock' | 'unlock' | 'settle' | 'archive' | '
 export interface ActionDialogData {
   draw: DrawView;
   action: DrawAction;
+  drawLabel: string;
 }
 
 export interface ActionDialogResult {
@@ -51,6 +52,10 @@ export class DrawLifecycleActionDialog {
 
   get actionLabel(): string {
     return ACTION_LABELS[this.data.action];
+  }
+
+  get drawLabel(): string {
+    return this.data.drawLabel;
   }
 
   get needsReason(): boolean {

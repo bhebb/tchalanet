@@ -1,15 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import type { TchRequestOptions } from '@tch/api';
 import { TchBackendClient } from '@tch/api';
+import type {
+    ConsolePublicContentSourceType,
+    ConsolePublicContentStatus,
+    ConsolePublicContentSurface,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type PublicContentSourceType = 'INTERNAL' | 'EXTERNAL_RSS';
-export type PublicContentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-export type PublicContentSurface =
-    | 'PUBLIC_HOME'
-    | 'TENANT_ADMIN_DASHBOARD'
-    | 'PLATFORM_ADMIN_DASHBOARD'
-    | 'POS_DASHBOARD';
+export type PublicContentSourceType = ConsolePublicContentSourceType;
+export type PublicContentStatus = ConsolePublicContentStatus;
+export type PublicContentSurface = ConsolePublicContentSurface;
 
 export interface PublicContentAdminItemView {
     id: string;

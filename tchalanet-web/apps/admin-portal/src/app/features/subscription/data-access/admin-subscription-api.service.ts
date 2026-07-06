@@ -1,13 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
+import type { ConsoleSubscriptionStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type SubscriptionStatus =
-  | 'ACTIVE'
-  | 'TRIAL'
-  | 'SUSPENDED'
-  | 'CANCELED'
-  | 'EXPIRED';
+export type SubscriptionStatus = ConsoleSubscriptionStatus;
 
 export interface SubscriptionView {
   tenantId: string;

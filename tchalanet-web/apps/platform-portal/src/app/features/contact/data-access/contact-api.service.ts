@@ -1,21 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import type { TchRequestOptions } from '@tch/api';
 import { TchBackendClient, TchPage } from '@tch/api';
+import type {
+    ConsoleContactRequestIntent,
+    ConsoleContactRequestStatus,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type ContactRequestIntent =
-    | 'REQUEST_DEMO'
-    | 'BECOME_OPERATOR'
-    | 'SUPPORT'
-    | 'PARTNERSHIP'
-    | 'OTHER';
+export type ContactRequestIntent = ConsoleContactRequestIntent;
 
-export type ContactRequestStatus =
-    | 'RECEIVED'
-    | 'CONTACTED'
-    | 'QUALIFIED'
-    | 'CLOSED'
-    | 'SPAM';
+export type ContactRequestStatus = ConsoleContactRequestStatus;
 
 export interface ContactRequestSummaryView {
     id: string;

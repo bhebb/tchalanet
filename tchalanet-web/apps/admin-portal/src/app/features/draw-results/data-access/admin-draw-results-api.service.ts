@@ -1,33 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
+import type {
+  ConsoleDrawResultQuality,
+  ConsoleDrawResultSource,
+  ConsoleDrawResultStatus,
+} from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type DrawResultStatus =
-  | 'PROVISIONAL'
-  | 'CONFIRMED'
-  | 'OVERRIDDEN'
-  | 'ERROR'
-  | 'PENDING'
-  | 'APPLIED'
-  | 'CORRECTED'
-  | 'VOIDED';
-export type DrawResultQuality =
-  | 'COMPLETE'
-  | 'SUSPECT'
-  | 'INVALID'
-  | 'OFFICIAL'
-  | 'MANUAL'
-  | 'ESTIMATED'
-  | 'UNKNOWN';
-export type DrawResultSource =
-  | 'SYSTEM'
-  | 'AUTO'
-  | 'EXTERNAL'
-  | 'US_LOTTERY'
-  | 'NY_OPEN_DATA'
-  | 'FL_APIM'
-  | 'MANUAL'
-  | 'ADMIN_OVERRIDE';
+export type DrawResultStatus = ConsoleDrawResultStatus;
+export type DrawResultQuality = ConsoleDrawResultQuality;
+export type DrawResultSource = ConsoleDrawResultSource;
 
 export interface DrawResultView {
   id: string;

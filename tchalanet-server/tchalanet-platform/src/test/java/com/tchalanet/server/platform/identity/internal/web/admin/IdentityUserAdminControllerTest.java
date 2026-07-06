@@ -175,7 +175,6 @@ class IdentityUserAdminControllerTest {
             tenantId.value(),
             "tenant-demo",
             tenantId.value(),
-            UUID.randomUUID().toString(),
             UUID.randomUUID(),
             Set.of(role),
             Set.of(),

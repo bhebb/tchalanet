@@ -1,3 +1,9 @@
+import type {
+  ConsoleDrawResultAcquisitionMode,
+  ConsoleDrawResultSourceKind,
+  ConsoleDrawResultSourceStatus,
+} from '@tch/web/console';
+
 export type UsLotteryProviderCode =
   | 'NY'
   | 'FL'
@@ -19,11 +25,11 @@ export type DrawChannelProviderTenantStatus =
   | 'NEEDS_CONFIG'
   | 'UNAVAILABLE';
 
-export type DrawResultAcquisitionMode = 'AUTO' | 'MANUAL' | 'UNCONFIGURED';
+export type DrawResultAcquisitionMode = ConsoleDrawResultAcquisitionMode;
 
-export type DrawResultSourceStatus = 'OK' | 'PENDING' | 'ERROR' | 'DISABLED' | 'UNCONFIGURED';
+export type DrawResultSourceStatus = ConsoleDrawResultSourceStatus;
 
-export type DrawResultSourceKind = 'API' | 'RSS' | 'BATCH' | 'MANUAL';
+export type DrawResultSourceKind = ConsoleDrawResultSourceKind;
 
 export interface DrawResultAcquisitionView {
   readonly mode: DrawResultAcquisitionMode;

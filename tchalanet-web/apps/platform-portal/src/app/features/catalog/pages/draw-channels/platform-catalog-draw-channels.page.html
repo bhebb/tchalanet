@@ -28,18 +28,17 @@
     >
       <tch-admin-empty-state empty icon="event_repeat" title="Aucun canal" message="Créez le premier canal de tirage du catalogue." />
       <ng-template tchAsyncReady>
-        <table mat-table [dataSource]="channelRows()">
-          <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef>Code</th>
-            <td mat-cell *matCellDef="let row"><code>{{ row.code }}</code></td>
-          </ng-container>
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Nom</th>
-            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+        <table mat-table [dataSource]="channelRows()" class="draw-channel-table">
+          <ng-container matColumnDef="identity">
+            <th mat-header-cell *matHeaderCellDef>Canal</th>
+            <td mat-cell *matCellDef="let row">
+              <tch-console-draw-slot-identity [identity]="row.identity" density="compact" />
+              <code class="draw-channel-code">{{ row.code }}</code>
+            </td>
           </ng-container>
           <ng-container matColumnDef="drawTime">
             <th mat-header-cell *matHeaderCellDef>Heure</th>
-            <td mat-cell *matCellDef="let row">{{ row.drawTime ? row.drawTime.substring(0, 5) : '—' }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.drawTimeLabel }}</td>
           </ng-container>
           <ng-container matColumnDef="timezone">
             <th mat-header-cell *matHeaderCellDef>Timezone</th>
@@ -47,7 +46,7 @@
           </ng-container>
           <ng-container matColumnDef="daysOfWeek">
             <th mat-header-cell *matHeaderCellDef>Jours</th>
-            <td mat-cell *matCellDef="let row">{{ row.daysOfWeek?.join(', ') ?? '—' }}</td>
+            <td mat-cell *matCellDef="let row">{{ row.daysLabel }}</td>
           </ng-container>
           <ng-container matColumnDef="sortOrder">
             <th mat-header-cell *matHeaderCellDef>Ordre</th>
@@ -56,7 +55,7 @@
           <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef>Statut</th>
             <td mat-cell *matCellDef="let row">
-              <tch-admin-status-pill [tone]="row.active ? 'success' : 'neutral'" [label]="row.active ? 'Actif' : 'Inactif'" />
+              <tch-admin-status-pill [tone]="row.statusTone" [label]="row.statusLabel" />
             </td>
           </ng-container>
           <ng-container matColumnDef="actions">
@@ -78,6 +77,52 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
+
+        <div class="draw-channel-cards">
+          @for (row of channelRows(); track row.id) {
+            <article class="draw-channel-card">
+              <div class="draw-channel-card__main">
+                <tch-console-draw-slot-identity [identity]="row.identity" density="comfortable" />
+                <tch-admin-status-pill [tone]="row.statusTone" [label]="row.statusLabel" />
+              </div>
+              <dl class="draw-channel-card__facts">
+                <div>
+                  <dt>Code</dt>
+                  <dd><code>{{ row.code }}</code></dd>
+                </div>
+                <div>
+                  <dt>Heure</dt>
+                  <dd>{{ row.drawTimeLabel }}</dd>
+                </div>
+                <div>
+                  <dt>Timezone</dt>
+                  <dd>{{ row.timezone ?? '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Jours</dt>
+                  <dd>{{ row.daysLabel }}</dd>
+                </div>
+                <div>
+                  <dt>Ordre</dt>
+                  <dd>{{ row.sortOrder }}</dd>
+                </div>
+              </dl>
+              <div class="draw-channel-card__actions">
+                <button mat-icon-button title="Modifier" (click)="openEdit(row)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                @if (row.active) {
+                  <button mat-icon-button title="Désactiver" (click)="disable(row)">
+                    <span class="material-symbols-outlined">block</span>
+                  </button>
+                }
+                <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </article>
+          }
+        </div>
       </ng-template>
     </tch-async-view>
 

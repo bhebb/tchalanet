@@ -90,7 +90,7 @@ Pipes are preferred for templates.
 - Function: `consoleGameName(gameCode, displayName?)`
 - Pipe: `consoleGameName`
 - Function: `consoleGameLogoUrl(gameCode)`
-- Function: `consoleGameIdentity(input)`
+- Function: `consoleGameIdentity(gameCode, displayName?)`
 - Function: `consoleGameLogoText(gameCode, displayName?)`
 - Pipe: `consoleGameLogoText`
 
@@ -321,6 +321,18 @@ Display density rules:
 | Desktop table | Long provider/channel label (`New York · Midi`) plus code in secondary text when useful. | Separate official draw date/time and local/tenant date/time columns or stacked labels when the surface needs both. |
 | Print / receipt | Long provider/channel label, stable game/bet labels, official draw date/time, local/tenant date/time when relevant, and short code only as reference. | No responsive abbreviations; prioritize clarity and auditability. |
 
+Verification sample:
+
+| App surface | Example input shape | Canonical identity |
+| --- | --- | --- |
+| Public results | `slotKey=NY_MID`, `channelCode=NY_MID`, official draw date/time | `NY`, `New York · Midday`, New York logo, official date/time |
+| Admin generated draws/results | same slot/channel plus optional legacy `channelName=Haïti · New York · Midday` and tenant-local date/time | same provider/channel identity, with local date/time shown as the admin/operator secondary time |
+| Platform ops/catalog | `providerCode=NY`, `slotKey=HT_NY_MID`, `channelCode=HT_NY_MID`, optional legacy channel name | same provider/channel identity; `HT_` remains a technical prefix and does not become visible country copy |
+
+This sample is intentionally checked by `consoleDrawIdentity` tests so mobile, tablet, desktop, and
+print surfaces choose different fields from the same identity object instead of building separate
+labels per app.
+
 Admin result surfaces currently need special attention:
 
 - `ConsoleDrawResultRow` has `occurredDateLabel`, `providerTimeLabel`, and `localTimeLabel`, but no
@@ -335,6 +347,48 @@ Admin result surfaces currently need special attention:
 ### Draws and Draw Results
 
 Existing status helpers remain under `libs/web/console/src/lib/draws`.
+
+Draw list and detail rendering follow the same pattern:
+
+- page/data-access maps its backend DTO into a console view model;
+- `tch-console-draws-table` renders list rows for generated, ops, or future draw sources;
+- `tch-console-draw-detail` renders the shared draw detail shell from `ConsoleDrawDetailView`;
+- app-owned sections can still be projected into the shared detail when their data is feature-local,
+  for example admin financial activity or operational links.
+- specialized operational pages that keep a feature-owned table, such as draw lifecycle actions, still
+  render the primary draw cell through `tch-console-draw-slot-identity` and use the same identity for
+  action feedback/dialog titles.
+
+The shared detail component receives actions, sections, result state, aside metrics, and a structured
+draw identity. This lets admin and platform pass different draw DTOs without forking the visual
+contract for identity, result summary, facts, action placement, and aside follow-up.
+
+Use the shared builders to keep the page boundary thin:
+
+- `consoleDrawRowViewModel(input)` builds `ConsoleDrawRow` from an identity input plus page-owned
+  status/action labels.
+- `consoleDrawDetailViewModel(input)` builds `ConsoleDrawDetailView` from the same identity contract
+  plus page-owned facts, result state, sections, and aside metrics.
+- `consoleDrawResultRowViewModel(input)` builds `ConsoleDrawResultRow` from an identity input plus
+  page-owned status, quality, source, timing, and action labels.
+- `consoleDrawResultSummaryViewModel(input)` and `consoleDrawResultSummaryFacts(input)` build the
+  shared draw-result detail summary contract.
+
+These builders are not backend DTO adapters. Admin/platform/public pages still decide how to read
+their DTOs; the builders only enforce the final console view-model shape and fallback behavior.
+Public result pages use the summary builder through a public-owned adapter so they share provider,
+slot, logo, and date fallback semantics without moving public layout or translation ownership into
+`@tch/web/console`.
+
+Ticket and receipt surfaces follow the same rule when the payload carries structured draw fields:
+
+- `consoleTicketDrawIdentity(input)` builds receipt-safe draw identity from `resultSlotKey`,
+  `channelCode`, draw date, scheduled time, and a legacy channel label fallback.
+- POS open-draw selection and the local ticket preview receipt use this helper because
+  `/tenant/cashier/draws/available` already exposes `resultSlotKey`.
+- Public ticket verification, persisted ticket detail, and server-generated PDF print receipts must
+  not parse `channelLabel`/`drawChannelLabel`; they need a backend contract follow-up to expose the
+  same structured draw identity fields before they can be migrated cleanly.
 
 If templates need direct pipes later, add:
 
@@ -410,6 +464,16 @@ Every provider listed in the result-slot catalog must resolve:
 Manual and override dialogs should use the same component, for example
 `ConsoleHaitiLotMappingComponent`, so the cards shown during result entry match source-result,
 draw-result detail, and audit/review surfaces.
+
+Access semantics:
+
+- Manual completion is allowed for tenant/admin operators with manual result-entry capability when
+  the draw result is missing or incomplete and the manual-entry delay has elapsed.
+- Confirm and override are protected actions for super admin or explicit platform operations
+  capability.
+- Source/raw provider payload display is an admin/support/platform-ops concern. Public, POS,
+  ticket, and customer-facing surfaces should consume the normalized result and shared display
+  identities without exposing raw source payloads.
 
 ### Pricing / Barèmes
 

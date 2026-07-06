@@ -1,6 +1,7 @@
 import {
   ConsoleSettlementLine,
   consoleBetVariationRows,
+  consoleGameIdentity,
   consoleGameLogoUrl,
   consoleGameName,
   consoleSettlementVariantLabel,
@@ -10,6 +11,8 @@ describe('consoleGameName', () => {
   it('renders Bòlèt as the canonical Haiti game label', () => {
     expect(consoleGameName('HT_BOLET')).toBe('Bòlèt');
     expect(consoleGameName('BORLETTE')).toBe('Bòlèt');
+    expect(consoleGameName('HT_MARYAJ_GRATIS')).toBe('Maryaj gratis');
+    expect(consoleGameName('HT_LOTO_3')).toBe('Loto 3');
   });
 });
 
@@ -18,13 +21,26 @@ describe('consoleGameLogoUrl', () => {
     expect(consoleGameLogoUrl('HT_BOLET')).toBe('/assets/images/games/ht-bolet.svg');
     expect(consoleGameLogoUrl('HT_MARYAJ')).toBe('/assets/images/games/ht-maryaj.svg');
     expect(consoleGameLogoUrl('HT_MARYAJ_GRATUIT')).toBe('/assets/images/games/ht-maryaj-gratis.svg');
+    expect(consoleGameLogoUrl('HT_MARYAJ_GRATIS')).toBe('/assets/images/games/ht-maryaj-gratis.svg');
     expect(consoleGameLogoUrl('HT_LOTO3')).toBe('/assets/images/games/ht-loto-3.svg');
+    expect(consoleGameLogoUrl('HT_LOTO_3')).toBe('/assets/images/games/ht-loto-3.svg');
     expect(consoleGameLogoUrl('HT_LOTO4')).toBe('/assets/images/games/ht-loto-4.svg');
     expect(consoleGameLogoUrl('HT_LOTO5')).toBe('/assets/images/games/ht-loto-5.svg');
   });
 
   it('returns null for unknown game codes so components can use their fallback', () => {
     expect(consoleGameLogoUrl('UNKNOWN_GAME')).toBeNull();
+  });
+});
+
+describe('consoleGameIdentity', () => {
+  it('returns label, compact logo text, and SVG URL together', () => {
+    expect(consoleGameIdentity('HT_LOTO_4')).toEqual({
+      code: 'HT_LOTO_4',
+      name: 'Loto 4',
+      logoText: 'L4',
+      logoUrl: '/assets/images/games/ht-loto-4.svg',
+    });
   });
 });
 

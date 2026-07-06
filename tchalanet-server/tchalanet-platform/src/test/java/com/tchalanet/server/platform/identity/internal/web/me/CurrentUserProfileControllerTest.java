@@ -11,7 +11,6 @@ import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
-import com.tchalanet.server.platform.identity.internal.service.UserBootstrapService;
 import com.tchalanet.server.platform.identity.internal.web.model.MeResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,7 +25,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +33,6 @@ class CurrentUserProfileControllerTest {
 
     @Mock
     private CurrentUserProfileService profiles;
-    @Mock
-    private UserBootstrapService bootstrap;
 
     @InjectMocks
     private CurrentUserProfileController controller;
@@ -76,22 +72,6 @@ class CurrentUserProfileControllerTest {
                 .containsExactlyInAnyOrder(ClientSurface.MOBILE_POS, ClientSurface.CASHIER_WEB);
             assertThat(response.capabilities()).contains("cashier.sell", "cashier.print");
             assertThat(response.profileActions().canEditLocale()).isTrue();
-        }
-    }
-
-    @Nested
-    @DisplayName("POST /tenant/me/profile/bootstrap")
-    class BootstrapProfile {
-
-        @Test
-        @DisplayName("should reject bootstrap when sub is missing")
-        void shouldRejectBootstrapWhenSubMissing() {
-            var tenantId = TenantId.of(UUID.randomUUID());
-            var userId = UserId.of(UUID.randomUUID());
-            var ctx = context(tenantId, userId, null);
-
-            assertThatThrownBy(() -> controller.bootstrap(ctx))
-                .hasMessageContaining("Missing external identity subject");
         }
     }
 
@@ -160,18 +140,17 @@ class CurrentUserProfileControllerTest {
             "USD");
     }
 
-    private static TchRequestContext context(TenantId tenantId, UserId userId, String keycloakSub) {
-        return context(tenantId, userId, keycloakSub, Set.of(TchRole.TENANT_ADMIN));
+    private static TchRequestContext context(TenantId tenantId, UserId userId, String externalSubject) {
+        return context(tenantId, userId, externalSubject, Set.of(TchRole.TENANT_ADMIN));
     }
 
     private static TchRequestContext context(
-        TenantId tenantId, UserId userId, String keycloakSub, Set<TchRole> roles) {
+        TenantId tenantId, UserId userId, String externalSubject, Set<TchRole> roles) {
         return new TchRequestContext(
             "tenant-demo",
             tenantId.value(),
             "tenant-demo",
             tenantId.value(),
-            keycloakSub,
             userId.value(),
             roles,
             Set.of(),
@@ -188,6 +167,6 @@ class CurrentUserProfileControllerTest {
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("USD"),
             null,
-            null, null, null, null, null);
+            null, null, null, null, externalSubject);
     }
 }

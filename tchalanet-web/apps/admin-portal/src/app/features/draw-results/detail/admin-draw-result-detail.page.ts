@@ -7,7 +7,14 @@ import {
   ConsoleEntityDetailActionEvent,
   ConsoleEntityDetailComponent,
   ConsoleFact,
+  ConsoleDrawResultCombinationsComponent,
+  ConsoleDrawResultRawComponent,
+  ConsoleDrawResultSummaryComponent,
+  ConsoleDrawResultSummaryFacts,
+  ConsoleDrawResultSummaryView,
   DrawCombinationGameSection,
+  consoleDrawResultSummaryFacts,
+  consoleDrawResultSummaryViewModel,
   consoleDrawResultQualityLabel,
   consoleDrawResultStatusLabel,
   consoleDrawResultStatusTone,
@@ -20,9 +27,6 @@ import {
   DrawResultStatus,
   DrawResultView,
 } from '.././data-access/admin-draw-results-api.service';
-import { DrawResultCombinationsComponent } from './components/draw-result-combinations/draw-result-combinations.component';
-import { DrawResultRawComponent } from './components/draw-result-raw/draw-result-raw.component';
-import { DrawResultSummaryComponent } from './components/draw-result-summary/draw-result-summary.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -35,9 +39,9 @@ type PageState = 'loading' | 'ready' | 'error';
     TchIdentityCardComponent,
     MatTabsModule,
     TranslatePipe,
-    DrawResultSummaryComponent,
-    DrawResultCombinationsComponent,
-    DrawResultRawComponent,
+    ConsoleDrawResultSummaryComponent,
+    ConsoleDrawResultCombinationsComponent,
+    ConsoleDrawResultRawComponent,
   ],
   templateUrl: './admin-draw-result-detail.page.html',
   styleUrls: ['./admin-draw-result-detail.page.scss'],
@@ -65,6 +69,24 @@ export class AdminDrawResultDetailPage implements OnInit {
     const payload = result.rawPayload ?? result.sourceResult ?? result.haitiResult ?? null;
     return payload ? JSON.stringify(payload, null, 2) : null;
   });
+  readonly summaryView = computed<ConsoleDrawResultSummaryView | null>(() => {
+    const result = this.result();
+    if (!result) return null;
+    return consoleDrawResultSummaryViewModel({
+      identityInput: {
+        providerCode: result.provider,
+        channelCode: result.channelCode,
+        channelName: result.channelName,
+        slotKey: result.slotKey,
+        slotLabel: result.slotLabel,
+      },
+      numbers: result.numbers ?? [],
+    });
+  });
+  readonly summaryFacts = computed<ConsoleDrawResultSummaryFacts>(() => consoleDrawResultSummaryFacts({
+    resultFacts: this.resultFacts(),
+    linkedDrawFacts: this.linkedDrawFacts(),
+  }));
 
   readonly title = computed(() => this.result()?.slotLabel ?? this.result()?.slotKey ?? 'Détail du résultat');
   readonly description = computed(() => {

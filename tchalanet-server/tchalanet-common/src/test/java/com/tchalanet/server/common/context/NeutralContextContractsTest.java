@@ -177,7 +177,7 @@ class NeutralContextContractsTest {
             TchRequestContext build() {
                 return new TchRequestContext(
                     "demo", UUID.randomUUID(), "demo", UUID.randomUUID(),
-                    null, UUID.randomUUID(), java.util.Set.of(), java.util.Set.of(),
+                    UUID.randomUUID(), java.util.Set.of(), java.util.Set.of(),
                     java.util.Locale.ENGLISH, "req-1", "127.0.0.1", "test",
                     false, null, "active",
                     com.tchalanet.server.common.context.scope.ApiScope.TENANT, null,

@@ -4,6 +4,10 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.archive.api.ArchiveApi;
+import com.tchalanet.server.platform.archive.api.model.ArchiveLegalHoldRowView;
+import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
+import com.tchalanet.server.platform.archive.api.model.ArchiveOpsSummaryView;
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJdbcRepository;
@@ -28,7 +32,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -194,7 +197,7 @@ public class PlatformArchiveController {
 
   @Operation(summary = "List active archive legal holds")
   @GetMapping("/legal-holds/active")
-  public ApiResponse<List<Map<String, Object>>> listActiveLegalHolds(
+  public ApiResponse<List<ArchiveLegalHoldRowView>> listActiveLegalHolds(
       @RequestParam(defaultValue = "50") int limit) {
     return ApiResponse.success(legalHoldRepo.listActive(limit));
   }
@@ -203,29 +206,28 @@ public class PlatformArchiveController {
 
   @Operation(summary = "List failed archive runs")
   @GetMapping("/runs/failed")
-  public ApiResponse<List<Map<String, Object>>> listFailedRuns(
+  public ApiResponse<List<ArchiveRunRowView>> listFailedRuns(
       @RequestParam(defaultValue = "20") int limit) {
     return ApiResponse.success(runRepo.listFailed(limit));
   }
 
   @Operation(summary = "List invalid archive objects")
   @GetMapping("/objects/invalid")
-  public ApiResponse<List<Map<String, Object>>> listInvalidObjects(
+  public ApiResponse<List<ArchiveObjectRowView>> listInvalidObjects(
       @RequestParam(defaultValue = "20") int limit) {
     return ApiResponse.success(objectRepo.listInvalid(limit));
   }
 
   @Operation(summary = "Archive system ops summary")
   @GetMapping("/ops-summary")
-  public ApiResponse<Map<String, Object>> opsSummary() {
-    return ApiResponse.success(Map.of(
-        "failedRuns",     runRepo.countByStatus("FAILED"),
-        "startedRuns",    runRepo.countByStatus("STARTED"),
-        "completedRuns",  runRepo.countByStatus("COMPLETED"),
-        "invalidObjects", objectRepo.countByStatus("INVALID"),
-        "verifiedObjects", objectRepo.countByStatus("VERIFIED"),
-        "pendingObjects", objectRepo.countByStatus("PENDING")
-    ));
+  public ApiResponse<ArchiveOpsSummaryView> opsSummary() {
+    return ApiResponse.success(new ArchiveOpsSummaryView(
+        runRepo.countByStatus("FAILED"),
+        runRepo.countByStatus("STARTED"),
+        runRepo.countByStatus("COMPLETED"),
+        objectRepo.countByStatus("INVALID"),
+        objectRepo.countByStatus("VERIFIED"),
+        objectRepo.countByStatus("PENDING")));
   }
 
   // ── Request records ─────────────────────────────────────────────────────────

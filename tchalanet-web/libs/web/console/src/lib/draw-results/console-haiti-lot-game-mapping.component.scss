@@ -1,0 +1,63 @@
+.haiti-lot-map {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.haiti-lot-map__card {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 3.75rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-sm);
+  padding: 0.5rem;
+  background: var(--tch-color-surface-container-low);
+
+  img {
+    max-width: 3rem;
+    max-height: 2.5rem;
+    object-fit: contain;
+  }
+}
+
+.haiti-lot-map__logo-fallback {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 2.5rem;
+  border-radius: var(--tch-radius-xs);
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-bold);
+}
+
+.haiti-lot-map__copy {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+
+  strong {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-label-md);
+    font-weight: var(--tch-weight-bold);
+  }
+
+  em,
+  small {
+    overflow: hidden;
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+    font-style: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .haiti-lot-map {
+    grid-template-columns: 1fr;
+  }
+}

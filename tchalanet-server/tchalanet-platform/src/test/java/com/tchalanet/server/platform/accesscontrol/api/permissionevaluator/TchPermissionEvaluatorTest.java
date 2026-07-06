@@ -94,7 +94,7 @@ class TchPermissionEvaluatorTest {
         var tenantId = UUID.randomUUID();
         return new TchRequestContext(
             "tenant", tenantId, "tenant", tenantId,
-            "ext-user", UUID.randomUUID(),
+            UUID.randomUUID(),
             EnumSet.of(TchRole.TENANT_ADMIN), Set.of(),
             Locale.ENGLISH, "request-id", "127.0.0.1", "test",
             false, null, "active", ApiScope.TENANT,

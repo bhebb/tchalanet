@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage, appendQuery } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
+import type { ConsoleDrawStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type DrawStatus =
+export type DrawStatus = Extract<
+  ConsoleDrawStatus,
   | 'SCHEDULED'
   | 'OPEN'
   | 'LOCKED'
@@ -11,7 +13,8 @@ export type DrawStatus =
   | 'RESULTS_APPLIED'
   | 'SETTLED'
   | 'CANCELLED'
-  | 'ARCHIVED';
+  | 'ARCHIVED'
+>;
 
 export interface DrawChannelSummary {
   id: string;

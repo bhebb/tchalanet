@@ -152,7 +152,6 @@ class PosHomeServiceTest {
             tenantId.value(),
             "tenant-demo",
             tenantId.value(),
-            UUID.randomUUID().toString(),
             userId.value(),
             Set.of(),
             Set.of(),

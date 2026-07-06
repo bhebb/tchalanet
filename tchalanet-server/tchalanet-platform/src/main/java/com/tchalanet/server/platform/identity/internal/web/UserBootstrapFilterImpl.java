@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import static com.tchalanet.server.common.context.ContextKeys.BOOTSTRAPPED_APP_USER_ID;
-
 /**
  * Resolves the verified external identity to a Tchalanet actor and attaches a {@link
  * BootstrappedActor} request attribute.
@@ -82,7 +80,6 @@ public class UserBootstrapFilterImpl implements IdentityBootstrapStep {
             externalUser.subject()
         );
 
-        request.setAttribute(BOOTSTRAPPED_APP_USER_ID, appUserResolution.appUserId());
         request.setAttribute(TchContextRequestAttributes.BOOTSTRAPPED_ACTOR, bootstrappedActor);
     }
 

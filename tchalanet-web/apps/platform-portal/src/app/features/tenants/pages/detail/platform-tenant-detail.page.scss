@@ -86,25 +86,6 @@
   margin-bottom: 1rem;
 }
 
-.tenant-detail__table {
-  width: 100%;
-  border-radius: var(--tch-radius-lg, 1rem);
-  overflow: hidden;
-  border: 1px solid var(--tch-color-outline-variant);
-}
-
-.tenant-detail__empty-hint {
-  margin: 0;
-  color: var(--tch-color-on-surface-variant);
-  font-size: 0.875rem;
-}
-
-.tenant-detail__config-grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-}
-
 .tenant-detail__edit-cta {
   margin-top: 1rem;
   align-self: flex-start;

@@ -1,0 +1,65 @@
+@if (!snapshot()) {
+  <tch-admin-empty-state
+    icon="verified_user"
+    [title]="'platform.tenants.detail.entitlements.empty' | translate"
+    [message]="''"
+  />
+} @else {
+  <tch-admin-section-card
+    [title]="'platform.tenants.detail.entitlements.title' | translate"
+    icon="verified_user"
+  >
+    <dl class="tenant-entitlements-panel__facts">
+      <div>
+        <dt>{{ 'platform.tenants.detail.entitlements.field.plan' | translate }}</dt>
+        <dd>{{ snapshot()!.planCode ?? ('common.not_set' | translate) }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'platform.tenants.detail.entitlements.field.activeSubscription' | translate }}</dt>
+        <dd>{{ (snapshot()!.activeSubscription ? 'common.yes' : 'common.no') | translate }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'platform.tenants.detail.entitlements.field.resolvedAt' | translate }}</dt>
+        <dd>{{ snapshot()!.resolvedAt | date : 'medium' }}</dd>
+      </div>
+    </dl>
+  </tch-admin-section-card>
+
+  <div class="tenant-entitlements-panel__grid">
+    <tch-admin-section-card
+      [title]="'platform.tenants.detail.entitlements.features.title' | translate"
+      icon="toggle_on"
+    >
+      @if (featureEntries().length === 0) {
+        <p class="tenant-entitlements-panel__empty-hint">{{ 'platform.tenants.detail.entitlements.features.empty' | translate }}</p>
+      } @else {
+        <dl class="tenant-entitlements-panel__facts">
+          @for (entry of featureEntries(); track entry[0]) {
+            <div>
+              <dt>{{ entry[0] }}</dt>
+              <dd>{{ (entry[1] ? 'common.enabled' : 'common.disabled') | translate }}</dd>
+            </div>
+          }
+        </dl>
+      }
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'platform.tenants.detail.entitlements.limits.title' | translate"
+      icon="speed"
+    >
+      @if (limitEntries().length === 0) {
+        <p class="tenant-entitlements-panel__empty-hint">{{ 'platform.tenants.detail.entitlements.limits.empty' | translate }}</p>
+      } @else {
+        <dl class="tenant-entitlements-panel__facts">
+          @for (entry of limitEntries(); track entry[0]) {
+            <div>
+              <dt>{{ entry[0] }}</dt>
+              <dd>{{ entry[1] }}</dd>
+            </div>
+          }
+        </dl>
+      }
+    </tch-admin-section-card>
+  </div>
+}

@@ -196,6 +196,7 @@ export class PosSaleApiService {
             drawId: d.drawId,
             drawChannelId: d.drawChannelId,
             drawDate: d.drawDate,
+            resultSlotKey: d.resultSlotKey,
             channelCode: d.channelCode,
             channelLabel: d.channelLabel,
             gameCodes: d.gameCodes ?? [],

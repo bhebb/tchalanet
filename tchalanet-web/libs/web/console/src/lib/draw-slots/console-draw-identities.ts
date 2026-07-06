@@ -194,6 +194,7 @@ export function consoleDrawIdentity(input: ConsoleDrawIdentityInput): ConsoleDra
     localDateLabel: clean(input.localDateLabel),
     localTimeLabel: clean(input.localTimeLabel),
     localTimezoneLabel: clean(input.localTimezoneLabel),
+    providerDateLabel: clean(input.officialDateLabel),
     providerTimeLabel: clean(input.officialTimeLabel),
     providerTimezoneLabel: clean(input.officialTimezoneLabel),
   };

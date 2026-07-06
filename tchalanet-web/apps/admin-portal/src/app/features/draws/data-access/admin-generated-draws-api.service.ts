@@ -1,7 +1,7 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
-import { ConsoleDrawLifecycleApi } from '@tch/web/console';
+import { ConsoleDrawLifecycleApi, consoleDrawIdentity } from '@tch/web/console';
 import {
   DatePreset,
   DrawStatusFilter,
@@ -98,21 +98,18 @@ function mapResultStatus(
   }
 }
 
-function slotLabelFromKey(key: string): string {
-  const part = key.split('_').pop() ?? key;
-  const labels: Record<string, string> = {
-    MID: 'Midday', MIDDAY: 'Midday', EVE: 'Evening', EVENING: 'Evening',
-    DAY: 'Day', NIGHT: 'Night', MORNING: 'Morning', NOON: 'Noon',
-  };
-  return labels[part] ?? part;
-}
-
-function providerCodeFromSlotKey(key: string): string {
-  return (key.trim().split(/[-_]/)[0] || 'UNK').toUpperCase();
-}
-
 function mapDrawView(d: DrawView): GeneratedDrawView {
-  const providerCode = providerCodeFromSlotKey(d.slot.key);
+  const identity = consoleDrawIdentity({
+    channelCode: d.channel.code,
+    channelName: d.channel.name,
+    slotKey: d.slot.key,
+    slotLabel: d.slot.label,
+    officialDateLabel: d.drawDate,
+    officialTimeLabel: d.slot.drawTime,
+    officialTimezoneLabel: d.slot.timezone,
+    fallbackTitle: d.channel.code,
+  });
+  const providerCode = identity.providerCode ?? 'UNK';
   const salesStatus = mapSalesStatus(d.status);
   const resultStatus = mapResultStatus(d.status, d.lastResult);
   const numbers = d.lastResult
@@ -122,11 +119,12 @@ function mapDrawView(d: DrawView): GeneratedDrawView {
   return {
     drawId: d.id,
     drawChannelId: d.channel.id,
+    drawChannelCode: d.channel.code,
     providerCode,
-    providerLabel: d.channel.name,
+    providerLabel: identity.providerName ?? providerCode,
     slotKey: d.slot.key,
-    slotLabel: slotLabelFromKey(d.slot.key),
-    label: d.channel.name,
+    slotLabel: identity.channelShortName ?? identity.slotLabel ?? d.slot.key,
+    label: identity.channelName ?? d.channel.name,
     businessDate: d.drawDate,
     scheduledAt: d.scheduledAt,
     cutoffAt: d.cutoffAt,

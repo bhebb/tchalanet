@@ -1,8 +1,9 @@
 import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
+import type { ConsolePageModelStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type PageModelStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type PageModelStatus = ConsolePageModelStatus;
 export type PageModelId = string | { value: string };
 
 export interface PageModelSummaryView {

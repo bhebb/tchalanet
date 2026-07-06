@@ -21,9 +21,15 @@ import {
 } from '@tch/ui/components';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { AdminStatusPillComponent } from '@tch/ui/console';
 import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
-import { AuditEntityType, AuditEventView, PlatformAuditApi } from '../../data-access/platform-audit-api.service';
+import {
+  AuditEntityType,
+  AuditEventView,
+  PlatformAuditApi,
+  auditActionTone,
+  auditActorTone,
+} from '../../data-access/platform-audit-api.service';
 
 export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
   'SYSTEM', 'TENANT', 'PLAN', 'SUBSCRIPTION', 'THEME', 'USER', 'USER_PREFERENCE',
@@ -221,18 +227,8 @@ export class PlatformAuditPage implements OnInit {
     });
   }
 
-  actorTone(actorType: string): AdminStatusTone {
-    if (actorType === 'SYSTEM') return 'neutral';
-    if (actorType === 'TERMINAL') return 'warning';
-    return 'info';
-  }
-
-  actionTone(action: string): AdminStatusTone {
-    if (/DELETE|PURGE|VOID|CANCEL|DISABLE|BLOCK|LOCK|REVOKE/.test(action)) return 'danger';
-    if (/CREATE|GENERATE|OPEN|REGISTER|ACTIVATE|RESTORE/.test(action)) return 'success';
-    if (/UPDATE|STATE_CHANGE|OVERRIDE|CORRECT|SETTLE/.test(action)) return 'warning';
-    return 'neutral';
-  }
+  readonly actorTone = auditActorTone;
+  readonly actionTone = auditActionTone;
 
   private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
     return {

@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
+import { ConsoleHaitiLotGameMappingComponent, consoleHaitiLotGameMappings } from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import {
@@ -17,7 +18,6 @@ import {
   DrawResultOpsResponse,
   OverrideDrawResultRequest,
 } from '../../data-access/platform-ops-api.service';
-import { haitiLotGameMappings } from '../../../../shared/results/haiti-lot-game-mapping';
 
 @Component({
   selector: 'tch-override-result-dialog',
@@ -31,6 +31,7 @@ import { haitiLotGameMappings } from '../../../../shared/results/haiti-lot-game-
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    ConsoleHaitiLotGameMappingComponent,
     TchSectionError,
   ],
   templateUrl: './override-result.dialog.html',
@@ -56,7 +57,7 @@ export class OverrideResultDialog {
   });
 
   lotMappings() {
-    return haitiLotGameMappings({ slotKey: this.data.row.slotKey });
+    return consoleHaitiLotGameMappings({ slotKey: this.data.row.slotKey });
   }
 
   submit(): void {

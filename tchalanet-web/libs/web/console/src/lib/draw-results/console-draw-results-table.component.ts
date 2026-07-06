@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { LabelPipe } from '@tch/page-model';
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
@@ -19,7 +18,6 @@ import {
   imports: [
     AdminStatusPillComponent,
     ConsoleDrawSlotIdentityComponent,
-    LabelPipe,
     MatButtonModule,
     MatTableModule,
   ],
@@ -30,6 +28,7 @@ export class ConsoleDrawResultsTableComponent {
   readonly rows = input.required<readonly ConsoleDrawResultRow[]>();
   readonly showAppliedAt = input(true);
   readonly showActions = input(true);
+  readonly showSource = input(true);
   readonly showSourceFlags = input(false);
   private readonly expandedRows = signal<ReadonlySet<string>>(new Set());
 
@@ -39,7 +38,7 @@ export class ConsoleDrawResultsTableComponent {
   readonly columns = computed(() => {
     const columns = ['draw', 'occurredAt', 'numbers', 'status', 'quality', 'fetchedAt'];
     if (this.showAppliedAt()) columns.push('appliedAt');
-    columns.push('source');
+    if (this.showSource()) columns.push('source');
     if (this.showActions() && this.rows().some(row => (row.actions?.length ?? 0) > 0)) {
       columns.push('actions');
     }

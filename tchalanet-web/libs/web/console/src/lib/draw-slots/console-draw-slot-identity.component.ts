@@ -46,10 +46,11 @@ export class ConsoleDrawSlotIdentityComponent {
 
   readonly providerLabel = computed(() => {
     const view = this.identity();
-    if (!view.providerTimeLabel) return null;
+    const dateTime = [view.providerDateLabel, view.providerTimeLabel].filter(Boolean).join(' ');
+    if (!dateTime) return null;
     return view.providerTimezoneLabel
-      ? `${view.providerTimeLabel} · ${view.providerTimezoneLabel}`
-      : view.providerTimeLabel;
+      ? `${dateTime} · ${view.providerTimezoneLabel}`
+      : dateTime;
   });
 }
 

@@ -264,6 +264,55 @@
             "confirm": "Konfime"
           }
         },
+        "entitlements": {
+          "title": "Dwa itilizasyon",
+          "loading": "Ap chaje dwa itilizasyon yo…",
+          "error": "Pa kapab chaje dwa itilizasyon yo.",
+          "empty": "Pa gen dwa itilizasyon rezoud pou tenant sa a.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Abònman aktif",
+            "resolvedAt": "Rezoud le"
+          },
+          "features": {
+            "title": "Fonksyonalite",
+            "empty": "Pa gen fonksyonalite defini.",
+            "column": {
+              "key": "Fonksyonalite",
+              "status": "Estati"
+            }
+          },
+          "limits": {
+            "title": "Limit",
+            "empty": "Pa gen limit defini.",
+            "column": {
+              "key": "Limit",
+              "value": "Valè"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Ap chaje seller-terminal yo…",
+          "error": "Enposib pou chaje seller-terminal yo.",
+          "empty": {
+            "title": "Pa gen seller-terminal",
+            "message": "Tenant sa a poko gen okenn seller-terminal."
+          },
+          "status": {
+            "active": "Aktif",
+            "pending": "An atant",
+            "blocked": "Bloke",
+            "disabled": "Dezaktive"
+          }
+        },
+        "audit": {
+          "loading": "Ap chaje jounal odit la…",
+          "error": "Enposib pou chaje jounal odit la.",
+          "empty": {
+            "title": "Pa gen evènman",
+            "message": "Pa gen evènman odit pou tenant sa a."
+          }
+        },
         "admins": {
           "loading": "Ap chaje administratè yo…",
           "error": "Enposib pou chaje administratè yo.",

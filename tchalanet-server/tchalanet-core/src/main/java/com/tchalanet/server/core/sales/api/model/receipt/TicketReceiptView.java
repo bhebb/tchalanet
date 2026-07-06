@@ -25,6 +25,10 @@ public record TicketReceiptView(
     String tenantDisplayName,
     String tenantReceiptHeader,
     String outletReceiptHeader,
+    String drawChannelCode,
+    String resultSlotKey,
+    String resultProvider,
+    String resultTimezone,
     // drawLabel: optional localized slot alias (may be null)
     String drawLabel,
     // drawChannelLabel: preferred market/channel name (e.g. "Texas")

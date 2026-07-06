@@ -36,6 +36,28 @@
         gap: 1rem;
       }
 
+      .result-detail__logo {
+        display: grid;
+        place-items: center;
+        width: 4rem;
+        height: 3.25rem;
+        border-radius: var(--tch-radius-lg, 12px);
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        box-shadow: var(--tch-shadow-sm, 0 1px 3px rgb(0 0 0 / 12%));
+
+        img {
+          max-width: 3.25rem;
+          max-height: 2.5rem;
+          object-fit: contain;
+        }
+
+        span {
+          color: var(--tch-color-primary, var(--mat-sys-primary));
+          font-size: var(--tch-font-size-label-md, 0.875rem);
+          font-weight: 800;
+        }
+      }
+
       .result-detail__copy {
         display: grid;
         gap: 0.5rem;
@@ -378,8 +400,8 @@
         }
 
         .result-detail__hero {
-          grid-template-columns: minmax(0, 1fr) auto;
-          align-items: end;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
         }
 
         .result-detail__copy h1 {

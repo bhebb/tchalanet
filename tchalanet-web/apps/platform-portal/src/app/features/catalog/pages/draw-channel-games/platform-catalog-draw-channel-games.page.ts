@@ -19,6 +19,7 @@ import {
   TchAsyncViewComponent,
   resourceErrorVm,
 } from '@tch/web/async';
+import { consoleDrawChannelIdentity } from '@tch/web/console';
 import {
   CatalogDrawChannelGameView,
   CatalogDrawChannelView,
@@ -162,7 +163,12 @@ export class PlatformCatalogDrawChannelGamesPage {
   }
 
   channelLabel(channel: CatalogDrawChannelView): string {
-    return `${channel.name} (${channel.code})`;
+    const identity = consoleDrawChannelIdentity({
+      code: channel.code,
+      name: channel.name,
+      shortName: channel.label,
+    });
+    return `${identity.longLabel} (${channel.code})`;
   }
 
   idText(id: CatalogId): string {

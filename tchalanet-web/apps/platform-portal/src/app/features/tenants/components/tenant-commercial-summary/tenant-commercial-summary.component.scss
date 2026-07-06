@@ -1,0 +1,25 @@
+.tenant-commercial-summary__facts {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  align-items: baseline;
+
+  div {
+    display: contents;
+  }
+
+  dt {
+    font-size: 0.8125rem;
+    color: var(--tch-color-on-surface-variant);
+    padding-block: 0.25rem;
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+    color: var(--tch-color-on-surface);
+    padding-block: 0.25rem;
+  }
+}

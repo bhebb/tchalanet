@@ -38,7 +38,7 @@ public class TchContextBinder {
     MDC.put("tenant_original", valueOrDash(ctx.originalTenantCode()));
     MDC.put("tenant_effective", valueOrDash(ctx.effectiveTenantCode()));
     MDC.put("tenant_overridden", String.valueOf(ctx.tenantOverridden()));
-    MDC.put("kc_user_id", valueOrDash(ctx.keycloakUserId()));
+    MDC.put("external_subject", valueOrDash(ctx.externalSubject()));
     MDC.put(MDC_REQUEST_ID, valueOrDash(ctx.requestId()));
     MDC.put("reqId", valueOrDash(ctx.requestId()));
     MDC.put("idem", valueOrDash(ctx.idempotencyKey()));

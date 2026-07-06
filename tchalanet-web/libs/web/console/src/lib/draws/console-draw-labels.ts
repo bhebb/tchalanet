@@ -1,45 +1,49 @@
 import { AdminStatusTone } from '@tch/ui/console';
 
-export type ConsoleDrawLifecycleLabelAction =
-  | 'open'
-  | 'close'
-  | 'cancel'
-  | 'lock'
-  | 'unlock'
-  | 'settle'
-  | 'archive'
-  | 'reschedule'
-  | 'correct';
+import {
+  ConsoleDrawLifecycleDisplayAction,
+  ConsoleDrawPublicationStatus,
+  ConsoleDrawResultQuality,
+  ConsoleDrawResultStatus,
+  ConsoleDrawSalesStatus,
+  ConsoleDrawStatus,
+} from '../domain/console-domain-types';
 
-export function consoleDrawStatusLabel(status: string | null | undefined): string {
+export function consoleDrawStatusLabel(status: ConsoleDrawStatus | string | null | undefined): string {
   if (!status) return '—';
   switch (status) {
     case 'SCHEDULED': return 'Planifié';
     case 'OPEN': return 'Ouvert';
     case 'LOCKED': return 'Verrouillé';
     case 'CLOSED': return 'Fermé';
+    case 'PENDING_RESULTS': return 'Résultats attendus';
     case 'RESULTED': return 'Résultat appliqué';
+    case 'RESULTS_APPLIED': return 'Résultat appliqué';
     case 'SETTLED': return 'Réglé';
+    case 'CANCELED':
     case 'CANCELLED': return 'Annulé';
     case 'ARCHIVED': return 'Archivé';
     default: return status;
   }
 }
 
-export function consoleDrawStatusTone(status: string | null | undefined): AdminStatusTone {
+export function consoleDrawStatusTone(status: ConsoleDrawStatus | string | null | undefined): AdminStatusTone {
   switch (status) {
     case 'OPEN': return 'success';
     case 'RESULTED':
+    case 'RESULTS_APPLIED':
     case 'SETTLED': return 'info';
     case 'LOCKED':
+    case 'PENDING_RESULTS':
     case 'SCHEDULED': return 'warning';
+    case 'CANCELED':
     case 'CANCELLED': return 'danger';
     case 'ARCHIVED': return 'neutral';
     default: return 'neutral';
   }
 }
 
-export function consoleDrawSalesStatusLabel(status: string | null | undefined): string {
+export function consoleDrawSalesStatusLabel(status: ConsoleDrawSalesStatus | string | null | undefined): string {
   if (!status) return '—';
   switch (status) {
     case 'OPEN': return 'Ouvert';
@@ -51,7 +55,7 @@ export function consoleDrawSalesStatusLabel(status: string | null | undefined): 
   }
 }
 
-export function consoleDrawSalesStatusTone(status: string | null | undefined): AdminStatusTone {
+export function consoleDrawSalesStatusTone(status: ConsoleDrawSalesStatus | string | null | undefined): AdminStatusTone {
   switch (status) {
     case 'OPEN': return 'success';
     case 'LOCKED': return 'warning';
@@ -60,7 +64,7 @@ export function consoleDrawSalesStatusTone(status: string | null | undefined): A
   }
 }
 
-export function consoleDrawResultStatusLabel(status: string | null | undefined): string {
+export function consoleDrawResultStatusLabel(status: ConsoleDrawResultStatus | string | null | undefined): string {
   if (!status) return '—';
   switch (status) {
     case 'CONFIRMED': return 'Confirmé';
@@ -81,7 +85,7 @@ export function consoleDrawResultStatusLabel(status: string | null | undefined):
   }
 }
 
-export function consoleDrawResultStatusTone(status: string | null | undefined): AdminStatusTone {
+export function consoleDrawResultStatusTone(status: ConsoleDrawResultStatus | string | null | undefined): AdminStatusTone {
   switch (status) {
     case 'CONFIRMED':
     case 'APPLIED': return 'success';
@@ -98,7 +102,7 @@ export function consoleDrawResultStatusTone(status: string | null | undefined): 
   }
 }
 
-export function consoleDrawResultQualityLabel(quality: string | null | undefined): string {
+export function consoleDrawResultQualityLabel(quality: ConsoleDrawResultQuality | string | null | undefined): string {
   if (!quality) return '—';
   switch (quality) {
     case 'COMPLETE': return 'Complet';
@@ -112,7 +116,7 @@ export function consoleDrawResultQualityLabel(quality: string | null | undefined
   }
 }
 
-export function consoleDrawResultQualityTone(quality: string | null | undefined): AdminStatusTone {
+export function consoleDrawResultQualityTone(quality: ConsoleDrawResultQuality | string | null | undefined): AdminStatusTone {
   switch (quality) {
     case 'COMPLETE':
     case 'OFFICIAL': return 'success';
@@ -124,7 +128,7 @@ export function consoleDrawResultQualityTone(quality: string | null | undefined)
   }
 }
 
-export function consoleDrawPublicationStatusLabel(status: string | null | undefined): string {
+export function consoleDrawPublicationStatusLabel(status: ConsoleDrawPublicationStatus | string | null | undefined): string {
   if (!status || status === 'NOT_PUBLISHED') return 'Non publié';
   switch (status) {
     case 'PUBLISHED': return 'Publié';
@@ -133,7 +137,7 @@ export function consoleDrawPublicationStatusLabel(status: string | null | undefi
   }
 }
 
-export function consoleDrawPublicationStatusTone(status: string | null | undefined): AdminStatusTone {
+export function consoleDrawPublicationStatusTone(status: ConsoleDrawPublicationStatus | string | null | undefined): AdminStatusTone {
   switch (status) {
     case 'PUBLISHED': return 'success';
     case 'PROVISIONAL': return 'warning';
@@ -141,7 +145,7 @@ export function consoleDrawPublicationStatusTone(status: string | null | undefin
   }
 }
 
-export function consoleDrawLifecycleActionLabel(action: ConsoleDrawLifecycleLabelAction): string {
+export function consoleDrawLifecycleActionLabel(action: ConsoleDrawLifecycleDisplayAction): string {
   switch (action) {
     case 'open': return 'Ouvrir la vente';
     case 'close': return 'Fermer la vente';
@@ -155,7 +159,7 @@ export function consoleDrawLifecycleActionLabel(action: ConsoleDrawLifecycleLabe
   }
 }
 
-export function consoleDrawLifecycleActionIcon(action: ConsoleDrawLifecycleLabelAction): string {
+export function consoleDrawLifecycleActionIcon(action: ConsoleDrawLifecycleDisplayAction): string {
   switch (action) {
     case 'open': return 'play_arrow';
     case 'close': return 'stop';

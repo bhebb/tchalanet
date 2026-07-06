@@ -1,0 +1,19 @@
+:host {
+  display: grid;
+  gap: 1rem;
+}
+
+.tenant-seller-terminals-table {
+  display: grid;
+  border-radius: var(--tch-radius-lg, 1rem);
+  overflow: hidden;
+  border: 1px solid var(--tch-color-outline-variant);
+}
+
+.tenant-seller-terminals-table__row {
+  padding: 0.625rem 1rem;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+  }
+}

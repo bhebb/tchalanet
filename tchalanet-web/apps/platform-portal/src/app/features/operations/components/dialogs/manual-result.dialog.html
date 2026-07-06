@@ -19,17 +19,7 @@
         <mat-error>{{ form.controls.drawDate.hasError('futureDate') ? 'Pas de résultat futur.' : 'Requis.' }}</mat-error>
       }
     </mat-form-field>
-    <div class="manual-result-dialog__lot-map" aria-label="Mapping lots Haiti vers provider">
-      @for (mapping of lotMappings(); track mapping.lotKey) {
-        <div class="manual-result-dialog__lot-card">
-          <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
-          <span>
-            <strong>{{ mapping.gameLabel }}</strong>
-            <em>{{ mapping.label }}</em>
-          </span>
-        </div>
-      }
-    </div>
+    <tch-console-haiti-lot-game-mapping [mappings]="lotMappings()" />
     <mat-form-field appearance="outline">
       <mat-label>Pick3 - lot1</mat-label>
       <input matInput formControlName="lot1" maxlength="3" placeholder="123" />

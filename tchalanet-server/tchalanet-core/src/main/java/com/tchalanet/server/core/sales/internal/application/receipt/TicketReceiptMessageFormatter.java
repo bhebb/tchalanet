@@ -5,17 +5,18 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageContent;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptDrawIdentityFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class TicketReceiptMessageFormatter {
     private final TicketReceiptI18nResolver i18nResolver;
     private final TicketReceiptMoneyFormatter moneyFormatter;
     private final TicketReceiptLabelResolver labelResolver;
+    private final TicketReceiptDrawIdentityFormatter drawIdentityFormatter;
 
     public TicketReceiptMessageContent format(TicketReceiptView receipt) {
         var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
@@ -42,8 +44,7 @@ public class TicketReceiptMessageFormatter {
             translations.text(TicketReceiptI18nKeys.MESSAGE_CODE),
             receipt.displayCode(),
             translations.text(TicketReceiptI18nKeys.DRAW_SECTION),
-            // draw channel preferred, fallback to slot label
-            firstNonBlank(receipt.drawChannelLabel(), receipt.drawLabel()),
+            drawIdentityFormatter.label(receipt),
             translations.text(TicketReceiptI18nKeys.DRAW_TIME),
             formatInstant(receipt.drawScheduledAt(), receipt.timezone()),
             translations.text(TicketReceiptI18nKeys.MESSAGE_GAMES),
@@ -70,7 +71,7 @@ public class TicketReceiptMessageFormatter {
         var lines = new ArrayList<String>();
         lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_VALID_TICKET));
         lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_CODE) + ": " + receipt.displayCode());
-        var drawPrimary = firstNonBlank(receipt.drawChannelLabel(), receipt.drawLabel());
+        var drawPrimary = drawIdentityFormatter.label(receipt);
         if (drawPrimary != null && !drawPrimary.isBlank()) {
             lines.add(translations.text(TicketReceiptI18nKeys.DRAW_SECTION) + ": " + drawPrimary);
         }
@@ -95,10 +96,6 @@ public class TicketReceiptMessageFormatter {
             return null;
         }
         return DATE_TIME.withZone(timezone == null ? ZoneId.of("UTC") : timezone).format(value);
-    }
-
-    private String firstNonBlank(String preferred, String fallback) {
-        return preferred == null || preferred.isBlank() ? fallback : preferred;
     }
 
     private List<String> lineSummaries(TicketReceiptView receipt, TicketReceiptI18nResolver.TicketReceiptTranslations translations) {

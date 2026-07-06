@@ -136,6 +136,21 @@ draw channels, result-slot labels, and Haiti lot mappings.
 - **AND** each lot card shows the Haiti lot label, provider game label, provider identity, and
   provider game logo.
 
+#### Scenario: A tenant admin completes an incomplete draw result manually
+
+- **GIVEN** a draw result is missing or incomplete after the configured manual-entry delay
+- **WHEN** a tenant admin has the manual result-entry capability
+- **THEN** the admin can enter the missing result values manually
+- **AND** the entry is treated as completion of an incomplete result, not as an override of an
+  existing confirmed result.
+
+#### Scenario: A protected result action is displayed
+
+- **GIVEN** a draw result already exists or is provisional
+- **WHEN** the UI offers confirm or override actions
+- **THEN** those actions are restricted to super admin or explicit platform operations capability
+- **AND** tenant admin completion rights do not imply confirm or override rights.
+
 #### Scenario: A provider has a known Pick 3 and Pick 4 product
 
 - **GIVEN** the result slot belongs to a known provider such as `NY`, `TX`, `FL`, or `GA`

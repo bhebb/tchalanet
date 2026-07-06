@@ -83,6 +83,47 @@ describe('consoleDrawIdentity', () => {
     expect(identity.channelName).toBe('Georgia · Late');
     expect(identity.slotLabel).toBe('Georgia · Late');
   });
+
+  it('keeps the same sample channel identity across public, admin, and platform inputs', () => {
+    const publicIdentity = consoleDrawIdentity({
+      slotKey: 'NY_MID',
+      channelCode: 'NY_MID',
+      officialDateLabel: '2026-07-04',
+      officialTimeLabel: '14:30',
+      officialTimezoneLabel: 'America/New_York',
+    });
+    const adminIdentity = consoleDrawIdentity({
+      slotKey: 'NY_MID',
+      channelCode: 'NY_MID',
+      channelName: 'Haïti · New York · Midday',
+      officialDateLabel: '2026-07-04',
+      officialTimeLabel: '14:30',
+      officialTimezoneLabel: 'America/New_York',
+      localDateLabel: '2026-07-04',
+      localTimeLabel: '14:30',
+      localTimezoneLabel: 'America/Toronto',
+    });
+    const platformIdentity = consoleDrawIdentity({
+      providerCode: 'NY',
+      slotKey: 'HT_NY_MID',
+      channelCode: 'HT_NY_MID',
+      channelName: 'Haïti · New York · Midday',
+      officialTimeLabel: '14:30',
+      officialTimezoneLabel: 'America/New_York',
+    });
+
+    for (const identity of [publicIdentity, adminIdentity, platformIdentity]) {
+      expect(identity.providerCode).toBe('NY');
+      expect(identity.providerName).toBe('New York');
+      expect(identity.providerLogoUrl).toContain('/assets/images/logo/ny_logo.png');
+      expect(identity.channelShortName).toBe('Midday');
+      expect(identity.channelName).toBe('New York · Midday');
+      expect(identity.channelName).not.toContain('Haïti');
+    }
+
+    expect(adminIdentity.localDateLabel).toBe('2026-07-04');
+    expect(adminIdentity.localTimeLabel).toBe('14:30');
+  });
 });
 
 describe('lottery asset helpers', () => {

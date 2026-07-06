@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
+import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzReader;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLookupIndexJdbcRepository;
@@ -80,14 +81,14 @@ public class ArchiveRestoreService {
 
     for (Map<String, Object> entry : lookupEntries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
-      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      Optional<ArchiveObjectRowView> objMeta = objectRepo.findById(objectId);
       if (objMeta.isEmpty()) {
         log.warn("archive restore: missing archive_object id={}", objectId);
         continue;
       }
 
-      String uri = (String) objMeta.get().get("object_uri");
-      int schemaVersion = ((Number) objMeta.get().getOrDefault("schema_version", 1)).intValue();
+      String uri = objMeta.get().objectUri();
+      int schemaVersion = objMeta.get().schemaVersion();
 
       if (!storage.exists(uri)) {
         log.warn("archive restore: object not in storage uri={}", uri);

@@ -1,7 +1,18 @@
-export type TenantStatus = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED' | 'ARCHIVED';
-export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
-export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
-export type TenantReadinessStatus = 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
+import type {
+  ConsoleReadinessStatus,
+  ConsoleSubscriptionStatus,
+  ConsoleTenantProvisioningProfile,
+  ConsoleTenantStatus,
+  ConsoleTenantType,
+} from '@tch/web/console';
+
+export type TenantStatus = ConsoleTenantStatus;
+export type TenantType = ConsoleTenantType;
+export type TenantProvisioningProfile = ConsoleTenantProvisioningProfile;
+export type TenantReadinessStatus = Extract<
+  ConsoleReadinessStatus,
+  'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN'
+>;
 
 export interface TenantReadinessSectionView {
   readonly id: string;
@@ -29,12 +40,7 @@ export interface PlanSummaryView {
   readonly isDefault: boolean;
 }
 
-export type SubscriptionStatus =
-  | 'ACTIVE'
-  | 'TRIAL'
-  | 'SUSPENDED'
-  | 'CANCELED'
-  | 'EXPIRED';
+export type SubscriptionStatus = ConsoleSubscriptionStatus;
 
 export interface SubscriptionView {
   readonly tenantId: string;
@@ -49,4 +55,13 @@ export interface SubscriptionView {
 export interface ApplyPlanResult {
   readonly subscriptionId: string;
   readonly status: SubscriptionStatus;
+}
+
+export interface TenantCapabilitySnapshot {
+  readonly tenantId: string;
+  readonly planCode: string | null;
+  readonly activeSubscription: boolean;
+  readonly features: Readonly<Record<string, boolean>> | null;
+  readonly limits: Readonly<Record<string, number>> | null;
+  readonly resolvedAt: string;
 }

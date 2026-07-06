@@ -4,7 +4,6 @@ import com.tchalanet.server.common.context.ResolvedAccessContext;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.TchContextRequestAttributes;
-import com.tchalanet.server.common.context.auth.ActorContextResolver;
 import com.tchalanet.server.common.context.operational.OperationalContextHeaderParser;
 import com.tchalanet.server.common.context.operational.OperationalContextResolver;
 import com.tchalanet.server.common.context.scope.ApiScope;
@@ -38,7 +37,6 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     private final TchContextProperties contextProperties;
     private final TenantContextResolver tenantContextResolver;
-    private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
     private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
@@ -149,14 +147,6 @@ public class TchContextFilter extends OncePerRequestFilter {
         var ctx = contextFactory.create(req, defaultTenantCode, scope);
 
         ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
-
-        if (ctx == null) {
-            return;
-        }
-
-        contextBinder.bind(req, ctx);
-
-        ctx = actorContextResolver.attachBootstrappedAppUserId(req, res, ctx);
 
         if (ctx == null) {
             return;

@@ -1,6 +1,12 @@
-export type CatalogStatus = 'AVAILABLE' | 'DISABLED' | 'COMING_SOON';
-export type TenantGameStatus = 'ACTIVE' | 'INACTIVE' | 'NEEDS_CONFIG' | 'UNAVAILABLE';
-export type ReadinessStatus = 'READY' | 'TODO' | 'BLOCKED';
+import type {
+  ConsoleCatalogStatus,
+  ConsoleReadinessStatus,
+  ConsoleTenantGameStatus,
+} from '@tch/web/console';
+
+export type CatalogStatus = ConsoleCatalogStatus;
+export type TenantGameStatus = ConsoleTenantGameStatus;
+export type ReadinessStatus = Extract<ConsoleReadinessStatus, 'READY' | 'TODO' | 'BLOCKED'>;
 
 export interface TenantGameOddView {
   readonly label: string;

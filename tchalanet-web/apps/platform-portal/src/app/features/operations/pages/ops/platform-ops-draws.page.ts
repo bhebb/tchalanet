@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +31,7 @@ import {
   ConsoleDrawSelectionEvent,
   ConsoleDrawsTableComponent,
   ConsoleRowAction,
+  consoleDrawRowViewModel,
   consoleDrawLifecycleActionIcon,
   consoleDrawLifecycleActionLabel,
   consoleDrawResultStatusLabel,
@@ -55,7 +57,6 @@ import {
   RescheduleDrawDialog,
   SimpleDrawActionDialog,
 } from '../../components/dialogs/draw-action-dialogs';
-import { lotteryAssetForSlot } from '../../../../shared/lottery/lottery-assets';
 import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 import { Observable, map } from 'rxjs';
 
@@ -142,6 +143,7 @@ export class PlatformOpsDrawsPage implements OnInit {
   private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   readonly statusOptions = STATUS_OPTIONS;
 
@@ -487,6 +489,10 @@ export class PlatformOpsDrawsPage implements OnInit {
   onDrawAction(event: ConsoleDrawActionEvent): void {
     const draw = this.draws().find(row => row.id === event.row.id);
     if (!draw) return;
+    if (event.action.id === 'viewDetails') {
+      void this.router.navigate(['/app/platform/ops/draws', draw.tenantId, draw.id]);
+      return;
+    }
     this.openRowAction(draw, { kind: event.action.id } as DrawActionItem);
   }
 
@@ -510,20 +516,25 @@ export class PlatformOpsDrawsPage implements OnInit {
     return parts.length ? parts.join(' · ') : r.status;
   }
 
-  lotteryAsset(slotKey: string): string | null {
-    return lotteryAssetForSlot(slotKey);
-  }
-
   private toConsoleDrawRow(draw: DrawView): ConsoleDrawRow {
-    return {
+    return consoleDrawRowViewModel({
       id: draw.id,
       groupLabel: draw.drawDate,
-      title: draw.channel.name,
+      identityInput: {
+        channelCode: draw.channel.code,
+        channelName: draw.channel.name,
+        slotKey: draw.slot.key,
+        slotLabel: draw.slot.label,
+        officialDateLabel: draw.drawDate,
+        officialTimeLabel: draw.slot.drawTime,
+        officialTimezoneLabel: draw.slot.timezone,
+        localDateLabel: draw.drawDate,
+        localTimeLabel: draw.scheduledAt,
+        fallbackTitle: draw.channel.code,
+      },
+      title: draw.channel.code,
       subtitle: draw.slot.key,
       meta: draw.channel.code,
-      logoUrl: this.lotteryAsset(draw.slot.key),
-      logoAlt: draw.slot.label ?? draw.slot.key,
-      logoText: draw.channel.code,
       scheduledDateLabel: draw.drawDate,
       scheduledTimeLabel: draw.scheduledAt,
       statusLabel: consoleDrawStatusLabel(draw.status),
@@ -533,8 +544,11 @@ export class PlatformOpsDrawsPage implements OnInit {
       resultNumbers: this.resultNumbers(draw),
       modeLabel: draw.active ? 'Actif' : 'Inactif',
       publicationLabel: undefined,
-      actions: actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
-    };
+      actions: [
+        { id: 'viewDetails', label: 'Voir détails', icon: 'visibility', tone: 'primary', variant: 'button' },
+        ...actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
+      ],
+    });
   }
 
   private toConsoleDrawAction(action: DrawActionItem): ConsoleRowAction {

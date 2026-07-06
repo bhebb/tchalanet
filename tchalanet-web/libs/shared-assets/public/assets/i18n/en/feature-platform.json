@@ -264,6 +264,55 @@
             "confirm": "Confirm"
           }
         },
+        "entitlements": {
+          "title": "Usage entitlements",
+          "loading": "Loading usage entitlements…",
+          "error": "Unable to load usage entitlements.",
+          "empty": "No entitlements resolved for this tenant.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Active subscription",
+            "resolvedAt": "Resolved on"
+          },
+          "features": {
+            "title": "Features",
+            "empty": "No features defined.",
+            "column": {
+              "key": "Feature",
+              "status": "Status"
+            }
+          },
+          "limits": {
+            "title": "Limits",
+            "empty": "No limits defined.",
+            "column": {
+              "key": "Limit",
+              "value": "Value"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Loading seller terminals…",
+          "error": "Unable to load seller terminals.",
+          "empty": {
+            "title": "No seller terminal",
+            "message": "This tenant has no seller terminal yet."
+          },
+          "status": {
+            "active": "Active",
+            "pending": "Pending",
+            "blocked": "Blocked",
+            "disabled": "Disabled"
+          }
+        },
+        "audit": {
+          "loading": "Loading audit log…",
+          "error": "Unable to load the audit log.",
+          "empty": {
+            "title": "No event",
+            "message": "No audit event for this tenant."
+          }
+        },
         "admins": {
           "loading": "Loading administrators…",
           "error": "Unable to load administrators.",

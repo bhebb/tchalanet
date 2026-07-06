@@ -25,6 +25,9 @@ public record TicketVerifyResponse(
     public record DrawView(
         String channelName,
         String channelLabel,
+        String resultSlotKey,
+        String provider,
+        String timezone,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}

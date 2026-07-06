@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
+import type { ConsoleDrawStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
 // ---- Draw channel models (from /tenant/draw-channels) ----
@@ -46,14 +47,10 @@ export interface ChannelGames {
 
 // ---- Draw models (from /admin/draws) ----
 
-export type DrawStatus =
-  | 'SCHEDULED'
-  | 'OPEN'
-  | 'CLOSED'
-  | 'RESULTED'
-  | 'SETTLED'
-  | 'CANCELED'
-  | 'ARCHIVED';
+export type DrawStatus = Extract<
+  ConsoleDrawStatus,
+  'SCHEDULED' | 'OPEN' | 'CLOSED' | 'RESULTED' | 'SETTLED' | 'CANCELED' | 'ARCHIVED'
+>;
 
 export interface DrawResultSummary {
   readonly id: string;

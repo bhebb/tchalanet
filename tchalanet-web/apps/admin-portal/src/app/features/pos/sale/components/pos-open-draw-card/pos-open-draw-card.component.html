@@ -2,7 +2,7 @@
   <div class="pos-draw">
     <div class="pos-draw__meta">
       <div class="pos-draw__info">
-        <span class="pos-draw__label">{{ d.label }}</span>
+        <span class="pos-draw__label">{{ drawLabel(d) }}</span>
         @if (timeRemainingLabel(); as t) {
           <span class="pos-draw__time" [class.pos-draw__time--closing]="d.status === 'CLOSING_SOON'">
             S'arrête dans <strong>{{ t }}</strong>
@@ -35,7 +35,7 @@
         @for (other of otherDraws(); track other.drawId) {
           <button mat-menu-item (click)="selectDraw(other)">
             <span class="material-symbols-outlined">schedule</span>
-            {{ other.label }}
+            {{ drawLabel(other) }}
           </button>
         }
       </mat-menu>

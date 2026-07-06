@@ -20,6 +20,9 @@ public class TicketVerifyMapper {
             new TicketVerifyResponse.DrawView(
                 view.draw().channelKey(),
                 view.draw().channelName(),
+                view.draw().resultSlotKey(),
+                view.draw().provider(),
+                view.draw().timezone(),
                 view.draw().drawDate(),
                 view.draw().scheduledAt()
             ),

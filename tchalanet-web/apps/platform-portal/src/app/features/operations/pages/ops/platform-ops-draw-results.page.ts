@@ -30,6 +30,7 @@ import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
   ConsoleDrawResultsTableComponent,
+  consoleDrawResultRowViewModel,
   consoleDrawResultQualityLabel,
   consoleDrawResultQualityTone,
   consoleDrawResultStatusLabel,
@@ -49,7 +50,6 @@ import { FetchResultsDialog } from '../../components/dialogs/fetch-results.dialo
 import { ManualResultDialog } from '../../components/dialogs/manual-result.dialog';
 import { OverrideResultDialog } from '../../components/dialogs/override-result.dialog';
 import { SourceResultDialog } from '../../components/dialogs/source-result.dialog';
-import { lotteryAssetForSlot } from '../../../../shared/lottery/lottery-assets';
 
 const RESULT_STATUS_OPTIONS = [
   { value: '', label: 'Tous les statuts' },
@@ -303,10 +303,6 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     return consoleDrawResultQualityTone(quality);
   }
 
-  lotteryAsset(slotKey: string): string | null {
-    return lotteryAssetForSlot(slotKey);
-  }
-
   haitiLots(row: DrawResultOpsResponse): HaitiLots {
     const value = row.haitiResult;
     if (!value || typeof value !== 'object') return {};
@@ -315,20 +311,25 @@ export class PlatformOpsDrawResultsPage implements OnInit {
 
   private toConsoleRow(row: DrawResultOpsResponse): ConsoleDrawResultRow {
     const slot = this.resultSlot(row.slotKey);
-    const labelKey = slot?.labelKey ?? this.slotLabelKey(row.slotKey);
     const slotKey = slot?.slotKey ?? row.slotKey;
-    const title = this.humanizeSlotKey(slotKey);
     const providerTimezone = slot?.timezone?.trim() || undefined;
-
-    return {
+    const providerDateLabel = this.formatDate(row.occurredAt, providerTimezone);
+    const localDateLabel = this.formatLocalDate(row.occurredAt, providerTimezone);
+    return consoleDrawResultRowViewModel({
       id: row.id,
-      title,
-      labelKey,
+      identityInput: {
+        providerCode: slot?.provider,
+        slotKey,
+        officialDateLabel: providerDateLabel,
+        officialTimeLabel: this.formatProviderTimeValue(row.occurredAt, providerTimezone, slot?.drawTime),
+        officialTimezoneLabel: providerTimezone,
+        localDateLabel,
+        localTimeLabel: this.formatLocalTimeValue(row.occurredAt),
+        fallbackTitle: slotKey,
+      },
+      labelKey: undefined,
       subtitle: slotKey,
       meta: row.occurredAt,
-      logoUrl: this.lotteryAsset(slotKey),
-      logoAlt: title,
-      logoText: slotKey,
       slotKey,
       numbers: this.resultNumbers(row),
       statusLabel: consoleDrawResultStatusLabel(row.status),
@@ -338,12 +339,14 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       sourceLabel: row.source || '—',
       sourceFlags: this.sourceFlags(row),
       hasSourceDetails: this.hasSourceDetails(row.sourceResult),
-      occurredDateLabel: this.formatDate(row.occurredAt, providerTimezone),
+      occurredDateLabel: providerDateLabel,
+      providerDateLabel,
       providerTimeLabel: this.formatProviderTime(row.occurredAt, providerTimezone, slot?.drawTime),
+      localDateLabel,
       localTimeLabel: this.formatLocalTime(row.occurredAt, providerTimezone),
       fetchedAtLabel: this.formatFetchedAt(row.fetchedAt),
       actions: this.resultActions(row),
-    };
+    });
   }
 
   private resultActions(row: DrawResultOpsResponse) {
@@ -376,12 +379,6 @@ export class PlatformOpsDrawResultsPage implements OnInit {
       .filter(Boolean);
   }
 
-  private slotLabelKey(slotKey: string): string | null {
-    const parts = slotKey.trim().toLowerCase().split('_', 2);
-    if (parts.length < 2 || !parts[0] || !parts[1]) return null;
-    return `draw_channel.${parts[0]}.${parts[1]}.label`;
-  }
-
   private formatDate(value: string | null | undefined, timeZone?: string): string {
     const date = this.toDate(value);
     return date
@@ -394,27 +391,39 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     providerTimezone?: string,
     slotDrawTime?: string | null,
   ): string | undefined {
+    return this.withTimezone(this.formatProviderTimeValue(value, providerTimezone, slotDrawTime), providerTimezone);
+  }
+
+  private formatProviderTimeValue(
+    value: string | null | undefined,
+    providerTimezone?: string,
+    slotDrawTime?: string | null,
+  ): string | undefined {
     const drawTime = this.formatSlotDrawTime(slotDrawTime);
-    const time =
-      drawTime ?? (providerTimezone ? this.formatTime(value, providerTimezone) : undefined);
-    return this.withTimezone(time, providerTimezone);
+    return drawTime ?? (providerTimezone ? this.formatTime(value, providerTimezone) : undefined);
   }
 
   private formatLocalTime(
     value: string | null | undefined,
+    _providerTimezone?: string,
+  ): string | undefined {
+    const time = this.formatLocalTimeValue(value);
+    if (!time) return undefined;
+    return this.withTimezone(time, this.localTimezone());
+  }
+
+  private formatLocalTimeValue(value: string | null | undefined): string | undefined {
+    return this.formatTime(value);
+  }
+
+  private formatLocalDate(
+    value: string | null | undefined,
     providerTimezone?: string,
   ): string | undefined {
-    const time = this.formatTime(value);
-    if (!time) return undefined;
-
     const providerDate = this.dateKey(value, providerTimezone);
     const localDate = this.dateKey(value);
-    if (!providerDate || !localDate || providerDate === localDate) {
-      return this.withTimezone(time, this.localTimezone());
-    }
-
-    const localDateLabel = this.formatDate(value);
-    return this.withTimezone(`${localDateLabel} · ${time}`, this.localTimezone());
+    if (!providerDate || !localDate || providerDate === localDate) return undefined;
+    return this.formatDate(value);
   }
 
   private formatFetchedAt(value: string | null | undefined): string | undefined {
@@ -514,17 +523,6 @@ export class PlatformOpsDrawResultsPage implements OnInit {
     if (!value) return null;
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? null : date;
-  }
-
-  private humanizeSlotKey(slotKey: string): string {
-    return (
-      slotKey
-        .trim()
-        .split('_')
-        .filter(Boolean)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join(' · ') || slotKey
-    );
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

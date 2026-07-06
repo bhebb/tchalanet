@@ -87,6 +87,9 @@ class TicketVerifyControllerTest {
                 new TicketVerificationView.DrawInfoView(
                     "HAITI",
                     "Haiti",
+                    "GA_LATE",
+                    "GA",
+                    "America/New_York",
                     LocalDate.parse("2026-05-27"),
                     Instant.parse("2026-05-27T20:00:00Z")),
                 new TicketVerificationView.OutletInfoView("Outlet"),
