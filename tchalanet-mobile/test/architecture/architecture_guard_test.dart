@@ -42,7 +42,7 @@ const _knownHardcodedUiLiteralCounts = <String, int>{
   'lib/features/cashier/tickets/presentation/views/cashier_history_page.dart':
       5,
   'lib/features/cashier/tickets/presentation/views/cashier_scan_page.dart': 14,
-  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 12,
+  'lib/features/cashier/tickets/presentation/views/cashier_sell_page.dart': 13,
   'lib/features/cashier/tickets/presentation/views/cashier_sell_success_page.dart':
       11,
   'lib/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart':

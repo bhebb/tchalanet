@@ -3,14 +3,7 @@
     <ng-container matColumnDef="draw">
       <th mat-header-cell *matHeaderCellDef>Tirage</th>
       <td mat-cell *matCellDef="let row" data-label="Tirage">
-        <tch-console-draw-slot-identity
-          [identity]="{
-            providerLogoUrl: row.logoUrl,
-            logoText: row.logoText,
-            slotLabel: row.labelKey ? (row.labelKey | tchLabel) : row.title,
-            slotKey: row.subtitle || row.slotKey,
-          }"
-        />
+        <tch-console-draw-slot-identity [identity]="row.identity" />
       </td>
     </ng-container>
 
@@ -61,7 +54,7 @@
       <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
       <td mat-cell *matCellDef="let row" data-label="Date & heure">
         <div class="console-draw-results-table__time-stack">
-          <p class="console-draw-results-table__date">{{ row.occurredDateLabel || '—' }}</p>
+          <p class="console-draw-results-table__date">{{ row.providerDateLabel || row.occurredDateLabel || '—' }}</p>
           @if (row.providerTimeLabel) {
             <p class="console-draw-results-table__time">
               <span>Officiel</span>
@@ -71,6 +64,9 @@
           @if (row.localTimeLabel) {
             <p class="console-draw-results-table__time">
               <span>Local</span>
+              @if (row.localDateLabel) {
+                {{ row.localDateLabel }} ·
+              }
               {{ row.localTimeLabel }}
             </p>
           }
@@ -103,8 +99,8 @@
     </ng-container>
 
     <ng-container matColumnDef="source">
-      <th mat-header-cell *matHeaderCellDef>Source</th>
-      <td mat-cell *matCellDef="let row" data-label="Source">
+      <th mat-header-cell *matHeaderCellDef>{{ sourceColumnLabel() }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="sourceColumnLabel()">
         <div class="console-draw-results-table__source-stack">
           <span class="console-draw-results-table__source-pill">{{ row.sourceLabel }}</span>
           @if (showSourceFlags() && canShowSource(row)) {

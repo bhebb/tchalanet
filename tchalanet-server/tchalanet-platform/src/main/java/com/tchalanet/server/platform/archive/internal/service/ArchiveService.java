@@ -1,7 +1,9 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
 import com.tchalanet.server.platform.archive.api.ArchiveApi;
+import com.tchalanet.server.platform.archive.api.model.ArchiveObjectRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchivedEntityView;
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzReader;
@@ -10,7 +12,6 @@ import com.tchalanet.server.platform.archive.internal.persistence.ArchiveObjectJ
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
 import com.tchalanet.server.platform.archive.internal.storage.ArchiveStoragePort;
 import java.io.InputStream;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,11 +81,11 @@ public class ArchiveService implements ArchiveApi {
 
     for (Map<String, Object> entry : entries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
-      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      Optional<ArchiveObjectRowView> objMeta = objectRepo.findById(objectId);
       if (objMeta.isEmpty()) continue;
 
-      String uri = (String) objMeta.get().get("object_uri");
-      int schemaVersion = ((Number) objMeta.get().getOrDefault("schema_version", 1)).intValue();
+      String uri = objMeta.get().objectUri();
+      int schemaVersion = objMeta.get().schemaVersion();
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
@@ -130,11 +131,11 @@ public class ArchiveService implements ArchiveApi {
 
     for (Map<String, Object> entry : entries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
-      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      Optional<ArchiveObjectRowView> objMeta = objectRepo.findById(objectId);
       if (objMeta.isEmpty()) continue;
 
-      String uri = (String) objMeta.get().get("object_uri");
-      int schemaVersion = ((Number) objMeta.get().getOrDefault("schema_version", 1)).intValue();
+      String uri = objMeta.get().objectUri();
+      int schemaVersion = objMeta.get().schemaVersion();
       if (!storage.exists(uri)) continue;
 
       try (InputStream in = storage.openRead(uri)) {
@@ -173,15 +174,15 @@ public class ArchiveService implements ArchiveApi {
 
     for (Map<String, Object> entry : lookupEntries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
-      Optional<Map<String, Object>> objMeta = objectRepo.findById(objectId);
+      Optional<ArchiveObjectRowView> objMeta = objectRepo.findById(objectId);
       if (objMeta.isEmpty()) {
         log.warn("archive: lookup entry points to missing archive_object id={}", objectId);
         continue;
       }
 
-      Map<String, Object> obj = objMeta.get();
-      String uri = (String) obj.get("object_uri");
-      int schemaVersion = ((Number) obj.getOrDefault("schema_version", 1)).intValue();
+      ArchiveObjectRowView obj = objMeta.get();
+      String uri = obj.objectUri();
+      int schemaVersion = obj.schemaVersion();
 
       if (!storage.exists(uri)) {
         log.warn("archive: archive object not found in storage uri={}", uri);
@@ -224,23 +225,16 @@ public class ArchiveService implements ArchiveApi {
         .toList();
   }
 
-  private ArchiveRunView toRunView(Map<String, Object> row) {
+  private ArchiveRunView toRunView(ArchiveRunRowView row) {
     return new ArchiveRunView(
-        (UUID) row.get("id"),
-        (String) row.get("status"),
-        (String) row.get("strategy"),
-        (String) row.get("trigger_type"),
-        (String) row.get("idempotency_key"),
-        toInstant(row.get("started_at")),
-        toInstant(row.get("completed_at")),
-        (String) row.get("error_message")
+        row.id(),
+        row.status(),
+        row.strategy(),
+        row.triggerType(),
+        row.idempotencyKey(),
+        row.startedAt(),
+        row.completedAt(),
+        row.errorMessage()
     );
-  }
-
-  private static java.time.Instant toInstant(Object val) {
-    if (val == null) return null;
-    if (val instanceof Timestamp ts) return ts.toInstant();
-    if (val instanceof java.time.Instant i) return i;
-    return null;
   }
 }

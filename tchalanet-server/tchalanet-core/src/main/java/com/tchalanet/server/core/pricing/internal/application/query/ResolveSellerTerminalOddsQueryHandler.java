@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.pricing.internal.application.query;
 
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -25,7 +26,7 @@ public class ResolveSellerTerminalOddsQueryHandler
         BigDecimal tenantDefault = pricingCatalog.oddsFor(
             q.tenantId(), q.gameCode(),
             // BetType enum from catalog — convert via string
-            com.tchalanet.server.catalog.game.api.model.BetType.valueOf(q.betType()),
+            BetType.valueOf(q.betType()),
             q.betOption());
 
         // Look for active seller_terminal override

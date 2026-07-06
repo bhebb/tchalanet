@@ -40,7 +40,7 @@ export class ConsolePersonIdentitySummaryComponent {
   readonly identity = input<ConsolePersonIdentitySummary | null | undefined>(null);
   readonly fields = input<readonly ConsolePersonIdentitySummaryField[] | null>(null);
   readonly layout = input<ConsolePersonIdentitySummaryLayout>('block');
-  readonly emptyKey = input('component.console.personIdentitySummary.empty');
+  readonly emptyKey = input('console.personIdentitySummary.empty');
 
   readonly resolvedFields = computed<readonly ResolvedIdentityField[]>(() => {
     const fields = this.fields() ?? this.defaultFields();
@@ -76,19 +76,19 @@ export class ConsolePersonIdentitySummaryComponent {
 
     return [
       {
-        labelKey: 'component.console.personIdentity.field.displayName',
+        labelKey: 'console.personIdentity.field.displayName',
         value: displayName,
         required: true,
         readonly: true,
       },
       {
-        labelKey: 'component.console.personIdentity.field.email',
+        labelKey: 'console.personIdentity.field.email',
         value: identity.email,
         required: true,
         readonly: true,
       },
       {
-        labelKey: 'component.console.personIdentity.field.phoneNumber',
+        labelKey: 'console.personIdentity.field.phoneNumber',
         value: identity.phoneNumber,
         readonly: true,
       },

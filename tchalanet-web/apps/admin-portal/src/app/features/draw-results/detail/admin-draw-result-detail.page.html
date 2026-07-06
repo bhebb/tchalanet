@@ -9,46 +9,40 @@
   (retry)="load()"
   (action)="onDetailAction($event)"
 >
-  @if (result()) {
+  @if (result(); as result) {
     <ng-container main>
-      <tch-admin-section-card title="Résultat" icon="fact_check">
-        <div class="draw-result-detail__source">
-          <div class="draw-result-detail__logo">
-            @if (providerLogo(result()!); as logo) {
-              <img [src]="logo" [alt]="result()!.channelName ?? result()!.provider ?? 'Source'" loading="lazy" />
-            } @else {
-              <span>{{ providerCode(result()!) }}</span>
-            }
-          </div>
-          <div>
-            <p class="draw-result-detail__eyebrow">{{ providerCode(result()!) }}</p>
-            <h2>{{ result()!.channelName ?? result()!.provider ?? result()!.slotKey }}</h2>
-          </div>
-        </div>
-
-        <div class="draw-result-detail__numbers" aria-label="Numéros gagnants">
-          @for (number of result()!.numbers ?? []; track number) {
-            <span>{{ number }}</span>
+      <mat-tab-group class="draw-result-detail__tabs" animationDuration="120ms">
+        <mat-tab [label]="'admin.drawResults.detail.tab.results' | translate">
+          @if (summaryView(); as summary) {
+            <tch-console-draw-result-summary
+              [summary]="summary"
+              [facts]="summaryFacts()"
+            />
           }
-        </div>
+        </mat-tab>
 
-        <tch-console-facts [facts]="resultFacts()" />
-      </tch-admin-section-card>
+        <mat-tab [label]="'admin.drawResults.detail.tab.combinations' | translate">
+          <tch-console-draw-result-combinations [rows]="combinationSections()" />
+        </mat-tab>
 
-      <tch-admin-section-card title="Tirage lié" icon="event">
-        <tch-console-facts [facts]="linkedDrawFacts()" />
-      </tch-admin-section-card>
+        <mat-tab [label]="'admin.drawResults.detail.tab.raw' | translate">
+          <tch-console-draw-result-raw
+            [content]="rawResult()"
+            [emptyLabel]="'admin.drawResults.detail.raw.empty' | translate"
+          />
+        </mat-tab>
+      </mat-tab-group>
     </ng-container>
   }
 
-  @if (result()) {
+  @if (result(); as result) {
     <ng-container aside>
       <tch-identity-card
         eyebrow="Résumé"
-        [title]="result()!.slotLabel ?? result()!.slotKey ?? 'Résultat'"
-        [code]="providerCode(result()!)"
-        [status]="statusLabel(result()!.status)"
-        [statusTone]="statusTone(result()!.status)"
+        [title]="title()"
+        [code]="providerCode(result)"
+        [status]="statusLabel(result.status)"
+        [statusTone]="statusTone(result.status)"
         [meta]="identityMeta()"
         icon="fact_check"
         variant="compact"

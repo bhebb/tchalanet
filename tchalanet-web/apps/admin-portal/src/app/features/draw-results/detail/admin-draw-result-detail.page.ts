@@ -1,19 +1,25 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  AdminSectionCardComponent,
-  AdminStatusTone,
-  TchIdentityCardComponent,
-  TchIdentityCardMeta,
-} from '@tch/ui/console';
+import { MatTabsModule } from '@angular/material/tabs';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AdminStatusTone, TchIdentityCardComponent, TchIdentityCardMeta } from '@tch/ui/console';
 import {
   ConsoleEntityDetailActionEvent,
   ConsoleEntityDetailComponent,
   ConsoleFact,
-  ConsoleFactsComponent,
+  ConsoleDrawResultCombinationsComponent,
+  ConsoleDrawResultRawComponent,
+  ConsoleDrawResultSummaryComponent,
+  ConsoleDrawResultSummaryFacts,
+  ConsoleDrawResultSummaryView,
+  ConsoleDrawSlotIdentity,
+  DrawCombinationGameSection,
+  consoleDrawResultSummaryFacts,
+  consoleDrawResultSummaryViewModel,
   consoleDrawResultQualityLabel,
   consoleDrawResultStatusLabel,
   consoleDrawResultStatusTone,
+  drawCombinationGameSectionsFromResult,
 } from '@tch/web/console';
 
 import {
@@ -22,7 +28,6 @@ import {
   DrawResultStatus,
   DrawResultView,
 } from '.././data-access/admin-draw-results-api.service';
-import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../shared/lottery/lottery-assets';
 
 type PageState = 'loading' | 'ready' | 'error';
 
@@ -32,9 +37,12 @@ type PageState = 'loading' | 'ready' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ConsoleEntityDetailComponent,
-    ConsoleFactsComponent,
-    AdminSectionCardComponent,
     TchIdentityCardComponent,
+    MatTabsModule,
+    TranslatePipe,
+    ConsoleDrawResultSummaryComponent,
+    ConsoleDrawResultCombinationsComponent,
+    ConsoleDrawResultRawComponent,
   ],
   templateUrl: './admin-draw-result-detail.page.html',
   styleUrls: ['./admin-draw-result-detail.page.scss'],
@@ -49,16 +57,62 @@ export class AdminDrawResultDetailPage implements OnInit {
   readonly errorTitle = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly title = computed(() => this.result()?.slotLabel ?? this.result()?.slotKey ?? 'Détail du résultat');
+  /** Winning combinations per supported game, derived from the drawn numbers. */
+  readonly combinationSections = computed<readonly DrawCombinationGameSection[]>(() => {
+    const result = this.result();
+    if (!result) return [];
+    return drawCombinationGameSectionsFromResult(result);
+  });
+
+  readonly rawResult = computed<string | null>(() => {
+    const result = this.result();
+    if (!result) return null;
+    const payload = result.rawPayload ?? result.sourceResult ?? result.haitiResult ?? null;
+    return payload ? JSON.stringify(payload, null, 2) : null;
+  });
+  readonly summaryView = computed<ConsoleDrawResultSummaryView | null>(() => {
+    const result = this.result();
+    if (!result) return null;
+    return consoleDrawResultSummaryViewModel({
+      identityInput: {
+        providerCode: result.provider,
+        channelCode: result.channelCode,
+        channelName: result.channelName,
+        slotKey: result.slotKey,
+        slotLabel: result.slotLabel,
+      },
+      numbers: result.numbers ?? [],
+    });
+  });
+  readonly summaryFacts = computed<ConsoleDrawResultSummaryFacts>(() => consoleDrawResultSummaryFacts({
+    resultFacts: this.resultFacts(),
+    linkedDrawFacts: this.linkedDrawFacts(),
+  }));
+
+  readonly drawIdentity = computed<ConsoleDrawSlotIdentity | null>(() => this.summaryView()?.identity ?? null);
+  readonly title = computed(() => {
+    const identity = this.drawIdentity();
+    return firstText(identity?.providerShortName, identity?.providerCode, identity?.channelShortName, identity?.slotLabel, 'Détail du résultat');
+  });
   readonly description = computed(() => {
     const result = this.result();
     if (!result) return 'Consultez le résultat appliqué à ce tirage.';
-    return `${result.channelName ?? result.provider ?? 'Tirage'} · ${result.drawDate ?? result.resultDate ?? '—'}`;
+    const identity = this.drawIdentity();
+    return [
+      firstText(identity?.providerName, identity?.channelName, result.channelName, result.provider, 'Tirage'),
+      firstText(identity?.slotLabel),
+      result.drawDate ?? result.resultDate ?? '—',
+    ].filter(Boolean).join(' · ');
   });
   readonly detailMeta = computed(() => {
     const result = this.result();
+    const identity = this.drawIdentity();
     return result
-      ? [result.slotKey ?? '—', result.drawDate ?? result.resultDate ?? '—', result.status]
+      ? [
+          firstText(identity?.slotKey, result.slotKey, '—'),
+          result.drawDate ?? result.resultDate ?? '—',
+          result.status,
+        ]
       : [];
   });
   readonly detailError = computed(() =>
@@ -83,7 +137,7 @@ export class AdminDrawResultDetailPage implements OnInit {
       { label: 'Statut', value: this.statusLabel(result.status) },
       { label: 'Qualité', value: this.qualityLabel(result.quality) },
       { label: 'Tirage', value: result.drawDate ?? result.resultDate ?? '—' },
-      { label: 'Slot', value: result.slotKey ?? '—' },
+      { label: 'Slot', value: this.drawIdentity()?.slotLabel ?? result.slotLabel ?? result.slotKey ?? '—' },
     ];
   });
   readonly resultFacts = computed<readonly ConsoleFact[]>(() => {
@@ -151,15 +205,11 @@ export class AdminDrawResultDetailPage implements OnInit {
     });
   }
 
-  providerLogo(result: DrawResultView): string | null {
-    return lotteryLogoForSlot(result.slotKey ?? result.provider);
-  }
-
   providerCode(result: DrawResultView): string {
     return (
-      lotteryProviderCodeFromSlot(result.slotKey)?.toUpperCase() ??
       result.provider?.toUpperCase() ??
       result.channelCode?.toUpperCase() ??
+      result.slotKey?.toUpperCase() ??
       '—'
     );
   }
@@ -204,4 +254,8 @@ export class AdminDrawResultDetailPage implements OnInit {
       minute: '2-digit',
     }).format(new Date(value));
   }
+}
+
+function firstText(...values: readonly (string | null | undefined)[]): string {
+  return values.find(value => typeof value === 'string' && value.trim().length > 0)?.trim() ?? '';
 }

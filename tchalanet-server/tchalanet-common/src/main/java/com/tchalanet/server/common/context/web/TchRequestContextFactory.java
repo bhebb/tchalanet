@@ -70,7 +70,6 @@ public class TchRequestContextFactory {
             null,                         // effectiveTenantCode
             effectiveTenantUuid,          // effectiveTenantUuid
 
-            null,                         // keycloakUserId legacy
             appUserUuid,                  // appUserId
 
             legacySystemRoles,            // systemRoles legacy
@@ -119,7 +118,6 @@ public class TchRequestContextFactory {
             defaultTenantCode,             // effectiveTenantCode
             null,                          // effectiveTenantUuid
 
-            null,                          // keycloakUserId legacy
             null,                          // appUserId
 
             Set.of(),                      // systemRoles

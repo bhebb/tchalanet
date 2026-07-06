@@ -1,0 +1,13 @@
+@if (defaultCommissionRate() !== null) {
+  <tch-admin-section-card
+    [title]="'platform.tenants.detail.section.commerce' | translate"
+    icon="percent"
+  >
+    <dl class="tenant-commercial-summary__facts">
+      <div>
+        <dt>{{ 'platform.tenantProvisioning.field.defaultCommissionRate' | translate }}</dt>
+        <dd>{{ defaultCommissionRate() }} %</dd>
+      </div>
+    </dl>
+  </tch-admin-section-card>
+}

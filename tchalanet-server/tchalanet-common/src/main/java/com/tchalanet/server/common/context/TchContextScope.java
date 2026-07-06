@@ -69,7 +69,7 @@ public final class TchContextScope {
   private static TchRequestContext tenantContext(UUID tenantId, String requestId) {
     return new TchRequestContext(
         "tchalanet", tenantId, "tchalanet", tenantId,
-        null, null, EnumSet.noneOf(TchRole.class), Set.of(),
+        null, EnumSet.noneOf(TchRole.class), Set.of(),
         Locale.getDefault(), requestId, "127.0.0.1", null, false, null, "active",
         ApiScope.TENANT, null, TenantId.nullableOf(tenantId), ZoneId.systemDefault(),
         Currency.getInstance(CommonConstants.DEFAULT_CURRENCY), null,

@@ -1,22 +1,20 @@
 package com.tchalanet.server.core.sales.internal.application.service.result;
 
-import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
+import com.tchalanet.server.core.sales.internal.domain.model.result.SettlementVariant;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import org.springframework.stereotype.Component;
-
+import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TicketWinningCalculator {
@@ -33,97 +31,147 @@ public class TicketWinningCalculator {
         var zero = Money.zero(ticket.money().currency());
 
         for (TicketLine line : ticket.lines()) {
-            boolean won = isWinningLine(line, facts);
+            var evaluation = evaluateLine(line, facts);
+
             results.put(line.id(), new TicketLineResult(
-                won ? TicketLineResultStatus.WON : TicketLineResultStatus.LOST,
-                won ? line.potentialPayoutAmount() : zero
+                evaluation.won() ? TicketLineResultStatus.WON : TicketLineResultStatus.LOST,
+                evaluation.won() ? line.potentialPayoutAmount() : zero
             ));
         }
 
         return results;
     }
 
-    private boolean isWinningLine(TicketLine line, TicketResultFacts facts) {
+    private WinningEvaluation evaluateLine(TicketLine line, TicketResultFacts facts) {
         var selection = safe(line.selection().key().value());
-        BetType betType = line.betType();
 
-        return switch (betType) {
-            case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D -> match1_2d(selection, facts.twoDigits());
-            case MARRIAGE_2D2D -> marriage2d2d(selection, line.betOption(), facts.orderedTwoDigits());
-            case LOTTO3_3D -> lotto3(selection, line.betOption(), facts.pick3());
-            case LOTTO4_PATTERN -> lotto4(selection, line.betOption(), facts.pick4());
-            case LOTTO5_PATTERN -> lotto5(selection, line.betOption(), facts);
+        var variant = SettlementVariantResolver.resolve(
+            line.betType(),
+            line.betOption(),
+            selection
+        );
+
+        boolean won = switch (variant) {
+            case MATCH_1_2D -> match2d(selection, facts.lot1_2d());
+            case MATCH_2_2D -> match2d(selection, facts.lot2_2d());
+            case MATCH_3_2D -> match2d(selection, facts.lot3_2d());
+
+            case MARRIAGE_EXACT_ORDER -> marriageExact(selection, facts.orderedTwoDigits());
+            case MARRIAGE_REVERSE_ALLOWED -> marriageReverseAllowed(
+                selection,
+                facts.orderedTwoDigits()
+            );
+
+            case LOTTO3_STRAIGHT -> exactDigits(selection, facts.pick3(), 3);
+            case LOTTO3_BOX_3_WAY,
+                 LOTTO3_BOX_6_WAY -> boxDigits(selection, facts.pick3(), 3);
+
+            case LOTTO4_STRAIGHT -> exactDigits(selection, facts.pick4(), 4);
+            case LOTTO4_BOX_4_WAY,
+                 LOTTO4_BOX_6_WAY,
+                 LOTTO4_BOX_12_WAY,
+                 LOTTO4_BOX_24_WAY -> boxDigits(selection, facts.pick4(), 4);
+
+            case LOTTO4_FRONT_PAIR -> frontPair(selection, facts.pick4());
+            case LOTTO4_BACK_PAIR -> backPair(selection, facts.pick4());
+
+            case LOTTO5_LOT1_LOT2 -> lotto5Lot1Lot2(selection, facts);
+            case LOTTO5_LOT1_LOT3 -> lotto5Lot1Lot3(selection, facts);
+            case LOTTO5_MIXED_1_2_3 -> lotto5Mixed123(selection, facts);
         };
+
+        return new WinningEvaluation(won, variant);
     }
 
-    private boolean match1_2d(String selection, Set<String> twoDigits) {
+    private boolean match2d(String selection, String drawn2d) {
         var s = normalizeDigits(selection, 2);
-        return s != null && twoDigits.contains(s);
+        return s != null && drawn2d != null && s.equals(drawn2d);
     }
 
-    private boolean marriage2d2d(String selection, Short rawOption, List<String> orderedTwoDigits) {
-        var option = BetOption.from(BetType.MARRIAGE_2D2D, rawOption);
+    private boolean marriageExact(String selection, List<String> orderedTwoDigits) {
         var parts = split(selection);
         if (parts.size() != 2) {
             return false;
         }
+
         var a = normalizeDigits(parts.get(0), 2);
         var b = normalizeDigits(parts.get(1), 2);
+
+        return a != null && b != null && appearsInOrder(orderedTwoDigits, a, b);
+    }
+
+    private boolean marriageReverseAllowed(String selection, List<String> orderedTwoDigits) {
+        var parts = split(selection);
+        if (parts.size() != 2) {
+            return false;
+        }
+
+        var a = normalizeDigits(parts.get(0), 2);
+        var b = normalizeDigits(parts.get(1), 2);
+
         if (a == null || b == null) {
             return false;
         }
-        return switch (option) {
-            case MARRIAGE_EXACT_ORDER -> appearsInOrder(orderedTwoDigits, a, b);
-            case MARRIAGE_REVERSE_ALLOWED -> orderedTwoDigits.contains(a) && orderedTwoDigits.contains(b);
-            default -> false;
-        };
-    }
 
-    private boolean lotto3(String selection, Short rawOption, String drawn) {
-        var option = BetOption.from(BetType.LOTTO3_3D, rawOption);
-        var s = normalizeDigits(selection, 3);
-        if (s == null || drawn == null) {
-            return false;
-        }
-        return switch (option) {
-            case LOTTO3_STRAIGHT -> s.equals(drawn);
-            case LOTTO3_BOX -> sortedDigits(s).equals(sortedDigits(drawn));
-            default -> false;
-        };
-    }
-
-    private boolean lotto4(String selection, Short rawOption, String pick4) {
-        var option = BetOption.from(BetType.LOTTO4_PATTERN, rawOption);
-        if (pick4 == null) {
-            return false;
-        }
-        return switch (option) {
-            case LOTTO4_STRAIGHT -> selection.equals(pick4);
-            case LOTTO4_BOX -> selection.length() == 4 && sortedDigits(selection).equals(sortedDigits(pick4));
-            case LOTTO4_FRONT_PAIR -> selection.length() == 4
-                && selection.endsWith("**")
-                && pick4.startsWith(selection.substring(0, 2));
-            case LOTTO4_BACK_PAIR -> selection.length() == 4
-                && selection.startsWith("**")
-                && pick4.endsWith(selection.substring(2, 4));
-            default -> false;
-        };
-    }
-
-    private boolean lotto5(String selection, Short rawOption, TicketResultFacts facts) {
-        var option = BetOption.from(BetType.LOTTO5_PATTERN, rawOption);
-        var s = digitsOnly(selection);
-        if (s.length() != 5 || facts.lot1_3d() == null || facts.lot2_2d() == null || facts.lot3_2d() == null) {
-            return false;
+        if (a.equals(b)) {
+            return frequency(orderedTwoDigits, a) >= 2;
         }
 
-        return switch (option) {
-            case LOTTO5_LOT1_LOT2 -> s.equals(facts.lot1_3d() + facts.lot2_2d());
-            case LOTTO5_LOT1_LOT3 -> s.equals(facts.lot1_3d() + facts.lot3_2d());
-            case LOTTO5_MIXED_1_2_3 -> s.equals(
-                facts.lot1_3d().substring(2, 3) + facts.lot2_2d() + facts.lot3_2d());
-            default -> false;
-        };
+        return orderedTwoDigits.contains(a) && orderedTwoDigits.contains(b);
+    }
+
+    private boolean exactDigits(String selection, String drawn, int width) {
+        var s = normalizeDigits(selection, width);
+        return s != null && drawn != null && s.equals(drawn);
+    }
+
+    private boolean boxDigits(String selection, String drawn, int width) {
+        var s = normalizeDigits(selection, width);
+        return s != null
+            && drawn != null
+            && sortedDigits(s).equals(sortedDigits(drawn));
+    }
+
+    private boolean frontPair(String selection, String pick4) {
+        var pair = normalizePairSelection(selection);
+        return pair != null && pick4 != null && pick4.startsWith(pair);
+    }
+
+    private boolean backPair(String selection, String pick4) {
+        var pair = normalizePairSelection(selection);
+        return pair != null && pick4 != null && pick4.endsWith(pair);
+    }
+
+    private boolean lotto5Lot1Lot2(String selection, TicketResultFacts facts) {
+        var s = normalizeDigits(selection, 5);
+
+        return s != null
+            && facts.lot1_3d() != null
+            && facts.lot2_2d() != null
+            && s.equals(facts.lot1_3d() + facts.lot2_2d());
+    }
+
+    private boolean lotto5Lot1Lot3(String selection, TicketResultFacts facts) {
+        var s = normalizeDigits(selection, 5);
+
+        return s != null
+            && facts.lot1_3d() != null
+            && facts.lot3_2d() != null
+            && s.equals(facts.lot1_3d() + facts.lot3_2d());
+    }
+
+    private boolean lotto5Mixed123(String selection, TicketResultFacts facts) {
+        var s = normalizeDigits(selection, 5);
+
+        return s != null
+            && facts.lot1_3d() != null
+            && facts.lot2_2d() != null
+            && facts.lot3_2d() != null
+            && s.equals(
+            facts.lot1_3d().substring(2, 3)
+                + facts.lot2_2d()
+                + facts.lot3_2d()
+        );
     }
 
     private boolean appearsInOrder(List<String> values, String a, String b) {
@@ -131,7 +179,86 @@ public class TicketWinningCalculator {
         if (aIndex < 0) {
             return false;
         }
+
         return values.subList(aIndex + 1, values.size()).contains(b);
+    }
+
+    private int frequency(List<String> values, String target) {
+        int count = 0;
+
+        for (String value : values) {
+            if (target.equals(value)) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private List<String> split(String selection) {
+        if (selection == null || selection.isBlank()) {
+            return List.of();
+        }
+
+        String[] raw = SEP.split(selection.trim());
+        var out = new ArrayList<String>();
+
+        for (String part : raw) {
+            if (part != null && !part.isBlank()) {
+                out.add(part.trim());
+            }
+        }
+
+        return out;
+    }
+
+    private static String normalizePairSelection(String selection) {
+        if (selection == null || selection.isBlank()) {
+            return null;
+        }
+
+        var trimmed = selection.trim();
+
+        if (trimmed.matches("\\d{2}")) {
+            return trimmed;
+        }
+
+        if (trimmed.matches("\\d{2}\\*\\*")) {
+            return trimmed.substring(0, 2);
+        }
+
+        if (trimmed.matches("\\*\\*\\d{2}")) {
+            return trimmed.substring(2, 4);
+        }
+
+        var digits = digitsOnly(trimmed);
+        return digits.length() == 2 ? digits : null;
+    }
+
+    private static String normalizeDigits(String value, int expectedLen) {
+        var digits = digitsOnly(value);
+        if (digits.length() != expectedLen) {
+            return null;
+        }
+
+        return digits;
+    }
+
+    private static String digitsOnly(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replaceAll("\\D", "");
+    }
+
+    private static String last2Digits(String value) {
+        var digits = digitsOnly(value);
+        if (digits.length() < 2) {
+            return null;
+        }
+
+        return digits.substring(digits.length() - 2);
     }
 
     private static String sortedDigits(String value) {
@@ -140,72 +267,64 @@ public class TicketWinningCalculator {
         return new String(chars);
     }
 
-    private List<String> split(String selection) {
-        if (selection == null || selection.isBlank()) {
-            return List.of();
-        }
-        String[] raw = SEP.split(selection.trim());
-        var out = new ArrayList<String>();
-        for (String part : raw) {
-            if (part != null && !part.isBlank()) {
-                out.add(part.trim());
-            }
-        }
-        return out;
-    }
-
-    private static String normalizeDigits(String value, int expectedLen) {
-        var digits = digitsOnly(value);
-        if (digits.length() != expectedLen) {
-            return null;
-        }
-        return digits;
-    }
-
-    private static String digitsOnly(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replaceAll("\\D", "");
-    }
-
     private static String safe(String value) {
         return value == null ? "" : value.trim();
     }
 
+    private record WinningEvaluation(
+        boolean won,
+        SettlementVariant variant
+    ) {}
+
     private record TicketResultFacts(
         List<String> orderedTwoDigits,
-        Set<String> twoDigits,
         String lot1_3d,
+        String lot1_2d,
         String lot2_2d,
         String lot3_2d,
+        String lot4_2d,
         String pick3,
         String pick4
     ) {
+
         static TicketResultFacts from(DrawResultProjection projection) {
+            var lot1_3d = normalizeDigits(projection.lot1(), 3);
+            var lot1_2d = last2Digits(projection.lot1());
+            var lot2_2d = last2Digits(projection.lot2());
+            var lot3_2d = last2Digits(projection.lot3());
+            var lot4_2d = last2Digits(projection.lot4());
+
             var ordered = new ArrayList<String>();
-            add2d(ordered, projection.lot1());
-            add2d(ordered, projection.lot2());
-            add2d(ordered, projection.lot3());
-            add2d(ordered, projection.lot4());
+            add2d(ordered, lot1_2d);
+            add2d(ordered, lot2_2d);
+            add2d(ordered, lot3_2d);
+            add2d(ordered, lot4_2d);
+
             if (projection.derivedPairs() != null) {
-                projection.derivedPairs().forEach(v -> add2d(ordered, v));
+                projection.derivedPairs().forEach(value -> add2d(ordered, last2Digits(value)));
             }
+
             return new TicketResultFacts(
                 List.copyOf(ordered),
-                Set.copyOf(new LinkedHashSet<>(ordered)),
-                normalizeDigits(projection.lot1(), 3),
-                normalizeDigits(projection.lot2(), 2),
-                normalizeDigits(projection.lot3(), 2),
-                firstNonNull(normalizeDigits(projection.lot1(), 3), normalizeDigits(projection.lot4(), 3)),
-                firstNonNull(normalizeDigits(projection.lot4(), 4), normalizeDigits(projection.lot1(), 4))
+                lot1_3d,
+                lot1_2d,
+                lot2_2d,
+                lot3_2d,
+                lot4_2d,
+                firstNonNull(
+                    normalizeDigits(projection.lot1(), 3),
+                    normalizeDigits(projection.lot4(), 3)
+                ),
+                firstNonNull(
+                    normalizeDigits(projection.lot4(), 4),
+                    normalizeDigits(projection.lot1(), 4)
+                )
             );
         }
 
         private static void add2d(List<String> out, String value) {
-            var normalized = normalizeDigits(value, 2);
-            if (normalized != null) {
-                out.add(normalized);
+            if (value != null && value.length() == 2) {
+                out.add(value);
             }
         }
 

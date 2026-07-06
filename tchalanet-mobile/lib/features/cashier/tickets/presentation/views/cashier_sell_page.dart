@@ -34,12 +34,12 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final home = ref.read(cashierHomeProvider).when(
-            data: (h) => h,
-            loading: () => null,
-            error: (_, _) => null,
-          );
-      ref.read(sellControllerProvider.notifier).loadCatalog(
+      final home = ref
+          .read(cashierHomeProvider)
+          .when(data: (h) => h, loading: () => null, error: (_, _) => null);
+      ref
+          .read(sellControllerProvider.notifier)
+          .loadCatalog(
             preselectedDrawId:
                 widget.preselectedDrawId ?? home?.primaryDraw?.drawId,
             currency: home?.currency,
@@ -67,12 +67,15 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
 
     ref.listen<SellState>(sellControllerProvider, (_, next) {
       if (next is SellSuccess) {
-        context.pushReplacement('/pos/sell/success', extra: {
-          'ticketId': next.response.ticketId,
-          'ticketCode': next.response.ticketCode,
-          'publicCode': next.response.publicCode,
-          'shareableText': next.response.backup?.shareableText,
-        });
+        context.pushReplacement(
+          '/pos/sell/success',
+          extra: {
+            'ticketId': next.response.ticketId,
+            'ticketCode': next.response.ticketCode,
+            'publicCode': next.response.publicCode,
+            'shareableText': next.response.backup?.shareableText,
+          },
+        );
       }
     });
 
@@ -85,100 +88,113 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: switch (state) {
-        SellLoadingCatalog() => const Center(child: CircularProgressIndicator()),
-        SellCatalogError(:final message) => _ErrorBody(
-            message: message,
-            diagnostic: lastDiagnostic,
-            onRetry: () => ref
-                .read(sellControllerProvider.notifier)
-                .loadCatalog(),
-          ),
-        SellSuccess() => const Center(child: CircularProgressIndicator()),
-        SellReady(:final form, :final previewResult, :final error) => _SellBody(
-            form: form,
-            previewResult: previewResult,
-            isPreviewing: false,
-            isConfirming: false,
-            error: error,
-            diagnostic: error != null ? lastDiagnostic : null,
-            opCtx: opCtx,
-            stakeController: _stakeController,
-            selectionController: _selectionController,
-            onSelectDraw: (id) =>
-                ref.read(sellControllerProvider.notifier).selectDraw(id),
-            onSelectGame: (g) =>
-                ref.read(sellControllerProvider.notifier).selectGame(g),
-            onSelectBetOption: (o) =>
-                ref.read(sellControllerProvider.notifier).selectBetOption(o),
-            onSelectionChanged: (v) =>
-                ref.read(sellControllerProvider.notifier).updateSelection(v),
-            onStakeChanged: (v) =>
-                ref.read(sellControllerProvider.notifier).updateStake(v),
-            onAddLine: () {
-              ref.read(sellControllerProvider.notifier).addLine();
-              _selectionController.clear();
-              _stakeController.clear();
+      // Reactive capability gate: `ready` = server `canSell && no requiredStep`.
+      // It auto-refreshes via the runtime rebootstrap, so a terminal suspended
+      // mid-session is refused here without waiting for a 403 on confirm.
+      // Only block when we positively know it cannot sell (null = still loading).
+      body: (opCtx != null && !opCtx.ready)
+          ? _ErrorBody(
+              message: 'Ce terminal ne peut pas vendre pour le moment.',
+              onRetry: () => ref.invalidate(cashierHomeProvider),
+            )
+          : switch (state) {
+              SellLoadingCatalog() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              SellCatalogError(:final message) => _ErrorBody(
+                message: message,
+                diagnostic: lastDiagnostic,
+                onRetry: () =>
+                    ref.read(sellControllerProvider.notifier).loadCatalog(),
+              ),
+              SellSuccess() => const Center(child: CircularProgressIndicator()),
+              SellReady(:final form, :final previewResult, :final error) =>
+                _SellBody(
+                  form: form,
+                  previewResult: previewResult,
+                  isPreviewing: false,
+                  isConfirming: false,
+                  error: error,
+                  diagnostic: error != null ? lastDiagnostic : null,
+                  opCtx: opCtx,
+                  stakeController: _stakeController,
+                  selectionController: _selectionController,
+                  onSelectDraw: (id) =>
+                      ref.read(sellControllerProvider.notifier).selectDraw(id),
+                  onSelectGame: (g) =>
+                      ref.read(sellControllerProvider.notifier).selectGame(g),
+                  onSelectBetOption: (o) => ref
+                      .read(sellControllerProvider.notifier)
+                      .selectBetOption(o),
+                  onSelectionChanged: (v) => ref
+                      .read(sellControllerProvider.notifier)
+                      .updateSelection(v),
+                  onStakeChanged: (v) =>
+                      ref.read(sellControllerProvider.notifier).updateStake(v),
+                  onAddLine: () {
+                    ref.read(sellControllerProvider.notifier).addLine();
+                    _selectionController.clear();
+                    _stakeController.clear();
+                  },
+                  onRemoveLine: (i) =>
+                      ref.read(sellControllerProvider.notifier).removeLine(i),
+                  onPreview: () {
+                    if (opCtx?.sellerTerminalId == null) return;
+                    ref
+                        .read(sellControllerProvider.notifier)
+                        .preview(opCtx!.sellerTerminalId!);
+                  },
+                  onConfirm: () {
+                    if (opCtx?.sellerTerminalId == null) return;
+                    ref
+                        .read(sellControllerProvider.notifier)
+                        .confirmSell(opCtx!.sellerTerminalId!);
+                  },
+                ),
+              SellPreviewing(:final form) => _SellBody(
+                form: form,
+                previewResult: null,
+                isPreviewing: true,
+                isConfirming: false,
+                error: null,
+                opCtx: opCtx,
+                stakeController: _stakeController,
+                selectionController: _selectionController,
+                onSelectDraw: (_) {},
+                onSelectGame: (_) {},
+                onSelectBetOption: (_) {},
+                onSelectionChanged: (_) {},
+                onStakeChanged: (_) {},
+                onAddLine: () {},
+                onRemoveLine: (_) {},
+                onPreview: () {},
+                onConfirm: () {},
+              ),
+              SellConfirming(:final form) => _SellBody(
+                form: form,
+                previewResult: null,
+                isPreviewing: false,
+                isConfirming: true,
+                error: null,
+                opCtx: opCtx,
+                stakeController: _stakeController,
+                selectionController: _selectionController,
+                onSelectDraw: (_) {},
+                onSelectGame: (_) {},
+                onSelectBetOption: (_) {},
+                onSelectionChanged: (_) {},
+                onStakeChanged: (_) {},
+                onAddLine: () {},
+                onRemoveLine: (_) {},
+                onPreview: () {},
+                onConfirm: () {
+                  if (opCtx?.sellerTerminalId == null) return;
+                  ref
+                      .read(sellControllerProvider.notifier)
+                      .confirmSell(opCtx!.sellerTerminalId!);
+                },
+              ),
             },
-            onRemoveLine: (i) =>
-                ref.read(sellControllerProvider.notifier).removeLine(i),
-            onPreview: () {
-              if (opCtx?.sellerTerminalId == null) return;
-              ref.read(sellControllerProvider.notifier).preview(
-                    opCtx!.sellerTerminalId!,
-                  );
-            },
-            onConfirm: () {
-              if (opCtx?.sellerTerminalId == null) return;
-              ref.read(sellControllerProvider.notifier).confirmSell(
-                    opCtx!.sellerTerminalId!,
-                  );
-            },
-          ),
-        SellPreviewing(:final form) => _SellBody(
-            form: form,
-            previewResult: null,
-            isPreviewing: true,
-            isConfirming: false,
-            error: null,
-            opCtx: opCtx,
-            stakeController: _stakeController,
-            selectionController: _selectionController,
-            onSelectDraw: (_) {},
-            onSelectGame: (_) {},
-            onSelectBetOption: (_) {},
-            onSelectionChanged: (_) {},
-            onStakeChanged: (_) {},
-            onAddLine: () {},
-            onRemoveLine: (_) {},
-            onPreview: () {},
-            onConfirm: () {},
-          ),
-        SellConfirming(:final form) => _SellBody(
-            form: form,
-            previewResult: null,
-            isPreviewing: false,
-            isConfirming: true,
-            error: null,
-            opCtx: opCtx,
-            stakeController: _stakeController,
-            selectionController: _selectionController,
-            onSelectDraw: (_) {},
-            onSelectGame: (_) {},
-            onSelectBetOption: (_) {},
-            onSelectionChanged: (_) {},
-            onStakeChanged: (_) {},
-            onAddLine: () {},
-            onRemoveLine: (_) {},
-            onPreview: () {},
-            onConfirm: () {
-              if (opCtx?.sellerTerminalId == null) return;
-              ref.read(sellControllerProvider.notifier).confirmSell(
-                    opCtx!.sellerTerminalId!,
-                  );
-            },
-          ),
-      },
     );
   }
 }
@@ -245,15 +261,20 @@ class _SellBody extends StatelessWidget {
                 child: form.draws.isEmpty
                     ? Text(
                         'Aucun tirage disponible',
-                        style: textTheme.bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       )
                     : _ChipRow(
-                        items: form.draws.map((d) => (
-                              id: d.drawId,
-                              label: d.channelLabel,
-                              sublabel: d.formattedCutoff,
-                            )).toList(),
+                        items: form.draws
+                            .map(
+                              (d) => (
+                                id: d.drawId,
+                                label: d.channelLabel,
+                                sublabel: d.formattedCutoff,
+                              ),
+                            )
+                            .toList(),
                         selected: form.selectedDrawId,
                         enabled: !_isLoading,
                         onSelect: onSelectDraw,
@@ -273,18 +294,19 @@ class _SellBody extends StatelessWidget {
                     // need to pre-select a lot.
                     children: () {
                       final seen = <String>{};
-                      return form.games
-                          .where((g) => seen.add(g.gameLabel))
-                          .map((g) {
-                        final selected = form.selectedGameCode == g.gameCode &&
-                            form.selectedBetType == g.betType;
-                        return _Chip(
-                          label: g.gameLabel,
-                          selected: selected,
-                          enabled: !_isLoading,
-                          onTap: () => onSelectGame(g),
-                        );
-                      }).toList();
+                      return form.games.where((g) => seen.add(g.gameLabel)).map(
+                        (g) {
+                          final selected =
+                              form.selectedGameCode == g.gameCode &&
+                              form.selectedBetType == g.betType;
+                          return _Chip(
+                            label: g.gameLabel,
+                            selected: selected,
+                            enabled: !_isLoading,
+                            onTap: () => onSelectGame(g),
+                          );
+                        },
+                      ).toList();
                     }(),
                   ),
                 ),
@@ -342,13 +364,15 @@ class _SellBody extends StatelessWidget {
                   child: TextField(
                     controller: stakeController,
                     enabled: !_isLoading,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
                     ],
-                    onChanged: (v) =>
-                        onStakeChanged(double.tryParse(v.replaceAll(',', '.')) ?? 0),
+                    onChanged: (v) => onStakeChanged(
+                      double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                    ),
                     decoration: InputDecoration(
                       hintText: '0.00',
                       suffixText: form.currency,
@@ -383,7 +407,9 @@ class _SellBody extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: scheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(TchRadius.md),
+                                    borderRadius: BorderRadius.circular(
+                                      TchRadius.md,
+                                    ),
                                   ),
                                   child: Text(
                                     '#${i + 1}  ${form.committedLines[i].displayLabel}',
@@ -396,7 +422,10 @@ class _SellBody extends StatelessWidget {
                               if (!_isLoading) ...[
                                 const SizedBox(width: TchSpacing.s4),
                                 IconButton(
-                                  icon: const Icon(Icons.close_rounded, size: 18),
+                                  icon: const Icon(
+                                    Icons.close_rounded,
+                                    size: 18,
+                                  ),
                                   onPressed: () => onRemoveLine(i),
                                   tooltip: 'Supprimer la ligne',
                                   padding: EdgeInsets.zero,
@@ -423,11 +452,15 @@ class _SellBody extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: form.canAddLine ? onAddLine : null,
                     icon: const Icon(Icons.add_rounded, size: 18),
-                    label: Text(form.canAddLine
-                        ? 'Ajouter une ligne'
-                        : 'Entrez un numéro et une mise'),
+                    label: Text(
+                      form.canAddLine
+                          ? 'Ajouter une ligne'
+                          : 'Entrez un numéro et une mise',
+                    ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: TchSpacing.s12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: TchSpacing.s12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(TchRadius.md),
                       ),
@@ -456,14 +489,18 @@ class _SellBody extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.error_outline_rounded,
-                              size: 18, color: scheme.onErrorContainer),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 18,
+                            color: scheme.onErrorContainer,
+                          ),
                           const SizedBox(width: TchSpacing.s8),
                           Expanded(
                             child: Text(
                               error!,
-                              style: textTheme.bodySmall
-                                  ?.copyWith(color: scheme.onErrorContainer),
+                              style: textTheme.bodySmall?.copyWith(
+                                color: scheme.onErrorContainer,
+                              ),
                             ),
                           ),
                         ],
@@ -508,9 +545,13 @@ class _PreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accepted = result.isAccepted;
-    final bgColor = accepted ? TchColors.successContainer : scheme.errorContainer;
+    final bgColor = accepted
+        ? TchColors.successContainer
+        : scheme.errorContainer;
     final fgColor = accepted ? TchColors.success : scheme.onErrorContainer;
-    final icon = accepted ? Icons.check_circle_outline_rounded : Icons.cancel_outlined;
+    final icon = accepted
+        ? Icons.check_circle_outline_rounded
+        : Icons.cancel_outlined;
 
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s16),
@@ -518,9 +559,10 @@ class _PreviewCard extends StatelessWidget {
         color: bgColor,
         borderRadius: BorderRadius.circular(TchRadius.md),
         border: Border.all(
-            color: accepted
-                ? TchColors.successContainer.withValues(alpha: 0.5)
-                : scheme.error.withValues(alpha: 0.3)),
+          color: accepted
+              ? TchColors.successContainer.withValues(alpha: 0.5)
+              : scheme.error.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,9 +574,9 @@ class _PreviewCard extends StatelessWidget {
               Text(
                 accepted ? 'Vente acceptée' : 'Vente refusée',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: fgColor,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: fgColor,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -542,10 +584,9 @@ class _PreviewCard extends StatelessWidget {
             const SizedBox(height: TchSpacing.s8),
             Text(
               result.sellerInstruction!,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: fgColor),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: fgColor),
             ),
           ],
           if (result.issues.isNotEmpty) ...[
@@ -553,10 +594,9 @@ class _PreviewCard extends StatelessWidget {
             for (final issue in result.issues)
               Text(
                 '• ${issue.message ?? issue.code}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: fgColor),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: fgColor),
               ),
           ],
         ],
@@ -592,13 +632,15 @@ class _BottomActions extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        TchSpacing.s16, TchSpacing.s8, TchSpacing.s16, TchSpacing.s24,
+        TchSpacing.s16,
+        TchSpacing.s8,
+        TchSpacing.s16,
+        TchSpacing.s24,
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          top: BorderSide(
-              color: Theme.of(context).colorScheme.outlineVariant),
+          top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
       ),
       child: Column(
@@ -615,17 +657,22 @@ class _BottomActions extends StatelessWidget {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: TchColors.onPrimary),
+                          strokeWidth: 2,
+                          color: TchColors.onPrimary,
+                        ),
                       )
                     : const Icon(Icons.sell_rounded),
                 label: Text(
                   isConfirming ? 'VENTE EN COURS…' : 'CONFIRMER LA VENTE',
                   style: const TextStyle(
-                      fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
                 ),
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(TchRadius.md)),
+                    borderRadius: BorderRadius.circular(TchRadius.md),
+                  ),
                 ),
               ),
             ),
@@ -646,11 +693,14 @@ class _BottomActions extends StatelessWidget {
               label: Text(
                 isPreviewing ? 'VÉRIFICATION…' : 'APERÇU',
                 style: const TextStyle(
-                    fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(TchRadius.md)),
+                  borderRadius: BorderRadius.circular(TchRadius.md),
+                ),
               ),
             ),
           ),
@@ -682,18 +732,18 @@ class _Section extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                      letterSpacing: 0.5,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: scheme.onSurfaceVariant,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               if (sublabel != null) ...[
                 const SizedBox(width: TchSpacing.s8),
                 Text(
                   sublabel!,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: scheme.outline,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: scheme.outline),
                 ),
               ],
             ],
@@ -779,19 +829,19 @@ class _DrawChip extends StatelessWidget {
             Text(
               item.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: selected ? scheme.onPrimary : scheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
+                color: selected ? scheme.onPrimary : scheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             if (item.sublabel.isNotEmpty)
               Text(
                 item.sublabel,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: selected
-                          ? scheme.onPrimary.withValues(alpha: 0.8)
-                          : scheme.outline,
-                      fontSize: 10,
-                    ),
+                  color: selected
+                      ? scheme.onPrimary.withValues(alpha: 0.8)
+                      : scheme.outline,
+                  fontSize: 10,
+                ),
               ),
           ],
         ),
@@ -825,7 +875,9 @@ class _Chip extends StatelessWidget {
           vertical: TchSpacing.s8,
         ),
         decoration: BoxDecoration(
-          color: selected ? scheme.primaryContainer : scheme.surfaceContainerLow,
+          color: selected
+              ? scheme.primaryContainer
+              : scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(TchRadius.pill),
           border: Border.all(
             color: selected ? scheme.primary : scheme.outlineVariant,
@@ -834,9 +886,9 @@ class _Chip extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
+            color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -870,7 +922,9 @@ class _ErrorBody extends StatelessWidget {
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: TchSpacing.s24),
             FilledButton.tonal(
-                onPressed: onRetry, child: const Text('Réessayer')),
+              onPressed: onRetry,
+              child: const Text('Réessayer'),
+            ),
             if (diagnostic != null && diagnostic!.hasAny) ...[
               const SizedBox(height: TchSpacing.s12),
               _CopyDiagnosticButton(diagnostic: diagnostic!),
@@ -905,9 +959,7 @@ class _CopyDiagnosticButtonState extends State<_CopyDiagnosticButton> {
         size: 16,
       ),
       label: Text(_copied ? 'Copié' : 'Copier diagnostic'),
-      style: TextButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-      ),
+      style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
     );
   }
 

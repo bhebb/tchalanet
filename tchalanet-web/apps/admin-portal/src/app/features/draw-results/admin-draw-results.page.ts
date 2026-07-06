@@ -25,6 +25,7 @@ import {
   ConsoleDrawResultActionEvent,
   ConsoleDrawResultRow,
   ConsoleDrawResultsTableComponent,
+  consoleDrawResultRowViewModel,
   consoleDrawResultQualityLabel,
   consoleDrawResultQualityTone,
   consoleDrawResultStatusLabel,
@@ -36,11 +37,12 @@ import {
   DrawResultStatus,
   DrawResultQuality,
 } from './data-access/admin-draw-results-api.service';
-import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../shared/lottery/lottery-assets';
 import {
-  generatedDrawProviderAndTenantTimeLabel,
+  generatedDrawLocalDateLabel,
+  generatedDrawLocalTimeLabel,
   generatedDrawTenantDateTimeLabel,
   generatedDrawTimezoneShortLabel,
+  generatedDrawTimeWithZoneLabel,
 } from '../draws/data-access/admin-generated-draws.models';
 
 const RESULT_STATUS_OPTIONS: Array<{ value: DrawResultStatus | ''; label: string }> = [
@@ -229,35 +231,8 @@ export class AdminDrawResultsPage implements OnInit {
     }
   }
 
-  providerLogo(row: DrawResultView): string | null {
-    const slotCode = this.slotCode(row);
-    return lotteryLogoForSlot(slotCode === '—' ? row.provider : slotCode);
-  }
-
   providerCode(row: DrawResultView): string {
-    const slotCode = this.slotCode(row);
-    return (
-      lotteryProviderCodeFromSlot(slotCode === '—' ? null : slotCode)?.toUpperCase() ??
-      row.provider?.toUpperCase() ??
-      this.payloadText(row, 'provider')?.toUpperCase() ??
-      row.channelCode?.toUpperCase() ??
-      '—'
-    );
-  }
-
-  providerLabel(row: DrawResultView): string {
-    const providerCode = this.providerCode(row);
-    return row.channelName?.trim() || PROVIDER_LABELS[providerCode] || providerCode;
-  }
-
-  drawTitle(row: DrawResultView): string {
-    const explicit = row.slotLabel?.trim();
-    if (explicit && explicit !== row.slotKey) return explicit;
-
-    const provider = this.providerLabel(row);
-    const slot = this.slotName(row);
-    if (provider === '—') return slot || 'Tirage';
-    return slot ? `${provider} · ${slot}` : provider;
+    return row.provider?.trim() || this.payloadText(row, 'provider') || '—';
   }
 
   slotCode(row: DrawResultView): string {
@@ -267,15 +242,6 @@ export class AdminDrawResultsPage implements OnInit {
       this.payloadText(row, 'result_slot_key') ||
       this.payloadText(row, 'resultSlotKey') ||
       '—';
-  }
-
-  slotName(row: DrawResultView): string {
-    const slotKey = this.slotCode(row);
-    if (!slotKey || slotKey === '—') return '';
-    const parts = slotKey.split(/[_-]/).filter(Boolean);
-    const rawSlot = parts[parts.length - 1];
-    if (!rawSlot) return '';
-    return SLOT_LABELS[rawSlot.toUpperCase()] || this.titleCase(rawSlot);
   }
 
   resultNumbers(row: DrawResultView): string[] {
@@ -300,17 +266,38 @@ export class AdminDrawResultsPage implements OnInit {
     return null;
   }
 
-  resultDrawTime(row: DrawResultView): string {
-    if (!row.occurredAt) return '—';
-    return generatedDrawProviderAndTenantTimeLabel(
-      row.occurredAt,
-      this.providerTimezone(row),
-      this.tenantTimezone(),
-    ) ?? '—';
+  providerDateLabel(row: DrawResultView): string {
+    if (!row.occurredAt) return row.drawDate ?? row.resultDate ?? '—';
+    return generatedDrawLocalDateLabel(row.occurredAt, this.providerTimezone(row)) ??
+      row.drawDate ??
+      row.resultDate ??
+      '—';
   }
 
-  resultDrawDate(row: DrawResultView): string {
-    return row.drawDate ?? row.resultDate ?? '—';
+  providerTimeLabel(row: DrawResultView): string | undefined {
+    if (!row.occurredAt) return undefined;
+    return generatedDrawTimeWithZoneLabel(row.occurredAt, this.providerTimezone(row)) ?? '—';
+  }
+
+  providerTimeValue(row: DrawResultView): string | undefined {
+    if (!row.occurredAt) return undefined;
+    return generatedDrawLocalTimeLabel(row.occurredAt, this.providerTimezone(row)) ?? undefined;
+  }
+
+  localDateLabel(row: DrawResultView, providerDate: string): string | undefined {
+    if (!row.occurredAt) return undefined;
+    const localDate = generatedDrawLocalDateLabel(row.occurredAt, this.tenantTimezone());
+    return localDate && localDate !== providerDate ? localDate : undefined;
+  }
+
+  localTimeLabel(row: DrawResultView): string | undefined {
+    if (!row.occurredAt) return undefined;
+    return generatedDrawTimeWithZoneLabel(row.occurredAt, this.tenantTimezone()) ?? undefined;
+  }
+
+  localTimeValue(row: DrawResultView): string | undefined {
+    if (!row.occurredAt) return undefined;
+    return generatedDrawLocalTimeLabel(row.occurredAt, this.tenantTimezone()) ?? undefined;
   }
 
   tenantTimestamp(value: string | null | undefined): string {
@@ -371,16 +358,27 @@ export class AdminDrawResultsPage implements OnInit {
   }
 
   private toConsoleRow(row: DrawResultView): ConsoleDrawResultRow {
-    const drawDate = this.resultDrawDate(row);
-    const occurredTime = row.occurredAt ? this.resultDrawTime(row) : null;
-    return {
+    const providerDateLabel = this.providerDateLabel(row);
+    const providerTimeLabel = this.providerTimeLabel(row);
+    const localDateLabel = this.localDateLabel(row, providerDateLabel);
+    const localTimeLabel = this.localTimeLabel(row);
+    return consoleDrawResultRowViewModel({
       id: row.id,
-      title: this.drawTitle(row),
+      identityInput: {
+        providerCode: row.provider ?? this.payloadText(row, 'provider'),
+        channelCode: row.channelCode ?? this.payloadText(row, 'channelCode') ?? this.payloadText(row, 'channel_code'),
+        channelName: row.channelName,
+        slotKey: this.slotCode(row),
+        slotLabel: row.slotLabel,
+        officialDateLabel: providerDateLabel,
+        officialTimeLabel: this.providerTimeValue(row),
+        officialTimezoneLabel: generatedDrawTimezoneShortLabel(this.providerTimezone(row)),
+        localDateLabel,
+        localTimeLabel: this.localTimeValue(row),
+        localTimezoneLabel: generatedDrawTimezoneShortLabel(this.tenantTimezone()),
+      },
       subtitle: this.slotCode(row),
-      meta: occurredTime ? `${drawDate} · ${occurredTime}` : drawDate,
-      logoUrl: this.providerLogo(row),
-      logoAlt: this.providerLabel(row),
-      logoText: this.providerCode(row),
+      meta: providerTimeLabel ? `${providerDateLabel} · ${providerTimeLabel}` : providerDateLabel,
       slotKey: this.slotCode(row),
       numbers: this.resultNumbers(row),
       statusLabel: this.statusLabel(row.status),
@@ -388,6 +386,11 @@ export class AdminDrawResultsPage implements OnInit {
       qualityLabel: this.qualityLabel(row.quality),
       qualityTone: this.qualityTone(row.quality),
       sourceLabel: this.sourceLabel(row),
+      occurredDateLabel: providerDateLabel,
+      providerDateLabel,
+      providerTimeLabel,
+      localDateLabel,
+      localTimeLabel,
       fetchedAtLabel: this.tenantTimestamp(row.fetchedAt),
       appliedAtLabel: row.appliedAt ? this.tenantTimestamp(row.appliedAt) : undefined,
       actions: [
@@ -398,34 +401,9 @@ export class AdminDrawResultsPage implements OnInit {
           variant: 'button',
         },
       ],
-    };
+    });
   }
 }
-
-const PROVIDER_LABELS: Record<string, string> = {
-  CA: 'California',
-  FL: 'Florida',
-  GA: 'Georgia',
-  IL: 'Illinois',
-  MI: 'Michigan',
-  MO: 'Missouri',
-  NJ: 'New Jersey',
-  NY: 'New York',
-  OH: 'Ohio',
-  PA: 'Pennsylvania',
-  TN: 'Tennessee',
-  TX: 'Texas',
-};
-
-const SLOT_LABELS: Record<string, string> = {
-  DAY: 'Day',
-  EVE: 'Evening',
-  EVENING: 'Evening',
-  LATE: 'Late',
-  MID: 'Midday',
-  MIDDAY: 'Midday',
-  MORNING: 'Morning',
-};
 
 function isoDateToLocalDate(value: string): Date {
   const [year, month, day] = value.split('-').map(Number);

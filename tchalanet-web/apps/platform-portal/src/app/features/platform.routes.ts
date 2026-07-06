@@ -119,7 +119,7 @@ export const platformRoutes: Route[] = [
       icon: 'verified_user',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'access/permissions',
@@ -152,13 +152,13 @@ export const platformRoutes: Route[] = [
       icon: 'vpn_key',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   // ── Support tenant ─────────────────────────────────────────────────────────
   {
     path: 'support-tenant',
     loadComponent: () =>
-      import('./pages/support-tenant/platform-support-tenant.page').then(
+      import('./support-tenant/platform-support-tenant.page').then(
         m => m.PlatformSupportTenantPage,
       ),
   },
@@ -171,7 +171,7 @@ export const platformRoutes: Route[] = [
       icon: 'lightbulb',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'tchala/import',
@@ -181,7 +181,7 @@ export const platformRoutes: Route[] = [
       icon: 'upload_file',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'tchala/cleanup',
@@ -191,59 +191,59 @@ export const platformRoutes: Route[] = [
       icon: 'auto_fix_high',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   { path: 'tchala', redirectTo: 'tchala/suggestions', pathMatch: 'full' },
   // ── Communication / Support & contenu ──────────────────────────────────────
   {
     path: 'contact-requests',
     loadComponent: () =>
-      import('./pages/contact-requests/platform-contact-requests.page').then(
+      import('./contact/pages/contact-requests/platform-contact-requests.page').then(
         m => m.PlatformContactRequestsPage,
       ),
   },
   {
     path: 'news',
     loadComponent: () =>
-      import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+      import('./news/pages/news-crud/platform-news.page').then(m => m.PlatformNewsPage),
   },
   {
     path: 'notifications',
     loadComponent: () =>
-      import('./pages/notifications/platform-notifications.page').then(
+      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
   {
     path: 'communications',
     loadComponent: () =>
-      import('./pages/notifications/platform-notifications.page').then(
+      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
   {
     path: 'communication/notifications',
     loadComponent: () =>
-      import('./pages/notifications/platform-notifications.page').then(
+      import('./notifications/pages/notifications-crud/platform-notifications.page').then(
         m => m.PlatformNotificationsPage,
       ),
   },
   {
     path: 'communication/contacts',
     loadComponent: () =>
-      import('./pages/contact-requests/platform-contact-requests.page').then(
+      import('./contact/pages/contact-requests/platform-contact-requests.page').then(
         m => m.PlatformContactRequestsPage,
       ),
   },
   {
     path: 'communication/news',
     loadComponent: () =>
-      import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+      import('./news/pages/news-crud/platform-news.page').then(m => m.PlatformNewsPage),
   },
   {
     path: 'communication/config',
     loadComponent: () =>
-      import('./pages/contact-config/platform-contact-config.page').then(
+      import('./contact/pages/contact-config/platform-contact-config.page').then(
         m => m.PlatformContactConfigPage,
       ),
   },
@@ -264,7 +264,7 @@ export const platformRoutes: Route[] = [
   {
     path: 'contact-config',
     loadComponent: () =>
-      import('./pages/contact-config/platform-contact-config.page').then(
+      import('./contact/pages/contact-config/platform-contact-config.page').then(
         m => m.PlatformContactConfigPage,
       ),
   },
@@ -277,11 +277,11 @@ export const platformRoutes: Route[] = [
       icon: 'bar_chart',
     },
     loadComponent: () =>
-      import('./pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'releases',
     loadComponent: () =>
-      import('./pages/news/platform-news.page').then(m => m.PlatformNewsPage),
+      import('./news/pages/news-crud/platform-news.page').then(m => m.PlatformNewsPage),
   },
 ];

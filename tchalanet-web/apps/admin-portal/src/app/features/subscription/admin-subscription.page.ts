@@ -122,10 +122,9 @@ export class AdminSubscriptionPage implements OnInit {
   statusTone(status: SubscriptionStatus): AdminStatusTone {
     switch (status) {
       case 'ACTIVE': return 'success';
-      case 'TRIALING': return 'success';
-      case 'PAST_DUE': return 'warning';
+      case 'TRIAL': return 'success';
       case 'SUSPENDED': return 'warning';
-      case 'CANCELLED': return 'danger';
+      case 'CANCELED': return 'danger';
       case 'EXPIRED': return 'danger';
     }
   }

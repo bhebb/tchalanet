@@ -1,26 +1,14 @@
-export type TargetType =
-  | 'TENANT' | 'AGENT' | 'OUTLET' | 'TERMINAL'
-  | 'SELLER_TERMINAL' | 'GAME' | 'ZONE' | 'RANGE' | 'DRAW_CHANNEL';
+import type {
+  ConsoleLimitBreachOutcome,
+  ConsoleLimitRuleKey,
+  ConsoleLimitTargetType,
+} from '@tch/web/console';
 
-export type BreachOutcome = 'ALLOW' | 'WARN' | 'REQUIRE_APPROVAL' | 'BLOCK';
+export type TargetType = ConsoleLimitTargetType;
 
-export type RuleKey =
-  | 'MAX_STAKE_PER_LINE'
-  | 'MAX_LINES_PER_TICKET'
-  | 'MAX_STAKE_PER_TICKET'
-  | 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW'
-  | 'MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW'
-  | 'MAX_STAKE_PER_BET_TYPE_PER_TICKET'
-  | 'MAX_STAKE_PER_SELECTION_PER_TICKET'
-  | 'MAX_POTENTIAL_PAYOUT_PER_TICKET'
-  | 'MAX_POTENTIAL_PAYOUT_PER_LINE'
-  | 'MAX_SALES_COUNT_PER_SELECTION_PER_DRAW'
-  | 'MAX_SALES_COUNT_PER_TICKET'
-  | 'BLOCK_SELECTION_PER_DRAW'
-  | 'BLOCK_BET_TYPE'
-  | 'MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW'
-  | 'MAX_STAKE_PER_AGENT_PER_DRAW'
-  | 'MAX_STAKE_PER_OUTLET_PER_DRAW';
+export type BreachOutcome = ConsoleLimitBreachOutcome;
+
+export type RuleKey = ConsoleLimitRuleKey;
 
 export interface LimitRuleSpec {
   ruleKey: RuleKey;

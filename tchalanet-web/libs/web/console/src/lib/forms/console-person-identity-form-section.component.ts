@@ -22,7 +22,7 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
 })
 export class ConsolePersonIdentityFormSectionComponent {
   readonly form = input.required<any>();
-  readonly titleKey = input('component.console.personIdentity.title');
-  readonly descriptionKey = input<string | null>('component.console.personIdentity.description');
+  readonly titleKey = input('console.personIdentity.title');
+  readonly descriptionKey = input<string | null>('console.personIdentity.description');
   readonly icon = input('badge');
 }

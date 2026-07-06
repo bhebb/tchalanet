@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { DatePipe, DecimalPipe, UpperCasePipe } from '@angular/common';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import {
   ConfirmedTicketView,
@@ -50,4 +51,17 @@ export class PosTicketPreviewComponent {
   );
 
   readonly isConfirmed = computed(() => !!this.confirmedTicket());
+
+  readonly drawReceipt = computed(() => {
+    const draw = this.draw();
+    if (!draw) return null;
+    return consoleTicketDrawIdentity({
+      channelCode: draw.channelCode,
+      channelLabel: draw.channelLabel,
+      resultSlotKey: draw.resultSlotKey,
+      drawDateLabel: draw.drawDate,
+      scheduledAt: draw.scheduledAt,
+      fallbackLabel: draw.label,
+    });
+  });
 }

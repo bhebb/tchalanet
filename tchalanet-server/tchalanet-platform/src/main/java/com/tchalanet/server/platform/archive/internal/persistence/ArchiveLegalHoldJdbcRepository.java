@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.archive.internal.persistence;
 
+import com.tchalanet.server.platform.archive.api.model.ArchiveLegalHoldRowView;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -76,14 +77,29 @@ public class ArchiveLegalHoldJdbcRepository {
             .addValue("reason", releaseReason));
   }
 
-  public List<Map<String, Object>> listActive(int limit) {
-    return jdbc.queryForList("""
+  public List<ArchiveLegalHoldRowView> listActive(int limit) {
+    return jdbc.query("""
         SELECT *
           FROM archive_legal_hold
          WHERE status = 'ACTIVE'
          ORDER BY created_at DESC
          LIMIT :limit
         """,
-        Map.of("limit", limit));
+        Map.of("limit", limit),
+        (rs, rowNum) -> new ArchiveLegalHoldRowView(
+            rs.getObject("id", UUID.class),
+            rs.getObject("tenant_id", UUID.class),
+            rs.getString("dataset_code"),
+            rs.getString("entity_type"),
+            rs.getString("entity_id"),
+            rs.getObject("period_start", LocalDate.class),
+            rs.getObject("period_end", LocalDate.class),
+            rs.getString("reason"),
+            rs.getString("status"),
+            rs.getObject("created_by_actor_id", UUID.class),
+            rs.getTimestamp("created_at").toInstant(),
+            rs.getObject("released_by_actor_id", UUID.class),
+            rs.getTimestamp("released_at") == null ? null : rs.getTimestamp("released_at").toInstant(),
+            rs.getString("release_reason")));
   }
 }

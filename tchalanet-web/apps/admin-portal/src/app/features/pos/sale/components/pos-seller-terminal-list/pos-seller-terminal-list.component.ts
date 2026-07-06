@@ -3,7 +3,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { MatButtonModule } from '@angular/material/button';
 import { MatSortModule, Sort, SortDirection } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
+import {
+  ConsoleActorIdentity,
+  ConsoleActorRowComponent,
+  consoleSellerTerminalActorIdentity,
+} from '@tch/web/console';
 
 import { PosSellerTerminalPickerView } from '../../data-access/pos-sale.models';
 
@@ -11,7 +15,7 @@ import { PosSellerTerminalPickerView } from '../../data-access/pos-sale.models';
   selector: 'tch-pos-seller-terminal-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, MatButtonModule, MatSortModule, MatTableModule, TchStatusBadge],
+  imports: [DatePipe, DecimalPipe, MatButtonModule, MatSortModule, MatTableModule, ConsoleActorRowComponent],
   templateUrl: './pos-seller-terminal-list.component.html',
   styleUrls: ['./pos-seller-terminal-list.component.scss'],
 })
@@ -25,7 +29,6 @@ export class PosSellerTerminalListComponent {
 
   readonly displayedColumns = [
     'seller',
-    'status',
     'todayTicketCount',
     'todaySalesAmount',
     'lastSeenAt',
@@ -53,17 +56,7 @@ export class PosSellerTerminalListComponent {
     }
   }
 
-  statusBadge(status: string): BadgeStatus {
-    switch (status) {
-      case 'ACTIVE':
-        return 'ready';
-      case 'BLOCKED':
-      case 'DISABLED':
-        return 'blocked';
-      case 'PENDING':
-        return 'pending';
-      default:
-        return 'missing';
-    }
+  actorIdentity(sellerTerminal: PosSellerTerminalPickerView): ConsoleActorIdentity {
+    return consoleSellerTerminalActorIdentity(sellerTerminal);
   }
 }

@@ -18,6 +18,7 @@ interface BadgeMeta {
 
 const SALES_META: Record<GeneratedDrawSalesStatus, BadgeMeta> = {
   OPEN:      { label: 'Vente ouverte',  variant: 'open',      icon: 'circle', pulse: true },
+  LOCKED:    { label: 'Verrouillé',      variant: 'closed' },
   CLOSED:    { label: 'Vente fermée',   variant: 'closed' },
   UPCOMING:  { label: 'À venir',        variant: 'upcoming' },
   CANCELLED: { label: 'Annulé',         variant: 'cancelled' },

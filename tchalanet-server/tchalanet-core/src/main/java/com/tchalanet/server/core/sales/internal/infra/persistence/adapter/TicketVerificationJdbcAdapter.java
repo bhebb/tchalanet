@@ -45,10 +45,14 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
                d.scheduled_at,
                dc.code            AS draw_channel_key,
                dc.name            AS draw_channel_name,
+               rs.slot_key        AS result_slot_key,
+               rs.provider        AS result_provider,
+               COALESCE(rs.timezone, dc.timezone) AS result_timezone,
                st.display_name    AS seller_terminal_name
         FROM sales_ticket t
         JOIN draw d ON d.id = t.draw_id
         LEFT JOIN draw_channel dc ON dc.id = t.draw_channel_id
+        LEFT JOIN result_slot rs ON rs.id = dc.result_slot_id
         LEFT JOIN seller_terminal st ON st.id = t.seller_terminal_id
         WHERE t.public_code = :publicCode
           AND t.deleted_at IS NULL
@@ -94,6 +98,9 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
             new TicketVerificationProjection.DrawProjection(
                 h.drawChannelKey(),
                 h.drawChannelName(),
+                h.resultSlotKey(),
+                h.resultProvider(),
+                h.resultTimezone(),
                 h.drawDate(),
                 h.scheduledAt()
             ),
@@ -120,9 +127,13 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         Instant scheduledAt = scheduledAtTs != null ? scheduledAtTs.toInstant() : null;
         String drawChannelName = rs.getString("draw_channel_name");
         String drawChannelKey = rs.getString("draw_channel_key");
+        String resultSlotKey = rs.getString("result_slot_key");
+        String resultProvider = rs.getString("result_provider");
+        String resultTimezone = rs.getString("result_timezone");
         String sellerTerminalName = rs.getString("seller_terminal_name");
         return new HeaderRow(ticketId, tenantId, publicCode, saleStatus, resultStatus, settlementStatus,
-            placedAt, totalAmount, winningAmount, currency, drawDate, scheduledAt, drawChannelKey, drawChannelName, sellerTerminalName);
+            placedAt, totalAmount, winningAmount, currency, drawDate, scheduledAt, drawChannelKey,
+            drawChannelName, resultSlotKey, resultProvider, resultTimezone, sellerTerminalName);
     }
 
     private TicketVerificationProjection.LineProjection mapLine(ResultSet rs, CurrencyCode currency)
@@ -195,6 +206,7 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         TicketSettlementStatus settlementStatus,
         Instant placedAt, BigDecimal totalAmount, BigDecimal winningAmount,
         String currency, LocalDate drawDate, Instant scheduledAt,
-        String drawChannelKey, String drawChannelName, String sellerTerminalName
+        String drawChannelKey, String drawChannelName, String resultSlotKey, String resultProvider,
+        String resultTimezone, String sellerTerminalName
     ) {}
 }

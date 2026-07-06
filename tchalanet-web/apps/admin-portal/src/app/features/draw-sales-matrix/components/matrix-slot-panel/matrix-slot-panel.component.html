@@ -1,11 +1,10 @@
 @let slotVm = slot();
 <mat-expansion-panel>
-  <mat-expansion-panel-header>
+  <mat-expansion-panel-header class="matrix-slot-panel__header">
     <mat-panel-title class="matrix-slot-header">
       <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
       <span class="matrix-slot-header__meta">
         <tch-status-badge [status]="slotStatus(slotVm)" [label]="slotStatusLabelKey(slotVm) | translate" />
-        <code>{{ slotVm.slotKey }}</code>
         <span>
           {{ 'admin.drawSalesMatrix.slot.offeredCount' | translate: { active: activeOfferedCount(), offered: offeredCount() } }}
         </span>
@@ -23,7 +22,7 @@
       <span class="material-symbols-outlined">router</span>
       <span class="matrix-channel-info__title">
         {{ 'admin.drawSalesMatrix.channel.label' | translate }}
-        <strong>{{ channel.channelCode }}</strong>
+        <strong>{{ channelDisplayLabel(channel.channelCode) }}</strong>
       </span>
       <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
       <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>

@@ -7,6 +7,7 @@ import {
   ConsoleGameCardActionEvent,
   ConsoleGameCardComponent,
   ConsoleGameCardView,
+  consoleGameLogoUrl,
   consoleGameLogoText,
 } from '@tch/web/console';
 import { TenantGamePricingView, TenantGameStatus, ReadinessStatus } from '../../data-access/admin-games-pricing.models';
@@ -54,6 +55,7 @@ export class TenantGameCardComponent {
       id: game.gameCode,
       code: game.gameCode,
       name: game.gameName,
+      logoUrl: consoleGameLogoUrl(game.gameCode),
       logoText: consoleGameLogoText(game.gameCode, game.gameName),
       statusLabel: this.t(`admin.gamesPricing.status.${game.tenantStatus}`),
       statusTone: STATUS_TONE[game.tenantStatus],

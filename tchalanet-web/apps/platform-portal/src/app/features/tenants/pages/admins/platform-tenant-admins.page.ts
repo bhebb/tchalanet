@@ -20,12 +20,14 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminCrudShellComponent } from '@tch/ui/console';
+import { ConsoleActorIdentity, ConsoleActorRowComponent } from '@tch/web/console';
 import {
   PlatformTenantsApi,
   TenantAdminView,
   TenantSummaryView,
 } from '../../data-access/platform-tenants-api.service';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
+import { platformTenantAdminActorIdentity } from '../../../shared/console-actor-adapters';
 import {
   AssignUserDialog,
   AssignUserResult,
@@ -43,6 +45,7 @@ import {
     TchLoading,
     TchErrorPanel,
     TchSectionError,
+    ConsoleActorRowComponent,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
@@ -57,7 +60,7 @@ export class PlatformTenantAdminsPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly displayedColumns = ['email', 'displayName', 'roleCodes', 'status'];
+  readonly displayedColumns = ['actor', 'roleCodes'];
   readonly loading = signal(false);
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionFeedback = signal<ErrorViewModel | null>(null);
@@ -120,6 +123,16 @@ export class PlatformTenantAdminsPage implements OnInit {
             },
           });
       });
+  }
+
+  actorIdentity(row: TenantAdminView): ConsoleActorIdentity {
+    const tenant = this.tenant();
+    return platformTenantAdminActorIdentity({
+      ...row,
+      tenantId: tenant?.id,
+      tenantName: tenant?.name,
+      tenantCode: tenant?.code,
+    });
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

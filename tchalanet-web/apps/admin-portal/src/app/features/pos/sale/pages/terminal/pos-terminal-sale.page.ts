@@ -24,6 +24,12 @@ import {
   AdminSectionErrorTargetDirective,
   AdminSectionTargetError,
 } from '@tch/ui/console';
+import {
+  ConsoleActorIdentity,
+  ConsoleActorRowComponent,
+  consoleActorPrimaryLabel,
+  consoleSellerTerminalActorIdentity,
+} from '@tch/web/console';
 
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import {
@@ -62,6 +68,7 @@ let lineIdCounter = 0;
     TchLoading,
     TchErrorPanel,
     TchNotice,
+    ConsoleActorRowComponent,
     PosOpenDrawCardComponent,
     PosGameSelectorComponent,
     PosTicketLineEditorComponent,
@@ -98,8 +105,13 @@ export class PosTerminalSalePage implements OnInit {
   readonly activity = signal<PosTerminalActivityView | null>(null);
 
   readonly pageDescription = computed(() => {
-    const t = this.sellerTerminal();
-    return t ? `${t.displayName} · ${t.terminalCode}` : '';
+    const actor = this.sellerTerminalActor();
+    return actor ? consoleActorPrimaryLabel(actor) : '';
+  });
+
+  readonly sellerTerminalActor = computed((): ConsoleActorIdentity | null => {
+    const terminal = this.sellerTerminal();
+    return terminal ? consoleSellerTerminalActorIdentity(terminal) : null;
   });
 
   readonly isTerminalBlocked = computed(

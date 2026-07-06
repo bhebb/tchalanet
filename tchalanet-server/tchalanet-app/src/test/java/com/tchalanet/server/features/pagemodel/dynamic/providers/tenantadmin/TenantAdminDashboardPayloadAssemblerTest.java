@@ -180,7 +180,6 @@ class TenantAdminDashboardPayloadAssemblerTest {
             boundTenant != null ? boundTenant.value() : null,
             "tenant-demo",
             boundTenant != null ? boundTenant.value() : null,
-            UUID.randomUUID().toString(),
             UUID.randomUUID(),
             Set.of(TchRole.TENANT_ADMIN),
             Set.of(),

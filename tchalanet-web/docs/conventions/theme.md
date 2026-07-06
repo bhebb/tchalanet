@@ -148,6 +148,12 @@ full set):
 `--tch-*` variables are global theme tokens. `--comp-*` variables are component-local extension
 points and must fall back to `--tch-*`; they are not new global theme roles.
 
+Draw identity display follows the same rule. `tch-draw-label` consumes existing `--tch-*` roles and
+exposes only component-local variables such as `--comp-draw-label-logo-size`,
+`--comp-draw-label-logo-bg`, and `--comp-draw-label-primary-fg`. Do not add global theme tokens just
+to style a draw label; extend the component-local variables or the existing semantic `--tch-*` roles
+instead.
+
 The official `tchalanet` brand palette (light) — the exact hexes are **pinned** on both `--mat-sys-*`
 and `--tch-*` in `runtime-vars.scss` (`.tch-theme:not(.dark)[data-preset='tchalanet']`), so Material
 and app components never diverge. Roles not listed here derive from the `#1A1B4B`-seeded M3 palette.

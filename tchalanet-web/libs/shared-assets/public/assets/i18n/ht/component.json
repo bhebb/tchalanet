@@ -74,7 +74,8 @@
         "line2": "Egz: Apt 3B",
         "city": "Egz: Port-au-Prince",
         "region": "Egz: Lwès",
-        "country": "HT"
+        "country": "HT",
+        "postalCode": "Kòd postal"
       }
     },
     "addressSummary": {

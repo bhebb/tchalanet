@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.setup__progress-block {
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--tch-radius-lg, 1rem);
+  background: var(--tch-color-surface-container-low);
+  border: 1px solid var(--tch-color-outline-variant);
+}
+
+.setup__progress-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.875rem;
+}
+
+.setup__progress-icon {
+  font-size: 2rem;
+  color: var(--tch-color-primary);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.setup__progress-title {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--tch-color-on-surface);
+}
+
+.setup__progress-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
+.setup__progress-pct {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--tch-color-primary);
+  flex-shrink: 0;
+}

@@ -6,7 +6,6 @@ import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.auth.ActorContextResolver;
 import com.tchalanet.server.common.context.operational.OperationalContextResolver;
 import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
@@ -40,7 +39,6 @@ class TchContextFilterSlice5Test {
 
     private final TenantContextLookup tenantLookup = mock(TenantContextLookup.class);
     private final TenantContextResolver tenantContextResolver = new TenantContextResolver(tenantLookup);
-    private final ActorContextResolver actorContextResolver = new ActorContextResolver();
     private final TchContextBinder contextBinder = new TchContextBinder();
 
     @AfterEach
@@ -202,7 +200,7 @@ class TchContextFilterSlice5Test {
         var factory = new TchRequestContextFactory();
 
         return new TchContextFilter(
-            props, tenantContextResolver, actorContextResolver, factory, contextBinder,
+            props, tenantContextResolver, factory, contextBinder,
             operationalProvider);
     }
 

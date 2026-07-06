@@ -29,6 +29,9 @@ public record TicketVerificationProjection(
     public record DrawProjection(
         String drawChannelKey,
         String drawChannelName,
+        String resultSlotKey,
+        String provider,
+        String timezone,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}

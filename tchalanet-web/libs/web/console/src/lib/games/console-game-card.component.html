@@ -2,7 +2,13 @@
 
 <tch-card class="console-game-card console-game-card--{{ game.statusTone | lowercase }}">
   <div class="console-game-card__header">
-    <div class="console-game-card__logo" aria-hidden="true">{{ game.logoText || game.name.slice(0, 2) }}</div>
+    <div class="console-game-card__logo" aria-hidden="true">
+      @if (game.logoUrl || (game.code | consoleGameLogoUrl); as logoUrl) {
+        <img [src]="logoUrl" [alt]="''" />
+      } @else {
+        {{ game.logoText || game.name.slice(0, 2) }}
+      }
+    </div>
     <div class="console-game-card__title-block">
       <h3 class="console-game-card__title">{{ game.name }}</h3>
       <tch-admin-status-pill [label]="game.statusLabel" [tone]="game.statusTone" />

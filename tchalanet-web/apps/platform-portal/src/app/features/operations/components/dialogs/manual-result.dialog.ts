@@ -10,6 +10,11 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
+import {
+  ConsoleHaitiLotGameMappingComponent,
+  consoleHaitiLotGameMappings,
+  consoleResultSlotLabel,
+} from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { PlatformOpsApi, RecordManualDrawResultRequest } from '../../data-access/platform-ops-api.service';
@@ -17,8 +22,6 @@ import {
   CatalogResultSlotView,
   PlatformCatalogApi,
 } from '../../../catalog/data-access/platform-catalog-api.service';
-import { haitiLotGameMappings } from '../../../../shared/results/haiti-lot-game-mapping';
-import { resultSlotLabel } from '../../../../shared/results/result-slot-label';
 
 @Component({
   selector: 'tch-manual-result-dialog',
@@ -32,6 +35,7 @@ import { resultSlotLabel } from '../../../../shared/results/result-slot-label';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    ConsoleHaitiLotGameMappingComponent,
     TchSectionError,
   ],
   templateUrl: './manual-result.dialog.html',
@@ -76,13 +80,13 @@ export class ManualResultDialog implements OnInit {
   }
 
   slotLabel(slot: CatalogResultSlotView): string {
-    return resultSlotLabel(slot);
+    return consoleResultSlotLabel(slot);
   }
 
   lotMappings() {
     const slotKey = this.form.controls.slotKey.value;
     const slot = this.slots().find(item => item.slotKey === slotKey);
-    return haitiLotGameMappings(slot ?? { slotKey });
+    return consoleHaitiLotGameMappings(slot ?? { slotKey });
   }
 
   submit(): void {

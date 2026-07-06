@@ -28,7 +28,15 @@ import {
 } from './public-draw-results.service';
 import { PAGE_SIZE_OPTIONS } from './public-results.model';
 import type { PageSizeOption, ProviderKey, SlotTypeKey } from './public-results.model';
-import { providerKey, providerLabel, resolveSlotKeys, slotTypeKey } from './public-results.utils';
+import {
+  providerKey,
+  providerLabel,
+  publicResultIdentity,
+  resolveSlotKeys,
+  slotTypeKey,
+} from './public-results.utils';
+
+type PublicDrawResultRowView = PublicDrawResultRow & ReturnType<typeof publicResultIdentity>;
 
 @Component({
   selector: 'tch-public-results-page',
@@ -109,6 +117,13 @@ export class PublicResultsPage {
 
   readonly rows = computed<readonly PublicDrawResultRow[]>(() => this.result.value()?.items ?? []);
 
+  readonly resultRows = computed<readonly PublicDrawResultRowView[]>(() =>
+    this.rows().map(row => ({
+      ...row,
+      ...publicResultIdentity(row),
+    })),
+  );
+
   readonly totalPages = computed(() => this.result.value()?.totalPages ?? 0);
 
   readonly totalItems = computed(() => this.result.value()?.totalItems ?? 0);
@@ -166,12 +181,6 @@ export class PublicResultsPage {
       default:
         return 'domain.result.status.PROVISIONAL';
     }
-  }
-
-  /** Strips seconds from a time string: "14:30:00" → "14:30". */
-  hhmm(time: string | undefined): string {
-    if (!time) return '';
-    return time.length > 5 ? time.substring(0, 5) : time;
   }
 
   // ── Static filter definitions ───────────────────────────────────────────────

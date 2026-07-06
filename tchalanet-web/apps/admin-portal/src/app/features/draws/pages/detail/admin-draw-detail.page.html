@@ -1,22 +1,14 @@
-<tch-console-entity-detail
-  [title]="title()"
-  [description]="description()"
+<tch-console-draw-detail
+  [view]="drawDetailView()"
   [state]="pageState()"
   loadingLabel="Chargement du tirage..."
   [error]="detailError()"
-  [meta]="detailMeta()"
   [actions]="detailActions()"
   (retry)="load()"
   (action)="onDetailAction($event)"
 >
   @if (draw()) {
     <ng-container main>
-      <tch-admin-section-card title="Tirage" icon="event">
-        @if (overviewView(); as view) {
-          <tch-draw-detail-overview [view]="view" />
-        }
-      </tch-admin-section-card>
-
       <tch-admin-section-card title="Activité du tirage" icon="monitoring">
         @if (activityView(); as view) {
           <tch-draw-detail-activity [view]="view" />
@@ -54,69 +46,9 @@
           </a>
         </div>
       </tch-admin-section-card>
-
-      <tch-admin-section-card title="Résultat" icon="fact_check">
-        <div class="draw-detail__section-head">
-          <div>
-            <p class="draw-detail__eyebrow">État</p>
-            <h2>{{ resultStatusLabel(draw()!.resultStatus) }}</h2>
-          </div>
-          <span class="draw-detail__status">
-            {{ publicationStatusLabel(draw()!.publicationStatus) }}
-          </span>
-        </div>
-
-        @if (draw()!.numbers?.length) {
-          <div class="draw-detail__balls" aria-label="Numéros gagnants">
-            @for (number of draw()!.numbers; track number) {
-              <span>{{ number }}</span>
-            }
-          </div>
-          <dl class="draw-detail__facts draw-detail__facts--compact">
-            <div>
-              <dt>Mode</dt>
-              <dd>{{ draw()!.resultMode }}</dd>
-            </div>
-            <div>
-              <dt>Récupéré le</dt>
-              <dd>{{ draw()!.fetchedAt ? (draw()!.fetchedAt | date: 'dd/MM/y HH:mm') : 'Non disponible' }}</dd>
-            </div>
-          </dl>
-        } @else {
-          @if (draw()!.salesStatus === 'CLOSED' || draw()!.salesStatus === 'CANCELLED') {
-            <p class="draw-detail__empty-hint">
-              Aucun résultat n’est encore disponible pour ce tirage.
-            </p>
-            @if (resultUnavailableReason(draw()!); as reason) {
-              <p class="draw-detail__empty-hint draw-detail__empty-hint--secondary">
-                {{ reason }}
-              </p>
-            }
-          } @else {
-            <p class="draw-detail__empty-hint">
-              Le tirage est encore ouvert. Le résultat pourra être saisi ou récupéré après la fermeture.
-            </p>
-          }
-        }
-
-        @if (draw()!.sourceError) {
-          <div class="draw-detail__source-error">
-            <strong>Erreur source</strong>
-            <span>{{ draw()!.sourceError!.message }}</span>
-          </div>
-        }
-      </tch-admin-section-card>
     </ng-container>
   }
-
-  @if (draw()) {
-    <ng-container aside>
-      @if (asideView(); as view) {
-        <tch-draw-detail-aside [view]="view" />
-      }
-    </ng-container>
-  }
-</tch-console-entity-detail>
+</tch-console-draw-detail>
 
 @if (selectedDraw(); as draw) {
   <tch-draw-result-drawer

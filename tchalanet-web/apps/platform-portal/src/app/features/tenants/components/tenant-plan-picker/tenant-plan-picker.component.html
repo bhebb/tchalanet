@@ -1,0 +1,39 @@
+<div class="tenant-plan-picker">
+  @if (loading()) {
+    <span class="tenant-plan-picker__loading">
+      {{ 'platform.tenantProvisioning.plan.loading' | translate }}
+    </span>
+  } @else if (!plans().length) {
+    <span class="tenant-plan-picker__empty">
+      {{ 'platform.tenantProvisioning.plan.empty' | translate }}
+    </span>
+  } @else {
+    <div class="tenant-plan-picker__tiles" role="radiogroup">
+      @for (plan of plans(); track plan.code) {
+        <button
+          type="button"
+          role="radio"
+          class="tenant-plan-picker__tile"
+          [class.is-selected]="selected() === plan.code"
+          [attr.aria-checked]="selected() === plan.code"
+          (click)="select(plan.code)"
+        >
+          <span class="tenant-plan-picker__name">
+            {{ plan.name }}
+            @if (plan.isDefault) {
+              <span class="tenant-plan-picker__default-badge">
+                {{ 'platform.tenantProvisioning.plan.default' | translate }}
+              </span>
+            }
+          </span>
+          @if (priceLabel(plan); as price) {
+            <span class="tenant-plan-picker__price">{{ price }}</span>
+          }
+          @if (plan.description) {
+            <span class="tenant-plan-picker__desc">{{ plan.description }}</span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

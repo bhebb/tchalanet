@@ -1,0 +1,176 @@
+.console-draw-detail__hero,
+.console-draw-detail__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.console-draw-detail__section-head {
+  margin-bottom: 16px;
+}
+
+.console-draw-detail__eyebrow,
+.console-draw-detail__aside-head p {
+  margin: 0 0 4px;
+  color: var(--tch-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.console-draw-detail__section-head h2,
+.console-draw-detail__aside h2 {
+  margin: 0;
+  color: var(--tch-color-text);
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.console-draw-detail__numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.console-draw-detail__numbers span {
+  display: inline-flex;
+  min-width: 42px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--tch-color-primary, #20205a);
+  color: var(--tch-color-on-primary, #fff);
+  font-weight: 800;
+}
+
+.console-draw-detail__empty,
+.console-draw-detail__section-description {
+  margin: 0;
+  color: var(--tch-color-text-muted);
+}
+
+.console-draw-detail__source-error {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--tch-color-danger-border, #f1b7b7);
+  border-radius: 8px;
+  background: var(--tch-color-danger-container, #fff3f3);
+  color: var(--tch-color-danger, #9f1d1d);
+}
+
+.console-draw-detail__metrics,
+.console-draw-detail__aside-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.console-draw-detail__metric,
+.console-draw-detail__aside-row {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--tch-color-border-subtle);
+  border-radius: 8px;
+  background: var(--tch-color-surface);
+}
+
+.console-draw-detail__metric span,
+.console-draw-detail__aside-row span {
+  color: var(--tch-color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.console-draw-detail__metric strong,
+.console-draw-detail__aside-row strong {
+  color: var(--tch-color-text);
+  font-size: 1rem;
+}
+
+.console-draw-detail__metric em,
+.console-draw-detail__aside-row em {
+  color: var(--tch-color-text-muted);
+  font-size: 0.82rem;
+  font-style: normal;
+}
+
+.console-draw-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.console-draw-detail__action--danger {
+  color: var(--tch-color-danger, #a22121);
+}
+
+.console-draw-detail__action--primary {
+  border-color: var(--tch-color-primary, #20205a);
+  color: var(--tch-color-primary, #20205a);
+}
+
+.console-draw-detail__aside {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--tch-color-primary, #20205a);
+  color: var(--tch-color-on-primary, #fff);
+}
+
+.console-draw-detail__aside-head,
+.console-draw-detail__aside-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.console-draw-detail__aside-head p,
+.console-draw-detail__aside-context,
+.console-draw-detail__aside-advice {
+  color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 78%, transparent);
+}
+
+.console-draw-detail__aside-context code {
+  color: var(--tch-color-on-primary, #fff);
+}
+
+.console-draw-detail__aside-grid {
+  grid-template-columns: 1fr;
+}
+
+.console-draw-detail__aside-row {
+  border-color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 18%, transparent);
+  background: color-mix(in srgb, var(--tch-color-on-primary, #fff) 8%, transparent);
+}
+
+.console-draw-detail__aside-row span,
+.console-draw-detail__aside-row em {
+  color: color-mix(in srgb, var(--tch-color-on-primary, #fff) 70%, transparent);
+}
+
+.console-draw-detail__aside-row strong,
+.console-draw-detail__aside h2 {
+  color: var(--tch-color-on-primary, #fff);
+}
+
+.console-draw-detail__aside-advice {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .console-draw-detail__hero,
+  .console-draw-detail__section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

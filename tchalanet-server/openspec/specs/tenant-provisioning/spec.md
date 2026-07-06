@@ -59,6 +59,26 @@ Provisionable domains V1:
 | Draw channels | draw channel owner |
 | Promotion templates | core.promotion |
 | Limit policy templates | core.limitpolicy |
+| Subscription | core.subscription |
+
+### Requirement: Provisioning applies V1 defaults
+
+Provisioning SHALL apply deterministic server-side defaults even when an older client omits optional fields.
+
+V1 defaults:
+
+- Theme preset: `tchalanet`
+- Plan code: `DEMO`
+
+The orchestrator SHALL resolve the theme through `catalog.theme` and apply tenant-specific theme state through `platform.tenanttheme`.
+
+The orchestrator SHALL apply the plan through `core.subscription` in tenant context.
+
+The orchestrator SHALL pass the default commission rate during tenant creation rather than patching the tenant afterward.
+
+Provisioning results SHALL expose per-domain statuses as a typed response object, not as an open string map.
+
+Subscription readiness SHALL be visible for admin diagnostics, but SHALL NOT block setup completion.
 
 ### Requirement: Provisioning never copies transactional data
 
@@ -85,4 +105,3 @@ Provisioning result SHALL return readiness/next steps.
 - **WHEN** provisioning completes
 - **THEN** the result includes per-domain status
 - **AND** readiness may still require outlet, terminal and seller setup.
-

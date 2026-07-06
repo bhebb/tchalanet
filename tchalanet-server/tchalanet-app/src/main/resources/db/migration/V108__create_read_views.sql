@@ -29,8 +29,12 @@ SELECT t.id                         AS ticket_id,
        d.cutoff_at,
 
        dc.id                        AS draw_channel_id,
+       dc.code                      AS draw_channel_code,
        dc.name                      AS draw_channel_name,
        COALESCE(dc.name, dc.code)    AS draw_channel_display_name,
+       rs.slot_key                  AS result_slot_key,
+       rs.provider                  AS result_provider,
+       COALESCE(rs.timezone, dc.timezone) AS result_timezone,
 
        NULL::uuid                   AS outlet_id,
        NULL::varchar                AS outlet_code,
@@ -86,6 +90,8 @@ JOIN draw d
     ON d.id = t.draw_id
 LEFT JOIN draw_channel dc
     ON dc.id = t.draw_channel_id
+LEFT JOIN result_slot rs
+    ON rs.id = dc.result_slot_id
 LEFT JOIN seller_terminal st
     ON st.id = t.seller_terminal_id
 LEFT JOIN tenant tn

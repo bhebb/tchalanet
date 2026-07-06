@@ -203,7 +203,7 @@
           } @else {
             <form (submit)="$event.preventDefault(); submitAddress()" class="biz-profile__form" novalidate>
               <tch-console-address-form-section
-                [form]="addressForm()"
+                [form]="addressForm"
                 [framed]="false"
                 [required]="true"
               />

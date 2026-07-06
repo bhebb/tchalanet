@@ -39,9 +39,9 @@ export class ConsolePricingFormComponent implements OnInit {
 
   readonly model = signal<ConsolePricingFormValue>(EMPTY_CONSOLE_PRICING_FORM_VALUE);
   readonly form = form(this.model, path => {
-    required(path.gameCode, { message: 'component.console.pricingForm.validation.gameCodeRequired' });
-    required(path.betType, { message: 'component.console.pricingForm.validation.betTypeRequired' });
-    min(path.odds, 0.01, { message: 'component.console.pricingForm.validation.oddsMin' });
+    required(path.gameCode, { message: 'console.pricingForm.validation.gameCodeRequired' });
+    required(path.betType, { message: 'console.pricingForm.validation.betTypeRequired' });
+    min(path.odds, 0.01, { message: 'console.pricingForm.validation.oddsMin' });
   });
 
   ngOnInit(): void {

@@ -59,6 +59,7 @@
         "message": "Ajoute premye kont platfòm nan."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Non",
         "assignedAt": "Atribye le"
@@ -231,6 +232,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Achive",
+          "archiveError": "Enposib pou achive tenant la.",
+          "supportAccess": "Antre kòm admin",
           "addAdmin": "Ajouter un administrateur"
         },
         "tab": {
@@ -244,6 +248,73 @@
         },
         "address": {
           "empty": "Adresse non renseignée."
+        },
+        "subscription": {
+          "title": "Abònman",
+          "loading": "Ap chaje abònman an…",
+          "error": "Pa kapab chaje abònman an.",
+          "empty": "Pa gen plan aplike sou tenant sa a.",
+          "applyError": "Pa kapab aplike plan an.",
+          "field": {
+            "plan": "Plan",
+            "status": "Estati",
+            "startedAt": "Kòmanse le",
+            "endsAt": "Fini le"
+          },
+          "action": {
+            "apply": "Aplike yon plan",
+            "change": "Chanje plan",
+            "confirm": "Konfime"
+          }
+        },
+        "entitlements": {
+          "title": "Dwa itilizasyon",
+          "loading": "Ap chaje dwa itilizasyon yo…",
+          "error": "Pa kapab chaje dwa itilizasyon yo.",
+          "empty": "Pa gen dwa itilizasyon rezoud pou tenant sa a.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Abònman aktif",
+            "resolvedAt": "Rezoud le"
+          },
+          "features": {
+            "title": "Fonksyonalite",
+            "empty": "Pa gen fonksyonalite defini.",
+            "column": {
+              "key": "Fonksyonalite",
+              "status": "Estati"
+            }
+          },
+          "limits": {
+            "title": "Limit",
+            "empty": "Pa gen limit defini.",
+            "column": {
+              "key": "Limit",
+              "value": "Valè"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Ap chaje seller-terminal yo…",
+          "error": "Enposib pou chaje seller-terminal yo.",
+          "empty": {
+            "title": "Pa gen seller-terminal",
+            "message": "Tenant sa a poko gen okenn seller-terminal."
+          },
+          "status": {
+            "active": "Aktif",
+            "pending": "An atant",
+            "blocked": "Bloke",
+            "disabled": "Dezaktive"
+          }
+        },
+        "audit": {
+          "loading": "Ap chaje jounal odit la…",
+          "error": "Enposib pou chaje jounal odit la.",
+          "empty": {
+            "title": "Pa gen evènman",
+            "message": "Pa gen evènman odit pou tenant sa a."
+          }
         },
         "admins": {
           "loading": "Ap chaje administratè yo…",
@@ -392,7 +463,13 @@
         "regional": "Paramèt rejyonal",
         "commercial": "Paramèt komèsyal",
         "profile": "Pwofil provisioning",
-        "initialAdmin": "Admin inisyal"
+        "initialAdmin": "Admin inisyal",
+        "plan": "Plan tenant la"
+      },
+      "plan": {
+        "loading": "Chajman plan yo...",
+        "empty": "Pa gen plan aktif disponib.",
+        "default": "Pa defo"
       },
       "field": {
         "code": "Kòd tenant",
@@ -434,6 +511,7 @@
         "existingUserAttached": "Yon itilizatè ki egziste deja vin administratè tenant lan.",
         "temporaryCredentialNotReturned": "Idantifyan tanporè yo pa t ka afiche. Reinisyalize modpas la depi paj detay tenant lan.",
         "temporaryPasswordIssued": "Yon modpas tanporè kreye pou administratè inisyal la.",
+        "noPlanSelected": "Pa gen plan chwazi. Tenant lan ap kreye san abònman aktif — aplike yon plan avan ou kreye seller-terminal.",
         "fallback": "Yon pwen konfigirasyon mande verifikasyon."
       },
       "identityCard": {
@@ -470,7 +548,8 @@
         "promotionsTemplates": "Modèl pwomosyon",
         "limitsTemplates": "Modèl limit",
         "demoUsers": "Itilizatè demo",
-        "demoSellerTerminals": "Seller-terminals demo"
+        "demoSellerTerminals": "Seller-terminals demo",
+        "subscription": "Abònman"
       },
       "status": {
         "created": "Kreye",
@@ -479,6 +558,7 @@
         "defaultLottery": "Lotri pa defo",
         "defaultHaiti": "Ayiti pa defo",
         "templatesAvailable": "Modèl disponib",
+        "planApplied": "Plan aplike",
         "none": "Okenn",
         "planned": "Prevwa",
         "expected": "Atann",

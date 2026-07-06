@@ -13,11 +13,11 @@
 <ng-template #addressFields>
   <div class="tch-console-form-section__grid">
     <mat-form-field appearance="outline" class="tch-console-form-section__field tch-console-form-section__field--full">
-      <mat-label>{{ 'component.console.address.field.line1' | translate }}</mat-label>
+      <mat-label>{{ 'console.address.field.line1' | translate }}</mat-label>
       <input
         matInput
         [formField]="form().line1"
-        [placeholder]="'component.console.address.placeholder.line1' | translate"
+        [placeholder]="'console.address.placeholder.line1' | translate"
         autocomplete="address-line1"
       />
       @if (form().line1().touched() && form().line1().invalid()) {
@@ -28,11 +28,11 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="tch-console-form-section__field tch-console-form-section__field--full">
-      <mat-label>{{ 'component.console.address.field.line2' | translate }}</mat-label>
+      <mat-label>{{ 'console.address.field.line2' | translate }}</mat-label>
       <input
         matInput
         [formField]="form().line2"
-        [placeholder]="'component.console.address.placeholder.line2' | translate"
+        [placeholder]="'console.address.placeholder.line2' | translate"
         autocomplete="address-line2"
       />
       @if (form().line2().touched() && form().line2().invalid()) {
@@ -44,11 +44,11 @@
 
     <div class="tch-console-form-section__row">
       <mat-form-field appearance="outline" class="tch-console-form-section__field">
-        <mat-label>{{ 'component.console.address.field.city' | translate }}</mat-label>
+        <mat-label>{{ 'console.address.field.city' | translate }}</mat-label>
         <input
           matInput
           [formField]="form().city"
-          [placeholder]="'component.console.address.placeholder.city' | translate"
+          [placeholder]="'console.address.placeholder.city' | translate"
           autocomplete="address-level2"
         />
         @if (form().city().touched() && form().city().invalid()) {
@@ -59,11 +59,11 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="tch-console-form-section__field">
-        <mat-label>{{ 'component.console.address.field.region' | translate }}</mat-label>
+        <mat-label>{{ 'console.address.field.region' | translate }}</mat-label>
         <input
           matInput
           [formField]="form().region"
-          [placeholder]="'component.console.address.placeholder.region' | translate"
+          [placeholder]="'console.address.placeholder.region' | translate"
           autocomplete="address-level1"
         />
         @if (form().region().touched() && form().region().invalid()) {
@@ -76,11 +76,11 @@
 
     <div class="tch-console-form-section__row">
       <mat-form-field appearance="outline" class="tch-console-form-section__field">
-        <mat-label>{{ 'component.console.address.field.country' | translate }}</mat-label>
+        <mat-label>{{ 'console.address.field.country' | translate }}</mat-label>
         <input
           matInput
           [formField]="form().country"
-          [placeholder]="'component.console.address.placeholder.country' | translate"
+          [placeholder]="'console.address.placeholder.country' | translate"
           autocomplete="country"
         />
         @if (form().country().touched() && form().country().invalid()) {
@@ -91,8 +91,13 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="tch-console-form-section__field">
-        <mat-label>{{ 'component.console.address.field.postalCode' | translate }}</mat-label>
-        <input matInput [formField]="form().postalCode" autocomplete="postal-code" />
+        <mat-label>{{ 'console.address.field.postalCode' | translate }}</mat-label>
+        <input
+          matInput
+          [formField]="form().postalCode"
+          [placeholder]="'console.address.placeholder.postalCode' | translate"
+          autocomplete="postal-code"
+        />
         @if (form().postalCode().touched() && form().postalCode().invalid()) {
           @for (error of form().postalCode().errors(); track error.kind) {
             <mat-error>{{ (error.message ?? 'common.validation.invalid') | translate }}</mat-error>

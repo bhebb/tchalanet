@@ -14,13 +14,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 
+import { TchDrawLabel } from '@tch/ui/components';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { PosOpenDrawView } from '../../data-access/pos-sale.models';
 
 @Component({
   selector: 'tch-pos-open-draw-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, MatButtonModule, MatMenuModule, RouterLink],
+  imports: [DatePipe, MatButtonModule, MatMenuModule, RouterLink, TchDrawLabel],
   templateUrl: './pos-open-draw-card.component.html',
   styleUrls: ['./pos-open-draw-card.component.scss'],
 })
@@ -64,5 +66,20 @@ export class PosOpenDrawCardComponent implements OnInit {
 
   selectDraw(draw: PosOpenDrawView): void {
     this.drawSelected.emit(draw);
+  }
+
+  drawIdentity(draw: PosOpenDrawView) {
+    return consoleTicketDrawIdentity({
+      channelCode: draw.channelCode,
+      channelLabel: draw.channelLabel,
+      resultSlotKey: draw.resultSlotKey,
+      drawDateLabel: draw.drawDate,
+      scheduledAt: draw.scheduledAt,
+      fallbackLabel: draw.label,
+    });
+  }
+
+  drawLabel(draw: PosOpenDrawView): string {
+    return this.drawIdentity(draw).receiptLabel;
   }
 }

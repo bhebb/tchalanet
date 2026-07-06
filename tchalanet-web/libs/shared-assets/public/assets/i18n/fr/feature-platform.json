@@ -59,6 +59,7 @@
         "message": "Ajoutez un premier compte plateforme."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Nom",
         "assignedAt": "Assigné le"
@@ -229,6 +230,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Archiver",
+          "archiveError": "Erreur lors de l'archivage.",
+          "supportAccess": "Accéder comme admin",
           "addAdmin": "Ajouter un administrateur",
           "updateSuccess": "Informations mises à jour avec succès.",
           "updateError": "Impossible de sauvegarder les modifications."
@@ -244,6 +248,73 @@
         },
         "address": {
           "empty": "Adresse non renseignée."
+        },
+        "subscription": {
+          "title": "Abonnement",
+          "loading": "Chargement de l'abonnement…",
+          "error": "Impossible de charger l'abonnement.",
+          "empty": "Aucun plan appliqué à ce tenant.",
+          "applyError": "Impossible d'appliquer le plan.",
+          "field": {
+            "plan": "Plan",
+            "status": "Statut",
+            "startedAt": "Débuté le",
+            "endsAt": "Se termine le"
+          },
+          "action": {
+            "apply": "Appliquer un plan",
+            "change": "Changer de plan",
+            "confirm": "Confirmer"
+          }
+        },
+        "entitlements": {
+          "title": "Droits d'usage",
+          "loading": "Chargement des droits d'usage…",
+          "error": "Impossible de charger les droits d'usage.",
+          "empty": "Aucun droit d'usage résolu pour ce tenant.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Abonnement actif",
+            "resolvedAt": "Résolu le"
+          },
+          "features": {
+            "title": "Fonctionnalités",
+            "empty": "Aucune fonctionnalité définie.",
+            "column": {
+              "key": "Fonctionnalité",
+              "status": "Statut"
+            }
+          },
+          "limits": {
+            "title": "Limites",
+            "empty": "Aucune limite définie.",
+            "column": {
+              "key": "Limite",
+              "value": "Valeur"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Chargement des seller-terminals…",
+          "error": "Impossible de charger les seller-terminals.",
+          "empty": {
+            "title": "Aucun seller-terminal",
+            "message": "Ce tenant n'a pas encore de seller-terminal."
+          },
+          "status": {
+            "active": "Actif",
+            "pending": "En attente",
+            "blocked": "Bloqué",
+            "disabled": "Désactivé"
+          }
+        },
+        "audit": {
+          "loading": "Chargement du journal d'audit…",
+          "error": "Impossible de charger le journal d'audit.",
+          "empty": {
+            "title": "Aucun événement",
+            "message": "Aucun événement d'audit pour ce tenant."
+          }
         },
         "admins": {
           "loading": "Chargement des administrateurs…",
@@ -459,7 +530,13 @@
         "regional": "Paramètres régionaux",
         "commercial": "Paramètres commerciaux",
         "profile": "Profil de provisioning",
-        "initialAdmin": "Admin initial"
+        "initialAdmin": "Admin initial",
+        "plan": "Plan du tenant"
+      },
+      "plan": {
+        "loading": "Chargement des plans...",
+        "empty": "Aucun plan actif disponible.",
+        "default": "Par défaut"
       },
       "field": {
         "code": "Code du tenant",
@@ -501,6 +578,7 @@
         "existingUserAttached": "Un utilisateur existant a été rattaché comme administrateur du tenant.",
         "temporaryCredentialNotReturned": "Les identifiants temporaires n'ont pas pu être affichés. Réinitialisez le mot de passe depuis le détail du tenant.",
         "temporaryPasswordIssued": "Un mot de passe temporaire a été généré pour l'administrateur initial.",
+        "noPlanSelected": "Aucun plan sélectionné. Le tenant sera créé sans abonnement actif — appliquez un plan avant de créer des seller-terminals.",
         "fallback": "Un point de configuration demande une vérification."
       },
       "identityCard": {
@@ -537,7 +615,8 @@
         "promotionsTemplates": "Modèles de promotions",
         "limitsTemplates": "Modèles de limites",
         "demoUsers": "Utilisateurs démo",
-        "demoSellerTerminals": "Seller-terminals de démo"
+        "demoSellerTerminals": "Seller-terminals de démo",
+        "subscription": "Abonnement"
       },
       "status": {
         "created": "Créé",
@@ -546,6 +625,7 @@
         "defaultLottery": "Loterie par défaut",
         "defaultHaiti": "Haïti par défaut",
         "templatesAvailable": "Modèles disponibles",
+        "planApplied": "Plan appliqué",
         "none": "Aucun",
         "planned": "Prévu",
         "expected": "Attendu",

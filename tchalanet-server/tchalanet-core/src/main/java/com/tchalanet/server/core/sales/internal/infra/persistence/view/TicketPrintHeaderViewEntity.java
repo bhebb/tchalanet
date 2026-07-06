@@ -89,11 +89,23 @@ public class TicketPrintHeaderViewEntity {
     @Column(name = "draw_channel_id")
     private UUID drawChannelId;
 
+    @Column(name = "draw_channel_code")
+    private String drawChannelCode;
+
     @Column(name = "draw_channel_name")
     private String drawChannelName;
 
     @Column(name = "draw_channel_display_name")
     private String drawChannelDisplayName;
+
+    @Column(name = "result_slot_key")
+    private String resultSlotKey;
+
+    @Column(name = "result_provider")
+    private String resultProvider;
+
+    @Column(name = "result_timezone")
+    private String resultTimezone;
 
     @Column(name = "outlet_code")
     private String outletCode;

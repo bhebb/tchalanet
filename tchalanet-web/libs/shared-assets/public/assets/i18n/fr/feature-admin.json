@@ -398,6 +398,8 @@
       "optional": "Optionnel",
       "operational": "Opérationnel",
       "required": "Requis",
+      "blocking": "Bloquant",
+      "blockedBy": "Bloqué par :",
       "progress": {
         "title": "Configuration du tenant",
         "subtitle": "Suivi de l'état de préparation"
@@ -407,14 +409,13 @@
         "address": "Adresse",
         "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
         "addressCta": "Configurer l'adresse",
+        "identityAddress": "Identité et adresse",
+        "identityAddressCta": "Gérer le profil",
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
-        "channelMatrix": "Jeux par canal",
-        "channelMatrixDesc": "Choisissez les jeux proposés sur chaque canal de tirage du tenant.",
-        "channelMatrixCta": "Configurer les jeux par canal",
         "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
+        "drawChannelsDesc": "Canaux de vente configurés.",
         "drawChannelsCta": "Configurer les canaux",
         "generatedDraws": "Tirages générés",
         "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
@@ -426,6 +427,13 @@
         "theme": "Apparence",
         "themeDesc": "Personnalisation de l'apparence",
         "themeCta": "Configurer l'apparence",
+        "settings": "Paramètres du tenant",
+        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre tenant.",
+        "settingsCta": "Configurer les paramètres",
+        "subscription": "Abonnement",
+        "subscriptionDesc": "Plan et statut de votre abonnement.",
+        "subscriptionNoPlan": "Aucun plan actif — contactez Tchalanet.",
+        "subscriptionCta": "Voir l'abonnement",
         "sellerTerminal": "Vendeurs",
         "sellerTerminalDesc": "Vendeurs disponibles",
         "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
@@ -443,10 +451,11 @@
       "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
       "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
+        "identity": "Identité",
         "address": "Adresse",
-        "games": "Jeux",
-        "drawChannels": "Tirages",
-        "generatedDraws": "Tirages générés"
+        "games_pricing": "Jeux",
+        "draws": "Canaux de tirage",
+        "generated_draws": "Tirages générés"
       },
       "address": {
         "city": "Ville",
@@ -457,7 +466,6 @@
         "line1": "Adresse ligne 1",
         "line2": "Adresse ligne 2"
       },
-      "blocking": "Complétez les étapes requises pour continuer.",
       "error": {
         "load": "Impossible de charger la configuration."
       },
@@ -734,6 +742,29 @@
     "users": {
       "title": "Utilisateurs",
       "description": "Gérez les accès des utilisateurs de votre entreprise."
+    },
+    "drawResults": {
+      "detail": {
+        "tab": {
+          "results": "Résultats",
+          "combinations": "Combinaisons & règles",
+          "raw": "Résultat brut"
+        },
+        "combinations": {
+          "intro": "Pour chaque option de jeu supportée, les numéros gagnants calculés à partir du tirage.",
+          "playType": "Type de jeu",
+          "winWith": "Gagne avec",
+          "winningNumbers": "Numéros gagnants",
+          "empty": "Aucune combinaison calculable pour ce résultat."
+        },
+        "winWith": {
+          "exact": "Ordre exact",
+          "any": "N'importe quel ordre"
+        },
+        "raw": {
+          "empty": "Aucune donnée brute disponible."
+        }
+      }
     }
   },
   "readiness": {

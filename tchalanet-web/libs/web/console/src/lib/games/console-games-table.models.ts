@@ -8,6 +8,7 @@ export interface ConsoleGameRow {
   readonly id: string;
   readonly code: string;
   readonly name: string;
+  readonly logoUrl?: string | null;
   readonly category?: string | null;
   readonly sortOrder?: number | null;
   readonly statusLabel: string;
@@ -26,6 +27,7 @@ export interface ConsoleGameCardView {
   readonly id: string;
   readonly code: string;
   readonly name: string;
+  readonly logoUrl?: string | null;
   readonly logoText?: string | null;
   readonly statusLabel: string;
   readonly statusTone: AdminStatusTone;

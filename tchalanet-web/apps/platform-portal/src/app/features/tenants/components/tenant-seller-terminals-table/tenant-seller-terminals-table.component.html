@@ -1,0 +1,16 @@
+<div class="tenant-seller-terminals-table">
+  @for (row of terminals(); track row.id.value) {
+    <tch-console-actor-row
+      class="tenant-seller-terminals-table__row"
+      [actor]="actorIdentity(row)"
+      [statusLabel]="statusLabel(row.status)"
+    />
+  }
+</div>
+
+<tch-pagination
+  [page]="page()"
+  [size]="size()"
+  [totalElements]="totalElements()"
+  (pageChange)="pageChange.emit($event)"
+/>

@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import tools.jackson.databind.JsonNode;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
@@ -30,7 +31,8 @@ public record TenantConfig(
     TenantStatus status,            // DRAFT|ACTIVE|SUSPENDED|REJECTED|ARCHIVED
     JsonNode config,
     AddressId addressId,            // optional
-    ThemePresetId activeThemeId           // optional
+    ThemePresetId activeThemeId,    // optional
+    BigDecimal defaultCommissionRate // optional
 ) {
 
     public TenantConfig {
@@ -63,7 +65,11 @@ public record TenantConfig(
         String name,
         TenantType type,
         ZoneId timezone,
-        Currency currency, AddressId addressId, ThemePresetId activeThemeId, JsonNode config) {
+        Currency currency,
+        AddressId addressId,
+        ThemePresetId activeThemeId,
+        BigDecimal defaultCommissionRate,
+        JsonNode config) {
         return new TenantConfig(
             id,
             normalizeCode(code),
@@ -74,7 +80,8 @@ public record TenantConfig(
             TenantStatus.DRAFT,
             config,
             addressId,   // no address initially
-            activeThemeId
+            activeThemeId,
+            defaultCommissionRate
         );
     }
 
@@ -94,7 +101,8 @@ public record TenantConfig(
             registryView.status(),
             null,
             registryView.addressId().orElse(null),    // Optional<AddressId> → AddressId
-            registryView.activeThemeId().orElse(null) // Optional<ThemePresetId> → ThemePresetId
+            registryView.activeThemeId().orElse(null), // Optional<ThemePresetId> → ThemePresetId
+            registryView.defaultCommissionRate().orElse(null)
         );
     }
 
@@ -123,7 +131,7 @@ public record TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.ACTIVE,
             config,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -137,7 +145,7 @@ public record TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.SUSPENDED,
             config,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -151,7 +159,7 @@ public record TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.ARCHIVED,
             config,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -165,7 +173,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, newName, type, timezone, currency, status,
             config,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -177,7 +185,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, newTimezone, newCurrency, status,
             config,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -187,7 +195,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             config,
-            newAddressId, activeThemeId);
+            newAddressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -197,7 +205,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             config,
-            newAddressId, activeThemeId);
+            newAddressId, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -207,7 +215,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             config,
-            null, activeThemeId);
+            null, activeThemeId, defaultCommissionRate);
     }
 
     /**
@@ -217,7 +225,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             config,
-            addressId, themeId);
+            addressId, themeId, defaultCommissionRate);
     }
 
     /**
@@ -227,7 +235,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             config,
-            addressId, null);
+            addressId, null, defaultCommissionRate);
     }
 
     public TenantConfig updateConfig(JsonNode newConfig, Instant now) {
@@ -235,6 +243,6 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
             newConfig,
-            addressId, activeThemeId);
+            addressId, activeThemeId, defaultCommissionRate);
     }
 }

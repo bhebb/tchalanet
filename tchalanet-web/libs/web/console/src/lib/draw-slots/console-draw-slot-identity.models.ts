@@ -12,6 +12,7 @@ export interface ConsoleDrawSlotIdentity {
   readonly localDateLabel?: string | null;
   readonly localTimeLabel?: string | null;
   readonly localTimezoneLabel?: string | null;
+  readonly providerDateLabel?: string | null;
   readonly providerTimeLabel?: string | null;
   readonly providerTimezoneLabel?: string | null;
 }

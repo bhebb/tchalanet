@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchRequestOptions } from '@tch/api';
 import type { ApiResponse } from '@tch/api';
+import type { ConsoleReadinessStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 
-export type ReadinessStatus = 'READY' | 'PARTIAL' | 'MISSING' | 'UNKNOWN';
+export type ReadinessStatus = Extract<ConsoleReadinessStatus, 'READY' | 'PARTIAL' | 'MISSING' | 'UNKNOWN'>;
 
 export interface AddressView {
   readonly id?: string;

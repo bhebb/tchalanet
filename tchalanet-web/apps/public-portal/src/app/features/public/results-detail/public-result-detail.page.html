@@ -9,15 +9,27 @@
       <nav class="result-detail__breadcrumb" aria-label="Breadcrumb">
         <a routerLink="/public/results">{{ 'public.results.latest_title' | translate }}</a>
         <span aria-hidden="true">/</span>
-        <span>{{ channelLabel() | translate }}</span>
+        <span>{{ channelLabel() }}</span>
       </nav>
 
       <section class="result-detail__hero" aria-labelledby="result-detail-title">
+        <div class="result-detail__logo" aria-hidden="true">
+          @if (resultIdentity().identity.providerLogoUrl) {
+            <img
+              [src]="resultIdentity().identity.providerLogoUrl"
+              [alt]="resultIdentity().identity.providerName ?? resultIdentity().identity.logoText"
+            />
+          } @else {
+            <span>{{ resultIdentity().identity.logoText }}</span>
+          }
+        </div>
         <div class="result-detail__copy">
           <p class="result-detail__eyebrow">{{ 'public.results.detail_eyebrow' | translate }}</p>
-          <h1 id="result-detail-title">{{ channelLabel() | translate }}</h1>
+          <h1 id="result-detail-title">{{ channelLabel() }}</h1>
           <p class="result-detail__code">
-            {{ result().slotKey }} · {{ result().resultDate }} · {{ hhmm(result().drawTime) }}
+            {{ resultIdentity().identity.providerShortName }} ·
+            {{ resultIdentity().identity.slotLabel }} ·
+            {{ drawDateTimeLabel() }}
           </p>
         </div>
         <a class="result-detail__primary-action" routerLink="/public/check-ticket">
@@ -49,7 +61,7 @@
                 {{ 'domain.result.field.drawDateTime' | translate }}
               </p>
               <h2 id="result-numbers-title">
-                {{ result().resultDate }} · {{ hhmm(result().drawTime) }}
+                {{ drawDateTimeLabel() }}
               </h2>
             </div>
             <span class="result-detail__chip" [attr.data-status]="result().status">
@@ -109,11 +121,11 @@
           <div class="result-detail__receipt-lines">
             <div>
               <span>{{ 'domain.entity.game' | translate }}</span>
-              <strong>{{ channelLabel() | translate }}</strong>
+              <strong>{{ channelLabel() }}</strong>
             </div>
             <div>
               <span>{{ 'domain.result.field.drawDateTime' | translate }}</span>
-              <strong>{{ result().resultDate }} · {{ hhmm(result().drawTime) }}</strong>
+              <strong>{{ drawDateTimeLabel() }}</strong>
             </div>
             <div>
               <span>{{ 'common.status' | translate }}</span>

@@ -1,0 +1,31 @@
+<div class="setup__card" [class.setup__card--ready]="isReady()" [class.setup__card--missing]="isMissing()">
+  <div class="setup__card-header">
+    <mat-icon class="{{ statusClass() }}">{{ statusIcon() }}</mat-icon>
+    <mat-icon class="setup__card-domain-icon">{{ icon() }}</mat-icon>
+    <span class="setup__card-title">{{ titleKey() | translate }}</span>
+    <span
+      class="setup__card-badge"
+      [class.setup__card-badge--required]="badgeKind() === 'required'"
+      [class.setup__card-badge--blocking]="badgeKind() === 'blocking'"
+    >
+      {{ badgeLabelKey() | translate }}
+    </span>
+  </div>
+
+  @for (err of sectionErrors(); track err.target) {
+    <tch-section-error
+      class="setup__card-error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity ?? 'error'"
+    />
+  }
+
+  <p class="setup__card-body" [class.setup__card-body--hint]="bodyVariant() === 'hint'" [class.setup__card-body--address]="bodyVariant() === 'address'">
+    {{ body() }}
+  </p>
+
+  <a mat-stroked-button class="setup__card-cta" [routerLink]="route()" [fragment]="fragment()">
+    {{ ctaKey() | translate }}
+  </a>
+</div>

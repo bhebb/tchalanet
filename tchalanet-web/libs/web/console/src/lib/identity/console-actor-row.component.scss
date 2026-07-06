@@ -1,0 +1,42 @@
+.console-actor-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.console-actor-row__avatar {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tch-color-surface-container-high, #f1eff7);
+  color: var(--tch-color-primary);
+  font-size: 1.25rem;
+}
+
+.console-actor-row__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.console-actor-row__primary,
+.console-actor-row__secondary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.console-actor-row__primary {
+  color: var(--tch-color-on-surface);
+  font-weight: 600;
+}
+
+.console-actor-row__secondary {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.875rem;
+}

@@ -2,13 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { TchBackendClient, TchPage, TchRequestOptions, appendQuery } from '@tch/api';
+import type { ConsoleSellerTerminalStatus } from '@tch/web/console';
 
-export type PlatformRecipientSellerTerminalStatus =
-  | 'PENDING'
-  | 'ACTIVE'
-  | 'INACTIVE'
-  | 'BLOCKED'
-  | 'DISABLED';
+export type PlatformRecipientSellerTerminalStatus = ConsoleSellerTerminalStatus;
 
 export interface PlatformRecipientSellerTerminalRow {
   readonly id: { readonly value: string };

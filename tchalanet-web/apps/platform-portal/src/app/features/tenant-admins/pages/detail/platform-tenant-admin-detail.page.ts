@@ -19,10 +19,10 @@ import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { PlatformAdminUserCardComponent } from '../../../shared/admin-user-card/platform-admin-user-card.component';
-import type { AdminUserCardData } from '../../../shared/admin-user-card/admin-user-card.model';
+import { ConsoleActorCardComponent, ConsoleActorIdentity } from '@tch/web/console';
 import type { TenantAdminGlobalRow } from '../../data-access/platform-tenant-admins.models';
 import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-crud-api.service';
+import { platformTenantAdminActorIdentity } from '../../../shared/console-actor-adapters';
 
 @Component({
   selector: 'tch-platform-tenant-admin-detail-page',
@@ -30,7 +30,7 @@ import { IdentityUserCrudApi } from '../../../shared/data-access/identity-user-c
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AdminPageShellComponent,
-    PlatformAdminUserCardComponent,
+    ConsoleActorCardComponent,
     TchLoading,
     TchErrorPanel,
     TchSectionError,
@@ -55,19 +55,9 @@ export class PlatformTenantAdminDetailPage implements OnInit {
   readonly error = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<{ title: string; message: string } | null>(null);
 
-  readonly cardUser = computed((): AdminUserCardData | null => {
+  readonly actorIdentity = computed((): ConsoleActorIdentity | null => {
     const r = this.row();
-    if (!r) return null;
-    return {
-      id: r.id,
-      email: r.email,
-      displayName: r.displayName,
-      status: r.status,
-      assignedAt: r.createdAt,
-      tenantId: r.tenantId,
-      tenantName: r.tenantName,
-      tenantCode: r.tenantCode,
-    };
+    return r ? platformTenantAdminActorIdentity(r) : null;
   });
 
   ngOnInit(): void {

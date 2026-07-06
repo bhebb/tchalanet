@@ -74,7 +74,8 @@
         "line2": "Ex: Apt 3B",
         "city": "Ex: Port-au-Prince",
         "region": "Ex: Ouest",
-        "country": "HT"
+        "country": "HT",
+        "postalCode": "Postal code"
       }
     },
     "addressSummary": {

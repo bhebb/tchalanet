@@ -6,6 +6,7 @@ export interface PosOpenDrawView {
   drawId: string;
   drawChannelId: string;
   drawDate: string;
+  resultSlotKey: string;
   channelCode: string;
   channelLabel: string;
   gameCodes: string[];
@@ -172,6 +173,10 @@ export interface PosTicketDetailsView {
   placedAt: string;
   cancelledAt?: string | null;
   drawId: string;
+  drawChannelCode?: string | null;
+  resultSlotKey?: string | null;
+  resultProvider?: string | null;
+  resultTimezone?: string | null;
   drawChannelName: string;
   drawScheduledAt: string;
   outletName?: string | null;

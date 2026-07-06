@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.archive.internal.service;
 
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveRunJdbcRepository;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -38,12 +38,12 @@ public class ArchiveRunGuard {
   public GuardResult beginOrResume(String idempotencyKey, String strategy,
       String triggerType, UUID requestedBy, String reason) {
 
-    Optional<Map<String, Object>> existing = runRepo.findByIdempotencyKey(idempotencyKey);
+    Optional<ArchiveRunRowView> existing = runRepo.findByIdempotencyKey(idempotencyKey);
 
     if (existing.isPresent()) {
-      Map<String, Object> run = existing.get();
-      String status = (String) run.get("status");
-      UUID runId = (UUID) run.get("id");
+      ArchiveRunRowView run = existing.get();
+      String status = run.status();
+      UUID runId = run.id();
 
       if ("COMPLETED".equals(status)) {
         log.info("archive guard: run={} key={} already COMPLETED — skipping", runId, idempotencyKey);

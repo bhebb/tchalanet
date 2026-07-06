@@ -1,0 +1,41 @@
+<div class="setup__card setup__card--terminal" [class.setup__card--locked]="!unlocked()">
+  <div class="setup__card-header">
+    <mat-icon [class]="unlocked() ? 'status--ready' : 'status--missing'">
+      {{ unlocked() ? 'check_circle' : 'lock' }}
+    </mat-icon>
+    <mat-icon class="setup__card-domain-icon">point_of_sale</mat-icon>
+    <span class="setup__card-title">{{ 'admin.setup.section.sellerTerminal' | translate }}</span>
+  </div>
+
+  @if (sectionError(); as err) {
+    <tch-section-error
+      class="setup__card-error"
+      [title]="err.title"
+      [message]="err.message"
+      [severity]="err.severity ?? 'error'"
+    />
+  }
+
+  @if (unlocked()) {
+    <p class="setup__card-body">{{ 'admin.setup.section.sellerTerminalReady' | translate }}</p>
+    <a mat-flat-button color="primary" class="setup__card-cta" routerLink="/app/admin/seller-terminals">
+      <mat-icon>add</mat-icon>
+      {{ 'admin.setup.section.sellerTerminalCta' | translate }}
+    </a>
+  } @else {
+    <p class="setup__card-body setup__card-body--hint">
+      {{ 'admin.setup.section.sellerTerminalLocked' | translate }}
+    </p>
+    @if (blockingSteps().length) {
+      <p class="setup__blocking-label">{{ 'admin.setup.blockedBy' | translate }}</p>
+      <ul class="setup__blocking-list">
+        @for (step of blockingSteps(); track step) {
+          <li>
+            <mat-icon class="status--missing">radio_button_unchecked</mat-icon>
+            {{ 'admin.setup.blockingStep.' + step.toLowerCase() | translate }}
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

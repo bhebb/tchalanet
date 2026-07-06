@@ -34,7 +34,7 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'cloud_sync',
     },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'resources',
@@ -44,7 +44,7 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'memory',
     },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
   {
     path: 'archives/purges',
@@ -74,6 +74,11 @@ export const platformOperationsRoutes: Route[] = [
     path: 'draws',
     loadComponent: () =>
       import('./pages/ops/platform-ops-draws.page').then(m => m.PlatformOpsDrawsPage),
+  },
+  {
+    path: 'draws/:tenantId/:drawId',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-draw-detail.page').then(m => m.PlatformOpsDrawDetailPage),
   },
   {
     path: 'draw-results',
@@ -114,6 +119,6 @@ export const platformOperationsRoutes: Route[] = [
       icon: 'sync_alt',
     },
     loadComponent: () =>
-      import('../pages/platform-placeholder.page').then(m => m.PlatformPlaceholderPage),
+      import('@tch/ui/components').then(m => m.PlaceholderPage),
   },
 ];

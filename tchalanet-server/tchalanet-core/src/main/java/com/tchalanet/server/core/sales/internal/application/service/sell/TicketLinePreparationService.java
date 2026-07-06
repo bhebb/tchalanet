@@ -9,16 +9,20 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
-import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.SelectionApi;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 /**
  * Builds {@link TicketLine} instances from validated {@link SellTicketLineInput}s.
@@ -69,11 +73,11 @@ public class TicketLinePreparationService {
         var stake = input.stakeAmount().setScale(2, RoundingMode.UNNECESSARY);
 
         var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
-                tenantId,
-                sellerTerminalId,
-                canonicalGameCode(input.gameCode()),
-                input.betType().name(),
-                input.betOption()));
+            tenantId,
+            sellerTerminalId,
+            canonicalGameCode(input.gameCode()),
+            input.betType().name(),
+            input.betOption()));
         Objects.requireNonNull(oddsResolution, "pricing odds resolution is required");
         var odds = requireEffectiveOdds(oddsResolution.effectiveOdds())
             .setScale(4, RoundingMode.HALF_UP);
@@ -91,9 +95,9 @@ public class TicketLinePreparationService {
             odds, // oddsSnapshot
             new Money(potential, currency), // potentialPayoutAmount
             input.betOption(),
-            com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin.CUSTOMER,
-            com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
-            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            TicketLineSelectionSource.CUSTOMER_SELECTED,
             null,
             null,
             null,
@@ -116,7 +120,9 @@ public class TicketLinePreparationService {
         // already enforced by TicketSalePolicyService.validateBetOption / validateLine.
     }
 
-    /** Pricing catalog uses string game codes by convention. */
+    /**
+     * Pricing catalog uses string game codes by convention.
+     */
     private static String canonicalGameCode(GameCode gameCode) {
         return gameCode.name();
     }

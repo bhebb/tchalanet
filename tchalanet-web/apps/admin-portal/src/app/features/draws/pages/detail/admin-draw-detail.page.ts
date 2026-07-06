@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,8 +13,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AccessService } from '@tch/core/auth';
 import {
   CONSOLE_DRAW_RESULT_ACCESS,
+  ConsoleDrawDetailComponent,
+  ConsoleDrawDetailView,
   ConsoleEntityDetailActionEvent,
-  ConsoleEntityDetailComponent,
+  consoleDrawDetailViewModel,
   consoleDrawPublicationStatusLabel,
   consoleDrawResultStatusLabel,
   consoleDrawSalesStatusLabel,
@@ -36,11 +37,6 @@ import {
   DrawResultDrawerState,
 } from '../../components/draw-result-drawer/draw-result-drawer.component';
 import {
-  DrawDetailAsideComponent,
-  DrawDetailAsideView,
-} from './components/draw-detail-aside/draw-detail-aside.component';
-import { lotteryLogoForSlot, lotteryProviderCodeFromSlot } from '../../../../shared/lottery/lottery-assets';
-import {
   AdminFinancialsApi,
   DrawFinancialRow,
   DrawTopSelectionItem,
@@ -51,10 +47,6 @@ import {
   DrawDetailActivityView,
   DrawDetailActivityComponent,
 } from './components/draw-detail-activity/draw-detail-activity.component';
-import {
-  DrawDetailOverviewComponent,
-  DrawDetailOverviewView,
-} from './components/draw-detail-overview/draw-detail-overview.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
@@ -65,16 +57,13 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     RouterLink,
     MatButtonModule,
     MatIconModule,
-    ConsoleEntityDetailComponent,
+    ConsoleDrawDetailComponent,
     AdminSectionCardComponent,
     DrawResultDrawerComponent,
-    DrawDetailAsideComponent,
     DrawDetailActivityComponent,
-    DrawDetailOverviewComponent,
   ],
   templateUrl: './admin-draw-detail.page.html',
   styleUrls: ['./admin-draw-detail.page.scss'],
@@ -100,15 +89,6 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   readonly resultSaveState = signal<DrawResultDrawerState>('ready');
   readonly resultSaveMessage = signal<string | null>(null);
 
-  readonly title = computed(() => {
-    const draw = this.draw();
-    return draw ? this.drawDisplayName(draw) : 'Détail du tirage';
-  });
-  readonly description = computed(() => {
-    const draw = this.draw();
-    if (!draw) return 'Consultez le tirage, ses résultats et ses liens opérationnels.';
-    return `${this.scheduledLocalSummary(draw)} · ${draw.timezone}`;
-  });
   readonly canEnterManualResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.manual));
   readonly canOverrideResults = computed(() => this.access.can(CONSOLE_DRAW_RESULT_ACCESS.override));
   readonly detailMeta = computed(() => {
@@ -126,19 +106,28 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   readonly detailActions = computed(() => [
     { id: 'back', label: 'Retour', icon: 'arrow_back' },
   ]);
-  readonly overviewView = computed<DrawDetailOverviewView | null>(() => {
+  readonly drawDetailView = computed<ConsoleDrawDetailView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;
-    return {
-      providerLogo: this.providerLogo(draw),
-      providerLabel: draw.providerLabel,
-      providerCode: this.providerCode(draw),
-      slotCode: this.providerSlotCode(draw),
-      displayName: this.drawDisplayName(draw),
-      supporting: `${this.slotDisplayLabel(draw)} · ${this.scheduledLocalSummary(draw)} — ${draw.timezone}`,
-      salesStatus: this.salesStatusLabel(draw.salesStatus),
-      salesOpen: draw.salesStatus === 'OPEN',
-      facts: [
+    return consoleDrawDetailViewModel({
+      identityInput: {
+        providerCode: draw.providerCode,
+        providerName: draw.providerLabel,
+        channelCode: draw.drawChannelCode,
+        channelName: draw.label,
+        slotKey: draw.slotKey,
+        slotLabel: draw.slotLabel,
+        officialDateLabel: draw.businessDate,
+        officialTimeLabel: this.scheduledTime(draw),
+        officialTimezoneLabel: draw.timezone,
+        fallbackTitle: draw.label,
+      },
+      title: this.drawDisplayName(draw),
+      description: this.scheduledLocalSummary(draw),
+      meta: this.detailMeta(),
+      statusLabel: this.salesStatusLabel(draw.salesStatus),
+      statusTone: draw.salesStatus === 'OPEN' ? 'success' : 'neutral',
+      overviewFacts: [
         { label: 'Code du slot', value: draw.slotKey, code: true },
         { label: 'Créneau de vente', value: this.slotDisplayLabel(draw) },
         { label: 'Date métier', value: draw.businessDate },
@@ -148,7 +137,37 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
         { label: 'Fuseau horaire', value: draw.timezone },
         { label: 'État technique', value: draw.lifecycleStatus ?? 'Non disponible' },
       ],
-    };
+      result: {
+        statusLabel: this.resultStatusLabel(draw.resultStatus),
+        publicationLabel: this.publicationStatusLabel(draw.publicationStatus),
+        numbers: draw.numbers ?? [],
+        modeLabel: draw.resultMode,
+        fetchedAtLabel: this.fetchedAtLabel(draw),
+        emptyLabel: this.resultEmptyLabel(draw),
+        sourceErrorLabel: draw.sourceError?.message ?? null,
+      },
+      aside: {
+        title: this.drawDisplayName(draw),
+        subtitle: this.asideDrawDateTime(draw),
+        code: draw.slotKey,
+        items: [
+          {
+            label: 'Fin des ventes',
+            value: this.countdownLabel(draw),
+            hint: this.salesStatusLabel(draw.salesStatus),
+          },
+          {
+            label: 'Ventes',
+            value: this.asideTicketCountLabel(this.activityReport()),
+            hint: this.asideSalesAmountLabel(this.activityReport()),
+          },
+          { label: 'Terrain', value: this.asideSellerCountLabel(this.activityReport()) },
+          { label: 'Sélections chaudes', value: this.asideHotSelectionsLabel() },
+          { label: 'Résultat', value: this.resultFollowupLabel(draw) },
+        ],
+        advice: this.operationalHint(draw),
+      },
+    });
   });
   readonly activityView = computed<DrawDetailActivityView | null>(() => {
     const draw = this.draw();
@@ -164,24 +183,6 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       sellersReportQueryParams: this.sellersReportQueryParams(draw),
       topSelectionsState: this.topSelectionsState(),
       topSelections: this.topSelections(),
-    };
-  });
-  readonly asideView = computed<DrawDetailAsideView | null>(() => {
-    const draw = this.draw();
-    if (!draw) return null;
-    return {
-      title: this.drawDisplayName(draw),
-      dateTime: this.asideDrawDateTime(draw),
-      slotKey: draw.slotKey,
-      countdown: this.countdownLabel(draw),
-      salesStatus: this.salesStatusLabel(draw.salesStatus),
-      salesOpen: draw.salesStatus === 'OPEN',
-      ticketCount: this.asideTicketCountLabel(this.activityReport()),
-      salesAmount: this.asideSalesAmountLabel(this.activityReport()),
-      sellerCount: this.asideSellerCountLabel(this.activityReport()),
-      hotSelections: this.asideHotSelectionsLabel(),
-      resultFollowup: this.resultFollowupLabel(draw),
-      advice: this.operationalHint(draw),
     };
   });
 
@@ -363,14 +364,6 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     };
   }
 
-  providerLogo(draw: GeneratedDrawView): string | null {
-    return lotteryLogoForSlot(draw.slotKey);
-  }
-
-  providerCode(draw: GeneratedDrawView): string {
-    return lotteryProviderCodeFromSlot(draw.slotKey)?.toUpperCase() ?? draw.providerCode;
-  }
-
   resultUnavailableReason(draw: GeneratedDrawView): string | null {
     if (this.hasResult(draw)) return null;
     if (!this.canEnterManualResults()) {
@@ -408,6 +401,18 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     if (draw.salesStatus === 'OPEN') return 'Attendu après fermeture';
     if (this.canEnterManualResult(draw)) return 'Saisie manuelle possible';
     return this.resultStatusLabel(draw.resultStatus);
+  }
+
+  fetchedAtLabel(draw: GeneratedDrawView): string {
+    return draw.fetchedAt ? this.formatLocalDateTime(draw.fetchedAt, draw.timezone) ?? 'Non disponible' : 'Non disponible';
+  }
+
+  resultEmptyLabel(draw: GeneratedDrawView): string {
+    if (draw.salesStatus === 'CLOSED' || draw.salesStatus === 'CANCELLED') {
+      return this.resultUnavailableReason(draw)
+        ?? 'Aucun résultat n’est encore disponible pour ce tirage.';
+    }
+    return 'Le tirage est encore ouvert. Le résultat pourra être saisi ou récupéré après la fermeture.';
   }
 
   openResultPanel(draw: GeneratedDrawView): void {

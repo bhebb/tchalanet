@@ -3,7 +3,6 @@ package com.tchalanet.server.features.platformadmin.tenantonboarding.model;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Result of {@code POST /platform/tenant-onboarding/provision}.
@@ -16,9 +15,10 @@ public record TenantProvisioningResultView(
     String tenantCode,
     TenantProvisioningProfile profile,
     BigDecimal defaultCommissionRate,
-    Map<String, String> domainStatuses,
+    TenantProvisioningDomainStatuses domainStatuses,
     List<String> nextSteps,
     List<String> warnings,
+    String appliedPlanCode,
     TenantReadinessView readiness,
     String initialAdminUserId,
     String initialAdminEmail,

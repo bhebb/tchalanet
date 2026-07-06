@@ -14,18 +14,3 @@
   letter-spacing: 0;
   text-transform: uppercase;
 }
-
-.seller-terminal-detail-summary-card h2 {
-  margin: 0;
-  overflow-wrap: anywhere;
-  color: var(--tch-color-on-surface);
-  font-size: 1.25rem;
-  line-height: 1.4;
-}
-
-.seller-terminal-detail-summary-card p {
-  margin: 0;
-  overflow-wrap: anywhere;
-  color: var(--tch-color-on-surface-variant);
-  font-family: var(--tch-font-family-mono, monospace);
-}

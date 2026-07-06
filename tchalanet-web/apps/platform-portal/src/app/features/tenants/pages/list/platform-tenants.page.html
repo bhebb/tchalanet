@@ -21,9 +21,9 @@
   <tch-admin-list-surface
     [searchLabel]="'platform.tenants.filter.search' | translate"
     [searchPlaceholder]="'platform.tenants.filter.search' | translate"
-    [searchValue]="filters.controls.q.value"
+    [searchValue]="search()"
     [statusLabel]="'platform.tenants.filter.status' | translate"
-    [statusValue]="filters.controls.status.value"
+    [statusValue]="statusFilter()"
     [statusOptions]="statusFilterOptions()"
     [allStatusesLabel]="'platform.tenants.filter.allStatuses' | translate"
     [resetLabel]="'platform.tenants.action.resetFilters' | translate"
@@ -34,46 +34,46 @@
     (resetFilters)="resetFilters()"
   >
     <ng-container list-content>
-      @if (loading()) {
-        <tch-loading [label]="'platform.tenants.loading' | translate" />
-      } @else if (error(); as errorVm) {
-        <tch-error-panel
-          [title]="errorVm.title"
-          [message]="errorVm.message"
-          [showRetry]="true"
-          [retryLabel]="'common.retry' | translate"
-          (retry)="loadPage()"
-        />
-      } @else if (items().length === 0) {
+      <tch-async-view
+        [resource]="tenants"
+        [error]="tenantsError()"
+        [loadingLabel]="'platform.tenants.loading' | translate"
+        [retryLabel]="'common.retry' | translate"
+        (retry)="load()"
+      >
         @if (hasActiveFilters()) {
-          <tch-admin-empty-state
-            icon="search_off"
-            [title]="'platform.tenants.empty.filtered.title' | translate"
-            [message]="'platform.tenants.empty.filtered.message' | translate"
-          />
-          <div class="tenants-page__empty-actions">
-            <button mat-button type="button" (click)="resetFilters()">
-              {{ 'platform.tenants.action.resetFilters' | translate }}
-            </button>
-            <a tch-action variant="primary" routerLink="/app/platform/tenants/onboarding">
-              <span class="material-symbols-outlined" aria-hidden="true">add_business</span>
-              {{ 'platform.tenants.action.create' | translate }}
-            </a>
+          <div empty>
+            <tch-admin-empty-state
+              icon="search_off"
+              [title]="'platform.tenants.empty.filtered.title' | translate"
+              [message]="'platform.tenants.empty.filtered.message' | translate"
+            />
+            <div class="tenants-page__empty-actions">
+              <button mat-button type="button" (click)="resetFilters()">
+                {{ 'platform.tenants.action.resetFilters' | translate }}
+              </button>
+              <a tch-action variant="primary" routerLink="/app/platform/tenants/onboarding">
+                <span class="material-symbols-outlined" aria-hidden="true">add_business</span>
+                {{ 'platform.tenants.action.create' | translate }}
+              </a>
+            </div>
           </div>
         } @else {
           <tch-admin-empty-state
+            empty
             icon="business"
             [title]="'platform.tenants.empty.title' | translate"
             [message]="'platform.tenants.empty.message' | translate"
           />
         }
-      } @else {
-        <div class="tenants-page__table">
-          <table mat-table [dataSource]="items()" matSort
-                 [matSortActive]="parsedSort().active"
-                 [matSortDirection]="parsedSort().direction"
-                 matSortDisableClear
-                 (matSortChange)="onSortChange($event)">
+
+        <ng-template tchAsyncReady>
+          <div class="tenants-page__table">
+            <table mat-table [dataSource]="items()" matSort
+                   [matSortActive]="parsedSort().active"
+                   [matSortDirection]="parsedSort().direction"
+                   matSortDisableClear
+                   (matSortChange)="onSortChange($event)">
 
             <ng-container matColumnDef="tenant">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="name">{{ 'platform.tenants.column.tenant' | translate }}</th>
@@ -168,27 +168,21 @@
               }
             </ng-template>
           </mat-menu>
-        </div>
-      }
+          </div>
+        </ng-template>
+      </tch-async-view>
     </ng-container>
 
     <ng-container list-footer>
-      <div class="tenants-page__pagination">
-        <span class="tenants-page__pagination-total">
-          {{ 'platform.tenants.paginationTotal' | translate: { count: total() } }}
-        </span>
-        <div class="tenants-page__pagination-nav">
-          <button mat-button [disabled]="!hasPrevious()" (click)="prevPage()">
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-            {{ 'common.previous' | translate }}
-          </button>
-          <span>{{ 'platform.tenants.pagination' | translate: { page: page() + 1, total: totalPages() } }}</span>
-          <button mat-button [disabled]="!hasNext()" (click)="nextPage()">
-            {{ 'common.next' | translate }}
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-          </button>
-        </div>
-      </div>
+      @if (items().length > 0) {
+        <tch-pagination
+          [page]="pageIndex()"
+          [size]="pageSize()"
+          [totalElements]="total()"
+          (pageChange)="onPageChange($event)"
+          (sizeChange)="onSizeChange($event)"
+        />
+      }
     </ng-container>
   </tch-admin-list-surface>
 </tch-admin-page-shell>

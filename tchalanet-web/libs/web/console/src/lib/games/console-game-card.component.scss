@@ -27,11 +27,19 @@
   flex: 0 0 auto;
   width: 2.75rem;
   height: 2.75rem;
+  overflow: hidden;
   border-radius: var(--tch-radius-md, 0.5rem);
-  background: var(--tch-color-primary-container, #e0e0ff);
+  background: var(--tch-color-surface, #fff);
   color: var(--tch-color-on-primary-container, #14145f);
   font-size: var(--tch-font-size-label-md, 0.875rem);
   font-weight: var(--tch-font-weight-bold, 700);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
 .console-game-card__title-block {

@@ -76,7 +76,7 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
       final page = await _repository.fetchNotifications(status: state.status);
       if (revision != _revision) return;
       state = state.copyWith(
-        items: List.unmodifiable(page.items),
+        items: List.unmodifiable(_fresh(page.items)),
         loading: false,
         hasNext: page.hasNext,
         nextPage: page.page + 1,
@@ -102,7 +102,7 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
       );
       if (revision != _revision) return;
       state = state.copyWith(
-        items: List.unmodifiable([...state.items, ...page.items]),
+        items: List.unmodifiable([...state.items, ..._fresh(page.items)]),
         loadingMore: false,
         hasNext: page.hasNext,
         nextPage: page.page + 1,
@@ -182,6 +182,33 @@ class NotificationCenterViewModel extends Notifier<NotificationCenterState> {
       state = state.copyWith(errorKey: 'notifications.center.action_error');
     } finally {
       if (revision == _revision) _setBusy(id, false);
+    }
+  }
+
+  /// Hides notifications that have expired, so a stale item never lingers
+  /// between two runtime-state refreshes even if the server list still holds it.
+  static List<NotificationItem> _fresh(List<NotificationItem> items) {
+    final now = DateTime.now();
+    return [
+      for (final item in items)
+        if (item.status != NotificationStatus.expired &&
+            !(item.expiresAt?.isBefore(now) ?? false))
+          item,
+    ];
+  }
+
+  Future<void> markAllRead() async {
+    final revision = _revision;
+    try {
+      await _repository.markAllRead();
+      if (revision != _revision) return;
+      ref
+          .read(notificationSummaryProvider.notifier)
+          .applyRuntimeSummary(unreadCount: 0, criticalCount: 0);
+      await load();
+    } catch (_) {
+      if (revision != _revision) return;
+      state = state.copyWith(errorKey: 'notifications.center.action_error');
     }
   }
 

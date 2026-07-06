@@ -20,6 +20,9 @@ public record TicketVerificationView(
     public record DrawInfoView(
         String channelKey,
         String channelName,
+        String resultSlotKey,
+        String provider,
+        String timezone,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}

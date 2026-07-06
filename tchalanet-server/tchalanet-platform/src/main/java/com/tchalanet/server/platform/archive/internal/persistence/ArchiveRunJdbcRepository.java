@@ -1,11 +1,13 @@
 package com.tchalanet.server.platform.archive.internal.persistence;
 
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,19 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ArchiveRunJdbcRepository {
+
+  private static final RowMapper<ArchiveRunRowView> ROW_MAPPER = (rs, rowNum) -> new ArchiveRunRowView(
+      rs.getObject("id", UUID.class),
+      rs.getString("status"),
+      rs.getString("strategy"),
+      rs.getString("trigger_type"),
+      rs.getString("idempotency_key"),
+      rs.getTimestamp("started_at").toInstant(),
+      rs.getTimestamp("completed_at") == null ? null : rs.getTimestamp("completed_at").toInstant(),
+      rs.getObject("requested_by", UUID.class),
+      rs.getString("reason"),
+      rs.getString("error_message"),
+      rs.getTimestamp("created_at").toInstant());
 
   private final NamedParameterJdbcTemplate jdbc;
 
@@ -36,10 +51,11 @@ public class ArchiveRunJdbcRepository {
     return id;
   }
 
-  public Optional<Map<String, Object>> findByIdempotencyKey(String key) {
-    List<Map<String, Object>> rows = jdbc.queryForList(
+  public Optional<ArchiveRunRowView> findByIdempotencyKey(String key) {
+    List<ArchiveRunRowView> rows = jdbc.query(
         "SELECT * FROM archive_run WHERE idempotency_key = :key",
-        Map.of("key", key));
+        Map.of("key", key),
+        ROW_MAPPER);
     return rows.isEmpty() ? Optional.empty() : Optional.of(rows.get(0));
   }
 
@@ -61,16 +77,18 @@ public class ArchiveRunJdbcRepository {
         new MapSqlParameterSource().addValue("id", id).addValue("msg", errorMessage));
   }
 
-  public List<Map<String, Object>> listRecent(int limit) {
-    return jdbc.queryForList(
+  public List<ArchiveRunRowView> listRecent(int limit) {
+    return jdbc.query(
         "SELECT * FROM archive_run ORDER BY started_at DESC LIMIT :limit",
-        Map.of("limit", limit));
+        Map.of("limit", limit),
+        ROW_MAPPER);
   }
 
-  public List<Map<String, Object>> listFailed(int limit) {
-    return jdbc.queryForList(
+  public List<ArchiveRunRowView> listFailed(int limit) {
+    return jdbc.query(
         "SELECT * FROM archive_run WHERE status = 'FAILED' ORDER BY started_at DESC LIMIT :limit",
-        Map.of("limit", limit));
+        Map.of("limit", limit),
+        ROW_MAPPER);
   }
 
   public long countByStatus(String status) {

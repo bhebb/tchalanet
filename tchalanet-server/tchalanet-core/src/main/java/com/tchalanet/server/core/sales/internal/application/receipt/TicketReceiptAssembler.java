@@ -54,6 +54,10 @@ public class TicketReceiptAssembler {
             printView.branding() == null ? null : printView.branding().tenantDisplayName(),
             printView.branding() == null ? null : printView.branding().tenantReceiptHeader(),
             printView.branding() == null ? null : printView.branding().outletReceiptHeader(),
+            printView.draw().channelCode(),
+            printView.draw().resultSlotKey(),
+            printView.draw().provider(),
+            printView.draw().timezone(),
             // drawLabel: keep slot alias if present; drawChannelLabel: preferred market/channel name
             printView.draw().label(),
             printView.draw().drawChannelName(),

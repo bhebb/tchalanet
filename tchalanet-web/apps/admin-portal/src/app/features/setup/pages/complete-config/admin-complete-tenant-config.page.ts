@@ -6,14 +6,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { webAppErrorFromNotice, webAppErrorFromProblemDetail } from '@tch/api';
 import type { ApiResponse, ProblemDetail } from '@tch/api';
-import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { TchLoading, TchErrorPanel } from '@tch/ui/components';
 
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -24,50 +22,84 @@ import {
   ReadinessSection,
   TenantSetupView,
 } from '../../../business-profile/data-access/admin-overview-api.service';
+import {
+  AdminSubscriptionApi,
+  SubscriptionView,
+} from '../../../subscription/data-access/admin-subscription-api.service';
+import {
+  SetupChecklistBadgeKind,
+  SetupChecklistBodyVariant,
+  SetupChecklistCardComponent,
+  SetupChecklistStatus,
+} from '../../components/setup-checklist-card/setup-checklist-card.component';
+import { SetupProgressHeaderComponent } from '../../components/setup-progress-header/setup-progress-header.component';
+import { SetupSellerTerminalCardComponent } from '../../components/setup-seller-terminal-card/setup-seller-terminal-card.component';
 
-const REQUIRED_SETUP_SECTION_IDS = [
-  'identity',
-  'address',
-  'games_pricing',
-  'draws',
-] as const;
+// Mirrors TenantReadinessAssembler.REQUIRED_STEP_GROUPS (tchalanet-server) — identity+address
+// count as one group since they're a single merged card here. generated_draws is required too:
+// configured channels/games alone aren't enough to sell without an actual generated Draw.
+// settings counts toward the percentage (its card is badged "required") without being blocking.
+const REQUIRED_STEP_GROUPS: readonly (readonly string[])[] = [
+  ['identity', 'address'],
+  ['settings'],
+  ['games_pricing'],
+  ['draws'],
+  ['generated_draws'],
+];
 
 type PageState = 'loading' | 'ready' | 'error';
+
+interface SetupChecklistCardViewModel {
+  readonly id: string;
+  readonly icon: string;
+  readonly titleKey: string;
+  readonly status: SetupChecklistStatus;
+  readonly badgeKind: SetupChecklistBadgeKind;
+  readonly body: string;
+  readonly bodyVariant: SetupChecklistBodyVariant;
+  readonly ctaKey: string;
+  readonly route: string;
+  readonly fragment?: string;
+  readonly emphasizeMissing: boolean;
+  readonly sectionErrorTargets: readonly string[];
+}
 
 @Component({
   selector: 'tch-admin-complete-tenant-config-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink,
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
     AdminPageShellComponent,
     TchLoading,
     TchErrorPanel,
-    TchSectionError,
+    SetupProgressHeaderComponent,
+    SetupChecklistCardComponent,
+    SetupSellerTerminalCardComponent,
   ],
   templateUrl: './admin-complete-tenant-config.page.html',
   styleUrls: ['./admin-complete-tenant-config.page.scss'],
 })
 export class AdminCompleteTenantConfigPage implements OnInit {
   private readonly api = inject(AdminOverviewApiService);
+  private readonly subscriptionApi = inject(AdminSubscriptionApi);
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<string | null>(null);
   readonly overview = signal<TenantAdminOverviewView | null>(null);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
+  readonly subscription = signal<SubscriptionView | null>(null);
 
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
 
-  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps || REQUIRED_SETUP_SECTION_IDS.length);
+  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps || REQUIRED_STEP_GROUPS.length);
   readonly requiredCompletedCount = computed(() =>
     this.setup()?.completedSteps ??
-    REQUIRED_SETUP_SECTION_IDS.filter(id => this.sectionMap().get(id)?.status === 'READY').length,
+    REQUIRED_STEP_GROUPS.filter(group => group.every(id => this.sectionMap().get(id)?.status === 'READY')).length,
   );
   readonly progressPct = computed(() =>
     Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100),
@@ -80,15 +112,134 @@ export class AdminCompleteTenantConfigPage implements OnInit {
 
   readonly canCreateSellerTerminal = computed(() => this.setup()?.canCreateSellerTerminal ?? false);
 
-  readonly setupCards = computed(() => {
-    const map = this.sectionMap();
+  readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
+    const h = this.header();
+    const identityStatus = this.sectionStatus('identity');
+    const addressStatus = this.sectionStatus('address');
+    // Merged card: READY only once both identity and address are — same rule as the two
+    // separate cards before the merge, just combined into a single status.
+    const identityAddressStatus: SetupChecklistStatus =
+      identityStatus === 'READY' && addressStatus === 'READY' ? 'READY' : 'MISSING';
+
+    const addr = h?.address;
+    const identityAddressBody = addr
+      ? this.addressLabel(addr)
+      : this.translate.instant('admin.setup.section.addressHint');
+
+    const gamesStatus = this.sectionStatus('games_pricing');
+    const drawsStatus = this.sectionStatus('draws');
+    // Draw-channels status reflects the channel/schedule/provider config only (the real
+    // blocking requirement). checkDraws() on the backend already folds the games×channel
+    // matrix completeness in — no separate client-side gating needed.
+    const drawChannelsStatus: SetupChecklistStatus = drawsStatus;
+    // Real check now (readiness section "generated_draws"): at least one Draw instance
+    // actually exists, not just that channels/games are configured.
+    const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
+    const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
+
     return [
-      this.cardOf(map, 'identity',      'admin.setup.section.identity',      'verified_user',   null),
-      this.cardOf(map, 'address',       'admin.setup.section.address',       'location_on',     null),
-      this.cardOf(map, 'games_pricing', 'admin.setup.section.games',         'casino',          '/app/admin/games'),
-      this.cardOf(map, 'draws',         'admin.setup.section.drawChannels',  'event_repeat',        '/app/admin/draw-channels'),
-      this.cardOf(map, 'theme',         'admin.setup.section.theme',         'palette',         '/app/admin/appearance'),
-      this.cardOf(map, 'promotions',    'admin.setup.section.promotions',    'redeem',          '/app/admin/promotions'),
+      {
+        id: 'identity_address',
+        icon: 'verified_user',
+        titleKey: 'admin.setup.section.identityAddress',
+        status: identityAddressStatus,
+        badgeKind: this.isAnyBlocking(['identity', 'address']) ? 'blocking' : 'required',
+        body: identityAddressBody || this.translate.instant('admin.setup.section.identityDesc'),
+        bodyVariant: addr ? 'address' : 'hint',
+        ctaKey: 'admin.setup.section.identityAddressCta',
+        route: '/app/admin/business-profile',
+        emphasizeMissing: true,
+        sectionErrorTargets: ['admin.setup.identity', 'admin.setup.address'],
+      },
+      {
+        id: 'settings',
+        icon: 'tune',
+        titleKey: 'admin.setup.section.settings',
+        // Real check now (readiness section "settings"): READY once the receipt display name
+        // is customized away from its seed placeholder ("CHEZ Toto").
+        status: settingsStatus,
+        badgeKind: 'required',
+        body: this.translate.instant('admin.setup.section.settingsDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.settingsCta',
+        route: '/app/admin/settings/config',
+        emphasizeMissing: true,
+        sectionErrorTargets: ['admin.setup.settings'],
+      },
+      {
+        id: 'games_pricing',
+        icon: 'casino',
+        titleKey: 'admin.setup.section.games',
+        status: gamesStatus,
+        badgeKind: this.isBlocking('games_pricing') ? 'blocking' : 'required',
+        body: this.translate.instant('admin.setup.section.gamesDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.gamesCta',
+        route: '/app/admin/games',
+        emphasizeMissing: true,
+        sectionErrorTargets: ['admin.setup.games_pricing'],
+      },
+      {
+        id: 'draws',
+        icon: 'event_repeat',
+        titleKey: 'admin.setup.section.drawChannels',
+        status: drawChannelsStatus,
+        badgeKind: this.isBlocking('draws') ? 'blocking' : 'required',
+        body: this.translate.instant('admin.setup.section.drawChannelsDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.drawChannelsCta',
+        route: '/app/admin/draw-channels',
+        emphasizeMissing: true,
+        sectionErrorTargets: ['admin.setup.draws', 'admin.setup.draw_sales_matrix'],
+      },
+      {
+        id: 'generated_draws',
+        icon: 'confirmation_number',
+        titleKey: 'admin.setup.section.generatedDraws',
+        // Required now: backend blocks canCreateSellerTerminal on this too (checkGeneratedDraws).
+        status: generatedDrawsStatus,
+        badgeKind: this.isBlocking('generated_draws') ? 'blocking' : 'required',
+        body: this.translate.instant('admin.setup.section.generatedDrawsDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.generatedDrawsCta',
+        route: '/app/admin/draws',
+        emphasizeMissing: true,
+        sectionErrorTargets: ['admin.setup.generatedDraws'],
+      },
+      {
+        id: 'theme',
+        icon: 'palette',
+        titleKey: 'admin.setup.section.theme',
+        status: this.sectionStatus('theme'),
+        badgeKind: 'optional',
+        body: this.translate.instant('admin.setup.section.themeDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.themeCta',
+        route: '/app/admin/appearance',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.theme'],
+      },
+      {
+        id: 'subscription',
+        icon: 'workspace_premium',
+        titleKey: 'admin.setup.section.subscription',
+        // No readiness section for subscription (not a config-completeness domain) — status
+        // reflects whether a plan is actually applied, from GET /tenant/subscription.
+        status: this.subscription()?.status === 'ACTIVE' || this.subscription()?.status === 'TRIAL'
+          ? 'READY'
+          : this.subscription()
+            ? 'UNKNOWN'
+            : 'MISSING',
+        badgeKind: 'optional',
+        body: this.subscription()
+          ? `${this.subscription()!.planCode} · ${this.subscription()!.status}`
+          : this.translate.instant('admin.setup.section.subscriptionNoPlan'),
+        bodyVariant: this.subscription() ? 'default' : 'hint',
+        ctaKey: 'admin.setup.section.subscriptionCta',
+        route: '/app/admin/subscription',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.subscription'],
+      },
     ];
   });
 
@@ -115,6 +266,12 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         this.pageState.set('error');
       },
     });
+
+    // Optional/informational card — its own call so a subscription hiccup never blocks the checklist.
+    this.subscriptionApi.get({ suppressShellFeedback: true }).subscribe({
+      next: subscription => this.subscription.set(subscription),
+      error: () => this.subscription.set(null),
+    });
   }
 
   sectionStatus(id: string): 'READY' | 'MISSING' | 'UNKNOWN' {
@@ -122,35 +279,28 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return (s?.status as 'READY' | 'MISSING' | 'UNKNOWN') ?? 'UNKNOWN';
   }
 
-  statusIcon(status: string): string {
-    if (status === 'READY') return 'check_circle';
-    if (status === 'MISSING') return 'radio_button_unchecked';
-    return 'help_outline';
-  }
-
-  statusClass(status: string): string {
-    if (status === 'READY') return 'status--ready';
-    if (status === 'MISSING') return 'status--missing';
-    return 'status--unknown';
-  }
-
   isBlocking(id: string): boolean {
     return this.setup()?.blockingSteps?.includes(id.toUpperCase()) ?? false;
+  }
+
+  isAnyBlocking(ids: readonly string[]): boolean {
+    return ids.some(id => this.isBlocking(id));
   }
 
   sectionError(target: string): AdminSectionTargetError | null {
     return this.sectionErrors().find(error => error.target === target) ?? null;
   }
 
-  private cardOf(
-    map: Map<string, ReadinessSection>,
-    id: string,
-    labelKey: string,
-    icon: string,
-    route: string | null,
-  ) {
-    const s = map.get(id);
-    return { id, labelKey, icon, route: route ?? s?.route ?? null, status: s?.status ?? 'UNKNOWN' };
+  sectionErrorsFor(targets: readonly string[]): readonly AdminSectionTargetError[] {
+    return this.sectionErrors().filter(error => error.target != null && targets.includes(error.target));
+  }
+
+  private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {
+    return [
+      [addr.line1, addr.line2].filter(Boolean).join(' · '),
+      [addr.city, addr.region].filter(Boolean).join(', '),
+      [addr.postalCode, addr.country].filter(Boolean).join(' '),
+    ].filter(Boolean).join(' · ');
   }
 
   private sectionErrorsFromResponse(

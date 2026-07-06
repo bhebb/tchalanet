@@ -7,6 +7,7 @@ import { BadgeStatus, TchCard, TchSectionError, TchSectionErrorSeverity, TchStat
 import { AdminStatusPillComponent } from '@tch/ui/console';
 
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
+import { ConsoleGameLogoUrlPipe } from './console-game-labels.pipe';
 import { ConsoleGameCardActionEvent, ConsoleGameCardBadgeTone, ConsoleGameCardView } from './console-games-table.models';
 
 export interface ConsoleGameCardError {
@@ -28,6 +29,7 @@ export interface ConsoleGameCardError {
     TchCard,
     TchSectionError,
     TchStatusBadge,
+    ConsoleGameLogoUrlPipe,
   ],
   templateUrl: './console-game-card.component.html',
   styleUrls: ['./console-game-card.component.scss'],

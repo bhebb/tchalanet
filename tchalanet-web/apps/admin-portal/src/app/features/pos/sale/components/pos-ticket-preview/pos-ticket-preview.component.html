@@ -19,9 +19,12 @@
       </div>
       <div class="ptp__meta-row">
         <span class="ptp__meta-key">TIRAGE</span>
-        @if (draw(); as d) {
+        @if (drawReceipt(); as drawInfo) {
           <span class="ptp__meta-val ptp__meta-val--bold">
-            {{ d.label | uppercase }} ({{ d.scheduledAt | date:'HH:mm' }})
+            {{ drawInfo.receiptLabel | uppercase }}
+            @if (drawInfo.receiptDateTimeLabel) {
+              ({{ drawInfo.receiptDateTimeLabel }})
+            }
           </span>
         } @else {
           <span class="ptp__meta-val ptp__meta-val--muted">—</span>

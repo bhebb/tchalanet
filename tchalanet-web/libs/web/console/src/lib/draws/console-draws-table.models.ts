@@ -1,4 +1,5 @@
 import { AdminStatusTone } from '@tch/ui/console';
+import { ConsoleDrawSlotIdentity } from '../draw-slots/console-draw-slot-identity.models';
 import { ConsoleRowAction } from '../draw-results/console-draw-results-table.models';
 
 export interface ConsoleDrawRow {
@@ -10,6 +11,7 @@ export interface ConsoleDrawRow {
   readonly logoUrl?: string | null;
   readonly logoAlt?: string;
   readonly logoText?: string;
+  readonly identity: ConsoleDrawSlotIdentity;
   readonly scheduledDateLabel?: string;
   readonly scheduledTimeLabel?: string;
   readonly countdownLabel?: string | null;

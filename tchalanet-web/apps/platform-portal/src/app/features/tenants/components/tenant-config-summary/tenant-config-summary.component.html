@@ -1,0 +1,141 @@
+@if (!settings()) {
+  <tch-admin-empty-state
+    icon="settings"
+    [title]="'platform.tenants.detail.config.empty.title' | translate"
+    [message]="'platform.tenants.detail.config.empty.message' | translate"
+  />
+} @else {
+  <div class="tenant-config-summary__grid">
+
+    <!-- Langue & région -->
+    @if (locale(); as loc) {
+      <tch-admin-section-card
+        [title]="'platform.tenants.detail.config.section.locale' | translate"
+        icon="translate"
+      >
+        <dl class="tenant-config-summary__facts">
+          @if (loc.defaultLanguage) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.defaultLanguage' | translate }}</dt>
+              <dd>{{ loc.defaultLanguage }}</dd>
+            </div>
+          }
+          @if (loc.defaultLocale) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.defaultLocale' | translate }}</dt>
+              <dd>{{ loc.defaultLocale }}</dd>
+            </div>
+          }
+          @if (loc.supportedLanguages?.length) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.supportedLanguages' | translate }}</dt>
+              <dd>{{ loc.supportedLanguages!.join(', ') }}</dd>
+            </div>
+          }
+          @if (loc.fallbackLanguage) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.fallbackLanguage' | translate }}</dt>
+              <dd>{{ loc.fallbackLanguage }}</dd>
+            </div>
+          }
+        </dl>
+      </tch-admin-section-card>
+    }
+
+    <!-- Calendrier commercial -->
+    @if (calendar(); as cal) {
+      <tch-admin-section-card
+        [title]="'platform.tenants.detail.config.section.calendar' | translate"
+        icon="calendar_month"
+      >
+        <dl class="tenant-config-summary__facts">
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.defaultOpen' | translate }}</dt>
+            <dd>{{ (cal.defaultOpen ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.holidaySalesAllowed' | translate }}</dt>
+            <dd>{{ (cal.holidaySalesAllowed ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+          @if (cal.closedWeekdays?.length) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.closedWeekdays' | translate }}</dt>
+              <dd>{{ cal.closedWeekdays!.map(d => weekdayLabel(d)).join(', ') }}</dd>
+            </div>
+          }
+        </dl>
+      </tch-admin-section-card>
+    }
+
+    <!-- Communication ticket -->
+    @if (communication(); as comm) {
+      <tch-admin-section-card
+        [title]="'platform.tenants.detail.config.section.communication' | translate"
+        icon="send"
+      >
+        <dl class="tenant-config-summary__facts">
+          <div>
+            <dt>SMS</dt>
+            <dd>{{ channelLabel(comm.sms) }}</dd>
+          </div>
+          <div>
+            <dt>WhatsApp</dt>
+            <dd>{{ channelLabel(comm.whatsapp) }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ channelLabel(comm.email) }}</dd>
+          </div>
+        </dl>
+      </tch-admin-section-card>
+    }
+
+    <!-- Reçu / documents -->
+    @if (receipt(); as rec) {
+      <tch-admin-section-card
+        [title]="'platform.tenants.detail.config.section.receipt' | translate"
+        icon="receipt_long"
+      >
+        <dl class="tenant-config-summary__facts">
+          @if (rec.displayName) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.receiptDisplayName' | translate }}</dt>
+              <dd>{{ rec.displayName }}</dd>
+            </div>
+          }
+          @if (rec.headerMessage) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.headerMessage' | translate }}</dt>
+              <dd>{{ rec.headerMessage }}</dd>
+            </div>
+          }
+          @if (rec.footerMessage) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.footerMessage' | translate }}</dt>
+              <dd>{{ rec.footerMessage }}</dd>
+            </div>
+          }
+          @if (rec.defaultPaperSize) {
+            <div>
+              <dt>{{ 'platform.tenants.detail.config.field.paperSize' | translate }}</dt>
+              <dd>{{ rec.defaultPaperSize }}</dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.showQrCode' | translate }}</dt>
+            <dd>{{ (rec.showQrCode ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.showSellerName' | translate }}</dt>
+            <dd>{{ (rec.showSellerName ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'platform.tenants.detail.config.field.showPotentialPayout' | translate }}</dt>
+            <dd>{{ (rec.showPotentialPayout ? 'common.yes' : 'common.no') | translate }}</dd>
+          </div>
+        </dl>
+      </tch-admin-section-card>
+    }
+
+  </div>
+}

@@ -1,9 +1,14 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, ResourceRef, inject } from '@angular/core';
 import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type TenantStatus = 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED' | 'ARCHIVED';
+import {
+  TenantProvisioningProfile,
+  TenantReadinessStatus,
+  TenantStatus,
+  TenantType,
+} from './platform-tenant-contracts';
 
 export interface TenantInternalLocaleConfig {
   defaultLanguage?: string | null;
@@ -60,10 +65,6 @@ export interface TenantInternalSettings {
   document?: TenantInternalDocumentConfig | null;
   rules?: TenantInternalRules | null;
 }
-export type TenantType = 'BORLETTE' | 'RESEAU' | 'AMBULANT';
-export type TenantProvisioningProfile = 'MINIMAL' | 'DEFAULT_HAITI_LOTTERY' | 'DEMO';
-export type TenantReadinessStatus = 'READY' | 'INCOMPLETE' | 'BLOCKED' | 'MISSING' | 'UNKNOWN';
-
 export interface TenantSummaryView {
   id?: string;
   tenantId?: string;
@@ -109,6 +110,7 @@ export interface CreateTenantRequest {
   type: TenantType;
   timezone: string;
   currency: string;
+  defaultCommissionRate?: number | null;
   activeThemeId?: string | null;
   activate?: boolean;
   address?: {
@@ -138,29 +140,28 @@ export interface TenantAdminView {
   createdAt: string;
 }
 
-export interface PlatformSuperAdminView {
-  id: string;
-  email: string;
-  displayName: string;
-  status: string;
-  assignedAt: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class PlatformTenantsApi {
   private readonly backend = inject(TchBackendClient);
 
   listTenants(params: TenantListQuery, options?: TchRequestOptions): Observable<TchPage<TenantSummaryView>> {
-    const query = new URLSearchParams();
-    query.set('page', String(params.page));
-    query.set('size', String(params.size));
-    if (params.q?.trim()) query.set('q', params.q.trim());
-    if (params.status) query.set('status', params.status);
-    if (params.sort) query.set('sort', params.sort);
     return this.backend.getPage<TenantSummaryView>(
       '/platform/tenants',
-      { ...(options ?? {}), params: Object.fromEntries(query.entries()) },
+      { ...(options ?? {}), params: tenantListQueryParams(params) },
     );
+  }
+
+  listTenantsResource(
+    params: () => TenantListQuery,
+    options?: TchRequestOptions,
+  ): ResourceRef<TchPage<TenantSummaryView> | undefined> {
+    return this.backend.getPageResource<TenantSummaryView>(() => ({
+      path: '/platform/tenants',
+      options: {
+        ...(options ?? {}),
+        params: tenantListQueryParams(params()),
+      },
+    }));
   }
 
   getTenant(id: string, options?: TchRequestOptions): Observable<TenantDetailView> {
@@ -170,10 +171,6 @@ export class PlatformTenantsApi {
       return throwError(() => new Error('Aucun tenant sélectionné.'));
     }
     return this.backend.get<TenantDetailView>(`/platform/tenants/${id}`, options);
-  }
-
-  createTenant(req: CreateTenantRequest): Observable<TenantSummaryView> {
-    return this.backend.post<TenantSummaryView>('/platform/tenants', req);
   }
 
   updateTenant(id: string, req: { name: string; timezone: string; currency: string }): Observable<void> {
@@ -205,10 +202,6 @@ export class PlatformTenantsApi {
       .pipe(map(page => page.items));
   }
 
-  listSuperAdmins(): Observable<PlatformSuperAdminView[]> {
-    return this.backend.get<PlatformSuperAdminView[]>('/platform/super-admins');
-  }
-
   createTenantAdmin(
     tenantId: string,
     req: CreateTenantAdminRequest,
@@ -224,4 +217,14 @@ export class PlatformTenantsApi {
 /** A usable path segment: not empty and not a stringified null/undefined from a missing route param. */
 function isValidId(id: string | null | undefined): id is string {
   return !!id && id !== 'null' && id !== 'undefined';
+}
+
+function tenantListQueryParams(params: TenantListQuery): Record<string, string> {
+  const query = new URLSearchParams();
+  query.set('page', String(params.page));
+  query.set('size', String(params.size));
+  if (params.q?.trim()) query.set('q', params.q.trim());
+  if (params.status) query.set('status', params.status);
+  if (params.sort) query.set('sort', params.sort);
+  return Object.fromEntries(query.entries());
 }

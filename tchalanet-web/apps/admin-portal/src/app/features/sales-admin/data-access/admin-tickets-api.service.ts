@@ -15,6 +15,10 @@ export interface TicketRowView {
   readonly publicCode: string;
   readonly status: TicketStatus;
   readonly drawId: string;
+  readonly drawChannelCode?: string | null;
+  readonly resultSlotKey?: string | null;
+  readonly resultProvider?: string | null;
+  readonly resultTimezone?: string | null;
   readonly drawChannelName: string;
   readonly drawScheduledAt: string;
   readonly totalAmountCents: number;

@@ -330,19 +330,20 @@
       "optional": "Optionnel",
       "operational": "Opérationnel",
       "required": "Requis",
+      "blocking": "Blocking",
+      "blockedBy": "Blocked by:",
       "section": {
         "identity": "Identité",
         "address": "Adresse",
         "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
         "addressCta": "Configurer l'adresse",
+        "identityAddress": "Identity & address",
+        "identityAddressCta": "Manage profile",
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
-        "channelMatrix": "Games by channel",
-        "channelMatrixDesc": "Choose which games are offered on each tenant draw channel.",
-        "channelMatrixCta": "Configure games by channel",
         "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Planning et canaux utilisés pour générer les tirages.",
+        "drawChannelsDesc": "Configured sales channels.",
         "drawChannelsCta": "Configurer les canaux",
         "generatedDraws": "Tirages générés",
         "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
@@ -354,6 +355,13 @@
         "theme": "Apparence",
         "themeDesc": "Personnalisation de l'apparence",
         "themeCta": "Configurer l'apparence",
+        "settings": "Tenant settings",
+        "settingsDesc": "Customize the language and receipt (display name, messages) for your tenant.",
+        "settingsCta": "Configure settings",
+        "subscription": "Subscription",
+        "subscriptionDesc": "Your subscription plan and status.",
+        "subscriptionNoPlan": "No active plan — contact Tchalanet.",
+        "subscriptionCta": "View subscription",
         "sellerTerminal": "Vendeurs",
         "sellerTerminalDesc": "Vendeurs disponibles",
         "sellerTerminalLocked": "Le terminal est verrouillé. Veuillez contacter l'administrateur.",
@@ -371,10 +379,11 @@
       "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
       "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
-        "address": "Adresse",
-        "games": "Jeux",
-        "drawChannels": "Tirages",
-        "generatedDraws": "Tirages générés"
+        "identity": "Identity",
+        "address": "Address",
+        "games_pricing": "Games",
+        "draws": "Draw channels",
+        "generated_draws": "Generated draws"
       },
       "address": {
         "city": "Ville",
@@ -385,7 +394,6 @@
         "line1": "Adresse ligne 1",
         "line2": "Adresse ligne 2"
       },
-      "blocking": "Complétez les étapes requises pour continuer.",
       "error": {
         "load": "Impossible de charger la configuration."
       },
@@ -860,6 +868,29 @@
         "terminalBlocked": "Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.",
         "invalidStake": "La mise doit être supérieure à 0 HTG.",
         "noLines": "Ajoutez au moins une ligne pour confirmer la vente."
+      }
+    },
+    "drawResults": {
+      "detail": {
+        "tab": {
+          "results": "Results",
+          "combinations": "Combinations & rules",
+          "raw": "Raw result"
+        },
+        "combinations": {
+          "intro": "For each supported play option, the winning numbers computed from the draw.",
+          "playType": "Play type",
+          "winWith": "Win with",
+          "winningNumbers": "Winning numbers",
+          "empty": "No combination can be computed for this result."
+        },
+        "winWith": {
+          "exact": "Exact order",
+          "any": "Any order"
+        },
+        "raw": {
+          "empty": "No raw data available."
+        }
       }
     }
   },

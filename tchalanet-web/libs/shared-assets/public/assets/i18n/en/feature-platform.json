@@ -59,6 +59,7 @@
         "message": "Add the first platform account."
       },
       "column": {
+        "admin": "Admin",
         "email": "Email",
         "name": "Name",
         "assignedAt": "Assigned at"
@@ -231,6 +232,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Archive",
+          "archiveError": "Unable to archive the tenant.",
+          "supportAccess": "Access as admin",
           "addAdmin": "Ajouter un administrateur"
         },
         "tab": {
@@ -244,6 +248,73 @@
         },
         "address": {
           "empty": "Adresse non renseignée."
+        },
+        "subscription": {
+          "title": "Subscription",
+          "loading": "Loading subscription…",
+          "error": "Unable to load the subscription.",
+          "empty": "No plan applied to this tenant.",
+          "applyError": "Unable to apply the plan.",
+          "field": {
+            "plan": "Plan",
+            "status": "Status",
+            "startedAt": "Started on",
+            "endsAt": "Ends on"
+          },
+          "action": {
+            "apply": "Apply a plan",
+            "change": "Change plan",
+            "confirm": "Confirm"
+          }
+        },
+        "entitlements": {
+          "title": "Usage entitlements",
+          "loading": "Loading usage entitlements…",
+          "error": "Unable to load usage entitlements.",
+          "empty": "No entitlements resolved for this tenant.",
+          "field": {
+            "plan": "Plan",
+            "activeSubscription": "Active subscription",
+            "resolvedAt": "Resolved on"
+          },
+          "features": {
+            "title": "Features",
+            "empty": "No features defined.",
+            "column": {
+              "key": "Feature",
+              "status": "Status"
+            }
+          },
+          "limits": {
+            "title": "Limits",
+            "empty": "No limits defined.",
+            "column": {
+              "key": "Limit",
+              "value": "Value"
+            }
+          }
+        },
+        "sellerTerminals": {
+          "loading": "Loading seller terminals…",
+          "error": "Unable to load seller terminals.",
+          "empty": {
+            "title": "No seller terminal",
+            "message": "This tenant has no seller terminal yet."
+          },
+          "status": {
+            "active": "Active",
+            "pending": "Pending",
+            "blocked": "Blocked",
+            "disabled": "Disabled"
+          }
+        },
+        "audit": {
+          "loading": "Loading audit log…",
+          "error": "Unable to load the audit log.",
+          "empty": {
+            "title": "No event",
+            "message": "No audit event for this tenant."
+          }
         },
         "admins": {
           "loading": "Loading administrators…",
@@ -392,7 +463,13 @@
         "regional": "Regional settings",
         "commercial": "Commercial settings",
         "profile": "Provisioning profile",
-        "initialAdmin": "Initial admin"
+        "initialAdmin": "Initial admin",
+        "plan": "Tenant plan"
+      },
+      "plan": {
+        "loading": "Loading plans...",
+        "empty": "No active plan available.",
+        "default": "Default"
       },
       "field": {
         "code": "Tenant code",
@@ -434,6 +511,7 @@
         "existingUserAttached": "An existing user was attached as the tenant administrator.",
         "temporaryCredentialNotReturned": "Temporary credentials could not be displayed. Reset the password from the tenant detail page.",
         "temporaryPasswordIssued": "A temporary password was issued for the initial administrator.",
+        "noPlanSelected": "No plan selected. The tenant will be created without an active subscription — apply a plan before creating seller-terminals.",
         "fallback": "A configuration point needs verification."
       },
       "identityCard": {
@@ -470,7 +548,8 @@
         "promotionsTemplates": "Promotion templates",
         "limitsTemplates": "Limit templates",
         "demoUsers": "Demo users",
-        "demoSellerTerminals": "Demo seller-terminals"
+        "demoSellerTerminals": "Demo seller-terminals",
+        "subscription": "Subscription"
       },
       "status": {
         "created": "Created",
@@ -479,6 +558,7 @@
         "defaultLottery": "Default lottery",
         "defaultHaiti": "Default Haiti",
         "templatesAvailable": "Templates available",
+        "planApplied": "Plan applied",
         "none": "None",
         "planned": "Planned",
         "expected": "Expected",

@@ -6,7 +6,11 @@ import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
+import {
+  ConsoleActorIdentity,
+  ConsoleActorRowComponent,
+  consoleSellerTerminalActorIdentity,
+} from '@tch/web/console';
 
 import {
   SellerTerminalStatus,
@@ -20,7 +24,7 @@ import {
   imports: [
     DatePipe,
     RouterLink,
-    TchStatusBadge,
+    ConsoleActorRowComponent,
     TranslatePipe,
     MatButtonModule,
     MatMenuModule,
@@ -40,11 +44,7 @@ export class SellerTerminalTableComponent {
   readonly limits = output<SellerTerminalSummaryRow>();
 
   readonly displayedColumns = [
-    'terminalCode',
-    'displayName',
-    'email',
-    'phoneNumber',
-    'status',
+    'seller',
     'commissionRate',
     'lastSeenAt',
     'actions',
@@ -56,14 +56,11 @@ export class SellerTerminalTableComponent {
     return `admin.sellerTerminals.status.${row.status}`;
   }
 
-  statusBadge(row: SellerTerminalSummaryRow): BadgeStatus {
-    if (row.status === 'ACTIVE' && !row.pinResetRequired) return 'ready';
-    if (row.status === 'BLOCKED') return 'blocked';
-    if (row.status === 'PENDING' || row.pinResetRequired) return 'pending';
-    return 'missing';
-  }
-
   canOpenPos(status: SellerTerminalStatus): boolean {
     return status === 'ACTIVE';
+  }
+
+  actorIdentity(row: SellerTerminalSummaryRow): ConsoleActorIdentity {
+    return consoleSellerTerminalActorIdentity(row);
   }
 }

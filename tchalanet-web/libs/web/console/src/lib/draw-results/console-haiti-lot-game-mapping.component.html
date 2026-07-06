@@ -1,0 +1,16 @@
+<div class="haiti-lot-map" aria-label="Mapping lots Haiti vers provider">
+  @for (mapping of mappings(); track mapping.lotKey) {
+    <article class="haiti-lot-map__card">
+      @if (mapping.providerGameLogoUrl) {
+        <img [src]="mapping.providerGameLogoUrl" [alt]="mapping.providerGameLogoAlt" />
+      } @else {
+        <span class="haiti-lot-map__logo-fallback">{{ mapping.providerShortLabel }}</span>
+      }
+      <span class="haiti-lot-map__copy">
+        <strong>{{ mapping.providerGameLabel }}</strong>
+        <em>{{ mapping.haitiLotLabel }}</em>
+        <small>{{ mapping.providerLongLabel }}</small>
+      </span>
+    </article>
+  }
+</div>

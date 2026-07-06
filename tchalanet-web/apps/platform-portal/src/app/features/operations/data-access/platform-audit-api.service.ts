@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TchBackendClient, TchPage } from '@tch/api';
+import { AdminStatusTone } from '@tch/ui/console';
 import { Observable } from 'rxjs';
 
 export type AuditActorType = 'USER' | 'TERMINAL' | 'SYSTEM';
@@ -30,6 +31,19 @@ export interface PurgeAuditResult {
   retentionDays: number;
   threshold: string;
   reason: string;
+}
+
+export function auditActorTone(actorType: string): AdminStatusTone {
+  if (actorType === 'SYSTEM') return 'neutral';
+  if (actorType === 'TERMINAL') return 'warning';
+  return 'info';
+}
+
+export function auditActionTone(action: string): AdminStatusTone {
+  if (/DELETE|PURGE|VOID|CANCEL|DISABLE|BLOCK|LOCK|REVOKE/.test(action)) return 'danger';
+  if (/CREATE|GENERATE|OPEN|REGISTER|ACTIVATE|RESTORE/.test(action)) return 'success';
+  if (/UPDATE|STATE_CHANGE|OVERRIDE|CORRECT|SETTLE/.test(action)) return 'warning';
+  return 'neutral';
 }
 
 @Injectable({ providedIn: 'root' })

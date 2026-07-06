@@ -2,8 +2,11 @@ package com.tchalanet.server.core.subscription.internal.application.command.hand
 
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.core.subscription.api.command.ApplyTenantPlanCommand;
@@ -17,8 +20,6 @@ import com.tchalanet.server.platform.entitlement.api.EntitlementCacheInvalidatio
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher; // Keep for now, might be used elsewhere
 
-import java.time.Clock;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -36,11 +37,13 @@ import java.util.UUID;
 public class ApplyTenantPlanCommandHandler
     implements CommandHandler<ApplyTenantPlanCommand, ApplyTenantPlanResult> {
 
+    private static final String SYSTEM_INITIATOR = "system";
+
     private final PlanCatalog planCatalog; // ✅ API publique catalog/plan
     private final SubscriptionPersistencePort persistencePort;
     private final SubscriptionReaderPort readerPort;
     private final ApplicationEventPublisher eventPublisher; // Keep for now, if other events are published
-    private final Clock clock;
+    private final TchTimeProvider tchTimeProvider;
     private final EntitlementCacheInvalidationApi entitlementCacheInvalidationApi;
 
     @Override
@@ -60,8 +63,9 @@ public class ApplyTenantPlanCommandHandler
 
         // 3. Create/update subscription
         long newVersion = existing.map(s -> s.version() + 1).orElse(1L);
-        Instant now = Instant.now(clock);
-        Instant effectiveAt = cmd.effectiveAt() != null ? cmd.effectiveAt() : now;
+        var now = tchTimeProvider.now();
+        var effectiveAt = cmd.effectiveAt() != null ? cmd.effectiveAt() : now;
+        var initiator = resolveInitiator(TchContext.currentOrNull());
 
         var subscription = new Subscription(
             existing.map(Subscription::id).orElse(SubscriptionId.of(UUID.randomUUID())),
@@ -76,7 +80,7 @@ public class ApplyTenantPlanCommandHandler
             newVersion,
             existing.map(Subscription::createdAt).orElse(now),
             now,
-            "system" // TODO: get from security context
+            existing.map(Subscription::createdBy).orElse(initiator)
         );
 
         var saved = persistencePort.save(subscription);
@@ -91,11 +95,18 @@ public class ApplyTenantPlanCommandHandler
                 saved.planCode(),
                 saved.status(),
                 saved.version(),
-                Instant.now(clock),
-                "system"
+                now,
+                initiator
             ));
         });
 
         return new ApplyTenantPlanResult(saved.id(), saved.status());
+    }
+
+    private static String resolveInitiator(TchRequestContext context) {
+        if (context == null || context.appUserId() == null) {
+            return SYSTEM_INITIATOR;
+        }
+        return context.appUserId().toString();
     }
 }

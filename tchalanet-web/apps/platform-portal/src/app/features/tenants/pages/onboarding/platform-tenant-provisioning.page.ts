@@ -28,18 +28,23 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   PlatformProvisioningApi,
   TenantProvisioningPreviewView,
-  TenantProvisioningProfile,
   TenantProvisioningRequest,
   TenantProvisioningResultView,
-  TenantType,
 } from '../../data-access/platform-provisioning-api.service';
+import {
+  PlanSummaryView,
+  TenantProvisioningProfile,
+  TenantType,
+} from '../../data-access/platform-tenant-contracts';
+import { PlatformSubscriptionApi } from '../../data-access/platform-subscription-api.service';
 import {
   TenantTypeOption,
   TenantTypePickerComponent,
-} from './components/tenant-type-picker/tenant-type-picker.component';
-import { TenantProvisioningAsideComponent } from './components/tenant-provisioning-aside/tenant-provisioning-aside.component';
-import { TenantProvisioningProfileSummaryComponent } from './components/tenant-provisioning-profile-summary/tenant-provisioning-profile-summary.component';
-import { TenantProvisioningSuccessComponent } from './components/tenant-provisioning-success/tenant-provisioning-success.component';
+} from '../../components/tenant-type-picker/tenant-type-picker.component';
+import { TenantPlanPickerComponent } from '../../components/tenant-plan-picker/tenant-plan-picker.component';
+import { TenantProvisioningAsideComponent } from '../../components/tenant-provisioning-aside/tenant-provisioning-aside.component';
+import { TenantProvisioningProfileSummaryComponent } from '../../components/tenant-provisioning-profile-summary/tenant-provisioning-profile-summary.component';
+import { TenantProvisioningSuccessComponent } from '../../components/tenant-provisioning-success/tenant-provisioning-success.component';
 
 const TENANT_TYPES: TenantTypeOption[] = [
   { value: 'BORLETTE', label: 'Borlette', icon: 'storefront', descriptionKey: 'platform.tenantProvisioning.typeDescription.borlette' },
@@ -64,8 +69,6 @@ const READINESS_PREVIEW_TARGET = 'platform.tenantProvisioning.readiness.preview'
 
 @Component({
   selector: 'tch-platform-tenant-provisioning-page',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     TranslatePipe,
@@ -75,6 +78,7 @@ const READINESS_PREVIEW_TARGET = 'platform.tenantProvisioning.readiness.preview'
     AdminDetailLayoutComponent,
     TenantProvisioningAsideComponent,
     TenantTypePickerComponent,
+    TenantPlanPickerComponent,
     TenantProvisioningProfileSummaryComponent,
     TenantProvisioningSuccessComponent,
     TchActionButton,
@@ -92,6 +96,7 @@ const READINESS_PREVIEW_TARGET = 'platform.tenantProvisioning.readiness.preview'
 })
 export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   private readonly api = inject(PlatformProvisioningApi);
+  private readonly subscriptionApi = inject(PlatformSubscriptionApi);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
@@ -110,6 +115,9 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   readonly preview = signal<TenantProvisioningPreviewView | null>(null);
   readonly result = signal<TenantProvisioningResultView | null>(null);
 
+  readonly plans = signal<readonly PlanSummaryView[]>([]);
+  readonly plansLoading = signal(false);
+
   readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]{3,30}$/)]],
     name: ['', Validators.required],
@@ -122,6 +130,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
     ],
     profile: ['DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile, Validators.required],
     initialAdminEmail: ['', [Validators.email]],
+    planCode: ['' as string],
   });
 
   readonly selectedProfileDesc = computed(() => {
@@ -146,6 +155,20 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.plansLoading.set(true);
+    this.subscriptionApi.listActivePlans().subscribe({
+      next: plans => {
+        this.plans.set(plans);
+        this.plansLoading.set(false);
+        // Pre-select the catalog default plan when the super-admin hasn't picked one yet.
+        const defaultPlan = plans.find(p => p.isDefault);
+        if (defaultPlan && !this.form.controls.planCode.value) {
+          this.form.controls.planCode.setValue(defaultPlan.code);
+        }
+      },
+      error: () => this.plansLoading.set(false),
+    });
+
     this.form.valueChanges
       .pipe(
         // Keep the live identity card in sync on every keystroke...
@@ -215,12 +238,17 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       defaultCommissionRate: value.defaultCommissionRate!,
       profile: value.profile!,
       initialAdminEmail: value.initialAdminEmail || null,
+      planCode: value.planCode || null,
     };
   }
 
   selectTenantType(value: TenantType): void {
     this.form.controls.type.setValue(value);
     this.form.controls.type.markAsTouched();
+  }
+
+  selectPlan(code: string): void {
+    this.form.controls.planCode.setValue(code);
   }
 
   private previewErrorFromUnknown(err: unknown): AdminProvisioningHealthError {
@@ -270,6 +298,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       defaultCommissionRate: 15,
       profile: 'DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile,
       initialAdminEmail: '',
+      planCode: this.plans().find(p => p.isDefault)?.code ?? '',
     });
     this.formRevision.update(value => value + 1);
   }

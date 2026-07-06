@@ -9,6 +9,10 @@ import java.time.LocalDate;
 public record TicketPrintDraw(
     DrawId drawId,
     DrawChannelId drawChannelId,
+    String channelCode,
+    String resultSlotKey,
+    String provider,
+    String timezone,
     String label,
     String drawChannelName,
     LocalDate drawDate,

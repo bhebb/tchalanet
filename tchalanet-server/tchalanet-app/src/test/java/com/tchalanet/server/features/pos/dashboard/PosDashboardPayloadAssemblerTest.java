@@ -142,7 +142,6 @@ class PosDashboardPayloadAssemblerTest {
         hasTenantId ? tenantId.value() : null,
         "tenant-demo",
         hasTenantId ? tenantId.value() : null,
-        UUID.randomUUID().toString(),
         hasUserId ? userId.value() : null,
         Set.of(),
         Set.of(),

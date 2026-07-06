@@ -209,7 +209,7 @@ class PosTicketsServiceTest {
     private TchRequestContext contextWith(SellerTerminalId sellerTerminalId) {
         return new TchRequestContext(
             "tenant-demo", tenantId.value(), "tenant-demo", tenantId.value(),
-            UUID.randomUUID().toString(), userId.value(),
+            userId.value(),
             Set.of(), Set.of(),
             Locale.FRANCE, "req-test", "127.0.0.1", null, false, null, "active",
             ApiScope.TENANT, null, tenantId,

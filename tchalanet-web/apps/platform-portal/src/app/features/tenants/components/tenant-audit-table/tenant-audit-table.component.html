@@ -1,0 +1,8 @@
+<tch-audit-events-table [events]="events()" [showTenantColumn]="false" />
+
+<tch-pagination
+  [page]="page()"
+  [size]="size()"
+  [totalElements]="totalElements()"
+  (pageChange)="pageChange.emit($event)"
+/>

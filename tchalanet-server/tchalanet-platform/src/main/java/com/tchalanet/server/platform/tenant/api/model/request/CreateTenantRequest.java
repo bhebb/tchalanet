@@ -3,9 +3,12 @@ package com.tchalanet.server.platform.tenant.api.model.request;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressInput;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Currency;
 
@@ -13,6 +16,7 @@ import java.util.Currency;
  * Command: Create a new tenant.
  * Per DOMAIN_TENANT_CONFIG.md + command_query_handlers.md:
  * - Required: code, name, type, timezone, currency
+ * - Optional: defaultCommissionRate
  * - Optional: address, activeThemeId
  * - Optional: activate flag (default false = DRAFT, true = ACTIVE)
  * - Implements Command<Void> for VoidCommandHandler dispatch
@@ -24,6 +28,9 @@ public record CreateTenantRequest(
     @NotNull TenantType type,
     @NotNull ZoneId timezone,
     @NotNull Currency currency,
+    @DecimalMin(value = "0.00", message = "defaultCommissionRate must be >= 0")
+        @DecimalMax(value = "100.00", message = "defaultCommissionRate must be <= 100")
+        BigDecimal defaultCommissionRate,
     AddressInput address,
     ThemePresetId activeThemeId,  // optional theme preset
     Boolean activate              // optional: true = ACTIVE, false/null = DRAFT

@@ -94,7 +94,6 @@ class PosTicketReceiptServiceTest {
         TENANT_ID.value(),
         "demo",
         TENANT_ID.value(),
-        "keycloak-user",
         USER_ID.value(),
         Set.of(),
         Set.of(),

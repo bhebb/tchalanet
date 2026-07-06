@@ -21,23 +21,6 @@
     font-size: 0.875rem;
   }
 
-  &__name,
-  &__code {
-    display: block;
-  }
-
-  &__name {
-    font-weight: 800;
-    overflow-wrap: anywhere;
-  }
-
-  &__code {
-    color: var(--tch-color-on-surface-variant);
-    font-family: var(--tch-font-family-mono, monospace);
-    font-size: 0.75rem;
-    margin-top: 0.125rem;
-  }
-
   &__actions {
     text-align: right;
     white-space: nowrap;

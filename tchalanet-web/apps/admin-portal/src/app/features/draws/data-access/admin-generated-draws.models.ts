@@ -1,20 +1,32 @@
-export type GeneratedDrawSalesStatus = 'UPCOMING' | 'OPEN' | 'CLOSED' | 'CANCELLED';
+import type {
+  ConsoleDrawLifecycleDisplayAction,
+  ConsoleDrawPublicationStatus,
+  ConsoleDrawResultMode,
+  ConsoleDrawResultSaveMode,
+  ConsoleDrawResultStatus,
+  ConsoleDrawSalesStatus,
+  ConsoleDrawStatus,
+  ConsoleDrawStatusFilter,
+} from '@tch/web/console';
 
-export type GeneratedDrawResultStatus =
-  | 'NOT_DUE'
-  | 'EXPECTED'
-  | 'MISSING'
-  | 'PROVISIONAL'
-  | 'CONFIRMED'
-  | 'SOURCE_ERROR';
+export type GeneratedDrawSalesStatus = ConsoleDrawSalesStatus;
 
-export type GeneratedDrawResultMode = 'AUTO' | 'MANUAL';
+export type GeneratedDrawResultStatus = Extract<
+  ConsoleDrawResultStatus,
+  'NOT_DUE' | 'EXPECTED' | 'MISSING' | 'PROVISIONAL' | 'CONFIRMED' | 'SOURCE_ERROR'
+>;
 
-export type GeneratedDrawPublicationStatus = 'NOT_PUBLISHED' | 'PUBLISHED';
+export type GeneratedDrawResultMode = ConsoleDrawResultMode;
+
+export type GeneratedDrawPublicationStatus = Extract<
+  ConsoleDrawPublicationStatus,
+  'NOT_PUBLISHED' | 'PUBLISHED'
+>;
 
 export interface GeneratedDrawView {
   readonly drawId: string;
   readonly drawChannelId: string;
+  readonly drawChannelCode: string;
   readonly providerCode: string;
   readonly providerLabel: string;
   readonly slotKey: string;
@@ -71,26 +83,21 @@ export interface PlanNextDrawsResult {
   readonly rangeEnd: string;
 }
 
-export type DrawStatusFilter =
+export type DrawStatusFilter = Extract<
+  ConsoleDrawStatusFilter,
   | 'all'
-  | 'SCHEDULED'
-  | 'OPEN'
-  | 'LOCKED'
-  | 'CLOSED'
-  | 'RESULTED'
-  | 'SETTLED'
-  | 'CANCELLED'
-  | 'ARCHIVED'
   | 'PAST'
+  | ConsoleDrawStatus
   | 'EXPECTED'
   | 'MISSING'
   | 'PROVISIONAL'
   | 'CONFIRMED'
   | 'SOURCE_ERROR'
-  | 'NOT_DUE';
+  | 'NOT_DUE'
+>;
 export type DatePreset = 'LAST_48H' | 'TODAY' | 'TOMORROW' | 'THIS_WEEK';
 
-export type DrawResultSaveMode = 'provisional' | 'confirmed';
+export type DrawResultSaveMode = ConsoleDrawResultSaveMode;
 
 export interface SaveDrawResultRequest {
   readonly drawId: string;
@@ -100,7 +107,10 @@ export interface SaveDrawResultRequest {
   readonly force?: boolean;
 }
 
-export type DrawLifecycleAction = 'open' | 'close' | 'cancel' | 'lock' | 'unlock' | 'archive';
+export type DrawLifecycleAction = Extract<
+  ConsoleDrawLifecycleDisplayAction,
+  'open' | 'close' | 'cancel' | 'lock' | 'unlock' | 'archive'
+>;
 
 export interface GeneratedDrawDateTimeParts {
   readonly year: string;

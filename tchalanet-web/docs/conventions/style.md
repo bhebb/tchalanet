@@ -173,6 +173,25 @@ Avoid:
 }
 ```
 
+### 4.1 Draw Identity Labels
+
+Draw, draw-channel, draw-result, and ticket receipt surfaces must not hand-roll provider/slot label
+markup in page templates. Build the identity in the owning feature/page model layer, then render it
+with the shared UI primitive:
+
+```text
+@tch/web/console identity helper -> <tch-draw-label>
+```
+
+Rules:
+
+* `@tch/web/console` owns draw identity construction (`provider`, `slot`, date/time, fallback text).
+* `@tch/ui/components` owns the reusable visual display (`tch-draw-label`).
+* Pages may choose density (`comfortable` or `compact`) and pass logo, primary, secondary, and meta
+  labels; pages must not duplicate logo/name/date layout CSS.
+* The component is mobile-first: logo + text remain a stable two-column unit with truncation, so it
+  can sit inside cards, tables, menus, drawers, and receipt previews without reflow surprises.
+
 ---
 
 ## 5. Token usage

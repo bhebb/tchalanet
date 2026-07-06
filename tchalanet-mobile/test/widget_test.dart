@@ -34,18 +34,15 @@ void main() {
         locale: 'ht',
         translations: {
           'auth.login.title': 'Tchalanet POS',
-          'auth.login.operator_title': 'Aksè operatè',
-          'auth.login.subtitle': 'Konekte ak kont Tchalanet ou',
+          'auth.login.terminal_title': 'Koneksyon tèminal',
+          'auth.login.subtitle': 'Konekte tèminal vant ou',
           'auth.login.pos_subtitle': 'Antre nan tèminal vant lan',
           'auth.login.button': 'Konekte',
-          'auth.login.email': 'Imèl operatè',
-          'auth.login.email_hint': 'non@ajans.com',
-          'auth.login.password': 'Modpas',
-          'auth.login.password_show': 'Montre modpas la',
-          'auth.login.password_hide': 'Kache modpas la',
+          'auth.login.terminal_code': 'Kòd tèminal',
+          'auth.login.terminal_code_hint': 'TCH-0001',
+          'auth.login.pin': 'PIN',
           'auth.login.blocked': 'Aksè bloke?',
           'auth.login.required': 'Obligatwa',
-          'auth.login.invalid_email': 'Imèl pa valab',
           'auth.login.secure_environment': 'Anviwònman sekirize',
           'auth.login.terminal_mode': 'Mòd tèminal POS',
           'auth.login.terminal_binding_notice': 'Verifikasyon tèminal',
@@ -57,7 +54,7 @@ void main() {
     ),
   ];
 
-  testWidgets('LoginPage renders Firebase operator credentials form', (
+  testWidgets('LoginPage renders the Firebase terminal + PIN form', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -68,8 +65,11 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Aksè operatè'), findsOneWidget);
+    // Terminal code + PIN — the custom Firebase login (no Keycloak, no email).
+    expect(find.text('Kòd tèminal'), findsOneWidget);
+    expect(find.text('PIN'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
+    // Submit label shows as the form heading and the primary button.
     expect(find.text('Konekte'), findsNWidgets(2));
   });
 

@@ -18,6 +18,7 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupResult;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.config.ArchiveProperties;
 import com.tchalanet.server.platform.archive.internal.persistence.ArchiveLookupIndexJdbcRepository;
@@ -134,13 +135,18 @@ class ArchiveRunExecutorTest {
 
       when(guard.beginOrResume(any(), any(), any(), any(), any()))
           .thenReturn(new ArchiveRunGuard.GuardResult(RUN_ID, ArchiveRunGuard.Decision.CREATED));
-      when(runRepo.listRecent(anyInt())).thenReturn(List.of(Map.of(
-          "id", RUN_ID,
-          "status", "COMPLETED",
-          "strategy", "MONTHLY",
-          "trigger_type", "MANUAL",
-          "idempotency_key", "monthly:2025-01-01:2025-02-01",
-          "started_at", java.sql.Timestamp.from(Instant.parse("2025-01-01T00:00:00Z")))));
+      when(runRepo.listRecent(anyInt())).thenReturn(List.of(new ArchiveRunRowView(
+          RUN_ID,
+          "COMPLETED",
+          "MONTHLY",
+          "MANUAL",
+          "monthly:2025-01-01:2025-02-01",
+          Instant.parse("2025-01-01T00:00:00Z"),
+          null,
+          null,
+          null,
+          null,
+          Instant.parse("2025-01-01T00:00:00Z"))));
       when(objectRepo.insert(any(), any(), any(), any(), any(), any(), anyInt(), any(), any(Long.class),
           any(Long.class), any(), anyInt()))
           .thenAnswer(invocation -> {

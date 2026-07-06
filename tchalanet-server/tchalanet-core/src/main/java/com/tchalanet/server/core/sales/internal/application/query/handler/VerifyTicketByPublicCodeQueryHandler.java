@@ -60,6 +60,9 @@ public class VerifyTicketByPublicCodeQueryHandler
             new TicketVerificationView.DrawInfoView(
                 DrawChannelLabelKeyResolver.resolve(projection.draw().drawChannelKey()),
                 projection.draw().drawChannelName(),
+                projection.draw().resultSlotKey(),
+                projection.draw().provider(),
+                projection.draw().timezone(),
                 projection.draw().drawDate(),
                 projection.draw().scheduledAt()
             ),

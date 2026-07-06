@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +31,7 @@ import {
   ConsoleDrawSelectionEvent,
   ConsoleDrawsTableComponent,
   ConsoleRowAction,
+  consoleDrawRowViewModel,
   consoleDrawLifecycleActionIcon,
   consoleDrawLifecycleActionLabel,
   consoleDrawResultStatusLabel,
@@ -55,7 +57,6 @@ import {
   RescheduleDrawDialog,
   SimpleDrawActionDialog,
 } from '../../components/dialogs/draw-action-dialogs';
-import { lotteryAssetForSlot } from '../../../../shared/lottery/lottery-assets';
 import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
 import { Observable, map } from 'rxjs';
 
@@ -142,6 +143,7 @@ export class PlatformOpsDrawsPage implements OnInit {
   private readonly tenantsApi = inject(PlatformTenantsApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   readonly statusOptions = STATUS_OPTIONS;
 
@@ -487,6 +489,10 @@ export class PlatformOpsDrawsPage implements OnInit {
   onDrawAction(event: ConsoleDrawActionEvent): void {
     const draw = this.draws().find(row => row.id === event.row.id);
     if (!draw) return;
+    if (event.action.id === 'viewDetails') {
+      void this.router.navigate(['/app/platform/ops/draws', draw.tenantId, draw.id]);
+      return;
+    }
     this.openRowAction(draw, { kind: event.action.id } as DrawActionItem);
   }
 
@@ -510,22 +516,34 @@ export class PlatformOpsDrawsPage implements OnInit {
     return parts.length ? parts.join(' · ') : r.status;
   }
 
-  lotteryAsset(slotKey: string): string | null {
-    return lotteryAssetForSlot(slotKey);
-  }
-
   private toConsoleDrawRow(draw: DrawView): ConsoleDrawRow {
-    return {
+    const localDateLabel = this.localDateLabel(draw.scheduledAt);
+    const localTimeLabel = this.localTimeLabel(draw.scheduledAt);
+    const providerTimeLabel = this.slotTimeLabel(draw.slot.drawTime);
+
+    return consoleDrawRowViewModel({
       id: draw.id,
       groupLabel: draw.drawDate,
-      title: draw.channel.name,
+      identityInput: {
+        channelCode: draw.channel.code,
+        channelName: draw.channel.name,
+        slotKey: draw.slot.key,
+        slotLabel: draw.slot.label,
+        officialDateLabel: draw.drawDate,
+        officialTimeLabel: providerTimeLabel,
+        officialTimezoneLabel: draw.slot.timezone,
+        localDateLabel,
+        localTimeLabel,
+        localTimezoneLabel: this.localTimezoneLabel(),
+        fallbackTitle: draw.channel.code,
+      },
+      title: draw.channel.code,
       subtitle: draw.slot.key,
       meta: draw.channel.code,
-      logoUrl: this.lotteryAsset(draw.slot.key),
-      logoAlt: draw.slot.label ?? draw.slot.key,
-      logoText: draw.channel.code,
       scheduledDateLabel: draw.drawDate,
-      scheduledTimeLabel: draw.scheduledAt,
+      scheduledTimeLabel: providerTimeLabel
+        ? `${providerTimeLabel}${draw.slot.timezone ? ` · ${draw.slot.timezone}` : ''}`
+        : localTimeLabel,
       statusLabel: consoleDrawStatusLabel(draw.status),
       statusTone: consoleDrawStatusTone(draw.status),
       resultLabel: draw.lastResult ? consoleDrawResultStatusLabel(draw.lastResult.status) : undefined,
@@ -533,8 +551,11 @@ export class PlatformOpsDrawsPage implements OnInit {
       resultNumbers: this.resultNumbers(draw),
       modeLabel: draw.active ? 'Actif' : 'Inactif',
       publicationLabel: undefined,
-      actions: actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
-    };
+      actions: [
+        { id: 'viewDetails', label: 'Voir détails', icon: 'visibility', tone: 'primary', variant: 'button' },
+        ...actionsForDraw(draw).map(action => this.toConsoleDrawAction(action)),
+      ],
+    });
   }
 
   private toConsoleDrawAction(action: DrawActionItem): ConsoleRowAction {
@@ -553,6 +574,42 @@ export class PlatformOpsDrawsPage implements OnInit {
     return [result.lot1, result.lot2, result.lot3, result.lot4]
       .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
       .filter(Boolean);
+  }
+
+  private slotTimeLabel(value: string | null | undefined): string | undefined {
+    const text = value?.trim();
+    if (!text) return undefined;
+    const match = /^(\d{2}):(\d{2})/.exec(text);
+    return match ? `${match[1]}:${match[2]}` : text;
+  }
+
+  private localDateLabel(value: string | null | undefined): string | undefined {
+    const date = this.toDate(value);
+    if (!date) return undefined;
+    return new Intl.DateTimeFormat('fr-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  }
+
+  private localTimeLabel(value: string | null | undefined): string | undefined {
+    const date = this.toDate(value);
+    if (!date) return undefined;
+    return new Intl.DateTimeFormat('fr-CA', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  }
+
+  private localTimezoneLabel(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
+  private toDate(value: string | null | undefined): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

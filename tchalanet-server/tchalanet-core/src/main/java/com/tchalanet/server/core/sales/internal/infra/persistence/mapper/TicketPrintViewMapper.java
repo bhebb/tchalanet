@@ -70,6 +70,10 @@ public class TicketPrintViewMapper {
             new TicketPrintDraw(
                 DrawId.of(header.getDrawId()),
                 DrawChannelId.of(header.getDrawChannelId()),
+                header.getDrawChannelCode(),
+                header.getResultSlotKey(),
+                header.getResultProvider(),
+                header.getResultTimezone(),
                 null,
                 drawLabel,
                 header.getDrawDate(),

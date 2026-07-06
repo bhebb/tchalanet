@@ -3,25 +3,30 @@
   [description]="'admin.sellerTerminals.detail.section.identityDesc' | translate"
   icon="badge"
 >
+  <tch-console-actor-row
+    [actor]="actorIdentity(terminal())"
+    [statusLabel]="'admin.sellerTerminals.status.' + terminal().status | translate"
+  />
+
   <tch-console-person-identity-summary
     [fields]="[
       {
-        labelKey: 'component.console.personIdentity.field.firstName',
+        labelKey: 'console.personIdentity.field.firstName',
         value: terminal().firstName,
         readonly: true
       },
       {
-        labelKey: 'component.console.personIdentity.field.lastName',
+        labelKey: 'console.personIdentity.field.lastName',
         value: terminal().lastName,
         readonly: true
       },
       {
-        labelKey: 'component.console.personIdentity.field.email',
+        labelKey: 'console.personIdentity.field.email',
         value: terminal().email,
         readonly: true
       },
       {
-        labelKey: 'component.console.personIdentity.field.phoneNumber',
+        labelKey: 'console.personIdentity.field.phoneNumber',
         value: terminal().phoneNumber,
         readonly: true
       }

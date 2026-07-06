@@ -24,6 +24,18 @@ class NotificationCenterPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(translations.translate('notifications.center.title')),
         actions: [
+          if (state.status == NotificationStatus.unread &&
+              state.items.isNotEmpty)
+            TextButton.icon(
+              onPressed: state.loading ? null : viewModel.markAllRead,
+              icon: const Icon(Icons.done_all_rounded, size: 18),
+              label: Text(
+                translations.translate(
+                  'notifications.center.mark_all_read',
+                  fallback: 'Tout li',
+                ),
+              ),
+            ),
           IconButton(
             tooltip: translations.translate('notifications.center.refresh'),
             onPressed: state.loading ? null : viewModel.refresh,
@@ -218,7 +230,16 @@ class _NotificationCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(_icon, color: _color(context)),
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _color(context).withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(_icon, size: 20, color: _color(context)),
+              ),
               const SizedBox(width: TchSpacing.s12),
               Expanded(
                 child: Column(

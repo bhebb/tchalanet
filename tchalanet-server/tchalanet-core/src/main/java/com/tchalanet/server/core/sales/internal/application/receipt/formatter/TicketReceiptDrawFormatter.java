@@ -22,6 +22,7 @@ public class TicketReceiptDrawFormatter {
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final ReceiptTextLayout layout;
+    private final TicketReceiptDrawIdentityFormatter drawIdentityFormatter;
 
     public TicketReceiptSectionContent drawSection(
         TicketReceiptView receipt,
@@ -30,7 +31,7 @@ public class TicketReceiptDrawFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
 
-        var label = firstNonBlank(receipt.drawChannelLabel(), receipt.drawLabel());
+        var label = drawIdentityFormatter.label(receipt, translations);
 
         if (label != null && !label.isBlank()) {
             add(lines, fit(label, profile), true);
@@ -66,8 +67,4 @@ public class TicketReceiptDrawFormatter {
         }
     }
 
-    private String firstNonBlank(String preferred, String fallback) {
-        return preferred == null || preferred.isBlank() ? fallback : preferred;
-    }
 }
-

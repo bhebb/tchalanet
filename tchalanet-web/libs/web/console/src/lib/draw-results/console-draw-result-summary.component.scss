@@ -1,0 +1,27 @@
+:host {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.console-draw-result-summary__source {
+  margin-bottom: 1.5rem;
+}
+
+.console-draw-result-summary__numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+
+  span {
+    display: inline-grid;
+    place-items: center;
+    width: 3.25rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tch-color-primary);
+    color: var(--tch-color-on-primary);
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+}

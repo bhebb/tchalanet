@@ -6,6 +6,7 @@ import com.tchalanet.server.platform.archive.api.model.ArchiveExportRequest;
 import com.tchalanet.server.platform.archive.api.model.ArchiveExportResult;
 import com.tchalanet.server.platform.archive.api.model.ArchiveLookupEntry;
 import com.tchalanet.server.platform.archive.api.model.ArchivePeriod;
+import com.tchalanet.server.platform.archive.api.model.ArchiveRunRowView;
 import com.tchalanet.server.platform.archive.api.model.ArchiveRunView;
 import com.tchalanet.server.platform.archive.api.model.TriggerArchiveRunRequest;
 import com.tchalanet.server.platform.archive.internal.io.JsonlGzWriter;
@@ -17,11 +18,9 @@ import com.tchalanet.server.platform.archive.internal.storage.ArchiveStoragePort
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -195,30 +194,23 @@ public class ArchiveRunExecutor {
 
   private ArchiveRunView loadRunView(UUID runId) {
     return runRepo.listRecent(200).stream()
-        .filter(r -> runId.equals(r.get("id")))
+        .filter(r -> runId.equals(r.id()))
         .findFirst()
         .map(this::toRunView)
         .orElseThrow(() -> new IllegalStateException("archive_run not found after execution: " + runId));
   }
 
-  private ArchiveRunView toRunView(Map<String, Object> row) {
+  private ArchiveRunView toRunView(ArchiveRunRowView row) {
     return new ArchiveRunView(
-        (UUID) row.get("id"),
-        (String) row.get("status"),
-        (String) row.get("strategy"),
-        (String) row.get("trigger_type"),
-        (String) row.get("idempotency_key"),
-        toInstant(row.get("started_at")),
-        toInstant(row.get("completed_at")),
-        (String) row.get("error_message")
+        row.id(),
+        row.status(),
+        row.strategy(),
+        row.triggerType(),
+        row.idempotencyKey(),
+        row.startedAt(),
+        row.completedAt(),
+        row.errorMessage()
     );
-  }
-
-  private static java.time.Instant toInstant(Object val) {
-    if (val == null) return null;
-    if (val instanceof Timestamp ts) return ts.toInstant();
-    if (val instanceof java.time.Instant i) return i;
-    return null;
   }
 
   private static String truncate(String s, int max) {

@@ -4,13 +4,13 @@ export const platformSuperAdminsRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/super-admins/platform-admin-users.page').then(m => m.PlatformAdminUsersPage),
+      import('./pages/super-admins/platform-super-admins.page').then(m => m.PlatformSuperAdminsPage),
   },
   {
     path: ':userId',
     loadComponent: () =>
-      import('./pages/admin-user-detail/platform-admin-user-detail.page').then(
-        m => m.PlatformAdminUserDetailPage,
+      import('./pages/admin-user-detail/platform-super-admin-detail.page').then(
+        m => m.PlatformSuperAdminDetailPage,
       ),
   },
 ];

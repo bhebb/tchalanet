@@ -8,17 +8,7 @@
         <mat-error>Requis.</mat-error>
       }
     </mat-form-field>
-    <div class="override-result-dialog__lot-map" aria-label="Mapping lots Haiti vers provider">
-      @for (mapping of lotMappings(); track mapping.lotKey) {
-        <div class="override-result-dialog__lot-card">
-          <img [src]="mapping.imageSrc" [alt]="mapping.imageAlt" />
-          <span>
-            <strong>{{ mapping.gameLabel }}</strong>
-            <em>{{ mapping.label }}</em>
-          </span>
-        </div>
-      }
-    </div>
+    <tch-console-haiti-lot-game-mapping [mappings]="lotMappings()" />
     <mat-form-field appearance="outline">
       <mat-label>Lot 1</mat-label>
       <input matInput formControlName="lot1" maxlength="3" />

@@ -7,8 +7,8 @@ import { TchErrorViewModel } from '@tch/web/errors';
 import {
   ConsoleDrawSlotIdentity,
   ConsoleDrawSlotIdentityComponent,
+  consoleDrawIdentity,
 } from '@tch/web/console';
-import { lotteryAssetForProvider } from '../../../../shared/lottery/lottery-assets';
 import {
   ChannelGameSetupView,
   SlotMatrixView,
@@ -51,17 +51,15 @@ export class DrawSalesMatrixSlotPanelComponent {
   protected readonly identity = computed<ConsoleDrawSlotIdentity>(() => {
     const providerCode = this.providerCode();
     const slot = this.slot();
-    return {
+
+    return consoleDrawIdentity({
       providerCode,
       providerName: providerCode,
-      providerLogoUrl: lotteryAssetForProvider(providerCode),
       slotKey: slot.slotKey,
-      slotLabel: this.slotTitle(slot),
       channelCode: slot.channel?.channelCode ?? null,
-      channelName: slot.channel?.channelCode ?? null,
       localTimeLabel: slot.channel?.drawTime ?? null,
-      providerTimeLabel: slot.resultSlot.drawTime,
-    };
+      officialTimeLabel: slot.resultSlot.drawTime,
+    });
   });
 
   protected readonly offeredGames = computed(() => this.slot().games.filter(game => game.offeredOnChannel));
@@ -87,8 +85,11 @@ export class DrawSalesMatrixSlotPanelComponent {
     return 'admin.drawSalesMatrix.slot.status.notConfigured';
   }
 
-  protected slotTitle(slot: SlotMatrixView): string {
-    return slot.labelKey?.trim() || slot.slotKey;
+  protected channelDisplayLabel(channelCode: string): string {
+    return consoleDrawIdentity({
+      providerCode: this.providerCode(),
+      channelCode,
+    }).channelName ?? channelCode;
   }
 
   protected feedbackKey(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {

@@ -25,19 +25,19 @@ interface AddressFact {
 })
 export class ConsoleAddressSummaryComponent {
   readonly address = input<ConsoleAddressSummary | null | undefined>(null);
-  readonly emptyKey = input('component.console.addressSummary.empty');
+  readonly emptyKey = input('console.addressSummary.empty');
 
   readonly facts = computed<readonly AddressFact[]>(() => {
     const address = this.address();
     if (!address) return [];
 
     return [
-      { labelKey: 'component.console.address.field.line1', value: address.line1 },
-      { labelKey: 'component.console.address.field.line2', value: address.line2 },
-      { labelKey: 'component.console.address.field.city', value: address.city },
-      { labelKey: 'component.console.address.field.region', value: address.region },
-      { labelKey: 'component.console.address.field.country', value: address.country },
-      { labelKey: 'component.console.address.field.postalCode', value: address.postalCode },
+      { labelKey: 'console.address.field.line1', value: address.line1 },
+      { labelKey: 'console.address.field.line2', value: address.line2 },
+      { labelKey: 'console.address.field.city', value: address.city },
+      { labelKey: 'console.address.field.region', value: address.region },
+      { labelKey: 'console.address.field.country', value: address.country },
+      { labelKey: 'console.address.field.postalCode', value: address.postalCode },
     ].flatMap(fact => {
       const value = fact.value?.trim();
       return value ? [{ labelKey: fact.labelKey, value }] : [];

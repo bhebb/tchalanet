@@ -1,0 +1,98 @@
+@let a = actor();
+
+<div class="console-actor-card__layout">
+  <div class="console-actor-card__card">
+    <div class="console-actor-card__header">
+      <span class="material-symbols-outlined console-actor-card__avatar">account_circle</span>
+      <div class="console-actor-card__identity">
+        <div class="console-actor-card__name">{{ primaryLabel(a) }}</div>
+        @if (a.displayName && a.email) {
+          <div class="console-actor-card__email">{{ a.email }}</div>
+        }
+      </div>
+      <tch-status-badge [status]="statusBadge(a.status)" [label]="a.status" />
+    </div>
+
+    <div class="console-actor-card__fields">
+      <tch-console-person-identity-summary
+        layout="inline"
+        [fields]="[
+          {
+            labelKey: 'console.personIdentity.field.email',
+            value: a.email,
+            required: a.kind !== 'SELLER_TERMINAL',
+            readonly: true
+          },
+          {
+            labelKey: 'console.personIdentity.field.phoneNumber',
+            value: a.phone,
+            readonly: true
+          },
+          {
+            labelKey: 'console.personIdentity.field.assignedAt',
+            value: ((a.assignedAt || a.createdAt) | date: 'dd MMM y, HH:mm'),
+            readonly: true
+          }
+        ]"
+      />
+
+      @if (a.tenantId) {
+        <div class="console-actor-card__field">
+          <span class="console-actor-card__label">Tenant</span>
+          <a class="console-actor-card__link" [routerLink]="['/app/platform/tenants', a.tenantId]">
+            {{ tenantLabel(a) }}
+            @if (a.tenantCode) {
+              <span class="console-actor-card__code">{{ a.tenantCode }}</span>
+            }
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="console-actor-card__card console-actor-card__card--actions">
+    <div class="console-actor-card__actions-title">{{ 'common.actionLabel' | translate }}</div>
+
+    @if (showAssignTenant() && !a.tenantId) {
+      <button mat-flat-button color="primary" class="console-actor-card__action-btn" (click)="assignTenant.emit()">
+        <span class="material-symbols-outlined">business</span>
+        {{ 'platform.tenantAdmins.action.assignTenant' | translate }}
+      </button>
+    }
+
+    <button mat-stroked-button class="console-actor-card__action-btn" (click)="confirmResetPassword()">
+      <span class="material-symbols-outlined">lock_reset</span>
+      {{ 'common.resetPassword' | translate }}
+    </button>
+
+    @if (canActivate(a.status)) {
+      <button mat-stroked-button class="console-actor-card__action-btn" (click)="confirmActivate()">
+        <span class="material-symbols-outlined">check_circle</span>
+        {{ 'common.activate' | translate }}
+      </button>
+    }
+
+    @if (canBlock(a.status)) {
+      <button mat-stroked-button color="warn" class="console-actor-card__action-btn" (click)="confirmBlock()">
+        <span class="material-symbols-outlined">block</span>
+        {{ 'common.block' | translate }}
+      </button>
+    }
+
+    @if (canArchive(a.status)) {
+      <button mat-stroked-button color="warn" class="console-actor-card__action-btn" (click)="confirmArchive()">
+        <span class="material-symbols-outlined">archive</span>
+        {{ 'common.archive' | translate }}
+      </button>
+    }
+
+    @if (showManageTenantAdmins() && a.tenantId) {
+      <div class="console-actor-card__nav-link">
+        <a [routerLink]="['/app/platform/tenants', a.tenantId, 'admins']">
+          <span class="material-symbols-outlined">manage_accounts</span>
+          {{ 'platform.tenantAdmins.detail.actions.manageInTenant' | translate }}
+        </a>
+      </div>
+    }
+  </div>
+</div>

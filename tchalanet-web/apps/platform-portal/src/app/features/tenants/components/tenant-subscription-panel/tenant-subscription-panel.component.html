@@ -1,0 +1,58 @@
+<tch-admin-section-card
+  [title]="'platform.tenants.detail.subscription.title' | translate"
+  icon="workspace_premium"
+>
+  @if (subscription(); as sub) {
+    <dl class="tenant-subscription-panel__facts">
+      <div>
+        <dt>{{ 'platform.tenants.detail.subscription.field.plan' | translate }}</dt>
+        <dd>{{ sub.planCode }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'platform.tenants.detail.subscription.field.status' | translate }}</dt>
+        <dd><tch-status-badge [status]="statusBadge(sub.status)">{{ sub.status }}</tch-status-badge></dd>
+      </div>
+      <div>
+        <dt>{{ 'platform.tenants.detail.subscription.field.startedAt' | translate }}</dt>
+        <dd>{{ sub.startedAt | date : 'medium' }}</dd>
+      </div>
+      @if (sub.endsAt) {
+        <div>
+          <dt>{{ 'platform.tenants.detail.subscription.field.endsAt' | translate }}</dt>
+          <dd>{{ sub.endsAt | date : 'medium' }}</dd>
+        </div>
+      }
+    </dl>
+  } @else {
+    <p class="tenant-subscription-panel__empty-hint">{{ 'platform.tenants.detail.subscription.empty' | translate }}</p>
+  }
+
+  @if (!showPicker()) {
+    <button mat-stroked-button type="button" (click)="openPicker.emit()">
+      {{ (subscription() ? 'platform.tenants.detail.subscription.action.change' : 'platform.tenants.detail.subscription.action.apply') | translate }}
+    </button>
+  } @else {
+    @if (applyError()) {
+      <tch-error-panel [title]="applyError()!" />
+    }
+    <tch-tenant-plan-picker
+      [plans]="plans()"
+      [selected]="selectedPlanCode()"
+      (selectedChange)="selectPlan.emit($event)"
+    />
+    <div class="tenant-subscription-panel__form-actions">
+      <button mat-button type="button" (click)="cancelPicker.emit()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!selectedPlanCode() || applying()"
+        (click)="applyPlan.emit()"
+      >
+        {{ 'platform.tenants.detail.subscription.action.confirm' | translate }}
+      </button>
+    </div>
+  }
+</tch-admin-section-card>

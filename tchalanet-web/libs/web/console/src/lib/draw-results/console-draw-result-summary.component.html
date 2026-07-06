@@ -1,0 +1,17 @@
+<tch-admin-section-card title="Résultat" icon="fact_check">
+  <div class="console-draw-result-summary__source">
+    <tch-console-draw-slot-identity [identity]="identity()" />
+  </div>
+
+  <div class="console-draw-result-summary__numbers" aria-label="Numéros gagnants">
+    @for (number of numbers(); track $index) {
+      <span>{{ number }}</span>
+    }
+  </div>
+
+  <tch-console-facts [facts]="facts().resultFacts" />
+</tch-admin-section-card>
+
+<tch-admin-section-card title="Tirage lié" icon="event">
+  <tch-console-facts [facts]="facts().linkedDrawFacts" />
+</tch-admin-section-card>

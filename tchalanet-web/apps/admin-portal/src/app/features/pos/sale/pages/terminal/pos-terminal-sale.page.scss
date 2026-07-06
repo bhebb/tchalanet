@@ -3,6 +3,14 @@
     margin-bottom: 0.75rem;
   }
 
+  &__terminal-strip {
+    margin-bottom: 1rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md, 0.5rem);
+    background: var(--tch-color-surface);
+  }
+
   &__blocked-notice {
     margin-bottom: 1.25rem;
   }

@@ -10,8 +10,6 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.util.Currency;
@@ -19,15 +17,11 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-// Note : @Slf4j n'est pas compatible avec les records Java (annotation processor ne génère pas
-// le champ statique `log` sur les records). Logger déclaré explicitement ci-dessous.
 public record TchRequestContext(
     String originalTenantCode,
     UUID originalTenantUuid,
     String effectiveTenantCode,
     UUID effectiveTenantUuid,
-    // @deprecated — use actorType() + externalSubject() instead
-    String keycloakUserId,
     UUID appUserId,
     // @deprecated — use roleCodes() instead
     Set<TchRole> systemRoles,
@@ -54,8 +48,6 @@ public record TchRequestContext(
     String externalSubject
 ) {
 
-    private static final Logger log = LoggerFactory.getLogger(TchRequestContext.class);
-
     public TchRequestContext {
         roleCodes = roleCodes == null ? Set.of() : Set.copyOf(roleCodes);
         permissionKeys = permissionKeys == null ? Set.of() : Set.copyOf(permissionKeys);
@@ -73,8 +65,8 @@ public record TchRequestContext(
     }
 
     /**
-     * Compatibility: return the application user id as string when available. Do NOT mix Keycloak
-     * subject with app user id. If app user is not known yet, this returns null.
+     * Compatibility: return the application user id as string when available. If app user is not
+     * known yet, this returns null.
      */
     public UserId userId() {
         return UserId.nullableOf(appUserId);
@@ -85,21 +77,6 @@ public record TchRequestContext(
      */
     public UUID userUuid() {
         return appUserId;
-    }
-
-    /**
-     * Helper to convert keycloak subject to UUID when possible (may be non-UUID strings)
-     */
-    @SuppressWarnings("unused")
-    public UUID keycloakAsUuid() {
-        try {
-            if (keycloakUserId != null) {
-                return UUID.fromString(keycloakUserId);
-            }
-        } catch (IllegalArgumentException e) {
-            log.error("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
-        }
-        return null;
     }
 
     public String userAgent() {
@@ -146,7 +123,7 @@ public record TchRequestContext(
     public TchRequestContext withEffectiveTenantUuid(UUID uuid) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, uuid,
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             actorType, sellerTerminalId, roleCodes, permissionKeys, externalSubject
@@ -156,7 +133,7 @@ public record TchRequestContext(
     public TchRequestContext withAppUserId(UUID userId) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, userId, systemRoles, customRoles, locale, requestId,
+            userId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             actorType, sellerTerminalId, roleCodes, permissionKeys, externalSubject
@@ -169,7 +146,7 @@ public record TchRequestContext(
         Set<TchRole> resolvedSystemRoles, Set<String> resolvedPermissions) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, appUserId,
+            appUserId,
             resolvedSystemRoles == null ? Set.of() : Set.copyOf(resolvedSystemRoles),
             resolvedPermissions == null ? Set.of() : Set.copyOf(resolvedPermissions),
             locale, requestId, clientIp, userAgent, tenantOverridden, tenantOverrideReason,
@@ -186,7 +163,7 @@ public record TchRequestContext(
     ) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             resolvedActorType, resolvedSellerTerminalId,
@@ -203,7 +180,7 @@ public record TchRequestContext(
     public TchRequestContext withSellerTerminalId(SellerTerminalId terminal) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             actorType, terminal, roleCodes, permissionKeys, externalSubject
@@ -213,7 +190,7 @@ public record TchRequestContext(
     public TchRequestContext withIdempotencyKey(String key) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, key, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             actorType, sellerTerminalId, roleCodes, permissionKeys, externalSubject
@@ -270,7 +247,7 @@ public record TchRequestContext(
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode,
             info.tenantId().value(),     // keep existing UUID field in sync
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, info.tenantId(), info.tenantZoneId(), info.currency(),
             operationalContext, actorType, sellerTerminalId, roleCodes, permissionKeys, externalSubject
@@ -283,7 +260,7 @@ public record TchRequestContext(
     public static TchRequestContext startupTenant(UUID tenantUuid, String requestId) {
         return new TchRequestContext(
             "tchalanet", tenantUuid, "tchalanet", tenantUuid,
-            null, null, java.util.EnumSet.noneOf(TchRole.class), Set.of(),
+            null, java.util.EnumSet.noneOf(TchRole.class), Set.of(),
             Locale.getDefault(), requestId == null ? "startup" : requestId,
             "127.0.0.1", null, false, null, "active", ApiScope.TENANT, null,
             TenantId.nullableOf(tenantUuid), ZoneId.systemDefault(),
@@ -336,7 +313,7 @@ public record TchRequestContext(
     public TchRequestContext withOperationalContext(OperationalContextHint operationalContext) {
         return new TchRequestContext(
             originalTenantCode, originalTenantUuid, effectiveTenantCode, effectiveTenantUuid,
-            keycloakUserId, appUserId, systemRoles, customRoles, locale, requestId,
+            appUserId, systemRoles, customRoles, locale, requestId,
             clientIp, userAgent, tenantOverridden, tenantOverrideReason, deletedVisibility,
             apiScope, idempotencyKey, tenantId, tenantZoneId, tenantCurrency, operationalContext,
             actorType, sellerTerminalId, roleCodes, permissionKeys, externalSubject
