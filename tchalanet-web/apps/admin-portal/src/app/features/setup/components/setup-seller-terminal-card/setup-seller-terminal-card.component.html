@@ -27,6 +27,7 @@
       {{ 'admin.setup.section.sellerTerminalLocked' | translate }}
     </p>
     @if (blockingSteps().length) {
+      <p class="setup__blocking-label">{{ 'admin.setup.blockedBy' | translate }}</p>
       <ul class="setup__blocking-list">
         @for (step of blockingSteps(); track step) {
           <li>

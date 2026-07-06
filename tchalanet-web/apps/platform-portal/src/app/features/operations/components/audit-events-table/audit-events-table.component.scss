@@ -1,0 +1,165 @@
+.audit-events-table {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    min-width: 66rem;
+    font-family: var(--tch-font-family);
+  }
+
+  .mat-mdc-header-row {
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+  }
+
+  .mat-mdc-row {
+    min-height: 3.25rem;
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .mat-mdc-cell,
+  .mat-mdc-header-cell {
+    font-family: var(--tch-font-family);
+  }
+
+  .mat-mdc-header-cell {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tch-color-on-surface-variant);
+  }
+
+  .mat-mdc-cell {
+    padding-block: 0.75rem;
+    color: var(--tch-color-on-surface);
+    font-size: 0.875rem;
+  }
+}
+
+.audit-events-table__date,
+.audit-events-table__mono,
+.audit-events-table__subtext {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}
+
+.audit-events-table__date {
+  white-space: nowrap;
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.audit-events-table__subtext {
+  margin-top: 0.125rem;
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.audit-events-table__mono {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.8125rem;
+}
+
+.audit-events-table__entity-type {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--tch-radius-sm, 0.375rem);
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.8125rem;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}
+
+.audit-events-table__entity-id {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2rem;
+}
+
+.audit-events-table__copy-id {
+  width: 2rem;
+  height: 2rem;
+  color: var(--tch-color-on-surface-variant);
+
+  .material-symbols-outlined {
+    font-size: 1rem;
+  }
+}
+
+.audit-events-table__expand-cell {
+  width: 3rem;
+  padding-inline: 0 !important;
+  text-align: right;
+}
+
+.audit-events-table__detail-row td,
+.audit-events-table__detail-cell {
+  padding: 0 !important;
+}
+
+.audit-events-table__detail-panel {
+  padding: 1rem;
+  border-block: 1px solid var(--tch-color-outline-variant);
+  background: var(--tch-color-surface-container-low);
+}
+
+.audit-events-table__detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.875rem;
+
+  h2 {
+    margin: 0;
+    color: var(--tch-color-on-surface);
+    font-size: 1rem;
+    font-weight: 800;
+  }
+}
+
+.audit-events-table__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+
+  dt {
+    margin-bottom: 0.125rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--tch-color-on-surface);
+    font-size: 0.8125rem;
+    font-family: ui-monospace, 'Cascadia Code', monospace;
+  }
+}
+
+.audit-events-table__detail-subtitle {
+  margin: 0 0 0.5rem;
+  color: var(--tch-color-on-surface);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.audit-events-table__detail-json {
+  max-height: 18.75rem;
+  margin: 0;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  color: var(--tch-color-on-surface);
+  font-size: 0.8125rem;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+}

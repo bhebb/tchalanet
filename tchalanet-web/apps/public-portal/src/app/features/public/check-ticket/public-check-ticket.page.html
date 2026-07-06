@@ -159,7 +159,7 @@
             } @if (resultDraw(); as draw) {
             <div>
               <dt>{{ 'domain.entity.draw' | translate }}:</dt>
-              <dd class="check-result__receipt-dd--wrap">{{ draw.channelLabel }}</dd>
+              <dd class="check-result__receipt-dd--wrap">{{ resultDrawLabel() }}</dd>
             </div>
             <div>
               <dt>{{ 'public.check.receipt.drawDate' | translate }}:</dt>

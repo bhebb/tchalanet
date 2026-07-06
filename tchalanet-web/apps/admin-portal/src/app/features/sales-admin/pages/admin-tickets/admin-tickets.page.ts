@@ -10,6 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
+import { TchDrawLabel } from '@tch/ui/components';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
 import { AdminDataToolbarComponent } from '@tch/ui/console';
@@ -59,6 +61,7 @@ type TicketSort = typeof SORT_VALUES[number];
     TchPaginationComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TchDrawLabel,
     TranslatePipe,
     MatButtonModule,
     MatFormFieldModule,
@@ -128,6 +131,20 @@ export class AdminTicketsPage {
   readonly ticketPageIndex = computed(() => this.ticketPage()?.page ?? this.page());
   readonly ticketPageSize = computed(() => this.ticketPage()?.size ?? this.size());
   readonly ticketTotalElements = computed(() => this.ticketPage()?.totalElements ?? 0);
+
+  ticketDrawIdentity(ticket: TicketRowView) {
+    return consoleTicketDrawIdentity({
+      channelCode: ticket.drawChannelCode,
+      channelLabel: ticket.drawChannelName,
+      resultSlotKey: ticket.resultSlotKey,
+      scheduledAt: ticket.drawScheduledAt,
+      fallbackLabel: ticket.drawChannelName,
+    });
+  }
+
+  ticketDrawLabel(ticket: TicketRowView): string {
+    return this.ticketDrawIdentity(ticket).receiptLabel;
+  }
 
   onStatusFilter(status: TicketStatus | ''): void {
     this.navigateList({ status: status || null, page: null });

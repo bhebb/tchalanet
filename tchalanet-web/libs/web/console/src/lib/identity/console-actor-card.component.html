@@ -18,18 +18,18 @@
         layout="inline"
         [fields]="[
           {
-            labelKey: 'component.console.personIdentity.field.email',
+            labelKey: 'console.personIdentity.field.email',
             value: a.email,
             required: a.kind !== 'SELLER_TERMINAL',
             readonly: true
           },
           {
-            labelKey: 'component.console.personIdentity.field.phoneNumber',
+            labelKey: 'console.personIdentity.field.phoneNumber',
             value: a.phone,
             readonly: true
           },
           {
-            labelKey: 'component.console.personIdentity.field.assignedAt',
+            labelKey: 'console.personIdentity.field.assignedAt',
             value: ((a.assignedAt || a.createdAt) | date: 'dd MMM y, HH:mm'),
             readonly: true
           }

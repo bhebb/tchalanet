@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -39,8 +38,10 @@ import { SetupSellerTerminalCardComponent } from '../../components/setup-seller-
 // Mirrors TenantReadinessAssembler.REQUIRED_STEP_GROUPS (tchalanet-server) — identity+address
 // count as one group since they're a single merged card here. generated_draws is required too:
 // configured channels/games alone aren't enough to sell without an actual generated Draw.
+// settings counts toward the percentage (its card is badged "required") without being blocking.
 const REQUIRED_STEP_GROUPS: readonly (readonly string[])[] = [
   ['identity', 'address'],
+  ['settings'],
   ['games_pricing'],
   ['draws'],
   ['generated_draws'],
@@ -68,7 +69,6 @@ interface SetupChecklistCardViewModel {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RouterLink,
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
@@ -122,10 +122,9 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       identityStatus === 'READY' && addressStatus === 'READY' ? 'READY' : 'MISSING';
 
     const addr = h?.address;
-    const identityAddressBody = [
-      h?.tenantName ? (h.tenantCode ? `${h.tenantName} · ${h.tenantCode}` : h.tenantName) : null,
-      addr ? this.addressLabel(addr) : this.translate.instant('admin.setup.section.addressHint'),
-    ].filter(Boolean).join(' — ');
+    const identityAddressBody = addr
+      ? this.addressLabel(addr)
+      : this.translate.instant('admin.setup.section.addressHint');
 
     const gamesStatus = this.sectionStatus('games_pricing');
     const drawsStatus = this.sectionStatus('draws');

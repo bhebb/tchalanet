@@ -4,42 +4,7 @@
 }
 
 .console-draw-result-summary__source {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   margin-bottom: 1.5rem;
-
-  h2 {
-    margin: 0;
-    color: var(--tch-color-on-surface);
-    font-size: 1.25rem;
-  }
-}
-
-.console-draw-result-summary__logo {
-  display: grid;
-  place-items: center;
-  width: 3.5rem;
-  aspect-ratio: 1;
-  border-radius: var(--tch-radius-md, 0.75rem);
-  background: var(--tch-color-surface-container-high);
-  color: var(--tch-color-primary);
-  font-weight: 800;
-
-  img {
-    max-width: 2.75rem;
-    max-height: 2.75rem;
-    object-fit: contain;
-  }
-}
-
-.console-draw-result-summary__eyebrow {
-  margin: 0 0 0.25rem;
-  color: var(--tch-color-on-surface-variant);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .console-draw-result-summary__numbers {

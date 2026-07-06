@@ -14,6 +14,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { GameLabelPipe } from '@tch/page-model';
 import { TCH_PUBLIC_ASSETS } from '@tch/shared-assets';
 import { TchActionButton, TchCard, TchLoading } from '@tch/ui/components';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { CODE_PATTERN, STAMP_LINES } from './public-check-ticket.data';
 import type { CheckState } from './public-check-ticket.model';
@@ -75,6 +76,21 @@ export class PublicCheckTicketPage {
   });
 
   readonly resultDraw = computed<VerifyTicketDraw | null>(() => this.resultData()?.draw ?? null);
+
+  readonly resultDrawLabel = computed(() => {
+    const draw = this.resultDraw();
+    if (!draw) {
+      return null;
+    }
+    return consoleTicketDrawIdentity({
+      channelCode: draw.channelName,
+      channelLabel: draw.channelLabel,
+      resultSlotKey: draw.resultSlotKey,
+      drawDateLabel: draw.drawDate,
+      scheduledAt: draw.scheduledAt,
+      fallbackLabel: draw.channelLabel,
+    }).receiptLabel;
+  });
 
   readonly resultLines = computed<readonly VerifyTicketLine[]>(
     () => this.resultData()?.lines ?? [],

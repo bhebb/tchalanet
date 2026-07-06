@@ -7,6 +7,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { AdminSectionCardComponent } from '@tch/ui/console';
 
+/**
+ * Section de formulaire adresse partagée (signal forms).
+ *
+ * `form` reçoit le FieldTree adresse NON invoqué (ex. `[form]="form().address"` ou
+ * `[form]="addressForm"`) — jamais `addressForm()` : le composant l'invoque lui-même
+ * pour lire l'état des champs.
+ */
 @Component({
   selector: 'tch-console-address-form-section',
   standalone: true,
@@ -24,8 +31,8 @@ import { AdminSectionCardComponent } from '@tch/ui/console';
 })
 export class ConsoleAddressFormSectionComponent {
   readonly form = input.required<any>();
-  readonly titleKey = input('component.console.address.title');
-  readonly descriptionKey = input<string | null>('component.console.address.description');
+  readonly titleKey = input('console.address.title');
+  readonly descriptionKey = input<string | null>('console.address.description');
   readonly icon = input('location_on');
   readonly required = input(false);
   readonly framed = input(true);

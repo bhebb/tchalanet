@@ -74,7 +74,13 @@
                     <strong class="tickets-overview__code">{{ ticket.ticketCode }}</strong>
                     <span>{{ ticket.placedAt | date:'HH:mm' }}</span>
                   </div>
-                  <span>{{ ticket.drawChannelName }}</span>
+                  @if (ticketDrawIdentity(ticket); as identity) {
+                    <tch-draw-label
+                      density="compact"
+                      [primary]="identity.receiptLabel"
+                      [logoUrl]="identity.identity.providerLogoUrl"
+                    />
+                  }
                   <strong>{{ ticketAmountDisplay(ticket.totalAmountCents) }} {{ ticket.currency }}</strong>
                   <span>{{ statusLabelKey(ticket.status) | translate }}</span>
                 </a>

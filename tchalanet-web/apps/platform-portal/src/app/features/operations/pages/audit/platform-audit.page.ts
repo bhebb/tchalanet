@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, map } from 'rxjs';
 
@@ -21,15 +19,9 @@ import {
 } from '@tch/ui/components';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminStatusPillComponent } from '@tch/ui/console';
 import { PlatformTenantsApi, TenantSummaryView } from '../../../tenants/data-access/platform-tenants-api.service';
-import {
-  AuditEntityType,
-  AuditEventView,
-  PlatformAuditApi,
-  auditActionTone,
-  auditActorTone,
-} from '../../data-access/platform-audit-api.service';
+import { AuditEntityType, AuditEventView, PlatformAuditApi } from '../../data-access/platform-audit-api.service';
+import { AuditEventsTableComponent } from '../../components/audit-events-table/audit-events-table.component';
 
 export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
   'SYSTEM', 'TENANT', 'PLAN', 'SUBSCRIPTION', 'THEME', 'USER', 'USER_PREFERENCE',
@@ -43,12 +35,11 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     ReactiveFormsModule,
     AdminEmptyStateComponent,
     AdminPageShellComponent,
     AdminListSurface,
-    AdminStatusPillComponent,
+    AuditEventsTableComponent,
     TchErrorPanel,
     TchLoading,
     TchSearchSelect,
@@ -57,7 +48,6 @@ export const AUDIT_ENTITY_TYPES: AuditEntityType[] = [
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatTableModule,
     MatTooltipModule,
   ],
   templateUrl: './platform-audit.page.html',
@@ -70,7 +60,6 @@ export class PlatformAuditPage implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   readonly entityTypes = AUDIT_ENTITY_TYPES;
-  readonly displayedColumns = ['occurredAt', 'actor', 'entity', 'action', 'tenantId', 'ip', 'expand'];
 
   readonly filterForm = this.fb.nonNullable.group({
     entityType: [''],
@@ -87,7 +76,6 @@ export class PlatformAuditPage implements OnInit {
   readonly purging = signal(false);
   readonly error = signal<string | null>(null);
   readonly events = signal<AuditEventView[]>([]);
-  readonly expandedId = signal<string | null>(null);
   readonly page = signal(0);
   readonly totalElements = signal(0);
   readonly totalPages = signal(1);
@@ -171,38 +159,6 @@ export class PlatformAuditPage implements OnInit {
   prevPage(): void { if (this.hasPrevious()) { this.page.set(this.page() - 1); this.load(); } }
   nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
-  toggleExpand(id: string): void {
-    this.expandedId.set(this.expandedId() === id ? null : id);
-  }
-
-  copyEntityId(entityId: string): void {
-    void navigator.clipboard.writeText(entityId);
-    this.snackBar.open('ID entité copié.', 'OK', { duration: 2500 });
-  }
-
-  copyActorId(actorId: string): void {
-    void navigator.clipboard.writeText(actorId);
-    this.snackBar.open('ID acteur copié.', 'OK', { duration: 2500 });
-  }
-
-  copyAuditId(auditId: string): void {
-    void navigator.clipboard.writeText(auditId);
-    this.snackBar.open('ID audit copié.', 'OK', { duration: 2500 });
-  }
-
-  detailValue(raw: string | null, key: string): string | null {
-    const details = this.parseDetails(raw);
-    const value = details?.[key];
-    if (value === undefined || value === null || value === '') return null;
-    return typeof value === 'string' ? value : JSON.stringify(value);
-  }
-
-  formatDetails(raw: string | null): string {
-    if (!raw) return '';
-    try { return JSON.stringify(JSON.parse(raw), null, 2); }
-    catch { return raw; }
-  }
-
   purge(): void {
     const reason = prompt('Raison obligatoire pour la purge de rétention audit:');
     if (!reason?.trim()) return;
@@ -227,9 +183,6 @@ export class PlatformAuditPage implements OnInit {
     });
   }
 
-  readonly actorTone = auditActorTone;
-  readonly actionTone = auditActionTone;
-
   private toTenantOption(tenant: TenantSummaryView): TchSearchOption<TenantSummaryView> {
     return {
       id: tenant.id ?? tenant.tenantId ?? tenant.code,
@@ -244,15 +197,5 @@ export class PlatformAuditPage implements OnInit {
   private updateActiveFilters(): void {
     const v = this.filterForm.getRawValue();
     this.hasActiveFilters.set(Object.values(v).some(value => !!value));
-  }
-
-  private parseDetails(raw: string | null): Record<string, unknown> | null {
-    if (!raw) return null;
-    try {
-      const value = JSON.parse(raw);
-      return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
-    } catch {
-      return null;
-    }
   }
 }

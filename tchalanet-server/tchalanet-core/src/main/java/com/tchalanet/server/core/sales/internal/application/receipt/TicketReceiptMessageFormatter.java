@@ -44,7 +44,7 @@ public class TicketReceiptMessageFormatter {
             translations.text(TicketReceiptI18nKeys.MESSAGE_CODE),
             receipt.displayCode(),
             translations.text(TicketReceiptI18nKeys.DRAW_SECTION),
-            drawIdentityFormatter.label(receipt),
+            drawIdentityFormatter.label(receipt, translations),
             translations.text(TicketReceiptI18nKeys.DRAW_TIME),
             formatInstant(receipt.drawScheduledAt(), receipt.timezone()),
             translations.text(TicketReceiptI18nKeys.MESSAGE_GAMES),
@@ -71,7 +71,7 @@ public class TicketReceiptMessageFormatter {
         var lines = new ArrayList<String>();
         lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_VALID_TICKET));
         lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_CODE) + ": " + receipt.displayCode());
-        var drawPrimary = drawIdentityFormatter.label(receipt);
+        var drawPrimary = drawIdentityFormatter.label(receipt, translations);
         if (drawPrimary != null && !drawPrimary.isBlank()) {
             lines.add(translations.text(TicketReceiptI18nKeys.DRAW_SECTION) + ": " + drawPrimary);
         }

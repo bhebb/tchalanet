@@ -44,7 +44,9 @@ import java.util.stream.Collectors;
  * 1. identity        → TenantCatalog.findRegistryById
  * 2. address         → AddressApi.findPrimaryByTenantId
  * 3. seller terminals → ListSellerTerminalsQuery (page size 1)
- * 4. games_pricing   → TenantGamesPricingService
+ * 4. games_pricing   → TenantGamesPricingService — requires active games AND at least one of
+ * them with odds/pricing configured (MISSING if none priced, PARTIAL if some active games
+ * still lack pricing). Per-game limits are informational only, not part of this check.
  * 5. draws           → TenantDrawSalesMatrixService (channel config + games×channel matrix)
  * 6. generated_draws → ListDrawsQuery (page size 1) — an actual Draw instance exists, not just
  * configuration. Operational signal, not a setup blocker.
@@ -70,7 +72,7 @@ import java.util.stream.Collectors;
 public class TenantReadinessAssembler {
 
     private static final Set<String> BLOCKING_SECTIONS =
-        Set.of("identity", "address", "games_pricing", "draws");
+        Set.of("identity", "address", "games_pricing", "draws", "generated_draws");
 
     private static final Set<String> NON_ROLLUP_SECTIONS =
         Set.of("subscription");
@@ -79,11 +81,17 @@ public class TenantReadinessAssembler {
      * Required setup steps, grouped to match the admin setup checklist cards
      * (tenant-onboarding-console-rework-v1): identity + address are shown as one merged
      * "Identité & adresse" card, so they count as a single completed step, not two.
+     * generated_draws is its own required step — configured games/channels aren't enough to
+     * sell without an actual generated Draw instance to bet on. settings counts toward the
+     * progress percentage (its card is badged "required") without blocking seller-terminal
+     * creation — it's not in BLOCKING_SECTIONS.
      */
     private static final List<List<String>> REQUIRED_STEP_GROUPS = List.of(
         List.of("identity", "address"),
+        List.of("settings"),
         List.of("games_pricing"),
-        List.of("draws"));
+        List.of("draws"),
+        List.of("generated_draws"));
 
     /**
      * Literal placeholder from `tenantconfig/document_config.json` — untouched means unconfigured.
@@ -324,6 +332,18 @@ public class TenantReadinessAssembler {
                 .toList();
             if (activeGames.isEmpty()) {
                 return TenantReadinessStatus.MISSING;
+            }
+
+            // Odds/pricing must be configured to actually sell — an "active" game with no
+            // priced entries isn't sellable. limits are informational only (not checked here).
+            long pricedGames = activeGames.stream()
+                .filter(g -> g.pricing() != null && g.pricing().configured())
+                .count();
+            if (pricedGames == 0) {
+                return TenantReadinessStatus.MISSING;
+            }
+            if (pricedGames < activeGames.size()) {
+                return TenantReadinessStatus.PARTIAL;
             }
 
             return TenantReadinessStatus.READY;

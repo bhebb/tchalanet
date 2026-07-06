@@ -89,7 +89,15 @@
 
             <ng-container matColumnDef="drawChannelName">
               <th mat-header-cell *matHeaderCellDef>{{ 'admin.tickets.list.columns.channel' | translate }}</th>
-              <td mat-cell *matCellDef="let row">{{ row.drawChannelName }}</td>
+              <td mat-cell *matCellDef="let row">
+                @if (ticketDrawIdentity(row); as identity) {
+                  <tch-draw-label
+                    density="compact"
+                    [primary]="identity.receiptLabel"
+                    [logoUrl]="identity.identity.providerLogoUrl"
+                  />
+                }
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="drawScheduledAt">

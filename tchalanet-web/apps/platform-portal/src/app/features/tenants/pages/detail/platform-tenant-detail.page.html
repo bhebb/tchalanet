@@ -38,6 +38,18 @@
         {{ 'platform.tenants.detail.action.suspend' | translate }}
       </button>
     }
+    @if (tenant()) {
+      <button mat-button (click)="openSupportAccess()">
+        <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+        {{ 'platform.tenants.detail.action.supportAccess' | translate }}
+      </button>
+    }
+    @if (tenant() && canArchive(tenant()!.status)) {
+      <button mat-button [disabled]="archiving()" (click)="archive()">
+        <span class="material-symbols-outlined" aria-hidden="true">archive</span>
+        {{ 'platform.tenants.detail.action.archive' | translate }}
+      </button>
+    }
   </div>
 
   @if (loading()) {
@@ -66,6 +78,9 @@
     }
     @if (suspendError()) {
       <tch-notice type="error" class="tenant-detail__action-error">{{ suspendError() }}</tch-notice>
+    }
+    @if (archiveError()) {
+      <tch-notice type="error" class="tenant-detail__action-error">{{ archiveError() }}</tch-notice>
     }
     @if (identityFormState() === 'success') {
       <tch-notice type="success" class="tenant-detail__action-error">{{ 'platform.tenants.detail.action.updateSuccess' | translate }}</tch-notice>

@@ -5,7 +5,7 @@
 >
   <div class="tch-console-form-section__row">
     <mat-form-field appearance="outline" class="tch-console-form-section__field">
-      <mat-label>{{ 'component.console.personIdentity.field.firstName' | translate }}</mat-label>
+      <mat-label>{{ 'console.personIdentity.field.firstName' | translate }}</mat-label>
       <input matInput [formField]="form().firstName" autocomplete="given-name" />
       @if (form().firstName().touched() && form().firstName().invalid()) {
         @for (error of form().firstName().errors(); track error.kind) {
@@ -15,20 +15,20 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="tch-console-form-section__field">
-      <mat-label>{{ 'component.console.personIdentity.field.lastName' | translate }}</mat-label>
+      <mat-label>{{ 'console.personIdentity.field.lastName' | translate }}</mat-label>
       <input matInput [formField]="form().lastName" autocomplete="family-name" />
     </mat-form-field>
   </div>
 
   <div class="tch-console-form-section__row">
     <mat-form-field appearance="outline" class="tch-console-form-section__field">
-      <mat-label>{{ 'component.console.personIdentity.field.email' | translate }}</mat-label>
+      <mat-label>{{ 'console.personIdentity.field.email' | translate }}</mat-label>
       <input
         matInput
         [formField]="form().email"
         type="email"
         autocomplete="email"
-        [placeholder]="'component.console.personIdentity.placeholder.email' | translate"
+        [placeholder]="'console.personIdentity.placeholder.email' | translate"
       />
       @if (form().email().touched() && form().email().invalid()) {
         @for (error of form().email().errors(); track error.kind) {
@@ -38,13 +38,13 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="tch-console-form-section__field">
-      <mat-label>{{ 'component.console.personIdentity.field.phoneNumber' | translate }}</mat-label>
+      <mat-label>{{ 'console.personIdentity.field.phoneNumber' | translate }}</mat-label>
       <input
         matInput
         [formField]="form().phoneNumber"
         type="tel"
         autocomplete="tel"
-        [placeholder]="'component.console.personIdentity.placeholder.phoneNumber' | translate"
+        [placeholder]="'console.personIdentity.placeholder.phoneNumber' | translate"
       />
     </mat-form-field>
   </div>

@@ -338,6 +338,8 @@
       "optional": "Optionnel",
       "operational": "Opérationnel",
       "required": "Requis",
+      "blocking": "Bloke",
+      "blockedBy": "Bloke pa :",
       "section": {
         "identity": "Identité",
         "address": "Adresse",
@@ -349,7 +351,7 @@
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
         "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Kanal tiraj yo ak jwèt ki disponib sou chak kanal.",
+        "drawChannelsDesc": "Kanal vant konfigire.",
         "drawChannelsCta": "Configurer les canaux",
         "generatedDraws": "Tirages générés",
         "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
@@ -385,10 +387,11 @@
       "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
       "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
-        "address": "Adresse",
-        "games": "Jeux",
-        "drawChannels": "Tirages",
-        "generatedDraws": "Tirages générés"
+        "identity": "Idantite",
+        "address": "Adrès",
+        "games_pricing": "Jwèt",
+        "draws": "Kanal tiraj",
+        "generated_draws": "Tiraj jenere"
       },
       "address": {
         "city": "Ville",
@@ -399,7 +402,6 @@
         "line1": "Adresse ligne 1",
         "line2": "Adresse ligne 2"
       },
-      "blocking": "Complétez les étapes requises pour continuer.",
       "error": {
         "load": "Impossible de charger la configuration."
       },

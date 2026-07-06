@@ -30,6 +30,7 @@ export class ConsoleDrawResultsTableComponent {
   readonly showActions = input(true);
   readonly showSource = input(true);
   readonly showSourceFlags = input(false);
+  readonly sourceColumnLabel = input('Source');
   private readonly expandedRows = signal<ReadonlySet<string>>(new Set());
 
   readonly rowAction = output<ConsoleDrawResultActionEvent>();

@@ -70,9 +70,10 @@
       only for user-facing copy that is not a stable technical term.
 - [ ] 2.5 Ensure print, ticket detail, draw, draw result, draw channel, pricing, and stats surfaces
       can all use the same helpers/pipes instead of local mappings. **Remaining gap:** public
-      ticket verification, persisted ticket detail, and server-generated PDF receipt models still
-      expose pre-composed channel labels; the backend contract must expose result slot/channel/provider
-      identity fields before those persisted receipt surfaces can use `consoleDrawIdentity` cleanly.
+      ticket verification and server-generated PDF receipt models now expose structured draw identity
+      through the backend follow-up; POS ticket detail, ticket list, ticket overview, and the shared
+      mobile-first draw label component now expose structured draw identity. Pricing and stats
+      surfaces still need the same cleanup pass.
 - [ ] 2.6 Ensure bet options are defined from the domain glossary rather than directly inside pipe
       classes or page components.
 - [ ] 2.6a Ensure sellable option lists use supported option metadata, not provider documentation
@@ -151,10 +152,13 @@
 - [x] 3.22 Add `consoleTicketDrawIdentity` for ticket/receipt surfaces and migrate POS open-draw
       selection plus local ticket preview receipt to use structured `resultSlotKey/channelCode`
       instead of showing the backend pre-composed channel label as the canonical draw label.
-- [ ] 3.23 Backend follow-up: extend public ticket verification, ticket detail, and server print
-      receipt contracts with structured draw identity fields (`resultSlotKey`, `channelCode`,
-      provider/slot/timezone where available) so public verification and PDF print can use the same
-      display semantics without parsing legacy labels.
+- [x] 3.23 Backend follow-up: extend public ticket verification and server print receipt contracts
+      with structured draw identity fields (`resultSlotKey`, `channelCode`, provider/slot/timezone
+      where available), and migrate public ticket verification to `consoleTicketDrawIdentity`.
+      Persisted ticket detail remains a separate follow-up.
+- [x] 3.24 Add a mobile-first `tch-draw-label` UI primitive in `@tch/ui/components`, document its
+      theme/style ownership, and migrate POS open-draw selection plus admin ticket list/overview to
+      render draw identity through it instead of page-local logo/name/date markup.
 
 ## 4. Console actor identity migration
 

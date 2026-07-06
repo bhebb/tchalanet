@@ -39,7 +39,7 @@
     <ng-container aside>
       <tch-identity-card
         eyebrow="Résumé"
-        [title]="result.slotLabel ?? result.slotKey ?? 'Résultat'"
+        [title]="title()"
         [code]="providerCode(result)"
         [status]="statusLabel(result.status)"
         [statusTone]="statusTone(result.status)"

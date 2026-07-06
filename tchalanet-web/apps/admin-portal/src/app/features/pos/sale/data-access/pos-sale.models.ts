@@ -173,6 +173,10 @@ export interface PosTicketDetailsView {
   placedAt: string;
   cancelledAt?: string | null;
   drawId: string;
+  drawChannelCode?: string | null;
+  resultSlotKey?: string | null;
+  resultProvider?: string | null;
+  resultTimezone?: string | null;
   drawChannelName: string;
   drawScheduledAt: string;
   outletName?: string | null;

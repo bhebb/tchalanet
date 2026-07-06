@@ -232,6 +232,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Archive",
+          "archiveError": "Unable to archive the tenant.",
+          "supportAccess": "Access as admin",
           "addAdmin": "Ajouter un administrateur"
         },
         "tab": {

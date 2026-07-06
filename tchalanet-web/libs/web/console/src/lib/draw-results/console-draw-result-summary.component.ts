@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { AdminSectionCardComponent } from '@tch/ui/console';
 
 import { ConsoleFactsComponent } from '../entity-detail/console-facts.component';
+import { ConsoleDrawSlotIdentityComponent } from '../draw-slots/console-draw-slot-identity.component';
 import {
   ConsoleDrawResultSummaryFacts,
   ConsoleDrawResultSummaryView,
@@ -11,7 +12,7 @@ import {
   selector: 'tch-console-draw-result-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminSectionCardComponent, ConsoleFactsComponent],
+  imports: [AdminSectionCardComponent, ConsoleFactsComponent, ConsoleDrawSlotIdentityComponent],
   templateUrl: './console-draw-result-summary.component.html',
   styleUrls: ['./console-draw-result-summary.component.scss'],
 })
@@ -20,13 +21,5 @@ export class ConsoleDrawResultSummaryComponent {
   readonly facts = input.required<ConsoleDrawResultSummaryFacts>();
 
   readonly identity = computed(() => this.summary().identity);
-  readonly logo = computed(() => this.identity().providerLogoUrl);
-  readonly providerCode = computed(() => this.identity().providerCode ?? '—');
   readonly numbers = computed(() => this.summary().numbers);
-  readonly title = computed(() =>
-    this.identity().channelName ??
-    this.identity().slotLabel ??
-    this.identity().slotKey ??
-    'Résultat',
-  );
 }

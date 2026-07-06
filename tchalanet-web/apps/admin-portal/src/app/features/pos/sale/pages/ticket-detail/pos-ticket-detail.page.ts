@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminPageShellComponent, AdminSectionCardComponent, AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
@@ -51,9 +52,19 @@ export class PosTicketDetailPage implements OnInit {
   readonly description = computed(() => {
     const ticket = this.ticket();
     return ticket
-      ? `${ticket.drawChannelName} · ${this.amountDisplay(ticket.totalAmountCents)} ${ticket.currency}`
+      ? `${this.drawLabel(ticket)} · ${this.amountDisplay(ticket.totalAmountCents)} ${ticket.currency}`
       : 'Consultez les informations de vente, de tirage et de lignes du ticket.';
   });
+
+  drawLabel(ticket: PosTicketDetailsView): string {
+    return consoleTicketDrawIdentity({
+      channelCode: ticket.drawChannelCode,
+      channelLabel: ticket.drawChannelName,
+      resultSlotKey: ticket.resultSlotKey,
+      scheduledAt: ticket.drawScheduledAt,
+      fallbackLabel: ticket.drawChannelName,
+    }).receiptLabel;
+  }
 
   ngOnInit(): void {
     this.load();

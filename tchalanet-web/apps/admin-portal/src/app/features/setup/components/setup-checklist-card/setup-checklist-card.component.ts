@@ -48,13 +48,14 @@ export class SetupChecklistCardComponent {
     return 'status--unknown';
   });
 
-  readonly badgeLabelKey = computed(() =>
-    this.badgeKind() === 'optional'
-      ? 'admin.setup.optional'
-      : this.badgeKind() === 'operational'
-        ? 'admin.setup.operational'
-        : 'admin.setup.required',
-  );
+  readonly badgeLabelKey = computed(() => {
+    switch (this.badgeKind()) {
+      case 'optional': return 'admin.setup.optional';
+      case 'operational': return 'admin.setup.operational';
+      case 'blocking': return 'admin.setup.blocking';
+      default: return 'admin.setup.required';
+    }
+  });
 
   readonly isReady = computed(() => this.status() === 'READY');
   readonly isMissing = computed(() => this.emphasizeMissing() && this.status() === 'MISSING');

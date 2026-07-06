@@ -2,7 +2,13 @@
   <div class="pos-draw">
     <div class="pos-draw__meta">
       <div class="pos-draw__info">
-        <span class="pos-draw__label">{{ drawLabel(d) }}</span>
+        @if (drawIdentity(d); as identity) {
+          <tch-draw-label
+            [primary]="identity.receiptLabel"
+            [secondary]="identity.receiptDateTimeLabel"
+            [logoUrl]="identity.identity.providerLogoUrl"
+          />
+        }
         @if (timeRemainingLabel(); as t) {
           <span class="pos-draw__time" [class.pos-draw__time--closing]="d.status === 'CLOSING_SOON'">
             S'arrête dans <strong>{{ t }}</strong>
@@ -35,7 +41,13 @@
         @for (other of otherDraws(); track other.drawId) {
           <button mat-menu-item (click)="selectDraw(other)">
             <span class="material-symbols-outlined">schedule</span>
-            {{ drawLabel(other) }}
+            @if (drawIdentity(other); as identity) {
+              <tch-draw-label
+                density="compact"
+                [primary]="identity.receiptLabel"
+                [logoUrl]="identity.identity.providerLogoUrl"
+              />
+            }
           </button>
         }
       </mat-menu>

@@ -232,6 +232,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Achive",
+          "archiveError": "Enposib pou achive tenant la.",
+          "supportAccess": "Antre kòm admin",
           "addAdmin": "Ajouter un administrateur"
         },
         "tab": {

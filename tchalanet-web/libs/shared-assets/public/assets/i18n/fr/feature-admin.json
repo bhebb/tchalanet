@@ -398,6 +398,8 @@
       "optional": "Optionnel",
       "operational": "Opérationnel",
       "required": "Requis",
+      "blocking": "Bloquant",
+      "blockedBy": "Bloqué par :",
       "progress": {
         "title": "Configuration du tenant",
         "subtitle": "Suivi de l'état de préparation"
@@ -413,7 +415,7 @@
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
         "drawChannels": "Canaux de tirage",
-        "drawChannelsDesc": "Canaux de tirage et jeux disponibles sur chaque canal.",
+        "drawChannelsDesc": "Canaux de vente configurés.",
         "drawChannelsCta": "Configurer les canaux",
         "generatedDraws": "Tirages générés",
         "generatedDrawsDesc": "Tirages produits à partir des canaux et prêts à être suivis.",
@@ -449,10 +451,11 @@
       "advancedSettings.description": "Configurez les paramètres avancés pour votre tenant.",
       "advancedSettings.action": "Configurer les paramètres avancés",
       "blockingStep": {
+        "identity": "Identité",
         "address": "Adresse",
-        "games": "Jeux",
-        "drawChannels": "Tirages",
-        "generatedDraws": "Tirages générés"
+        "games_pricing": "Jeux",
+        "draws": "Canaux de tirage",
+        "generated_draws": "Tirages générés"
       },
       "address": {
         "city": "Ville",
@@ -463,7 +466,6 @@
         "line1": "Adresse ligne 1",
         "line2": "Adresse ligne 2"
       },
-      "blocking": "Complétez les étapes requises pour continuer.",
       "error": {
         "load": "Impossible de charger la configuration."
       },

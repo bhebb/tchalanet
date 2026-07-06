@@ -517,6 +517,10 @@ export class PlatformOpsDrawsPage implements OnInit {
   }
 
   private toConsoleDrawRow(draw: DrawView): ConsoleDrawRow {
+    const localDateLabel = this.localDateLabel(draw.scheduledAt);
+    const localTimeLabel = this.localTimeLabel(draw.scheduledAt);
+    const providerTimeLabel = this.slotTimeLabel(draw.slot.drawTime);
+
     return consoleDrawRowViewModel({
       id: draw.id,
       groupLabel: draw.drawDate,
@@ -526,17 +530,20 @@ export class PlatformOpsDrawsPage implements OnInit {
         slotKey: draw.slot.key,
         slotLabel: draw.slot.label,
         officialDateLabel: draw.drawDate,
-        officialTimeLabel: draw.slot.drawTime,
+        officialTimeLabel: providerTimeLabel,
         officialTimezoneLabel: draw.slot.timezone,
-        localDateLabel: draw.drawDate,
-        localTimeLabel: draw.scheduledAt,
+        localDateLabel,
+        localTimeLabel,
+        localTimezoneLabel: this.localTimezoneLabel(),
         fallbackTitle: draw.channel.code,
       },
       title: draw.channel.code,
       subtitle: draw.slot.key,
       meta: draw.channel.code,
       scheduledDateLabel: draw.drawDate,
-      scheduledTimeLabel: draw.scheduledAt,
+      scheduledTimeLabel: providerTimeLabel
+        ? `${providerTimeLabel}${draw.slot.timezone ? ` · ${draw.slot.timezone}` : ''}`
+        : localTimeLabel,
       statusLabel: consoleDrawStatusLabel(draw.status),
       statusTone: consoleDrawStatusTone(draw.status),
       resultLabel: draw.lastResult ? consoleDrawResultStatusLabel(draw.lastResult.status) : undefined,
@@ -567,6 +574,42 @@ export class PlatformOpsDrawsPage implements OnInit {
     return [result.lot1, result.lot2, result.lot3, result.lot4]
       .map(value => typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '')
       .filter(Boolean);
+  }
+
+  private slotTimeLabel(value: string | null | undefined): string | undefined {
+    const text = value?.trim();
+    if (!text) return undefined;
+    const match = /^(\d{2}):(\d{2})/.exec(text);
+    return match ? `${match[1]}:${match[2]}` : text;
+  }
+
+  private localDateLabel(value: string | null | undefined): string | undefined {
+    const date = this.toDate(value);
+    if (!date) return undefined;
+    return new Intl.DateTimeFormat('fr-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  }
+
+  private localTimeLabel(value: string | null | undefined): string | undefined {
+    const date = this.toDate(value);
+    if (!date) return undefined;
+    return new Intl.DateTimeFormat('fr-CA', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  }
+
+  private localTimezoneLabel(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+
+  private toDate(value: string | null | undefined): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   private errorViewModel(err: unknown, source: string): ErrorViewModel {

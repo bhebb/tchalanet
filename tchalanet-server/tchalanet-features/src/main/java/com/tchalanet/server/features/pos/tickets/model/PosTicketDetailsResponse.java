@@ -18,6 +18,10 @@ public record PosTicketDetailsResponse(
 
     // ── Draw ──────────────────────────────────────────────────────────────
     DrawId drawId,
+    String drawChannelCode,
+    String resultSlotKey,
+    String resultProvider,
+    String resultTimezone,
     String drawChannelName,    // e.g. "Haïti • Texas • 12:27"
     Instant drawScheduledAt,
 

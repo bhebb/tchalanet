@@ -31,7 +31,7 @@ public class TicketReceiptDrawFormatter {
     ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
 
-        var label = drawIdentityFormatter.label(receipt);
+        var label = drawIdentityFormatter.label(receipt, translations);
 
         if (label != null && !label.isBlank()) {
             add(lines, fit(label, profile), true);

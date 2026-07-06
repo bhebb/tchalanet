@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -18,6 +19,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   BadgeStatus,
   TchActionButton,
+  TchConfirmDialog,
+  TchConfirmDialogData,
   TchErrorPanel,
   TchLoading,
   TchNotice,
@@ -58,6 +61,7 @@ import { TenantSubscriptionPanelComponent } from '../../components/tenant-subscr
 import { TenantEntitlementsPanelComponent } from '../../components/tenant-entitlements-panel/tenant-entitlements-panel.component';
 import { TenantSellerTerminalsTableComponent } from '../../components/tenant-seller-terminals-table/tenant-seller-terminals-table.component';
 import { TenantAuditTableComponent } from '../../components/tenant-audit-table/tenant-audit-table.component';
+import { StartTenantAdminAccessDialog } from '../../../shared/start-tenant-admin-access/start-tenant-admin-access-dialog';
 
 type ProblemLike = { title?: string; detail?: string; traceId?: string; errorId?: string; requestId?: string };
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
@@ -108,6 +112,7 @@ export class PlatformTenantDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
 
   readonly loading = signal(false);
   readonly errorTitle = signal<string | null>(null);
@@ -133,6 +138,8 @@ export class PlatformTenantDetailPage implements OnInit {
   readonly activateError = signal<string | null>(null);
   readonly suspending = signal(false);
   readonly suspendError = signal<string | null>(null);
+  readonly archiving = signal(false);
+  readonly archiveError = signal<string | null>(null);
 
   readonly subscriptionLoading = signal(false);
   readonly subscriptionError = signal<string | null>(null);
@@ -476,6 +483,56 @@ export class PlatformTenantDetailPage implements OnInit {
         const pd = this.problem(err);
         this.suspendError.set(pd.title ?? this.translate.instant('platform.tenants.detail.action.suspendError'));
         this.suspending.set(false);
+      },
+    });
+  }
+
+  canArchive(status: TenantStatus): boolean {
+    return status !== 'ARCHIVED';
+  }
+
+  archive(): void {
+    const t = this.tenant();
+    const id = this.tenantId();
+    if (!t || !id || this.archiving()) return;
+    const data: TchConfirmDialogData = {
+      title: this.translate.instant('platform.tenants.action.archive'),
+      message: this.translate.instant('platform.tenants.confirm.archive', { name: t.name }),
+      confirmLabel: this.translate.instant('platform.tenants.action.archive'),
+      destructive: true,
+      sensitive: true,
+      requireReason: true,
+      auditLabel: this.translate.instant('platform.tenants.confirm.reasonLabel'),
+    };
+    this.dialog.open(TchConfirmDialog, { data }).afterClosed().subscribe(result => {
+      if (!result?.confirmed) return;
+      this.archiving.set(true);
+      this.archiveError.set(null);
+      this.api.archiveTenant(id).subscribe({
+        next: () => {
+          this.archiving.set(false);
+          this.load();
+        },
+        error: (err: unknown) => {
+          const pd = this.problem(err);
+          this.archiveError.set(pd.title ?? this.translate.instant('platform.tenants.detail.action.archiveError'));
+          this.archiving.set(false);
+        },
+      });
+    });
+  }
+
+  openSupportAccess(): void {
+    const t = this.tenant();
+    const id = this.tenantId();
+    if (!t || !id) return;
+    this.dialog.open(StartTenantAdminAccessDialog, {
+      width: '520px',
+      data: {
+        tenantId: id,
+        tenantName: t.name,
+        tenantCode: t.code,
+        tenantStatus: t.status,
       },
     });
   }

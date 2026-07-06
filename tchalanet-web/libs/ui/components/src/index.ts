@@ -11,6 +11,7 @@ export * from './lib/admin-crud/admin-form-section';
 export * from './lib/admin-crud/admin-form-actions';
 export * from './lib/confirm-dialog/confirm-dialog';
 export * from './lib/brand/brand';
+export * from './lib/draw-label/draw-label';
 export * from './lib/pub-card/pub-action-card';
 export * from './lib/pub-card/pub-card';
 export * from './lib/pub-card/pub-card-grid';

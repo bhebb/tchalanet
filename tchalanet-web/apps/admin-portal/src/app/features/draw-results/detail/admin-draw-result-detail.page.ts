@@ -12,6 +12,7 @@ import {
   ConsoleDrawResultSummaryComponent,
   ConsoleDrawResultSummaryFacts,
   ConsoleDrawResultSummaryView,
+  ConsoleDrawSlotIdentity,
   DrawCombinationGameSection,
   consoleDrawResultSummaryFacts,
   consoleDrawResultSummaryViewModel,
@@ -88,16 +89,30 @@ export class AdminDrawResultDetailPage implements OnInit {
     linkedDrawFacts: this.linkedDrawFacts(),
   }));
 
-  readonly title = computed(() => this.result()?.slotLabel ?? this.result()?.slotKey ?? 'Détail du résultat');
+  readonly drawIdentity = computed<ConsoleDrawSlotIdentity | null>(() => this.summaryView()?.identity ?? null);
+  readonly title = computed(() => {
+    const identity = this.drawIdentity();
+    return firstText(identity?.providerShortName, identity?.providerCode, identity?.channelShortName, identity?.slotLabel, 'Détail du résultat');
+  });
   readonly description = computed(() => {
     const result = this.result();
     if (!result) return 'Consultez le résultat appliqué à ce tirage.';
-    return `${result.channelName ?? result.provider ?? 'Tirage'} · ${result.drawDate ?? result.resultDate ?? '—'}`;
+    const identity = this.drawIdentity();
+    return [
+      firstText(identity?.providerName, identity?.channelName, result.channelName, result.provider, 'Tirage'),
+      firstText(identity?.slotLabel),
+      result.drawDate ?? result.resultDate ?? '—',
+    ].filter(Boolean).join(' · ');
   });
   readonly detailMeta = computed(() => {
     const result = this.result();
+    const identity = this.drawIdentity();
     return result
-      ? [result.slotKey ?? '—', result.drawDate ?? result.resultDate ?? '—', result.status]
+      ? [
+          firstText(identity?.slotKey, result.slotKey, '—'),
+          result.drawDate ?? result.resultDate ?? '—',
+          result.status,
+        ]
       : [];
   });
   readonly detailError = computed(() =>
@@ -122,7 +137,7 @@ export class AdminDrawResultDetailPage implements OnInit {
       { label: 'Statut', value: this.statusLabel(result.status) },
       { label: 'Qualité', value: this.qualityLabel(result.quality) },
       { label: 'Tirage', value: result.drawDate ?? result.resultDate ?? '—' },
-      { label: 'Slot', value: result.slotKey ?? '—' },
+      { label: 'Slot', value: this.drawIdentity()?.slotLabel ?? result.slotLabel ?? result.slotKey ?? '—' },
     ];
   });
   readonly resultFacts = computed<readonly ConsoleFact[]>(() => {
@@ -239,4 +254,8 @@ export class AdminDrawResultDetailPage implements OnInit {
       minute: '2-digit',
     }).format(new Date(value));
   }
+}
+
+function firstText(...values: readonly (string | null | undefined)[]): string {
+  return values.find(value => typeof value === 'string' && value.trim().length > 0)?.trim() ?? '';
 }

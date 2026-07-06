@@ -1,24 +1,28 @@
+@use 'breakpoints' as bp;
+
+// Sections de formulaire console partagées (adresse, identité personne).
+// Mobile-first : une colonne par défaut, deux colonnes à partir de `medium` (≥ 600px).
+// Points d'extension locaux (style.md §4) : surcharger --comp-form-section-* chez l'hôte.
+:host {
+  --comp-form-section-gap: 0.75rem;
+  --comp-form-section-columns: repeat(2, minmax(0, 1fr));
+}
+
 .tch-console-form-section__grid {
   display: grid;
+  gap: var(--comp-form-section-gap);
 }
 
 .tch-console-form-section__row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  gap: var(--comp-form-section-gap);
+
+  @include bp.up(medium) {
+    grid-template-columns: var(--comp-form-section-columns);
+  }
 }
 
 .tch-console-form-section__field {
   width: 100%;
-  max-width: 16.25rem;
-}
-
-.tch-console-form-section__field--full {
-  max-width: none;
-}
-
-@media (max-width: 600px) {
-  .tch-console-form-section__row {
-    grid-template-columns: 1fr;
-  }
 }

@@ -59,6 +59,9 @@ export interface VerifyTicketLine {
 export interface VerifyTicketDraw {
   readonly channelName: string;
   readonly channelLabel: string;
+  readonly resultSlotKey?: string | null;
+  readonly provider?: string | null;
+  readonly timezone?: string | null;
   readonly drawDate: string;        // "2026-06-04"
   readonly scheduledAt: string;     // ISO
 }

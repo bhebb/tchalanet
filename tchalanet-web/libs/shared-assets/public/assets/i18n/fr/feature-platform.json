@@ -230,6 +230,9 @@
           "activateError": "Erreur lors de l'activation.",
           "suspend": "Suspendre",
           "suspendError": "Erreur lors de la suspension.",
+          "archive": "Archiver",
+          "archiveError": "Erreur lors de l'archivage.",
+          "supportAccess": "Accéder comme admin",
           "addAdmin": "Ajouter un administrateur",
           "updateSuccess": "Informations mises à jour avec succès.",
           "updateError": "Impossible de sauvegarder les modifications."

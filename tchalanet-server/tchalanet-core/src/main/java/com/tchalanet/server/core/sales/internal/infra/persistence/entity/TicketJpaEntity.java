@@ -103,6 +103,26 @@ public class TicketJpaEntity extends BaseTenantEntity {
     @Formula("(SELECT dc.name FROM draw_channel dc WHERE dc.id = draw_channel_id)")
     private String drawChannelName;
 
+    /** Draw channel code — resolved via sub-select for list projections. */
+    @NotAudited
+    @Formula("(SELECT dc.code FROM draw_channel dc WHERE dc.id = draw_channel_id)")
+    private String drawChannelCode;
+
+    /** Result slot key — resolved via sub-select for list projections. */
+    @NotAudited
+    @Formula("(SELECT rs.slot_key FROM draw_channel dc JOIN result_slot rs ON rs.id = dc.result_slot_id WHERE dc.id = draw_channel_id)")
+    private String resultSlotKey;
+
+    /** Result provider code — resolved via sub-select for list projections. */
+    @NotAudited
+    @Formula("(SELECT rs.provider FROM draw_channel dc JOIN result_slot rs ON rs.id = dc.result_slot_id WHERE dc.id = draw_channel_id)")
+    private String resultProvider;
+
+    /** Result timezone — resolved via sub-select for list projections. */
+    @NotAudited
+    @Formula("(SELECT COALESCE(rs.timezone, dc.timezone) FROM draw_channel dc JOIN result_slot rs ON rs.id = dc.result_slot_id WHERE dc.id = draw_channel_id)")
+    private String resultTimezone;
+
     /** Scheduled draw time — resolved via sub-select for list projections. */
     @NotAudited
     @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")

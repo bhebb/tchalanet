@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { TchDrawLabel } from '@tch/ui/components';
+import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -17,6 +19,7 @@ import {
   AdminTicketsOverviewApi,
   AdminTicketsOverviewView,
 } from '../../data-access/admin-tickets-overview-api.service';
+import { TicketRowView } from '../../data-access/admin-tickets-api.service';
 import {
   TenantFinancialBreakdownView,
 } from '../../../financials/data-access/admin-financials-api.service';
@@ -46,6 +49,7 @@ const DEFAULT_CURRENCY = 'HTG';
     AdminSectionCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TchDrawLabel,
     MatButtonModule,
     MatIconModule,
   ],
@@ -107,6 +111,20 @@ export class AdminTicketsOverviewPage {
 
   ticketAmountDisplay(cents: number): string {
     return (cents / 100).toFixed(2);
+  }
+
+  ticketDrawIdentity(ticket: TicketRowView) {
+    return consoleTicketDrawIdentity({
+      channelCode: ticket.drawChannelCode,
+      channelLabel: ticket.drawChannelName,
+      resultSlotKey: ticket.resultSlotKey,
+      scheduledAt: ticket.drawScheduledAt,
+      fallbackLabel: ticket.drawChannelName,
+    });
+  }
+
+  ticketDrawLabel(ticket: TicketRowView): string {
+    return this.ticketDrawIdentity(ticket).receiptLabel;
   }
 
   statusLabelKey(status: string): string {
