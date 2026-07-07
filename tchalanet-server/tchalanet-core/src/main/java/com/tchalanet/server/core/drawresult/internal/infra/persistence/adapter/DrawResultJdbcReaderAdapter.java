@@ -9,11 +9,13 @@ import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawRe
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultsCriteria;
 import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.internal.infra.cache.DrawResultCacheNames;
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.mapper.DrawResultMapper;
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,7 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     }
 
     @Override
+    @Cacheable(cacheNames = DrawResultCacheNames.BY_ID, key = "#id.value()", condition = "#id != null")
     public Optional<DrawResultView> findViewById(DrawResultId id) {
         return id == null ? Optional.empty() : jdbcRepo.findViewById(id.value());
     }
@@ -59,6 +62,10 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     }
 
     @Override
+    @Cacheable(
+        cacheNames = DrawResultCacheNames.ID_BY_SLOT_OCCURRED,
+        key = "#resultSlotId.value() + ':' + #occurredAt",
+        condition = "#resultSlotId != null && #occurredAt != null")
     public Optional<DrawResultId> findByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt) {
         if (resultSlotId == null || occurredAt == null) return Optional.empty();
         return Optional.ofNullable(DrawResultId.nullableOf(
