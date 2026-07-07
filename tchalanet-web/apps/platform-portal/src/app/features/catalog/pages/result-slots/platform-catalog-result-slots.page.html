@@ -1,14 +1,14 @@
 <tch-admin-page-shell title="Slots de résultats" description="Référentiel global des créneaux de tirage (slots).">
   <div actions>
     @if (selectedSlotKeys().length > 0) {
-      <span style="font-size:0.875rem;color:var(--tch-color-on-surface-variant);margin-right:0.5rem">
+      <span class="result-slots__selection-count">
         {{ selectedSlotKeys().length }} sélectionné(s)
       </span>
-      <button mat-flat-button color="primary" (click)="openFetch()" style="margin-right:0.5rem">
+      <button mat-flat-button color="primary" (click)="openFetch()">
         <span class="material-symbols-outlined">download</span>
         Fetch
       </button>
-      <button mat-stroked-button (click)="openApply()" style="margin-right:0.5rem">
+      <button mat-stroked-button (click)="openApply()">
         <span class="material-symbols-outlined">sync</span>
         Apply
       </button>
@@ -47,14 +47,14 @@
         } @else {
         <table mat-table [dataSource]="filteredSlots()">
           <ng-container matColumnDef="select">
-            <th mat-header-cell *matHeaderCellDef style="width:48px">
+            <th mat-header-cell *matHeaderCellDef class="result-slots__select-cell">
               <mat-checkbox
                 [checked]="filteredSlots().length > 0 && filteredSlots().every(s => isSelected(s.slotKey))"
                 [indeterminate]="selectedSlotKeys().length > 0 && !filteredSlots().every(s => isSelected(s.slotKey))"
                 (change)="toggleAll()">
               </mat-checkbox>
             </th>
-            <td mat-cell *matCellDef="let row" style="width:48px">
+            <td mat-cell *matCellDef="let row" class="result-slots__select-cell">
               <mat-checkbox [checked]="isSelected(row.slotKey)" (change)="toggleSlot(row.slotKey)"></mat-checkbox>
             </td>
           </ng-container>
@@ -87,8 +87,8 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                <span class="material-symbols-outlined">edit</span>
+              <button mat-icon-button title="Configurer" (click)="openConfig(row)">
+                <span class="material-symbols-outlined">tune</span>
               </button>
               @if (row.active) {
                 <button mat-icon-button title="Désactiver" (click)="disable(row)">
@@ -111,4 +111,96 @@
       <span>{{ filteredSlots().length }} / {{ slotRows().length }} slot(s){{ selectedSlotKeys().length > 0 ? ' · ' + selectedSlotKeys().length + ' sélectionné(s)' : '' }}</span>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedSlot(); as slot) {
+    <section class="result-slots-config" aria-label="Configuration du slot sélectionné">
+      <header class="result-slots-config__header">
+        <div>
+          <p class="result-slots-config__eyebrow">Configuration expert</p>
+          <h2>{{ slot.slotKey }}</h2>
+          <p>{{ slot.provider ?? 'Provider non configuré' }} · {{ slot.drawTime }} · {{ slot.timezone ?? 'Timezone non configurée' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <div class="result-slots-config__grid">
+        <form class="result-slots-config__panel" [formGroup]="identityForm" (submit)="$event.preventDefault(); saveIdentity()">
+          <h3>Identité et calendrier slot</h3>
+          <div class="result-slots-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Fournisseur</mat-label>
+              <input matInput formControlName="provider" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Heure de tirage</mat-label>
+              <input matInput formControlName="drawTime" placeholder="14:30" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Jours</mat-label>
+              <input matInput formControlName="daysOfWeek" placeholder="MON-SUN" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Timezone</mat-label>
+              <input matInput formControlName="timezone" placeholder="America/New_York" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Clé i18n</mat-label>
+              <input matInput formControlName="labelKey" />
+            </mat-form-field>
+            <mat-checkbox formControlName="active">Actif</mat-checkbox>
+          </div>
+          <button mat-flat-button color="primary" type="submit" [disabled]="identityForm.invalid || savingIdentity()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </form>
+
+        <form class="result-slots-config__panel result-slots-config__panel--wide" [formGroup]="sourceForm" (submit)="$event.preventDefault(); saveSourceConfig()">
+          <div class="result-slots-config__panel-heading">
+            <div>
+              <h3>Source provider</h3>
+              <p>Impacte les prochains fetch externes.</p>
+            </div>
+          </div>
+          <ul class="result-slots-config__summary">
+            @for (line of sourceSummary(); track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+          <mat-form-field appearance="outline" class="result-slots-config__json-field">
+            <mat-label>source_cfg</mat-label>
+            <textarea matInput rows="12" formControlName="sourceJson" spellcheck="false"></textarea>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="sourceForm.invalid || savingSource()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer la source
+          </button>
+        </form>
+
+        <form class="result-slots-config__panel result-slots-config__panel--wide" [formGroup]="projectionForm" (submit)="$event.preventDefault(); saveProjectionConfig()">
+          <div class="result-slots-config__panel-heading">
+            <div>
+              <h3>Projection Haïti</h3>
+              <p>Impacte les prochaines projections draw_result.</p>
+            </div>
+          </div>
+          <ul class="result-slots-config__summary">
+            @for (line of projectionSummary(); track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+          <mat-form-field appearance="outline" class="result-slots-config__json-field">
+            <mat-label>projection_cfg</mat-label>
+            <textarea matInput rows="12" formControlName="projectionJson" spellcheck="false"></textarea>
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="projectionForm.invalid || savingProjection()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer la projection
+          </button>
+        </form>
+      </div>
+    </section>
+  }
 </tch-admin-page-shell>

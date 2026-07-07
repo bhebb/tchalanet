@@ -50,6 +50,8 @@ export interface CatalogResultSlotView {
   drawTime: string;
   daysOfWeek: string | null;
   active: boolean;
+  sourceCfg: unknown;
+  projectionCfg: unknown;
   labelKey: string | null;
 }
 
@@ -69,6 +71,14 @@ export interface UpdateResultSlotRequest {
   daysOfWeek?: string | null;
   labelKey?: string | null;
   active?: boolean | null;
+}
+
+export interface UpdateResultSlotSourceConfigRequest {
+  sourceCfg: unknown;
+}
+
+export interface UpdateResultSlotProjectionConfigRequest {
+  projectionCfg: unknown;
 }
 
 // ─── Plans ─────────────────────────────────────────────────────────────────
@@ -312,6 +322,20 @@ export class PlatformCatalogApi {
 
   updateResultSlot(id: string, req: UpdateResultSlotRequest): Observable<CatalogResultSlotView> {
     return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}`, req);
+  }
+
+  updateResultSlotSourceConfig(
+    id: string,
+    req: UpdateResultSlotSourceConfigRequest,
+  ): Observable<CatalogResultSlotView> {
+    return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}/source-config`, req);
+  }
+
+  updateResultSlotProjectionConfig(
+    id: string,
+    req: UpdateResultSlotProjectionConfigRequest,
+  ): Observable<CatalogResultSlotView> {
+    return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}/projection-config`, req);
   }
 
   disableResultSlot(slotKey: string): Observable<void> {
