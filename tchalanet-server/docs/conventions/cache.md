@@ -3,11 +3,12 @@
 > **Status**: NORMATIVE  
 > **Scope**: tchalanet-server (common / core / catalog / features)  
 > **Audience**: Backend developers, reviewers, ops  
-> **Last reviewed**: 2026-01-20  
+> **Last reviewed**: 2026-07-07  
 > **Related**:
 >
-> - `architecture/cache-architecture.md` (implémentation technique L1/L2)
-> - `architecture/ops.md` (endpoints Ops & audit)
+> - `../../tchalanet-common/src/main/java/com/tchalanet/server/common/cache/CACHE.md` (architecture L1/L2)
+> - `cache-gap-analysis.md` (audit des écarts & proposition de TTL par entité)
+> - Ops cache : `tchalanet-features/.../ops/cache/CacheOpsController` (endpoints audités, SUPER_ADMIN)
 
 ---
 
@@ -100,20 +101,24 @@ Cache names are **functional**, never technical.
 
 ### Format
 
-- <scope>.<domain>.<resource>.<qualifier>
+- `<scope>:<domain>:<resource>[:<qualifier>]`
+- Separator is a **colon** (`:`), matching the codebase convention.
 
 ### Examples
 
-- `platform.tenant.by_code`
-- `catalog.drawresult.by_id`
-- `catalog.drawresult.id.by_slot_occurred`
-- `infra.uslottery.provider_raw`
-- `public.draw.latest`
+- `catalog:plan:active_plans`
+- `catalog:drawchannel:calendar_rows`
+- `core:pricing:tenant_odds_list`
+- `platform.tenant.cache.REGISTRY_BY_CODE` *(legacy dot-named — do not replicate)*
+
+> **Legacy note**: some older caches use dots (`core.drawresult.by_id`,
+> `platform.tenant.cache.*`). New caches MUST use the colon format. Do not rename
+> existing Redis-backed cache names without a migration (keys are persisted in L2).
 
 ### MUST NOT
 
 - Use Redis key format as cache name
-- Embed environment or tenant into `cacheName`
+- Embed environment or tenant into `cacheName` (tenant belongs in the **key**, not the name)
 
 ---
 
@@ -155,6 +160,15 @@ Cache names are **functional**, never technical.
 
 - Hardcode TTLs in business code
 - Create a cache without a declared TTL
+
+### Default TTL (fallback)
+
+A cache used via `@Cacheable` **without** a `CacheSpecProvider` silently falls back to
+the generic defaults **L1 = 5 min** (`CacheRuntimeConfig`) / **L2 = 60 min**
+(`RedisCacheRuntimeConfig`). This is a code smell, not a feature: a rarely-mutated
+referential then expires as fast as volatile session data. Every cache MUST declare a
+`CacheSpecProvider`. Note: `CacheSpec.DEFAULT_TTL_L1` (10 min) differs from the runtime
+default (5 min) — do not rely on either; declare explicitly.
 
 ---
 
