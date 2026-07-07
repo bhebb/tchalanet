@@ -49,15 +49,15 @@
             <th mat-header-cell *matHeaderCellDef>Défaut</th>
             <td mat-cell *matCellDef="let row">
               @if (row.isDefault) {
-                <span class="material-symbols-outlined" style="color:var(--tch-success)">star</span>
+                <span class="material-symbols-outlined" style="color:var(--tch-color-primary)">star</span>
               }
             </td>
           </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                <span class="material-symbols-outlined">edit</span>
+              <button mat-icon-button title="Configurer" (click)="openConfig(row)">
+                <span class="material-symbols-outlined">tune</span>
               </button>
               <button mat-icon-button color="warn" title="Supprimer" (click)="delete(row)">
                 <span class="material-symbols-outlined">delete</span>
@@ -74,4 +74,51 @@
       <span>{{ themeRows().length }} thème(s)</span>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedTheme(); as theme) {
+    <section class="catalog-config" aria-label="Configuration du thème sélectionné">
+      <header class="catalog-config__header">
+        <div>
+          <p class="catalog-config__eyebrow">Configuration référentiel</p>
+          <h2>{{ theme.code }}</h2>
+          <p>{{ theme.vendor ?? 'Vendeur non configuré' }} · {{ theme.labelKey ?? 'Clé libellé non configurée' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="catalog-config__form" [formGroup]="configForm" (submit)="$event.preventDefault(); saveConfig()">
+        <section class="catalog-config__section">
+          <h3>Identité</h3>
+          <div class="catalog-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Vendeur</mat-label>
+              <input matInput formControlName="vendor" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Clé de libellé</mat-label>
+              <input matInput formControlName="labelKey" />
+            </mat-form-field>
+            <mat-checkbox formControlName="active">Actif</mat-checkbox>
+          </div>
+        </section>
+
+        <section class="catalog-config__section catalog-config__section--wide">
+          <h3>Configuration JSON</h3>
+          <mat-form-field appearance="outline" class="catalog-config__wide-field">
+            <mat-label>Configuration</mat-label>
+            <textarea matInput rows="14" formControlName="config"></textarea>
+          </mat-form-field>
+        </section>
+
+        <div class="catalog-config__actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="savingConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 </tch-admin-page-shell>

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,9 +21,10 @@ import {
   SettingView,
   SettingsCatalogStatsView,
   SettingLevel,
+  SettingExposure,
+  UpdateSettingRequest,
 } from '../../data-access/platform-settings-api.service';
-import { CreateSettingDialog, SETTING_LEVELS } from '../../components/dialogs/create-setting.dialog';
-import { EditSettingDialog } from '../../components/dialogs/edit-setting.dialog';
+import { CreateSettingDialog, EXPOSURES, SETTING_LEVELS } from '../../components/dialogs/create-setting.dialog';
 import { DeleteSettingDialog } from '../../components/dialogs/delete-setting.dialog';
 
 @Component({
@@ -38,6 +40,7 @@ import { DeleteSettingDialog } from '../../components/dialogs/delete-setting.dia
     TchErrorPanel,
     TchLoading,
     MatButtonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -51,10 +54,12 @@ import { DeleteSettingDialog } from '../../components/dialogs/delete-setting.dia
 export class PlatformCatalogSettingsPage implements OnInit {
   private readonly api = inject(PlatformSettingsApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['namespace', 'settingKey', 'settingValue', 'valueType', 'level', 'exposure', 'active', 'actions'];
   readonly levels = SETTING_LEVELS;
+  readonly exposures = EXPOSURES;
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -68,6 +73,14 @@ export class PlatformCatalogSettingsPage implements OnInit {
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
   readonly hasPrevious = signal(false);
+  readonly selectedSetting = signal<SettingView | null>(null);
+  readonly savingConfig = signal(false);
+
+  readonly configForm = this.fb.nonNullable.group({
+    settingValue: ['', Validators.required],
+    exposure: ['INTERNAL' as SettingExposure],
+    active: [true],
+  });
 
   private showError(msg: string): void {
     this.error.set(msg);
@@ -119,11 +132,43 @@ export class PlatformCatalogSettingsPage implements OnInit {
     });
   }
 
-  openEdit(setting: SettingView): void {
-    const ref = this.dialog.open(EditSettingDialog, { data: setting, width: '520px' });
-    ref.afterClosed().subscribe((updated: SettingView | { __error: string } | null) => {
-      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
-      if (updated) { this.snackBar.open('Paramètre mis à jour.', 'OK', { duration: 4000 }); this.load(); }
+  openConfig(setting: SettingView): void {
+    this.selectedSetting.set(setting);
+    this.configForm.reset({
+      settingValue: setting.settingValue,
+      exposure: setting.exposure,
+      active: setting.active,
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedSetting.set(null);
+  }
+
+  saveConfig(): void {
+    const setting = this.selectedSetting();
+    if (!setting || this.configForm.invalid || this.savingConfig()) return;
+
+    this.savingConfig.set(true);
+    const v = this.configForm.getRawValue();
+    const req: UpdateSettingRequest = {
+      settingValue: v.settingValue,
+      exposure: v.exposure,
+      active: v.active,
+    };
+    this.api.updateSetting(setting.id, req).subscribe({
+      next: updated => {
+        this.savingConfig.set(false);
+        this.snackBar.open('Paramètre mis à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.savingConfig.set(false);
+        this.showError((err as { error?: { detail?: string; title?: string } })?.error?.detail
+          ?? (err as { error?: { title?: string } })?.error?.title
+          ?? 'Erreur.');
+      },
     });
   }
 

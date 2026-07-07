@@ -53,15 +53,15 @@
             <th mat-header-cell *matHeaderCellDef>Défaut</th>
             <td mat-cell *matCellDef="let row">
               @if (row.isDefault) {
-                <span class="material-symbols-outlined" style="color:var(--tch-success)">star</span>
+                <span class="material-symbols-outlined" style="color:var(--tch-color-primary)">star</span>
               }
             </td>
           </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                <span class="material-symbols-outlined">edit</span>
+              <button mat-icon-button title="Configurer" (click)="openConfig(row)">
+                <span class="material-symbols-outlined">tune</span>
               </button>
               @if (row.active) {
                 <button mat-icon-button title="Désactiver" (click)="deactivate(row)">
@@ -83,4 +83,79 @@
       <span>{{ planRows().length }} plan(s)</span>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedPlan(); as plan) {
+    <section class="catalog-config" aria-label="Configuration du plan sélectionné">
+      <header class="catalog-config__header">
+        <div>
+          <p class="catalog-config__eyebrow">Configuration référentiel</p>
+          <h2>{{ plan.name }}</h2>
+          <p>{{ plan.code }} · {{ plan.billingPeriod ?? 'Période non configurée' }} · {{ plan.priceAmount ?? 0 }} {{ plan.currency ?? '' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="catalog-config__form" [formGroup]="configForm" (submit)="$event.preventDefault(); saveConfig()">
+        <section class="catalog-config__section">
+          <h3>Identité commerciale</h3>
+          <div class="catalog-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="catalog-config__wide-field">
+              <mat-label>Description</mat-label>
+              <textarea matInput rows="4" formControlName="description"></textarea>
+            </mat-form-field>
+            <mat-checkbox formControlName="active">Actif</mat-checkbox>
+          </div>
+        </section>
+
+        <section class="catalog-config__section">
+          <h3>Facturation</h3>
+          <div class="catalog-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Prix</mat-label>
+              <input matInput type="number" formControlName="priceAmount" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Devise</mat-label>
+              <input matInput formControlName="currency" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Période de facturation</mat-label>
+              <mat-select formControlName="billingPeriod">
+                <mat-option value="">—</mat-option>
+                <mat-option value="MONTHLY">Mensuel</mat-option>
+                <mat-option value="ANNUAL">Annuel</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="catalog-config__section catalog-config__section--wide">
+          <h3>Configuration technique</h3>
+          <div class="catalog-config__json-grid">
+            <article>
+              <h4>Limites</h4>
+              <pre>{{ formatJson(plan.limitsJson) }}</pre>
+            </article>
+            <article>
+              <h4>Fonctionnalités</h4>
+              <pre>{{ formatJson(plan.featuresJson) }}</pre>
+            </article>
+          </div>
+        </section>
+
+        <div class="catalog-config__actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="configForm.invalid || savingConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 </tch-admin-page-shell>

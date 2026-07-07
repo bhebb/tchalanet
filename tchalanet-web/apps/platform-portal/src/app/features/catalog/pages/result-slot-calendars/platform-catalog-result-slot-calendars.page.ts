@@ -71,6 +71,10 @@ export class PlatformCatalogResultSlotCalendarsPage {
   readonly available = signal(false);
   readonly reasonCode = signal('NO_DRAW');
   readonly reasonLabel = signal('');
+  readonly selectedOverride = signal<CatalogResultSlotCalendarOverrideView | null>(null);
+  readonly editAvailable = signal(false);
+  readonly editReasonCode = signal('');
+  readonly editReasonLabel = signal('');
   readonly busy = signal(false);
 
   readonly overrides = this.api.listResultSlotCalendarOverridesResource(
@@ -122,25 +126,39 @@ export class PlatformCatalogResultSlotCalendarsPage {
     });
   }
 
-  edit(row: CatalogResultSlotCalendarOverrideView): void {
+  openConfig(row: CatalogResultSlotCalendarOverrideView): void {
     if (!this.canManage()) return;
-    const slotId = this.selectedSlotId();
-    const overrideId = idValue(row.id);
-    if (!slotId || !overrideId) return;
+    this.selectedOverride.set(row);
+    this.editAvailable.set(row.available);
+    this.editReasonCode.set(row.reasonCode);
+    this.editReasonLabel.set(row.reasonLabel ?? '');
+  }
 
-    const reasonCode = window.prompt('Code raison', row.reasonCode);
-    if (reasonCode == null) return;
-    const reasonLabel = window.prompt('Libellé raison', row.reasonLabel ?? '') ?? row.reasonLabel;
+  closeConfig(): void {
+    this.selectedOverride.set(null);
+  }
+
+  saveConfig(): void {
+    if (!this.canManage()) return;
+    const row = this.selectedOverride();
+    const slotId = this.selectedSlotId();
+    const overrideId = row ? idValue(row.id) : '';
+    const reasonCode = this.editReasonCode().trim();
+    if (!row || !slotId || !overrideId || !reasonCode) {
+      this.snackBar.open('Renseignez un code raison.', 'OK', { duration: 5000 });
+      return;
+    }
 
     this.busy.set(true);
     this.api.updateResultSlotCalendarOverride(slotId, overrideId, {
-      available: row.available,
-      reasonCode: reasonCode.trim(),
-      reasonLabel: reasonLabel?.trim() || null,
+      available: this.editAvailable(),
+      reasonCode,
+      reasonLabel: this.editReasonLabel().trim() || null,
     }).subscribe({
-      next: () => {
+      next: updated => {
         this.busy.set(false);
         this.snackBar.open('Exception mise à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
         this.overrides.reload();
       },
       error: err => this.handleError(err),

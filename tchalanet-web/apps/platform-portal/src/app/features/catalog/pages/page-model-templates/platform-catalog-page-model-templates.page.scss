@@ -32,4 +32,106 @@
     gap: 0.5rem;
     font-size: 0.875rem;
   }
+
+  &__config {
+    margin-block-start: calc(var(--tch-space-base) * 5);
+    overflow: hidden;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-lg);
+    background: var(--tch-color-surface-container-lowest);
+    box-shadow: var(--tch-elevation-1);
+  }
+
+  &__config-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: calc(var(--tch-space-base) * 3);
+    border-block-end: 1px solid var(--tch-color-outline-variant);
+    padding: calc(var(--tch-space-base) * 4);
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h2 {
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-title-md);
+      font-weight: var(--tch-weight-bold);
+      line-height: var(--tch-line-height-title-md);
+    }
+
+    p:not(.catalog-pmt-page__config-eyebrow) {
+      margin-block-start: var(--tch-space-base);
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-small);
+    }
+  }
+
+  &__config-eyebrow {
+    margin: 0 0 var(--tch-space-base);
+    color: var(--tch-color-primary);
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-weight-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__config-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--tch-space-base) * 4);
+    padding: calc(var(--tch-space-base) * 4);
+  }
+
+  &__config-section {
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 calc(var(--tch-space-base) * 3);
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-body-md);
+      font-weight: var(--tch-weight-bold);
+    }
+  }
+
+  &__config-section--wide,
+  &__config-actions {
+    grid-column: 1 / -1;
+  }
+
+  &__config-fields,
+  &__json-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--tch-space-base) * 3);
+  }
+
+  &__wide-field {
+    grid-column: 1 / -1;
+  }
+
+  &__config-actions {
+    display: flex;
+    justify-content: flex-start;
+    border-block-start: 1px solid var(--tch-color-outline-variant);
+    padding-block-start: calc(var(--tch-space-base) * 4);
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(var(--tch-space-base) * 2);
+    }
+  }
+}
+
+@media (min-width: 960px) {
+  .catalog-pmt-page {
+    &__config-form,
+    &__config-fields,
+    &__json-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
 }

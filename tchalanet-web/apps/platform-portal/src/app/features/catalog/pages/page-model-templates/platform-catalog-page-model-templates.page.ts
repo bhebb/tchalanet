@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,6 +42,7 @@ import { DeletePageModelTemplateDialog } from '../../components/dialogs/delete-p
 export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   private readonly api = inject(PlatformPageModelsApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['code', 'logicalId', 'scope', 'name', 'level', 'isDefault', 'actions'];
@@ -56,6 +57,14 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
   readonly hasPrevious = signal(false);
+  readonly selectedTemplate = signal<PageModelTemplateView | null>(null);
+  readonly configForm = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    label: ['', Validators.required],
+    description: [''],
+    schema: ['{}'],
+    model: ['{}'],
+  });
 
   levelTone(level: string): AdminStatusTone {
     return level === 'TENANT' ? 'info' : 'neutral';
@@ -107,22 +116,44 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
     });
   }
 
-  openEdit(template: PageModelTemplateView): void {
-    const name = window.prompt('Nom', template.name);
-    if (name == null) return;
-    const label = window.prompt('Libellé', template.label) ?? template.label;
-    const description = window.prompt('Description', template.description ?? '') ?? template.description;
+  openConfig(template: PageModelTemplateView): void {
+    this.selectedTemplate.set(template);
+    this.configForm.reset({
+      name: template.name,
+      label: template.label,
+      description: template.description ?? '',
+      schema: this.formatJson(template.schema ?? {}),
+      model: this.formatJson(template.model ?? {}),
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedTemplate.set(null);
+  }
+
+  saveConfig(): void {
+    const template = this.selectedTemplate();
+    if (!template || this.configForm.invalid || this.busy()) return;
+
+    const v = this.configForm.getRawValue();
+    const schema = this.parseJson(v.schema, 'Schema JSON invalide.');
+    if (schema === undefined) return;
+    const model = this.parseJson(v.model, 'Model JSON invalide.');
+    if (model === undefined) return;
 
     this.busy.set(true);
     this.api.updateTemplate(template.id, {
       ...template,
-      name: name.trim(),
-      label: label.trim(),
-      description: description?.trim() || undefined,
+      name: v.name.trim(),
+      label: v.label.trim(),
+      description: v.description?.trim() || undefined,
+      schema,
+      model,
     }).subscribe({
-      next: () => {
+      next: updated => {
         this.busy.set(false);
         this.snackBar.open('Template mis à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
         this.load();
       },
       error: err => this.handleActionError(err, 'Erreur lors de la mise à jour.'),
@@ -172,6 +203,19 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
     this.snackBar.open((err as { error?: { title?: string } })?.error?.title ?? fallback, 'OK', {
       duration: 5000,
     });
+  }
+
+  private formatJson(value: unknown): string {
+    return JSON.stringify(value ?? {}, null, 2);
+  }
+
+  private parseJson(value: string, message: string): unknown | undefined {
+    try {
+      return value.trim() ? JSON.parse(value) : {};
+    } catch {
+      this.snackBar.open(message, 'OK', { duration: 5000 });
+      return undefined;
+    }
   }
 }
 

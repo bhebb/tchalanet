@@ -91,8 +91,8 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
                 <div class="catalog-settings-page__actions">
-                  <button mat-icon-button (click)="openEdit(row)" title="Modifier">
-                    <span class="material-symbols-outlined">edit</span>
+                  <button mat-icon-button (click)="openConfig(row)" title="Configurer">
+                    <span class="material-symbols-outlined">tune</span>
                   </button>
                   <button mat-icon-button color="warn" (click)="openDelete(row)" title="Supprimer">
                     <span class="material-symbols-outlined">delete</span>
@@ -120,4 +120,67 @@
       </div>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedSetting(); as setting) {
+    <section class="catalog-settings-page__config" aria-label="Configuration du paramètre sélectionné">
+      <header class="catalog-settings-page__config-header">
+        <div>
+          <p class="catalog-settings-page__config-eyebrow">Configuration référentiel</p>
+          <h2>{{ setting.namespace }}</h2>
+          <p>{{ setting.settingKey }} · {{ setting.valueType }} · {{ setting.level }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="catalog-settings-page__config-form" [formGroup]="configForm" (submit)="$event.preventDefault(); saveConfig()">
+        <section class="catalog-settings-page__config-section">
+          <h3>Métadonnées</h3>
+          <dl class="catalog-settings-page__meta-list">
+            <div>
+              <dt>Namespace</dt>
+              <dd>{{ setting.namespace }}</dd>
+            </div>
+            <div>
+              <dt>Clé</dt>
+              <dd><code>{{ setting.settingKey }}</code></dd>
+            </div>
+            <div>
+              <dt>Type</dt>
+              <dd>{{ setting.valueType }}</dd>
+            </div>
+            <div>
+              <dt>Niveau</dt>
+              <dd>{{ setting.level }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="catalog-settings-page__config-section">
+          <h3>Valeur runtime</h3>
+          <div class="catalog-settings-page__config-fields">
+            <mat-form-field appearance="outline" class="catalog-settings-page__wide-field">
+              <mat-label>Valeur</mat-label>
+              <textarea matInput rows="6" formControlName="settingValue"></textarea>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Exposition</mat-label>
+              <mat-select formControlName="exposure">
+                @for (e of exposures; track e) { <mat-option [value]="e">{{ e }}</mat-option> }
+              </mat-select>
+            </mat-form-field>
+            <mat-checkbox formControlName="active">Actif</mat-checkbox>
+          </div>
+        </section>
+
+        <div class="catalog-settings-page__config-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="configForm.invalid || savingConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 </tch-admin-page-shell>

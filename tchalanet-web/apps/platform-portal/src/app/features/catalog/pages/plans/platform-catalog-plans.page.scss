@@ -1,50 +1,4 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
-
-.result-slot-calendar-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.75rem;
-  width: 100%;
-
-  mat-form-field {
-    width: 100%;
-  }
-
-  button {
-    width: 100%;
-  }
-
-  @include ui.up(medium) {
-    grid-template-columns: minmax(16rem, 1.6fr) minmax(9rem, 1fr) minmax(8rem, 0.8fr);
-    align-items: center;
-
-    &__label {
-      grid-column: span 2;
-    }
-
-    button {
-      width: auto;
-      justify-self: start;
-    }
-  }
-
-  @include ui.up(expanded) {
-    grid-template-columns: minmax(18rem, 1.8fr) 10rem 8.5rem auto minmax(12rem, 1fr) auto;
-
-    &__label {
-      grid-column: auto;
-    }
-  }
-}
-
-.result-slot-calendar-readonly {
-  color: var(--tch-color-on-surface-variant);
-  font-size: var(--tch-font-size-label-sm);
-  font-weight: var(--tch-weight-medium);
-  white-space: nowrap;
-}
-
-.result-slot-calendar-config {
+.catalog-config {
   margin-block-start: calc(var(--tch-space-base) * 5);
   overflow: hidden;
   border: 1px solid var(--tch-color-outline-variant);
@@ -53,7 +7,7 @@
   box-shadow: var(--tch-elevation-1);
 }
 
-.result-slot-calendar-config__header {
+.catalog-config__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -73,14 +27,14 @@
     line-height: var(--tch-line-height-title-md);
   }
 
-  p:not(.result-slot-calendar-config__eyebrow) {
+  p:not(.catalog-config__eyebrow) {
     margin-block-start: var(--tch-space-base);
     color: var(--tch-color-on-surface-variant);
     font-size: var(--tch-font-size-small);
   }
 }
 
-.result-slot-calendar-config__eyebrow {
+.catalog-config__eyebrow {
   margin: 0 0 var(--tch-space-base);
   color: var(--tch-color-primary);
   font-size: var(--tch-font-size-label-sm);
@@ -89,14 +43,14 @@
   text-transform: uppercase;
 }
 
-.result-slot-calendar-config__form {
+.catalog-config__form {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: calc(var(--tch-space-base) * 4);
   padding: calc(var(--tch-space-base) * 4);
 }
 
-.result-slot-calendar-config__section {
+.catalog-config__section {
   min-width: 0;
 
   h3 {
@@ -107,46 +61,48 @@
   }
 }
 
-.result-slot-calendar-config__fields,
-.result-slot-calendar-config__meta-list {
+.catalog-config__section--wide,
+.catalog-config__actions {
+  grid-column: 1 / -1;
+}
+
+.catalog-config__fields,
+.catalog-config__json-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: calc(var(--tch-space-base) * 3);
 }
 
-.result-slot-calendar-config__wide-field,
-.result-slot-calendar-config__actions {
+.catalog-config__wide-field {
   grid-column: 1 / -1;
 }
 
-.result-slot-calendar-config__meta-list {
-  margin: 0;
+.catalog-config__json-grid article {
+  min-width: 0;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-container-low);
+  padding: calc(var(--tch-space-base) * 3);
 
-  div {
-    min-width: 0;
-  }
-
-  dt,
-  dd {
-    margin: 0;
-  }
-
-  dt {
-    color: var(--tch-color-on-surface-variant);
+  h4 {
+    margin: 0 0 calc(var(--tch-space-base) * 2);
+    color: var(--tch-color-on-surface);
     font-size: var(--tch-font-size-label-sm);
     font-weight: var(--tch-weight-bold);
     text-transform: uppercase;
   }
 
-  dd {
-    overflow-wrap: anywhere;
-    color: var(--tch-color-on-surface);
-    font-size: var(--tch-font-size-small);
-    font-weight: var(--tch-weight-medium);
+  pre {
+    margin: 0;
+    overflow: auto;
+    color: var(--tch-color-on-surface-variant);
+    font-family: var(--tch-font-family-mono);
+    font-size: var(--tch-font-size-label-sm);
+    white-space: pre-wrap;
   }
 }
 
-.result-slot-calendar-config__actions {
+.catalog-config__actions {
   display: flex;
   justify-content: flex-start;
   border-block-start: 1px solid var(--tch-color-outline-variant);
@@ -160,9 +116,12 @@
 }
 
 @media (min-width: 960px) {
-  .result-slot-calendar-config__form,
-  .result-slot-calendar-config__fields,
-  .result-slot-calendar-config__meta-list {
+  .catalog-config__form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .catalog-config__fields,
+  .catalog-config__json-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

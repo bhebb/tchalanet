@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
@@ -28,9 +33,9 @@ import {
 import {
   PlatformCatalogApi,
   CatalogGameView,
+  UpdateGameRequest,
 } from '../../data-access/platform-catalog-api.service';
 import { CreateGameDialog } from '../../components/dialogs/create-game.dialog';
-import { EditGameDialog } from '../../components/dialogs/edit-game.dialog';
 
 // ── Main Page ────────────────────────────────────────────────────────────────
 @Component({
@@ -48,13 +53,20 @@ import { EditGameDialog } from '../../components/dialogs/edit-game.dialog';
     TchAsyncViewComponent,
     TranslatePipe,
     MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './platform-catalog-games.page.html',
+  styleUrls: ['./platform-catalog-games.page.scss'],
 })
 export class PlatformCatalogGamesPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
@@ -87,6 +99,20 @@ export class PlatformCatalogGamesPage {
   readonly totalElements = computed(() => this.gamePage()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.gamePage()?.page ?? this.page());
   readonly pageSize = computed(() => this.gamePage()?.size ?? this.size());
+  readonly selectedGame = signal<CatalogGameView | null>(null);
+  readonly savingConfig = signal(false);
+  readonly categories = ['LOTTO', 'PICK', 'MARRIAGE'] as const;
+
+  readonly configForm = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    category: [''],
+    combination: [''],
+    minDigits: [0],
+    maxDigits: [0],
+    description: [''],
+    sortOrder: [10],
+    active: [true],
+  });
 
   load(): void {
     this.games.reload();
@@ -115,13 +141,57 @@ export class PlatformCatalogGamesPage {
     });
   }
 
-  openEdit(game: CatalogGameView): void {
-    const ref = this.dialog.open(EditGameDialog, { data: game, width: 'min(100vw - 32px, 520px)' });
-    ref.afterClosed().subscribe((updated: CatalogGameView | null) => {
-      if (updated) {
+  openConfig(game: CatalogGameView): void {
+    this.selectedGame.set(game);
+    this.configForm.reset({
+      name: game.name,
+      category: game.category ?? '',
+      combination: game.combination ?? '',
+      minDigits: game.minDigits,
+      maxDigits: game.maxDigits,
+      description: game.description ?? '',
+      sortOrder: game.sortOrder,
+      active: game.active,
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedGame.set(null);
+  }
+
+  saveConfig(): void {
+    const game = this.selectedGame();
+    if (!game || this.configForm.invalid || this.savingConfig()) return;
+
+    this.savingConfig.set(true);
+    const v = this.configForm.getRawValue();
+    const req: UpdateGameRequest = {
+      name: v.name.trim(),
+      category: v.category || null,
+      combination: v.combination || null,
+      minDigits: v.minDigits,
+      maxDigits: v.maxDigits,
+      description: v.description || null,
+      sortOrder: v.sortOrder,
+      active: v.active,
+    };
+    this.api.updateGame(game.id, req).subscribe({
+      next: updated => {
+        this.savingConfig.set(false);
         this.snackBar.open(this.translate.instant('platform.catalog.games.feedback.updated'), 'OK', { duration: 4000 });
+        this.openConfig(updated);
         this.load();
-      }
+      },
+      error: (err: unknown) => {
+        this.savingConfig.set(false);
+        this.snackBar.open(
+          (err as { error?: { detail?: string; title?: string } })?.error?.detail
+            ?? (err as { error?: { title?: string } })?.error?.title
+            ?? this.translate.instant('common.error.title'),
+          'OK',
+          { duration: 5000 },
+        );
+      },
     });
   }
 
@@ -182,7 +252,7 @@ export class PlatformCatalogGamesPage {
     if (!game) return;
     switch (event.action.id) {
       case 'edit':
-        this.openEdit(game);
+        this.openConfig(game);
         break;
       case 'deactivate':
         this.deactivate(game);
@@ -203,7 +273,7 @@ export class PlatformCatalogGamesPage {
       statusLabel: this.translate.instant(game.active ? 'common.enabled' : 'common.disabled'),
       statusTone: game.active ? 'success' : 'neutral',
       actions: [
-        { id: 'edit', label: this.translate.instant('common.edit'), icon: 'edit', variant: 'icon' },
+        { id: 'edit', label: this.translate.instant('common.edit'), icon: 'tune', variant: 'icon' },
         ...(game.active
           ? [{
               id: 'deactivate',
