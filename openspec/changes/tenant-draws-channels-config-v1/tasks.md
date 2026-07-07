@@ -24,13 +24,14 @@
 
 - [ ] Afficher `result_slot.source_cfg` / `projection_cfg` en lecture seule côté tenant admin
       (provenance brute + résumé lisible).
-- [ ] Ajouter un update expert super-admin pour `source_cfg` / `projection_cfg`, avec validation
+- [x] Ajouter un update expert super-admin pour `source_cfg` / `projection_cfg`, avec validation
       serveur et éviction cache.
-- [ ] Refuser les updates invalides au lieu de retomber silencieusement sur les defaults runtime.
+- [x] Refuser les updates invalides au lieu de retomber silencieusement sur les defaults runtime.
 
 ## Validation
 
 - [x] `openspec validate tenant-draws-channels-config-v1 --strict`.
 - [x] Tests `core.draw` ciblés.
+- [x] Tests `catalog.resultslot` ciblés.
 - [ ] web build/typecheck ; check mobile/desktop light/dark.
   - [x] `pnpm exec tsc -p apps/admin-portal/tsconfig.app.json --noEmit`.

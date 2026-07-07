@@ -4,7 +4,9 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.resultslot.internal.write.ResultSlotAdminService;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotRequest;
+import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotProjectionConfigRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
+import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotSourceConfigRequest;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.ResultSlotId;
@@ -62,6 +64,24 @@ public class ResultSlotAdminController {
   public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @Valid @RequestBody UpdateResultSlotRequest request) {
     var updatedView = admin.update(id, request);
     return ApiResponse.success(updatedView);
+  }
+
+  @Operation(summary = "Update result slot source config (expert platform setting)")
+  @PutMapping("/{id}/source-config")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ApiResponse<ResultSlotView> updateSourceConfig(
+      @PathVariable ResultSlotId id,
+      @Valid @RequestBody UpdateResultSlotSourceConfigRequest request) {
+    return ApiResponse.success(admin.updateSourceConfig(id, request));
+  }
+
+  @Operation(summary = "Update result slot projection config (expert platform setting)")
+  @PutMapping("/{id}/projection-config")
+  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  public ApiResponse<ResultSlotView> updateProjectionConfig(
+      @PathVariable ResultSlotId id,
+      @Valid @RequestBody UpdateResultSlotProjectionConfigRequest request) {
+    return ApiResponse.success(admin.updateProjectionConfig(id, request));
   }
 
   @Operation(summary = "Soft-delete result slot (platform)")
