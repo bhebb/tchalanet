@@ -21,10 +21,11 @@
       (drawchannel calendar_rows + drawresult by_id/id_by_slot_occurred).
 
 ## Phase 2 — CacheSpecProviders manquants
-- [ ] Specs pour plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant.
-- [ ] Appliquer les TTL par tier (A: 30 min / 12 h · B: 15 min / 6 h · C: court + événementiel).
-- [ ] Harmoniser / documenter les defaults L1 (5 min runtime vs 10 min `CacheSpec`).
-- [ ] Test de démarrage qui échoue si un cache `@Cacheable` connu n'a pas de `CacheSpecProvider`.
+- [x] Specs pour plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant.
+- [x] Appliquer les TTL par tier (A: 30 min / 12 h · B: 15 min / 6 h · pagemodel SEARCH court 2/5 min).
+- [x] Documenter les defaults L1 (5 min runtime vs 10 min `CacheSpec`) — note ajoutée dans `cache.md`.
+- [ ] Test de démarrage qui échoue si un cache `@Cacheable` connu n'a pas de `CacheSpecProvider`
+      (nécessite un scan des annotations `@Cacheable` — à faire dans la passe test).
 
 ## Phase 3 — Caches runtime
 - [ ] `platform:tenanttheme:runtime` (clé tenant:mode) + éviction sur `TenantThemeAdminService`.
