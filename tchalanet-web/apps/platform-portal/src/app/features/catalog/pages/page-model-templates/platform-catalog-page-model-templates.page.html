@@ -114,6 +114,78 @@
     </div>
   </tch-admin-crud-shell>
 
+  @if (creating()) {
+    <section class="catalog-pmt-page__config" aria-label="Création d'un template PageModel">
+      <header class="catalog-pmt-page__config-header">
+        <div>
+          <p class="catalog-pmt-page__config-eyebrow">Nouveau référentiel</p>
+          <h2>Nouveau template</h2>
+          <p>Créez le template puis ajustez son modèle JSON si nécessaire.</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeCreate()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="catalog-pmt-page__config-form" [formGroup]="createForm" (submit)="$event.preventDefault(); saveCreate()">
+        <section class="catalog-pmt-page__config-section catalog-pmt-page__config-section--wide">
+          <h3>Identité</h3>
+          <div class="catalog-pmt-page__config-fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Code</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Logical ID</mat-label>
+              <input matInput formControlName="logicalId" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Scope</mat-label>
+              <input matInput formControlName="scope" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Slug</mat-label>
+              <input matInput formControlName="slug" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Libellé</mat-label>
+              <input matInput formControlName="label" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="catalog-pmt-page__wide-field">
+              <mat-label>Description</mat-label>
+              <textarea matInput rows="4" formControlName="description"></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="catalog-pmt-page__config-section catalog-pmt-page__config-section--wide">
+          <h3>Page model</h3>
+          <div class="catalog-pmt-page__json-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Schema JSON</mat-label>
+              <textarea matInput rows="12" formControlName="schema"></textarea>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Model JSON</mat-label>
+              <textarea matInput rows="12" formControlName="model"></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <div class="catalog-pmt-page__config-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || busy()">
+            <span class="material-symbols-outlined">save</span>
+            Créer
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
   @if (selectedTemplate(); as template) {
     <section class="catalog-pmt-page__config" aria-label="Configuration du template sélectionné">
       <header class="catalog-pmt-page__config-header">
