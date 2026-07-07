@@ -21,6 +21,7 @@ type OpsCacheGroup = 'plans' | 'catalog' | 'tenant' | 'access' | 'pagemodel' | '
 interface OpsCacheRow extends CacheView {
   group: OpsCacheGroup;
   critical: boolean;
+  disabled: boolean;
 }
 
 @Component({
@@ -52,11 +53,13 @@ export class PlatformOpsCachePage implements OnInit {
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<{ title: string; message: string } | null>(null);
   readonly caches = signal<CacheView[]>([]);
+  readonly disabledCaches = signal<ReadonlySet<string>>(new Set());
   readonly groupedCaches = computed<OpsCacheRow[]>(() =>
     this.caches().map(cache => ({
       ...cache,
       group: cacheGroup(cache.cacheName),
       critical: criticalCache(cache.cacheName),
+      disabled: this.disabledCaches().has(cache.cacheName),
     })),
   );
 
@@ -73,6 +76,42 @@ export class PlatformOpsCachePage implements OnInit {
       error: (err: unknown) => {
         this.error.set(this.errorViewModel(err, 'platform.ops.cache.list'));
         this.loading.set(false);
+      },
+    });
+    this.loadToggles();
+  }
+
+  loadToggles(): void {
+    this.api.listDisabledCaches({ suppressShellFeedback: true }).subscribe({
+      next: names => this.disabledCaches.set(new Set(names)),
+      error: () => { /* non-blocking: toggle state is best-effort */ },
+    });
+  }
+
+  disableOne(cache: CacheView): void {
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.disableCache(cache.cacheName, 'Désactivation via Ops', { suppressShellFeedback: true }).subscribe({
+      next: () => {
+        this.loadToggles();
+        this.actionNotice.set({ title: 'Cache désactivé', message: cache.cacheName });
+      },
+      error: (err: unknown) => {
+        this.actionError.set(this.errorViewModel(err, 'platform.ops.cache.disable'));
+      },
+    });
+  }
+
+  enableOne(cache: CacheView): void {
+    this.actionError.set(null);
+    this.actionNotice.set(null);
+    this.api.enableCache(cache.cacheName, { suppressShellFeedback: true }).subscribe({
+      next: () => {
+        this.loadToggles();
+        this.actionNotice.set({ title: 'Cache réactivé', message: cache.cacheName });
+      },
+      error: (err: unknown) => {
+        this.actionError.set(this.errorViewModel(err, 'platform.ops.cache.enable'));
       },
     });
   }

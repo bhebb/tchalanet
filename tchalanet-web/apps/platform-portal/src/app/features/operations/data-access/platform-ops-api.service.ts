@@ -549,6 +549,21 @@ export class PlatformOpsApi {
       { ...options, params: { reason } },
     );
   }
+
+  /** Names of caches currently disabled via the runtime kill-switch. */
+  listDisabledCaches(options?: TchRequestOptions): Observable<string[]> {
+    return this.backend.get<string[]>('/platform/ops/cache/toggles', options);
+  }
+
+  /** Disable a cache at runtime (reads miss, writes dropped) without redeploy. */
+  disableCache(cacheName: string, reason: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/ops/cache/${cacheName}/disable`, {}, { ...options, params: { reason } });
+  }
+
+  /** Re-enable a previously disabled cache. */
+  enableCache(cacheName: string, options?: TchRequestOptions): Observable<void> {
+    return this.backend.post<void>(`/platform/ops/cache/${cacheName}/enable`, {}, options);
+  }
 }
 
 function tenantAdminOptions(

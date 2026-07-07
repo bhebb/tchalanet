@@ -78,6 +78,17 @@
               <span class="material-symbols-outlined">delete</span>
               Vider
             </button>
+            @if (row.disabled) {
+              <button mat-stroked-button color="primary" (click)="enableOne(row)">
+                <span class="material-symbols-outlined">toggle_on</span>
+                Réactiver
+              </button>
+            } @else {
+              <button mat-button color="warn" (click)="disableOne(row)">
+                <span class="material-symbols-outlined">block</span>
+                Désactiver
+              </button>
+            }
             <button mat-button color="warn" (click)="openClearGroup(row.group)">
               Groupe
             </button>
