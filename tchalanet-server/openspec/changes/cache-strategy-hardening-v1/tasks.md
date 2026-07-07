@@ -41,10 +41,15 @@
 - [ ] Tests rollback : transaction rollback → cache non évincé / non repeuplé avec état faux.
 
 ## Phase 5 — Ops / kill-switch
-- [ ] `CacheToggleProvider` (abstraction) + stockage runtime via settings.
-- [ ] `@Cacheable(condition = "@cacheToggle.on('name')")` sur les caches désactivables.
-- [ ] Ops : list toggles, disable, enable (+ clear existant) — SUPER_ADMIN, audité.
-- [ ] Groupes Ops réels : catalog, tenant-config, pricing, draw, drawresult, public.
+- [x] `CacheToggle` (common) — stockage in-memory par instance. NOTE: pas encore via settings /
+      partagé multi-instances (à backer plus tard) ; suffit pour couper un cache problématique.
+- [x] Kill-switch au niveau CacheManager (`ToggleableCacheManager`/`ToggleableCache`) au lieu de
+      `@Cacheable(condition=...)` : une seule place, couvre tous les caches (L1+L2 et Caffeine-seul),
+      zéro churn d'annotations. Cache désactivé = no-op (reads miss, writes drop, evict/clear OK).
+- [x] Ops : list toggles (`GET /toggles`), disable (`POST /{name}/disable`),
+      enable (`POST /{name}/enable`) + clear existant — SUPER_ADMIN, audités.
+- [x] Groupes Ops réels : catalog, tenant-config, pricing, drawresult (draw/public différés — noms
+      de cache à vérifier avant de les lister).
 
 ## Phase 6 — Redis L2 readiness (sérialisation)
 - [x] Serializer : retrait module typed-id scalaire (fix `serializeWithType`).

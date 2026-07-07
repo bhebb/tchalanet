@@ -1,6 +1,7 @@
 package com.tchalanet.server.app.config.cache;
 
 import com.tchalanet.server.common.cache.CacheSpecProvider;
+import com.tchalanet.server.common.cache.CacheToggle;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.ObjectProvider;
@@ -25,11 +26,14 @@ public class CacheRuntimeConfig {
   @Primary
   public CacheManager cacheManager(
       CaffeineCacheManager caffeineCacheManager,
-      @Qualifier("redisCacheManager") ObjectProvider<CacheManager> redisCacheManagerProvider) {
+      @Qualifier("redisCacheManager") ObjectProvider<CacheManager> redisCacheManagerProvider,
+      CacheToggle cacheToggle) {
     CacheManager redisCacheManager = redisCacheManagerProvider.getIfAvailable();
-    if (redisCacheManager != null) {
-      return new CombinedCacheManager(caffeineCacheManager, redisCacheManager);
-    }
-    return caffeineCacheManager;
+    CacheManager base =
+        redisCacheManager != null
+            ? new CombinedCacheManager(caffeineCacheManager, redisCacheManager)
+            : caffeineCacheManager;
+    // Wrap so every cache honours the runtime kill-switch (Ops can disable a cache without redeploy).
+    return new ToggleableCacheManager(base, cacheToggle);
   }
 }

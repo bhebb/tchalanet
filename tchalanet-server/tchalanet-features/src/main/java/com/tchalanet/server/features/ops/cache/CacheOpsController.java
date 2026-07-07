@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.ops.cache;
 
+import com.tchalanet.server.common.cache.CacheToggle;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +43,7 @@ public class CacheOpsController {
     private static final Map<String, List<String>> CACHE_GROUPS = cacheGroups();
 
     private final CacheManager cacheManager;
+    private final CacheToggle cacheToggle;
 
     @GetMapping
     @Operation(summary = "List all cache regions")
@@ -114,15 +117,64 @@ public class CacheOpsController {
         return ApiResponse.success(null);
     }
 
+    @GetMapping("/toggles")
+    @Operation(summary = "List caches currently disabled via the runtime kill-switch")
+    public ApiResponse<List<String>> listDisabledCaches() {
+        var disabled = new ArrayList<>(cacheToggle.disabledCaches());
+        Collections.sort(disabled);
+        return ApiResponse.success(disabled);
+    }
+
+    @PostMapping("/{cacheName}/disable")
+    @Operation(summary = "Disable a cache at runtime (reads miss, writes dropped) without redeploy")
+    @AuditLog(
+        entity = AuditEntityType.SYSTEM,
+        action = AuditAction.CACHE_CLEAR,
+        idExpression = "#cacheName",
+        detailsExpression = "'disable ' + #cacheName + (#reason == null ? '' : ' — ' + #reason)")
+    public ApiResponse<Void> disableCache(
+        @PathVariable String cacheName,
+        @RequestParam(required = false) String reason) {
+        cacheToggle.disable(cacheName);
+        return ApiResponse.success(null);
+    }
+
+    @PostMapping("/{cacheName}/enable")
+    @Operation(summary = "Re-enable a previously disabled cache")
+    @AuditLog(
+        entity = AuditEntityType.SYSTEM,
+        action = AuditAction.CACHE_CLEAR,
+        idExpression = "#cacheName",
+        detailsExpression = "'enable ' + #cacheName")
+    public ApiResponse<Void> enableCache(
+        @PathVariable String cacheName,
+        @RequestParam(required = false) String reason) {
+        cacheToggle.enable(cacheName);
+        return ApiResponse.success(null);
+    }
+
     private static Map<String, List<String>> cacheGroups() {
         Map<String, List<String>> groups = new LinkedHashMap<>();
-        groups.put("plans", List.of(
-            "catalog:plan:active_plans",
-            "catalog:plan:plan_by_code",
-            "catalog:plan:plan_by_id"));
+        groups.put("catalog", List.of(
+            "catalog:plan:active_plans", "catalog:plan:plan_by_code", "catalog:plan:plan_by_id",
+            "catalog:game:active_games", "catalog:game:game_by_code", "catalog:game:game_by_id",
+            "catalog:theme:active_presets", "catalog:theme:preset_by_code",
+            "catalog:resultslot:v2:active", "catalog:resultslot:v2:by_key", "catalog:resultslot:v2:by_id",
+            "catalog:resultslot:calendar:v1:by_slot",
+            "catalog:pagemodeltemplate:by_id", "catalog:pagemodeltemplate:by_logicalId",
+            "catalog:pagemodeltemplate:visible_list", "catalog:pagemodeltemplate:search"));
+        groups.put("tenant-config", List.of(
+            "catalog:drawchannel:by_tenant", "catalog:drawchannel:by_id",
+            "catalog:drawchannel:by_tenant_game_map", "catalog:drawchannel:calendar_rows",
+            "catalog:settings:resolved_settings", "catalog:i18n:resolved_by_locale",
+            "platform:tenanttheme:runtime", "platform:tenantgame:runtime", "platform:tenantgame:projection",
+            "platform.tenant.cache.REGISTRY_BY_CODE", "platform.tenant.cache.REGISTRY_BY_ID",
+            "platform.tenant.cache.ACTIVE_TENANT_IDS"));
         groups.put("pricing", List.of(
             "core:pricing:tenant_odds_list",
             "core:pricing:tenant_odds_by_variant"));
+        groups.put("drawresult", List.of(
+            "core.drawresult.by_id", "core.drawresult.id.by_slot_occurred"));
         return Map.copyOf(groups);
     }
 
