@@ -48,6 +48,11 @@ Implementation details belong to `cache-architecture.md`.
 
 - Treat cache as a source of truth.
 - Encode business rules that depend on cache presence.
+- **Cache any value that gates money, a consumed limit, or POS security.** Never cache: ticket
+  lists / ticket lines, consumed limit counters (remaining sellable amount), audit records, or
+  seller-terminal sale / binding validation. Only the **descriptive definition** of such data may
+  be cached (e.g. a limit *policy* rule, a terminal *profile*), never the live value a decision
+  reads. When in doubt, do not cache.
 
 ---
 

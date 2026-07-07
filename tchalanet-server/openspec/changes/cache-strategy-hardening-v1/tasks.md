@@ -2,9 +2,9 @@
 
 ## Phase 0 — Spec alignment
 - [x] Corriger `cache.md` : liens réels, format de nom `:` + note legacy, section "Default TTL".
-- [ ] Ajouter la règle normative : aucun cache ne participe à une décision d'argent, de limite
-      consommée ou de sécurité POS.
-- [ ] Décider officiellement la convention de noms (`:` canonique) et l'inscrire dans `cache.md`.
+- [x] Ajouter la règle normative : aucun cache ne participe à une décision d'argent, de limite
+      consommée ou de sécurité POS (cache.md §3 MUST NOT).
+- [x] Convention de noms `:` canonique inscrite dans `cache.md` §6 (+ note legacy).
 
 ## Phase 1 — Bugs fonctionnels P0
 - [x] `catalog:drawchannel:calendar_rows` : ajouter l'éviction sur tous les writes DrawChannel /
@@ -60,4 +60,8 @@
 - [x] Observabilité dev : log `CombinedCache` L1/L2/DB + loggers Redis DEBUG (profil local-ide-redis).
 - [ ] Mapper les `JsonNode` cachés (`ResultSlotView.sourceCfg/projectionCfg`,
       `GameSummaryView.flags`) vers des structures stables — un `JsonNode` null revient en `NullNode`.
+      ÉVALUÉ : blast radius large (sourceCfg/projectionCfg = 64 refs, flags = 28 refs, exposés au
+      web) → refactor dédié, pas un petit commit. Le serializer round-trippe déjà le JsonNode
+      (test OK) ; le résidu `null→NullNode` est toléré par les consommateurs `.path()/.isNull()`.
+      Risque faible → à traiter dans un change à part (ou normaliser null→NullNode côté mapper).
 - [ ] Vérifier activation prod/staging de `tch.cache.redis.enabled` (infra).
