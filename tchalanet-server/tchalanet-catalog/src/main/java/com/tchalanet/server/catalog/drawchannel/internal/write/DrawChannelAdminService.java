@@ -37,8 +37,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelEntity create(DrawChannelEntity entity) {
@@ -60,8 +59,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelEntity update(UUID id, DrawChannelEntity dto) {
@@ -98,8 +96,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public void softDelete(com.tchalanet.server.common.types.id.DrawChannelId id) {
@@ -117,8 +114,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public void disableChannel(DrawChannelId id) {
@@ -172,8 +168,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelView updateFromRequest(
@@ -205,8 +200,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelView createFromView(
@@ -232,8 +226,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelView updateFromView(
@@ -261,8 +254,7 @@ public class DrawChannelAdminService {
         DrawChannelCacheNames.BY_TENANT,
         DrawChannelCacheNames.BY_ID,
         DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-        DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+        DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public DrawChannelView updateFlagsFromRequest(
