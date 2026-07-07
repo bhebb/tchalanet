@@ -177,6 +177,52 @@
         "option": "Bet option",
         "multiplier": "Multiplier",
         "stake": "Stake (HTG)"
+      },
+      "type": {
+        "STRAIGHT": "Straight",
+        "BOX": "Box",
+        "FRONT_PAIR": "Front pair",
+        "BACK_PAIR": "Back pair",
+        "LOTTO": "Lotto",
+        "COMBO": "Combo",
+        "MARIAGE": "Maryaj",
+        "MARYAJ": "Maryaj",
+        "MATCH_1_2D": "1st lot",
+        "MATCH_2_2D": "2nd lot",
+        "MATCH_3_2D": "3rd lot",
+        "PATTERN2X2": "Maryaj 2x2",
+        "PATTERN2_2": "Maryaj 2x2",
+        "PATTERN2STAR2": "Maryaj 2x2",
+        "PATTERN_2X2": "Maryaj 2x2",
+        "MARRIAGE_2D2D": "Maryaj 2x2",
+        "LOTTO3_3D": "Lotto 3",
+        "LOTTO4_PATTERN": "Lotto 4",
+        "LOTTO5_PATTERN": "Lotto 5"
+      },
+      "option": {
+        "MARRIAGE_2D2D": {
+          "1": "Exact order",
+          "2": "Reverse / double"
+        },
+        "PATTERN2X2": {
+          "1": "Exact order",
+          "2": "Reverse / double"
+        },
+        "LOTTO3_3D": {
+          "1": "Exact",
+          "2": "Box"
+        },
+        "LOTTO4_PATTERN": {
+          "1": "Exact",
+          "2": "Box",
+          "3": "Front pair",
+          "4": "Back pair"
+        },
+        "LOTTO5_PATTERN": {
+          "1": "1st + 2nd lot",
+          "2": "1st + 3rd lot",
+          "3": "Mixed 1st/2nd/3rd lot"
+        }
       }
     },
     "payout": {

@@ -56,7 +56,7 @@ public final class SelectionKeyCanonicalizer {
 
         assert option != null;
         return switch (option) {
-            case LOTTO4_STRAIGHT, LOTTO4_BOX ->
+            case LOTTO4_STRAIGHT, LOTTO4_BOX, LOTTO4_EXACT_PLUS_BOX ->
                 canonicalizeExactDigits(s, 4);
 
             case LOTTO4_FRONT_PAIR ->

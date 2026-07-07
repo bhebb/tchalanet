@@ -9,7 +9,9 @@ import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult
 import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameBetOptionConfigRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
 import com.tchalanet.server.platform.tenantgame.internal.persistence.TenantGamePersistenceAdapter;
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameAdminService;
@@ -40,6 +42,16 @@ public class TenantGameApiAdapter implements TenantGameApi {
     @Override
     public void updateTenantGameSettings(UpdateTenantGameSettingsRequest request) {
         adminService.updateSettings(request);
+    }
+
+    @Override
+    public TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode) {
+        return adminService.getBetOptionConfig(tenantId, gameCode);
+    }
+
+    @Override
+    public TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request) {
+        return adminService.updateBetOptionConfig(request);
     }
 
     @Override

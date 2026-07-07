@@ -3,46 +3,96 @@ package com.tchalanet.server.features.pos.games;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import org.springframework.stereotype.Service;
-
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
+import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantBetOptionView;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantBetTypeOptionConfigView;
+import java.util.Comparator;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PosGamesService {
 
-    public List<PosGameOptionResponse> listAvailable() {
-        return List.of(
-            option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_1_2D, "1er lot"),
-            option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_2_2D, "2e lot"),
-            option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_3_2D, "3e lot"),
-            option(GameCode.HT_MARYAJ, "Maryaj", BetType.MARRIAGE_2D2D, "Maryaj"),
-            option(GameCode.HT_LOTO3, "Loto 3", BetType.LOTTO3_3D, "Loto 3"),
-            option(GameCode.HT_LOTO4, "Loto 4", BetType.LOTTO4_PATTERN, "Loto 4"),
-            option(GameCode.HT_LOTO5, "Loto 5", BetType.LOTTO5_PATTERN, "Loto 5")
-        );
+    private final TenantGameApi tenantGameApi;
+
+    public PosGamesService(TenantGameApi tenantGameApi) {
+        this.tenantGameApi = tenantGameApi;
+    }
+
+    public List<PosGameOptionResponse> listAvailable(TenantId tenantId) {
+        return tenantGameApi.listGames(tenantId).stream()
+            .filter(game -> game.enabled() && game.visibleInPos())
+            .filter(game -> !GameCode.HT_MARYAJ_GRATIS.name().equals(game.gameCode()))
+            .sorted(Comparator.comparingInt(game -> game.displayOrder()))
+            .flatMap(game -> toOptions(tenantId, game.gameCode()).stream())
+            .toList();
+    }
+
+    private List<PosGameOptionResponse> toOptions(TenantId tenantId, String gameCode) {
+        var game = GameCode.valueOf(gameCode);
+        var config = tenantGameApi.getBetOptionConfig(tenantId, gameCode);
+        return config.betTypes().stream()
+            .sorted(Comparator.comparing(item -> item.betType().name()))
+            .map(betTypeConfig -> option(game, gameLabel(game), betTypeConfig))
+            .toList();
     }
 
     private PosGameOptionResponse option(
         GameCode gameCode,
         String gameLabel,
-        BetType betType,
-        String betTypeLabel
+        TenantBetTypeOptionConfigView config
     ) {
+        var betType = config.betType();
         return new PosGameOptionResponse(
             gameCode,
             gameLabel,
             betType,
-            betTypeLabel,
+            betTypeLabel(betType),
             betType.requiresOption(),
-            BetOption.allowedFor(betType).stream()
+            posOptions(config).stream()
                 .map(option -> new PosBetOptionResponse(
                     option.code(),
                     option.label(),
                     option.description(),
-                    optionSelectionHint(option)))
+                    optionSelectionHint(BetOption.from(betType, option.code()))))
                 .toList(),
             selectionHint(betType)
         );
+    }
+
+    private List<TenantBetOptionView> posOptions(TenantBetTypeOptionConfigView config) {
+        if (config.selectionPolicy() == SelectionPolicy.IMPLICIT_BEST_MATCH) {
+            return List.of();
+        }
+        return config.options().stream()
+            .filter(option -> option.enabled() && option.visibleInPos())
+            .sorted(Comparator.comparingInt(TenantBetOptionView::displayOrder))
+            .toList();
+    }
+
+    private String gameLabel(GameCode gameCode) {
+        return switch (gameCode) {
+            case HT_BOLET -> "Bolet";
+            case HT_MARYAJ -> "Maryaj";
+            case HT_MARYAJ_GRATIS -> "Maryaj gratis";
+            case HT_LOTO3 -> "Loto 3";
+            case HT_LOTO4 -> "Loto 4";
+            case HT_LOTO5 -> "Loto 5";
+        };
+    }
+
+    private String betTypeLabel(BetType betType) {
+        return switch (betType) {
+            case MATCH_1_2D -> "1er lot";
+            case MATCH_2_2D -> "2e lot";
+            case MATCH_3_2D -> "3e lot";
+            case MARRIAGE_2D2D -> "Maryaj";
+            case LOTTO3_3D -> "Loto 3";
+            case LOTTO4_PATTERN -> "Loto 4";
+            case LOTTO5_PATTERN -> "Loto 5";
+        };
     }
 
     private String selectionHint(BetType betType) {
@@ -58,8 +108,9 @@ public class PosGamesService {
     private String optionSelectionHint(BetOption option) {
         return switch (option) {
             case MARRIAGE_EXACT_ORDER, MARRIAGE_REVERSE_ALLOWED -> "Deux numeros de 2 chiffres, ex: 12-45";
-            case LOTTO3_STRAIGHT, LOTTO3_BOX -> "3 chiffres, ex: 123";
+            case LOTTO3_STRAIGHT, LOTTO3_BOX, LOTTO3_EXACT_PLUS_BOX -> "3 chiffres, ex: 123";
             case LOTTO4_STRAIGHT, LOTTO4_BOX -> "4 chiffres, ex: 1245";
+            case LOTTO4_EXACT_PLUS_BOX -> "4 chiffres, ex: 1245";
             case LOTTO4_FRONT_PAIR -> "2 chiffres, ex: 12";
             case LOTTO4_BACK_PAIR -> "2 chiffres, ex: 45";
             case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 -> "5 chiffres, ex: 12345";

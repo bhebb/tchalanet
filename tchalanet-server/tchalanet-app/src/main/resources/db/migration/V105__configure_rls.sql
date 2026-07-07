@@ -546,6 +546,22 @@ CREATE POLICY sales_ticket_line_rls_select ON sales_ticket_line
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+ALTER TABLE sales_ticket_line_coverage ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sales_ticket_line_coverage FORCE ROW LEVEL SECURITY;
+CREATE POLICY sales_ticket_line_coverage_rls_all ON sales_ticket_line_coverage
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY sales_ticket_line_coverage_rls_select ON sales_ticket_line_coverage
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
 ALTER TABLE sales_ticket_charge ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales_ticket_charge FORCE ROW LEVEL SECURITY;
 CREATE POLICY sales_ticket_charge_rls_all ON sales_ticket_charge

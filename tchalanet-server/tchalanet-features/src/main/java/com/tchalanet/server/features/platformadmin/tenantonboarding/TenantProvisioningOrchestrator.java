@@ -3,7 +3,6 @@ package com.tchalanet.server.features.platformadmin.tenantonboarding;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelProvisioningApi;
 import com.tchalanet.server.catalog.drawchannel.api.model.ProvisioningTenantGameRef;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import com.tchalanet.server.catalog.pricing.api.PricingProvisioningApi;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.bus.CommandBus;
@@ -16,6 +15,7 @@ import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentCommand;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
+import com.tchalanet.server.core.pricing.api.command.EnsureDefaultHaitiLotteryOddsCommand;
 import com.tchalanet.server.core.subscription.api.command.ApplyTenantPlanCommand;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningDomainStatuses;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningPreviewView;
@@ -61,7 +61,6 @@ public class TenantProvisioningOrchestrator {
     private final TenantReadinessAssembler readinessAssembler;
     private final IdentityApi identityApi;
     private final TenantGameApi tenantGameApi;
-    private final PricingProvisioningApi pricingProvisioningApi;
     private final DrawChannelProvisioningApi drawChannelProvisioningApi;
     private final ThemeCatalog themeCatalog;
     private final TenantThemeApi tenantThemeApi;
@@ -231,7 +230,7 @@ public class TenantProvisioningOrchestrator {
                 .gameCode(gameCode)
                 .build());
         }
-        pricingProvisioningApi.ensureDefaultHaitiLotteryOdds(tenantId);
+        commandBus.execute(new EnsureDefaultHaitiLotteryOddsCommand(tenantId));
         drawChannelProvisioningApi.ensureDefaultHaitiLotteryChannels(
             tenantId,
             tenantGameApi.listGames(tenantId).stream()

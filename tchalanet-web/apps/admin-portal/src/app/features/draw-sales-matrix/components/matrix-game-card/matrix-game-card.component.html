@@ -21,23 +21,7 @@
     <strong>{{ gameVm.gameCode | consoleGameName:gameVm.displayName }}</strong>
   </div>
 
-  <div class="matrix-game__meta">
-    @if (gameVm.minStake !== null && gameVm.maxStake !== null) {
-      <span>{{ 'admin.drawSalesMatrix.game.stakeRange' | translate: { min: gameVm.minStake, max: gameVm.maxStake } }}</span>
-    } @else if (gameVm.minStake !== null) {
-      <span>{{ 'admin.drawSalesMatrix.game.minStake' | translate: { min: gameVm.minStake } }}</span>
-    } @else if (gameVm.maxStake !== null) {
-      <span>{{ 'admin.drawSalesMatrix.game.maxStake' | translate: { max: gameVm.maxStake } }}</span>
-    } @else {
-      <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.game.stakeMissing' | translate }}</span>
-    }
-    @if (!gameVm.limits.configured) {
-      <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.game.limitsMissing' | translate }}</span>
-    }
-    @if (!gameVm.visibleInPos) {
-      <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.game.hiddenPos' | translate }}</span>
-    }
-  </div>
+  <tch-console-facts class="matrix-game__facts" [facts]="gameFacts(gameVm)" [compact]="true" />
 
   @if (gameVm.warnings.length > 0 && !gameVm.saleReady) {
     <ul class="matrix-game__warnings">
@@ -75,59 +59,33 @@
     }
 
     <div class="matrix-game__actions">
-      @if (isMaryajGratis()) {
-        <a
-          mat-stroked-button
-          class="matrix-game__btn"
-          routerLink="/app/admin/maryaj-gratis"
-          fragment="game"
-        >
-          {{ 'admin.drawSalesMatrix.game.action.configureMaryaj' | translate }}
-        </a>
-      } @else {
+      @if (mode() === 'available') {
         <button
-          mat-stroked-button
+          mat-flat-button
+          color="primary"
           class="matrix-game__btn"
           type="button"
-          (click)="gameAction.emit({ action: 'configure', game: gameVm })"
+          [disabled]="acting()"
+          (click)="gameAction.emit({ action: 'offer', game: gameVm })"
         >
-          <mat-icon>tune</mat-icon>
-          {{ 'admin.drawSalesMatrix.game.action.configureStake' | translate }}
+          <mat-icon>add</mat-icon>
+          {{ 'admin.drawSalesMatrix.game.action.add' | translate }}
         </button>
-
-        @if (mode() === 'available') {
-          <button
-            mat-flat-button
-            color="primary"
-            class="matrix-game__btn"
-            type="button"
-            [disabled]="acting()"
-            (click)="gameAction.emit({ action: 'offer', game: gameVm })"
-          >
-            <mat-icon>add</mat-icon>
-            {{ 'admin.drawSalesMatrix.game.action.add' | translate }}
-          </button>
-        } @else {
-          <button
-            mat-stroked-button
-            class="matrix-game__btn"
-            type="button"
-            [disabled]="acting()"
-            (click)="gameAction.emit({ action: 'toggle', game: gameVm })"
-          >
+      } @else {
+        <button
+          class="matrix-game__switch"
+          [class.matrix-game__switch--active]="gameVm.enabledOnChannel"
+          type="button"
+          [disabled]="acting()"
+          [attr.aria-pressed]="gameVm.enabledOnChannel"
+          (click)="gameAction.emit({ action: 'toggle', game: gameVm })"
+        >
+          <span></span>
+          <strong>
             {{ (gameVm.enabledOnChannel ? 'admin.drawSalesMatrix.game.action.disable' : 'admin.drawSalesMatrix.game.action.activate') | translate }}
-          </button>
-          <button
-            mat-icon-button
-            class="matrix-game__btn-remove"
-            type="button"
-            [disabled]="acting()"
-            [attr.title]="'admin.drawSalesMatrix.game.action.remove' | translate"
-            (click)="gameAction.emit({ action: 'remove', game: gameVm })"
-          >
-            <mat-icon>remove_circle_outline</mat-icon>
-          </button>
-        }
+          </strong>
+          <mat-icon>{{ gameVm.enabledOnChannel ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+        </button>
       }
     </div>
   }

@@ -6,11 +6,16 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsResult;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.port.out.ResultSlotCalendarReaderPort;
 import com.tchalanet.server.core.draw.api.query.OpenableDrawRow;
+import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -21,8 +26,11 @@ public class OpenDueDrawsCommandHandler
     implements CommandHandler<OpenDueDrawsCommand, OpenDueDrawsResult> {
 
     private static final int LOG_SAMPLE_IDS = 10;
+    private static final String PROVIDER_CLOSED_REASON_CODE = "PROVIDER_CLOSED";
+    private static final String PROVIDER_CLOSED_REASON_LABEL = "No provider draw for this slot on this date";
 
     private final DrawLifecyclePort port;
+    private final ResultSlotCalendarReaderPort resultSlotCalendarReader;
 
     @Override
     @TchTx
@@ -37,10 +45,9 @@ public class OpenDueDrawsCommandHandler
 
         int skippedLocked = (int) openable.stream().filter(OpenableDrawRow::locked).count();
 
-        var nonLockedIds =
-            openable.stream().filter(r -> !r.locked()).map(OpenableDrawRow::drawId).toList();
+        var nonLocked = openable.stream().filter(r -> !r.locked()).toList();
 
-        if (nonLockedIds.isEmpty()) {
+        if (nonLocked.isEmpty()) {
             log.info(
                 "draw.open_due no-op now={} batchSize={} lookaheadHours={} lagHours={} openable={} skippedLocked={}",
                 command.now(),
@@ -53,34 +60,56 @@ public class OpenDueDrawsCommandHandler
             return new OpenDueDrawsResult(0, skippedLocked, 0, 0);
         }
 
+        var openIds = new ArrayList<DrawId>();
+        var cancelIds = new ArrayList<DrawId>();
+        Map<String, Boolean> unavailableCache = new HashMap<>();
+        for (var row : nonLocked) {
+            var slot = row.resultSlotId();
+            var drawDate = row.drawDate();
+            boolean unavailable = slot != null && drawDate != null
+                && unavailableCache.computeIfAbsent(
+                    slot.value() + "|" + drawDate,
+                    k -> resultSlotCalendarReader
+                        .findUnavailableDates(slot, drawDate, drawDate)
+                        .contains(drawDate));
+            (unavailable ? cancelIds : openIds).add(row.drawId());
+        }
+
         if (command.dryRun()) {
             log.info(
-                "draw.open_due dryRun=true now={} batchSize={} lookaheadHours={} lagHours={} openable={} wouldOpen={} skippedLocked={} sampleIds={}",
+                "draw.open_due dryRun=true now={} batchSize={} lookaheadHours={} lagHours={} openable={} wouldOpen={} wouldCancelProviderClosed={} skippedLocked={} sampleIds={}",
                 command.now(),
                 command.batchSize(),
                 command.lookaheadHours(),
                 command.lagHours(),
                 openableCount,
-                nonLockedIds.size(),
+                openIds.size(),
+                cancelIds.size(),
                 skippedLocked,
-                sample(nonLockedIds));
+                sample(openIds));
             return new OpenDueDrawsResult(0, skippedLocked, 0, 0);
         }
 
-        int opened = port.bulkOpen(nonLockedIds, command.now());
+        int canceledProviderClosed = cancelIds.isEmpty()
+            ? 0
+            : port.bulkCancelScheduled(
+                cancelIds, PROVIDER_CLOSED_REASON_CODE, PROVIDER_CLOSED_REASON_LABEL, command.now());
+
+        int opened = openIds.isEmpty() ? 0 : port.bulkOpen(openIds, command.now());
 
         log.info(
-            "draw.open_due now={} batchSize={} lookaheadHours={} lagHours={} openable={} opened={} skippedLocked={} sampleIds={}",
+            "draw.open_due now={} batchSize={} lookaheadHours={} lagHours={} openable={} opened={} canceledProviderClosed={} skippedLocked={} sampleIds={}",
             command.now(),
             command.batchSize(),
             command.lookaheadHours(),
             command.lagHours(),
             openableCount,
             opened,
+            canceledProviderClosed,
             skippedLocked,
-            sample(nonLockedIds));
+            sample(openIds));
 
-        return new OpenDueDrawsResult(opened, skippedLocked, 0, 0);
+        return new OpenDueDrawsResult(opened, skippedLocked, 0, canceledProviderClosed);
     }
 
     private static void validateCommand(OpenDueDrawsCommand command) {

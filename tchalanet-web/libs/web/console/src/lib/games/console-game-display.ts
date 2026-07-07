@@ -248,11 +248,22 @@ export function consoleBetTypeLabel(betType: string): string {
   return BET_TYPE_LABELS[normalizeBetType(betType)] ?? readableCode(betType);
 }
 
+export function consoleBetTypeLabelKey(betType: string): string {
+  return `domain.bet.type.${normalizeBetType(betType)}`;
+}
+
 export function consoleBetOptionLabel(betType: string, betOption: number | string | null): string | null {
   if (betOption == null) return null;
   const option = typeof betOption === 'number' ? betOption : Number(betOption);
   if (!Number.isFinite(option)) return String(betOption);
   return BET_OPTION_LABELS[normalizeBetType(betType)]?.[option] ?? `Option ${option}`;
+}
+
+export function consoleBetOptionLabelKey(betType: string, betOption: number | string | null): string | null {
+  if (betOption == null) return null;
+  const option = typeof betOption === 'number' ? betOption : Number(betOption);
+  if (!Number.isFinite(option)) return null;
+  return `domain.bet.option.${normalizeBetType(betType)}.${option}`;
 }
 
 export function consoleBetLabel(betType: string, betOption: number | string | null): string {

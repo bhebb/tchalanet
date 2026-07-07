@@ -4,19 +4,30 @@ import type { TchRequestOptions } from '@tch/api';
 import { Observable } from 'rxjs';
 
 export interface PricingView {
+  tenantId?: string;
   gameCode: string;
+  pricingVariantCode: string;
   betType: string;
-  betOption: number;
+  betOption?: number | null;
   odds: number;
   active: boolean;
+}
+
+export interface UpsertTenantOddsRequest {
+  gameCode: string;
+  pricingVariantCode: string;
+  betType: string;
+  betOption?: number | null;
+  odds: number;
 }
 
 export interface SellerTerminalOddsOverrideView {
   id: string;
   sellerTerminalId: string;
   gameCode: string;
+  pricingVariantCode: string;
   betType: string;
-  betOption: number;
+  betOption?: number | null;
   odds: number;
   effectiveFrom?: string | null;
   effectiveTo?: string | null;
@@ -26,8 +37,9 @@ export interface SellerTerminalOddsOverrideView {
 
 export interface UpsertOddsOverrideRequest {
   gameCode: string;
+  pricingVariantCode: string;
   betType: string;
-  betOption: number;
+  betOption?: number | null;
   odds: number;
   effectiveFrom?: string | null;
   effectiveTo?: string | null;
@@ -39,14 +51,21 @@ export class AdminPricingApi {
   private readonly backend = inject(TchBackendClient);
 
   getDefaultOdds(options?: TchRequestOptions): Observable<PricingView[]> {
-    return this.backend.get<PricingView[]>('/admin/controls/odds', options);
+    return this.backend.get<PricingView[]>('/admin/pricing/odds', options);
   }
 
   getDefaultOddsResource(options?: TchRequestOptions) {
     return this.backend.getResource<PricingView[]>(() => ({
-      path: '/admin/controls/odds',
+      path: '/admin/pricing/odds',
       options,
     }));
+  }
+
+  upsertTenantOdds(
+    req: UpsertTenantOddsRequest,
+    options?: TchRequestOptions,
+  ): Observable<PricingView> {
+    return this.backend.put<PricingView>('/admin/pricing/odds', req, options);
   }
 
   getTerminalOverrides(sellerTerminalId: string, options?: TchRequestOptions): Observable<SellerTerminalOddsOverrideView[]> {

@@ -83,6 +83,10 @@ public class PosTicketMapper {
                 l.selectionCanonical(),
                 toCents(l.stake()),
                 toCents(l.potentialPayout()),
+                l.potentialGainMode(),
+                toCents(l.minPotentialPayout()),
+                toCents(l.maxPotentialPayout()),
+                l.totalPotentialPayout() != null ? toCents(l.totalPotentialPayout()) : null,
                 l.promotional(),
                 l.promotionLabel()
             ))

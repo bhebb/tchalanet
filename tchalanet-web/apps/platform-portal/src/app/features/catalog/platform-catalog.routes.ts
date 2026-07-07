@@ -44,13 +44,7 @@ export const platformCatalogRoutes: Route[] = [
       ),
   },
   { path: 'plans-pricing', redirectTo: 'plans', pathMatch: 'full' },
-  {
-    path: 'pricing',
-    loadComponent: () =>
-      import('./pages/pricing/platform-catalog-pricing.page').then(
-        m => m.PlatformCatalogPricingPage,
-      ),
-  },
+  { path: 'pricing', redirectTo: 'games', pathMatch: 'full' },
   {
     path: 'settings',
     loadComponent: () =>

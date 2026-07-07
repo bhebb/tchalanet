@@ -28,7 +28,7 @@ public class UpsertSellerTerminalOddsOverrideCommandHandler
 
         var existing = reader.findActiveByNaturalKey(
             c.tenantId(), c.sellerTerminalId(),
-            c.gameCode(), c.betType(), c.betOption());
+            c.gameCode(), c.pricingVariantCode());
 
         if (existing.isPresent()) {
             var updated = existing.get().update(
@@ -40,7 +40,7 @@ public class UpsertSellerTerminalOddsOverrideCommandHandler
         var created = SellerTerminalOddsOverride.createNew(
             SellerTerminalOddsOverrideId.of(idGenerator.newUuid()),
             c.tenantId(), c.sellerTerminalId(),
-            c.gameCode(), c.betType(), c.betOption(),
+            c.gameCode(), c.pricingVariantCode(), c.betType(), c.betOption(),
             c.odds(), c.effectiveFrom(), c.effectiveTo(), c.reason(), c.actorId());
         var saved = writer.save(created);
         return new UpsertSellerTerminalOddsOverrideResult(saved.id(), true);
@@ -52,6 +52,9 @@ public class UpsertSellerTerminalOddsOverrideCommandHandler
         }
         if (c.gameCode() == null || c.gameCode().isBlank()) {
             throw new IllegalArgumentException("gameCode is required");
+        }
+        if (c.pricingVariantCode() == null) {
+            throw new IllegalArgumentException("pricingVariantCode is required");
         }
         if (c.betType() == null || c.betType().isBlank()) {
             throw new IllegalArgumentException("betType is required");

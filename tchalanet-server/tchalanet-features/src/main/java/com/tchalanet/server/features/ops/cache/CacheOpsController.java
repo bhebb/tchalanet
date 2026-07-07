@@ -120,6 +120,9 @@ public class CacheOpsController {
             "catalog:plan:active_plans",
             "catalog:plan:plan_by_code",
             "catalog:plan:plan_by_id"));
+        groups.put("pricing", List.of(
+            "core:pricing:tenant_odds_list",
+            "core:pricing:tenant_odds_by_variant"));
         return Map.copyOf(groups);
     }
 

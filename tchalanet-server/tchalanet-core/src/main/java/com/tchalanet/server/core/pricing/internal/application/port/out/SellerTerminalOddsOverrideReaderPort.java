@@ -3,6 +3,7 @@ package com.tchalanet.server.core.pricing.internal.application.port.out;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.internal.domain.SellerTerminalOddsOverride;
 
 import java.util.List;
@@ -21,7 +22,6 @@ public interface SellerTerminalOddsOverrideReaderPort {
         TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         String gameCode,
-        String betType,
-        Short betOption
+        PricingVariantCode pricingVariantCode
     );
 }

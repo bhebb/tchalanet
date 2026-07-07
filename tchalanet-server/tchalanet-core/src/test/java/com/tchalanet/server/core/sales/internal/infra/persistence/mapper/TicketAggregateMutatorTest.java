@@ -12,6 +12,7 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
@@ -21,11 +22,14 @@ import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSour
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 import org.junit.jupiter.api.DisplayName;
@@ -105,6 +109,33 @@ class TicketAggregateMutatorTest {
         assertThat(line.getResultStatus()).isEqualTo(TicketLineResultStatus.WON);
         assertThat(line.getPayoutAmount()).isEqualByComparingTo("125");
         assertThat(line.getSelectionKey()).isEqualTo("05");
+    }
+
+    @Test
+    @DisplayName("maps ticket line coverages round-trip")
+    void mapsCoverageRoundTrip() {
+        var original = ticketWithCoverageLine();
+        var entity = MAPPER.toEntity(original);
+
+        assertThat(entity.getLines()).hasSize(1);
+        var lineEntity = entity.getLines().getFirst();
+        assertThat(lineEntity.getPotentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
+        assertThat(lineEntity.getMinPotentialGain()).isEqualByComparingTo("800");
+        assertThat(lineEntity.getMaxPotentialGain()).isEqualByComparingTo("5000");
+        assertThat(lineEntity.getCoverages())
+            .extracting(coverage -> coverage.getPricingVariantCode().name())
+            .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
+
+        var roundTrip = MAPPER.toDomain(entity);
+
+        assertThat(roundTrip.lines()).hasSize(1);
+        var line = roundTrip.lines().getFirst();
+        assertThat(line.potentialGainMode()).isEqualTo(PotentialGainMode.RANGE_ALTERNATIVE);
+        assertThat(line.minPotentialGain().amount()).isEqualByComparingTo("800");
+        assertThat(line.maxPotentialGain().amount()).isEqualByComparingTo("5000");
+        assertThat(line.coverages())
+            .extracting(coverage -> coverage.pricingVariantCode().name())
+            .containsExactly("LOTTO3_STRAIGHT", "LOTTO3_BOX_6_WAY");
     }
 
     @Test
@@ -201,6 +232,20 @@ class TicketAggregateMutatorTest {
             NOW);
     }
 
+    private static Ticket ticketWithCoverageLine() {
+        return Ticket.place(
+            identity(),
+            context(),
+            TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
+            new TicketMoneyBreakdown(money("20"), List.of(), money("20")),
+            List.of(coverageLine()),
+            TicketSaleChannel.POS_ONLINE,
+            false,
+            null,
+            USER,
+            NOW);
+    }
+
     private static TicketIdentity identity() {
         return new TicketIdentity(
             TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001")),
@@ -250,6 +295,46 @@ class TicketAggregateMutatorTest {
             new BigDecimal("12.5"),
             money("0"),
             null,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            null,
+            null,
+            null,
+            null,
+            TicketLineResultStatus.PENDING,
+            money("0"));
+    }
+
+    private static TicketLine coverageLine() {
+        return new TicketLine(
+            TicketLineId.of(UUID.fromString("43000000-0000-0000-0000-000000000001")),
+            1,
+            GameCode.HT_LOTO3,
+            BetType.LOTTO3_3D,
+            new Selection(SelectionKey.of("123"), "123"),
+            money("20"),
+            money("20"),
+            new BigDecimal("500"),
+            money("5000"),
+            PotentialGainMode.RANGE_ALTERNATIVE,
+            money("800"),
+            money("5000"),
+            null,
+            List.of(
+                new TicketLineCoverage(
+                    PricingVariantCode.LOTTO3_STRAIGHT,
+                    money("10"),
+                    new BigDecimal("500"),
+                    money("5000"),
+                    WinMode.ALTERNATIVE),
+                new TicketLineCoverage(
+                    PricingVariantCode.LOTTO3_BOX_6_WAY,
+                    money("10"),
+                    new BigDecimal("80"),
+                    money("800"),
+                    WinMode.ALTERNATIVE)
+            ),
+            (short) 3,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
             null,

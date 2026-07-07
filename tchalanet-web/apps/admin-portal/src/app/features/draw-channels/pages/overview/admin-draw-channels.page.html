@@ -1,19 +1,19 @@
 <tch-admin-page-shell
-  title="Tirages"
-  description="Configurez les états, sources de résultats et créneaux actifs pour votre espace."
+  [title]="'admin.drawChannels.title' | translate"
+  [description]="'admin.drawChannels.description' | translate"
 >
   <div actions>
     <a mat-stroked-button routerLink="/app/admin/setup" class="dc-page__back-btn">
       <span class="material-symbols-outlined">arrow_back</span>
-      Configuration générale
+      {{ 'admin.drawChannels.actions.backToSetup' | translate }}
     </a>
     <a mat-stroked-button routerLink="/app/admin/draws">
       <span class="material-symbols-outlined">confirmation_number</span>
-      Voir les tirages générés
+      {{ 'admin.drawChannels.actions.generatedDraws' | translate }}
     </a>
     <button mat-stroked-button [disabled]="pageState() === 'loading'" (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
-      Rafraîchir
+      {{ 'admin.drawChannels.actions.refresh' | translate }}
     </button>
   </div>
 
@@ -21,21 +21,29 @@
     <tch-section-error
       feedback
       class="dc-page__notice"
-      title="Action non disponible"
+      [title]="'admin.drawChannels.notice.title' | translate"
       [message]="notice"
       severity="info"
     />
   }
 
   @if (pageState() === 'loading') {
-    <tch-loading label="Chargement des tirages..." />
+    <section class="dc-page__skeleton-grid" [attr.aria-label]="'admin.drawChannels.loading' | translate">
+      @for (_ of [0, 1, 2, 3]; track _) {
+        <div class="dc-page__skeleton-card">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      }
+    </section>
   } @else if (pageState() === 'error') {
     @if (pageError(); as errorVm) {
       <tch-error-panel
         [title]="errorVm.title"
         [message]="errorVm.message"
         [showRetry]="true"
-        retryLabel="Réessayer"
+        [retryLabel]="'common.retry' | translate"
         (retry)="load()"
       />
     }
@@ -52,29 +60,34 @@
             class="dc-page__chip"
             [class.dc-page__chip--active]="activeFilter() === f.key"
             (click)="activeFilter.set(f.key)"
-          >{{ f.label }}</button>
+          >{{ f.labelKey | translate }}</button>
         }
       </div>
-      <input
-        class="dc-page__search"
-        type="search"
-        placeholder="Rechercher un state…"
-        [value]="searchQuery()"
-        (input)="searchQuery.set($any($event.target).value)"
-      />
+      <label class="dc-page__search-wrap">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input
+          class="dc-page__search"
+          type="search"
+          [placeholder]="'admin.drawChannels.search.placeholder' | translate"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+      </label>
     </div>
 
     <!-- Results count -->
     <p class="dc-page__count">
-      Affichage de <strong>{{ filteredProviders().length }}</strong> provider{{ filteredProviders().length !== 1 ? 's' : '' }}
+      {{ 'admin.drawChannels.resultsCount' | translate: { count: filteredProviders().length } }}
     </p>
 
     <!-- Provider cards grid -->
     @if (filteredProviders().length === 0) {
       <tch-admin-empty-state
         icon="confirmation_number"
-        title="Aucun résultat"
-        message="Modifiez le filtre ou la recherche pour afficher des providers."
+        [title]="'admin.drawChannels.empty.title' | translate"
+        [message]="(searchQuery() || activeFilter() !== 'all'
+          ? 'admin.drawChannels.empty.filtered'
+          : 'admin.drawChannels.empty.none') | translate"
       />
     } @else {
       <div class="dc-page__grid">

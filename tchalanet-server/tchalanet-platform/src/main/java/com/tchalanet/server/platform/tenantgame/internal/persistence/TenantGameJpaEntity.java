@@ -1,14 +1,19 @@
 package com.tchalanet.server.platform.tenantgame.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "tenant_game")
@@ -51,4 +56,8 @@ public class TenantGameJpaEntity extends BaseTenantEntity {
 
   @Column(name = "end_local_time")
   private LocalTime endLocalTime;
+
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(name = "bet_option_config", nullable = false, columnDefinition = "jsonb")
+  private List<TenantBetTypeOptionConfig> betOptionConfig = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TchErrorViewModel } from '@tch/web/errors';
 
 import {
@@ -23,7 +24,7 @@ export interface MatrixProviderGameActionEvent {
   selector: 'tch-draw-sales-matrix-provider-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatExpansionModule, DrawSalesMatrixSlotPanelComponent],
+  imports: [MatExpansionModule, TranslatePipe, DrawSalesMatrixSlotPanelComponent],
   templateUrl: './matrix-provider-list.component.html',
   styleUrls: ['./matrix-provider-list.component.scss'],
 })
@@ -37,5 +38,23 @@ export class DrawSalesMatrixProviderListComponent {
 
   protected onGameAction(event: MatrixSlotGameActionEvent): void {
     this.gameAction.emit(event);
+  }
+
+  protected slotCount(provider: ProviderMatrixView): number {
+    return provider.slots.length;
+  }
+
+  protected saleReadyCount(provider: ProviderMatrixView): number {
+    return provider.slots
+      .flatMap(slot => slot.games)
+      .filter(game => game.saleReady)
+      .length;
+  }
+
+  protected offeredCount(provider: ProviderMatrixView): number {
+    return provider.slots
+      .flatMap(slot => slot.games)
+      .filter(game => game.offeredOnChannel)
+      .length;
   }
 }

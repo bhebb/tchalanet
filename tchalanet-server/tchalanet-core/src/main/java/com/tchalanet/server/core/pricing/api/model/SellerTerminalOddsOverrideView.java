@@ -12,6 +12,7 @@ public record SellerTerminalOddsOverrideView(
     TenantId tenantId,
     SellerTerminalId sellerTerminalId,
     String gameCode,
+    PricingVariantCode pricingVariantCode,
     String betType,
     Short betOption,
     BigDecimal odds,

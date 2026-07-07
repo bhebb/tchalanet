@@ -2,7 +2,6 @@ package com.tchalanet.server.features.platformadmin.overview;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
@@ -36,7 +35,6 @@ public class PlatformAdminOverviewOrchestrator {
     private final ResultSlotCatalog resultSlotCatalog;
     private final PageModelTemplateCatalog pageModelTemplateCatalog;
     private final ThemeCatalog themeCatalog;
-    private final PricingCatalog pricingCatalog;
     private final I18nOverridesCatalog i18nGlobalCatalog;
     private final SettingsCatalog settingsCatalog;
 
@@ -79,12 +77,11 @@ public class PlatformAdminOverviewOrchestrator {
             )
         );
 
-        // --- Platform stats: pricing
-        var pricing = pricingCatalog.stats();
+        // Tenant odds are runtime configuration, not a platform reference catalog.
         var settingsStats = settingsCatalog.stats();
         PlatformStats platform = new PlatformStats(
             new CountItem(0, 0), // plans placeholder
-            new CountItem(pricing.total(), pricing.active()),
+            new CountItem(0, 0),
             new CountItem(settingsStats.totalGlobalSettings(), settingsStats.totalActiveSettings())
         );
 

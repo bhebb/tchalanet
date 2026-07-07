@@ -68,17 +68,68 @@ WITH t AS (
              true AS enabled,
              g.name AS display_name,
              NULL::numeric(12,2) AS min_stake,
-             NULL::numeric(12,2) AS max_stake
+             NULL::numeric(12,2) AS max_stake,
+             CASE g.code
+                 WHEN 'HT_BOLET' THEN
+                     '[
+                       {"betType":"MATCH_1_2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":null,"options":[]},
+                       {"betType":"MATCH_2_2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":null,"options":[]},
+                       {"betType":"MATCH_3_2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":null,"options":[]}
+                     ]'::jsonb
+                 WHEN 'HT_MARYAJ' THEN
+                     '[
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                        "options":[
+                          {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
+                          {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
+                        ]}
+                     ]'::jsonb
+                 WHEN 'HT_MARYAJ_GRATIS' THEN
+                     '[
+                       {"betType":"MARRIAGE_2D2D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                        "options":[
+                          {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
+                          {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
+                        ]}
+                     ]'::jsonb
+                 WHEN 'HT_LOTO3' THEN
+                     '[
+                       {"betType":"LOTTO3_3D","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                        "options":[
+                          {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
+                          {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2}
+                        ]}
+                     ]'::jsonb
+                 WHEN 'HT_LOTO4' THEN
+                     '[
+                       {"betType":"LOTTO4_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                        "options":[
+                          {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
+                          {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
+                          {"code":3,"enabled":true,"visibleInPos":true,"displayOrder":3},
+                          {"code":4,"enabled":true,"visibleInPos":true,"displayOrder":4}
+                        ]}
+                     ]'::jsonb
+                 WHEN 'HT_LOTO5' THEN
+                     '[
+                       {"betType":"LOTTO5_PATTERN","selectionPolicy":"EXPLICIT_ONLY","defaultOption":1,
+                        "options":[
+                          {"code":1,"enabled":true,"visibleInPos":true,"displayOrder":1},
+                          {"code":2,"enabled":true,"visibleInPos":true,"displayOrder":2},
+                          {"code":3,"enabled":true,"visibleInPos":true,"displayOrder":3}
+                        ]}
+                     ]'::jsonb
+             END AS bet_option_config
          FROM t CROSS JOIN g
      )
 INSERT INTO tenant_game (
   id, tenant_id, game_id, game_code, enabled, display_name,
-  min_stake, max_stake,
+  min_stake, max_stake, bet_option_config,
   created_at, updated_at, version
 )
 SELECT
     id, tenant_id, game_id, game_code, enabled, display_name,
-    min_stake, max_stake,
+    min_stake, max_stake, bet_option_config,
     now(), now(), 0
 FROM tg_src
     ON CONFLICT (tenant_id, game_id) DO UPDATE
@@ -86,6 +137,7 @@ FROM tg_src
                                             display_name = EXCLUDED.display_name,
                                             min_stake    = EXCLUDED.min_stake,
                                             max_stake    = EXCLUDED.max_stake,
+                                            bet_option_config = EXCLUDED.bet_option_config,
                                             updated_at   = now(),
                                             version      = tenant_game.version + 1
                                         WHERE tenant_game.deleted_at IS NULL;

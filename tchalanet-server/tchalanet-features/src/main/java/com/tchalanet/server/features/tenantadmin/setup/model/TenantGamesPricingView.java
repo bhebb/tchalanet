@@ -47,6 +47,7 @@ public record TenantGamesPricingView(
     public record PricingEntryRow(
         String betType,
         Short betOption,
+        String pricingVariantCode,
         BigDecimal odds
     ) {}
 }

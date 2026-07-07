@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TchCard, TchDrawLabel, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
 import {
@@ -20,10 +22,10 @@ const STATUS_TONE: Record<DrawChannelProviderTenantStatus, AdminStatusTone> = {
 };
 
 const STATUS_LABEL: Record<DrawChannelProviderTenantStatus, string> = {
-  ACTIVE:       'Actif',
-  NEEDS_CONFIG: 'À configurer',
-  INACTIVE:     'Inactif',
-  UNAVAILABLE:  'Non disponible',
+  ACTIVE:       'admin.drawChannels.status.active',
+  NEEDS_CONFIG: 'admin.drawChannels.status.needsConfig',
+  INACTIVE:     'admin.drawChannels.status.inactive',
+  UNAVAILABLE:  'admin.drawChannels.status.unavailable',
 };
 
 interface DrawChannelProviderCardError {
@@ -38,8 +40,11 @@ interface DrawChannelProviderCardError {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     LowerCasePipe,
+    RouterLink,
     MatButtonModule,
+    TranslatePipe,
     TchCard,
+    TchDrawLabel,
     TchSectionError,
     AdminStatusPillComponent,
     DrawChannelSourceBadgeComponent,
@@ -66,20 +71,9 @@ export class DrawChannelProviderCardComponent {
 
     return {
       severity: 'warn',
-      title: 'Source de resultats indisponible',
-      message: 'Les ventes restent disponibles, mais les resultats automatiques de ce fournisseur sont a verifier.',
+      title: 'admin.drawChannels.sourceError.title',
+      message: 'admin.drawChannels.sourceError.message',
     };
-  });
-
-  readonly acquisitionSubline = computed<string>(() => {
-    const a = this.provider().resultAcquisition;
-    const parts: string[] = [];
-    if (a.lastSyncAt)        parts.push(`Dernière : ${a.lastSyncAt}`);
-    if (a.nextSyncAt)        parts.push(`Prochaine : ${a.nextSyncAt}`);
-    if (a.source)            parts.push(a.source);
-    if (a.lastManualEntryAt) parts.push(`Dernière saisie : ${a.lastManualEntryAt}`);
-    if (a.lastAttemptAt)     parts.push(`Dernière tentative : ${a.lastAttemptAt}`);
-    return parts.join(' · ');
   });
 
   onViewSlotResults(slot: DrawChannelSlotConfigView): void {

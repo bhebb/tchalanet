@@ -254,6 +254,11 @@
         "missingStake": "Stake not configured",
         "missingLimits": "Missing limits"
       },
+      "provider": {
+        "slots": "{{count}} slot(s)",
+        "offered": "{{count}} offered game(s)",
+        "ready": "{{count}} sellable"
+      },
       "slot": {
         "status": {
           "ready": "Ready",
@@ -270,7 +275,9 @@
         "cutoff": "Cutoff: {{seconds}}s before draw",
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
-        "dependsOnAnother": "Depends on another channel"
+        "dependsOnAnother": "Depends on another channel",
+        "missingHelp": "This slot does not have a sales channel configured yet.",
+        "configureChannels": "Configure channels"
       },
       "section": {
         "offered": "Games enabled or offered on this channel",
@@ -289,6 +296,18 @@
         "stakeMissing": "Stakes to configure",
         "limitsMissing": "Missing limits",
         "hiddenPos": "Hidden from POS",
+        "fact": {
+          "minStake": "Min stake",
+          "maxStake": "Max stake",
+          "limits": "Limits",
+          "visibility": "Visibility",
+          "source": "Source",
+          "configured": "Configured",
+          "notConfigured": "Not configured",
+          "visibleInPos": "Visible in POS",
+          "hiddenInPos": "Hidden in POS",
+          "tenantGameSettings": "Tenant game settings"
+        },
         "action": {
           "configureMaryaj": "Configure free Maryaj",
           "configureStake": "Configure stakes",
@@ -672,47 +691,78 @@
       }
     },
     "drawChannels": {
-      "title": "Tirages",
-      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
+      "title": "Draw channels",
+      "description": "Configure providers, result sources, and active draw slots for this tenant.",
+      "status": {
+        "active": "Active",
+        "needsConfig": "Needs config",
+        "inactive": "Inactive",
+        "unavailable": "Unavailable"
+      },
       "summary": {
-        "availableStates": "States dispos",
-        "activeStates": "States actifs",
-        "activeChannels": "DrawChannels actifs",
-        "todo": "À configurer"
+        "availableStates": "Available providers",
+        "activeStates": "Active providers",
+        "activeChannels": "Active channels",
+        "todo": "Needs config"
       },
       "filters": {
-        "all": "Tous",
-        "active": "Actifs",
-        "todo": "À configurer",
-        "inactive": "Inactifs",
-        "sourceError": "Erreur source"
+        "all": "All",
+        "active": "Active",
+        "todo": "Needs config",
+        "inactive": "Inactive",
+        "sourceError": "Source error"
       },
       "search": {
-        "placeholder": "Rechercher un state..."
+        "placeholder": "Search provider..."
+      },
+      "loading": "Loading draw channels...",
+      "resultsCount": "{{count}} provider(s) shown",
+      "empty": {
+        "title": "No provider",
+        "filtered": "Change the filter or search to show providers.",
+        "none": "No provider is available for this tenant."
+      },
+      "notice": {
+        "title": "Action unavailable",
+        "configureUnavailable": "Direct configuration for {{provider}} will be enabled with the backend endpoint."
+      },
+      "sourceError": {
+        "title": "Result source unavailable",
+        "message": "Sales can remain available, but automatic results for this provider need review."
       },
       "acquisition": {
-        "auto": "Acquisition auto",
-        "manual": "Saisie manuelle",
-        "unconfigured": "Mode résultat à définir",
-        "error": "Source en erreur",
-        "last": "Dernière",
-        "next": "Prochaine",
-        "lastManualEntry": "Dernière saisie"
+        "auto": "Automatic acquisition",
+        "manual": "Manual entry",
+        "unconfigured": "Result mode to define",
+        "error": "Source error",
+        "last": "Last",
+        "next": "Next",
+        "lastManualEntry": "Last manual entry"
       },
       "slots": {
-        "title": "Créneaux horaires"
+        "title": "Draw slots",
+        "unavailable": "No slot available for this tenant",
+        "status": {
+          "active": "Active",
+          "needsConfig": "Needs config",
+          "disabled": "Inactive"
+        }
       },
-      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
-      "salesCutoffMissing": "Fermeture vente : Non définie",
+      "salesCutoff": "Sales close: {{minutes}} min before draw",
+      "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
-        "configure": "Configurer",
-        "results": "Résultats",
-        "viewAllResults": "Tous les résultats"
+        "backToSetup": "Global setup",
+        "generatedDraws": "View generated draws",
+        "refresh": "Refresh",
+        "configure": "Configure",
+        "configureGameOffer": "Configure game offer",
+        "results": "Results",
+        "viewAllResults": "All results"
       },
       "readiness": {
-        "ready": "Prêt pour la vente",
-        "todo": "Configuration incomplète",
-        "sourceWarning": "Vente configurée · Source à vérifier"
+        "ready": "Ready for sale",
+        "todo": "Incomplete configuration",
+        "sourceWarning": "Sales configured · Source needs review"
       }
     },
     "games": {
@@ -758,13 +808,41 @@
         },
         "options": {
           "title": "Bet options / payouts",
-          "description": "Read-only here. These options come from the game catalog and pricing."
+          "description": "Summary of the tenant pricing applied at sale time."
+        },
+        "salesOptions": {
+          "title": "Sales options",
+          "description": "Commercial choices offered in the POS and the selection rule used during sale.",
+          "loadFailed": "Sales options could not be loaded. Other settings can still be saved.",
+          "selectionPolicy": "Selection mode",
+          "defaultOption": "Default option",
+          "noDefaultOption": "No default option",
+          "enabled": "Offered",
+          "visibleInPos": "Visible in POS",
+          "status": {
+            "visible": "Visible",
+            "hidden": "Hidden in POS",
+            "disabled": "Disabled"
+          },
+          "policy": {
+            "EXPLICIT_ONLY": "Explicit choice only",
+            "EXPLICIT_WITH_AUTO_OPTION": "Explicit choice with auto option",
+            "IMPLICIT_BEST_MATCH": "Implicit best match"
+          }
         }
       }
     },
     "pricing": {
       "title": "Odds grid",
       "description": "Default odds for all bet types.",
+      "actions": {
+        "edit": "Edit odds"
+      },
+      "dialog": {
+        "edit": {
+          "title": "Edit tenant odds"
+        }
+      },
       "empty": {
         "title": "No odds configured",
         "message": "The odds grid is empty."

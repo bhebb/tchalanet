@@ -5,26 +5,15 @@
   <!-- Header -->
   <div class="pcard__header">
     <div class="pcard__identity">
-      <div class="pcard__avatar">
-        @if (providerLogo(); as logo) {
-          <img class="pcard__avatar-image" [src]="logo" [alt]="p.providerLabel" />
-        } @else {
-          <span>{{ p.providerCode }}</span>
-        }
-      </div>
-      <div class="pcard__title-group">
-        <div class="pcard__name-row">
-          <h3 class="pcard__name">{{ p.providerLabel }}</h3>
-          <tch-admin-status-pill [label]="statusLabel()" [tone]="statusTone()" />
-        </div>
-        <div class="pcard__meta">
-          <span class="material-symbols-outlined pcard__tz-icon">schedule</span>
-          <span class="pcard__tz">{{ p.timezone }}</span>
-        </div>
-        @if (acquisitionSubline()) {
-          <p class="pcard__subline">{{ acquisitionSubline() }}</p>
-        }
-      </div>
+      <tch-draw-label
+        [eyebrow]="'domain.draw.field.provider' | translate"
+        [primary]="p.providerLabel"
+        [secondary]="p.timezone"
+        [meta]="p.providerCode"
+        [logoUrl]="providerLogo()"
+        [logoAlt]="p.providerLabel"
+      />
+      <tch-admin-status-pill [label]="statusLabel() | translate" [tone]="statusTone()" />
     </div>
     <tch-draw-channel-source-badge [acquisition]="p.resultAcquisition" />
   </div>
@@ -32,8 +21,8 @@
   @if (sourceError(); as err) {
     <tch-section-error
       class="pcard__source-error"
-      [title]="err.title"
-      [message]="err.message"
+      [title]="err.title | translate"
+      [message]="err.message | translate"
       [severity]="err.severity"
     />
   }
@@ -41,7 +30,7 @@
   <!-- Slots -->
   @if (p.slots.length > 0) {
     <div class="pcard__slots">
-      <p class="pcard__slots-title">Créneaux horaires</p>
+      <p class="pcard__slots-title">{{ 'admin.drawChannels.slots.title' | translate }}</p>
       <div class="pcard__slots-list">
         @for (slot of p.slots; track slot.slotKey; let i = $index) {
           <tch-draw-channel-slot-row
@@ -57,7 +46,7 @@
   } @else {
     <div class="pcard__no-slots">
       <span class="material-symbols-outlined">block</span>
-      Non disponible pour cet espace
+      {{ 'admin.drawChannels.slots.unavailable' | translate }}
     </div>
   }
 
@@ -67,12 +56,12 @@
       @if (p.defaultSalesCutoffMinutes) {
         <p class="pcard__cutoff">
           <span class="material-symbols-outlined">info</span>
-          Fermeture vente : {{ p.defaultSalesCutoffMinutes }} min avant tirage
+          {{ 'admin.drawChannels.salesCutoff' | translate: { minutes: p.defaultSalesCutoffMinutes } }}
         </p>
       } @else if (p.tenantStatus !== 'UNAVAILABLE') {
         <p class="pcard__cutoff pcard__cutoff--missing">
           <span class="material-symbols-outlined">info</span>
-          Fermeture vente : Non définie
+          {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
         </p>
       }
       <p class="pcard__readiness-label pcard__readiness-label--{{ p.readiness.status | lowercase }}">
@@ -92,11 +81,12 @@
       <div class="pcard__actions">
         <!-- TODO(results): enable once /app/admin/results is implemented -->
         <button mat-stroked-button [disabled]="true">
-          Tous les résultats
+          {{ 'admin.drawChannels.actions.viewAllResults' | translate }}
         </button>
-        <button mat-flat-button color="primary" (click)="configure.emit(p)">
-          Configurer
-        </button>
+        <a mat-flat-button color="primary" routerLink="/app/admin/games/channel-matrix">
+          {{ 'admin.drawChannels.actions.configureGameOffer' | translate }}
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </a>
       </div>
     }
   </div>

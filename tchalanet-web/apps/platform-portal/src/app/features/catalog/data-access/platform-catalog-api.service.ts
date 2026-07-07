@@ -135,44 +135,6 @@ export interface UpdateThemeRequest {
   active?: boolean | null;
 }
 
-// ─── Pricing ───────────────────────────────────────────────────────────────
-export type BetType =
-  | 'MATCH_1_2D'
-  | 'MATCH_2_2D'
-  | 'MATCH_3_2D'
-  | 'LOTTO3_3D'
-  | 'MARRIAGE_2D2D'
-  | 'LOTTO4_PATTERN'
-  | 'LOTTO5_PATTERN';
-
-export interface CatalogPricingView {
-  id: string;
-  tenantId: string | null;
-  gameCode: string;
-  betType: BetType;
-  betOption: number | null;
-  odds: number;
-  active: boolean;
-}
-
-export interface CreatePricingRequest {
-  tenantId?: string | null;
-  gameCode: string;
-  betType: BetType;
-  betOption?: number | null;
-  odds: number;
-  active?: boolean;
-}
-
-export interface UpdatePricingRequest {
-  tenantId?: string | null;
-  gameCode?: string | null;
-  betType?: BetType | null;
-  betOption?: number | null;
-  odds?: number | null;
-  active?: boolean | null;
-}
-
 // ─── Draw Channels ─────────────────────────────────────────────────────────
 export interface CatalogDrawChannelView {
   id: string;
@@ -542,29 +504,6 @@ export class PlatformCatalogApi {
     return this.backend.delete<void>(`/platform/result-slots/${slotId}/calendar/${overrideId}`);
   }
 
-  // Pricing
-  listPricing(): Observable<CatalogPricingView[]> {
-    return this.backend.get<CatalogPricingView[]>('/platform/pricing');
-  }
-
-  listPricingResource(options?: TchRequestOptions): ResourceRef<CatalogPricingView[] | undefined> {
-    return this.backend.getResource<CatalogPricingView[]>(() => ({
-      path: '/platform/pricing',
-      options,
-    }));
-  }
-
-  createPricing(req: CreatePricingRequest): Observable<CatalogPricingView> {
-    return this.backend.post<CatalogPricingView>('/platform/pricing', req);
-  }
-
-  updatePricing(id: string, req: UpdatePricingRequest): Observable<CatalogPricingView> {
-    return this.backend.put<CatalogPricingView>(`/platform/pricing/${id}`, req);
-  }
-
-  deletePricing(id: string): Observable<void> {
-    return this.backend.delete<void>(`/platform/pricing/${id}`);
-  }
 }
 
 function catalogGameListQueryParams(params: CatalogGameListParams): Record<string, string> {

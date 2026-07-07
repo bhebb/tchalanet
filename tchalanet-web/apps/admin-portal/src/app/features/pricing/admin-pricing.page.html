@@ -26,7 +26,7 @@
     <ng-template tchAsyncReady>
       @if (odds(); as oddsVm) {
         @if (oddsVm.length > 0) {
-          <tch-console-pricing-table [rows]="rows()" [showActions]="false" />
+          <tch-console-pricing-table [rows]="rows()" (rowAction)="onRowAction($event)" />
         }
       }
     </ng-template>

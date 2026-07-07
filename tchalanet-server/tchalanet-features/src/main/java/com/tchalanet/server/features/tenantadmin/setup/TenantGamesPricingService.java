@@ -2,12 +2,12 @@ package com.tchalanet.server.features.tenantadmin.setup;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.GameView;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
+import com.tchalanet.server.core.pricing.api.query.ListTenantPricingQuery;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.GamePricingRow;
 import com.tchalanet.server.features.tenantadmin.setup.model.TenantGamesPricingView.LimitAssignmentRow;
@@ -27,14 +27,13 @@ public class TenantGamesPricingService {
 
     private final TenantGameApi tenantGameApi;
     private final GameCatalog gameCatalog;
-    private final PricingCatalog pricingCatalog;
     private final QueryBus queryBus;
 
     public TenantGamesPricingView get(TenantId tenantId) {
         var tenantGames = tenantGameApi.listGames(tenantId);
         var limitAssignments = queryBus.ask(
             new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
-        var pricingOdds = pricingCatalog.getOdds(tenantId);
+        var pricingOdds = queryBus.ask(new ListTenantPricingQuery(tenantId, null));
 
         // Group limits by ruleKey for easy lookup (all are tenant-level)
         var tenantLimitItems = limitAssignments.items();
@@ -61,7 +60,11 @@ public class TenantGamesPricingService {
                     .getOrDefault(tg.gameCode().toUpperCase(), List.of())
                     .stream()
                     .filter(p -> p.active())
-                    .map(p -> new PricingEntryRow(p.betType().name(), p.betOption(), p.odds()))
+                    .map(p -> new PricingEntryRow(
+                        p.betType(),
+                        p.betOption(),
+                        p.pricingVariantCode().name(),
+                        p.odds()))
                     .toList();
 
                 return new GamePricingRow(

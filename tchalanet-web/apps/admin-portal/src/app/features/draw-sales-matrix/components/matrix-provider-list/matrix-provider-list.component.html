@@ -1,11 +1,18 @@
 @for (provider of providers(); track provider.providerCode) {
   <section class="matrix-provider">
-    <h3 class="matrix-provider__title">
-      <span class="material-symbols-outlined">business</span>
-      {{ provider.providerCode }}
-    </h3>
+    <header class="matrix-provider__header">
+      <h3 class="matrix-provider__title">
+        <span class="material-symbols-outlined" aria-hidden="true">business</span>
+        {{ provider.providerCode }}
+      </h3>
+      <div class="matrix-provider__facts">
+        <span>{{ 'admin.drawSalesMatrix.provider.slots' | translate: { count: slotCount(provider) } }}</span>
+        <span>{{ 'admin.drawSalesMatrix.provider.offered' | translate: { count: offeredCount(provider) } }}</span>
+        <span>{{ 'admin.drawSalesMatrix.provider.ready' | translate: { count: saleReadyCount(provider) } }}</span>
+      </div>
+    </header>
 
-    <mat-accordion multi>
+    <mat-accordion class="matrix-provider__slots" multi>
       @for (slot of provider.slots; track slot.slotKey) {
         <tch-draw-sales-matrix-slot-panel
           [providerCode]="provider.providerCode"

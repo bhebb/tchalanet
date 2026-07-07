@@ -44,6 +44,7 @@ CREATE TRIGGER trg_stats_draw__set_updated_at BEFORE UPDATE ON stats_draw FOR EA
 CREATE TRIGGER trg_stats_daily__set_updated_at BEFORE UPDATE ON stats_daily FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_ticket__set_updated_at BEFORE UPDATE ON sales_ticket FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_ticket_line__set_updated_at BEFORE UPDATE ON sales_ticket_line FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_sales_ticket_line_coverage__set_updated_at BEFORE UPDATE ON sales_ticket_line_coverage FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_ticket_charge__set_updated_at BEFORE UPDATE ON sales_ticket_charge FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE OR REPLACE FUNCTION public.increment_draw_exposure(
   p_tenant_id uuid,

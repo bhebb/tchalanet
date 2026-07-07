@@ -36,8 +36,10 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
+import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineCoverageJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
@@ -127,6 +129,12 @@ public interface TicketJpaMapper {
         entity.setPayoutBaseAmount(line.payoutBaseAmount().amount());
         entity.setBetOption(line.betOption());
         entity.setPotentialPayoutAmount(line.potentialPayoutAmount().amount());
+        entity.setPotentialGainMode(line.potentialGainMode());
+        entity.setMinPotentialGain(line.minPotentialGain().amount());
+        entity.setMaxPotentialGain(line.maxPotentialGain().amount());
+        entity.setTotalPotentialGain(
+            line.totalPotentialGain() == null ? null : line.totalPotentialGain().amount()
+        );
         entity.setResultStatus(line.resultStatus());
         entity.setPayoutAmount(line.payoutAmount().amount());
         entity.setOrigin(line.origin());
@@ -135,7 +143,27 @@ public interface TicketJpaMapper {
         entity.setPromotionDecisionId(line.promotionDecisionId() == null ? null : line.promotionDecisionId().value());
         entity.setPromotionLabel(line.promotionLabel());
         entity.setPromotionEffectType(line.promotionEffectType());
+        entity.replaceCoverages(toCoverageEntities(line.coverages()));
 
+        return entity;
+    }
+
+    default List<TicketLineCoverageJpaEntity> toCoverageEntities(List<TicketLineCoverage> coverages) {
+        if (coverages == null) {
+            return List.of();
+        }
+        return coverages.stream()
+            .map(this::toCoverageEntity)
+            .toList();
+    }
+
+    default TicketLineCoverageJpaEntity toCoverageEntity(TicketLineCoverage coverage) {
+        var entity = new TicketLineCoverageJpaEntity();
+        entity.setPricingVariantCode(coverage.pricingVariantCode());
+        entity.setStakeAmount(coverage.stakeAmount().amount());
+        entity.setOddsSnapshot(coverage.oddsSnapshot());
+        entity.setPotentialGainSnapshot(coverage.potentialGainSnapshot().amount());
+        entity.setWinMode(coverage.winMode());
         return entity;
     }
 
@@ -350,6 +378,13 @@ public interface TicketJpaMapper {
             new Money(entity.getPayoutBaseAmount(), currency),
             entity.getOddsSnapshot(),
             new Money(entity.getPotentialPayoutAmount(), currency),
+            entity.getPotentialGainMode(),
+            new Money(entity.getMinPotentialGain(), currency),
+            new Money(entity.getMaxPotentialGain(), currency),
+            entity.getTotalPotentialGain() == null
+                ? null
+                : new Money(entity.getTotalPotentialGain(), currency),
+            toDomainCoverages(entity.getCoverages(), currency),
             entity.getBetOption(),
             entity.getOrigin() == null ? TicketLineOrigin.CUSTOMER : entity.getOrigin(),
             entity.getPricingSource() == null ? TicketLinePricingSource.STANDARD : entity.getPricingSource(),
@@ -360,6 +395,24 @@ public interface TicketJpaMapper {
             entity.getResultStatus(),
             new Money(entity.getPayoutAmount(), currency)
         );
+    }
+
+    default List<TicketLineCoverage> toDomainCoverages(
+        List<TicketLineCoverageJpaEntity> entities,
+        @Context CurrencyCode currency
+    ) {
+        if (entities == null) {
+            return List.of();
+        }
+        return entities.stream()
+            .map(entity -> new TicketLineCoverage(
+                entity.getPricingVariantCode(),
+                new Money(entity.getStakeAmount(), currency),
+                entity.getOddsSnapshot(),
+                new Money(entity.getPotentialGainSnapshot(), currency),
+                entity.getWinMode()
+            ))
+            .toList();
     }
 
     // ---------------------------------------------------------------------------

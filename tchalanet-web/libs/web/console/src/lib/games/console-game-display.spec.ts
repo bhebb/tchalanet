@@ -1,5 +1,7 @@
 import {
   ConsoleSettlementLine,
+  consoleBetOptionLabelKey,
+  consoleBetTypeLabelKey,
   consoleBetVariationRows,
   consoleGameIdentity,
   consoleGameLogoUrl,
@@ -61,6 +63,14 @@ describe('consoleSettlementVariantLabel', () => {
 
   it('falls back to a readable code for an unknown variant', () => {
     expect(consoleSettlementVariantLabel('SOME_NEW_VARIANT')).toBe('SOME NEW VARIANT');
+  });
+});
+
+describe('console bet i18n keys', () => {
+  it('builds stable domain keys for bet types and options', () => {
+    expect(consoleBetTypeLabelKey('lotto4-pattern')).toBe('domain.bet.type.LOTTO4_PATTERN');
+    expect(consoleBetOptionLabelKey('LOTTO4_PATTERN', 2)).toBe('domain.bet.option.LOTTO4_PATTERN.2');
+    expect(consoleBetOptionLabelKey('LOTTO4_PATTERN', null)).toBeNull();
   });
 });
 

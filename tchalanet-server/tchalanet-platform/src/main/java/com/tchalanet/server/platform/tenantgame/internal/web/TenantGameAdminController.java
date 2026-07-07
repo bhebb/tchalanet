@@ -5,12 +5,18 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameBetOptionConfigRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameAdminView;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameCatalogItemView;
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameAdminService;
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameCatalogProjectionService;
@@ -121,6 +127,35 @@ public class TenantGameAdminController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "Get tenant game bet option configuration")
+    @GetMapping("/{gameCode}/bet-options")
+    public ApiResponse<TenantGameBetOptionConfigView> getBetOptions(
+        @PathVariable String gameCode,
+        @CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(adminService.getBetOptionConfig(ctx.tenantIdRequired(), gameCode));
+    }
+
+    @Operation(summary = "Update tenant game bet option configuration")
+    @PatchMapping("/{gameCode}/bet-options")
+    @PreAuthorize("hasPermission(null, 'game-pricing.update')")
+    @AuditLog(
+        entity = AuditEntityType.GAME,
+        action = AuditAction.UPDATE,
+        idExpression = "#gameCode",
+        tenantIdExpression = "#ctx.tenantIdRequired().value()"
+    )
+    public ApiResponse<TenantGameBetOptionConfigView> updateBetOptions(
+        @PathVariable String gameCode,
+        @Valid @RequestBody UpdateBetOptionsWebRequest body,
+        @CurrentContext TchRequestContext ctx) {
+        var result = adminService.updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest.builder()
+            .tenantId(ctx.tenantIdRequired())
+            .gameCode(gameCode)
+            .betTypes(body.betTypes())
+            .build());
+        return ApiResponse.success(result);
+    }
+
     public record UpdateGameSettingsWebRequest(
         String displayName,
         Integer displayOrder,
@@ -131,5 +166,9 @@ public class TenantGameAdminController {
         String availabilityDays,
         String startLocalTime,
         String endLocalTime
+    ) {}
+
+    public record UpdateBetOptionsWebRequest(
+        List<TenantBetTypeOptionConfig> betTypes
     ) {}
 }

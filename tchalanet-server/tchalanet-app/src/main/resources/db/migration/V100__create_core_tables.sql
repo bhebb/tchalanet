@@ -323,6 +323,7 @@ CREATE TABLE tenant_game (
   availability_days varchar(64),
   start_local_time time,
   end_local_time time,
+  bet_option_config jsonb NOT NULL DEFAULT '[]'::jsonb,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
@@ -480,6 +481,7 @@ CREATE TABLE pricing_odds (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   game_code varchar(64) NOT NULL,
+  pricing_variant_code varchar(64) NOT NULL,
   bet_type varchar(32) NOT NULL,
   bet_option smallint,
   odds numeric(12,4) NOT NULL,
@@ -491,7 +493,7 @@ CREATE TABLE pricing_odds (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_pricing_odds__tenant_game_bet UNIQUE (tenant_id, game_code, bet_type, bet_option)
+  CONSTRAINT uq_pricing_odds__tenant_game_variant UNIQUE (tenant_id, game_code, pricing_variant_code)
 );
 
 
@@ -1131,6 +1133,10 @@ CREATE TABLE sales_ticket_line (
   payout_base_amount numeric(19,4) NOT NULL,
   odds_snapshot numeric(19,6),
   potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
+  potential_gain_mode varchar(32) NOT NULL DEFAULT 'SINGLE',
+  min_potential_gain numeric(19,4) NOT NULL DEFAULT 0,
+  max_potential_gain numeric(19,4) NOT NULL DEFAULT 0,
+  total_potential_gain numeric(19,4),
   origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',
@@ -1148,7 +1154,40 @@ CREATE TABLE sales_ticket_line (
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uk_ticket_line__number UNIQUE (tenant_id, ticket_id, line_number),
   CONSTRAINT chk_ticket_line__amounts CHECK (
-    stake_amount >= 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
+    stake_amount >= 0
+    AND potential_payout_amount >= 0
+    AND min_potential_gain >= 0
+    AND max_potential_gain >= min_potential_gain
+    AND (total_potential_gain IS NULL OR total_potential_gain >= 0)
+    AND payout_amount >= 0
+  )
+);
+
+CREATE TABLE sales_ticket_line_coverage (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  ticket_line_id uuid NOT NULL REFERENCES sales_ticket_line(id) ON DELETE CASCADE,
+  pricing_variant_code varchar(64) NOT NULL,
+  stake_amount numeric(19,4) NOT NULL,
+  odds_snapshot numeric(19,6) NOT NULL,
+  potential_gain_snapshot numeric(19,4) NOT NULL,
+  win_mode varchar(16) NOT NULL DEFAULT 'ALTERNATIVE',
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uk_ticket_line_coverage__variant UNIQUE (
+    tenant_id,
+    ticket_line_id,
+    pricing_variant_code
+  ),
+  CONSTRAINT chk_ticket_line_coverage__amounts CHECK (
+    stake_amount >= 0
+    AND odds_snapshot > 0
+    AND potential_gain_snapshot >= 0
   )
 );
 
@@ -1458,6 +1497,7 @@ CREATE TABLE seller_terminal_pricing_odds_override (
   tenant_id          uuid          NOT NULL,
   seller_terminal_id uuid          NOT NULL,
   game_code          varchar(64)   NOT NULL,
+  pricing_variant_code varchar(64) NOT NULL,
   bet_type           varchar(32)   NOT NULL,
   bet_option         smallint      NULL,
   odds               numeric(12,4) NOT NULL,

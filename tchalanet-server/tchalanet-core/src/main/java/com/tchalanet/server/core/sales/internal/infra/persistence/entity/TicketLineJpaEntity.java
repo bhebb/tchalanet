@@ -7,7 +7,9 @@ import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +18,8 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -24,6 +28,8 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -98,6 +104,19 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
         precision = 19, scale = 4, updatable = false)
     private BigDecimal potentialPayoutAmount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "potential_gain_mode", nullable = false, length = 32, updatable = false)
+    private PotentialGainMode potentialGainMode;
+
+    @Column(name = "min_potential_gain", nullable = false, precision = 19, scale = 4, updatable = false)
+    private BigDecimal minPotentialGain;
+
+    @Column(name = "max_potential_gain", nullable = false, precision = 19, scale = 4, updatable = false)
+    private BigDecimal maxPotentialGain;
+
+    @Column(name = "total_potential_gain", precision = 19, scale = 4, updatable = false)
+    private BigDecimal totalPotentialGain;
+
     @Column(name = "payout_base_amount", nullable = false, precision = 19, scale = 4, updatable = false)
     private BigDecimal payoutBaseAmount;
 
@@ -129,4 +148,29 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
     @Column(name = "payout_amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal payoutAmount;
 
+    @OneToMany(
+        mappedBy = "ticketLine",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    @OrderBy("pricingVariantCode ASC")
+    private List<TicketLineCoverageJpaEntity> coverages = new ArrayList<>();
+
+    public void addCoverage(TicketLineCoverageJpaEntity coverage) {
+        coverages.add(coverage);
+        coverage.setTicketLine(this);
+    }
+
+    public void removeCoverage(TicketLineCoverageJpaEntity coverage) {
+        coverages.remove(coverage);
+        coverage.setTicketLine(null);
+    }
+
+    public void replaceCoverages(List<TicketLineCoverageJpaEntity> newCoverages) {
+        coverages.clear();
+        if (newCoverages != null) {
+            newCoverages.forEach(this::addCoverage);
+        }
+    }
 }

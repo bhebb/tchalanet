@@ -25,7 +25,8 @@ public class TenantGameMapper {
             entity.isAvailabilityEnabled(),
             entity.getAvailabilityDays(),
             entity.getStartLocalTime(),
-            entity.getEndLocalTime());
+            entity.getEndLocalTime(),
+            entity.getBetOptionConfig());
     }
 
     public TenantGameJpaEntity toEntity(TenantGame domain) {
@@ -48,5 +49,6 @@ public class TenantGameMapper {
         entity.setAvailabilityDays(domain.availabilityDays());
         entity.setStartLocalTime(domain.startLocalTime());
         entity.setEndLocalTime(domain.endLocalTime());
+        entity.setBetOptionConfig(domain.betOptionConfig());
     }
 }

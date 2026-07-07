@@ -86,6 +86,7 @@ class SalePromotionEffectsTest {
             var q = (ResolveSellerTerminalOddsQuery) query;
             return (R) new SellerTerminalOddsResolutionView(
                 q.gameCode(),
+                q.pricingVariantCode(),
                 q.betType(),
                 q.betOption(),
                 new BigDecimal("12.5"),

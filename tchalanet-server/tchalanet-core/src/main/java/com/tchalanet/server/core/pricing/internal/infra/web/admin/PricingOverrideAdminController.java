@@ -1,8 +1,5 @@
 package com.tchalanet.server.core.pricing.internal.infra.web.admin;
 
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
-import com.tchalanet.server.catalog.pricing.api.model.PricingView;
-import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -15,13 +12,14 @@ import com.tchalanet.server.core.pricing.api.command.DeleteSellerTerminalOddsOve
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalOddsOverrideCommand;
 import com.tchalanet.server.core.pricing.api.command.UpsertSellerTerminalOddsOverrideResult;
 import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsOverrideView;
+import com.tchalanet.server.core.pricing.api.model.TenantPricingOddsView;
 import com.tchalanet.server.core.pricing.api.query.ListSellerTerminalOddsOverridesQuery;
+import com.tchalanet.server.core.pricing.api.query.ListTenantPricingQuery;
 import com.tchalanet.server.core.pricing.internal.infra.web.admin.model.UpsertOddsOverrideRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,25 +35,13 @@ public class PricingOverrideAdminController {
 
     private final CommandBus commandBus;
     private final QueryBus queryBus;
-    private final PricingCatalog pricingCatalog;
 
     /** Tenant-wide default odds from the catalog (all games × betTypes). */
     @GetMapping
-    public ApiResponse<List<PricingView>> getTenantDefaultOdds(
+    public ApiResponse<List<TenantPricingOddsView>> getTenantDefaultOdds(
         @CurrentContext TchRequestContext ctx
     ) {
-        // PricingCatalog exposes list via stats or direct catalog lookup.
-        // Delegate to the catalog stats until a dedicated ListTenantOddsQuery exists.
-        var stats = pricingCatalog.getOdds(ctx.tenantIdRequired());
-
-
-        return ApiResponse.success(this.toPricingView(stats));
-    }
-
-    private List<PricingView> toPricingView(List<PricingOddsView> stats) {
-        return CollectionUtils.isEmpty(stats) ? List.of() : stats.stream()
-            .map(s -> new PricingView(s.gameCode(), s.betType(), s.betOption(), s.odds()))
-            .toList();
+        return ApiResponse.success(queryBus.ask(new ListTenantPricingQuery(ctx.tenantIdRequired(), null)));
     }
 
     /** Active overrides for a seller_terminal, merged with tenant defaults via ResolveSellerTerminalOddsQuery. */
@@ -78,7 +64,7 @@ public class PricingOverrideAdminController {
     ) {
         var cmd = new UpsertSellerTerminalOddsOverrideCommand(
             ctx.tenantIdRequired(), sellerTerminalId,
-            req.gameCode(), req.betType(), req.betOption(),
+            req.gameCode(), req.pricingVariantCode(), req.betType(), req.betOption(),
             req.odds(), req.effectiveFrom(), req.effectiveTo(),
             req.reason(), ctx.userId());
         return ApiResponse.success(commandBus.execute(cmd));

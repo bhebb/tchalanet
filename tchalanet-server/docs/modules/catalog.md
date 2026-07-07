@@ -31,5 +31,4 @@ catalog.theme          theme presets
 catalog.settings       definitions/defaults metadata
 catalog.resultslot     result slots
 catalog.game           game definitions
-catalog.pricing        pricing definitions/templates
 ```

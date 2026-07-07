@@ -93,6 +93,7 @@ export class AdminMaryajGratisPage implements OnInit {
       endLocalTime: null,
       readyForSale: game.readiness.status === 'READY',
       betOptions: game.odds,
+      betOptionGroups: game.oddsGroups,
     };
   }
 }

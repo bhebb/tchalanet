@@ -34,6 +34,14 @@
         <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
       }
     </div>
+  } @else {
+    <div class="matrix-channel-info matrix-channel-info--missing">
+      <span class="material-symbols-outlined">router</span>
+      <span>{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
+      <a mat-stroked-button routerLink="/app/admin/draw-channels">
+        {{ 'admin.drawSalesMatrix.channel.configureChannels' | translate }}
+      </a>
+    </div>
   }
 
   @if (offeredGames().length > 0) {

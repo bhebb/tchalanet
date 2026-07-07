@@ -354,13 +354,6 @@
                 "icon": "workspace_premium"
               },
               {
-                "id": "catalog-pricing",
-                "label_key": "platform.nav.pricing",
-                "path": "/app/platform/catalog/pricing",
-                "kind": "internal",
-                "icon": "payments"
-              },
-              {
                 "id": "catalog-settings",
                 "label_key": "platform.nav.globalSettings",
                 "path": "/app/platform/catalog/settings",

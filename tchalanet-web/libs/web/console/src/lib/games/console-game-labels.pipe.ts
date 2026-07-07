@@ -1,13 +1,22 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
   consoleBetLabel,
+  consoleBetOptionLabelKey,
   consoleBetOptionLabel,
   consoleBetTypeLabel,
+  consoleBetTypeLabelKey,
   consoleGameLogoUrl,
   consoleGameLogoText,
   consoleGameName,
 } from './console-game-display';
+
+function translatedOrFallback(translate: TranslateService, key: string | null, fallback: string | null): string | null {
+  if (!key) return fallback;
+  const translated = translate.instant(key);
+  return translated && translated !== key ? translated : fallback;
+}
 
 @Pipe({
   name: 'consoleGameName',
@@ -42,29 +51,49 @@ export class ConsoleGameLogoUrlPipe implements PipeTransform {
 @Pipe({
   name: 'consoleBetTypeLabel',
   standalone: true,
+  pure: false,
 })
 export class ConsoleBetTypeLabelPipe implements PipeTransform {
+  private readonly translate = inject(TranslateService);
+
   transform(betType: string): string {
-    return consoleBetTypeLabel(betType);
+    const fallback = consoleBetTypeLabel(betType);
+    return translatedOrFallback(this.translate, consoleBetTypeLabelKey(betType), fallback) ?? fallback;
   }
 }
 
 @Pipe({
   name: 'consoleBetOptionLabel',
   standalone: true,
+  pure: false,
 })
 export class ConsoleBetOptionLabelPipe implements PipeTransform {
+  private readonly translate = inject(TranslateService);
+
   transform(betType: string, betOption: number | string | null = null): string | null {
-    return consoleBetOptionLabel(betType, betOption);
+    const fallback = consoleBetOptionLabel(betType, betOption);
+    return translatedOrFallback(this.translate, consoleBetOptionLabelKey(betType, betOption), fallback);
   }
 }
 
 @Pipe({
   name: 'consoleBetLabel',
   standalone: true,
+  pure: false,
 })
 export class ConsoleBetLabelPipe implements PipeTransform {
+  private readonly translate = inject(TranslateService);
+
   transform(betType: string, betOption: number | string | null = null): string {
-    return consoleBetLabel(betType, betOption);
+    const optionFallback = consoleBetOptionLabel(betType, betOption);
+    const optionLabel = translatedOrFallback(
+      this.translate,
+      consoleBetOptionLabelKey(betType, betOption),
+      optionFallback,
+    );
+    if (optionLabel) return optionLabel;
+
+    const fallback = consoleBetLabel(betType, betOption);
+    return translatedOrFallback(this.translate, consoleBetTypeLabelKey(betType), fallback) ?? fallback;
   }
 }

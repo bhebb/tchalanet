@@ -164,7 +164,7 @@ catalog/<name>/
 **Example Catalog Modules**:
 
 - `catalog.game` — Game metadata (rules, odds, descriptions)
-- `catalog.pricing` — Pricing templates, tax rates
+- `core.pricing` — Tenant default odds, seller-terminal overrides, effective odds resolution
 - `catalog.resultslot` — Draw result slot definitions
 - `catalog.drawchannel` — Draw channel configurations
 - `catalog.theme` — UI theme presets

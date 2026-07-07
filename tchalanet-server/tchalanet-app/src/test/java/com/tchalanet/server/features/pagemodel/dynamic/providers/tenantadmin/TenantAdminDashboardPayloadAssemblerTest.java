@@ -201,7 +201,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     private TenantContextLookupView registry() {
         return new TenantContextLookupView(
-            tenantId, "tenant-demo", "Demo Tenant",
+            tenantId, "tenant-demo", "Demo Tenant", "Demo Tenant",
             TenantStatus.ACTIVE, TenantType.BORLETTE,
             java.time.ZoneId.of("America/Port-au-Prince"),
             Currency.getInstance("HTG"),

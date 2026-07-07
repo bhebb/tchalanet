@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.pricing.internal.application.port.out.SellerTerminalOddsOverrideReaderPort;
 import com.tchalanet.server.core.pricing.internal.application.port.out.SellerTerminalOddsOverrideWriterPort;
 import com.tchalanet.server.core.pricing.internal.domain.SellerTerminalOddsOverride;
@@ -36,10 +37,10 @@ public class SellerTerminalOddsOverrideJpaAdapter
     @Override
     public Optional<SellerTerminalOddsOverride> findActiveByNaturalKey(
         TenantId tenantId, SellerTerminalId sellerTerminalId,
-        String gameCode, String betType, Short betOption
+        String gameCode, PricingVariantCode pricingVariantCode
     ) {
         return repo.findActiveByNaturalKey(
-            tenantId.value(), sellerTerminalId.value(), gameCode, betType, betOption
+            tenantId.value(), sellerTerminalId.value(), gameCode, pricingVariantCode.name()
         ).map(this::toDomain);
     }
 
@@ -63,7 +64,7 @@ public class SellerTerminalOddsOverrideJpaAdapter
             SellerTerminalOddsOverrideId.of(e.getId()),
             TenantId.of(e.getTenantId()),
             SellerTerminalId.of(e.getSellerTerminalId()),
-            e.getGameCode(), e.getBetType(), e.getBetOption(),
+            e.getGameCode(), PricingVariantCode.valueOf(e.getPricingVariantCode()), e.getBetType(), e.getBetOption(),
             e.getOdds(), e.isActive(),
             e.getEffectiveFrom(), e.getEffectiveTo(), e.getReason(),
             e.getCreatedAt(),
@@ -78,6 +79,7 @@ public class SellerTerminalOddsOverrideJpaAdapter
         e.setTenantId(o.tenantId().value());
         e.setSellerTerminalId(o.sellerTerminalId().value());
         e.setGameCode(o.gameCode());
+        e.setPricingVariantCode(o.pricingVariantCode().name());
         e.setBetType(o.betType());
         e.setBetOption(o.betOption());
         e.setOdds(o.odds());

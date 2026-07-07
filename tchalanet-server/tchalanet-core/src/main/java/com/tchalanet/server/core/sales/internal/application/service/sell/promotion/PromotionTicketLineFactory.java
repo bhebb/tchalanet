@@ -14,6 +14,7 @@ import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuer
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 
@@ -81,10 +82,16 @@ public class PromotionTicketLineFactory {
 
         var payoutBase = effect.amount().setScale(2, RoundingMode.UNNECESSARY);
 
+        var pricingVariantCode = SettlementVariantResolver.resolve(
+            betType,
+            betOption,
+            selectionResult.rawSelection());
+
         var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
             command.tenantId(),
             sellerTerminalId,
             gameCode.name(),
+            pricingVariantCode,
             betType.name(),
             betOption));
 

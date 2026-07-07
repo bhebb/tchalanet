@@ -13,6 +13,7 @@ public class TenantGameProvisioningService {
 
     private final GameCatalog gameCatalog;
     private final TenantGamePersistenceAdapter persistence;
+    private final TenantGameBetOptionConfigs betOptionConfigs;
 
     @Transactional
     public void ensureTenantGame(EnsureTenantGamesRequest request) {
@@ -28,6 +29,7 @@ public class TenantGameProvisioningService {
             request.getTenantId(),
             game.id(),
             game.code().toUpperCase(),
-            true, true, null, 0, null, null, false, null, null, null));
+            true, true, null, 0, null, null, false, null, null, null,
+            betOptionConfigs.defaultsFor(game.code())));
     }
 }

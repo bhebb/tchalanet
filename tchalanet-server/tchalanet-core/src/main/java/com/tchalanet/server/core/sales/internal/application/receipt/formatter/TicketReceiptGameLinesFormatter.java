@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -68,13 +69,26 @@ public class TicketReceiptGameLinesFormatter {
         var choice = "#" + line.lineNo() + " " + (line.selection() == null ? "" : line.selection());
         var choicePart = layout.rightPad(choice, choiceW);
         var stakePart = layout.leftPad(moneyFormatter.format(line.stake(), profile), stakeW);
-        var payoutPart = layout.leftPad(moneyFormatter.format(line.potentialPayout(), profile), payoutW);
+        var payoutPart = layout.leftPad(potentialPayoutDisplay(line, profile), payoutW);
 
         var row = choicePart + " " + stakePart + " " + payoutPart;
         return layout.truncate(row, profile.charsPerLine());
     }
 
     // labelResolver handles optionLabel vs betType via translations; no local fallback needed here
+
+    private String potentialPayoutDisplay(TicketReceiptLineView line, TicketReceiptLayoutProfile profile) {
+        if (line.potentialGainMode() == PotentialGainMode.RANGE_ALTERNATIVE) {
+            var min = moneyFormatter.format(line.minPotentialPayout(), profile);
+            var max = moneyFormatter.format(line.maxPotentialPayout(), profile);
+            return min + "-" + max;
+        }
+        if (line.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
+            && line.totalPotentialPayout() != null) {
+            return moneyFormatter.format(line.totalPotentialPayout(), profile);
+        }
+        return moneyFormatter.format(line.potentialPayout(), profile);
+    }
 
     private String promotionLabel(TicketReceiptLineView line, TicketReceiptTranslations translations) {
         if (line.promotionLabel() != null && !line.promotionLabel().isBlank()) {

@@ -5,6 +5,7 @@ import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
@@ -61,7 +62,9 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
 
     private static final String LINES_SQL = """
         SELECT line_number, game_code, bet_type, bet_option, display_selection,
-               stake_amount, potential_payout_amount, origin, pricing_source,
+               stake_amount, potential_payout_amount, potential_gain_mode,
+               min_potential_gain, max_potential_gain, total_potential_gain,
+               origin, pricing_source,
                promotion_label
         FROM sales_ticket_line
         WHERE ticket_id = :ticketId
@@ -145,6 +148,10 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
         String displaySelection = rs.getString("display_selection");
         BigDecimal stakeAmount = rs.getBigDecimal("stake_amount");
         BigDecimal potentialPayout = rs.getBigDecimal("potential_payout_amount");
+        var potentialGainMode = parseEnum(PotentialGainMode.class, rs.getString("potential_gain_mode"));
+        var minPotentialPayout = rs.getBigDecimal("min_potential_gain");
+        var maxPotentialPayout = rs.getBigDecimal("max_potential_gain");
+        var totalPotentialPayout = rs.getBigDecimal("total_potential_gain");
         var origin = rs.getString("origin");
         var pricingSource = rs.getString("pricing_source");
         var promotionLabel = rs.getString("promotion_label");
@@ -162,6 +169,10 @@ public class TicketVerificationJdbcAdapter implements TicketVerificationReaderPo
             displaySelection,
             new Money(stakeAmount, currency),
             new Money(potentialPayout, currency),
+            potentialGainMode,
+            new Money(minPotentialPayout, currency),
+            new Money(maxPotentialPayout, currency),
+            totalPotentialPayout != null ? new Money(totalPotentialPayout, currency) : null,
             promotional,
             promotionLabel
         );

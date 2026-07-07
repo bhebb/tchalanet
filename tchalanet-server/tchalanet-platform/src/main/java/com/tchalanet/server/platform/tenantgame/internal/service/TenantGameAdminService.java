@@ -10,7 +10,9 @@ import com.tchalanet.server.platform.tenantgame.api.model.TenantGameEnabledEvent
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGameSettingsUpdatedEvent;
 import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameBetOptionConfigRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
 import com.tchalanet.server.platform.tenantgame.internal.persistence.TenantGamePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,6 +31,7 @@ public class TenantGameAdminService {
     private final GameCatalog gameCatalog;
     private final TenantGamePersistenceAdapter persistence;
     private final TenantGameConfigValidator validator;
+    private final TenantGameBetOptionConfigs betOptionConfigs;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -43,10 +46,12 @@ public class TenantGameAdminService {
                 current.tenantGameId(), current.tenantId(), current.gameId(), current.gameCode(),
                 true, current.visibleInPos(), current.displayName(), current.displayOrder(),
                 current.minStake(), current.maxStake(), current.availabilityEnabled(),
-                current.availabilityDays(), current.startLocalTime(), current.endLocalTime()))
+                current.availabilityDays(), current.startLocalTime(), current.endLocalTime(),
+                betOptionConfigs.effectiveFor(current)))
             .orElseGet(() -> new TenantGame(
                 null, request.getTenantId(), game.id(), game.code().toUpperCase(),
-                true, true, null, 0, null, null, false, null, null, null));
+                true, true, null, 0, null, null, false, null, null, null,
+                betOptionConfigs.defaultsFor(game.code())));
 
         var saved = persistence.save(tenantGame);
         AfterCommit.run(() -> eventPublisher.publishEvent(
@@ -65,7 +70,8 @@ public class TenantGameAdminService {
             existing.tenantGameId(), existing.tenantId(), existing.gameId(), existing.gameCode(),
             false, existing.visibleInPos(), existing.displayName(), existing.displayOrder(),
             existing.minStake(), existing.maxStake(), existing.availabilityEnabled(),
-            existing.availabilityDays(), existing.startLocalTime(), existing.endLocalTime());
+            existing.availabilityDays(), existing.startLocalTime(), existing.endLocalTime(),
+            betOptionConfigs.effectiveFor(existing));
         var saved = persistence.save(updated);
         AfterCommit.run(() -> eventPublisher.publishEvent(
             new TenantGameDisabledEvent(saved.tenantGameId(), saved.tenantId(), saved.gameCode(), Instant.now(), "system")));
@@ -81,18 +87,22 @@ public class TenantGameAdminService {
         var availabilityEnabled = request.getAvailabilityEnabled() != null
             ? request.getAvailabilityEnabled()
             : existing.availabilityEnabled();
+        var effectiveMinStake = request.getMinStake() != null ? request.getMinStake() : existing.minStake();
+        var effectiveMaxStake = request.getMaxStake() != null ? request.getMaxStake() : existing.maxStake();
+        validator.validateStakeRange(effectiveMinStake, effectiveMaxStake);
         var updated = new TenantGame(
             existing.tenantGameId(), existing.tenantId(), existing.gameId(), existing.gameCode(),
             existing.enabled(),
             request.getVisibleInPos() != null ? request.getVisibleInPos() : existing.visibleInPos(),
             request.getDisplayName() != null ? blankToNull(request.getDisplayName()) : existing.displayName(),
             request.getDisplayOrder() != null ? request.getDisplayOrder() : existing.displayOrder(),
-            request.getMinStake() != null ? request.getMinStake() : existing.minStake(),
-            request.getMaxStake() != null ? request.getMaxStake() : existing.maxStake(),
+            effectiveMinStake,
+            effectiveMaxStake,
             availabilityEnabled,
             availabilityEnabled ? coalesceText(request.getAvailabilityDays(), existing.availabilityDays()) : null,
             availabilityEnabled ? coalesceTime(request.getStartLocalTime(), existing.startLocalTime()) : null,
-            availabilityEnabled ? coalesceTime(request.getEndLocalTime(), existing.endLocalTime()) : null);
+            availabilityEnabled ? coalesceTime(request.getEndLocalTime(), existing.endLocalTime()) : null,
+            betOptionConfigs.effectiveFor(existing));
 
         var saved = persistence.save(updated);
         AfterCommit.run(() -> eventPublisher.publishEvent(
@@ -102,6 +112,31 @@ public class TenantGameAdminService {
     @Transactional(readOnly = true)
     public List<TenantGame> listGames(TenantId tenantId) {
         return persistence.findAllByTenantId(tenantId);
+    }
+
+    @Transactional(readOnly = true)
+    public TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode) {
+        var existing = persistence.findByTenantIdAndGameCode(tenantId, gameCode.toUpperCase())
+            .orElseThrow(() -> new IllegalArgumentException("Tenant game not found: " + gameCode));
+        return betOptionConfigs.toView(existing);
+    }
+
+    @Transactional
+    public TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request) {
+        var gameCode = request.getGameCode().toUpperCase();
+        var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), gameCode)
+            .orElseThrow(() -> new IllegalArgumentException("Tenant game not found: " + request.getGameCode()));
+        var normalized = betOptionConfigs.normalize(gameCode, request.getBetTypes());
+        var updated = new TenantGame(
+            existing.tenantGameId(), existing.tenantId(), existing.gameId(), existing.gameCode(),
+            existing.enabled(), existing.visibleInPos(), existing.displayName(), existing.displayOrder(),
+            existing.minStake(), existing.maxStake(), existing.availabilityEnabled(),
+            existing.availabilityDays(), existing.startLocalTime(), existing.endLocalTime(),
+            normalized);
+        var saved = persistence.save(updated);
+        AfterCommit.run(() -> eventPublisher.publishEvent(
+            new TenantGameSettingsUpdatedEvent(saved.tenantGameId(), saved.tenantId(), saved.gameCode(), Instant.now(), "system")));
+        return betOptionConfigs.toView(saved);
     }
 
     private static LocalTime coalesceTime(String value, LocalTime fallback) {

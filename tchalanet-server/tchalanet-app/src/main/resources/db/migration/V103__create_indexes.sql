@@ -201,6 +201,9 @@ CREATE INDEX idx_sales_ticket_line__tenant ON sales_ticket_line (tenant_id);
 CREATE INDEX idx_sales_ticket_line__ticket ON sales_ticket_line (ticket_id);
 CREATE INDEX idx_sales_ticket_line__tenant_draw_game ON sales_ticket_line (tenant_id, draw_id, game_code);
 CREATE INDEX idx_sales_ticket_line__result_status ON sales_ticket_line (tenant_id, result_status);
+CREATE INDEX idx_sales_ticket_line_coverage__tenant ON sales_ticket_line_coverage (tenant_id);
+CREATE INDEX idx_sales_ticket_line_coverage__line ON sales_ticket_line_coverage (ticket_line_id);
+CREATE INDEX idx_sales_ticket_line_coverage__variant ON sales_ticket_line_coverage (tenant_id, pricing_variant_code);
 CREATE INDEX idx_sales_ticket_charge__tenant ON sales_ticket_charge (tenant_id);
 CREATE INDEX idx_sales_ticket_charge__ticket ON sales_ticket_charge (sales_ticket_id);
 CREATE INDEX idx_sales_ticket_charge__type ON sales_ticket_charge (tenant_id, charge_type);
@@ -287,7 +290,7 @@ CREATE INDEX idx_st_pricing_odds_seller_terminal
     ON seller_terminal_pricing_odds_override (seller_terminal_id);
 CREATE UNIQUE INDEX uq_st_pricing_odds_override_active
     ON seller_terminal_pricing_odds_override (
-        tenant_id, seller_terminal_id, game_code, bet_type, COALESCE(bet_option, -1)
+        tenant_id, seller_terminal_id, game_code, pricing_variant_code
     )
     WHERE deleted_at IS NULL AND active = true;
 
