@@ -28,8 +28,10 @@
       (nécessite un scan des annotations `@Cacheable` — à faire dans la passe test).
 
 ## Phase 3 — Caches runtime
-- [ ] `platform:tenanttheme:runtime` (clé tenant:mode) + éviction sur `TenantThemeAdminService`.
-- [ ] `platform:tenantgame:runtime` + `:projection` + éviction sur `TenantGameAdminService`.
+- [x] `platform:tenanttheme:runtime` (clé tenant:mode) + éviction (allEntries) sur les 3 écritures
+      `TenantThemeAdminService` (applyPreset, deactivate, updateSettings). Vue sûre (Map, pas JsonNode).
+- [x] `platform:tenantgame:runtime` + `:projection` + éviction (allEntries) sur les 4 écritures
+      `TenantGameAdminService` (enable, disable, updateSettings, updateBetOptionConfig).
 - [ ] `core:limit:policy_by_scope` — définition de règle uniquement, jamais les compteurs consommés.
 - [ ] `core:sellerterminal:profile_by_id` (`getMe`), TTL court, interdit pour validation de vente.
 

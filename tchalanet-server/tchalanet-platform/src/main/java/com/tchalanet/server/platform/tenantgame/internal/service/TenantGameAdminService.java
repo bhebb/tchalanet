@@ -13,8 +13,10 @@ import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGa
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameBetOptionConfigRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
+import com.tchalanet.server.platform.tenantgame.internal.cache.TenantGameCacheNames;
 import com.tchalanet.server.platform.tenantgame.internal.persistence.TenantGamePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,9 @@ public class TenantGameAdminService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
+    @CacheEvict(
+        cacheNames = {TenantGameCacheNames.RUNTIME, TenantGameCacheNames.PROJECTION},
+        allEntries = true)
     public EnableTenantGameResult enableGame(EnableTenantGameRequest request) {
         var game = gameCatalog.findByCode(request.getGameCode().toUpperCase())
             .orElseThrow(() -> new IllegalArgumentException("Game not found: " + request.getGameCode()));
@@ -63,6 +68,9 @@ public class TenantGameAdminService {
     }
 
     @Transactional
+    @CacheEvict(
+        cacheNames = {TenantGameCacheNames.RUNTIME, TenantGameCacheNames.PROJECTION},
+        allEntries = true)
     public DisableTenantGameResult disableGame(DisableTenantGameRequest request) {
         var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode().toUpperCase())
             .orElseThrow(() -> new IllegalArgumentException("Tenant game not found: " + request.getGameCode()));
@@ -79,6 +87,9 @@ public class TenantGameAdminService {
     }
 
     @Transactional
+    @CacheEvict(
+        cacheNames = {TenantGameCacheNames.RUNTIME, TenantGameCacheNames.PROJECTION},
+        allEntries = true)
     public void updateSettings(UpdateTenantGameSettingsRequest request) {
         validator.validateSettings(request);
         var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode().toUpperCase())
@@ -122,6 +133,9 @@ public class TenantGameAdminService {
     }
 
     @Transactional
+    @CacheEvict(
+        cacheNames = {TenantGameCacheNames.RUNTIME, TenantGameCacheNames.PROJECTION},
+        allEntries = true)
     public TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request) {
         var gameCode = request.getGameCode().toUpperCase();
         var existing = persistence.findByTenantIdAndGameCode(request.getTenantId(), gameCode)

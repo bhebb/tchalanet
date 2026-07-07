@@ -8,8 +8,10 @@ import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantTheme
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeAdminView;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeUpdatedEvent;
 import com.tchalanet.server.platform.tenanttheme.api.model.UpdateTenantThemeSettingsRequest;
+import com.tchalanet.server.platform.tenanttheme.internal.cache.TenantThemeCacheNames;
 import com.tchalanet.server.platform.tenanttheme.internal.persistence.TenantThemePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ public class TenantThemeAdminService {
     private final Clock clock;
 
     @Transactional
+    @CacheEvict(cacheNames = TenantThemeCacheNames.RUNTIME, allEntries = true)
     public void applyPreset(ApplyTenantThemeRequest request) {
         var preset = themeCatalog.findByCode(request.presetCode())
             .orElseThrow(() -> new IllegalArgumentException("Theme preset not found: " + request.presetCode()));
@@ -48,6 +51,7 @@ public class TenantThemeAdminService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = TenantThemeCacheNames.RUNTIME, allEntries = true)
     public void deactivate(DeactivateTenantThemeRequest request) {
         var existing = persistence.findByTenantId(request.tenantId());
         if (existing.isEmpty()) return;
@@ -58,6 +62,7 @@ public class TenantThemeAdminService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = TenantThemeCacheNames.RUNTIME, allEntries = true)
     public void updateSettings(UpdateTenantThemeSettingsRequest request) {
         var existing = persistence.findActiveByTenantId(request.tenantId())
             .orElseThrow(() -> new IllegalArgumentException(

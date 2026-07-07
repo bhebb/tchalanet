@@ -3,7 +3,9 @@ package com.tchalanet.server.platform.tenantgame.internal.service;
 import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRuntimeView;
+import com.tchalanet.server.platform.tenantgame.internal.cache.TenantGameCacheNames;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,10 @@ public class TenantGameRuntimeService {
     private final GameCatalog gameCatalog;
 
     @Transactional(readOnly = true)
+    @Cacheable(
+        cacheNames = TenantGameCacheNames.RUNTIME,
+        key = "#tenantId.value()",
+        condition = "#tenantId != null")
     public List<TenantGameRuntimeView> getRuntimeGames(TenantId tenantId) {
         return persistence.findEnabledByTenantId(tenantId).stream()
             .map(g -> {

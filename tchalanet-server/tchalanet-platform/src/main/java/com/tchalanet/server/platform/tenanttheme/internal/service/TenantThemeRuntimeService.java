@@ -3,10 +3,12 @@ package com.tchalanet.server.platform.tenanttheme.internal.service;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenanttheme.api.model.ThemeRuntimeView;
+import com.tchalanet.server.platform.tenanttheme.internal.cache.TenantThemeCacheNames;
 import com.tchalanet.server.platform.tenanttheme.internal.persistence.TenantThemePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -26,6 +28,11 @@ public class TenantThemeRuntimeService {
     private final TenantThemeFallbackService fallback;
 
     @Transactional(readOnly = true)
+    @Cacheable(
+        cacheNames = TenantThemeCacheNames.RUNTIME,
+        key =
+            "(#tenantId == null ? '__none__' : #tenantId.value())"
+                + " + ':' + (#requestedMode == null ? '__def__' : #requestedMode.toLowerCase())")
     public ThemeRuntimeView getRuntime(TenantId tenantId, String requestedMode) {
         String presetCode;
         String defaultMode;
