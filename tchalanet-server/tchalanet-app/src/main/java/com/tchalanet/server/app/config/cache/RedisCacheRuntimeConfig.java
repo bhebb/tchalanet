@@ -21,8 +21,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 @Configuration
 @ConditionalOnProperty(
@@ -75,22 +79,7 @@ public class RedisCacheRuntimeConfig {
                 RedisSerializationContext.SerializationPair.fromSerializer(
                     new StringRedisSerializer()))
             .serializeValuesWith(
-                RedisSerializationContext.SerializationPair.fromSerializer(
-                    GenericJacksonJsonRedisSerializer.builder()
-                        .customize(
-                            builder ->
-                                builder.activateDefaultTypingAsProperty(
-                                    BasicPolymorphicTypeValidator.builder()
-                                        .allowIfSubType("com.tchalanet.server.")
-                                        .allowIfSubType("java.time.")
-                                        .allowIfSubType("java.util.")
-                                        .allowIfSubType("java.math.")
-                                        .allowIfSubType("org.springframework.cache.interceptor.SimpleKey")
-                                        .allowIfSubType("tools.jackson.")
-                                        .build(),
-                                    DefaultTyping.NON_FINAL_AND_RECORDS,
-                                    "@class"))
-                        .build()));
+                RedisSerializationContext.SerializationPair.fromSerializer(cacheValueSerializer()));
 
     Map<String, RedisCacheConfiguration> perCacheCfg = new HashMap<>();
     if (specProviders != null) {
@@ -108,5 +97,62 @@ public class RedisCacheRuntimeConfig {
   @Bean
   public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory connectionFactory) {
     return new StringRedisTemplate(connectionFactory);
+  }
+
+  /**
+   * Value serializer for the Redis (L2) cache. Package-visible + static so it can be exercised in a
+   * round-trip test without a running Redis.
+   *
+   * <p>Design notes:
+   *
+   * <ul>
+   *   <li>We deliberately do NOT register {@code TypedIdsJacksonModule}: its scalar serializer does
+   *       not implement {@code serializeWithType()}, which the cache mapper's default typing
+   *       (@class) requires. Typed-id records are handled by Jackson's default record serializer.
+   *   <li>{@code FAIL_ON_UNKNOWN_PROPERTIES} is disabled so a record gaining a field does not break
+   *       deserialization of entries cached by an older deploy (intermittent post-release errors).
+   *   <li>{@code NullValue} is whitelisted because negative caching is enabled (we do not call
+   *       {@code disableCachingNullValues}).
+   * </ul>
+   */
+  static GenericJacksonJsonRedisSerializer cacheValueSerializer() {
+    PolymorphicTypeValidator typeValidator =
+        BasicPolymorphicTypeValidator.builder()
+            .allowIfSubType("com.tchalanet.server.")
+            .allowIfSubType("java.lang.")
+            .allowIfSubType("java.time.")
+            .allowIfSubType("java.util.")
+            .allowIfSubType("java.math.")
+            .allowIfSubType("org.springframework.cache.interceptor.SimpleKey")
+            .allowIfSubType("org.springframework.cache.support.NullValue")
+            .allowIfSubType("tools.jackson.")
+            .build();
+
+    return GenericJacksonJsonRedisSerializer.builder()
+        // Proper (de)serialization of Spring's NullValue (negative caching is enabled — we do
+        // not call disableCachingNullValues).
+        .enableSpringCacheNullValueSupport()
+        // Force the root static type to Object so default typing also tags FINAL root values —
+        // notably the immutable collections returned by Stream.toList()/List.of()/List.copyOf()
+        // (java.util.ImmutableCollections$*), which NON_FINAL typing would otherwise leave
+        // untyped and unreadable. The default writer uses the runtime type and misses these.
+        .writer((mapper, source) -> mapper.writerFor(Object.class).writeValueAsBytes(source))
+        .customize(
+            builder ->
+                builder
+                    .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                    // Resilience to schema drift: a record gaining a field must not break reads
+                    // of entries cached by an older deploy.
+                    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    // WRAPPER_ARRAY (not As.PROPERTY): wraps every value as [typeId, value],
+                    // including root-level List/Map/scalar cache values. As.PROPERTY only tags
+                    // objects and, under Jackson 3 (no As.PROPERTY→WRAPPER_ARRAY fallback), leaves
+                    // root collections untyped — breaking the read of any List-valued cache
+                    // (active_plans, active_games, resultslot:active, …).
+                    .activateDefaultTyping(
+                        typeValidator,
+                        DefaultTyping.NON_FINAL_AND_RECORDS,
+                        JsonTypeInfo.As.WRAPPER_ARRAY))
+        .build();
   }
 }

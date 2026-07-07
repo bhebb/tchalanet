@@ -19,3 +19,13 @@ tch:
     redis:
       enabled: true
 
+# Cache observability (dev only): see whether each read is served by the cache or the DB.
+# - CombinedCache DEBUG            -> "cache-hit source=L1" / "source=L2" / "cache-miss source=DB" per read
+# - spring.data.redis DEBUG        -> Redis cache layer + (de)serialization activity
+# - Hibernate SQL DEBUG            -> a SQL statement appears only on a cache miss (DB was hit)
+logging:
+  level:
+    com.tchalanet.server.app.config.cache: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.hibernate.SQL: DEBUG
+
