@@ -13,6 +13,7 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintDraw;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintIdentity;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLifecycle;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintLineCoverage;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMetadata;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintMoney;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
@@ -135,6 +136,18 @@ public class TicketPrintViewMapper {
             line.oddsSnapshot(),
             line.stakeAmount(),
             line.potentialPayoutAmount(),
+            line.potentialGainMode(),
+            line.minPotentialGain(),
+            line.maxPotentialGain(),
+            line.totalPotentialGain(),
+            line.coverages().stream()
+                .map(coverage -> new TicketPrintLineCoverage(
+                    coverage.pricingVariantCode().name(),
+                    coverage.stakeAmount(),
+                    coverage.oddsSnapshot(),
+                    coverage.potentialGainSnapshot(),
+                    coverage.winMode().name()))
+                .toList(),
             line.origin(),
             line.pricingSource(),
             line.selectionSource(),

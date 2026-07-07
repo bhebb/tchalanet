@@ -50,6 +50,8 @@ export interface CatalogResultSlotView {
   drawTime: string;
   daysOfWeek: string | null;
   active: boolean;
+  sourceCfg: unknown;
+  projectionCfg: unknown;
   labelKey: string | null;
 }
 
@@ -69,6 +71,14 @@ export interface UpdateResultSlotRequest {
   daysOfWeek?: string | null;
   labelKey?: string | null;
   active?: boolean | null;
+}
+
+export interface UpdateResultSlotSourceConfigRequest {
+  sourceCfg: unknown;
+}
+
+export interface UpdateResultSlotProjectionConfigRequest {
+  projectionCfg: unknown;
 }
 
 // ─── Plans ─────────────────────────────────────────────────────────────────
@@ -132,44 +142,6 @@ export interface UpdateThemeRequest {
   vendor?: string | null;
   config?: string | null;
   labelKey?: string | null;
-  active?: boolean | null;
-}
-
-// ─── Pricing ───────────────────────────────────────────────────────────────
-export type BetType =
-  | 'MATCH_1_2D'
-  | 'MATCH_2_2D'
-  | 'MATCH_3_2D'
-  | 'LOTTO3_3D'
-  | 'MARRIAGE_2D2D'
-  | 'LOTTO4_PATTERN'
-  | 'LOTTO5_PATTERN';
-
-export interface CatalogPricingView {
-  id: string;
-  tenantId: string | null;
-  gameCode: string;
-  betType: BetType;
-  betOption: number | null;
-  odds: number;
-  active: boolean;
-}
-
-export interface CreatePricingRequest {
-  tenantId?: string | null;
-  gameCode: string;
-  betType: BetType;
-  betOption?: number | null;
-  odds: number;
-  active?: boolean;
-}
-
-export interface UpdatePricingRequest {
-  tenantId?: string | null;
-  gameCode?: string | null;
-  betType?: BetType | null;
-  betOption?: number | null;
-  odds?: number | null;
   active?: boolean | null;
 }
 
@@ -350,6 +322,20 @@ export class PlatformCatalogApi {
 
   updateResultSlot(id: string, req: UpdateResultSlotRequest): Observable<CatalogResultSlotView> {
     return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}`, req);
+  }
+
+  updateResultSlotSourceConfig(
+    id: string,
+    req: UpdateResultSlotSourceConfigRequest,
+  ): Observable<CatalogResultSlotView> {
+    return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}/source-config`, req);
+  }
+
+  updateResultSlotProjectionConfig(
+    id: string,
+    req: UpdateResultSlotProjectionConfigRequest,
+  ): Observable<CatalogResultSlotView> {
+    return this.backend.put<CatalogResultSlotView>(`/platform/result-slots/${id}/projection-config`, req);
   }
 
   disableResultSlot(slotKey: string): Observable<void> {
@@ -542,29 +528,6 @@ export class PlatformCatalogApi {
     return this.backend.delete<void>(`/platform/result-slots/${slotId}/calendar/${overrideId}`);
   }
 
-  // Pricing
-  listPricing(): Observable<CatalogPricingView[]> {
-    return this.backend.get<CatalogPricingView[]>('/platform/pricing');
-  }
-
-  listPricingResource(options?: TchRequestOptions): ResourceRef<CatalogPricingView[] | undefined> {
-    return this.backend.getResource<CatalogPricingView[]>(() => ({
-      path: '/platform/pricing',
-      options,
-    }));
-  }
-
-  createPricing(req: CreatePricingRequest): Observable<CatalogPricingView> {
-    return this.backend.post<CatalogPricingView>('/platform/pricing', req);
-  }
-
-  updatePricing(id: string, req: UpdatePricingRequest): Observable<CatalogPricingView> {
-    return this.backend.put<CatalogPricingView>(`/platform/pricing/${id}`, req);
-  }
-
-  deletePricing(id: string): Observable<void> {
-    return this.backend.delete<void>(`/platform/pricing/${id}`);
-  }
 }
 
 function catalogGameListQueryParams(params: CatalogGameListParams): Record<string, string> {

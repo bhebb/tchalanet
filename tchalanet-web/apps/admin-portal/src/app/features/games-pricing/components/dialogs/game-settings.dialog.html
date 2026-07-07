@@ -58,18 +58,121 @@
       </div>
     }
 
-    @if (data.game.betOptions?.length) {
+    <section class="game-settings-dialog__section">
+      <div class="game-settings-dialog__section-header">
+        <h3>{{ 'admin.games.settings.salesOptions.title' | translate }}</h3>
+        <p>{{ 'admin.games.settings.salesOptions.description' | translate }}</p>
+      </div>
+
+      @if (betOptionLoading()) {
+        <p class="game-settings-dialog__muted">{{ 'common.loading' | translate }}</p>
+      } @else if (betOptionLoadFailed()) {
+        <p class="game-settings-dialog__muted">{{ 'admin.games.settings.salesOptions.loadFailed' | translate }}</p>
+      } @else if (betOptionConfig(); as config) {
+        <div class="game-settings-dialog__bet-types">
+          @for (betType of config.betTypes; track betType.betType) {
+            <div class="game-settings-dialog__bet-type">
+              <div class="game-settings-dialog__bet-type-header">
+                <strong>{{ betType.betType | consoleBetLabel:null }}</strong>
+                <mat-form-field appearance="outline" class="game-settings-dialog__policy-field">
+                  <mat-label>{{ 'admin.games.settings.salesOptions.selectionPolicy' | translate }}</mat-label>
+                  <mat-select
+                    [value]="betType.selectionPolicy"
+                    (selectionChange)="updateSelectionPolicy(betType.betType, $event.value)"
+                  >
+                    @for (policy of selectionPolicies; track policy) {
+                      <mat-option [value]="policy">
+                        {{ ('admin.games.settings.salesOptions.policy.' + policy) | translate }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="game-settings-dialog__options">
+                @for (option of betType.options; track option.code) {
+                  <div class="game-settings-dialog__option">
+                    <div class="game-settings-dialog__option-main">
+                      <span class="game-settings-dialog__option-title">
+                        <span class="game-settings-dialog__option-label">{{ betType.betType | consoleBetLabel:option.code }}</span>
+                        <tch-status-badge
+                          [status]="optionStatus(option)"
+                          [label]="optionStatusLabelKey(option) | translate"
+                        />
+                      </span>
+                      @if (option.description) {
+                        <span class="game-settings-dialog__muted">{{ option.description }}</span>
+                      }
+                    </div>
+                    <div class="game-settings-dialog__option-actions">
+                      <mat-checkbox
+                        [checked]="option.enabled"
+                        (change)="toggleOptionEnabled(betType.betType, option.code, $event.checked)"
+                      >
+                        {{ 'admin.games.settings.salesOptions.enabled' | translate }}
+                      </mat-checkbox>
+                      <mat-checkbox
+                        [checked]="option.visibleInPos"
+                        [disabled]="!option.enabled"
+                        (change)="toggleOptionVisibleInPos(betType.betType, option.code, $event.checked)"
+                      >
+                        {{ 'admin.games.settings.salesOptions.visibleInPos' | translate }}
+                      </mat-checkbox>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <mat-form-field appearance="outline" class="game-settings-dialog__field">
+                <mat-label>{{ 'admin.games.settings.salesOptions.defaultOption' | translate }}</mat-label>
+                <mat-select
+                  [value]="betType.defaultOption"
+                  (selectionChange)="updateDefaultOption(betType.betType, $event.value)"
+                >
+                  <mat-option [value]="null">{{ 'admin.games.settings.salesOptions.noDefaultOption' | translate }}</mat-option>
+                  @for (option of betType.options; track option.code) {
+                    <mat-option [value]="option.code" [disabled]="!option.enabled">
+                      {{ betType.betType | consoleBetLabel:option.code }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    @if (pricingGroups().length) {
       <section class="game-settings-dialog__section">
         <div class="game-settings-dialog__section-header">
           <h3>{{ 'admin.games.settings.options.title' | translate }}</h3>
           <p>{{ 'admin.games.settings.options.description' | translate }}</p>
         </div>
 
-        <div class="game-settings-dialog__options">
-          @for (option of data.game.betOptions; track option.betType + ':' + option.betOption) {
-            <div class="game-settings-dialog__option">
-              <span class="game-settings-dialog__option-label">{{ option.betType | consoleBetLabel:option.betOption }}</span>
-              <span class="game-settings-dialog__option-value">{{ option.value }}</span>
+        <div class="game-settings-dialog__pricing-groups">
+          @for (group of pricingGroups(); track group.id) {
+            <div class="game-settings-dialog__pricing-group">
+              <strong class="game-settings-dialog__option-label">{{ group.label }}</strong>
+              <div class="game-settings-dialog__pricing-variants">
+                @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
+                  <label class="game-settings-dialog__pricing-variant">
+                    <span class="game-settings-dialog__muted">{{ variant.label }}</span>
+                    <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                      <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        min="0.0001"
+                        step="0.01"
+                        [value]="variant.odds"
+                        [disabled]="!variant.pricingVariantCode"
+                        (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                      />
+                    </mat-form-field>
+                  </label>
+                }
+              </div>
             </div>
           }
         </div>

@@ -3,9 +3,11 @@ package com.tchalanet.server.platform.tenantgame.internal.service;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.platform.tenantgame.api.model.TenantBetTypeOptionConfig;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Tenant game domain model — tenant-owned fields only.
@@ -26,5 +28,6 @@ public record TenantGame(
     boolean availabilityEnabled,
     String availabilityDays,
     LocalTime startLocalTime,
-    LocalTime endLocalTime
+    LocalTime endLocalTime,
+    List<TenantBetTypeOptionConfig> betOptionConfig
 ) {}

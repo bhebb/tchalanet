@@ -416,7 +416,7 @@ PromotionSelectionResolver   resolves the selection of a free line
 ### Single source of truth for odds
 
 - The odds of a game — maryaj gratuit included — live ONLY in `pricing_odds`.
-  `PromotionTicketLineFactory` reads odds from `PricingCatalog`.
+  `PromotionTicketLineFactory` resolves effective odds through `core.pricing`.
 - The `FREE_GAME_LINE` effect carries `game_code`, `quantity`,
   `payout_base_amount` — **never odds**. This avoids storing the odds twice.
 - `BOOST_ODDS` is the only effect that carries an odds value

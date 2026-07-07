@@ -88,77 +88,6 @@ export class CreateThemeDialog {
   }
 }
 
-// ── Edit Dialog ───────────────────────────────────────────────────────────────
-@Component({
-  selector: 'tch-edit-theme-dialog',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatCheckboxModule],
-  template: `
-    <h2 mat-dialog-title>Modifier — {{ theme().code }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-        <mat-form-field appearance="outline">
-          <mat-label>Vendeur (vendor)</mat-label>
-          <input matInput formControlName="vendor" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Clé de libellé (labelKey)</mat-label>
-          <input matInput formControlName="labelKey" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Configuration JSON</mat-label>
-          <textarea matInput formControlName="config" rows="4"></textarea>
-        </mat-form-field>
-        <mat-checkbox formControlName="active">Actif</mat-checkbox>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button mat-flat-button color="primary" [disabled]="saving()" (click)="save()">Enregistrer</button>
-    </mat-dialog-actions>
-  `,
-})
-export class EditThemeDialog {
-  private readonly api = inject(PlatformCatalogApi);
-  private readonly ref = inject(MatDialogRef<EditThemeDialog>);
-  private readonly fb = inject(FormBuilder);
-
-  readonly saving = signal(false);
-  readonly theme = signal<CatalogThemeView>({} as CatalogThemeView);
-  readonly form = this.fb.nonNullable.group({
-    vendor: [''],
-    labelKey: [''],
-    config: ['{}'],
-    active: [true],
-  });
-
-  init(t: CatalogThemeView): void {
-    this.theme.set(t);
-    this.form.patchValue({
-      vendor: t.vendor ?? '',
-      labelKey: t.labelKey ?? '',
-      config: t.config ? JSON.stringify(t.config, null, 2) : '{}',
-      active: t.active,
-    });
-  }
-
-  save(): void {
-    this.saving.set(true);
-    const v = this.form.getRawValue();
-    const req: UpdateThemeRequest = {
-      vendor: v.vendor || null,
-      labelKey: v.labelKey || null,
-      config: v.config || null,
-      active: v.active,
-    };
-    this.api.updateTheme(this.theme().id, req).subscribe({
-      next: updated => this.ref.close(updated),
-      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
-    });
-  }
-}
-
 @Component({
   selector: 'tch-platform-catalog-themes-page',
   standalone: true,
@@ -172,20 +101,35 @@ export class EditThemeDialog {
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatTableModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './platform-catalog-themes.page.html',
+  styleUrls: ['./platform-catalog-themes.page.scss'],
 })
 export class PlatformCatalogThemesPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['code', 'vendor', 'labelKey', 'active', 'isDefault', 'actions'];
   readonly themes = this.api.listThemesResource({ suppressShellFeedback: true });
   readonly themesError = resourceErrorVm(this.themes, 'platform.catalog.themes');
   readonly themeRows = computed(() => this.themes.value() ?? []);
+  readonly selectedTheme = signal<CatalogThemeView | null>(null);
+  readonly savingConfig = signal(false);
+
+  readonly configForm = this.fb.nonNullable.group({
+    vendor: [''],
+    labelKey: [''],
+    config: ['{}'],
+    active: [true],
+  });
 
   private showError(msg: string): void {
     this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -203,12 +147,45 @@ export class PlatformCatalogThemesPage {
     });
   }
 
-  openEdit(theme: CatalogThemeView): void {
-    const ref = this.dialog.open(EditThemeDialog, { width: '520px' });
-    (ref.componentInstance as EditThemeDialog).init(theme);
-    ref.afterClosed().subscribe((updated: CatalogThemeView | { __error: string } | null) => {
-      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
-      if (updated) { this.snackBar.open('Thème mis à jour.', 'OK', { duration: 4000 }); this.load(); }
+  openConfig(theme: CatalogThemeView): void {
+    this.selectedTheme.set(theme);
+    this.configForm.reset({
+      vendor: theme.vendor ?? '',
+      labelKey: theme.labelKey ?? '',
+      config: theme.config ? JSON.stringify(theme.config, null, 2) : '{}',
+      active: theme.active,
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedTheme.set(null);
+  }
+
+  saveConfig(): void {
+    const theme = this.selectedTheme();
+    if (!theme || this.savingConfig()) return;
+
+    this.savingConfig.set(true);
+    const v = this.configForm.getRawValue();
+    const req: UpdateThemeRequest = {
+      vendor: v.vendor || null,
+      labelKey: v.labelKey || null,
+      config: v.config || null,
+      active: v.active,
+    };
+    this.api.updateTheme(theme.id, req).subscribe({
+      next: updated => {
+        this.savingConfig.set(false);
+        this.snackBar.open('Thème mis à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.savingConfig.set(false);
+        this.showError((err as { error?: { detail?: string; title?: string } })?.error?.detail
+          ?? (err as { error?: { title?: string } })?.error?.title
+          ?? 'Erreur.');
+      },
     });
   }
 

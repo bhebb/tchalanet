@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.SellerTerminalOddsOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,6 +14,7 @@ public record SellerTerminalOddsOverride(
     TenantId tenantId,
     SellerTerminalId sellerTerminalId,
     String gameCode,
+    PricingVariantCode pricingVariantCode,
     String betType,
     Short betOption,
     BigDecimal odds,
@@ -32,6 +34,7 @@ public record SellerTerminalOddsOverride(
         TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         String gameCode,
+        PricingVariantCode pricingVariantCode,
         String betType,
         Short betOption,
         BigDecimal odds,
@@ -43,7 +46,7 @@ public record SellerTerminalOddsOverride(
         var now = Instant.now();
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
-            gameCode, betType, betOption,
+            gameCode, pricingVariantCode, betType, betOption,
             odds, true,
             effectiveFrom, effectiveTo, reason,
             now, actorId, now, actorId, null);
@@ -58,7 +61,7 @@ public record SellerTerminalOddsOverride(
     ) {
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
-            gameCode, betType, betOption,
+            gameCode, pricingVariantCode, betType, betOption,
             newOdds, true,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, null);
@@ -67,7 +70,7 @@ public record SellerTerminalOddsOverride(
     public SellerTerminalOddsOverride deactivate(UserId actorId) {
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
-            gameCode, betType, betOption,
+            gameCode, pricingVariantCode, betType, betOption,
             odds, false,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, null);
@@ -76,7 +79,7 @@ public record SellerTerminalOddsOverride(
     public SellerTerminalOddsOverride softDelete(UserId actorId) {
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
-            gameCode, betType, betOption,
+            gameCode, pricingVariantCode, betType, betOption,
             odds, false,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, Instant.now(), actorId, Instant.now());

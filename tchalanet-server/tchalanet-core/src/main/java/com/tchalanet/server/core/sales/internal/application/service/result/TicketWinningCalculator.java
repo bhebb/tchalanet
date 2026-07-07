@@ -4,12 +4,13 @@ import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.api.model.line.TicketLineResult;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
-import com.tchalanet.server.core.sales.internal.domain.model.result.SettlementVariant;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
-import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class TicketWinningCalculator {
 
             results.put(line.id(), new TicketLineResult(
                 evaluation.won() ? TicketLineResultStatus.WON : TicketLineResultStatus.LOST,
-                evaluation.won() ? line.potentialPayoutAmount() : zero
+                evaluation.won() ? evaluation.payoutAmount() : zero
             ));
         }
 
@@ -44,14 +45,23 @@ public class TicketWinningCalculator {
 
     private WinningEvaluation evaluateLine(TicketLine line, TicketResultFacts facts) {
         var selection = safe(line.selection().key().value());
+        var payout = Money.zero(line.stakeAmount().currency());
+        var won = false;
 
-        var variant = SettlementVariantResolver.resolve(
-            line.betType(),
-            line.betOption(),
-            selection
-        );
+        for (var coverage : line.coverages()) {
+            if (!wins(selection, facts, coverage.pricingVariantCode())) {
+                continue;
+            }
 
-        boolean won = switch (variant) {
+            won = true;
+            payout = combinePayout(payout, coverage);
+        }
+
+        return new WinningEvaluation(won, payout);
+    }
+
+    private boolean wins(String selection, TicketResultFacts facts, PricingVariantCode variant) {
+        return switch (variant) {
             case MATCH_1_2D -> match2d(selection, facts.lot1_2d());
             case MATCH_2_2D -> match2d(selection, facts.lot2_2d());
             case MATCH_3_2D -> match2d(selection, facts.lot3_2d());
@@ -79,8 +89,16 @@ public class TicketWinningCalculator {
             case LOTTO5_LOT1_LOT3 -> lotto5Lot1Lot3(selection, facts);
             case LOTTO5_MIXED_1_2_3 -> lotto5Mixed123(selection, facts);
         };
+    }
 
-        return new WinningEvaluation(won, variant);
+    private Money combinePayout(Money current, TicketLineCoverage winningCoverage) {
+        if (winningCoverage.winMode() == WinMode.CUMULATIVE) {
+            return current.plus(winningCoverage.potentialGainSnapshot());
+        }
+        if (winningCoverage.potentialGainSnapshot().amount().compareTo(current.amount()) > 0) {
+            return winningCoverage.potentialGainSnapshot();
+        }
+        return current;
     }
 
     private boolean match2d(String selection, String drawn2d) {
@@ -273,7 +291,7 @@ public class TicketWinningCalculator {
 
     private record WinningEvaluation(
         boolean won,
-        SettlementVariant variant
+        Money payoutAmount
     ) {}
 
     private record TicketResultFacts(

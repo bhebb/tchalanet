@@ -7,7 +7,9 @@ import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult
 import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameBetOptionConfigRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOptionConfigView;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
 
 import java.util.List;
@@ -18,6 +20,8 @@ public interface TenantGameApi {
     EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request);
     DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request);
     void updateTenantGameSettings(UpdateTenantGameSettingsRequest request);
+    TenantGameBetOptionConfigView getBetOptionConfig(TenantId tenantId, String gameCode);
+    TenantGameBetOptionConfigView updateBetOptionConfig(UpdateTenantGameBetOptionConfigRequest request);
     void ensureTenantGame(EnsureTenantGamesRequest request);
     Optional<TenantGameRefView> findByTenantGameId(TenantId tenantId, TenantGameId tenantGameId);
     List<TenantGameRefView> listGames(TenantId tenantId);

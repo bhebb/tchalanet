@@ -17,7 +17,7 @@ public interface SellerTerminalOddsOverrideJpaRepository
           AND e.sellerTerminalId = :sellerTerminalId
           AND e.active = true
           AND e.deletedAt IS NULL
-        ORDER BY e.gameCode, e.betType, e.betOption
+        ORDER BY e.gameCode, e.pricingVariantCode
         """)
     List<SellerTerminalOddsOverrideJpaEntity> findActiveBySellerTerminal(
         @Param("tenantId") UUID tenantId,
@@ -29,8 +29,7 @@ public interface SellerTerminalOddsOverrideJpaRepository
         WHERE e.tenantId = :tenantId
           AND e.sellerTerminalId = :sellerTerminalId
           AND e.gameCode = :gameCode
-          AND e.betType = :betType
-          AND ((:betOption IS NULL AND e.betOption IS NULL) OR e.betOption = :betOption)
+          AND e.pricingVariantCode = :pricingVariantCode
           AND e.active = true
           AND e.deletedAt IS NULL
         """)
@@ -38,7 +37,6 @@ public interface SellerTerminalOddsOverrideJpaRepository
         @Param("tenantId") UUID tenantId,
         @Param("sellerTerminalId") UUID sellerTerminalId,
         @Param("gameCode") String gameCode,
-        @Param("betType") String betType,
-        @Param("betOption") Short betOption
+        @Param("pricingVariantCode") String pricingVariantCode
     );
 }

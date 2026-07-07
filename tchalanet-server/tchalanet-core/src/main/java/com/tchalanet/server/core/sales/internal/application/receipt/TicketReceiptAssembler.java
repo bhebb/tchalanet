@@ -103,6 +103,10 @@ public class TicketReceiptAssembler {
             line.odds(),
             line.stake(),
             line.potentialPayout(),
+            line.potentialGainMode(),
+            line.minPotentialPayout(),
+            line.maxPotentialPayout(),
+            line.totalPotentialPayout(),
             line.promotional(),
             line.promotionLabel(),
             line.promotionEffectType()

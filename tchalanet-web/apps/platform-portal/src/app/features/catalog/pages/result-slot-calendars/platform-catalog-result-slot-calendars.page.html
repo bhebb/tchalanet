@@ -90,8 +90,8 @@
                   <button mat-icon-button [disabled]="busy()" title="Changer disponibilité" (click)="toggle(row)">
                     <span class="material-symbols-outlined">published_with_changes</span>
                   </button>
-                  <button mat-icon-button [disabled]="busy()" title="Modifier" (click)="edit(row)">
-                    <span class="material-symbols-outlined">edit</span>
+                  <button mat-icon-button [disabled]="busy()" title="Configurer" (click)="openConfig(row)">
+                    <span class="material-symbols-outlined">tune</span>
                   </button>
                   <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
                     <span class="material-symbols-outlined">delete</span>
@@ -112,4 +112,61 @@
       <span>{{ overrideRows().length }} exception(s)</span>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedOverride(); as override) {
+    <section class="result-slot-calendar-config" aria-label="Configuration de l'exception calendrier sélectionnée">
+      <header class="result-slot-calendar-config__header">
+        <div>
+          <p class="result-slot-calendar-config__eyebrow">Configuration référentiel</p>
+          <h2>{{ shape(override) }}</h2>
+          <p>{{ override.reasonCode }} · {{ override.available ? 'Disponible' : 'Indisponible' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <div class="result-slot-calendar-config__form">
+        <section class="result-slot-calendar-config__section">
+          <h3>Portée</h3>
+          <dl class="result-slot-calendar-config__meta-list">
+            <div>
+              <dt>Date locale</dt>
+              <dd>{{ override.slotLocalDate ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>Récurrence</dt>
+              <dd>{{ override.recurringMd ?? '—' }}</dd>
+            </div>
+            <div>
+              <dt>Slot</dt>
+              <dd><code>{{ idText(override.resultSlotId) }}</code></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="result-slot-calendar-config__section">
+          <h3>Disponibilité</h3>
+          <div class="result-slot-calendar-config__fields">
+            <mat-checkbox [checked]="editAvailable()" (change)="editAvailable.set($event.checked)">Disponible</mat-checkbox>
+            <mat-form-field appearance="outline">
+              <mat-label>Code raison</mat-label>
+              <input matInput [ngModel]="editReasonCode()" (ngModelChange)="editReasonCode.set($event)" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="result-slot-calendar-config__wide-field">
+              <mat-label>Libellé raison</mat-label>
+              <textarea matInput rows="4" [ngModel]="editReasonLabel()" (ngModelChange)="editReasonLabel.set($event)"></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <div class="result-slot-calendar-config__actions">
+          <button mat-flat-button color="primary" type="button" [disabled]="busy()" (click)="saveConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </section>
+  }
 </tch-admin-page-shell>

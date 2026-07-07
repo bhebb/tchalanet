@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -42,6 +42,7 @@ import { DeletePageModelTemplateDialog } from '../../components/dialogs/delete-p
 export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   private readonly api = inject(PlatformPageModelsApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly displayedColumns = ['code', 'logicalId', 'scope', 'name', 'level', 'isDefault', 'actions'];
@@ -56,6 +57,26 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
   readonly hasPrevious = signal(false);
+  readonly creating = signal(false);
+  readonly selectedTemplate = signal<PageModelTemplateView | null>(null);
+  readonly createForm = this.fb.nonNullable.group({
+    code: ['', Validators.required],
+    logicalId: ['', Validators.required],
+    scope: ['private', Validators.required],
+    slug: ['dashboard', Validators.required],
+    name: ['', Validators.required],
+    label: ['', Validators.required],
+    description: [''],
+    schema: ['{}'],
+    model: ['{}'],
+  });
+  readonly configForm = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    label: ['', Validators.required],
+    description: [''],
+    schema: ['{}'],
+    model: ['{}'],
+  });
 
   levelTone(level: string): AdminStatusTone {
     return level === 'TENANT' ? 'info' : 'neutral';
@@ -89,40 +110,99 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
   nextPage(): void { if (this.hasNext()) { this.page.set(this.page() + 1); this.load(); } }
 
   openCreate(): void {
-    const code = window.prompt('Code du template');
-    if (!code) return;
-    const logicalId = window.prompt('Logical ID', code) ?? code;
-    const name = window.prompt('Nom', code) ?? code;
-    const slug = window.prompt('Slug', 'dashboard') ?? 'dashboard';
-    const template = minimalTemplate(code, logicalId, slug, name);
+    this.creating.set(true);
+    this.selectedTemplate.set(null);
+    this.createForm.reset({
+      code: '',
+      logicalId: '',
+      scope: 'private',
+      slug: 'dashboard',
+      name: '',
+      label: '',
+      description: '',
+      schema: '{}',
+      model: '{}',
+    });
+  }
+
+  closeCreate(): void {
+    this.creating.set(false);
+  }
+
+  saveCreate(): void {
+    if (this.createForm.invalid || this.busy()) return;
+
+    const v = this.createForm.getRawValue();
+    const schema = this.parseJson(v.schema, 'Schema JSON invalide.');
+    if (schema === undefined) return;
+    const model = v.model.trim() === '{}'
+      ? defaultTemplateModel(v.logicalId, v.scope, v.slug)
+      : this.parseJson(v.model, 'Model JSON invalide.');
+    if (model === undefined) return;
+
+    const template = minimalTemplate({
+      code: v.code,
+      logicalId: v.logicalId,
+      scope: v.scope,
+      slug: v.slug,
+      name: v.name,
+      label: v.label,
+      description: v.description,
+      schema,
+      model,
+    });
 
     this.busy.set(true);
     this.api.createTemplate(template).subscribe({
-      next: () => {
+      next: created => {
         this.busy.set(false);
+        this.creating.set(false);
         this.snackBar.open('Template créé.', 'OK', { duration: 4000 });
+        this.openConfig(created);
         this.load();
       },
       error: err => this.handleActionError(err, 'Erreur lors de la création.'),
     });
   }
 
-  openEdit(template: PageModelTemplateView): void {
-    const name = window.prompt('Nom', template.name);
-    if (name == null) return;
-    const label = window.prompt('Libellé', template.label) ?? template.label;
-    const description = window.prompt('Description', template.description ?? '') ?? template.description;
+  openConfig(template: PageModelTemplateView): void {
+    this.selectedTemplate.set(template);
+    this.configForm.reset({
+      name: template.name,
+      label: template.label,
+      description: template.description ?? '',
+      schema: this.formatJson(template.schema ?? {}),
+      model: this.formatJson(template.model ?? {}),
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedTemplate.set(null);
+  }
+
+  saveConfig(): void {
+    const template = this.selectedTemplate();
+    if (!template || this.configForm.invalid || this.busy()) return;
+
+    const v = this.configForm.getRawValue();
+    const schema = this.parseJson(v.schema, 'Schema JSON invalide.');
+    if (schema === undefined) return;
+    const model = this.parseJson(v.model, 'Model JSON invalide.');
+    if (model === undefined) return;
 
     this.busy.set(true);
     this.api.updateTemplate(template.id, {
       ...template,
-      name: name.trim(),
-      label: label.trim(),
-      description: description?.trim() || undefined,
+      name: v.name.trim(),
+      label: v.label.trim(),
+      description: v.description?.trim() || undefined,
+      schema,
+      model,
     }).subscribe({
-      next: () => {
+      next: updated => {
         this.busy.set(false);
         this.snackBar.open('Template mis à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
         this.load();
       },
       error: err => this.handleActionError(err, 'Erreur lors de la mise à jour.'),
@@ -173,44 +253,71 @@ export class PlatformCatalogPageModelTemplatesPage implements OnInit {
       duration: 5000,
     });
   }
+
+  private formatJson(value: unknown): string {
+    return JSON.stringify(value ?? {}, null, 2);
+  }
+
+  private parseJson(value: string, message: string): unknown | undefined {
+    try {
+      return value.trim() ? JSON.parse(value) : {};
+    } catch {
+      this.snackBar.open(message, 'OK', { duration: 5000 });
+      return undefined;
+    }
+  }
 }
 
-function minimalTemplate(
-  code: string,
-  logicalId: string,
-  slug: string,
-  name: string,
-): PageModelTemplateView {
+function minimalTemplate(input: {
+  readonly code: string;
+  readonly logicalId: string;
+  readonly scope: string;
+  readonly slug: string;
+  readonly name: string;
+  readonly label: string;
+  readonly description: string;
+  readonly schema: unknown;
+  readonly model: unknown;
+}): PageModelTemplateView {
+  const code = input.code.trim();
+  const logicalId = input.logicalId.trim();
+  const scope = input.scope.trim() || 'private';
+  const slug = input.slug.trim();
+  const name = input.name.trim();
   return {
     id: '',
-    code: code.trim(),
-    logicalId: logicalId.trim(),
-    scope: 'private',
-    slug: slug.trim(),
-    name: name.trim(),
-    label: name.trim(),
-    description: '',
-    schema: {},
-    model: {
-      meta: {
-        id: logicalId.trim(),
-        scope: 'private',
-        slug: slug.trim(),
-        schemaVersion: 2,
-      },
-      content: {
-        layout: {
-          component: 'GridLayout',
-          rows: [],
-        },
-        widgets: {},
-      },
-    },
+    code,
+    logicalId,
+    scope,
+    slug,
+    name,
+    label: input.label.trim(),
+    description: input.description.trim(),
+    schema: input.schema ?? {},
+    model: input.model ?? defaultTemplateModel(logicalId, scope, slug),
     schemaVersion: 2,
     isDefault: false,
     level: 'GLOBAL',
     tenantId: null,
     createdAt: '',
     updatedAt: '',
+  };
+}
+
+function defaultTemplateModel(logicalId: string, scope: string, slug: string): unknown {
+  return {
+    meta: {
+      id: logicalId.trim(),
+      scope: scope.trim() || 'private',
+      slug: slug.trim(),
+      schemaVersion: 2,
+    },
+    content: {
+      layout: {
+        component: 'GridLayout',
+        rows: [],
+      },
+      widgets: {},
+    },
   };
 }

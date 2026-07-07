@@ -149,6 +149,7 @@ export class AdminGamesPricingPage {
       endLocalTime: null,
       readyForSale: game.readiness.status === 'READY',
       betOptions: game.odds,
+      betOptionGroups: game.oddsGroups,
     };
 
     const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '480px' });

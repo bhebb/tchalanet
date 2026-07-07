@@ -27,7 +27,7 @@
 
     strong {
       display: block;
-      font-weight: 700;
+      font-weight: var(--tch-weight-bold);
       margin-block-end: 0.25rem;
     }
 
@@ -66,7 +66,7 @@
     h3 {
       color: var(--tch-color-on-surface);
       font-size: var(--tch-font-size-body-md);
-      font-weight: var(--tch-font-weight-bold);
+      font-weight: var(--tch-weight-bold);
     }
 
     p {
@@ -91,23 +91,138 @@
     padding: 0.625rem 0.75rem;
   }
 
-  &__option-label {
-    color: var(--tch-color-on-surface);
-    font-weight: var(--tch-font-weight-semibold);
+  &__option-main,
+  &__option-actions {
+    display: grid;
+    gap: 0.25rem;
   }
 
-  &__option-value {
-    color: var(--tch-color-primary);
-    font-weight: var(--tch-font-weight-bold);
+  &__option-actions {
+    justify-items: start;
+  }
+
+  &__option--readonly {
+    flex-direction: row;
+  }
+
+  &__option-label {
+    color: var(--tch-color-on-surface);
+    font-weight: var(--tch-weight-semibold);
+  }
+
+  &__option-title {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__bet-types {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__pricing-groups {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__pricing-group {
+    background: var(--tch-color-surface-container-low);
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  &__pricing-variants {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__pricing-variant {
+    align-items: stretch;
+    background: var(--tch-color-surface-container-lowest);
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  &__pricing-field {
+    width: 100%;
+  }
+
+  &__bet-type {
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  &__bet-type-header {
+    align-items: start;
+    display: grid;
+    gap: 0.75rem;
+
+    strong {
+      color: var(--tch-color-on-surface);
+      font-weight: var(--tch-weight-bold);
+    }
+  }
+
+  &__policy-field {
+    width: 100%;
+  }
+
+  &__muted {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+    margin: 0;
   }
 }
 
-@media (max-width: 520px) {
+.game-settings-dialog {
+  &__row,
+  &__option {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  &__option {
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 640px) {
   .game-settings-dialog {
     &__row,
-    &__option {
-      align-items: stretch;
-      flex-direction: column;
+    &__option--readonly {
+      align-items: center;
+      flex-direction: row;
+    }
+
+    &__option--readonly {
+      gap: 0;
+    }
+
+    &__bet-type-header {
+      align-items: center;
+      grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+    }
+
+    &__option-actions {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+    }
+
+    &__pricing-variant {
+      align-items: center;
+      grid-template-columns: minmax(0, 1fr) minmax(8rem, 10rem);
     }
   }
 }

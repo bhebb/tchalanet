@@ -213,12 +213,6 @@ export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
             destination: { kind: 'route', value: '/app/platform/catalog/plans' },
           },
           {
-            id: 'catalog-pricing',
-            labelKey: 'platform.nav.pricing',
-            icon: 'payments',
-            destination: { kind: 'route', value: '/app/platform/catalog/pricing' },
-          },
-          {
             id: 'catalog-settings',
             labelKey: 'platform.nav.globalSettings',
             icon: 'settings',

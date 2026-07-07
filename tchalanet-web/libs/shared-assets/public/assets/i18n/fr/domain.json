@@ -177,6 +177,52 @@
         "option": "Option de pari",
         "multiplier": "Multiplicateur",
         "stake": "Mise (HTG)"
+      },
+      "type": {
+        "STRAIGHT": "Direct",
+        "BOX": "Permuté",
+        "FRONT_PAIR": "Deux premiers",
+        "BACK_PAIR": "Deux derniers",
+        "LOTTO": "Loto",
+        "COMBO": "Combiné",
+        "MARIAGE": "Maryaj",
+        "MARYAJ": "Maryaj",
+        "MATCH_1_2D": "1er lot",
+        "MATCH_2_2D": "2e lot",
+        "MATCH_3_2D": "3e lot",
+        "PATTERN2X2": "Maryaj 2x2",
+        "PATTERN2_2": "Maryaj 2x2",
+        "PATTERN2STAR2": "Maryaj 2x2",
+        "PATTERN_2X2": "Maryaj 2x2",
+        "MARRIAGE_2D2D": "Maryaj 2x2",
+        "LOTTO3_3D": "Loto 3",
+        "LOTTO4_PATTERN": "Loto 4",
+        "LOTTO5_PATTERN": "Loto 5"
+      },
+      "option": {
+        "MARRIAGE_2D2D": {
+          "1": "Ordre exact",
+          "2": "Revers / double"
+        },
+        "PATTERN2X2": {
+          "1": "Ordre exact",
+          "2": "Revers / double"
+        },
+        "LOTTO3_3D": {
+          "1": "Exact",
+          "2": "Permuté"
+        },
+        "LOTTO4_PATTERN": {
+          "1": "Exact",
+          "2": "Permuté",
+          "3": "Deux premiers",
+          "4": "Deux derniers"
+        },
+        "LOTTO5_PATTERN": {
+          "1": "1er + 2e lot",
+          "2": "1er + 3e lot",
+          "3": "Mixte 1er/2e/3e lot"
+        }
       }
     },
     "payout": {

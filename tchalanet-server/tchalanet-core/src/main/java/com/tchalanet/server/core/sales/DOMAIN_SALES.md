@@ -21,7 +21,7 @@
 - Ouverture/fermeture des draws (`core.draw`).
 - Ingestion des résultats externes (`core.drawresult`).
 - Évaluation des limites & autonomie (`core.limitpolicy`, `core.autonomy`) — sales **consomme** via `QueryBus` + service.
-- Pricing owner (`catalog.pricing` et `core.pricing`) — sales résout puis snapshot les valeurs effectives.
+- Pricing owner (`core.pricing`) — sales résout puis snapshot les valeurs effectives.
 - Écritures comptables (`core.ledger`) — sales émet l'event ; ledger consomme.
 - Exécution du payout (`core.payout`) — sales expose `Ticket.markPayoutPaid()`, `core.payout` l'invoque via ses handlers.
 
@@ -227,7 +227,6 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `core.ledger`         | Port-in direct           | `RecordLedgerFromSalesPort` (depuis `SalesLedgerListener`)                                                                     |
 | sales → `core.accesscontrol`  | Annotation               | `@RequiresPermission`                                                                                                          |
 | sales → `core.pricing`        | Query                    | `ResolveSellerTerminalOddsQuery` pour odds effectifs seller-terminal override → tenant default                                 |
-| `core.pricing` → `catalog.pricing` | API                 | `PricingCatalog.oddsFor(...)` pour le tenant default                                                                           |
 | sales → `catalog.settings`    | API                      | `SettingsCatalog.resolve(...)` (visibilité publique)                                                                           |
 | sales → `catalog.drawchannel` | View                     | `DrawChannelView`                                                                                                              |
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWriterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                         |

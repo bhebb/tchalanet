@@ -1,0 +1,21 @@
+@use '../../../../../../../libs/ui/styles/src/lib/index' as ui;
+
+.edit-tenant-odds-dialog {
+  &__form {
+    display: grid;
+    gap: ui.rem(16);
+    width: min(100%, 420px);
+  }
+
+  &__identity {
+    display: flex;
+    flex-wrap: wrap;
+    gap: ui.rem(8);
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-sm);
+  }
+
+  &__field {
+    width: 100%;
+  }
+}

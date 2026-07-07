@@ -177,6 +177,52 @@
         "option": "Opsyon paryaj",
         "multiplier": "Miltiplikatè",
         "stake": "Miz (HTG)"
+      },
+      "type": {
+        "STRAIGHT": "Dirèk",
+        "BOX": "Pèmitasyon",
+        "FRONT_PAIR": "De premye",
+        "BACK_PAIR": "De dènye",
+        "LOTTO": "Loto",
+        "COMBO": "Konbine",
+        "MARIAGE": "Maryaj",
+        "MARYAJ": "Maryaj",
+        "MATCH_1_2D": "1e lo",
+        "MATCH_2_2D": "2e lo",
+        "MATCH_3_2D": "3e lo",
+        "PATTERN2X2": "Maryaj 2x2",
+        "PATTERN2_2": "Maryaj 2x2",
+        "PATTERN2STAR2": "Maryaj 2x2",
+        "PATTERN_2X2": "Maryaj 2x2",
+        "MARRIAGE_2D2D": "Maryaj 2x2",
+        "LOTTO3_3D": "Loto 3",
+        "LOTTO4_PATTERN": "Loto 4",
+        "LOTTO5_PATTERN": "Loto 5"
+      },
+      "option": {
+        "MARRIAGE_2D2D": {
+          "1": "Lòd egzak",
+          "2": "Ranvèse / doub"
+        },
+        "PATTERN2X2": {
+          "1": "Lòd egzak",
+          "2": "Ranvèse / doub"
+        },
+        "LOTTO3_3D": {
+          "1": "Egzak",
+          "2": "Pèmitasyon"
+        },
+        "LOTTO4_PATTERN": {
+          "1": "Egzak",
+          "2": "Pèmitasyon",
+          "3": "De premye",
+          "4": "De dènye"
+        },
+        "LOTTO5_PATTERN": {
+          "1": "1e + 2e lo",
+          "2": "1e + 3e lo",
+          "3": "Melanje 1e/2e/3e lo"
+        }
       }
     },
     "payout": {

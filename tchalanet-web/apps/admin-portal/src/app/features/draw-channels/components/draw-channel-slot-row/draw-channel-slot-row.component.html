@@ -4,7 +4,13 @@
 
   <div class="slot-row__left">
     <span class="slot-row__index">{{ (index() + 1).toString().padStart(2, '0') }}</span>
-    <span class="slot-row__label">{{ s.label }}</span>
+    <tch-draw-label
+      density="compact"
+      [eyebrow]="'domain.draw.field.slotType' | translate"
+      [primary]="s.label"
+      [secondary]="s.slotKey"
+      [meta]="s.drawTime ? (s.drawTime | slice:0:5) : null"
+    />
   </div>
 
   <div class="slot-row__right">
@@ -14,24 +20,26 @@
       <span class="slot-row__time slot-row__time--missing">—</span>
     }
 
+    <tch-status-badge
+      [status]="slotStatus(s)"
+      [label]="slotStatusLabelKey(s) | translate"
+    />
+
     @if (s.enabled && s.drawTime) {
-      <span class="slot-row__status slot-row__status--active">
-        <span class="material-symbols-outlined">toggle_on</span>
-      </span>
       @if (resultsAvailable()) {
         <button mat-button class="slot-row__results-btn" (click)="viewResults.emit(s)">
-          Résultats
+          {{ 'admin.drawChannels.actions.results' | translate }}
         </button>
       }
     } @else if (s.enabled && !s.drawTime) {
-      <span class="slot-row__config-hint">Configuration requise</span>
-      <button mat-icon-button class="slot-row__edit-btn" (click)="configure.emit(s)" aria-label="Configurer">
+      <button
+        mat-icon-button
+        class="slot-row__edit-btn"
+        (click)="configure.emit(s)"
+        [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
+      >
         <span class="material-symbols-outlined">edit</span>
       </button>
-    } @else {
-      <span class="slot-row__status slot-row__status--off">
-        <span class="material-symbols-outlined">toggle_off</span>
-      </span>
     }
   </div>
 

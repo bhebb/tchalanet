@@ -1,13 +1,59 @@
 .matrix-provider {
-  margin-block-end: 2rem;
+  margin-block-end: 1.25rem;
+
+  &__header {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-block-end: 0.75rem;
+  }
 
   &__title {
-    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin: 0 0 0.75rem;
     color: var(--tch-color-on-surface);
+    display: flex;
     font-size: var(--tch-font-size-title-md);
-    font-weight: var(--tch-font-weight-semibold, 600);
+    font-weight: var(--tch-weight-semibold);
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  &__facts {
+    color: var(--tch-color-on-surface-variant);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: var(--tch-font-size-label-sm);
+    gap: 0.5rem;
+
+    span {
+      background: var(--tch-color-surface-container-low);
+      border: 1px solid var(--tch-color-outline-variant);
+      border-radius: var(--tch-radius-sm);
+      padding: 0.25rem 0.5rem;
+    }
+  }
+
+  &__slots {
+    display: grid;
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 720px) {
+  .matrix-provider {
+    &__header {
+      align-items: center;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .matrix-provider {
+    &__slots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 }

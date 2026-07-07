@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,10 +22,11 @@ import {
   I18nGlobalOverviewView,
   I18nOverrideLevel,
   I18nOverrideView,
+  I18nSurface,
   PlatformI18nApi,
+  UpdateI18nOverrideRequest,
 } from '../../data-access/platform-i18n-api.service';
-import { CreateI18nOverrideDialog, COMMON_LOCALES, LEVELS } from '../../components/dialogs/create-i18n-override.dialog';
-import { EditI18nOverrideDialog } from '../../components/dialogs/edit-i18n-override.dialog';
+import { CreateI18nOverrideDialog, COMMON_LOCALES, LEVELS, SURFACES } from '../../components/dialogs/create-i18n-override.dialog';
 
 @Component({
   selector: 'tch-platform-catalog-i18n-overrides-page',
@@ -39,6 +41,7 @@ import { EditI18nOverrideDialog } from '../../components/dialogs/edit-i18n-overr
     TchErrorPanel,
     TchLoading,
     MatButtonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -53,6 +56,7 @@ import { EditI18nOverrideDialog } from '../../components/dialogs/edit-i18n-overr
 export class PlatformCatalogI18nOverridesPage implements OnInit {
   private readonly api = inject(PlatformI18nApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
@@ -60,6 +64,7 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   readonly displayedColumns = ['locale', 'level', 'i18nKey', 'i18nValue', 'surface', 'active', 'actions'];
   readonly locales = COMMON_LOCALES;
   readonly levels = LEVELS;
+  readonly surfaces = SURFACES;
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -73,6 +78,14 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
   readonly totalPages = signal(1);
   readonly hasNext = signal(false);
   readonly hasPrevious = signal(false);
+  readonly selectedOverride = signal<I18nOverrideView | null>(null);
+  readonly savingConfig = signal(false);
+
+  readonly configForm = this.fb.nonNullable.group({
+    i18nValue: ['', Validators.required],
+    surface: ['INTERNAL' as I18nSurface],
+    active: [true],
+  });
 
   private showError(msg: string): void {
     this.error.set(msg);
@@ -128,11 +141,43 @@ export class PlatformCatalogI18nOverridesPage implements OnInit {
     });
   }
 
-  openEdit(override: I18nOverrideView): void {
-    const ref = this.dialog.open(EditI18nOverrideDialog, { data: override, width: '520px' });
-    ref.afterClosed().subscribe((updated: I18nOverrideView | { __error: string } | null) => {
-      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
-      if (updated) { this.snackBar.open(this.translate.instant('platform.i18nOverrides.feedback.updated'), 'OK', { duration: 4000 }); this.load(); }
+  openConfig(override: I18nOverrideView): void {
+    this.selectedOverride.set(override);
+    this.configForm.reset({
+      i18nValue: override.i18nValue,
+      surface: override.surface,
+      active: override.active,
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedOverride.set(null);
+  }
+
+  saveConfig(): void {
+    const override = this.selectedOverride();
+    if (!override || this.configForm.invalid || this.savingConfig()) return;
+
+    this.savingConfig.set(true);
+    const v = this.configForm.getRawValue();
+    const req: UpdateI18nOverrideRequest = {
+      i18nValue: v.i18nValue,
+      surface: v.surface,
+      active: v.active,
+    };
+    this.api.updateOverride(override.id, req).subscribe({
+      next: updated => {
+        this.savingConfig.set(false);
+        this.snackBar.open(this.translate.instant('platform.i18nOverrides.feedback.updated'), 'OK', { duration: 4000 });
+        this.openConfig(updated);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.savingConfig.set(false);
+        this.showError((err as { error?: { detail?: string; title?: string } })?.error?.detail
+          ?? (err as { error?: { title?: string } })?.error?.title
+          ?? this.translate.instant('platform.i18nOverrides.feedback.genericError'));
+      },
     });
   }
 

@@ -11,8 +11,18 @@ export type ReadinessStatus = Extract<ConsoleReadinessStatus, 'READY' | 'TODO' |
 export interface TenantGameOddView {
   readonly label: string;
   readonly value: string;
+  readonly odds: number;
   readonly betType: string;
   readonly betOption: number | null;
+  readonly pricingVariantCode: string | null;
+}
+
+export interface TenantGameOddGroupView {
+  readonly id: string;
+  readonly label: string;
+  readonly betType: string;
+  readonly betOption: number | null;
+  readonly variants: readonly TenantGameOddView[];
 }
 
 export interface TenantGameLimitView {
@@ -30,6 +40,7 @@ export interface TenantGamePricingView {
   readonly tenantStatus: TenantGameStatus;
   readonly pricingProfileLabel: string | null;
   readonly odds: readonly TenantGameOddView[];
+  readonly oddsGroups: readonly TenantGameOddGroupView[];
   readonly limits: TenantGameLimitView;
   readonly readiness: {
     readonly status: ReadinessStatus;

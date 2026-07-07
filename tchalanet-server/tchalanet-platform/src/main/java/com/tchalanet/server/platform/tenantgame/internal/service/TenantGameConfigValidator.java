@@ -29,7 +29,7 @@ public class TenantGameConfigValidator {
         if (req.getDisplayOrder() != null && req.getDisplayOrder() < 0) {
             throw new IllegalArgumentException("displayOrder must be >= 0");
         }
-        validateStakes(req.getMinStake(), req.getMaxStake());
+        validateStakeRange(req.getMinStake(), req.getMaxStake());
         if (hasText(req.getAvailabilityDays())) {
             validateAvailabilityDays(req.getAvailabilityDays());
         }
@@ -37,7 +37,7 @@ public class TenantGameConfigValidator {
         if (hasText(req.getEndLocalTime())) parseTime(req.getEndLocalTime(), "endLocalTime");
     }
 
-    private void validateStakes(BigDecimal min, BigDecimal max) {
+    public void validateStakeRange(BigDecimal min, BigDecimal max) {
         if (min != null && min.signum() < 0) {
             throw new IllegalArgumentException("minStake must be >= 0");
         }

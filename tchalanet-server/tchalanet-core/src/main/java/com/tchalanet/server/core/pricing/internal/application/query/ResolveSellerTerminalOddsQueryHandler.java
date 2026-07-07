@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.pricing.internal.application.query;
 
-import com.tchalanet.server.catalog.game.api.model.BetType;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pricing.api.model.OddsSource;
 import com.tchalanet.server.core.pricing.api.model.SellerTerminalOddsResolutionView;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.pricing.internal.application.port.out.SellerTerminalOddsOverrideReaderPort;
+import com.tchalanet.server.core.pricing.internal.application.port.out.TenantPricingOddsReaderPort;
+import com.tchalanet.server.core.pricing.internal.domain.TenantPricingOdds;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -18,32 +18,35 @@ public class ResolveSellerTerminalOddsQueryHandler
     implements QueryHandler<ResolveSellerTerminalOddsQuery, SellerTerminalOddsResolutionView> {
 
     private final SellerTerminalOddsOverrideReaderPort reader;
-    private final PricingCatalog pricingCatalog;
+    private final TenantPricingOddsReaderPort tenantOddsReader;
 
     @Override
     public SellerTerminalOddsResolutionView handle(ResolveSellerTerminalOddsQuery q) {
-        // Tenant default from catalog
-        BigDecimal tenantDefault = pricingCatalog.oddsFor(
-            q.tenantId(), q.gameCode(),
-            // BetType enum from catalog — convert via string
-            BetType.valueOf(q.betType()),
-            q.betOption());
+        BigDecimal tenantDefault = tenantOddsReader
+            .findByNaturalKey(
+                q.tenantId(),
+                TenantPricingOdds.normalizeGameCode(q.gameCode()),
+                q.pricingVariantCode())
+            .map(TenantPricingOdds::odds)
+            .orElseThrow(() -> new IllegalStateException(
+                "tenant default pricing odds missing for tenant=%s game=%s variant=%s"
+                    .formatted(q.tenantId(), q.gameCode(), q.pricingVariantCode())));
 
         // Look for active seller_terminal override
         var override = reader.findActiveByNaturalKey(
             q.tenantId(), q.sellerTerminalId(),
-            q.gameCode(), q.betType(), q.betOption());
+            TenantPricingOdds.normalizeGameCode(q.gameCode()), q.pricingVariantCode());
 
         if (override.isPresent()) {
             var o = override.get();
             return new SellerTerminalOddsResolutionView(
-                q.gameCode(), q.betType(), q.betOption(),
+                q.gameCode(), q.pricingVariantCode(), q.betType(), q.betOption(),
                 tenantDefault, o.odds(), o.odds(),
                 OddsSource.SELLER_TERMINAL_OVERRIDE);
         }
 
         return new SellerTerminalOddsResolutionView(
-            q.gameCode(), q.betType(), q.betOption(),
+            q.gameCode(), q.pricingVariantCode(), q.betType(), q.betOption(),
             tenantDefault, null, tenantDefault,
             OddsSource.TENANT_DEFAULT);
     }

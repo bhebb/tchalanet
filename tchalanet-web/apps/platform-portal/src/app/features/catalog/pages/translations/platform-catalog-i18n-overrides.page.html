@@ -102,8 +102,8 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row">
                 <div class="catalog-i18n-page__actions">
-                  <button mat-icon-button (click)="openEdit(row)" [title]="'platform.i18nOverrides.action.edit' | translate">
-                    <span class="material-symbols-outlined">edit</span>
+                  <button mat-icon-button (click)="openConfig(row)" [title]="'platform.i18nOverrides.action.edit' | translate">
+                    <span class="material-symbols-outlined">tune</span>
                   </button>
                   <button mat-icon-button color="warn" (click)="deleteOverride(row)" [title]="'platform.i18nOverrides.action.delete' | translate">
                     <span class="material-symbols-outlined">delete</span>
@@ -131,4 +131,67 @@
       </div>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedOverride(); as override) {
+    <section class="catalog-i18n-page__config" aria-label="Configuration de la traduction sélectionnée">
+      <header class="catalog-i18n-page__config-header">
+        <div>
+          <p class="catalog-i18n-page__config-eyebrow">Configuration référentiel</p>
+          <h2>{{ override.locale }} · {{ override.surface }}</h2>
+          <p>{{ override.i18nKey }} · {{ override.level }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="catalog-i18n-page__config-form" [formGroup]="configForm" (submit)="$event.preventDefault(); saveConfig()">
+        <section class="catalog-i18n-page__config-section">
+          <h3>Métadonnées</h3>
+          <dl class="catalog-i18n-page__meta-list">
+            <div>
+              <dt>Locale</dt>
+              <dd>{{ override.locale }}</dd>
+            </div>
+            <div>
+              <dt>Clé</dt>
+              <dd><code>{{ override.i18nKey }}</code></dd>
+            </div>
+            <div>
+              <dt>Niveau</dt>
+              <dd>{{ override.level }}</dd>
+            </div>
+            <div>
+              <dt>Tenant</dt>
+              <dd>{{ override.tenantId ?? '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="catalog-i18n-page__config-section">
+          <h3>Valeur traduite</h3>
+          <div class="catalog-i18n-page__config-fields">
+            <mat-form-field appearance="outline" class="catalog-i18n-page__wide-field">
+              <mat-label>{{ 'platform.i18nOverrides.column.value' | translate }}</mat-label>
+              <textarea matInput rows="6" formControlName="i18nValue"></textarea>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'platform.i18nOverrides.column.surface' | translate }}</mat-label>
+              <mat-select formControlName="surface">
+                @for (s of surfaces; track s) { <mat-option [value]="s">{{ s }}</mat-option> }
+              </mat-select>
+            </mat-form-field>
+            <mat-checkbox formControlName="active">{{ 'platform.i18nOverrides.status.active' | translate }}</mat-checkbox>
+          </div>
+        </section>
+
+        <div class="catalog-i18n-page__config-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="configForm.invalid || savingConfig()">
+            <span class="material-symbols-outlined">save</span>
+            {{ 'platform.i18nOverrides.action.save' | translate }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 </tch-admin-page-shell>

@@ -36,6 +36,13 @@ public enum BetOption {
         "Les 3 chiffres peuvent sortir dans n'importe quel ordre"
     ),
 
+    LOTTO3_EXACT_PLUS_BOX(
+        BetType.LOTTO3_3D,
+        (short) 3,
+        "Exact + Permuté",
+        "Couvre le résultat exact et les permutations du même numéro"
+    ),
+
     // LOTO 4
     LOTTO4_STRAIGHT(
         BetType.LOTTO4_PATTERN,
@@ -63,6 +70,13 @@ public enum BetOption {
         (short) 4,
         "2 derniers chiffres",
         "Les 2 derniers chiffres du tirage doivent correspondre"
+    ),
+
+    LOTTO4_EXACT_PLUS_BOX(
+        BetType.LOTTO4_PATTERN,
+        (short) 5,
+        "Exact + Permuté",
+        "Couvre le résultat exact et les permutations du même numéro"
     ),
 
     // LOTO 5
@@ -113,6 +127,10 @@ public enum BetOption {
 
     public String description() {
         return description;
+    }
+
+    public boolean enabledByDefault() {
+        return this != LOTTO3_EXACT_PLUS_BOX && this != LOTTO4_EXACT_PLUS_BOX;
     }
 
     public static List<BetOption> allowedFor(BetType betType) {

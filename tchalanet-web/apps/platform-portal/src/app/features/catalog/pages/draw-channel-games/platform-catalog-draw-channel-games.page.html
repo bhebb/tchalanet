@@ -63,8 +63,8 @@
                 <button mat-icon-button [disabled]="busy()" title="Activer / désactiver" (click)="toggle(row)">
                   <span class="material-symbols-outlined">published_with_changes</span>
                 </button>
-                <button mat-icon-button [disabled]="busy()" title="Modifier les flags" (click)="editFlags(row)">
-                  <span class="material-symbols-outlined">edit</span>
+                <button mat-icon-button [disabled]="busy()" title="Configurer" (click)="openConfig(row)">
+                  <span class="material-symbols-outlined">tune</span>
                 </button>
                 <button mat-icon-button color="warn" [disabled]="busy()" title="Supprimer" (click)="delete(row)">
                   <span class="material-symbols-outlined">delete</span>
@@ -82,4 +82,53 @@
       <span>{{ gameRows().length }} association(s)</span>
     </div>
   </tch-admin-crud-shell>
+
+  @if (selectedAssociation(); as association) {
+    <section class="draw-channel-games-config" aria-label="Configuration de l'association sélectionnée">
+      <header class="draw-channel-games-config__header">
+        <div>
+          <p class="draw-channel-games-config__eyebrow">Configuration référentiel</p>
+          <h2>{{ idText(association.tenantGameId) }}</h2>
+          <p>{{ association.enabled ? 'Actif' : 'Inactif' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <div class="draw-channel-games-config__form">
+        <section class="draw-channel-games-config__section">
+          <h3>Portée</h3>
+          <dl class="draw-channel-games-config__meta-list">
+            <div>
+              <dt>Canal</dt>
+              <dd><code>{{ idText(association.drawChannelId) }}</code></dd>
+            </div>
+            <div>
+              <dt>Tenant game</dt>
+              <dd><code>{{ idText(association.tenantGameId) }}</code></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="draw-channel-games-config__section">
+          <h3>Activation et flags</h3>
+          <div class="draw-channel-games-config__fields">
+            <mat-checkbox [checked]="editEnabled()" (change)="editEnabled.set($event.checked)">Actif</mat-checkbox>
+            <mat-form-field appearance="outline" class="draw-channel-games-config__wide-field">
+              <mat-label>Flags JSON</mat-label>
+              <textarea matInput rows="10" [ngModel]="editFlagsJson()" (ngModelChange)="editFlagsJson.set($event)"></textarea>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <div class="draw-channel-games-config__actions">
+          <button mat-flat-button color="primary" type="button" [disabled]="busy()" (click)="saveConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </section>
+  }
 </tch-admin-page-shell>

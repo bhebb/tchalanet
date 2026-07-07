@@ -1,34 +1,37 @@
 # Domain — Core Pricing
 
-`core.pricing` owns tenant-scoped runtime pricing rules that are not pure catalog defaults.
+`core.pricing` owns tenant-scoped runtime pricing rules.
 
 ## Responsibility
 
+- Own tenant default odds as runtime pricing configuration.
 - Store seller-terminal odds overrides.
 - Resolve effective odds for a seller-terminal sale.
 - Expose query/command contracts through `core.pricing.api`.
 
-`catalog.pricing` remains the tenant default odds catalog. `core.pricing` composes those defaults
-with seller-terminal overrides.
+There is no platform pricing reference catalog in V0. Tenant default odds are persisted runtime
+configuration, and seller-terminal overrides resolve on top of them.
 
 ## Effective odds resolution
 
 The only supported order for a seller-terminal sale is:
 
 ```text
-seller-terminal active override -> tenant default pricing catalog -> error
+seller-terminal active override -> tenant default odds -> error
 ```
 
 API:
 
 - `ResolveSellerTerminalOddsQuery`
 - `SellerTerminalOddsResolutionView`
+- `PricingVariantCode`
 - `OddsSource.SELLER_TERMINAL_OVERRIDE`
 - `OddsSource.TENANT_DEFAULT`
 
-`core.sales` must call `ResolveSellerTerminalOddsQuery` when preparing ticket lines for a seller
-terminal. This includes customer-paid lines and promotion-generated free game lines. It must then
-snapshot only the effective odds on `TicketLine.oddsSnapshot`.
+`core.sales` must resolve a `PricingVariantCode` from the commercial line and selection, then call
+`ResolveSellerTerminalOddsQuery` when preparing ticket lines for a seller terminal. This includes
+customer-paid lines and promotion-generated free game lines. It must then snapshot only the
+effective odds on `TicketLine.oddsSnapshot`.
 
 ## Non-retroactivity
 

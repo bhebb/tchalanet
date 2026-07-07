@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
-import { TchLoading, TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -26,9 +26,9 @@ type PageState = 'loading' | 'ready' | 'error';
   imports: [
     RouterLink,
     MatButtonModule,
+    TranslatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
-    TchLoading,
     TchErrorPanel,
     TchSectionError,
     DrawChannelsSummaryComponent,
@@ -67,12 +67,12 @@ export class AdminDrawChannelsPage implements OnInit {
       );
   });
 
-  readonly filters: { key: ActiveFilter; label: string }[] = [
-    { key: 'all',      label: 'Tous' },
-    { key: 'active',   label: 'Actifs' },
-    { key: 'todo',     label: 'À configurer' },
-    { key: 'inactive', label: 'Inactifs' },
-    { key: 'error',    label: 'Erreur source' },
+  readonly filters: { key: ActiveFilter; labelKey: string }[] = [
+    { key: 'all',      labelKey: 'admin.drawChannels.filters.all' },
+    { key: 'active',   labelKey: 'admin.drawChannels.filters.active' },
+    { key: 'todo',     labelKey: 'admin.drawChannels.filters.todo' },
+    { key: 'inactive', labelKey: 'admin.drawChannels.filters.inactive' },
+    { key: 'error',    labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
   ngOnInit(): void { this.load(); }
@@ -91,7 +91,9 @@ export class AdminDrawChannelsPage implements OnInit {
   }
 
   onConfigure(provider: DrawChannelProviderView): void {
-    this.actionNotice.set(`Configuration de ${provider.providerLabel} bientot disponible.`);
+    this.actionNotice.set(this.translate.instant('admin.drawChannels.notice.configureUnavailable', {
+      provider: provider.providerLabel,
+    }));
   }
 
   onViewProviderResults(provider: DrawChannelProviderView): void {

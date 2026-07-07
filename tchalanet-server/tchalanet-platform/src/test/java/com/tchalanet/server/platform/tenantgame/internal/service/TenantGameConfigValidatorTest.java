@@ -123,6 +123,15 @@ class TenantGameConfigValidatorTest {
         assertThatNoException().isThrownBy(() -> validator.validateSettings(req));
     }
 
+    @Test
+    void effectiveMinGreaterThanExistingMaxIsRejected() {
+        assertThatThrownBy(() -> validator.validateStakeRange(
+                BigDecimal.valueOf(100),
+                BigDecimal.valueOf(50)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("minStake");
+    }
+
     // ── validateSettings — availabilityDays ──────────────────────────────
 
     @Test

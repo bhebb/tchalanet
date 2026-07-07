@@ -49,6 +49,7 @@ import {
     MatTableModule,
   ],
   templateUrl: './platform-catalog-draw-channel-games.page.html',
+  styleUrls: ['./platform-catalog-draw-channel-games.page.scss'],
 })
 export class PlatformCatalogDrawChannelGamesPage {
   private readonly api = inject(PlatformCatalogApi);
@@ -65,6 +66,9 @@ export class PlatformCatalogDrawChannelGamesPage {
   readonly tenantGameId = signal('');
   readonly enabled = signal(true);
   readonly flagsJson = signal('{}');
+  readonly selectedAssociation = signal<CatalogDrawChannelGameView | null>(null);
+  readonly editEnabled = signal(true);
+  readonly editFlagsJson = signal('{}');
   readonly busy = signal(false);
 
   readonly games = this.api.listDrawChannelGamesResource(
@@ -124,21 +128,34 @@ export class PlatformCatalogDrawChannelGamesPage {
     });
   }
 
-  editFlags(row: CatalogDrawChannelGameView): void {
-    const channelId = this.selectedChannelId();
-    const tenantGameId = idValue(row.tenantGameId);
-    if (!channelId || !tenantGameId) return;
+  openConfig(row: CatalogDrawChannelGameView): void {
+    this.selectedAssociation.set(row);
+    this.editEnabled.set(row.enabled);
+    this.editFlagsJson.set(formatJson(row.flags));
+  }
 
-    const nextValue = window.prompt('Flags JSON', formatJson(row.flags));
-    if (nextValue == null) return;
-    const flags = parseJson(nextValue, this.snackBar);
+  closeConfig(): void {
+    this.selectedAssociation.set(null);
+  }
+
+  saveConfig(): void {
+    const row = this.selectedAssociation();
+    const channelId = this.selectedChannelId();
+    const tenantGameId = row ? idValue(row.tenantGameId) : '';
+    if (!row || !channelId || !tenantGameId) return;
+
+    const flags = parseJson(this.editFlagsJson(), this.snackBar);
     if (flags === INVALID_JSON) return;
 
     this.busy.set(true);
-    this.api.updateDrawChannelGame(channelId, tenantGameId, { flags }).subscribe({
-      next: () => {
+    this.api.updateDrawChannelGame(channelId, tenantGameId, {
+      enabled: this.editEnabled(),
+      flags,
+    }).subscribe({
+      next: updated => {
         this.busy.set(false);
-        this.snackBar.open('Flags mis à jour.', 'OK', { duration: 4000 });
+        this.snackBar.open('Association mise à jour.', 'OK', { duration: 4000 });
+        this.openConfig(updated);
         this.games.reload();
       },
       error: err => this.handleError(err),

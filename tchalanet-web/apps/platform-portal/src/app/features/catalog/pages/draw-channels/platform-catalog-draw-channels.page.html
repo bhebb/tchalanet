@@ -61,8 +61,8 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                <span class="material-symbols-outlined">edit</span>
+              <button mat-icon-button title="Configurer" (click)="openConfig(row)">
+                <span class="material-symbols-outlined">tune</span>
               </button>
               @if (row.active) {
                 <button mat-icon-button title="Désactiver" (click)="disable(row)">
@@ -108,8 +108,8 @@
                 </div>
               </dl>
               <div class="draw-channel-card__actions">
-                <button mat-icon-button title="Modifier" (click)="openEdit(row)">
-                  <span class="material-symbols-outlined">edit</span>
+                <button mat-icon-button title="Configurer" (click)="openConfig(row)">
+                  <span class="material-symbols-outlined">tune</span>
                 </button>
                 @if (row.active) {
                   <button mat-icon-button title="Désactiver" (click)="disable(row)">
@@ -137,4 +137,95 @@
       />
     }
   </tch-admin-crud-shell>
+
+  @if (selectedChannel(); as channel) {
+    <section class="draw-channel-config" aria-label="Configuration du canal sélectionné">
+      <header class="draw-channel-config__header">
+        <div>
+          <p class="draw-channel-config__eyebrow">Configuration référentiel</p>
+          <h2>{{ channel.name }}</h2>
+          <p>{{ channel.code }} · {{ channel.drawTimeLabel }} · {{ channel.timezone ?? 'Timezone non configurée' }}</p>
+        </div>
+        <button mat-icon-button title="Fermer" (click)="closeConfig()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </header>
+
+      <form class="draw-channel-config__form" [formGroup]="configForm" (submit)="$event.preventDefault(); saveConfig()">
+        <div class="draw-channel-config__section">
+          <h3>Identité</h3>
+          <div class="draw-channel-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Code</mat-label>
+              <input matInput formControlName="code" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Libellé court</mat-label>
+              <input matInput formControlName="label" />
+            </mat-form-field>
+            <mat-checkbox formControlName="active">Actif</mat-checkbox>
+          </div>
+        </div>
+
+        <div class="draw-channel-config__section">
+          <h3>Calendrier et ordre</h3>
+          <div class="draw-channel-config__fields">
+            <mat-form-field appearance="outline">
+              <mat-label>Heure de tirage</mat-label>
+              <input matInput formControlName="drawTime" placeholder="14:30" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Timezone</mat-label>
+              <input matInput formControlName="timezone" placeholder="America/New_York" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Jours</mat-label>
+              <input matInput formControlName="daysOfWeek" placeholder="MONDAY,TUESDAY" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Cutoff secondes</mat-label>
+              <input matInput type="number" formControlName="cutoffSec" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Ordre</mat-label>
+              <input matInput type="number" formControlName="sortOrder" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Période</mat-label>
+              <input matInput formControlName="period" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="draw-channel-config__section draw-channel-config__section--wide">
+          <h3>Chaînage résultat</h3>
+          <div class="draw-channel-config__fields draw-channel-config__fields--wide">
+            <mat-form-field appearance="outline">
+              <mat-label>Result slot id</mat-label>
+              <input matInput formControlName="resultSlotId" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Source par défaut</mat-label>
+              <input matInput formControlName="defaultSource" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="draw-channel-config__notes">
+              <mat-label>Notes</mat-label>
+              <textarea matInput rows="4" formControlName="notes"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="draw-channel-config__actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="configForm.invalid || savingConfig()">
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </section>
+  }
 </tch-admin-page-shell>

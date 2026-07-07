@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.sales.api.settlement.ComputedSettlementVariantView;
 import com.tchalanet.server.core.sales.api.settlement.SettlementExplanationApi;
-import com.tchalanet.server.core.sales.internal.domain.model.result.SettlementVariant;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class SettlementExplanationService implements SettlementExplanationApi {
         );
     }
 
-    private static String commercialLabel(BetType betType, Short betOption, SettlementVariant variant) {
+    private static String commercialLabel(BetType betType, Short betOption, PricingVariantCode variant) {
         if (betType.requiresOption()) {
             return BetOption.from(betType, betOption).label();
         }

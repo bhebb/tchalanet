@@ -44,11 +44,17 @@
     },
     "drawChannels": {
       "title": "Tirages",
-      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
+      "description": "Configurez les providers, sources de résultats et créneaux actifs pour votre espace.",
+      "status": {
+        "active": "Actif",
+        "needsConfig": "À configurer",
+        "inactive": "Inactif",
+        "unavailable": "Non disponible"
+      },
       "summary": {
-        "availableStates": "States dispos",
-        "activeStates": "States actifs",
-        "activeChannels": "DrawChannels actifs",
+        "availableStates": "Providers disponibles",
+        "activeStates": "Providers actifs",
+        "activeChannels": "Canaux actifs",
         "todo": "À configurer"
       },
       "filters": {
@@ -59,7 +65,22 @@
         "sourceError": "Erreur source"
       },
       "search": {
-        "placeholder": "Rechercher un state..."
+        "placeholder": "Rechercher un provider..."
+      },
+      "loading": "Chargement des canaux de tirage...",
+      "resultsCount": "{{count}} provider(s) affiché(s)",
+      "empty": {
+        "title": "Aucun provider",
+        "filtered": "Modifiez le filtre ou la recherche pour afficher des providers.",
+        "none": "Aucun provider n'est disponible pour ce tenant."
+      },
+      "notice": {
+        "title": "Action non disponible",
+        "configureUnavailable": "La configuration directe de {{provider}} sera activée avec l'endpoint backend."
+      },
+      "sourceError": {
+        "title": "Source de résultats indisponible",
+        "message": "Les ventes restent disponibles, mais les résultats automatiques de ce provider sont à vérifier."
       },
       "acquisition": {
         "auto": "Acquisition auto",
@@ -71,12 +92,22 @@
         "lastManualEntry": "Dernière saisie"
       },
       "slots": {
-        "title": "Créneaux horaires"
+        "title": "Créneaux horaires",
+        "unavailable": "Aucun créneau disponible pour cet espace",
+        "status": {
+          "active": "Actif",
+          "needsConfig": "À configurer",
+          "disabled": "Inactif"
+        }
       },
       "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
       "salesCutoffMissing": "Fermeture vente : Non définie",
       "actions": {
+        "backToSetup": "Configuration générale",
+        "generatedDraws": "Voir les tirages générés",
+        "refresh": "Rafraîchir",
         "configure": "Configurer",
+        "configureGameOffer": "Configurer l'offre de jeux",
         "results": "Résultats",
         "viewAllResults": "Tous les résultats"
       },
@@ -129,13 +160,41 @@
         },
         "options": {
           "title": "Options de pari / gains",
-          "description": "Lecture seule ici. Ces options viennent du catalogue et du barème du jeu."
+          "description": "Résumé du barème tenant appliqué à la vente."
+        },
+        "salesOptions": {
+          "title": "Options de vente",
+          "description": "Choix commerciaux proposés au POS et règle de sélection utilisée pendant la vente.",
+          "loadFailed": "Impossible de charger les options de vente. Les autres réglages peuvent encore être enregistrés.",
+          "selectionPolicy": "Mode de sélection",
+          "defaultOption": "Option par défaut",
+          "noDefaultOption": "Aucune option par défaut",
+          "enabled": "Offerte",
+          "visibleInPos": "Visible POS",
+          "status": {
+            "visible": "Visible",
+            "hidden": "Masquée POS",
+            "disabled": "Désactivée"
+          },
+          "policy": {
+            "EXPLICIT_ONLY": "Choix explicite seulement",
+            "EXPLICIT_WITH_AUTO_OPTION": "Choix explicite avec option auto",
+            "IMPLICIT_BEST_MATCH": "Meilleure option implicite"
+          }
         }
       }
     },
     "pricing": {
       "title": "Grille de cotes",
       "description": "Cotes par défaut pour tous les types de mises.",
+      "actions": {
+        "edit": "Modifier la cote"
+      },
+      "dialog": {
+        "edit": {
+          "title": "Modifier la cote tenant"
+        }
+      },
       "empty": {
         "title": "Aucune cote configurée",
         "message": "La grille de cotes est vide."
@@ -331,6 +390,11 @@
         "missingStake": "Mise non configurée",
         "missingLimits": "Limites manquantes"
       },
+      "provider": {
+        "slots": "{{count}} créneau(x)",
+        "offered": "{{count}} jeu(x) offert(s)",
+        "ready": "{{count}} vendable(s)"
+      },
       "slot": {
         "status": {
           "ready": "Prêt",
@@ -347,7 +411,9 @@
         "cutoff": "Cutoff : {{seconds}}s avant le tirage",
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
-        "dependsOnAnother": "Dépend d'un autre canal"
+        "dependsOnAnother": "Dépend d'un autre canal",
+        "missingHelp": "Ce créneau n'a pas encore de canal de vente configuré.",
+        "configureChannels": "Configurer les canaux"
       },
       "section": {
         "offered": "Jeux activés ou offerts sur ce canal",
@@ -366,6 +432,18 @@
         "stakeMissing": "Mises à configurer",
         "limitsMissing": "Limites manquantes",
         "hiddenPos": "Masqué POS",
+        "fact": {
+          "minStake": "Mise min",
+          "maxStake": "Mise max",
+          "limits": "Limites",
+          "visibility": "Visibilité",
+          "source": "Source",
+          "configured": "Configuré",
+          "notConfigured": "Non configuré",
+          "visibleInPos": "Visible POS",
+          "hiddenInPos": "Masqué POS",
+          "tenantGameSettings": "Paramètres du jeu tenant"
+        },
         "action": {
           "configureMaryaj": "Configurer Maryaj gratis",
           "configureStake": "Configurer les mises",

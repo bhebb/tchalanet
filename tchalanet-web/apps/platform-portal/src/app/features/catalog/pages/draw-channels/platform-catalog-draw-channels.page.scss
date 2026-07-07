@@ -4,7 +4,7 @@
 
 .draw-channel-code {
   display: inline-block;
-  margin-top: 0.25rem;
+  margin-block-start: var(--tch-space-base);
   color: var(--tch-color-on-surface-variant);
   font-size: var(--tch-font-size-label-sm);
 }
@@ -15,10 +15,10 @@
 
 .draw-channel-card {
   display: grid;
-  gap: 0.875rem;
+  gap: calc(var(--tch-space-base) * 3);
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-lg);
-  padding: 1rem;
+  padding: calc(var(--tch-space-base) * 4);
   background: var(--tch-color-surface-container-lowest);
 }
 
@@ -26,13 +26,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: calc(var(--tch-space-base) * 3);
 }
 
 .draw-channel-card__facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: calc(var(--tch-space-base) * 3);
   margin: 0;
 
   div {
@@ -54,7 +54,7 @@
   dd {
     overflow-wrap: anywhere;
     color: var(--tch-color-on-surface);
-    font-size: var(--tch-font-size-body-sm);
+    font-size: var(--tch-font-size-small);
     font-weight: var(--tch-weight-medium);
   }
 }
@@ -62,9 +62,100 @@
 .draw-channel-card__actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.25rem;
+  gap: var(--tch-space-base);
   border-top: 1px solid var(--tch-color-outline-variant);
-  padding-top: 0.5rem;
+  padding-block-start: calc(var(--tch-space-base) * 2);
+}
+
+.draw-channel-config {
+  margin-block-start: calc(var(--tch-space-base) * 5);
+  overflow: hidden;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-surface-container-lowest);
+  box-shadow: var(--tch-elevation-1);
+}
+
+.draw-channel-config__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--tch-space-base) * 3);
+  border-block-end: 1px solid var(--tch-color-outline-variant);
+  padding: calc(var(--tch-space-base) * 4);
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-title-md);
+    font-weight: var(--tch-weight-bold);
+    line-height: var(--tch-line-height-title-md);
+  }
+
+  p:not(.draw-channel-config__eyebrow) {
+    margin-block-start: var(--tch-space-base);
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-small);
+  }
+}
+
+.draw-channel-config__eyebrow {
+  margin: 0 0 var(--tch-space-base);
+  color: var(--tch-color-primary);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.draw-channel-config__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--tch-space-base) * 4);
+  padding: calc(var(--tch-space-base) * 4);
+}
+
+.draw-channel-config__section {
+  min-width: 0;
+
+  h3 {
+    margin: 0 0 calc(var(--tch-space-base) * 3);
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-md);
+    font-weight: var(--tch-weight-bold);
+  }
+}
+
+.draw-channel-config__section--wide,
+.draw-channel-config__actions {
+  grid-column: 1 / -1;
+}
+
+.draw-channel-config__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--tch-space-base) * 3);
+}
+
+.draw-channel-config__notes {
+  grid-column: 1 / -1;
+}
+
+.draw-channel-config__actions {
+  display: flex;
+  justify-content: flex-start;
+  border-block-start: 1px solid var(--tch-color-outline-variant);
+  padding-block-start: calc(var(--tch-space-base) * 4);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--tch-space-base) * 2);
+  }
 }
 
 @media (max-width: 760px) {
@@ -74,6 +165,17 @@
 
   .draw-channel-cards {
     display: grid;
-    gap: 0.75rem;
+    gap: calc(var(--tch-space-base) * 3);
+  }
+}
+
+@media (min-width: 960px) {
+  .draw-channel-config__form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .draw-channel-config__fields,
+  .draw-channel-config__fields--wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

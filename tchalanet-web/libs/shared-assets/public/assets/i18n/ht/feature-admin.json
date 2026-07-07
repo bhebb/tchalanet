@@ -262,6 +262,11 @@
         "missingStake": "Miz pa konfigire",
         "missingLimits": "Limit manke"
       },
+      "provider": {
+        "slots": "{{count}} lè tiraj",
+        "offered": "{{count}} jwèt ofri",
+        "ready": "{{count}} vendab"
+      },
       "slot": {
         "status": {
           "ready": "Pare",
@@ -278,7 +283,9 @@
         "cutoff": "Cutoff : {{seconds}}s avan tiraj la",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
-        "dependsOnAnother": "Depann de yon lòt kanal"
+        "dependsOnAnother": "Depann de yon lòt kanal",
+        "missingHelp": "Lè tiraj sa a poko gen kanal vant konfigire.",
+        "configureChannels": "Konfigire kanal yo"
       },
       "section": {
         "offered": "Jwèt aktive oswa ofri sou kanal sa a",
@@ -297,6 +304,18 @@
         "stakeMissing": "Miz pou konfigire",
         "limitsMissing": "Limit manke",
         "hiddenPos": "Kache nan POS",
+        "fact": {
+          "minStake": "Miz min",
+          "maxStake": "Miz max",
+          "limits": "Limit",
+          "visibility": "Vizibilite",
+          "source": "Sous",
+          "configured": "Konfigire",
+          "notConfigured": "Pa konfigire",
+          "visibleInPos": "Vizib POS",
+          "hiddenInPos": "Kache POS",
+          "tenantGameSettings": "Paramèt jwèt tenant lan"
+        },
         "action": {
           "configureMaryaj": "Konfigire Maryaj gratis",
           "configureStake": "Konfigire miz yo",
@@ -660,47 +679,78 @@
       }
     },
     "drawChannels": {
-      "title": "Tirages",
-      "description": "Configurez les états, sources de résultats et créneaux actifs pour votre espace.",
+      "title": "Kanal tiraj",
+      "description": "Konfigire provider yo, sous rezilta yo, ak lè tiraj aktif pou tenant lan.",
+      "status": {
+        "active": "Aktif",
+        "needsConfig": "Pou konfigire",
+        "inactive": "Inaktif",
+        "unavailable": "Pa disponib"
+      },
       "summary": {
-        "availableStates": "States dispos",
-        "activeStates": "States actifs",
-        "activeChannels": "DrawChannels actifs",
-        "todo": "À configurer"
+        "availableStates": "Provider disponib",
+        "activeStates": "Provider aktif",
+        "activeChannels": "Kanal aktif",
+        "todo": "Pou konfigire"
       },
       "filters": {
-        "all": "Tous",
-        "active": "Actifs",
-        "todo": "À configurer",
-        "inactive": "Inactifs",
-        "sourceError": "Erreur source"
+        "all": "Tout",
+        "active": "Aktif",
+        "todo": "Pou konfigire",
+        "inactive": "Inaktif",
+        "sourceError": "Erè sous"
       },
       "search": {
-        "placeholder": "Rechercher un state..."
+        "placeholder": "Chèche provider..."
+      },
+      "loading": "Chajman kanal tiraj yo...",
+      "resultsCount": "{{count}} provider afiche",
+      "empty": {
+        "title": "Pa gen provider",
+        "filtered": "Chanje filtè a oswa rechèch la pou montre provider yo.",
+        "none": "Pa gen provider disponib pou tenant sa a."
+      },
+      "notice": {
+        "title": "Aksyon pa disponib",
+        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak endpoint backend la."
+      },
+      "sourceError": {
+        "title": "Sous rezilta pa disponib",
+        "message": "Vant yo ka rete disponib, men rezilta otomatik provider sa a bezwen verifye."
       },
       "acquisition": {
-        "auto": "Acquisition auto",
-        "manual": "Saisie manuelle",
-        "unconfigured": "Mode résultat à définir",
-        "error": "Source en erreur",
-        "last": "Dernière",
-        "next": "Prochaine",
-        "lastManualEntry": "Dernière saisie"
+        "auto": "Akizisyon otomatik",
+        "manual": "Antre manyèl",
+        "unconfigured": "Mòd rezilta pou defini",
+        "error": "Erè sous",
+        "last": "Dènye",
+        "next": "Pwochen",
+        "lastManualEntry": "Dènye antre manyèl"
       },
       "slots": {
-        "title": "Créneaux horaires"
+        "title": "Lè tiraj",
+        "unavailable": "Pa gen lè tiraj disponib pou tenant sa a",
+        "status": {
+          "active": "Aktif",
+          "needsConfig": "Pou konfigire",
+          "disabled": "Inaktif"
+        }
       },
-      "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
-      "salesCutoffMissing": "Fermeture vente : Non définie",
+      "salesCutoff": "Vant fèmen: {{minutes}} min anvan tiraj",
+      "salesCutoffMissing": "Vant fèmen: Pa defini",
       "actions": {
-        "configure": "Configurer",
-        "results": "Résultats",
-        "viewAllResults": "Tous les résultats"
+        "backToSetup": "Konfigirasyon jeneral",
+        "generatedDraws": "Gade tiraj jenere yo",
+        "refresh": "Rafrechi",
+        "configure": "Konfigire",
+        "configureGameOffer": "Konfigire òf jwèt yo",
+        "results": "Rezilta",
+        "viewAllResults": "Tout rezilta yo"
       },
       "readiness": {
-        "ready": "Prêt pour la vente",
-        "todo": "Configuration incomplète",
-        "sourceWarning": "Vente configurée · Source à vérifier"
+        "ready": "Pare pou vant",
+        "todo": "Konfigirasyon pa konplè",
+        "sourceWarning": "Vant konfigire · Sous pou verifye"
       }
     },
     "games": {
@@ -746,13 +796,41 @@
         },
         "options": {
           "title": "Opsyon pari / gain",
-          "description": "Lekti sèlman isit la. Opsyon sa yo soti nan katalòg jwèt la ak barèm lan."
+          "description": "Rezime barèm tenant lan ki aplike nan vant lan."
+        },
+        "salesOptions": {
+          "title": "Opsyon vant",
+          "description": "Chwa komèsyal POS la ka vann ak règ seleksyon ki sèvi pandan vant lan.",
+          "loadFailed": "Opsyon vant yo pa ka chaje. Lòt reglaj yo ka toujou anrejistre.",
+          "selectionPolicy": "Mòd seleksyon",
+          "defaultOption": "Opsyon pa defo",
+          "noDefaultOption": "Pa gen opsyon pa defo",
+          "enabled": "Ofri",
+          "visibleInPos": "Vizib POS",
+          "status": {
+            "visible": "Vizib",
+            "hidden": "Kache nan POS",
+            "disabled": "Dezaktive"
+          },
+          "policy": {
+            "EXPLICIT_ONLY": "Chwa eksplisit sèlman",
+            "EXPLICIT_WITH_AUTO_OPTION": "Chwa eksplisit ak opsyon otomatik",
+            "IMPLICIT_BEST_MATCH": "Pi bon opsyon otomatik"
+          }
         }
       }
     },
     "pricing": {
       "title": "Tablo kòt",
       "description": "Kòt pa defo pou tout tip pari yo.",
+      "actions": {
+        "edit": "Modifye kòt la"
+      },
+      "dialog": {
+        "edit": {
+          "title": "Modifye kòt tenant lan"
+        }
+      },
       "empty": {
         "title": "Pa gen kòt konfigire",
         "message": "Tablo kòt la vid."

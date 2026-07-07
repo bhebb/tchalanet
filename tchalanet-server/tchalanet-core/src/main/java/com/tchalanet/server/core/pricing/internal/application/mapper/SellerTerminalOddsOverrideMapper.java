@@ -13,7 +13,7 @@ public class SellerTerminalOddsOverrideMapper {
     public SellerTerminalOddsOverrideView toView(SellerTerminalOddsOverride o) {
         return new SellerTerminalOddsOverrideView(
             o.id(), o.tenantId(), o.sellerTerminalId(),
-            o.gameCode(), o.betType(), o.betOption(),
+            o.gameCode(), o.pricingVariantCode(), o.betType(), o.betOption(),
             o.odds(), o.active(),
             o.effectiveFrom(), o.effectiveTo(),
             o.reason(), o.createdAt(), o.updatedAt());
@@ -24,6 +24,7 @@ public class SellerTerminalOddsOverrideMapper {
         TenantId tenantId,
         SellerTerminalId sellerTerminalId,
         String gameCode,
+        com.tchalanet.server.core.pricing.api.model.PricingVariantCode pricingVariantCode,
         String betType,
         Short betOption,
         java.math.BigDecimal odds,
@@ -39,7 +40,7 @@ public class SellerTerminalOddsOverrideMapper {
     ) {
         return new SellerTerminalOddsOverride(
             id, tenantId, sellerTerminalId,
-            gameCode, betType, betOption,
+            gameCode, pricingVariantCode, betType, betOption,
             odds, active,
             effectiveFrom, effectiveTo, reason,
             createdAt, createdBy, updatedAt, updatedBy, deletedAt);

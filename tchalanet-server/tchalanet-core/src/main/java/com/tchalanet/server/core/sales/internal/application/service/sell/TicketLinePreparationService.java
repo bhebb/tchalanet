@@ -10,17 +10,22 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
+import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,18 +76,48 @@ public class TicketLinePreparationService {
         assertInternalInvariants(input);
 
         var stake = input.stakeAmount().setScale(2, RoundingMode.UNNECESSARY);
-
-        var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
-            tenantId,
-            sellerTerminalId,
-            canonicalGameCode(input.gameCode()),
-            input.betType().name(),
-            input.betOption()));
-        Objects.requireNonNull(oddsResolution, "pricing odds resolution is required");
-        var odds = requireEffectiveOdds(oddsResolution.effectiveOdds())
-            .setScale(4, RoundingMode.HALF_UP);
-
-        var potential = stake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
+        var coverageResolution = SettlementVariantResolver.resolveCoverage(
+            input.betType(),
+            input.betOption(),
+            input.rawSelection());
+        var coverageStakes = splitStake(stake, coverageResolution.variants().size());
+        var coverages = new ArrayList<TicketLineCoverage>();
+        for (int i = 0; i < coverageResolution.variants().size(); i++) {
+            var coverageVariant = coverageResolution.variants().get(i);
+            var coverageStake = coverageStakes.get(i);
+            var odds = resolveOdds(
+                tenantId,
+                sellerTerminalId,
+                input,
+                coverageVariant.pricingVariantCode())
+                .setScale(4, RoundingMode.HALF_UP);
+            var potential = coverageStake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
+            coverages.add(new TicketLineCoverage(
+                coverageVariant.pricingVariantCode(),
+                new Money(coverageStake, currency),
+                odds,
+                new Money(potential, currency),
+                coverageVariant.winMode()
+            ));
+        }
+        var minPotential = coverages.stream()
+            .map(TicketLineCoverage::potentialGainSnapshot)
+            .min(Comparator.comparing(Money::amount))
+            .orElseThrow();
+        var maxPotential = coverages.stream()
+            .map(TicketLineCoverage::potentialGainSnapshot)
+            .max(Comparator.comparing(Money::amount))
+            .orElseThrow();
+        var totalPotential = coverageResolution.potentialGainMode() == PotentialGainMode.RANGE_CUMULATIVE
+            ? coverages.stream()
+                .map(TicketLineCoverage::potentialGainSnapshot)
+                .reduce(Money.zero(currency), Money::plus)
+            : null;
+        var linePotential = totalPotential == null ? maxPotential : totalPotential;
+        var lineOdds = coverages.stream()
+            .max(Comparator.comparing(coverage -> coverage.potentialGainSnapshot().amount()))
+            .orElseThrow()
+            .oddsSnapshot();
 
         return new TicketLine(
             TicketLineId.of(idGenerator.newUuid()),
@@ -92,8 +127,13 @@ public class TicketLinePreparationService {
             selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
             new Money(stake, currency), // stakeAmount
             new Money(stake, currency), // payoutBaseAmount = stake for normal lines
-            odds, // oddsSnapshot
-            new Money(potential, currency), // potentialPayoutAmount
+            lineOdds, // oddsSnapshot: compatibility summary; coverages carry authoritative odds
+            linePotential, // potentialPayoutAmount: max alternative or cumulative total
+            coverageResolution.potentialGainMode(),
+            minPotential,
+            maxPotential,
+            totalPotential,
+            List.copyOf(coverages),
             input.betOption(),
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
@@ -104,6 +144,23 @@ public class TicketLinePreparationService {
             TicketLineResultStatus.PENDING,
             Money.zero(currency)
         );
+    }
+
+    private BigDecimal resolveOdds(
+        TenantId tenantId,
+        SellerTerminalId sellerTerminalId,
+        SellTicketLineInput input,
+        com.tchalanet.server.core.pricing.api.model.PricingVariantCode pricingVariantCode
+    ) {
+        var oddsResolution = queryBus.ask(new ResolveSellerTerminalOddsQuery(
+            tenantId,
+            sellerTerminalId,
+            canonicalGameCode(input.gameCode()),
+            pricingVariantCode,
+            input.betType().name(),
+            input.betOption()));
+        Objects.requireNonNull(oddsResolution, "pricing odds resolution is required");
+        return requireEffectiveOdds(oddsResolution.effectiveOdds());
     }
 
     private static void assertInternalInvariants(SellTicketLineInput input) {
@@ -133,5 +190,20 @@ public class TicketLinePreparationService {
             throw new IllegalStateException("pricing effective odds must be positive");
         }
         return odds;
+    }
+
+    private static List<BigDecimal> splitStake(BigDecimal stake, int coverageCount) {
+        if (coverageCount <= 0) {
+            throw new IllegalArgumentException("coverage count must be positive");
+        }
+        var totalCents = stake.movePointRight(2).longValueExact();
+        var baseCents = totalCents / coverageCount;
+        var remainder = totalCents % coverageCount;
+        var result = new ArrayList<BigDecimal>(coverageCount);
+        for (int i = 0; i < coverageCount; i++) {
+            var cents = baseCents + (i < remainder ? 1 : 0);
+            result.add(BigDecimal.valueOf(cents, 2));
+        }
+        return List.copyOf(result);
     }
 }

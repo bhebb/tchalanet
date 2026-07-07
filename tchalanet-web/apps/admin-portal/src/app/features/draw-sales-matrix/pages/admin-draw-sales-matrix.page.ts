@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
@@ -10,8 +9,6 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 import { consoleGameName } from '@tch/web/console';
-import type { TenantGameView } from '../../games-pricing/data-access/games-admin-api.service';
-import { GameSettingsDialog } from '../../games-pricing/components/dialogs/game-settings.dialog';
 import {
   AdminDrawSalesMatrixApi,
   SlotMatrixView,
@@ -52,7 +49,6 @@ interface MatrixToggleGameInput extends MatrixGameMutationInput {
 })
 export class AdminDrawSalesMatrixPage {
   private readonly api = inject(AdminDrawSalesMatrixApi);
-  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   readonly matrixResource = this.api.getMatrixResource({ suppressShellFeedback: true });
@@ -87,22 +83,6 @@ export class AdminDrawSalesMatrixPage {
         input.enabled ? 'admin.drawSalesMatrix.feedback.activated' : 'admin.drawSalesMatrix.feedback.disabled',
         { game: this.gameLabel(input.game) },
       ));
-      this.load(true);
-    },
-    onError: (err, input) => {
-      this.acting.set(null);
-      this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
-      return true;
-    },
-  });
-  readonly removeGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
-    run: input => this.api.removeGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
-    source: 'admin.setup.draw_sales_matrix.remove',
-    onSuccess: (_result, input) => {
-      this.acting.set(null);
-      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.removed', {
-        game: this.gameLabel(input.game),
-      }));
       this.load(true);
     },
     onError: (err, input) => {
@@ -166,30 +146,6 @@ export class AdminDrawSalesMatrixPage {
     });
   }
 
-  removeGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
-    const drawChannelId = slot.channel?.drawChannelId.value;
-    if (!drawChannelId) return;
-    const tenantGameId = game.tenantGameId.value;
-    const key = this.actingKey(drawChannelId, tenantGameId);
-    this.acting.set(key);
-    this.clearActionError(key);
-    this.clearActionNotice(key);
-    this.removeGameMutation.execute({
-      key,
-      drawChannelId,
-      tenantGameId,
-      game,
-    }, {
-      key,
-    });
-  }
-
-  configureGame(game: ChannelGameSetupView): void {
-    const dialogGame = this.toDialogGame(game);
-    const ref = this.dialog.open(GameSettingsDialog, { data: { game: dialogGame }, width: '520px' });
-    ref.afterClosed().subscribe(ok => { if (ok) this.load(); });
-  }
-
   isMaryajGratis(game: ChannelGameSetupView): boolean {
     return (
       game.gameCode === 'HT_MARYAJ_GRATUIT' ||
@@ -204,38 +160,13 @@ export class AdminDrawSalesMatrixPage {
 
   onMatrixGameAction(event: MatrixProviderGameActionEvent): void {
     switch (event.action) {
-      case 'configure':
-        this.configureGame(event.game);
-        break;
       case 'offer':
         this.offerGame(event.slot, event.game);
         break;
       case 'toggle':
         this.toggleGame(event.slot, event.game);
         break;
-      case 'remove':
-        this.removeGame(event.slot, event.game);
-        break;
     }
-  }
-
-  private toDialogGame(game: ChannelGameSetupView): TenantGameView {
-    return {
-      gameCode: game.gameCode,
-      catalogName: this.gameLabel(game),
-      displayName: game.displayName,
-      category: null,
-      enabled: game.enabledForTenant,
-      visibleInPos: game.visibleInPos,
-      displayOrder: 0,
-      minStake: game.minStake,
-      maxStake: game.maxStake,
-      availabilityEnabled: false,
-      availabilityDays: null,
-      startLocalTime: null,
-      endLocalTime: null,
-      readyForSale: game.saleReady,
-    };
   }
 
   private setActionError(

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
  */
 public record SellerTerminalOddsResolutionView(
     String gameCode,
+    PricingVariantCode pricingVariantCode,
     String betType,
     Short betOption,
     BigDecimal tenantDefaultOdds,

@@ -163,134 +163,6 @@ export class CreateDrawChannelDialog {
   }
 }
 
-// ── Edit Dialog ──────────────────────────────────────────────────────────────
-@Component({
-  selector: 'tch-edit-draw-channel-dialog',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
-  ],
-  template: `
-    <h2 mat-dialog-title>Modifier — {{ channel().name }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
-        <mat-form-field appearance="outline">
-          <mat-label>Code</mat-label>
-          <input matInput formControlName="code" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Nom</mat-label>
-          <input matInput formControlName="name" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Libellé</mat-label>
-          <input matInput formControlName="label" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Heure de tirage (HH:mm)</mat-label>
-          <input matInput formControlName="drawTime" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Timezone</mat-label>
-          <input matInput formControlName="timezone" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Jours (ex: MONDAY,TUESDAY)</mat-label>
-          <input matInput formControlName="daysOfWeek" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Délai cutoff (secondes)</mat-label>
-          <input matInput type="number" formControlName="cutoffSec" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Ordre d'affichage</mat-label>
-          <input matInput type="number" formControlName="sortOrder" />
-        </mat-form-field>
-        <mat-checkbox formControlName="active">Actif</mat-checkbox>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button mat-dialog-close>Annuler</button>
-      <button
-        mat-flat-button
-        color="primary"
-        [disabled]="form.invalid || saving()"
-        (click)="save()"
-      >
-        Enregistrer
-      </button>
-    </mat-dialog-actions>
-  `,
-})
-export class EditDrawChannelDialog {
-  private readonly api = inject(PlatformCatalogApi);
-  private readonly ref = inject(MatDialogRef<EditDrawChannelDialog>);
-  private readonly fb = inject(FormBuilder);
-
-  readonly channel = signal<CatalogDrawChannelView>({} as CatalogDrawChannelView);
-  readonly saving = signal(false);
-
-  readonly form = this.fb.nonNullable.group({
-    code: ['', Validators.required],
-    name: ['', Validators.required],
-    label: [''],
-    drawTime: ['', [Validators.required, Validators.pattern(/^\d{2}:\d{2}/)]],
-    timezone: [''],
-    daysOfWeek: [''],
-    cutoffSec: [null as number | null],
-    sortOrder: [10],
-    active: [true],
-  });
-
-  init(ch: CatalogDrawChannelView): void {
-    this.channel.set(ch);
-    this.form.patchValue({
-      code: ch.code,
-      name: ch.name,
-      label: ch.label ?? '',
-      drawTime: ch.drawTime?.substring(0, 5) ?? '',
-      timezone: ch.timezone ?? '',
-      daysOfWeek: ch.daysOfWeek?.join(',') ?? '',
-      cutoffSec: ch.cutoffSec ?? null,
-      sortOrder: ch.sortOrder,
-      active: ch.active,
-    });
-  }
-
-  save(): void {
-    if (this.form.invalid) return;
-    this.saving.set(true);
-    const v = this.form.getRawValue();
-    const days = v.daysOfWeek
-      ? v.daysOfWeek
-          .split(',')
-          .map(d => d.trim().toUpperCase())
-          .filter(Boolean)
-      : null;
-    const req: UpdateDrawChannelRequest = {
-      code: v.code.toUpperCase(),
-      name: v.name,
-      label: v.label || null,
-      drawTime: v.drawTime,
-      timezone: v.timezone || null,
-      daysOfWeek: days?.length ? days : null,
-      cutoffSec: v.cutoffSec ?? null,
-      sortOrder: v.sortOrder,
-      active: v.active,
-    };
-    this.api.updateDrawChannel(this.channel().id, req).subscribe({
-      next: updated => this.ref.close(updated),
-      error: (err: unknown) => { this.ref.close({ __error: (err as { error?: { title?: string } })?.error?.title ?? 'Erreur.' }); },
-    });
-  }
-}
-
 // ── Main Page ────────────────────────────────────────────────────────────────
 @Component({
   selector: 'tch-platform-catalog-draw-channels-page',
@@ -307,7 +179,10 @@ export class EditDrawChannelDialog {
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatTableModule,
     ReactiveFormsModule,
   ],
@@ -317,6 +192,7 @@ export class EditDrawChannelDialog {
 export class PlatformCatalogDrawChannelsPage {
   private readonly api = inject(PlatformCatalogApi);
   private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
   private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -359,6 +235,24 @@ export class PlatformCatalogDrawChannelsPage {
   readonly totalElements = computed(() => this.channelPage()?.totalElements ?? 0);
   readonly pageIndex = computed(() => this.channelPage()?.page ?? this.page());
   readonly pageSize = computed(() => this.channelPage()?.size ?? this.size());
+  readonly selectedChannel = signal<CatalogDrawChannelRow | null>(null);
+  readonly savingConfig = signal(false);
+
+  readonly configForm = this.fb.nonNullable.group({
+    code: ['', Validators.required],
+    name: ['', Validators.required],
+    label: [''],
+    drawTime: ['', [Validators.required, Validators.pattern(/^\d{2}:\d{2}$/)]],
+    timezone: ['', Validators.required],
+    daysOfWeek: [''],
+    cutoffSec: [null as number | null],
+    sortOrder: [10],
+    period: [''],
+    resultSlotId: [''],
+    defaultSource: [''],
+    notes: [''],
+    active: [true],
+  });
 
   private showError(msg: string): void {
     this.snackBar.open(msg, 'OK', { duration: 5000 });
@@ -389,12 +283,69 @@ export class PlatformCatalogDrawChannelsPage {
     });
   }
 
-  openEdit(ch: CatalogDrawChannelView): void {
-    const ref = this.dialog.open(EditDrawChannelDialog, { width: '520px' });
-    (ref.componentInstance as EditDrawChannelDialog).init(ch);
-    ref.afterClosed().subscribe((updated: CatalogDrawChannelView | { __error: string } | null) => {
-      if (updated && '__error' in updated) { this.showError(updated.__error); return; }
-      if (updated) { this.snackBar.open('Canal mis à jour.', 'OK', { duration: 4000 }); this.load(); }
+  openConfig(ch: CatalogDrawChannelRow): void {
+    this.selectedChannel.set(ch);
+    this.configForm.reset({
+      code: ch.code,
+      name: ch.name,
+      label: ch.label ?? '',
+      drawTime: ch.drawTime?.substring(0, 5) ?? '',
+      timezone: ch.timezone ?? '',
+      daysOfWeek: ch.daysOfWeek?.join(',') ?? '',
+      cutoffSec: ch.cutoffSec ?? null,
+      sortOrder: ch.sortOrder,
+      period: ch.period ?? '',
+      resultSlotId: ch.resultSlotId ?? '',
+      defaultSource: ch.defaultSource ?? '',
+      notes: ch.notes ?? '',
+      active: ch.active,
+    });
+  }
+
+  closeConfig(): void {
+    this.selectedChannel.set(null);
+  }
+
+  saveConfig(): void {
+    const channel = this.selectedChannel();
+    if (!channel || this.configForm.invalid || this.savingConfig()) return;
+
+    this.savingConfig.set(true);
+    const v = this.configForm.getRawValue();
+    const days = v.daysOfWeek
+      ? v.daysOfWeek
+          .split(',')
+          .map(d => d.trim().toUpperCase())
+          .filter(Boolean)
+      : null;
+    const req: UpdateDrawChannelRequest = {
+      code: v.code.toUpperCase(),
+      name: v.name,
+      label: v.label || null,
+      drawTime: v.drawTime,
+      timezone: v.timezone || null,
+      daysOfWeek: days?.length ? days : null,
+      cutoffSec: v.cutoffSec ?? null,
+      sortOrder: v.sortOrder,
+      period: v.period || null,
+      resultSlotId: v.resultSlotId || null,
+      defaultSource: v.defaultSource || null,
+      notes: v.notes || null,
+      active: v.active,
+    };
+    this.api.updateDrawChannel(channel.id, req).subscribe({
+      next: updated => {
+        this.savingConfig.set(false);
+        this.snackBar.open('Canal mis à jour.', 'OK', { duration: 4000 });
+        this.openConfig(this.toRow(updated));
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.savingConfig.set(false);
+        this.showError((err as { error?: { detail?: string; title?: string } })?.error?.detail
+          ?? (err as { error?: { title?: string } })?.error?.title
+          ?? 'Erreur.');
+      },
     });
   }
 

@@ -19,13 +19,68 @@ export interface TenantGameView {
   readonly endLocalTime: string | null;
   readonly readyForSale: boolean;
   readonly betOptions?: readonly TenantGameBetOptionView[];
+  readonly betOptionGroups?: readonly TenantGameBetOptionGroupView[];
 }
 
 export interface TenantGameBetOptionView {
   readonly label: string;
   readonly value: string;
+  readonly odds: number;
   readonly betType: string;
   readonly betOption: number | null;
+  readonly pricingVariantCode: string | null;
+}
+
+export interface TenantGameBetOptionGroupView {
+  readonly id: string;
+  readonly label: string;
+  readonly betType: string;
+  readonly betOption: number | null;
+  readonly variants: readonly TenantGameBetOptionView[];
+}
+
+export type TenantGameSelectionPolicy =
+  | 'EXPLICIT_ONLY'
+  | 'EXPLICIT_WITH_AUTO_OPTION'
+  | 'IMPLICIT_BEST_MATCH';
+
+export interface TenantGameBetOptionConfigView {
+  readonly gameCode: string;
+  readonly betTypes: readonly TenantBetTypeOptionConfigView[];
+}
+
+export interface TenantBetTypeOptionConfigView {
+  readonly betType: string;
+  readonly selectionPolicy: TenantGameSelectionPolicy;
+  readonly defaultOption: number | null;
+  readonly options: readonly TenantBetOptionConfigView[];
+}
+
+export interface TenantBetOptionConfigView {
+  readonly code: number;
+  readonly label: string;
+  readonly description: string | null;
+  readonly enabled: boolean;
+  readonly visibleInPos: boolean;
+  readonly displayOrder: number;
+}
+
+export interface UpdateTenantGameBetOptionConfigRequest {
+  readonly betTypes: readonly UpdateTenantBetTypeOptionConfig[];
+}
+
+export interface UpdateTenantBetTypeOptionConfig {
+  readonly betType: string;
+  readonly selectionPolicy: TenantGameSelectionPolicy;
+  readonly defaultOption: number | null;
+  readonly options: readonly UpdateTenantBetOptionConfig[];
+}
+
+export interface UpdateTenantBetOptionConfig {
+  readonly code: number;
+  readonly enabled: boolean;
+  readonly visibleInPos: boolean;
+  readonly displayOrder: number;
 }
 
 export interface CatalogGameView {
@@ -72,5 +127,21 @@ export class GamesAdminApiService {
 
   updateGameSettings(gameCode: string, req: UpdateGameSettingsRequest, options?: TchRequestOptions): Observable<void> {
     return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, req, options);
+  }
+
+  getBetOptionConfig(gameCode: string, options?: TchRequestOptions): Observable<TenantGameBetOptionConfigView> {
+    return this.backend.get<TenantGameBetOptionConfigView>(`/admin/games/${gameCode}/bet-options`, options);
+  }
+
+  updateBetOptionConfig(
+    gameCode: string,
+    req: UpdateTenantGameBetOptionConfigRequest,
+    options?: TchRequestOptions,
+  ): Observable<TenantGameBetOptionConfigView> {
+    return this.backend.patch<TenantGameBetOptionConfigView>(
+      `/admin/games/${gameCode}/bet-options`,
+      req,
+      options,
+    );
   }
 }

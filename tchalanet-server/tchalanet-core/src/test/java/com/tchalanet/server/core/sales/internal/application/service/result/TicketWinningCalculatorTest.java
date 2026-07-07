@@ -16,6 +16,8 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
+import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
@@ -24,6 +26,8 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLineCoverage;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.WinMode;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 import java.math.BigDecimal;
@@ -172,6 +176,24 @@ class TicketWinningCalculatorTest {
         void boxLoses() {
             assertThat(status(GameCode.HT_LOTO3, BetType.LOTTO3_3D, (short) 2, "789", draw))
                 .isEqualTo(TicketLineResultStatus.LOST);
+        }
+
+        @Test
+        @DisplayName("exact plus box pays the best winning coverage")
+        void exactPlusBoxPaysBestWinningCoverage() {
+            var line = exactPlusBoxLoto3Line("123");
+
+            var exactResult = calculator.computeLineResults(
+                ticket(line, money("20")),
+                projection("123", null, null, null));
+            assertThat(exactResult.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
+            assertThat(exactResult.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("5000");
+
+            var permutedResult = calculator.computeLineResults(
+                ticket(line, money("20")),
+                projection("321", null, null, null));
+            assertThat(permutedResult.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
+            assertThat(permutedResult.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("800");
         }
     }
 
@@ -330,6 +352,10 @@ class TicketWinningCalculatorTest {
             TicketLineResultStatus.PENDING,
             money("0"));
 
+        return ticket(line, money("10"));
+    }
+
+    private static Ticket ticket(TicketLine line, Money stake) {
         return Ticket.place(
             new TicketIdentity(
                 TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001")),
@@ -341,13 +367,54 @@ class TicketWinningCalculatorTest {
                 null,
                 null),
             TicketCodes.from("TCK-123456-123456-ABC123-4", "ABCD-1234", "WXYZ-5678"),
-            new TicketMoneyBreakdown(money("10"), List.of(), money("10")),
+            new TicketMoneyBreakdown(stake, List.of(), stake),
             List.of(line),
             TicketSaleChannel.POS_ONLINE,
             false,
             null,
             UserId.of(UUID.fromString("10000000-0000-0000-0000-000000000001")),
             NOW);
+    }
+
+    private static TicketLine exactPlusBoxLoto3Line(String played) {
+        return new TicketLine(
+            LINE_ID,
+            1,
+            GameCode.HT_LOTO3,
+            BetType.LOTTO3_3D,
+            new Selection(SelectionKey.of(played), played),
+            money("20"),
+            money("20"),
+            new BigDecimal("500"),
+            money("5000"),
+            PotentialGainMode.RANGE_ALTERNATIVE,
+            money("800"),
+            money("5000"),
+            null,
+            List.of(
+                new TicketLineCoverage(
+                    PricingVariantCode.LOTTO3_STRAIGHT,
+                    money("10"),
+                    new BigDecimal("500"),
+                    money("5000"),
+                    WinMode.ALTERNATIVE),
+                new TicketLineCoverage(
+                    PricingVariantCode.LOTTO3_BOX_6_WAY,
+                    money("10"),
+                    new BigDecimal("80"),
+                    money("800"),
+                    WinMode.ALTERNATIVE)
+            ),
+            (short) 3,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin.CUSTOMER,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
+            null,
+            null,
+            TicketLineResultStatus.PENDING,
+            money("0")
+        );
     }
 
     private static DrawResultProjection projection(String lot1, String lot2, String lot3, String lot4) {

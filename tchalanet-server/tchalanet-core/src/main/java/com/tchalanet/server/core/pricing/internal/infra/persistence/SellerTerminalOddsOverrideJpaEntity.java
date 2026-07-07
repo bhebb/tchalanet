@@ -27,6 +27,9 @@ public class SellerTerminalOddsOverrideJpaEntity extends BaseTenantEntity {
     @Column(name = "game_code", nullable = false, length = 64)
     private String gameCode;
 
+    @Column(name = "pricing_variant_code", nullable = false, length = 64)
+    private String pricingVariantCode;
+
     @Column(name = "bet_type", nullable = false, length = 32)
     private String betType;
 

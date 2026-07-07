@@ -1,5 +1,7 @@
 package com.tchalanet.server.features.pos.games;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +23,7 @@ public class PosGamesController {
 
     @GetMapping("/available")
     @Operation(summary = "List cashier game choices with seller-facing bet option labels")
-    public ApiResponse<List<PosGameOptionResponse>> available() {
-        return ApiResponse.success(service.listAvailable());
+    public ApiResponse<List<PosGameOptionResponse>> available(@CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(service.listAvailable(ctx.tenantIdRequired()));
     }
 }

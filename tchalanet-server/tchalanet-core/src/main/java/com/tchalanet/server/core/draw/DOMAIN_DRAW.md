@@ -25,7 +25,7 @@
 
 - ❌ N'appelle jamais les providers externes (rôle de `core.uslottery`).
 - ❌ N'écrit jamais dans `draw_result` (rôle de `core.drawresult`).
-- ❌ Ne calcule pas les odds/payouts (rôle de `catalog.pricing`).
+- ❌ Ne calcule pas les odds/payouts (rôle de `core.pricing` + `core.sales`).
 - ❌ Ne traite pas les paiements (rôle de `core.payout`, qui réagit à `DrawSettledEvent`).
 - ❌ Ne projette pas les résultats Haïti (rôle de `core.haiti`, appelé par `core.drawresult`).
 - ❌ N'autorise pas la vente (rôle de `core.sales`, qui lit l'état du draw).

@@ -3,12 +3,14 @@ package com.tchalanet.server.core.pricing.internal.infra.web.admin.model;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import com.tchalanet.server.core.pricing.api.model.PricingVariantCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 public record UpsertOddsOverrideRequest(
     @NotBlank String gameCode,
+    @NotNull PricingVariantCode pricingVariantCode,
     @NotBlank String betType,
     Short betOption,
     @NotNull @DecimalMin(value = "0.0001", inclusive = false) BigDecimal odds,
