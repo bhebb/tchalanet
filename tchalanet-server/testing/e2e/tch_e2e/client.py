@@ -65,6 +65,13 @@ class ApiClient:
             merged.update(headers)
         return self._client.patch(path, json=json, headers=merged)
 
+    def put(self, path: str, *, json: Any = None, context: OpContext | None = None,
+            headers: Mapping[str, str] | None = None) -> httpx.Response:
+        merged = dict(_ctx_headers(context))
+        if headers:
+            merged.update(headers)
+        return self._client.put(path, json=json, headers=merged)
+
     def delete(self, path: str, *, context: OpContext | None = None) -> httpx.Response:
         return self._client.delete(path, headers=_ctx_headers(context))
 
