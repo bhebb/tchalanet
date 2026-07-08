@@ -69,10 +69,11 @@
 - [x] `disable(FAIL_ON_UNKNOWN_PROPERTIES)` (résilience schema drift).
 - [x] Test de round-trip `RedisCacheSerializerRoundTripTest` (typed-id, JsonNode, List, NullValue).
 - [x] Observabilité dev : log `CombinedCache` L1/L2/DB + loggers Redis DEBUG (profil local-ide-redis).
-- [ ] Mapper les `JsonNode` cachés (`ResultSlotView.sourceCfg/projectionCfg`,
-      `GameSummaryView.flags`) vers des structures stables — un `JsonNode` null revient en `NullNode`.
-      ÉVALUÉ : blast radius large (sourceCfg/projectionCfg = 64 refs, flags = 28 refs, exposés au
-      web) → refactor dédié, pas un petit commit. Le serializer round-trippe déjà le JsonNode
-      (test OK) ; le résidu `null→NullNode` est toléré par les consommateurs `.path()/.isNull()`.
-      Risque faible → à traiter dans un change à part (ou normaliser null→NullNode côté mapper).
+- [x] JsonNode cachés — **résolu par normalisation null→{}** (constructeur compact) sur les 7 vues
+      cachées à JsonNode : DrawChannelView.flags, GameSummaryView.flags, PlanView.limits/features,
+      PageModelTemplateView.schema/model, DrawResultView.sourceResult/haitiResult/rawPayload,
+      ResultSlotView.sourceCfg/projectionCfg, ThemePresetView.config. Round-trip cache cohérent.
+      Le **typage en records** a été évalué et **écarté** : ces JSON sont semi-structurés et
+      navigués (`.path()`) dans de nombreux mappers/resolvers + colonnes jsonb JDBC → gros refactor
+      transverse pour un gain faible (le serializer round-trippe déjà le JsonNode).
 - [ ] Vérifier activation prod/staging de `tch.cache.redis.enabled` (infra).
