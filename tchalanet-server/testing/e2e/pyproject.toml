@@ -10,6 +10,12 @@ dependencies = [
     "pydantic>=2.5",
 ]
 
+[project.optional-dependencies]
+# Load / perf testing harness (see loadtest/). Install with: pip install -e '.[perf]'
+perf = [
+    "locust>=2.24",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers -p no:cacheprovider"

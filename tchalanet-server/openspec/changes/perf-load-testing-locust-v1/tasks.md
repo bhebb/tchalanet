@@ -1,19 +1,24 @@
 # Tasks — perf-load-testing-locust-v1
 
+> v1 slice landed: `testing/e2e/loadtest/` (package renamed from `locust` to avoid shadowing the
+> library) — client adapter, cashier sell/read tasks, Web UI custom inputs. Remaining items unchecked.
+
 ## 1. Locust scaffold
 
-- [ ] Add `locust` dependency under Python `[perf]` extra.
-- [ ] Add `testing/e2e/locust` package.
-- [ ] Add `locustfile.py` entrypoint.
-- [ ] Add README with local headless, Web UI, and CI manual-dispatch examples.
+- [x] Add `locust` dependency under Python `[perf]` extra.
+- [x] Add `testing/e2e/loadtest` package (not `locust/` — would shadow the library).
+- [x] Add `locustfile.py` entrypoint.
+- [x] Add README with local headless, Web UI, and CI manual-dispatch examples.
 
 ## 2. Client adapter
 
-- [ ] Implement `LocustApiClient` wrapping `tch_e2e.client.ApiClient`.
-- [ ] Fire Locust request events manually for every wrapped call.
-- [ ] Use stable metric names, not dynamic URLs with IDs.
-- [ ] Preserve existing e2e headers, tenant context, op context, auth token, and SSL config.
-- [ ] Track expected business errors separately from infrastructure failures.
+- [x] Implement `LocustApiClient` wrapping `tch_e2e.client.ApiClient`.
+- [x] Fire Locust request events manually for every wrapped call.
+- [x] Use stable metric names, not dynamic URLs with IDs (sell-path endpoints are ID-free).
+- [x] Preserve existing e2e headers, tenant context, op context, auth token, and SSL config (delegated
+      to the wrapped `ApiClient`).
+- [ ] Track expected business errors separately from infrastructure failures (v1: 5xx + unexpected
+      4xx = failure; dedicated expected-block tasks are §8).
 
 ## 3. Safety guards
 
@@ -43,21 +48,24 @@
 
 ## 6. Sell task
 
-- [ ] Implement `sell_basket.py`.
-- [ ] Time `sales.prepare`.
-- [ ] Time `sales.confirm`.
-- [ ] Time `sales.sell`.
-- [ ] Generate unique idempotency key per sell intent.
-- [ ] Assert successful sale response has a ticket/outcome.
-- [ ] Preserve Maryaj gratis behavior when campaign is active.
+NOTE: the real external cashier API is **preview → sell** (`/tenant/cashier/tickets/preview` then
+`/sell`), not the internal prepare/confirm/sell command names.
+
+- [x] Implement the `sell_basket` task (in `loadtest/users.py`).
+- [x] Time `POST /tenant/cashier/tickets/preview`.
+- [x] Time `POST /tenant/cashier/tickets/sell`.
+- [x] Generate unique idempotency key per sell intent (via `CashierFlow`).
+- [ ] Assert successful sale response has a ticket/outcome (v1 swallows to keep the user alive;
+      request outcome already reported).
+- [x] Preserve Maryaj gratis behavior when campaign is active (inherited from the real sell flow).
 
 ## 7. Read POS task
 
-- [ ] Implement `read_pos.py`.
+- [x] Implement the `read_pos` task (in `loadtest/users.py`).
+- [x] Time active draw list endpoint (`GET /tenant/cashier/draws/available` — cached read path).
 - [ ] Time POS dashboard/home endpoint.
-- [ ] Time active draw list endpoint.
 - [ ] Time games/options/config endpoint if used by POS sale screen.
-- [ ] Keep read scenario lightweight and realistic.
+- [x] Keep read scenario lightweight and realistic.
 
 ## 8. Optional controlled failure paths
 
@@ -95,12 +103,12 @@
 
 The Locust Web UI itself, extended, is the control panel — no external tooling.
 
-- [ ] Enable `--class-picker` so the web page lists the available **scenarios/test cases**
-      (User classes + LoadShapes) to select and launch.
-- [ ] Expose domain **inputs as editable web form fields** (via Locust custom command-line args that
-      render in the UI): basket size min/max (5–10), scenario profile (read/sales/mixed), target
-      tenant/terminal/cashier, `TCH_LOAD_RUN_ID`, concurrency & spawn rate.
-- [ ] Support start / stop and **live adjustment** of user count & spawn rate from the page, with
+- [x] Enable `--class-picker` so the web page lists the available **scenarios/test cases**
+      (documented in README; wired at launch).
+- [x] Expose domain **inputs as editable web form fields** (Locust custom args in `locustfile.py`):
+      `basket-min` / `basket-max` (5–10) render on the Web UI start screen. (More inputs — profile,
+      tenant/terminal — to add.)
+- [x] Support start / stop and **live adjustment** of user count & spawn rate (Locust native), with
       live RPS / p50-p95-p99 / failure charts and CSV download.
 - [ ] (Optional) a small **custom web route/page** (Locust web extension) that presents the test
       cases and their descriptions/inputs more explicitly than the default form.
