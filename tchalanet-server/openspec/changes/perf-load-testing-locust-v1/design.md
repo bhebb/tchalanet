@@ -53,6 +53,18 @@ Each step timed separately; the basket size (5–10) is randomized per iteration
 - Idempotency keys per sell (reuse e2e pattern) so retries don't double-sell.
 - Load data is confined to the seeded test tenant.
 
+## Alignment with concurrent work (maryaj-gratis / limits ergonomics)
+
+This change must reflect the in-flight `codex/maryaj-gratis-promotion-ux` work once merged:
+
+- **Limit rule catalog changed** (`rules.v1.json`: `MAX_POTENTIAL_PAYOUT_PER_TICKET` and others
+  dropped). The sell scenario evaluates limits, so limit-touching load/e2e scenarios MUST exercise
+  the *current* rule catalog — do not hard-code removed rules; read config as the app serves it.
+- **`DrawChannelSummaryView.id`** is now exposed — usable to target specific channels in scenarios.
+- The Java `BusinessRuntimeIntegrationTestBase` (`@SpringBootTest`) is a **complementary in-process
+  layer**; this OpenSpec is the **external Python/Locust** layer over the real HTTP API. They share
+  business intent, not code — keep scenario definitions consistent with that harness.
+
 ## Run modes
 
 - Local headless: `locust -f locust/locustfile.py --headless -u 10 -r 2 -t 2m --host $BASE_URL`.
