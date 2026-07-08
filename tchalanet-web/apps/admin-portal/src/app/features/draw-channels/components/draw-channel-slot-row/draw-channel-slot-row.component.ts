@@ -16,9 +16,7 @@ import { DrawChannelSlotConfigView } from '../../data-access/admin-draw-channels
 export class DrawChannelSlotRowComponent {
   readonly slot             = input.required<DrawChannelSlotConfigView>();
   readonly index            = input<number>(0);
-  readonly resultsAvailable = input<boolean>(false);
 
-  readonly viewResults = output<DrawChannelSlotConfigView>();
   readonly configure   = output<DrawChannelSlotConfigView>();
 
   protected slotStatus(slot: DrawChannelSlotConfigView): BadgeStatus {

@@ -12,6 +12,8 @@ export interface DrawCombinationRow {
   readonly playType: string;
   /** How the option wins: exact order or any order. */
   readonly winWith: 'exact' | 'any';
+  /** How multiple technical wins are settled for the commercial line. */
+  readonly settlementMode: 'single' | 'bestOf' | 'cumulative';
   /** Winning numbers/patterns for this option. */
   readonly winningNumbers: readonly string[];
 }
@@ -103,10 +105,10 @@ export function drawCombinationFactsFromResult(input: DrawCombinationResultInput
 function pick3Rows(digits: string): DrawCombinationRow[] {
   const perms = uniquePermutations(digits);
   const rows: DrawCombinationRow[] = [
-    { playType: 'Exact', winWith: 'exact', winningNumbers: [digits] },
+    { playType: 'Exact', winWith: 'exact', settlementMode: 'bestOf', winningNumbers: [digits] },
   ];
   if (perms.length > 1) {
-    rows.push({ playType: `Permuté · ${perms.length}-way`, winWith: 'any', winningNumbers: perms });
+    rows.push({ playType: `Désordre / Box · ${perms.length}-way`, winWith: 'any', settlementMode: 'bestOf', winningNumbers: perms });
   }
   return rows;
 }
@@ -116,23 +118,23 @@ function pick4Rows(digits: string): DrawCombinationRow[] {
   const front = digits.slice(0, 2);
   const back = digits.slice(2, 4);
   const rows: DrawCombinationRow[] = [
-    { playType: 'Exact', winWith: 'exact', winningNumbers: [digits] },
+    { playType: 'Exact', winWith: 'exact', settlementMode: 'bestOf', winningNumbers: [digits] },
   ];
   if (perms.length > 1) {
-    rows.push({ playType: `Permuté · ${perms.length}-way`, winWith: 'any', winningNumbers: perms });
+    rows.push({ playType: `Désordre / Box · ${perms.length}-way`, winWith: 'any', settlementMode: 'bestOf', winningNumbers: perms });
   }
   rows.push(
-    { playType: 'Deux premiers', winWith: 'exact', winningNumbers: [`${front} ••`] },
-    { playType: 'Deux derniers', winWith: 'exact', winningNumbers: [`•• ${back}`] },
+    { playType: '2 premiers chiffres', winWith: 'exact', settlementMode: 'bestOf', winningNumbers: [`${front} ••`] },
+    { playType: '2 derniers chiffres', winWith: 'exact', settlementMode: 'bestOf', winningNumbers: [`•• ${back}`] },
   );
   return rows;
 }
 
 function boletRows(lot1: string | null, lot2: string | null, lot3: string | null): DrawCombinationRow[] {
   const rows: Array<DrawCombinationRow | null> = [
-    lot1 ? { playType: 'Bòlèt · 1er lot', winWith: 'exact' as const, winningNumbers: [lot1] } : null,
-    lot2 ? { playType: 'Bòlèt · 2e lot', winWith: 'exact' as const, winningNumbers: [lot2] } : null,
-    lot3 ? { playType: 'Bòlèt · 3e lot', winWith: 'exact' as const, winningNumbers: [lot3] } : null,
+    lot1 ? { playType: '1er lot', winWith: 'exact' as const, settlementMode: 'cumulative' as const, winningNumbers: [lot1] } : null,
+    lot2 ? { playType: '2e lot', winWith: 'exact' as const, settlementMode: 'cumulative' as const, winningNumbers: [lot2] } : null,
+    lot3 ? { playType: '3e lot', winWith: 'exact' as const, settlementMode: 'cumulative' as const, winningNumbers: [lot3] } : null,
   ];
   return rows.filter((row): row is DrawCombinationRow => row !== null);
 }
@@ -141,17 +143,17 @@ function maryajRows(lot1: string | null, lot2: string | null): DrawCombinationRo
   if (!lot1 || !lot2) return [];
   const reverse = lot1 === lot2 ? [lot1] : [`${lot1}-${lot2}`, `${lot2}-${lot1}`];
   return [
-    { playType: 'Maryaj · ordre exact', winWith: 'exact', winningNumbers: [`${lot1}-${lot2}`] },
-    { playType: 'Maryaj · revers/double', winWith: 'any', winningNumbers: reverse },
+    { playType: 'Ordre exact', winWith: 'exact', settlementMode: 'bestOf', winningNumbers: [`${lot1}-${lot2}`] },
+    { playType: 'Revers / Double', winWith: 'any', settlementMode: 'bestOf', winningNumbers: reverse },
   ];
 }
 
 function loto5Rows(lot1: string | null, lot2: string | null, lot3: string | null): DrawCombinationRow[] {
   const rows: Array<DrawCombinationRow | null> = [
-    lot1 && lot2 ? { playType: 'Loto 5 · 1er + 2e lot', winWith: 'exact' as const, winningNumbers: [`${lot1} / ${lot2}`] } : null,
-    lot1 && lot3 ? { playType: 'Loto 5 · 1er + 3e lot', winWith: 'exact' as const, winningNumbers: [`${lot1} / ${lot3}`] } : null,
+    lot1 && lot2 ? { playType: '1er lot + 2e lot', winWith: 'exact' as const, settlementMode: 'bestOf' as const, winningNumbers: [`${lot1} / ${lot2}`] } : null,
+    lot1 && lot3 ? { playType: '1er lot + 3e lot', winWith: 'exact' as const, settlementMode: 'bestOf' as const, winningNumbers: [`${lot1} / ${lot3}`] } : null,
     lot1 && lot2 && lot3
-      ? { playType: 'Loto 5 · mixte 1er/2e/3e lot', winWith: 'any' as const, winningNumbers: [lot1, lot2, lot3] }
+      ? { playType: 'Mixte 1er/2e/3e lot', winWith: 'any' as const, settlementMode: 'bestOf' as const, winningNumbers: [lot1, lot2, lot3] }
       : null,
   ];
   return rows.filter((row): row is DrawCombinationRow => row !== null);

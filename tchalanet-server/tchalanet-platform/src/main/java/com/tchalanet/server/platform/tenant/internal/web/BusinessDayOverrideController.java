@@ -18,9 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * TENANT-LEVEL management of business-day closures (whole commerce,
- * {@code outlet_id IS NULL}). This is how a TENANT_ADMIN says "the whole commerce
- * is closed on date X".
+ * TENANT-LEVEL management of business-day closures. This is how a TENANT_ADMIN
+ * says "the whole commerce is closed on date X".
  *
  * <p>Seller-terminal operational availability is not modeled here.
  *

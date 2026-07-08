@@ -1,12 +1,10 @@
 package com.tchalanet.server.platform.tenanttheme.internal.web;
 
-import com.tchalanet.server.catalog.plan.api.PlanFeatureKeys;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeAdminView;
@@ -56,7 +54,6 @@ public class TenantThemeAdminController {
     @PostMapping("/preset")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasPermission(null, 'theme.manage')")
-    @RequiredFeature(PlanFeatureKeys.THEME_PRESET_SELECTION)
     public ApiResponse<Void> applyPreset(
         @Valid @RequestBody ApplyPresetRequest body,
         @CurrentContext TchRequestContext ctx) {
@@ -68,7 +65,6 @@ public class TenantThemeAdminController {
     @PatchMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasPermission(null, 'theme.manage')")
-    @RequiredFeature(PlanFeatureKeys.THEME_PRESET_SELECTION)
     public ApiResponse<Void> updateSettings(
         @Valid @RequestBody UpdateSettingsRequest body,
         @CurrentContext TchRequestContext ctx) {

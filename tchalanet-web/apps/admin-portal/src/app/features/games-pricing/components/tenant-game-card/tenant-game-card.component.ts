@@ -6,6 +6,7 @@ import { AdminStatusTone } from '@tch/ui/console';
 import {
   ConsoleGameCardActionEvent,
   ConsoleGameCardComponent,
+  ConsoleGameCardSummaryItem,
   ConsoleGameCardView,
   consoleGameLogoUrl,
   consoleGameLogoText,
@@ -58,24 +59,18 @@ export class TenantGameCardComponent {
       logoUrl: consoleGameLogoUrl(game.gameCode),
       logoText: consoleGameLogoText(game.gameCode, game.gameName),
       statusLabel: this.t(`admin.gamesPricing.status.${game.tenantStatus}`),
-      statusTone: STATUS_TONE[game.tenantStatus],
-      badgeLabel: this.t(`admin.gamesPricing.readiness.${game.readiness.status}`),
-      badgeTone: READINESS_BADGE[game.readiness.status],
+      statusTone: this.cardStatusTone(game),
+      badgeLabel: this.t(`admin.gamesPricing.readiness.${this.cardReadinessStatus(game)}`),
+      badgeTone: READINESS_BADGE[this.cardReadinessStatus(game)],
       unavailable: game.tenantStatus === 'UNAVAILABLE',
       unavailableLabel: this.t('admin.gamesPricing.card.unavailable'),
-      summaryItems: game.tenantStatus === 'UNAVAILABLE' ? [] : [
-        { icon: 'casino', label: this.t('admin.gamesPricing.card.systemGame', { name: game.gameName }) },
-        { icon: 'payments', label: this.stakeLabel(game), warning: !this.hasStakeConfig(game) },
-        { icon: 'price_change', label: this.pricingLabel(game), warning: game.odds.length === 0 },
-        { icon: 'shield', label: this.limitLabel(game), warning: game.limits.maxPerDraw === null },
-      ],
+      summaryTitle: game.tenantStatus === 'UNAVAILABLE' ? null : this.summaryTitle(game),
+      summaryItems: game.tenantStatus === 'UNAVAILABLE' ? [] : this.summaryItems(game),
       actions: this.primaryActions(game),
       secondaryActions: game.tenantStatus === 'UNAVAILABLE' ? [] : [
         ...(game.gameCode === 'HT_MARYAJ_GRATUIT'
           ? [{ id: 'maryaj-gratis', label: this.t('admin.gamesPricing.card.action.maryaj'), icon: 'redeem' }]
           : []),
-        { id: 'limits', label: this.t('admin.gamesPricing.card.action.limits'), icon: 'shield' },
-        { id: 'pricing', label: this.t('admin.gamesPricing.card.action.pricing'), icon: 'format_list_numbered' },
       ],
     };
   });
@@ -93,12 +88,6 @@ export class TenantGameCardComponent {
         break;
       case 'maryaj-gratis':
         void this.router.navigate(['/app/admin/maryaj-gratis'], { fragment: 'game' });
-        break;
-      case 'limits':
-        void this.router.navigate(['/app/admin/limits']);
-        break;
-      case 'pricing':
-        void this.router.navigate(['/app/admin/pricing']);
         break;
     }
   }
@@ -128,10 +117,44 @@ export class TenantGameCardComponent {
       : countLabel;
   }
 
-  private limitLabel(game: TenantGamePricingView): string {
-    return game.limits.maxPerDraw === null
-      ? this.t('admin.gamesPricing.card.limitMissing')
-      : this.t('admin.gamesPricing.card.limitConfigured');
+  private summaryTitle(game: TenantGamePricingView): string {
+    return this.hasBlockingItems(game)
+      ? this.t('admin.gamesPricing.card.blockers')
+      : this.t('admin.gamesPricing.card.readyChecks');
+  }
+
+  private summaryItems(game: TenantGamePricingView): ConsoleGameCardView['summaryItems'] {
+    const items: ConsoleGameCardSummaryItem[] = [
+      { icon: 'casino', label: this.t('admin.gamesPricing.card.systemGame', { name: game.gameName }) },
+    ];
+
+    if (!this.hasStakeConfig(game)) {
+      items.push({ icon: 'payments', label: this.stakeLabel(game), warning: true });
+    } else if (game.tenantStatus === 'ACTIVE') {
+      items.push({ icon: 'payments', label: this.stakeLabel(game) });
+    }
+
+    if (game.odds.length === 0) {
+      items.push({ icon: 'price_change', label: this.pricingLabel(game), warning: true });
+    } else {
+      items.push({ icon: 'price_change', label: this.pricingLabel(game) });
+    }
+
+    return items;
+  }
+
+  private hasBlockingItems(game: TenantGamePricingView): boolean {
+    return !this.hasStakeConfig(game) || game.odds.length === 0;
+  }
+
+  private cardReadinessStatus(game: TenantGamePricingView): ReadinessStatus {
+    if (game.tenantStatus !== 'UNAVAILABLE' && this.hasBlockingItems(game)) return 'TODO';
+    return game.readiness.status;
+  }
+
+  private cardStatusTone(game: TenantGamePricingView): AdminStatusTone {
+    if (game.tenantStatus !== 'UNAVAILABLE' && this.hasBlockingItems(game)) return 'warning';
+    return STATUS_TONE[game.tenantStatus];
   }
 
   private primaryActions(game: TenantGamePricingView): ConsoleGameCardView['actions'] {

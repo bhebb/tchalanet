@@ -42,7 +42,7 @@ export class AdminThemeApi {
     return this.backend.get<readonly ThemePresetView[]>('/admin/theme/presets', options);
   }
 
-  /** Requires `theme.manage` permission AND the `theme.preset_selection` plan feature. */
+  /** Requires `theme.manage` permission. */
   applyPreset(presetCode: string, options?: TchRequestOptions): Observable<void> {
     return this.backend.post<void>('/admin/theme/preset', { presetCode }, options);
   }

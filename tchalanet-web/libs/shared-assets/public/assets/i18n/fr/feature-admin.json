@@ -43,8 +43,8 @@
       }
     },
     "drawChannels": {
-      "title": "Tirages",
-      "description": "Configurez les providers, sources de résultats et créneaux actifs pour votre espace.",
+      "title": "Canaux de tirage",
+      "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",
       "status": {
         "active": "Actif",
         "needsConfig": "À configurer",
@@ -52,9 +52,9 @@
         "unavailable": "Non disponible"
       },
       "summary": {
-        "availableStates": "Providers disponibles",
+        "availableStates": "Providers",
         "activeStates": "Providers actifs",
-        "activeChannels": "Canaux actifs",
+        "activeChannels": "Créneaux actifs",
         "todo": "À configurer"
       },
       "filters": {
@@ -76,7 +76,29 @@
       },
       "notice": {
         "title": "Action non disponible",
-        "configureUnavailable": "La configuration directe de {{provider}} sera activée avec l'endpoint backend."
+        "configureUnavailable": "La configuration directe de {{provider}} sera activée avec l'endpoint backend.",
+        "saved": "Configuration de {{provider}} enregistrée."
+      },
+      "config": {
+        "title": "Configurer {{provider}}",
+        "description": "Réglez le mode résultat, les horaires de vente et les créneaux actifs.",
+        "section": {
+          "provider": "Provider",
+          "slots": "Créneaux"
+        },
+        "field": {
+          "enabled": "Canal activé pour ce tenant",
+          "resultMode": "Mode résultat",
+          "defaultCutoff": "Fermeture vente par défaut (minutes)",
+          "slotEnabled": "Créneau actif",
+          "drawTime": "Heure du tirage",
+          "slotCutoff": "Fermeture vente (minutes)"
+        },
+        "resultMode": {
+          "AUTO": "Automatique",
+          "MANUAL": "Saisie manuelle",
+          "UNCONFIGURED": "À définir"
+        }
       },
       "sourceError": {
         "title": "Source de résultats indisponible",
@@ -104,12 +126,10 @@
       "salesCutoffMissing": "Fermeture vente : Non définie",
       "actions": {
         "backToSetup": "Configuration générale",
-        "generatedDraws": "Voir les tirages générés",
         "refresh": "Rafraîchir",
         "configure": "Configurer",
-        "configureGameOffer": "Configurer l'offre de jeux",
-        "results": "Résultats",
-        "viewAllResults": "Tous les résultats"
+        "configureChannel": "Configurer le canal",
+        "configureGameOffer": "Configurer les jeux du canal"
       },
       "readiness": {
         "ready": "Prêt pour la vente",
@@ -159,12 +179,12 @@
           "endLocalTime": "Heure de fin (HH:mm)"
         },
         "options": {
-          "title": "Options de pari / gains",
+          "title": "Barème de gains",
           "description": "Résumé du barème tenant appliqué à la vente."
         },
         "salesOptions": {
-          "title": "Options de vente",
-          "description": "Choix commerciaux proposés au POS et règle de sélection utilisée pendant la vente.",
+          "title": "Modes de vente avancés",
+          "description": "Choix commerciaux multiples et règle de sélection utilisée pendant la vente.",
           "loadFailed": "Impossible de charger les options de vente. Les autres réglages peuvent encore être enregistrés.",
           "selectionPolicy": "Mode de sélection",
           "defaultOption": "Option par défaut",
@@ -188,6 +208,8 @@
       "title": "Grille de cotes",
       "description": "Cotes par défaut pour tous les types de mises.",
       "actions": {
+        "backToSetup": "Configuration générale",
+        "backToGames": "Jeux disponibles",
         "edit": "Modifier la cote"
       },
       "dialog": {
@@ -306,6 +328,7 @@
       "loading": "Chargement des jeux...",
       "action": {
         "backToSetup": "Configuration générale",
+        "pricing": "Voir les barèmes",
         "refresh": "Rafraîchir"
       },
       "empty": {
@@ -351,6 +374,8 @@
       },
       "card": {
         "unavailable": "Bientôt disponible",
+        "blockers": "À traiter",
+        "readyChecks": "Contrôles",
         "systemGame": "Jeu système · {{name}}",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
@@ -359,8 +384,6 @@
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
         "standardPricingProfile": "Barème standard",
-        "limitConfigured": "Limite tirage configurée",
-        "limitMissing": "Limite tirage non configurée",
         "action": {
           "configure": "Configurer",
           "disable": "Désactiver",
@@ -368,9 +391,7 @@
           "reactivate": "Réactiver",
           "edit": "Modifier",
           "unavailable": "Non disponible",
-          "maryaj": "Configurer Maryaj gratis",
-          "limits": "Configurer les limites",
-          "pricing": "Voir les barèmes"
+          "maryaj": "Configurer Maryaj gratis"
         }
       }
     },
@@ -379,6 +400,7 @@
       "description": "Vérifiez quels jeux sont actifs sur chaque canal et configurez les mises avant la vente.",
       "loading": "Chargement de la matrice...",
       "action": {
+        "configureChannels": "Configurer les canaux de tirage",
         "refresh": "Actualiser"
       },
       "summary": {
@@ -413,7 +435,8 @@
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",
         "missingHelp": "Ce créneau n'a pas encore de canal de vente configuré.",
-        "configureChannels": "Configurer les canaux"
+        "configureChannels": "Configurer les canaux",
+        "editChannel": "Modifier le canal"
       },
       "section": {
         "offered": "Jeux activés ou offerts sur ce canal",
@@ -427,6 +450,7 @@
           "incomplete": "Incomplet"
         },
         "stakeRange": "Mises autorisées : {{min}} à {{max}} HTG",
+        "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Mise minimum : {{min}} HTG",
         "maxStake": "Mise maximum : {{max}} HTG",
         "stakeMissing": "Mises à configurer",
@@ -439,6 +463,7 @@
           "visibility": "Visibilité",
           "source": "Source",
           "configured": "Configuré",
+          "limitsConfigured": "Limites configurées",
           "notConfigured": "Non configuré",
           "visibleInPos": "Visible POS",
           "hiddenInPos": "Masqué POS",

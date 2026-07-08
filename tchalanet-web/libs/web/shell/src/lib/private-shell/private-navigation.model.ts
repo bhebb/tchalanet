@@ -382,7 +382,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
           '/app/admin/settings',
           '/app/admin/settings/runtime',
           '/app/admin/settings/config',
-          '/app/admin/business-days',
           '/app/admin/subscription',
         ],
       },
@@ -467,6 +466,9 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'dashboard',
             destination: { kind: 'route', value: '/app/admin/games' },
             activeMatch: 'exact',
+            activeRoutes: [
+              '/app/admin/pricing',
+            ],
           },
           {
             id: 'games-channel-matrix',
@@ -631,7 +633,13 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             id: 'company-settings',
             labelKey: 'nav.admin.company_settings',
             icon: 'settings',
-            destination: { kind: 'route', value: '/app/admin/company/settings' },
+            destination: { kind: 'route', value: '/app/admin/settings' },
+          },
+          {
+            id: 'company-business-days',
+            labelKey: 'nav.admin.company_business_days',
+            icon: 'calendar_month',
+            destination: { kind: 'route', value: '/app/admin/business-days' },
           },
           {
             id: 'company-notifications',

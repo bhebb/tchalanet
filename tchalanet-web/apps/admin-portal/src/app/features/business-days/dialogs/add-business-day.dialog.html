@@ -4,7 +4,7 @@
   <form [formGroup]="form" class="add-business-day-dialog__form">
     <mat-form-field appearance="outline" class="add-business-day-dialog__field">
       <mat-label>Date (YYYY-MM-DD)</mat-label>
-      <input matInput formControlName="date" placeholder="2025-01-01" />
+      <input matInput formControlName="date" placeholder="2026-08-01" />
       @if (form.controls.date.invalid && form.controls.date.touched) {
         <mat-error>Date requise (format YYYY-MM-DD).</mat-error>
       }

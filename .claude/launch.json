@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "admin-portal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "tchalanet-web", "nx", "serve", "admin-portal"],
+      "port": 4200
+    },
+    {
+      "name": "platform-portal",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "tchalanet-web", "nx", "serve", "platform-portal", "--port=4301"],
+      "port": 4301
+    }
+  ]
+}

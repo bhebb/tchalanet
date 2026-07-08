@@ -39,14 +39,15 @@ describe('drawCombinationRows', () => {
   it('Pick 3 exposes Exact + Permuté 6-way for distinct digits', () => {
     const rows = drawCombinationRows('182');
 
-    expect(rows.map(r => r.playType)).toEqual(['Exact', 'Permuté · 6-way']);
+    expect(rows.map(r => r.playType)).toEqual(['Exact', 'Désordre / Box · 6-way']);
     expect(rows[0].winningNumbers).toEqual(['182']);
+    expect(rows.map(r => r.settlementMode)).toEqual(['bestOf', 'bestOf']);
     expect(rows[1].winningNumbers).toContain('821');
   });
 
   it('Pick 3 Permuté collapses to 3-way with a repeated digit', () => {
     const rows = drawCombinationRows('112');
-    expect(rows[1].playType).toBe('Permuté · 3-way');
+    expect(rows[1].playType).toBe('Désordre / Box · 3-way');
   });
 
   it('Pick 3 does not expose unsupported all-identical box', () => {
@@ -59,17 +60,18 @@ describe('drawCombinationRows', () => {
 
     expect(rows.map(r => r.playType)).toEqual([
       'Exact',
-      'Permuté · 24-way',
-      'Deux premiers',
-      'Deux derniers',
+      'Désordre / Box · 24-way',
+      '2 premiers chiffres',
+      '2 derniers chiffres',
     ]);
+    expect(rows.map(r => r.settlementMode)).toEqual(['bestOf', 'bestOf', 'bestOf', 'bestOf']);
     expect(rows[2].winningNumbers).toEqual(['12 ••']);
     expect(rows[3].winningNumbers).toEqual(['•• 34']);
   });
 
   it('Pick 4 does not expose unsupported all-identical box', () => {
     const rows = drawCombinationRows('1111');
-    expect(rows.map(r => r.playType)).toEqual(['Exact', 'Deux premiers', 'Deux derniers']);
+    expect(rows.map(r => r.playType)).toEqual(['Exact', '2 premiers chiffres', '2 derniers chiffres']);
   });
 
   it('returns no rows for an unsupported length', () => {
@@ -95,7 +97,7 @@ describe('drawCombinationRowsFromResult', () => {
       sourceResult: { pick4: '1234' },
     });
 
-    expect(rows.map(r => r.playType)).toContain('Loto 4 · Permuté · 24-way');
+    expect(rows.map(r => r.playType)).toContain('Loto 4 · Désordre / Box · 24-way');
     expect(rows.find(r => r.playType === 'Loto 4 · Exact')?.winningNumbers).toEqual(['1234']);
   });
 });
@@ -106,7 +108,7 @@ describe('drawCombinationGameSectionsFromResult', () => {
 
     expect(sections.map(section => section.gameLabel)).toEqual(['Loto 3']);
     expect(sections[0].resultNumbers).toEqual(['418']);
-    expect(sections[0].rows.map(row => row.playType)).toEqual(['Exact', 'Permuté · 6-way']);
+    expect(sections[0].rows.map(row => row.playType)).toEqual(['Exact', 'Désordre / Box · 6-way']);
   });
 
   it('shows Haiti lot games only when explicit lot facts are present', () => {
@@ -118,5 +120,18 @@ describe('drawCombinationGameSectionsFromResult', () => {
     expect(sections.map(section => section.gameLabel)).toEqual(['Bòlèt', 'Maryaj', 'Loto 3', 'Loto 5']);
     expect(sections.find(section => section.gameLabel === 'Bòlèt')?.resultNumbers).toEqual(['36', '76', '06']);
     expect(sections.find(section => section.gameLabel === 'Maryaj')?.resultNumbers).toEqual(['36', '76']);
+  });
+
+  it('marks Bòlèt rows cumulative and Maryaj/Loto rows as best-of settlement', () => {
+    const sections = drawCombinationGameSectionsFromResult({
+      haitiResult: { lot1: '536', lot2: '76', lot3: '36', pick4: '1234' },
+    });
+
+    expect(sections.find(section => section.gameLabel === 'Bòlèt')?.rows.map(row => row.settlementMode))
+      .toEqual(['cumulative', 'cumulative', 'cumulative']);
+    expect(sections.find(section => section.gameLabel === 'Maryaj')?.rows.map(row => row.settlementMode))
+      .toEqual(['bestOf', 'bestOf']);
+    expect(sections.find(section => section.gameLabel === 'Loto 4')?.rows.map(row => row.settlementMode))
+      .toEqual(['bestOf', 'bestOf', 'bestOf', 'bestOf']);
   });
 });

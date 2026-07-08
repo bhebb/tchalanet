@@ -19,7 +19,6 @@ class JdbcTenantBusinessCalendarOverrideReader implements TenantBusinessCalendar
         SELECT open, reason_code, label
         FROM business_day_override
         WHERE tenant_id = :tenant_id
-          AND outlet_id IS NULL
           AND business_date = :business_date
           AND deleted_at IS NULL
         LIMIT 1

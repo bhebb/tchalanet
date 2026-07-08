@@ -16,6 +16,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import {
   BusinessDaysApiService,
   BusinessDayView,
+  ProviderBusinessDayClosure,
   UpsertBusinessDayRequest,
 } from './data-access/business-days-api.service';
 import { AddBusinessDayDialog } from './dialogs/add-business-day.dialog';
@@ -31,6 +32,25 @@ function endOfMonth(year: number, month: number): string {
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
+}
+
+function monthStartOffset(year: number, month: number): number {
+  return (new Date(year, month, 1).getDay() + 6) % 7;
+}
+
+function todayIso(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function providerClosureSummary(closures: readonly ProviderBusinessDayClosure[]): string | null {
+  if (!closures.length) return null;
+  return closures
+    .map(closure => {
+      const source = `${closure.provider} · ${closure.slotKey}`;
+      return closure.reason ? `${source} — ${closure.reason}` : source;
+    })
+    .join('\n');
 }
 
 @Component({
@@ -62,6 +82,8 @@ export class AdminBusinessDaysPage implements OnInit {
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
   readonly overrides = signal<BusinessDayView[]>([]);
+  readonly providerClosures = signal<ProviderBusinessDayClosure[]>([]);
+  readonly weekdays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
   private readonly now = new Date();
   readonly currentYear = signal(this.now.getFullYear());
@@ -77,18 +99,41 @@ export class AdminBusinessDaysPage implements OnInit {
     const month = this.currentMonth();
     const days = daysInMonth(year, month);
     const overrideMap = new Map(this.overrides().map(o => [o.date, o]));
+    const providerMap = new Map<string, ProviderBusinessDayClosure[]>();
+    for (const closure of this.providerClosures()) {
+      providerMap.set(closure.date, [...(providerMap.get(closure.date) ?? []), closure]);
+    }
+    const blanks = monthStartOffset(year, month);
 
-    return Array.from({ length: days }, (_, i) => {
+    const blankDays = Array.from({ length: blanks }, (_, i) => ({
+      key: `blank-${year}-${month}-${i}`,
+      date: null,
+      dayNum: null,
+      status: null,
+      override: false,
+      reason: null,
+      providerClosures: [] as ProviderBusinessDayClosure[],
+      providerSummary: null,
+    }));
+
+    const monthDays = Array.from({ length: days }, (_, i) => {
       const dayNum = i + 1;
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
       const override = overrideMap.get(dateStr);
+      const providerClosures = providerMap.get(dateStr) ?? [];
+      const providerSummary = providerClosureSummary(providerClosures);
       return {
+        key: dateStr,
         date: dateStr,
         dayNum,
         status: override?.status ?? null,
         override: !!override,
+        reason: override?.reason ?? null,
+        providerClosures,
+        providerSummary,
       };
     });
+    return [...blankDays, ...monthDays];
   });
 
   ngOnInit(): void {
@@ -125,7 +170,10 @@ export class AdminBusinessDaysPage implements OnInit {
       this.actionNotice.set(null);
     }
     this.api.listBusinessDays({ from, to }, { suppressShellFeedback: true }).subscribe({
-      next: v => { this.overrides.set(v); this.loading.set(false); },
+      next: v => {
+        this.overrides.set(v);
+        this.loadProviderClosures(from, to);
+      },
       error: (err: unknown) => {
         this.error.set(this.errorViewModel(err, 'admin.businessDays.list', 'page'));
         this.loading.set(false);
@@ -133,8 +181,29 @@ export class AdminBusinessDaysPage implements OnInit {
     });
   }
 
-  addOverride(): void {
-    const ref = this.dialog.open(AddBusinessDayDialog, { width: '420px' });
+  private loadProviderClosures(from: string, to: string): void {
+    this.api.listProviderClosures({ from, to }, { suppressShellFeedback: true }).subscribe({
+      next: v => {
+        this.providerClosures.set(v);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.providerClosures.set([]);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  addOverride(date = todayIso()): void {
+    const existing = this.overrides().find(row => row.date === date);
+    const ref = this.dialog.open(AddBusinessDayDialog, {
+      width: '420px',
+      data: {
+        date,
+        status: existing?.status ?? 'CLOSED',
+        reason: existing?.reason ?? '',
+      },
+    });
     ref.afterClosed().subscribe((req: UpsertBusinessDayRequest | undefined) => {
       if (!req) return;
       this.actionError.set(null);

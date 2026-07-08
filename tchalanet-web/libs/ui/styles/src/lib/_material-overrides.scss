@@ -94,6 +94,38 @@ optgroup {
   max-height: 20rem !important;
 }
 
+// ── Dialog form spacing ─────────────────────────────────────────────────────
+// Outlined labels render partly above the field box. Dialog content clips close
+// to its top edge, so the first row needs breathing room across all referential
+// create/update dialogs.
+.mat-mdc-dialog-content form:first-child,
+.mat-mdc-dialog-content .tch-admin-dialog-form:first-child {
+  padding-top: calc(var(--tch-space-base, 4px) * 2);
+}
+
+// ── Referential edit panels ─────────────────────────────────────────────────
+// Platform referential pages keep one list view and mount the selected editor in
+// the same template. When selected, the editor must behave like a dialog instead
+// of being pushed below the table.
+.catalog-config[aria-label^='Configuration'],
+.catalog-games-page__config[aria-label^='Configuration'],
+.catalog-i18n-page__config[aria-label^='Configuration'],
+.catalog-pmt-page__config[aria-label^='Configuration'],
+.catalog-settings-page__config[aria-label^='Configuration'],
+.draw-channel-config[aria-label^='Configuration'],
+.draw-channel-games-config[aria-label^='Configuration'],
+.result-slot-calendar-config[aria-label^='Configuration'],
+.result-slots-config[aria-label^='Configuration'] {
+  position: fixed !important;
+  inset: clamp(1rem, 4vh, 2.5rem) clamp(1rem, 4vw, 4rem) !important;
+  z-index: calc(var(--tch-z-overlay, 1000) + 20);
+  width: min(72rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto !important;
+  overflow: auto !important;
+  box-shadow: var(--tch-elevation-4, 0 24px 56px rgb(0 0 0 / 18%)) !important;
+}
+
 // ── mat-option interactive states ─────────────────────────────────────────────
 // Using oklab for perceptually uniform navy tints. Explicit class overrides
 // are more reliable than M3 token layers here (token cascade is unpredictable

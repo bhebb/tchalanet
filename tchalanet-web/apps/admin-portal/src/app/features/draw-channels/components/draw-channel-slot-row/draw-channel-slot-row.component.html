@@ -25,22 +25,14 @@
       [label]="slotStatusLabelKey(s) | translate"
     />
 
-    @if (s.enabled && s.drawTime) {
-      @if (resultsAvailable()) {
-        <button mat-button class="slot-row__results-btn" (click)="viewResults.emit(s)">
-          {{ 'admin.drawChannels.actions.results' | translate }}
-        </button>
-      }
-    } @else if (s.enabled && !s.drawTime) {
-      <button
-        mat-icon-button
-        class="slot-row__edit-btn"
-        (click)="configure.emit(s)"
-        [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
-      >
-        <span class="material-symbols-outlined">edit</span>
-      </button>
-    }
+    <button
+      mat-icon-button
+      class="slot-row__edit-btn"
+      (click)="configure.emit(s)"
+      [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
+    >
+      <span class="material-symbols-outlined">edit</span>
+    </button>
   </div>
 
 </div>

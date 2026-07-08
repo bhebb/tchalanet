@@ -1,12 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { BusinessDayStatus, UpsertBusinessDayRequest } from '.././data-access/business-days-api.service';
+
+export interface AddBusinessDayDialogData {
+  readonly date?: string;
+  readonly status?: BusinessDayStatus;
+  readonly reason?: string;
+}
 
 @Component({
   selector: 'tch-add-business-day-dialog',
@@ -26,11 +32,12 @@ import { BusinessDayStatus, UpsertBusinessDayRequest } from '.././data-access/bu
 export class AddBusinessDayDialog {
   private readonly dialogRef = inject(MatDialogRef<AddBusinessDayDialog>);
   private readonly fb = inject(FormBuilder);
+  private readonly data = inject<AddBusinessDayDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   readonly form = this.fb.group({
-    date: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
-    status: ['CLOSED' as BusinessDayStatus, Validators.required],
-    reason: [''],
+    date: [this.data?.date ?? '', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
+    status: [this.data?.status ?? 'CLOSED' as BusinessDayStatus, Validators.required],
+    reason: [this.data?.reason ?? ''],
   });
 
   submit(): void {

@@ -18,15 +18,6 @@
     <tch-draw-channel-source-badge [acquisition]="p.resultAcquisition" />
   </div>
 
-  @if (sourceError(); as err) {
-    <tch-section-error
-      class="pcard__source-error"
-      [title]="err.title | translate"
-      [message]="err.message | translate"
-      [severity]="err.severity"
-    />
-  }
-
   <!-- Slots -->
   @if (p.slots.length > 0) {
     <div class="pcard__slots">
@@ -36,8 +27,6 @@
           <tch-draw-channel-slot-row
             [slot]="slot"
             [index]="i"
-            [resultsAvailable]="false"
-            (viewResults)="onViewSlotResults($event)"
             (configure)="toggleSlot.emit($event)"
           />
         }
@@ -79,9 +68,9 @@
 
     @if (p.tenantStatus !== 'UNAVAILABLE') {
       <div class="pcard__actions">
-        <!-- TODO(results): enable once /app/admin/results is implemented -->
-        <button mat-stroked-button [disabled]="true">
-          {{ 'admin.drawChannels.actions.viewAllResults' | translate }}
+        <button mat-stroked-button type="button" (click)="configure.emit(p)">
+          <span class="material-symbols-outlined" aria-hidden="true">settings_input_component</span>
+          {{ 'admin.drawChannels.actions.configureChannel' | translate }}
         </button>
         <a mat-flat-button color="primary" routerLink="/app/admin/games/channel-matrix">
           {{ 'admin.drawChannels.actions.configureGameOffer' | translate }}

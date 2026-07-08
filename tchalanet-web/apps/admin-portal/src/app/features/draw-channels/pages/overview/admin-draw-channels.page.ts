@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
@@ -15,6 +16,7 @@ import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channe
 import { DrawChannelProviderView, DrawChannelSlotConfigView } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
 import { DrawChannelProviderCardComponent } from '../../components/draw-channel-provider-card/draw-channel-provider-card.component';
+import { DrawChannelConfigDialog } from '../../components/dialogs/draw-channel-config.dialog';
 
 type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
 type PageState = 'loading' | 'ready' | 'error';
@@ -26,6 +28,7 @@ type PageState = 'loading' | 'ready' | 'error';
   imports: [
     RouterLink,
     MatButtonModule,
+    MatDialogModule,
     TranslatePipe,
     AdminPageShellComponent,
     AdminEmptyStateComponent,
@@ -39,8 +42,10 @@ type PageState = 'loading' | 'ready' | 'error';
 })
 export class AdminDrawChannelsPage implements OnInit {
   private readonly api      = inject(AdminDrawChannelsApiService);
-  private readonly router   = inject(Router);
+  private readonly route    = inject(ActivatedRoute);
+  private readonly dialog   = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private pendingConfigure: { providerCode: string; slotKey: string | null } | null = null;
 
   readonly pageState    = signal<PageState>('loading');
   readonly pageError    = signal<ErrorViewModel | null>(null);
@@ -75,14 +80,28 @@ export class AdminDrawChannelsPage implements OnInit {
     { key: 'error',    labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    const providerCode = this.route.snapshot.queryParamMap.get('provider');
+    if (providerCode) {
+      this.pendingConfigure = {
+        providerCode,
+        slotKey: this.route.snapshot.queryParamMap.get('slot'),
+      };
+      this.searchQuery.set(providerCode);
+    }
+    this.load();
+  }
 
   load(): void {
     this.pageState.set('loading');
     this.pageError.set(null);
     this.actionNotice.set(null);
     this.api.getDrawChannelProviders().subscribe({
-      next: data => { this.allProviders.set(data); this.pageState.set('ready'); },
+      next: data => {
+        this.allProviders.set(data);
+        this.pageState.set('ready');
+        this.openPendingConfigure(data);
+      },
       error: (err: unknown) => {
         this.pageError.set(this.errorViewModel(err));
         this.pageState.set('error');
@@ -91,21 +110,11 @@ export class AdminDrawChannelsPage implements OnInit {
   }
 
   onConfigure(provider: DrawChannelProviderView): void {
-    this.actionNotice.set(this.translate.instant('admin.drawChannels.notice.configureUnavailable', {
-      provider: provider.providerLabel,
-    }));
+    this.openConfigDialog(provider, null);
   }
 
-  onViewProviderResults(provider: DrawChannelProviderView): void {
-    // TODO(results): enable once /app/admin/results page exists
-    this.router.navigate(['/app/admin/results'], { queryParams: { provider: provider.providerCode } });
-  }
-
-  onViewSlotResults(event: { provider: DrawChannelProviderView; slot: DrawChannelSlotConfigView }): void {
-    // TODO(results): enable once /app/admin/results page exists
-    this.router.navigate(['/app/admin/results'], {
-      queryParams: { provider: event.provider.providerCode, slot: event.slot.slotKey },
-    });
+  onConfigureSlot(provider: DrawChannelProviderView, slot: DrawChannelSlotConfigView): void {
+    this.openConfigDialog(provider, slot);
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {
@@ -121,5 +130,33 @@ export class AdminDrawChannelsPage implements OnInit {
       message: this.translate.instant('common.errors.fallback.message'),
       severity: 'error',
     };
+  }
+
+  private openPendingConfigure(providers: readonly DrawChannelProviderView[]): void {
+    const pending = this.pendingConfigure;
+    if (!pending) return;
+    this.pendingConfigure = null;
+    const provider = providers.find(item => item.providerCode === pending.providerCode);
+    if (!provider) return;
+    const slot = pending.slotKey
+      ? provider.slots.find(item => item.slotKey === pending.slotKey) ?? null
+      : null;
+    this.openConfigDialog(provider, slot);
+  }
+
+  private openConfigDialog(provider: DrawChannelProviderView, slot: DrawChannelSlotConfigView | null): void {
+    this.dialog.open(DrawChannelConfigDialog, {
+      width: 'min(760px, calc(100vw - 2rem))',
+      maxWidth: 'calc(100vw - 2rem)',
+      data: { provider, slot },
+    }).afterClosed().subscribe((updated: DrawChannelProviderView | undefined) => {
+      if (!updated) return;
+      this.allProviders.update(current => current.map(item =>
+        item.providerCode === updated.providerCode ? updated : item,
+      ));
+      this.actionNotice.set(this.translate.instant('admin.drawChannels.notice.saved', {
+        provider: updated.providerLabel,
+      }));
+    });
   }
 }

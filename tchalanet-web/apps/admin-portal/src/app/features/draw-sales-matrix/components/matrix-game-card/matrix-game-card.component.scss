@@ -2,7 +2,7 @@
   padding: 0.625rem 0.875rem;
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-md);
-  background: var(--tch-color-surface-container-low);
+  background: var(--tch-color-surface-container-lowest, var(--tch-color-surface));
 
   &--ready {
     border-color: var(--tch-color-success, var(--tch-color-primary));
@@ -46,9 +46,43 @@
     }
   }
 
-  &__facts {
-    display: block;
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
     margin-block: 0.5rem 0.25rem;
+  }
+
+  &__chip {
+    align-items: center;
+    background: var(--tch-color-surface-container-low);
+    border: 1px solid color-mix(in oklab, var(--tch-color-outline-variant) 64%, transparent);
+    border-radius: var(--tch-radius-pill);
+    color: var(--tch-color-on-surface);
+    display: inline-flex;
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-weight-semibold, 600);
+    gap: 0.25rem;
+    min-height: 1.875rem;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+
+    .material-symbols-outlined {
+      color: var(--tch-color-on-surface-variant);
+      font-family: 'Material Symbols Outlined';
+      font-size: 0.9375rem;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+
+    &--warn {
+      background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 7%, var(--tch-color-surface));
+      border-color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 44%, var(--tch-color-outline-variant));
+      color: var(--tch-color-on-surface);
+    }
+
+    &--muted {
+      color: var(--tch-color-on-surface-variant);
+    }
   }
 
   &__warnings {

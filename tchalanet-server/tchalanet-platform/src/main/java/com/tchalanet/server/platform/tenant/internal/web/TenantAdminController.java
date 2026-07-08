@@ -144,7 +144,7 @@ public class TenantAdminController {
     var actor = contextResolver.currentOrThrow().userId();
     return supportAccess.current(actor)
         .map(session -> ApiResponse.success(toResponse(session)))
-        .orElseThrow(() -> ProblemRest.notFound("support_access.current_not_found"));
+        .orElseGet(() -> ApiResponse.success(null));
   }
 
   @DeleteMapping("/admin-access/current")

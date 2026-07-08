@@ -21,7 +21,20 @@
     <strong>{{ gameVm.gameCode | consoleGameName:gameVm.displayName }}</strong>
   </div>
 
-  <tch-console-facts class="matrix-game__facts" [facts]="gameFacts(gameVm)" [compact]="true" />
+  <div class="matrix-game__chips">
+    <span class="matrix-game__chip" [class.matrix-game__chip--warn]="gameVm.minStake === null || gameVm.maxStake === null">
+      <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+      {{ stakeLabel(gameVm) }}
+    </span>
+    <span class="matrix-game__chip" [class.matrix-game__chip--warn]="!gameVm.limits.configured">
+      <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+      {{ limitsLabel(gameVm) }}
+    </span>
+    <span class="matrix-game__chip" [class.matrix-game__chip--muted]="!gameVm.visibleInPos">
+      <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
+      {{ visibilityLabel(gameVm) }}
+    </span>
+  </div>
 
   @if (gameVm.warnings.length > 0 && !gameVm.saleReady) {
     <ul class="matrix-game__warnings">

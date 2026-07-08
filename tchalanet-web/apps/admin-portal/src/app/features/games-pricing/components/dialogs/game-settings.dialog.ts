@@ -91,6 +91,11 @@ export class GameSettingsDialog {
   readonly pricingGroups = signal<readonly TenantGameOddGroupView[]>(this.data.game.betOptionGroups ?? []);
   readonly betOptionLoading = signal(true);
   readonly betOptionLoadFailed = signal(false);
+  readonly showSalesOptions = computed(() => {
+    const config = this.betOptionConfig();
+    if (!config || this.isSimpleStakeGame()) return false;
+    return config.betTypes.some(betType => betType.options.length > 1);
+  });
   readonly selectionPolicies: readonly TenantGameSelectionPolicy[] = [
     'EXPLICIT_ONLY',
     'EXPLICIT_WITH_AUTO_OPTION',
@@ -124,7 +129,7 @@ export class GameSettingsDialog {
     submitForm(this.form, async () => {
       this.saveSettings.execute({
         settings: this.toRequest(this.model()),
-        betOptions: this.toBetOptionsRequest(this.betOptionConfig()),
+        betOptions: this.showSalesOptions() ? this.toBetOptionsRequest(this.betOptionConfig()) : null,
         pricingOdds: this.toPricingOddsRequest(),
       });
     });
@@ -274,5 +279,10 @@ export class GameSettingsDialog {
         betOption: variant.betOption,
         odds: variant.odds,
       })));
+  }
+
+  private isSimpleStakeGame(): boolean {
+    const code = this.data.game.gameCode.toUpperCase();
+    return code.includes('BOLET') || code.includes('BORLETTE');
   }
 }

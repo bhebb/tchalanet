@@ -17,15 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * TENANT-LEVEL writes for {@code business_day_override} ({@code outlet_id IS NULL}).
+ * TENANT-LEVEL writes for {@code business_day_override}.
  *
- * <p>Rows with non-null {@code outlet_id} are legacy database compatibility data.
- * This service must never touch them — keeping {@code platform.tenantconfig}
- * scoped to tenant-wide calendar policy only.
- *
- * <p>Idempotent upsert on the natural key (tenant, NULL, date). Tenant isolation
- * is enforced by RLS; {@code tenantId} comes from the request context, never
- * from client input.
+ * <p>Idempotent upsert on the natural key (tenant, date). Tenant isolation is
+ * enforced by RLS; {@code tenantId} comes from the request context, never from
+ * client input.
  */
 @Service
 @RequiredArgsConstructor
@@ -39,13 +35,12 @@ public class BusinessDayOverrideAdminService {
     Objects.requireNonNull(tenantId, "tenantId is required");
     Objects.requireNonNull(req.businessDate(), "businessDate is required");
 
-    var existing = repo.findByTenantIdAndOutletIdIsNullAndBusinessDateAndDeletedAtIsNull(
+    var existing = repo.findByTenantIdAndBusinessDateAndDeletedAtIsNull(
         tenantId.value(), req.businessDate());
 
     var e = existing.orElseGet(BusinessDayOverrideJpaEntity::new);
     if (existing.isEmpty()) {
       e.setTenantId(tenantId.value());
-      e.setOutletId(null); // tenant-level only
       e.setBusinessDate(req.businessDate());
     }
     e.setOpen(req.open());
@@ -57,7 +52,7 @@ public class BusinessDayOverrideAdminService {
   @Transactional(readOnly = true)
   public List<BusinessDayOverrideView> list(TenantId tenantId, LocalDate from, LocalDate to) {
     return mapper.toViews(
-        repo.findByTenantIdAndOutletIdIsNullAndBusinessDateBetweenAndDeletedAtIsNullOrderByBusinessDateAsc(
+        repo.findByTenantIdAndBusinessDateBetweenAndDeletedAtIsNullOrderByBusinessDateAsc(
             tenantId.value(), from, to));
   }
 

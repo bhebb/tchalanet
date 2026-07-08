@@ -1,0 +1,102 @@
+@let value = draft();
+
+<tch-admin-dialog-shell
+  [title]="'admin.drawChannels.config.title' | translate: { provider: data.provider.providerLabel }"
+  [description]="'admin.drawChannels.config.description' | translate"
+  icon="settings_input_component"
+>
+  <div class="dc-config">
+    @if (error(); as err) {
+      <div class="dc-config__error dc-config__error--{{ err.severity }}" role="alert">
+        <strong>{{ err.title }}</strong>
+        <p>{{ err.message }}</p>
+      </div>
+    }
+
+    <section class="dc-config__section">
+      <h3>{{ 'admin.drawChannels.config.section.provider' | translate }}</h3>
+      <mat-checkbox [checked]="value.enabled" (change)="updateEnabled($event.checked)">
+        {{ 'admin.drawChannels.config.field.enabled' | translate }}
+      </mat-checkbox>
+
+      <div class="dc-config__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'admin.drawChannels.config.field.resultMode' | translate }}</mat-label>
+          <mat-select [value]="value.resultAcquisitionMode" (selectionChange)="updateMode($event.value)">
+            @for (mode of acquisitionModes; track mode) {
+              <mat-option [value]="mode">
+                {{ ('admin.drawChannels.config.resultMode.' + mode) | translate }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'admin.drawChannels.config.field.defaultCutoff' | translate }}</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            [value]="value.defaultSalesCutoffMinutes"
+            (input)="updateDefaultCutoff($any($event.target).value)"
+          />
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="dc-config__section">
+      <h3>{{ 'admin.drawChannels.config.section.slots' | translate }}</h3>
+      <div class="dc-config__slots">
+        @for (slot of value.slots; track slot.slotKey) {
+          <article class="dc-config__slot" [class.dc-config__slot--focus]="slot.slotKey === focusSlotKey()">
+            <div class="dc-config__slot-header">
+              <strong>{{ slot.label }}</strong>
+              <span>{{ slot.slotKey }}</span>
+              <mat-checkbox
+                [checked]="slot.enabled"
+                (change)="updateSlot(slot.slotKey, { enabled: $event.checked })"
+              >
+                {{ 'admin.drawChannels.config.field.slotEnabled' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <div class="dc-config__grid">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'admin.drawChannels.config.field.drawTime' | translate }}</mat-label>
+                <input
+                  matInput
+                  placeholder="14:30"
+                  [value]="slot.drawTime"
+                  [disabled]="!slot.enabled"
+                  (input)="updateSlot(slot.slotKey, { drawTime: $any($event.target).value })"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'admin.drawChannels.config.field.slotCutoff' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  min="0"
+                  [value]="slot.salesCutoffMinutes"
+                  [disabled]="!slot.enabled"
+                  (input)="updateSlot(slot.slotKey, { salesCutoffMinutes: $any($event.target).value })"
+                />
+              </mat-form-field>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
+
+  <button actions mat-button mat-dialog-close [disabled]="saving()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button actions mat-flat-button color="primary" [disabled]="saving()" (click)="submit()">
+    @if (saving()) {
+      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'common.save' | translate }}
+  </button>
+</tch-admin-dialog-shell>

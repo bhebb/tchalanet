@@ -50,21 +50,47 @@
     </div>
 
     <div class="business-days-page__calendar">
-      @for (day of calendarDays(); track day.date) {
-        <div
-          class="business-days-page__day"
-          [class.business-days-page__day--closed]="day.status === 'CLOSED'"
-          [class.business-days-page__day--open]="day.override && day.status === 'OPEN'"
-        >
-          <span class="business-days-page__day-num">{{ day.dayNum }}</span>
-          @if (day.status === 'CLOSED') {
-            <span class="business-days-page__day-chip business-days-page__day-chip--closed">FERMÉ</span>
-          }
-          @if (day.override && day.status === 'OPEN') {
-            <span class="business-days-page__day-chip business-days-page__day-chip--open">OUVERT</span>
-          }
-        </div>
+      @for (weekday of weekdays; track weekday) {
+        <span class="business-days-page__weekday">{{ weekday }}</span>
       }
+      @for (day of calendarDays(); track day.key) {
+        @if (day.date) {
+          <button
+            type="button"
+            class="business-days-page__day"
+            [class.business-days-page__day--closed]="day.status === 'CLOSED'"
+            [class.business-days-page__day--open]="day.override && day.status === 'OPEN'"
+            [class.business-days-page__day--provider]="day.providerClosures.length > 0"
+            [attr.aria-label]="day.providerSummary ? 'Configurer le ' + day.date + '. Provider fermé : ' + day.providerSummary : 'Configurer le ' + day.date"
+            [title]="day.providerSummary ? 'Provider fermé :\n' + day.providerSummary : 'Configurer le ' + day.date"
+            (click)="addOverride(day.date)"
+          >
+            <span class="business-days-page__day-num">{{ day.dayNum }}</span>
+            @if (day.providerClosures.length > 0) {
+              <span
+                class="business-days-page__day-chip business-days-page__day-chip--provider"
+                [title]="day.providerSummary"
+              >
+                PROVIDER {{ day.providerClosures.length }}
+              </span>
+            }
+            @if (day.status === 'CLOSED') {
+              <span class="business-days-page__day-chip business-days-page__day-chip--closed">FERMÉ</span>
+            }
+            @if (day.override && day.status === 'OPEN') {
+              <span class="business-days-page__day-chip business-days-page__day-chip--open">OUVERT</span>
+            }
+          </button>
+        } @else {
+          <span class="business-days-page__day business-days-page__day--blank" aria-hidden="true"></span>
+        }
+      }
+    </div>
+
+    <div class="business-days-page__legend" aria-label="Légende du calendrier">
+      <span><i class="business-days-page__legend-dot business-days-page__legend-dot--tenant"></i> Tenant fermé</span>
+      <span><i class="business-days-page__legend-dot business-days-page__legend-dot--provider"></i> Provider fermé</span>
+      <span><i class="business-days-page__legend-dot business-days-page__legend-dot--open"></i> Ouverture forcée</span>
     </div>
 
     <h3 class="business-days-page__section-title">Exceptions enregistrées</h3>

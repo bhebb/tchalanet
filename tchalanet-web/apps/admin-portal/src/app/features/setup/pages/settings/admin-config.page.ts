@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -139,6 +139,7 @@ export class AdminConfigPage {
   readonly config = this.api.tenantConfigResource();
   readonly holidayTemplates = this.api.holidayTemplatesResource();
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
+  readonly configIsEmpty = () => false;
   readonly customHolidays = signal<TenantRecurringHoliday[]>([]);
   readonly selectedTabIndex = signal(0);
   private readonly requestedFragment = toSignal(this.route.fragment, { initialValue: null });
@@ -231,13 +232,14 @@ export class AdminConfigPage {
     // La valeur du resource alimente les formulaires — sans écraser une saisie en cours.
     effect(() => {
       if (!this.config.hasValue()) return;
-      const cfg = this.config.value();
-      if (!cfg) return;
-      this.rememberConfig(cfg);
-      if (!this.localeForm.dirty) this.patchLocale(cfg);
-      if (!this.receiptForm.dirty) this.patchReceipt(cfg);
-      if (!this.communicationForm.dirty) this.patchCommunication(cfg);
-      if (!this.calendarForm.dirty) this.patchCalendar(cfg);
+      const cfg = this.config.value() ?? {};
+      untracked(() => {
+        this.rememberConfig(cfg);
+        if (!this.localeForm.dirty) this.patchLocale(cfg);
+        if (!this.receiptForm.dirty) this.patchReceipt(cfg);
+        if (!this.communicationForm.dirty) this.patchCommunication(cfg);
+        if (!this.calendarForm.dirty) this.patchCalendar(cfg);
+      });
     });
 
     effect(() => {

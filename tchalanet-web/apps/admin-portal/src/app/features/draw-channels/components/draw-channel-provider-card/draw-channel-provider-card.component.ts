@@ -3,7 +3,7 @@ import { LowerCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchCard, TchDrawLabel, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
+import { TchCard, TchDrawLabel } from '@tch/ui/components';
 import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
 import {
@@ -28,12 +28,6 @@ const STATUS_LABEL: Record<DrawChannelProviderTenantStatus, string> = {
   UNAVAILABLE:  'admin.drawChannels.status.unavailable',
 };
 
-interface DrawChannelProviderCardError {
-  readonly title: string;
-  readonly message: string;
-  readonly severity: TchSectionErrorSeverity;
-}
-
 @Component({
   selector: 'tch-draw-channel-provider-card',
   standalone: true,
@@ -45,7 +39,6 @@ interface DrawChannelProviderCardError {
     TranslatePipe,
     TchCard,
     TchDrawLabel,
-    TchSectionError,
     AdminStatusPillComponent,
     DrawChannelSourceBadgeComponent,
     DrawChannelSlotRowComponent,
@@ -58,25 +51,9 @@ export class DrawChannelProviderCardComponent {
   readonly mode     = input<'config' | 'readonly'>('config');
 
   readonly configure           = output<DrawChannelProviderView>();
-  readonly viewProviderResults = output<DrawChannelProviderView>();
-  readonly viewSlotResults     = output<{ provider: DrawChannelProviderView; slot: DrawChannelSlotConfigView }>();
   readonly toggleSlot          = output<DrawChannelSlotConfigView>();
 
   readonly statusTone  = computed<AdminStatusTone>(() => STATUS_TONE[this.provider().tenantStatus]);
   readonly statusLabel = computed<string>(() => STATUS_LABEL[this.provider().tenantStatus]);
   readonly providerLogo = computed<string | null>(() => consoleLotteryProviderLogoUrl(this.provider().providerCode));
-  readonly sourceError = computed<DrawChannelProviderCardError | null>(() => {
-    const provider = this.provider();
-    if (provider.resultAcquisition.sourceStatus !== 'ERROR') return null;
-
-    return {
-      severity: 'warn',
-      title: 'admin.drawChannels.sourceError.title',
-      message: 'admin.drawChannels.sourceError.message',
-    };
-  });
-
-  onViewSlotResults(slot: DrawChannelSlotConfigView): void {
-    this.viewSlotResults.emit({ provider: this.provider(), slot });
-  }
 }

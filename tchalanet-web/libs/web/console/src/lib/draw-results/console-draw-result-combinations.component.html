@@ -6,7 +6,7 @@
   />
 } @else {
   <p class="console-draw-result-combinations__intro">
-    Pour chaque option de jeu supportée, les numéros gagnants calculés à partir du tirage.
+    Pour chaque option vendable, les numéros gagnants calculés à partir du résultat et leur mode de règlement.
   </p>
 
   <div class="console-draw-result-combinations__sections">
@@ -33,6 +33,7 @@
             <tr>
               <th scope="col">Type de jeu</th>
               <th scope="col">Gagne avec</th>
+              <th scope="col">Règlement</th>
               <th scope="col">Numéros gagnants</th>
             </tr>
           </thead>
@@ -41,6 +42,14 @@
               <tr>
                 <th scope="row">{{ row.playType }}</th>
                 <td>{{ row.winWith === 'exact' ? 'Ordre exact' : "N'importe quel ordre" }}</td>
+                <td>
+                  <span
+                    class="console-draw-result-combinations__settlement console-draw-result-combinations__settlement--{{ row.settlementMode }}"
+                    [title]="settlementHint(row.settlementMode)"
+                  >
+                    {{ settlementLabel(row.settlementMode) }}
+                  </span>
+                </td>
                 <td>
                   <div class="console-draw-result-combinations__numbers">
                     @for (number of row.winningNumbers; track number) {

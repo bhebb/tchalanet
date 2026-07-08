@@ -26,6 +26,6 @@ tch:
 logging:
   level:
     com.tchalanet.server.app.config.cache: DEBUG
-    org.springframework.data.redis: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.springframework.data.redis: INFO
+    org.hibernate.SQL: INFO
 

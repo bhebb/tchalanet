@@ -263,11 +263,19 @@ function providerCodeFrom(
   const explicitCode = clean(explicit)?.split(/[_-]/, 1)[0]?.toUpperCase();
   if (explicitCode) return explicitCode;
 
-  const fromSlot = clean(slotKey)?.split(/[_-]/, 1)[0]?.toUpperCase();
+  const fromSlot = providerCodeFromStructuredCode(slotKey);
   if (fromSlot) return fromSlot;
 
-  const fromChannel = clean(channelCode)?.split(/[_-]/, 1)[0]?.toUpperCase();
+  const fromChannel = providerCodeFromStructuredCode(channelCode);
   return fromChannel || null;
+}
+
+function providerCodeFromStructuredCode(value?: string | null): string | null {
+  const parts = clean(value)?.split(/[_-]/).filter(Boolean);
+  if (!parts?.length) return null;
+  const first = parts[0]?.toUpperCase();
+  if (first === 'HT' && parts.length > 1) return parts[1]?.toUpperCase() ?? null;
+  return first || null;
 }
 
 function providerLabel(providerCode?: string | null, explicit?: string | null): string | null {

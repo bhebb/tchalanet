@@ -178,6 +178,7 @@
       "loading": "Chajman jwèt yo...",
       "action": {
         "backToSetup": "Konfigirasyon jeneral",
+        "pricing": "Gade barèm yo",
         "refresh": "Rafrechi"
       },
       "empty": {
@@ -223,6 +224,8 @@
       },
       "card": {
         "unavailable": "Ap vini",
+        "blockers": "Pou regle",
+        "readyChecks": "Kontwòl",
         "systemGame": "Jwèt sistèm · {{name}}",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
@@ -231,8 +234,6 @@
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
         "standardPricingProfile": "Barèm estanda",
-        "limitConfigured": "Limit tiraj konfigire",
-        "limitMissing": "Limit tiraj pa konfigire",
         "action": {
           "configure": "Konfigire",
           "disable": "Dezaktive",
@@ -240,9 +241,7 @@
           "reactivate": "Reaktive",
           "edit": "Modifye",
           "unavailable": "Pa disponib",
-          "maryaj": "Konfigire Maryaj gratis",
-          "limits": "Konfigire limit yo",
-          "pricing": "Gade barèm yo"
+          "maryaj": "Konfigire Maryaj gratis"
         }
       }
     },
@@ -251,6 +250,7 @@
       "description": "Verifye ki jwèt ki aktif sou chak kanal epi konfigire miz yo avan vant.",
       "loading": "Chajman matriks la...",
       "action": {
+        "configureChannels": "Konfigire kanal tiraj yo",
         "refresh": "Rafrechi"
       },
       "summary": {
@@ -285,7 +285,8 @@
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt kanal",
         "missingHelp": "Lè tiraj sa a poko gen kanal vant konfigire.",
-        "configureChannels": "Konfigire kanal yo"
+        "configureChannels": "Konfigire kanal yo",
+        "editChannel": "Modifye kanal la"
       },
       "section": {
         "offered": "Jwèt aktive oswa ofri sou kanal sa a",
@@ -299,6 +300,7 @@
           "incomplete": "Enkonplè"
         },
         "stakeRange": "Miz otorize : {{min}} a {{max}} HTG",
+        "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Miz minimòm : {{min}} HTG",
         "maxStake": "Miz maksimòm : {{max}} HTG",
         "stakeMissing": "Miz pou konfigire",
@@ -311,6 +313,7 @@
           "visibility": "Vizibilite",
           "source": "Sous",
           "configured": "Konfigire",
+          "limitsConfigured": "Limit konfigire",
           "notConfigured": "Pa konfigire",
           "visibleInPos": "Vizib POS",
           "hiddenInPos": "Kache POS",
@@ -688,9 +691,9 @@
         "unavailable": "Pa disponib"
       },
       "summary": {
-        "availableStates": "Provider disponib",
+        "availableStates": "Provider",
         "activeStates": "Provider aktif",
-        "activeChannels": "Kanal aktif",
+        "activeChannels": "Lè aktif",
         "todo": "Pou konfigire"
       },
       "filters": {
@@ -712,7 +715,29 @@
       },
       "notice": {
         "title": "Aksyon pa disponib",
-        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak endpoint backend la."
+        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak endpoint backend la.",
+        "saved": "Konfigirasyon {{provider}} anrejistre."
+      },
+      "config": {
+        "title": "Konfigire {{provider}}",
+        "description": "Ajiste mòd rezilta, lè vant, ak lè tiraj aktif yo.",
+        "section": {
+          "provider": "Provider",
+          "slots": "Lè tiraj"
+        },
+        "field": {
+          "enabled": "Kanal aktive pou tenant sa a",
+          "resultMode": "Mòd rezilta",
+          "defaultCutoff": "Fèmti vant pa defo (minit)",
+          "slotEnabled": "Lè tiraj aktif",
+          "drawTime": "Lè tiraj",
+          "slotCutoff": "Fèmti vant (minit)"
+        },
+        "resultMode": {
+          "AUTO": "Otomatik",
+          "MANUAL": "Antre manyèl",
+          "UNCONFIGURED": "Pou defini"
+        }
       },
       "sourceError": {
         "title": "Sous rezilta pa disponib",
@@ -740,12 +765,10 @@
       "salesCutoffMissing": "Vant fèmen: Pa defini",
       "actions": {
         "backToSetup": "Konfigirasyon jeneral",
-        "generatedDraws": "Gade tiraj jenere yo",
         "refresh": "Rafrechi",
         "configure": "Konfigire",
-        "configureGameOffer": "Konfigire òf jwèt yo",
-        "results": "Rezilta",
-        "viewAllResults": "Tout rezilta yo"
+        "configureChannel": "Konfigire kanal la",
+        "configureGameOffer": "Konfigire jwèt kanal la"
       },
       "readiness": {
         "ready": "Pare pou vant",
@@ -795,12 +818,12 @@
           "endLocalTime": "Lè fen (HH:mm)"
         },
         "options": {
-          "title": "Opsyon pari / gain",
+          "title": "Barèm gain",
           "description": "Rezime barèm tenant lan ki aplike nan vant lan."
         },
         "salesOptions": {
-          "title": "Opsyon vant",
-          "description": "Chwa komèsyal POS la ka vann ak règ seleksyon ki sèvi pandan vant lan.",
+          "title": "Mòd vant avanse",
+          "description": "Plizyè chwa komèsyal ak règ seleksyon ki sèvi pandan vant lan.",
           "loadFailed": "Opsyon vant yo pa ka chaje. Lòt reglaj yo ka toujou anrejistre.",
           "selectionPolicy": "Mòd seleksyon",
           "defaultOption": "Opsyon pa defo",
@@ -824,6 +847,8 @@
       "title": "Tablo kòt",
       "description": "Kòt pa defo pou tout tip pari yo.",
       "actions": {
+        "backToSetup": "Konfigirasyon jeneral",
+        "backToGames": "Jwèt disponib",
         "edit": "Modifye kòt la"
       },
       "dialog": {

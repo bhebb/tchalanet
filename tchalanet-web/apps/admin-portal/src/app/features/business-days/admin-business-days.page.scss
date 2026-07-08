@@ -24,7 +24,20 @@
     }
   }
 
+  &__weekday {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
   &__day {
+    appearance: none;
+    background: var(--tch-color-surface-container-lowest);
+    color: var(--tch-color-on-surface);
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +46,12 @@
     border: 1px solid var(--tch-color-outline-variant);
     border-radius: var(--tch-radius-sm);
     font-size: 0.75rem;
+    font-family: inherit;
     min-height: 2.5rem;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      transform 120ms ease;
 
     @include ui.up(medium) {
       padding: 0.5rem 0.25rem;
@@ -41,9 +59,31 @@
       min-height: 3rem;
     }
 
+    &:hover {
+      border-color: var(--tch-color-primary);
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--tch-color-primary);
+      outline-offset: 2px;
+    }
+
+    &--blank {
+      background: transparent;
+      border-color: transparent;
+      cursor: default;
+      pointer-events: none;
+    }
+
     &--closed {
       background: var(--tch-color-error-container);
       border-color: var(--tch-color-error);
+    }
+
+    &--provider:not(.business-days-page__day--closed) {
+      background: color-mix(in srgb, var(--tch-color-primary-container) 45%, transparent);
+      border-color: var(--tch-color-primary);
     }
 
     &--open {
@@ -76,6 +116,37 @@
       background: var(--tch-color-success);
       color: var(--tch-color-on-success);
     }
+
+    &--provider {
+      background: var(--tch-color-primary);
+      color: var(--tch-color-on-primary);
+    }
+  }
+
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    margin: -1rem 0 1.5rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+
+    span {
+      align-items: center;
+      display: inline-flex;
+      gap: 0.375rem;
+    }
+  }
+
+  &__legend-dot {
+    border-radius: 999px;
+    display: inline-block;
+    height: 0.625rem;
+    width: 0.625rem;
+
+    &--tenant { background: var(--tch-color-error); }
+    &--provider { background: var(--tch-color-primary); }
+    &--open { background: var(--tch-color-success); }
   }
 
   &__section-title {

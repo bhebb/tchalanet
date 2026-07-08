@@ -151,7 +151,6 @@ export class PlatformCatalogPlansPage {
     priceAmount: [0 as number | null],
     currency: ['HTG'],
     billingPeriod: ['MONTHLY'],
-    active: [true],
   });
 
   private showError(msg: string): void {
@@ -178,7 +177,6 @@ export class PlatformCatalogPlansPage {
       priceAmount: plan.priceAmount ?? 0,
       currency: plan.currency ?? 'HTG',
       billingPeriod: plan.billingPeriod ?? 'MONTHLY',
-      active: plan.active,
     });
   }
 
@@ -198,7 +196,6 @@ export class PlatformCatalogPlansPage {
       priceAmount: v.priceAmount,
       currency: v.currency || null,
       billingPeriod: v.billingPeriod || null,
-      active: v.active,
     };
     this.api.updatePlan(plan.id, req).subscribe({
       next: updated => {

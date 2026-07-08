@@ -313,7 +313,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
       return { route: '/app/admin/settings/config', fragment: 'languages' };
     }
     if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
-      return { route: '/app/admin/business-profile' };
+      return { route: '/app/admin/settings/config' };
     }
     return { route: '/app/admin/settings/config' };
   }

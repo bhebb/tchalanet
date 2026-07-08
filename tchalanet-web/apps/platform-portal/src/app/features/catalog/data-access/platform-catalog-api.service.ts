@@ -114,7 +114,6 @@ export interface UpdatePlanRequest {
   priceAmount?: number | null;
   currency?: string | null;
   billingPeriod?: string | null;
-  active?: boolean | null;
 }
 
 // ─── Themes ────────────────────────────────────────────────────────────────
@@ -363,7 +362,7 @@ export class PlatformCatalogApi {
   }
 
   updatePlan(id: string, req: UpdatePlanRequest): Observable<CatalogPlanView> {
-    return this.backend.put<CatalogPlanView>(`/platform/plans/${id}`, req);
+    return this.backend.patch<CatalogPlanView>(`/platform/plans/${id}/metadata`, req);
   }
 
   deactivatePlan(id: string): Observable<void> {

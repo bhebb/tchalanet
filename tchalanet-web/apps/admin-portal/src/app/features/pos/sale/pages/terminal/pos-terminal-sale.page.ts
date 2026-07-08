@@ -160,7 +160,7 @@ export class PosTerminalSalePage implements OnInit {
       next: terminal => {
         this.sellerTerminal.set(terminal);
         this.loading.set(false);
-        this.loadDraws();
+        this.loadDraws(sellerTerminalId);
         this.loadGames();
         this.loadActivity(sellerTerminalId);
       },
@@ -171,9 +171,9 @@ export class PosTerminalSalePage implements OnInit {
     });
   }
 
-  private loadDraws(): void {
+  private loadDraws(sellerTerminalId: string): void {
     this.clearSectionError('admin.sellerTerminal.pos.draws');
-    this.api.getOpenDrawsForPos(24, { suppressShellFeedback: true }).subscribe({
+    this.api.getOpenDrawsForPos(sellerTerminalId, 48, { suppressShellFeedback: true }).subscribe({
       next: draws => {
         this.openDraws.set(draws);
         this.selectedDraw.set(draws[0] ?? null);
