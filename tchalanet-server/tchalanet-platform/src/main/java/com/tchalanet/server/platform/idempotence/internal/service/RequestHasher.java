@@ -18,7 +18,7 @@ public final class RequestHasher {
 
   public static String sha256Normalized(JsonUtils jsonUtils, Object body) {
     try {
-      JsonNode node = jsonUtils.valueToTree(body);
+      JsonNode node = jsonUtils.toJsonNode(body);
       JsonNode sorted = sortRecursively(node);
       byte[] json = jsonUtils.toJson(sorted).getBytes(java.nio.charset.StandardCharsets.UTF_8);
 
@@ -34,7 +34,7 @@ public final class RequestHasher {
     if (node == null || node.isNull()) return NullNode.getInstance();
 
     if (node.isObject()) {
-      ObjectNode out = JsonNodeFactory.instance.objectNode();
+      ObjectNode out = JsonUtils.emptyObject();
       java.util.List<String> names = new java.util.ArrayList<>();
       node.properties().forEach(entry -> names.add(entry.getKey()));
       java.util.Collections.sort(names);

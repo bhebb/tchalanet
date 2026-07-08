@@ -76,8 +76,8 @@ class DrawResultPersistenceAssemblerTest {
             LocalTime.of(21, 0),
             "MON,TUE,WED,THU,FRI,SAT,SUN",
             true,
-            jsonUtils.emptyObject(),
-            jsonUtils.emptyObject(),
+            JsonUtils.emptyObject(),
+            JsonUtils.emptyObject(),
             "draw_channel.ny.eve.label");
     }
 
@@ -90,7 +90,7 @@ class DrawResultPersistenceAssemblerTest {
 
     private HaitiProjectionResult projection(boolean ok) {
         return new HaitiProjectionResult(
-            jsonUtils.emptyObject(),
+            JsonUtils.emptyObject(),
             ok
                 ? HaitiFlags.ok(1, Instant.parse("2026-07-03T01:05:00Z"))
                 : HaitiFlags.fail(1, "PARTIAL_EXTERNAL_PICK", Map.of()));

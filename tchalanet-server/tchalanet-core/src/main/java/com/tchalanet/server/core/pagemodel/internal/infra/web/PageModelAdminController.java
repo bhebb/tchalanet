@@ -74,7 +74,7 @@ public class PageModelAdminController {
   public ApiResponse<?> create(
       @RequestBody PageModelAdminUpsertRequest req,
       @CurrentContext TchRequestContext ctx) {
-    JsonNode modelJson = req.model() == null ? null : jsonUtils.valueToTree(req.model());
+    JsonNode modelJson = req.model() == null ? null : jsonUtils.toJsonNode(req.model());
     var cmd = new UpsertPageModelCommand(
         Optional.empty(),
         ctx.tenantIdSafe(),
@@ -95,7 +95,7 @@ public class PageModelAdminController {
       @RequestBody PageModelAdminUpsertRequest req,
       @CurrentContext TchRequestContext ctx) {
     PageModelId pid = PageModelId.parse(id);
-    JsonNode modelJson = req.model() == null ? null : jsonUtils.valueToTree(req.model());
+    JsonNode modelJson = req.model() == null ? null : jsonUtils.toJsonNode(req.model());
     var cmd = new UpsertPageModelCommand(
         Optional.of(pid),
         ctx.tenantIdSafe(),

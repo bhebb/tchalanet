@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.resultslot.api;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.JsonNodeFactory;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -21,7 +21,7 @@ public record ResultSlotView(
 
   // Normalize null -> empty object for consistent L2 cache round-trip (null JsonNode -> NullNode).
   public ResultSlotView {
-    sourceCfg = sourceCfg != null ? sourceCfg : JsonNodeFactory.instance.objectNode();
-    projectionCfg = projectionCfg != null ? projectionCfg : JsonNodeFactory.instance.objectNode();
+    sourceCfg = sourceCfg != null ? sourceCfg : JsonUtils.emptyObject();
+    projectionCfg = projectionCfg != null ? projectionCfg : JsonUtils.emptyObject();
   }
 }

@@ -19,7 +19,7 @@ public final class SourceResultBuilder {
         ExternalResultItem p3,
         ExternalResultItem p4) {
 
-        var root = jsonUtils.emptyObject();
+        var root = JsonUtils.emptyObject();
         root.put("provider", emptyIfNull(provider));
         root.put("slot_key", emptyIfNull(slotKey));
         root.put("draw_date", drawDate == null ? "" : drawDate.toString());
@@ -35,7 +35,7 @@ public final class SourceResultBuilder {
     }
 
     private static ObjectNode pickNode(JsonUtils jsonUtils, ExternalResultItem item) {
-        var n = jsonUtils.emptyObject();
+        var n = JsonUtils.emptyObject();
 
         if (item == null || !item.found()) {
             n.put("found", false);
@@ -44,7 +44,7 @@ public final class SourceResultBuilder {
             n.put("occurred_at", "");
             n.putArray("main");
             n.putArray("extras");
-            n.set("source_flags", jsonUtils.emptyObject());
+            n.set("source_flags", JsonUtils.emptyObject());
             return n;
         }
 

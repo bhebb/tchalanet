@@ -147,7 +147,7 @@ public class HaitiProjectionService {
     }
 
     private ObjectNode coerceHaitiLots(Object anyResult) {
-        var out = jsonUtils.emptyObject();
+        var out = JsonUtils.emptyObject();
 
         if (anyResult == null) {
             return emptyHaitiLots();
@@ -182,7 +182,7 @@ public class HaitiProjectionService {
     }
 
     private ObjectNode emptyHaitiLots() {
-        var o = jsonUtils.emptyObject();
+        var o = JsonUtils.emptyObject();
         o.put("lot1", "");
         o.put("lot2", "");
         o.put("lot3", "");

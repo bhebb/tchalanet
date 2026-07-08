@@ -39,7 +39,7 @@ public class DrawChannelGameAdminService {
         tenantId.value(), channelId.value(), tenantGameId.value());
 
     var normalizedFlags = flags;
-    if (normalizedFlags == null) normalizedFlags = jsonUtils.emptyObjectNode();
+    if (normalizedFlags == null) normalizedFlags = JsonUtils.emptyObject();
     else if (normalizedFlags.isString()) normalizedFlags = jsonUtils.parse(normalizedFlags.asText());
 
     if (existing.isPresent()) {
@@ -116,7 +116,7 @@ public class DrawChannelGameAdminService {
       params.add(channelId.value());
       params.add(it.tenantGameId().value());
       params.add(it.enabled());
-      params.add(jsonUtils.toJson(it.flags() == null ? jsonUtils.emptyObjectNode() : it.flags()));
+      params.add(jsonUtils.toJson(it.flags() == null ? JsonUtils.emptyObject() : it.flags()));
       Timestamp now = Timestamp.from(Instant.now());
       params.add(now);
       params.add(now);

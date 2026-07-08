@@ -7,6 +7,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 @Component
@@ -78,32 +79,15 @@ public class JsonUtils {
     }
 
     /* ============================================================
-     * ⚠️ LEGACY METHODS (KEEP BUT DEPRECATE)
-     * ============================================================ */
-
-    /**
-     * ⚠️ Deprecated: use toJsonNode(...) instead.
-     * This method creates TextNode for String JSON.
-     */
-    @Deprecated
-    public JsonNode valueToTree(Object value) {
-        return mapper.valueToTree(value);
-    }
-
-    /**
-     * ⚠️ Deprecated: use emptyObject()
-     */
-    @Deprecated
-    public ObjectNode emptyObjectNode() {
-        return mapper.createObjectNode();
-    }
-
-    /* ============================================================
      * MODERN HELPERS
      * ============================================================ */
 
-    public ObjectNode emptyObject() {
-        return mapper.createObjectNode();
+    /**
+     * A fresh empty JSON object. Static so value objects / record compact constructors can use it
+     * (no Spring bean available there). Single place to change if the Jackson node contract evolves.
+     */
+    public static ObjectNode emptyObject() {
+        return JsonNodeFactory.instance.objectNode();
     }
 
     public JsonNode requireObject(JsonNode node) {

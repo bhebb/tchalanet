@@ -64,7 +64,7 @@ public class DrawChannelProvisioningService implements DrawChannelProvisioningAp
           .map(game -> new CreateDrawChannelGameRequest(
               game.tenantGameId(),
               true,
-              jsonUtils.emptyObjectNode()))
+              JsonUtils.emptyObject()))
           .toList();
       drawChannelGameAdminService.bulkUpsert(
           tenantId,
@@ -90,7 +90,7 @@ public class DrawChannelProvisioningService implements DrawChannelProvisioningAp
     channel.setDaysOfWeek(row.daysOfWeek());
     channel.setActive(row.active());
     channel.setSortOrder(row.sortOrder());
-    channel.setFlags(jsonUtils.emptyObjectNode());
+    channel.setFlags(JsonUtils.emptyObject());
     channel.setNotes(null);
     channel.setResultSlotId(resultSlot.id().value());
     return drawChannelRepository.saveAndFlush(channel);

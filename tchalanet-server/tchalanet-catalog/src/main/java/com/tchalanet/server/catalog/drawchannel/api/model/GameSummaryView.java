@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.drawchannel.api.model;
 
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.JsonNodeFactory;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.TenantGameId;
 
 public record GameSummaryView(
@@ -13,6 +13,6 @@ public record GameSummaryView(
   // Normalize null -> empty object so the value round-trips consistently through the L2 cache
   // (a null JsonNode comes back as NullNode after Redis serialization).
   public GameSummaryView {
-    flags = flags != null ? flags : JsonNodeFactory.instance.objectNode();
+    flags = flags != null ? flags : JsonUtils.emptyObject();
   }
 }

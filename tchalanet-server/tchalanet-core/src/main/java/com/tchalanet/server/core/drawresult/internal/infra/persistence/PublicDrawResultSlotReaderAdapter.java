@@ -459,7 +459,7 @@ public class PublicDrawResultSlotReaderAdapter implements PublicDrawResultSlotRe
     // ── Private — type helpers ─────────────────────────────────────────────────
 
     private JsonNode json(Object value) {
-        return value == null ? jsonUtils.emptyObject() : jsonUtils.toJsonNode(value.toString());
+        return value == null ? JsonUtils.emptyObject() : jsonUtils.toJsonNode(value.toString());
     }
 
     private Instant instant(ResultSet rs, String column) throws SQLException {
