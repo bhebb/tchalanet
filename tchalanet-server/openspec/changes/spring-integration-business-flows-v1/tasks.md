@@ -1,7 +1,7 @@
 # Tasks
 
-- [ ] Add Spring integration test harness with Testcontainers Postgres.
-- [ ] Add deterministic business runtime fixtures for tenant/setup/sale flows.
+- [x] Add Spring integration test harness with Testcontainers Postgres.
+- [x] Add deterministic business runtime fixtures for tenant/setup/sale flows.
 - [ ] Add onboarding default persistence integration test.
 - [ ] Add setup readiness transition integration test.
 - [ ] Add limit-blocked preview/sell integration test.
