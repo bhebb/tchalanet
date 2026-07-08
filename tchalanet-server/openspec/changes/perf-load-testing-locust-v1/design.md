@@ -47,6 +47,17 @@ Each step timed separately; the basket size (5–10) is randomized per iteration
 - Recorded per scenario at fixed concurrency steps (e.g. 1, 5, 10, 25, 50 cashiers).
 - Budgets start **observational** (documented baseline), promoted to thresholds once stable.
 
+## Metrics visualization ("play with the metrics")
+
+- **v1 — Locust Web UI** (built-in, no extra infra): a live web page at `:8089` with real-time
+  charts (RPS, response-time p50/p95/p99, failures, current users), a table per request type, and
+  runtime controls to change the user count / spawn rate on the fly. This is the primary
+  "play with the metrics" surface. Downloadable CSV from the same page.
+- **v1 — HTML report**: `--html report.html` produces a static, shareable post-run page.
+- **v2 (optional, flagged)** — stream live stats to **Prometheus** (`locust-plugins` prometheus
+  exporter) and ship a **Grafana** dashboard for interactive drill-down and comparing two runs
+  side-by-side. Opt-in, non-prod only; not required for v1.
+
 ## Isolation & safety
 
 - Runs against a **seeded non-prod** environment only (guard on host allowlist; refuse prod hosts).

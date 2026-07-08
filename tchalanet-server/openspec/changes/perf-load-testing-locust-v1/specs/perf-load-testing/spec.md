@@ -63,3 +63,21 @@ effect on latency is observable under load.
 - **GIVEN** a read-heavy scenario
 - **WHEN** it runs after cache warm-up
 - **THEN** POS draws / dashboard read latencies are reported and comparable across runs
+
+### Requirement: Interactive metrics visualization
+
+A run SHALL offer a live web surface to watch and adjust the load in real time, plus a shareable
+post-run report.
+
+#### Scenario: Live metrics page
+
+- **GIVEN** a non-headless run
+- **WHEN** an operator opens the Locust Web UI
+- **THEN** they see live RPS, p50/p95/p99 and failure charts and can change users / spawn rate at
+  runtime, and download the stats
+
+#### Scenario: Shareable report
+
+- **GIVEN** a completed run
+- **WHEN** the HTML report is generated
+- **THEN** it captures the per-request latency percentiles, RPS and failure ratio for sharing
