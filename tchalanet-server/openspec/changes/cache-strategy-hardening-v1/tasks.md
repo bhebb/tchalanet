@@ -17,8 +17,9 @@
       Éviction déjà en place (writer → `AfterCommit.run(evictAll)` pour upsert/confirm/override).
       `LATEST_BY_SLOT` retiré (mort). `DrawResultCacheNames` + `DrawResultCacheSpecProvider`
       (TTL court L1 30s / L2 2min, chemin settlement).
-- [ ] Tests d'intégration : write config → cache évincé → lecture reflète la nouvelle valeur
-      (drawchannel calendar_rows + drawresult by_id/id_by_slot_occurred).
+- [~] Tests d'intégration write→evict→read : **niveau e2e, pas unit**. Le serveur n'a aucun
+      `@SpringBootTest`/Testcontainers (0 occurrence) ; ces tests ont besoin du proxying Spring +
+      tx + CacheManager câblés → couverts par la suite e2e existante, pas par un nouveau harness ici.
 
 ## Phase 2 — CacheSpecProviders manquants
 - [x] Specs pour plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant.
@@ -48,7 +49,7 @@
 - [x] Fix global : `@EnableCaching(order = LOWEST_PRECEDENCE - 1)` rend l'advisor cache OUTER → toutes
       les `@CacheEvict` sur méthodes `@Transactional` évincent APRÈS commit. (`drawresult` utilisait
       déjà `AfterCommit.run`.)
-- [ ] Tests rollback : transaction rollback → cache non évincé / non repeuplé (passe test dédiée).
+- [~] Tests rollback : idem — niveau e2e (pas d'infra `@SpringBootTest` dans le projet).
 
 ## Phase 5 — Ops / kill-switch
 - [x] `CacheToggle` (common) — stockage in-memory par instance. NOTE: pas encore via settings /
