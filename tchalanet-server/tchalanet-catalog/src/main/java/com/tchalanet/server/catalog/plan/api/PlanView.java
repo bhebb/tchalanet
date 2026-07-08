@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.plan.api;
 
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 import com.tchalanet.server.common.types.id.PlanId;
 
 import java.math.BigDecimal;
@@ -25,4 +26,10 @@ public record PlanView(
     boolean isDefault,
     Instant createdAt,
     Instant updatedAt
-) {}
+) {
+  // Normalize null -> empty object for consistent L2 cache round-trip (null JsonNode -> NullNode).
+  public PlanView {
+    limitsJson = limitsJson != null ? limitsJson : JsonNodeFactory.instance.objectNode();
+    featuresJson = featuresJson != null ? featuresJson : JsonNodeFactory.instance.objectNode();
+  }
+}

@@ -3,6 +3,7 @@ package com.tchalanet.server.catalog.pagemodeltemplate.api.model;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.TenantId;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.time.Instant;
 
@@ -24,6 +25,12 @@ public record PageModelTemplateView(
     Instant createdAt,
     Instant updatedAt
 ) {
+    // Normalize null -> empty object for consistent L2 cache round-trip (null JsonNode -> NullNode).
+    public PageModelTemplateView {
+        schema = schema != null ? schema : JsonNodeFactory.instance.objectNode();
+        model = model != null ? model : JsonNodeFactory.instance.objectNode();
+    }
+
     public static PageModelTemplateView initFromFile(
         String code,
         String logicalId,
