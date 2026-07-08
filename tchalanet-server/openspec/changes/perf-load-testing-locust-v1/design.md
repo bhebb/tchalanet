@@ -47,16 +47,25 @@ Each step timed separately; the basket size (5–10) is randomized per iteration
 - Recorded per scenario at fixed concurrency steps (e.g. 1, 5, 10, 25, 50 cashiers).
 - Budgets start **observational** (documented baseline), promoted to thresholds once stable.
 
-## Metrics visualization ("play with the metrics")
+## Operation web page (see cases, edit inputs, run)
 
-- **v1 — Locust Web UI** (built-in, no extra infra): a live web page at `:8089` with real-time
-  charts (RPS, response-time p50/p95/p99, failures, current users), a table per request type, and
-  runtime controls to change the user count / spawn rate on the fly. This is the primary
-  "play with the metrics" surface. Downloadable CSV from the same page.
-- **v1 — HTML report**: `--html report.html` produces a static, shareable post-run page.
-- **v2 (optional, flagged)** — stream live stats to **Prometheus** (`locust-plugins` prometheus
-  exporter) and ship a **Grafana** dashboard for interactive drill-down and comparing two runs
-  side-by-side. Opt-in, non-prod only; not required for v1.
+The web surface is the **Locust Web UI**, extended to be a control panel — no external tooling:
+
+- **See the test cases**: run with `--class-picker` so the start page lists the available scenarios
+  (User classes + `LoadTestShape`s) to choose and launch.
+- **Change the inputs in the browser**: define Locust custom command-line args (via
+  `@events.init_command_line_parser`); Locust renders them as **editable form fields** on the start
+  page. Expose the domain inputs there: basket size min/max (5–10), scenario profile
+  (read/sales/mixed), target tenant/terminal/cashier, `TCH_LOAD_RUN_ID`, users & spawn rate.
+- **Run & tune live**: start/stop, adjust user count and spawn rate at runtime, with live RPS /
+  p50-p95-p99 / failure charts and CSV download.
+- **(Optional) custom page/route**: Locust's web extension (`environment.web_ui.app` Flask routes)
+  can add a small bespoke page that lists the cases with descriptions and their inputs, if the
+  default form is not expressive enough.
+- **HTML report**: `--html report.html` for a shareable post-run page.
+
+Grafana/Prometheus is **not** part of this — it would only be an optional v2 analysis add-on, not
+the usage surface.
 
 ## Isolation & safety
 

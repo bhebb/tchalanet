@@ -91,12 +91,23 @@
 - [ ] Keep job non-blocking in v1.
 - [ ] Document how to compare two runs manually.
 
-## 12. Metrics visualization & interactive analysis (web)
+## 12. Operation web page (see cases, change inputs, run)
 
-- [ ] v1: use Locust's built-in **Web UI** (live RPS / p50-p95-p99 / failures / per-request charts,
-      adjustable users & spawn rate at runtime, downloadable CSV) — the default "play with metrics" page.
-- [ ] v1: publish the post-run **HTML report** as a shareable artifact.
-- [ ] v2 (optional, opt-in): stream live metrics to **Prometheus** (via `locust-plugins` /
-      prometheus exporter) and provide a **Grafana** dashboard for interactive drill-down and
-      run-to-run comparison; keep it behind a flag, non-prod only.
-- [ ] Document how to open the Web UI, adjust load live, and export/compare results.
+The Locust Web UI itself, extended, is the control panel — no external tooling.
+
+- [ ] Enable `--class-picker` so the web page lists the available **scenarios/test cases**
+      (User classes + LoadShapes) to select and launch.
+- [ ] Expose domain **inputs as editable web form fields** (via Locust custom command-line args that
+      render in the UI): basket size min/max (5–10), scenario profile (read/sales/mixed), target
+      tenant/terminal/cashier, `TCH_LOAD_RUN_ID`, concurrency & spawn rate.
+- [ ] Support start / stop and **live adjustment** of user count & spawn rate from the page, with
+      live RPS / p50-p95-p99 / failure charts and CSV download.
+- [ ] (Optional) a small **custom web route/page** (Locust web extension) that presents the test
+      cases and their descriptions/inputs more explicitly than the default form.
+- [ ] Publish the post-run **HTML report** as a shareable artifact.
+- [ ] Document opening the page, picking a case, editing inputs, launching, and exporting results.
+
+## 13. Metrics analysis (optional, v2)
+
+- [ ] (Optional, opt-in) stream stats to Prometheus + a Grafana dashboard for run-to-run comparison;
+      flagged, non-prod only. Not required for v1 — the operation page above already covers usage.

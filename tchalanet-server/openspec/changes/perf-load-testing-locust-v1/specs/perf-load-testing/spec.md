@@ -64,20 +64,26 @@ effect on latency is observable under load.
 - **WHEN** it runs after cache warm-up
 - **THEN** POS draws / dashboard read latencies are reported and comparable across runs
 
-### Requirement: Interactive metrics visualization
+### Requirement: Operation web page
 
-A run SHALL offer a live web surface to watch and adjust the load in real time, plus a shareable
-post-run report.
+There SHALL be a web page from which an operator can see the available test cases, change the run
+inputs, launch, and watch results live — without editing code or CLI flags.
 
-#### Scenario: Live metrics page
+#### Scenario: Pick a test case
 
-- **GIVEN** a non-headless run
-- **WHEN** an operator opens the Locust Web UI
-- **THEN** they see live RPS, p50/p95/p99 and failure charts and can change users / spawn rate at
-  runtime, and download the stats
+- **GIVEN** the web page is open (class-picker enabled)
+- **WHEN** the operator looks at the start screen
+- **THEN** the available scenarios (User classes / load shapes) are listed and selectable
 
-#### Scenario: Shareable report
+#### Scenario: Change inputs in the browser
 
-- **GIVEN** a completed run
-- **WHEN** the HTML report is generated
-- **THEN** it captures the per-request latency percentiles, RPS and failure ratio for sharing
+- **GIVEN** the start screen
+- **WHEN** the operator edits the exposed fields (basket size 5–10, scenario profile, target
+  tenant/terminal/cashier, run id, users, spawn rate)
+- **THEN** the run uses those values without any code change
+
+#### Scenario: Run and watch live
+
+- **WHEN** the operator starts the run
+- **THEN** live RPS, p50/p95/p99 and failure charts update, users/spawn rate can be adjusted at
+  runtime, and stats are downloadable (plus a shareable HTML report post-run)
