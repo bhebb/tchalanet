@@ -141,7 +141,7 @@ public class TenantConfigService {
             }
 
             Arrays.sort(resources, Comparator.comparing(r -> r.getFilename() == null ? "" : r.getFilename()));
-            var merged = jsonUtils.emptyObject();
+            var merged = JsonUtils.emptyObject();
             for (var resource : resources) {
                 try (var is = resource.getInputStream()) {
                     var fragment = jsonUtils.parse(is);
@@ -301,7 +301,7 @@ public class TenantConfigService {
     @Transactional
     public void updateTenantInternalSettingsSection(UpdateTenantInternalSettingsSectionRequest request) {
         var tenant = load(request.tenantId());
-        var sectionPatch = jsonUtils.emptyObject();
+        var sectionPatch = JsonUtils.emptyObject();
         sectionPatch.set(request.section().jsonKey(), request.value());
         var merged = mergeWithPersistedConfig(tenant, sectionPatch);
         configValidator.validateAll(merged);
@@ -324,7 +324,7 @@ public class TenantConfigService {
         if (persisted != null && !persisted.isNull() && !persisted.isObject()) {
             throw new IllegalArgumentException("tenant config must be a JSON object");
         }
-        var merged = jsonUtils.emptyObject();
+        var merged = JsonUtils.emptyObject();
         deepPatch(merged, loadDefaultTenantInternalSettings());
         if (persisted != null && !persisted.isNull()) {
             deepPatch(merged, persisted);

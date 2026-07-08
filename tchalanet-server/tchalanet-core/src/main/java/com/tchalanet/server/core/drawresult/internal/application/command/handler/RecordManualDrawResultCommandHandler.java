@@ -101,7 +101,7 @@ public class RecordManualDrawResultCommandHandler
         ResultSlotView slot,
         Instant occurredAt) {
 
-        var sourceResult = jsonUtils.emptyObject();
+        var sourceResult = JsonUtils.emptyObject();
         sourceResult.put("mode", "MANUAL");
         sourceResult.put("slot_key", slot.slotKey());
         sourceResult.put("provider", slot.provider());

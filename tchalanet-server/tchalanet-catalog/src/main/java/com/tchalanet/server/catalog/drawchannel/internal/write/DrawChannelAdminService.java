@@ -27,7 +27,7 @@ public class DrawChannelAdminService {
   // helper to ensure flags is never null
   private void ensureFlagsNotNull(DrawChannelEntity e) {
     if (e.getFlags() == null) {
-      e.setFlags(jsonUtils.emptyObjectNode());
+      e.setFlags(JsonUtils.emptyObject());
     }
   }
 
@@ -44,7 +44,7 @@ public class DrawChannelAdminService {
     // normalize flags to ensure non-null JsonNode saved to DB and accept textual payload
     var flags = entity.getFlags();
     if (flags == null) {
-      flags = jsonUtils.emptyObject();
+      flags = JsonUtils.emptyObject();
     } else if (flags.isString()) {
       flags = jsonUtils.parse(flags.asString());
     }
@@ -208,7 +208,7 @@ public class DrawChannelAdminService {
     // normalize flags
     var flags = view.flags();
     if (flags == null) {
-      flags = jsonUtils.emptyObjectNode();
+      flags = JsonUtils.emptyObject();
     } else if (flags.isTextual()) {
       flags = jsonUtils.parse(flags.asText());
     }
@@ -234,7 +234,7 @@ public class DrawChannelAdminService {
     // normalize flags
     var flags = view.flags();
     if (flags == null) {
-      flags = jsonUtils.emptyObjectNode();
+      flags = JsonUtils.emptyObject();
     } else if (flags.isTextual()) {
       flags = jsonUtils.parse(flags.asText());
     }

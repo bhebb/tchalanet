@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.oh.auth;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
     private final UsLotteryProperties props;
     private final OhioAuthClient authClient;
     private final TchTimeProvider timeProvider;
+    private final JsonUtils jsonUtils;
 
     private volatile CachedToken cached;
 
@@ -42,7 +44,7 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
         return authClient.login()
             .map(token -> {
                 log.info("Received new token from Ohio auth service: {}", token);
-                cached = CachedToken.fromJwt(token, timeProvider.now());
+                cached = CachedToken.fromJwt(jsonUtils, token, timeProvider.now());
                 return token;
             });
     }
@@ -53,8 +55,8 @@ public class OhioTokenProviderImpl implements OhioTokenProvider {
             return expiresAt != null && now.isBefore(expiresAt.minusSeconds(300));
         }
 
-        static CachedToken fromJwt(String token, Instant fallbackNow) {
-            var expiresAt = JwtExpiryExtractor.extractExp(token)
+        static CachedToken fromJwt(JsonUtils jsonUtils, String token, Instant fallbackNow) {
+            var expiresAt = JwtExpiryExtractor.extractExp(jsonUtils, token)
                 .orElse(fallbackNow.plus(Duration.ofHours(1)));
 
             return new CachedToken(token, expiresAt);

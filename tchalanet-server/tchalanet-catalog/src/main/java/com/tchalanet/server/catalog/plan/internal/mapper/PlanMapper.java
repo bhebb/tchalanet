@@ -52,13 +52,13 @@ public abstract class PlanMapper {
 
     private JsonNode jsonOrEmptyObject(String json) {
         if (json == null || json.isBlank()) {
-            return jsonUtils.emptyObject();
+            return JsonUtils.emptyObject();
         }
 
         var node = jsonUtils.toJsonNode(json);
 
         if (node == null || node.isNull()) {
-            return jsonUtils.emptyObject();
+            return JsonUtils.emptyObject();
         }
 
         return jsonUtils.requireObject(node);

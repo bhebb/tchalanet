@@ -20,7 +20,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Archive service — façade over {@link ArchiveRunExecutor} and lookup repositories.
@@ -39,7 +39,7 @@ public class ArchiveService implements ArchiveApi {
   private final ArchiveLookupIndexJdbcRepository lookupRepo;
   private final ArchiveObjectJdbcRepository objectRepo;
   private final ArchiveStoragePort storage;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
   private final ArchiveMetrics metrics;
 
   // ── Lookup ─────────────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ public class ArchiveService implements ArchiveApi {
 
     String tenantStr   = tenantId  != null ? tenantId.toString()  : null;
     String ticketIdStr = ticketId  != null ? ticketId.toString()   : null;
-    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+    JsonlGzReader reader = new JsonlGzReader(jsonUtils);
 
     for (Map<String, Object> entry : entries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
@@ -127,7 +127,7 @@ public class ArchiveService implements ArchiveApi {
 
     String tenantStr  = tenantId != null ? tenantId.toString()  : null;
     String payoutStr  = payoutId.toString();
-    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+    JsonlGzReader reader = new JsonlGzReader(jsonUtils);
 
     for (Map<String, Object> entry : entries) {
       UUID objectId = (UUID) entry.get("archive_object_id");
@@ -169,7 +169,7 @@ public class ArchiveService implements ArchiveApi {
     }
 
     String entityIdStr = entityId.toString();
-    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+    JsonlGzReader reader = new JsonlGzReader(jsonUtils);
     List<ArchivedEntityView> results = new ArrayList<>();
 
     for (Map<String, Object> entry : lookupEntries) {

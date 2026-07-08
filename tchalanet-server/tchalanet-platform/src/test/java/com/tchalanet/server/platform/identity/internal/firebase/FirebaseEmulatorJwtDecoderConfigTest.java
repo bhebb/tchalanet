@@ -7,9 +7,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.JwtException;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class FirebaseEmulatorJwtDecoderConfigTest {
 
@@ -21,7 +22,7 @@ class FirebaseEmulatorJwtDecoderConfigTest {
 
     @Test
     void acceptsUnsignedTokenForExpectedEmulatorProject() {
-        var jwt = config.firebaseEmulatorJwtDecoder(properties, new ObjectMapper()).decode(token(""));
+        var jwt = config.firebaseEmulatorJwtDecoder(properties, new JsonUtils(JsonMapper.builder().build())).decode(token(""));
 
         assertThat(jwt.getSubject()).isEqualTo("firebase-emulator-user");
         assertThat(jwt.getAudience()).containsExactly(PROJECT_ID);
@@ -29,7 +30,7 @@ class FirebaseEmulatorJwtDecoderConfigTest {
 
     @Test
     void rejectsTokenWithSignature() {
-        var decoder = config.firebaseEmulatorJwtDecoder(properties, new ObjectMapper());
+        var decoder = config.firebaseEmulatorJwtDecoder(properties, new JsonUtils(JsonMapper.builder().build()));
 
         assertThatThrownBy(() -> decoder.decode(token("unexpected-signature")))
             .isInstanceOf(JwtException.class)

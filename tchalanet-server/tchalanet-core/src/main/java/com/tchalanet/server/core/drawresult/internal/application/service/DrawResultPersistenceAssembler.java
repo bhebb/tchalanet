@@ -38,9 +38,9 @@ public class DrawResultPersistenceAssembler {
                 external.pick3(),
                 external.pick4());
 
-        var flags = jsonUtils.emptyObject();
+        var flags = JsonUtils.emptyObject();
 
-        var sourceFlags = jsonUtils.emptyObject();
+        var sourceFlags = JsonUtils.emptyObject();
         if (external.pick3() != null) {
             sourceFlags.set("pick3", jsonUtils.toJsonNode(external.pick3().sourceFlags()));
         }
@@ -61,7 +61,7 @@ public class DrawResultPersistenceAssembler {
     }
 
     private ObjectNode buildRawPayload(ResolvedExternalResults external) {
-        var raw = jsonUtils.emptyObject();
+        var raw = JsonUtils.emptyObject();
 
         if (external.pick3() != null) {
             raw.set("pick3_raw", jsonUtils.toJsonNode(external.pick3().rawPayload()));

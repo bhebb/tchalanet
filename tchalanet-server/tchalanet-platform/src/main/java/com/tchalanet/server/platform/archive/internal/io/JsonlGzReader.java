@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Streaming reader for the {@code jsonl.gz} archive format.
@@ -26,15 +26,15 @@ public final class JsonlGzReader {
   private static final int DEFAULT_MAX_SCAN = 5_000_000;
   private static final TypeReference<Map<String, Object>> ROW_TYPE = new TypeReference<>() {};
 
-  private final ObjectMapper mapper;
+  private final JsonUtils jsonUtils;
   private final int maxScan;
 
-  public JsonlGzReader(ObjectMapper mapper) {
-    this(mapper, DEFAULT_MAX_SCAN);
+  public JsonlGzReader(JsonUtils jsonUtils) {
+    this(jsonUtils, DEFAULT_MAX_SCAN);
   }
 
-  public JsonlGzReader(ObjectMapper mapper, int maxScan) {
-    this.mapper  = mapper;
+  public JsonlGzReader(JsonUtils jsonUtils, int maxScan) {
+    this.jsonUtils  = jsonUtils;
     this.maxScan = maxScan;
   }
 
@@ -55,7 +55,7 @@ public final class JsonlGzReader {
       while ((line = reader.readLine()) != null) {
         if (++scanned > maxScan) break;
         if (line.isBlank()) continue;
-        Map<String, Object> row = mapper.readValue(line, ROW_TYPE);
+        Map<String, Object> row = jsonUtils.readValue(line, ROW_TYPE);
         if (filter.test(row)) {
           results.add(row);
         }

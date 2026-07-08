@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-import tools.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Streaming writer for the {@code jsonl.gz} archive format.
@@ -23,7 +23,7 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>Usage:
  * <pre>
- *   try (var writer = new JsonlGzWriter(outputStream, mapper)) {
+ *   try (var writer = new JsonlGzWriter(outputStream, jsonUtils)) {
  *       writer.write(row);
  *       ...
  *       long rows = writer.rowsWritten();
@@ -34,7 +34,7 @@ import tools.jackson.databind.ObjectMapper;
  */
 public final class JsonlGzWriter implements AutoCloseable {
 
-  private final ObjectMapper mapper;
+  private final JsonUtils jsonUtils;
   private final CountingOutputStream countingOut;
   private final DigestOutputStream digestOut;
   private final GZIPOutputStream gzipOut;
@@ -44,8 +44,8 @@ public final class JsonlGzWriter implements AutoCloseable {
   private boolean closed = false;
   private long compressedBytes = -1;
 
-  public JsonlGzWriter(OutputStream out, ObjectMapper mapper) {
-    this.mapper = mapper;
+  public JsonlGzWriter(OutputStream out, JsonUtils jsonUtils) {
+    this.jsonUtils = jsonUtils;
     try {
       MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
       this.countingOut = new CountingOutputStream(out);
@@ -60,7 +60,7 @@ public final class JsonlGzWriter implements AutoCloseable {
   public void write(Map<String, Object> row) {
     if (closed) throw new IllegalStateException("JsonlGzWriter is already closed");
     try {
-      writer.write(mapper.writeValueAsString(row));
+      writer.write(jsonUtils.toJson(row));
       writer.newLine();
       rowsWritten++;
     } catch (IOException e) {

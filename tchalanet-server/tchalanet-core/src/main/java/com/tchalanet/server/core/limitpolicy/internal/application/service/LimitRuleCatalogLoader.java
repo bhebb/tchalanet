@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.limitpolicy.internal.application.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleCatalog;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LimitRuleCatalogLoader {
 
-    private final ObjectMapper objectMapper;
+    private final JsonUtils jsonUtils;
 
     private LimitRuleCatalog catalog;
 
@@ -24,7 +24,7 @@ public class LimitRuleCatalogLoader {
             var resource = new ClassPathResource("limitpolicy/rules.v1.json");
 
             try (var input = resource.getInputStream()) {
-                this.catalog = objectMapper.readValue(input, LimitRuleCatalog.class);
+                this.catalog = jsonUtils.readValue(input, LimitRuleCatalog.class);
             }
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load limitpolicy/rules.v1.json", e);

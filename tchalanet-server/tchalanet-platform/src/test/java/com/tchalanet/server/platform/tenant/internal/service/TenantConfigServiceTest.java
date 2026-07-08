@@ -218,7 +218,7 @@ class TenantConfigServiceTest {
     }
 
     private ThemePresetView activeTheme(ThemePresetId id, String code) {
-        return new ThemePresetView(id, code, "tchalanet", jsonUtils.emptyObject(), null, true, true, null, null);
+        return new ThemePresetView(id, code, "tchalanet", JsonUtils.emptyObject(), null, true, true, null, null);
     }
 
     private JsonNode parse(String json) {

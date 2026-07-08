@@ -148,7 +148,7 @@ public class OverrideDrawResultCommandHandler
     }
 
     private @NonNull ObjectNode buildSourceResult(OverrideDrawResultCommand command, ResultSlotView slot, Instant occurredAt) {
-        ObjectNode sourceResult = jsonUtils.emptyObject();
+        ObjectNode sourceResult = JsonUtils.emptyObject();
         sourceResult.put("mode", "OVERRIDE");
         sourceResult.put("actor", "OPS");
         sourceResult.put("slot_key", slot.slotKey());

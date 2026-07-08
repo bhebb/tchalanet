@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
-import tools.jackson.databind.node.JsonNodeFactory;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 final class PageModelMapper {
 
@@ -62,7 +62,7 @@ final class PageModelMapper {
     e.setCreatedBy(d.createdBy() != null ? d.createdBy().value(): null);
     e.setUpdatedBy(d.updatedBy() != null ? d.updatedBy().value(): null);
     e.setPublishedAt(d.publishedAt().orElse(null));
-    e.setSchema(JsonNodeFactory.instance.objectNode());
+    e.setSchema(JsonUtils.emptyObject());
     // archivedAt / deletedAt not stored on this entity yet
     return e;
   }

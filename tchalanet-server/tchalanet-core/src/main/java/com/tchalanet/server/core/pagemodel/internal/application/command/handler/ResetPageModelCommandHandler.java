@@ -56,7 +56,7 @@ public class ResetPageModelCommandHandler
     var defaultModel = instance.templateId()
         .flatMap(templateCatalog::findById)
         .map(PageModelTemplateView::model)
-        .orElseGet(jsonUtils::emptyObjectNode);
+        .orElseGet(JsonUtils::emptyObject);
         var now = Instant.now(clock);
     var reset = instance.resetToTemplate(defaultModel, instance.schemaVersion(), now, cmd.actorId());
     var saved = writer.save(reset);
