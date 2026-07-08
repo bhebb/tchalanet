@@ -31,6 +31,8 @@ interface GamesOverviewSummary {
   readonly inactiveGameCount: number;
 }
 
+const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT']);
+
 @Component({
   selector: 'tch-admin-games-pricing-page',
   standalone: true,
@@ -124,7 +126,7 @@ export class AdminGamesPricingPage {
   }
 
   onConfigure(gameCode: string): void {
-    if (gameCode === 'HT_MARYAJ_GRATUIT') {
+    if (MARYAJ_GRATIS_GAME_CODES.has(gameCode)) {
       void this.router.navigate(['/app/admin/maryaj-gratis'], { fragment: 'game' });
       return;
     }
@@ -193,11 +195,13 @@ export class AdminGamesPricingPage {
     for (const game of games) {
       if (game.catalogStatus !== 'AVAILABLE' || game.tenantStatus === 'UNAVAILABLE') continue;
 
-      if (game.tenantStatus === 'NEEDS_CONFIG' || !this.hasGameStakeConfig(game)) {
+      if (game.tenantStatus === 'NEEDS_CONFIG' || !this.hasGameStakeConfig(game) || !this.hasGamePricingConfig(game)) {
         issues.push({
           gameCode:    game.gameCode,
           gameName:    game.gameName,
-          messageKey:  'admin.gamesPricing.issues.missingStake',
+          messageKey:  this.hasGameStakeConfig(game)
+            ? 'admin.gamesPricing.issues.missingPricing'
+            : 'admin.gamesPricing.issues.missingStake',
           actionLabelKey: 'admin.gamesPricing.issues.configure',
           action:      'configure-game',
           tone:        'danger',
@@ -211,6 +215,10 @@ export class AdminGamesPricingPage {
 
   private hasGameStakeConfig(game: TenantGamePricingView): boolean {
     return game.limits.minStake !== null && game.limits.maxStake !== null;
+  }
+
+  private hasGamePricingConfig(game: TenantGamePricingView): boolean {
+    return game.odds.length > 0 && game.odds.every(odd => odd.odds !== null && odd.odds !== undefined);
   }
 
   private errorCopy(

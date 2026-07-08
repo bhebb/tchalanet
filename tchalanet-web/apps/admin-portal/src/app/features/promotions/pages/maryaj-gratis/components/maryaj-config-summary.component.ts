@@ -41,7 +41,7 @@ export class MaryajConfigSummaryComponent {
   readonly meta = computed<readonly TchIdentityCardMeta[]>(() => [
     { label: 'Jeu', value: this.gameReady() ? 'Prêt pour la vente' : 'À configurer' },
     { label: 'Attribution', value: this.quantityModeSummary() },
-    { label: 'Ticket', value: this.ticketSummary() },
+    { label: 'Maryaj offerts', value: this.ticketSummary() },
     { label: 'Sélection', value: this.selectionSummary() },
     { label: 'Régénération', value: this.regenerationSummary() },
   ]);
@@ -59,18 +59,18 @@ export class MaryajConfigSummaryComponent {
   private ticketSummary(): string {
     if (this.quantityMode() === 'TIERED_PAID_AMOUNT') {
       const count = this.effectQuantityTierCount();
-      const gain = this.valueFromEffectOrForm('payoutBaseAmount');
-      return `${count} palier(s), gain ${gain} HTG`;
+      const base = this.valueFromEffectOrForm('payoutBaseAmount');
+      return `${count} palier(s), base ${base} HTG`;
     }
 
     if (this.quantityMode() === 'PER_PAID_AMOUNT') {
-      return `${this.stepSummary()}, max ${this.valueFromEffectOrForm('maxQuantity')} ligne(s), gain ${this.valueFromEffectOrForm('payoutBaseAmount')} HTG`;
+      return `${this.stepSummary()}, max ${this.valueFromEffectOrForm('maxQuantity')} ligne(s), base ${this.valueFromEffectOrForm('payoutBaseAmount')} HTG`;
     }
 
     if (this.campaign()) {
-      return `${this.effectParam('quantity') ?? '—'} Maryaj gratuit(s), gain ${this.effectParam('payoutBaseAmount') ?? '—'} HTG`;
+      return `${this.effectParam('quantity') ?? '—'} Maryaj gratuit(s), base ${this.effectParam('payoutBaseAmount') ?? '—'} HTG`;
     }
-    return `${this.formValue('quantity')} Maryaj gratuit(s), gain ${this.formValue('payoutBaseAmount')} HTG`;
+    return `${this.formValue('quantity')} Maryaj gratuit(s), base ${this.formValue('payoutBaseAmount')} HTG`;
   }
 
   private quantityModeSummary(): string {

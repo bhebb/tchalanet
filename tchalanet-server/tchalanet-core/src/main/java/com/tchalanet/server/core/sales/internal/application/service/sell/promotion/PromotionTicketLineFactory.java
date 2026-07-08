@@ -12,6 +12,7 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.pricing.api.query.ResolveSellerTerminalOddsQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.internal.domain.service.result.SettlementVariantResolver;
@@ -20,8 +21,10 @@ import com.tchalanet.server.catalog.game.api.model.BetType;
 
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,7 @@ public class PromotionTicketLineFactory {
     private final SelectionApi selectionApi;
     private final QueryBus queryBus;
     private final PromotionSelectionResolver selectionResolver;
+    private static final int MAX_SELECTION_ATTEMPTS = 50;
 
     public List<TicketLine> createLines(
         PromotionEffect effect,
@@ -52,7 +56,16 @@ public class PromotionTicketLineFactory {
         var out = new ArrayList<TicketLine>();
 
         for (int i = 0; i < effect.quantity(); i++) {
-            out.add(createLine(effect, decision, command, sellerTerminalId, currency, baseLineNumber + i + 1, i));
+            out.add(createLine(
+                effect,
+                decision,
+                existingLines == null ? List.of() : existingLines,
+                out,
+                command,
+                sellerTerminalId,
+                currency,
+                baseLineNumber + i + 1,
+                i));
         }
 
         return List.copyOf(out);
@@ -61,6 +74,8 @@ public class PromotionTicketLineFactory {
     private TicketLine createLine(
         PromotionEffect effect,
         PromotionDecision decision,
+        List<TicketLine> existingLines,
+        List<TicketLine> generatedLines,
         SellTicketCommand command,
         SellerTerminalId sellerTerminalId,
         CurrencyCode currency,
@@ -71,9 +86,11 @@ public class PromotionTicketLineFactory {
         var betType = resolveBetTypeForPromoGame(gameCode);
         var betOption = resolveBetOptionForPromoGame(gameCode);
 
-        var selectionResult = selectionResolver.resolveSelection(
+        var selectionResult = resolveUniqueSelection(
             decision,
             effect,
+            existingLines,
+            generatedLines,
             command,
             index,
             betType,
@@ -138,7 +155,59 @@ public class PromotionTicketLineFactory {
     }
 
     private Short resolveBetOptionForPromoGame(GameCode gameCode) {
+        if (gameCode == GameCode.HT_MARYAJ_GRATIS) {
+            return 2;
+        }
         return null;
     }
 
+    private PromotionSelectionResolver.SelectionResult resolveUniqueSelection(
+        PromotionDecision decision,
+        PromotionEffect effect,
+        List<TicketLine> existingLines,
+        List<TicketLine> generatedLines,
+        SellTicketCommand command,
+        int index,
+        BetType betType,
+        Short betOption
+    ) {
+        var usedSelections = usedSelections(betType, existingLines, generatedLines);
+        for (int attempt = 0; attempt < MAX_SELECTION_ATTEMPTS; attempt++) {
+            var result = selectionResolver.resolveSelection(
+                decision,
+                effect,
+                command,
+                index,
+                betType,
+                betOption
+            );
+            var selectionKey = selectionApi.canonicalize(betType, betOption, result.rawSelection()).key().value();
+            if (!usedSelections.contains(selectionKey)) {
+                return result;
+            }
+            if (result.source() != TicketLineSelectionSource.PROMOTION_GENERATED) {
+                throw new IllegalArgumentException("promotion.free_game_selection_duplicate");
+            }
+        }
+        throw new IllegalArgumentException("promotion.free_game_selection_duplicate_exhausted");
+    }
+
+    private Set<String> usedSelections(
+        BetType betType,
+        List<TicketLine> existingLines,
+        List<TicketLine> generatedLines
+    ) {
+        var used = new HashSet<String>();
+        collectSelections(used, betType, existingLines);
+        collectSelections(used, betType, generatedLines);
+        return used;
+    }
+
+    private void collectSelections(Set<String> used, BetType betType, List<TicketLine> lines) {
+        if (lines == null) return;
+        lines.stream()
+            .filter(line -> line != null && line.betType() == betType && line.selection() != null)
+            .map(line -> line.selection().key().value())
+            .forEach(used::add);
+    }
 }

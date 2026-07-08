@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ActionItem } from '@tch/api';
@@ -11,8 +11,12 @@ import {
 import { TchRuntimeConfigStore } from '@tch/shared-config';
 import { ThemeStore } from '@tch/ui/theme';
 import { ThemeSandboxComponent } from '@tch/web/sandbox';
-import { PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
+import { filterTenantAdminNavigation, PrivateShellLayoutComponent, TENANT_ADMIN_NAVIGATION } from '@tch/web/shell';
 import { filter, map, startWith } from 'rxjs';
+import {
+  TenantConfigApiService,
+  tenantMaryajGratisEnabled,
+} from './features/setup/data-access/tenant-config-api.service';
 
 const ADMIN_BRAND: ActionItem = {
   id: 'admin-brand',
@@ -34,7 +38,10 @@ export class App {
   private readonly bootstrap = inject(PrivateBootstrapStore);
   private readonly runtimeConfig = inject(TchRuntimeConfigStore);
   private readonly supportAccess = inject(SupportAccessStore);
+  private readonly tenantConfig = inject(TenantConfigApiService);
   private readonly theme = inject(ThemeStore);
+  private readonly maryajGratisEnabled = signal(true);
+  private tenantConfigLoaded = false;
 
   protected readonly brand = ADMIN_BRAND;
   protected readonly primary = computed<readonly ActionItem[]>(() => {
@@ -69,10 +76,14 @@ export class App {
     ];
   });
   protected readonly sections = computed(() => {
+    const options = { maryajGratisEnabled: this.maryajGratisEnabled() };
     if (this.bootstrap.space() !== 'ADMIN') {
-      return TENANT_ADMIN_NAVIGATION;
+      return filterTenantAdminNavigation(TENANT_ADMIN_NAVIGATION, options);
     }
-    return sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_NAVIGATION;
+    return filterTenantAdminNavigation(
+      sectionsFromRuntimeNavigation(this.bootstrap.navigationDrawer()) ?? TENANT_ADMIN_NAVIGATION,
+      options,
+    );
   });
   protected readonly titleKey = 'surface.tenant_admin';
   protected readonly currentUrl = toSignal(
@@ -86,6 +97,19 @@ export class App {
   protected readonly showShell = computed(() => isPrivateShellRoute(this.currentUrl()));
   protected readonly userName = computed(() => this.auth.session().displayName ?? '');
   protected readonly darkMode = computed(() => this.theme.activeTheme().effectiveMode === 'dark');
+
+  constructor() {
+    effect(() => {
+      if (this.bootstrap.space() !== 'ADMIN' || this.tenantConfigLoaded) {
+        return;
+      }
+      this.tenantConfigLoaded = true;
+      this.tenantConfig.getTenantConfig({ suppressShellFeedback: true }).subscribe({
+        next: config => this.maryajGratisEnabled.set(tenantMaryajGratisEnabled(config)),
+        error: () => this.maryajGratisEnabled.set(true),
+      });
+    });
+  }
 
   protected toggleTheme(): void {
     this.theme.setMode(this.darkMode() ? 'light' : 'dark');

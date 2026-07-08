@@ -10,6 +10,7 @@ import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest.Section;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
@@ -44,6 +45,9 @@ class TenantConfigServiceTest {
     private static final String BASE_CONFIG = """
         {
           "rules": {
+            "promotions": {
+              "maryajGratisEnabled": true
+            },
             "businessCalendar": {
               "defaultOpen": true,
               "closedWeekdays": [],
@@ -186,6 +190,59 @@ class TenantConfigServiceTest {
         assertThat(settings.document().receipt().defaultTemplateKey()).isEqualTo("sales.ticket.receipt.v1");
         assertThat(settings.locale().effectiveSupportedLanguages()).containsExactly("fr", "ht", "en");
         assertThat(settings.communication().buyerTicketDelivery().sms().amount()).isEqualByComparingTo("10.00");
+    }
+
+    @Test
+    void readsPersistedPromotionRulesInsteadOfOnlyDefaults() {
+        when(tenants.getRequiredByIdActive(tenantId)).thenReturn(tenantWithConfig("""
+            {
+              "rules": {
+                "promotions": {
+                  "maryajGratisEnabled": false
+                }
+              }
+            }
+            """));
+
+        var settings = service.getTenantInternalSettings(new GetTenantByIdRequest(tenantId));
+
+        assertThat(settings.rules().promotions().maryajGratisEnabled()).isFalse();
+        assertThat(settings.rules().businessCalendar().defaultOpen()).isTrue();
+    }
+
+    @Test
+    void rulesSectionPatchPreservesPromotionFlag() {
+        when(tenants.getRequiredByIdActive(tenantId)).thenReturn(tenantWithConfig("""
+            {
+              "rules": {
+                "promotions": {
+                  "maryajGratisEnabled": false
+                },
+                "businessCalendar": {
+                  "defaultOpen": true,
+                  "closedWeekdays": [],
+                  "holidays": []
+                }
+              }
+            }
+            """));
+        when(tenants.update(any(TenantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
+            tenantId,
+            Section.RULES,
+            parse("""
+                {
+                  "businessCalendar": {
+                    "closedWeekdays": ["SUNDAY"]
+                  }
+                }
+                """)));
+
+        var settings = savedSettings();
+
+        assertThat(settings.rules().promotions().maryajGratisEnabled()).isFalse();
+        assertThat(settings.rules().businessCalendar().closedWeekdays()).containsExactly(java.time.DayOfWeek.SUNDAY);
     }
 
     @Test

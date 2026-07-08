@@ -27,6 +27,10 @@ import {
   SubscriptionView,
 } from '../../../subscription/data-access/admin-subscription-api.service';
 import {
+  TenantConfigApiService,
+  tenantMaryajGratisEnabled,
+} from '../../data-access/tenant-config-api.service';
+import {
   SetupChecklistBadgeKind,
   SetupChecklistBodyVariant,
   SetupChecklistCardComponent,
@@ -85,6 +89,7 @@ interface SetupChecklistCardViewModel {
 export class AdminCompleteTenantConfigPage implements OnInit {
   private readonly api = inject(AdminOverviewApiService);
   private readonly subscriptionApi = inject(AdminSubscriptionApi);
+  private readonly tenantConfigApi = inject(TenantConfigApiService);
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
@@ -92,6 +97,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly overview = signal<TenantAdminOverviewView | null>(null);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
   readonly subscription = signal<SubscriptionView | null>(null);
+  readonly maryajGratisEnabled = signal(true);
 
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
@@ -138,7 +144,7 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
     const settingsTarget = this.settingsTarget();
 
-    return [
+    const cards: SetupChecklistCardViewModel[] = [
       {
         id: 'identity_address',
         icon: 'verified_user',
@@ -181,6 +187,25 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.games_pricing'],
       },
+    ];
+
+    if (this.maryajGratisEnabled()) {
+      cards.push({
+        id: 'maryaj_gratis',
+        icon: 'redeem',
+        titleKey: 'admin.setup.section.maryajGratis',
+        status: gamesStatus === 'READY' ? 'READY' : 'MISSING',
+        badgeKind: 'optional',
+        body: this.translate.instant('admin.setup.section.maryajGratisDesc'),
+        bodyVariant: 'default',
+        ctaKey: 'admin.setup.section.maryajGratisCta',
+        route: '/app/admin/maryaj-gratis',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.maryaj_gratis'],
+      });
+    }
+
+    cards.push(
       {
         id: 'draws',
         icon: 'event_repeat',
@@ -242,7 +267,9 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         emphasizeMissing: false,
         sectionErrorTargets: ['admin.setup.subscription'],
       },
-    ];
+    );
+
+    return cards;
   });
 
   readonly loading = computed(() => this.pageState() === 'loading');
@@ -273,6 +300,11 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     this.subscriptionApi.get({ suppressShellFeedback: true }).subscribe({
       next: subscription => this.subscription.set(subscription),
       error: () => this.subscription.set(null),
+    });
+
+    this.tenantConfigApi.getTenantConfig({ suppressShellFeedback: true }).subscribe({
+      next: config => this.maryajGratisEnabled.set(tenantMaryajGratisEnabled(config)),
+      error: () => this.maryajGratisEnabled.set(true),
     });
   }
 

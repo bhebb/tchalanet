@@ -21,9 +21,10 @@ public class DeleteTenantOddsCommandHandler implements CommandHandler<DeleteTena
     public Void handle(DeleteTenantOddsCommand c) {
         var gameCode = TenantPricingOdds.normalizeGameCode(c.gameCode());
         var odds = reader.findByNaturalKey(c.tenantId(), gameCode, c.pricingVariantCode())
-            .orElseThrow(() -> new IllegalArgumentException(
-                "tenant pricing odds not found: " + gameCode + "/" + c.pricingVariantCode()));
-        writer.save(odds.softDelete());
+            .orElse(null);
+        if (odds != null && odds.active()) {
+            writer.save(odds.softDelete());
+        }
         return null;
     }
 }

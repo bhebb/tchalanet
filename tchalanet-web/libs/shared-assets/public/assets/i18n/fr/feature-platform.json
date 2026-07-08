@@ -548,10 +548,12 @@
         "currency": "Devise",
         "defaultCommissionRate": "Commission par défaut",
         "profile": "Profil",
+        "maryajGratisEnabled": "Offrir Maryaj gratis",
         "initialAdminEmail": "Email de l'admin initial"
       },
       "hint": {
         "defaultCommissionRate": "Commission appliquée par défaut aux seller-terminals qui n'ont pas de taux spécifique.",
+        "maryajGratisEnabled": "Affiche la page Maryaj gratis dans le tenant et ajoute la carte de configuration.",
         "initialAdminEmail": "Si vide, le tenant sera créé sans administrateur initial."
       },
       "error": {

@@ -152,6 +152,13 @@
               [description]="selectedProfileDesc()"
               [preview]="preview()"
             />
+
+            <div class="tenant-provisioning__profile-option">
+              <mat-checkbox formControlName="maryajGratisEnabled">
+                {{ 'platform.tenantProvisioning.field.maryajGratisEnabled' | translate }}
+              </mat-checkbox>
+              <p>{{ 'platform.tenantProvisioning.hint.maryajGratisEnabled' | translate }}</p>
+            </div>
           </tch-admin-section-card>
 
           <tch-admin-section-card

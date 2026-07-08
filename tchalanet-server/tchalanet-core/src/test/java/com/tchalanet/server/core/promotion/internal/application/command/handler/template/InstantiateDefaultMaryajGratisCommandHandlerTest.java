@@ -12,6 +12,7 @@ import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleC
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
 import com.tchalanet.server.core.promotion.api.command.template.InstantiateDefaultMaryajGratisCommand;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigView;
@@ -253,6 +254,37 @@ class InstantiateDefaultMaryajGratisCommandHandlerTest {
             .containsEntry("quantityMode", "TIERED_PAID_AMOUNT")
             .containsEntry("maxQuantity", "3");
         assertThat(effect.params().get("quantityTiers")).isInstanceOf(List.class);
+    }
+
+    @Test
+    @DisplayName("creates a seller-selected Maryaj gratis campaign without generation settings")
+    void createsSellerSelectedCampaignWithoutGenerationSettings() {
+        var writePort = new WritePortStub();
+        writePort.draft = view(PromotionCampaignStatus.DRAFT);
+        writePort.active = view(PromotionCampaignStatus.ACTIVE);
+
+        handler(null, writePort)
+            .handle(new InstantiateDefaultMaryajGratisCommand(
+                TENANT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PromotionChoiceMode.SELLER_SELECTS,
+                null,
+                true,
+                5
+            ));
+
+        var effect = writePort.createdWith.rules().get(0).effectItems().get(0);
+        assertThat(effect.params())
+            .containsEntry("choiceMode", "SELLER_SELECTS")
+            .containsEntry("regenerableBeforeConfirm", "false")
+            .containsEntry("maxRegenerationsBeforeConfirm", "0")
+            .doesNotContainKey("generationStrategy");
     }
 
     private static PromotionCampaignView view(PromotionCampaignStatus status) {

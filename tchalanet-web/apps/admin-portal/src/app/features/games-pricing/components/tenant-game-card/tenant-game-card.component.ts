@@ -26,6 +26,8 @@ const READINESS_BADGE: Record<ReadinessStatus, ConsoleGameCardView['badgeTone']>
   BLOCKED: 'blocked',
 };
 
+const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT']);
+
 export interface TenantGameCardError {
   readonly title: string;
   readonly message: string;
@@ -68,7 +70,7 @@ export class TenantGameCardComponent {
       summaryItems: game.tenantStatus === 'UNAVAILABLE' ? [] : this.summaryItems(game),
       actions: this.primaryActions(game),
       secondaryActions: game.tenantStatus === 'UNAVAILABLE' ? [] : [
-        ...(game.gameCode === 'HT_MARYAJ_GRATUIT'
+        ...(this.isMaryajGratis(game.gameCode)
           ? [{ id: 'maryaj-gratis', label: this.t('admin.gamesPricing.card.action.maryaj'), icon: 'redeem' }]
           : []),
       ],
@@ -105,6 +107,10 @@ export class TenantGameCardComponent {
   }
 
   private pricingLabel(game: TenantGamePricingView): string {
+    if (this.isMaryajGratis(game.gameCode) && this.hasPricingConfig(game)) {
+      return 'Barème Exact + Reverse';
+    }
+
     const oddsCount = game.odds.length;
     if (oddsCount === 0) return this.t('admin.gamesPricing.card.pricingMissing');
     const profile = game.pricingProfileLabel;
@@ -134,7 +140,7 @@ export class TenantGameCardComponent {
       items.push({ icon: 'payments', label: this.stakeLabel(game) });
     }
 
-    if (game.odds.length === 0) {
+    if (!this.hasPricingConfig(game)) {
       items.push({ icon: 'price_change', label: this.pricingLabel(game), warning: true });
     } else {
       items.push({ icon: 'price_change', label: this.pricingLabel(game) });
@@ -144,7 +150,11 @@ export class TenantGameCardComponent {
   }
 
   private hasBlockingItems(game: TenantGamePricingView): boolean {
-    return !this.hasStakeConfig(game) || game.odds.length === 0;
+    return !this.hasStakeConfig(game) || !this.hasPricingConfig(game);
+  }
+
+  private hasPricingConfig(game: TenantGamePricingView): boolean {
+    return game.odds.length > 0 && game.odds.every(odd => odd.odds !== null && odd.odds !== undefined);
   }
 
   private cardReadinessStatus(game: TenantGamePricingView): ReadinessStatus {
@@ -155,6 +165,10 @@ export class TenantGameCardComponent {
   private cardStatusTone(game: TenantGamePricingView): AdminStatusTone {
     if (game.tenantStatus !== 'UNAVAILABLE' && this.hasBlockingItems(game)) return 'warning';
     return STATUS_TONE[game.tenantStatus];
+  }
+
+  private isMaryajGratis(gameCode: string): boolean {
+    return MARYAJ_GRATIS_GAME_CODES.has(gameCode);
   }
 
   private primaryActions(game: TenantGamePricingView): ConsoleGameCardView['actions'] {

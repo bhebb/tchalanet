@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -85,6 +86,7 @@ const READINESS_PREVIEW_TARGET = 'platform.tenantProvisioning.readiness.preview'
     TchErrorPanel,
     TchSubmitButton,
     MatButtonModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -129,6 +131,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       [Validators.required, Validators.min(0), Validators.max(100)],
     ],
     profile: ['DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile, Validators.required],
+    maryajGratisEnabled: [true],
     initialAdminEmail: ['', [Validators.email]],
     planCode: ['' as string],
   });
@@ -151,6 +154,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
         value: commission === null || commission === undefined ? '—' : `${commission} %`,
       },
       { label: 'Profil', value: this.form.controls.profile.value || '—' },
+      { label: 'Maryaj gratis', value: this.form.controls.maryajGratisEnabled.value ? 'Oui' : 'Non' },
     ];
   });
 
@@ -237,6 +241,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       currency: value.currency!,
       defaultCommissionRate: value.defaultCommissionRate!,
       profile: value.profile!,
+      maryajGratisEnabled: value.maryajGratisEnabled ?? true,
       initialAdminEmail: value.initialAdminEmail || null,
       planCode: value.planCode || null,
     };
@@ -297,6 +302,7 @@ export class PlatformTenantProvisioningPage implements OnInit, OnDestroy {
       currency: 'HTG',
       defaultCommissionRate: 15,
       profile: 'DEFAULT_HAITI_LOTTERY' as TenantProvisioningProfile,
+      maryajGratisEnabled: true,
       initialAdminEmail: '',
       planCode: this.plans().find(p => p.isDefault)?.code ?? '',
     });

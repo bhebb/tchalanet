@@ -127,7 +127,7 @@ class TenantSettingsReadinessServiceTest {
         return new TenantInternalSettings(
             new TenantInternalCommunicationConfig(delivery),
             new TenantInternalDocumentConfig(receipt),
-            new TenantInternalRules(calendar),
+            new TenantInternalRules(new TenantInternalRules.TenantPromotionRules(true), calendar),
             new TenantInternalLocaleConfig(List.of("fr", "ht", "en"), "fr")
         );
     }

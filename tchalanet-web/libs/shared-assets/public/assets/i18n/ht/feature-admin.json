@@ -209,6 +209,7 @@
         "title": "Pou konplete",
         "description": "Korije pwen sa yo avan ou aktive jwèt la pou tenant sa a.",
         "missingStake": "Miz la pa konfigire pou jwèt sa a.",
+        "missingPricing": "Barèm nan pa konfigire pou jwèt sa a.",
         "configure": "Konfigire"
       },
       "status": {
@@ -375,6 +376,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Palyè, kantite gratis, ak jenerasyon nimewo yo.",
+        "maryajGratisCta": "Konfigire Maryaj gratis",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Kanal vant konfigire.",
         "drawChannelsCta": "Configurer les canaux",

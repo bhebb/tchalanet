@@ -481,10 +481,12 @@
         "currency": "Lajan",
         "defaultCommissionRate": "Komisyon pa defo",
         "profile": "Pwofil",
+        "maryajGratisEnabled": "Ofri Maryaj gratis",
         "initialAdminEmail": "Imèl admin inisyal"
       },
       "hint": {
         "defaultCommissionRate": "Komisyon yo aplike pa defo sou seller-terminal ki pa gen yon to espesifik.",
+        "maryajGratisEnabled": "Montre paj Maryaj gratis nan tenant lan epi ajoute kat konfigirasyon li.",
         "initialAdminEmail": "Si li vid, tenant lan ap kreye san administratè inisyal."
       },
       "error": {

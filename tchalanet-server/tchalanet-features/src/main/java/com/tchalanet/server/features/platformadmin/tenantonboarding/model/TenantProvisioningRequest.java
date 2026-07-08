@@ -24,5 +24,6 @@ public record TenantProvisioningRequest(
         @DecimalMax(value = "100.00", message = "defaultCommissionRate must be <= 100")
         BigDecimal defaultCommissionRate,
     @NotNull TenantProvisioningProfile profile,
+    Boolean maryajGratisEnabled,
     String initialAdminEmail,
     String planCode) {}

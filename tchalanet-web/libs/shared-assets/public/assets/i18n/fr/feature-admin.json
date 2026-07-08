@@ -359,6 +359,7 @@
         "title": "À compléter",
         "description": "Corrigez ces points avant d'activer le jeu pour ce tenant.",
         "missingStake": "Mise non configurée pour ce jeu.",
+        "missingPricing": "Barème non configuré pour ce jeu.",
         "configure": "Configurer"
       },
       "status": {
@@ -520,6 +521,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Paliers, quantité offerte et génération des numéros.",
+        "maryajGratisCta": "Configurer Maryaj gratis",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Canaux de vente configurés.",
         "drawChannelsCta": "Configurer les canaux",

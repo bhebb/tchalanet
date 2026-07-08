@@ -102,6 +102,20 @@ class TenantPricingOddsCommandHandlerTest {
     }
 
     @Test
+    void deleteMissingTenantOddsIsIdempotent() {
+        var handler = new DeleteTenantOddsCommandHandler(store, store);
+
+        handler.handle(new DeleteTenantOddsCommand(
+            TENANT_ID,
+            "HT_LOTO3",
+            PricingVariantCode.LOTTO3_BOX_6_WAY,
+            null
+        ));
+
+        assertThat(store.saved).isEmpty();
+    }
+
+    @Test
     void ensureDefaultHaitiLotteryOddsSeedsVariantKeyedTenantDefaultsIdempotently() {
         var handler = new EnsureDefaultHaitiLotteryOddsCommandHandler(store, store);
 

@@ -449,7 +449,7 @@ Maryaj (sélection invalide pour `MARRIAGE_2D2D` — bug latent corrigé).
 ### Ligne promotionnelle (snapshot TicketLine)
 
 ```text
-gameCode=HT_MARYAJ_GRATUIT, origin=PROMOTION, pricingSource=PROMOTION,
+gameCode=HT_MARYAJ_GRATIS, origin=PROMOTION, pricingSource=PROMOTION,
 selectionSource=AUTO_GENERATED, stakeAmount=0, lineTotal=0,
 payoutBaseAmount=montant effet, promotionDecisionId.
 ```

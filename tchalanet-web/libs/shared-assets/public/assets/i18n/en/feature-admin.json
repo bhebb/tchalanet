@@ -201,6 +201,7 @@
         "title": "To complete",
         "description": "Fix these points before enabling the game for this tenant.",
         "missingStake": "Stake is not configured for this game.",
+        "missingPricing": "Pricing is not configured for this game.",
         "configure": "Configure"
       },
       "status": {
@@ -367,6 +368,9 @@
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
         "gamesCta": "Configurer les jeux",
+        "maryajGratis": "Maryaj gratis",
+        "maryajGratisDesc": "Tiers, free quantity, and number generation.",
+        "maryajGratisCta": "Configure Maryaj gratis",
         "drawChannels": "Canaux de tirage",
         "drawChannelsDesc": "Configured sales channels.",
         "drawChannelsCta": "Configurer les canaux",

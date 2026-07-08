@@ -17,6 +17,7 @@ export interface TenantProvisioningRequest {
   /** Default seller-terminal commission rate (percent, 0–100). */
   defaultCommissionRate: number;
   profile: TenantProvisioningProfile;
+  maryajGratisEnabled?: boolean | null;
   initialAdminEmail?: string | null;
   planCode?: string | null;
 }

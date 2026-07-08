@@ -47,6 +47,7 @@ export class MaryajOfferPanelComponent {
   readonly saveOffer = output<void>();
   readonly addQuantityTier = output<void>();
   readonly removeQuantityTier = output<number>();
+  readonly manualSelectionChange = output<boolean>();
 
   statusLabel(status: PromotionCampaignStatus): string {
     switch (status) {
@@ -72,6 +73,14 @@ export class MaryajOfferPanelComponent {
     return this.effectParam('choiceMode') === 'AUTO_GENERATE'
       ? 'Générée automatiquement'
       : 'Choisie par le vendeur';
+  }
+
+  manualSelectionEnabled(): boolean {
+    return this.form().get('choiceMode')?.value === 'SELLER_SELECTS';
+  }
+
+  autoGenerationEnabled(): boolean {
+    return this.form().get('choiceMode')?.value === 'AUTO_GENERATE';
   }
 
   quantityTiers(): FormArray {
