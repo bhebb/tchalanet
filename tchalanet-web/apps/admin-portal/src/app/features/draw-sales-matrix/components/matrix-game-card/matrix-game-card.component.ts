@@ -7,8 +7,6 @@ import { TchSectionError } from '@tch/ui/components';
 import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import { TchErrorViewModel } from '@tch/web/errors';
 import {
-  ConsoleFact,
-  ConsoleFactsComponent,
   ConsoleGameLogoUrlPipe,
   ConsoleGameLogoTextPipe,
   ConsoleGameNamePipe,
@@ -37,7 +35,6 @@ export interface MatrixGameActionEvent {
     TranslatePipe,
     TchSectionError,
     TchStatusBadge,
-    ConsoleFactsComponent,
     ConsoleGameLogoUrlPipe,
     ConsoleGameLogoTextPipe,
     ConsoleGameNamePipe,
@@ -85,33 +82,26 @@ export class DrawSalesMatrixGameCardComponent {
     return warning.code;
   }
 
-  protected gameFacts(game: ChannelGameSetupView): readonly ConsoleFact[] {
-    return [
-      {
-        label: this.t('admin.drawSalesMatrix.game.fact.minStake'),
-        value: game.minStake ?? this.t('admin.drawSalesMatrix.game.fact.notConfigured'),
-      },
-      {
-        label: this.t('admin.drawSalesMatrix.game.fact.maxStake'),
-        value: game.maxStake ?? this.t('admin.drawSalesMatrix.game.fact.notConfigured'),
-      },
-      {
-        label: this.t('admin.drawSalesMatrix.game.fact.limits'),
-        value: game.limits.configured
-          ? this.t('admin.drawSalesMatrix.game.fact.configured')
-          : this.t('admin.drawSalesMatrix.game.fact.notConfigured'),
-      },
-      {
-        label: this.t('admin.drawSalesMatrix.game.fact.visibility'),
-        value: game.visibleInPos
-          ? this.t('admin.drawSalesMatrix.game.fact.visibleInPos')
-          : this.t('admin.drawSalesMatrix.game.fact.hiddenInPos'),
-      },
-      {
-        label: this.t('admin.drawSalesMatrix.game.fact.source'),
-        value: this.t('admin.drawSalesMatrix.game.fact.tenantGameSettings'),
-      },
-    ];
+  protected stakeLabel(game: ChannelGameSetupView): string {
+    if (game.minStake === null || game.maxStake === null) {
+      return this.t('admin.drawSalesMatrix.game.stakeMissing');
+    }
+    return this.translate.instant('admin.drawSalesMatrix.game.stakeRangeShort', {
+      min: game.minStake,
+      max: game.maxStake,
+    });
+  }
+
+  protected limitsLabel(game: ChannelGameSetupView): string {
+    return game.limits.configured
+      ? this.t('admin.drawSalesMatrix.game.fact.limitsConfigured')
+      : this.t('admin.drawSalesMatrix.game.limitsMissing');
+  }
+
+  protected visibilityLabel(game: ChannelGameSetupView): string {
+    return game.visibleInPos
+      ? this.t('admin.drawSalesMatrix.game.fact.visibleInPos')
+      : this.t('admin.drawSalesMatrix.game.fact.hiddenInPos');
   }
 
   private t(key: string): string {

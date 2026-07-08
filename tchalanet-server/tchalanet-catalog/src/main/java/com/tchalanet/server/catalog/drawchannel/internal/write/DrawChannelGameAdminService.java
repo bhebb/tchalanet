@@ -31,7 +31,7 @@ public class DrawChannelGameAdminService {
   private final JdbcTemplate jdbc;
 
   @Transactional
-  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
+  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP, DrawChannelCacheNames.CALENDAR_ROWS}, allEntries = true)
   public com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse upsert(
       TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId, boolean enabled, JsonNode flags) {
 
@@ -66,7 +66,7 @@ public class DrawChannelGameAdminService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
+  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP, DrawChannelCacheNames.CALENDAR_ROWS}, allEntries = true)
   public com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse update(
       TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId,
       com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelGameRequest req) {
@@ -86,7 +86,7 @@ public class DrawChannelGameAdminService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
+  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP, DrawChannelCacheNames.CALENDAR_ROWS}, allEntries = true)
   public void softDelete(TenantId tenantId, DrawChannelId channelId, TenantGameId tenantGameId) {
     var existing = repository.findByTenantIdAndDrawChannelIdAndTenantGameIdAndDeletedAtIsNull(
         tenantId.value(), channelId.value(), tenantGameId.value());
@@ -99,7 +99,7 @@ public class DrawChannelGameAdminService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
+  @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP, DrawChannelCacheNames.CALENDAR_ROWS}, allEntries = true)
   public List<com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse> bulkUpsert(
       TenantId tenantId, DrawChannelId channelId, List<com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawChannelGameRequest> items) {
     if (items == null || items.isEmpty()) return List.of();

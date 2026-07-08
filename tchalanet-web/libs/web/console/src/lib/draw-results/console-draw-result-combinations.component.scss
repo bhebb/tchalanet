@@ -101,6 +101,30 @@
   }
 }
 
+.console-draw-result-combinations__settlement {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--tch-radius-sm, 0.375rem);
+  border: 1px solid var(--tch-color-outline-variant);
+  background: var(--tch-color-surface-container-low);
+  color: var(--tch-color-on-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.console-draw-result-combinations__settlement--bestOf {
+  background: var(--tch-color-primary-container);
+  color: var(--tch-color-on-primary-container);
+}
+
+.console-draw-result-combinations__settlement--cumulative {
+  background: var(--tch-color-secondary-container);
+  color: var(--tch-color-on-secondary-container);
+}
+
 @media (max-width: 720px) {
   .console-draw-result-combinations__section-header {
     display: grid;

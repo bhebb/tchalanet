@@ -11,12 +11,11 @@ public interface BusinessDayOverrideJpaRepository
 
   Optional<BusinessDayOverrideJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-  // Active tenant-level rows only (outlet_id IS NULL).
   Optional<BusinessDayOverrideJpaEntity>
-      findByTenantIdAndOutletIdIsNullAndBusinessDateAndDeletedAtIsNull(
+      findByTenantIdAndBusinessDateAndDeletedAtIsNull(
           UUID tenantId, LocalDate businessDate);
 
   List<BusinessDayOverrideJpaEntity>
-      findByTenantIdAndOutletIdIsNullAndBusinessDateBetweenAndDeletedAtIsNullOrderByBusinessDateAsc(
+      findByTenantIdAndBusinessDateBetweenAndDeletedAtIsNullOrderByBusinessDateAsc(
           UUID tenantId, LocalDate from, LocalDate to);
 }

@@ -170,6 +170,7 @@
       "loading": "Loading games...",
       "action": {
         "backToSetup": "General setup",
+        "pricing": "View pricing",
         "refresh": "Refresh"
       },
       "empty": {
@@ -215,6 +216,8 @@
       },
       "card": {
         "unavailable": "Coming soon",
+        "blockers": "To resolve",
+        "readyChecks": "Checks",
         "systemGame": "System game · {{name}}",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
@@ -223,8 +226,6 @@
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
         "standardPricingProfile": "Standard pricing",
-        "limitConfigured": "Draw limit configured",
-        "limitMissing": "Draw limit not configured",
         "action": {
           "configure": "Configure",
           "disable": "Disable",
@@ -232,17 +233,16 @@
           "reactivate": "Reactivate",
           "edit": "Edit",
           "unavailable": "Unavailable",
-          "maryaj": "Configure free Maryaj",
-          "limits": "Configure limits",
-          "pricing": "View pricing"
+          "maryaj": "Configure free Maryaj"
         }
       }
     },
     "drawSalesMatrix": {
       "title": "Games by channel",
-      "description": "Check which games are active on each channel and configure stakes before sales.",
+      "description": "Enable or disable games per channel. Channel timing and routing are edited from the draw channel record.",
       "loading": "Loading matrix...",
       "action": {
+        "configureChannels": "Configure draw channels",
         "refresh": "Refresh"
       },
       "summary": {
@@ -252,7 +252,7 @@
         "activeChannels": "Active channels",
         "availableGames": "Available games",
         "missingStake": "Stake not configured",
-        "missingLimits": "Missing limits"
+        "missingLimits": "Draw cap to review"
       },
       "provider": {
         "slots": "{{count}} slot(s)",
@@ -276,12 +276,14 @@
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
+        "matrixHelp": "This matrix manages the game offer. To change time, cutoff or routing, open the channel configuration.",
         "missingHelp": "This slot does not have a sales channel configured yet.",
-        "configureChannels": "Configure channels"
+        "configureChannels": "Configure channels",
+        "editChannel": "Edit channel"
       },
       "section": {
-        "offered": "Games enabled or offered on this channel",
-        "available": "Games available to add on this channel"
+        "offered": "Active offer on this channel",
+        "available": "Games available to add"
       },
       "game": {
         "status": {
@@ -291,18 +293,22 @@
           "incomplete": "Incomplete"
         },
         "stakeRange": "Allowed stakes: {{min}} to {{max}} HTG",
+        "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Minimum stake: {{min}} HTG",
         "maxStake": "Maximum stake: {{max}} HTG",
-        "stakeMissing": "Stakes to configure",
-        "limitsMissing": "Missing limits",
+        "stakeMissing": "Min/max stakes to define",
+        "limitsMissing": "Draw cap to review",
         "hiddenPos": "Hidden from POS",
         "fact": {
+          "stake": "Stake",
           "minStake": "Min stake",
           "maxStake": "Max stake",
           "limits": "Limits",
+          "drawLimit": "Draw cap",
           "visibility": "Visibility",
           "source": "Source",
           "configured": "Configured",
+          "limitsConfigured": "Cap configured",
           "notConfigured": "Not configured",
           "visibleInPos": "Visible in POS",
           "hiddenInPos": "Hidden in POS",
@@ -700,9 +706,9 @@
         "unavailable": "Unavailable"
       },
       "summary": {
-        "availableStates": "Available providers",
+        "availableStates": "Providers",
         "activeStates": "Active providers",
-        "activeChannels": "Active channels",
+        "activeChannels": "Active slots",
         "todo": "Needs config"
       },
       "filters": {
@@ -724,7 +730,29 @@
       },
       "notice": {
         "title": "Action unavailable",
-        "configureUnavailable": "Direct configuration for {{provider}} will be enabled with the backend endpoint."
+        "configureUnavailable": "Direct configuration for {{provider}} will be enabled with the backend endpoint.",
+        "saved": "{{provider}} configuration saved."
+      },
+      "config": {
+        "title": "Configure {{provider}}",
+        "description": "Adjust result mode, sales hours, and active draw slots.",
+        "section": {
+          "provider": "Provider",
+          "slots": "Slots"
+        },
+        "field": {
+          "enabled": "Channel enabled for this tenant",
+          "resultMode": "Result mode",
+          "defaultCutoff": "Default sales close (minutes)",
+          "slotEnabled": "Slot active",
+          "drawTime": "Draw time",
+          "slotCutoff": "Sales close (minutes)"
+        },
+        "resultMode": {
+          "AUTO": "Automatic",
+          "MANUAL": "Manual entry",
+          "UNCONFIGURED": "To define"
+        }
       },
       "sourceError": {
         "title": "Result source unavailable",
@@ -752,12 +780,10 @@
       "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
         "backToSetup": "Global setup",
-        "generatedDraws": "View generated draws",
         "refresh": "Refresh",
         "configure": "Configure",
-        "configureGameOffer": "Configure game offer",
-        "results": "Results",
-        "viewAllResults": "All results"
+        "configureChannel": "Configure channel",
+        "configureGameOffer": "Configure channel games"
       },
       "readiness": {
         "ready": "Ready for sale",
@@ -807,12 +833,12 @@
           "endLocalTime": "End time (HH:mm)"
         },
         "options": {
-          "title": "Bet options / payouts",
+          "title": "Payout odds",
           "description": "Summary of the tenant pricing applied at sale time."
         },
         "salesOptions": {
-          "title": "Sales options",
-          "description": "Commercial choices offered in the POS and the selection rule used during sale.",
+          "title": "Advanced sales modes",
+          "description": "Multiple commercial choices and the selection rule used during sale.",
           "loadFailed": "Sales options could not be loaded. Other settings can still be saved.",
           "selectionPolicy": "Selection mode",
           "defaultOption": "Default option",
@@ -836,6 +862,8 @@
       "title": "Odds grid",
       "description": "Default odds for all bet types.",
       "actions": {
+        "backToSetup": "Global setup",
+        "backToGames": "Available games",
         "edit": "Edit odds"
       },
       "dialog": {

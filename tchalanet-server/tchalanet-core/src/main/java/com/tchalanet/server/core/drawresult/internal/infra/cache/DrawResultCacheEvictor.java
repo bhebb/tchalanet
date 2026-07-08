@@ -10,16 +10,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DrawResultCacheEvictor {
 
-    public static final String BY_ID = "core.drawresult.by_id";
-    public static final String ID_BY_SLOT_OCCURRED = "core.drawresult.id.by_slot_occurred";
-    public static final String LATEST_BY_SLOT = "core.drawresult.latest.by_slot";
-
     private final CacheManager cacheManager;
 
     public void evictAll() {
-        evict(BY_ID);
-        evict(ID_BY_SLOT_OCCURRED);
-        evict(LATEST_BY_SLOT);
+        evict(DrawResultCacheNames.BY_ID);
+        evict(DrawResultCacheNames.ID_BY_SLOT_OCCURRED);
     }
 
     private void evict(String cacheName) {

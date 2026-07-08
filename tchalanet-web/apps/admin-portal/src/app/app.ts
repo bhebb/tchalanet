@@ -99,6 +99,10 @@ export class App {
   protected goToProfile(): void {
     void this.router.navigateByUrl('/profile');
   }
+
+  protected goToSettings(): void {
+    void this.router.navigateByUrl('/app/admin/settings');
+  }
 }
 
 function isPrivateShellRoute(url: string): boolean {

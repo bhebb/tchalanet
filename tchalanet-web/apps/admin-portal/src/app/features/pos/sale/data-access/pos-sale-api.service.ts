@@ -182,12 +182,13 @@ export class PosSaleApiService {
   }
 
   getOpenDrawsForPos(
+    sellerTerminalId: string,
     lookaheadHours = 24,
     options?: TchRequestOptions,
   ): Observable<PosOpenDrawView[]> {
     return this.backend
       .get<PosAvailableDrawResponse[]>('/tenant/cashier/draws/available', {
-        ...(options ?? {}),
+        ...withHeaders(options, { 'X-Tch-Act-As-Terminal': sellerTerminalId }),
         params: { lookaheadHours: String(lookaheadHours) },
       })
       .pipe(

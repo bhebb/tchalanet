@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TchCard } from '@tch/ui/components';
 import { DrawChannelProviderView } from '../../data-access/admin-draw-channels.models';
 
@@ -6,7 +7,7 @@ import { DrawChannelProviderView } from '../../data-access/admin-draw-channels.m
   selector: 'tch-draw-channels-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TchCard],
+  imports: [TchCard, TranslatePipe],
   templateUrl: './draw-channels-summary.component.html',
   styleUrls: ['./draw-channels-summary.component.scss'],
 })

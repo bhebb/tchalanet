@@ -117,8 +117,13 @@ export class AdminGamesPricingApiService {
 
   private toTenantStatus(row: BffGameRow): TenantGameStatus {
     if (!row.enabled) return 'INACTIVE';
-    if (row.limits.configured && row.pricing.configured) return 'ACTIVE';
+    if (this.hasStakeSettings(row) && row.pricing.configured) return 'ACTIVE';
     return 'NEEDS_CONFIG';
+  }
+
+  private hasStakeSettings(row: BffGameRow): boolean {
+    return row.minStake !== null && row.minStake !== undefined &&
+      row.maxStake !== null && row.maxStake !== undefined;
   }
 
   private toOdds(entries: BffPricingEntry[]): TenantGameOddView[] {

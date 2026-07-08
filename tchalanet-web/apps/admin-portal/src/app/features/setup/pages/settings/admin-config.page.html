@@ -13,6 +13,7 @@
   <tch-async-view
     [resource]="config"
     [error]="configError()"
+    [isEmpty]="configIsEmpty"
     loadingLabel="Chargement..."
     (retry)="config.reload()"
   >

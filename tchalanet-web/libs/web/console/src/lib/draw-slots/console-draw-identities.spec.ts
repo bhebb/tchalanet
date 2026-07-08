@@ -84,6 +84,21 @@ describe('consoleDrawIdentity', () => {
     expect(identity.slotLabel).toBe('Georgia · Late');
   });
 
+  it('derives the provider from Haiti-prefixed platform channel codes', () => {
+    const identity = consoleDrawIdentity({
+      slotKey: 'HT_NY_MID',
+      channelCode: 'HT_NY_MID',
+      channelShortName: 'HT-Midi',
+      officialTimeLabel: '14:30',
+      officialTimezoneLabel: 'America/New_York',
+    });
+
+    expect(identity.providerCode).toBe('NY');
+    expect(identity.providerName).toBe('New York');
+    expect(identity.providerLogoUrl).toContain('/assets/images/logo/ny_logo.png');
+    expect(identity.logoText).toBe('NY');
+  });
+
   it('keeps the same sample channel identity across public, admin, and platform inputs', () => {
     const publicIdentity = consoleDrawIdentity({
       slotKey: 'NY_MID',

@@ -60,10 +60,14 @@ export class SupportAccessStore {
   async hydrateCurrent(): Promise<void> {
     try {
       const session = await firstValueFrom(
-        this.backend.get<TenantAdminAccessSession>('/platform/tenants/admin-access/current', {
+        this.backend.get<TenantAdminAccessSession | null>('/platform/tenants/admin-access/current', {
           suppressShellFeedback: true,
         }),
       );
+      if (!session) {
+        this.clearSession();
+        return;
+      }
       this.startSession(session);
     } catch (err) {
       if (isAbsentSupportSession(err)) {

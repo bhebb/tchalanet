@@ -3,6 +3,14 @@
   [description]="'admin.pricing.description' | translate"
 >
   <div actions>
+    <a mat-stroked-button routerLink="/app/admin/setup">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ 'admin.pricing.actions.backToSetup' | translate }}
+    </a>
+    <a mat-stroked-button routerLink="/app/admin/games">
+      <span class="material-symbols-outlined">casino</span>
+      {{ 'admin.pricing.actions.backToGames' | translate }}
+    </a>
     <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
       {{ 'common.refresh' | translate }}

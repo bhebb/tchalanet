@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tchalanet — Proposition UX/UI · Configuration du tenant</title>
+<style>
+  :root{
+    --navy:#1b1c3f;
+    --navy-2:#2a2c5e;
+    --gold:#f0b93d;
+    --gold-dark:#c9931a;
+    --cream:#fdf7e8;
+    --cream-border:#f2dfa8;
+    --green:#1f9d55;
+    --green-bg:#eef8f1;
+    --green-border:#c9ead4;
+    --gray-bg:#f7f7f9;
+    --gray-border:#e5e5ea;
+    --text:#1c1c28;
+    --text-muted:#6b6b7a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:#e9e9ee;
+    color:var(--text);
+    padding:32px 0 80px;
+  }
+  .wrap{max-width:1400px;margin:0 auto;padding:0 24px;}
+  .intro{
+    background:white;
+    border-radius:12px;
+    padding:24px 28px;
+    margin-bottom:28px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .intro h1{margin:0 0 6px;font-size:22px;}
+  .intro p{margin:0;color:var(--text-muted);font-size:14px;line-height:1.5;}
+  .section-label{
+    display:flex;align-items:center;gap:10px;
+    margin:36px 0 14px;
+  }
+  .section-label .tag{
+    font-size:12px;font-weight:700;letter-spacing:.04em;
+    padding:4px 12px;border-radius:20px;text-transform:uppercase;
+  }
+  .tag.before{background:#f1d9d9;color:#9c3b3b;}
+  .tag.after{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .section-label .desc{font-size:13px;color:var(--text-muted);}
+
+  .mock{
+    background:#fafafb;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+    border:1px solid #ddd;
+  }
+  .mock-app{display:flex;min-height:560px;}
+  .sidebar{
+    width:220px;flex-shrink:0;
+    background:var(--gray-bg);
+    border-right:1px solid var(--gray-border);
+    padding:18px 14px;
+  }
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--navy);margin-bottom:16px;padding:0 4px;}
+  .brand .logo{width:20px;height:20px;border-radius:5px;background:conic-gradient(var(--navy),var(--gold),#e0562f,var(--navy));}
+  .support-pill{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--cream);border:1px solid var(--cream-border);
+    border-radius:10px;padding:8px 10px;margin-bottom:14px;font-size:12px;color:#9c7a1f;font-weight:600;
+  }
+  .support-pill .switch{
+    width:30px;height:16px;border-radius:20px;background:var(--gold);position:relative;flex-shrink:0;
+  }
+  .support-pill .switch::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:white;}
+  .old-pill{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--cream);border:1px solid var(--cream-border);
+    border-radius:10px;padding:8px 10px;margin-bottom:14px;font-size:12px;color:#b39548;font-weight:600;
+  }
+  .old-pill span.on{background:#fff;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:800;color:#8a8a8a;}
+  .nav-group-title{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--text-muted);margin:10px 6px 6px;}
+  .nav-item{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 8px;border-radius:8px;font-size:13px;color:#3a3a4a;margin-bottom:2px;
+  }
+  .nav-item.active{background:var(--gold);color:var(--navy);font-weight:700;}
+  .nav-item .dot{width:14px;text-align:center;font-size:12px;}
+
+  .main{flex:1;padding:24px 28px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:13px;font-weight:700;color:var(--navy);}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--navy);color:white;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+  h2.page-title{margin:0 0 4px;font-size:24px;}
+  p.page-sub{margin:0 0 18px;color:var(--text-muted);font-size:13px;}
+
+  .progress-card{
+    background:white;border:1px solid var(--gray-border);border-radius:12px;
+    padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;
+  }
+  .progress-card .check{color:var(--green);font-size:20px;}
+  .progress-card .txt{flex:1;}
+  .progress-card .txt b{display:block;font-size:14px;}
+  .progress-card .txt span{font-size:12px;color:var(--text-muted);}
+  .progress-bar-bg{height:6px;background:var(--gray-border);border-radius:6px;margin-top:8px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:var(--navy);}
+  .progress-pct{font-size:20px;font-weight:800;color:var(--navy);}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  }
+
+  /* BEFORE card style: everything cream regardless of state */
+  .card-before{
+    background:var(--cream);border:1px solid var(--cream-border);border-radius:10px;
+    padding:16px;position:relative;
+  }
+  .card-before .icons{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+  .card-before .icons .ic{font-size:15px;}
+  .card-before .title-row{display:flex;align-items:center;justify-content:space-between;}
+  .card-before .title{font-weight:700;font-size:13.5px;}
+  .card-before .badge{font-size:10px;background:#eee;color:#777;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .card-before .desc{font-size:12px;color:var(--text-muted);margin:8px 0 12px;line-height:1.4;}
+  .card-before .btn{
+    display:inline-block;font-size:12px;font-weight:700;color:var(--navy);
+    background:white;border:1px solid #ddd;border-radius:8px;padding:7px 14px;
+  }
+
+  /* AFTER card styles */
+  .card-after{
+    border-radius:10px;padding:16px;position:relative;border:1px solid;
+  }
+  .card-after.done{background:white;border-color:var(--green-border);}
+  .card-after.pending{background:var(--cream);border-color:var(--cream-border);}
+  .card-after .icon-wrap{position:relative;width:30px;height:30px;margin-bottom:10px;}
+  .card-after .icon-wrap .cat{
+    width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;
+  }
+  .card-after.done .icon-wrap .cat{background:var(--green-bg);color:var(--green);}
+  .card-after.pending .icon-wrap .cat{background:#fff3d6;color:var(--gold-dark);}
+  .card-after .icon-wrap .badge-dot{
+    position:absolute;bottom:-3px;right:-3px;width:14px;height:14px;border-radius:50%;
+    border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:900;
+  }
+  .card-after.done .icon-wrap .badge-dot{background:var(--green);}
+  .card-after.pending .icon-wrap .badge-dot{background:#d9d9e0;}
+  .card-after .title-row{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .card-after .title{font-weight:700;font-size:13.5px;}
+  .card-after .badge{font-size:10px;padding:2px 9px;border-radius:10px;font-weight:700;white-space:nowrap;}
+  .card-after.pending .badge.req{background:var(--navy);color:var(--gold);}
+  .card-after.done .badge.req{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .card-after .badge.opt{background:var(--gray-bg);color:var(--text-muted);border:1px solid var(--gray-border);}
+  .card-after .desc{font-size:12px;color:var(--text-muted);margin:8px 0 12px;line-height:1.4;}
+  .card-after .btn{
+    display:inline-block;font-size:12px;font-weight:700;border-radius:8px;padding:7px 14px;
+  }
+  .card-after.done .btn{background:white;border:1px solid var(--green-border);color:var(--green);}
+  .card-after.pending .btn{background:var(--navy);border:1px solid var(--navy);color:white;}
+
+  .vendeurs-before{
+    margin-top:14px;background:#fbfbfc;border:1px dashed #ddd;border-radius:8px;
+    padding:14px 18px;display:flex;align-items:center;justify-content:space-between;font-size:13px;
+  }
+  .vendeurs-after{
+    margin-top:14px;background:white;border:1px solid var(--green-border);border-radius:10px;
+    padding:16px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .vendeurs-after .cat{width:30px;height:30px;border-radius:8px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .vendeurs-after .txt{flex:1;}
+  .vendeurs-after .txt b{font-size:13.5px;display:block;}
+  .vendeurs-after .txt span{font-size:12px;color:var(--text-muted);}
+  .vendeurs-after .btn{background:var(--gold);color:var(--navy);border:none;font-weight:800;font-size:12.5px;padding:9px 16px;border-radius:8px;white-space:nowrap;}
+
+  .callout{
+    position:absolute;top:-10px;left:-10px;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--navy);color:var(--gold);
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 5px rgba(0,0,0,.25);
+  }
+
+  .legend{
+    margin-top:22px;background:white;border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+  .legend h3{margin:0 0 12px;font-size:15px;}
+  .legend ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.8;color:var(--text);}
+  .legend ol li b{color:var(--navy);}
+  .legend .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:18px;height:18px;border-radius:50%;background:var(--navy);color:var(--gold);
+    font-size:10px;font-weight:800;margin-right:6px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="intro">
+    <h1>Proposition UX/UI — Configuration du tenant</h1>
+    <p>Comparaison avant / après pour corriger les problèmes de hiérarchie visuelle et de cohérence des couleurs identifiés sur <code>/app/admin/setup</code>. Aucune modification de code n'a été appliquée — ceci est un mockup pour validation du design avant implémentation.</p>
+  </div>
+
+  <div class="section-label">
+    <span class="tag before">Avant</span>
+    <span class="desc">État actuel — toutes les cartes ont le même fond jaune, qu'elles soient terminées ou non.</span>
+  </div>
+
+  <div class="mock">
+    <div class="mock-app">
+      <div class="sidebar">
+        <div class="brand"><span class="logo"></span> Tchalanet</div>
+        <div class="old-pill">Support: family <span class="on">ON</span></div>
+        <div class="nav-group-title">ADMINISTRATION</div>
+        <div class="nav-item"><span class="dot">▦</span> Tableau de bord</div>
+        <div class="nav-item active"><span class="dot">✓</span> Configuration générale</div>
+        <div class="nav-item"><span class="dot">🏬</span> Vendeurs</div>
+        <div class="nav-item"><span class="dot">📅</span> Tirages</div>
+        <div class="nav-item"><span class="dot">🎲</span> Jeux disponibles</div>
+      </div>
+      <div class="main">
+        <div class="topbar"><span>Administration</span><span class="avatar">SA</span></div>
+        <h2 class="page-title">Configuration du tenant</h2>
+        <p class="page-sub">Suivez les étapes pour configurer votre tenant et le rendre opérationnel.</p>
+
+        <div class="progress-card">
+          <span class="check">✓</span>
+          <div class="txt">
+            <b>Configuration du tenant</b>
+            <span>Suivi de l'état de préparation</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+          </div>
+          <span class="progress-pct">100%</span>
+        </div>
+
+        <div class="grid">
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">🛡️</span></div>
+            <div class="title-row"><span class="title">Identité et adresse</span><span class="badge">Requis</span></div>
+            <div class="desc">1234, rue des Saed · Petit-Goâve · HT</div>
+            <span class="btn">Gérer le profil</span>
+          </div>
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">🎚️</span></div>
+            <div class="title-row"><span class="title">Paramètres du tenant</span><span class="badge">Requis</span></div>
+            <div class="desc">Personnalisez la langue et le reçu pour votre tenant.</div>
+            <span class="btn">Configurer les paramètres</span>
+          </div>
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">🎲</span></div>
+            <div class="title-row"><span class="title">Jeux</span><span class="badge">Requis</span></div>
+            <div class="desc">Jeux disponibles</div>
+            <span class="btn">Configurer les jeux</span>
+          </div>
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">📡</span></div>
+            <div class="title-row"><span class="title">Canaux de tirage</span><span class="badge">Requis</span></div>
+            <div class="desc">Canaux de vente configurés.</div>
+            <span class="btn">Configurer les canaux</span>
+          </div>
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">🎟️</span></div>
+            <div class="title-row"><span class="title">Tirages générés</span><span class="badge">Requis</span></div>
+            <div class="desc">Tirages produits à partir des canaux.</div>
+            <span class="btn">Voir les tirages générés</span>
+          </div>
+          <div class="card-before">
+            <div class="icons"><span class="ic">✅</span><span class="ic">🎨</span></div>
+            <div class="title-row"><span class="title">Apparence</span><span class="badge">Optionnel</span></div>
+            <div class="desc">Personnalisation de l'apparence</div>
+            <span class="btn">Configurer l'apparence</span>
+          </div>
+        </div>
+        <div class="vendeurs-before">
+          <span>🏬 Vendeurs — Terminaux vendeurs prêts</span>
+          <span class="btn" style="background:var(--navy);color:white;">+ Configurer les terminaux vendeurs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">
+    <span class="tag after">Après</span>
+    <span class="desc">Proposition — le statut (fait / à faire) devient lisible d'un coup d'œil, indépendamment du fond jaune de marque.</span>
+  </div>
+
+  <div class="mock">
+    <div class="mock-app">
+      <div class="sidebar">
+        <div class="brand"><span class="logo"></span> Tchalanet</div>
+        <div class="support-pill">Mode support · Famille <span class="switch"></span></div>
+        <div class="nav-group-title">ADMINISTRATION</div>
+        <div class="nav-item"><span class="dot">▦</span> Tableau de bord</div>
+        <div class="nav-item active"><span class="dot">✓</span> Configuration générale</div>
+        <div class="nav-item"><span class="dot">🏬</span> Vendeurs</div>
+        <div class="nav-item"><span class="dot">📅</span> Tirages</div>
+        <div class="nav-item"><span class="dot">🎲</span> Jeux disponibles</div>
+      </div>
+      <div class="main">
+        <div class="topbar"><span>Administration</span><span class="avatar">SA</span></div>
+        <h2 class="page-title">Configuration du tenant</h2>
+        <p class="page-sub">Suivez les étapes pour configurer votre tenant et le rendre opérationnel.</p>
+
+        <div class="progress-card">
+          <span class="check">✓</span>
+          <div class="txt">
+            <b>Configuration du tenant</b>
+            <span>Suivi de l'état de préparation</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:100%"></div></div>
+          </div>
+          <span class="progress-pct">100%</span>
+        </div>
+
+        <div class="grid">
+          <div class="card-after done" style="position:relative;">
+            <span class="callout">1</span>
+            <div class="icon-wrap"><div class="cat">🛡️</div><span class="badge-dot">✓</span></div>
+            <div class="title-row"><span class="title">Identité et adresse</span><span class="badge req">Requis</span></div>
+            <div class="desc">1234, rue des Saed · Petit-Goâve · HT</div>
+            <span class="btn">Gérer le profil</span>
+          </div>
+          <div class="card-after done">
+            <div class="icon-wrap"><div class="cat">🎚️</div><span class="badge-dot">✓</span></div>
+            <div class="title-row"><span class="title">Paramètres du tenant</span><span class="badge req">Requis</span></div>
+            <div class="desc">Personnalisez la langue et le reçu pour votre tenant.</div>
+            <span class="btn">Configurer les paramètres</span>
+          </div>
+          <div class="card-after done">
+            <div class="icon-wrap"><div class="cat">🎲</div><span class="badge-dot">✓</span></div>
+            <div class="title-row"><span class="title">Jeux</span><span class="badge req">Requis</span></div>
+            <div class="desc">Jeux disponibles</div>
+            <span class="btn">Configurer les jeux</span>
+          </div>
+          <div class="card-after pending" style="position:relative;">
+            <span class="callout">2</span>
+            <div class="icon-wrap"><div class="cat">📡</div><span class="badge-dot">!</span></div>
+            <div class="title-row"><span class="title">Canaux de tirage</span><span class="badge req">Requis</span></div>
+            <div class="desc">Aucun canal de vente configuré pour le moment.</div>
+            <span class="btn">Configurer les canaux</span>
+          </div>
+          <div class="card-after done">
+            <div class="icon-wrap"><div class="cat">🎟️</div><span class="badge-dot">✓</span></div>
+            <div class="title-row"><span class="title">Tirages générés</span><span class="badge req">Requis</span></div>
+            <div class="desc">Tirages produits à partir des canaux.</div>
+            <span class="btn">Voir les tirages générés</span>
+          </div>
+          <div class="card-after done">
+            <div class="icon-wrap"><div class="cat">🎨</div><span class="badge-dot">✓</span></div>
+            <div class="title-row"><span class="title">Apparence</span><span class="badge opt">Optionnel</span></div>
+            <div class="desc">Personnalisation de l'apparence</div>
+            <span class="btn">Configurer l'apparence</span>
+          </div>
+        </div>
+        <div class="vendeurs-after" style="position:relative;">
+          <span class="callout">3</span>
+          <div class="cat">🏬</div>
+          <div class="txt"><b>Vendeurs</b><span>Terminaux vendeurs prêts</span></div>
+          <button class="btn">+ Configurer les terminaux vendeurs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h3>Détail des changements</h3>
+    <ol>
+      <li><span class="num">1</span><b>Fond de carte lié au statut, pas à la marque.</b> Carte "faite" → fond blanc + bordure verte discrète + badge de statut (coche) en overlay sur l'icône catégorie, au lieu de deux icônes séparées. Le jaune/or est réservé aux cartes réellement <b>à faire</b>, ce qui rétablit sa fonction de signal.</li>
+      <li><span class="num">2</span><b>Carte "à faire" clairement distincte.</b> Fond crème + badge overlay "!" au lieu de coche verte, pour que l'œil repère immédiatement les 1 ou 2 étapes restantes sans lire chaque carte (illustré ici avec "Canaux de tirage" comme exemple d'étape incomplète).</li>
+      <li><span class="num">3</span><b>Bloc "Vendeurs" aligné sur le design system des cartes</b> (mêmes rayons, bordure, icône catégorie) au lieu d'un style de bandeau différent qui rompt la cohérence visuelle en bas de page.</li>
+      <li><span class="num">4</span><b>Badge "Requis"</b> passe d'un gris terne à un badge à fort contraste (fond marine/texte or sur cartes à faire), pour signaler sa criticité. Une fois la carte terminée, le badge "Requis" devient vert clair pour confirmer visuellement que l'obligation est remplie.</li>
+      <li><span class="num">5</span><b>Bandeau "Support: famille"</b> remplacé par un vrai composant toggle (interrupteur visuel) au lieu d'une pilule "ON" sans affordance claire de clic.</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>

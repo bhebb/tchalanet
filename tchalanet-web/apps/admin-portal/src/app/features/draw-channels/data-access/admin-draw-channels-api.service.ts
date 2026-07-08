@@ -176,16 +176,20 @@ const MOCK_PROVIDERS: DrawChannelProviderView[] = [
 
 @Injectable({ providedIn: 'root' })
 export class AdminDrawChannelsApiService {
+  private providers: DrawChannelProviderView[] = [...MOCK_PROVIDERS];
+
   getDrawChannelProviders(): Observable<DrawChannelProviderView[]> {
-    return of(MOCK_PROVIDERS).pipe(delay(400));
+    return of(this.providers).pipe(delay(400));
   }
 
   updateDrawChannelProviderConfig(
     providerCode: UsLotteryProviderCode,
     request: UpdateDrawChannelProviderConfigRequest,
+    options?: { readonly suppressShellFeedback?: boolean },
   ): Observable<DrawChannelProviderView> {
+    void options;
     // TODO(backend): POST /admin/draw-channels/:providerCode/config
-    const provider = MOCK_PROVIDERS.find(item => item.providerCode === providerCode) ?? MOCK_PROVIDERS[0];
+    const provider = this.providers.find(item => item.providerCode === providerCode) ?? this.providers[0];
     const updatedProvider: DrawChannelProviderView = {
       ...provider,
       tenantStatus: request.enabled ? 'ACTIVE' : 'INACTIVE',
@@ -193,8 +197,20 @@ export class AdminDrawChannelsApiService {
         ...provider.resultAcquisition,
         mode: request.resultAcquisitionMode,
       },
-      defaultSalesCutoffMinutes: request.defaultSalesCutoffMinutes ?? provider.defaultSalesCutoffMinutes,
+      defaultSalesCutoffMinutes: request.defaultSalesCutoffMinutes ?? null,
+      slots: provider.slots.map(slot => {
+        const update = request.slots.find(item => item.slotKey === slot.slotKey);
+        return update
+          ? {
+              ...slot,
+              enabled: update.enabled,
+              drawTime: update.drawTime,
+              salesCutoffMinutes: update.salesCutoffMinutes,
+            }
+          : slot;
+      }),
     };
+    this.providers = this.providers.map(item => item.providerCode === providerCode ? updatedProvider : item);
     return of(updatedProvider).pipe(delay(200));
   }
 }

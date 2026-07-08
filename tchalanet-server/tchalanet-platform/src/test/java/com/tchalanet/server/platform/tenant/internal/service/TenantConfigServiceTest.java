@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.tenant.internal.service;
 
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
+import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.platform.tenant.api.model.TenantType;
@@ -28,6 +30,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,12 +103,12 @@ class TenantConfigServiceTest {
             new TenantConfigValidator(jsonUtils),
             settingsReadiness);
         tenantId = TenantId.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        when(tenants.update(any(TenantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
     void documentSectionPatchPreservesPersistedLocalePolicyAndReceiptTemplate() {
         when(tenants.getRequiredByIdActive(tenantId)).thenReturn(tenantWithConfig(BASE_CONFIG));
+        when(tenants.update(any(TenantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         service.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
             tenantId,
@@ -132,6 +135,7 @@ class TenantConfigServiceTest {
     @Test
     void localeSectionPatchPreservesSupportedLanguagesAndReceiptDefaults() {
         when(tenants.getRequiredByIdActive(tenantId)).thenReturn(tenantWithConfig(BASE_CONFIG));
+        when(tenants.update(any(TenantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         service.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
             tenantId,
@@ -149,6 +153,47 @@ class TenantConfigServiceTest {
         assertThat(settings.document().receipt().defaultTemplateKey()).isEqualTo("sales.ticket.receipt.v1");
         assertThat(settings.document().receipt().enabled()).isTrue();
         assertThat(settings.document().receipt().showQrCode()).isTrue();
+    }
+
+    @Test
+    void sectionPatchCompletesLegacyPartialConfigBeforeValidation() {
+        when(tenants.getRequiredByIdActive(tenantId)).thenReturn(tenantWithConfig("""
+            {
+              "communication": {
+                "buyerTicketDelivery": {
+                  "sms": { "enabled": true, "amount": 5.00, "currency": "HTG", "paidBy": "BUYER" }
+                }
+              }
+            }
+            """));
+        when(tenants.update(any(TenantConfig.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
+            tenantId,
+            Section.COMMUNICATION,
+            parse("""
+                {
+                  "buyerTicketDelivery": {
+                    "sms": { "enabled": true, "amount": 10.00, "currency": "HTG", "paidBy": "BUYER" }
+                  }
+                }
+                """)));
+
+        var settings = savedSettings();
+
+        assertThat(settings.rules().businessCalendar().defaultOpen()).isTrue();
+        assertThat(settings.rules().businessCalendar().closedWeekdays()).isEmpty();
+        assertThat(settings.document().receipt().defaultTemplateKey()).isEqualTo("sales.ticket.receipt.v1");
+        assertThat(settings.locale().effectiveSupportedLanguages()).containsExactly("fr", "ht", "en");
+        assertThat(settings.communication().buyerTicketDelivery().sms().amount()).isEqualByComparingTo("10.00");
+    }
+
+    @Test
+    void resolveActiveThemeIdUsesTchalanetThemeWhenNoThemeIsRequested() {
+        var themeId = ThemePresetId.of(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+        when(themeCatalog.findByCode("tchalanet")).thenReturn(Optional.of(activeTheme(themeId, "tchalanet")));
+
+        assertThat(service.resolveActiveThemeId(null)).isEqualTo(themeId);
     }
 
     private TenantInternalSettings savedSettings() {
@@ -170,6 +215,10 @@ class TenantConfigServiceTest {
             BigDecimal.ZERO,
             parse(config)
         ).activate(Instant.parse("2026-01-01T00:00:00Z"));
+    }
+
+    private ThemePresetView activeTheme(ThemePresetId id, String code) {
+        return new ThemePresetView(id, code, "tchalanet", jsonUtils.emptyObject(), null, true, true, null, null);
     }
 
     private JsonNode parse(String json) {

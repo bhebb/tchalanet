@@ -96,6 +96,7 @@
   display: grid;
   gap: calc(var(--tch-space-base) * 3);
   grid-template-columns: minmax(0, 1fr);
+  padding-top: calc(var(--tch-space-base) * 1.5);
 }
 
 .result-slots-config__summary {

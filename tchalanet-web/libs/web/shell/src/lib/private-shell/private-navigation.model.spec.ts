@@ -150,4 +150,24 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(company?.children?.find(child => child.id === 'company-page-models')?.destination?.value)
       .toBe('/app/admin/pagemodels');
   });
+
+  it('exposes business days under my company', () => {
+    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
+    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+
+    expect(setup?.activeRoutes).not.toContain('/app/admin/business-days');
+    expect(company?.children?.map(child => child.labelKey)).toContain(
+      'nav.admin.company_business_days',
+    );
+    expect(company?.children?.find(child => child.id === 'company-business-days')?.destination?.value)
+      .toBe('/app/admin/business-days');
+  });
+
+  it('keeps games overview active for pricing details', () => {
+    const games = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'games');
+    const overview = games?.children?.find(child => child.id === 'games-overview');
+
+    expect(overview?.activeMatch).toBe('exact');
+    expect(overview?.activeRoutes).toContain('/app/admin/pricing');
+  });
 });

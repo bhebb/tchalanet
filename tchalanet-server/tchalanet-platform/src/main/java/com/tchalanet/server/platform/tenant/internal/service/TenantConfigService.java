@@ -6,6 +6,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.platform.address.api.AddressApi;
@@ -72,6 +73,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TenantConfigService {
 
+    private static final String DEFAULT_THEME_PRESET_CODE = "tchalanet";
+
     private final TenantPreContextLookupApi tenantRegistry;
     private final ThemeCatalog themeCatalog;
     private final AddressApi addressApi;
@@ -93,6 +96,7 @@ public class TenantConfigService {
                 ? null
                 : addressApi.upsertTenantPrimary(tenantId, request.address());
         JsonNode tenantInternalJson = loadDefaultTenantInternalSettings();
+        var activeThemeId = resolveActiveThemeId(request.activeThemeId());
         var tenant =
             TenantConfig.createDraft(
                 tenantId,
@@ -102,7 +106,7 @@ public class TenantConfigService {
                 request.timezone(),
                 request.currency(),
                 addressId,
-                request.activeThemeId(),
+                activeThemeId,
                 request.defaultCommissionRate(),
                 tenantInternalJson);
         if (Boolean.TRUE.equals(request.activate())) {
@@ -110,6 +114,18 @@ public class TenantConfigService {
         }
         var saved = tenants.create(tenant);
         publishStatus(now, saved.id(), Boolean.TRUE.equals(request.activate()) ? TenantStatus.DRAFT : null, saved.status(), Boolean.TRUE.equals(request.activate()) ? "activated_on_create" : "tenant_created");
+    }
+
+    ThemePresetId resolveActiveThemeId(ThemePresetId requestedThemeId) {
+        if (requestedThemeId != null) {
+            return requestedThemeId;
+        }
+        return themeCatalog.findByCode(DEFAULT_THEME_PRESET_CODE)
+            .filter(theme -> theme.active())
+            .or(themeCatalog::findDefault)
+            .filter(theme -> theme.active())
+            .map(theme -> theme.id())
+            .orElse(null);
     }
 
     /**
@@ -304,14 +320,15 @@ public class TenantConfigService {
     }
 
     private ObjectNode persistedConfigCopy(TenantConfig tenant) {
-        if (tenant.config() == null || tenant.config().isNull()) {
-            throw new IllegalStateException("tenant config is missing");
-        }
-        if (!tenant.config().isObject()) {
+        var persisted = tenant.config();
+        if (persisted != null && !persisted.isNull() && !persisted.isObject()) {
             throw new IllegalArgumentException("tenant config must be a JSON object");
         }
         var merged = jsonUtils.emptyObject();
-        deepPatch(merged, tenant.config());
+        deepPatch(merged, loadDefaultTenantInternalSettings());
+        if (persisted != null && !persisted.isNull()) {
+            deepPatch(merged, persisted);
+        }
         return merged;
     }
 
@@ -353,9 +370,7 @@ public class TenantConfigService {
         var tenant = tenants.getRequiredByIdActive(request.tenantId());
         var registry = tenantRegistry.findById(request.tenantId())
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + request.tenantId()));
-        var settings = tenant.config() == null || tenant.config().isNull()
-            ? null
-            : jsonUtils.treeToValue(persistedConfigCopy(tenant), TenantInternalSettings.class);
+        var settings = jsonUtils.treeToValue(persistedConfigCopy(tenant), TenantInternalSettings.class);
         var supportedLocales = settings != null && settings.locale() != null
             ? settings.locale().effectiveSupportedLanguages()
             : java.util.List.<String>of();
@@ -385,8 +400,7 @@ public class TenantConfigService {
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
         var locale = tenants.findByIdActive(registry.tenantId())
             .map(tc -> {
-                if (tc.config() == null || tc.config().isNull()) return null;
-                return jsonUtils.treeToValue(tc.config(), TenantInternalSettings.class);
+                return jsonUtils.treeToValue(persistedConfigCopy(tc), TenantInternalSettings.class);
             })
             .map(TenantInternalSettings::locale)
             .orElse(null);
@@ -422,7 +436,10 @@ public class TenantConfigService {
                 : null;
         var internalSettings =
             includeDetails
-                ? tenants.findByIdActive(registry.tenantId()).map(TenantConfig::config).orElse(null)
+                ? tenants.findByIdActive(registry.tenantId())
+                    .map(this::persistedConfigCopy)
+                    .map(JsonNode.class::cast)
+                    .orElse(null)
                 : null;
         var jpa = tenantRepository.findById(registry.tenantId().value());
         BigDecimal defaultCommissionRate = jpa.map(TenantJpaEntity::getDefaultCommissionRate).orElse(null);

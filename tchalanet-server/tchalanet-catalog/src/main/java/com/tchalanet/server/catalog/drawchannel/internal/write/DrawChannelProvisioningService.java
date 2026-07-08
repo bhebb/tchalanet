@@ -44,8 +44,7 @@ public class DrawChannelProvisioningService implements DrawChannelProvisioningAp
           DrawChannelCacheNames.BY_TENANT,
           DrawChannelCacheNames.BY_ID,
           DrawChannelCacheNames.BY_TENANT_GAME_MAP,
-          DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_ID,
-          DrawChannelCacheNames.BY_TENANT_BY_RESULT_SLOT_PROVIDER_KEY
+          DrawChannelCacheNames.CALENDAR_ROWS
       },
       allEntries = true)
   public void ensureDefaultHaitiLotteryChannels(

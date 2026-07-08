@@ -65,6 +65,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: calc(var(--tch-space-base) * 3);
+  padding-top: calc(var(--tch-space-base) * 1.5);
 }
 
 .catalog-games-page__wide-field,

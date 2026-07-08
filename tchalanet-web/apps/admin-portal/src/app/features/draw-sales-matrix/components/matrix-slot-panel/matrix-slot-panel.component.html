@@ -19,26 +19,44 @@
 
   @if (slotVm.channel; as channel) {
     <div class="matrix-channel-info">
-      <span class="material-symbols-outlined">router</span>
-      <span class="matrix-channel-info__title">
-        {{ 'admin.drawSalesMatrix.channel.label' | translate }}
-        <strong>{{ channelDisplayLabel(channel.channelCode) }}</strong>
-      </span>
-      <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
-      <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>
-      <span>{{ 'admin.drawSalesMatrix.channel.activeGames' | translate: { count: activeOfferedCount() } }}</span>
-      @if (availableGames().length > 0) {
-        <span>{{ 'admin.drawSalesMatrix.channel.availableToAdd' | translate: { count: availableGames().length } }}</span>
-      }
-      @if (channel.dependsOnChannelId) {
-        <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
-      }
+      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
+      <div class="matrix-channel-info__body">
+        <span class="matrix-channel-info__title">
+          {{ 'admin.drawSalesMatrix.channel.label' | translate }}
+          <strong>{{ channelDisplayLabel(channel.channelCode) }}</strong>
+        </span>
+        <span class="matrix-channel-info__hint">{{ 'admin.drawSalesMatrix.channel.matrixHelp' | translate }}</span>
+        <span class="matrix-channel-info__facts">
+          <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
+          <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>
+          <span>{{ 'admin.drawSalesMatrix.channel.activeGames' | translate: { count: activeOfferedCount() } }}</span>
+          @if (availableGames().length > 0) {
+            <span>{{ 'admin.drawSalesMatrix.channel.availableToAdd' | translate: { count: availableGames().length } }}</span>
+          }
+          @if (channel.dependsOnChannelId) {
+            <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
+          }
+        </span>
+      </div>
+      <a
+        mat-stroked-button
+        class="matrix-channel-info__cta"
+        routerLink="/app/admin/draw-channels"
+        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
+      >
+        {{ 'admin.drawSalesMatrix.channel.editChannel' | translate }}
+      </a>
     </div>
   } @else {
     <div class="matrix-channel-info matrix-channel-info--missing">
-      <span class="material-symbols-outlined">router</span>
-      <span>{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
-      <a mat-stroked-button routerLink="/app/admin/draw-channels">
+      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
+      <span class="matrix-channel-info__body">{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
+      <a
+        mat-stroked-button
+        class="matrix-channel-info__cta"
+        routerLink="/app/admin/draw-channels"
+        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
+      >
         {{ 'admin.drawSalesMatrix.channel.configureChannels' | translate }}
       </a>
     </div>

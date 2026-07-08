@@ -30,6 +30,9 @@
 
   @if (!game.unavailable) {
     <div class="console-game-card__body">
+      @if (game.summaryTitle) {
+        <p class="console-game-card__summary-title">{{ game.summaryTitle }}</p>
+      }
       @for (item of game.summaryItems ?? []; track item.icon + ':' + item.label) {
         <div class="console-game-card__summary-row" [class.console-game-card__summary-row--warning]="item.warning">
           <span class="material-symbols-outlined">{{ item.icon }}</span>
@@ -66,13 +69,15 @@
       <div class="console-game-card__secondary-actions">
         @for (action of game.secondaryActions ?? []; track action.id) {
           <button
-            mat-icon-button
+            mat-stroked-button
             type="button"
+            class="console-game-card__secondary-btn"
             [matTooltip]="action.label"
             [class.console-game-card__icon-action--danger]="action.tone === 'danger'"
             (click)="emitAction(game, action)"
           >
             <mat-icon>{{ action.icon || 'more_horiz' }}</mat-icon>
+            <span>{{ action.label }}</span>
           </button>
         }
       </div>

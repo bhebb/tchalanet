@@ -85,13 +85,13 @@ export interface TenantSettingsReadiness {
 export class TenantConfigApiService {
   private readonly backend = inject(TchBackendClient);
 
-  getTenantConfig(options?: TchRequestOptions): Observable<TenantInternalConfig> {
-    return this.backend.get<TenantInternalConfig>('/admin/tenant-config', options);
+  getTenantConfig(options?: TchRequestOptions): Observable<TenantInternalConfig | null> {
+    return this.backend.get<TenantInternalConfig | null>('/admin/tenant-config', options);
   }
 
   /** Resource de lecture de la config tenant (chargement + reload déclaratifs). */
-  tenantConfigResource(): ResourceRef<TenantInternalConfig | undefined> {
-    return this.backend.getResource<TenantInternalConfig>(() => ({
+  tenantConfigResource(): ResourceRef<TenantInternalConfig | null | undefined> {
+    return this.backend.getResource<TenantInternalConfig | null>(() => ({
       path: '/admin/tenant-config',
       options: { suppressShellFeedback: true },
     }));

@@ -80,7 +80,7 @@ export class AdminLimitsSellerTerminalPage {
     const code = this.loadedTerminalCode();
     if (!code) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.initAdd(this.unassignedRules(), 'TERMINAL', code);
+    ref.componentInstance.initAdd(this.unassignedRules(), 'SELLER_TERMINAL', code);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle ajoutée.');
@@ -93,7 +93,7 @@ export class AdminLimitsSellerTerminalPage {
     const code = this.loadedTerminalCode();
     if (!code) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.init(row.spec, 'TERMINAL', code, row.assignment);
+    ref.componentInstance.init(row.spec, 'SELLER_TERMINAL', code, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle enregistrée.');
@@ -125,7 +125,7 @@ export class AdminLimitsSellerTerminalPage {
     this.pageError.set(null);
     forkJoin([
       this.api.listRules({ suppressShellFeedback: true }),
-      this.api.listAssignments('TERMINAL', code, { suppressShellFeedback: true }),
+      this.api.listAssignments('SELLER_TERMINAL', code, { suppressShellFeedback: true }),
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
@@ -140,7 +140,7 @@ export class AdminLimitsSellerTerminalPage {
   }
 
   private reloadAssignments(code: string): void {
-    this.api.listAssignments('TERMINAL', code, { suppressShellFeedback: true }).subscribe({
+    this.api.listAssignments('SELLER_TERMINAL', code, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
         this.allRows.update(current =>

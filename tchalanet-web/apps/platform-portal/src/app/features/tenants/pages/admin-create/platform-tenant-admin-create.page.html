@@ -11,7 +11,7 @@
   } @else {
     <form (submit)="$event.preventDefault(); submit()" class="tenant-admin-create-page__form" novalidate>
       <tch-console-person-identity-form-section
-        [form]="form()"
+        [form]="form"
         titleKey="platform.tenants.admin.section"
         [descriptionKey]="null"
       />

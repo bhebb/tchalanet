@@ -35,6 +35,7 @@ export interface ConsoleGameCardView {
   readonly badgeTone?: ConsoleGameCardBadgeTone;
   readonly unavailable?: boolean;
   readonly unavailableLabel?: string | null;
+  readonly summaryTitle?: string | null;
   readonly summaryItems?: readonly ConsoleGameCardSummaryItem[];
   readonly actions?: readonly ConsoleRowAction[];
   readonly secondaryActions?: readonly ConsoleRowAction[];

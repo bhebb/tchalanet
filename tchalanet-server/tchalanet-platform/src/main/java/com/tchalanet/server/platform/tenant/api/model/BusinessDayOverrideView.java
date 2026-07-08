@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.BusinessDayOverrideId;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.LocalDate;
 
-/** Read view of a TENANT-LEVEL business-day override (outlet_id IS NULL). */
+/** Read view of a TENANT-LEVEL business-day override. */
 public record BusinessDayOverrideView(
     BusinessDayOverrideId id,
     TenantId tenantId,

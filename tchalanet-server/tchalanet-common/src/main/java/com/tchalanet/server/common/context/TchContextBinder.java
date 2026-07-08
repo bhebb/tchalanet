@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class TchContextBinder {
 
   public void bind(HttpServletRequest req, TchRequestContext ctx) {
-    log.info(
+    log.debug(
         "TchContextFilter SET path={} thread={} scope={} tenantCode={} tenantId={}",
         req.getRequestURI(),
         Thread.currentThread().getName(),
@@ -26,7 +26,7 @@ public class TchContextBinder {
   }
 
   public void clear(HttpServletRequest req) {
-    log.info(
+    log.debug(
         "TchContextFilter CLEAR path={} thread={}",
         req.getRequestURI(),
         Thread.currentThread().getName());
