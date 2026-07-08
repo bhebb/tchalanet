@@ -24,8 +24,10 @@
 - [x] Specs pour plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant.
 - [x] Appliquer les TTL par tier (A: 30 min / 12 h · B: 15 min / 6 h · pagemodel SEARCH court 2/5 min).
 - [x] Documenter les defaults L1 (5 min runtime vs 10 min `CacheSpec`) — note ajoutée dans `cache.md`.
-- [ ] Test de démarrage qui échoue si un cache `@Cacheable` connu n'a pas de `CacheSpecProvider`
-      (nécessite un scan des annotations `@Cacheable` — à faire dans la passe test).
+- [x] Guard : `CacheSpecAwareCaffeineCacheManager` logue un WARN au premier usage d'un cache sans
+      `CacheSpecProvider` (renvoie au défaut). Surface la dérive sans scan d'annotations.
+- [ ] (option) Hard-fail au démarrage — nécessite un scan des `@Cacheable` (dépendance/complexité),
+      différé ; le WARN runtime couvre le besoin immédiat.
 
 ## Phase 3 — Caches runtime
 - [x] `platform:tenanttheme:runtime` (clé tenant:mode) + éviction (allEntries) sur les 3 écritures
