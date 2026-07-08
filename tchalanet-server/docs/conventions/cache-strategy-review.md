@@ -182,7 +182,13 @@ Colonne **Cacher ?** = recommandation. **Pourquoi** = justification du TTL (long
 | **Liste billets / ticket lines** | ❌ | Changent en permanence |
 | **Stats live** (`analytics.cashier_today`) | 🟡 near-real-time OK (30 s / 2 m) | Agrégat vivant, pas un référentiel — ne pas allonger |
 | **Audit info** | ❌ | Intégrité > performance |
-| **Notification** | ❌ | Transactionnel / outbox — cacher créerait doublons/états faux |
+| **Notification** (platform) | ❌ | Transactionnel / outbox — cacher créerait doublons/états faux |
+| **Subscription** (core) | ❌ | Statut via `entitlement.tenant_snapshot` ; stats = JDBC live |
+| **PageModel runtime** (core/features, ≠ `catalog:pagemodeltemplate`) | ❌ | Composition dynamique : dashboards admin (stats/health live), publicdrawresults (intra-journalier). Se compose déjà de caches (template/theme/games) → cacher l'assemblage masquerait la fraîcheur |
+
+> **Audit couverture (2026-07-08)** : `accesscontrol` (role-permissions/user_profile), `entitlement`,
+> `promotion`, `pricing` sont déjà cachés avec `CacheSpecProvider` (vérifié). Les non-cachés
+> ci-dessus le sont **par design**.
 
 ---
 
