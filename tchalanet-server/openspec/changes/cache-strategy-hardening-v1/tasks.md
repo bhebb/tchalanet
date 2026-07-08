@@ -41,9 +41,12 @@
       niveau handler laissée en attente (valeur modeste, seulement si read home POS mesuré chaud).
 
 ## Phase 4 — Éviction after-commit
-- [ ] Vérifier si l'éviction actuelle est réellement post-commit (pas seulement même transaction).
-- [ ] Writes critiques : `AfterCommit.run(...)` ou evictor infra post-commit.
-- [ ] Tests rollback : transaction rollback → cache non évincé / non repeuplé avec état faux.
+- [x] Vérifié : `@EnableCaching` et `@Transactional` étaient tous deux `LOWEST_PRECEDENCE` → ordre
+      indéterminé, `@CacheEvict` pouvait s'exécuter AVANT le commit (repeuplement avec valeur pré-commit).
+- [x] Fix global : `@EnableCaching(order = LOWEST_PRECEDENCE - 1)` rend l'advisor cache OUTER → toutes
+      les `@CacheEvict` sur méthodes `@Transactional` évincent APRÈS commit. (`drawresult` utilisait
+      déjà `AfterCommit.run`.)
+- [ ] Tests rollback : transaction rollback → cache non évincé / non repeuplé (passe test dédiée).
 
 ## Phase 5 — Ops / kill-switch
 - [x] `CacheToggle` (common) — stockage in-memory par instance. NOTE: pas encore via settings /

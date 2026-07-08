@@ -12,9 +12,15 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
 
 @Configuration
-@EnableCaching
+// order below LOWEST_PRECEDENCE makes the caching advisor OUTER to the @Transactional advisor
+// (which defaults to LOWEST_PRECEDENCE). Effect: on a method with both @Transactional and
+// @CacheEvict, eviction runs AFTER the transaction commits — not before, which would let a
+// concurrent read repopulate the cache with the pre-commit value. Without this the ordering is
+// undefined (both LOWEST_PRECEDENCE).
+@EnableCaching(order = Ordered.LOWEST_PRECEDENCE - 1)
 public class CacheRuntimeConfig {
 
   @Bean
