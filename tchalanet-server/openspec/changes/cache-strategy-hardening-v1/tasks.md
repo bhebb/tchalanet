@@ -32,8 +32,13 @@
       `TenantThemeAdminService` (applyPreset, deactivate, updateSettings). Vue sûre (Map, pas JsonNode).
 - [x] `platform:tenantgame:runtime` + `:projection` + éviction (allEntries) sur les 4 écritures
       `TenantGameAdminService` (enable, disable, updateSettings, updateBetOptionConfig).
-- [ ] `core:limit:policy_by_scope` — définition de règle uniquement, jamais les compteurs consommés.
-- [ ] `core:sellerterminal:profile_by_id` (`getMe`), TTL court, interdit pour validation de vente.
+- [x] limit — **NO-CACHE by design** (décision validée). `EvaluateLimitPolicyQueryHandler` lit la
+      règle (`assignments.listActiveForTargets(scopes, now)`) sur le chemin de décision, mêlée à
+      l'exposition live ; clé `scopes+now` = ~aucun hit ; règle périmée = décision d'argent fausse.
+- [x] sellerterminal — **NO-CACHE by design** (décision validée). `getMe` et `saleValidation`
+      partagent `reader.getRequired`/`findById` → cacher exposerait la validation de vente (terminal
+      suspendu validant encore) ; `findByExternalSubject` = binding d'auth. Option `getMe`-profil au
+      niveau handler laissée en attente (valeur modeste, seulement si read home POS mesuré chaud).
 
 ## Phase 4 — Éviction after-commit
 - [ ] Vérifier si l'éviction actuelle est réellement post-commit (pas seulement même transaction).
