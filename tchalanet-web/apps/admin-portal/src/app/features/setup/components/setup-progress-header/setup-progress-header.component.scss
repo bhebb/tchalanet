@@ -6,8 +6,9 @@
   margin-bottom: 2rem;
   padding: 1.25rem 1.5rem;
   border-radius: var(--tch-radius-lg, 1rem);
-  background: var(--tch-color-surface-container-low);
+  background: var(--tch-color-surface);
   border: 1px solid var(--tch-color-outline-variant);
+  box-shadow: var(--tch-elevation-1);
 }
 
 .setup__progress-header {

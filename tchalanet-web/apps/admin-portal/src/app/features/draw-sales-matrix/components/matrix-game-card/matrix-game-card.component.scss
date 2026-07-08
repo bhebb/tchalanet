@@ -1,11 +1,13 @@
 .matrix-game {
-  padding: 0.625rem 0.875rem;
+  padding: 0;
   border: 1px solid var(--tch-color-outline-variant);
+  border-left: 3px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-md);
   background: var(--tch-color-surface-container-lowest, var(--tch-color-surface));
+  overflow: hidden;
 
   &--ready {
-    border-color: var(--tch-color-success, var(--tch-color-primary));
+    border-left-color: var(--tch-color-status-ready, #10b981);
   }
 
   &--disabled {
@@ -18,11 +20,18 @@
   }
 
   &__header {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, auto) 1fr;
     align-items: center;
-    flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 0.375rem;
+    padding: 0.75rem 0.875rem 0.625rem;
+
+    strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   &__logo {
@@ -46,26 +55,30 @@
     }
   }
 
-  &__chips {
-    display: flex;
-    flex-wrap: wrap;
+  &__facts {
+    display: grid;
     gap: 0.375rem;
-    margin-block: 0.5rem 0.25rem;
+    padding: 0 0.875rem 0.75rem;
   }
 
-  &__chip {
+  &__fact {
     align-items: center;
-    background: var(--tch-color-surface-container-low);
-    border: 1px solid color-mix(in oklab, var(--tch-color-outline-variant) 64%, transparent);
-    border-radius: var(--tch-radius-pill);
+    background: color-mix(in oklab, var(--tch-color-surface-container-low) 72%, var(--tch-color-surface));
+    border: 1px solid color-mix(in oklab, var(--tch-color-outline-variant) 54%, transparent);
+    border-left: 3px solid color-mix(in oklab, var(--tch-color-outline-variant) 70%, transparent);
+    border-radius: var(--tch-radius-sm);
     color: var(--tch-color-on-surface);
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     font-size: var(--tch-font-size-label-sm);
-    font-weight: var(--tch-weight-semibold, 600);
     gap: 0.25rem;
-    min-height: 1.875rem;
-    padding: 0.25rem 0.5rem;
-    white-space: nowrap;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.5rem;
+
+    strong {
+      font-weight: var(--tch-font-weight-semibold, 600);
+      text-align: end;
+    }
 
     .material-symbols-outlined {
       color: var(--tch-color-on-surface-variant);
@@ -77,6 +90,7 @@
     &--warn {
       background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 7%, var(--tch-color-surface));
       border-color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 44%, var(--tch-color-outline-variant));
+      border-left-color: var(--tch-color-status-warning, #f59e0b);
       color: var(--tch-color-on-surface);
     }
 
@@ -86,8 +100,8 @@
   }
 
   &__warnings {
-    margin: 0.375rem 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 0 0.875rem 0.75rem;
     list-style: none;
 
     li {
@@ -95,6 +109,13 @@
       align-items: center;
       gap: 0.25rem;
       font-size: var(--tch-font-size-label-sm);
+      min-width: 0;
+
+      span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 
@@ -120,11 +141,12 @@
   }
 
   &__actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     align-items: center;
-    flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.625rem;
+    padding: 0.625rem 0.875rem 0.75rem;
+    border-top: 1px solid color-mix(in oklab, var(--tch-color-outline-variant) 55%, transparent);
   }
 
   &__btn {
@@ -151,7 +173,9 @@
     display: inline-flex;
     gap: 0.5rem;
     min-height: 2.5rem;
+    justify-content: center;
     padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+    width: 100%;
 
     span {
       background: var(--tch-color-surface-container-highest);
@@ -201,6 +225,28 @@
     &:disabled {
       cursor: progress;
       opacity: 0.7;
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .matrix-game {
+    &__header {
+      grid-template-columns: auto 1fr;
+
+      tch-status-badge {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+    }
+
+    &__fact {
+      grid-template-columns: auto 1fr;
+
+      strong {
+        grid-column: 2;
+        text-align: start;
+      }
     }
   }
 }

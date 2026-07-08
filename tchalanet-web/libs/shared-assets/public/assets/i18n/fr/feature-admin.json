@@ -397,7 +397,7 @@
     },
     "drawSalesMatrix": {
       "title": "Jeux par canal",
-      "description": "Vérifiez quels jeux sont actifs sur chaque canal et configurez les mises avant la vente.",
+      "description": "Activez ou désactivez les jeux par canal. La configuration du canal se fait dans la fiche du canal de tirage.",
       "loading": "Chargement de la matrice...",
       "action": {
         "configureChannels": "Configurer les canaux de tirage",
@@ -410,7 +410,7 @@
         "activeChannels": "Canaux actifs",
         "availableGames": "Jeux disponibles",
         "missingStake": "Mise non configurée",
-        "missingLimits": "Limites manquantes"
+        "missingLimits": "Plafond par tirage à vérifier"
       },
       "provider": {
         "slots": "{{count}} créneau(x)",
@@ -434,13 +434,14 @@
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",
+        "matrixHelp": "Cette matrice sert à activer l'offre de jeux. Pour changer l'heure, le cutoff ou le rattachement, ouvrez la configuration du canal.",
         "missingHelp": "Ce créneau n'a pas encore de canal de vente configuré.",
         "configureChannels": "Configurer les canaux",
         "editChannel": "Modifier le canal"
       },
       "section": {
-        "offered": "Jeux activés ou offerts sur ce canal",
-        "available": "Jeux disponibles à ajouter sur ce canal"
+        "offered": "Offre active sur ce canal",
+        "available": "Jeux disponibles à ajouter"
       },
       "game": {
         "status": {
@@ -453,17 +454,19 @@
         "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Mise minimum : {{min}} HTG",
         "maxStake": "Mise maximum : {{max}} HTG",
-        "stakeMissing": "Mises à configurer",
-        "limitsMissing": "Limites manquantes",
+        "stakeMissing": "Mises min/max à définir",
+        "limitsMissing": "Plafond par tirage à vérifier",
         "hiddenPos": "Masqué POS",
         "fact": {
+          "stake": "Mise",
           "minStake": "Mise min",
           "maxStake": "Mise max",
           "limits": "Limites",
+          "drawLimit": "Plafond tirage",
           "visibility": "Visibilité",
           "source": "Source",
           "configured": "Configuré",
-          "limitsConfigured": "Limites configurées",
+          "limitsConfigured": "Plafond configuré",
           "notConfigured": "Non configuré",
           "visibleInPos": "Visible POS",
           "hiddenInPos": "Masqué POS",

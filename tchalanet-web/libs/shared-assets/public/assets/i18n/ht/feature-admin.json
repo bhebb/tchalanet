@@ -247,7 +247,7 @@
     },
     "drawSalesMatrix": {
       "title": "Jwèt pa kanal",
-      "description": "Verifye ki jwèt ki aktif sou chak kanal epi konfigire miz yo avan vant.",
+      "description": "Aktive oswa dezaktive jwèt yo pa kanal. Lè, cutoff ak rattachman kanal la modifye nan fich kanal tiraj la.",
       "loading": "Chajman matriks la...",
       "action": {
         "configureChannels": "Konfigire kanal tiraj yo",
@@ -260,7 +260,7 @@
         "activeChannels": "Kanal aktif",
         "availableGames": "Jwèt disponib",
         "missingStake": "Miz pa konfigire",
-        "missingLimits": "Limit manke"
+        "missingLimits": "Plafon tiraj pou verifye"
       },
       "provider": {
         "slots": "{{count}} lè tiraj",
@@ -284,13 +284,14 @@
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt kanal",
+        "matrixHelp": "Matriks sa a jere òf jwèt la. Pou chanje lè, cutoff oswa rattachman, ouvri konfigirasyon kanal la.",
         "missingHelp": "Lè tiraj sa a poko gen kanal vant konfigire.",
         "configureChannels": "Konfigire kanal yo",
         "editChannel": "Modifye kanal la"
       },
       "section": {
-        "offered": "Jwèt aktive oswa ofri sou kanal sa a",
-        "available": "Jwèt disponib pou ajoute sou kanal sa a"
+        "offered": "Òf aktif sou kanal sa a",
+        "available": "Jwèt disponib pou ajoute"
       },
       "game": {
         "status": {
@@ -303,17 +304,19 @@
         "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Miz minimòm : {{min}} HTG",
         "maxStake": "Miz maksimòm : {{max}} HTG",
-        "stakeMissing": "Miz pou konfigire",
-        "limitsMissing": "Limit manke",
+        "stakeMissing": "Miz min/max pou defini",
+        "limitsMissing": "Plafon tiraj pou verifye",
         "hiddenPos": "Kache nan POS",
         "fact": {
+          "stake": "Miz",
           "minStake": "Miz min",
           "maxStake": "Miz max",
           "limits": "Limit",
+          "drawLimit": "Plafon tiraj",
           "visibility": "Vizibilite",
           "source": "Sous",
           "configured": "Konfigire",
-          "limitsConfigured": "Limit konfigire",
+          "limitsConfigured": "Plafon konfigire",
           "notConfigured": "Pa konfigire",
           "visibleInPos": "Vizib POS",
           "hiddenInPos": "Kache POS",

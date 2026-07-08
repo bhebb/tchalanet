@@ -116,7 +116,7 @@ public class LimitPolicyAdminController {
                 yield LimitScopeRef.agent(UserId.parse(targetId));
             }
 
-            case SELLER_TERMINAL -> {
+            case TERMINAL, SELLER_TERMINAL -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeRef.sellerTerminal(SellerTerminalId.parse(targetId));
             }
@@ -147,7 +147,7 @@ public class LimitPolicyAdminController {
                 yield LimitScopeQueryRef.agent(UserId.parse(targetId));
             }
 
-            case SELLER_TERMINAL -> {
+            case TERMINAL, SELLER_TERMINAL -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeQueryRef.sellerTerminal(SellerTerminalId.parse(targetId));
             }

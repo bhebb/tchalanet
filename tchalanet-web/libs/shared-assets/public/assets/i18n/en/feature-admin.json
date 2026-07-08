@@ -239,7 +239,7 @@
     },
     "drawSalesMatrix": {
       "title": "Games by channel",
-      "description": "Check which games are active on each channel and configure stakes before sales.",
+      "description": "Enable or disable games per channel. Channel timing and routing are edited from the draw channel record.",
       "loading": "Loading matrix...",
       "action": {
         "configureChannels": "Configure draw channels",
@@ -252,7 +252,7 @@
         "activeChannels": "Active channels",
         "availableGames": "Available games",
         "missingStake": "Stake not configured",
-        "missingLimits": "Missing limits"
+        "missingLimits": "Draw cap to review"
       },
       "provider": {
         "slots": "{{count}} slot(s)",
@@ -276,13 +276,14 @@
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
+        "matrixHelp": "This matrix manages the game offer. To change time, cutoff or routing, open the channel configuration.",
         "missingHelp": "This slot does not have a sales channel configured yet.",
         "configureChannels": "Configure channels",
         "editChannel": "Edit channel"
       },
       "section": {
-        "offered": "Games enabled or offered on this channel",
-        "available": "Games available to add on this channel"
+        "offered": "Active offer on this channel",
+        "available": "Games available to add"
       },
       "game": {
         "status": {
@@ -295,17 +296,19 @@
         "stakeRangeShort": "{{min}} – {{max}} HTG",
         "minStake": "Minimum stake: {{min}} HTG",
         "maxStake": "Maximum stake: {{max}} HTG",
-        "stakeMissing": "Stakes to configure",
-        "limitsMissing": "Missing limits",
+        "stakeMissing": "Min/max stakes to define",
+        "limitsMissing": "Draw cap to review",
         "hiddenPos": "Hidden from POS",
         "fact": {
+          "stake": "Stake",
           "minStake": "Min stake",
           "maxStake": "Max stake",
           "limits": "Limits",
+          "drawLimit": "Draw cap",
           "visibility": "Visibility",
           "source": "Source",
           "configured": "Configured",
-          "limitsConfigured": "Limits configured",
+          "limitsConfigured": "Cap configured",
           "notConfigured": "Not configured",
           "visibleInPos": "Visible in POS",
           "hiddenInPos": "Hidden in POS",
