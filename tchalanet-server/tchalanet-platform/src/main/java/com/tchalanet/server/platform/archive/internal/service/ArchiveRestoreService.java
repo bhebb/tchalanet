@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Platform-only restore service. Copies archived rows into TTL-bounded restore tables
@@ -43,7 +43,7 @@ public class ArchiveRestoreService {
   private final ArchiveLookupIndexJdbcRepository lookupRepo;
   private final ArchiveObjectJdbcRepository objectRepo;
   private final ArchiveStoragePort storage;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   // ── Restore execution ───────────────────────────────────────────────────────
 
@@ -76,7 +76,7 @@ public class ArchiveRestoreService {
     }
 
     String entityIdStr = entityId.toString();
-    JsonlGzReader reader = new JsonlGzReader(objectMapper);
+    JsonlGzReader reader = new JsonlGzReader(jsonUtils);
     long totalRestored = 0;
 
     for (Map<String, Object> entry : lookupEntries) {
@@ -161,7 +161,7 @@ public class ArchiveRestoreService {
 
   private String serialize(Map<String, Object> row) {
     try {
-      return objectMapper.writeValueAsString(row);
+      return jsonUtils.toJson(row);
     } catch (JacksonException e) {
       throw new IllegalStateException("Failed to serialize restore row", e);
     }

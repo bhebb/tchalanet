@@ -40,6 +40,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import tools.jackson.databind.json.JsonMapper;
 
 @DisplayName("ArchiveRunExecutor")
@@ -163,7 +164,7 @@ class ArchiveRunExecutorTest {
           objectRepo,
           lookupRepo,
           storage,
-          JsonMapper.builder().build(),
+          new JsonUtils(JsonMapper.builder().build()),
           metrics);
     }
   }

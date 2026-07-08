@@ -25,7 +25,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 /**
  * Orchestrates a full archive run across all registered {@link ArchiveDatasetProvider}s.
@@ -54,7 +54,7 @@ public class ArchiveRunExecutor {
   private final ArchiveObjectJdbcRepository objectRepo;
   private final ArchiveLookupIndexJdbcRepository lookupRepo;
   private final ArchiveStoragePort storage;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
   private final ArchiveMetrics metrics;
 
   /** Execute a full archive run for the given period. Returns the resulting run view. */
@@ -138,7 +138,7 @@ public class ArchiveRunExecutor {
       ArchivePeriod period, UUID tenantId, UUID runId, String uri) {
 
     OutputStream out = storage.openWrite(uri);
-    JsonlGzWriter writer = new JsonlGzWriter(out, objectMapper);
+    JsonlGzWriter writer = new JsonlGzWriter(out, jsonUtils);
     ArchiveExportResult providerResult;
     boolean exportSucceeded = false;
 

@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.firebase;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
@@ -16,7 +18,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @ConditionalOnProperty(
@@ -29,7 +30,7 @@ class FirebaseEmulatorJwtDecoderConfig {
 
   @Bean
   JwtDecoder firebaseEmulatorJwtDecoder(
-      FirebaseIdentityProperties properties, ObjectMapper objectMapper) {
+      FirebaseIdentityProperties properties, JsonUtils jsonUtils) {
     var projectId = properties.requiredProjectId();
     OAuth2TokenValidator<Jwt> audienceValidator =
         jwt ->
@@ -50,11 +51,11 @@ class FirebaseEmulatorJwtDecoderConfig {
         if (parts.length != 3 || !parts[2].isEmpty()) {
           throw new JwtException("Firebase emulator token must be unsigned");
         }
-        Map<String, Object> headers = decode(parts[0], objectMapper);
+        Map<String, Object> headers = decode(parts[0], jsonUtils);
         if (!"none".equals(headers.get("alg"))) {
           throw new JwtException("Firebase emulator token must use alg=none");
         }
-        Map<String, Object> claims = decode(parts[1], objectMapper);
+        Map<String, Object> claims = decode(parts[1], jsonUtils);
         var issuedAt = instantClaim(claims, "iat");
         var expiresAt = instantClaim(claims, "exp");
         var jwt = new Jwt(token, issuedAt, expiresAt, headers, claims);
@@ -71,9 +72,10 @@ class FirebaseEmulatorJwtDecoderConfig {
     };
   }
 
-  private static Map<String, Object> decode(String value, ObjectMapper objectMapper) {
+  private static Map<String, Object> decode(String value, JsonUtils jsonUtils) {
     try {
-      return objectMapper.readValue(Base64.getUrlDecoder().decode(value), MAP_TYPE);
+      return jsonUtils.readValue(
+          new String(Base64.getUrlDecoder().decode(value), StandardCharsets.UTF_8), MAP_TYPE);
     } catch (Exception ex) {
       throw new JwtException("Invalid Firebase emulator token encoding", ex);
     }

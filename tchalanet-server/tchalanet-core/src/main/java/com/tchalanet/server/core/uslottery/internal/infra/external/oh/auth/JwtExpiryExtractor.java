@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.oh.auth;
 
-import tools.jackson.databind.json.JsonMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -12,7 +12,7 @@ public final class JwtExpiryExtractor {
     private JwtExpiryExtractor() {
     }
 
-    public static Optional<Instant> extractExp(String jwt) {
+    public static Optional<Instant> extractExp(JsonUtils jsonUtils, String jwt) {
         try {
             var parts = jwt.split("\\.");
             if (parts.length < 2) {
@@ -24,9 +24,8 @@ public final class JwtExpiryExtractor {
                 StandardCharsets.UTF_8
             );
 
-            var mapper = new JsonMapper();
-            var node = mapper.readTree(payloadJson);
-            var exp = node.get("exp");
+            var node = jsonUtils.parse(payloadJson);
+            var exp = node == null ? null : node.get("exp");
 
             if (exp == null || !exp.canConvertToLong()) {
                 return Optional.empty();
