@@ -176,9 +176,9 @@ Colonne **Cacher ?** = recommandation. **Pourquoi** = justification du TTL (long
 | Entité | Cacher ? | Pourquoi |
 |---|---|---|
 | **Limit — compteurs consommés** (reste vendable) | ❌ | Change à chaque vente → cacher = risque de **survente** (correctness > perf) |
-| Limit — **définition** de LimitPolicy | ✅ (`core:limit:policy_by_scope`, à créer) | La **règle** change rarement → L1 15 m / L2 6 h |
+| Limit — **définition** de LimitPolicy | ❌ (décision Phase 3.2) | La règle est lue **sur le chemin de décision** (`listActiveForTargets(scopes, now)`, mêlée à l'exposition), clé `now` = pas de hit, périmée = décision d'argent fausse → no-cache |
 | **SellerTerminal — validation de vente / binding** | ❌ | Décision de **sécurité** (trust/terminal_binding) : doit être fraîche |
-| SellerTerminal — profil `getMe` | 🟡 court (`core:sellerterminal:by_id`, à créer) | Lu souvent mais porte statut/activation → L1 60 s / L2 5 m |
+| SellerTerminal — profil `getMe` | ❌ (décision Phase 3.2) | `getMe` et `saleValidation` partagent `findById` → cacher exposerait la validation ; option handler-level en attente si read chaud mesuré |
 | **Liste billets / ticket lines** | ❌ | Changent en permanence |
 | **Stats live** (`analytics.cashier_today`) | 🟡 near-real-time OK (30 s / 2 m) | Agrégat vivant, pas un référentiel — ne pas allonger |
 | **Audit info** | ❌ | Intégrité > performance |
@@ -213,6 +213,6 @@ Colonne **Cacher ?** = recommandation. **Pourquoi** = justification du TTL (long
 2. 🔴 Câbler `drawresult` (`@Cacheable` sur le reader) + créer son `CacheSpecProvider`.
 3. 🔴 Créer les `CacheSpecProvider` manquants (plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant) avec les TTL §5.
 4. ✅ Ajouter le cache tenant game/theme runtime (+ éviction sur leurs services admin).
-5. 🟡 Créer `core:limit:policy_by_scope` (définition) et `core:sellerterminal:by_id` (profil), **sans** cacher les gates.
+5. ❌ limit + sellerterminal : **no-cache by design** (décision Phase 3.2) — reads sur les chemins de décision d'argent/sécurité, voir §5.4.
 6. 🟡 Kill-switch runtime par cache + compléter les groupes Ops.
 7. 🟡 Fiabiliser la sérialisation L2 avant activation prod.

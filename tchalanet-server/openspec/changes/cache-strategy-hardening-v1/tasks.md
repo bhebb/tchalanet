@@ -17,28 +17,39 @@
       Éviction déjà en place (writer → `AfterCommit.run(evictAll)` pour upsert/confirm/override).
       `LATEST_BY_SLOT` retiré (mort). `DrawResultCacheNames` + `DrawResultCacheSpecProvider`
       (TTL court L1 30s / L2 2min, chemin settlement).
-- [ ] Tests d'intégration : write config → cache évincé → lecture reflète la nouvelle valeur
-      (drawchannel calendar_rows + drawresult by_id/id_by_slot_occurred).
+- [~] Tests d'intégration write→evict→read : **niveau e2e, pas unit**. Le serveur n'a aucun
+      `@SpringBootTest`/Testcontainers (0 occurrence) ; ces tests ont besoin du proxying Spring +
+      tx + CacheManager câblés → couverts par la suite e2e existante, pas par un nouveau harness ici.
 
 ## Phase 2 — CacheSpecProviders manquants
 - [x] Specs pour plan, game, theme, resultslot, pagemodel, drawchannel, settings, i18n, tenant.
 - [x] Appliquer les TTL par tier (A: 30 min / 12 h · B: 15 min / 6 h · pagemodel SEARCH court 2/5 min).
 - [x] Documenter les defaults L1 (5 min runtime vs 10 min `CacheSpec`) — note ajoutée dans `cache.md`.
-- [ ] Test de démarrage qui échoue si un cache `@Cacheable` connu n'a pas de `CacheSpecProvider`
-      (nécessite un scan des annotations `@Cacheable` — à faire dans la passe test).
+- [x] Guard : `CacheSpecAwareCaffeineCacheManager` logue un WARN au premier usage d'un cache sans
+      `CacheSpecProvider` (renvoie au défaut). Surface la dérive sans scan d'annotations.
+- [ ] (option) Hard-fail au démarrage — nécessite un scan des `@Cacheable` (dépendance/complexité),
+      différé ; le WARN runtime couvre le besoin immédiat.
 
 ## Phase 3 — Caches runtime
 - [x] `platform:tenanttheme:runtime` (clé tenant:mode) + éviction (allEntries) sur les 3 écritures
       `TenantThemeAdminService` (applyPreset, deactivate, updateSettings). Vue sûre (Map, pas JsonNode).
 - [x] `platform:tenantgame:runtime` + `:projection` + éviction (allEntries) sur les 4 écritures
       `TenantGameAdminService` (enable, disable, updateSettings, updateBetOptionConfig).
-- [ ] `core:limit:policy_by_scope` — définition de règle uniquement, jamais les compteurs consommés.
-- [ ] `core:sellerterminal:profile_by_id` (`getMe`), TTL court, interdit pour validation de vente.
+- [x] limit — **NO-CACHE by design** (décision validée). `EvaluateLimitPolicyQueryHandler` lit la
+      règle (`assignments.listActiveForTargets(scopes, now)`) sur le chemin de décision, mêlée à
+      l'exposition live ; clé `scopes+now` = ~aucun hit ; règle périmée = décision d'argent fausse.
+- [x] sellerterminal — **NO-CACHE by design** (décision validée). `getMe` et `saleValidation`
+      partagent `reader.getRequired`/`findById` → cacher exposerait la validation de vente (terminal
+      suspendu validant encore) ; `findByExternalSubject` = binding d'auth. Option `getMe`-profil au
+      niveau handler laissée en attente (valeur modeste, seulement si read home POS mesuré chaud).
 
 ## Phase 4 — Éviction after-commit
-- [ ] Vérifier si l'éviction actuelle est réellement post-commit (pas seulement même transaction).
-- [ ] Writes critiques : `AfterCommit.run(...)` ou evictor infra post-commit.
-- [ ] Tests rollback : transaction rollback → cache non évincé / non repeuplé avec état faux.
+- [x] Vérifié : `@EnableCaching` et `@Transactional` étaient tous deux `LOWEST_PRECEDENCE` → ordre
+      indéterminé, `@CacheEvict` pouvait s'exécuter AVANT le commit (repeuplement avec valeur pré-commit).
+- [x] Fix global : `@EnableCaching(order = LOWEST_PRECEDENCE - 1)` rend l'advisor cache OUTER → toutes
+      les `@CacheEvict` sur méthodes `@Transactional` évincent APRÈS commit. (`drawresult` utilisait
+      déjà `AfterCommit.run`.)
+- [~] Tests rollback : idem — niveau e2e (pas d'infra `@SpringBootTest` dans le projet).
 
 ## Phase 5 — Ops / kill-switch
 - [x] `CacheToggle` (common) — stockage in-memory par instance. NOTE: pas encore via settings /
