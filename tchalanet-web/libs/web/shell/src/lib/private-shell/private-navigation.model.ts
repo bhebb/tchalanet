@@ -2,6 +2,10 @@ import { NavigationSection } from '@tch/api';
 
 export type PrivateSpace = 'platform' | 'admin' | 'cashier';
 
+export interface TenantAdminNavigationOptions {
+  readonly maryajGratisEnabled?: boolean;
+}
+
 export const PLATFORM_NAVIGATION: readonly NavigationSection[] = [
   {
     id: 'platform',
@@ -692,3 +696,35 @@ export const CASHIER_NAVIGATION: readonly NavigationSection[] = [
     ],
   },
 ];
+
+export function tenantAdminNavigation(
+  options: TenantAdminNavigationOptions = {},
+): readonly NavigationSection[] {
+  return filterTenantAdminNavigation(TENANT_ADMIN_NAVIGATION, options);
+}
+
+export function filterTenantAdminNavigation(
+  sections: readonly NavigationSection[],
+  options: TenantAdminNavigationOptions = {},
+): readonly NavigationSection[] {
+  if (options.maryajGratisEnabled !== false) {
+    return sections;
+  }
+  return sections.map(section => ({
+    ...section,
+    items: section.items
+      .filter(item => !isMaryajGratisNavigationItem(item))
+      .map(item => item.children
+        ? {
+            ...item,
+            children: item.children.filter(child => !isMaryajGratisNavigationItem(child)),
+          }
+        : item),
+  }));
+}
+
+function isMaryajGratisNavigationItem(item: NavigationSection['items'][number]): boolean {
+  return item.id === 'maryaj-gratis'
+    || item.id === 'promotions-free-lines'
+    || item.destination?.value === '/app/admin/maryaj-gratis';
+}

@@ -17,6 +17,7 @@ import { ConsoleBetLabelPipe, ConsoleGameNamePipe } from '@tch/web/console';
 import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
 import {
   AdminGamesPricingApiService,
+  DeleteTenantOddsRequest,
   UpsertTenantOddsRequest,
 } from '../../data-access/admin-games-pricing-api.service';
 import {
@@ -45,6 +46,7 @@ interface SaveGameConfigRequest {
   readonly settings: UpdateGameSettingsRequest;
   readonly betOptions: UpdateTenantGameBetOptionConfigRequest | null;
   readonly pricingOdds: readonly UpsertTenantOddsRequest[];
+  readonly deletePricingOdds: readonly DeleteTenantOddsRequest[];
 }
 
 @Component({
@@ -131,6 +133,7 @@ export class GameSettingsDialog {
         settings: this.toRequest(this.model()),
         betOptions: this.showSalesOptions() ? this.toBetOptionsRequest(this.betOptionConfig()) : null,
         pricingOdds: this.toPricingOddsRequest(),
+        deletePricingOdds: this.toPricingDeleteRequest(),
       });
     });
   }
@@ -178,15 +181,29 @@ export class GameSettingsDialog {
 
   updatePricingOdds(groupId: string, pricingVariantCode: string | null, rawValue: string): void {
     if (!pricingVariantCode) return;
+    const normalized = rawValue.trim();
+    if (normalized === '') {
+      this.setPricingOdds(groupId, pricingVariantCode, null);
+      return;
+    }
     const odds = Number(rawValue);
     if (!Number.isFinite(odds) || odds <= 0) return;
 
+    this.setPricingOdds(groupId, pricingVariantCode, odds);
+  }
+
+  clearPricingOdds(groupId: string, pricingVariantCode: string | null): void {
+    if (!pricingVariantCode) return;
+    this.setPricingOdds(groupId, pricingVariantCode, null);
+  }
+
+  private setPricingOdds(groupId: string, pricingVariantCode: string, odds: number | null): void {
     this.pricingGroups.update(groups => groups.map(group => {
       if (group.id !== groupId) return group;
       return {
         ...group,
         variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? { ...variant, odds, value: `×${odds}` }
+          ? { ...variant, odds, value: odds === null ? 'Non configuré' : `×${odds}` }
           : variant),
       };
     }));
@@ -218,6 +235,13 @@ export class GameSettingsDialog {
     if (req.pricingOdds.length > 0) {
       save$ = save$.pipe(
         concatMap(() => forkJoin(req.pricingOdds.map(item => this.pricingApi.upsertTenantOdds(item, options)))
+          .pipe(map(() => undefined))),
+      );
+    }
+
+    if (req.deletePricingOdds.length > 0) {
+      save$ = save$.pipe(
+        concatMap(() => forkJoin(req.deletePricingOdds.map(item => this.pricingApi.deleteTenantOdds(item, options)))
           .pipe(map(() => undefined))),
       );
     }
@@ -271,13 +295,22 @@ export class GameSettingsDialog {
 
   private toPricingOddsRequest(): readonly UpsertTenantOddsRequest[] {
     return this.pricingGroups().flatMap(group => group.variants
-      .filter(variant => variant.pricingVariantCode)
+      .filter(variant => variant.pricingVariantCode && variant.odds !== null && variant.odds !== undefined)
       .map(variant => ({
         gameCode: this.data.game.gameCode,
         pricingVariantCode: variant.pricingVariantCode ?? '',
         betType: variant.betType,
         betOption: variant.betOption,
-        odds: variant.odds,
+        odds: variant.odds ?? 0,
+      })));
+  }
+
+  private toPricingDeleteRequest(): readonly DeleteTenantOddsRequest[] {
+    return this.pricingGroups().flatMap(group => group.variants
+      .filter(variant => variant.pricingVariantCode && (variant.odds === null || variant.odds === undefined))
+      .map(variant => ({
+        gameCode: this.data.game.gameCode,
+        pricingVariantCode: variant.pricingVariantCode ?? '',
       })));
   }
 

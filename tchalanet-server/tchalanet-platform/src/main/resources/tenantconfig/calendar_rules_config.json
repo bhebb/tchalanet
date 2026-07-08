@@ -1,5 +1,8 @@
 {
   "rules": {
+    "promotions": {
+      "maryajGratisEnabled": true
+    },
     "businessCalendar": {
       "defaultOpen": true,
       "closedWeekdays": [],

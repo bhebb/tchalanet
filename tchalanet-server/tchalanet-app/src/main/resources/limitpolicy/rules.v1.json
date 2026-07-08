@@ -35,17 +35,6 @@
       }
     },
     {
-      "ruleKey": "MAX_POTENTIAL_PAYOUT_PER_TICKET",
-      "label": "Gain potentiel maximum par ticket",
-      "description": "Limite le paiement potentiel total d’un ticket.",
-      "defaultOutcome": "BLOCK",
-      "category": "PAYOUT_RISK",
-      "stateless": true,
-      "paramsTemplate": {
-        "valueCents": 5000000
-      }
-    },
-    {
       "ruleKey": "BLOCK_BET_TYPE",
       "label": "Bloquer un type de pari",
       "description": "Bloque un type de jeu comme mariage, lotto3 ou lotto4.",
@@ -76,17 +65,6 @@
       "stateless": false,
       "paramsTemplate": {
         "valueCents": 500000
-      }
-    },
-    {
-      "ruleKey": "MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW",
-      "label": "Exposition maximum de gain potentiel par numéro",
-      "description": "Limite le gain potentiel total déjà exposé sur une sélection pour un tirage.",
-      "defaultOutcome": "BLOCK",
-      "category": "EXPOSURE",
-      "stateless": false,
-      "paramsTemplate": {
-        "valueCents": 5000000
       }
     },
     {

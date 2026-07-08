@@ -46,6 +46,21 @@ public record InstantiateMaryajGratisRequest(
     Integer maxRegenerationsBeforeConfirm
 ) {
     public InstantiateMaryajGratisRequest {
+        var effectiveChoiceMode = choiceMode == null ? PromotionChoiceMode.AUTO_GENERATE : choiceMode;
+        if (effectiveChoiceMode != PromotionChoiceMode.AUTO_GENERATE
+            && effectiveChoiceMode != PromotionChoiceMode.SELLER_SELECTS) {
+            throw ProblemRest.badRequest("promotion.maryaj_gratis.choice_mode_invalid");
+        }
+        if (generationStrategy == SelectionGenerationStrategy.LOW_EXPOSURE_RANDOM) {
+            throw ProblemRest.badRequest("promotion.maryaj_gratis.generation_strategy_unsupported");
+        }
+        if (generationStrategy != null && effectiveChoiceMode != PromotionChoiceMode.AUTO_GENERATE) {
+            throw ProblemRest.badRequest("promotion.maryaj_gratis.generation_strategy_requires_auto_generate");
+        }
+        if (effectiveChoiceMode == PromotionChoiceMode.SELLER_SELECTS
+            && Boolean.TRUE.equals(regenerableBeforeConfirm)) {
+            throw ProblemRest.badRequest("promotion.maryaj_gratis.regeneration_requires_auto_generate");
+        }
         if (quantityMode == PromotionQuantityMode.PER_PAID_AMOUNT && stepPaidAmount == null) {
             throw ProblemRest.badRequest("promotion.maryaj_gratis.step_paid_amount_required");
         }

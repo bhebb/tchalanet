@@ -25,7 +25,7 @@ export interface TenantGameView {
 export interface TenantGameBetOptionView {
   readonly label: string;
   readonly value: string;
-  readonly odds: number;
+  readonly odds: number | null;
   readonly betType: string;
   readonly betOption: number | null;
   readonly pricingVariantCode: string | null;

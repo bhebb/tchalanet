@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 
 public record DrawChannelSummaryView(
+    String id,
     String channelCode,
     String channelName,
     LocalTime drawTime,

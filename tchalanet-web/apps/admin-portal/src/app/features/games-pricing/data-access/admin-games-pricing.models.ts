@@ -11,7 +11,7 @@ export type ReadinessStatus = Extract<ConsoleReadinessStatus, 'READY' | 'TODO' |
 export interface TenantGameOddView {
   readonly label: string;
   readonly value: string;
-  readonly odds: number;
+  readonly odds: number | null;
   readonly betType: string;
   readonly betOption: number | null;
   readonly pricingVariantCode: string | null;

@@ -28,6 +28,8 @@ import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsSectionRequest.Section;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
 import com.tchalanet.server.platform.tenanttheme.api.TenantThemeApi;
@@ -93,6 +95,7 @@ public class TenantProvisioningOrchestrator {
 
         var created = tenantConfigApi.getTenantByCode(
             new GetTenantByCodeRequest(request.code()));
+        persistProvisioningProfileOptions(created.tenantId(), request);
 
         TchContextScope.runStartupTenant(
             created.tenantId().value(),
@@ -181,6 +184,21 @@ public class TenantProvisioningOrchestrator {
     private static List<String> notCopiedData() {
         return List.of(
             "tickets", "sales", "audit", "notifications", "stats");
+    }
+
+    private void persistProvisioningProfileOptions(TenantId tenantId, TenantProvisioningRequest request) {
+        var maryajGratisEnabled = request.maryajGratisEnabled() == null || request.maryajGratisEnabled();
+        var rules = jsonUtils.parse("""
+            {
+              "promotions": {
+                "maryajGratisEnabled": %s
+              }
+            }
+            """.formatted(maryajGratisEnabled));
+        tenantConfigApi.updateTenantInternalSettingsSection(new UpdateTenantInternalSettingsSectionRequest(
+            tenantId,
+            Section.RULES,
+            rules));
     }
 
     private static List<String> expectedReadinessSections() {

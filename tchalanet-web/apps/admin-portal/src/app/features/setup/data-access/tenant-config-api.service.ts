@@ -42,7 +42,12 @@ export interface TenantBusinessCalendar {
 }
 
 export interface TenantRulesConfig {
+  promotions?: TenantPromotionRules | null;
   businessCalendar?: TenantBusinessCalendar | null;
+}
+
+export interface TenantPromotionRules {
+  maryajGratisEnabled?: boolean | null;
 }
 
 export interface TenantRecurringHoliday {
@@ -79,6 +84,10 @@ export interface TenantSettingsReadinessSection {
 export interface TenantSettingsReadiness {
   ready: boolean;
   sections: TenantSettingsReadinessSection[];
+}
+
+export function tenantMaryajGratisEnabled(config: TenantInternalConfig | null | undefined): boolean {
+  return config?.rules?.promotions?.maryajGratisEnabled ?? true;
 }
 
 @Injectable({ providedIn: 'root' })

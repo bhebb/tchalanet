@@ -76,8 +76,15 @@ public final class MaryajGratisDefaultTemplate {
         if (choiceMode == PromotionChoiceMode.AUTO_GENERATE && generationStrategy == null) {
             generationStrategy = SelectionGenerationStrategy.RANDOM;
         }
-        var regenerable = cmd.regenerableBeforeConfirm() == null ? Boolean.TRUE : cmd.regenerableBeforeConfirm();
-        var maxRegenerations = positiveIntOrDefault(cmd.maxRegenerationsBeforeConfirm(), 3);
+        if (choiceMode != PromotionChoiceMode.AUTO_GENERATE) {
+            generationStrategy = null;
+        }
+        var regenerable = choiceMode == PromotionChoiceMode.AUTO_GENERATE
+            ? cmd.regenerableBeforeConfirm() == null || cmd.regenerableBeforeConfirm()
+            : false;
+        var maxRegenerations = regenerable
+            ? positiveIntOrDefault(cmd.maxRegenerationsBeforeConfirm(), 3)
+            : 0;
 
         var effectParams = new LinkedHashMap<String, Object>();
         effectParams.put("gameCode", "HT_MARYAJ_GRATIS");

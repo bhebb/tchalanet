@@ -100,3 +100,19 @@
 .tenant-provisioning__field--narrow {
   max-width: 16rem;
 }
+
+.tenant-provisioning__profile-option {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md, 0.75rem);
+  background: var(--tch-color-surface-container-low);
+
+  p {
+    margin: 0 0 0 2.5rem;
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+}

@@ -20,15 +20,39 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { LimitRuleSpec, RuleKey, RuleRow } from '../../data-access/admin-limits.models';
+import type { RuleKey, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 
 const NUMBER_RULE_KEYS: RuleKey[] = [
   'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
-  'MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW',
   'BLOCK_SELECTION_PER_DRAW',
 ];
+
+interface NumberLimitAction {
+  readonly ruleKey: RuleKey;
+  readonly icon: string;
+  readonly title: string;
+  readonly description: string;
+  readonly cta: string;
+}
+
+const NUMBER_LIMIT_ACTIONS: readonly NumberLimitAction[] = [
+  {
+    ruleKey: 'BLOCK_SELECTION_PER_DRAW',
+    icon: 'block',
+    title: 'Bloquer un numéro',
+    description: 'Empêcher la vente d’un ou plusieurs numéros.',
+    cta: 'Bloquer',
+  },
+  {
+    ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
+    icon: 'payments',
+    title: 'Limiter les mises',
+    description: 'Bloquer quand les mises vendues sur un numéro atteignent un montant.',
+    cta: 'Définir',
+  },
+] satisfies readonly NumberLimitAction[];
 
 @Component({
   selector: 'tch-admin-limits-number-page',
@@ -57,7 +81,7 @@ export class AdminLimitsNumberPage implements OnInit {
   readonly actionNotice = signal<string | null>(null);
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
-  readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
+  readonly quickActions = NUMBER_LIMIT_ACTIONS;
 
   ngOnInit(): void {
     this.load();
@@ -85,15 +109,10 @@ export class AdminLimitsNumberPage implements OnInit {
     });
   }
 
-  openAdd(): void {
-    const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.initAdd(this.unassignedRules(), 'TENANT', null);
-    ref.afterClosed().subscribe((result: unknown) => {
-      if (result) {
-        this.actionNotice.set('Règle ajoutée.');
-        this.reloadAssignments();
-      }
-    });
+  openNumberAction(ruleKey: RuleKey): void {
+    const row = this.rowFor(ruleKey);
+    if (!row) return;
+    this.openUpsert(row);
   }
 
   openUpsert(row: RuleRow): void {
@@ -121,6 +140,18 @@ export class AdminLimitsNumberPage implements OnInit {
         this.actionError.set(this.resolveError(err, 'admin.limits.number.delete', 'section'));
       },
     });
+  }
+
+  isActionAvailable(ruleKey: RuleKey): boolean {
+    return this.rowFor(ruleKey) !== null;
+  }
+
+  actionStateLabel(ruleKey: RuleKey): string {
+    return this.rowFor(ruleKey)?.assignment ? 'Configurée' : 'Non configurée';
+  }
+
+  private rowFor(ruleKey: RuleKey): RuleRow | null {
+    return this.allRows().find(row => row.spec.ruleKey === ruleKey) ?? null;
   }
 
   private reloadAssignments(): void {

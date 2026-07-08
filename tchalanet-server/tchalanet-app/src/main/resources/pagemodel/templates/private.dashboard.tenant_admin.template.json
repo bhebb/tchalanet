@@ -235,7 +235,7 @@
                 "id": "manageLimits",
                 "labelKey": "quickaction.admin.manage_limits",
                 "icon": "shield",
-                "destination": { "kind": "route", "value": "/app/admin/controls/limits" }
+                "destination": { "kind": "route", "value": "/app/admin/limits" }
               },
               {
                 "id": "manageOdds",

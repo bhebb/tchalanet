@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 // ---- Draw channel models (from /tenant/draw-channels) ----
 
 export interface DrawChannelSummary {
+  readonly id: string;
   readonly channelCode: string;
   readonly channelName: string;
   readonly drawTime: string;

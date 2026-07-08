@@ -28,7 +28,7 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 
 ## 4. Maryaj default template
 
-- [x] Seed template `DEFAULT_MARYAJ_GRATIS` (effet FREE_GAME_LINE, gameCode HT_MARYAJ_GRATUIT, quantity 1, payoutBaseAmount 50 HTG à confirmer, AUTO_GENERATED, RANDOM, regenerable, max 3 ; éligibilité minPaidTotal > 0 + 1 ligne payante).
+- [x] Seed template `DEFAULT_MARYAJ_GRATIS` (effet FREE_GAME_LINE, gameCode HT_MARYAJ_GRATIS, quantity 1, payoutBaseAmount 50 HTG à confirmer, AUTO_GENERATED, RANDOM, regenerable, max 3 ; éligibilité minPaidTotal > 0 + 1 ligne payante).
 - [x] Commande admin interne d'instanciation pour un tenant (template -> campagne tenant ACTIVE).
 - [ ] Follow-up (hors V1, noter seulement) : hook onboarding nouveau tenant ; backfill ops explicite avec dry-run pour tenants existants.
 
@@ -38,7 +38,7 @@ Prérequis : close-promotion-v1 §7 (activation policy), §9 (cache runtime),
 - [x] `RandomSelectionGenerator` — règles jeu depuis catalog/runtime game config (nb numéros, range, doublons, format).
 - [x] Enum stratégie avec `LOW_EXPOSURE_RANDOM` -> UNSUPPORTED.
 - [x] `purpose` : PROMOTION_FREE_LINE | CASHIER_SUGGESTION.
-- [x] Vérifier que les règles de génération de `HT_MARYAJ_GRATUIT` sont disponibles au runtime ; sinon, compléter catalog (lecture des seeds V204/V208).
+- [x] Vérifier que les règles de génération de `HT_MARYAJ_GRATIS` sont disponibles au runtime ; sinon, compléter catalog (lecture des seeds V204/V208).
 - [x] Tests unitaires : sélections valides, respect range/doublons, gameCode inconnu.
 - [x] Bonus : `PromotionSelectionResolver` branché sur le service — remplace le générateur hash qui produisait une sélection invalide (un seul 2D) pour MARRIAGE_2D2D (bug latent du flux FREE_GAME_LINE existant).
 

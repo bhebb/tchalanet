@@ -16,6 +16,10 @@ import { AdminGamesPricingApiService } from '../../../games-pricing/data-access/
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 
 export type AdminMaryajGratisPageState = 'loading' | 'ready' | 'error';
+type MaryajChoiceMode = 'AUTO_GENERATE' | 'SELLER_SELECTS';
+
+const MARYAJ_GRATIS_GAME_CODE = 'HT_MARYAJ_GRATIS';
+const MARYAJ_GRATIS_GAME_CODES = new Set([MARYAJ_GRATIS_GAME_CODE, 'HT_MARYAJ_GRATUIT']);
 
 @Injectable()
 export class AdminMaryajGratisStore {
@@ -39,7 +43,7 @@ export class AdminMaryajGratisStore {
   readonly isMaryajGameReady = computed(() => this.maryajGame()?.tenantStatus === 'ACTIVE');
   readonly maryajGameMissingReason = computed(() => {
     const game = this.maryajGame();
-    if (!game) return 'Le jeu HT_MARYAJ_GRATUIT est absent de la configuration tenant.';
+    if (!game) return 'Le jeu Maryaj gratis est absent de la configuration tenant.';
     if (game.tenantStatus === 'INACTIVE') return 'Le jeu Maryaj gratuit est désactivé pour ce tenant.';
     if (game.tenantStatus === 'NEEDS_CONFIG') return 'Le jeu Maryaj gratuit doit avoir ses limites et son barème configurés.';
     if (game.tenantStatus === 'UNAVAILABLE') return 'Le jeu Maryaj gratuit n’est pas disponible pour ce tenant.';
@@ -62,7 +66,7 @@ export class AdminMaryajGratisStore {
       this.quantityTierGroup(200, 499, 2),
       this.quantityTierGroup(500, null, 3),
     ]),
-    choiceMode: ['AUTO_GENERATE' as 'AUTO_GENERATE' | 'SELLER_SELECTS', Validators.required],
+    choiceMode: ['AUTO_GENERATE' as MaryajChoiceMode, Validators.required],
     regenerableBeforeConfirm: [true],
     maxRegenerationsBeforeConfirm: [3, [Validators.required, Validators.min(0), Validators.max(20)]],
   });
@@ -72,6 +76,10 @@ export class AdminMaryajGratisStore {
     this.form.controls.quantityMode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(mode => this.syncQuantityModeControls(mode));
+    this.syncChoiceModeControls(this.form.controls.choiceMode.value);
+    this.form.controls.choiceMode.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(mode => this.syncChoiceModeControls(mode));
   }
 
   load(): void {
@@ -83,7 +91,13 @@ export class AdminMaryajGratisStore {
     }).subscribe({
       next: ({ campaigns, games }) => {
         this.campaigns.set(campaigns.items);
-        this.maryajGame.set(games.find(g => g.gameCode === 'HT_MARYAJ_GRATUIT') ?? null);
+        this.maryajGame.set(games.find(g => MARYAJ_GRATIS_GAME_CODES.has(g.gameCode)) ?? null);
+        const effect = this.findMaryajEffect(
+          campaigns.items.find(c => c.code === 'DEFAULT_MARYAJ_GRATIS' || c.code.includes('MARYAJ')) ?? null,
+        );
+        if (effect) {
+          this.patchFormFromEffect(effect);
+        }
         this.state.set('ready');
       },
       error: (err: unknown) => {
@@ -106,6 +120,11 @@ export class AdminMaryajGratisStore {
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+    const tiersError = this.quantityTiersValidationError();
+    if (tiersError) {
+      this.snackBar.open(tiersError, 'OK', { duration: 5000 });
       return;
     }
 
@@ -177,6 +196,11 @@ export class AdminMaryajGratisStore {
       this.form.markAllAsTouched();
       return;
     }
+    const tiersError = this.quantityTiersValidationError();
+    if (tiersError) {
+      this.snackBar.open(tiersError, 'OK', { duration: 5000 });
+      return;
+    }
     const campaignId = promotionIdValue(campaign.id);
     const ruleId = promotionIdValue(rule.id);
     if (!campaignId || !ruleId) {
@@ -227,6 +251,10 @@ export class AdminMaryajGratisStore {
     tiers.removeAt(index);
   }
 
+  setSellerSelectionEnabled(enabled: boolean): void {
+    this.form.controls.choiceMode.setValue(enabled ? 'SELLER_SELECTS' : 'AUTO_GENERATE');
+  }
+
   activate(campaign: PromotionCampaignView): void {
     this.transition(campaign, 'activate');
   }
@@ -270,13 +298,17 @@ export class AdminMaryajGratisStore {
     const value = this.form.getRawValue();
     const quantityTiers = this.quantityTiersPayload();
     const params: Record<string, unknown> = {
-      gameCode: 'HT_MARYAJ_GRATUIT',
+      gameCode: MARYAJ_GRATIS_GAME_CODE,
       payoutBaseAmount: value.payoutBaseAmount,
       quantityMode: value.quantityMode,
       quantity: value.quantity,
       choiceMode: value.choiceMode,
-      regenerableBeforeConfirm: value.regenerableBeforeConfirm,
-      maxRegenerationsBeforeConfirm: value.maxRegenerationsBeforeConfirm,
+      regenerableBeforeConfirm: value.choiceMode === 'AUTO_GENERATE'
+        ? value.regenerableBeforeConfirm
+        : false,
+      maxRegenerationsBeforeConfirm: value.choiceMode === 'AUTO_GENERATE'
+        ? value.maxRegenerationsBeforeConfirm
+        : 0,
     };
 
     if (value.quantityMode === 'PER_PAID_AMOUNT') {
@@ -311,12 +343,13 @@ export class AdminMaryajGratisStore {
       stepPaidAmount: this.numberParam(params, 'stepPaidAmount', 1000),
       quantityPerStep: this.numberParam(params, 'quantityPerStep', 1),
       maxQuantity: this.numberParam(params, 'maxQuantity', 3),
-      choiceMode: this.stringParam(params, 'choiceMode', 'AUTO_GENERATE') as 'AUTO_GENERATE' | 'SELLER_SELECTS',
+      choiceMode: this.stringParam(params, 'choiceMode', 'AUTO_GENERATE') as MaryajChoiceMode,
       regenerableBeforeConfirm: this.booleanParam(params, 'regenerableBeforeConfirm', true),
       maxRegenerationsBeforeConfirm: this.numberParam(params, 'maxRegenerationsBeforeConfirm', 3),
     }, { emitEvent: false });
     this.replaceQuantityTiers(this.quantityTiersParam(params));
     this.syncQuantityModeControls(quantityMode);
+    this.syncChoiceModeControls(this.form.controls.choiceMode.value);
   }
 
   private replaceQuantityTiers(tiers: readonly MaryajQuantityTier[]): void {
@@ -348,7 +381,8 @@ export class AdminMaryajGratisStore {
   }
 
   private isMaryajFreeGameEffect(effect: PromotionConfigItem): boolean {
-    return effect.type === 'FREE_GAME_LINE' && effect.params?.['gameCode'] === 'HT_MARYAJ_GRATUIT';
+    const gameCode = String(effect.params?.['gameCode'] ?? '');
+    return effect.type === 'FREE_GAME_LINE' && MARYAJ_GRATIS_GAME_CODES.has(gameCode);
   }
 
   private replaceCampaign(updated: PromotionCampaignView): void {
@@ -395,6 +429,26 @@ export class AdminMaryajGratisStore {
     if (maxQuantity.value <= 0) maxQuantity.setValue(10, { emitEvent: false });
   }
 
+  private syncChoiceModeControls(mode: MaryajChoiceMode): void {
+    const regenerable = this.form.controls.regenerableBeforeConfirm;
+    const maxRegenerations = this.form.controls.maxRegenerationsBeforeConfirm;
+
+    if (mode === 'SELLER_SELECTS') {
+      regenerable.setValue(false, { emitEvent: false });
+      maxRegenerations.setValue(0, { emitEvent: false });
+      regenerable.disable({ emitEvent: false });
+      maxRegenerations.disable({ emitEvent: false });
+      return;
+    }
+
+    regenerable.enable({ emitEvent: false });
+    maxRegenerations.enable({ emitEvent: false });
+    if (maxRegenerations.value <= 0) {
+      regenerable.setValue(true, { emitEvent: false });
+      maxRegenerations.setValue(3, { emitEvent: false });
+    }
+  }
+
   private quantityTierGroup(minPaidAmount: number, maxPaidAmount: number | null, quantity: number) {
     return this.fb.group({
       minPaidAmount: [minPaidAmount, [Validators.required, Validators.min(1)]],
@@ -411,6 +465,40 @@ export class AdminMaryajGratisStore {
         : Number(value.maxPaidAmount),
       quantity: Number(value.quantity),
     }));
+  }
+
+  private quantityTiersValidationError(): string | null {
+    if (this.form.controls.quantityMode.value !== 'TIERED_PAID_AMOUNT') return null;
+    const tiers = this.quantityTiersPayload();
+    if (!tiers.length) return 'Ajoutez au moins un palier Maryaj gratis.';
+
+    let previousMax: number | null = null;
+    for (const [index, tier] of tiers.entries()) {
+      const position = index + 1;
+      if (!Number.isFinite(tier.minPaidAmount) || tier.minPaidAmount <= 0) {
+        return `Le montant de départ du palier ${position} est invalide.`;
+      }
+      if (!Number.isFinite(tier.quantity) || tier.quantity <= 0) {
+        return `La quantité du palier ${position} est invalide.`;
+      }
+      if (tier.maxPaidAmount != null) {
+        if (!Number.isFinite(tier.maxPaidAmount) || tier.maxPaidAmount <= 0) {
+          return `Le montant final du palier ${position} est invalide.`;
+        }
+        if (tier.maxPaidAmount < tier.minPaidAmount) {
+          return `Le montant final du palier ${position} doit être supérieur au montant de départ.`;
+        }
+      }
+      if (previousMax == null && index > 0) {
+        return 'Le palier sans montant final doit être le dernier.';
+      }
+      if (previousMax != null && tier.minPaidAmount <= previousMax) {
+        return `Le palier ${position} chevauche le palier précédent.`;
+      }
+      previousMax = tier.maxPaidAmount;
+    }
+
+    return null;
   }
 
   private quantityTiersParam(params: Record<string, unknown>): readonly MaryajQuantityTier[] {

@@ -55,64 +55,64 @@ export class AdminLimitsSellerTerminalPage {
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
   readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
-  readonly loadedTerminalCode = signal<string | null>(null);
+  readonly loadedTerminalId = signal<string | null>(null);
 
   readonly searchTerminals = (query: string): Observable<readonly TchSearchOption[]> =>
     this.sellerTerminalApi.list({ q: query, size: 10 }).pipe(
       map(page => page.items.map(row => ({
-        id: row.terminalCode,
+        id: row.id.value,
         title: row.displayName,
         subtitle: row.terminalCode,
       }))),
     );
 
   onTerminalSelected(option: TchSearchOption | null): void {
-    const code = option?.id ?? null;
-    this.loadedTerminalCode.set(code);
+    const id = option?.id ?? null;
+    this.loadedTerminalId.set(id);
     this.allRows.set([]);
     this.pageError.set(null);
     this.actionError.set(null);
     this.actionNotice.set(null);
-    if (code) this.loadForTerminal(code);
+    if (id) this.loadForTerminal(id);
   }
 
   openAdd(): void {
-    const code = this.loadedTerminalCode();
-    if (!code) return;
+    const id = this.loadedTerminalId();
+    if (!id) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.initAdd(this.unassignedRules(), 'SELLER_TERMINAL', code);
+    ref.componentInstance.initAdd(this.unassignedRules(), 'SELLER_TERMINAL', id);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle ajoutée.');
-        this.reloadAssignments(code);
+        this.reloadAssignments(id);
       }
     });
   }
 
   openUpsert(row: RuleRow): void {
-    const code = this.loadedTerminalCode();
-    if (!code) return;
+    const id = this.loadedTerminalId();
+    if (!id) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.init(row.spec, 'SELLER_TERMINAL', code, row.assignment);
+    ref.componentInstance.init(row.spec, 'SELLER_TERMINAL', id, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle enregistrée.');
-        this.reloadAssignments(code);
+        this.reloadAssignments(id);
       }
     });
   }
 
   confirmDelete(row: RuleRow): void {
     if (!row.assignment) return;
-    const code = this.loadedTerminalCode();
-    if (!code) return;
+    const id = this.loadedTerminalId();
+    if (!id) return;
     if (!confirm(`Supprimer la règle « ${row.spec.label || row.spec.ruleKey} » ?`)) return;
     this.actionError.set(null);
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.actionNotice.set('Règle supprimée.');
-        this.reloadAssignments(code);
+        this.reloadAssignments(id);
       },
       error: (err: unknown) => {
         this.actionError.set(this.resolveError(err, 'admin.limits.seller-terminal.delete', 'section'));
@@ -120,12 +120,12 @@ export class AdminLimitsSellerTerminalPage {
     });
   }
 
-  private loadForTerminal(code: string): void {
+  private loadForTerminal(id: string): void {
     this.loading.set(true);
     this.pageError.set(null);
     forkJoin([
       this.api.listRules({ suppressShellFeedback: true }),
-      this.api.listAssignments('SELLER_TERMINAL', code, { suppressShellFeedback: true }),
+      this.api.listAssignments('SELLER_TERMINAL', id, { suppressShellFeedback: true }),
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
@@ -139,8 +139,8 @@ export class AdminLimitsSellerTerminalPage {
     });
   }
 
-  private reloadAssignments(code: string): void {
-    this.api.listAssignments('SELLER_TERMINAL', code, { suppressShellFeedback: true }).subscribe({
+  private reloadAssignments(id: string): void {
+    this.api.listAssignments('SELLER_TERMINAL', id, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
         this.allRows.update(current =>

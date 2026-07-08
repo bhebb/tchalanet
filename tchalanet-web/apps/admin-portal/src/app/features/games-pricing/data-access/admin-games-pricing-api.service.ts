@@ -16,7 +16,7 @@ interface BffPricingEntry {
   betType: string;
   betOption: number | null;
   pricingVariantCode?: string | null;
-  odds: number;
+  odds: number | null;
 }
 
 export interface UpsertTenantOddsRequest {
@@ -25,6 +25,11 @@ export interface UpsertTenantOddsRequest {
   readonly betType: string;
   readonly betOption?: number | null;
   readonly odds: number;
+}
+
+export interface DeleteTenantOddsRequest {
+  readonly gameCode: string;
+  readonly pricingVariantCode: string;
 }
 
 interface BffLimitAssignment {
@@ -95,6 +100,10 @@ export class AdminGamesPricingApiService {
       .pipe(map(entry => this.toOdd(entry)));
   }
 
+  deleteTenantOdds(req: DeleteTenantOddsRequest, options?: TchRequestOptions): Observable<void> {
+    return this.backend.deleteWithBody<void, DeleteTenantOddsRequest>('/admin/pricing/odds', req, options);
+  }
+
   private toView(row: BffGameRow): TenantGamePricingView {
     const tenantStatus = this.toTenantStatus(row);
     const odds = this.toOdds(row.pricing.entries);
@@ -133,7 +142,7 @@ export class AdminGamesPricingApiService {
   private toOdd(e: BffPricingEntry): TenantGameOddView {
     return {
       label: this.oddLabel(e),
-      value: `×${e.odds}`,
+      value: e.odds === null || e.odds === undefined ? 'Non configuré' : `×${e.odds}`,
       odds: e.odds,
       betType: e.betType,
       betOption: e.betOption,

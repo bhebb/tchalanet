@@ -12,7 +12,7 @@
       <span class="material-symbols-outlined">info</span>
       Règles supportées
     </a>
-    @if (!loading() && loadedTerminalCode() && allRows().length > 0) {
+    @if (!loading() && loadedTerminalId() && allRows().length > 0) {
       <button
         mat-flat-button
         color="primary"
@@ -24,7 +24,7 @@
     }
   </div>
 
-  @if (!loadedTerminalCode()) {
+  @if (!loadedTerminalId()) {
     <div class="limits-child-page__no-target">
       <span class="material-symbols-outlined">info</span>
       Recherchez un vendeur pour voir et configurer ses limites.

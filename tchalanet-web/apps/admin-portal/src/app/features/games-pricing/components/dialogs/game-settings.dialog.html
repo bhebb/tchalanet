@@ -158,21 +158,34 @@
               <strong class="game-settings-dialog__option-label">{{ group.label }}</strong>
               <div class="game-settings-dialog__pricing-variants">
                 @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
-                  <label class="game-settings-dialog__pricing-variant">
+                  <div class="game-settings-dialog__pricing-variant">
                     <span class="game-settings-dialog__muted">{{ variant.label }}</span>
-                    <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
-                      <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
-                      <input
-                        matInput
-                        type="number"
-                        min="0.0001"
-                        step="0.01"
-                        [value]="variant.odds"
-                        [disabled]="!variant.pricingVariantCode"
-                        (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
-                      />
-                    </mat-form-field>
-                  </label>
+                    <div class="game-settings-dialog__pricing-control">
+                      <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                        <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          min="0.0001"
+                          step="0.01"
+                          placeholder="Non configuré"
+                          [value]="variant.odds ?? ''"
+                          [disabled]="!variant.pricingVariantCode"
+                          (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                        />
+                      </mat-form-field>
+                      <button
+                        class="game-settings-dialog__clear-pricing"
+                        type="button"
+                        mat-button
+                        [disabled]="!variant.pricingVariantCode || variant.odds === null || variant.odds === undefined"
+                        (click)="clearPricingOdds(group.id, variant.pricingVariantCode ?? null)"
+                        aria-label="Supprimer la cote"
+                      >
+                        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                      </button>
+                    </div>
+                  </div>
                 }
               </div>
             </div>

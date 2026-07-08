@@ -246,12 +246,12 @@ Le code d'option est interprété uniquement dans le contexte de son `BetType`.
 |---|---|
 | `HT_BOLET` | MATCH_1_2D, MATCH_2_2D, MATCH_3_2D |
 | `HT_MARYAJ` | MARRIAGE_2D2D |
-| `HT_MARYAJ_GRATUIT` | MARRIAGE_2D2D — ligne gratuite générée par promotion |
+| `HT_MARYAJ_GRATIS` | MARRIAGE_2D2D — ligne gratuite générée par promotion |
 | `HT_LOTO3` | LOTTO3_3D |
 | `HT_LOTO4` | LOTTO4_PATTERN |
 | `HT_LOTO5` | LOTTO5_PATTERN |
 
-`HT_MARYAJ_GRATUIT` est un code de jeu dédié aux lignes de promotion (FREE_GAME_LINE). Il ne doit pas apparaître dans les paniers vendeur standards.
+`HT_MARYAJ_GRATIS` est un code de jeu dédié aux lignes de promotion (FREE_GAME_LINE). Il ne doit pas apparaître dans les paniers vendeur standards.
 
 Options MVP:
 

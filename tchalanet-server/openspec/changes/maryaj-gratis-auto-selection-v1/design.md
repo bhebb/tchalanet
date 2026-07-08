@@ -129,7 +129,7 @@ gratuite disparaît au confirm.
 ## 6. TicketLine promotionnelle (snapshot)
 
 ```text
-gameCode            = HT_MARYAJ_GRATUIT
+gameCode            = HT_MARYAJ_GRATIS
 origin              = PROMOTION
 pricingSource       = PROMOTION
 selectionSource     = AUTO_GENERATED

@@ -7,7 +7,7 @@ Proposed
 ## Goal
 
 Livrer le Maryaj gratuit automatique par tenant : la vente éligible reçoit
-automatiquement une ligne `HT_MARYAJ_GRATUIT` à sélection auto-générée,
+automatiquement une ligne `HT_MARYAJ_GRATIS` à sélection auto-générée,
 régénérable avant confirmation (max 3), figée après confirmation.
 
 Décision centrale (héritée de close-promotion-v1) :
@@ -81,7 +81,7 @@ Template        : seed versionné d'abord ; table template plateforme plus
 - `core.sales` — SelectionGenerationService, SalePreparation, 3 commands,
   TicketLine `selectionSource`, reçu, events.
 - `tchalanet-catalog` — vérification (lecture seule) que les règles de
-  génération de `HT_MARYAJ_GRATUIT` sont exposées au runtime.
+  génération de `HT_MARYAJ_GRATIS` sont exposées au runtime.
 - `tchalanet-app` migrations — colonnes effet + table sale_preparation +
   seed template. Pré-go-live : valider chaque `V*.sql` avant création.
 - Settlement / Payout — aucun changement de comportement : snapshots only

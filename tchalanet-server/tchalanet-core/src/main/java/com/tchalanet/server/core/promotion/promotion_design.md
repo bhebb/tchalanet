@@ -49,7 +49,7 @@ Admin UX implication:
 - "Maryaj gratis" is a preconfigured campaign template and shortcut, not a
   separate promotion subsystem.
 - Admins configure typed campaigns and rules; they do not author a generic DSL.
-- `HT_MARYAJ_GRATUIT` is displayed as a real catalog game because settlement,
+- `HT_MARYAJ_GRATIS` is displayed as a real catalog game because settlement,
   odds and receipt rendering treat it like one.
 
 ---
@@ -256,7 +256,7 @@ promotion_rule
 promotion_rule_eligibility_line
   (game_code = X, min_count = 3)
 promotion_rule_effect
-  (effect_type = FREE_GAME_LINE, game_code = HT_MARYAJ_GRATUIT,
+  (effect_type = FREE_GAME_LINE, game_code = HT_MARYAJ_GRATIS,
    quantity = 1, payout_base_amount = ...)
 campaign window: starts_at / ends_at on promotion_campaign
 ```
@@ -406,7 +406,7 @@ PromotionSelectionResolver   resolves the selection of a free line
 
 ### Maryaj gratuit is a real game
 
-- `HT_MARYAJ_GRATUIT` is a full game in `catalog.game`, with its own
+- `HT_MARYAJ_GRATIS` is a full game in `catalog.game`, with its own
   `game_code`. Its odds are configured by the tenant in `pricing_odds`, like
   any other game.
 - A `FREE_GAME_LINE` line is an ordinary `TicketLine` with `stake = 0`. It
@@ -628,7 +628,7 @@ Implémenté en code versionné (`MaryajGratisDefaultTemplate`) + commande
 
 ```text
 DEFAULT_MARYAJ_GRATIS (seed versionné en code, pas de campagne globale runtime)
-  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATUIT
+  effect = FREE_GAME_LINE, gameCode = HT_MARYAJ_GRATIS
   quantity = paramètre tenant admin, défaut 1
   payoutBaseAmount = paramètre tenant admin, défaut 50 HTG
   choiceMode = paramètre tenant admin, défaut AUTO_GENERATE

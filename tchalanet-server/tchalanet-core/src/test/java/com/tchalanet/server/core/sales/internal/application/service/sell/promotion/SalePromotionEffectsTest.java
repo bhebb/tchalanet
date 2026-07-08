@@ -357,6 +357,37 @@ class SalePromotionEffectsTest {
             assertThat(promoLine.selection().key().value()).isEqualTo("77");
             assertThat(promoLine.selectionSource()).isEqualTo(TicketLineSelectionSource.CUSTOMER_SELECTED);
         }
+
+        @Test
+        @DisplayName("retries generated promotion selection when it duplicates an existing ticket line")
+        void retriesGeneratedSelectionWhenDuplicate() {
+            var freeEffect = new PromotionEffect(
+                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_BOLET",
+                1,
+                new BigDecimal("125"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.NONE
+            );
+            var localFactory = lineFactoryWithSelections("05", "06");
+            var localApplier = new SalePromotionEffectApplier(localFactory, oddsBoostApplier, chargeApplier);
+
+            var result = localApplier.apply(
+                decision(freeEffect),
+                new ArrayList<>(List.of(customerLine())),
+                List.of(),
+                command(),
+                SELLER_TERMINAL_ID,
+                HTG
+            );
+
+            var promoLine = result.ticketLines().get(1);
+            assertThat(promoLine.selection().key().value()).isEqualTo("06");
+            assertThat(promoLine.selectionSource()).isEqualTo(TicketLineSelectionSource.PROMOTION_GENERATED);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -421,6 +452,22 @@ class SalePromotionEffectsTest {
             null,
             TicketLineResultStatus.PENDING,
             money("0")
+        );
+    }
+
+    private static PromotionTicketLineFactory lineFactoryWithSelections(String... selections) {
+        var generated = new ArrayList<>(List.of(selections));
+        return new PromotionTicketLineFactory(
+            () -> UUID.fromString("99000000-0000-0000-0000-000000000001"),
+            SELECTION_STUB,
+            PRICING_QUERY_BUS,
+            new PromotionSelectionResolver((gameCode, betType, betOption, strategy, purpose) -> {
+                if (generated.isEmpty()) {
+                    throw new IllegalStateException("no generated selection left");
+                }
+                var value = generated.removeFirst();
+                return new Selection(SelectionKey.of(value), value);
+            })
         );
     }
 

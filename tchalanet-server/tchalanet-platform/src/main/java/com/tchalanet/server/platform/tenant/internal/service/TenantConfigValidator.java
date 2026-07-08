@@ -68,6 +68,10 @@ public class TenantConfigValidator {
             return;
         }
         var rules = typed.rules();
+        var promotions = rules.promotions();
+        if (promotions != null && promotions.maryajGratisEnabled() == null) {
+            throw new IllegalArgumentException("rules.promotions.maryajGratisEnabled must be a boolean");
+        }
         var cal = rules.businessCalendar();
         if (cal == null) {
             return;

@@ -136,6 +136,19 @@ export class TchBackendClient {
       .pipe(map(unwrapApiResponse));
   }
 
+  deleteWithBody<TResponse, TBody = unknown>(
+    path: string,
+    body: TBody,
+    options?: TchRequestOptions,
+  ): Observable<TResponse> {
+    return this.http
+      .request<ApiResponse<TResponse>>('DELETE', this.url(path), {
+        ...this.resolve(options),
+        body,
+      })
+      .pipe(map(unwrapApiResponse));
+  }
+
   /**
    * Resource de lecture GET — seul point de création de resources backend
    * (les features n'instancient jamais `rxResource`/`httpResource` elles-mêmes).

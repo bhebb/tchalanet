@@ -481,10 +481,12 @@
         "currency": "Currency",
         "defaultCommissionRate": "Default commission",
         "profile": "Profile",
+        "maryajGratisEnabled": "Offer Maryaj gratis",
         "initialAdminEmail": "Initial admin email"
       },
       "hint": {
         "defaultCommissionRate": "Commission applied by default to seller-terminals without a specific rate.",
+        "maryajGratisEnabled": "Shows the Maryaj gratis page in the tenant and adds its setup card.",
         "initialAdminEmail": "Leave empty to create the tenant without an initial administrator."
       },
       "error": {

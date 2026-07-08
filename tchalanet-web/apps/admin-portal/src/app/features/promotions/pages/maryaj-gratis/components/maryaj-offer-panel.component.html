@@ -57,7 +57,7 @@
         <dd>{{ selectionLabel() }}</dd>
       </div>
       <div>
-        <dt>Gain par Maryaj gagnant</dt>
+        <dt>Base de calcul</dt>
         <dd>{{ effectParam('payoutBaseAmount') }} HTG</dd>
       </div>
       <div>
@@ -73,7 +73,7 @@
         </dd>
       </div>
       <div>
-        <dt>Lignes générées</dt>
+        <dt>Maryaj offerts</dt>
         <dd>
           @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
             Paliers configurés · max {{ effectParam('maxQuantity') }}
@@ -100,9 +100,7 @@
         <p class="maryaj-offer__setup-title">
           {{ campaign() ? 'Modifier l’offre Maryaj gratis' : 'Offre Maryaj gratis à activer' }}
         </p>
-        <p class="maryaj-offer__setup-copy">
-          Définissez les gains, paliers et règles de génération appliqués pendant la vente.
-        </p>
+        <p class="maryaj-offer__setup-copy">Paliers, quantité offerte et génération des numéros.</p>
       </div>
     </div>
 
@@ -124,7 +122,7 @@
           <strong>{{ form().controls['quantity'].value }}</strong>
           Maryaj gratuit(s).
         }
-        Gain par Maryaj gagnant :
+        Base utilisée pour le calcul du gain :
         <strong>{{ form().controls['payoutBaseAmount'].value }} HTG</strong>.
       </span>
     </div>
@@ -140,10 +138,6 @@
               : 'Quantité fixe par ticket'
         }}
       </strong>
-      <p>
-        Le total payé du ticket est affiché pendant la saisie. Le backend recalcule le total éligible au moment
-        d'appliquer Maryaj gratis.
-      </p>
     </div>
 
     <form class="maryaj-offer__form" [formGroup]="form()">
@@ -157,17 +151,18 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Gain par Maryaj gagnant</mat-label>
+        <mat-label>Base de calcul</mat-label>
         <input matInput type="number" min="1" step="1" formControlName="payoutBaseAmount" />
         <span matTextSuffix>HTG</span>
+        <mat-hint>Le barème Exact/Reverse du jeu détermine le gain final.</mat-hint>
       </mat-form-field>
 
       @if (form().controls['quantityMode'].value === 'TIERED_PAID_AMOUNT') {
         <div class="maryaj-offer__tiers maryaj-offer__field--wide" formArrayName="quantityTiers">
           <div class="maryaj-offer__tiers-head">
             <div>
-              <p>Paliers de montant payé</p>
-              <span>Exemple : de 100 à 199 HTG donne 1 Maryaj gratis.</span>
+              <p>Paliers de vente</p>
+              <span>Montant payé → Maryaj offerts.</span>
             </div>
             <button mat-stroked-button type="button" (click)="addQuantityTier.emit()">
               <mat-icon>add</mat-icon>
@@ -230,23 +225,36 @@
         </mat-form-field>
       }
 
-      <mat-form-field appearance="outline">
-        <mat-label>Sélection des numéros</mat-label>
-        <mat-select formControlName="choiceMode">
-          <mat-option value="AUTO_GENERATE">Générée automatiquement</mat-option>
-          <mat-option value="SELLER_SELECTS">Choisie par le vendeur</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <section class="maryaj-offer__selection maryaj-offer__field--wide">
+        <div>
+          <span>Numéros Maryaj gratuits</span>
+          <strong>Générés automatiquement par Tchalanet</strong>
+          <p>Le vendeur ne choisit rien sauf si l’option manuelle est activée.</p>
+        </div>
+        <mat-checkbox
+          [checked]="manualSelectionEnabled()"
+          (change)="manualSelectionChange.emit($event.checked)"
+        >
+          Laisser le vendeur choisir les numéros
+        </mat-checkbox>
+      </section>
 
-      <mat-checkbox formControlName="regenerableBeforeConfirm">
-        Le vendeur peut régénérer les numéros avant validation
-      </mat-checkbox>
+      @if (autoGenerationEnabled()) {
+        <mat-checkbox formControlName="regenerableBeforeConfirm">
+          Le vendeur peut régénérer les numéros avant validation
+        </mat-checkbox>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Régénérations autorisées</mat-label>
-        <input matInput type="number" min="0" max="20" step="1" formControlName="maxRegenerationsBeforeConfirm" />
-        <mat-hint>Nombre de fois où les numéros peuvent être recréés avant validation du ticket.</mat-hint>
-      </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Régénérations autorisées</mat-label>
+          <input matInput type="number" min="0" max="20" step="1" formControlName="maxRegenerationsBeforeConfirm" />
+          <mat-hint>Nombre de fois où les numéros peuvent être recréés avant validation du ticket.</mat-hint>
+        </mat-form-field>
+      } @else {
+        <div class="maryaj-offer__manual-note maryaj-offer__field--wide">
+          <mat-icon>person_edit</mat-icon>
+          <span>Les numéros seront saisis par le vendeur; la régénération automatique est désactivée.</span>
+        </div>
+      }
     </form>
 
     <div class="maryaj-offer__actions maryaj-offer__actions--center">

@@ -85,7 +85,11 @@ class TenantBusinessCalendarApiAdapterTest {
     }
 
     private TenantInternalSettings settings(TenantBusinessCalendarRules calendar) {
-        return new TenantInternalSettings(null, null, new TenantInternalRules(calendar), null);
+        return new TenantInternalSettings(
+            null,
+            null,
+            new TenantInternalRules(new TenantInternalRules.TenantPromotionRules(true), calendar),
+            null);
     }
 
     private TenantBusinessCalendarRules calendar(

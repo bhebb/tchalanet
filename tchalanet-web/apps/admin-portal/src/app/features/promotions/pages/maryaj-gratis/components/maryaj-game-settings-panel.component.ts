@@ -20,4 +20,15 @@ export class MaryajGameSettingsPanelComponent {
     if (value === null) return 'Non défini';
     return `${value.toLocaleString('fr')} ${currency}`;
   }
+
+  gainOptionLabel(pricingVariantCode: string | null, fallback: string): string {
+    if (pricingVariantCode === 'MARRIAGE_EXACT_ORDER') return 'Exact';
+    if (pricingVariantCode === 'MARRIAGE_REVERSE_ALLOWED') return 'Reverse';
+    return fallback;
+  }
+
+  oddsLabel(odds: number | null): string {
+    if (odds === null) return 'Non configuré';
+    return `x${odds.toLocaleString('fr')}`;
+  }
 }

@@ -15,8 +15,8 @@
           @if (channelsLoading()) {
             <mat-option disabled>Chargement…</mat-option>
           }
-          @for (ch of channels(); track ch.channelCode) {
-            <mat-option [value]="ch.channelCode">{{ ch.channelName }}</mat-option>
+          @for (ch of channels(); track ch.id) {
+            <mat-option [value]="ch.id">{{ ch.channelName }} · {{ ch.channelCode }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -26,10 +26,10 @@
       <span class="material-symbols-outlined">info</span>
       Règles supportées
     </a>
-    <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannel()">
+    <button mat-stroked-button (click)="reload()" [disabled]="loading() || !selectedChannelId()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
-    @if (!loading() && selectedChannel() && allRows().length > 0) {
+    @if (!loading() && selectedChannelId() && allRows().length > 0) {
       <button
         mat-flat-button
         color="primary"
@@ -49,7 +49,7 @@
       title="Canaux indisponibles"
       message="Impossible de charger les canaux de tirage pour le moment."
     />
-  } @else if (!selectedChannel()) {
+  } @else if (!selectedChannelId()) {
     <div class="limits-child-page__no-target">
       <span class="material-symbols-outlined">info</span>
       Sélectionnez un canal pour voir et configurer ses limites spécifiques.

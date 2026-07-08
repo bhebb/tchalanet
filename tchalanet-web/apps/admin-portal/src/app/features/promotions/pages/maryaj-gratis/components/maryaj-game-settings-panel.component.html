@@ -7,7 +7,7 @@
       <div>
         <p class="maryaj-game-settings__eyebrow">Paramètres du jeu</p>
         <h3 id="maryaj-game-settings-title" class="maryaj-game-settings__title">Maryaj gratuit</h3>
-        <p class="maryaj-game-settings__subtitle">Barème, mises et plafonds utilisés par la vente.</p>
+        <p class="maryaj-game-settings__subtitle">Même logique que Maryaj; seuls le barème gratuit et la génération changent.</p>
       </div>
     </div>
     <div class="maryaj-game-settings__toolbar">
@@ -26,9 +26,19 @@
   @if (game(); as game) {
     <dl class="maryaj-game-settings__grid">
       <div class="maryaj-game-settings__item maryaj-game-settings__item--wide">
-        <dt>Barème de gain</dt>
+        <dt>Options de gain</dt>
         <dd>{{ game.pricingProfileLabel ?? 'Standard' }}</dd>
-        <p>Détermine le gain payé quand le Maryaj gratuit gagne.</p>
+        <p>Exact et Reverse sont supportés par défaut.</p>
+        @if (game.odds.length > 0) {
+          <div class="maryaj-game-settings__odds">
+            @for (odd of game.odds; track odd.pricingVariantCode ?? odd.label) {
+              <span>
+                <strong>{{ gainOptionLabel(odd.pricingVariantCode, odd.label) }}</strong>
+                {{ oddsLabel(odd.odds) }}
+              </span>
+            }
+          </div>
+        }
       </div>
       <div class="maryaj-game-settings__item">
         <dt>Mise minimum</dt>

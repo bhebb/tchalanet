@@ -8,10 +8,13 @@ import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitLineContext;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
-import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
+import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
+import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
+import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
+import com.tchalanet.server.core.sales.internal.application.service.sell.promotion.SalePromotionEffectApplier;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
@@ -48,6 +51,7 @@ public class SalePreparationOrchestrator {
     private final SaleMoneyCalculator saleMoneyCalculator;
     private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
     private final QueryBus queryBus;
+    private final SalePromotionEffectApplier promotionEffectApplier;
 
     public PreparedSale prepareSale(
         SellTicketCommand command,
@@ -65,7 +69,7 @@ public class SalePreparationOrchestrator {
         assertTenantBusinessOpen(ctx, tenantId, now);
 
         if (ctx.sellerTerminalId() != null) {
-            return prepareSaleForSellerTerminal(command, ctx, now, tenantId);
+            return prepareSaleForSellerTerminal(command, ctx, now, tenantId, mode);
         }
 
         throw ProblemRest.forbidden("seller_terminal.actor_required");
@@ -75,7 +79,8 @@ public class SalePreparationOrchestrator {
         SellTicketCommand command,
         TchRequestContext ctx,
         Instant now,
-        TenantId tenantId
+        TenantId tenantId,
+        SaleEvaluationMode mode
     ) {
         var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
         var mergedLines = command.lines();
@@ -92,12 +97,52 @@ public class SalePreparationOrchestrator {
             throw ProblemRest.forbidden("limits.blocked");
         }
 
+        var promotionDecision = evaluatePromotion(command, ctx, tenantId, now, mode, paidLines, money.total().amount());
+        var promoted = promotionEffectApplier.apply(
+            promotionDecision,
+            paidLines,
+            charges,
+            command,
+            ctx.sellerTerminalIdRequired(),
+            command.currency());
+        var finalMoney = saleMoneyCalculator.compute(promoted.ticketLines(), promoted.charges(), command);
+
         return new PreparedSale(
-            draw, now, mergedLines, paidLines, charges, money,
+            draw, now, mergedLines, promoted.ticketLines(), promoted.charges(), finalMoney,
             policyDecision.limits(), policyDecision.autonomy(),
-            policyDecision.requiresApproval(), policyDecision.approvalLevel(), null, null,
-            List.of()
+            policyDecision.requiresApproval(), policyDecision.approvalLevel(), null, promotionDecision,
+            SalesNoticeAssembler.assemble(policyDecision, promoted.charges(), promotionDecision)
         );
+    }
+
+    private com.tchalanet.server.core.promotion.api.model.PromotionDecision evaluatePromotion(
+        SellTicketCommand command,
+        TchRequestContext ctx,
+        TenantId tenantId,
+        Instant now,
+        SaleEvaluationMode mode,
+        List<TicketLine> paidLines,
+        BigDecimal paidTotal
+    ) {
+        return queryBus.ask(new EvaluatePromotionQuery(new PromotionEvaluationContext(
+            tenantId,
+            mode == SaleEvaluationMode.PREVIEW
+                ? PromotionEvaluationPhase.SALE_PREVIEW
+                : PromotionEvaluationPhase.SALE_CONFIRMATION,
+            now,
+            null,
+            List.of(),
+            null,
+            List.of(),
+            ctx.userId(),
+            paidTotal,
+            command.currency().code(),
+            paidLines.stream()
+                .map(line -> line.gameCode().name())
+                .distinct()
+                .toList(),
+            false
+        )));
     }
 
     private SalePolicyDecision evaluateLimits(
