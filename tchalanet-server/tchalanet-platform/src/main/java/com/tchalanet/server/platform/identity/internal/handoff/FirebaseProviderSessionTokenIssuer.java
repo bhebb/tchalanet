@@ -8,10 +8,12 @@ import com.tchalanet.server.platform.identity.internal.persistence.repository.Ap
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnBean(FirebaseAuth.class)
+@Primary
 @RequiredArgsConstructor
 class FirebaseProviderSessionTokenIssuer implements ProviderSessionTokenIssuer {
 

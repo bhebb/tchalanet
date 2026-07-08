@@ -7,6 +7,72 @@ client would. No mocks.
 > **Agents & first-timers: read this whole file before running anything.** The two things
 > that waste the most time are (1) the Keycloak `keycloak-init` cache gotcha and (2)
 > rebuilding the API image. Both are solved below — don't rediscover them.
+>
+> ⚠️ **Sections 5–7 below are legacy (Keycloak + outlet/terminal/seller).** The current
+> model is described in *Current status* immediately below — read that first.
+
+---
+
+## Current status & progress — 2026-07-08
+
+**Domain model (current).** The seller actor is **`SellerTerminal`** (`core.sellerterminal`).
+The old `outlet` / `terminal` / `seller` trio is **removed** — ignore those flows/fixtures.
+Auth is **Firebase only**: `firebase-emulator` locally, real Firebase in prod. **Keycloak is
+decommissioned** (§5 kept only for legacy targets). `TCH_OUTLET_ID` / `TCH_TERMINAL_ID` no
+longer apply.
+
+**Auth providers for tests (`TCH_E2E_AUTH_PROVIDER`).**
+
+| Provider | Signs | Can provision? | Use for |
+|---|---|---|---|
+| `firebase-emulator` | ID tokens via the running emulator | ✅ yes | create seller-terminal, sell, maryaj, limits |
+| `local-jwt` / `local-perf` | HS256 for seeded `super_admin`/`admin`/`cashier` | ❌ read/auth only | read endpoints, perf, RLS/isolation |
+| `keycloak` | password grant | (legacy) | legacy targets only |
+
+Creating a seller-terminal (and anything that mints a login identity) requires a
+**provisioning-capable provider = `firebase-emulator`**. Under `local-jwt` those tests skip
+cleanly; read endpoints (list/summary) still run.
+
+**Done & green.**
+- **`firebase-emulator` provider + full business flow.** `tch_e2e/auth.py` has a
+  `FirebaseEmulatorAuth` provider that mints unsigned (alg=none) Firebase tokens and resolves
+  provisioned users' uids via the emulator (`uid_for_email`). `tests/full_flow/test_provision_to_sale.py`
+  (marker `full_flow`, L2) drives the whole product-owner flow **green, one role at a time**:
+  SUPER_ADMIN provisions a `DEFAULT_HAITI_LOTTERY` tenant + admin → generates/opens draws →
+  admin completes first login, configures maryaj gratis + a stake limit, creates a
+  seller-terminal → a POS sale is ACCEPTED, an over-limit sale is REJECTED, and a TENANT_ADMIN
+  is denied a SUPER_ADMIN endpoint. `scripts_flow/full_flow_driver.py` is the verbose live
+  driver (prints each step) behind the same steps.
+- `tests/seller_terminal/test_seller_terminal.py` — all pass under `firebase-emulator`
+  (create/block/unblock); under `local-jwt` the provisioning ones skip cleanly.
+- Server fixes on this branch: always-registered fallback `ProviderSessionTokenIssuer` (boot
+  fix) + `@Primary` Firebase issuer; `with_tenant` now sends `X-Tch-Tenant-Override` +
+  `X-Tch-Override-Reason` (was the removed `X-Tenant-Id`); `ApiClient.put` added.
+- Locust load harness v1 scaffold — `loadtest/` (see `loadtest/README.md`).
+
+**How the firebase-emulator path works (key facts).**
+- Bring it up: `make up-firebase-emulator` (`:9099`, project `demo-tchalanet-local`), then run
+  the API with `TCH_IDENTITY_PROVIDER=firebase-emulator`, `FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099`,
+  `FIREBASE_PROJECT_ID=demo-tchalanet-local`, bootstrap on, and
+  `TCH_IDENTITY_FIREBASE_BOOTSTRAP_USERS=super_admin,admin,cashier` (bootstrap keys on
+  **username**; its built-in default is emails and matches nothing).
+- Tokens are **unsigned** (`alg=none`), `iss=https://securetoken.google.com/<projectId>`,
+  `aud=<projectId>`. `sub` must equal the FIREBASE external subject.
+- Seeded users provision with firebase uid = app_user id (deterministic). A **provisioned tenant
+  admin** gets a random emulator uid → look it up with `uid_for_email`. A **seller-terminal**'s
+  subject is its `sellerTerminalId` (returned by create).
+- **No terminal binding anymore.** Drive POS as the admin acting-as-terminal: send
+  `X-Tch-Act-As-Terminal: <sellerTerminalId>` and put `sellerTerminalId` in the preview/sell
+  body. (`X-Tch-Client-Type: POS` selects the seller-terminal identity resolver for a genuine
+  seller token.)
+
+**Pending / deferred.**
+- Fully assert the maryaj-gratis **free-line grant** (the campaign is active and
+  `HT_MARYAJ_GRATIS` is offered; the flow sells a paid maryaj line but does not yet drive the
+  free-line promotion decision / `promotionChoices`).
+- Legacy cleanup: `flows/{onboarding,outlet,seller,terminal}.py` + `tests/onboarding/*`.
+- Load harness §3–5, §8–11 (see the OpenSpec `perf-load-testing-locust-v1` tasks).
+- Refresh §5–7 of this README (Keycloak/rebuild) for the Firebase-emulator world.
 
 ---
 

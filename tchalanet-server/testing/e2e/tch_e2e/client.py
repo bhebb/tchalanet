@@ -65,16 +65,22 @@ class ApiClient:
             merged.update(headers)
         return self._client.patch(path, json=json, headers=merged)
 
+    def put(self, path: str, *, json: Any = None, context: OpContext | None = None,
+            headers: Mapping[str, str] | None = None) -> httpx.Response:
+        merged = dict(_ctx_headers(context))
+        if headers:
+            merged.update(headers)
+        return self._client.put(path, json=json, headers=merged)
+
     def delete(self, path: str, *, context: OpContext | None = None) -> httpx.Response:
         return self._client.delete(path, headers=_ctx_headers(context))
 
     def with_tenant(self, tenant_id: str, override_reason: str = "e2e-test") -> "ApiClient":
-        """Return a copy scoped to *tenant_id* via the X-Tenant-Id header.
+        """Return a copy scoped to *tenant_id* via the SUPER_ADMIN tenant override.
 
-        Required for /admin/* endpoints when using a SUPER_ADMIN token — the
-        server reads X-Tenant-Id to populate TchRequestContext.tenantIdSafe().
-        X-Tch-Override-Reason is required by TchContextFilter when a super admin
-        sends X-Tenant-Id (tenant override).
+        Required for /admin/* endpoints when using a SUPER_ADMIN token: the server's
+        EffectiveTenantResolver reads X-Tch-Tenant-Override (valid UUID) plus a non-blank
+        X-Tch-Override-Reason, and requires the platform.tenant.override permission.
         """
         return ApiClient(
             base_url=self.base_url,
@@ -82,7 +88,7 @@ class ApiClient:
             timeout=self.timeout,
             extra_headers={
                 **self.extra_headers,
-                "X-Tenant-Id": tenant_id,
+                "X-Tch-Tenant-Override": tenant_id,
                 "X-Tch-Override-Reason": override_reason,
             },
         )

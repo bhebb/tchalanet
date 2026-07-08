@@ -59,6 +59,82 @@ class E2EAuth(Protocol):
 
 
 @dataclass(frozen=True)
+class FirebaseEmulatorAuth:
+    """Mints unsigned (alg=none) Firebase-shaped tokens for the firebase-emulator provider.
+
+    FirebaseEmulatorJwtDecoderConfig on the server accepts ONLY unsigned tokens whose issuer is
+    ``https://securetoken.google.com/<projectId>`` and whose audience contains ``<projectId>``.
+    The ``sub`` must equal the user's FIREBASE external subject; the server's Firebase bootstrap
+    provisions each user with firebase uid = app_user id, so we reuse the same deterministic
+    subjects as the local provider. Run the API with the emulator + bootstrap first
+    (TCH_IDENTITY_PROVIDER=firebase-emulator, users=super_admin,admin,cashier).
+    """
+
+    project_id: str
+    emulator_host: str
+
+    @classmethod
+    def from_env(cls) -> "FirebaseEmulatorAuth":
+        return cls(
+            project_id=os.environ.get("TCH_FIREBASE_PROJECT_ID", "demo-tchalanet-local").strip(),
+            emulator_host=os.environ.get(
+                "TCH_FIREBASE_EMULATOR_HOST", "127.0.0.1:9099"
+            ).strip(),
+        )
+
+    def password_grant(self, *, username: str, password: str) -> str:
+        del password  # emulator tokens are minted locally, no credential exchange
+        identity = _local_identity(username)
+        return self.mint(subject=identity.subject, email=identity.email)
+
+    def mint(self, *, subject: str, email: str | None = None) -> str:
+        """Mint a token for an arbitrary FIREBASE subject (uid).
+
+        Use for dynamically-provisioned actors: a seller-terminal's subject is its
+        sellerTerminalId (returned by create); a provisioned tenant admin's subject is the
+        emulator-generated uid — resolve it with :meth:`uid_for_email` first.
+        """
+        now = int(time.time())
+        claims = {
+            "iss": f"https://securetoken.google.com/{self.project_id}",
+            "aud": self.project_id,
+            "sub": subject,
+            "user_id": subject,
+            "iat": now,
+            "auth_time": now,
+            "exp": now + 3600,
+            "email_verified": True,
+            "firebase": {"sign_in_provider": "password"},
+        }
+        if email:
+            claims["email"] = email
+            claims["firebase"] = {
+                "identities": {"email": [email]},
+                "sign_in_provider": "password",
+            }
+        return _unsigned_jwt(claims)
+
+    def uid_for_email(self, email: str) -> str:
+        """Look up the emulator-generated uid for *email* (Identity Toolkit query REST)."""
+        url = (
+            f"http://{self.emulator_host}/identitytoolkit.googleapis.com/v1/projects/"
+            f"{self.project_id}/accounts:query"
+        )
+        resp = httpx.post(
+            url, headers={"Authorization": "Bearer owner"}, json={}, timeout=15.0
+        )
+        if resp.status_code != 200:
+            raise RuntimeError(
+                f"Firebase emulator account lookup failed ({resp.status_code}): {resp.text}"
+            )
+        wanted = email.strip().lower()
+        for user in resp.json().get("userInfo", []) or []:
+            if (user.get("email") or "").strip().lower() == wanted:
+                return user["localId"]
+        raise RuntimeError(f"No Firebase emulator user with email {email!r}")
+
+
+@dataclass(frozen=True)
 class LocalJwtAuth:
     issuer: str
     secret: str
@@ -109,8 +185,11 @@ def auth_from_env() -> E2EAuth:
         return KeycloakAuth.from_env()
     if provider in {"local-jwt", "local-perf"}:
         return LocalJwtAuth.from_env()
+    if provider in {"firebase-emulator", "firebase"}:
+        return FirebaseEmulatorAuth.from_env()
     raise RuntimeError(
-        "TCH_E2E_AUTH_PROVIDER must be one of: keycloak, local-jwt, local-perf"
+        "TCH_E2E_AUTH_PROVIDER must be one of: "
+        "keycloak, local-jwt, local-perf, firebase-emulator"
     )
 
 
@@ -155,6 +234,12 @@ def _hs256(claims: dict[str, object], secret: str) -> str:
         secret.encode("utf-8"), signing_input.encode("ascii"), hashlib.sha256
     ).digest()
     return f"{signing_input}.{_b64(signature)}"
+
+
+def _unsigned_jwt(claims: dict[str, object]) -> str:
+    """Encode an alg=none JWT with an empty signature segment (trailing dot)."""
+    header = {"alg": "none", "typ": "JWT"}
+    return f"{_b64_json(header)}.{_b64_json(claims)}."
 
 
 def _b64_json(value: dict[str, object]) -> str:
