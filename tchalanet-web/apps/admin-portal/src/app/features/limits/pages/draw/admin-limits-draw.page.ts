@@ -69,19 +69,19 @@ export class AdminLimitsDrawPage implements OnInit {
   readonly allRows = signal<RuleRow[]>([]);
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
   readonly unassignedRules = computed<LimitRuleSpec[]>(() => this.allRows().filter(r => !r.assignment).map(r => r.spec));
-  readonly selectedChannel = signal<string | null>(null);
+  readonly selectedChannelId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadChannels();
     this.channelCtrl.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(code => {
-        this.selectedChannel.set(code);
+      .subscribe(id => {
+        this.selectedChannelId.set(id);
         this.allRows.set([]);
         this.pageError.set(null);
         this.actionError.set(null);
         this.actionNotice.set(null);
-        if (code) this.loadForChannel(code);
+        if (id) this.loadForChannel(id);
       });
   }
 
@@ -94,7 +94,7 @@ export class AdminLimitsDrawPage implements OnInit {
         this.channels.set(activeChannels);
         this.channelsLoading.set(false);
         if (!this.channelCtrl.value && activeChannels.length > 0) {
-          this.channelCtrl.setValue(activeChannels[0].channelCode);
+          this.channelCtrl.setValue(activeChannels[0].id);
         }
       },
       error: (err: unknown) => {
@@ -109,16 +109,16 @@ export class AdminLimitsDrawPage implements OnInit {
   }
 
   reload(): void {
-    const code = this.selectedChannel();
-    if (code) this.loadForChannel(code);
+    const id = this.selectedChannelId();
+    if (id) this.loadForChannel(id);
   }
 
-  private loadForChannel(channelCode: string): void {
+  private loadForChannel(channelId: string): void {
     this.loading.set(true);
     this.pageError.set(null);
     forkJoin([
       this.api.listRules({ suppressShellFeedback: true }),
-      this.api.listAssignments('DRAW_CHANNEL', channelCode, { suppressShellFeedback: true }),
+      this.api.listAssignments('DRAW_CHANNEL', channelId, { suppressShellFeedback: true }),
     ]).subscribe({
       next: ([rules, view]) => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
@@ -133,27 +133,27 @@ export class AdminLimitsDrawPage implements OnInit {
   }
 
   openAdd(): void {
-    const channelCode = this.selectedChannel();
-    if (!channelCode) return;
+    const channelId = this.selectedChannelId();
+    if (!channelId) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.initAdd(this.unassignedRules(), 'DRAW_CHANNEL', channelCode);
+    ref.componentInstance.initAdd(this.unassignedRules(), 'DRAW_CHANNEL', channelId);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle ajoutée.');
-        this.reloadAssignments(channelCode);
+        this.reloadAssignments(channelId);
       }
     });
   }
 
   openUpsert(row: RuleRow): void {
-    const channelCode = this.selectedChannel();
-    if (!channelCode) return;
+    const channelId = this.selectedChannelId();
+    if (!channelId) return;
     const ref = this.dialog.open(UpsertLimitDialogComponent, { width: '560px', maxWidth: '100vw' });
-    ref.componentInstance.init(row.spec, 'DRAW_CHANNEL', channelCode, row.assignment);
+    ref.componentInstance.init(row.spec, 'DRAW_CHANNEL', channelId, row.assignment);
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('Règle enregistrée.');
-        this.reloadAssignments(channelCode);
+        this.reloadAssignments(channelId);
       }
     });
   }
@@ -161,14 +161,14 @@ export class AdminLimitsDrawPage implements OnInit {
   confirmDelete(row: RuleRow): void {
     if (!row.assignment) return;
     if (!confirm(`Supprimer la règle « ${row.spec.label || row.spec.ruleKey} » ?`)) return;
-    const channelCode = this.selectedChannel();
-    if (!channelCode) return;
+    const channelId = this.selectedChannelId();
+    if (!channelId) return;
     this.actionError.set(null);
     this.actionNotice.set(null);
     this.api.deleteAssignment(row.assignment.id.value, { suppressShellFeedback: true }).subscribe({
       next: () => {
         this.actionNotice.set('Règle supprimée.');
-        this.reloadAssignments(channelCode);
+        this.reloadAssignments(channelId);
       },
       error: (err: unknown) => {
         this.actionError.set(this.resolveError(err, 'admin.limits.draw.delete', 'section'));
@@ -176,8 +176,8 @@ export class AdminLimitsDrawPage implements OnInit {
     });
   }
 
-  private reloadAssignments(channelCode: string): void {
-    this.api.listAssignments('DRAW_CHANNEL', channelCode, { suppressShellFeedback: true }).subscribe({
+  private reloadAssignments(channelId: string): void {
+    this.api.listAssignments('DRAW_CHANNEL', channelId, { suppressShellFeedback: true }).subscribe({
       next: view => {
         const assignMap = new Map(view.items.map(a => [a.ruleKey, a]));
         this.allRows.update(current =>

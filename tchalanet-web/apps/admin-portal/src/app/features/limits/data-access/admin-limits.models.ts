@@ -4,7 +4,10 @@ import type {
   ConsoleLimitTargetType,
 } from '@tch/web/console';
 
-export type TargetType = ConsoleLimitTargetType;
+export type TargetType = Extract<
+  ConsoleLimitTargetType,
+  'TENANT' | 'AGENT' | 'SELLER_TERMINAL' | 'DRAW_CHANNEL'
+>;
 
 export type BreachOutcome = ConsoleLimitBreachOutcome;
 
@@ -113,23 +116,18 @@ const RULE_PARAM_SCHEMAS: Partial<Record<RuleKey, ParamSchema>> = {
   MAX_LINES_PER_TICKET: 'COUNT',
   MAX_STAKE_PER_TICKET: 'CENTS',
   MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
-  MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
   MAX_STAKE_PER_BET_TYPE_PER_TICKET: 'CENTS_BET_TYPE',
   MAX_STAKE_PER_SELECTION_PER_TICKET: 'CENTS',
-  MAX_POTENTIAL_PAYOUT_PER_TICKET: 'CENTS',
-  MAX_POTENTIAL_PAYOUT_PER_LINE: 'CENTS',
   MAX_SALES_COUNT_PER_SELECTION_PER_DRAW: 'COUNT',
   MAX_SALES_COUNT_PER_TICKET: 'COUNT',
   BLOCK_SELECTION_PER_DRAW: 'SELECTION',
   BLOCK_BET_TYPE: 'BET_TYPE',
   MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW: 'WINDOW_COUNT',
   MAX_STAKE_PER_AGENT_PER_DRAW: 'CENTS',
-  MAX_STAKE_PER_OUTLET_PER_DRAW: 'CENTS',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
   TICKET: 'Ticket',
-  PAYOUT_RISK: 'Risque de paiement',
   BLOCKING: 'Blocage',
   EXPOSURE: 'Exposition',
   SELLER: 'Vendeur',
@@ -271,14 +269,8 @@ export function formatLimitSentence(row: RuleRow): string {
       return `${outcome} si un ticket dépasse ${count ?? 'le nombre défini'} ligne(s).`;
     case 'MAX_STAKE_PER_TICKET':
       return `${outcome} si le ticket dépasse ${amount ?? 'le montant défini'}.`;
-    case 'MAX_POTENTIAL_PAYOUT_PER_TICKET':
-      return `${outcome} si le gain potentiel du ticket dépasse ${amount ?? 'le plafond défini'}.`;
-    case 'MAX_POTENTIAL_PAYOUT_PER_LINE':
-      return `${outcome} si le gain potentiel d'une ligne dépasse ${amount ?? 'le plafond défini'}.`;
     case 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW':
       return `${outcome} si la mise cumulée sur un numéro dépasse ${amount ?? 'le plafond défini'} pour un tirage.`;
-    case 'MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW':
-      return `${outcome} si le gain potentiel cumulé sur un numéro dépasse ${amount ?? 'le plafond défini'} pour un tirage.`;
     case 'MAX_SALES_COUNT_PER_SELECTION_PER_DRAW':
       return `${outcome} si un numéro dépasse ${count ?? 'le nombre défini'} vente(s) pour un tirage.`;
     case 'BLOCK_SELECTION_PER_DRAW':
@@ -291,7 +283,6 @@ export function formatLimitSentence(row: RuleRow): string {
 }
 
 function amountLabel(ruleKey: RuleKey): string {
-  if (ruleKey.includes('PAYOUT')) return 'Gain potentiel max';
   if (ruleKey.includes('EXPOSURE')) return 'Mise totale max';
   return 'Montant max';
 }

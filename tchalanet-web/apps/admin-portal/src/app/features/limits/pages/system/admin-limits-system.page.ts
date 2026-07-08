@@ -6,6 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -38,6 +39,7 @@ const SIM_SCOPE_OPTIONS: { value: TargetType; label: string; requiresId: boolean
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatTabsModule,
     MatTableModule,
     TchErrorPanel,
     TchLoading,

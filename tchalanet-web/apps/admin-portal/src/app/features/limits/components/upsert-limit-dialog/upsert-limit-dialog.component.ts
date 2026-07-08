@@ -100,7 +100,6 @@ export class UpsertLimitDialogComponent {
   readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
   readonly amountFieldLabel = computed(() => {
     const ruleKey = this.spec()?.ruleKey ?? '';
-    if (ruleKey.includes('PAYOUT')) return 'Gain potentiel maximum (HTG)';
     if (ruleKey.includes('EXPOSURE')) return 'Mise totale exposée maximum (HTG)';
     return 'Montant maximum (HTG)';
   });

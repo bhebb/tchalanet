@@ -259,6 +259,13 @@
                 "icon": "dashboard"
               },
               {
+                "id": "limits-system",
+                "label_key": "nav.admin.limits_system",
+                "path": "/app/admin/limits/system",
+                "kind": "internal",
+                "icon": "info"
+              },
+              {
                 "id": "limits-global",
                 "label_key": "nav.admin.limits_global",
                 "path": "/app/admin/limits/global",

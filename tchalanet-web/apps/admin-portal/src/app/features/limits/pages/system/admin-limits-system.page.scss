@@ -1,5 +1,13 @@
 @use '../limits-child-page';
 
+.lsp__tabs {
+  --mat-tab-header-divider-height: 0;
+}
+
+.lsp__tabs ::ng-deep .mat-mdc-tab-body-content {
+  padding-top: 1rem;
+}
+
 .lsp__category-title {
   font-weight: var(--tch-weight-semibold, 600);
 }

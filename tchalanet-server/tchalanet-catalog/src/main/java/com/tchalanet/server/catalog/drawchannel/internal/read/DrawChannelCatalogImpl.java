@@ -243,6 +243,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     LocalTime cutoffTime = (drawTime == null) ? null : drawTime.minusSeconds(Math.max(0, cutoffSec));
 
     return new DrawChannelSummaryView(
+        e.getId() == null ? null : e.getId().toString(),
         e.getCode(),
         e.getName(),
         drawTime,
