@@ -619,6 +619,27 @@
         "region": "Région"
       }
     },
+    "support": {
+      "title": "Support",
+      "description": "Envoyez une demande à l’équipe Tchalanet depuis votre espace admin.",
+      "submit": "Envoyer la demande",
+      "reset": "Envoyer une autre demande",
+      "form": {
+        "title": "Demande de support",
+        "description": "Décrivez le problème ou la question. Nous reprendrons contact avec les coordonnées indiquées.",
+        "contactFallback": "Nom, téléphone et email sont optionnels. Si vous ne les renseignez pas, nous utiliserons le contact du compte admin connecté.",
+        "message": "Comment pouvons-nous vous aider ?",
+        "consent": "J’autorise Tchalanet à me contacter au sujet de cette demande."
+      },
+      "success": {
+        "title": "Demande envoyée",
+        "message": "Votre demande de support a été reçue. L’équipe Tchalanet vous contactera dès que possible."
+      },
+      "error": {
+        "title": "Envoi impossible",
+        "message": "La demande n’a pas pu être envoyée. Vérifiez les informations et réessayez."
+      }
+    },
     "onboarding": {
       "title": "Configuration initiale",
       "description": "Complétez les informations nécessaires pour démarrer."

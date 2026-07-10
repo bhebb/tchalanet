@@ -1,8 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -10,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TchPage } from '@tch/api';
-import { TchDrawLabel } from '@tch/ui/components';
+import { TchDrawLabel, TchNotice } from '@tch/ui/components';
 import { consoleTicketDrawIdentity } from '@tch/web/console';
 
 import { AdminCrudShellComponent } from '@tch/ui/console';
@@ -34,6 +35,7 @@ import {
   ticketStatusLabelKey,
   ticketStatusTone,
 } from '../../../../shared/ticket/admin-ticket-status.util';
+import { PosSaleSuccessDialogComponent } from '../../../pos/sale/components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 
 const DEFAULT_PAGE_SIZE = 20;
 const SORT_VALUES = [
@@ -62,6 +64,7 @@ type TicketSort = typeof SORT_VALUES[number];
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     TchDrawLabel,
+    TchNotice,
     TranslatePipe,
     MatButtonModule,
     MatFormFieldModule,
@@ -75,10 +78,13 @@ type TicketSort = typeof SORT_VALUES[number];
 })
 export class AdminTicketsPage {
   private readonly api = inject(AdminTicketsApi);
+  private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt'];
+  readonly columns = ['ticketCode', 'status', 'drawChannelName', 'drawScheduledAt', 'totalAmountCents', 'placedAt', 'actions'];
+  readonly reprintingTicketId = signal<string | null>(null);
+  readonly reprintError = signal<string | null>(null);
   readonly statusOptions = TICKET_STATUS_VALUES;
   readonly sortOptions: readonly { value: TicketSort; labelKey: string }[] = [
     { value: 'createdAt,DESC', labelKey: 'admin.tickets.list.sort.createdDesc' },
@@ -187,6 +193,45 @@ export class AdminTicketsPage {
     return (cents / 100).toFixed(2);
   }
 
+  canReprint(ticket: TicketRowView): boolean {
+    return !!this.sellerTerminalId(ticket) && this.reprintingTicketId() !== ticket.id;
+  }
+
+  reprint(ticket: TicketRowView, event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const sellerTerminalId = this.sellerTerminalId(ticket);
+    if (!sellerTerminalId || this.reprintingTicketId()) return;
+
+    this.reprintingTicketId.set(ticket.id);
+    this.reprintError.set(null);
+
+    this.dialog.open(PosSaleSuccessDialogComponent, {
+      width: 'min(42rem, calc(100vw - 2rem))',
+      data: {
+        mode: 'ticket-actions',
+        sellerTerminalId,
+        totalAmount: ticket.totalAmountCents / 100,
+        currency: ticket.currency,
+        ticket: {
+          ticketId: ticket.id,
+          ticketCode: ticket.ticketCode,
+          publicCode: ticket.publicCode,
+          actionAvailability: {
+            canSell: false,
+            canPrint: true,
+            canSendSms: false,
+            canSendWhatsapp: false,
+            canSendEmail: false,
+            canCopy: true,
+          },
+        },
+      },
+    });
+    this.reprintingTicketId.set(null);
+  }
+
   private navigateList(params: {
     readonly status?: TicketStatus | null;
     readonly q?: string | null;
@@ -201,6 +246,12 @@ export class AdminTicketsPage {
       queryParams: params,
       queryParamsHandling: 'merge',
     });
+  }
+
+  private sellerTerminalId(ticket: TicketRowView): string | null {
+    const value = ticket.sellerTerminalId;
+    if (typeof value === 'string') return value;
+    return value?.value ?? null;
   }
 }
 

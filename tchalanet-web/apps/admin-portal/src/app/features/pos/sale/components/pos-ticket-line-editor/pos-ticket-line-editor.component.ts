@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { TchGameSelectionChip } from '@tch/ui/components';
 
 import {
   PosGameView,
@@ -32,6 +33,7 @@ import {
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
+    TchGameSelectionChip,
   ],
   templateUrl: './pos-ticket-line-editor.component.html',
   styleUrls: ['./pos-ticket-line-editor.component.scss'],
@@ -49,6 +51,8 @@ export class PosTicketLineEditorComponent {
 
   // Draft new line state
   readonly draftSelection = signal('');
+  readonly draftMarriageFirst = signal('');
+  readonly draftMarriageSecond = signal('');
   readonly draftBetType = signal('');
   readonly draftBetOption = signal<number | null>(null);
   readonly draftStake = signal<number | null>(null);
@@ -86,16 +90,36 @@ export class PosTicketLineEditorComponent {
   });
   readonly selectionMaxLength = computed(() => {
     const betType = this.selectedBetType()?.betType ?? '';
-    if (betType === 'MARRIAGE_2D2D') return 5;
     return this.selectionWidth(betType) ?? 12;
+  });
+  readonly isMarriageSelection = computed(() =>
+    this.selectedBetType()?.betType === 'MARRIAGE_2D2D',
+  );
+  readonly selectionGuide = computed(() => {
+    const betType = this.selectedBetType()?.betType ?? '';
+    if (betType === 'MARRIAGE_2D2D') return 'Deux numéros de 2 chiffres';
+    const width = this.selectionWidth(betType);
+    if (width) return `${width} chiffre${width > 1 ? 's' : ''}`;
+    return this.selectedBetType()?.selectionHint ?? 'Numéro';
+  });
+  readonly draftSelectionState = computed((): 'empty' | 'valid' | 'invalid' => {
+    const betType = this.selectedBetType()?.betType ?? '';
+    const raw = this.draftSelectionValue();
+    if (this.isDraftSelectionEmpty()) return 'empty';
+    return this.normalizeSelection(raw, betType) ? 'valid' : 'invalid';
+  });
+  readonly draftSelectionMessage = computed(() => {
+    const betType = this.selectedBetType()?.betType ?? '';
+    if (this.draftSelectionState() === 'valid') return 'Numéro valide';
+    if (this.draftSelectionState() === 'invalid') return this.selectionErrorMessage(betType);
+    return this.selectionGuide();
   });
 
   readonly canAdd = computed(() => {
-    const sel = this.draftSelection().trim();
     const stake = this.draftStake();
     const gameCode = this.selectedGameCode();
     return !this.readonly() &&
-      sel.length > 0 &&
+      !!this.normalizeSelection(this.draftSelectionValue(), this.selectedBetType()?.betType ?? '') &&
       stake !== null &&
       stake > 0 &&
       !!gameCode &&
@@ -106,7 +130,7 @@ export class PosTicketLineEditorComponent {
   readonly duplicateDraftLine = computed(() => {
     const gameCode = this.selectedGameCode();
     const betType = this.selectedBetType();
-    const selection = this.normalizeSelection(this.draftSelection(), betType?.betType ?? '');
+    const selection = this.normalizeSelection(this.draftSelectionValue(), betType?.betType ?? '');
     if (!gameCode || !betType || !selection) return null;
 
     return this.lines().find(line =>
@@ -131,7 +155,7 @@ export class PosTicketLineEditorComponent {
   readonly addError = signal<string | null>(null);
 
   addLine(): void {
-    const sel = this.draftSelection().trim();
+    const sel = this.draftSelectionValue().trim();
     const stake = this.draftStake();
     const gameCode = this.selectedGameCode();
     const betType = this.selectedBetType();
@@ -157,6 +181,8 @@ export class PosTicketLineEditorComponent {
       stakeAmount: stake,
     });
     this.draftSelection.set('');
+    this.draftMarriageFirst.set('');
+    this.draftMarriageSecond.set('');
     this.draftStake.set(null);
   }
 
@@ -166,8 +192,23 @@ export class PosTicketLineEditorComponent {
 
   onBetTypeChange(betType: string): void {
     this.draftBetType.set(betType);
+    this.draftSelection.set('');
+    this.draftMarriageFirst.set('');
+    this.draftMarriageSecond.set('');
     const next = this.betTypes().find(item => item.betType === betType);
     this.draftBetOption.set(next?.requiresOption ? (next.options[0]?.code ?? null) : null);
+  }
+
+  setDraftSelection(value: string): void {
+    this.draftSelection.set(value.replace(/\D/g, ''));
+  }
+
+  setMarriageFirst(value: string): void {
+    this.draftMarriageFirst.set(value.replace(/\D/g, '').slice(0, 2));
+  }
+
+  setMarriageSecond(value: string): void {
+    this.draftMarriageSecond.set(value.replace(/\D/g, '').slice(0, 2));
   }
 
   removeLine(localId: string): void {
@@ -194,9 +235,16 @@ export class PosTicketLineEditorComponent {
   }
 
   private normalizeSelection(selection: string, betType: string): string | null {
+    if (betType === 'MARRIAGE_2D2D') {
+      const match = /^(\d{2})-(\d{2})$/.exec(selection.trim());
+      if (!match) return null;
+      return match[1] === match[2] ? null : `${match[1]}-${match[2]}`;
+    }
+
     const digits = selection.replace(/\D/g, '');
     const width = this.selectionWidth(betType);
     if (!width) return selection.trim();
+    if (this.isLotoBetType(betType) && digits.length !== width) return null;
     if (digits.length === 0 || digits.length > width) return null;
     return digits.padStart(width, '0');
   }
@@ -219,8 +267,33 @@ export class PosTicketLineEditorComponent {
   }
 
   private selectionErrorMessage(betType: string): string {
+    if (betType === 'MARRIAGE_2D2D') {
+      return 'Entrez deux numéros différents de 2 chiffres.';
+    }
     const width = this.selectionWidth(betType);
     if (!width) return 'La sélection est invalide.';
     return `Entrez un numéro de ${width} chiffre${width > 1 ? 's' : ''}.`;
+  }
+
+  private draftSelectionValue(): string {
+    if (this.isMarriageSelection()) {
+      return `${this.draftMarriageFirst()}-${this.draftMarriageSecond()}`;
+    }
+
+    return this.draftSelection();
+  }
+
+  private isDraftSelectionEmpty(): boolean {
+    if (this.isMarriageSelection()) {
+      return !this.draftMarriageFirst() && !this.draftMarriageSecond();
+    }
+
+    return !this.draftSelection().trim();
+  }
+
+  private isLotoBetType(betType: string): boolean {
+    return betType === 'LOTTO3_3D' ||
+      betType === 'LOTTO4_PATTERN' ||
+      betType === 'LOTTO5_PATTERN';
   }
 }

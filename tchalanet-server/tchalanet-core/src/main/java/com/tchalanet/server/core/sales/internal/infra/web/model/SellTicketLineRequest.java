@@ -15,7 +15,7 @@ public record SellTicketLineRequest(
     @NotNull GameCode gameCode,
     @NotNull BetType betType,
     @NotBlank String selection,
-    @NotBlank Short betOption,
+    Short betOption,
     @NotNull @DecimalMin(value = "0.0001") BigDecimal stakeAmount
 ) {
     public SellTicketLineInput toLine() {

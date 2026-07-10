@@ -32,6 +32,38 @@ describe('web app error normalization', () => {
     expect(error.dedupeKey).toContain('access.denied');
   });
 
+  it('uses an allowed legacy ProblemDetail detail as code when the code field is missing', () => {
+    const problem: ProblemDetail = {
+      title: 'Forbidden',
+      status: 403,
+      detail: 'limits.blocked',
+      type: 'about:blank',
+      requestId: 'req-limits',
+    };
+
+    const error = webAppErrorFromProblemDetail(problem, '/api/v1/tenant/sales/preparations');
+
+    expect(error.code).toBe('limits.blocked');
+    expect(error.category).toBe('access_denied');
+    expect(error.dedupeKey).toContain('limits.blocked');
+  });
+
+  it('does not promote arbitrary ProblemDetail detail values to codes', () => {
+    const problem: ProblemDetail = {
+      title: 'Forbidden',
+      status: 403,
+      detail: 'provider.internal_failure',
+      type: 'about:blank',
+      requestId: 'req-provider',
+    };
+
+    const error = webAppErrorFromProblemDetail(problem, '/api/v1/tenant/sales/preparations');
+
+    expect(error.code).toBeUndefined();
+    expect(error.category).toBe('access_denied');
+    expect(error.dedupeKey).not.toContain('provider.internal_failure');
+  });
+
   it('normalizes non-blocking ApiNotice metadata without turning it into an HTTP error', () => {
     const notice: ApiNotice = {
       code: 'platform.identity.activation.error',

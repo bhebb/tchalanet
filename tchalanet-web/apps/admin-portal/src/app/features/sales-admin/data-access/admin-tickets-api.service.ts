@@ -15,6 +15,7 @@ export interface TicketRowView {
   readonly publicCode: string;
   readonly status: TicketStatus;
   readonly drawId: string;
+  readonly sellerTerminalId?: string | { value?: string | null } | null;
   readonly drawChannelCode?: string | null;
   readonly resultSlotKey?: string | null;
   readonly resultProvider?: string | null;
@@ -83,6 +84,17 @@ export interface AdminTicketListParams {
   readonly size?: number;
 }
 
+interface PrintTicketRequest {
+  readonly sellerTerminalId: string;
+  readonly printOptionsRequest: {
+    readonly outputFormat: 'PDF';
+    readonly paperSize: 'RECEIPT_80MM';
+  };
+  readonly recordPrint: boolean;
+  readonly reprintReason: string;
+  readonly deliveryOptions: readonly ['RETURN_FILE'];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminTicketsApi {
   private readonly backend = inject(TchBackendClient);
@@ -123,6 +135,23 @@ export class AdminTicketsApi {
   ): Observable<AdminSoldTicketView> {
     return this.backend.post<AdminSoldTicketView>('/tenant/cashier/tickets/sell', req, options);
   }
+
+  reprint(ticketId: string, sellerTerminalId: string): Observable<Blob> {
+    const request: PrintTicketRequest = {
+      sellerTerminalId,
+      printOptionsRequest: {
+        outputFormat: 'PDF',
+        paperSize: 'RECEIPT_80MM',
+      },
+      recordPrint: false,
+      reprintReason: 'Admin ticket list reprint',
+      deliveryOptions: ['RETURN_FILE'],
+    };
+
+    return this.backend.postBlob(`/tenant/cashier/tickets/${ticketId}/print`, request, {
+      headers: posContextHeaders(sellerTerminalId),
+    });
+  }
 }
 
 function ticketListQueryParams(params: AdminTicketListParams): Record<string, string> {
@@ -136,5 +165,11 @@ function ticketListQueryParams(params: AdminTicketListParams): Record<string, st
     ...(params.to ? { to: params.to } : {}),
     ...(params.fromDate ? { fromDate: params.fromDate } : {}),
     ...(params.toDate ? { toDate: params.toDate } : {}),
+  };
+}
+
+function posContextHeaders(sellerTerminalId: string): Record<string, string> {
+  return {
+    'X-Tch-Act-As-Terminal': sellerTerminalId,
   };
 }

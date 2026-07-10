@@ -78,6 +78,12 @@
             }
           }
         },
+        "limits": {
+          "blocked": {
+            "title": "Sales limit reached",
+            "message": "This sale exceeds a configured limit for this draw or number. Reduce the stake, choose another number, or remove the affected line."
+          }
+        },
         "sales": {
           "acceptable": {
             "title": "Sale ready",

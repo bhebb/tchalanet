@@ -34,10 +34,27 @@ export class AlertsWidget {
     if (!Array.isArray(raw)) return [];
     return raw.filter(isRecord).map(item => ({
       id: stringValue(item['id']) ?? '',
-      title: stringValue(item['title']) ?? stringValue(item['messageKey']) ?? '',
+      title: alertTitleKey(stringValue(item['title']) ?? stringValue(item['messageKey']) ?? ''),
       message: stringValue(item['message']),
       path: stringValue(item['path']),
       severity: stringValue(item['severity']) ?? 'INFO',
     }));
   });
+}
+
+function alertTitleKey(value: string): string {
+  const clean = value.trim();
+  if (!clean || clean.includes('.')) return clean;
+
+  const slug = clean.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (slug === 'closed_draws_pending_results') {
+    return 'dashboard.tenant_admin.alerts.closed_draws_pending_results';
+  }
+  if (slug === 'blocked_seller_terminals') {
+    return 'dashboard.tenant_admin.alerts.blocked_seller_terminals';
+  }
+  if (slug === 'unread_notifications') {
+    return 'dashboard.tenant_admin.alerts.unread_notifications';
+  }
+  return clean;
 }

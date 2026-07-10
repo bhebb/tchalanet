@@ -2,6 +2,7 @@ import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 import {
+  GameLabelPipe,
   LabelPipe,
   WidgetConfig,
   isRecord,
@@ -13,6 +14,7 @@ import {
 
 interface BreakdownItem {
   readonly id: string;
+  readonly gameCode: string | null;
   readonly label: string;
   readonly value: number;
 }
@@ -22,7 +24,7 @@ type ValueFormat = 'number' | 'currency';
 @Component({
   selector: 'tch-breakdown-list-widget',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DecimalPipe, LabelPipe],
+  imports: [CurrencyPipe, DecimalPipe, GameLabelPipe, LabelPipe],
   templateUrl: './breakdown-list.widget.html',
   styleUrl: './breakdown-list.widget.scss',
 })
@@ -48,9 +50,11 @@ export class BreakdownListWidget {
 
     return raw.filter(isRecord).map((item, index) => {
       const value = this.numberAt(item, this.valuePath()) ?? 0;
+      const gameCode = this.stringAt(item, 'gameCode') || null;
       const label = this.stringAt(item, this.labelPath()) || `#${index + 1}`;
       return {
-        id: this.stringAt(item, 'id') || label,
+        id: this.stringAt(item, 'id') || gameCode || label,
+        gameCode,
         label,
         value,
       };

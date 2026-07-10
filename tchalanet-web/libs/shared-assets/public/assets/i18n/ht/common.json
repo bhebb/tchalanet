@@ -12,6 +12,25 @@
       "title": "Paj pa jwenn"
     },
     "unknown": "Enkoni",
+    "game": {
+      "BOLET": "Bolèt",
+      "HT_BOLET": "Bolèt",
+      "MARYAJ": "Maryaj",
+      "HT_MARYAJ": "Maryaj",
+      "HT_MARYAJ_GRATIS": "Maryaj gratis",
+      "HT_MARYAJ_GRATUIT": "Maryaj gratis",
+      "LOTO": "Loto",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "receipt": {
+      "promotion": {
+        "applied": "Pwomosyon aplike",
+        "free_game_line": "Maryaj gratis",
+        "boost_odds": "Kot ogmante"
+      }
+    },
     "placeholder": {
       "title": "Ekran ap prepare",
       "message": "Fonksyonalite sa a pral disponib byento."

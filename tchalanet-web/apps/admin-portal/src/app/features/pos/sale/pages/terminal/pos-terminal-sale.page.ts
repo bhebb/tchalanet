@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
@@ -35,7 +36,7 @@ import { PosSaleApiService } from '../../data-access/pos-sale-api.service';
 import {
   ConfirmTicketSaleRequest,
   ConfirmedTicketView,
-  PreviewTicketSaleView,
+  PreparedTicketSaleView,
   PosGameView,
   PosOpenDrawView,
   PosSellerTerminalView,
@@ -49,9 +50,17 @@ import { PosGameSelectorComponent } from '../../components/pos-game-selector/pos
 import { PosTicketLineEditorComponent } from '../../components/pos-ticket-line-editor/pos-ticket-line-editor.component';
 import { PosTicketPreviewComponent } from '../../components/pos-ticket-preview/pos-ticket-preview.component';
 import { PosTerminalActivityCardComponent } from '../../components/pos-terminal-activity-card/pos-terminal-activity-card.component';
-import { PosSaleSuccessNoticeComponent } from '../../components/pos-sale-success-notice/pos-sale-success-notice.component';
+import {
+  PosSaleSuccessDialogComponent,
+  PosSaleSuccessDialogResult,
+} from '../../components/pos-sale-success-dialog/pos-sale-success-dialog.component';
 
 let lineIdCounter = 0;
+
+type ConfirmedPreparedTicketView = ConfirmedTicketView & {
+  freeLineCount?: number;
+  preparedTotalAmount?: number;
+};
 
 @Component({
   selector: 'tch-pos-terminal-sale-page',
@@ -74,7 +83,6 @@ let lineIdCounter = 0;
     PosTicketLineEditorComponent,
     PosTicketPreviewComponent,
     PosTerminalActivityCardComponent,
-    PosSaleSuccessNoticeComponent,
   ],
   templateUrl: './pos-terminal-sale.page.html',
   styleUrls: ['./pos-terminal-sale.page.scss'],
@@ -84,13 +92,12 @@ export class PosTerminalSalePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
 
   readonly loading = signal(false);
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly saving = signal(false);
-  readonly printing = signal(false);
   readonly saleError = signal<ErrorViewModel | null>(null);
-  readonly printError = signal<ErrorViewModel | null>(null);
   readonly saleNotices = signal<readonly WebAppError[]>([]);
   readonly activityLoading = signal(false);
   readonly sectionErrors = signal<readonly AdminSectionTargetError[]>([]);
@@ -121,6 +128,11 @@ export class PosTerminalSalePage implements OnInit {
   readonly totalAmount = computed(() =>
     this.lines().reduce((sum, l) => sum + l.stakeAmount, 0),
   );
+
+  readonly confirmedFreeLineCount = computed(() => {
+    const ticket = this.confirmedTicket() as ConfirmedPreparedTicketView | null;
+    return ticket?.freeLineCount ?? 0;
+  });
 
   readonly canConfirm = computed(
     () =>
@@ -252,7 +264,6 @@ export class PosTerminalSalePage implements OnInit {
     });
     this.confirmedTicket.set(null);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
   }
 
@@ -262,7 +273,6 @@ export class PosTerminalSalePage implements OnInit {
       : line));
     this.confirmedTicket.set(null);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
   }
 
@@ -270,7 +280,6 @@ export class PosTerminalSalePage implements OnInit {
     this.lines.update(ls => ls.filter(l => l.localId !== localId));
     this.confirmedTicket.set(null);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
   }
 
@@ -278,7 +287,6 @@ export class PosTerminalSalePage implements OnInit {
     this.lines.set([]);
     this.confirmedTicket.set(null);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
   }
 
@@ -290,7 +298,6 @@ export class PosTerminalSalePage implements OnInit {
 
     this.saving.set(true);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
 
     const idempotencyKey = crypto.randomUUID();
@@ -299,38 +306,41 @@ export class PosTerminalSalePage implements OnInit {
     const request = this.ticketSaleRequest(terminalId, draw);
 
     this.api
-      .previewTicketSale(request, terminalId, { suppressShellFeedback: true })
+      .prepareTicketSale(request, terminalId, { suppressShellFeedback: true })
       .pipe(
-        switchMap(preview => {
-          this.saleNotices.set(preview.notices);
+        switchMap(preparation => {
+          this.saleNotices.set(preparation.notices);
 
-          if (!preview.canSell || preview.decision !== 'ACCEPTABLE') {
-            return throwError(() => this.previewRejectedError(preview));
+          if (!preparation.canSell) {
+            return throwError(() => this.preparationRejectedError(preparation));
           }
 
-          return this.api.confirmTicketSale(
-              request,
+          return this.api.confirmPreparedTicketSale(
+              preparation.preparationId,
               idempotencyKey,
               terminalId,
               { suppressShellFeedback: true },
             )
             .pipe(map(ticket => ({
               ...ticket,
-              warnings: [...preview.notices, ...ticket.warnings],
-            } satisfies ConfirmedTicketView)));
+              freeLineCount: preparation.freeLineCount,
+              preparedTotalAmount: preparation.totalAmount,
+              warnings: [...preparation.notices, ...ticket.warnings],
+            } satisfies ConfirmedPreparedTicketView)));
         }),
       )
       .subscribe({
         next: ticket => {
           this.confirmedTicket.set(ticket);
           this.saving.set(false);
-          this.bumpActivityAfterSale();
+          this.bumpActivityAfterSale(ticket);
+          this.openSaleSuccessDialog(ticket);
           const id = this.route.snapshot.paramMap.get('sellerTerminalId') ?? '';
           this.loadActivity(id);
         },
         error: (err: unknown) => {
           const vm = this.errorViewModel(err, 'admin.sellerTerminal.pos.sale');
-          this.saleError.set(isPreviewRejectedViewModel(vm) && this.saleNotices().length > 0
+          this.saleError.set(isPreparationRejectedViewModel(vm) && this.saleNotices().length > 0
             ? null
             : vm);
           this.saving.set(false);
@@ -357,19 +367,18 @@ export class PosTerminalSalePage implements OnInit {
     };
   }
 
-  private previewRejectedError(preview: PreviewTicketSaleView): ErrorViewModel {
-    const instruction = preview.sellerInstruction
-      ?? preview.issues.find(issue => !!issue.sellerInstruction)?.sellerInstruction
-      ?? preview.warning
-      ?? 'Le ticket doit être corrigé avant la vente.';
+  private preparationRejectedError(preparation: PreparedTicketSaleView): ErrorViewModel {
+    const instruction =
+      preparation.notices[0]?.message ??
+      'Le ticket doit être corrigé avant la vente.';
 
     return {
       title: 'Vente à vérifier',
       message: instruction,
-      severity: preview.decision === 'REJECTED_FINAL' ? 'error' : 'warn',
-      source: 'admin.sellerTerminal.pos.preview',
+      severity: preparation.status === 'REJECTED' ? 'error' : 'warn',
+      source: 'admin.sellerTerminal.pos.preparation',
       target: 'admin.sellerTerminal.pos.sale',
-      code: preview.issues[0]?.code ?? preview.decision,
+      code: preparation.status,
       retryable: false,
     };
   }
@@ -377,7 +386,6 @@ export class PosTerminalSalePage implements OnInit {
   resetAfterSale(): void {
     this.confirmedTicket.set(null);
     this.saleError.set(null);
-    this.printError.set(null);
     this.saleNotices.set([]);
     this.lines.set([]);
   }
@@ -402,53 +410,67 @@ export class PosTerminalSalePage implements OnInit {
     return `Ligne ${Number(match[1]) + 1}`;
   }
 
-  private bumpActivityAfterSale(): void {
+  private bumpActivityAfterSale(ticket: ConfirmedTicketView): void {
     const current = this.activity();
     if (!current) return;
     this.activity.set({
       ...current,
       ticketCount: current.ticketCount + 1,
-      salesTotalCents: current.salesTotalCents + Math.round(this.totalAmount() * 100),
+      salesTotalCents: current.salesTotalCents + Math.round(this.saleTotalAmount(ticket) * 100),
     });
   }
 
-  printTicket(ticket: ConfirmedTicketView): void {
+  private openSaleSuccessDialog(ticket: ConfirmedTicketView): void {
     const terminalId = this.sellerTerminal()?.sellerTerminalId;
-    if (!terminalId || !ticket.ticketId || this.printing()) return;
+    if (!terminalId || !ticket.ticketId) return;
 
-    this.printing.set(true);
-    this.printError.set(null);
+    const preparedTicket = ticket as ConfirmedTicketView & {
+      freeLineCount?: number;
+      preparedTotalAmount?: number;
+    };
 
-    this.api.printTicket(ticket.ticketId, terminalId).subscribe({
-      next: blob => {
-        const url = URL.createObjectURL(blob);
-        const opened = window.open(url, '_blank', 'noopener,noreferrer');
-
-        if (!opened) {
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${ticket.ticketCode}.pdf`;
-          link.click();
-        }
-
-        window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-        this.printing.set(false);
+    const ref = this.dialog.open<
+      PosSaleSuccessDialogComponent,
+      {
+        ticket: ConfirmedTicketView;
+        sellerTerminalId: string;
+        totalAmount: number;
+        lineCount: number;
+        freeLineCount: number;
       },
-      error: (err: unknown) => {
-        const vm = this.errorViewModel(err, 'admin.sellerTerminal.pos.print');
-        this.printError.set({
-          ...vm,
-          title: 'Impression non disponible',
-          message: 'Le ticket est vendu, mais le reçu n’a pas pu être imprimé. Réessayez depuis ce ticket.',
-          severity: 'warn',
-        });
-        this.printing.set(false);
+      PosSaleSuccessDialogResult
+    >(PosSaleSuccessDialogComponent, {
+      width: '620px',
+      maxWidth: 'calc(100vw - 2rem)',
+      disableClose: true,
+      data: {
+        ticket,
+        sellerTerminalId: terminalId,
+        totalAmount: this.saleTotalAmount(ticket),
+        lineCount: this.lines().length,
+        freeLineCount: preparedTicket.freeLineCount ?? 0,
       },
+    });
+
+    ref.afterClosed().subscribe(result => {
+      if (result === 'new-ticket') {
+        this.resetAfterSale();
+        return;
+      }
+
+      if (result === 'details') {
+        this.viewTicketDetails(ticket);
+      }
     });
   }
 
   viewTicketDetails(ticket: ConfirmedTicketView): void {
     void this.router.navigate(['/app/admin/pos/tickets', ticket.ticketId]);
+  }
+
+  private saleTotalAmount(ticket: ConfirmedTicketView): number {
+    return (ticket as ConfirmedTicketView & { preparedTotalAmount?: number }).preparedTotalAmount ??
+      this.totalAmount();
   }
 
   goBack(): void {
@@ -495,6 +517,6 @@ function isErrorViewModel(value: unknown): value is ErrorViewModel {
     'severity' in value;
 }
 
-function isPreviewRejectedViewModel(value: ErrorViewModel): boolean {
-  return value.source === 'admin.sellerTerminal.pos.preview';
+function isPreparationRejectedViewModel(value: ErrorViewModel): boolean {
+  return value.source === 'admin.sellerTerminal.pos.preparation';
 }

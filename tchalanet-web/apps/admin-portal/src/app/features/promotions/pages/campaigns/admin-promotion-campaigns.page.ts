@@ -141,7 +141,6 @@ export class AdminPromotionCampaignsPage implements OnInit {
         return [
           `${this.param(item, 'quantity', '1')} ligne(s) gratuite(s)`,
           this.param(item, 'gameCode', 'jeu configuré'),
-          `${this.param(item, 'payoutBaseAmount', '50')} HTG`,
           this.choiceModeLabel(this.param(item, 'choiceMode', 'AUTO_GENERATE')),
         ].join(' · ');
       case 'BOOST_ODDS':

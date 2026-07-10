@@ -56,6 +56,14 @@
     display: block;
     padding: 1rem;
   }
+
+  &__reprint {
+    white-space: nowrap;
+  }
+
+  &__spin {
+    animation: tickets-page-spin 0.9s linear infinite;
+  }
 }
 
 @media (max-width: 720px) {
@@ -68,4 +76,8 @@
       width: 100%;
     }
   }
+}
+
+@keyframes tickets-page-spin {
+  to { transform: rotate(360deg); }
 }

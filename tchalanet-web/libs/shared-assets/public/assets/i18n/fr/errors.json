@@ -78,6 +78,12 @@
             }
           }
         },
+        "limits": {
+          "blocked": {
+            "title": "Limite de vente atteinte",
+            "message": "Cette vente dépasse une limite configurée pour ce tirage ou ce numéro. Réduisez la mise, choisissez un autre numéro ou retirez la ligne concernée."
+          }
+        },
         "sales": {
           "acceptable": {
             "title": "Vente prête",

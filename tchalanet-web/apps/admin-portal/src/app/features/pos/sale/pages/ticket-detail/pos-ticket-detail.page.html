@@ -8,6 +8,22 @@
       <mat-icon>verified</mat-icon>
       Vérifier
     </a>
+    @if (ticket(); as t) {
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!canReprint(t)"
+        (click)="reprint(t)"
+      >
+        @if (reprinting()) {
+          <span class="material-symbols-outlined ticket-detail__spin" aria-hidden="true">progress_activity</span>
+        } @else {
+          <mat-icon>print</mat-icon>
+        }
+        Réimprimer
+      </button>
+    }
   </div>
 
   @if (loading()) {
@@ -21,6 +37,18 @@
       (retry)="load()"
     />
   } @else if (ticket(); as t) {
+    @if (reprintDisabledReason(t); as reason) {
+      <tch-notice type="info" class="ticket-detail__action-notice">
+        {{ reason }}
+      </tch-notice>
+    }
+
+    @if (reprintError(); as message) {
+      <tch-notice type="warning" class="ticket-detail__action-notice">
+        {{ message }}
+      </tch-notice>
+    }
+
     <div class="ticket-detail">
       <aside class="ticket-detail__summary" aria-label="Résumé du ticket">
         <p class="ticket-detail__eyebrow">Résumé</p>
@@ -36,10 +64,12 @@
             <dt>Total payé</dt>
             <dd>{{ amountDisplay(t.totalAmountCents) }} {{ t.currency }}</dd>
           </div>
-          <div>
-            <dt>Gain potentiel</dt>
-            <dd>{{ amountDisplay(t.potentialPayoutCents) }} {{ t.currency }}</dd>
-          </div>
+          @if (freeLineCount(t) > 0) {
+            <div>
+              <dt>Maryaj gratis</dt>
+              <dd>{{ freeLineCount(t) }}</dd>
+            </div>
+          }
           <div>
             <dt>Vendeur</dt>
             <dd>{{ t.sellerDisplayName || '—' }}</dd>
@@ -92,13 +122,17 @@
           <div class="ticket-detail__lines">
             @for (line of t.lines; track line.lineNumber) {
               <article class="ticket-detail__line">
-                <div class="ticket-detail__line-number">{{ line.selection }}</div>
+                <tch-game-selection-chip
+                  class="ticket-detail__line-number"
+                  [gameCode]="line.gameCode"
+                  [selection]="line.selection"
+                />
                 <div class="ticket-detail__line-body">
-                  <h3>{{ line.gameLabel }}</h3>
+                  <h3>{{ gameLabel(line.gameCode, line.gameLabel) }}</h3>
                   <p>{{ line.betTypeLabel }}</p>
                   @if (line.promotional) {
                     <span class="ticket-detail__promo">
-                      {{ line.promotionLabel || 'Promotion appliquée' }}
+                      {{ promotionLabel(line.promotionLabel) }}
                     </span>
                   }
                 </div>

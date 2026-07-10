@@ -124,15 +124,7 @@
   }
 
   &__line-number {
-    display: grid;
-    place-items: center;
-    min-width: 3rem;
-    min-height: 3rem;
-    border-radius: var(--tch-radius-pill, 999px);
-    background: var(--tch-color-primary-container, #141545);
-    color: var(--tch-color-on-primary-container, #fff);
-    font-size: 1.25rem;
-    font-weight: 900;
+    --tch-selection-size: 3rem;
   }
 
   &__line-body {
@@ -200,4 +192,17 @@
       font-weight: 700;
     }
   }
+}
+
+.ticket-detail__action-notice {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.ticket-detail__spin {
+  animation: ticket-detail-spin 0.9s linear infinite;
+}
+
+@keyframes ticket-detail-spin {
+  to { transform: rotate(360deg); }
 }

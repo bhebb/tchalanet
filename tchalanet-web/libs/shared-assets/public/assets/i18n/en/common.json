@@ -12,6 +12,25 @@
       "title": "Page not found"
     },
     "unknown": "Unknown",
+    "game": {
+      "BOLET": "Bòlèt",
+      "HT_BOLET": "Bòlèt",
+      "MARYAJ": "Marriage",
+      "HT_MARYAJ": "Marriage",
+      "HT_MARYAJ_GRATIS": "Free Marriage",
+      "HT_MARYAJ_GRATUIT": "Free Marriage",
+      "LOTO": "Loto",
+      "HT_LOTO3": "Loto 3",
+      "HT_LOTO4": "Loto 4",
+      "HT_LOTO5": "Loto 5"
+    },
+    "receipt": {
+      "promotion": {
+        "applied": "Promotion applied",
+        "free_game_line": "Free Maryaj",
+        "boost_odds": "Boosted odds"
+      }
+    },
     "placeholder": {
       "title": "Screen in preparation",
       "message": "This feature will be connected in a future release."

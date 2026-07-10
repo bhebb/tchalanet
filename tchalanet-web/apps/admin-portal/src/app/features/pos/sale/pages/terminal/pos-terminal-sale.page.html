@@ -167,31 +167,13 @@
       <!-- ── Right : reçu + activité ───────────────────────────────────── -->
       <div class="pos-page__right">
 
-        <!-- Success notice -->
-        @if (confirmedTicket(); as ticket) {
-          <tch-pos-sale-success-notice
-            [ticket]="ticket"
-            [printing]="printing()"
-            (print)="printTicket($event)"
-            (viewDetails)="viewTicketDetails($event)"
-            (newTicket)="resetAfterSale()"
-            (dismissed)="resetAfterSale()"
-          />
-        }
-
-        @if (printError(); as printErrorVm) {
-          <tch-notice type="warning" class="pos-page__print-notice">
-            <strong>{{ printErrorVm.title }}</strong>
-            <span>{{ printErrorVm.message }}</span>
-          </tch-notice>
-        }
-
         <!-- Receipt preview -->
         <tch-pos-ticket-preview
           [sellerTerminal]="sellerTerminal()"
           [draw]="selectedDraw()"
           [lines]="lines()"
           [confirmedTicket]="confirmedTicket()"
+          [freeLineCount]="confirmedFreeLineCount()"
           [games]="games()"
         />
 

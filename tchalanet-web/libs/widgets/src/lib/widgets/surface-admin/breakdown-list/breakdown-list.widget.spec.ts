@@ -41,8 +41,8 @@ describe('BreakdownListWidget', () => {
     expect(cmp.valueFormat()).toBe('currency');
     expect(cmp.currencyCode()).toBe('HTG');
     expect(cmp.items()).toEqual([
-      { id: 'Borlette', label: 'Borlette', value: 1250.75 },
-      { id: 'Maryaj', label: 'Maryaj', value: 250 },
+      { id: 'BOLET', gameCode: 'BOLET', label: 'Borlette', value: 1250.75 },
+      { id: 'MARYAJ', gameCode: 'MARYAJ', label: 'Maryaj', value: 250 },
     ]);
     expect(cmp.total()).toBe(1500.75);
     expect(cmp.percentage(cmp.items()[0])).toBe(83);

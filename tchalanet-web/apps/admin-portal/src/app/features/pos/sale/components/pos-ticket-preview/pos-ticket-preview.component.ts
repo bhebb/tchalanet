@@ -23,6 +23,7 @@ export class PosTicketPreviewComponent {
   readonly draw = input<PosOpenDrawView | null>(null);
   readonly lines = input<PosTicketDraftLine[]>([]);
   readonly confirmedTicket = input<ConfirmedTicketView | null>(null);
+  readonly freeLineCount = input(0);
   readonly games = input<PosGameView[]>([]);
 
   readonly now = new Date();

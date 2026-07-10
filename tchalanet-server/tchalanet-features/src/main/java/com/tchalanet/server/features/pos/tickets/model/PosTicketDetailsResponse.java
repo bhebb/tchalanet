@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.pos.tickets.model;
 
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.api.model.coverage.PotentialGainMode;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
@@ -27,6 +28,7 @@ public record PosTicketDetailsResponse(
     Instant drawScheduledAt,
 
     // ── Seller context ────────────────────────────────────────────────────
+    SellerTerminalId sellerTerminalId,
     String outletName,
     String terminalCode,
     String sellerDisplayName,

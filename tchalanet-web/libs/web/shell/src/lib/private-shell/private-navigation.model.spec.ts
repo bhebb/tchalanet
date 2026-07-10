@@ -1,4 +1,8 @@
-import { PLATFORM_NAVIGATION, TENANT_ADMIN_NAVIGATION } from './private-navigation.model';
+import {
+  PLATFORM_NAVIGATION,
+  TENANT_ADMIN_NAVIGATION,
+  TENANT_ADMIN_USER_GUIDE_URL,
+} from './private-navigation.model';
 
 describe('PLATFORM_NAVIGATION', () => {
   it('groups the Super Admin platform navigation by operational responsibility', () => {
@@ -104,7 +108,6 @@ describe('PLATFORM_NAVIGATION', () => {
       '/app/platform/catalog/result-slots',
       '/app/platform/catalog/result-slot-calendars',
       '/app/platform/catalog/plans',
-      '/app/platform/catalog/pricing',
       '/app/platform/catalog/settings',
       '/app/platform/catalog/themes',
       '/app/platform/catalog/translations',
@@ -139,6 +142,33 @@ describe('PLATFORM_NAVIGATION', () => {
     );
     expect(company?.children?.find(child => child.id === 'company-notifications')?.destination?.value)
       .toBe('/app/admin/notifications');
+  });
+
+  it('points company identity to the business profile and does not expose address separately', () => {
+    const setup = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'setup');
+    const company = TENANT_ADMIN_NAVIGATION[0].items.find(group => group.id === 'company');
+
+    expect(setup?.activeRoutes).not.toContain('/app/admin/business-profile');
+    expect(company?.destination?.value).toBe('/app/admin/business-profile');
+    expect(company?.children?.find(child => child.id === 'company-identity')?.destination?.value)
+      .toBe('/app/admin/business-profile');
+    expect(company?.children?.map(child => child.id)).not.toContain('company-address');
+  });
+
+  it('keeps generic promotions hidden from the V0 tenant admin sidenav', () => {
+    const items = TENANT_ADMIN_NAVIGATION[0].items;
+
+    expect(items.map(item => item.id)).toContain('maryaj-gratis');
+    expect(items.map(item => item.id)).not.toContain('promotions');
+  });
+
+  it('points tenant admin help to the published user guide', () => {
+    const help = TENANT_ADMIN_NAVIGATION[0].items.find(item => item.id === 'help');
+
+    expect(help?.destination).toEqual({
+      kind: 'url',
+      value: TENANT_ADMIN_USER_GUIDE_URL,
+    });
   });
 
   it('exposes tenant page models under my company', () => {

@@ -467,6 +467,27 @@
         "saved": "Address saved successfully."
       }
     },
+    "support": {
+      "title": "Support",
+      "description": "Send a request to the Tchalanet team from your admin workspace.",
+      "submit": "Send request",
+      "reset": "Send another request",
+      "form": {
+        "title": "Support request",
+        "description": "Describe the issue or question. We will contact you using the details provided.",
+        "contactFallback": "Name, phone, and email are optional. If you leave them empty, we will use the signed-in admin account contact.",
+        "message": "How can we help?",
+        "consent": "I authorize Tchalanet to contact me about this request."
+      },
+      "success": {
+        "title": "Request sent",
+        "message": "Your support request has been received. The Tchalanet team will contact you as soon as possible."
+      },
+      "error": {
+        "title": "Unable to send",
+        "message": "The request could not be sent. Check the information and try again."
+      }
+    },
     "sellerTerminals": {
       "title": "Seller-terminals",
       "description": "Manage seller-terminals",
