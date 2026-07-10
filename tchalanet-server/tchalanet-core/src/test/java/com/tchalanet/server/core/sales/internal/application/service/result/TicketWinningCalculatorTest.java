@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -131,6 +132,32 @@ class TicketWinningCalculatorTest {
         void reverseMissingLoses() {
             assertThat(status(GameCode.HT_MARYAJ, BetType.MARRIAGE_2D2D, (short) 2, "36-99", draw))
                 .isEqualTo(TicketLineResultStatus.LOST);
+        }
+
+        @Test
+        @DisplayName("free Maryaj line wins with reverse matching and pays settlement snapshot")
+        void freeMaryajWinsFromSettlementSnapshot() {
+            var line = TicketLine.promotionLine(
+                LINE_ID,
+                2,
+                GameCode.HT_MARYAJ_GRATIS,
+                BetType.MARRIAGE_2D2D,
+                new Selection(SelectionKey.of("17-36"), "17-36"),
+                Money.zero(HTG),
+                money("50"),
+                new BigDecimal("12.5"),
+                money("625"),
+                (short) 2,
+                com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.PROMOTION_GENERATED,
+                PromotionDecisionId.of(UUID.fromString("D1000000-0000-0000-0000-000000000001")),
+                "receipt.promotion.free_game_line",
+                "FREE_GAME_LINE"
+            );
+
+            var result = calculator.computeLineResults(ticket(line, Money.zero(HTG)), draw);
+
+            assertThat(result.get(LINE_ID).status()).isEqualTo(TicketLineResultStatus.WON);
+            assertThat(result.get(LINE_ID).payoutAmount().amount()).isEqualByComparingTo("625");
         }
     }
 
